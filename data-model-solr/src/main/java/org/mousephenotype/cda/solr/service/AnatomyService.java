@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -51,7 +50,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 	}
 
 	public AnatomyService(String anatomyServiceUrl) {
-		this.solr = new HttpSolrClient(anatomyServiceUrl);
+		this.solr = new HttpSolrClient.Builder(anatomyServiceUrl).build();
 	}
 
 	/**

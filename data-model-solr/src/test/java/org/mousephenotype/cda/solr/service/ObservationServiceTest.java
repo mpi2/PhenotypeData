@@ -51,7 +51,7 @@ public class ObservationServiceTest {
 
 		@Bean(name = "experimentCore")
 		HttpSolrClient getExperimentCore() {
-			return new HttpSolrClient(solrBaseUrl + "/experiment");
+			return new HttpSolrClient.Builder(solrBaseUrl + "/experiment").build();
 		}
 
 		@Bean

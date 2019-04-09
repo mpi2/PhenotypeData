@@ -1,10 +1,10 @@
 package org.mousephenotype.cda.indexers.utils;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -40,12 +40,12 @@ public static void main(String [] args) throws JSONException {
 	public DmddRestData getEmbryoRestData() throws JSONException {
 
         
-        String             content       = readEmbryoViewerFile();
-        JSONObject         json          = new JSONObject(content);
-        DmddRestData dmddRestData=new DmddRestData();
-        List<DmddDataUnit> imagedData=new ArrayList<>();
-        JSONObject genes = json.getJSONObject("dmdd_genes");
-        JSONArray imagedArray = genes.getJSONArray("imaged");
+        String             content      = readEmbryoViewerFile();
+        JSONObject         json         = new JSONObject(content);
+        DmddRestData       dmddRestData =new DmddRestData();
+        List<DmddDataUnit> imagedData   =new ArrayList<>();
+        JSONObject         genes        = json.getJSONObject("dmdd_genes");
+        JSONArray          imagedArray  = genes.getJSONArray("imaged");
         for (int i = 0; i < imagedArray.length(); i++) {
             JSONObject jsonObject = imagedArray.getJSONObject(i);
             //System.out.println(jsonObject);

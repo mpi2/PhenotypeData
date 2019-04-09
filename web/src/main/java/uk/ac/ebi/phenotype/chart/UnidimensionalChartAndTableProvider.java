@@ -17,8 +17,6 @@ package uk.ac.ebi.phenotype.chart;
 
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
@@ -35,6 +33,8 @@ import org.mousephenotype.cda.web.ChartType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -177,11 +177,11 @@ public class UnidimensionalChartAndTableProvider {
 	private String createContinuousBoxPlotChartsString(String experimentNumber, Float yMin, Float yMax,ParameterDTO parameter, String yAxisTitle,
 		List<ChartsSeriesElement> chartsSeriesElementsList, ExperimentDTO experiment) throws JSONException {
 
-		JSONArray categories = new JSONArray();
-		String boxPlotObject = "";
-		String seriesData = "";
-		int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
-		int column = 0;
+		JSONArray categories    = new JSONArray();
+		String    boxPlotObject = "";
+		String    seriesData    = "";
+		int       decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
+		int       column        = 0;
 
 		for (ChartsSeriesElement chartsSeriesElement : chartsSeriesElementsList) {
 			// fist get the raw data for each column (only one column per data

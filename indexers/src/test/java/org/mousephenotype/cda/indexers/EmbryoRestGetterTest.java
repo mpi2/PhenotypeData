@@ -1,12 +1,12 @@
 package org.mousephenotype.cda.indexers;
 
-import org.json.JSONException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.config.TestConfigIndexers;
 import org.mousephenotype.cda.indexers.utils.EmbryoRestData;
 import org.mousephenotype.cda.indexers.utils.EmbryoRestGetter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;

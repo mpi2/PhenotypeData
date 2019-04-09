@@ -69,7 +69,7 @@ public class MpServiceTest {
 
 		@Bean(name = "mpCore")
 		HttpSolrClient getSolrCore() {
-			return new HttpSolrClient(solrBaseUrl + "/mp");
+			return new HttpSolrClient.Builder(solrBaseUrl + "/mp").build();
 		}
 
 		@Bean

@@ -1,13 +1,12 @@
 package org.mousephenotype.cda.indexers.configuration;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.*;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
@@ -61,81 +60,81 @@ public class IndexerConfig {
     // Indexers for writing
     @Bean
     SolrClient experimentCore() {
-        return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/experiment", QUEUE_SIZE, THREAD_COUNT);
+        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/experiment").build();
     }
     @Bean
     SolrClient genotypePhenotypeCore() {
-        return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/genotype-phenotype", QUEUE_SIZE, THREAD_COUNT);
+        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/genotype-phenotype").build();
     }
     @Bean
     SolrClient statisticalResultCore() {
-        return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/statistical-result", QUEUE_SIZE, THREAD_COUNT);
+        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/statistical-result").build();
     }
     @Bean
     SolrClient preqcCore() {
-        return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/preqc", QUEUE_SIZE, THREAD_COUNT);
+        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/preqc").build();
     }
     @Bean
     SolrClient alleleCore() {
-        return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/allele", QUEUE_SIZE, THREAD_COUNT);
+        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/allele").build();
     }
     @Bean
     SolrClient sangerImagesCore() {
-        return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/images", QUEUE_SIZE, THREAD_COUNT);
+        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/images").build();
     }
     @Bean
     SolrClient impcImagesCore() {
-        return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/impc_images", QUEUE_SIZE, THREAD_COUNT);
+        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/impc_images").build();
     }
     @Bean
     SolrClient mpCore() {
-        return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/mp", QUEUE_SIZE, THREAD_COUNT);
+        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/mp").build();
     }
     @Bean
     SolrClient anatomyCore() {
-        return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/anatomy", QUEUE_SIZE, THREAD_COUNT);
+        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/anatomy").build();
     }
 
     @Bean
     SolrClient pipelineCore() {
-        return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/pipeline", QUEUE_SIZE, THREAD_COUNT);
+        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/pipeline").build();
     }
 
     @Bean
     SolrClient geneCore() {
-        return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/gene", QUEUE_SIZE, THREAD_COUNT);
+        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/gene").build();
     }
 
     @Bean
     SolrClient allele2Core() {
-        return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/allele2", QUEUE_SIZE, THREAD_COUNT);
+        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/allele2").build();
     }
 
     @Bean
     SolrClient productCore() {
-        return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/product", QUEUE_SIZE, THREAD_COUNT);
+        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/product").build();
     }
 
     // IMPC disease core retired and now points to externall phenodigm
     @Bean
     SolrClient phenodigmCore() {
         // readonly
-        return new HttpSolrClient(solrBaseUrl + "/phenodigm");
+        return new HttpSolrClient.Builder(solrBaseUrl + "/phenodigm").build();
     }
 
     @Bean
     SolrClient autosuggestCore() {
-        return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/autosuggest", QUEUE_SIZE, THREAD_COUNT);
+        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/autosuggest").build();
     }
 
     @Bean
     SolrClient mgiPhenotypeCore() {
-        return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/mgi-phenotype", QUEUE_SIZE, THREAD_COUNT);
+        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/mgi-phenotype").build();
     }
 
     @Bean
     SolrClient gwasCore() {
-        return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/gwas", QUEUE_SIZE, THREAD_COUNT);
+        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/gwas").build();
     }
 
 	// database connections

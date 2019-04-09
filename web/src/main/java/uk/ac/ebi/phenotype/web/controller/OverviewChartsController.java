@@ -16,9 +16,6 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.hibernate.Hibernate;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.impress.Utilities;
@@ -31,6 +28,8 @@ import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
 import org.mousephenotype.cda.solr.web.dto.StackedBarsData;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;

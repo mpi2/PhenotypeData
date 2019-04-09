@@ -84,8 +84,8 @@ public class ExpressionService extends BasicService {
 	public ExpressionService(String experimentSolrUrl, String imagesSolrUrl, String impressServiceUrl,
 			String anatomyServiceUrl) {
 
-		experimentSolr = new HttpSolrClient(experimentSolrUrl);
-		imagesSolr = new HttpSolrClient(imagesSolrUrl);
+		experimentSolr = new HttpSolrClient.Builder(experimentSolrUrl).build();
+		imagesSolr = new HttpSolrClient.Builder(imagesSolrUrl).build();
 		impressService = new ImpressService(impressServiceUrl);
 		anatomyService = new AnatomyService(anatomyServiceUrl);
 	}

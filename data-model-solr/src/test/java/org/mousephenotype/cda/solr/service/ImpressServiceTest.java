@@ -46,7 +46,7 @@ public class ImpressServiceTest {
 
 		@Bean(name = "pipelineCore")
 		HttpSolrClient getPipelineCore() {
-			return new HttpSolrClient(solrBaseUrl + "/pipeline");
+			return new HttpSolrClient.Builder(solrBaseUrl + "/pipeline").build();
 		}
 
 		@Bean

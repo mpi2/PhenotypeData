@@ -69,7 +69,7 @@ public class GeneRowForHeatMapResultService {
 
 
 	public GeneRowForHeatMapResultService(String solrUrl) {
-		solr = new HttpSolrClient(solrUrl);
+		solr = new HttpSolrClient.Builder(solrUrl).build();
 	}
 
 

@@ -70,7 +70,7 @@ public class GeneServiceTest {
 
 		@Bean(name = "geneCore")
 		HttpSolrClient getSolrCore() {
-			return new HttpSolrClient(solrBaseUrl + "/gene");
+			return new HttpSolrClient.Builder(solrBaseUrl + "/gene").build();
 		}
 
 		@Bean

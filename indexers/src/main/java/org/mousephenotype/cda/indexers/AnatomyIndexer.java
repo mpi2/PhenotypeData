@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.core.io.Resource;
 
 import javax.sql.DataSource;
@@ -88,7 +89,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
 
     @Override
-    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
+    public RunStatus run() throws IndexerException {
         
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
@@ -177,7 +178,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
             // Send a final commit
             anatomyCore.commit();
 
-        } catch (SQLException | SolrServerException | IOException e) {
+        } catch (SolrServerException | IOException e) {
             throw new IndexerException(e);
         }
 
@@ -224,7 +225,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
     }
 
-    private void initialiseSupportingBeans() throws IndexerException, SQLException, IOException {
+    private void initialiseSupportingBeans() {
 
         try {
             ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
@@ -233,7 +234,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
             uberonParser = ontologyParserFactory.getUberonParser();
             maUberonEfoMap = AnatomogramMapper.getMapping(maParser, uberonParser, "UBERON", "MA");
 
-        } catch (SQLException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e1) {
+        } catch (SQLException | IOException | OWLOntologyCreationException | OWLOntologyStorageException | JSONException e1) {
             e1.printStackTrace();
         }
     }

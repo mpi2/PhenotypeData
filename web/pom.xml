@@ -56,11 +56,6 @@
             <artifactId>spring-boot-starter-hateoas</artifactId>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.springframework.boot</groupId>-->
-            <!--<artifactId>spring-boot-actuator-docs</artifactId>-->
-        <!--</dependency>-->
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -212,24 +207,12 @@
             <artifactId>spring-aop</artifactId>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.springframework.boot</groupId>-->
-            <!--<artifactId>spring-boot-starter-actuator</artifactId>-->
-        <!--</dependency>-->
-
         <!-- Apache Commons Upload -->
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
             <version>1.3.3</version>
         </dependency>
-
-        <!--&lt;!&ndash; Expose Actuator Metrics for Prometheus &ndash;&gt;-->
-        <!--<dependency>-->
-            <!--<groupId>com.moelholm</groupId>-->
-            <!--<artifactId>prometheus-spring-boot-starter</artifactId>-->
-            <!--<version>1.0.1</version>-->
-        <!--</dependency>-->
 
         <!-- Apache Commons Upload -->
         <dependency>
@@ -275,14 +258,6 @@
             <artifactId>jaxrpc-api</artifactId>
             <version>1.1</version>
         </dependency>
-
-        <!-- View Dependencies -->
-        <!--<dependency>-->
-            <!--<groupId>jstl</groupId>-->
-            <!--<artifactId>jstl</artifactId>-->
-            <!--<version>1.2</version>-->
-            <!--<scope>compile</scope>-->
-        <!--</dependency>-->
 
         <dependency>
             <groupId>com.google.code</groupId>
@@ -334,31 +309,15 @@
             <scope>compile</scope>
         </dependency>
 
-
-
-
-
-
-
-
-
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-config</artifactId>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.springframework.boot</groupId>-->
-            <!--<artifactId>spring-boot-starter-actuator</artifactId>-->
-        <!--</dependency>-->
-
-
-
-
-
-
-
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+        </dependency>
 
     </dependencies>
 

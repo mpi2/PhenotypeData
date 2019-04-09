@@ -16,9 +16,6 @@
 package uk.ac.ebi.phenotype.chart;
 
 import org.apache.commons.lang.WordUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -30,10 +27,11 @@ import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.*;
 
 
@@ -173,17 +171,17 @@ public class TimeSeriesChartAndTableProvider {
 			String title, Map<String, List<DiscreteTimePoint>> lines,
 			String xUnitsLabel, String yUnitsLabel, int decimalPlaces, String organisation, ParameterDTO parameter) {
 
-		JSONArray series = new JSONArray();
-		String seriesString = "";
+		JSONArray  series        = new JSONArray();
+		String     seriesString  = "";
 		Set<Float> categoriesSet = new HashSet<Float>();
-		String mColor = ChartColors.getMutantColor(ChartColors.alphaTranslucid70).replaceAll("'", "");
-		String wtColor = ChartColors.getWTColor(ChartColors.alphaTranslucid70).replaceAll("'", "");
+		String     mColor        = ChartColors.getMutantColor(ChartColors.alphaTranslucid70).replaceAll("'", "");
+		String     wtColor       = ChartColors.getWTColor(ChartColors.alphaTranslucid70).replaceAll("'", "");
 
 		try {
 			for (String key : lines.keySet()) {// key is control hom or het
-				String color = mColor;
+				String     color  = mColor;
 				JSONObject object = new JSONObject();
-				JSONArray data = new JSONArray();
+				JSONArray  data   = new JSONArray();
 				object.put("name", key);
 
 				if (key.contains("WT")){

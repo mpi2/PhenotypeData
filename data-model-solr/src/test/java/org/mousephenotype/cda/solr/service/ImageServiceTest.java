@@ -60,7 +60,7 @@ public class ImageServiceTest {
 
         @Bean(name = "impcImagesCore")
         HttpSolrClient getExperimentCore() {
-            return new HttpSolrClient(solrBaseUrl + "/impc_images");
+            return new HttpSolrClient.Builder(solrBaseUrl + "/impc_images").build();
         }
 
         @Bean

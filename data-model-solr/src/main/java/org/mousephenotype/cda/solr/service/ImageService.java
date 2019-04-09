@@ -38,7 +38,6 @@ import org.mousephenotype.cda.solr.web.dto.ImageSummary;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -707,13 +706,7 @@ public class ImageService implements WebStatus{
 				ObservationDTO.PARAMETER_STABLE_ID + ":" + parameter,
 				ObservationDTO.PROCEDURE_NAME + ":\"" + procedure_name + "\"");
 
-
-			solrQuery.setSort("abs(ms(date_of_experiment,"
-					+ org.apache.solr.common.util.DateUtil
-							.getThreadLocalDateFormat().format(date) + "))",
-					SolrQuery.ORDER.asc);
-
-
+		solrQuery.setSort(ObservationDTO.DATE_OF_EXPERIMENT, SolrQuery.ORDER.asc);
 		solrQuery.setRows(numberOfImagesToRetrieve);
 
 		if (StringUtils.isNotEmpty(metadataGroup)) {

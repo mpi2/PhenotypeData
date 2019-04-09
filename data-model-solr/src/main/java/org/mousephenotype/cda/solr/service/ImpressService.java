@@ -61,7 +61,7 @@ public class ImpressService extends BasicService implements WebStatus {
 
 	public ImpressService(String solr) {
 		super();
-		this.solr = new HttpSolrClient(solr);
+		this.solr = new HttpSolrClient.Builder(solr).build();
 	}
 
 

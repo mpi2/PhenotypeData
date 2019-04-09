@@ -7,8 +7,8 @@ import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -38,7 +38,7 @@ import java.util.Properties;
 @EnableTransactionManagement
 @EnableAutoConfiguration
 @ComponentScan({"org.mousephenotype.cda"})
-@EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"}, multicoreSupport = true)
+@EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
 public class TestConfigIndexers {
 
 	public static final int QUEUE_SIZE = 10000;
@@ -57,7 +57,7 @@ public class TestConfigIndexers {
 
 	// Required for spring-data-solr repositories
 	@Bean
-	public SolrClient solrClient() { return new HttpSolrClient(solrBaseUrl); }
+	public SolrClient solrClient() { return new HttpSolrClient.Builder(solrBaseUrl).build(); }
 
 	@Bean
 	public SolrOperations solrTemplate() { return new SolrTemplate(solrClient()); }
@@ -126,7 +126,7 @@ public class TestConfigIndexers {
 	@Bean
 	@Qualifier("phenodigmIndexingSolrClient")
 	public SolrClient phenodigmCore() {
-		return new ConcurrentUpdateSolrClient(writeSolrBaseUrl + "/phenodigm", QUEUE_SIZE, THREAD_COUNT);
+		return new ConcurrentUpdateSolrClient.Builder(writeSolrBaseUrl + "/phenodigm").build();
 	}
 
 	@Bean

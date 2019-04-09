@@ -5,8 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.boot.web.support.ErrorPageFilter;
 import org.springframework.context.annotation.*;
 import org.springframework.http.CacheControl;
 import org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor;

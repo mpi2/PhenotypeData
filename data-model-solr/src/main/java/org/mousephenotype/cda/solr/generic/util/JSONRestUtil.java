@@ -15,22 +15,19 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.generic.util;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-//import org.springframework.boot.configurationprocessor.json.JSONArray;
-//import org.springframework.boot.configurationprocessor.json.JSONObject;
-//
-//import net.sf.json.JSONArray;
-//import net.sf.json.JSONObject;
-//import net.sf.json.JSONSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 @Component
 public class JSONRestUtil {
@@ -51,9 +48,6 @@ public class JSONRestUtil {
 	 * @throws URISyntaxException
 	 */
 	public static JSONObject getResults(String url) throws IOException, URISyntaxException {
-
-
-	    objectMapper.getFactory().
 
 		log.debug("GETTING CONTENT FROM: " + url);
 
@@ -83,5 +77,4 @@ public class JSONRestUtil {
 				"response").getJSONArray("docs");
 		return docs;
 	}
-
 }

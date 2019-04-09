@@ -19,9 +19,6 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.json.JSONException;
 import org.mousephenotype.cda.db.pojo.Synonym;
 import org.mousephenotype.cda.indexers.beans.MPStrainBean;
 import org.mousephenotype.cda.indexers.beans.ParamProcedurePipelineBean;
@@ -33,7 +30,6 @@ import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.PostQcService;
-//import org.mousephenotype.cda.solr.service.PreQcService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
@@ -50,8 +46,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Connection;
@@ -59,7 +55,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
+
+//import org.mousephenotype.cda.solr.service.PreQcService;
 
 /**
  * @author Matt Pearce

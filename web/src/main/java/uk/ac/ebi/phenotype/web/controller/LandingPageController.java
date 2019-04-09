@@ -1,54 +1,32 @@
 package uk.ac.ebi.phenotype.web.controller;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONException;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
-import org.hibernate.exception.DataException;
-import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.CountTableRow;
-import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
-import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
-import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-
-import net.minidev.json.parser.JSONParser;
-
-// import com.google.common.io.Files;
-
-import uk.ac.ebi.phenotype.bean.LandingPageDTO;
 import uk.ac.ebi.phenotype.chart.AnalyticsChartProvider;
 import uk.ac.ebi.phenotype.chart.CmgColumnChart;
 import uk.ac.ebi.phenotype.chart.ScatterChartAndTableProvider;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
-import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
-
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -57,14 +35,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
+// import com.google.common.io.Files;
 
 
 /**
@@ -199,9 +170,9 @@ public class LandingPageController {
         String baseUrl = request.getAttribute("baseUrl").toString();
         List<String> resources = new ArrayList<>();
         resources.add("IMPC");
-        List<String> anatomyIds = new ArrayList<>(); // corresponding anatomical system, used for images
-        MpDTO mpDTO = null;
-        ArrayList<JSONObject> cmg_genes = null;
+        List<String>          anatomyIds = new ArrayList<>(); // corresponding anatomical system, used for images
+        MpDTO                 mpDTO      = null;
+        ArrayList<JSONObject> cmg_genes  = null;
 
         if (page.equalsIgnoreCase("hearing")) { // Need to decide if we want deafness only or top level hearing/vestibular phen
             mpDTO = mpService.getPhenotype("MP:0005377");
@@ -343,7 +314,7 @@ public class LandingPageController {
     		// reads from /src/main/resources/20171206-CMG-best-phenodigm.json and compose the page
     		BufferedReader in = new BufferedReader(new FileReader(new ClassPathResource(phenotypeOverlapScoreFile).getFile()));
     		if (in != null) {
-    			String json = in.lines().collect(Collectors.joining(" "));
+    			String    json = in.lines().collect(Collectors.joining(" "));
     			JSONArray info = null;
     			try {
     				info = new JSONArray(json);

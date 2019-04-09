@@ -18,18 +18,17 @@ package uk.ac.ebi.phenotype.web.controller;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.json.JSONException;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.AnatomyPageTableRow;
-import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeTableRowAnatomyPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -41,9 +40,7 @@ import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.*;
 
@@ -309,5 +306,3 @@ class ImageNumberComparator implements Comparator<AnatomyPageTableRow> {
         return rowb.getNumberOfImages()-rowa.getNumberOfImages();
     }
 }
-
-

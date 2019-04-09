@@ -49,7 +49,7 @@ public class AutosuggestIndexerOld {
 		System.out.println(solrUrl);
 		
 		
-		HttpSolrClient destServer = new HttpSolrClient(solrUrl + "/autosuggest");
+		HttpSolrClient destServer = new HttpSolrClient.Builder(solrUrl + "/autosuggest").build();
 
 		destServer.deleteByQuery("*:*");
 
@@ -73,11 +73,11 @@ public class AutosuggestIndexerOld {
 			String core = entry.getKey().toString();
 			
 			//HttpSolrClient srcServer = new HttpSolrClient(solrUrl + "/" + core);
-			HttpSolrClient srcServer = new HttpSolrClient(srcSolrUrl + "/" + core);
+			HttpSolrClient srcServer = new HttpSolrClient.Builder(srcSolrUrl + "/" + core).build();
 			
 			if ( core.equals("hp") ){
 				// phenodigm hp_mp mapping
-				srcServer = new HttpSolrClient("http://solrclouddev.sanger.ac.uk/solr/phenodigm");
+				srcServer = new HttpSolrClient.Builder("http://solrclouddev.sanger.ac.uk/solr/phenodigm").build();
 			}
 
 			SolrQuery query = new SolrQuery();

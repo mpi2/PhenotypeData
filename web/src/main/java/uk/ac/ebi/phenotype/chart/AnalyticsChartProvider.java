@@ -15,11 +15,10 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.mousephenotype.cda.db.beans.AggregateCountXYBean;
-import org.mousephenotype.cda.enumerations.SignificantType;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

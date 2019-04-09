@@ -1,9 +1,5 @@
 package org.mousephenotype.cda.solr.service;
 
-import static org.junit.Assert.*;
-
-import javax.validation.constraints.NotNull;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.Test;
@@ -25,10 +21,13 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader=AnnotationConfigContextLoader.class)
@@ -54,14 +53,14 @@ public class OrderServiceTest {
 
 		@Bean(name = "allele2Core")
 		HttpSolrClient getAllele2Core() {
-			return new HttpSolrClient(solrBaseUrl + "/allele2");
+			return new HttpSolrClient.Builder(solrBaseUrl + "/allele2").build();
 		}
 
 		
 
 		@Bean(name = "productCore")
 		HttpSolrClient getProductCore() {
-			return new HttpSolrClient(solrBaseUrl + "/product");
+			return new HttpSolrClient.Builder(solrBaseUrl + "/product").build();
 		}
 
 		

@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
@@ -25,9 +24,6 @@ import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.mousephenotype.cda.db.beans.SecondaryProjectBean;
 import org.mousephenotype.cda.db.dao.SecondaryProjectDAO;
 import org.mousephenotype.cda.solr.SolrUtils;
@@ -36,6 +32,9 @@ import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
 import org.mousephenotype.cda.web.WebStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -209,7 +208,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
 
             return result;
 
-        } catch (SolrServerException | SQLException | IOException | org.json.JSONException e) {
+        } catch (SolrServerException | SQLException | IOException | JSONException e) {
             e.printStackTrace();
         }
 
