@@ -78,7 +78,7 @@ public class SearchController {
 	}
 
 	private String removeSpecialCharacters(String searchString) {
-		Pattern pt = Pattern.compile("[^a-zA-Z0-9]");
+		Pattern pt = Pattern.compile("[^a-zA-Z0-9\\s]");//allow spaces also as well as alpha numeric characters.
         Matcher match= pt.matcher(searchString);
         while(match.find())
         {
