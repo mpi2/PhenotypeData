@@ -70,12 +70,6 @@ public class ExternalAnnotsController {
 	@Autowired
 	private GwasDAO gwasDao;
 
-	@Autowired
-	@Qualifier("admintoolsDataSource")
-	//@Qualifier("admintoolsDataSourceLocal")
-	private DataSource admintoolsDataSource;
-
-
 	/**
 	 * redirect calls to the base url to the gwaslookup page
 	 *
@@ -397,7 +391,7 @@ public class ExternalAnnotsController {
 		return "allelerefedit";
 	}
 
-	@RequestMapping(value = "/alleleref", method = RequestMethod.GET)
+	@RequestMapping(value = "/publications", method = RequestMethod.GET)
 	public String dataTableJsonAlleleRef(
 			HttpServletRequest request,
 			HttpServletResponse response,

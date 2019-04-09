@@ -131,7 +131,7 @@ public class ImageServiceTest {
         int    actualSize;
         String message;
 
-        response = imageService.getImages(acc, parameterStableId, "experimental", 100000, null, null, null, anatomyId, parameterAsscociationValue, null, null);
+        response = imageService.getImages(acc, parameterStableId, "experimental", 100000, null, null, null, anatomyId, parameterAsscociationValue, null, null, null);
 
         expectedSize = 13;          // 26-Oct-2017 (mrelac) As of this date there were 13 images found.
         actualSize   = response.getResults().size();

@@ -46,8 +46,8 @@ public class PhenotypeCallSummarySolr {
 	@Qualifier("postqcService")
 	PostQcService genotypePhenotypeService;
 
-	@Value("drupalBaseUrl")
-	private String drupalBaseUrl;
+	@Value("cmsBaseUrl")
+	private String cmsBaseUrl;
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
@@ -96,7 +96,7 @@ public class PhenotypeCallSummarySolr {
 		for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 
 			// On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
-			DataTableRow pr = new PhenotypePageTableRow(pcs, baseUrl, drupalBaseUrl, false);
+			DataTableRow pr = new PhenotypePageTableRow(pcs, baseUrl, cmsBaseUrl, false);
 
 			// Collapse rows on sex
 			if (phenotypes.containsKey(pr.hashCode())) {

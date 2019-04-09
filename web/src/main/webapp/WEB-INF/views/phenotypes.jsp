@@ -1,24 +1,27 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="t" tagdir="/WEB-INF/tags"%>
-<%@ taglib prefix='fn' uri='http://java.sun.com/jsp/jstl/functions'%>
+         pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
+<%@ taglib prefix='fn' uri='http://java.sun.com/jsp/jstl/functions' %>
 
 <t:genericpage>
 
-	<jsp:attribute name="title">${phenotype.getMpId()} (${phenotype.getMpTerm()}) | IMPC Phenotype Information</jsp:attribute>
+    <jsp:attribute
+            name="title">${phenotype.getMpId()} (${phenotype.getMpTerm()}) | IMPC Phenotype Information</jsp:attribute>
 
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search/mp?kw=*">Phenotypes</a> &raquo; ${phenotype.getMpTerm()}</jsp:attribute>
+    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
+            href="${baseUrl}/search/mp?kw=*">Phenotypes</a> &raquo; ${phenotype.getMpTerm()}</jsp:attribute>
 
-	<jsp:attribute name="header">
+    <jsp:attribute name="header">
 
 	<!-- CSS Local Imports -->
         <link rel="stylesheet" href="${baseUrl}/css/treeStyle.css">
+        <link rel="stylesheet" href="${baseUrl}/css/vendor/font-awesome/font-awesome.min.css"/>
 
 		<script type="text/javascript">
-			var phenotypeId = '${phenotype.getMpId()}';
-			var drupalBaseUrl = '${drupalBaseUrl}';
-		</script>
+            var phenotypeId = '${phenotype.getMpId()}';
+            var cmsBaseUrl = '${cmsBaseUrl}';
+        </script>
 
 		<script type='text/javascript' src="${baseUrl}/js/general/dropDownPhenPage.js?v=${version}"></script>
 		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
@@ -26,428 +29,279 @@
        	<script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
 		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.v3.js"></script>
 		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.layout.js"></script>
+		
+		
+		
+		<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/css/bootstrap-select.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/js/bootstrap-select.min.js"></script>
 
 	</jsp:attribute>
 
 
-	<jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
-
-	<jsp:attribute name="addToFooter">
-
-		<script type="text/javascript">
-			// Stuff dor parent-child. Will be used in parentChildTree.js.
-			var ont_id = '${phenotype.getMpId()}';
-			var ontPrefix = "mp";
-			var page = "phenotypes";
-			var hasChildren = ${hasChildren};
-			var hasParents = ${hasParents};
-		</script>
-    	<script type="text/javascript" src="${baseUrl}/js/parentChildTree.js"></script>
-
-		<div class="region region-pinned">
-	        <div id="flyingnavi" class="block smoothScroll">
-
-				<a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
-
-		        <ul>
-		 	        <li><a href="#top">Phenotype</a></li>
-		            <c:if test="${genePercentage.getDisplay()}">
-		                		<li><a href="#data-summary">Phenotype Association Stats</a></li>
-		            </c:if>
-		            <c:if test="${hasData}">
-		                <li><a href="#gene-variants">Gene Variants</a></li><!-- message comes up in this section so dont' check here -->
-		            </c:if>
-		            <c:if test="${not empty images && fn:length(images) !=0}">
-		                <li><a href="#imagesSection">Images</a></li>
-		            </c:if>
-		        </ul>
-
-		        <div class="clear"></div>
-
-	        </div>
-
-	</div>
-
+    <jsp:attribute name="bodyTag">
+	
 	</jsp:attribute>
-	<jsp:body>
 
-	<div class="region region-content">
-			<div class="block block-system">
-				<div class="content">
-					<div class="node node-gene">
-						<h1 class="title" id="top">Phenotype: ${phenotype.getMpTerm()}
-							<span class="documentation"><a href='' id='summarySection' class="fa fa-question-circle pull-right"></a></span>
-						</h1>
+    <jsp:body>
 
-					<div class="section">
-						<div class="inner">
+        <div class="container data-heading">
+            <div class="row row-shadow">
+                <div class="col-12 no-gutters">
+                    <h2>Phenotype: ${phenotype.getMpTerm()}</h2>
+                </div>
+            </div>
+        </div>
 
-							<div class="half">
-								<c:if test="${not empty phenotype.getMpDefinition()}">
-									<p id="definition" class="with-label"> <span class="label"> Definition</span> ${phenotype.getMpDefinition()} </p>
-								</c:if>
+        <c:if test="${hasData}">
+            <div class="container single single--no-side">
+                <div class="row row-over-shadow">
+                    <div class="col-12 white-bg">
+                        <div class="page-content pt-5 pb-5">
 
-                                <c:if test="${not empty phenotype.getMpTermSynonym()}">
-                                    <div id="synonyms" class="with-label"> <span class="label">Synonyms</span>
-                                        <c:if test='${phenotype.getMpTermSynonym().size() == 1}'>
-
-                                            <c:forEach var="synonym" items="${phenotype.getMpTermSynonym()}" varStatus="loop">
-                                                ${synonym}
-                                                <%--<c:if test="${!loop.last}">,&nbsp;</c:if>--%>
-                                            </c:forEach>
-                                        </c:if>
-
-                                        <c:if test='${phenotype.getMpTermSynonym().size() gt 1}'>
-                                            <c:set var="count" value="0" scope="page"/>
-                                            <ul>
-                                                <c:forEach var="synonym" items="${phenotype.getMpTermSynonym()}" varStatus="loop">
-                                                    <c:set var="count" value="${count + 1}" scope="page"/>
-                                                    <c:if test='${count lt 3}'>
-                                                        <li class='defaultList'>${synonym}</li>
-                                                    </c:if>
-                                                    <li class='fullList'>${synonym}</li>
-                                                </c:forEach>
-                                            </ul>
-                                            <c:if test='${count gt 2}'>
-                                                <span class='synToggle'>Show more</span>
-                                            </c:if>
-                                        </c:if>
+                            <div class="row no-gutters">
+                                <div class="col-8 align-middle">
+                                    <div class="row no-gutters">
+                                        <div class="col-md-2 align-middle text-right pr-1">
+                                            <div class="align-middle font-weight-bold pr-2">Definition</div>
+                                        </div>
+                                        <div class="col-md-10 align-middle">
+                                            <span>${phenotype.getMpDefinition()}</span>
+                                        </div>
                                     </div>
-                                </c:if>
+                                    <c:if test="${not empty phenotype.getMpTermSynonym()}">
+                                        <div class="row no-gutters">
+                                            <div class="col-md-2 align-middle text-right pr-1">
+                                                <div class="align-middle font-weight-bold pr-2">Synonyms</div>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <c:if test='${phenotype.getMpTermSynonym().size() == 1}'>
 
-								<c:if test="${not empty phenotype.getMpNarrowSynonym()}">
-                                    <div id="narrowSynonyms" class="with-label"> <span class="label">Related<br>Synonyms <i class="fa fa-question-circle fa-1x relatedSyn"></i></span>
+                                                    <c:forEach var="synonym" items="${phenotype.getMpTermSynonym()}"
+                                                               varStatus="loop">
+                                                        <span>${synonym}<c:if test="${!loop.last}">,&nbsp;</c:if></span>
+                                                        <c:if test="${!loop.last}">,&nbsp;</c:if>
+                                                    </c:forEach>
+                                                </c:if>
 
-                                        <c:if test='${phenotype.getMpNarrowSynonym().size() == 1}'>
-                                            <c:forEach var="nsynonym" items="${phenotype.getMpNarrowSynonym()}" varStatus="loop">
-                                                ${nsynonym}
-                                                <%--<c:if test="${!loop.last}">,&nbsp;</c:if>--%>
-                                            </c:forEach>
-                                        </c:if>
+                                                <c:if test='${phenotype.getMpTermSynonym().size() gt 1}'>
+                                                    <c:set var="count" value="0" scope="page"/>
 
-                                        <c:if test='${phenotype.getMpNarrowSynonym().size() gt 1}'>
-                                            <c:set var="count" value="0" scope="page"/>
-                                            <ul>
-                                                <c:forEach var="nsynonym" items="${phenotype.getMpNarrowSynonym()}" varStatus="loop">
-                                                    <c:set var="count" value="${count + 1}" scope="page"/>
-                                                    <c:if test='${count lt 3}'>
-                                                      <li class='defaultList'>${nsynonym}</li>
-                                                    </c:if>
-                                                      <li class='fullList'>${nsynonym}</li>
-                                                </c:forEach>
-                                            </ul>
-                                            <c:if test='${count gt 2}'>
-                                                <span class='synToggle'>Show more</span>
-                                            </c:if>
-                                        </c:if>
+                                                    <c:forEach var="synonym" items="${phenotype.getMpTermSynonym()}"
+                                                               varStatus="loop">
+                                                        <c:set var="count" value="${count + 1}" scope="page"/>
+                                                        <span>${synonym}<c:if test="${!loop.last}">,&nbsp;</c:if></span>
+
+                                                    </c:forEach>
+                                                </c:if>
+                                            </div>
+                                        </div>
+                                    </c:if>
+
+                                    <div class="row no-gutters justify-content-around text-center mt-3">
+                                        <a href="#genesAssociations" class="col-sm-4">
+                                            <i class="fal fa-dna mb-1 text-dark" style="font-size: 5em;"></i>
+                                            <span class="page-nav-link">Significant gene associations</span>
+                                        </a>
+                                        <a href="#phenotypeProcedures" class="col-sm-4">
+                                            <i class="fal fa-tasks mb-1 text-dark" style="font-size: 5em;"></i>
+                                            <span class="page-nav-link">The way we measure</span>
+                                        </a>
+                                        <a href="#phenotypeStats" class="col-sm-4">
+                                            <i class="fal fa-chart-line mb-1 text-dark" style="font-size: 5em;"
+                                               data-toggle="tooltip"
+                                               data-placement="top"></i>
+                                            <span class="page-nav-link">Phenotype stats</span>
+                                        </a>
                                     </div>
-								</c:if>
-								<%--<c:if test="${not empty phenotype.getHpTerm()}">--%>
-									<%--<div id="mappedHpTerms" class="with-label"> <span class="label">Computationally mapped HP term</span>--%>
-										<%--<ul>--%>
-											<%--<c:forEach var="hpTerm" items="${phenotype.getHpTerm()}" varStatus="loop">--%>
-												<%--<li>${hpTerm}</li>--%>
-												<%--<c:if test="${loop.last}">&nbsp;</c:if>--%>
-											<%--</c:forEach>--%>
-										<%--</ul>--%>
-									<%--</div>--%>
-								<%--</c:if>--%>
+                                </div>
+                                <div class="col-lg-4 justify-content-center text-center text-primary"
+                                     style="font-size: 2.5em; font-weight: bolder; line-height: 1.0;">
+                                    <!--div class="row no-gutters">
+                                        <div class="col-4"><i class="fal fa-dna"></i></div>
+                                        <div class="col-4"><i class="fal fa-venus"></i></div>
+                                        <div class="col-4"><i class="fal fa-mars"></i></div>
+                                    </div-->
+                                    <div class="row no-gutters mt-3">
+                                        <div class="col-4">
+                                            <div><span id="percentageOfGenes">0</span><span id="percentageOfGenesSign">%</span></div>
+                                            <div style="font-size: small; font-weight: lighter;">of tested genes</div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div id="numberOfSignificantGenes">0</div>
+                                            <div style="font-size: small; font-weight: lighter;">significant genes</div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div id="numberOfGenes">0</div>
+                                            <div style="font-size: small; font-weight: lighter;">tested genes</div>
+                                        </div>
+                                        <%--div class="col-4">
+                                            <div><span id="percentageOfFemales">0</span><span id="percentageOfFemalesSign">%</span></div>
+                                            <div style="font-size: small; font-weight: lighter;">of tested females</div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div><span id="percentageOfMales">0</span><span id="percentageOfMalesSign">%</span></div>
+                                            <div style="font-size: small; font-weight: lighter;">of tested males</div>
+                                        </div--%>
+                                    </div>
+                                    <%--div class="row no-gutters text-center text-info mt-5">
+                                        <div class="col-4">
+                                            <div id="numberOfGenes">0</div>
+                                            <div style="font-size: small; font-weight: lighter;">tested genes</div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div id="numberOfSignificantGenes">0</div>
+                                            <div style="font-size: small; font-weight: lighter;">significant genes</div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div id="numberOfMeasumeasurements">0</div>
+                                            <div style="font-size: small; font-weight: lighter;">measurement types</div>
+                                        </div>
+                                    </div>
+                                </div--%>
+                            </div>
+                            <div class="row no-gutters mt-5">
+                                <h4 id="genesAssociations">IMPC Gene variants with ${phenotype.getMpTerm()}</h4>
+                                <jsp:include page="phenotypes_gene_variant_frag.jsp"></jsp:include>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </c:if>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-12 no-gutters">
+                    <h3 id="phenotypeProcedures"><i class="fas fa-tasks"></i>&nbsp;The way we measure</h3>
+                </div>
+            </div>
+        </div>
+        <div class="container single single--no-side">
+            <div class="row">
+                <div class="col-12 white-bg">
+                    <div class="page-content pt-5 pb-5">
+                        <jsp:include page="phenotypes_summary_frag.jsp"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <c:if test="${genePercentage.getDisplay()}">
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 no-gutters">
+                        <h3 id="phenotypeStats"><i class="fas fa-chart-line"></i>&nbsp;Phenotype associations stats</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container single single--no-side">
+                <div class="row">
+                    <div class="col-12 white-bg">
+                        <div class="page-content pt-5 pb-5">
+                            <jsp:include page="phenotypes_ass_stats_frag.jsp"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </c:if>
 
 
-								<c:if test="${not empty procedures}">
-									<div id="procedures" class="with-label"> <span class="label">Procedure</span>
-										<ul>
-										<c:set var="count" value="0" scope="page"/>
-											<c:forEach var="procedure" items="${procedures}" varStatus="firstLoop">
-		 										<c:set var="count" value="${count+1}" />
-		 										<c:set var="hrefVar" value="${drupalBaseUrl}/impress/protocol/${procedure.procedureStableKey}"/>
-		 										<c:if test="${fn:contains(procedure.procedureStableId,'M-G-P')}">
-		 											<c:set var="hrefVar" value="${drupalBaseUrl}/impress/parameters/${procedure.procedureStableKey}/4"/>
-		 										</c:if>
-		  										<li><a href="${hrefVar}">
-		  											${procedure.procedureName} (${procedure.procedureStableId.split("_")[0]},
-		  											v${procedure.procedureStableId.substring(procedure.procedureStableId.length()-1, procedure.procedureStableId.length())})
-		  										</a></li>
-			 									<c:if test="${count==3 && !firstLoop.last}"><p ><a id='show_other_procedures'><i class="fa fa-caret-right"></i><span id="procedureToogleLink">Show more</span></a></p> <div id="other_procedures"></c:if>
-												<c:if test="${firstLoop.last && fn:length(procedures) > 3}"></c:if>
-											</c:forEach>
-										</ul>
-									</div>
-								</c:if>
+        <script type="text/javascript">
+            $('document').ready(function () {
 
-								<p id="mpId" class="with-label"><span class="label">MP browser</span><a href="${baseUrl}/ontologyBrowser?termId=${phenotype.getMpId()}">${phenotype.getMpId()}</a></p>
-								<c:if test="${!hasData}">
-									<p>This MP term has not been considered for annotation in <a href="https://www.mousephenotype.org/impress">IMPReSS</a>. However, you can search and retrieve all MP terms currently associated to the Knock-out mutant lines from the <a href="${baseUrl}/search">IMPC Search</a> page. You can also look at all the MP terms used to annotate the IMPReSS SOPs from the <a href="https://www.mousephenotype.org/impress/ontologysearch">IMPReSS ontology search</a> page.</p>
-								</c:if>
+                var whatIsRelatedSyn = "Related synonyms are mostly terms of the Human Phenotype Ontology that are mapped to an mammalian phenotype (MP) term. Occasionally, they may be children of the current MP term.";
+                var number = 0;
+                var animatedNumbers = {
+                    percentageOfGenes: ${genePercentage.getTotalPercentage()},
+                    percentageOfFemales: ${genePercentage.getFemalePercentage()},
+                    percentageOfMales: ${genePercentage.getMalePercentage()},
+                    numberOfGenes: ${genePercentage.getTotalGenesTested()},
+                    numberOfSignificantGenes: ${genePercentage.getTotalGenesAssociated()},
+                    numberOfMeasumeasurements: ${parametersAssociated.size()},
+                };
+                var intervals = {};
+                var counters = {
+                    percentageOfGenes: 0,
+                    percentageOfFemales: 0,
+                    percentageOfMales: 0,
+                    numberOfGenes: 0,
+                    numberOfSignificantGenes: 0,
+                    numberOfMeasumeasurements: 0,
+                };
+                $("#proceduresTable").dataTable(
+                    {
+                        "bFilter":false,
+                        "bLengthChange": false
+                    }
+                );
+                Object.keys(animatedNumbers).forEach(key => {
 
-		                        <c:if test="${orderPossible}">
-		                          	<p> <a class="btn" href="#order2"> <i class="fa fa-shopping-cart"></i> Order </a> </p>
-		                        </c:if>
-							</div>
+                    intervals[key] = setInterval(function () {
+                        if(isNaN(animatedNumbers[key])) {
+                            clearInterval(intervals[key]);
+                            $('#' + key).text("-");
+                            $('#' + key + "Sign").text("");
+                        } else {
+                            $('#' + key).text(Math.floor(counters[key]));
+                            if (counters[key] >= animatedNumbers[key]) {
+                                clearInterval(intervals[key]);
+                                $('#' + key).text(animatedNumbers[key]);
+                            }
+                            counters[key] = counters[key] + (animatedNumbers[key] / 250);
+                        }
+                    }, 1);
 
-							<div id="parentChild" class="half">
-									<c:if test="${hasChildren && hasParents}">
-		                            	<div class="half" id="parentDiv"></div>
-										<div class="half" id="childDiv"></div>
-									</c:if>
-									<c:if test="${hasChildren && !hasParents}">
-										<div id="childDiv"></div>
-									</c:if>
-									<c:if test="${!hasChildren && hasParents}">
-		                            	<div id="parentDiv"></div>
-									</c:if>
-							</div>
-
-							<div class="clear"></div>
-						</div><!--  closing off inner here - but does this look correct in all situations- because of complicated looping rules above? jW -->
-				</div>
-
-
-				<c:if test="${genePercentage.getDisplay()}">
-					<div class="section">
-						<h2 class="title" id="data-summary">Phenotype associations stats <span class="documentation" ><a href='' id='phenotypeStatsSection' class="fa fa-question-circle pull-right"></a></span> </h2>
-						<div class="inner">
-							<!-- Phenotype Assoc. summary -->
-
-
-							<c:if test="${parametersAssociated.size() == 0}">
-
-									<c:if test="${genePercentage.getTotalGenesTested() > 0}">
-										<p> <span class="muchbigger">${genePercentage.getTotalPercentage()}%</span> of tested genes with null mutations on a B6N genetic background have a phenotype association to ${phenotype.getMpTerm()}
-										(${genePercentage.getTotalGenesAssociated()}/${genePercentage.getTotalGenesTested()}) </p>
-									</c:if>
-									<p>
-									<c:if test="${genePercentage.getFemaleGenesTested() > 0}">
-										<span class="padleft"><span class="bigger">${genePercentage.getFemalePercentage()}%</span> females (${genePercentage.getFemaleGenesAssociated()}/${genePercentage.getFemaleGenesTested()}) </span>
-									</c:if>
-									<c:if test="${genePercentage.getMaleGenesTested() > 0}">
-										<span class="padleft"><span class="bigger">${genePercentage.getMalePercentage()}%</span> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</span>
-									</c:if>
-									</p>
-
-
-							</c:if>
-							<c:if test="${parametersAssociated.size() > 0}">
-
-									<c:if test="${genePercentage.getTotalGenesTested() > 0}">
-										<p> <span class="muchbigger">${genePercentage.getTotalPercentage()}%</span> of tested genes with null mutations on a B6N genetic background have a phenotype association to ${phenotype.getMpTerm()}
-										(${genePercentage.getTotalGenesAssociated()}/${genePercentage.getTotalGenesTested()}) </p>
-									</c:if>
-									<p>
-									<c:if test="${genePercentage.getFemaleGenesTested() > 0}">
-										<span class="padleft"><span class="bigger">${genePercentage.getFemalePercentage()}%</span> females (${genePercentage.getFemaleGenesAssociated()}/${genePercentage.getFemaleGenesTested()}) </span>
-									</c:if>
-									<c:if test="${genePercentage.getMaleGenesTested() > 0}">
-										<span class="padleft"><span class="bigger">${genePercentage.getMalePercentage()}%</span> males (${genePercentage.getMaleGenesAssociated()}/${genePercentage.getMaleGenesTested()}) 	</span>
-									</c:if>
-									</p>
-
-
-
-							</c:if>
-
-
-							<!-- baseline charts -->
-							<c:if test="${parametersAssociated.size() > 0}">
-								<c:if test="${parametersAssociated.size() > 1}">
-										<p> Select a parameter <i class="fa fa-bar-chart-o" ></i>&nbsp; &nbsp;
-											<select class="overviewSelect" onchange="ajaxToBe('${phenotype.getMpId()}', this.options[this.selectedIndex].value);">
-												<c:forEach var="assocParam" items="${parametersAssociated}" varStatus="loop">
-													<option value="${assocParam.getStableId()}">${assocParam.getName()} (${assocParam.getStableId()})</option>
-												</c:forEach>
-											</select>
-										</p>
-									</c:if>
-									<div id="baselineChart"></div>
-										<c:if test="${parametersAssociated.size() > 0}">
-												<div id="chartsHalfBaseline" class="half">
-												<%-- <c:if test="${parametersAssociated.size() > 1}">
-													<p> Select a parameter <i class="fa fa-bar-chart-o" ></i>&nbsp; &nbsp;
-														<select class="overviewSelect" onchange="ajaxToBeBaseline('${phenotype.getMpId()}', this.options[this.selectedIndex].value);">
-															<c:forEach var="assocParam" items="${parametersAssociated}" varStatus="loop">
-																<option value="${assocParam.getStableId()}">${assocParam.getName()} (${assocParam.getStableId()})</option>
-															</c:forEach>
-														</select>
-													</p>
-												</c:if> --%>
-												<br/>
-
-												<div id="baseline-chart-container">
-													<div id="baseline-chart-div" class="baselineChart" parameter="${parametersAssociated.get(0).getStableId()}" mp="${phenotype.getMpId()}">
-													</div>
-													<div id="spinner-baseline-charts"><i class="fa fa-refresh fa-spin"></i></div>
-												</div>
-
-												<div id='baseline-chartFilters'></div>
-
-											</div>
-										</c:if>
-
-
-
-
-
-
-
-
-								<!-- Overview Graphs -->
-								<c:if test="${parametersAssociated.size() > 0}">
-								<div id="chartsHalf" class="half">
-
-									<br/>
-
-									<div id="chart-container">
-										<div id="single-chart-div" class="oChart" parameter="${parametersAssociated.get(0).getStableId()}" mp="${phenotype.getMpId()}">
-										</div>
-										<div id="spinner-overview-charts"><i class="fa fa-refresh fa-spin"></i></div>
-									</div>
-
-									<div id='chartFilters'></div>
-
-								</div>
-							</c:if>
-						</c:if>
-							<div class="clear"></div>
-					</div>
-				</div>
-			</c:if>
-
-			<c:if test="${hasData}">
-				<div class="section">
-
-			    <h2 class="title" id="gene-variants"><a name="hasGeneVariants">Gene variants with ${phenotype.getMpTerm()}</a>
-			    <span class="documentation" ><a href='' id='geneVariantSection' class="fa fa-question-circle pull-right"></a></span>
-			    </h2>
-
-					<div class="inner">
-
-						<c:if test="${errorMessage != null}">
-							<div class="alert alert-info"><p>${errorMessage}</p></div>
-						</c:if>
-
-						<div id="phenotypesDiv">
-							<div class="container span12">
-								<c:forEach var="filterParameters" items="${paramValues.fq}">
-									${filterParameters}
-								</c:forEach>
-								<c:if test="${not empty phenotypes}">
-									<form class="tablefiltering no-style" id="target" action="">
-											<c:forEach var="phenoFacet" items="${phenoFacets}" varStatus="phenoFacetStatus">
-													<select id="${phenoFacet.key}" class="impcdropdown"	multiple="multiple" title="Filter on ${phenoFacet.key}">
-														<c:forEach var="facet" items="${phenoFacet.value}">
-															<option>${facet.key}</option>
-														</c:forEach>
-													</select>
-											</c:forEach>
-
-											<div class="clear"></div>
-									</form>
-
-									<jsp:include page="geneVariantsWithPhenotypeTable.jsp"/>
-
-									<br/>
-									<div id="export">
-										<p class="textright">
-											Download data as:
-											<a id="tsvDownload" href="${baseUrl}/phenotypes/export/${phenotype.getMpId()}?fileType=tsv&fileName=${phenotype.getMpTerm()}" target="_blank" class="button fa fa-download">TSV</a>
-											<a id="xlsDownload" href="${baseUrl}/phenotypes/export/${phenotype.getMpId()}?fileType=xls&fileName=${phenotype.getMpTerm()}" target="_blank" class="button fa fa-download">XLS</a>
-										</p>
-									</div>
-							</c:if>
-							</div>
-							<c:if test="${empty phenotypes}">
-								<div class="alert alert-info"> Phenotype associations to genes and alleles will be available once data has completed quality control.</div>
-							</c:if>
-						</div>
-					</div>
-				</div><!-- end of section -->
-
-			</c:if>
-
-			<!-- example for images on phenotypes page: http://localhost:8080/phenotype-archive/phenotypes/MP:0000572 -->
-			<!--  old sanger images section should be replaced by PHIS route soon so we could delete this soon!!!??? -->
-			<c:if test="${not empty images && fn:length(images) !=0}">
-				<div class="section" id="imagesSection">
-						<h2 class="title" id="section">Images <i
-									class="fa fa-question-circle pull-right"></i>
-						</h2>
-							<div class="inner">
-								<%--<div class="accordion-body" style="display: block">--%>
-										<%--<div class="accordion-heading">--%>
-												<%--Phenotype Associated Images--%>
-										<%--</div>--%>
-									<div class="accordion-body" style="display: block">
-										<div id="grid">
-											<ul>
-												<c:forEach var="doc" items="${images}">
-		                                            <li class="span2">
-														<t:imgdisplay img="${doc}" mediaBaseUrl="${mediaBaseUrl}"></t:imgdisplay>
-		                                            </li>
-		    	  								</c:forEach>
-											</ul>
-									</div>
-											<div class="clear"></div>
-												<c:if test="${entry.count>5}">
-												<p class="textright">
-													<a href="${baseUrl}/images?phenotype_id=${phenotype.getMpId()}">show all  ${images.getNumFound()} images</a>
-												</p>
-												</c:if>
-										</div>
-									</div>
-								<!--  end of accordion -->
-								<%--</div>--%>
-					</div>	<!--  end of images section -->
-			</c:if>
-
-			<%--IMPC images--%>
-			<c:if test="${not empty impcImageGroups}">
-				<div class="section" id="imagesSection">
-					<h2 class="title">Associated Images </h2>
-						<div class="inner">
-							<jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>
-						</div>
-				</div>
-			</c:if>
-		</div>
-	</div>
-</div>
-</div>
-    <script type="text/javascript">
-        $('document').ready(function(){
-
-            var whatIsRelatedSyn = "Related synonyms are mostly terms of the Human Phenotype Ontology that are mapped to an mammalian phenotype (MP) term. Occasionally, they may be children of the current MP term.";
-
-            // what is related synonym
-            $('i.relatedSyn').qtip({
-                content: {
-                    text: whatIsRelatedSyn
-                },
-                style: {
-                    classes: 'qtipimpc'
-                }
             });
 
+                // what is related synonym
+                /* $('i.relatedSyn').qtip({
+                    content: {
+                        text: whatIsRelatedSyn
+                    },
+                    style: {
+                        classes: 'qtipimpc'
+                    }
+                }); */
 
-            // show more/less for related synonyms
-            $('span.synToggle').click(function(){
-               var partList = $(this).siblings('ul').find('li.defaultList');
-               var fullList = $(this).siblings('ul').find('li.fullList');
 
-               if ($(this).siblings('ul').find('li.defaultList').is(':visible')){
-                   partList.hide();
-                   fullList.show();
-                   $(this).text('Show less');
-               }
-               else {
-                   partList.show();
-                   fullList.hide();
-                   $(this).text('Show more');
-               }
+                // show more/less for related synonyms
+                $('span.synToggle').click(function () {
+                    var partList = $(this).siblings('ul').find('li.defaultList');
+                    var fullList = $(this).siblings('ul').find('li.fullList');
+
+                    if ($(this).siblings('ul').find('li.defaultList').is(':visible')) {
+                        partList.hide();
+                        fullList.show();
+                        $(this).text('Show less');
+                    }
+                    else {
+                        partList.show();
+                        fullList.hide();
+                        $(this).text('Show more');
+                    }
+                });
             });
-        });
-    </script>
 
-</jsp:body>
+            //really this method below could be changed to use the same method as above??? JW
+            $("#show_other_procedures").click(function () {
+                $("#other_procedures").toggle("slow", function () {
+                    // Animation complete.
+                });
+
+                var text = $('#procedureToogleLink').text();
+                $('#procedureToogleLink').text(
+                    text == "Show more" ? "Show less" : "Show more");
+            });
+        </script>
+
+    </jsp:body>
 
 </t:genericpage>
 

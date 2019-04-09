@@ -39,6 +39,7 @@ var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg
 
         else {
             var labels = json.labels;
+            var labels_json = JSON.parse(labels);
 
             var matrix = json.matrix;
 
@@ -87,13 +88,13 @@ var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg
                 .on("mouseover", fade(.02))
                 .on("mouseout", fade(.80))
                 .on("click", function (d) {
-                    if (clickableChords && mpTopLevelTerms.indexOf(labels[d.index].name) < 0) { // top level is not already selected
+                    if (clickableChords && mpTopLevelTerms.indexOf(labels_json[d.index].name) < 0) { // top level is not already selected
                         if (openNewPage) {
                             console.log("URL " + url);
-                            window.open(url + "&phenotype_name=" + labels[d.index].name, "_self");
+                            window.open(url + "&phenotype_name=" + labels_json[d.index].name, "_self");
                         }
                         else {
-                            mpTopLevelTerms.push(labels[d.index].name);
+                            mpTopLevelTerms.push(labels_json[d.index].name);
                             drawChords(svgId, containerId, openNewPage, mpTopLevelTerms, idg, idgClass, clickableChords);
                         }
                     }
@@ -156,7 +157,7 @@ var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg
                 })
                 .style("visibility", function (d) {
                     if (mpTopLevelTerms && mpTopLevelTerms.length > 0) {
-                        if (mpTopLevelTerms.indexOf(labels[d.source.index].name) < 0 && mpTopLevelTerms.indexOf(labels[d.target.index].name) < 0) {
+                        if (mpTopLevelTerms.indexOf(labels_json[d.source.index].name) < 0 && mpTopLevelTerms.indexOf(labels_json[d.target.index].name) < 0) {
                             return "hidden";
                         } else {
                             return "visible";
@@ -166,7 +167,7 @@ var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg
                     }
                 })
                 .append("title").text(function (d) {
-                return d.source.value + " genes present " + labels[d.source.index].name + " and " + labels[d.target.index].name + ", " + ((mpTopLevelTerms && mpTopLevelTerms.length > 0) ? mpTopLevelTerms.join(", ") : "");
+                return d.source.value + " genes present " + labels_json[d.source.index].name + " and " + labels_json[d.target.index].name + ", " + ((mpTopLevelTerms && mpTopLevelTerms.length > 0) ? mpTopLevelTerms.join(", ") : "");
             });
 
             // Returns an array of tick angles and values for a given group and step.

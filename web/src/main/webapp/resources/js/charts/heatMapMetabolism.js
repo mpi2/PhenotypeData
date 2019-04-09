@@ -24,18 +24,24 @@ $(function () {
 		$('#metabolism-table').DataTable({
 			"bDestroy" : true,
 			"bFilter" : true,
-	        "bInfo": true, // Footer
+			"sDom": "<'col-4'i><'col-5'f><'col-3 export'>t<'col-6'i><'col-6'p>",
+			"bLengthChange" : false,
+	        "bInfo": true,
 			"bPaginate": true,
-			"sPaginationType" : "bootstrap",
 			"initComplete": function(settings, json) {
 	            $('.dataTables_scrollBody thead tr').css({visibility:'collapse'});
-	        },
+
+
+				var toolBox = 'Export table: '
+					+ '<a id="tsvA" href=""><i class="fa fa-download gridDump"></i>TSV</a>&nbsp;or&nbsp;'
+					+ '<a id="xlsA" href=""><i class="fa fa-download gridDump"></i>XLS</a>';//+
+
+				$("div.export").html(toolBox);
+
+			},
 			"aaSorting": [[0, "asc"]], // 0-based index
 			"aoColumns": [
 			    null, null,null,
-	//			 {"sType": "html", "bSortable": true},
-	//			 {"sType": "string", "bSortable": true},
-	//			 {"sType": "string", "bSortable": true},
 				 {"sType": "html", "bSortable": true}
 			],
 			"aaData": contentTable,
@@ -74,7 +80,9 @@ $(function () {
 	    		 	},
 	       	]
 		});
-		
+
+		$('#metabolism-table').attr({'style': 'width: 100%'});
+
 		var tsv = jsonToTsv(contentTable);
 		$('#tsv-result').html(tsv);
 	}

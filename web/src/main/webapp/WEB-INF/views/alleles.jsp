@@ -22,7 +22,7 @@
 	<!--  end of floating menu for genes page -->
 
 	<c:if test="${phenotypeStarted}">
-	<script type="text/javascript" src="${drupalBaseUrl}/heatmap/js/heatmap.1.3.1.js"></script>
+	<script type="text/javascript" src="${cmsBaseUrl}/heatmap/js/heatmap.1.3.1.js"></script>
 	<!--[if IE 8]>
         <script type="text/javascript">
         dcc.ie8 = true;
@@ -31,7 +31,7 @@
     <!--[if !IE]><!-->
     <script>
         dcc.heatmapUrlGenerator = function(genotype_id, type) {
-            return '${drupalBaseUrl}/phenoview?gid=' + genotype_id + '&qeid=' + type;
+            return '${cmsBaseUrl}/phenoview?gid=' + genotype_id + '&qeid=' + type;
         };
     </script>
     
@@ -39,14 +39,14 @@
     <!--[if lt IE 9]>
     <script>
         dcc.heatmapUrlGenerator = function(genotype_id, type) {
-           return '${drupalBaseUrl}/phenotypedata?g=' + genotype_id + '&t=' + type + '&w=all';
+           return '${cmsBaseUrl}/phenotypedata?g=' + genotype_id + '&t=' + type + '&w=all';
         };
     </script>
     <![endif]-->
     <!--[if gte IE 9]>
     <script>
         dcc.heatmapUrlGenerator = function(genotype_id, type) {
-           return '${drupalBaseUrl}/phenoview?gid=' + genotype_id + '&qeid=' + type;
+           return '${cmsBaseUrl}/phenoview?gid=' + genotype_id + '&qeid=' + type;
         };
     </script>
     <![endif]-->
@@ -91,13 +91,13 @@
 
 		<c:if test="${phenotypeStarted}">
 	    <!--[if !IE]><!-->
-	    <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css"/>
+	    <link rel="stylesheet" type="text/css" href="${cmsBaseUrl}/heatmap/css/heatmap.1.3.1.css"/>
 	    <!--<![endif]-->
 	    <!--[if IE 8]>
-	    <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmapIE8.1.3.1.css">
+	    <link rel="stylesheet" type="text/css" href="${cmsBaseUrl}/heatmap/css/heatmapIE8.1.3.1.css">
 	    <![endif]-->
 	    <!--[if gte IE 9]>
-	    <link rel="stylesheet" type="text/css" href="${drupalBaseUrl}/heatmap/css/heatmap.1.3.1.css">
+	    <link rel="stylesheet" type="text/css" href="${cmsBaseUrl}/heatmap/css/heatmap.1.3.1.css">
 	    <![endif]-->
 		</c:if>
 

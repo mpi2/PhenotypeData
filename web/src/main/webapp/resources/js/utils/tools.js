@@ -20,6 +20,7 @@
  * Author: Chao-Kung Chen
  */
 (function($) {
+    $.fn.DataTable.ext.pager.numbers_length = 10;
 
 
 	$.fn.setSearchMode = function(oCounts) {
@@ -508,7 +509,6 @@
                                                     "paging": true,
                                                     "serverSide": true,  // do not want sorting to be processed from server, false by default
                                                     "sDom": "i<<'#exportSpinner'>l<f><'saveTable'>r>tip",
-                                                    "sPaginationType": "bootstrap",
                                                     "searchHighlight": true,
                                                     "iDisplayLength": 10,
                                                     "oLanguage": {
@@ -837,7 +837,6 @@
             "paging": false,
             //"serverSide": false,  // do not want sorting to be processed from server, false by default
             "sDom": "<<'#exportSpinner'>l<f><'saveTable'>r>tip",
-            "sPaginationType": "bootstrap",
             "searchHighlight": true,
             "iDisplayLength": 10,
             "oLanguage": {
@@ -934,39 +933,19 @@
             "processing": true,
             "paging": true,
             "serverSide": true,  // do not want sorting to be processed from server, false by default
-            "sDom": "i<<'#exportSpinner'>l<f><'saveTable'>r>tip",
-            "sPaginationType": "bootstrap",
+            "sDom": "<'col-6'i><'col-3'f><'col-3 export'>t<'col-6'i><'col-6'p>",
+            "bLengthChange": false,
+            "bFilter": true,
             "searchHighlight": true,
             "iDisplayLength": 10,
             "oLanguage": {
                 "sSearch": "Filter: "
             },
-            // "columnDefs": [
-            //     //  { "type": "alt-string", targets: 4 },   //4th col sorted using alt-string
-            //     {
-            //         "targets": [7], // 7th col
-            //         "visible": false
-            //     }
-            //
-            // ],
-            // "aaSorting": [[3, "desc"]],  // default sort column: 4th col
-            // "aoColumns": [
-            //     {"bSearchable": true, "sType": "string", "bSortable": true},
-            //     {"bSearchable": true, "sType": "html", "bSortable": true},
-            //     {"bSearchable": true, "sType": "string", "bSortable": true},
-            //     {"bSearchable": true, "sType": "string", "bSortable": true},
-            //     {"bSearchable": true, "sType": "string", "bSortable": true},
-            //     {"bSearchable": true, "sType": "html", "bSortable": true},
-            //     {"bSearchable": true, "sType": "string", "bSortable": false},
-            //     {"bSearchable": true, "sType": "string", "bSortable": false}
-            // ],
             "aoColumns": [
                {"bSearchable": true, "sType": "html", "bSortable": true}
             ],
             "initComplete": function (oSettings, json) {  // when dataTable is loaded
 
-                // download tool
-                //oConf.kw = oConf.kw;
                 oConf.fileName = 'impc_publications';
                 oConf.iDisplayStart = 0;
                 oConf.iDisplayLength = 10;
@@ -975,22 +954,13 @@
                 var fileTypeTsv = "fileType=tsv";
                 var fileTypeXls = "fileType=xls";
 
-                var toolBox = '<span>Export table as: &nbsp;&nbsp;&nbsp;'
-                    + '<a id="tsvA" class="fa fa-download gridDump" href="">TSV</a>&nbsp;&nbsp;&nbsp;or&nbsp;&nbsp;&nbsp;'
-                    + '<a id="xlsA" class="fa fa-download gridDump" href="">XLS</a></span>';//+
-                // '<span>For more information, consider <a href=${baseUrl}/batchQuery>Batch search</a></span>';
+                var toolBox = 'Export table: '
+                    + '<a id="tsvA' + id +'"  href="#" class="gridDump"><i class="fa fa-download"></i>TSV</a>&nbsp;or&nbsp;'
+                    + '<a id="xlsA' + id + '" href="#" class="gridDump"><i class="fa fa-download"></i>XLS</a>';//+
 
-                $("div.saveTable").html(toolBox);
+                $('div[id^="' + id + '_wrapper"]').find('.export:first').html(toolBox);
 
-                $('a.gridDump').on('click', function(){
-
-                    id = $(this).parent().parent().siblings('div.dataTables_processing').attr('id').replace('_processing','');
-                    oConf.id = id;
-                    oConf.consortium = false;
-
-                    if (id == 'consortiumPapers'){
-                        oConf.consortium = true;
-                    }
+                $("#tsvA" + id + ", " + "#xlsA" + id).on('click', function(){
 
                     var paramStr = "mode=all";
                     if ($("#" + id +"_filter").find('input').val() != "") {
@@ -1004,10 +974,11 @@
                         paramStr += "&" + i + "=" + val;
                     });
 
+                    console.log(paramStr);
 
                     //alert(991 + " " + id + " - " + oConf.kw + "\n" +oConf.filter );
 
-                    if ($(this).attr('id') == 'tsvA'){
+                    if ($(this).attr('id').indexOf('tsvA') >= 0){
                        $(this).attr('href', baseUrl+"/export2?" + fileTypeTsv + "&" + paramStr);
                     }
                     else {
@@ -1334,7 +1305,7 @@
 				.parseHashString(window.location.hash.substring(1));
 
 		var breadcrumbBox = $('p.ikmcbreadcrumb');
-		var baseLinks = "<a href=" + drupalBaseUrl
+		var baseLinks = "<a href=" + cmsBaseUrl
 				+ ">Home</a> &raquo; <a href=" + baseUrl
 				+ "/search>Search</a> &raquo; ";
 
@@ -1470,7 +1441,7 @@
 		var textPos = conf.textPos;
 		var iconDiv = $('<p></p>').attr({
 			'class' : textPos
-		}).html(label + " &nbsp;");
+		}).html(label);
 		var it = 0;
 		for ( var f in oFormatSelector) {
 			if (it++ > 0)
@@ -1486,9 +1457,11 @@
 			// The button is styled as the new design
 			var btn = $('<button></button>').attr(
 					{
-						'class' : oFormatSelector[f]
-								+ ' fa fa-download ' + conf['class']
+						'class' : oFormatSelector[f] + conf['class'] + ' btn btn-primary '
 					}).html(f);
+			//console.log(btn);
+
+			btn.prepend( "<i class='fa fa-download'></i>&nbsp;" );
 
 			$(iconDiv).append(btn);
 		}
@@ -1667,7 +1640,8 @@
 
 		var table = $('<table></table>').attr({
 			'id' : id,
-			'class' : 'table tableSorter'
+			'class' : 'table tableSorter',
+            'style' : 'width: 100%'
 		});
 
         var sortFields = ["firstPublicationDate", "title", "journal"];
@@ -2106,7 +2080,6 @@
 			"bRetrieve" : true,
 			/* "bDestroy": true, */
 			"bFilter" : false,
-			"sPaginationType" : "bootstrap",
 		};
 		var oTbl = jqObj.dataTable($.extend({}, params, customConfig))
 				.fnSearchHighlighting();
@@ -2611,18 +2584,18 @@ $
  * "normal": "", "disabled": "disabled" } } } );
  */
 // Have the tableTools collection use a bootstrap compatible dropdown
-$.extend(true, $.fn.DataTable.TableTools.DEFAULTS.oTags, {
+/*$.extend(true, $.fn.DataTable.TableTools.DEFAULTS.oTags, {
 	"collection" : {
 		"container" : "ul",
 		"button" : "li",
 		"liner" : "a"
 	}
-});
+});*/
 
 $.fn.dataTableExt.sErrMode = 'throw'; // override default alert
 
 $.extend($.fn.dataTableExt.oStdClasses, {
-	"sWrapper" : "dataTables_wrapper form-inline"
+	"sWrapper" : "dataTables_wrapper"
 });
 
 // Sort image columns based on the content of the title tag

@@ -4,6 +4,7 @@ import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.support.ErrorPageFilter;
 import org.springframework.context.annotation.*;
@@ -32,72 +33,51 @@ import java.util.concurrent.TimeUnit;
         "org.mousephenotype.cda.db",
         "uk.ac.ebi.phenotype.web.controller"},
         excludeFilters = @ComponentScan.Filter(value = org.mousephenotype.cda.annotations.ComponentScanNonParticipant.class, type = FilterType.ANNOTATION))
-
-
-
-//@PropertySource("file:${user.home}/configfiles/${profile:dev}/application.properties")
-//@PropertySource("${configServerUrl}")
-@PropertySource("http://ves-ebi-d9.ebi.ac.uk:8989/pa/dev")
-
+@PropertySource("file:${user.home}/configfiles/${profile:dev}/application.properties")
 @EnableScheduling
 public class PhenotypeArchiveConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(PhenotypeArchiveConfig.class);
 
+    @Value("${cms_base_url}")
+    private String cmsBaseUrl;
 
-//    @Value("${drupal_base_url}")
-    private String drupalBaseUrl;
-
-//    @Value("${solr_url}")
+    @Value("${solr_url}")
     private String solrUrl;
 
-//    @Value("${base_url}")
+    @Value("${base_url}")
     private String baseUrl;
 
-//    @Value("${internal_solr_url}")
+    @Value("${internal_solr_url}")
     private String internalSolrUrl;
 
-//    @Value("${media_base_url}")
+    @Value("${media_base_url}")
     private String mediaBaseUrl;
 
-//    @Value("${impc_media_base_url}")
+    @Value("${impc_media_base_url}")
     private String impcMediaBaseUrl;
 
-//    @Value("${monarch_url}")
+    @Value("${monarch_url}")
     private String monarchUrl;
 
-//    @Value("${pdf_thumbnail_url}")
+    @Value("${pdf_thumbnail_url}")
     private String pdfThumbnailUrl;
 
-//    @Value("${google_analytics}")
+    @Value("${google_analytics}")
     private String googleAnalytics;
 
-//    @Value("${live_site}")
+    @Value("${live_site}")
     private String liveSite;
 
     @NotNull
-//    @Value("${paBaseUrl}")
+    @Value("${paBaseUrl}")
     private String paBaseUrl;
-
-
-    @Bean
-    public ErrorPageFilter errorPageFilter() {
-        return new ErrorPageFilter();
-    }
-
-    @Bean
-    public FilterRegistrationBean disableSpringBootErrorFilter(ErrorPageFilter filter) {
-        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
-        filterRegistrationBean.setFilter(filter);
-        filterRegistrationBean.setEnabled(false);
-        return filterRegistrationBean;
-    }
 
     @Bean(name = "globalConfiguration")
     public Map<String, String> getGlobalConfig() {
         Map<String, String> map = new HashMap<>();
         map.put("baseUrl", baseUrl);
-        map.put("drupalBaseUrl", drupalBaseUrl);
+        map.put("cmsBaseUrl", cmsBaseUrl);
         map.put("solrUrl", solrUrl);
         map.put("internalSolrUrl", internalSolrUrl);
         map.put("mediaBaseUrl", mediaBaseUrl);
@@ -112,8 +92,7 @@ public class PhenotypeArchiveConfig {
 
     @Bean
     public InternalResourceViewResolver viewResolver() {
-        InternalResourceViewResolver viewResolver =
-                new InternalResourceViewResolver();
+        InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
         viewResolver.setViewClass(JstlView.class);
         viewResolver.setPrefix("/WEB-INF/views/");
         viewResolver.setSuffix(".jsp");
@@ -135,13 +114,10 @@ public class PhenotypeArchiveConfig {
             @Autowired
             DeploymentInterceptor deploymentInterceptor;
 
-//            @Autowired
-//            OpenSessionInViewInterceptor openSessionInViewInterceptor;
 
             @Override
             public void addInterceptors(InterceptorRegistry registry) {
                 registry.addInterceptor(deploymentInterceptor);
-//                registry.addInterceptor(openSessionInViewInterceptor);
                 super.addInterceptors(registry);
             }
 

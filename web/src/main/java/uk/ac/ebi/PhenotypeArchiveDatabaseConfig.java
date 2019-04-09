@@ -1,5 +1,7 @@
 package uk.ac.ebi;
 
+import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -27,32 +29,42 @@ import java.util.Properties;
 @PropertySource("file:${user.home}/configfiles/${profile:dev}/application.properties")
 public class PhenotypeArchiveDatabaseConfig {
 
+
+    @Value("${datasource.komp2.url}")
+    String komp2Url;
+
+    @Value("${datasource.komp2.username}")
+    String komp2Username;
+
+    @Value("${datasource.komp2.password}")
+    String komp2Password;
+
+    @Value("${datasource.admintools.url}")
+    String admintools2Url;
+
+    @Value("${datasource.admintools.username}")
+    String admintools2Username;
+
+    @Value("${datasource.admintools.password}")
+    String admintoolsPassword;
+
+
     @Bean
     @Primary
-    @ConfigurationProperties(prefix = "datasource.komp2")
     public DataSource komp2DataSource() {
-        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+        return SqlUtils.getConfiguredDatasource(komp2Url, komp2Username, komp2Password);
     }
 
     @Bean
-    @ConfigurationProperties(prefix = "datasource.admintools")
     public DataSource admintoolsDataSource() {
-        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+        return SqlUtils.getConfiguredDatasource(admintools2Url, admintools2Username, admintoolsPassword);
     }
-
-    @Bean
-    @ConfigurationProperties(prefix = "datasource.phenodigm")
-    public DataSource phenodigmDataSource() {
-        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
-    }
-
-
 
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
         emf.setDataSource(komp2DataSource());
-        emf.setPackagesToScan(new String[]{"org.mousephenotype.cda.db.pojo", "org.mousephenotype.cda.db.entity"});
+        emf.setPackagesToScan("org.mousephenotype.cda.db.pojo", "org.mousephenotype.cda.db.entity");
 
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         emf.setJpaVendorAdapter(vendorAdapter);
@@ -61,7 +73,7 @@ public class PhenotypeArchiveDatabaseConfig {
         return emf;
     }
 
-    protected Properties buildHibernateProperties() {
+    private Properties buildHibernateProperties() {
         Properties hibernateProperties = new Properties();
 
         hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");

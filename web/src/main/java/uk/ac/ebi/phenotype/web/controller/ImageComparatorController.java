@@ -84,7 +84,7 @@ public class ImageComparatorController {
 		//http://localhost:8080/phenotype-archive/imageComparator?acc=MGI:1913955&mpId=MP:0000572&colony_id=RIKEN_EPD0296_2_A10
 		
 		
-		int numberOfControlsPerSex = 25;
+		int numberOfControlsPerSex = 50;
 		
 		// int daysEitherSide = 30;// get a month either side
 				SexType sexType=null;

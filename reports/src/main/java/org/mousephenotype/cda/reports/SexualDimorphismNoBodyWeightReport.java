@@ -52,8 +52,8 @@ public class SexualDimorphismNoBodyWeightReport extends AbstractReport {
     SexualDimorphismDAO sexualDimorphismDAO;
 
     @NotNull
-    @Value("${drupal_base_url}")
-    protected String drupalBaseUrl;
+    @Value("${cms_base_url}")
+    protected String cmsBaseUrl;
 
     public SexualDimorphismNoBodyWeightReport() {
         super();
@@ -77,7 +77,7 @@ public class SexualDimorphismNoBodyWeightReport extends AbstractReport {
 
         List<String[]> result;
         try {
-            result = sexualDimorphismDAO.sexualDimorphismReportNoBodyWeight(drupalBaseUrl);
+            result = sexualDimorphismDAO.sexualDimorphismReportNoBodyWeight(cmsBaseUrl);
         } catch (Exception e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }

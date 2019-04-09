@@ -771,10 +771,10 @@ DataLoader.prototype = {
             for (var i in data.b) {
                 for (var j in target.entities) {
                     if (data.b[i].id === target.entities[j].combinedList) {
-                        // add new id
-                        data.b[i].newid = target.entities[j].id;
                         // add label with genotype label
                         data.b[i].label = target.entities[j].label;
+                        // add new id
+                        data.b[i].newid = target.entities[j].id;
                         // add phenodigm score
                         data.b[i].phenodigmScore = target.entities[j].score;
                         // add info for tooltip rendering

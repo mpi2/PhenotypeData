@@ -184,7 +184,6 @@ public class ExperimentsController {
 	}
 	
 
-	@ExceptionHandler(Exception.class)
 	public ModelAndView handleGeneralException(Exception exception) {
         ModelAndView mv = new ModelAndView("uncaughtException");
         exception.printStackTrace();

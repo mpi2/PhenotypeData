@@ -62,8 +62,8 @@ public class ZygosityReport extends AbstractReport {
     ObservationService observationService;
 
     @NotNull
-    @Value("${drupal_base_url}")
-    protected String drupalBaseUrl;
+    @Value("${cms_base_url}")
+    protected String cmsBaseUrl;
 
     public static final String[] EMPTY_ROW = new String[]{""};
 
@@ -230,7 +230,7 @@ public class ZygosityReport extends AbstractReport {
 
                     String geneLink = "";
                     if (gene != null) {
-                        geneLink = drupalBaseUrl + "/data/genes/" + gene.getMgiAccessionId();
+                        geneLink = cmsBaseUrl + "/data/genes/" + gene.getMgiAccessionId();
                         if (geneLink.startsWith("//")) {
                             geneLink = "http:" + geneLink;
                         }

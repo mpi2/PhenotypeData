@@ -61,17 +61,23 @@ public class ChartUtils {
     	if (chartVarName != null && checkButtonId != null && uncheckButtonId != null){
     	
     		code =  "$('#" + checkButtonId + "').click(function(){ "
+                    + " " + chartVarName + ".showLoading();"
     			+ " for(i=0; i < " + chartVarName + ".series.length; i++) {"
     			+ " if(" + chartVarName + ".series[i].visible == false){ "
-                + " " + chartVarName + ".series[i].show(); "
-                + "}}" 
+                + " " + chartVarName + ".series[i].setVisible(true, false); "
+                + "}}"
+                + " " + chartVarName  + ".hideLoading(); "
+                    + " " + chartVarName  + ".redraw(); "
                 + "}); "
                 +"$('#" + uncheckButtonId + "').click(function(){ "
+                + " " + chartVarName + ".showLoading();"
     			+ " for(i=0; i < " + chartVarName + ".series.length; i++) { "
     			+ " if(" + chartVarName + ".series[i].visible == true){ "
-                + " " + chartVarName + ".series[i].hide(); "
-                + "}}" 
-                + "}); ";
+                + " " + chartVarName + ".series[i].setVisible(false, false);;"
+                + "}}"
+                    + " " + chartVarName  + ".hideLoading();"
+                    + " " + chartVarName  + ".redraw(); "
+                    + "}); ";
     	}
     	return code;
     }

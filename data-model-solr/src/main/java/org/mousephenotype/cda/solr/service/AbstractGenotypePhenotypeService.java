@@ -1270,7 +1270,7 @@ public class AbstractGenotypePhenotypeService extends BasicService {
      * @param resource
      * @return map <colony_id, occurences>
      */
-    public HashMap<String, Long> getAssociationsDistribution(String mpTermName, String resource) {
+    public Map<String, Long> getAssociationsDistribution(String mpTermName, String resource) {
 
         String query = GenotypePhenotypeDTO.MP_TERM_NAME + ":\"" + mpTermName + "\"";
         if (resource != null) {

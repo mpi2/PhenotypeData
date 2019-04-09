@@ -31,7 +31,7 @@
                                 production and mouse phenotyping.</p>
 
                             <ul>
-                                <li><a href="${drupalBaseUrl}/my-impc/documentation">See IMPC project documentation</a>
+                                <li><a href="${cmsBaseUrl}/my-impc/documentation">See IMPC project documentation</a>
                                 </li>
                                 <li><a href="search-help.html">How to find the data you want</a></li>
                             </ul>

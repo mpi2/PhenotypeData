@@ -16,7 +16,7 @@
 		<%-- <link rel="stylesheet" href="${baseUrl}/css/parallelCoordinates/style.css" type="text/css" /> --%>
 
 		<script type="text/javascript">
-			var drupalBaseUrl = '${drupalBaseUrl}';
+			var cmsBaseUrl = '${cmsBaseUrl}';
 		</script>
 		<style>
 			.hide {

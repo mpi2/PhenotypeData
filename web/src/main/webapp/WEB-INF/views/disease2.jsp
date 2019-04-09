@@ -3,8 +3,8 @@
     Comment    : Page generating disease pages.                 
     Created on : 1-Sep-2017    
 --%>
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@ page pageEncoding="UTF-8" %>
 
 <t:genericpage>
@@ -13,8 +13,10 @@
     <jsp:attribute name="header">
         <script src="//d3js.org/d3.v4.min.js"></script> 
         <script type="text/javascript" src="${baseUrl}/js/vendor/underscore/underscore-1.8.3.min.js"></script>        
-        <script type="text/javascript" src="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.js?v=${version}"></script>
-        <link rel="stylesheet" type="text/css" href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.css?v=${version}">
+        <script type="text/javascript"
+                src="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.js?v=${version}"></script>
+        <link rel="stylesheet" type="text/css"
+              href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.css?v=${version}">
         <script type="text/javascript">var impc = {baseUrl: "${baseUrl}"}</script>        
         <script type="text/javascript" src="${baseUrl}/js/phenodigm2/phenodigm2.js?v=${version}"></script>        
         <link rel="stylesheet" type="text/css" href="${baseUrl}/css/custom.css"/>
@@ -42,183 +44,217 @@
 
     <jsp:body>
 
-        <h1 class="title" id="top">Disease: ${disease.term}
-            <span class="documentation"><a href='' id='summarySection' class="fa fa-question-circle pull-right"></a></span>
-        </h1>
-
-        <div class="section">
-            <div class="inner">
-                <p class="with-label">
-                    <span class="label">Name</span>
-                    ${disease.term}
-                </p>
-
-                <p class="with-label">
-                    <span class="label">Synonyms</span>
-                    <c:choose>
-                        <c:when test="${empty disease.alts}">
-                            -
-                        </c:when>
-                        <c:otherwise>
-                            <c:forEach var="synonym" items="${disease.alts}" varStatus="loop">                                                                
-                                ${synonym} <c:if test="${!loop.last}">, </c:if>
-                            </c:forEach>
-                        </c:otherwise>
-                    </c:choose>
-                </p>
-
-                <p class="with-label">
-                    <span class="label">Classification</span>
-                    <c:choose>
-                        <c:when test="${empty disease.classes}">
-                            -
-                        </c:when>
-                        <c:otherwise>
-                            <c:forEach var="diseaseClass" items="${disease.classes}" varStatus="loop">
-                                ${diseaseClass}<c:if test="${!loop.last}">, </c:if>
-                            </c:forEach>
-                        </c:otherwise>
-                    </c:choose>
-                </p>
-                
-                <%-- Section with associated phenotypes --%>
-                <p class="with-label">
-                    <span class="label">Phenotypes</span>
-                    <c:choose>
-                        <c:when test="${empty disease.phenotypes}">
-                            -
-                        </c:when>
-                        <c:otherwise>
-                            <c:forEach var="dphen" items="${disease.phenotypes}" varStatus="dphenloop">                                    
-                                <a href="https://monarchinitiative.org/phenotype/${dphen.id}">${dphen.term}</a><c:if test="${!dphenloop.last}"><span class="semicolon">;</span></c:if>
-                                </c:forEach>
-                            </c:otherwise>
-                        </c:choose>
-                </p>
-                <%-- End of section on phenotypes --%>
-
-                <p class="with-label">
-                    <span class="label">Associated Genes</span>
-                    <c:choose>
-                        <c:when test="${empty curatedAssociations}">
-                            -
-                        </c:when>
-                        <c:otherwise>
-                            <c:forEach var="assoc" items="${curatedAssociations}" varStatus="loop">                                    
-                                <a href="${assoc.externalUrl}">${assoc.symbol}</a>
-                                <c:choose>
-                                    <c:when test="${empty assoc.symbolsWithdrawn}"></c:when>                                                                                
-                                    <c:otherwise>                                                                                                                        
-                                        <span class="small">(Withdrawn symbols: 
-                                            <c:forEach var="withdrawn" items="${assoc.symbolsWithdrawn}" varStatus="loopwithdrawn">                                
-                                                ${withdrawn}<c:if test="${!loopwithdrawn.last}">, </c:if>
-                                            </c:forEach>
-                                            )</span>  
-                                        </c:otherwise>                                                                        
-                                    </c:choose>
-                                    <c:if test="${!loop.last}">, </c:if>
-                            </c:forEach>
-                        </c:otherwise>
-                    </c:choose>
-                </p>
-
-                <p class="with-label">
-                    <span class="label">Mouse Orthologs</span>
-                    <c:choose>
-                        <c:when test="${empty orthologousAssociations}">
-                            -
-                        </c:when>
-                        <c:otherwise>
-                            <c:forEach var="assoc" items="${orthologousAssociations}" varStatus="loop">                                    
-                                <a href="${assoc.externalUrl}">${assoc.symbol}</a>
-                                <c:choose>
-                                    <c:when test="${empty assoc.symbolsWithdrawn}"></c:when>                                                                                
-                                    <c:otherwise>                                                                                                                        
-                                        <span class="small">(Withdrawn symbols: 
-                                            <c:forEach var="withdrawn" items="${assoc.symbolsWithdrawn}" varStatus="loopwithdrawn">                                
-                                                ${withdrawn}<c:if test="${!loopwithdrawn.last}">, </c:if>
-                                            </c:forEach>
-                                            )</span>  
-                                        </c:otherwise>                                                                        
-                                    </c:choose>
-                                    <c:if test="${!loop.last}">, </c:if>
-                            </c:forEach>                            
-                        </c:otherwise>
-                    </c:choose>                           
-                </p>
-
-                <p class="with-label">
-                    <span class="label">Source</span>
-                    <a href="${disease.externalUrl}">${disease.id}</a> <span class="small">(names, synonyms, disease associated genes)</span>, 
-                    <br/> Orphanet <span class="small">(disease classes)</span>,                    
-                    <br/> HGNC, Ensembl, MGI <span class="small">(gene symbols, gene orthology)</span>
-                    <br/> HPO <span class="small">(phenotypes)</span>
-                </p>
-
-            </div>
-        </div>              
-
-
-        <%-- Display visualization of all model (hits) --%>
-        <div class="section" id="mouse_models_phenoscatter">
-            <h2 class="title">Mouse Models <small class="sub"> phenotype-based associations</small>                
-            </h2>
-            <div class="inner">                 
-                <div id="phenoscatter"></div>
-                <div id="phenoscatter-help">Disease phenotypes are compared with mouse phenotypes, with each 
-                    mouse model contributing one point to the diagram. Scores are computed according
-                    to phenotype specificity and cross-species similarity. 
-                    <b>X-axis</b> shows the score of the single phenotype that contributes most. 
-                    <b>Y-axis</b> shows an average among all phenotype matches. The <b>curved line</b>
-                    designates a visualization threshold; models below threshold are omitted, except when
-                    their genotype matches a disease-associated gene.</div>
+        <div class="container data-heading">
+            <div class="row">
+                <div class="col-12 no-gutters">
+                    <h2>Disease: ${disease.term}</h2>
+                    <!--span class="documentation"><a href='' id='summarySection' class="fa fa-question-circle pull-right"></a></span-->
+                </div>
             </div>
         </div>
 
-        <%-- A tabbed view of mouse models by orthology/phenotypic similarity --%>
-        <div class="section" id="mouse_models_phenotables">                               
-            <h2 class="title">Mouse Models 
-                <span class="documentation"><a href='' id='orthologySection' class="mpPanel fa fa-question-circle pull-right"></a></span>
-            </h2>
-            <div class="inner">  
-                <div id="phenotabs" class="phenotabs">
-                    <ul class='tabs'>
-                        <li><a href="#by-annotation">By disease annotation</a></li>
-                        <li><a href="#by-phenotype">By phenotypic similarity</a></li>
-                    </ul>
-                    <div id="by-annotation">
-                        <c:choose>
-                            <c:when test="${!hasModelsByOrthology}">                                
-                                No mouse models associated with ${disease.id} by orthology to a human gene.                                
-                            </c:when>
-                            <c:otherwise>
-                                <table id="models_by_annotation" class="table tablesorter disease"></table>
-                            </c:otherwise>
-                        </c:choose>
-                    </div>
-                    <div id="by-phenotype">
-                        <c:choose>
-                            <c:when test="${!hasModelAssociations}">
-                                No mouse models associated with ${disease.id} by phenotypic similarity.
-                            </c:when>
-                            <c:otherwise>
-                                <table id="models_by_phenotype" class="table tablesorter disease"></table>
-                            </c:otherwise>
-                        </c:choose>
+
+        <div class="container single single--no-side">
+            <div class="row">
+                <div class="col-12 white-bg">
+                    <div class="page-content pt-5 pb-5">
+                        <p class="with-label">
+                            <span class="label">Name</span>
+                                ${disease.term}
+                        </p>
+
+                        <p class="with-label">
+                            <span class="label">Synonyms</span>
+                            <c:choose>
+                                <c:when test="${empty disease.alts}">
+                                    -
+                                </c:when>
+                                <c:otherwise>
+                                    <c:forEach var="synonym" items="${disease.alts}" varStatus="loop">
+                                        ${synonym} <c:if test="${!loop.last}">, </c:if>
+                                    </c:forEach>
+                                </c:otherwise>
+                            </c:choose>
+                        </p>
+
+                        <p class="with-label">
+                            <span class="label">Classification</span>
+                            <c:choose>
+                                <c:when test="${empty disease.classes}">
+                                    -
+                                </c:when>
+                                <c:otherwise>
+                                    <c:forEach var="diseaseClass" items="${disease.classes}" varStatus="loop">
+                                        ${diseaseClass}<c:if test="${!loop.last}">, </c:if>
+                                    </c:forEach>
+                                </c:otherwise>
+                            </c:choose>
+                        </p>
+
+                            <%-- Section with associated phenotypes --%>
+                        <p class="with-label">
+                            <span class="label">Phenotypes</span>
+                            <c:choose>
+                                <c:when test="${empty disease.phenotypes}">
+                                    -
+                                </c:when>
+                                <c:otherwise>
+                                    <c:forEach var="dphen" items="${disease.phenotypes}" varStatus="dphenloop">
+                                        <a href="https://monarchinitiative.org/phenotype/${dphen.id}">${dphen.term}</a><c:if
+                                            test="${!dphenloop.last}"><span class="semicolon">;</span></c:if>
+                                    </c:forEach>
+                                </c:otherwise>
+                            </c:choose>
+                        </p>
+                            <%-- End of section on phenotypes --%>
+
+                        <p class="with-label">
+                            <span class="label">Associated Genes</span>
+                            <c:choose>
+                                <c:when test="${empty curatedAssociations}">
+                                    -
+                                </c:when>
+                                <c:otherwise>
+                                    <c:forEach var="assoc" items="${curatedAssociations}" varStatus="loop">
+                                        <a href="${assoc.externalUrl}">${assoc.symbol}</a>
+                                        <c:choose>
+                                            <c:when test="${empty assoc.symbolsWithdrawn}"></c:when>
+                                            <c:otherwise>
+                                        <span class="small">(Withdrawn symbols: 
+                                            <c:forEach var="withdrawn" items="${assoc.symbolsWithdrawn}"
+                                                       varStatus="loopwithdrawn">
+                                                ${withdrawn}<c:if test="${!loopwithdrawn.last}">, </c:if>
+                                            </c:forEach>
+                                            )</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                        <c:if test="${!loop.last}">, </c:if>
+                                    </c:forEach>
+                                </c:otherwise>
+                            </c:choose>
+                        </p>
+
+                        <p class="with-label">
+                            <span class="label">Mouse Orthologs</span>
+                            <c:choose>
+                                <c:when test="${empty orthologousAssociations}">
+                                    -
+                                </c:when>
+                                <c:otherwise>
+                                    <c:forEach var="assoc" items="${orthologousAssociations}" varStatus="loop">
+                                        <a href="${assoc.externalUrl}">${assoc.symbol}</a>
+                                        <c:choose>
+                                            <c:when test="${empty assoc.symbolsWithdrawn}"></c:when>
+                                            <c:otherwise>
+                                        <span class="small">(Withdrawn symbols: 
+                                            <c:forEach var="withdrawn" items="${assoc.symbolsWithdrawn}"
+                                                       varStatus="loopwithdrawn">
+                                                ${withdrawn}<c:if test="${!loopwithdrawn.last}">, </c:if>
+                                            </c:forEach>
+                                            )</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                        <c:if test="${!loop.last}">, </c:if>
+                                    </c:forEach>
+                                </c:otherwise>
+                            </c:choose>
+                        </p>
+
+                        <p class="with-label">
+                            <span class="label">Source</span>
+                            <a href="${disease.externalUrl}">${disease.id}</a> <span class="small">(names, synonyms, disease associated genes)</span>,
+                            <br/> Orphanet <span class="small">(disease classes)</span>,
+                            <br/> HGNC, Ensembl, MGI <span class="small">(gene symbols, gene orthology)</span>
+                            <br/> HPO <span class="small">(phenotypes)</span>
+                        </p>
+
                     </div>
                 </div>
             </div>
         </div>
 
+
+        <div class="container">
+            <div class="row">
+                <div class="col-12 no-gutters">
+                    <h3>Mouse Model: phenotype-based associations </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="container single single--no-side">
+            <div class="row">
+                <div class="col-12 white-bg">
+                    <div class="page-content pt-5 pb-5">
+                        <div id="phenoscatter"></div>
+                        <div id="phenoscatter-help">Disease phenotypes are compared with mouse phenotypes, with each
+                            mouse model contributing one point to the diagram. Scores are computed according
+                            to phenotype specificity and cross-species similarity.
+                            <b>X-axis</b> shows the score of the single phenotype that contributes most.
+                            <b>Y-axis</b> shows an average among all phenotype matches. The <b>curved line</b>
+                            designates a visualization threshold; models below threshold are omitted, except when
+                            their genotype matches a disease-associated gene.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <%-- A tabbed view of mouse models by orthology/phenotypic similarity --%>
+        <div class="container">
+            <div class="row">
+                <div class="col-12 no-gutters">
+                    <h3>Mouse Models</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="container single single--no-side">
+            <div class="row">
+                <div class="col-12 white-bg">
+                    <div class="page-content pt-5 pb-5">
+                        <div id="phenotabs" class="phenotabs">
+                            <ul class='tabs'>
+                                <li><a href="#by-annotation">By disease annotation</a></li>
+                                <li><a href="#by-phenotype">By phenotypic similarity</a></li>
+                            </ul>
+                            <div id="by-annotation">
+                                <c:choose>
+                                    <c:when test="${!hasModelsByOrthology}">
+                                        No mouse models associated with ${disease.id} by orthology to a human gene.
+                                    </c:when>
+                                    <c:otherwise>
+                                        <table id="models_by_annotation" class="table tablesorter disease"></table>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
+                            <div id="by-phenotype">
+                                <c:choose>
+                                    <c:when test="${!hasModelAssociations}">
+                                        No mouse models associated with ${disease.id} by phenotypic similarity.
+                                    </c:when>
+                                    <c:otherwise>
+                                        <table id="models_by_phenotype" class="table tablesorter disease"></table>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
         <%-- Js objects used to generate html on pageload: 
-             here relevant/curated mouse genes, relevant mouse models --%>              
+             here relevant/curated mouse genes, relevant mouse models --%>
         <script type="text/javascript">
             var curatedGenes = ${curatedMouseGenes};
             var modelAssociations = ${modelAssociations};
         </script>
         <%-- Configuration of tables, e.g. how they appear sorted and paginated.
              This is executed after pageload, thus page may first appear, then change. 
-        --%>       
+        --%>
         <script type="text/javascript">
             // configuration for scatterplot
             var diseaseScatterConf = {
@@ -257,7 +293,7 @@
                         filterKey: "markerSymbol",
                         filter: curatedGenes,
                         minScore: 0,
-                        innerTables: true                        
+                        innerTables: true
                     }
                 },
                 {

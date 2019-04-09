@@ -1,11 +1,11 @@
 $(document).ready(function(){						
 
 	// bubble popup for brief panel documentation
-	$.fn.qTip({
-		'pageName': 'gene',				
-		'tip': 'top right',
-		'corner' : 'right top'
-	});							
+//	$.fn.qTip({
+//		'pageName': 'gene',				
+//		'tip': 'top right',
+//		'corner' : 'right top'
+//	});							
 	
     //function to fire off a refresh of a table and it's dropdown filters
 
@@ -18,30 +18,59 @@ $(document).ready(function(){
 	// use jquery DataTable for table searching/sorting/pagination
     function initGenePhenotypesTable(){
 		var aDataTblCols = [0,1,2,3,4,5,6,7];
+		$('table#genes').dataTable(
+			{
+                "bFilter":false,
+                "bLengthChange": false,
+                'columnDefs': [
+                    {
+                        "targets": [ 7 ],
+                        "visible": false
+                    },
+					{
+                        "targets": [ 0 ],
+                        "max-width": "100px"
+					}
+                ],
+				'rowCallback': function (row, data, index) {
+                	$(row).on('click', function () {
+                		var url = data[7]['@data-sort'];
+                		if (url !== "none") {
+                            window.location.href = decodeURIComponent(url);
+                        } else {
+                            console.log(row);
+                            row.removeClass('clickableRows');
+                            row.addClass('unClickableRows');
+                            row.addClass('text-muted');
+						}
+                    });
+                }
+            }
+		);
 		//	var oDataTable = $.fn.initDataTable($('table#phenotypes'), {
-	    $('table#genes').dataTable( {
-			"aoColumns": [{ "sType": "string",  "bSortable" : true},
-			              { "sType": "html", "mRender":function( data, type, full ) {
-			            	  return (type === "filter") ? $(data).text() : data;
-			              }},
-			              { "sType": "html", "mRender":function( data, type, full ) {
-			            	  return (type === "filter") ? $(data).text() : data;
-			              }},
-			              { "sType": "string"},
-			              { "sType": "string"},
-			              { "sType": "string"},
+//	    $('table#genes').dataTable( {
+//			"aoColumns": [{ "sType": "string",  "bSortable" : true},
+//			              { "sType": "html", "mRender":function( data, type, full ) {
+//			            	  return (type === "filter") ? $(data).text() : data;
+//			              }},
+//			              { "sType": "html", "mRender":function( data, type, full ) {
+//			            	  return (type === "filter") ? $(data).text() : data;
+//			              }},
 //			              { "sType": "string"},
-//			              { "sType": "html"},
-	                      { "sType": "allnumeric"},
-			              { "sType": "string", "bSortable" : false }
-	
-			              ],
-		    "aaSorting": [[ 6, 'asc' ]],//sort on pValue first
-			"bDestroy": true,
-			"bFilter":false,
-			"bPaginate":true,
-	        "sPaginationType": "bootstrap"
-		});
+//			              { "sType": "string"},
+//			              { "sType": "string"},
+////			              { "sType": "string"},
+////			              { "sType": "html"},
+//	                      { "sType": "allnumeric"},
+//			              { "sType": "string", "bSortable" : false }
+//	
+//			              ],
+//		    "aaSorting": [[ 6, 'asc' ]],//sort on pValue first
+//			"bDestroy": true,
+//			"bFilter":false,
+//			"bPaginate":true,
+//	        "sPaginationType": "bootstrap"
+//		});
     }
 
 	// Sort the individual table containing p-values
@@ -66,22 +95,22 @@ $(document).ready(function(){
 	};
 	
 	// the number of columns should be kept in sync in the JSP
-	var oDataTable = $.fn.initDataTable($('table#strainPhenome'), {
-		"aoColumns": [
-		              { "sType": "string" },		              
-		              { "sType": "string" },
-		              { "sType": "string" },		              
-		              { "sType": "string" },
-		              { "sType": "string" },
-		             // { "sType": "string" }, // Statistical Method			              
-		              { "sType": "pvalues" }, // or numeric
-		              { "sType": "string" },
-		              { "sType": "string", "bSortable" : false }
-
-		              ],
-		              "bDestroy": true,
-		              "bFilter":false
-	});
+//	var oDataTable = $.fn.initDataTable($('table#strainPhenome'), {
+//		"aoColumns": [
+//		              { "sType": "string" },		              
+//		              { "sType": "string" },
+//		              { "sType": "string" },		              
+//		              { "sType": "string" },
+//		              { "sType": "string" },
+//		             // { "sType": "string" }, // Statistical Method			              
+//		              { "sType": "pvalues" }, // or numeric
+//		              { "sType": "string" },
+//		              { "sType": "string", "bSortable" : false }
+//
+//		              ],
+//		              "bDestroy": true,
+//		              "bFilter":false
+//	});
 	
 	//$('[rel=tooltip]').tooltip();
 	//$.fn.dataTableshowAllShowLess(oDataTable, aDataTblCols, null);
@@ -91,6 +120,7 @@ $(document).ready(function(){
 			url: newUrl,
 			cache: false
 		}).done(function( html ) {
+			console.log(newUrl);
 			$("#genes_wrapper").html(html);//phenotypes wrapper div has been created by the original datatable so we need to replace this div with the new table and content
 			initGenePhenotypesTable();
 		});
@@ -101,82 +131,108 @@ $(document).ready(function(){
 	//put filtering in another text field than the default so we can position it with the other controls like dropdown ajax filters for project etc
 	
 	//stuff for dropdown tick boxes here
-	var allDropdowns = new Array();
-	allDropdowns[0] = $('#top_level_mp_term_name');
-	allDropdowns[1] = $('#resource_fullname');
-	createDropdown(allDropdowns[0],"Phenotype: All", allDropdowns);
-	createDropdown(allDropdowns[1], "Source: All", allDropdowns);
-
-	function createDropdown(multipleSel, emptyText,  allDd){
-		console.log("called createDropdown "+ multipleSel.size());
-		$(multipleSel).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, 
-			minWidth: 150, onItemClick: function(checkbox, selector){
-				var justChecked = checkbox.prop("checked");
-				var values = [];
-				for(var  i=0; i < selector.options.length; i++ ) {
-					if (selector.options[i].selected && (selector.options[i].value != "")) {
-						values .push(selector.options[i].value);
-					}
-				}
-
-				if(justChecked){				    		 
-					values.push( checkbox.val());
-				}else{//just unchecked value is in the array so we remove it as already ticked
-					var index = $.inArray(checkbox.val(), values);
-					values.splice(index, 1);
-				}  
-				
-				// add current one and create drop down object 
-				dd1 = new Object();
-				dd1.name = multipleSel.attr('id'); 
-				dd1.array = values; // selected values
-				
-				dropdownsList[0] = dd1;
-				
-				var ddI  = 1; 
-				for (var ii=0; ii<allDd.length; ii++) { 
-					if ($(allDd[ii]).attr('id') != multipleSel.attr('id')) {
-//						console.log ("here " + allDd[ii].val() + " " + allDd[ii].attr('id'));
-						dd = new Object();
-						dd.name = allDd[ii].attr('id'); 
-						dd.array = allDd[ii].val() || []; 
-						dropdownsList[ddI++] = dd;
-					}
-				}
-//				console.log("call with " + dropdownsList.length);
-				refreshGenesPhenoFrag(dropdownsList);
-				addParamsToURL();
-			}, textFormatFunction: function(options) {
-				var selectedOptions = options.filter(":selected");
-		        var countOfSelected = selectedOptions.size();
-		        var size = options.size();
-		        var text = "";
-		        if (size > 1){
-		        	options.each(function() {
-	                    if ($(this).prop("selected")) {
-	                        if ( text != "" ) { text += ", "; }
-	                        /* NOTE use of .html versus .text, which can screw up ampersands for IE */
-	                        var optCss = $(this).attr('style');
-	                        var tempspan = $('<span/>');
-	                        tempspan.html( $(this).html() );
-	                        if ( optCss == null ) {
-	                                text += tempspan.html();
-	                        } else {
-	                                tempspan.attr('style',optCss);
-	                                text += $("<span/>").append(tempspan).html();
-	                        }
-	                    }
-	                });
-		        }
-		        switch(countOfSelected) {
-		           case 0: console.log("Switch 0"); return emptyText;
-		           case 1: console.log("Switch 1"); return selectedOptions.text();
-		           case options.size(): console.log("Switch n"); return emptyText;
-		           default: console.log("Switch default"); return text;
-		        }
+	$('.selectpicker').selectpicker();
+	$('#top_level_mp_term_name').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+		console.log('mp term selected');
+		 refreshGenesPhenoFrag();
+		});
+	
+	function refreshGenesPhenoFrag() {
+		console.log('in refreshGenesPhenoFrag');
+		var rootUrl=window.location.href;
+		var newUrl=rootUrl.replace("genes", "genesPhenoFrag").split("#")[0];
+		selectedFilters = "";
+		if($('#top_level_mp_term_name').val().length > 0){
+			
+			for (var it = 0; it < $('#top_level_mp_term_name').val().length; it++){
+			selectedFilters += '&' +'top_level_mp_term_name' + '='+$('#top_level_mp_term_name').val()[it];
 			}
-		} );
-	}	
+		}
+//		for (var it = 0; it < dropdownsList.length; it++){
+//			if (dropdownsList[it].array.length > 0){
+//				selectedFilters += '&' + dropdownsList[it].name + '=' + dropdownsList[it].array.join('&' + dropdownsList[it].name + '=');
+//			}
+//		}
+		newUrl += "?" + selectedFilters;		
+		refreshPhenoTable(newUrl);
+		return false;
+	}
+//	var allDropdowns = new Array();
+//	allDropdowns[0] = $('#top_level_mp_term_name');
+//	allDropdowns[1] = $('#resource_fullname');
+//	createDropdown(allDropdowns[0],"Phenotype: All", allDropdowns);
+//	createDropdown(allDropdowns[1], "Source: All", allDropdowns);
+
+//	function createDropdown(multipleSel, emptyText,  allDd){
+//		console.log("called createDropdown "+ multipleSel.size());
+//		$(multipleSel).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, 
+//			minWidth: 150, onItemClick: function(checkbox, selector){
+//				var justChecked = checkbox.prop("checked");
+//				var values = [];
+//				for(var  i=0; i < selector.options.length; i++ ) {
+//					if (selector.options[i].selected && (selector.options[i].value != "")) {
+//						values .push(selector.options[i].value);
+//					}
+//				}
+//
+//				if(justChecked){				    		 
+//					values.push( checkbox.val());
+//				}else{//just unchecked value is in the array so we remove it as already ticked
+//					var index = $.inArray(checkbox.val(), values);
+//					values.splice(index, 1);
+//				}  
+//				
+//				// add current one and create drop down object 
+//				dd1 = new Object();
+//				dd1.name = multipleSel.attr('id'); 
+//				dd1.array = values; // selected values
+//				
+//				dropdownsList[0] = dd1;
+//				
+//				var ddI  = 1; 
+//				for (var ii=0; ii<allDd.length; ii++) { 
+//					if ($(allDd[ii]).attr('id') != multipleSel.attr('id')) {
+////						console.log ("here " + allDd[ii].val() + " " + allDd[ii].attr('id'));
+//						dd = new Object();
+//						dd.name = allDd[ii].attr('id'); 
+//						dd.array = allDd[ii].val() || []; 
+//						dropdownsList[ddI++] = dd;
+//					}
+//				}
+////				console.log("call with " + dropdownsList.length);
+//				refreshGenesPhenoFrag(dropdownsList);
+//				addParamsToURL();
+//			}, textFormatFunction: function(options) {
+//				var selectedOptions = options.filter(":selected");
+//		        var countOfSelected = selectedOptions.size();
+//		        var size = options.size();
+//		        var text = "";
+//		        if (size > 1){
+//		        	options.each(function() {
+//	                    if ($(this).prop("selected")) {
+//	                        if ( text != "" ) { text += ", "; }
+//	                        /* NOTE use of .html versus .text, which can screw up ampersands for IE */
+//	                        var optCss = $(this).attr('style');
+//	                        var tempspan = $('<span/>');
+//	                        tempspan.html( $(this).html() );
+//	                        if ( optCss == null ) {
+//	                                text += tempspan.html();
+//	                        } else {
+//	                                tempspan.attr('style',optCss);
+//	                                text += $("<span/>").append(tempspan).html();
+//	                        }
+//	                    }
+//	                });
+//		        }
+//		        switch(countOfSelected) {
+//		           case 0: console.log("Switch 0"); return emptyText;
+//		           case 1: console.log("Switch 1"); return selectedOptions.text();
+//		           case options.size(): console.log("Switch n"); return emptyText;
+//		           default: console.log("Switch default"); return text;
+//		        }
+//			}
+//		} );
+//	}	
 	
 	function removeFilterSelects(){ // Remove selected options when going back to the page
 		$("option:selected").removeAttr("selected");
@@ -184,20 +240,6 @@ $(document).ready(function(){
 	
 	//if filter parameters are already set then we need to set them as selected in the dropdowns
 	var previousParams = $("#filterParams").html();
-	
-	function refreshGenesPhenoFrag(dropdownsList) {
-		var rootUrl=window.location.href;
-		var newUrl=rootUrl.replace("genes", "genesPhenoFrag").split("#")[0];
-		selectedFilters = "";
-		for (var it = 0; it < dropdownsList.length; it++){
-			if (dropdownsList[it].array.length > 0){
-				selectedFilters += '&' + dropdownsList[it].name + '=' + dropdownsList[it].array.join('&' + dropdownsList[it].name + '=');
-			}
-		}
-		newUrl += "?" + selectedFilters;		
-		refreshPhenoTable(newUrl);
-		return false;
-	}
 	
 	$(".filterTrigger").click(function() {
 		//Do stuff when clicked

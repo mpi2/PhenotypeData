@@ -145,7 +145,7 @@
 
                 <br />
 
-                <a href="${drupalBaseUrl}/user/login">Log in to the IMPC forum</a>
+                <a href="${cmsBaseUrl}/user/login">Log in to the IMPC forum</a>
             </div>
         </div>
 
