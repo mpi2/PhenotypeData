@@ -358,6 +358,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <mainClass>uk.ac.ebi.PhenotypeArchive</mainClass>
+                    <!-- <mainClass> uk.ac.ebi.phenotype.web.dao.StatisticsDataLoader</mainClass> -->
                 </configuration>
                 <executions>
                     <execution>
