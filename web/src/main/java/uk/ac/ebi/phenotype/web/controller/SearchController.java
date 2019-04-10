@@ -77,18 +77,6 @@ public class SearchController {
 		return "redirect:" + redirectUrl;
 	}
 
-	private String removeSpecialCharacters(String searchString) {
-		Pattern pt = Pattern.compile("[^a-zA-Z0-9\\s]");//allow spaces also as well as alpha numeric characters.
-        Matcher match= pt.matcher(searchString);
-        while(match.find())
-        {
-            String s= match.group();
-            searchString=searchString.replaceAll("\\"+s, "");
-        }
-        System.out.println(searchString);
-        return searchString;
-	}
-
 	/**
 	 * search page
 	 *
@@ -187,10 +175,6 @@ public class SearchController {
 
 		if (StringUtils.isEmpty(dataType)) {
 			dataType = "gene";
-		}
-
-		if(!query.contentEquals("*")) {
-			query=removeSpecialCharacters(query);
 		}
 
 		// encode the parsed search settings into an object
