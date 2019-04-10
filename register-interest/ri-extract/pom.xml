@@ -54,14 +54,6 @@
             <version>1.0.0</version>
         </dependency>
 
-
-        <!-- Other -->
-
-        <!--<dependency>-->
-            <!--<groupId>commons-dbcp</groupId>-->
-            <!--<artifactId>commons-dbcp</artifactId>-->
-        <!--</dependency>-->
-
     </dependencies>
 
     <build>
