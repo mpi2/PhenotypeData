@@ -33,6 +33,7 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.SimpleCommandLinePropertySource;
@@ -74,7 +75,7 @@ public class ApplicationExtract implements CommandLineRunner {
         SpringApplication app = new SpringApplication(ApplicationExtract.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
-        app.setWebEnvironment(false);
+        app.setWebApplicationType(WebApplicationType.NONE);
         app.run(args);
     }
 

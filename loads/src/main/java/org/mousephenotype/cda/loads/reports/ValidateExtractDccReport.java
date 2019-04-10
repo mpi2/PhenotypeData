@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
@@ -146,7 +147,7 @@ public class ValidateExtractDccReport extends AbstractReport implements CommandL
         SpringApplication app = new SpringApplication(ValidateExtractDccReport.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
-        app.setWebEnvironment(false);
+        app.setWebApplicationType(WebApplicationType.NONE);
         app.run(args);
     }
 

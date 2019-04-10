@@ -142,7 +142,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
         // Every colony should have an allele symbol rovided by iMits
         // Validate that the allele symbol is not null or empty string
         //
-        if ( StringUtils.isNullOrEmpty(newPhenotypedColony.getAlleleSymbol()) ) {
+        if ( StringUtils.isEmpty(newPhenotypedColony.getAlleleSymbol()) ) {
             logger.warn("Allele symbol is null or empty for colony {}. Skipping record", newPhenotypedColony.getColonyName());
             return null;
         }

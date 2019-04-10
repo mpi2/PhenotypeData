@@ -19,7 +19,7 @@ import javax.validation.constraints.NotNull;
  */
 
 @Configuration
-@EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"}, multicoreSupport = true)
+@EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
 public class SolrServerConfig {
 
 	@NotNull
@@ -37,7 +37,7 @@ public class SolrServerConfig {
 
 	// Required for spring-data-solr repositories
 	@Bean
-	public SolrClient solrClient() { return new HttpSolrClient(solrBaseUrl); }
+	public SolrClient solrClient() { return new HttpSolrClient.Builder(solrBaseUrl).build(); }
 
 	@Bean
 	public SolrOperations solrTemplate() { return new SolrTemplate(solrClient()); }
@@ -47,15 +47,14 @@ public class SolrServerConfig {
 	@Bean(name = "allele2Core")
 	HttpSolrClient getAllele2Core() {
 
-		//return new HttpSolrClient("http://localhost:8086/solr-example/allele");
-		return new HttpSolrClient(solrBaseUrl + "/allele2");
+		return new HttpSolrClient.Builder(solrBaseUrl + "/allele2").build();
 
 	}
 
 	@Bean(name = "productCore")
 	HttpSolrClient getProductCore() {
 
-		return new HttpSolrClient(imitsSolrBaseUrl + "/product");
+		return new HttpSolrClient.Builder(imitsSolrBaseUrl + "/product").build();
 	}
 
 	// Read only solr servers
@@ -63,88 +62,88 @@ public class SolrServerConfig {
 	// IMPC disease core retired and now points to Phenodigm server
 	@Bean(name = "phenodigmCore")
 	public HttpSolrClient getPhenodigmCore() {
-		return new HttpSolrClient(solrBaseUrl + "/phenodigm");
+		return new HttpSolrClient.Builder(solrBaseUrl + "/phenodigm").build();
 	}
 
 	//Configuration
 	@Bean(name = "configurationCore")
 	public HttpSolrClient getConfigurationCore() {
-		return new HttpSolrClient(solrBaseUrl + "/configuration");
+		return new HttpSolrClient.Builder(solrBaseUrl + "/configuration").build();
 	}
 
 
 	//Allele
 	@Bean(name = "alleleCore")
 	public HttpSolrClient getAlleleCore() {
-		return new HttpSolrClient(solrBaseUrl + "/allele");
+		return new HttpSolrClient.Builder(solrBaseUrl + "/allele").build();
 	}
 
 
 	//Autosuggest
 	@Bean(name = "autosuggestCore")
 	HttpSolrClient getAutosuggestCore() {
-		return new HttpSolrClient(solrBaseUrl + "/autosuggest");
+		return new HttpSolrClient.Builder(solrBaseUrl + "/autosuggest").build();
 	}
 
 	//Gene
 	@Bean(name = "geneCore")
 	HttpSolrClient getGeneCore() {
-		return new HttpSolrClient(solrBaseUrl + "/gene");
+		return new HttpSolrClient.Builder(solrBaseUrl + "/gene").build();
 	}
 
 	//GenotypePhenotype
 	@Bean(name = "genotypePhenotypeCore")
 	HttpSolrClient getGenotypePhenotypeCore() {
-		return new HttpSolrClient(solrBaseUrl + "/genotype-phenotype");
+		return new HttpSolrClient.Builder(solrBaseUrl + "/genotype-phenotype").build();
 	}
 
 	// Impc images core
 	@Bean(name = "impcImagesCore")
 	HttpSolrClient getImpcImagesCore() {
-		return new HttpSolrClient(solrBaseUrl + "/impc_images");
+		return new HttpSolrClient.Builder(solrBaseUrl + "/impc_images").build();
 	}
 
 	//SangerImages
 	@Bean(name = "sangerImagesCore")
 	HttpSolrClient getImagesCore() {
-		return new HttpSolrClient(solrBaseUrl + "/images");
+		return new HttpSolrClient.Builder(solrBaseUrl + "/images").build();
 	}
 
 	//ANATOMY
 	@Bean(name = "anatomyCore")
-	HttpSolrClient getAnatomyCore() { return new HttpSolrClient(solrBaseUrl + "/anatomy");	}
+	HttpSolrClient getAnatomyCore() { return new HttpSolrClient.Builder(solrBaseUrl + "/anatomy").build();	}
 
 	//MP
 	@Bean(name = "mpCore")
-	HttpSolrClient getMpCore() { return new HttpSolrClient(solrBaseUrl + "/mp"); }
+	HttpSolrClient getMpCore() { return new HttpSolrClient.Builder(solrBaseUrl + "/mp").build(); }
 
 	//EMAP
 	@Bean(name = "emapCore")
 	HttpSolrClient getEmapCore() {
-		return new HttpSolrClient(solrBaseUrl + "/emap");
+		return new HttpSolrClient.Builder(solrBaseUrl + "/emap").build();
 	}
 
 	@Bean(name = "experimentCore")
 	HttpSolrClient getExperimentCore() {
-		return new HttpSolrClient(solrBaseUrl + "/experiment");
+		return new HttpSolrClient.Builder(solrBaseUrl + "/experiment").build();
 	}
 
 	//Pipeline
 	@Bean(name = "pipelineCore")
 	HttpSolrClient getPipelineCore() {
-		return new HttpSolrClient(solrBaseUrl + "/pipeline");
+		return new HttpSolrClient.Builder(solrBaseUrl + "/pipeline").build();
 	}
 
 	//Preqc
 	@Bean(name = "preqcCore")
 	HttpSolrClient getPreqcCore() {
-		return new HttpSolrClient(solrBaseUrl + "/preqc");
+		return new HttpSolrClient.Builder(solrBaseUrl + "/preqc").build();
 	}
 
 	//StatisticalResult
 	@Bean(name = "statisticalResultCore")
 	HttpSolrClient getStatisticalResultCore() {
-		return new HttpSolrClient(solrBaseUrl + "/statistical-result");
+		return new HttpSolrClient.Builder(solrBaseUrl + "/statistical-result").build();
 	}
 
 

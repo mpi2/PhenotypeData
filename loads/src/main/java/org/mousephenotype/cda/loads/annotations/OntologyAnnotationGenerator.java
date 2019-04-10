@@ -1,15 +1,13 @@
 package org.mousephenotype.cda.loads.annotations;
 
-import com.mchange.util.AssertException;
-import com.thoughtworks.xstream.InitializationException;
 import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.db.statistics.ResultDTO;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -72,7 +70,7 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
             insertRRPlusStatResultPhenotypeCallSummaryStatement = connection.prepareStatement("INSERT INTO stat_result_phenotype_call_summary(rrplus_result_id, phenotype_call_summary_id) VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new InitializationException("Cannot initialize prepared statements -- SQL Exception occured", e);
+            throw new RuntimeException("Cannot initialize prepared statements -- SQL Exception occured", e);
         }
 
 

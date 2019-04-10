@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
@@ -156,7 +157,7 @@ public class ValidateLoadCdaExperimentReport extends AbstractReport implements C
         SpringApplication app = new SpringApplication(ValidateLoadCdaExperimentReport.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
-        app.setWebEnvironment(false);
+        app.setWebApplicationType(WebApplicationType.NONE);
         app.run(args);
     }
 

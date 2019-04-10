@@ -37,15 +37,12 @@ public class StatisticalDatasetGeneratorConfig {
 
     @Bean(name = "experimentCore")
     HttpSolrClient getExperimentCore() {
-        return new HttpSolrClient(solrBaseUrl + "/experiment");
+        return new HttpSolrClient.Builder(solrBaseUrl + "/experiment").build();
     }
 
     //Pipeline
     @Bean(name = "pipelineCore")
     HttpSolrClient getPipelineCore() {
-        return new HttpSolrClient(solrBaseUrl + "/pipeline");
+        return new HttpSolrClient.Builder(solrBaseUrl + "/pipeline").build();
     }
-
-
-
 }

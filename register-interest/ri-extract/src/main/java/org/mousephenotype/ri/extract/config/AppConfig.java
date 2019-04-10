@@ -36,8 +36,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.EmbeddedServletContainerAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -65,8 +64,7 @@ import java.util.Map;
         JpaRepositoriesAutoConfiguration.class,
         DataSourceTransactionManagerAutoConfiguration.class,
         Neo4jDataAutoConfiguration.class,
-        WebMvcAutoConfiguration.class,
-        EmbeddedServletContainerAutoConfiguration.class
+        WebMvcAutoConfiguration.class
 })
 public class AppConfig {
 
