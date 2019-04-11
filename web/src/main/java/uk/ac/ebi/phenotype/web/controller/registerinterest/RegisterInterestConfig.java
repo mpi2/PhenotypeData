@@ -25,13 +25,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 
 @Configuration
-//@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
+@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
 
 //@PropertySource("${configServerUrl}")
 //@PropertySource("http://ves-ebi-d9.ebi.ac.uk:8989/pa/dev")
