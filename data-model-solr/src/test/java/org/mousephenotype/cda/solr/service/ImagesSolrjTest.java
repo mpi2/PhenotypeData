@@ -6,13 +6,11 @@ import org.apache.solr.common.SolrDocument;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.TestConfigSolr;
-import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
@@ -27,26 +25,23 @@ import static org.junit.Assert.assertTrue;
 
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes={TestConfigSolr.class})
-@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
+@SpringBootTest
+@ContextConfiguration(classes = {TestConfigSolr.class})
 public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTests {
 
 	@Autowired
-	ImagesSolrDao imagesSolrDao;
-
-	@Autowired
-	ImagesSolrJ imgJ;
+	ImagesSolrJ imagesSolrJ;
 
 	@Test
 	public void testGetIdsForKeywordsSearch() throws SolrServerException, IOException {
-		List<String> result = imagesSolrDao.getIdsForKeywordsSearch("accession:MGI\\:1933365", 0, 10);
+		List<String> result = imagesSolrJ.getIdsForKeywordsSearch("accession:MGI\\:1933365", 0, 10);
 		assertTrue(result.size() > 0);
 	}
 
 	@Test
 	public void testGetExperimentalFacetForGeneAccession() throws SolrServerException, IOException {
 		String geneId = "MGI:1933365";
-		QueryResponse solrR = imagesSolrDao.getExperimentalFacetForGeneAccession(geneId);
+		QueryResponse solrR = imagesSolrJ.getExperimentalFacetForGeneAccession(geneId);
 		assertTrue(solrR.getFacetFields().size() > 0);
 
 	}
@@ -56,7 +51,7 @@ public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTes
 
 		String geneId = "MGI:4433191";
 		geneId = "MGI:97549";
-		QueryResponse response = imagesSolrDao.getDocsForGeneWithFacetField(geneId, "expName", "Xray","", 0, 5);
+		QueryResponse response = imagesSolrJ.getDocsForGeneWithFacetField(geneId, "expName", "Xray", "", 0, 5);
 		assertTrue(response.getResults().size() > 0);
 
 		for (SolrDocument doc : response.getResults()) {
@@ -64,7 +59,7 @@ public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTes
 		}
 
 		//no Histology Slide expName anymore?? what happened
-		response = imagesSolrDao.getDocsForGeneWithFacetField(geneId, "expName", "Wholemount Expression","", 0, 10);
+		response = imagesSolrJ.getDocsForGeneWithFacetField(geneId, "expName", "Wholemount Expression", "", 0, 10);
 		assertTrue(response.getResults().size() > 0);
 
 		for (SolrDocument doc : response.getResults()) {
@@ -76,7 +71,7 @@ public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTes
 	@Test
 	public void testGetExpressionFacetForGeneAccession() throws SolrServerException, IOException {
 		QueryResponse solrR = null;
-		solrR = imagesSolrDao.getExpressionFacetForGeneAccession("MGI:104874");
+		solrR = imagesSolrJ.getExpressionFacetForGeneAccession("MGI:104874");
 		assertTrue(solrR.getFacetFields().size() > 0);
 	}
 
@@ -87,10 +82,10 @@ public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTes
 		List<String> filters=new ArrayList<String>();
 		filters.add(filter);
 
-		QueryResponse solrR=imagesSolrDao.getFilteredDocsForQuery("accession:MGI\\:1933365",filters,"","", 0, 10);
+		QueryResponse solrR= imagesSolrJ.getFilteredDocsForQuery("accession:MGI\\:1933365", filters, "", "", 0, 10);
 		assertTrue(solrR.getResults().size()>0);
 
-		QueryResponse solrR3=imagesSolrDao.getFilteredDocsForQuery("accession:MGI\\:1933365",filters,"auto_suggest","",  0, 10);
+		QueryResponse solrR3= imagesSolrJ.getFilteredDocsForQuery("accession:MGI\\:1933365", filters, "auto_suggest", "", 0, 10);
 		assertTrue(solrR3.getResults().size()>0);
 	}
 
@@ -98,7 +93,6 @@ public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTes
 	@Test
 	public void testProcessSpacesForSolr() throws MalformedURLException {
 
-//		ImagesSolrJ imgJ = new ImagesSolrJ("http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr");
 		Map<String,String> testcases = new HashMap<String,String>();
 		testcases.put("test \"1", "\"test \\\"1\"");
 		testcases.put("test 1", "\"test 1\"");
@@ -111,7 +105,7 @@ public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTes
         for(Map.Entry<String, String> testcase : testcases.entrySet()) {
             String key = testcase.getKey();
             String expected = testcase.getValue();
-            String processed = imgJ.processValueForSolr(key);
+            String processed = imagesSolrJ.processValueForSolr(key);
             assertEquals(expected, processed);
         }
 	}

@@ -30,7 +30,7 @@ import javax.validation.constraints.NotNull;
 @Configuration
 public class OntologyParserTestConfig {
 
-    @Value("${datasource.komp2.url}")
+    @Value("${datasource.komp2.jdbc-url}")
     private String komp2Url;
 
     @NotNull

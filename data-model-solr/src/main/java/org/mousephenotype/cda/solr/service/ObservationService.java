@@ -1030,7 +1030,7 @@ public class ObservationService extends BasicService implements WebStatus {
                 .setFacetLimit(-1)
                 .addFacetPivotField(StringUtils.join(facetFields, ","));
 
-        System.out.println("query for postQcdata="+query);
+        logger.debug("query for postQcdata="+query);
         QueryResponse response = solr.query(query);
 
         NamedList<List<PivotField>> facetPivot = response.getFacetPivot();

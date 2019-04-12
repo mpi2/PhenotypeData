@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
@@ -34,9 +33,9 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
-
 @SpringBootTest
 @ContextConfiguration(classes = {OntologyParserTestConfig.class})
+
 public class OntologyParserTest {
 
     private final Logger         logger = LoggerFactory.getLogger(this.getClass());
