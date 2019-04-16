@@ -21,7 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -32,12 +31,10 @@ import org.mousephenotype.cda.solr.bean.ExpressionImagesBean;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.AnatomyPageTableRow;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
-import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
@@ -55,46 +52,33 @@ public class ExpressionService extends BasicService {
 	
 	public static final String SECTION_EMBRYO_LACZ="IMPC_ELZ_063_001";
 	public static final String WHOLEOMOUNT_EMBRYO_LACZ="IMPC_ELZ_064_001";
-	@Autowired
-	@Qualifier("experimentCore")
-	private SolrClient experimentSolr;
 
-	@Autowired
-	@Qualifier("impcImagesCore")
-	private SolrClient imagesSolr;
-
-	@Autowired
-	ExperimentService experimentService;
-
-	@Autowired
-	ImpressService impressService;
-
-	@Autowired
 	private AnatomyService anatomyService;
+	private SolrClient     experimentCore;
+	private SolrClient     impcImagesCore;
+	private ImpressService impressService;
 
-	// @Autowired
-	// MaService maService;
+	private Map<String, OntologyBean> abnormalEmapaFromImpress;
+	private Map<String, OntologyBean> abnormalMaFromImpress;
 
-	Map<String, OntologyBean> abnormalEmapaFromImpress = null;
-	Map<String, OntologyBean> abnormalMaFromImpress = null;
+	@Inject
+	public ExpressionService(
+			SolrClient experimentCore,
+			SolrClient impcImagesCore,
+			AnatomyService anatomyService,
+			ImpressService impressService)
+	{
+	    super();
+		this.experimentCore = experimentCore;
+		this.impcImagesCore = impcImagesCore;
+		this.anatomyService = anatomyService;
+		this.impressService = impressService;
+
+		initialiseAbnormalOntologyMaps();
+	}
 
 	public ExpressionService() {
-	}
-
-	public ExpressionService(String experimentSolrUrl, String imagesSolrUrl, String impressServiceUrl,
-			String anatomyServiceUrl) {
-
-		experimentSolr = new HttpSolrClient.Builder(experimentSolrUrl).build();
-		imagesSolr = new HttpSolrClient.Builder(imagesSolrUrl).build();
-		impressService = new ImpressService(impressServiceUrl);
-		anatomyService = new AnatomyService(anatomyServiceUrl);
-	}
-
-	@PostConstruct
-	public void initialiseAbnormalOntologyMaps() {
-		abnormalMaFromImpress = impressService.getParameterStableIdToAbnormalMaMap();
-		abnormalEmapaFromImpress = impressService.getParameterStableIdToAbnormalEmapaMap();
-
+		super();
 	}
 
 	public QueryResponse getExpressionImagesForGeneByAnatomy(String mgiAccession, String anatomy,
@@ -119,7 +103,7 @@ public class ExpressionService extends BasicService {
 		// solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" +
 		// procedure_name + "\"");
 		solrQuery.setRows(numberOfImagesToRetrieve);
-		QueryResponse response = imagesSolr.query(solrQuery);
+		QueryResponse response = impcImagesCore.query(solrQuery);
 		return response;
 	}
 
@@ -154,7 +138,7 @@ public class ExpressionService extends BasicService {
 		solrQuery.setRows(100000);
 		solrQuery.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
 
-		QueryResponse response = imagesSolr.query(solrQuery);
+		QueryResponse response = impcImagesCore.query(solrQuery);
 		return response;
 	}
 
@@ -194,7 +178,7 @@ public class ExpressionService extends BasicService {
 		solrQuery.setRows(Integer.MAX_VALUE);
 		solrQuery.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
 
-		QueryResponse response = experimentSolr.query(solrQuery);
+		QueryResponse response = experimentCore.query(solrQuery);
 		return response;
 	}
 
@@ -221,7 +205,7 @@ public class ExpressionService extends BasicService {
 		solrQuery.setFields(fields);
 		solrQuery.addFacetField(ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM);
 		solrQuery.setRows(Integer.MAX_VALUE);
-		QueryResponse response = imagesSolr.query(solrQuery);
+		QueryResponse response = impcImagesCore.query(solrQuery);
 		return response;
 	}
 
@@ -246,7 +230,7 @@ public class ExpressionService extends BasicService {
 		solrQuery.setFields(fields);
 		solrQuery.addFacetField(ImageDTO.PARAMETER_STABLE_ID);
 		solrQuery.setRows(0);
-		QueryResponse response = experimentSolr.query(solrQuery);
+		QueryResponse response = experimentCore.query(solrQuery);
 		List<FacetField> categoryParameterFields = response.getFacetFields();
 
 		return categoryParameterFields.get(0).getValues();
@@ -272,7 +256,7 @@ public class ExpressionService extends BasicService {
 		solrQuery.addFacetField(ImageDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM);
 		solrQuery.setRows(Integer.MAX_VALUE);
 		solrQuery.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
-		QueryResponse response = imagesSolr.query(solrQuery);
+		QueryResponse response = impcImagesCore.query(solrQuery);
 		return response;
 	}
 
@@ -724,8 +708,7 @@ public class ExpressionService extends BasicService {
 		 + "\"");
 		 }
 
-		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(experimentSolr) + "/select?" + query);
-		List<ObservationDTO> response = experimentSolr.query(query).getBeans(ObservationDTO.class);
+		List<ObservationDTO> response = experimentCore.query(query).getBeans(ObservationDTO.class);
 		for (ObservationDTO observation : response) {
 
 			// for (String expressionValue :
@@ -768,14 +751,18 @@ public class ExpressionService extends BasicService {
 			.setFacetLimit(-1)
 			.addFacetField(ObservationDTO.GENE_ACCESSION_ID);
 		
-		for (Count value: experimentSolr.query(q).getFacetFields().get(0).getValues()){
+		for (Count value: experimentCore.query(q).getFacetFields().get(0).getValues()){
 			geneIds.add(value.getName());
 		}
 		return geneIds;
 		
 	}
-	
-	
+
+	private void initialiseAbnormalOntologyMaps() {
+		abnormalMaFromImpress = impressService.getParameterStableIdToAbnormalMaMap();
+		abnormalEmapaFromImpress = impressService.getParameterStableIdToAbnormalEmapaMap();
+	}
+
 	private ExpressionRowBean getAnatomyRow(String anatomy, Map<String, SolrDocumentList> anatomyToDocs,
 			boolean embryo) {
 
@@ -1257,7 +1244,7 @@ public class ExpressionService extends BasicService {
 				query.addFacetField(ObservationDTO.PROCEDURE_NAME);
 				query.addFacetField(ObservationDTO.CATEGORY);
 
-				QueryResponse response = experimentSolr.query(query);
+				QueryResponse response = experimentCore.query(query);
 				for (FacetField facetField : response.getFacetFields()) {
 					Set<String> filter = new TreeSet<>();
 					for (Count facet : facetField.getValues()) {
@@ -1295,7 +1282,7 @@ public class ExpressionService extends BasicService {
 		boolean expressionData=false;
 		SolrQuery query = getBasicExpressionQuery(anatomyId);
 		query.setRows(0);
-		QueryResponse response = experimentSolr.query(query);
+		QueryResponse response = experimentCore.query(query);
 		if(response.getResults().getNumFound() >0){
 			expressionData= true;
 		}
@@ -1312,14 +1299,10 @@ public class ExpressionService extends BasicService {
 		solrQuery.setQuery(ObservationDTO.PROCEDURE_NAME + ":*LacZ");
 		solrQuery.addFilterQuery("(" + ObservationDTO.ANATOMY_ID + ":\"" + anatomyId + "\" OR " + ObservationDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anatomyId + "\" OR "
 				+ ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\"" + anatomyId + "\")");
-		if(imagesSolr.query(solrQuery).getResults().getNumFound()>0){
+		if(impcImagesCore.query(solrQuery).getResults().getNumFound()>0){
 			return true;
 		}
 		
 		return false;
 	}
-	
-	
-	
 }
-

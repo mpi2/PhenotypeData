@@ -2,257 +2,259 @@ package org.mousephenotype.cda.solr;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.mousephenotype.cda.db.dao.SecondaryProjectDAO;
+import org.mousephenotype.cda.db.dao.SecondaryProjectDAOImpl;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
-import org.mousephenotype.cda.solr.service.GrossPathService;
-import org.mousephenotype.cda.solr.service.ImpressService;
-import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
+import org.mousephenotype.cda.solr.service.*;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.JpaVendorAdapter;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
-import java.util.Properties;
 
-
-/**
- * TestConfig sets up the in memory database for supporting the database tests.
- * <p>
- * This will also import the data specified in the sql/test-data.sql file.
- */
 
 @Configuration
-@EnableTransactionManagement
-@EnableAutoConfiguration
-@ComponentScan(value = "org.mousephenotype.cda",
-	excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = {"org.mousephenotype.cda.db.entity.*OntologyDAO"})
-)
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
 public class TestConfigSolr {
-
 
 
 	@NotNull
 	@Value("${solr.host}")
 	private String solrBaseUrl;
 
-	@Autowired
-	ImpressService impressService;
+
+	//////////////
+	// datasources
+	//////////////
+
+	@Value("${datasource.komp2.jdbc-url}")
+	private String komp2Url;
 
 	@NotNull
-	@Value("${imits.solr.host}")
-	private String imitsSolrBaseUrl;
+	@Value("${datasource.komp2.username}")
+	private String username;
+
+	@NotNull
+	@Value("${datasource.komp2.password}")
+	private String password;
+
+	@Bean
+	@Primary
+	@ConfigurationProperties("datasource.komp2")
+	public DataSource dataSource() {
+
+		DataSource komp2DataSource = SqlUtils.getConfiguredDatasource(komp2Url, username, password);
+
+		return komp2DataSource;
+	}
 
 
+	/////////////////////////
+	// Read only solr servers
+	/////////////////////////
+
+	// allele
+	@Bean(name = "alleleCore")
+	public HttpSolrClient alleleCore() {
+		return new HttpSolrClient.Builder(solrBaseUrl + "/allele").build();
+	}
+
+	// allele2
+	@Bean(name = "allele2Core")
+	public HttpSolrClient allele2Core() {
+		return new HttpSolrClient.Builder(solrBaseUrl + "/allele2").build();
+	}
+
+	// anatomy
+	@Bean(name = "anatomyCore")
+	HttpSolrClient anatomyCore() {
+		return new HttpSolrClient.Builder(solrBaseUrl + "/anatomy").build();
+	}
+
+	// autosuggest
+	@Bean(name = "autosuggestCore")
+	HttpSolrClient autosuggestCore() {
+		return new HttpSolrClient.Builder(solrBaseUrl + "/autosuggest").build();
+	}
+
+	// experiment
+	@Bean(name = "experimentCore")
+	HttpSolrClient experimentCore() {
+		return new HttpSolrClient.Builder(solrBaseUrl + "/experiment").build();
+	}
+
+	// gene
+	@Bean(name = "geneCore")
+	HttpSolrClient geneCore() {
+		return new HttpSolrClient.Builder(solrBaseUrl + "/gene").build();
+	}
+
+	// genotype-phenotype
+	@Bean(name = "genotypePhenotypeCore")
+	HttpSolrClient genotypePhenotypeCore() {
+		return new HttpSolrClient.Builder(solrBaseUrl + "/genotype-phenotype").build();
+	}
+
+	// images
+	@Bean(name = "sangerImagesCore")
+	HttpSolrClient imagesCore() {
+		return new HttpSolrClient.Builder(solrBaseUrl + "/images").build();
+	}
+
+	// impc_images
+	@Bean(name = "impcImagesCore")
+	HttpSolrClient impcImagesCore() {
+		return new HttpSolrClient.Builder(solrBaseUrl + "/impc_images").build();
+	}
+
+	// mgi-phenotype
+	@Bean(name = "mgiPhenotypeCore")
+	HttpSolrClient mgiPhenotypeCore() {
+		return new HttpSolrClient.Builder(solrBaseUrl + "/mgi-phenotype").build();
+	}
+
+	// mp
+	@Bean(name = "mpCore")
+	HttpSolrClient mpCore() { return new HttpSolrClient.Builder(solrBaseUrl + "/mp").build(); }
+
+	// phenodigm
+	@Bean(name = "phenodigmCore")
+	public HttpSolrClient phenodigmCore() {
+		return new HttpSolrClient.Builder(solrBaseUrl + "/phenodigm").build();
+	}
+
+	// pipeline
+	@Bean(name = "pipelineCore")
+	HttpSolrClient pipelineCore() {
+		return new HttpSolrClient.Builder(solrBaseUrl + "/pipeline").build();
+	}
+
+	// product
+	@Bean(name = "productCore")
+	HttpSolrClient productCore() { return new HttpSolrClient.Builder(solrBaseUrl + "/product").build(); }
+
+	// statistical-result
+	@Bean(name = "statisticalResultCore")
+	HttpSolrClient statisticalResultCore() {
+		return new HttpSolrClient.Builder(solrBaseUrl + "/statistical-result").build();
+	}
+
+
+	///////
+	// DAOs
+	///////
+
+	@Bean
+	public SecondaryProjectDAO secondaryProjectDAO() {
+		return new SecondaryProjectDAOImpl();
+	}
+
+
+	///////////
+	// SERVICES
+	///////////
+
+	@Bean
+	public AdvancedSearchService advancedSearchService() {
+		return new AdvancedSearchService(postQcService());
+	}
+
+	@Bean
+	public AlleleService alleleService() {
+		return new AlleleService(alleleCore());
+
+	}
+	@Bean
+	public AnatomyService anatomyService() {
+		return new AnatomyService(anatomyCore());
+	}
+
+	@Bean
+	public ExpressionService expressionService() {
+		return new ExpressionService(experimentCore(), impcImagesCore(), anatomyService(), impressService());
+	}
+
+	@Bean
+	public GeneService geneService() {
+		return new GeneService(geneCore());
+	}
+
+	@Bean
+	public GrossPathService grossPathService() {
+		return new GrossPathService(observationService(), imageService());
+	}
+
+	@Bean
+	public ImageService imageService() {
+		return new ImageService(impcImagesCore());
+	}
+
+	@Bean
+	public ImpressService impressService() {
+		return new ImpressService(pipelineCore());
+	}
+
+	@Bean
+	public MpService mpService() {
+		return new MpService(mpCore());
+	}
+
+	@Bean
+	public ObservationService observationService() {
+		return new ObservationService(experimentCore());
+	}
+
+	@Bean
+	public OrderService orderService() {
+		return new OrderService(allele2Core(), productCore());
+	}
+
+	@Bean
+	public PhenodigmService phenodigmService() {
+		return new PhenodigmService(phenodigmCore());
+	}
+
+	@Bean
+	public PostQcService postQcService() {
+		return new PostQcService(genotypePhenotypeCore(), secondaryProjectDAO());
+	}
+
+
+	////////////////
+	// Miscellaneous
+	////////////////
+
+	@Bean
+	public ImagesSolrJ imagesSolrJ() {
+		return new ImagesSolrJ();
+	}
+
+
+	/////////////////////////////////////////////
 	// Required for spring-data-solr repositories
+	/////////////////////////////////////////////
+
 	@Bean
 	public SolrClient solrClient() { return new HttpSolrClient.Builder(solrBaseUrl).build(); }
 
 	@Bean
 	public SolrOperations solrTemplate() { return new SolrTemplate(solrClient()); }
-	// Required for spring-data-solr repositories
-
-
-	@Bean(name = "allele2Core")
-	HttpSolrClient getAllele2Core() {
-
-		//return new HttpSolrClient("http://localhost:8086/solr-example/allele");
-		return new HttpSolrClient.Builder(solrBaseUrl + "/allele2").build();
-
-	}
-
-	@Bean(name = "productCore")
-	HttpSolrClient getProductCore() {
-
-		return new HttpSolrClient.Builder(imitsSolrBaseUrl + "/product").build();
-		//return new HttpSolrClient("http://localhost:8086/solr-example/product");
-
-	}
-
-
-
-	// Read only solr servers
-
-	//Phenodigm server for our Web Status currently only
-	@Bean(name = "phenodigmCore")
-	public HttpSolrClient getPhenodigmCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/phenodigm").build();
-	}
-
-	//Configuration
-	@Bean(name = "configurationCore")
-	public HttpSolrClient getConfigurationCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/configuration").build();
-	}
-
-	//Allele
-	@Bean(name = "alleleCore")
-	public HttpSolrClient getAlleleCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/allele").build();
-	}
-
-	//Autosuggest
-	@Bean(name = "autosuggestCore")
-	HttpSolrClient getAutosuggestCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/autosuggest").build();
-	}
-
-	//Disease
-	@Bean(name = "diseaseCore")
-	HttpSolrClient getDiseaseCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/disease").build();
-	}
-
-	//Gene
-	@Bean(name = "geneCore")
-	HttpSolrClient getGeneCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/gene").build();
-	}
-
-	//GenotypePhenotype
-	@Bean(name = "genotypePhenotypeCore")
-	HttpSolrClient getGenotypePhenotypeCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/genotype-phenotype").build();
-	}
-
-	// Impc images core
-	@Bean(name = "impcImagesCore")
-	HttpSolrClient getImpcImagesCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/impc_images").build();
-	}
-
-	//SangerImages
-	@Bean(name = "sangerImagesCore")
-	HttpSolrClient getImagesCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/images").build();
-	}
-
-	//ANATOMY
-	@Bean(name = "anatomyCore")
-	HttpSolrClient getAnatomyCore() { return new HttpSolrClient.Builder(solrBaseUrl + "/anatomy").build();	}
-
-	//MP
-	@Bean(name = "mpCore")
-	HttpSolrClient getMpCore() { return new HttpSolrClient.Builder(solrBaseUrl + "/mp").build(); }
-
-	//EMAP
-	@Bean(name = "emapCore")
-	HttpSolrClient getEmapCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/emap").build();
-	}
-
-	@Bean(name = "experimentCore")
-	HttpSolrClient getExperimentCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/experiment").build();
-	}
-
-	//Pipeline
-	@Bean(name = "pipelineCore")
-	HttpSolrClient getPipelineCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/pipeline").build();
-	}
-
-	//Preqc
-	@Bean(name = "preqcCore")
-	HttpSolrClient getPreqcCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/preqc").build();
-	}
-
-	//StatisticalResult
-	@Bean(name = "statisticalResultCore")
-	HttpSolrClient getStatisticalResultCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/statistical-result").build();
-	}
-
-	@Bean
-	PhenotypeCenterService phenotypeCenterService() {
-		return new PhenotypeCenterService(getExperimentCore());
-	}
-
-
-
-	@Value("${datasource.komp2.url}")
-	String komp2Url;
-
-	@Value("${datasource.komp2.username}")
-	String komp2Username;
-
-	@Value("${datasource.komp2.password}")
-	String komp2Password;
-
-
-	@Bean
-	@Primary
-	public DataSource komp2DataSource() {
-		return SqlUtils.getConfiguredDatasource(komp2Url, komp2Username, komp2Password);
-	}
-
-	@Bean
-	@ConfigurationProperties(prefix = "datasource.admintools")
-	public DataSource admintoolsDataSource() {
-		return DataSourceBuilder.create().build();
-	}
-
-
-	@Bean
-	public GrossPathService grossPathService() {
-		return new GrossPathService();
-	}
-
-	@Bean
-	public ObservationService observationService() {
-		return new ObservationService();
-	}
-
-
-	// PRIVATE AND PROTECTED METHODS
-
-
-	@Bean
-	protected LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-		LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
-		emf.setDataSource(komp2DataSource());
-		emf.setPackagesToScan(new String[]{"org.mousephenotype.cda.db.pojo", "org.mousephenotype.cda.db.entity"});
-
-		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-		emf.setJpaVendorAdapter(vendorAdapter);
-		emf.setJpaProperties(buildHibernateProperties());
-
-		return emf;
-	}
-
-	private Properties buildHibernateProperties() {
-		Properties hibernateProperties = new Properties();
-
-		hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-		hibernateProperties.setProperty("hibernate.show_sql", "true");
-		hibernateProperties.setProperty("hibernate.use_sql_comments", "true");
-		hibernateProperties.setProperty("hibernate.format_sql", "true");
-		hibernateProperties.setProperty("hibernate.generate_statistics", "false");
-		hibernateProperties.setProperty("hibernate.current_session_context_class","thread");
-
-		return hibernateProperties;
-	}
 
 	@Bean(name = "sessionFactoryHibernate")
 	protected LocalSessionFactoryBean sessionFactory() {
 		LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-		sessionFactory.setDataSource(komp2DataSource());
+		sessionFactory.setDataSource(dataSource());
 		sessionFactory.setPackagesToScan("org.mousephenotype.cda.db");
 		return sessionFactory;
 	}
@@ -262,7 +264,7 @@ public class TestConfigSolr {
 	protected PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
 		JpaTransactionManager tm = new JpaTransactionManager();
 		tm.setEntityManagerFactory(emf);
-		tm.setDataSource(komp2DataSource());
+		tm.setDataSource(dataSource());
 		return tm;
 	}
 }

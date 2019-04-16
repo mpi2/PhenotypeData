@@ -19,6 +19,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
 
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes = {TestConfigSolr.class})

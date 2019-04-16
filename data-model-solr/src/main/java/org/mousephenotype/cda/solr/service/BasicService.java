@@ -27,11 +27,13 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 
-
 public class BasicService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(BasicService.class);
-    
+
+	public BasicService() {
+
+	}
 	
 	protected static final int MAX_NB_DOCS = 1000000;
 	
@@ -241,18 +243,17 @@ public class BasicService {
 	 * @param collection
 	 * @return List representation of the collection using toString on individual objects.
 	 */
-	public static List<String> getListFromCollection(Collection<Object> collection){
-		
+	public static List<String> getListFromCollection(Collection<Object> collection) {
+
 		List<String> list = new ArrayList<>();
-		if (collection != null){
-			for (Object obj : collection){
-				if (obj != null){
-                    list.add(obj.toString());
+		if (collection != null) {
+			for (Object obj : collection) {
+				if (obj != null) {
+					list.add(obj.toString());
 				}
 			}
 		}
-		
+
 		return list;
 	}
-    
-   }
+}

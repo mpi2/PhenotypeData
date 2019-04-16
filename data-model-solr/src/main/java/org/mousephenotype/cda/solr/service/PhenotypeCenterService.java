@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.*;
 
@@ -40,11 +41,10 @@ public class PhenotypeCenterService {
     private       SolrClient experimentCore;
     private final String     datasourceName = "IMPC";//pipeline but takes care of things like WTSI MGP select is IMPC!
 
-	public PhenotypeCenterService(
-			@Qualifier("experimentCore")
-			SolrClient solrClientExperiment)
-	{
-		this.experimentCore = solrClientExperiment;
+
+	@Inject
+	public PhenotypeCenterService(@Qualifier("experimentCore") SolrClient experimentCore) {
+		this.experimentCore = experimentCore;
 	}
 
 	/**

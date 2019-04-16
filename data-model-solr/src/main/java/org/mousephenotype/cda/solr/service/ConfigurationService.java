@@ -11,6 +11,7 @@ import javax.inject.Named;
 /**
  * Created by jmason on 05/08/2016.
  */
+@Deprecated
 public class ConfigurationService {
 
     private SolrClient server;
@@ -21,6 +22,4 @@ public class ConfigurationService {
         Assert.notNull(server, "HttpServer must not be null");
         this.server = server;
     }
-
-
 }

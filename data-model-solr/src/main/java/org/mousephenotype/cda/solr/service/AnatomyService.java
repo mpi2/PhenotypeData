@@ -19,7 +19,6 @@ import org.apache.commons.lang.WordUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -30,10 +29,9 @@ import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.*;
 
@@ -41,16 +39,17 @@ import java.util.*;
 public class AnatomyService extends BasicService implements WebStatus {
 
 	private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+	private SolrClient anatomyCore;
 
-	@Autowired
-	@Qualifier("anatomyCore")
-	private SolrClient solr;
 
-	public AnatomyService() {
+	@Inject
+	public AnatomyService(SolrClient anatomyCore) {
+		super();
+		this.anatomyCore = anatomyCore;
 	}
 
-	public AnatomyService(String anatomyServiceUrl) {
-		this.solr = new HttpSolrClient.Builder(anatomyServiceUrl).build();
+	public AnatomyService() {
+		super();
 	}
 
 	/**
@@ -63,7 +62,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 
 		SolrQuery solrQuery = new SolrQuery().setQuery(AnatomyDTO.ANATOMY_ID + ":\"" + id + "\"").setRows(1);
 
-		QueryResponse rsp = solr.query(solrQuery);
+		QueryResponse rsp = anatomyCore.query(solrQuery);
 		List<AnatomyDTO> anas = rsp.getBeans(AnatomyDTO.class);
 
 		if (rsp.getResults().getNumFound() > 0) {
@@ -83,7 +82,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 
 		SolrQuery solrQuery = new SolrQuery().setQuery(AnatomyDTO.ANATOMY_TERM + ":\"" + WordUtils.capitalize(anatomyTerm)  + "\"").setRows(1);
 		
-		QueryResponse rsp = solr.query(solrQuery);
+		QueryResponse rsp = anatomyCore.query(solrQuery);
 		List<AnatomyDTO> anas = rsp.getBeans(AnatomyDTO.class);
 
 		if (rsp.getResults().getNumFound() > 0) {
@@ -101,12 +100,11 @@ public class AnatomyService extends BasicService implements WebStatus {
 	 */
 	public List<AnatomyDTO> getAllMaTerms() throws SolrServerException, IOException  {
 
-		//System.out.println("SOLR: " + SolrUtils.getBaseURL(solr));
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(AnatomyDTO.ANATOMY_ID + ":*");
 		solrQuery.setRows(1000000);
 		QueryResponse rsp;
-		rsp = solr.query(solrQuery);
+		rsp = anatomyCore.query(solrQuery);
 		List<AnatomyDTO> anas = rsp.getBeans(AnatomyDTO.class);
 
 		return anas;
@@ -127,7 +125,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 				.setQuery(AnatomyDTO.ANATOMY_ID + ":\"" + id + "\"")
 				.setRows(1);
 
-		QueryResponse rsp = solr.query(solrQuery);
+		QueryResponse rsp = anatomyCore.query(solrQuery);
 		List<AnatomyDTO> mps = rsp.getBeans(AnatomyDTO.class);
 		List<OntologyBean> parents = new ArrayList<>();
 
@@ -171,7 +169,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 				.setQuery(AnatomyDTO.ANATOMY_ID + ":\"" + id + "\"")
 				.setRows(1);
 
-		QueryResponse rsp = solr.query(solrQuery);
+		QueryResponse rsp = anatomyCore.query(solrQuery);
 		List<AnatomyDTO> mps = rsp.getBeans(AnatomyDTO.class);
 		List<OntologyBean> children = new ArrayList<>();
 
@@ -200,7 +198,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.addFacetField("top_level_mp_term_id");
 		solrQuery.setRows(0);
-		QueryResponse rsp = solr.query(solrQuery);
+		QueryResponse rsp = anatomyCore.query(solrQuery);
 		logger.debug("solr query in basicbean=" + solrQuery);
 
 		HashSet<BasicBean> allTopLevelPhenotypes = new LinkedHashSet<BasicBean>();
@@ -222,7 +220,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(MpDTO.MP_ID + ":\"" + mpId + "\"");
 		solrQuery.setFields(MpDTO.CHILD_MP_ID);
-		QueryResponse rsp = solr.query(solrQuery);
+		QueryResponse rsp = anatomyCore.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
 		ArrayList<String> children = new ArrayList<String>();
 
@@ -241,7 +239,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 		solrQuery.setQuery(AnatomyDTO.ANATOMY_ID + ":\"" + bean.getMaId() + "\"");
 		solrQuery.setFields(AnatomyDTO.UBERON_ID, AnatomyDTO.ALL_AE_MAPPED_UBERON_ID, AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_ID, AnatomyDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM);
 
-		QueryResponse rsp = solr.query(solrQuery);
+		QueryResponse rsp = anatomyCore.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
 
 		ArrayList<String> uberonIds = new ArrayList<String>();
@@ -296,11 +294,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*").setRows(0);
-
-		// System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" +
-		// query);
-
-		QueryResponse response = solr.query(query);
+		QueryResponse response = anatomyCore.query(query);
 		return response.getResults().getNumFound();
 	}
 
@@ -318,7 +312,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 				.setRows(1);
 		solrQuery.addField(AnatomyDTO.SEARCH_TERM_JSON);
 
-		QueryResponse rsp = solr.query(solrQuery);
+		QueryResponse rsp = anatomyCore.query(solrQuery);
 
 		List<AnatomyDTO> mas = rsp.getBeans(AnatomyDTO.class);
 
@@ -341,10 +335,9 @@ public class AnatomyService extends BasicService implements WebStatus {
 				.setQuery(AnatomyDTO.ANATOMY_NODE_ID + ":" + nodeId + " AND " + AnatomyDTO.ANATOMY_ID + ":" + qStr)
 				.setRows(1);
 		solrQuery.addField(AnatomyDTO.CHILDREN_JSON);
-		QueryResponse rsp = solr.query(solrQuery);
+		QueryResponse rsp = anatomyCore.query(solrQuery);
 		List<AnatomyDTO> mas = rsp.getBeans(AnatomyDTO.class);
 
 		return (mas != null) ? mas.get(0).getChildrenJson() : "";
 	}
-
 }

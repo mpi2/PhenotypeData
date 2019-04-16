@@ -30,22 +30,26 @@ import org.mousephenotype.cda.solr.service.dto.HpDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.mousephenotype.cda.web.WebStatus;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.*;
 
 @Service
 public class MpService extends BasicService implements WebStatus{
 
+    private SolrClient mpCore;
 
-	@Autowired
-	@Qualifier("mpCore")
-    private SolrClient solr;
+
+	@Inject
+	public MpService(SolrClient mpCore) {
+		super();
+		this.mpCore = mpCore;
+	}
 
 	public MpService() {
+		super();
 	}
 
 
@@ -59,7 +63,7 @@ public class MpService extends BasicService implements WebStatus{
 		q.addField(MpDTO.MP_ID);
 		q.addField(MpDTO.INFERRED_MA_ID);
 
-		return solr.query(q).getBeans(MpDTO.class);
+		return mpCore.query(q).getBeans(MpDTO.class);
 	}
 
 	/**
@@ -74,7 +78,7 @@ public class MpService extends BasicService implements WebStatus{
 				.setQuery(MpDTO.MP_ID + ":\"" + id + "\" OR " + MpDTO.ALT_MP_ID + ":\"" + id + "\"") // this will find current mp id if alt mp id is used
 				.setRows(1);
 
-		QueryResponse rsp = solr.query(solrQuery);
+		QueryResponse rsp = mpCore.query(solrQuery);
 		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
 
 		if (rsp.getResults().getNumFound() > 0) {
@@ -96,7 +100,7 @@ public class MpService extends BasicService implements WebStatus{
 		SolrQuery solrQuery = new SolrQuery()
 				.setQuery(MpDTO.MP_ID + ":\"" + StringUtils.join(ids, "\" OR " + MpDTO.MP_ID + ":\"") + "\"");
 
-		QueryResponse rsp = solr.query(solrQuery);
+		QueryResponse rsp = mpCore.query(solrQuery);
 		return rsp.getBeans(MpDTO.class);
 
 	}
@@ -115,7 +119,7 @@ public class MpService extends BasicService implements WebStatus{
 				.setQuery(MpDTO.MP_ID + ":\"" + id + "\"")
 				.setRows(1);
 
-		QueryResponse rsp = solr.query(solrQuery);
+		QueryResponse rsp = mpCore.query(solrQuery);
 		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
 		List<OntologyBean> parents = new ArrayList<>();
 
@@ -161,7 +165,7 @@ public class MpService extends BasicService implements WebStatus{
 				.setRows(1);
 		solrQuery.addField(MpDTO.SEARCH_TERM_JSON);
 
-		QueryResponse rsp = solr.query(solrQuery);
+		QueryResponse rsp = mpCore.query(solrQuery);
 		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
 
 		return (mps != null) ? mps.get(0).getSearchTermJson() : "";
@@ -182,7 +186,7 @@ public class MpService extends BasicService implements WebStatus{
 				.setRows(1);
 		solrQuery.addField(MpDTO.CHILDREN_JSON);
 
-		QueryResponse rsp = solr.query(solrQuery);
+		QueryResponse rsp = mpCore.query(solrQuery);
 		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
 
 		return (mps != null) ? mps.get(0).getChildrenJson() : "";
@@ -201,7 +205,7 @@ public class MpService extends BasicService implements WebStatus{
 				.setQuery(MpDTO.MP_ID + ":\"" + id + "\"")
 				.setRows(1);
 
-		QueryResponse rsp = solr.query(solrQuery);
+		QueryResponse rsp = mpCore.query(solrQuery);
 		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
 		List<OntologyBean> children = new ArrayList<>();
 
@@ -239,7 +243,7 @@ public class MpService extends BasicService implements WebStatus{
 		solrQuery.setFields(MpDTO.MP_ID);
 		solrQuery.setRows(1000000);
 		QueryResponse rsp;
-		rsp = solr.query(solrQuery);
+		rsp = mpCore.query(solrQuery);
 		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
 		Set<String> allPhenotypes = new HashSet<String>();
 
@@ -255,7 +259,7 @@ public class MpService extends BasicService implements WebStatus{
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.addFacetField("top_level_mp_term_id");
 		solrQuery.setRows(0);
-		QueryResponse rsp = solr.query(solrQuery);
+		QueryResponse rsp = mpCore.query(solrQuery);
 
 		HashSet<BasicBean> allTopLevelPhenotypes = new LinkedHashSet<BasicBean>();
 		for (FacetField ff:rsp.getFacetFields()){
@@ -277,7 +281,7 @@ public class MpService extends BasicService implements WebStatus{
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery(MpDTO.MP_ID + ":\"" + mpId + "\"");
 		solrQuery.setFields(MpDTO.CHILD_MP_ID);
-		QueryResponse rsp = solr.query(solrQuery);
+		QueryResponse rsp = mpCore.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
 		ArrayList<String> children = new ArrayList<String>();
 
@@ -317,7 +321,7 @@ public class MpService extends BasicService implements WebStatus{
 		SolrQuery query = new SolrQuery();
 		query.setQuery("*:*").setRows(0);
 
-		QueryResponse response = solr.query(query);
+		QueryResponse response = mpCore.query(query);
 		return response.getResults().getNumFound();
 	}
 	@Override

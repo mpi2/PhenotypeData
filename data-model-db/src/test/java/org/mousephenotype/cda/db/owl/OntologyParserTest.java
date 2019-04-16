@@ -3,6 +3,7 @@ package org.mousephenotype.cda.db.owl;
 /**
  * Created by ilinca on 10/08/2016.
  * Refactored by mrelac on 07/12/2018.
+ * Refactored by mrelac on 15/04/2019.
  */
 
 import org.apache.commons.lang3.StringUtils;

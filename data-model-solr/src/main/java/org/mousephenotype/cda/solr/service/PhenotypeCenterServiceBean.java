@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.solr.service;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,16 +32,19 @@ public class PhenotypeCenterServiceBean {
     String geneSymbol;
     String colonyId;
 
-    public PhenotypeCenterServiceBean() {
 
-    }
-
+    @Inject
     public PhenotypeCenterServiceBean(String data) {
         List<String> fields = Arrays.asList((data.split("\","))).stream().map(x -> x.replaceAll("\"", "")).collect(Collectors.toList());
 
         this.center = fields.get(0);
         this.colonyId = fields.get(1);
     }
+
+    public PhenotypeCenterServiceBean() {
+
+    }
+
 
     public String getMgiAccession() {
 

@@ -26,10 +26,9 @@ import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.*;
 
@@ -38,8 +37,12 @@ public class AlleleService implements WebStatus{
 
 	private static final Logger logger = LoggerFactory.getLogger(AlleleService.class);
 
-	@Autowired @Qualifier("alleleCore")
-	private SolrClient solr;
+	private SolrClient alleleCore;
+
+	@Inject
+	public AlleleService(SolrClient alleleCore) {
+		this.alleleCore = alleleCore;
+	}
 
 	public AlleleService() {}
 
@@ -66,7 +69,7 @@ public class AlleleService implements WebStatus{
 		solrQuery.setFacetLimit(-1);
 		try {
 			solrQuery.addFacetField(statusField);
-			solrResponse = solr.query(solrQuery);
+			solrResponse = alleleCore.query(solrQuery);
 			for (Count c : solrResponse.getFacetField(statusField).getValues()) {
 				res.put(c.getName(), c.getCount());
 			}
@@ -95,7 +98,7 @@ public class AlleleService implements WebStatus{
 		solrQuery.setFacetLimit(-1);
 		try {
 			solrQuery.addFacetField(statusField);
-			solrResponse = solr.query(solrQuery);
+			solrResponse = alleleCore.query(solrQuery);
 			for (Count c : solrResponse.getFacetField(statusField).getValues()) {
 				// We don't want to show everything
 				if (!(c.getName().equalsIgnoreCase("Cre Excision Started") || c.getName().equals(""))){
@@ -126,7 +129,7 @@ public class AlleleService implements WebStatus{
 		solrQuery.setFacetLimit(-1);
 		try {
 			solrQuery.addFacetField(statusField);
-			solrResponse = solr.query(solrQuery);
+			solrResponse = alleleCore.query(solrQuery);
 			for (Count c : solrResponse.getFacetField(statusField).getValues()) {
 				// We don't want to show everything
 				if (!c.getName().equals("")){
@@ -148,10 +151,10 @@ public class AlleleService implements WebStatus{
 		solrQuery.setFacetLimit(-1);
 		solrQuery.addFacetField(field);
 
-		logger.info(this.getClass().getEnclosingMethod() + "   " + SolrUtils.getBaseURL(solr) + "/select?" + solrQuery);
+		logger.info(this.getClass().getEnclosingMethod() + "   " + SolrUtils.getBaseURL(alleleCore) + "/select?" + solrQuery);
 
 		try {
-			solrResponse = solr.query(solrQuery);
+			solrResponse = alleleCore.query(solrQuery);
 			for (Count c : solrResponse.getFacetField(field).getValues()) {
 				res.add(c.getName());
 			}
@@ -207,15 +210,12 @@ public class AlleleService implements WebStatus{
 
 		query.setQuery("*:*").setRows(0);
 
-		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
-
-		QueryResponse response = solr.query(query);
+		QueryResponse response = alleleCore.query(query);
 		return response.getResults().getNumFound();
 	}
+
 	@Override
 	public String getServiceName(){
 		return "Allele Service";
 	}
-
-
 }

@@ -5,8 +5,8 @@ import java.util.List;
 
 public class AnatomogramDataBean {
 
-	String parameterId;
-	String patameterName;
+	String       parameterId;
+	String       patameterName;
 	List<String> uberonIds;
 	List<String> anatomogramUberonIds;
 	List<String> anatomogramEfoIds;

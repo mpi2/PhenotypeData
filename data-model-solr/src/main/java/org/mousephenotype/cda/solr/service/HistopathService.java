@@ -1,7 +1,6 @@
 package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
@@ -11,9 +10,9 @@ import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow.ParameterValueB
 import org.mousephenotype.cda.solr.web.dto.HistopathSumPageTableRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.*;
 
@@ -22,18 +21,13 @@ public class HistopathService {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	ObservationService observationService;
+	private       ObservationService observationService;
+	private       String             delimeter      = " - ";
+	public static String             histoDelimeter = "||";
 
-	Map<String, List<ObservationDTO>> extSampleIdToObservations;
 
-	private String delimeter = " - ";
-
-	private Map<String, SolrDocument> downloadToImgMap;
-	public static String histoDelimeter="||";
-
+	@Inject
 	public HistopathService(ObservationService observationService) {
-		super();
 		this.observationService = observationService;
 	}
 
@@ -41,99 +35,95 @@ public class HistopathService {
 
 	}
 
-	public List<HistopathPageTableRow> getTableData(Map<String, List<ObservationDTO>> uniqueSampleSequeneAndAnatomyName, Map<String, String> sampleIds) throws SolrServerException, IOException {
-		List<HistopathPageTableRow> rows = new ArrayList<>();
-		downloadToImgMap = new HashMap<String, SolrDocument>();
-		//System.out.println("observations for histopath size with normal and abnormal=" + uniqueSampleSequeneAndAnatomyName.size());
+    public List<HistopathPageTableRow> getTableData(Map<String, List<ObservationDTO>> uniqueSampleSequeneAndAnatomyName, Map<String, String> sampleIds) throws SolrServerException, IOException {
+        List<HistopathPageTableRow> rows = new ArrayList<>();
 
-		
-		
-		for (String key : uniqueSampleSequeneAndAnatomyName.keySet()) {
-			
-			// just for images here as no anatomy currently
+        for (String key : uniqueSampleSequeneAndAnatomyName.keySet()) {
 
-			List<ObservationDTO> observations=uniqueSampleSequeneAndAnatomyName.get(key);
-			Set<String> parameterNames=new TreeSet<>();
-					
-					HistopathPageTableRow row = new HistopathPageTableRow();// a row is a unique sampleId and anatomy and sequence id combination
-					row.setAnatomyName(this.getAnatomyStringFromObservation(observations.get(0)));//anatomy should be the same from any in this dataset
-					row.setSampleId(sampleIds.get(observations.get(0).getExternalSampleId()));
-					row.setSex(SexType.valueOf(observations.get(0).getSex()));
-					
-					
-//					System.out.println("number of observations with key="+observations.size());
-				for (ObservationDTO obs : observations) {
-					
-						String zyg=ZygosityType.valueOf(obs.getZygosity()).getShortName();
-						row.setZygosity(zyg);
-						if(obs.getAgeInWeeks()!=null){
-							row.setAgeInWeeks(obs.getAgeInWeeks());
-						}
-						
-							//System.out.println("sequenceId in observation="+obs.getSequenceId());
-							row.setSequenceId(obs.getSequenceId());
-						
+            // just for images here as no anatomy currently
 
-						ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, obs.getParameterStableId(),
-								obs.getParameterName());
-						
-						parameterNames.add(obs.getParameterName());
+            List<ObservationDTO> observations   = uniqueSampleSequeneAndAnatomyName.get(key);
+            Set<String>          parameterNames = new TreeSet<>();
 
-						if (obs.getObservationType().equalsIgnoreCase("categorical")) {
-							row.addCategoricalParam(parameter, obs.getCategory());
-							if (parameter.getName().contains("Significance")) {
+            HistopathPageTableRow row = new HistopathPageTableRow();// a row is a unique sampleId and anatomy and sequence id combination
+            row.setAnatomyName(this.getAnatomyStringFromObservation(observations.get(0)));//anatomy should be the same from any in this dataset
+            row.setSampleId(sampleIds.get(observations.get(0).getExternalSampleId()));
+            row.setSex(SexType.valueOf(observations.get(0).getSex()));
+
+            for (ObservationDTO obs : observations) {
+
+                String zyg = ZygosityType.valueOf(obs.getZygosity()).getShortName();
+                row.setZygosity(zyg);
+                if (obs.getAgeInWeeks() != null) {
+                    row.setAgeInWeeks(obs.getAgeInWeeks());
+                }
+
+                //System.out.println("sequenceId in observation="+obs.getSequenceId());
+                row.setSequenceId(obs.getSequenceId());
+
+
+                ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, obs.getParameterStableId(),
+                                                              obs.getParameterName());
+
+                parameterNames.add(obs.getParameterName());
+
+                if (obs.getObservationType().equalsIgnoreCase("categorical")) {
+                    row.addCategoricalParam(parameter, obs.getCategory());
+                    if (parameter.getName().contains("Significance")) {
 //								System.out.println(parameter+" "+ obs.getCategory());
-								row.addSignficiance(parameter, obs.getCategory());
-								row.setSignficant();
-								
-							}
-							if (parameter.getName().contains("Severity")) {
-								row.addSeverity(parameter, obs.getCategory());
-							}
-						}
-						if (obs.getObservationType().equalsIgnoreCase("ontological")) {
+                        row.addSignficiance(parameter, obs.getCategory());
+                        row.setSignficant();
 
-							if (obs.getSubTermName() != null) {
-								for (int i = 0; i < obs.getSubTermId().size(); i++) {
-									//System.out.println("subtermId=" + obs.getSubTermId() + "subtermname="
-											//+ obs.getSubTermName().get(i));
+                    }
+                    if (parameter.getName().contains("Severity")) {
+                        row.addSeverity(parameter, obs.getCategory());
+                    }
+                }
+                if (obs.getObservationType().equalsIgnoreCase("ontological")) {
 
-									OntologyBean subOntologyBean = new OntologyBean(obs.getSubTermId().get(i),
-											obs.getSubTermName().get(i), obs.getSubTermDescription().get(i));// ,
-									//obs.getSubTermDescription().get(i));
-									row.addOntologicalParam(parameter, subOntologyBean);
-									if (parameter.getName().contains("MPATH process term")) {
-										row.addMpathProcessParam(parameter, subOntologyBean);
-									}
-									if (parameter.getName().contains("MPATH diagnostic term")) {
-										row.addMpathDiagnosticParam(parameter, subOntologyBean);
-									}
-									if (parameter.getName().contains("PATO")) {
-										row.addPatoParam(parameter, subOntologyBean);
-									}
-								}
-							}else{
-								logger.info("subterms are null for ontological data="+obs);
-							}
-						}
-						if (obs.getObservationType().equalsIgnoreCase("text")) {
-							row.addTextParam(parameter, obs.getTextValue());
-							if (obs.getParameterName().contains("Free text")) {
-								row.addFreeTextParam(parameter, obs.getTextValue());
-							}
-							if (obs.getParameterName().contains("Description")) {
-								//System.out.println("setting description="+obs.getTextValue());
-								row.addDescriptionTextParam(parameter, obs.getTextValue());
-							}
-						}
+                    if (obs.getSubTermName() != null) {
+                        for (int i = 0; i < obs.getSubTermId().size(); i++) {
+                            //System.out.println("subtermId=" + obs.getSubTermId() + "subtermname="
+                            //+ obs.getSubTermName().get(i));
 
-					} 
-				rows.add(row);
-				row.setParameterNames(parameterNames);
-				}
-		return rows;
+                            OntologyBean subOntologyBean = new OntologyBean(obs.getSubTermId().get(i),
+                                                                            obs.getSubTermName().get(i), obs.getSubTermDescription().get(i));// ,
+                            //obs.getSubTermDescription().get(i));
+                            row.addOntologicalParam(parameter, subOntologyBean);
+                            if (parameter.getName().contains("MPATH process term")) {
+                                row.addMpathProcessParam(parameter, subOntologyBean);
+                            }
+                            if (parameter.getName().contains("MPATH diagnostic term")) {
+                                row.addMpathDiagnosticParam(parameter, subOntologyBean);
+                            }
+                            if (parameter.getName().contains("PATO")) {
+                                row.addPatoParam(parameter, subOntologyBean);
+                            }
+                        }
+                    } else {
+                        logger.info("subterms are null for ontological data=" + obs);
+                    }
+                }
+                if (obs.getObservationType().equalsIgnoreCase("text")) {
+                    row.addTextParam(parameter, obs.getTextValue());
+                    if (obs.getParameterName().contains("Free text")) {
+                        row.addFreeTextParam(parameter, obs.getTextValue());
+                    }
+                    if (obs.getParameterName().contains("Description")) {
+                        //System.out.println("setting description="+obs.getTextValue());
+                        row.addDescriptionTextParam(parameter, obs.getTextValue());
+                    }
+                }
 
-	}
+            }
+
+            rows.add(row);
+            row.setParameterNames(parameterNames);
+        }
+
+        return rows;
+
+    }
 
 	
 
@@ -229,11 +219,6 @@ public class HistopathService {
 
 		}
 		return filteredObservations;
-	}
-
-	public Map<String, List<ObservationDTO>> getObservations() {
-		return this.extSampleIdToObservations;
-
 	}
 
 	public List<HistopathPageTableRow> collapseHistopathTableRows(List<HistopathPageTableRow> histopathRows) {

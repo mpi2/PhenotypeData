@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.*;
 
@@ -50,14 +51,20 @@ public class PhenotypeCenterAllService extends BasicService {
 	private       SolrClient statisticalResultCore;
 	private       SolrClient mpCore;
 
+	@Inject
 	public PhenotypeCenterAllService(
 			@Qualifier("statisticalResultCore")
 			SolrClient statisticalResultCore,
 			@Qualifier("mpCore")
 			SolrClient mpCore)
 	{
+		super();
 		this.statisticalResultCore = statisticalResultCore;
 		this.mpCore = mpCore;
+	}
+
+	public PhenotypeCenterAllService() {
+		super();
 	}
 
 

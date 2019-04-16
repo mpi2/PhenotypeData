@@ -44,7 +44,7 @@ public class OrderServiceTest {
 			try {
 				assertTrue(orderService.getProductsForGene(geneAcc).size()>2);
 			} catch (SolrServerException | IOException e) {
-				// TODO Auto-generated catch block
+
 				e.printStackTrace();
 			}
 	}
@@ -62,11 +62,8 @@ public class OrderServiceTest {
 				logger.info("products="+storeToMap.get(store));
 			}
 			assertTrue(storeToMap.size()>0);
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (SolrServerException | IOException e) {
+
 			e.printStackTrace();
 		}
 	}
@@ -85,13 +82,10 @@ public class OrderServiceTest {
 				logger.info("products="+storeToMap.get(store));
 			}
 			assertTrue(storeToMap.size()>0);
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        } catch (SolrServerException | IOException e) {
+
+            e.printStackTrace();
+        }
 	}
 
 	@Test
@@ -103,13 +97,10 @@ public class OrderServiceTest {
 			boolean creLine=true;
 			orderRows = orderService.getOrderTableRows(acc, null, creLine);
 			logger.info("order rows size in test="+orderRows.size());
-		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        } catch (SolrServerException | IOException e) {
+
+            e.printStackTrace();
+        }
 		assertTrue(orderRows.size()>1);
 	}
 }

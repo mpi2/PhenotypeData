@@ -15,18 +15,10 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.mousephenotype.cda.db.dao.BiologicalModelDAO;
-import org.mousephenotype.cda.db.dao.DatasourceDAO;
-import org.mousephenotype.cda.db.dao.OrganisationDAO;
-import org.mousephenotype.cda.db.dao.ProjectDAO;
 import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -34,42 +26,23 @@ import java.util.Comparator;
 import java.util.Map;
 
 @Service
+@Deprecated
 public class GeneRowForHeatMapResultService {
 
-    @Autowired
-    BiologicalModelDAO bmDAO;
-
-    @Autowired
-    DatasourceDAO datasourceDAO;
-
-    @Autowired
-    OrganisationDAO organisationDAO;
-
-    @Autowired
-	@Qualifier("postqcService")
-    AbstractGenotypePhenotypeService gpService;
-
-    @Autowired
-    ProjectDAO projectDAO;
-
-
-    private static final Logger LOG = LoggerFactory.getLogger(GeneRowForHeatMapResultService.class);
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     Map<String, ArrayList<String>> maleParamToGene = null;
     Map<String, ArrayList<String>> femaleParamToGene = null;
 
-	private SolrClient solr;
-
-	@Autowired
 	StatisticalResultService stasticalResultsService;
 
 
-	public GeneRowForHeatMapResultService() {
+	public GeneRowForHeatMapResultService(StatisticalResultService stasticalResultsService) {
+		this.stasticalResultsService = stasticalResultsService;
 	}
 
+	public GeneRowForHeatMapResultService() {
 
-	public GeneRowForHeatMapResultService(String solrUrl) {
-		solr = new HttpSolrClient.Builder(solrUrl).build();
 	}
 
 
@@ -99,7 +72,5 @@ public class GeneRowForHeatMapResultService {
     		}
     		return score;
     	}
-
     }
-
 }

@@ -8,12 +8,11 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,13 +27,25 @@ import java.util.stream.Stream;
 @Service
 public class SearchPhenotypeService {
 
-    @Autowired
-    @Qualifier("mpCore")
-    private SolrClient solr;
+    private SolrClient mpCore;
+    private SolrClient genotypePhenotypeCore;
 
-    @Autowired
-    @Qualifier("genotypePhenotypeCore")
-    private SolrClient gpSolr;
+
+    @Inject
+    public SearchPhenotypeService(
+            @Qualifier("mpCore")
+            SolrClient mpCore,
+            @Qualifier("genotypePhenotypeCore")
+            SolrClient genotypePhenotypeCore)
+    {
+        this.mpCore = mpCore;
+        this.genotypePhenotypeCore = genotypePhenotypeCore;
+    }
+
+    public SearchPhenotypeService() {
+
+    }
+
 
     /**
      * Return all phenotypes from the MP core filtered by keyword.
@@ -65,7 +76,7 @@ public class SearchPhenotypeService {
         query.setRows(rows);
 
         System.out.println("phenotype search query=" + query);
-        return solr.query(query);
+        return mpCore.query(query);
     }
 
     public QueryResponse searchSuggestions(String keyword, Integer distance) throws IOException, SolrServerException {
@@ -80,7 +91,7 @@ public class SearchPhenotypeService {
         query.setRows(3);
         query.setSort("score", SolrQuery.ORDER.desc);
 
-        return solr.query(query);
+        return mpCore.query(query);
     }
 
     @Cacheable("genePhenotypeMap")
@@ -117,7 +128,7 @@ public class SearchPhenotypeService {
                 .addFacetPivotField(pivotFields);
 
         System.out.println("gene count search query= " + query);
-        final QueryResponse response = gpSolr.query(query);
+        final QueryResponse response = genotypePhenotypeCore.query(query);
 
         // Unwrap the results into a Map
         final NamedList<List<PivotField>> facetPivots = response.getFacetPivot();
@@ -134,5 +145,4 @@ public class SearchPhenotypeService {
 
         return map;
     }
-
 }

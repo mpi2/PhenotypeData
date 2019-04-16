@@ -30,14 +30,12 @@ import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
 import org.mousephenotype.cda.web.WebStatus;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -50,25 +48,21 @@ import java.util.stream.Collectors;
 @Service("postqcService")
 public class PostQcService extends AbstractGenotypePhenotypeService implements WebStatus {
 
-    @Autowired
-    @Qualifier("genotypePhenotypeCore")
-    SolrClient solr;
-
-    @Autowired
     private SecondaryProjectDAO secondaryProjectDAO;
+    private Map<String, Long>   documentCountGyGene; //<marker_acc,count>
 
-    private Map<String,Long> documentCountGyGene; //<marker_acc,count>
+    @Inject
+    public PostQcService(SolrClient genotypePhenotypeCore, SecondaryProjectDAO secondaryProjectDAO) {
+        super();
+        super.genotypePhenotypeCore = genotypePhenotypeCore;
+        this.secondaryProjectDAO = secondaryProjectDAO;
+        documentCountGyGene = getDocumentCountByGene();
+    }
 
     public PostQcService() {
         super();
     }
 
-    @PostConstruct
-    public void postSetup() {
-        // Ensure the superclass attributes are set
-        super.solr = solr;
-        documentCountGyGene = getDocumentCountByGene();
-    }
 
     /**
      * Returns a list of <code>count GraphTestDTO</code> instances matching the
@@ -110,7 +104,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
             .add("group.limit", Integer.toString(count))
         ;
 
-        QueryResponse response = solr.query(query);
+        QueryResponse response = genotypePhenotypeCore.query(query);
         List<GroupCommand> groupResponse = response.getGroupResponse().getValues();
         for (GroupCommand groupCommand : groupResponse) {
             List<Group> groups = groupCommand.getValues();
@@ -148,7 +142,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
 
             SolrQuery query = getPleiotropyQuery(topLevelMpTerms, idg, idgClass);
 
-            QueryResponse queryResponse = solr.query(query, SolrRequest.METHOD.POST);
+            QueryResponse queryResponse = genotypePhenotypeCore.query(query, SolrRequest.METHOD.POST);
             Set<String> facets = getFacets(queryResponse).get(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME).keySet();
 
             Map<String, Set<String>> genesByTopLevelMp = new HashMap<>(); // <mp, <genes>>
@@ -222,8 +216,8 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
         query.add("wt", "xslt");
         query.add("tr", "pivot.xsl");
 
-        HttpURLConnection connection = (HttpURLConnection) new URL(SolrUtils.getBaseURL(solr) + "/select?" + query).openConnection();
-        System.out.println("download query="+SolrUtils.getBaseURL(solr) + "/select?" + query);
+        HttpURLConnection connection = (HttpURLConnection) new URL(SolrUtils.getBaseURL(genotypePhenotypeCore) + "/select?" + query).openConnection();
+        System.out.println("download query="+SolrUtils.getBaseURL(genotypePhenotypeCore) + "/select?" + query);
         BufferedReader br = new BufferedReader( new InputStreamReader(connection.getInputStream()));
 
         // Return list of genes, uniue entrie only. The splitting is based on the order of pivot facets.
@@ -273,7 +267,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
 //            interimQuery.add("facet.pivot", interimPivot);
 //
 //            // Filter out the pivot facets for un-wanted MP top level terms. We can get other top levels in the facets due to multiple parents.
-//            Map<String, Set<String>> genesByMpTopLevel = getFacetPivotResultsKeepCount(solr.query(interimQuery), interimPivot).entrySet().stream()
+//            Map<String, Set<String>> genesByMpTopLevel = getFacetPivotResultsKeepCount(genotypePhenotypeCore.query(interimQuery), interimPivot).entrySet().stream()
 //                    .filter(entry -> topLevelMpTerms.contains(entry.getKey()))
 //                    .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue().keySet()));
 //
@@ -332,7 +326,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
             interimQuery.add("facet.pivot", interimPivot);
 
             // Filter out the pivot facets for un-wanted MP top level terms. We can get other top levels in the facets due to multiple parents.
-            Map<String, Set<String>> genesByMpTopLevel = getFacetPivotResultsKeepCount(solr.query(interimQuery), interimPivot).entrySet().stream()
+            Map<String, Set<String>> genesByMpTopLevel = getFacetPivotResultsKeepCount(genotypePhenotypeCore.query(interimQuery), interimPivot).entrySet().stream()
                     .filter(entry -> topLevelMpTerms.contains(entry.getKey()))
                     .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue().keySet()));
 
@@ -364,7 +358,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
         query.setFacetMinCount(1);
 
         try {
-            return getFacets(solr.query(query)).get(GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
+            return getFacets(genotypePhenotypeCore.query(query)).get(GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
         } catch (SolrServerException | IOException e) {
             e.printStackTrace();
         }
@@ -393,7 +387,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
         query.add("facet.pivot", pivot);
 
         try {
-            QueryResponse response = solr.query(query);
+            QueryResponse response = genotypePhenotypeCore.query(query);
             Map<String,Long> countByGene = getFacets(response).get(GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
             Map<String,List<String>>  geneAccSymbol = getFacetPivotResults(response,pivot);
 
@@ -469,7 +463,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
              .add("group.ngroups", "true")
              .add("wt","json");
 
-         JSONObject groups = new JSONObject(solr.query(query).getResponse().get("grouped").toString().replaceAll("=",":"));
+         JSONObject groups = new JSONObject(genotypePhenotypeCore.query(query).getResponse().get("grouped").toString().replaceAll("=", ":"));
          
          return groups.getJSONObject(GenotypePhenotypeDTO.MARKER_ACCESSION_ID).getInt("ngroups");
     }
@@ -480,14 +474,14 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
 
 		query.setQuery("*:*").setRows(0);
 
-		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(genotypePhenotypeCore) + "/select?" + query);
 
-		QueryResponse response = solr.query(query);
+		QueryResponse response = genotypePhenotypeCore.query(query);
 		return response.getResults().getNumFound();
 	}
 	@Override
-	public String getServiceName(){
+	public String getServiceName() {
+
 		return "posQc (genotype-phenotype core)";
 	}
-
 }

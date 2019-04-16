@@ -5,17 +5,26 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.web.WebStatus;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 @Service
 public class ProductService implements WebStatus{
-	
-	@Autowired @Qualifier("productCore")
-	private SolrClient solr;
+
+	private SolrClient productCore;
+
+
+	@Inject
+	public ProductService(SolrClient productCore) {
+		this.productCore = productCore;
+	}
+
+	public ProductService() {
+
+	}
+
 
 	@Override
 	public long getWebStatus() throws SolrServerException, IOException {
@@ -24,15 +33,15 @@ public class ProductService implements WebStatus{
 
 		query.setQuery("*:*").setRows(0);
 
-		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(productCore) + "/select?" + query);
 
-		QueryResponse response = solr.query(query);
+		QueryResponse response = productCore.query(query);
 		return response.getResults().getNumFound();
 	}
 	
 	@Override
-	public String getServiceName(){
+	public String getServiceName() {
+
 		return "Product Service";
 	}
-
 }

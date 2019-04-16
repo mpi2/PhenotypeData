@@ -19,7 +19,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -31,11 +30,10 @@ import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.web.WebStatus;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.*;
 
@@ -51,23 +49,20 @@ import java.util.*;
 public class ImpressService extends BasicService implements WebStatus {
 
 	@Value("${cms_base_url}")
-	public String DRUPAL_BASE_URL;
+	public String CMS_BASE_URL;
 
 	private SolrClient pipelineCore;
 
 
-
-	public ImpressService(String pipelineCoreUrl) {
+	@Inject
+	public ImpressService(SolrClient pipelineCore) {
 		super();
-		this.pipelineCore = new HttpSolrClient.Builder(pipelineCoreUrl).build();
+		this.pipelineCore = pipelineCore;
 	}
-
-
 
 	public ImpressService() {
 		super();
 	}
-
 
 
 	/**
@@ -112,7 +107,6 @@ public class ImpressService extends BasicService implements WebStatus {
 	}
 
 
-
 	public Set<ImpressDTO> getProceduresByMpTerm(String mpTermId, boolean intermediateMpTermsToo) throws IOException {
 
 		try {
@@ -143,6 +137,7 @@ public class ImpressService extends BasicService implements WebStatus {
 
 		return null;
 	}
+
 
 	/**
 	 * @author tudose
@@ -260,7 +255,8 @@ public class ImpressService extends BasicService implements WebStatus {
 				doc.getFirstValue(ImpressDTO.PIPELINE_NAME).toString());
 
 	}
-	
+
+
 	public ProcedureDTO getProcedureByStableId(String procedureStableId) {
 
 		ProcedureDTO procedure = new ProcedureDTO();
@@ -423,7 +419,7 @@ public class ImpressService extends BasicService implements WebStatus {
 
 	public String getProcedureUrlByKey(String procedureStableKey) {
 
-		return DRUPAL_BASE_URL + "/impress/protocol/" + procedureStableKey;
+		return CMS_BASE_URL + "/impress/protocol/" + procedureStableKey;
 	}
 
 
@@ -455,7 +451,7 @@ public class ImpressService extends BasicService implements WebStatus {
 	public String getPipelineUrlByStableId(String stableId){
 		Integer pipelineKey = getPipelineStableKey(stableId);
 		if (pipelineKey != null ){
-			return DRUPAL_BASE_URL + "/impress/procedures/" + pipelineKey;
+			return CMS_BASE_URL + "/impress/procedures/" + pipelineKey;
 		}
 		else return "#";
 	}
@@ -483,6 +479,7 @@ public class ImpressService extends BasicService implements WebStatus {
 		}
 		return idToAbnormalMaId;
 	}
+
 
 	public Map<String,OntologyBean> getParameterStableIdToAbnormalEmapaMap(){
 
@@ -618,14 +615,12 @@ public class ImpressService extends BasicService implements WebStatus {
 		return mpsByProcedure;
 	}
 
+
 	@Override
 	public long getWebStatus() throws SolrServerException, IOException  {
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*").setRows(0);
-
-		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
-
 		QueryResponse response = pipelineCore.query(query);
 		return response.getResults().getNumFound();
 	}
@@ -644,14 +639,8 @@ public class ImpressService extends BasicService implements WebStatus {
 	}
 
 
-
-	
-
-
-
 	public String getParameterUrlByProcedureAndParameterKey(Integer procedureKey,Integer parameterKey) {
 		
-		return DRUPAL_BASE_URL + "/impress/parameterontologies/"+parameterKey + "/"+procedureKey;
+		return CMS_BASE_URL + "/impress/parameterontologies/"+parameterKey + "/"+procedureKey;
 	}
-	
 }

@@ -8,11 +8,8 @@ import org.mousephenotype.cda.solr.TestConfigSolr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
@@ -21,8 +18,8 @@ import java.util.Map;
 
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes={TestConfigSolr.class})
-@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
+@SpringBootTest
+@ContextConfiguration(classes = {TestConfigSolr.class})
 public class ExpressionServiceTest {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -35,7 +32,6 @@ public class ExpressionServiceTest {
 	@Test
 	public void getLacDataForAnatomogram() throws IOException, SolrServerException {
 
-		expressionService.initialiseAbnormalOntologyMaps();
 		String geneAccession = "MGI:1922730";
 
 		List<Count> parameterCounts = expressionService.getLaczCategoricalParametersForGene(geneAccession);

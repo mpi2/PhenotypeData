@@ -56,19 +56,20 @@ public class ImageService implements WebStatus{
 
 	private static final Logger logger = LoggerFactory.getLogger(ImageService.class);
 
-	private SolrClient solr;
+	private SolrClient impcImagesCore;
 
 	@Inject
-	public ImageService(@Qualifier("impcImagesCore") SolrClient solr) {
-		Assert.notNull(solr, "Image solr core cannot be null");
-		this.solr = solr;
+	public ImageService(@Qualifier("impcImagesCore") SolrClient impcImagesCore) {
+		Assert.notNull(impcImagesCore, "ImageService impc_images core cannot be null");
+		this.impcImagesCore = impcImagesCore;
 
-		if (solr instanceof HttpSolrClient) {
-			logger.info("Image Service starting with solr core: " + ((HttpSolrClient) solr).getBaseURL());
+		if (impcImagesCore instanceof HttpSolrClient) {
+			logger.info("Image Service starting with impc_images core: " + ((HttpSolrClient) impcImagesCore).getBaseURL());
 		}
 	}
 
 	public ImageService() {
+
 	}
 
 
@@ -102,7 +103,7 @@ public class ImageService implements WebStatus{
 
     	List<ImageSummary> res =  new ArrayList<>();
 
-    	for (Group group : solr.query(q).getGroupResponse().getValues().get(0).getValues()){
+    	for (Group group : impcImagesCore.query(q).getGroupResponse().getValues().get(0).getValues()){
     		ImageSummary iSummary = new ImageSummary();
     		iSummary.setNumberOfImages(group.getResult().getNumFound());
     		iSummary.setProcedureId(group.getResult().get(0).getFieldValue(ImageDTO.PROCEDURE_STABLE_ID).toString());
@@ -181,7 +182,7 @@ public class ImageService implements WebStatus{
 					+ "\"");
 		}
 
-		List<ImageDTO> response = solr.query(query).getBeans(ImageDTO.class);
+		List<ImageDTO> response = impcImagesCore.query(query).getBeans(ImageDTO.class);
 		for (ImageDTO image : response) {
 			for (String expressionValue : image.getDistinctParameterAssociationsValue()) {
 				if (expressionValue.equals("expression") || expressionValue.equals("no expression")) {
@@ -224,7 +225,7 @@ public class ImageService implements WebStatus{
 		query.addFacetField(ImageDTO.PHENOTYPING_CENTER);
 		query.addFacetField(ImageDTO.PROCEDURE_NAME);
 		query.addFacetField(ImageDTO.PARAMETER_ASSOCIATION_VALUE);
-		QueryResponse response = solr.query(query);
+		QueryResponse response = impcImagesCore.query(query);
 
 		for (FacetField facetField : response.getFacetFields()) {
 			Set<String> filter = new TreeSet<>();
@@ -261,9 +262,7 @@ public class ImageService implements WebStatus{
 						ImageDTO.PARAMETER_NAME, ImageDTO.PROCEDURE_NAME,
 						ImageDTO.PHENOTYPING_CENTER);
 
-//		System.out.println("SOLR URL WAS " +  SolrUtils.getBaseURL(solr) + "/select?"
-//				+ query);
-		List<ImageDTO> response = solr.query(query).getBeans(ImageDTO.class);
+		List<ImageDTO> response = impcImagesCore.query(query).getBeans(ImageDTO.class);
 
 		for (ImageDTO image : response) {
 			for (String maId : image.getAnatomyId()) {
@@ -304,7 +303,7 @@ public class ImageService implements WebStatus{
 					+ ":experimental");
 		}
 
-		return solr.query(query).getResults().getNumFound();
+		return impcImagesCore.query(query).getResults().getNumFound();
 	}
 
 
@@ -332,7 +331,7 @@ public class ImageService implements WebStatus{
 			}
 
 		}
-		QueryResponse response = solr.query(solrQuery);
+		QueryResponse response = impcImagesCore.query(solrQuery);
 
 		return response;
 	}
@@ -383,7 +382,7 @@ public class ImageService implements WebStatus{
 		solrQuery.setFacet(true);
 		solrQuery.addFacetField("procedure_name");
 		// solrQuery.setRows(0);
-		QueryResponse response = solr.query(solrQuery);
+		QueryResponse response = impcImagesCore.query(solrQuery);
 		return response;
 	}
 
@@ -415,7 +414,7 @@ public class ImageService implements WebStatus{
 		solrQuery.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\""
 				+ procedure_name + "\"");
 		solrQuery.setRows(numberOfImagesToRetrieve);
-		QueryResponse response = solr.query(solrQuery);
+		QueryResponse response = impcImagesCore.query(solrQuery);
 		return response;
 	}
 
@@ -493,7 +492,7 @@ public class ImageService implements WebStatus{
 		
 		solrQuery.setRows(numberOfImagesToRetrieve);
         System.out.println("solr Query in image service "+solrQuery);
-		QueryResponse response = solr.query(solrQuery);
+		QueryResponse response = impcImagesCore.query(solrQuery);
 		return response;
 	}
 	
@@ -529,13 +528,10 @@ public class ImageService implements WebStatus{
 		//group controls and experimental together
 		solrQuery.addSort(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP , SolrQuery.ORDER.desc);
         System.out.println("solr Query in image service "+solrQuery);
-		QueryResponse response = solr.query(solrQuery);
+		QueryResponse response = impcImagesCore.query(solrQuery);
 		return response;
 	}
 	
-	
-	
-
 
 	/**
 	 *
@@ -555,7 +551,7 @@ public class ImageService implements WebStatus{
 		query.addField(ImageDTO.ANATOMY_ID);
 		query.addField(ImageDTO.ANATOMY_TERM);
 
-		return solr.query(query).getBeans(ImageDTO.class);
+		return impcImagesCore.query(query).getBeans(ImageDTO.class);
 	}
 
 
@@ -587,7 +583,7 @@ public class ImageService implements WebStatus{
         query.set("group.field", ImageDTO.BIOLOGICAL_SAMPLE_ID);
 
         try {
-            QueryResponse solrResult = solr.query(query);
+            QueryResponse solrResult = impcImagesCore.query(query);
             ArrayList<String> allParameters = new ArrayList<>();
             List<String> header = new ArrayList<>();
             header.add("Gene Symbol");
@@ -599,7 +595,7 @@ public class ImageService implements WebStatus{
             header.add("Sex");
             header.add("Phenotyping Centre");
 
-            logger.info(SolrUtils.getBaseURL(solr) + "/select?" + query);
+            logger.info(SolrUtils.getBaseURL(impcImagesCore) + "/select?" + query);
 
             // Get facets as we need to turn them into columns
             for (Count facet : solrResult.getFacetField(
@@ -717,7 +713,7 @@ public class ImageService implements WebStatus{
 			solrQuery.addFilterQuery(ObservationDTO.SEX + ":" + sex.name());
 		}
 
-		QueryResponse response = solr.query(solrQuery);
+		QueryResponse response = impcImagesCore.query(solrQuery);
 
 		return response;
 	}
@@ -754,7 +750,7 @@ public class ImageService implements WebStatus{
 		}
 		solrQuery.setRows(numberOfImagesToRetrieve);
         logger.info("solr query for control expression images="+solrQuery);
-		QueryResponse response = solr.query(solrQuery);
+		QueryResponse response = impcImagesCore.query(solrQuery);
 
 		return response;
 	}
@@ -1017,7 +1013,7 @@ public class ImageService implements WebStatus{
         	.add("group.field", ImageDTO.PARAMETER_STABLE_ID)
         	.add("group.limit", Integer.toString(count));
 		logger.info("associated images solr query: " + solrQuery);
-		QueryResponse response = solr.query(solrQuery);
+		QueryResponse response = impcImagesCore.query(solrQuery);
 		List<GroupCommand> groupResponse = response.getGroupResponse().getValues();
         for (GroupCommand groupCommand : groupResponse) {
             List<Group> localGroups = groupCommand.getValues();
@@ -1044,7 +1040,7 @@ public class ImageService implements WebStatus{
 				+ procedureName + "\"");
 		solrQuery.addFacetField(ObservationDTO.PARAMETER_STABLE_ID);
 		// solrQuery.setRows(0);
-		QueryResponse response = solr.query(solrQuery);
+		QueryResponse response = impcImagesCore.query(solrQuery);
 		return response;
 
 	}
@@ -1062,7 +1058,7 @@ public class ImageService implements WebStatus{
 		solrQuery.setQuery(omeroIdString);
 		// System.out.println(omeroIdString);
 		// solrQuery.setRows(0);
-		QueryResponse response = solr.query(solrQuery);
+		QueryResponse response = impcImagesCore.query(solrQuery);
 		return response;
 
 	}
@@ -1078,9 +1074,7 @@ public class ImageService implements WebStatus{
 								+ ImageDTO.COLONY_ID + ":\"" + colonyId + "\")")
 				.setRows(0);
 
-		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
-
-		QueryResponse response = solr.query(query);
+		QueryResponse response = impcImagesCore.query(query);
 		if ( response.getResults().getNumFound() == 0 ){
 			return false;
 		}
@@ -1100,9 +1094,7 @@ public class ImageService implements WebStatus{
 								+ MpDTO.MP_ID + ":\"" + mpId + "\")")
 				.setRows(0);
 
-		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
-
-		QueryResponse response = solr.query(query);
+		QueryResponse response = impcImagesCore.query(query);
 		if ( response.getResults().getNumFound() == 0 ){
 			return false;
 		}
@@ -1115,10 +1107,7 @@ public class ImageService implements WebStatus{
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*").setRows(0);
-
-		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
-
-		QueryResponse response = solr.query(query);
+		QueryResponse response = impcImagesCore.query(query);
 		return response.getResults().getNumFound();
 	}
 
@@ -1135,9 +1124,9 @@ public class ImageService implements WebStatus{
 		//query.addField(ImageDTO.INCREMENT_VALUE);
 		//query.addField(ImageDTO.DOWNLOAD_URL);
 		//query.addField(ImageDTO.EXTERNAL_SAMPLE_ID);
-		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(impcImagesCore) + "/select?" + query);
 
-		QueryResponse response = solr.query(query);
+		QueryResponse response = impcImagesCore.query(query);
 		if(response.getResults().getNumFound()>0){
 			img = response.getResults().get(0);
 		}
@@ -1169,8 +1158,8 @@ public class ImageService implements WebStatus{
 		String pivotFacet=ImageDTO.MP_ID_TERM + "," + ImageDTO.COLONY_ID;
 		query.set("facet.pivot", pivotFacet);
 		query.addFacetField(ObservationDTO.COLONY_ID);
-		logger.info("solr query for images properties for mp = " + query);
-		QueryResponse response = solr.query(query);
+		logger.debug("solr query for images properties for mp = " + query);
+		QueryResponse response = impcImagesCore.query(query);
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
 			if (pivot.getPivot() != null) {
 				//System.out.println("pivot="+pivot.getValue());
@@ -1203,10 +1192,7 @@ public class ImageService implements WebStatus{
 		query.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + accession + "\"").setRows(Integer.MAX_VALUE)
 				.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\"" + "Gross Pathology and Tissue Collection" + "\"");
 
-		return solr.query(query).getResults();
-
-	
-
+		return impcImagesCore.query(query).getResults();
 	}
 
 	
@@ -1221,15 +1207,11 @@ public class ImageService implements WebStatus{
 		if (responseExperimental != null && responseExperimental.getResults().size()>0) {
 			//mutants=responseExperimental.getResults();
 			mutants=responseExperimental.getBeans(ImageDTO.class);
-			
-			
 		}
-		
-		
-		
+
 		List<ImageDTO> filteredMutants = filterMutantsBySex(mutants, sexType);
 		
-//		if(expression!=null && organ!=null){//we will need to filter by organ and expression so we match them up - can't do that with a solr query alone
+//		if(expression!=null && organ!=null){//we will need to filter by organ and expression so we match them up - can't do that with a genotypePhenotypeCore query alone
 //			for(ImageDTO image:filteredMutants){
 //				if(image.getParameterAssociationValue()!=null){
 //					if(expression==Expression.EXPRESSION){
@@ -1331,5 +1313,4 @@ public class ImageService implements WebStatus{
 		}
 		return zygosityTypes;
 	}
-
 }

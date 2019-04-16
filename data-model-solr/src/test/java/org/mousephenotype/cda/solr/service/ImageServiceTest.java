@@ -2,7 +2,6 @@ package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.junit.Before;
@@ -11,21 +10,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.enumerations.Expression;
 import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.solr.TestConfigSolr;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -33,9 +25,9 @@ import java.util.Set;
 
 import static org.junit.Assert.assertTrue;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(loader = AnnotationConfigContextLoader.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@ContextConfiguration(classes = {TestConfigSolr.class})
 public class ImageServiceTest {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -43,31 +35,6 @@ public class ImageServiceTest {
     @Autowired
     private ImageService imageService;
 
-    // Sring Configuration class
-    // Only wire up the observation service for this test suite
-    @Configuration
-    @ComponentScan(
-            basePackages = {"org.mousephenotype.cda"},
-            useDefaultFilters = false,
-            includeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {ImageService.class})
-            })
-    static class ContextConfiguration {
-
-        @NotNull
-        @Value("${solr.host}")
-        private String solrBaseUrl;
-
-
-        @Bean(name = "impcImagesCore")
-        HttpSolrClient getExperimentCore() {
-            return new HttpSolrClient.Builder(solrBaseUrl + "/impc_images").build();
-        }
-
-        @Bean
-        public static PropertySourcesPlaceholderConfigurer propertyConfigurer() {
-            return new PropertySourcesPlaceholderConfigurer();
-        }
-    }
 
     @Before
     public void setup() {
@@ -85,12 +52,9 @@ public class ImageServiceTest {
         assertTrue(query.toString().contains("3i"));
         assertTrue(query.toString().contains("mousephenotype.org"));
         assertTrue(query.toString().contains("\\:"));
-
-
     }
 
     @Test
-//@Ignore
     public void testGetImagePropertiesThatHaveMp() throws IOException, SolrServerException {
 
         String  testName = Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -116,7 +80,6 @@ public class ImageServiceTest {
     }
 
     @Test
-//@Ignore
     public void testGetImagesForGeneByParameter() throws IOException, SolrServerException {
 
         String        testName                   = Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -147,7 +110,6 @@ public class ImageServiceTest {
     }
 
     @Test
-//@Ignore
     public void testGetPhenotypeAssociatedImages() throws IOException, SolrServerException {
 
         String  testName = Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -169,7 +131,6 @@ public class ImageServiceTest {
     }
 
     @Test
-    @Ignore
     public void testGetComparisonViewerMethodsWithNulls() throws IOException, SolrServerException {
 
         String         testName                  = Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -220,6 +181,7 @@ public class ImageServiceTest {
     }
 
     // FIXME FIXME FIXME This test fails as of 03-Apr-2019, so I'm disabling it as there isn't any obvious failure observed here. Will research later.
+    // FIXME FIXME FIXME 15-Apr-2019 (mrelac) Why is the ImageService querying with unknown field 'parameter_association_value'?
     @Ignore
     @Test
     public void testGetComparisonViewerMethodsWithExpression() throws IOException, SolrServerException {
@@ -239,7 +201,6 @@ public class ImageServiceTest {
         String         zygosity                  = null;
         String         colonyId                  = null;
         String         mpId                      = null;
-        boolean        failed                    = false;
 
         int    expectedSize;
         int    actualSize;
@@ -253,7 +214,7 @@ public class ImageServiceTest {
         System.out.println(testName + ": control images actualSize = " + actualSize);
 
         assertTrue(actualSize >= expectedSize);
-        
+
         mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex, organ);
 
         expectedSize = 3;                      // 26-Oct-2017 (mrelac) As of this date there were 34 mutant images found.
@@ -262,8 +223,6 @@ public class ImageServiceTest {
         System.out.println(testName + ": mutant images actualSize = " + actualSize);
 
         assertTrue(actualSize >= expectedSize);
-
-      
     }
 
     @Test

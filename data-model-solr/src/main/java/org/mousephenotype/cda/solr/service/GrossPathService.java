@@ -1,38 +1,26 @@
 package org.mousephenotype.cda.solr.service;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.GrossPathPageTableRow;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.*;
 
 @Service
 public class GrossPathService {
 
-	@Autowired
-	ObservationService observationService;
-
-	@Autowired
-	ImageService imageService;
-
-	Map<String, List<ObservationDTO>> extSampleIdToObservations;
-
-	private String delimeter = " - ";
+	private ObservationService observationService;
+	private ImageService       imageService;
 
 
+	@Inject
 	public GrossPathService(ObservationService observationService, ImageService imageService) {
-		super();
 		this.observationService = observationService;
 		this.imageService=imageService;
 	}
@@ -358,11 +346,6 @@ public class GrossPathService {
 				ObservationDTO.PARAMETER_ASSOCIATION_SEQUENCE_ID, ObservationDTO.SEQUENCE_ID);
 		return observations;
 	}
-
-	public Map<String, List<ObservationDTO>> getObservations() {
-		return this.extSampleIdToObservations;
-
-	}
 	
 	public SolrDocumentList getGrossPathImagesForGene(String accession) throws SolrServerException, IOException{
 		return imageService.getImagesForGrossPathForGene(accession);
@@ -380,5 +363,4 @@ public class GrossPathService {
 		}
 		return abnormalObservations;
 	}
-
 }
