@@ -1,6 +1,8 @@
 package org.mousephenotype.cda.owl;
 
 
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
 import org.semanticweb.elk.owlapi.ElkReasonerFactory;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
@@ -170,6 +172,8 @@ public class OntologyParser {
                 termMap.put(term.getAccessionId(), term);
                 classMap.put(term.getAccessionId(), cls);
 
+                // Turn off annoying INFO messages.
+                LogManager.getLogger("org.semanticweb.elk").setLevel(Level.WARN);
             }
         }
     }

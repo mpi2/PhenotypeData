@@ -43,10 +43,10 @@ public class OntologyParserTest {
     private       OntologyParser ontologyParser;
 
 
-    @NotNull
     @Value("${owlpath}")
     protected     String         owlpath;
 
+    @NotNull
     @Autowired
     DataSource komp2DataSource;
 
@@ -199,7 +199,7 @@ public class OntologyParserTest {
             for (String id : referencedClasses) {
                 OntologyTermDTO maTerm = maParser.getOntologyTerm(id);
 
-                System.out.println("MA term "+id+" is "+maTerm+" for MP term MP:0001926");
+                logger.debug("MA term "+id+" is "+maTerm+" for MP term MP:0001926");
                 assertFalse(maTerm == null);
             }
         }

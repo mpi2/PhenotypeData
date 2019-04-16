@@ -30,7 +30,8 @@ public class SqlUtils {
     private static final Logger      logger      = LoggerFactory.getLogger(SqlUtils.class);
     private              CommonUtils commonUtils = new CommonUtils();
 
-    private final static Integer INITIAL_POOL_CONNECTIONS = 1;
+    private final static Integer MAXIMUM_POOL_SIZE        = 100;            // Default is 10. OntologyParserTest times out with 10.
+    private final static Integer CONNECTION_TIMEOUT_IN_MS = 30000;          // Default is 30k (30 seconds)
 
     /**
      * Overloaded helper methods for preparing SQL statement
@@ -387,7 +388,11 @@ public class SqlUtils {
         ds.setJdbcUrl(url);
         ds.setUsername(username);
         ds.setPassword(password);
-        ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
+
+        ds.setConnectionInitSql("SELECT 1");
+        ds.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
+//        ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        ds.setConnectionTimeout(CONNECTION_TIMEOUT_IN_MS);
 
         try {
             logger.info("Using database {} with URL: {}", ds.getConnection().getCatalog(), url);

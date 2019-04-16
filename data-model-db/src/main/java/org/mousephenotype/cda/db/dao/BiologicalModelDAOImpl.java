@@ -53,12 +53,12 @@ public class BiologicalModelDAOImpl extends HibernateDAOImpl implements Biologic
 	@Transactional(readOnly = true)
 	public BiologicalModel findByDbidAndAllelicCompositionAndGeneticBackgroundAndZygosity(Integer id, String allelicComposition, String geneticBackground, String zygosity) {
 		return (BiologicalModel) getCurrentSession()
-			.createQuery("from BiologicalModel m where m.datasource.id=? and m.allelicComposition=? and m.geneticBackground=? and m.zygosity=?")
-			.setInteger(0, id)
-			.setString(1, allelicComposition)
-			.setString(2, geneticBackground)
-			.setString(3, zygosity)
-			.uniqueResult();
+				.createQuery("from BiologicalModel m where m.datasource.id=?1 and m.allelicComposition=?2 and m.geneticBackground=?3 and m.zygosity=?4")
+				.setParameter(1, id)
+				.setParameter(2, allelicComposition)
+				.setParameter(3, geneticBackground)
+				.setParameter(4, zygosity)
+				.uniqueResult();
 	}
 
 

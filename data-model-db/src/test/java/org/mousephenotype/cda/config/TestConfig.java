@@ -51,8 +51,8 @@ public class TestConfig {
 	EmbeddedDatabaseType dcc2Type = EmbeddedDatabaseType.HSQL;
 
 
-	@Bean(name = "komp2DataSource")
 	@Primary
+	@Bean(name = "komp2DataSource")
 	public DataSource komp2DataSource() {
 		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
 			.ignoreFailedDrops(true)

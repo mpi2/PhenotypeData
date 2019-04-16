@@ -39,6 +39,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,22 +51,26 @@ public class UtilitiesTest {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @NotNull
     @Autowired
-    PhenotypePipelineDAO pDAO;
+    PhenotypePipelineDAO pipelineDAO;
 
+    @NotNull
     @Autowired
     Utilities impressUtilities;
 
+    @NotNull
     @Autowired
     NamedParameterJdbcTemplate jdbc1;
 
+    @NotNull
     @Autowired
     NamedParameterJdbcTemplate jdbc2;
 
 
     @Test
     public void testCheckTypeParameterString() {
-        Parameter p = pDAO.getParameterByStableId("ESLIM_003_001_006");
+        Parameter p = pipelineDAO.getParameterByStableId("ESLIM_003_001_006");
         String value= "2.092";
         ObservationType oType = impressUtilities.checkType(p, value);
 

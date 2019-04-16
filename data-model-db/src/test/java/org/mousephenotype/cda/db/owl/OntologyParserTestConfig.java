@@ -46,7 +46,12 @@ public class OntologyParserTestConfig {
     @ConfigurationProperties("datasource.komp2")
     public DataSource dataSource() {
 
-        DataSource dataSource = SqlUtils.getConfiguredDatasource(komp2Url, username, password);
+        DataSource dataSource = null;
+        try {
+            dataSource = SqlUtils.getConfiguredDatasource(komp2Url, username, password);
+        } catch (Exception e) {
+            System.out.println();
+        }
 
         return dataSource;
     }

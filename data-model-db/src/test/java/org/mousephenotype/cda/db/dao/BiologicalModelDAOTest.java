@@ -38,15 +38,13 @@ public class BiologicalModelDAOTest extends TestCase {
 
 	@NotNull
 	@Autowired
-	BiologicalModelDAO bmDao;
+	BiologicalModelDAO biologicalModelDAO;
 
 	@Test
 	public void testGetAllBiologicalModels() throws Exception {
 		BiologicalModel bm;
 
-		bm = bmDao.findByDbidAndAllelicCompositionAndGeneticBackgroundAndZygosity(12, "", "involves: C57BL/6", "homozygote");
+		bm = biologicalModelDAO.findByDbidAndAllelicCompositionAndGeneticBackgroundAndZygosity(12, "", "involves: C57BL/6", "homozygote");
 		assert(bm!=null);
-
-
 	}
 }

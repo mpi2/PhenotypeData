@@ -8,9 +8,7 @@ import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +18,6 @@ import java.util.List;
  * Created by jmason on 21/08/2015.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestExecutionListeners({DependencyInjectionTestExecutionListener.class})
 @ContextConfiguration(classes = {TestConfig.class})
 public class OntologyTermDAOImplTest extends TestCase {
 
