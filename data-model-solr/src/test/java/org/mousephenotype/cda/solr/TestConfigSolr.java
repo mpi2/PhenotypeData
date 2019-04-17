@@ -7,6 +7,8 @@ import org.mousephenotype.cda.db.dao.SecondaryProjectDAOImpl;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
 import org.mousephenotype.cda.solr.service.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -28,8 +30,8 @@ import javax.validation.constraints.NotNull;
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
 public class TestConfigSolr {
 
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@NotNull
 	@Value("${solr.host}")
 	private String solrBaseUrl;
 

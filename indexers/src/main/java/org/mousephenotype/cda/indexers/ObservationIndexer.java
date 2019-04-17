@@ -20,7 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.WeightMap;
-import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -47,6 +46,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -59,6 +59,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 /**
@@ -73,13 +74,12 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 	private Connection connection;
 
-	@Autowired
-	SqlUtils sqlUtils;
-
+	@NotNull
 	@Autowired
 	@Qualifier("komp2DataSource")
 	DataSource komp2DataSource;
 
+	@NotNull
 	@Autowired
 	@Qualifier("experimentCore")
 	SolrClient observationCore;
@@ -652,6 +652,9 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				+ "INNER JOIN ontology_term ot ON ot.acc=ls.developmental_stage_acc "
 		        + "INNER JOIN organisation prod_org ON bs.organisation_id=prod_org.id ";
 
+		final String DATETIME_FORMAT_WITH_SECONDS = "yyyy-MM-dd HH:mm:ss.S";
+		final String DATETIME_FORMAT_NO_SECONDS = "yyyy-MM-dd HH:mm:ss";
+
 		try (PreparedStatement p = connection.prepareStatement(query)) {
 
 			ResultSet resultSet = p.executeQuery();
@@ -665,13 +668,24 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				b.biologicalSampleId = resultSet.getInt("biological_sample_id");
 				b.colonyId = resultSet.getString("colony_id");
 
+				String rawDOB = null;
+
 				try {
-					b.dateOfBirth = ZonedDateTime.parse(resultSet.getString("date_of_birth"),
-							DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
+					rawDOB = resultSet.getString("date_of_birth");
+
+					DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATETIME_FORMAT_NO_SECONDS);
+					b.dateOfBirth = ZonedDateTime.parse(rawDOB, formatter.withZone(ZoneId.of("UTC")));
+
 				} catch (NullPointerException e) {
+
 					b.dateOfBirth = null;
 					logger.debug("  No date of birth set for specimen external ID: {}",
-							resultSet.getString("external_sample_id"));
+								 resultSet.getString("external_sample_id"));
+
+				} catch (DateTimeParseException e) {
+
+					DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATETIME_FORMAT_WITH_SECONDS);
+					b.dateOfBirth = ZonedDateTime.parse(rawDOB, formatter.withZone(ZoneId.of("UTC")));
 				}
 
 				b.externalSampleId = resultSet.getString("external_sample_id");

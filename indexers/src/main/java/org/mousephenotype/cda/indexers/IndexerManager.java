@@ -33,7 +33,6 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -211,7 +210,6 @@ public class IndexerManager  {
         try {
             OptionSet options = parseCommandLine(args);
             if (options != null) {
-                applicationContext = loadApplicationContext();
                 loadIndexers();
             } else {
                 throw new IndexerException("Failed to parse command-line options.");

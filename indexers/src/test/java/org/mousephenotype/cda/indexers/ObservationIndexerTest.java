@@ -3,6 +3,7 @@ package org.mousephenotype.cda.indexers;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.config.TestConfigIndexers;
@@ -16,9 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -32,10 +32,9 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {TestConfigIndexers.class} )
-@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
-@Transactional
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@ContextConfiguration(classes = {TestConfigIndexers.class})
 public class ObservationIndexerTest {
 
     private ObservationIndexer observationIndexer;
@@ -84,7 +83,6 @@ public class ObservationIndexerTest {
     }
 
     @Test
-//@Ignore
     public void testPopulateBiologicalDataMap() throws Exception {
         observationIndexer.initialise();
 
@@ -105,8 +103,10 @@ public class ObservationIndexerTest {
 
     }
 
+
+    // Ignore this test as it takes too long to run.
     @Test
-//@Ignore
+    @Ignore
     public void testPopulateLineBiologicalDataMap() throws Exception {
         observationIndexer.initialise();
 
@@ -119,8 +119,9 @@ public class ObservationIndexerTest {
     }
 
 
+    // Ignore this test as it takes too long to run.
 	@Test
-	//@Ignore
+	@Ignore
 	public void testWeightMap() throws Exception {
 
         // Instantiate WeightMap here as it takes upwards of 8 minutes to load.
@@ -160,7 +161,6 @@ public class ObservationIndexerTest {
 
 
 	@Test
-//@Ignore
     public void testImpressDataMaps() throws Exception {
         Map<Integer, ImpressBaseDTO> bioDataMap;
         Connection connection = ds.getConnection();
@@ -183,7 +183,6 @@ public class ObservationIndexerTest {
     }
 
     @Test
-//@Ignore
     public void testDatasourceDataMaps() throws Exception {
         observationIndexer.initialise();
 
@@ -203,7 +202,6 @@ public class ObservationIndexerTest {
     }
 
     @Test
-//@Ignore
     public void testpopulateCategoryNamesDataMap() throws Exception {
         observationIndexer.initialise();
 
@@ -267,16 +265,4 @@ public class ObservationIndexerTest {
 
 
 	}
-	
-//	@Test
-//	public void testAges(){
-//		
-//		ZonedDateTime dob=ZonedDateTime.now();
-//		Instant dob=dob.to
-//		Instant expDate=dateOfExperiment.toInstant();
-//		int ageInDays = (int) Duration.between(dob, expDate).toDays();
-//		int daysInWeek = 7;
-//		int ageInWeeks = ageInDays % daysInWeek;
-//	}
-
 }

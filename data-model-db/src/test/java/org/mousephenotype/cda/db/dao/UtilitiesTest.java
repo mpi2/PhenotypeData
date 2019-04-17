@@ -34,9 +34,9 @@ import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.StageUnitType;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.validation.constraints.NotNull;
@@ -45,8 +45,8 @@ import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-@Import(TestConfig.class)
+@SpringBootTest
+@ContextConfiguration(classes = {TestConfig.class})
 public class UtilitiesTest {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());

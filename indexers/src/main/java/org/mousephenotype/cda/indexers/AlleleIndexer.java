@@ -145,11 +145,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
     DataSource uniprotDataSource;
 
     @NotNull
-    @Autowired
-    @Qualifier("pfamDataSource")
-    DataSource pfamDataSource;
-
-    @NotNull
 	@Autowired
 	@Qualifier("phenodigmCore")
 	private SolrClient phenodigmCore;
@@ -212,11 +207,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
             // MGI gene id to Uniprot accession mapping
             populateMgi2UniprotLookup();
             logger.info(" Added {} MGI to UNIPROT lookup beans", mgi2UniprotLookup.size());
-
-            // Uniprot to pfamA mapping
-            //populateUniprot2pfamA();
-            //logger.info(" Populated uniprot to pfamA lookup, {} records", uniprotAccPfamAnnotLookup.size());
-//            logger.info(" Populated uniprot to pfamA lookup is skipped for now");
 
             alleleCore.deleteByQuery("*:*");
             alleleCore.commit();
@@ -694,74 +684,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
         }
 
     }
-    private void populateUniprot2pfamA() throws IOException, SQLException, ClassNotFoundException{
-
-    	// do batch lookup of uniprot accs on pfam db (pfamA)
-
-    	Connection connPfam = pfamDataSource.getConnection();
-
-    	String pfamQry = "SELECT lk.db_id, "
-       			+ "lk.db_link, "
-       			+ "c.clan_id, "
-       			+ "c.clan_acc, "
-       			+ "c.clan_description, "
-       			+ "pfamseq_id, "
-       			+ "pfamseq_acc, "
-       			+ "pfamA_acc, "
-       			+ "pfamA_id, "
-       			+ "g.go_id, "
-       			+ "g.term as go_name, "
-       			+ "g.category as go_category "
-       			+ "FROM pfamseq s, "
-       			+ " pfamA a, "
-       			+ " pfamA_reg_full_significant f, "
-       			+ " gene_ontology g, "
-       			+ " clans c, "
-       			+ " clan_membership cm, "
-       			+ " clan_database_links lk "
-       			+ "WHERE f.in_full = 1 "
-       			+ "AND lk.auto_clan = c.auto_clan "
-       			+ "AND c.auto_clan = cm.auto_clan "
-       			+ "AND cm.auto_pfamA = a.auto_pfamA "
-       			+ "AND s.auto_pfamseq = f.auto_pfamseq "
-       			+ "AND f.auto_pfamA = a.auto_pfamA "
-       			+ "AND a.auto_pfamA = g.auto_pfamA "
-       			+ "AND s.ncbi_taxid=10090 "  // mouse proteins only
-       			+ "AND a.type = 'family' ";
-
-    	try (PreparedStatement p2 = connPfam.prepareStatement(pfamQry)) {
-    		ResultSet resultSet2 = p2.executeQuery();
-
-    		while (resultSet2.next()) {
-
-	        	PfamAnnotations pa = new PfamAnnotations();
-
-	           	pa.uniprotAcc = resultSet2.getString("pfamseq_acc");
-	           	pa.scdbId = resultSet2.getString("db_id");
-	           	pa.scdbLink = resultSet2.getString("db_link");
-	           	pa.clanId = resultSet2.getString("clan_id");
-	           	pa.clanAcc = resultSet2.getString("clan_acc");
-	           	pa.clanDesc = resultSet2.getString("clan_description");
-	           	pa.pfamAacc = resultSet2.getString("pfamA_acc");
-	           	pa.pfamAId =  resultSet2.getString("pfamA_id");
-	           	pa.pfamAgoId = resultSet2.getString("go_id");
-	           	pa.pfamAgoTerm = resultSet2.getString("go_name");
-	           	pa.pfamAgoCat = resultSet2.getString("go_category");
-
-	           	if ( ! uniprotAccPfamAnnotLookup.containsKey(pa.uniprotAcc)) {
-	           		uniprotAccPfamAnnotLookup.put(pa.uniprotAcc, new HashSet<PfamAnnotations>());
-	           	}
-
-	           	pa.pfamAjson = JSONSerializer.toJSON(pa).toString(); // add the above fields as json string
-	           	uniprotAccPfamAnnotLookup.get(pa.uniprotAcc).add(pa);
-           }
-
-           //System.out.println("Found " + uniprotAccPfamJsonLookup.size() + " mouse proteins annotated in pFam");
-       }
-       catch (Exception e) {
-           e.printStackTrace();
-       }
-	}
 
     private void populateLegacyLookup(RunStatus runStatus) throws SolrServerException {
 

@@ -33,7 +33,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.PropertySource;
 
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
@@ -50,8 +49,9 @@ import java.util.*;
  */
 
 @SpringBootApplication
-@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
 public abstract class AbstractIndexer implements CommandLineRunner {
+
+    private final   Logger  logger    = LoggerFactory.getLogger(this.getClass());
 
     public static String EMBRYONIC_DAY_9_5  = "EFO:0007641";    // -> embryonic day 9.5
     public static String EMBRYONIC_DAY_12_5 = "EFO:0002563";    // -> embryonic day 12.5
@@ -59,26 +59,25 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     public static String EMBRYONIC_DAY_18_5 = "EFO:0002570";    // -> embryonic day 18.5
     public static String POSTPARTUM_STAGE   = "MmusDv:0000092"; // -> postpartum stage
     public static String POSTNATAL_STAGE   = "EFO:0002948";
-    
+
+    protected final int     MINIMUM_DOCUMENT_COUNT = 80;
+
+    protected Integer                efo_db_id = 15; // default as of 2016-05-06
+    private   Map<String, BasicBean> liveStageMap;
+    private   Map<String, BasicBean> stages    = new HashMap<>();
+
+    @Value("${owlpath}")
+    protected String owlpath;
+
+    @NotNull
     @Autowired
     OntologyTermDAO ontologyTermDAO;
 
+    @NotNull
     @Autowired
     @Qualifier("komp2DataSource")
     DataSource komp2DataSource;
 
-    @NotNull
-    @Value("${owlpath}")
-    protected String owlpath;
-
-    protected Integer EFO_DB_ID = 15; // default as of 2016-05-06
-
-    Map<String, BasicBean> liveStageMap;
-    Map<String, BasicBean> stages = new HashMap<>();
-
-	private final Logger logger = LoggerFactory.getLogger(AbstractIndexer.class);
-
-    protected static final int MINIMUM_DOCUMENT_COUNT = 80;
 
 	CommonUtils commonUtils = new CommonUtils();
 
@@ -368,9 +367,6 @@ public abstract class AbstractIndexer implements CommandLineRunner {
                 }
         }
 
-
         return stage;
     }
-
-
 }

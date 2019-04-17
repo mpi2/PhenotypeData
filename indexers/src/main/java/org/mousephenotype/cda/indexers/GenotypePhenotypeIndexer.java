@@ -120,7 +120,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             parameterMap = IndexerMap.getImpressParameters(connection);
 
             // Override the EFO db_id with the current term from the database
-            EFO_DB_ID = dsDAO.getDatasourceByShortName("EFO").getId();
+            efo_db_id = dsDAO.getDatasourceByShortName("EFO").getId();
 
             count = populateGenotypePhenotypeSolrCore(runStatus);
 

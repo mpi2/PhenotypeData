@@ -342,7 +342,7 @@ public class Tools {
 			// impc images link
             //additionalInfos.add("images_link");
 		}
-		//else if ( corename.equals("phenodigm") ) {
+
 		else if ( corename.equals("hp") ) {
 
 			mainAttrs.add("hp_id");
@@ -577,8 +577,5 @@ public class Tools {
 		}
 
 		return optMatch;
-
-		//optMatch +=
-
 	}
 }

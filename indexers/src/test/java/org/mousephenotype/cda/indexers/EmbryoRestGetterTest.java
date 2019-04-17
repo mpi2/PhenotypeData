@@ -1,39 +1,42 @@
 package org.mousephenotype.cda.indexers;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.config.TestConfigIndexers;
 import org.mousephenotype.cda.indexers.utils.EmbryoRestData;
 import org.mousephenotype.cda.indexers.utils.EmbryoRestGetter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import javax.validation.constraints.NotNull;
-
-//@RunWith(SpringJUnit4ClassRunner.class)
-//@SpringApplicationConfiguration(classes = {TestConfigIndexers.class} )
-//@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
-//@Transactional
-
 
 
 @RunWith(SpringRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-@SpringBootTest(classes = TestConfigIndexers.class)
+@SpringBootTest
+@ContextConfiguration(classes = {TestConfigIndexers.class})
 public class EmbryoRestGetterTest {
 
-	@NotNull
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 	@Value("${embryoViewerFilename}")
-	private String embryoViewerFilename;
+	private       String embryoViewerFilename;
 
 	@Test
-	public void getEmbryDataTest() throws JSONException {
-		System.out.println("in getEmbryoDataTest blah");
-		EmbryoRestGetter embryoRest=new EmbryoRestGetter(embryoViewerFilename);
+	public void getEmbryoDataTest() throws JSONException {
+		final int EXPECTED_STRAIN_COUNT = 265;					// As of 17-Apr-2019 there were 265 strains
+		int actualStrainCount;
+
+		EmbryoRestGetter embryoRest = new EmbryoRestGetter(embryoViewerFilename);
 		EmbryoRestData embryoDataSet = embryoRest.getEmbryoRestData();
-		System.out.println(String.format("There are %s strain(s) in the embryo file", (embryoDataSet.getStrains()!=null?embryoDataSet.getStrains().size():"*NO*")));
+		actualStrainCount = (embryoDataSet.getStrains() != null ? embryoDataSet.getStrains().size() : 0);
+
+		logger.debug(String.format("There are %s strain(s) in the embryo file", actualStrainCount));
+
+		String message = "Expected at least " + EXPECTED_STRAIN_COUNT + " strains but found only " + actualStrainCount;
+		Assert.assertEquals(message, EXPECTED_STRAIN_COUNT, actualStrainCount);
 	}
 }

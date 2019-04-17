@@ -29,9 +29,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -43,9 +41,8 @@ import java.util.List;
  * @author mrelac
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = TestConfigIndexers.class)
-@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
-@Transactional
+@SpringBootTest
+@ContextConfiguration(classes = {TestConfigIndexers.class})
 public class WireAllIndexersTest implements ApplicationContextAware {
 
     private ApplicationContext applicationContext;
@@ -76,7 +73,6 @@ public class WireAllIndexersTest implements ApplicationContextAware {
     final Class anatomyClass = AnatomyIndexer.class;
     final Class pipelineClass = PipelineIndexer.class;
     final Class geneClass = GeneIndexer.class;
-    final Class diseaseClass = DiseaseIndexer.class;
     final Class autosuggestClass = AutosuggestIndexer.class;
     final Class allele2Class = Allele2Indexer.class;
     final Class productClass = ProductIndexer.class;
@@ -125,7 +121,4 @@ public class WireAllIndexersTest implements ApplicationContextAware {
             this.indexerClass = indexerClass;
         }
     }
-
 }
-
-
