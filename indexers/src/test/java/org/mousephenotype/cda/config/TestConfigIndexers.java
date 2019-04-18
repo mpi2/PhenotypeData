@@ -54,12 +54,6 @@ public class TestConfigIndexers {
     private String password;
 
     @Bean
-    @ConfigurationProperties(prefix = "datasource.goapro")
-    public DataSource goaproDataSource() {
-        return DataSourceBuilder.create().driverClassName("oracle.jdbc.driver.OracleDriver").build();
-    }
-
-    @Bean
     @Primary
     @ConfigurationProperties("datasource.komp2")
     public DataSource komp2DataSource() {
@@ -214,7 +208,7 @@ public class TestConfigIndexers {
 
     /////////////////////////////
     // Required for indexer tests
-    ////////////////////////////
+    /////////////////////////////
 
     @Bean
     public SolrClient solrClient() { return new HttpSolrClient.Builder(solrBaseUrl).build(); }

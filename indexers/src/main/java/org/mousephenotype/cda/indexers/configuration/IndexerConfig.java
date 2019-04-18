@@ -3,11 +3,13 @@ package org.mousephenotype.cda.indexers.configuration;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.hibernate.SessionFactory;
+import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
@@ -17,79 +19,73 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
 import java.util.Properties;
 
 
-/**
- * Created by ckc on 07/06/16.
- * Indexers bean configuration
- */
-
 @Configuration
-@EnableAutoConfiguration
 @EnableTransactionManagement
-@ComponentScan(
-	excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = {"org.mousephenotype.cda.solr.generic.util.*"}),
-	basePackages = {
-	"org.mousephenotype.cda.indexers",
-	"org.mousephenotype.cda.db",
-	"org.mousephenotype.cda.solr",
-	"org.mousephenotype.cda.utilities"}
-)
-
-// If same key is found in both files, the second file's value will "win".
-@PropertySources({
-        @PropertySource(value = "file:${user.home}/configfiles/${profile:dev}/datarelease.properties", ignoreResourceNotFound=true),
-        @PropertySource(value = "file:${user.home}/configfiles/${profile:dev}/application.properties", ignoreResourceNotFound=true)
-})
-
 public class IndexerConfig {
 
     public static final int QUEUE_SIZE = 10000;
     public static final int THREAD_COUNT = 3;
 
-    @NotNull
     @Value("${buildIndexesSolrUrl}")
     private String writeSolrBaseUrl;
 
-    @NotNull
     @Value("${solr.host}")
     private String solrBaseUrl;
 
-    // Indexers for writing
+
+    /////////////////////
+    // read-only indexers
+    /////////////////////
+
+    // Creation of the IMPC disease core has been replaced by phenodigm core provided by QMUL
+    @Bean
+    SolrClient phenodigmCore() {
+        // readonly
+        return new HttpSolrClient.Builder(solrBaseUrl + "/phenodigm").build();
+    }
+
+
+    //////////////////////
+    // read-write indexers
+    //////////////////////
     @Bean
     SolrClient experimentCore() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/experiment").build();
     }
+
     @Bean
     SolrClient genotypePhenotypeCore() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/genotype-phenotype").build();
     }
+
     @Bean
     SolrClient statisticalResultCore() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/statistical-result").build();
     }
-    @Bean
-    SolrClient preqcCore() {
-        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/preqc").build();
-    }
+
     @Bean
     SolrClient alleleCore() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/allele").build();
     }
+
     @Bean
     SolrClient sangerImagesCore() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/images").build();
     }
+
     @Bean
     SolrClient impcImagesCore() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/impc_images").build();
     }
+
     @Bean
     SolrClient mpCore() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/mp").build();
     }
+
     @Bean
     SolrClient anatomyCore() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/anatomy").build();
@@ -115,13 +111,6 @@ public class IndexerConfig {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/product").build();
     }
 
-    // IMPC disease core retired and now points to externall phenodigm
-    @Bean
-    SolrClient phenodigmCore() {
-        // readonly
-        return new HttpSolrClient.Builder(solrBaseUrl + "/phenodigm").build();
-    }
-
     @Bean
     SolrClient autosuggestCore() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/autosuggest").build();
@@ -132,41 +121,32 @@ public class IndexerConfig {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/mgi-phenotype").build();
     }
 
-    @Bean
-    SolrClient gwasCore() {
-        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/gwas").build();
-    }
 
-	// database connections
+    //////////////
+    // datasources
+    //////////////
+
+    @Value("${datasource.komp2.jdbc-url}")
+    private String komp2Url;
+
+    @Value("${datasource.komp2.username}")
+    private String username;
+
+    @Value("${datasource.komp2.password}")
+    private String password;
+
+
+    //////////////
+    // datasources
+    //////////////
+
     @Bean
     @Primary
     @ConfigurationProperties(prefix = "datasource.komp2")
     public DataSource komp2DataSource() {
-        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
-    }
+        DataSource komp2DataSource = SqlUtils.getConfiguredDatasource(komp2Url, username, password);
 
-    @Bean
-    @ConfigurationProperties(prefix = "datasource.admintools")
-    public DataSource admintoolsDataSource() {
-        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
-    }
-
-    @Bean
-    @ConfigurationProperties(prefix = "datasource.goapro")
-    public DataSource goaproDataSource() {
-        return DataSourceBuilder.create().driverClassName("oracle.jdbc.driver.OracleDriver").build();
-    }
-
-    @Bean
-    @ConfigurationProperties(prefix = "datasource.ontodb")
-    public DataSource ontodbDataSource() {
-        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
-    }
-
-    @Bean
-    @ConfigurationProperties(prefix = "datasource.pfam")
-    public DataSource pfamDataSource() {
-        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+        return komp2DataSource;
     }
 
     @Bean
@@ -175,15 +155,11 @@ public class IndexerConfig {
         return DataSourceBuilder.create().driverClassName("oracle.jdbc.driver.OracleDriver").build();
     }
 
-	@Bean
-	@ConfigurationProperties(prefix = "datasource.phenodigm")
-	public DataSource phenodigmDataSource() {
-		return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
-	}
 
-
-
+    /////////////////////////////////////
 	// support beans for hibernate wiring
+    /////////////////////////////////////
+
     protected Properties buildHibernateProperties() {
 	    Properties hibernateProperties = new Properties();
 
@@ -197,9 +173,8 @@ public class IndexerConfig {
 	    return hibernateProperties;
     }
 
-
+    @Primary
 	@Bean(name = "sessionFactoryHibernate")
-	@Primary
 	public SessionFactory getSessionFactory() {
 
 		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
@@ -233,6 +208,4 @@ public class IndexerConfig {
 	public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
 		return new PersistenceExceptionTranslationPostProcessor();
 	}
-
-
 }

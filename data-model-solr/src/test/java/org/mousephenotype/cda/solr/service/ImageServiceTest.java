@@ -4,7 +4,6 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,11 +34,6 @@ public class ImageServiceTest {
     @Autowired
     private ImageService imageService;
 
-
-    @Before
-    public void setup() {
-        System.out.println("Testing using SOLR endpoint: " + this.imageService);
-    }
 
     @Test
     public void allImageRecordSolrQueryTest() throws Exception {

@@ -27,7 +27,7 @@
     <logger name="org.mousephenotype.interest"                                  level="INFO" />
 
     <!-- uncomment this line to see ImageService solr queries -->
-    <logger name="org.mousephenotype.cda.solr.service.ImageService"             level="INFO" />
+    <!--<logger name="org.mousephenotype.cda.solr.service.ImageService"             level="INFO" />-->
 
     <!-- OTHER -->
     <logger name="org.springframework.boot.autoconfigure.logging.AutoConfigurationReportLoggingInitializer" level="ERROR" />

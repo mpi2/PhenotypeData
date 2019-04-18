@@ -16,9 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
@@ -31,10 +30,9 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author jmason
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {TestConfigIndexers.class})
-@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
-@Transactional
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@ContextConfiguration(classes = {TestConfigIndexers.class})
 public class StatisticalResultsIndexerTest implements ApplicationContextAware {
 
     private static final Logger logger = LoggerFactory.getLogger(StatisticalResultsIndexerTest.class);
