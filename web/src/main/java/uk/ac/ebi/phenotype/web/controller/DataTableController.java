@@ -341,8 +341,6 @@ public class DataTableController {
 			jsonStr = parseJsonforAnatomyDataTable(json, request, query, solrCoreName);
 		} else if (mode.equals("diseaseGrid")) {
 			jsonStr = parseJsonforDiseaseDataTable(json, request, query, solrCoreName);
-		} else if (mode.equals("gene2go")) {
-			jsonStr = parseJsonforGoDataTable(json, request, solrCoreName, evidRank);
 		} else if (mode.equals("allele2Grid")) {
 			jsonStr = parseJsonforProductDataTable(json, request, query, solrCoreName);
 		}
@@ -482,62 +480,6 @@ public class DataTableController {
 		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
 		j.put("facet_fields", facetFields);
 
-		return j.toString();
-	}
-
-	public String parseJsonforGoDataTable(JSONObject json, HttpServletRequest request, String solrCoreName, String evidRank) {
-
-		String hostName = request.getAttribute("mappedHostname").toString();
-		String baseUrl = request.getAttribute("baseUrl").toString();
-
-		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-		int totalDocs = json.getJSONObject("response").getInt("numFound");
-
-		log.debug("TOTAL GENE2GO: " + totalDocs);
-
-		JSONObject j = new JSONObject();
-		j.put("aaData", new Object[0]);
-
-		j.put("iTotalRecords", totalDocs);
-		j.put("iTotalDisplayRecords", totalDocs);
-		j.put("iDisplayStart", request.getAttribute("displayStart"));
-		j.put("iDisplayLength", request.getAttribute("displayLength"));
-
-		//GO evidence code ranking mapping
-
-		for (int i = 0; i < docs.size(); i ++) {
-
-			JSONObject doc = docs.getJSONObject(i);
-			//System.out.println("DOC: "+ doc.toString());
-			String marker_symbol = doc.getString("marker_symbol");
-			String gId = doc.getString("mgi_accession_id");
-			String glink = "<a href='" + hostName + baseUrl + "/genes/" + gId + "'>" + marker_symbol + "</a>";
-
-			String phenoStatus = doc.getString("latest_phenotype_status");
-
-			String NOINFO = "no info available";
-
-			// has GO
-			if (doc.containsKey("go_count")) {
-				// System.out.println("GO COUNT: "+ doc.getInt("go_count"));
-				List<String> rowData = new ArrayList<String>();
-				rowData.add(glink);
-				rowData.add(phenoStatus);
-				rowData.add(Integer.toString(doc.getInt("go_count")));
-				rowData.add("<i class='fa fa-plus-square'></i>");
-				j.getJSONArray("aaData").add(rowData);
-			} else {
-				// No GO
-				List<String> rowData = new ArrayList<String>();
-
-				rowData.add(glink);
-				rowData.add(phenoStatus);
-				rowData.add(NOINFO);
-				rowData.add("");
-
-				j.getJSONArray("aaData").add(rowData);
-			}
-		}
 		return j.toString();
 	}
 

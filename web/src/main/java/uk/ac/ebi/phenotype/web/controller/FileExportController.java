@@ -429,8 +429,6 @@ public class FileExportController {
 			@RequestParam(value = "phenotypingCenter", required = false) String[] phenotypingCenter,
 			@RequestParam(value = "pipelineStableId", required = false) String[] pipelineStableId,
 			@RequestParam(value = "dogoterm", required = false, defaultValue = "false") Boolean dogoterm,
-			@RequestParam(value = "gocollapse", required = false, defaultValue = "false") Boolean gocollapse,
-			@RequestParam(value = "gene2pfam", required = false, defaultValue = "false") Boolean gene2pfam,
 			@RequestParam(value = "doAlleleRef", required = false, defaultValue = "false") Boolean doAlleleRef,
 			@RequestParam(value = "filterStr", required = false) String filterStr, HttpSession session,
 			HttpServletRequest request, HttpServletResponse response, Model model)
@@ -473,15 +471,6 @@ public class FileExportController {
 
 			if (solrCoreName.equalsIgnoreCase("experiment")) {
 				dataRows = getDataRowsForExperiment(allele, mgiGeneId, parameterStableId, zygosities, strains, sex, phenotypingCenter, pipelineStableId);
-
-			} else if (dogoterm) {
-				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart,
-						length, showImgView);
-				dataRows = composeGene2GoAnnotationDataRows(json, request, dogoterm, gocollapse);
-			} else if (gene2pfam) {
-				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart,
-						length, showImgView);
-				dataRows = composeGene2PfamClansDataRows(json, request);
 			} else if (doAlleleRef) {
 				String filter = "";
 				String id= "";
@@ -1301,66 +1290,6 @@ public class FileExportController {
 		return rowData;
 	}
 
-
-	private List<String> composeGene2PfamClansDataRows(JSONObject json, HttpServletRequest request) {
-
-		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-		// System.out.println(" GOT " + docs.size() + " docs");
-		String baseUrl = request.getAttribute("baseUrl") + "/genes/";
-
-		List<String> rowData = new ArrayList<>();
-		// column names
-		// latest_phenotype_status,mgi_accession_id,marker_symbol,pfama_id,pfama_acc,clan_id,clan_acc,clan_desc
-		String fields = "Gene Symbol" + "\tMGI gene link" + "\tPhenotyping status" + "\tPfam Id" + "\tClan Id"
-				+ "\tClan Acc" + "\tClan Description";
-
-		rowData.add(fields);
-
-		String NOINFO = "no info available";
-
-		for (int i = 0; i < docs.size(); i++) {
-
-			JSONObject doc = docs.getJSONObject(i);
-			String gId = doc.getString("mgi_accession_id");
-			String phenoStatus = doc.getString("latest_phenotype_status");
-
-			JSONArray _pfamaIds = doc.containsKey("pfama_id") ? doc.getJSONArray("pfama_id") : new JSONArray();
-			JSONArray _clanIds = doc.containsKey("clan_id") ? doc.getJSONArray("clan_id") : new JSONArray();
-			JSONArray _clanAccs = doc.containsKey("clan_acc") ? doc.getJSONArray("clan_acc") : new JSONArray();
-			JSONArray _clanDescs = doc.containsKey("clan_desc") ? doc.getJSONArray("clan_desc") : new JSONArray();
-
-			if (_pfamaIds.size() == 0) {
-				List<String> data = new ArrayList<>();
-				data.add(doc.getString("marker_symbol"));
-				data.add(hostName + baseUrl + gId);
-				data.add(phenoStatus);
-
-				data.add(NOINFO);
-				data.add(NOINFO);
-				data.add(NOINFO);
-				data.add(NOINFO);
-
-				rowData.add(StringUtils.join(data, "\t"));
-			} else {
-				for (int j = 0; j < _clanIds.size(); j++) {
-
-					List<String> data = new ArrayList<>();
-					data.add(doc.getString("marker_symbol"));
-					data.add(hostName + baseUrl + gId);
-					data.add(phenoStatus);
-
-					data.add(doc.containsKey("pfama_id") ? _pfamaIds.getString(j) : NOINFO);
-					data.add(doc.containsKey("clan_id") ? _clanIds.getString(j) : NOINFO);
-					data.add(doc.containsKey("clan_acc") ? _clanAccs.getString(j) : NOINFO);
-					data.add(doc.containsKey("clan_desc") ? _clanDescs.getString(j) : NOINFO);
-
-					rowData.add(StringUtils.join(data, "\t"));
-				}
-			}
-		}
-		return rowData;
-	}
-
 	private List<String> composeAlleleRefExportRows(int iDisplayLength, int iDisplayStart, String sSearch, String dumpMode, Boolean consortium, String filter, String id) throws SQLException {
 		List<String> rowData = new ArrayList<>();
 
@@ -1432,112 +1361,6 @@ public class FileExportController {
 		}
 
 		System.out.println("row: " + rowData);
-		return rowData;
-	}
-
-
-	private List<String> composeGene2GoAnnotationDataRows(JSONObject json, HttpServletRequest request,
-														  boolean hasgoterm, boolean gocollapse) {
-
-		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-
-		String baseUrl = request.getAttribute("baseUrl") + "/genes/";
-
-		// List<String> evidsList = new
-		// ArrayList<String>(Arrays.asList(request.getParameter("goevids").split(",")));
-		List<String> rowData = new ArrayList<>();
-		// column names
-
-		String fields = null;
-		if (gocollapse) {
-			fields = "Gene Symbol" + "\tIMPC gene link" + "\tGO annotated" + "\tGO evidence Category";
-		} else {
-			fields = "Gene Symbol" + "\tIMPC gene link" + "\tPhenotyping status" + "\tUniprot protein" + "\tGO Term Id"
-					+ "\tGO Term Name" + "\tGO Term Evidence" + "\tGO evidence Category" + "\tGO Term Domain";
-		}
-
-		rowData.add(fields);
-
-		// GO evidence code ranking mapping
-		Map<String, Integer> codeRank = commonUtils.getGoCodeRank();
-
-		// GO evidence rank to category mapping
-		Map<Integer, String> evidRankCat = SolrIndex.getGomapCategory();
-
-		String NOINFO = "no info available";
-
-		for (int i = 0; i < docs.size(); i++) {
-
-			JSONObject doc = docs.getJSONObject(i);
-			String gId = doc.getString("mgi_accession_id");
-			String phenoStatus = doc.containsKey("latest_phenotype_status") ? doc.getString("latest_phenotype_status")
-					: NOINFO;
-
-			if (!doc.containsKey("evidCodeRank")) {
-
-				List<String> data = new ArrayList<>();
-				data.add(doc.getString("marker_symbol"));
-				data.add(hostName + baseUrl + gId);
-				data.add(phenoStatus);
-				data.add(NOINFO);
-				data.add(NOINFO);
-				data.add(NOINFO);
-				data.add(NOINFO);
-				data.add(NOINFO);
-				data.add(NOINFO);
-
-				rowData.add(StringUtils.join(data, "\t"));
-			} else if (gocollapse) {
-				List<String> data = new ArrayList<>();
-				data.add(doc.getString("marker_symbol"));
-				data.add(hostName + baseUrl + gId);
-				data.add(Integer.toString(doc.getInt("go_count")));
-
-				int evidCodeRank = doc.getInt("evidCodeRank");
-				data.add(evidRankCat.get(evidCodeRank));
-
-				rowData.add(StringUtils.join(data, "\t"));
-
-			} else {
-
-				int evidCodeRank = doc.getInt("evidCodeRank");
-
-				JSONArray _goTermIds = doc.containsKey("go_term_id") ? doc.getJSONArray("go_term_id") : new JSONArray();
-				JSONArray _goTermNames = doc.containsKey("go_term_name") ? doc.getJSONArray("go_term_name")
-						: new JSONArray();
-				JSONArray _goTermEvids = doc.containsKey("go_term_evid") ? doc.getJSONArray("go_term_evid")
-						: new JSONArray();
-				JSONArray _goTermDomains = doc.containsKey("go_term_domain") ? doc.getJSONArray("go_term_domain")
-						: new JSONArray();
-				JSONArray _goUniprotAccs = doc.containsKey("go_uniprot") ? doc.getJSONArray("go_uniprot")
-						: new JSONArray();
-
-				for (int j = 0; j < _goTermEvids.size(); j++) {
-
-					String evid = _goTermEvids.get(j).toString();
-
-					if (codeRank.get(evid) == evidCodeRank) {
-
-						List<String> data = new ArrayList<>();
-
-						data.add(doc.getString("marker_symbol"));
-						data.add(hostName + baseUrl + gId);
-						data.add(phenoStatus);
-
-						String go2Uniprot = _goUniprotAccs.size() > 0 ? _goUniprotAccs.get(j).toString() : NOINFO;
-						String uniprotAcc = go2Uniprot.replaceAll("[A-Z0-9:]+__", "");
-						data.add(uniprotAcc);
-
-						data.add(_goTermIds.size() > 0 ? _goTermIds.get(j).toString() : NOINFO);
-						data.add(_goTermNames.size() > 0 ? _goTermNames.get(j).toString() : NOINFO);
-						data.add(_goTermEvids.size() > 0 ? _goTermEvids.get(j).toString() : NOINFO);
-						data.add(evidRankCat.get(evidCodeRank));
-						data.add(_goTermDomains.size() > 0 ? _goTermDomains.get(j).toString() : NOINFO);
-						rowData.add(StringUtils.join(data, "\t"));
-					}
-				}
-			}
-		}
 		return rowData;
 	}
 

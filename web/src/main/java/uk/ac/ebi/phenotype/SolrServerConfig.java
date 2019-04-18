@@ -36,16 +36,15 @@ public class SolrServerConfig {
     public static final int THREAD_COUNT = 3;
 
 
-    @NotNull
+    @Value("${imits.solr.host}")
+    private String imitsSolrBaseUrl;
+
     @Value("${solr.host}")
     private String solrBaseUrl;
 
+    @NotNull
     @Autowired
     ImpressService impressService;
-
-    @NotNull
-    @Value("${imits.solr.host}")
-    private String imitsSolrBaseUrl;
 
 
     // Required for spring-data-solr repositories
@@ -68,106 +67,83 @@ public class SolrServerConfig {
     }
 
 
+    /////////////////////////
     // Read only solr servers
+    /////////////////////////
 
-    //Phenodigm2 server
-    @Bean(name = "phenodigmCore")
-    public HttpSolrClient getPhenodigmCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/phenodigm").build();
-    }
-
-    //Configuration
-    @Bean(name = "configurationCore")
-    public HttpSolrClient getConfigurationCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/configuration").build();
-    }
-
-
-
-    //Allele
+    // allele
     @Bean(name = "alleleCore")
     public HttpSolrClient getAlleleCore() {
         return new HttpSolrClient.Builder(solrBaseUrl + "/allele").build();
     }
 
+    // anatomy
+    @Bean(name = "anatomyCore")
+    HttpSolrClient getAnatomyCore() { return new HttpSolrClient.Builder(solrBaseUrl + "/anatomy").build();	}
 
-    //Autosuggest
+    // autosuggest
     @Bean(name = "autosuggestCore")
     HttpSolrClient getAutosuggestCore() {
         return new HttpSolrClient.Builder(solrBaseUrl + "/autosuggest").build();
     }
 
-    //Gene
+    // experiment
+    @Bean(name = "experimentCore")
+    HttpSolrClient getExperimentCore() {
+        return new HttpSolrClient.Builder(solrBaseUrl + "/experiment").build();
+    }
+
+    // gene
     @Bean(name = "geneCore")
     HttpSolrClient getGeneCore() {
         return new HttpSolrClient.Builder(solrBaseUrl + "/gene").build();
     }
 
-    //GenotypePhenotype
+    // genotype-phenotype
     // TK: this core seems to be used only in the test packages - remove?
     @Bean(name = "genotypePhenotypeCore")
     HttpSolrClient getGenotypePhenotypeCore() {
         return new HttpSolrClient.Builder(solrBaseUrl + "/genotype-phenotype").build();
     }
 
-    //DELETEME
-//	//GenotypePhenotype
-//	@Bean(name = "genotypePhenotypeCore")
-//	HttpSolrClient getGenotypePhenotypeCore() {
-//		return new HttpSolrClient("http://ves-hx-d1:8090/mi/impc/beta/solr/genotype-phenotype");
-//	}
-
-    // Impc images core
-    @Bean(name = "impcImagesCore")
-    HttpSolrClient getImpcImagesCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/impc_images").build();
-    }
-
-    //SangerImages
+    // images
     @Bean(name = "sangerImagesCore")
     HttpSolrClient getImagesCore() {
         return new HttpSolrClient.Builder(solrBaseUrl + "/images").build();
     }
 
-    //ANATOMY
-    @Bean(name = "anatomyCore")
-    HttpSolrClient getAnatomyCore() { return new HttpSolrClient.Builder(solrBaseUrl + "/anatomy").build();	}
+    // impc_images
+    @Bean(name = "impcImagesCore")
+    HttpSolrClient getImpcImagesCore() {
+        return new HttpSolrClient.Builder(solrBaseUrl + "/impc_images").build();
+    }
 
-    //MP
+    // mp
     @Bean(name = "mpCore")
     HttpSolrClient getMpCore() { return new HttpSolrClient.Builder(solrBaseUrl + "/mp").build(); }
 
-    //EMAP
-    @Bean(name = "emapCore")
-    HttpSolrClient getEmapCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/emap").build();
+    // phenodigm
+    @Bean(name = "phenodigmCore")
+    public HttpSolrClient getPhenodigmCore() {
+        return new HttpSolrClient.Builder(solrBaseUrl + "/phenodigm").build();
     }
 
-    @Bean(name = "experimentCore")
-    HttpSolrClient getExperimentCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/experiment").build();
-    }
-
-    //Pipeline
+    // pipeline
     @Bean(name = "pipelineCore")
     HttpSolrClient getPipelineCore() {
         return new HttpSolrClient.Builder(solrBaseUrl + "/pipeline").build();
     }
 
-    //Preqc
-    @Bean(name = "preqcCore")
-    HttpSolrClient getPreqcCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/preqc").build();
-    }
-
-    //StatisticalResult
+    // statistical-result
     @Bean(name = "statisticalResultCore")
     HttpSolrClient getStatisticalResultCore() {
         return new HttpSolrClient.Builder(solrBaseUrl + "/statistical-result").build();
     }
 
 
-    // Service Beans
+    ///////////
+    // SERVICES
+    ///////////
 
 
     @Bean

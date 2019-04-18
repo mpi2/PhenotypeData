@@ -19,13 +19,6 @@
     "imagePath": "/img/parallelCoord.png",
     "description": "Gene KO effect comparator: how do parameters vary in relation to each other.",
     "site":"internal"
-  },
-  {
-    "urlPath": "gene2go",
-    "toolName": "GO annotations to phenotyped IMPC genes",
-    "imagePath": "/img/go_logo.png",
-    "description": "A tool to explore the mappings of phenotype completed and started genes in IMPC to GO terms. It also helps to quickly find the IMPC phenotyped genes that GO has not yet annotated. The dataset can be exported as TSV or Excel format.",
-    "site":"internal"
   }
 
 ]

@@ -112,12 +112,12 @@ public class SolrServerConfig {
 		return new HttpSolrClient.Builder(solrBaseUrl + "/gene").build();
 	}
 
-	//GenotypePhenotype
-    // TK: this core seems to be used only in the test packages - remove?
-	@Bean(name = "genotypePhenotypeCore")
-	HttpSolrClient getGenotypePhenotypeCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/genotype-phenotype").build();
-	}
+//	//GenotypePhenotype
+//    // TK: this core seems to be used only in the test packages - remove?
+//	@Bean(name = "genotypePhenotypeCore")
+//	HttpSolrClient getGenotypePhenotypeCore() {
+//		return new HttpSolrClient.Builder(solrBaseUrl + "/genotype-phenotype").build();
+//	}
 
 	//DELETEME
 //	//GenotypePhenotype
