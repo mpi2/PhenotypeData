@@ -24,37 +24,29 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
 
 /**
  * Created by mrelac on 02/05/2017.
  */
 @Configuration
-@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
 @EnableAutoConfiguration
 public class CoreConfig {
 
-    @NotNull
     @Value("${paBaseUrl}")
     private String paBaseUrl;
 
-    @NotNull
     @Value("${mail.smtp.host}")
     private String smtpHost;
 
-    @NotNull
     @Value("${mail.smtp.port}")
     private Integer smtpPort;
 
-    @NotNull
     @Value("${mail.smtp.from}")
     private String smtpFrom;
 
-    @NotNull
     @Value("${mail.smtp.replyto}")
     private String smtpReplyto;
 
@@ -89,15 +81,12 @@ public class CoreConfig {
         return new SendService(sqlUtils(), smtpHost, smtpPort, smtpFrom, smtpReplyto);
     }
 
-    @NotNull
     @Value("${datasource.ri.url}")
     String riUrl;
 
-    @NotNull
     @Value("${datasource.ri.username}")
     String username;
 
-    @NotNull
     @Value("${datasource.ri.password}")
     String password;
 

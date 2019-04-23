@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.context.annotation.ComponentScan;
 
 import javax.inject.Inject;
@@ -59,6 +60,7 @@ public class ApplicationSend implements CommandLineRunner {
         SpringApplication app = new SpringApplication(ApplicationSend.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
+        app.setWebApplicationType(WebApplicationType.NONE);
         app.run(args);
     }
 

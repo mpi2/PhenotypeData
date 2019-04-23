@@ -40,13 +40,11 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguratio
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +53,6 @@ import java.util.Map;
  * Created by mrelac on 02/05/2017.
  */
 @Configuration
-@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
 @EnableBatchProcessing
 @EnableAutoConfiguration(exclude = {
         JndiConnectionFactoryAutoConfiguration.class,
@@ -71,11 +68,9 @@ public class AppConfig {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private StepBuilderFactory stepBuilderFactory;
 
-    @NotNull
     @Value("${GeneStatusChangeUrl}")
     protected String geneStatusChangeUrl;
 
-    @NotNull
     @Value("${download.workspace}")
     protected String downloadWorkspace;
 
@@ -125,15 +120,12 @@ public class AppConfig {
         return new SqlUtils(jdbc());
     }
 
-    @NotNull
     @Value("${datasource.ri.url}")
     String riUrl;
 
-    @NotNull
     @Value("${datasource.ri.username}")
     String username;
 
-    @NotNull
     @Value("${datasource.ri.password}")
     String password;
 
