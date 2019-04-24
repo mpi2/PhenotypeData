@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -64,11 +63,6 @@ import java.io.IOException;
  */
 @Configuration
 @EnableWebSecurity
-@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
-
-//@PropertySource("${configServerUrl}")
-//@PropertySource("http://ves-ebi-d9.ebi.ac.uk:8989/pa/dev")
-
 @ComponentScan("uk.ac.ebi.phenotype.web.controller.registerinterest")
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 

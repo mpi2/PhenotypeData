@@ -25,7 +25,7 @@ public class AlleleServiceTest extends TestCase {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	AlleleService alleleService;
+	private AlleleService alleleService;
 
 	@Test
 	public void testGetStatusCount() throws Exception {

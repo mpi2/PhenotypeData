@@ -7,7 +7,6 @@ import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -24,7 +23,6 @@ import java.util.Properties;
  */
 @Configuration
 @EnableAutoConfiguration
-@PropertySource("file:${user.home}/configfiles/${profile:dev}/application.properties")
 public class PhenotypeArchiveDatabaseConfig {
 
 
@@ -102,5 +100,4 @@ public class PhenotypeArchiveDatabaseConfig {
         sessionFactory.setPackagesToScan("org.mousephenotype.cda.db");
         return sessionFactory;
     }
-
 }

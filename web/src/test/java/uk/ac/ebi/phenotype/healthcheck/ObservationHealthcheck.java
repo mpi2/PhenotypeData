@@ -22,13 +22,13 @@
 
 package uk.ac.ebi.phenotype.healthcheck;
 
-import org.junit.*;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.ObservationDAO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import uk.ac.ebi.phenotype.web.TestConfig;
 
@@ -61,34 +61,17 @@ import static org.junit.Assert.fail;
  * @author mrelac
  */
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-@ContextConfiguration(classes = TestConfig.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@ContextConfiguration(classes = {TestConfig.class})
 @Transactional
 public class ObservationHealthcheck {
+
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
-
-    public ObservationHealthcheck() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() {
-    }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
 
     @Autowired
     ObservationDAO observationDAO;
+
 
     /**
      * When <code>missing</code> is zero, <code>parameter_status</code> and
@@ -97,7 +80,6 @@ public class ObservationHealthcheck {
      * @throws SQLException
      */
     @Test
-//@Ignore
     public void testMissingIsZero() throws SQLException {
         String testName = "testMissingIsZero";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
@@ -125,7 +107,6 @@ public class ObservationHealthcheck {
      * @throws SQLException
      */
     @Test
-//@Ignore
     public void testMissingIsOne() throws SQLException {
         String testName = "testMissingIsOne";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
@@ -151,7 +132,6 @@ public class ObservationHealthcheck {
      * @throws SQLException
      */
     @Test
-// @Ignore
     public void testMissingParameterStatusFromOntologyTerm() throws SQLException {
         String testName = "testMissingParameterStatusFromOntologyTerm";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);

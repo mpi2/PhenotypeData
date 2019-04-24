@@ -20,27 +20,18 @@
  * This test class is intended to run healthchecks against the observation table.
  */
 
-package uk.ac.ebi.phenotype.api;
+package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.solr.service.MpService;
+import org.mousephenotype.cda.solr.TestConfigSolr;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
@@ -48,39 +39,14 @@ import java.util.Set;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-@ContextConfiguration(loader=AnnotationConfigContextLoader.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@ContextConfiguration(classes = {TestConfigSolr.class})
 public class MpServiceTest {
-
-	// Spring Configuration class
-	// Only wire up the mp service for this test suite
-	@Configuration
-	@ComponentScan(
-		basePackages = {"org.mousephenotype.cda.solr.service"},
-		useDefaultFilters = false,
-		includeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {MpService.class})
-		})
-	static class ContextConfiguration {
-
-		@NotNull
-		@Value("${solr.host}")
-		private String solrBaseUrl;
-
-		@Bean(name = "mpCore")
-		HttpSolrClient getSolrCore() {
-			return new HttpSolrClient.Builder(solrBaseUrl + "/mp").build();
-		}
-
-		@Bean
-		public static PropertySourcesPlaceholderConfigurer propertyConfigurer() {
-			return new PropertySourcesPlaceholderConfigurer();
-		}
-
-	}
 
 	@Autowired
 	MpService mpService;
+
 
 	@Test
 	public void testGetAllTopLevelPhenotypesAsBasicBeans(){
@@ -90,19 +56,21 @@ public class MpServiceTest {
 				System.out.println("MP name in test="+bean.getName()+" mp id in test="+bean.getId());
 			}
 		} catch (SolrServerException | IOException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 	}
-
 
 	@Test
 	public void testGetChildren(){
 		ArrayList<String> children;
 		try {
+
 			children = mpService.getChildrenFor("MP:0002461");
 			assertTrue(children.size() > 0);
+
 		} catch (SolrServerException | IOException e) {
+
 			e.printStackTrace();
 			fail();
 		}
