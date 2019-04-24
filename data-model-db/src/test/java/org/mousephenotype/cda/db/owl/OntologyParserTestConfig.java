@@ -45,10 +45,15 @@ public class OntologyParserTestConfig {
     public DataSource dataSource() {
 
         DataSource dataSource = null;
-        try {
-            dataSource = SqlUtils.getConfiguredDatasource(komp2Url, username, password);
-        } catch (Exception e) {
-            System.out.println();
+
+        // Spring Boot 2.1.4 invokes this method at startup without the benefit of the configServer and thus does not
+        // resolve the @Value placeholders. Returning null in this case seems to have no ill downstream side effects.
+        if ( ! komp2Url.contains("datasource.komp2")) {
+            try {
+                dataSource = SqlUtils.getConfiguredDatasource(komp2Url, username, password);
+            } catch (Exception e) {
+                System.out.println();
+            }
         }
 
         return dataSource;

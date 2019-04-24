@@ -48,13 +48,13 @@ public class OntologyParserTest {
 
     @NotNull
     @Autowired
-    DataSource komp2DataSource;
+    private DataSource dataSource;
 
 
 	@Test
 	public void findSpecificMaTermMA_0002405() throws Exception {
 
-	    OntologyParserFactory f = new OntologyParserFactory(komp2DataSource, owlpath);
+	    OntologyParserFactory f = new OntologyParserFactory(dataSource, owlpath);
 
 	    ontologyParser = f.getMaParser();
 
@@ -70,7 +70,7 @@ public class OntologyParserTest {
     @Test
     public void testUberon()  throws Exception {
 
-		OntologyParserFactory f = new OntologyParserFactory(komp2DataSource, owlpath);
+		OntologyParserFactory f = new OntologyParserFactory(dataSource, owlpath);
 
 		ontologyParser = f.getUberonParser();
         assertNotNull(ontologyParser);
@@ -80,7 +80,7 @@ public class OntologyParserTest {
     @Test
     public void testNarrowSynonyms() throws Exception {
 
-		OntologyParserFactory f = new OntologyParserFactory(komp2DataSource, owlpath);
+		OntologyParserFactory f = new OntologyParserFactory(dataSource, owlpath);
 
 		ontologyParser = f.getMpHpParser();
 
@@ -108,7 +108,7 @@ public class OntologyParserTest {
     @Test
     public void testEquivalent() throws Exception {
 
-        OntologyParserFactory f = new OntologyParserFactory(komp2DataSource, owlpath);
+        OntologyParserFactory f = new OntologyParserFactory(dataSource, owlpath);
 
         ontologyParser = f.getMpHpParser();
 
@@ -132,7 +132,7 @@ public class OntologyParserTest {
     @Test
     public void testReplacementOptions() throws Exception {
 
-        OntologyParserFactory f = new OntologyParserFactory(komp2DataSource, owlpath);
+        OntologyParserFactory f = new OntologyParserFactory(dataSource, owlpath);
 
         ontologyParser = f.getMpParser();
 
@@ -171,7 +171,7 @@ public class OntologyParserTest {
     @Test
     public void findSpecificEmapaTermEMAPA_18025() throws Exception {
 
-        OntologyParserFactory f = new OntologyParserFactory(komp2DataSource, owlpath);
+        OntologyParserFactory f = new OntologyParserFactory(dataSource, owlpath);
 
         ontologyParser = f.getEmapaParser();
         List<OntologyTermDTO> termList = ontologyParser.getTerms();
@@ -187,7 +187,7 @@ public class OntologyParserTest {
     @Test
     public void findMaTermByReferenceFromMpTerm() throws Exception {
 
-        OntologyParserFactory f = new OntologyParserFactory(komp2DataSource, owlpath);
+        OntologyParserFactory f = new OntologyParserFactory(dataSource, owlpath);
 
         ontologyParser = f.getMpMaParser();
 
@@ -314,7 +314,7 @@ public class OntologyParserTest {
     @Test
     public void testMpMaMapping() throws OWLOntologyCreationException, OWLOntologyStorageException, SQLException, IOException {
 
-        OntologyParserFactory f = new OntologyParserFactory(komp2DataSource, owlpath);
+        OntologyParserFactory f = new OntologyParserFactory(dataSource, owlpath);
 
         ontologyParser = f.getMpMaParser();
 
