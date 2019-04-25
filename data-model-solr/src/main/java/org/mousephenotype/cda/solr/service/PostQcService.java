@@ -209,7 +209,7 @@ public class PostQcService extends AbstractGenotypePhenotypeService implements W
 
             return result;
 
-        } catch (SolrServerException | SQLException | IOException e) {
+        } catch (SolrServerException | SQLException | IOException | org.json.JSONException e) {
             e.printStackTrace();
         }
 
