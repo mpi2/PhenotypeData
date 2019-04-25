@@ -18,13 +18,16 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertTrue;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes = {TestConfigSolr.class})
 public class HistopathServiceTest {
 
-    private final Logger logger = LoggerFactory.getLogger(PhenodigmService.class);
-
+    private final Logger logger                                         = LoggerFactory.getLogger(PhenodigmService.class);
+    private final int    EXPECTED_OBSERVATION_DTO_COUNT                 = 396;
+    private final int    EXPECTED_UNIQUE_SAMPLE_SEQUENCE_AND_NAME_COUNT = 116;
 
     @Autowired
     GrossPathService grossService;
@@ -35,33 +38,17 @@ public class HistopathServiceTest {
 
     @Test
     public void getTableDataTest() throws IOException, SolrServerException {
-        //gene_accession_id:"MGI:2449119"
-        //HistoPath_1481
-        //looks like we don't pick up the associated pato term in the indexer e.g.
-        //<ontologyParameter parameterID="IMPC_HIS_119_001" sequenceID="1">
-        //<term>PATO:0001566:diffuse</term>
-        //</ontologyParameter>
-
         ObservationService observationService = new ObservationService(experimentCore);
         HistopathService   histopathService   = new HistopathService(observationService);
 
-
-        //String geneAccession = "MGI:2449119";
         String               geneAccession   ="MGI:1891341";
         List<ObservationDTO> allObservations = histopathService.getObservationsForHistopathForGene(geneAccession);
-
-        for (ObservationDTO obs : allObservations) {
-//            System.out.println(obs);
-        }
+        assertTrue("Expected at least " + EXPECTED_OBSERVATION_DTO_COUNT + " rows but found " + allObservations.size(), allObservations.size() >= EXPECTED_OBSERVATION_DTO_COUNT);
 
         Map<String, List<ObservationDTO>> uniqueSampleSequeneAndAnatomyName = histopathService
 				.getUniqueInfo(allObservations);
-
-//        List<HistopathPageTableRow> filteredObservations = histopathService.getTableData(uniqueSampleSequeneAndAnatomyName);
-//        for (HistopathPageTableRow row : filteredObservations) {
-//            //System.out.println("row="+row);
-//        }
-
-        logger.warn("Finish me or delete me.");
+        assertTrue("Expected at least " + EXPECTED_UNIQUE_SAMPLE_SEQUENCE_AND_NAME_COUNT + " rows but found "
+                                  + uniqueSampleSequeneAndAnatomyName.size(),
+                          uniqueSampleSequeneAndAnatomyName.size() >= EXPECTED_UNIQUE_SAMPLE_SEQUENCE_AND_NAME_COUNT);
     }
 }

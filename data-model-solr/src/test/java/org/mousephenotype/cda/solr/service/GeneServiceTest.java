@@ -27,6 +27,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.TestConfigSolr;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
@@ -41,6 +43,8 @@ import static org.junit.Assert.assertTrue;
 @ContextConfiguration(classes = {TestConfigSolr.class})
 public class GeneServiceTest {
 
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 	@Autowired
 	private GeneService geneService;
 
@@ -49,8 +53,8 @@ public class GeneServiceTest {
 	public void testGetGeneById() throws SolrServerException, IOException {
 		String mgiId = "MGI:1929293";
 		GeneDTO gene = geneService.getGeneById(mgiId);
-		assertTrue(gene!=null);
-		System.out.println("Gene symbol is: " + gene.getMarkerSymbol());
-		System.out.println("Didn't retreive human gene symbol. Proof: " + gene.getHumanGeneSymbol());
+		logger.info("Gene symbol is: " + gene.getMarkerSymbol());
+		logger.info("Didn't retreive human gene symbol. Proof: " + gene.getHumanGeneSymbol());
+		assertTrue("Expected gene but was null", gene != null);
 	}
 }

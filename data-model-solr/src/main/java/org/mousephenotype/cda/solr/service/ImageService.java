@@ -326,7 +326,7 @@ public class ImageService implements WebStatus{
 			if (keyValue.length > 1) {
 				String key = keyValue[0];
 				String value = keyValue[1];
-				// System.out.println("param=" + key + " value=" + value);
+				// logger.info("param=" + key + " value=" + value);
 				solrQuery.setParam(key, value);
 			}
 
@@ -491,7 +491,7 @@ public class ImageService implements WebStatus{
 		}
 		
 		solrQuery.setRows(numberOfImagesToRetrieve);
-        System.out.println("solr Query in image service "+solrQuery);
+        logger.info("solr Query in image service " + solrQuery);
 		QueryResponse response = impcImagesCore.query(solrQuery);
 		return response;
 	}
@@ -527,7 +527,7 @@ public class ImageService implements WebStatus{
 		solrQuery.setRows(numberOfImagesToRetrieve);
 		//group controls and experimental together
 		solrQuery.addSort(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP , SolrQuery.ORDER.desc);
-        System.out.println("solr Query in image service "+solrQuery);
+        logger.info("solr Query in image service " + solrQuery);
 		QueryResponse response = impcImagesCore.query(solrQuery);
 		return response;
 	}
@@ -802,7 +802,7 @@ public class ImageService implements WebStatus{
 			if (procedureFacet.getValueCount() != 0) {
 
 				// for (FacetField procedureFacet : procedures) {
-				// System.out.println("proc facet name="+procedureFacet.getName());
+				// logger.info("proc facet name="+procedureFacet.getName());
 				// this.getControlAndExperimentalImpcImages(acc, model,
 				// procedureFacet.getCount().getName(), null, 1, 1,
 				// "Adult LacZ");
@@ -1056,7 +1056,7 @@ public class ImageService implements WebStatus{
 		String result = StringUtils.join(omeroIds, " OR ");
 		omeroIdString += result + ")";
 		solrQuery.setQuery(omeroIdString);
-		// System.out.println(omeroIdString);
+		// logger.info(omeroIdString);
 		// solrQuery.setRows(0);
 		QueryResponse response = impcImagesCore.query(solrQuery);
 		return response;
@@ -1083,7 +1083,7 @@ public class ImageService implements WebStatus{
 	}
 
 	public Boolean hasImagesWithMP(String geneAccessionId, String procedureName, String colonyId, String mpId) throws SolrServerException, IOException {
-		//System.out.println("looking for mp term="+mpTerm +"  colony Id="+colonyId);
+		//logger.info("looking for mp term="+mpTerm +"  colony Id="+colonyId);
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*")
@@ -1098,7 +1098,7 @@ public class ImageService implements WebStatus{
 		if ( response.getResults().getNumFound() == 0 ){
 			return false;
 		}
-		//System.out.println("returning true");
+		//logger.info("returning true");
 		return true;
 	}
 
@@ -1124,14 +1124,14 @@ public class ImageService implements WebStatus{
 		//query.addField(ImageDTO.INCREMENT_VALUE);
 		//query.addField(ImageDTO.DOWNLOAD_URL);
 		//query.addField(ImageDTO.EXTERNAL_SAMPLE_ID);
-		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(impcImagesCore) + "/select?" + query);
+		//logger.info("SOLR URL WAS " + SolrUtils.getBaseURL(impcImagesCore) + "/select?" + query);
 
 		QueryResponse response = impcImagesCore.query(query);
 		if(response.getResults().getNumFound()>0){
 			img = response.getResults().get(0);
 		}
 		//ImageDTO image = response.get(0);
-		//System.out.println("image omero_id"+image.getOmeroId()+" increment_id="+image.getIncrement());
+		//logger.info("image omero_id"+image.getOmeroId()+" increment_id="+image.getIncrement());
 		return img;
 
 	}
@@ -1162,9 +1162,9 @@ public class ImageService implements WebStatus{
 		QueryResponse response = impcImagesCore.query(query);
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
 			if (pivot.getPivot() != null) {
-				//System.out.println("pivot="+pivot.getValue());
+				//logger.info("pivot="+pivot.getValue());
 				String mpIdAndName=pivot.getValue().toString();
-				//System.out.println("mpIdAndName" +mpIdAndName);
+				//logger.info("mpIdAndName" +mpIdAndName);
 				String mpId="";
 				Set<String> colonIds=new TreeSet<>();
 				if(mpIdAndName.contains("_")){
@@ -1172,7 +1172,7 @@ public class ImageService implements WebStatus{
 				}
 				for (PivotField mp : pivot.getPivot()){
 
-					//System.out.println("adding mp="+pivot.getValue()+" adding value="+mp.getValue());
+					//logger.info("adding mp="+pivot.getValue()+" adding value="+mp.getValue());
 					String colonyId=mp.getValue().toString();
 					colonIds.add(colonyId);
 				}

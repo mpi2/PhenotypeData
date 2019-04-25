@@ -6,6 +6,8 @@ import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.GrossPathPageTableRow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -14,6 +16,8 @@ import java.util.*;
 
 @Service
 public class GrossPathService {
+
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private ObservationService observationService;
 	private ImageService       imageService;
@@ -31,7 +35,7 @@ public class GrossPathService {
 	
 	public List<GrossPathPageTableRow> getSummaryTableData(List<ObservationDTO> allObservations, List<SolrDocument> images, List<ObservationDTO> abnormaObservations, boolean abnormalOnly, String parameterStableId) throws SolrServerException, IOException {
 		List<GrossPathPageTableRow> rows = new ArrayList<>();
-		System.out.println("observations for GrossPath size with abnormal=" + allObservations.size());
+		logger.info("observations for GrossPath size with abnormal = " + allObservations.size());
 		Map<String, List<ObservationDTO>> anatomyToObservationMap = this.getAnatomyNamesToObservationsMap(allObservations);//only look at abnormal anatomies now as summary view
 			for (String anatomyName : anatomyToObservationMap.keySet()) {				
 				
@@ -40,7 +44,7 @@ public class GrossPathService {
 				//for summary we want the rows split on a key of anatomy||zygosity||normal/abnormal
 				Map<String, List<ObservationDTO>> keysForRow = this.generateKeyMapForAnatomy(anatomyToObservationMap.get(anatomyName), parameterStableId);
 				for (String key : keysForRow.keySet()) {	
-					System.out.println("key for row is "+key);
+					logger.info("key for row is " + key);
 					GrossPathPageTableRow row = new GrossPathPageTableRow();
 					row.setAnatomyName(anatomyName);
 						for(ObservationDTO obs: keysForRow.get(key)){
@@ -62,7 +66,7 @@ public class GrossPathService {
 										OntologyBean subOntologyBean = new OntologyBean(obs.getSubTermId().get(i),
 												obs.getSubTermName().get(i), obs.getSubTermDescription().get(i));// ,
 										row.addOntologicalParam(parameter, subOntologyBean);
-										//System.out.println(subOntologyBean);
+										//logger.info(subOntologyBean);
 										if(!obs.getSubTermName().get(i).equals("no abnormal phenotype detected")){
 											numberOfAbnormalTerms++;
 										}else{
@@ -76,11 +80,11 @@ public class GrossPathService {
 									if(numberOfNormalTerms>0)numberOfnormalObservationsForRow++;
 									
 								}else{
-									System.out.println("subterms are null for ontological data="+obs);
+									logger.info("subterms are null for ontological data = " + obs);
 								}
 							}
 							if (obs.getObservationType().equalsIgnoreCase("text")) {
-								//System.out.println("Text parameter found:" +obs.getTextValue()+" sampleId="+obs.getExternalSampleId());
+								//logger.info("Text parameter found:" +obs.getTextValue()+" sampleId="+obs.getExternalSampleId());
 								row.setTextValue(obs.getTextValue());
 							}
 	
@@ -125,7 +129,7 @@ public class GrossPathService {
 	public List<GrossPathPageTableRow> getTableData(List<ObservationDTO> allObservations, List<SolrDocument> images) throws SolrServerException, IOException {
 		List<GrossPathPageTableRow> rows = new ArrayList<>();
 		
-		System.out.println("observations for GrossPath size with abnormal=" + allObservations.size());
+		logger.info("observations for GrossPath size with abnormal = " + allObservations.size());
 
 		//List<ObservationDTO> filteredObservations = screenOutObservationsThatAreNormal(allObservations);
 		Map<String, List<ObservationDTO>> anatomyNames = this.getAnatomyNamesToObservationsMap(allObservations);// We
@@ -185,7 +189,7 @@ public class GrossPathService {
 									}
 								}
 							}else{
-								System.out.println("subterms are null for ontological data="+obs);
+								logger.info("subterms are null for ontological data = " + obs);
 							}
 						}
 						
@@ -197,7 +201,7 @@ public class GrossPathService {
 						
 					}
 					if (obs.getObservationType().equalsIgnoreCase("text")) {
-						//System.out.println("Text parameter found:" +obs.getTextValue()+" sampleId="+obs.getExternalSampleId());
+						//logger.info("Text parameter found:" +obs.getTextValue()+" sampleId="+obs.getExternalSampleId());
 						textValuesForSampleId.add(obs.getTextValue());
 					}
 
@@ -221,18 +225,18 @@ public class GrossPathService {
 				for (GrossPathPageTableRow row : rows) {
 					if (row.getSampleId().equals(sampleId)) {// filter by sample
 																// id as well
-						// System.out.println("checking rows with
+						// logger.info("checking rows with
 						// size="+rows.size()+" abnormal phenotypes with
 						// size="+abnormalAnatomyMapPerSampleId.size());
 						if (abnormalAnatomyMapPerSampleId.contains(row.getAnatomyName())) {
 							for (String text : textValuesForSampleId) {
-								// System.out.println("Text="+text);
+								// logger.info("Text="+text);
 								String[] words = text.split(" ");
 								for (String word : words) {
-									// System.out.println("word="+word);
+									// logger.info("word="+word);
 									for (String anatomyWord : row.getAnatomyName().split(" ")) {
 										if (anatomyWord.equalsIgnoreCase(word)) {
-											// System.out.println("Text matches
+											// logger.info("Text matches
 											// row!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 											row.setTextValue(text);
 											
@@ -272,8 +276,8 @@ public class GrossPathService {
 				}
 			}
 		}
-		//System.out.println("abnormalObservations size in getString="+abnormalObservations);
-		//System.out.println("normal or abnormal="+normalOrAbnormal);
+		//logger.info("abnormalObservations size in getString="+abnormalObservations);
+		//logger.info("normal or abnormal="+normalOrAbnormal);
 		if(abnormalObservations>0){
 			return "Abnormal";
 		}
@@ -291,7 +295,7 @@ public class GrossPathService {
 				sampleToImagesMap.put((String)image.get(ObservationDTO.EXTERNAL_SAMPLE_ID), tmpImageList);
 			}
 		}
-//		System.out.println("sampleToImagesMap size="+sampleToImagesMap.size());
+//		logger.info("sampleToImagesMap size="+sampleToImagesMap.size());
 		return sampleToImagesMap;
 	}
 
@@ -335,7 +339,7 @@ public class GrossPathService {
 		
 		//for Gross path we don't have anatomy names with description etc so lets just trim.
 			anatomyString = paramName.trim();
-			// System.out.println("anatomyString=" + anatomyString);
+			// logger.info("anatomyString=" + anatomyString);
 		return anatomyString;
 	}
 

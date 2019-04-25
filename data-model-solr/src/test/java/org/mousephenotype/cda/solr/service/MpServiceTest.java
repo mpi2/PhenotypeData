@@ -27,6 +27,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.TestConfigSolr;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
@@ -44,6 +46,9 @@ import static org.junit.Assert.fail;
 @ContextConfiguration(classes = {TestConfigSolr.class})
 public class MpServiceTest {
 
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final int EXPECTED_MP_BEAN_COUNT = 27;
+
 	@Autowired
 	MpService mpService;
 
@@ -52,9 +57,9 @@ public class MpServiceTest {
 	public void testGetAllTopLevelPhenotypesAsBasicBeans(){
 		try {
 			Set<BasicBean> basicMpBeans=mpService.getAllTopLevelPhenotypesAsBasicBeans();
-			for(BasicBean bean: basicMpBeans){
-				System.out.println("MP name in test="+bean.getName()+" mp id in test="+bean.getId());
-			}
+			assertTrue("Expected at least " + EXPECTED_MP_BEAN_COUNT + " mp beans but found "
+				+ basicMpBeans.size(), basicMpBeans.size() >= EXPECTED_MP_BEAN_COUNT);
+
 		} catch (SolrServerException | IOException e) {
 
 			e.printStackTrace();

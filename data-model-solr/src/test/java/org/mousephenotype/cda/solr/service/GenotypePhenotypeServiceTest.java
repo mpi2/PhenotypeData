@@ -66,18 +66,17 @@ public class GenotypePhenotypeServiceTest {
 
     @Test
     public void testGetAssociationsCount() {
-        System.out.println("running test");
         List<String> resources = new ArrayList<>();
         resources.add("IMPC");
         try {
 //			TreeSet<CountTableRow> result = postQcService.getAssociationsCount("MP:0000269", resources);
 //			for(CountTableRow row : result){
-//				System.out.println(row.getMpId()+" "+ row.getCategory()+" "+row.getCount());
+//				logger.info(row.getMpId()+" "+ row.getCategory()+" "+row.getCount());
 //			}
 
             TreeSet<CountTableRow> result2 = postQcService.getAssociationsCount("MP:0005377", resources);
 //			for(CountTableRow row : result2){
-//				System.out.println(row.getMpId()+" "+ row.getCategory()+" "+row.getCount());
+//				logger.info(row.getMpId()+" "+ row.getCategory()+" "+row.getCount());
 //			}
             int expectedCount      = 100;        // 2017-10-24 (mrelac) After much statistical refactoring to the hearing associations, today's actual count was 106.
             int actualAssociations = result2.iterator().next().getCount();

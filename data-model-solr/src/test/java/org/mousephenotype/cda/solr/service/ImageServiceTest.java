@@ -41,7 +41,7 @@ public class ImageServiceTest {
 
         SolrQuery query = ImageService.allImageRecordSolrQuery();
 
-        System.out.println("Query is: " + query.toString());
+        logger.info("Query is: " + query.toString());
 
         assertTrue(query.toString().contains("3i"));
         assertTrue(query.toString().contains("mousephenotype.org"));
@@ -205,7 +205,7 @@ public class ImageServiceTest {
         expectedSize = 3;                        // 26-Oct-2017 (mrelac) As of this date there were 9 control images found.
         actualSize   = controlImages.size();
         message      = testName + ": Expected at least " + expectedSize + " control images but found " + actualSize;
-        System.out.println(testName + ": control images actualSize = " + actualSize);
+        logger.info(testName + ": control images actualSize = " + actualSize);
 
         assertTrue(actualSize >= expectedSize);
 
@@ -214,7 +214,7 @@ public class ImageServiceTest {
         expectedSize = 3;                      // 26-Oct-2017 (mrelac) As of this date there were 34 mutant images found.
         actualSize   = mutantImages.size();
         message      = testName + ": Expected at least " + expectedSize + " mutant images but found " + actualSize;
-        System.out.println(testName + ": mutant images actualSize = " + actualSize);
+        logger.info(testName + ": mutant images actualSize = " + actualSize);
 
         assertTrue(actualSize >= expectedSize);
     }
