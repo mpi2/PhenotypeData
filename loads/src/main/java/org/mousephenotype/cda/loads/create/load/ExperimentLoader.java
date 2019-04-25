@@ -219,7 +219,7 @@ public class ExperimentLoader implements CommandLineRunner {
         derivedImpressParameters = cdaSqlUtils.getImpressDerivedParameters();
         logger.info("loaded {} derivedImpressParameter rows", derivedImpressParameters.size());
 
-        metadataAndDataAnalysisParameters = cdaSqlUtils.getImpressMetadataAndDataAnalysisParameters();
+        metadataAndDataAnalysisParameters = cdaSqlUtils.getImpressMetadataAndIsImportantParameters();
         logger.info("loaded {} requiredImpressParameter rows", metadataAndDataAnalysisParameters.size());
 
         samplesMap = cdaSqlUtils.getBiologicalSamplesMapBySampleKey();

@@ -30,7 +30,6 @@ CREATE TABLE `phenotype_parameter` (
   `options` tinyint(1) DEFAULT '0',
   `sequence` int(10) NOT NULL,
   `media` tinyint(1) DEFAULT '0',
-  `data_analysis` tinyint(1) DEFAULT '0',
   `data_analysis_notes` text,
   `stable_key` int(10) DEFAULT '0',
   PRIMARY KEY (`id`)
@@ -188,18 +187,20 @@ CREATE TABLE `phenotype_pipeline_procedure` (
 
 DROP TABLE IF EXISTS `phenotype_procedure`;
 CREATE TABLE `phenotype_procedure` (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `stable_key` int(10) DEFAULT '0',
-  `stable_id` varchar(40) NOT NULL,
-  `db_id` int(10) NOT NULL,
-  `name` varchar(200) NOT NULL,
-  `description` text,
-  `major_version` int(10) NOT NULL DEFAULT '1',
-  `minor_version` int(10) NOT NULL DEFAULT '0',
-  `is_mandatory` tinyint(1) DEFAULT '0',
-  `level` varchar(20) DEFAULT NULL,
-  `stage` varchar(20) DEFAULT 'Adult',
-  `stage_label` varchar(20) DEFAULT NULL,
+  id                        INT(10)      NOT NULL AUTO_INCREMENT,
+  stable_key                INT(10)      DEFAULT '0',
+  stable_id                 VARCHAR(40)  NOT NULL,
+  db_id                     INT(10)      NOT NULL,
+  name                      VARCHAR(200) NOT NULL,
+  description               TEXT,
+  major_version             INT(10)      NOT NULL DEFAULT '1',
+  minor_version             INT(10)      NOT NULL DEFAULT '0',
+  is_mandatory              TINYINT(1)   DEFAULT '0',
+  level                     VARCHAR(20)  DEFAULT NULL,
+  stage                     VARCHAR(20)  DEFAULT 'Adult',
+  stage_label               VARCHAR(20)  DEFAULT NULL,
+  schedule_key              INT(10) DEFAULT 0,
+
   PRIMARY KEY (`id`)
 );
 

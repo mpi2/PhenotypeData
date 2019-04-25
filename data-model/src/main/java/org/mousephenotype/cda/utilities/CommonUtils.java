@@ -415,7 +415,7 @@ public class CommonUtils {
      * @param o the object to try to convert
      * @return the converted value, if <em>o</em> is an <code>Integer</code>; null otherwise
      */
-    public Integer tryParseInt(Object o) {
+    public static Integer tryParseInt(Object o) {
         if (o == null)
             return null;
 

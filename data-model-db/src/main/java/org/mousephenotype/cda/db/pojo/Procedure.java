@@ -29,6 +29,7 @@ package org.mousephenotype.cda.db.pojo;
  */
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,6 +37,9 @@ import java.util.Set;
 @Entity
 @Table(name = "phenotype_procedure")
 public class Procedure extends PipelineEntry implements Comparable, Serializable {
+
+    @Transient
+    private Set<Integer> parameterCollection;
 
     @Column(name = "is_mandatory")
     boolean isMandatory;
@@ -47,10 +51,10 @@ public class Procedure extends PipelineEntry implements Comparable, Serializable
     @ElementCollection
     @CollectionTable(name = "phenotype_procedure_meta_data", joinColumns = @JoinColumn(name = "procedure_id"))
     @AttributeOverrides({
-        @AttributeOverride(name = "name",
-                column = @Column(name = "meta_name")),
-        @AttributeOverride(name = "value",
-                column = @Column(name = "meta_value"))
+            @AttributeOverride(name = "name",
+                    column = @Column(name = "meta_name")),
+            @AttributeOverride(name = "value",
+                    column = @Column(name = "meta_value"))
     })
     private Set<MetaData> metaDataSet;
 
@@ -81,6 +85,9 @@ public class Procedure extends PipelineEntry implements Comparable, Serializable
 
     @Column(name = "level")
     private String level;
+
+    @Column(name = "schedule_key")
+    private Integer scheduleKey;
 
     public Procedure() {
         super();
@@ -150,48 +157,48 @@ public class Procedure extends PipelineEntry implements Comparable, Serializable
     }
 
     /**
-	 * @return the stage
-	 */
-	public String getStage() {
-		return stage;
-	}
+     * @return the stage
+     */
+    public String getStage() {
+        return stage;
+    }
 
-	/**
-	 * @param stage the stage to set
-	 */
-	public void setStage(String stage) {
-		this.stage = stage;
-	}
+    /**
+     * @param stage the stage to set
+     */
+    public void setStage(String stage) {
+        this.stage = stage;
+    }
 
-	/**
-	 * @return the stageLabel
-	 */
-	public String getStageLabel() {
-		return stageLabel;
-	}
+    /**
+     * @return the stageLabel
+     */
+    public String getStageLabel() {
+        return stageLabel;
+    }
 
-	/**
-	 * @param stageLabel the stageLabel to set
-	 */
-	public void setStageLabel(String stageLabel) {
-		this.stageLabel = stageLabel;
-	}
+    /**
+     * @param stageLabel the stageLabel to set
+     */
+    public void setStageLabel(String stageLabel) {
+        this.stageLabel = stageLabel;
+    }
 
-	/**
-	 * @return the level
-	 */
-	public String getLevel() {
-		return level;
-	}
+    /**
+     * @return the level
+     */
+    public String getLevel() {
+        return level;
+    }
 
-	/**
-	 * @param level the level to set
-	 */
-	public void setLevel(String level) {
-		this.level = level;
-	}
+    /**
+     * @param level the level to set
+     */
+    public void setLevel(String level) {
+        this.level = level;
+    }
 
-	/**
+    /**
      * @param pipelines the pipelines to set
      */
     public void setPipelines(Set<Pipeline> pipelines) {
@@ -209,5 +216,20 @@ public class Procedure extends PipelineEntry implements Comparable, Serializable
         Procedure p = (Procedure) o;
         return this.getName().compareTo(p.getName());
     }
-    
+
+    public Set<Integer> getParameterCollection() {
+        return parameterCollection;
+    }
+
+    public void setParameterCollection(Set<Integer> parameterCollection) {
+        this.parameterCollection = parameterCollection;
+    }
+
+    public Integer getScheduleKey() {
+        return scheduleKey;
+    }
+
+    public void setScheduleKey(Integer scheduleKey) {
+        this.scheduleKey = scheduleKey;
+    }
 }

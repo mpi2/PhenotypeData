@@ -179,7 +179,6 @@ public class OntologyAnnotationGeneratorTest {
             List<Procedure> procedures = new ArrayList<>(pipeline.getProcedures());
             Collections.shuffle(procedures);
             for (Procedure procedure : procedures) {
-
                 logger.info("Testing procedure: {}", procedure);
                 for (Parameter parameter : procedure.getParameters()) {
 

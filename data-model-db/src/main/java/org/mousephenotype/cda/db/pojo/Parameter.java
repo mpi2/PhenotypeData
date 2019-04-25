@@ -66,6 +66,7 @@ public class Parameter extends PipelineEntry {
 	@Column(name = "metadata")
 	private boolean metaDataFlag;
 
+	// From Anthony Frost in e-mail to mrelac dated 06/11/2018 12:55: [...The one you're looking for is...] is_important which is the Required for Analysis column.
 	@Column(name = "important")
 	private boolean importantFlag;
 
@@ -81,11 +82,11 @@ public class Parameter extends PipelineEntry {
 	@Column(name = "media")
 	private boolean mediaFlag;
 
-	@Column(name = "data_analysis")
-	private boolean requiredForDataAnalysisFlag;
-
 	@Column(name = "data_analysis_notes")
 	private String dataAnalysisNotes;
+
+	@Transient
+	private Integer ontologyGroupId;
 
 	/**
 	 * bi-directional
@@ -358,22 +359,6 @@ public class Parameter extends PipelineEntry {
 
 
 	/**
-	 * @return the requiredForDataAnalysisFlag
-	 */
-	public boolean isRequiredForDataAnalysisFlag() {
-		return requiredForDataAnalysisFlag;
-	}
-
-
-	/**
-	 * @param requiredForDataAnalysisFlag the requiredForDataAnalysisFlag to set
-	 */
-	public void setRequiredForDataAnalysisFlag(boolean requiredForDataAnalysisFlag) {
-		this.requiredForDataAnalysisFlag = requiredForDataAnalysisFlag;
-	}
-
-
-	/**
 	 * @return the dataAnalysisNotes
 	 */
 	public String getDataAnalysisNotes() {
@@ -551,15 +536,21 @@ public class Parameter extends PipelineEntry {
 		return cunit;
 	}
 
+	public Integer getOntologyGroupId() {
+		return ontologyGroupId;
+	}
 
-	
+	public void setOntologyGroupId(Integer ontologyGroupId) {
+		this.ontologyGroupId = ontologyGroupId;
+	}
+
 	@Override
 	public String toString() {
 		return "Parameter [name=" + getName() + ", unit=" + unit + ", type=" + type + ", datatype=" + datatype + ", formula=" + formula
 				+ ", derivedFlag=" + derivedFlag + ", sequence=" + sequence + ", requiredFlag=" + requiredFlag
 				+ ", metaDataFlag=" + metaDataFlag + ", importantFlag=" + importantFlag + ", annotateFlag="
 				+ annotateFlag + ", incrementFlag=" + incrementFlag + ", optionsFlag=" + optionsFlag + ", mediaFlag="
-				+ mediaFlag + ", requiredForDataAnalysisFlag=" + requiredForDataAnalysisFlag + ", dataAnalysisNotes="
+				+ mediaFlag + ", dataAnalysisNotes="
 				+ dataAnalysisNotes + ", procedures=" + procedures + ", options=" + options + ", increments="
 				+ increments + ", annotations=" + annotations + ", eqAnnotations=" + eqAnnotations + "]";
 	}
@@ -596,7 +587,6 @@ public class Parameter extends PipelineEntry {
 		result = prime * result
 				+ ((procedures == null) ? 0 : procedures.hashCode());
 		result = prime * result + (requiredFlag ? 1231 : 1237);
-		result = prime * result + (requiredForDataAnalysisFlag ? 1231 : 1237);
 		result = prime * result + sequence;
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		result = prime * result + ((unit == null) ? 0 : unit.hashCode());
@@ -672,8 +662,6 @@ public class Parameter extends PipelineEntry {
 			return false;
 		if (requiredFlag != other.requiredFlag)
 			return false;
-		if (requiredForDataAnalysisFlag != other.requiredForDataAnalysisFlag)
-			return false;
 		if (sequence != other.sequence)
 			return false;
 		if (type == null) {
@@ -715,8 +703,4 @@ public class Parameter extends PipelineEntry {
 		List<String> okCategoriesList = CategoriesExclude.getInterfaceFreindlyCategories(categories);
 		return okCategoriesList;
 	}
-	
-
 }
-
-

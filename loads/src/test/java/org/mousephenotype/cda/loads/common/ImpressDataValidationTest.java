@@ -362,7 +362,6 @@ public class ImpressDataValidationTest extends TestCase {
 			"  pa.options                    AS pa_options,\n" +
 			"  pa.sequence                   AS pa_sequence,\n" +
 			"  pa.media                      AS pa_media,\n" +
-			"  pa.data_analysis              AS pa_data_analysis,\n" +
 			"  pa.data_analysis_notes        AS pa_data_analysis_notes,\n" +
 			"  \n" +
 			"  pao.name                      AS pao_name,\n" +
@@ -454,7 +453,6 @@ public class ImpressDataValidationTest extends TestCase {
 					.thenComparing(Parameter::isOptionsFlag,Comparator.nullsFirst(Comparator.naturalOrder()))
 					.thenComparing(Parameter::getSequence,Comparator.nullsFirst(Comparator.naturalOrder()))
 					.thenComparing(Parameter::isMediaFlag,Comparator.nullsFirst(Comparator.naturalOrder()))
-					.thenComparing(Parameter::isRequiredForDataAnalysisFlag,Comparator.nullsFirst(Comparator.naturalOrder()))
 					.thenComparing(Parameter::getDataAnalysisNotes,Comparator.nullsFirst(Comparator.naturalOrder()))
 					.thenComparing(Parameter::getStableKey)
 					.compare(o1, o2);
@@ -856,8 +854,6 @@ public class ImpressDataValidationTest extends TestCase {
             data.setSequence(rs.getInt("sequence"));
             integer = rs.getInt("media");
             data.setMediaFlag((integer != null) && (integer == 1 ? true : false));
-            integer = rs.getInt("data_analysis");
-            data.setRequiredForDataAnalysisFlag((integer != null) && (integer == 1 ? true : false));
             data.setDataAnalysisNotes(rs.getString("data_analysis_notes"));
             data.setSequence(rs.getInt("stable_key"));
             
