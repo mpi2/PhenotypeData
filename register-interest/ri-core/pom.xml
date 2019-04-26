@@ -141,6 +141,7 @@
 
     <build>
         <plugins>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -156,6 +157,7 @@
                         </configuration>
                     </execution>
                 </executions>
+
             </plugin>
 
             <!-- Creates a test jar against which other module test classes may declare a dependency. -->
