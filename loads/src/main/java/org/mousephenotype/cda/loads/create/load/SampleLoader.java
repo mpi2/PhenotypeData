@@ -76,6 +76,7 @@ public class SampleLoader implements CommandLineRunner {
 
     private NamedParameterJdbcTemplate jdbcCda;
 
+    private static Set<String> backgroundStrainMismatches  = new ConcurrentSkipListSet<>();
     private static Set<String> missingCenters              = new ConcurrentSkipListSet<>();
     private static Set<String> missingColonyIds            = new ConcurrentSkipListSet<>();
     private static Set<String> missingDatasourceShortNames = new ConcurrentSkipListSet<>();
@@ -224,6 +225,14 @@ public class SampleLoader implements CommandLineRunner {
         executor.shutdown();
 
 
+        // Log info sets
+        if (!backgroundStrainMismatches.isEmpty()) {
+            logger.info("Mismatches: DCC_specimen_strain::imits_background_strain");
+            for (String backgroundStrainMismatch : backgroundStrainMismatches) {
+                logger.info(backgroundStrainMismatch);
+            }
+        }
+
         // Log warning sets
 
         // Remove any colonyIds that are already known to be missing.
@@ -365,6 +374,12 @@ public class SampleLoader implements CommandLineRunner {
 
             // If iMits has the colony, use it to get the strain name.
             if (colony != null) {
+
+                // Log any mutant background strain mismatches between imits and the DCC
+                if (( ! specimen.isIsBaseline()) && ( ! colony.getBackgroundStrain().equalsIgnoreCase(specimen.getStrainID()))) {
+                    backgroundStrainMismatches.add(colony.getBackgroundStrain() + "::" + specimen.getStrainID());
+                }
+
                 specimen.setStrainID(colony.getBackgroundStrain());
             }
 
