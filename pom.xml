@@ -27,7 +27,8 @@
         <module>indexers</module>
         <module>loads</module>
         <module>reports</module>
-        <module>register-interest</module>
+        <module>register-interest/ri-core</module>
+        <module>register-interest/ri-extract</module>
         <module>tests</module>
         <module>thirdparty_loads</module>
     </modules>

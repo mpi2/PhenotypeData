@@ -14,16 +14,16 @@
  *  License.
  ******************************************************************************/
 
-package org.mousephenotype.ri.extract.config;
+package org.mousephenotype.cda.ri.extract.config;
 
 import org.mousephenotype.cda.ri.core.entities.Gene;
 import org.mousephenotype.cda.ri.core.entities.ImitsStatus;
 import org.mousephenotype.cda.ri.core.exceptions.InterestException;
 import org.mousephenotype.cda.ri.core.utils.SqlUtils;
-import org.mousephenotype.ri.extract.Downloader;
-import org.mousephenotype.ri.extract.GeneLoader;
-import org.mousephenotype.ri.extract.GeneProcessor;
-import org.mousephenotype.ri.extract.GeneWriter;
+import org.mousephenotype.cda.ri.extract.Downloader;
+import org.mousephenotype.cda.ri.extract.GeneLoader;
+import org.mousephenotype.cda.ri.extract.GeneProcessor;
+import org.mousephenotype.cda.ri.extract.GeneWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;

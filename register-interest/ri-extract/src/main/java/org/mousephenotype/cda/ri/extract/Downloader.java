@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.ri.extract;
+package org.mousephenotype.cda.ri.extract;
 
 import org.mousephenotype.cda.ri.core.utils.DateUtils;
 import org.slf4j.Logger;

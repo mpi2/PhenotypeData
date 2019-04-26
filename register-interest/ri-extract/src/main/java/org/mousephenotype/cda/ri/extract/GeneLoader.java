@@ -14,13 +14,13 @@
  *  License.
  ******************************************************************************/
 
-package org.mousephenotype.ri.extract;
+package org.mousephenotype.cda.ri.extract;
 
 import org.mousephenotype.cda.ri.core.entities.Gene;
 import org.mousephenotype.cda.ri.core.exceptions.InterestException;
 import org.mousephenotype.cda.ri.core.utils.DateUtils;
-import org.mousephenotype.ri.extract.support.BlankLineRecordSeparatorPolicy;
-import org.mousephenotype.ri.extract.support.LogStatusStepListener;
+import org.mousephenotype.cda.ri.extract.support.BlankLineRecordSeparatorPolicy;
+import org.mousephenotype.cda.ri.extract.support.LogStatusStepListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobInterruptedException;

@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.ri.extract.support;
+package org.mousephenotype.cda.ri.extract.support;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

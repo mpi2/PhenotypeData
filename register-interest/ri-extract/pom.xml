@@ -6,17 +6,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ri-extract</artifactId>
-    <version>1.0.0</version>
 
     <packaging>jar</packaging>
 
     <parent>
         <groupId>org.mousephenotype.cda</groupId>
-        <artifactId>register-interest</artifactId>
+        <artifactId>parent</artifactId>
         <version>1.0.0</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../../parent/pom.xml</relativePath>
     </parent>
-
 
     <dependencies>
 
@@ -50,7 +48,6 @@
         <dependency>
             <groupId>org.mousephenotype.cda</groupId>
             <artifactId>ri-core</artifactId>
-            <version>1.0.0</version>
         </dependency>
 
     </dependencies>
@@ -60,9 +57,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <mainClass>org.springframework.boot.loader.PropertiesLauncher</mainClass>
-                </configuration>
+                <!--<configuration>-->
+                    <!--<mainClass>org.springframework.boot.loader.PropertiesLauncher</mainClass>-->
+                <!--</configuration>-->
                 <executions>
                     <execution>
                         <goals>
