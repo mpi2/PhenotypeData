@@ -103,13 +103,15 @@ public class WindowingStatisticalResultLoader extends StatisticalResultLoader im
             Files.lines(Paths.get(loc)).forEach(line -> {
 
                 LightweightResult result;
+                final int maxPrint = (line.length() < 300) ? line.length() : 300;
+
                 try {
                     result = getBaseResult(getResult(line));
                 } catch (Exception e) {
-                    System.out.println("Error processing row: " + line.substring(0,300)+"...\n");
+                    System.out.println("Error processing row: " + line.substring(0, maxPrint)+"...\n");
                     c.getAndIncrement();
-                    if(c.get()<100 || Math.random()<0.001) {
-                        // Print the first 100 stacktraces and then sample at 1 per 1000
+                    if(c.get()<50 || Math.random()<0.001) {
+                        // Print the first 50 stacktraces and then sample at 1 per 1000
                         String fullStackTrace = org.apache.commons.lang.exception.ExceptionUtils.getFullStackTrace(e);
                         System.out.println("Stacktrace: " + fullStackTrace);
                     }
@@ -118,7 +120,7 @@ public class WindowingStatisticalResultLoader extends StatisticalResultLoader im
 
                 if (result == null) {
                     // Skipping record
-                    System.out.println("Skipping row: " + line.substring(0,300)+"...\n");
+                    System.out.println("Skipping row: " + line.substring(0, maxPrint)+"...\n");
                     return;
                 }
 
