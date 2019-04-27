@@ -108,8 +108,10 @@ public class WindowingStatisticalResultLoader extends StatisticalResultLoader im
                 try {
                     result = getBaseResult(getResult(line));
                 } catch (Exception e) {
-                    System.out.println("Error processing row: " + line.substring(0, maxPrint)+"...\n");
+
                     c.getAndIncrement();
+                    System.out.println("Error processing row " + c.get() + ": " + line.substring(0, maxPrint)+"...\n");
+
                     if(c.get()<50 || Math.random()<0.001) {
                         // Print the first 50 stacktraces and then sample at 1 per 1000
                         String fullStackTrace = org.apache.commons.lang.exception.ExceptionUtils.getFullStackTrace(e);
