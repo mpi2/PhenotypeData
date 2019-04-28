@@ -212,19 +212,30 @@ public class WindowingStatisticalResultLoader extends StatisticalResultLoader im
         values.put(HEADERS.GENE_ACCESSION_ID, dataFields.get(9));
         values.put(HEADERS.PIPELINE_NAME, dataFields.get(10));
 
-        if (dataFields.get(11).contains("_")) {
-            List<String> pipelinePieces = Arrays.asList(dataFields.get(11).split("_"));
 
-            String pipelineStableId = dataFields.get(11);
+        //
+        // TRANSLATE PIPELINE CODE
+        // As of DR10, Hamed's process separates pipelines using a tilde ("~") character.
+        // As of DR9, Hamed's process separates pipelines using an underscore ("_") character.
+        //
 
-            if ( pipelinePieces.size() > 2) {
-                pipelineStableId = pipelinePieces.get(pipelinePieces.size()-2) + "_" + pipelinePieces.get(pipelinePieces.size()-1);
+        String pipelineStableId = dataFields.get(11);
+
+        if (pipelineStableId.contains("~")) {
+            List<String> pipelinePieces = Arrays.asList(pipelineStableId.split("~"));
+
+            if (pipelinePieces.size() > 1) {
+                pipelineStableId = pipelinePieces.get(pipelinePieces.size()-1);
             }
-            values.put(HEADERS.PIPELINE_STABLE_ID, pipelineStableId);
-        } else {
-            values.put(HEADERS.PIPELINE_STABLE_ID, dataFields.get(11));
+        } else if (pipelineStableId.contains("_")) {
+            List<String> pipelinePieces = Arrays.asList(pipelineStableId.split("_"));
+
+            if (pipelinePieces.size() > 2) {
+                pipelineStableId = pipelinePieces.get(pipelinePieces.size() - 2) + "_" + pipelinePieces.get(pipelinePieces.size() - 1);
+            }
         }
 
+        values.put(HEADERS.PIPELINE_STABLE_ID, pipelineStableId);
         values.put(HEADERS.BACKGROUND_STRAIN_ACCESSION_ID, dataFields.get(12));
         values.put(HEADERS.METADATA_GROUP, dataFields.get(13));
         values.put(HEADERS.ZYGOSITY, dataFields.get(14));
