@@ -372,8 +372,6 @@ final int MAX_MISSING_LIFE_STAGE_ERRORS_TO_LOG = 100;
 
                 documentCount++;
                 genotypePhenotypeCore.addBean(doc);
-                logger.error("Adding document: {}", doc);
-                genotypePhenotypeCore.commit();
 
                 count++;
             }
