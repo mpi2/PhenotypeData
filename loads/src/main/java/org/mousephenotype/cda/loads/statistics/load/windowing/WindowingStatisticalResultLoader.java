@@ -56,7 +56,14 @@ public class WindowingStatisticalResultLoader extends StatisticalResultLoader im
         parser.accepts("windowing").withOptionalArg().ofType(String.class).isRequired();
         parser.accepts("location").withRequiredArg().ofType(String.class).isRequired();
         OptionSet options = parser.parse(strings);
-        String fileLocation = (String) options.valuesOf("location").get(0);
+
+        String fileLocation;
+        try {
+            fileLocation = (String) options.valuesOf("location").get(0);
+        } catch (Exception e) {
+            System.out.println("Not all parameters found on command line, args: " + strings);
+            return;
+        }
 
         // If the location is a single file, parse it
         boolean directory = Files.isDirectory(Paths.get(fileLocation));
