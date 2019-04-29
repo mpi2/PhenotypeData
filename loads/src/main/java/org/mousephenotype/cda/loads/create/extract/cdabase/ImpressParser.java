@@ -308,7 +308,7 @@ public class ImpressParser implements CommandLineRunner {
         OptionParser parser  = new OptionParser();
         OptionSet    options = parseOptions(parser, args);
 
-        logger.info("Program Arguments: " + StringUtils.join(args, ", "));
+        logger.info("Program Arguments: " + (args.length > 0 ? StringUtils.join(args, ", ") : "<none>"));
 
         if (help) {
             parser.printHelpOn(System.out);
@@ -324,7 +324,7 @@ public class ImpressParser implements CommandLineRunner {
         // Create impress tables
         String impressSchemaLocation = "scripts/impress_schema.sql";
 
-        logger.info("[re]creating IMPReSS tables from : " + impressSchemaLocation);
+        logger.info("recreating IMPReSS tables from : " + impressSchemaLocation);
         Resource r = context.getResource(impressSchemaLocation);
         ScriptUtils.executeSqlScript(cdabaseDataSource.getConnection(), r);
 
@@ -344,6 +344,8 @@ public class ImpressParser implements CommandLineRunner {
         // Load updated ontology terms
         List<OntologyTerm> originalTerms = cdabaseSqlUtils.getOntologyTerms();
         updatedOntologyTermsByOriginalOntologyAccessionId = cdabaseSqlUtils.getUpdatedOntologyTermMap(originalTerms, null, null);     // We're trying to update all terms. Ignore infos and warnings, as most don't apply to IMPReSS.
+
+        logger.info("impress.service.url = {}", impressUtils.getImpressServiceUrl());
     }
 
 
@@ -490,6 +492,10 @@ public class ImpressParser implements CommandLineRunner {
                 ontologyName = ontologyTerm.getName();
 
                 List<ImpressParamMpterm> paramMpterms = impressParamMpTermsByOntologyTermAccessionId.get(ontologyAcc);
+                if (paramMpterms == null) {
+                    logger.warn("No paramMpTerms for ontologyAcc {} for pipelineKey::scheduleId::procedureKey::parameterKey {}::{}::{}::{}",
+                                ontologyAcc, pipeline.getStableId(), procedure.getScheduleKey(), procedure.getStableId(), parameter.getStableId());
+                }
                 for (ImpressParamMpterm paramMpterm : paramMpterms) {
 
                     ParameterOntologyAnnotationWithSex mpOntologyAnnotation = new ParameterOntologyAnnotationWithSex();

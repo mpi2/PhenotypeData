@@ -782,6 +782,10 @@ public class ImpressUtils {
         return result;
     }
 
+    public String getImpressServiceUrl() {
+        return impressServiceUrl;
+    }
+
 
     // PRIVATE METHODS
 
