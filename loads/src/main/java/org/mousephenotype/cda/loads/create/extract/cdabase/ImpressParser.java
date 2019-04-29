@@ -495,6 +495,7 @@ public class ImpressParser implements CommandLineRunner {
                 if (paramMpterms == null) {
                     logger.warn("No paramMpTerms for ontologyAcc {} for pipelineKey::scheduleId::procedureKey::parameterKey {}::{}::{}::{}",
                                 ontologyAcc, pipeline.getStableId(), procedure.getScheduleKey(), procedure.getStableId(), parameter.getStableId());
+                    continue;
                 }
                 for (ImpressParamMpterm paramMpterm : paramMpterms) {
 
