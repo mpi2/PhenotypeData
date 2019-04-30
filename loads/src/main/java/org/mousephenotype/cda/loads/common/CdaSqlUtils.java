@@ -2289,7 +2289,7 @@ public class CdaSqlUtils {
 
             } catch (Exception e) {
 
-                logger.error("ontologyTermInsert failed {}. term: {}.\n{}", term, e.getLocalizedMessage());
+                logger.warn("ontologyTermInsert failed {}. term: {}.\n{}", term, e.getLocalizedMessage());
             }
 
             for (Synonym synonym : term.getSynonyms()) {
