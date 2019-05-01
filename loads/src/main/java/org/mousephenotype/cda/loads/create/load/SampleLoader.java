@@ -225,15 +225,17 @@ public class SampleLoader implements CommandLineRunner {
         executor.shutdown();
 
 
-        // Log info sets
-        if (!backgroundStrainMismatches.isEmpty()) {
-            logger.info("Mismatches: DCC_specimen_strain::imits_background_strain");
-            for (String backgroundStrainMismatch : backgroundStrainMismatches) {
-                logger.info(backgroundStrainMismatch);
-            }
+        // Log infos
+
+
+        if ( ! backgroundStrainMismatches.isEmpty()) {
+            logger.info("Background strain mismatches: imits_background_strain::DCC_specimen_strain:");
+            backgroundStrainMismatches.stream().sorted().forEach(System.out::println);
         }
 
-        // Log warning sets
+
+        // Log warnings
+
 
         // Remove any colonyIds that are already known to be missing.
         missingColonyIds = missingColonyIds
@@ -253,14 +255,16 @@ public class SampleLoader implements CommandLineRunner {
                     cdaSqlUtils.insertMissingColonyId(colonyId, 0, "Missing from SampleLoader");
                     return colonyId;
                 })
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
 
-        for (String missingDatasourceShortName : missingDatasourceShortNames) {
-            logger.warn(missingDatasourceShortName);
+        if ( ! missingDatasourceShortNames.isEmpty()) {
+            logger.warn("Missing datasourceShortNames:");
+            missingDatasourceShortNames.stream().sorted().forEach(System.out::println);
         }
 
-        for (String missingCenter : missingCenters) {
-            logger.warn(missingCenter);
+        if ( ! missingCenters.isEmpty()) {
+            logger.warn("Missing centers: ");
+            missingCenters.stream().sorted().forEach(System.out::println);
         }
     }
 
@@ -375,8 +379,12 @@ public class SampleLoader implements CommandLineRunner {
             // If iMits has the colony, use it to get the strain name.
             if (colony != null) {
 
-                // Log any mutant background strain mismatches between imits and the DCC
-                if (( ! specimen.isIsBaseline()) && ( ! colony.getBackgroundStrain().equalsIgnoreCase(specimen.getStrainID()))) {
+                // Log any mutant background strain mismatches between imits and the DCC, ignoring null and blank specimens
+                if (( ! specimen.isIsBaseline())
+                        && ( ! colony.getBackgroundStrain().equalsIgnoreCase(specimen.getStrainID()))
+                        && (specimen.getStrainID() != null)
+                        && ( ! specimen.getStrainID().trim().equals("null"))
+                        && ( ! specimen.getStrainID().trim().isEmpty())) {
                     backgroundStrainMismatches.add(colony.getBackgroundStrain() + "::" + specimen.getStrainID());
                 }
 
@@ -448,7 +456,7 @@ public class SampleLoader implements CommandLineRunner {
             return null;
         }
         if (dbId == null) {
-            missingDatasourceShortNames.add("Missing datasourceShortName '" + specimenExtended.getDatasourceShortName() + "'");
+            missingDatasourceShortNames.add(specimenExtended.getDatasourceShortName());
             return null;
         }
 
