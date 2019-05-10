@@ -6843,6 +6843,13 @@ td>a:hover {
     text-decoration-color: black;
 }
 
+.page-nav-link-muted {
+    font-weight: normal;
+    text-decoration: none;
+    display: block;
+    font-size: smaller;
+}
+
 .page-nav-link {
     font-weight: normal;
     text-decoration: underline;
