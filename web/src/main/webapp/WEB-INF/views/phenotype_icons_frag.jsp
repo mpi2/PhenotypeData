@@ -44,19 +44,19 @@
                     <c:forEach var="j" begin="0" end="4">
                         <c:choose>
                             <c:when test="${not empty significantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}">
-                                <label class="col-sm btn btn-outline-primary btn-icon significant m-1" href="#phenotypesTab" title="${gene.markerSymbol} ${phenotypeGroups[i*5 + j]} measurements" data-toggle="tooltip">
+                                <label class="col-sm btn btn-outline-primary btn-icon significant m-1" href="#phenotypesTab" title="${fn:replace(phenotypeGroups[i*5 + j], 'phenotype', '')}" data-toggle="tooltip">
                                     <input type="checkbox"  autocomplete="off" data-value="${significantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}" onchange="filterAllData()" title="${phenotypeGroups[i*5 + j]}" value="significant">
                                     <i class="${phenotypeGroupIcons[i*5 + j]}"></i>
                                 </label>
                             </c:when>
                             <c:when test="${not empty notsignificantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}">
-                                <label class="col-sm btn btn-outline-info btn-icon m-1" href="#phenotypesTab" title="${gene.markerSymbol} ${phenotypeGroups[i*5 + j]} measurements" data-toggle="tooltip">
+                                <label class="col-sm btn btn-outline-info btn-icon m-1" href="#phenotypesTab" title="${fn:replace(phenotypeGroups[i*5 + j], 'phenotype', '')}" data-toggle="tooltip">
                                     <input type="checkbox" autocomplete="off" data-value="${notsignificantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}" onchange="filterAllData()" title="${phenotypeGroups[i*5 + j]}" value="no_significant">
                                     <i class="${phenotypeGroupIcons[i*5 + j]}"></i>
                                 </label>
                             </c:when>
                             <c:otherwise>
-                                <a class="col-sm btn btn-outline-light btn-icon non-tested disabled m-1" title="${gene.markerSymbol} ${phenotypeGroups[i*5 + j]} measurements" data-toggle="tooltip">
+                                <a class="col-sm btn btn-outline-light btn-icon non-tested disabled m-1" title="${fn:replace(phenotypeGroups[i*5 + j], 'phenotype', '')}" data-toggle="tooltip">
                                     <i class="${phenotypeGroupIcons[i*5 + j]}"></i>
                                 </a>
                             </c:otherwise>
