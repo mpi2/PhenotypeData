@@ -63,7 +63,7 @@
                 $("#tabs").tabs();
 
                 $('div#anatomo2').hide(); // by default
-                $('div#embryo1').hide(); // by default
+                $('div#embryo2').hide(); // by default
 
                 $('.wtExp').hide();
                 $('div#toggleWt').click(function () {
@@ -101,12 +101,13 @@
 
                 $('input[name=optionsEmbryo]').change(function () {
                     var value = $('input[name=optionsEmbryo]:checked').val();
-                    if (value === 'anatogram') {
+                    console.log('hi');
+                    if (value === 'table') {
+                        $('#embryo1').show();
+                        $('#embryo2').hide();
+                    } else {
                         $('#embryo1').hide();
                         $('#embryo2').show();
-                    } else {
-                        $('#embryo2').hide();
-                        $('#embryo1').show();
                     }
                 });
 
@@ -324,7 +325,7 @@
                             <ul class="nav nav-tabs" id="expressionTab" role="tablist">
                                 <li class="nav-item">
                                     <a class="nav-link active" id="adult-tab" data-toggle="tab" href="#adult"
-                                       role="tab" aria-controls="adult-tab" aria-selected="false">Adult Expression Images</a>
+                                       role="tab" aria-controls="adult-tab" aria-selected="false">Adult Expression (${expressionAnatomyToRow.size()})</a>
                                 </li>
                                 <!--li class="nav-item">
                                     <a class="nav-link" id="adult-image-tab" data-toggle="tab" href="#adult-image"
@@ -334,7 +335,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link" id="_embryo-tab" data-toggle="tab" href="#_embryo"
                                        role="tab" aria-controls="_embryo-tab" aria-selected="true">Embryo
-                                        Expression Images</a>
+                                        Expression (${embryoExpressionAnatomyToRow.size()})</a>
                                 </li>
                                 <!--li class="nav-item">
                                     <a class="nav-link" id="embryo-image-tab" data-toggle="tab" href="#embryo-image"
@@ -461,12 +462,12 @@
                             <li class="nav-item">
                                 <a class="nav-link active" id="byAnnotation-tab" data-toggle="tab" href="#byAnnotation"
                                    role="tab" aria-controls="byAnnotation-tab" aria-selected="false">By Annotation and
-                                    Orthology</a>
+                                    Orthology (<span id="diseases_by_annotation_count">0</span>)</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="byPhenotype-tab" data-toggle="tab" href="#byPhenotype"
                                    role="tab" aria-controls="byPhenotype-tab" aria-selected="false">By phenotypic
-                                    Similarity</a>
+                                    Similarity (<span id="diseases_by_phenotype_count">0</span>)</a>
                             </li>
                         </ul>
                         <div class="tab-content mt-2" id="diseasesTabContent">
@@ -578,12 +579,16 @@
 
             $(document).ready(function () {
                 // create phenodigm tables
+                var diseaseModelTotal = 0;
                 for (var i = 0; i < diseaseTableConfs.length; i++) {
                     var dTable = diseaseTableConfs[i];
                     impc.phenodigm2.makeTable(modelAssociations, dTable.id, dTable.phenodigm2Conf);
                     var dataTable = $(dTable.id).DataTable(dTable.tableConf);
+                    $(dTable.id + '_count').text(dTable.phenodigm2Conf.count);
+                    diseaseModelTotal += dTable.phenodigm2Conf.count;
                     $.fn.addTableClickPhenogridHandler(dTable.id, dataTable);
                 }
+                $("#diseaseModelTotal").text(diseaseModelTotal);
             });
         </script>
 

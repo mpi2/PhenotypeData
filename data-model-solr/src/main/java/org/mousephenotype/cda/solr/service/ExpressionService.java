@@ -920,6 +920,7 @@ public class ExpressionService extends BasicService {
 
 				SolrDocumentList anatomyList = null;
 				for (String anatomy : anatomies) {
+					anatomy = anatomy.toLowerCase();
 
 					if (!anatomyToDocs.containsKey(anatomy)) {
 						anatomyToDocs.put(anatomy, new SolrDocumentList());
@@ -940,6 +941,7 @@ public class ExpressionService extends BasicService {
 			if (doc.containsKey(ObservationDTO.OBSERVATION_TYPE)
 					&& doc.get(ObservationDTO.OBSERVATION_TYPE).equals("categorical")) {
 				String anatomy = (String) doc.get(ImageDTO.PARAMETER_NAME);
+				anatomy = anatomy.toLowerCase();
 				SolrDocumentList anatomyList = null;
 				if (!anatomyToDocs.containsKey(anatomy)) {
 					anatomyToDocs.put(anatomy, new SolrDocumentList());
