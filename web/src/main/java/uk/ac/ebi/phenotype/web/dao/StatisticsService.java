@@ -20,6 +20,8 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.PagedResources;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import uk.ac.ebi.phenotype.web.dao.Point;
@@ -35,55 +37,36 @@ import uk.ac.ebi.phenotype.web.dao.StatisticsRepository;
 
 @Service
 public class StatisticsService {
-//	@Autowired
-//	StatsClient statsClient;
+	@Autowired
+	StatsClient statsClient;
 	
 	//need to import the jar somehow or have the stats repo as a module in the PA???
 //	@Autowired
-	private final StatisticsRepository statsRepository;
+	//private final StatisticsRepository statsRepository;
 	
-	@Autowired
-	public StatisticsService(StatisticsRepository statsRepository) {
-		this.statsRepository=statsRepository;
-	}
-	
-	public List<Statistics> findAll(){
-		System.out.println("statsRepository="+statsRepository);
-		return statsRepository.findByGeneSymbol("Arel1");
-	}
-	
-	
-//	public ResponseEntity<PagedResources<Stats>> getUniqueStatsResult(String geneAccession, String alleleAccession, String parameterStableId,
-//			 String pipelineStableId,  String zygosity,  String phenotypingCenter,  String metaDataGroup){
-//		
-//		ResponseEntity<PagedResources<Stats>> stats=statsClient.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId,
-//		 pipelineStableId,  zygosity,  phenotypingCenter,  metaDataGroup);
-//		return stats;
+//	@Autowired
+//	public StatisticsService(StatisticsRepository statsRepository) {
+//		this.statsRepository=statsRepository;
+//	}
 //	
-//		}
+//	public List<Statistics> findAll(){
+//		System.out.println("statsRepository="+statsRepository);
+//		return statsRepository.findByGeneSymbol("Arel1");
+//	}
+	
+	
+	public ResponseEntity<PagedResources<Statistics>> getUniqueStatsResult(String geneAccession, String alleleAccession, String parameterStableId,
+			 String pipelineStableId,  String zygosity,  String phenotypingCenter,  String metaDataGroup){
+		
+		ResponseEntity<PagedResources<Statistics>> stats=statsClient.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId,
+		 pipelineStableId,  zygosity,  phenotypingCenter,  metaDataGroup);
+		return stats;
+	
+		}
 	
 
 	
-//	public ExperimentDTO getSpecificExperimentDTOFromRest(String parameterStableId, String pipelineStableId, String geneAccession, List<String> genderList, List<String> zyList, String phenotypingCenter, String strain, String metaDataGroup, String alleleAccession, String ebiMappedSolrUrl)
-//	{
-//		String zygosity=null;
-//	
-////		if(zyList.isEmpty()||zyList==null) {
-////			zygosity=null;
-////		}else {
-////			
-////		}
-//		ResponseEntity<PagedResources<Stats>> response = this.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroup);
-//		Collection<Stats> stats = response.getBody().getContent();
-//		assert(stats.size()==1);
-//		ExperimentDTO exp = convertToExperiment(parameterStableId, stats);
-//		
-//		System.out.println("experiment from file="+exp);
-//		return exp;
-//}
-	
-	
-	public ExperimentDTO getSpecificExperimentDTOFromRepository(String parameterStableId, String pipelineStableId, String geneAccession, List<String> genderList, List<String> zyList, String phenotypingCenter, String strain, String metaDataGroup, String alleleAccession, String ebiMappedSolrUrl)
+	public ExperimentDTO getSpecificExperimentDTOFromRest(String parameterStableId, String pipelineStableId, String geneAccession, List<String> genderList, List<String> zyList, String phenotypingCenter, String strain, String metaDataGroup, String alleleAccession, String ebiMappedSolrUrl)
 	{
 		String zygosity=null;
 	
@@ -92,13 +75,32 @@ public class StatisticsService {
 //		}else {
 //			
 //		}
-		List<Statistics> stats = statsRepository.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(geneAccession, alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroup);
-		assert(stats.size()>0);
+		ResponseEntity<PagedResources<Statistics>> response = this.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroup);
+		Collection<Statistics> stats = response.getBody().getContent();
+		assert(stats.size()==1);
 		ExperimentDTO exp = StatisticsServiceUtilities.convertToExperiment(parameterStableId, stats);
 		
 		System.out.println("experiment from file="+exp);
 		return exp;
 }
+	
+	
+//	public ExperimentDTO getSpecificExperimentDTOFromRepository(String parameterStableId, String pipelineStableId, String geneAccession, List<String> genderList, List<String> zyList, String phenotypingCenter, String strain, String metaDataGroup, String alleleAccession, String ebiMappedSolrUrl)
+//	{
+//		String zygosity=null;
+//	
+////		if(zyList.isEmpty()||zyList==null) {
+////			zygosity=null;
+////		}else {
+////			
+////		}
+//		List<Statistics> stats = statsRepository.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(geneAccession, alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroup);
+//		assert(stats.size()>0);
+//		ExperimentDTO exp = StatisticsServiceUtilities.convertToExperiment(parameterStableId, stats);
+//		
+//		System.out.println("experiment from file="+exp);
+//		return exp;
+//}
 
 	
 	

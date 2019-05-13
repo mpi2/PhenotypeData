@@ -282,7 +282,27 @@ public class ChartsController {
 				//accession[0]
 				QueryResponse imagesResponse = imageService.getHeadlineImages(accession[0], null,1000, null, null, parameter.getStableId());
 				System.out.println("number of images found="+imagesResponse.getResults().getNumFound());
-				model.addAttribute("headlineImages",imagesResponse.getBeans(ImageDTO.class));
+				List<ImageDTO> wtAndMutantImages = imagesResponse.getBeans(ImageDTO.class);
+				List<ImageDTO> controlImages=new ArrayList<>();
+				List<ImageDTO> mutantImages=new ArrayList<>();
+				for(ImageDTO image: wtAndMutantImages) {
+					if(image.isControl())
+					{
+						System.out.println("control found");
+						controlImages.add(image);
+					}
+					if(image.isMutant()) {
+						System.out.println("mutant found");
+						mutantImages.add(image);
+					}
+				}
+				
+					if(controlImages.size()==mutantImages.size()) {
+						model.addAttribute("controlImages", controlImages);
+						model.addAttribute("mutantImages", mutantImages);
+					}else {
+						model.addAttribute("headlineImages",imagesResponse.getBeans(ImageDTO.class));
+					}
 			}
 			
 			String metadata = null;
@@ -323,14 +343,11 @@ public class ChartsController {
 			if(parameterStableId.equalsIgnoreCase("IMPC_HEM_038_001")&& testNew) {
 				//get experiment object from the new rest service as a temporary measure we can convert to an experiment object and then we don't have to rewrite the chart code?? and easy to test if experiment objects are the same??
 				System.out.println("Get data from new rest service");
-				List<Statistics>stats=statsService.findAll();
-				assert(stats.size()==1);
-				//Stats stat=stats.iterator().next();
-				experiment = StatisticsServiceUtilities.convertToExperiment(parameterStableId, stats);
+				ExperimentDTO stat=statsService.getSpecificExperimentDTOFromRest(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
 				//experiment=statsService.getSpecificExperimentDTOFromRepository(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
 				//List<Stats>stats=statsService.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(accession[0], alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroupString);
 				
-				System.out.println("stats from repository size="+stats.size());
+				System.out.println("stats from repository size="+stat);
 			}
 			else {
 			experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);

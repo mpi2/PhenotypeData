@@ -21,14 +21,14 @@ import uk.ac.ebi.phenotype.web.dao.Statistics;
 @Component
 public class StatsClient {
 
-    private static final String URL = "http://localhost:8080/stats?page={page}&size={size}";
+    private static final String URL = "http://localhost:8080/statisticses?page={page}&size={size}";
     
     private static final String GENEURL = "http://localhost:8080/stats/search/findByGeneSymbol?geneSymbol={geneSymbol}";
     
     private static final String GENE_ACCESSION_URL = "http://localhost:8080/stats/search/findByGeneAccession?geneAccession={geneAccession}";
     
-    private static final String SINGLE_STATS_URL = "http://localhost:8080/stats/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession={geneAccession}&alleleAccession={alleleAccession}&parameterStableId={parameterStableId}&pipelineStableId={pipelineStableId}&zygosity={zygosity}&phenotypingCenter={phenotypingCenter}&metaDataGroup={metaDataGroup}";
-    
+    //private static final String SINGLE_STATS_URL = "http://localhost:8080/statisticses/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession={geneAccession}&alleleAccession={alleleAccession}&parameterStableId={parameterStableId}&pipelineStableId={pipelineStableId}&zygosity={zygosity}&phenotypingCenter={phenotypingCenter}&metaDataGroup={metaDataGroup}";
+    private static final String SINGLE_STATS_URL = "http://ves-ebi-d1.ebi.ac.uk:8091/statisticses?/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession={geneAccession}&alleleAccession={alleleAccession}&parameterStableId={parameterStableId}&pipelineStableId={pipelineStableId}&zygosity={zygosity}&phenotypingCenter={phenotypingCenter}&metaDataGroup={metaDataGroup}";
     
     private static final String HALF_STATS_URL = "http://localhost:8080/stats/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession={geneAccession}&alleleAccession={alleleAccession}&parameterStableId={parameterStableId}&pipelineStableId={pipelineStableId}&zygosity={zygosity}&phenotypingCenter={phenotypingCenter}&metaDataGroup={metaDataGroup}";
     

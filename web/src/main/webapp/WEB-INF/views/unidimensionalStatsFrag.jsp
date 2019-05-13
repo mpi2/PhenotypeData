@@ -29,9 +29,19 @@ ${data.mpTermId}
 <h2>Flow cytometry results:</h2>
 	<div class="row">
 	
+	<c:if test="${controlImages !=null}"> <!-- if controls then there are equal control mutants so display side by side -->
+		<c:forEach var="image" items="${controlImages}" varStatus="count">
+			<t:headline_image img="${controlImages[count.index]}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
+			<t:headline_image img="${mutantImages[count.index]}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
+		</c:forEach>
+	</c:if>
+	
+	<c:if test="${headlineImages !=null}"> <!-- if difference in number of controls and mutant headline images just display in order given -->
 		<c:forEach var="image" items="${headlineImages}" >
 			<t:headline_image img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
 		</c:forEach>
+	</c:if>
+	
 	</div>
 </c:if>
 
