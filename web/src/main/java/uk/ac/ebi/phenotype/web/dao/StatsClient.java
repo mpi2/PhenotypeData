@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
@@ -18,19 +19,25 @@ import org.springframework.web.client.RestTemplate;
 
 import uk.ac.ebi.phenotype.web.dao.Statistics;
 
+
+
 @Component
 public class StatsClient {
+	
+	
 
-    private static final String URL = "http://localhost:8080/statisticses?page={page}&size={size}";
+	//@Value("${statistics_url:http://localhost:8080/statisticses}")
+    public String statisticsUrl="http://localhost:8080/statisticses";//"http://localhost:8080/statisticses"; //"http://localhost:8080/statisticses?page={page}&size={size}";
+    private  String URL=statisticsUrl+"?page={page}&size={size}";
     
-    private static final String GENEURL = "http://localhost:8080/stats/search/findByGeneSymbol?geneSymbol={geneSymbol}";
+    private  String GENEURL = statisticsUrl+"/search/findByGeneSymbol?geneSymbol={geneSymbol}";
     
-    private static final String GENE_ACCESSION_URL = "http://localhost:8080/stats/search/findByGeneAccession?geneAccession={geneAccession}";
+    private  String GENE_ACCESSION_URL = statisticsUrl+"/search/findByGeneAccession?geneAccession={geneAccession}";
     
     //private static final String SINGLE_STATS_URL = "http://localhost:8080/statisticses/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession={geneAccession}&alleleAccession={alleleAccession}&parameterStableId={parameterStableId}&pipelineStableId={pipelineStableId}&zygosity={zygosity}&phenotypingCenter={phenotypingCenter}&metaDataGroup={metaDataGroup}";
-    private static final String SINGLE_STATS_URL = "http://ves-ebi-d1.ebi.ac.uk:8091/statisticses?/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession={geneAccession}&alleleAccession={alleleAccession}&parameterStableId={parameterStableId}&pipelineStableId={pipelineStableId}&zygosity={zygosity}&phenotypingCenter={phenotypingCenter}&metaDataGroup={metaDataGroup}";
+    private  String SINGLE_STATS_URL = statisticsUrl+"/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession=\"{geneAccession}\"&alleleAccession=\"{alleleAccession}\"&parameterStableId={parameterStableId}&pipelineStableId={pipelineStableId}&zygosity={zygosity}&phenotypingCenter={phenotypingCenter}&metaDataGroup={metaDataGroup}";
     
-    private static final String HALF_STATS_URL = "http://localhost:8080/stats/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession={geneAccession}&alleleAccession={alleleAccession}&parameterStableId={parameterStableId}&pipelineStableId={pipelineStableId}&zygosity={zygosity}&phenotypingCenter={phenotypingCenter}&metaDataGroup={metaDataGroup}";
+    private  String HALF_STATS_URL = statisticsUrl+"/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession={geneAccession}&alleleAccession={alleleAccession}&parameterStableId={parameterStableId}&pipelineStableId={pipelineStableId}&zygosity={zygosity}&phenotypingCenter={phenotypingCenter}&metaDataGroup={metaDataGroup}";
     
     @Autowired
     RestTemplate template;//=new RestTemplate();

@@ -1,22 +1,57 @@
 package uk.ac.ebi.phenotype.service;
 
+import javax.validation.constraints.NotNull;
+
+import org.aspectj.lang.annotation.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.hateoas.PagedResources;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import org.springframework.web.client.RestTemplate;
+
+
+import uk.ac.ebi.phenotype.web.dao.Statistics;
+import uk.ac.ebi.phenotype.web.dao.StatisticsService;
+import uk.ac.ebi.phenotype.web.dao.StatsClient;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(loader=AnnotationConfigContextLoader.class)
 //@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 //@SpringBootTest(classes = {TestConfigIndexers.class})
 public class StatsServiceTest {
 
 	
-	
-//	private StatisticsService statsService;
-//
-//	RestTemplate restTemplate;
-//
-//
-//
+	@Autowired
+	private StatisticsService statsService;
+
+	RestTemplate restTemplate;
+
+	@Configuration
+	@ComponentScan(
+		basePackages = {"uk.ac.ebi.phenotype.web.dao"},
+		useDefaultFilters = false,
+		includeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {StatisticsService.class})
+		})
+	static class ContextConfiguration {
+
+
+	}
+
+
 //	@Before
 //	public void setUp() throws Exception {
 //
@@ -26,11 +61,9 @@ public class StatsServiceTest {
 //		StatsClient client=new StatsClient(restTemplate);
 //		//statsService=new StatsService(client);
 //	}
-//
-//	@After
-//	public void tearDown() throws Exception {
-//	}
-//
+
+	
+
 //	@Test
 //	public void testGetTestStatsData() {
 //		ResponseEntity<PagedResources<Statistics>> statsResponse=null;
@@ -44,20 +77,20 @@ public class StatsServiceTest {
 //		System.out.println("stats list="+statsResponse.getBody().getContent());
 //		assert(statsResponse.getBody().getContent().size()==2);
 //	}
-//
-//	@Test
-//	public void testGetDataForGeneAccession() {
-//		ResponseEntity<PagedResources<Statistics>> statsResponse=null;
-//		try {
-//			statsResponse = statsService.getStatsDataForGeneAccesssion("MGI:2443170");
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		System.out.println("test response ="+statsResponse);
-//		System.out.println("stats list="+statsResponse.getBody().getContent());
-//		assert(statsResponse.getBody().getContent().size()==1);
-//	}
+
+	@Test
+	public void testGetDataForGeneAccession() {
+		ResponseEntity<PagedResources<Statistics>> statsResponse=null;
+		try {
+			statsResponse = statsService.getStatsDataForGeneAccesssion("MGI:2443170");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("test response ="+statsResponse);
+		System.out.println("stats list="+statsResponse.getBody().getContent());
+		assert(statsResponse.getBody().getContent().size()==1);
+	}
 //
 //
 //	@Test
