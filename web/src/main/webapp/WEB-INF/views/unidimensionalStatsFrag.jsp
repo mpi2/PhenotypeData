@@ -24,26 +24,29 @@ ${data.mpTermId}
 
 </c:if>
 
-<c:if test="${headlineImages!=null}">
+
 <br/>
 <h2>Flow cytometry results:</h2>
 	<div class="row">
 	
-	<c:if test="${controlImages !=null}"> <!-- if controls then there are equal control mutants so display side by side -->
-		<c:forEach var="image" items="${controlImages}" varStatus="count">
-			<t:headline_image img="${controlImages[count.index]}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
-			<t:headline_image img="${mutantImages[count.index]}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
+		<c:forEach begin="0" end="${imageCountMax}" var="i">
+			<c:if test="${fn:length(controlImages) > i}">
+				<t:headline_image img="${controlImages[i]}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
+			</c:if>
+			<c:if test="${fn:length(mutantImages) > i}">
+				<t:headline_image img="${mutantImages[i]}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
+			</c:if>
 		</c:forEach>
-	</c:if>
 	
-	<c:if test="${headlineImages !=null}"> <!-- if difference in number of controls and mutant headline images just display in order given -->
+	
+	<%-- <c:if test="${headlineImages !=null}"> <!-- if difference in number of controls and mutant headline images just display in order given -->
 		<c:forEach var="image" items="${headlineImages}" >
 			<t:headline_image img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
 		</c:forEach>
-	</c:if>
+	</c:if> --%>
 	
 	</div>
-</c:if>
+
 
 <jsp:include page="unidimensionalTables.jsp"></jsp:include>
 

@@ -297,12 +297,17 @@ public class ChartsController {
 					}
 				}
 				
-					if(controlImages.size()==mutantImages.size()) {
+					
+				int imageCountMax=controlImages.size();
+				if(mutantImages.size()>imageCountMax) {
+					imageCountMax=mutantImages.size();
+				}
 						model.addAttribute("controlImages", controlImages);
 						model.addAttribute("mutantImages", mutantImages);
-					}else {
-						model.addAttribute("headlineImages",imagesResponse.getBeans(ImageDTO.class));
-					}
+						System.out.println("imageCountMax="+imageCountMax);
+						model.addAttribute("imageCountMax",imageCountMax);
+						
+					
 			}
 			
 			String metadata = null;
@@ -351,7 +356,7 @@ public class ChartsController {
 			}
 			else {
 			experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
-			System.out.println("experiment from solr="+experiment);
+			//System.out.println("experiment from solr="+experiment);
 			}
 			//error getting procedure for this page?? http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1915276&parameter_stable_id=MGP_MLN_057_001
 			ProcedureDTO proc=null;
