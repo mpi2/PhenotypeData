@@ -1072,6 +1072,18 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 	}
 
+	public long getPvaluesByAlleleAndPhenotypingCenterAndPipelineCount(String geneAccession, List<String> procedureName ,List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, String graphBaseUrl)
+			throws NumberFormatException, SolrServerException, IOException, UnsupportedEncodingException {
+
+		Map<String, List<ExperimentsDataTableRow>> results = new HashMap<>();
+
+		SolrQuery query = buildQuery(geneAccession, procedureName,alleleSymbol, phenotypingCenter, pipelineName, procedureStableIds, resource, mpTermId, null, null, null, null, null, null, null, null);
+		query.setRows(0);
+		long solrResults = solr.query(query).getResults().getNumFound();
+
+		return solrResults;
+	}
+
 
 	/**
 	 * @author ilinca

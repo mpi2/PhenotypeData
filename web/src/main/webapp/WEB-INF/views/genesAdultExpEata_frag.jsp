@@ -23,11 +23,11 @@
         <span title="No Tissue Available" class="${noColor} mr-3"><i class="${noTissueIcon}"></i>&nbsp;No Tissue Available</span>
         <span title="Ambiguous" class="${noColor}"><i class="${ambiguousIcon}"></i>&nbsp;Ambiguous</span>
     </div>
-    <div class="row justify-content-center">
+    <!--div class="row justify-content-center">
         <div class="col-sm-12">
             <div id="toggleWt" class="float-right">Show Wildtype Expression</div>
         </div>
-    </div>
+    </div-->
 
 
     <script>

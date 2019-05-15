@@ -95,6 +95,7 @@ public class GenesController {
     private final ImageService imageService;
     private final ExpressionService expressionService;
     private final GeneService geneService;
+    private final StatisticalResultService statisticalResultService;
     private final PostQcService postqcService;
     private final UniprotService uniprotService;
     private final OrderService orderService;
@@ -110,7 +111,7 @@ public class GenesController {
     private PharosService pharosService;
 
     @Inject
-    public GenesController(PhenotypeCallSummarySolr phenotypeCallSummaryService, PhenotypeSummaryDAO phenSummary, ImagesSolrDao imagesSolrDao, ObservationService observationService, SolrIndex solrIndex, SolrIndex2 solrIndex2, WebDao phenoDigm2Dao, ImageService imageService, ExpressionService expressionService, RegisterInterestUtils riUtils, GeneService geneService, ImpressService impressService, PostQcService postqcService, UniprotService uniprotService, OrderService orderService) {
+    public GenesController(PhenotypeCallSummarySolr phenotypeCallSummaryService, PhenotypeSummaryDAO phenSummary, ImagesSolrDao imagesSolrDao, ObservationService observationService, SolrIndex solrIndex, SolrIndex2 solrIndex2, WebDao phenoDigm2Dao, ImageService imageService, ExpressionService expressionService, RegisterInterestUtils riUtils, GeneService geneService, ImpressService impressService, PostQcService postqcService, UniprotService uniprotService, OrderService orderService, StatisticalResultService statisticalResultService) {
         this.phenotypeCallSummaryService = phenotypeCallSummaryService;
         this.phenSummary = phenSummary;
         this.imagesSolrDao = imagesSolrDao;
@@ -126,6 +127,7 @@ public class GenesController {
         this.postqcService = postqcService;
         this.uniprotService = uniprotService;
         this.orderService = orderService;
+        this.statisticalResultService = statisticalResultService;
     }
 
     @PostConstruct
@@ -394,6 +396,7 @@ public class GenesController {
         model.addAttribute("attemptRegistered", geneService.checkAttemptRegistered(acc));
         model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
         model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
+        model.addAttribute("allMeasurementsNumber", statisticalResultService.getPvaluesByAlleleAndPhenotypingCenterAndPipelineCount(acc, null, null, null, null, null, null, null, null));
         model.addAttribute("phenotypeGroups", phenotypeGroups);
         model.addAttribute("phenotypeGroupIcons", phenotypeGroupIcons);
         if (genesWithVignettes.contains(acc)) {
@@ -960,6 +963,7 @@ public class GenesController {
             modelAssocsJsArray = "[" + String.join(", ", jsons) + "]";
         }
         model.addAttribute("modelAssociations", modelAssocsJsArray);
+        model.addAttribute("modelAssociationsNumber", modelAssociations.size());
         model.addAttribute("hasModelsByOrthology", hasModelsByOrthology);
         model.addAttribute("hasModelAssociations", modelAssociations.size()>0);
     }
