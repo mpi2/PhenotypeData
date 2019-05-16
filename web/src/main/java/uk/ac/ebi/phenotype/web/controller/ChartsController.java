@@ -32,6 +32,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -92,6 +93,7 @@ import uk.ac.ebi.phenotype.chart.ViabilityChartAndDataProvider;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
 import uk.ac.ebi.phenotype.web.dao.StatisticsService;
+import uk.ac.ebi.phenotype.web.dao.StatsClient;
 
 
 @Controller
@@ -116,10 +118,12 @@ public class ChartsController {
 
     @Value("${solr_url}")
     public String SOLR_URL;
+    @Value("${statistics_url}")
+    public String statisticsUrl;
     
 //    @Autowired
 //    private StatsRepository repo;
-    @Autowired
+   // @Autowired
 	 private StatisticsService statsService;
 
     @Inject
@@ -135,8 +139,16 @@ public class ChartsController {
         this.geneService = geneService;
         this.is = is;
         this.imageService=imageService;
+       
     }
 
+    
+    @PostConstruct
+    public void init() {
+    	 System.out.println("solr url being set in StatsClient="+SOLR_URL);
+         System.out.println("statistics url being set in StatsClient="+statisticsUrl);
+         statsService=new StatisticsService(statisticsUrl);
+    }
 
     /**
      * Runs when the request missing an accession ID. This redirects to the

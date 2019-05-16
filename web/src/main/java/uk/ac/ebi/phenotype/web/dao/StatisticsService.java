@@ -8,8 +8,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import javax.inject.Inject;
+
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -21,18 +22,20 @@ import org.springframework.stereotype.Service;
  * @author jwarren
  *
  */
-
-@Service
 public class StatisticsService {
-	@Autowired
+	
 	StatsClient statsClient;
 	
 	//need to import the jar somehow or have the stats repo as a module in the PA???
+	//@Inject
+	public StatisticsService(String statsUrl) {
+		this.statsClient=new StatsClient(statsUrl);
+	}
 	
 	
 	public ResponseEntity<PagedResources<Statistics>> getUniqueStatsResult(String geneAccession, String alleleAccession, String parameterStableId,
 			 String pipelineStableId,  String zygosity,  String phenotypingCenter,  String metaDataGroup){
-		
+		System.out.println("statsClient url="+statsClient.getStatsUrl());
 		ResponseEntity<PagedResources<Statistics>> stats=statsClient.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId,
 		 pipelineStableId,  zygosity,  phenotypingCenter,  metaDataGroup);
 		return stats;
@@ -52,7 +55,7 @@ public class StatisticsService {
 //		}
 		ResponseEntity<PagedResources<Statistics>> response = this.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroup);
 		Collection<Statistics> stats = response.getBody().getContent();
-		assert(stats.size()==1);
+		System.out.println("stats size="+stats.size());
 		ExperimentDTO exp = StatisticsServiceUtilities.convertToExperiment(parameterStableId, stats);
 		
 		System.out.println("experiment from file="+exp);

@@ -52,6 +52,10 @@ public class PhenotypeArchiveConfig {
 
     @Value("${solr_url}")
     private String solrUrl;
+    
+    @Value("${statistics_url}")
+    private String statisticsUrl;
+
 
     @Value("${base_url}")
     private String baseUrl;
@@ -77,9 +81,7 @@ public class PhenotypeArchiveConfig {
     @Value("${live_site}")
     private String liveSite;
 
-    @Value("${statistics_url}")
-    private String statisticsUrl;
-
+  
     
     @NotNull
     @Value("${paBaseUrl}")
