@@ -20,7 +20,7 @@
     <div class="container">
         <div class="row">
 
-            <div class="col-12 col-md-6 footer-text">
+            <div class="col-12 col-md-6 footer-text mb-5 mb-md-0">
                 <p><strong>&copy; 2019 IMPC International Mouse Phenotyping Consortium.</strong></p>
                 <p><strong>All Rights Reserved.</strong></p>
                 <p><strong><br />
@@ -49,7 +49,7 @@
             </div>
 
         </div>
-        <div class="row">
+        <div class="row mt-3">
             <div class="col">
                 <ul class="footer__social">
                     <li>
