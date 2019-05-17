@@ -12,6 +12,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import uk.ac.ebi.phenotype.service.RestConfiguration;
+import uk.ac.ebi.phenotype.stats.model.Statistics;
 
 
 public class StatsClient {

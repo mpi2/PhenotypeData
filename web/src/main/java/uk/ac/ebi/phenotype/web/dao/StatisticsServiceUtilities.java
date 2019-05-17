@@ -15,6 +15,9 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 
+import uk.ac.ebi.phenotype.stats.model.Point;
+import uk.ac.ebi.phenotype.stats.model.Statistics;
+
 public class StatisticsServiceUtilities {
 	
 	public static ExperimentDTO convertToExperiment(String parameterStableId, Collection<Statistics> stats) {

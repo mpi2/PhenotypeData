@@ -1,11 +1,9 @@
-package uk.ac.ebi.phenotype.web.dao;
+package temp;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.hateoas.Resources;
-
-import uk.ac.ebi.phenotype.web.dao.Statistics;
 
 public class StatsResources extends Resources<Statistics> {
 
