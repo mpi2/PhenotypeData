@@ -94,7 +94,7 @@
                                      				<span
                                                             title="WT Expressed: ${fn:length(embryoWtAnatomyToRow[mapEntry.key].specimenExpressed)} wild type specimens expressed from a total of ${fn:length(embryoWtAnatomyToRow[mapEntry.key].specimen)} wild type specimens"
                                                             class="${expressionIcon} ${yesColor}"
-                                                    ></span>(${fn:length(embryoWtAnatomyToRow[mapEntry.key].specimenExpressed)}/${fn:length(embryoWtAnatomyToRow[mapEntry.key].specimen)})
+                                                    ></span>&nbsp;(${fn:length(embryoWtAnatomyToRow[mapEntry.key].specimenExpressed)}/${fn:length(embryoWtAnatomyToRow[mapEntry.key].specimen)})
                                   </c:when>
                                   <c:when
                                           test="${embryoWtAnatomyToRow[mapEntry.key].notExpressed}">
@@ -133,7 +133,7 @@
                                      				<span
                                                             title="Expressed: ${fn:length(mapEntry.value.specimenExpressed)} mutant specimens expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens"
                                                             class="${expressionIcon} ${yesColor}"
-                                                    ></span>(${fn:length(mapEntry.value.specimenExpressed)}/${fn:length(mapEntry.value.specimen)})
+                                                    ></span>&nbsp;(${fn:length(mapEntry.value.specimenExpressed)}/${fn:length(mapEntry.value.specimen)})
                                   </c:when>
                                   <c:when
                                           test="${mapEntry.value.notExpressed}">
