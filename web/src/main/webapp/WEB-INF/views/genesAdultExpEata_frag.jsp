@@ -10,18 +10,20 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<c:set var="expressionIcon" scope="page" value="fa fa-check"/>
-<c:set var="noTissueIcon" scope="page" value="fa fa-circle-o"/>
-<c:set var="noExpressionIcon" scope="page" value="fa fa-times"/>
-<c:set var="ambiguousIcon" scope="page" value="fa fa-circle"/>
-<c:set var="yesColor" scope="page" value="text-info"/>
-<c:set var="noColor" scope="page" value="text-muted"/>
+<c:set var="expressionIcon" scope="page" value="fa fa-circle"/>
+<c:set var="noTissueIcon" scope="page" value="fa fa-times"/>
+<c:set var="noExpressionIcon" scope="page" value="fa fa-circle-o"/>
+<c:set var="ambiguousIcon" scope="page" value="fa fa-adjust"/>
+<c:set var="yesColor" scope="page" value="text-primary"/>
+<c:set var="noColor" scope="page" value="text-info"/>
+<c:set var="amColor" scope="page" value="text-warning"/>
+<c:set var="noAvaColor" scope="page" value="text-danger"/>
 <div class="container">
     <div class="row justify-content-center">
-        <span title="Expression" class="${yesColor} mr-3"><i class="${expressionIcon}"></i> &nbsp;Expression</span>
+        <span title="Expression" class="${yesColor} mr-3"><i class="${expressionIcon}"></i>&nbsp;Expression</span>
         <span title="No Expression" class="${noColor} mr-3"> <i class="${noExpressionIcon}"></i>&nbsp;No Expression</span>
-        <span title="No Tissue Available" class="${noColor} mr-3"><i class="${noTissueIcon}"></i>&nbsp;No Tissue Available</span>
-        <span title="Ambiguous" class="${noColor}"><i class="${ambiguousIcon}"></i>&nbsp;Ambiguous</span>
+        <span title="Ambiguous" class="${amColor} mr-3"><i class="${ambiguousIcon}"></i>&nbsp;Ambiguous</span>
+        <span title="No Tissue Available" class="${noAvaColor}"><i class="${noTissueIcon}"></i>&nbsp;No Tissue Available</span>
     </div>
     <!--div class="row justify-content-center">
         <div class="col-sm-12">
@@ -76,7 +78,7 @@
                                 title="${mapEntry.value.numberOfHetSpecimens} Heterozygous Mutant Mice">${mapEntry.value.numberOfHetSpecimens}</span>
                         </td>
                         <td
-                                <c:if test="${mutantImagesAnatomyToRow[mapEntry.key].homImages}">style="color:${yesColor}"</c:if>>
+                                <c:if test="${mutantImagesAnatomyToRow[mapEntry.key].homImages}">class="${yesColor}"</c:if>>
                                      			<span
                                                         title="Homozygote Images are
                                      			<c:if test="${!mutantImagesAnatomyToRow[mapEntry.key].homImages}">not</c:if> available"><c:if
@@ -91,24 +93,24 @@
                                     <i
                                             title="WT Expressed: ${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)} wild type specimens expressed from a total of ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)} wild type specimens"
                                             class="${expressionIcon} ${yesColor}"
-                                            style=""></i>(${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)}/${fn:length(wtAnatomyToRow[mapEntry.key].specimen)})
+                                            style=""></i>&nbsp;(${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)}/${fn:length(wtAnatomyToRow[mapEntry.key].specimen)})
                                 </c:when>
                                 <c:when
                                         test="${wtAnatomyToRow[mapEntry.key].notExpressed}">
                                     <i
                                             title="WT NOT expressed: ${fn:length(wtAnatomyToRow[mapEntry.key].specimenNotExpressed)} Not Expressed ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)} wild type specimens"
-                                            class="${noExpressionIcon} color:${noColor}"></i>
+                                            class="${noExpressionIcon} ${noColor}"></i>
                                 </c:when>
                                 <c:when
                                         test="${wtAnatomyToRow[mapEntry.key].noTissueAvailable}">
                                     <i title="WT No Tissue Available"
-                                       class="${noTissueIcon}"
-                                       style="color:${noColor}"></i>
+                                       class="${noTissueIcon} ${noAvaColor}"
+                                       ></i>
                                 </c:when>
 
                                 <c:otherwise>
                                      				<span title="Ambiguous"
-                                                          class="${ambiguousIcon}" style="color:${noColor}"></span>
+                                                          class="${ambiguousIcon} ${amColor}"></span>
                                 </c:otherwise>
                             </c:choose>
                         </td>
@@ -118,24 +120,24 @@
                                         test="${mapEntry.value.expression}">
                                      				<span
                                                             title="Expressed: ${fn:length(mapEntry.value.specimenExpressed)} mutant specimens expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens"
-                                                            class="${expressionIcon}"
-                                                            style="color:${yesColor}"></span>(${fn:length(mapEntry.value.specimenExpressed)}/${fn:length(mapEntry.value.specimen)})
+                                                            class="${expressionIcon} ${yesColor}"
+                                                            ></span>&nbsp;(${fn:length(mapEntry.value.specimenExpressed)}/${fn:length(mapEntry.value.specimen)})
                                 </c:when>
                                 <c:when
                                         test="${mapEntry.value.notExpressed}">
                           							<span
                                                             title="Not Expressed: ${fn:length(mapEntry.value.specimenNotExpressed)} Not Expressed from a total of ${fn:length(mapEntry.value.specimen)} mutant specimens"
-                                                            class="${noExpressionIcon}" style="color:${noColor}"></span>
+                                                            class="${noExpressionIcon} ${noColor}"></span>
                                 </c:when>
                                 <c:when
                                         test="${mapEntry.value.noTissueAvailable}">
                           							<span title="No Tissue Available"
-                                                          class="${noTissueIcon}" style="color:${noColor}"></span>
+                                                          class="${noTissueIcon} ${noAvaColor}"></span>
                                 </c:when>
 
                                 <c:otherwise>
                                      				<span title="Ambiguous"
-                                                          class="${ambiguousIcon}" style="color:${noColor}"></span>
+                                                          class="${ambiguousIcon} ${amColor}"></span>
                                 </c:otherwise>
                             </c:choose>
                         </td>
@@ -150,20 +152,25 @@
                                     test="${mutantImagesAnatomyToRow[mapEntry.key].wholemountImagesAvailable}">
                                 <!-- imageComparator?acc=MGI:1859162&anatomy_term=respiratory%20system&parameter_stable_id=IMPC_ALZ_075_001 -->
                                 <a
-                                        href='${baseUrl}/imageComparator?acc=${acc}&anatomy_id=${mapEntry.value.abnormalAnatomyId}&parameter_stable_id=IMPC_ALZ_076_001'><i
+                                        href='${baseUrl}/imageComparator?acc=${acc}&anatomy_id=${mapEntry.value.abnormalAnatomyId}&parameter_stable_id=IMPC_ALZ_076_001' class="mr-1" style="font-size: small"><i
                                         title="Wholemount Images available (click on this icon to view images)"
                                         class="fa fa-image"
-                                        alt="Images"><%-- (${mutantImagesAnatomyToRow[mapEntry.key].numberOfImages}) --%></i>
+                                        alt="Images"></i>&nbsp;Wholemount images
                                 </a>
                             </c:if>
                             <c:if
                                     test="${mutantImagesAnatomyToRow[mapEntry.key].sectionImagesAvailable}">
                                 <a
-                                        href='${baseUrl}/imageComparator?acc=${acc}&anatomy_id=${mapEntry.value.abnormalAnatomyId}&parameter_stable_id=IMPC_ALZ_075_001'><i
+                                        href='${baseUrl}/imageComparator?acc=${acc}&anatomy_id=${mapEntry.value.abnormalAnatomyId}&parameter_stable_id=IMPC_ALZ_075_001' class="mr-1" style="font-size: small"><i
                                         title="Section Images available (click on this icon to view images)"
                                         class="fa fa-image"
-                                        alt="Images"><%-- (${mutantImagesAnatomyToRow[mapEntry.key].numberOfImages}) --%></i>
+                                        alt="Images"></i>&nbsp;Section images
                                 </a>
+                            </c:if>
+                            <c:if test="${not mutantImagesAnatomyToRow[mapEntry.key].sectionImagesAvailable and not mutantImagesAnatomyToRow[mapEntry.key].wholemountImagesAvailable}">
+                                <span>
+                                    N/A
+                                </span>
                             </c:if>
                         </td>
                     </tr>
