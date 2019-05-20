@@ -7437,3 +7437,15 @@ hr {
     font-family: "Roboto", sans-serif !important;
 }
 
+.details-row > td {
+    border-left: 1px solid #ececec;
+}
+
+.odd {
+    background-color: #ececec;
+}
+
+.even {
+    background-color: #ececec;
+}
+
