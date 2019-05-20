@@ -201,14 +201,14 @@
                             <thead>
                             <tr>
 
-                                <th style="text-align: center;">Design Oligos</th>
                                 <th style="text-align: center;">Targeting Vector</th>
                                 <th style="text-align: center;">Cassette</th>
                                 <th style="text-align: center;">Backbone</th>
                                 <th style="text-align: center;">IKMC Project</th>
+                                <th style="text-align: center;">Order</th>
                                 <th style="text-align: center;">Genbank File</th>
                                 <th style="text-align: center;">Vector Map</th>
-                                <th>Order</th>
+                                <th style="text-align: center;">Design Oligos</th>
 
                             </tr>
                             </thead>
@@ -218,24 +218,23 @@
                             <c:forEach var="targeting_vector" items="${targeting_vectors}" varStatus="targeting_vectorsx">
                                 <tr>
 
-                                    <td style="text-align: center;">
-            <span>
-                <c:if test="${not empty targeting_vector['design_oligos_url']}">
-                    <a href="${targeting_vector['design_oligos_url']}" target="_blank"><i
-                            class="fa fa-pencil-square-o fa-2x"></i></a>
-                </c:if>
-            </span>
-                                    </td>
+
 
                                     <td style="text-align: center;">${targeting_vector['targeting_vector']}</td>
                                     <td style="text-align: center;">${targeting_vector['cassette']}</td>
                                     <td style="text-align: center;">${targeting_vector['backbone']}</td>
                                     <td style="text-align: center;">${targeting_vector['ikmc_project_id']}</td>
+                                    <td>
+                                        <c:forEach var="order" items="${targeting_vector['orders']}" varStatus="ordersx">
+                                            <a class="btn btn-outline-primary" href="${order['url']}"> <i
+                                                    class="fa fa-shopping-cart"></i>&nbsp; Order from ${order['name']}</a>
+                                        </c:forEach>
+                                    </td>
 
                                     <td style="text-align: center;">
             <span>
                 <c:if test="${not empty targeting_vector['genbank_file']}">
-                    <a href="${targeting_vector['genbank_file']}">
+                    <a href="${targeting_vector['genbank_file']}" target="_blank">
                         <i class="fa fa-file-text fa-lg"></i>
                     </a>
                 </c:if>
@@ -245,20 +244,21 @@
                                     <td style="text-align: center;">
             <span>
                 <c:if test="${not empty targeting_vector['allele_image']}">
-                    <a href="${targeting_vector['allele_image']}">
-                        <i class="fa fa-file-text fa-lg"></i>
+                    <a href="${targeting_vector['allele_image']}" target="_blank">
+                        <i class="fa fa-image fa-lg"></i>
                     </a>
                 </c:if>
             </span>
                                     </td>
 
-                                    <td>
-                                        <c:forEach var="order" items="${targeting_vector['orders']}" varStatus="ordersx">
-                                            <a class="btn btn-outline-primary" href="${order['url']}"> <i
-                                                    class="fa fa-shopping-cart"></i>&nbsp; Order from ${order['name']}</a>
-                                        </c:forEach>
+                                    <td style="text-align: center;">
+            <span>
+                <c:if test="${not empty targeting_vector['design_oligos_url']}">
+                    <a href="${targeting_vector['design_oligos_url']}" target="_blank"><i
+                            class="fa fa-external-link-square fa-lg"></i></a>
+                </c:if>
+            </span>
                                     </td>
-
                                 </tr>
                             </c:forEach>
 

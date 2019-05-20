@@ -662,7 +662,6 @@
                     else {
                         tr.find('a').html('Hide ordering information&nbsp;<i class="fa fa-caret-up"></i>');
                         if(row.data()[1] === 'false') {
-                            console.log(row.data()[0]);
                             $.ajax({
                                 url: row.data()[0],
                                 type: 'GET',
