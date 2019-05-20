@@ -7441,11 +7441,11 @@ hr {
     border-left: 1px solid #ececec;
 }
 
-.odd {
+#creLineTable > tbody > .odd {
     background-color: #ececec;
 }
 
-.even {
+#creLineTable > tbody > .even {
     background-color: #ececec;
 }
 
