@@ -19,7 +19,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import temp.Statistics;
+import uk.ac.ebi.phenotype.stats.model.*;
 import uk.ac.ebi.phenotype.web.dao.StatisticsService;
 
 

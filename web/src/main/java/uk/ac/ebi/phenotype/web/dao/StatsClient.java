@@ -86,6 +86,34 @@ public class StatsClient {
            return statsResponse;
    	
        }
+    
+    public ResponseEntity<PagedResources<Statistics>> findByGeneAccessionAndAlleleAccessionAndParameterStableId(String geneAccession, String alleleAccession, String parameterStableId){
+     		// String pipelineStableId, String zygosity){
+      	//http://localhost:8080/stats/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession=MGI:2443170&alleleAccession=MGI:2159965&parameterStableId=IMPC_HEM_038_001&pipelineStableId=IMPC_001&zygosity=homozygote&phenotypingCenter=MARC&metaDataGroup=08aa37a898ab923b9ffdbd01c0077040
+   	String HALF_STATS_URL = statisticsUrl+"/search/findByGeneAccessionAndAlleleAccessionAndParameterStableId?geneAccession={geneAccession}&alleleAccession={alleleAccession}&parameterStableId={parameterStableId}";//&pipelineStableId={pipelineStableId}&zygosity={zygosity}&phenotypingCenter={phenotypingCenter}&metaDataGroup={metaDataGroup}";";
+   			//+ "AndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession={geneAccession}&alleleAccession={alleleAccession}&parameterStableId={parameterStableId}&pipelineStableId={pipelineStableId}&zygosity={zygosity}&phenotypingCenter={phenotypingCenter}&metaDataGroup={metaDataGroup}";
+   	   
+   	ResponseEntity<PagedResources<Statistics>> statsResponse=null;
+  		try {
+  			Map<String, String> params = new HashMap<>();
+  			    params.put("geneAccession", geneAccession);
+  			    params.put("alleleAccession", alleleAccession);
+ 			    params.put("parameterStableId", parameterStableId);
+ 			    //params.put("pipelineStableId", pipelineStableId);
+  			    //params.put("zygosity", zygosity);
+  			 
+  			statsResponse = template
+  			        .exchange(HALF_STATS_URL, HttpMethod.GET, null,
+  			                new ParameterizedTypeReference<PagedResources<Statistics>>() {
+  			                }, params);
+  			System.out.println("singleStatsResponse="+statsResponse);
+  		} catch (RestClientException e) {
+  			// TODO Auto-generated catch block
+  			e.printStackTrace();
+  		}
+          return statsResponse;
+  	
+      }
 
 
    

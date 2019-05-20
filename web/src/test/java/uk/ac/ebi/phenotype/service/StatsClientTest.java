@@ -8,7 +8,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -19,8 +18,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
-import temp.Statistics;
-import uk.ac.ebi.phenotype.web.dao.StatisticsService;
+import uk.ac.ebi.phenotype.stats.model.Statistics;
 import uk.ac.ebi.phenotype.web.dao.StatsClient;
 
 
@@ -114,6 +112,35 @@ public class StatsClientTest {
 		System.out.println("stats list="+statsResponse.getBody().getContent());
 		System.out.println("stats size="+statsResponse.getBody().getContent().size());
 		assertTrue(statsResponse.getBody().getContent().size()==1);
+	}
+	
+	@Test
+	public void testBreakdown() {
+	
+		
+		ResponseEntity<PagedResources<Statistics>> statsResponse=null;
+		String geneAccession="MGI:2443170";
+		String alleleAccession="MGI:2159965";
+		String parameterStableId="IMPC_HEM_038_001";
+		String pipelineStableId="IMPC_001";
+		String zygosity="homozygote";
+		String phenotypingCenter="MARC";
+		String metaDataGroup= "08aa37a898ab923b9ffdbd01c0077040";
+
+
+		try {
+			statsResponse = statsClient.findByGeneAccessionAndAlleleAccessionAndParameterStableId(geneAccession, alleleAccession, parameterStableId);//, pipelineStableId, zygosity, phenotypingCenter, metaDataGroup);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("test response ="+statsResponse);
+		System.out.println("stats list="+statsResponse.getBody().getContent());
+		System.out.println("stats size="+statsResponse.getBody().getContent().size());
+		assertTrue(statsResponse.getBody().getContent().size()==1);
+		
+		
+		
 	}
 
 	@Test
