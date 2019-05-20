@@ -36,7 +36,6 @@ public class Publication {
     private boolean reviewed;
     private boolean consortiumPaper;
     private boolean falsePositive;
-    private Fragments fragments;
     private ArrayList<Citation> citations;
     private ArrayList<String> cites;
     private String keyword;
@@ -44,5 +43,6 @@ public class Publication {
     private ArrayList<AlleleRef> alleleCandidates;
     private  ArrayList<CitingPaper> citedBy;
     private ArrayList<String> meshHeadingList;
+    private ArrayList<Correspondence> correspondence;
 
 }

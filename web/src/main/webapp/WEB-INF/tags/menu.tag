@@ -39,7 +39,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-3">
-                    <a href="/" class="header__logo-link active"><img class="header__logo" src="${cmsBaseUrl}/wp-content/themes/impc/images/impc-logo@2x.png"/></a>
+                    <a href="/" class="header__logo-link active"><img class="header__logo" src="${cmsBaseUrl}/wp-content/themes/impc/images/impc-logo-tag@2x.png"/></a>
                 </div>
                 <div class="col-md-9 text-right">
                     <span class="d-none d-lg-block">
