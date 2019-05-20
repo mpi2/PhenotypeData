@@ -7404,6 +7404,8 @@ hr {
 .non-tested {
     border-color: #6c757d !important;
     border: 1px solid transparent;
+    color: #6c757d;
+    cursor: default !important;
 }
 
 .btn-mailing {

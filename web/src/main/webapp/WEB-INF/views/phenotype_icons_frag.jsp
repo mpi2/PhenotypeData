@@ -56,9 +56,17 @@
                                 </label>
                             </c:when>
                             <c:otherwise>
-                                <a class="col-sm btn btn-outline-light btn-icon non-tested disabled m-1" title="${fn:replace(phenotypeGroups[i*5 + j], 'phenotype', '')}" data-toggle="tooltip">
+<%--                                <span class="col-sm m-1" title="${fn:replace(phenotypeGroups[i*5 + j], 'phenotype', '')}" data-toggle="tooltip">--%>
+<%--                                                                    <a class="btn btn-outline-light btn-icon non-tested disabled " >--%>
+<%--                                    <i class="${phenotypeGroupIcons[i*5 + j]}"></i>--%>
+<%--                                </a>--%>
+<%--                                </span>--%>
+
+                                <label class="col-sm btn btn-outline-light btn-icon non-tested m-1" href="#phenotypesTab" title="${fn:replace(phenotypeGroups[i*5 + j], 'phenotype', '')}" data-toggle="tooltip">
+                                    <input type="checkbox" autocomplete="off" data-value="${notsignificantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}" onchange="filterAllData()" title="${phenotypeGroups[i*5 + j]}" value="no_significant" class="disabled">
                                     <i class="${phenotypeGroupIcons[i*5 + j]}"></i>
-                                </a>
+                                </label>
+
                             </c:otherwise>
                         </c:choose>
                     </c:forEach>

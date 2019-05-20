@@ -108,28 +108,24 @@
                 <div class="col-md-6">
                     <table class="table table-striped">
                         <tr>
-                            <th>Phenotyping center</th>
-                            <td>${phenotypingCenter}</td>
-                        </tr>
-                        <tr>
-                            <th>Phenotyping procedure</th>
-                            <td><a href="${procedureUrl}">${parameter.procedureNames[0]}</a></td>
+                            <th style="font-weight: bolder;">Testing protocol</th>
+                            <td><a href="${procedureUrl}" style="font-weight: bolder;">${parameter.procedureNames[0]}</a></td>
                         </tr>
                         <tr>
                             <th>Measured value</th>
                             <td><a href="${parameterUrl}">${parameter.name}</a></td>
                         </tr>
                         <tr>
+                            <th>Testing environment</th>
+                            <td><a class="w-100" data-toggle="modal" data-target="#conditions" href="#">Lab conditions and equipment</a></td>
+                        </tr>
+                        <tr>
                             <th>Background Strain</th>
                             <td><t:formatAllele>${geneticBackgroundString}</t:formatAllele></td>
                         </tr>
                         <tr>
-                            <td colspan="2">
-
-                                <button type="button" class="btn btn-outline-primary w-100" data-toggle="modal" data-target="#conditions">Show experimental conditions</button>
-
-                                <!-- Metadata group: ${metadata} -->
-                            </td>
+                            <th>Phenotyping center</th>
+                            <td>${phenotypingCenter}</td>
                         </tr>
                     </table>
 
