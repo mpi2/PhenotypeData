@@ -7429,8 +7429,9 @@ hr {
 }
 
 
-.unClickableRows > tbody > tr:hover {
-    background-color: #ecececf5;
+.unClickableRows:hover {
+    background-color: #ecececf5 !important;
+    cursor: inherit !important;
 }
 
 .highcharts-title {
