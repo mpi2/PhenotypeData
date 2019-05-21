@@ -636,7 +636,7 @@
                     this
                         .child(
                             $(
-                                '<div id="orderAllele' + idx + '" style="border: solid 1px #dee2e6; padding: 10px;">' +
+                                '<div id="orderAllele' + idx + '">' +
                                 "     <div class=\"pre-content\">\n" +
                                 "                        <div class=\"row no-gutters\">\n" +
                                 "                            <div class=\"col-12 my-5\">\n" +
@@ -662,7 +662,6 @@
                     else {
                         tr.find('a').html('Hide ordering information&nbsp;<i class="fa fa-caret-up"></i>');
                         if(row.data()[1] === 'false') {
-                            console.log(row.data()[0]);
                             $.ajax({
                                 url: row.data()[0],
                                 type: 'GET',

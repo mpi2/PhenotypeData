@@ -7404,6 +7404,8 @@ hr {
 .non-tested {
     border-color: #6c757d !important;
     border: 1px solid transparent;
+    color: #6c757d;
+    cursor: default !important;
 }
 
 .btn-mailing {
@@ -7433,5 +7435,17 @@ hr {
 
 .highcharts-title {
     font-family: "Roboto", sans-serif !important;
+}
+
+.details-row > td {
+    border-left: 1px solid #ececec;
+}
+
+#creLineTable > tbody > .odd {
+    background-color: #ececec;
+}
+
+#creLineTable > tbody > .even {
+    background-color: #ececec;
 }
 
