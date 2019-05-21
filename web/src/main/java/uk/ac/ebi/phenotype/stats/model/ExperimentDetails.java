@@ -135,4 +135,14 @@ public class ExperimentDetails {
 	}
   
 
+	@Override
+	public String toString() {
+		return "ExperimentDetails [status=" + status + ", procedureGroup=" + procedureGroup + ", procedureStableId="
+				+ procedureStableId + ", procedureName=" + procedureName + ", parameterStableId=" + parameterStableId
+				+ ", parameterName=" + parameterName + ", phenotypingCenter=" + phenotypingCenter + ", alleleSymbol="
+				+ alleleSymbol + ", geneSymbol=" + geneSymbol + ", geneAccessionId=" + geneAccessionId
+				+ ", pipelineName=" + pipelineName + ", pipelineStableId=" + pipelineStableId + ", strainAccessionId="
+				+ strainAccessionId + ", metadataGroup=" + metadataGroup + ", zygosity=" + zygosity + ", colonyId="
+				+ colonyId + "]";
+	}
 }

@@ -37,10 +37,10 @@ public class StatisticsService {
 	}
 	
 	
-	public ResponseEntity<PagedResources<Statistics>> getUniqueStatsResult(String geneAccession, String alleleAccession, String parameterStableId,
+	public ResponseEntity<Statistics> getUniqueStatsResult(String geneAccession, String alleleAccession, String parameterStableId,
 			 String pipelineStableId,  String zygosity,  String phenotypingCenter,  String metaDataGroup){
 		System.out.println("statsClient url="+statsClient.getStatsUrl());
-		ResponseEntity<PagedResources<Statistics>> stats=statsClient.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId,
+		ResponseEntity<Statistics> stats=statsClient.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId,
 		 pipelineStableId,  zygosity,  phenotypingCenter,  metaDataGroup);
 		return stats;
 	
@@ -57,9 +57,9 @@ public class StatisticsService {
 //		}else {
 //			
 //		}
-		ResponseEntity<PagedResources<Statistics>> response = this.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroup);
-		Collection<Statistics> stats = response.getBody().getContent();
-		System.out.println("stats size="+stats.size());
+		ResponseEntity<Statistics> response = this.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroup);
+		Statistics stats = response.getBody();
+		//System.out.println("stats size="+stats.size());
 		ExperimentDTO exp = StatisticsServiceUtilities.convertToExperiment(parameterStableId, stats);
 		
 		System.out.println("experiment from file="+exp);

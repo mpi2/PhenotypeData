@@ -20,8 +20,8 @@ import uk.ac.ebi.phenotype.stats.model.Statistics;
 
 public class StatisticsServiceUtilities {
 	
-	public static ExperimentDTO convertToExperiment(String parameterStableId, Collection<Statistics> stats) {
-		Statistics stat = stats.iterator().next();
+	public static ExperimentDTO convertToExperiment(String parameterStableId, Statistics stat) {
+		
 		ExperimentDTO exp = new ExperimentDTO();
 		exp.setAlleleAccession(stat.getAlleleAccession());
 		exp.setMetadataGroup(stat.getMetaDataGroup());

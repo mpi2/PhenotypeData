@@ -66,9 +66,9 @@ public class Statistics  {
 	
 	private String colonyId;
 	
-	private int impressParameterKey;
+	private Integer impressParameterKey;
 	
-	private int impressProtocolKey;
+	private Integer impressProtocolKey;
 	
 	public String getColonyId() {
 		return colonyId;
@@ -78,7 +78,7 @@ public class Statistics  {
 		this.colonyId = colonyId;
 	}
 
-	public int getImpressParameterKey() {
+	public Integer getImpressParameterKey() {
 		return impressParameterKey;
 	}
 
@@ -86,7 +86,7 @@ public class Statistics  {
 		this.impressParameterKey = impressParameterKey;
 	}
 
-	public int getImpressProtocolKey() {
+	public Integer getImpressProtocolKey() {
 		return impressProtocolKey;
 	}
 
