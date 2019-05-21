@@ -92,7 +92,7 @@ public class StatsClientTest {
 //
 	@Test
 	public void testGetIndividualStatsData() {
-		ResponseEntity<PagedResources<Statistics>> statsResponse=null;
+		ResponseEntity<Statistics> statsResponse=null;
 		String geneAccession="MGI:2443170";
 		String alleleAccession="MGI:2159965";
 		String parameterStableId="IMPC_HEM_038_001";
@@ -109,9 +109,7 @@ public class StatsClientTest {
 			e.printStackTrace();
 		}
 		System.out.println("test response ="+statsResponse);
-		System.out.println("stats list="+statsResponse.getBody().getContent());
-		System.out.println("stats size="+statsResponse.getBody().getContent().size());
-		assertTrue(statsResponse.getBody().getContent().size()==1);
+		assertTrue(statsResponse.getBody().getGeneAccession()!=null);
 	}
 	
 	@Test
@@ -159,8 +157,8 @@ public class StatsClientTest {
 		String ebiMappedSolrUrl="//ves-ebi-d0.ebi.ac.uk:8986/solr";
 		String strain="";//we hve colonyId now so what do we do with this?
 		String zygosity="homozygote";
-		ResponseEntity<PagedResources<Statistics>> stats = statsClient.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId, pipelineStableId, zygosity, phenotypingCenter, metadataGroup);
-		assert(stats.getBody().getContent().size()>0);
+		ResponseEntity<Statistics> stats = statsClient.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId, pipelineStableId, zygosity, phenotypingCenter, metadataGroup);
+		assert(stats.getBody().getGeneAccession()!=null);
 		//assert(experimentDTO.getMetadataGroup().equals(metadataGroup));
 
 
