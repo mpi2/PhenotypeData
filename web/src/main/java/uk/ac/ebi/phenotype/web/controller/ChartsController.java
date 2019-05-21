@@ -353,11 +353,17 @@ public class ChartsController {
 			if(parameterStableId.equalsIgnoreCase("IMPC_HEM_038_001")&& testNew) {
 				//get experiment object from the new rest service as a temporary measure we can convert to an experiment object and then we don't have to rewrite the chart code?? and easy to test if experiment objects are the same??
 				System.out.println("Get data from new rest service");
-				ExperimentDTO stat=statsService.getSpecificExperimentDTOFromRest(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
+				long startTime = System.currentTimeMillis();
+				System.out.println("start time="+System.currentTimeMillis());
+				experiment=statsService.getSpecificExperimentDTOFromRest(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
+				System.out.println("end time="+System.currentTimeMillis());
+				long endTime=System.currentTimeMillis();
+				long timeTaken=endTime-startTime;
+				System.out.println("time taken="+timeTaken);
 				//experiment=statsService.getSpecificExperimentDTOFromRepository(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
 				//List<Stats>stats=statsService.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(accession[0], alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroupString);
 				
-				System.out.println("stats from repository size="+stat);
+				System.out.println("stats from repository size="+experiment);
 			}
 			else {
 			experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);

@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -32,8 +33,8 @@ public class StatsServiceTest {
 	StatisticsService statsService;
 
 
-	
-	private static String statisticsUrl="http://localhost:8080/statisticses";
+	//@Value("${statistics_url}")
+	private static String statisticsUrl="http://localhost:8080/";
 	
 
 	@Configuration
@@ -101,7 +102,7 @@ public class StatsServiceTest {
 //
 	@Test
 	public void testGetIndividualStatsData() {
-		ResponseEntity<PagedResources<Statistics>> statsResponse=null;
+		ResponseEntity<Statistics> statsResponse=null;
 		String geneAccession="MGI:2443170";
 		String alleleAccession="MGI:2159965";
 		String parameterStableId="IMPC_HEM_038_001";
@@ -118,9 +119,9 @@ public class StatsServiceTest {
 			e.printStackTrace();
 		}
 		System.out.println("test response ="+statsResponse);
-		System.out.println("stats list="+statsResponse.getBody().getContent());
-		System.out.println("stats size="+statsResponse.getBody().getContent().size());
-		assertTrue(statsResponse.getBody().getContent().size()==1);
+		
+		System.out.println("stats size="+statsResponse.getBody());
+		assertTrue(statsResponse.getBody().getGeneSymbol()!=null);
 	}
 
 	@Test
