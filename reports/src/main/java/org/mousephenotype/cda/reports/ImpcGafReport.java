@@ -29,7 +29,6 @@ import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.beans.Introspector;
@@ -49,8 +48,7 @@ public class ImpcGafReport extends AbstractReport {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    @Qualifier("postqcService")
-    PostQcService genotypePhenotypeService;
+    PostQcService postQcService;
 
     @Autowired
     ObservationService observationService;
@@ -92,7 +90,7 @@ public class ImpcGafReport extends AbstractReport {
 
         try {
 
-            List<GenotypePhenotypeDTO> gpDTOList = genotypePhenotypeService.getAllGenotypePhenotypes(resources);
+            List<GenotypePhenotypeDTO> gpDTOList = postQcService.getAllGenotypePhenotypes(resources);
 
             Map<String, GenotypePhenotypeDTO> geneToPhenotypes = new TreeMap<>();        // key is MGI Gene Id + "_" + MP ID. Value is GenotypePheontypeDTO.
 

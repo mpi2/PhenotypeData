@@ -74,10 +74,6 @@ public class ImageService implements WebStatus{
 
 
 	@NotNull
-    @Value("${reports_hostname}")
-    private String reportsHostname;
-
-	@NotNull
 	@Value("${base_url}")
 	private String baseUrl;
 
@@ -555,7 +551,7 @@ public class ImageService implements WebStatus{
 	}
 
 
-	public List<String[]> getLaczExpressionSpreadsheet() {
+	public List<String[]> getLaczExpressionSpreadsheet(String reportsHostname) {
         SolrQuery query = new SolrQuery();
         ArrayList<String[]> res = new ArrayList<>();
         String[] aux = new String[0];

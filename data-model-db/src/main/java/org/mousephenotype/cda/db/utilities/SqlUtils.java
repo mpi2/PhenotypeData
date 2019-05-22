@@ -391,7 +391,6 @@ public class SqlUtils {
 
         ds.setConnectionInitSql("SELECT 1");
         ds.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
-//        ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
         ds.setConnectionTimeout(CONNECTION_TIMEOUT_IN_MS);
 
         try {

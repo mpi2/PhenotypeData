@@ -78,11 +78,11 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 	@Inject
 	public StatisticalResultService(
-			BiologicalModelDAO biologicalModelDAO,
+			@Qualifier("biologicalModelDAOImpl") BiologicalModelDAO biologicalModelDAO,
 			DatasourceDAO datasourceDAO,
 			ImpressService impressService,
 			OrganisationDAO organisationDAO,
-			PhenotypePipelineDAO pipelineDAO,
+			@Qualifier("phenotypePipelineDAOImpl") PhenotypePipelineDAO pipelineDAO,
 
 			// FIXME HUH?
 			@Qualifier("postqcService") AbstractGenotypePhenotypeService postqcService,

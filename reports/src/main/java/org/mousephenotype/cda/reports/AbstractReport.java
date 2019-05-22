@@ -148,7 +148,6 @@ public abstract class AbstractReport {
                   "   [--" + ReportParser.TARGET_FILENAME_ARG + "=target_filename]"
                 , "   [--" + ReportParser.TARGET_DIRECTORY_ARG + "=target_directory]"
                 , "   [--" + ReportParser.REPORT_FORMAT_ARG    + "={csv | tsv}]"
-                , "   [--" + ReportParser.PROPERTIES_FILE_ARG  + "=properties_file]"
                 , "   [--" + ReportParser.PREFIX_ARG           + "=prefix]"
                 , "   [--" + ReportParser.HELP_ARG             + "]"
         };
@@ -156,7 +155,6 @@ public abstract class AbstractReport {
                   "Default is " + getDefaultFilename()
                 , "Default is " + ReportParser.DEFAULT_TARGET_DIRECTORY
                 , "Default is " + ReportParser.DEFAULT_REPORT_FORMAT
-                , "Default is " + ReportParser.DEFAULT_PROPERTIES_FILE
                 , "Default is none"
                 , ""
         };

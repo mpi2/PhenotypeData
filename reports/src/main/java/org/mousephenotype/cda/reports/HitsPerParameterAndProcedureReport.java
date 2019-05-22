@@ -24,7 +24,6 @@ import org.mousephenotype.cda.solr.service.PostQcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.beans.Introspector;
@@ -44,8 +43,7 @@ public class HitsPerParameterAndProcedureReport extends AbstractReport {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    @Qualifier("postqcService")
-    PostQcService genotypePhenotypeService;
+    PostQcService postQcService;
 
     public HitsPerParameterAndProcedureReport() {
         super();
@@ -75,12 +73,12 @@ public class HitsPerParameterAndProcedureReport extends AbstractReport {
             List<String[]> parameters = new ArrayList<>();
             String[] headerParams  ={"Parameter Id", "Parameter Name", "# Significant Hits"};
             parameters.add(headerParams);
-            parameters.addAll(genotypePhenotypeService.getHitsDistributionByParameter(resources));
+            parameters.addAll(postQcService.getHitsDistributionByParameter(resources));
 
             List<String[]> procedures = new ArrayList<>();
             String[] headerProcedures  ={"Procedure Id", "Procedure Name", "# Significant Hits"};
             procedures.add(headerProcedures);
-            procedures.addAll(genotypePhenotypeService.getHitsDistributionByProcedure(resources));
+            procedures.addAll(postQcService.getHitsDistributionByProcedure(resources));
 
             result.add(parameters);
             result.add(procedures);

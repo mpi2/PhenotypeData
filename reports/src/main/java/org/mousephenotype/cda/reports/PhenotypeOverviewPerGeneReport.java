@@ -28,7 +28,6 @@ import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.beans.Introspector;
@@ -47,8 +46,7 @@ public class PhenotypeOverviewPerGeneReport extends AbstractReport {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    @Qualifier("postqcService")
-    PostQcService genotypePhenotypeService;
+    PostQcService postQcService;
 
     @Autowired
     ObservationService observationService;
@@ -84,7 +82,7 @@ public class PhenotypeOverviewPerGeneReport extends AbstractReport {
 
         try {
 
-            List<GenotypePhenotypeDTO> gps = genotypePhenotypeService.getAllGenotypePhenotypes(resources);
+            List<GenotypePhenotypeDTO> gps = postQcService.getAllGenotypePhenotypes(resources);
 
             Map<String, Set<String>> geneToPhenotypes = new HashMap<>();
 

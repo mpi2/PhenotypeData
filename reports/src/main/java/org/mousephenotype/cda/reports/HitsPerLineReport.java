@@ -27,7 +27,6 @@ import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.beans.Introspector;
@@ -49,8 +48,7 @@ public class HitsPerLineReport extends AbstractReport {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    @Qualifier("postqcService")
-    PostQcService genotypePhenotypeService;
+    PostQcService postQcService;
 
     @Autowired
     StatisticalResultService statisticalResultService;
@@ -83,9 +81,9 @@ public class HitsPerLineReport extends AbstractReport {
             String[] headerParams  ={"# Hits", "# Colonies With This Many HOM Hits", "# Colonies With This Many HET Hits", "# Colonies With This Many Calls"};
             zygosityTable.add(headerParams);
 
-            Map<String, Long> homsMap = genotypePhenotypeService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.homozygote, 1, statisticalResultService.P_VALUE_THRESHOLD);
-            Map<String, Long> hetsMap = genotypePhenotypeService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.heterozygote, 1, statisticalResultService.P_VALUE_THRESHOLD);
-            Map<String, Long> allMap = genotypePhenotypeService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, null, 1, statisticalResultService.P_VALUE_THRESHOLD);
+            Map<String, Long> homsMap = postQcService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.homozygote, 1, statisticalResultService.P_VALUE_THRESHOLD);
+            Map<String, Long> hetsMap = postQcService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.heterozygote, 1, statisticalResultService.P_VALUE_THRESHOLD);
+            Map<String, Long> allMap = postQcService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, null, 1, statisticalResultService.P_VALUE_THRESHOLD);
 
             Map<String, Long> homsNoHits = statisticalResultService.getColoniesNoMPHit(resources, ZygosityType.homozygote);
             Map<String, Long> hetsNoHits = statisticalResultService.getColoniesNoMPHit(resources, ZygosityType.heterozygote);

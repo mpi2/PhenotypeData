@@ -32,7 +32,6 @@ import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -55,8 +54,7 @@ public class ZygosityReport extends AbstractReport {
     GeneService geneService;
 
     @Autowired
-    @Qualifier("postqcService")
-    PostQcService genotypePhenotypeService;
+    PostQcService postQcService;
 
     @Autowired
     ObservationService observationService;
@@ -99,7 +97,7 @@ public class ZygosityReport extends AbstractReport {
         try {
 
             // Get the list of phenotype calls
-            List<GenotypePhenotypeDTO> gps = genotypePhenotypeService.getAllGenotypePhenotypes(resources);
+            List<GenotypePhenotypeDTO> gps = postQcService.getAllGenotypePhenotypes(resources);
 
             for (GenotypePhenotypeDTO gp : gps) {
 

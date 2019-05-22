@@ -16,7 +16,6 @@
 
 package org.mousephenotype.cda.reports.support;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.mousephenotype.cda.reports.AbstractReport;
 import org.springframework.core.env.PropertySource;
@@ -38,25 +37,22 @@ import java.util.Map;
  * Created by mrelac on 28/07/2015.
  */
 public abstract class AbstractReportParser {
-    protected boolean showHelp;
-    protected String prefix;
-    protected File propertiesFile;
-    protected PropertiesConfiguration applicationProperties;
+    protected boolean                     showHelp;
+    protected String                      prefix;
+    protected File                        propertiesFile;
+    protected PropertiesConfiguration     applicationProperties;
     protected AbstractReport.ReportFormat reportFormat = null;
-    protected String targetDirectory;
-
-    protected Map<String, String> propertyMap = new HashMap<>();
+    protected String                      targetDirectory;
+    protected Map<String, String>         propertyMap  = new HashMap<>();
 
     public static final String TARGET_DIRECTORY_ARG = "targetDirectory";
-    public static final String REPORT_FORMAT_ARG = "reportFormat";
-    public static final String PROPERTIES_FILE_ARG = "propertiesFile";
-    public static final String PREFIX_ARG = "prefix";
-    public static final String HELP_ARG = "help";
+    public static final String REPORT_FORMAT_ARG    = "reportFormat";
+    public static final String PREFIX_ARG           = "prefix";
+    public static final String HELP_ARG             = "help";
 
-    public static final String DEFAULT_TARGET_DIRECTORY = "./reports";
-    public static final AbstractReport.ReportFormat DEFAULT_REPORT_FORMAT = AbstractReport.ReportFormat.csv;
-    public static final String DEFAULT_PROPERTIES_FILE = "${user.home}/configfiles/${profile}/application.properties";
-    public static final String DEFAULT_PREFIX = "";
+    public static final String                      DEFAULT_TARGET_DIRECTORY = "./reports";
+    public static final AbstractReport.ReportFormat DEFAULT_REPORT_FORMAT    = AbstractReport.ReportFormat.csv;
+    public static final String                      DEFAULT_PREFIX           = "";
 
 
     public Map<String, String> parse(String[] args) {
@@ -69,10 +65,6 @@ public abstract class AbstractReportParser {
 
         if ((ps.containsProperty(REPORT_FORMAT_ARG))  && ps.getProperty(REPORT_FORMAT_ARG) != null) {
             propertyMap.put(REPORT_FORMAT_ARG, ps.getProperty(REPORT_FORMAT_ARG).toString());
-        }
-
-        if ((ps.containsProperty(PROPERTIES_FILE_ARG)) && ps.getProperty(PROPERTIES_FILE_ARG) != null) {
-            propertyMap.put(PROPERTIES_FILE_ARG, ps.getProperty(PROPERTIES_FILE_ARG).toString());
         }
 
         if ((ps.containsProperty(PREFIX_ARG)) && ps.getProperty(PREFIX_ARG) != null) {
@@ -113,13 +105,6 @@ public abstract class AbstractReportParser {
             } catch (IllegalArgumentException | NullPointerException e) {
                 retVal.add("Unknown report format type '" + propertyMap.get(REPORT_FORMAT_ARG) + "'.");
             }
-        }
-
-        String propertiesFilename = (propertyMap.containsKey(PROPERTIES_FILE_ARG) ? propertyMap.get(PROPERTIES_FILE_ARG) : DEFAULT_PROPERTIES_FILE);
-        try {
-            this.applicationProperties = new PropertiesConfiguration(propertiesFilename);
-        } catch(ConfigurationException e) {
-
         }
 
         if (propertyMap.containsKey(PREFIX_ARG)) {
