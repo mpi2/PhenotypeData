@@ -138,46 +138,7 @@ public class ChartsController {
      * @throws IOException
      * @throws URISyntaxException
      * @throws SolrServerException, IOException
-     */
-    
-//    @RequestMapping("/chartsFile")
-//    public String chartsFromFile(@RequestParam(required = false, value = "accession") String[] accessionsParams,
-//                         @RequestParam(required = false, value = "parameter_stable_id") String[] parameterIds,
-//                         @RequestParam(required = false, value = "gender") String[] gender,
-//                         @RequestParam(required = false, value = "zygosity") String[] zygosity,
-//                         @RequestParam(required = false, value = "phenotyping_center") String[] phenotypingCenter,
-//                         @RequestParam(required = false, value = "strategy") String[] strategies,
-//                         @RequestParam(required = false, value = "strain") String[] strains,
-//                         @RequestParam(required = false, value = "metadata_group") String[] metadataGroup,
-//                         @RequestParam(required = false, value = "chart_type") ChartType chartType,
-//                         @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds,
-//                         @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession,
-//                         @RequestParam(required = false, value = "pageTitle") String pageTitle,
-//                         @RequestParam(required = false, value = "pageLinkBack") String pageLinkBack,
-//                         HttpServletRequest request, HttpServletResponse response,
-//                         Model model) {
-//        try {
-//            if ((accessionsParams != null) && (accessionsParams.length > 0) && (parameterIds != null) && (parameterIds.length > 0)) {
-//                for (String parameterStableId : parameterIds) {
-//                    if (parameterStableId.contains("_FER_")) {
-//                    	System.err.println("We don't have data for fertility so we can't display charts");
-//                        String url =  "http:" + request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/genes/" + accessionsParams[0];
-//                        return "redirect:" + url;
-//                    }
-//                }
-//            }
-//            response.addHeader("Access-Control-Allow-Origin", "*");//allow javascript requests from other domain - note spring way of doing this does not work!!!! as usual!!!
-//            model.addAttribute("pageTitle", pageTitle);
-////            response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
-////            response.setHeader("Access-Control-Max-Age", "3600");
-////            response.setHeader("Access-Control-Allow-Headers", "x-requested-with");
-//            return createChartsFromFiles(accessionsParams, pipelineStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, chartType, alleleAccession);
-//        } catch (Exception e){
-//            e.printStackTrace();
-//        }
-//        return "";
-//    }
-    
+     */ 
     @RequestMapping("/charts")
     public String charts(@RequestParam(required = false, value = "accession") String[] accessionsParams,
                          @RequestParam(required = false, value = "parameter_stable_id") String[] parameterIds,
@@ -319,23 +280,19 @@ public class ChartsController {
 			
 			GeneDTO gene = geneService.getGeneById(accession[0]);
 			model.addAttribute("gene", gene);
-			boolean testNew=true;//change to look at old chart with current code
-			if(parameterStableId.equalsIgnoreCase("IMPC_HEM_038_001")&& testNew) {
-				//get experiment object from the new rest service as a temporary measure we can convert to an experiment object and then we don't have to rewrite the chart code?? and easy to test if experiment objects are the same??
-				System.out.println("Get data from new rest service");
-				List<Statistics>stats=statsService.findAll();
-				assert(stats.size()==1);
-				//Stats stat=stats.iterator().next();
-				experiment = StatisticsServiceUtilities.convertToExperiment(parameterStableId, stats);
-				//experiment=statsService.getSpecificExperimentDTOFromRepository(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
-				//List<Stats>stats=statsService.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(accession[0], alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroupString);
-				
-				System.out.println("stats from repository size="+stats.size());
-			}
-			else {
+			//boolean testNew=true;//change to look at old chart with current code
+//			if(parameterStableId.equalsIgnoreCase("IMPC_HEM_038_001")&& testNew) {
+//				//get experiment object from the new rest service as a temporary measure we can convert to an experiment object and then we don't have to rewrite the chart code?? and easy to test if experiment objects are the same??
+//				System.out.println("Get data from new rest service");
+//				List<Statistics>stats=statsService.findAll();
+//				assert(stats.size()==1);
+//				experiment = StatisticsServiceUtilities.convertToExperiment(parameterStableId, stats);
+//				System.out.println("stats from repository size="+stats.size());
+//			}
+//			else {
 			experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
 			System.out.println("experiment from solr="+experiment);
-			}
+			//}
 			//error getting procedure for this page?? http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1915276&parameter_stable_id=MGP_MLN_057_001
 			ProcedureDTO proc=null;
 			if(experiment!=null) {
