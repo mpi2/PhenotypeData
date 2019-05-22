@@ -546,6 +546,9 @@
         </script>
         <script type="text/javascript">
             // disease tables drive by phenodigm core
+
+            var diseaseModelTotal = 0;
+
             var diseaseTableConfs = [
                 {
                     id: '#diseases_by_annotation',
@@ -555,7 +558,12 @@
                         searching: false,
                         order: [[4, 'desc'], [3, 'desc'], [2, 'desc']],
                         pagingType: "full_numbers",
-                        responsive: true
+                        responsive: true,
+                        initComplete: function(settings, json) {
+                            $('#diseases_by_annotation_count').text(settings.aoData.length);
+                            diseaseModelTotal += settings.aoData.length;
+                            $("#diseaseModelTotal").text(diseaseModelTotal);
+                        }
                     },
                     phenodigm2Conf: {
                         pageType: "genes",
@@ -575,7 +583,12 @@
                         pageLength: 20,
                         lengthMenu: [20, 50, 100],
                         pagingType: "full_numbers",
-                        responsive: true
+                        responsive: true,
+                        initComplete: function(settings, json) {
+                            $('#diseases_by_phenotype_count').text(settings.aoData.length);
+                            diseaseModelTotal += settings.aoData.length;
+                            $("#diseaseModelTotal").text(diseaseModelTotal);
+                        }
                     },
                     phenodigm2Conf: {
                         pageType: "genes",
@@ -595,7 +608,6 @@
 
             $(document).ready(function () {
                 // create phenodigm tables
-                var diseaseModelTotal = 0;
                 for (var i = 0; i < diseaseTableConfs.length; i++) {
                     var dTable = diseaseTableConfs[i];
                     impc.phenodigm2.makeTable(modelAssociations, dTable.id, dTable.phenodigm2Conf);
@@ -607,13 +619,7 @@
                             '                                            No associations found.\n' +
                             '                                        </div>');
                     }
-
-                    $(dTable.id + '_count').text(dTable.phenodigm2Conf.count);
-                    diseaseModelTotal += dTable.phenodigm2Conf.count ? dTable.phenodigm2Conf.count : 0;
-
-
                 }
-                $("#diseaseModelTotal").text(diseaseModelTotal);
                 var orderTable = $("#creLineTable").DataTable({
                     "bFilter": false,
                     "bLengthChange": false,
@@ -666,7 +672,6 @@
                                 url: row.data()[0],
                                 type: 'GET',
                                 success: function (data) {
-                                    console.log('#orderAllele' + row.index());
                                     $('#orderAllele' + row.index()).html(data);
                                     row.data()[1] = 'true';
                                 }
