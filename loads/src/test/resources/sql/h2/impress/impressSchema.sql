@@ -199,7 +199,7 @@ CREATE TABLE `phenotype_procedure` (
   level                     VARCHAR(20)  DEFAULT NULL,
   stage                     VARCHAR(20)  DEFAULT 'Adult',
   stage_label               VARCHAR(20)  DEFAULT NULL,
-  schedule_key              INT(10) DEFAULT 0,
+  schedule_key              INT(10)      DEFAULT 0,
 
   PRIMARY KEY (`id`)
 );

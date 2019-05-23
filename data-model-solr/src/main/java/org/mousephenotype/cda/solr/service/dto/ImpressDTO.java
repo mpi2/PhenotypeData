@@ -52,8 +52,10 @@ public class ImpressDTO {
 	public static final String OBSERVATION_TYPE = ObservationDTO.OBSERVATION_TYPE;
 	public static final String DATA_TYPE = ObservationDTO.DATA_TYPE;
 
+	public static final String LEVEL = "level";
 	public static final String STAGE = "stage";
 	public static final String STAGE_LABEL = "stage_label";
+	public static final String SCHEDULE_KEY = "schedule_key";
 
 
 	public static final String MP_ID = MpDTO.MP_ID; // All possible MP terms
@@ -142,11 +144,17 @@ public class ImpressDTO {
 	@Field(DATA_TYPE)
 	private String dataType;
 
+	@Field(LEVEL)
+	private String level;
+
 	@Field(STAGE)
 	private String stage;
 
 	@Field(STAGE_LABEL)
 	private String stageLabel;
+
+	@Field(SCHEDULE_KEY)
+	private int scheduleKey;
 
 	@Field(PARAMETER_ID)
 	private int parameterId;
@@ -440,6 +448,22 @@ public class ImpressDTO {
 		this.observationType = observationType;
 	}
 
+	public String getLevel() {
+		return level;
+	}
+
+	public void setLevel(String level) {
+		this.level = level;
+	}
+
+	public int getScheduleKey() {
+		return scheduleKey;
+	}
+
+	public void setScheduleKey(int scheduleKey) {
+		this.scheduleKey = scheduleKey;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -469,8 +493,10 @@ public class ImpressDTO {
 				Objects.equals(description, that.description) &&
 				Objects.equals(observationType, that.observationType) &&
 				Objects.equals(dataType, that.dataType) &&
+				Objects.equals(level, that.level) &&
 				Objects.equals(stage, that.stage) &&
 				Objects.equals(stageLabel, that.stageLabel) &&
+				Objects.equals(scheduleKey, that.scheduleKey) &&
 				Objects.equals(parameterStableId, that.parameterStableId) &&
 				Objects.equals(parameterName, that.parameterName) &&
 				Objects.equals(procedureId, that.procedureId) &&
@@ -503,7 +529,7 @@ public class ImpressDTO {
 	@Override
 	public int hashCode() {
 
-		return Objects.hash(increasedMpId, abnormalMpId, decreasedMpId, increasedMpTerm, abnormalMpTerm, decreasedMpTerm, catgories, unitX, unitY, increment, metadata, hasOptions, derived, media, annotate, required, description, observationType, stage, stageLabel, parameterId, parameterStableId, parameterName, parameterStableKey, procedureId, procedureStableId, procedureName, procedureStableKey, pipelineId, pipelineStableId, pipelineStableKey, pipelineName, ididid, mpId, mpTerm, mpTermSynonym, topLevelMpId, topLevelMpTerm, topLevelMpTermSynonym, intermediateMpId, intermediateMpTerm, intermediateMpTermSynonym, inferredMaId, selectedTopLevelMaId, inferredSelectedTopLevelMaTerm, inferredSelectedTopLevelMaId, maId, maTerm, emapId, emapTerm, anatomyId, anatomyTerm);
+		return Objects.hash(increasedMpId, abnormalMpId, decreasedMpId, increasedMpTerm, abnormalMpTerm, decreasedMpTerm, catgories, unitX, unitY, increment, metadata, hasOptions, derived, media, annotate, required, description, observationType, level, stage, stageLabel, scheduleKey, parameterId, parameterStableId, parameterName, parameterStableKey, procedureId, procedureStableId, procedureName, procedureStableKey, pipelineId, pipelineStableId, pipelineStableKey, pipelineName, ididid, mpId, mpTerm, mpTermSynonym, topLevelMpId, topLevelMpTerm, topLevelMpTermSynonym, intermediateMpId, intermediateMpTerm, intermediateMpTermSynonym, inferredMaId, selectedTopLevelMaId, inferredSelectedTopLevelMaTerm, inferredSelectedTopLevelMaId, maId, maTerm, emapId, emapTerm, anatomyId, anatomyTerm);
 	}
 
 	public String getStage() {
@@ -1053,6 +1079,8 @@ public class ImpressDTO {
 				", metadata=" + metadata +
 				", hasOptions=" + hasOptions +
 				", derived=" + derived +
+				", level=" + level +
+				", scheduleKey=" + scheduleKey +
 				", media=" + media +
 				", annotate=" + annotate +
 				", required=" + required +

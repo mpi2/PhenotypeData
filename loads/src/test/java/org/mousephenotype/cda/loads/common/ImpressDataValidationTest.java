@@ -342,6 +342,7 @@ public class ImpressDataValidationTest extends TestCase {
 			"  pr.level                      AS pr_level,\n" +
 			"  pr.stage                      AS pr_stage,\n" +
 			"  pr.stage_label                AS pr_stage_label,\n" +
+			"  pr.schedule_key               AS pr_schedule_key,\n" +
 			"  \n" +
 			"  pa.stable_id                  AS pa_stable_id,\n" +
 			"  pa.db_id                      AS pa_db_id,\n" +
@@ -516,6 +517,7 @@ public class ImpressDataValidationTest extends TestCase {
 		String pr_level;
 		String pr_stage;
 		String pr_stage_label;
+		Integer pr_schedule_key;
 		String pa_stable_id;
 		Integer pa_db_id;
 		String pa_name;
@@ -570,6 +572,7 @@ public class ImpressDataValidationTest extends TestCase {
 					", pr_level='" + pr_level + '\'' +
 					", pr_stage='" + pr_stage + '\'' +
 					", pr_stage_label='" + pr_stage_label + '\'' +
+					", pr_schedule_key='" + pr_schedule_key + '\'' +
 					", pa_stable_id='" + pa_stable_id + '\'' +
 					", pa_db_id=" + pa_db_id +
 					", pa_name='" + pa_name + '\'' +
@@ -628,6 +631,7 @@ public class ImpressDataValidationTest extends TestCase {
 					Objects.equals(pr_level, that.pr_level) &&
 					Objects.equals(pr_stage, that.pr_stage) &&
 					Objects.equals(pr_stage_label, that.pr_stage_label) &&
+					Objects.equals(pr_schedule_key, that.pr_schedule_key) &&
 					Objects.equals(pa_stable_id, that.pa_stable_id) &&
 					Objects.equals(pa_db_id, that.pa_db_id) &&
 					Objects.equals(pa_name, that.pa_name) &&
@@ -668,7 +672,7 @@ public class ImpressDataValidationTest extends TestCase {
 		@Override
 		public int hashCode() {
 
-			return Objects.hash(pi_stable_id, pi_db_id, pi_name, pi_description, pi_major_version, pi_minor_version, pi_is_deprecated, pr_stable_id, pr_db_id, pr_name, pr_description, pr_major_version, pr_minor_version, pr_is_mandatory, pr_level, pr_stage, pr_stage_label, pa_stable_id, pa_db_id, pa_name, pa_description, pa_major_version, pa_minor_version, pa_unit, pa_datatype, pa_parameter_type, pa_formula, pa_required, pa_metadata, pa_important, pa_derived, pa_annotate, pa_increment, pa_options, pa_sequence, pa_media, pa_data_analysis, pa_data_analysis_notes, pao_name, pao_description, pao_normal, pai_increment_value, pai_increment_datatype, pai_increment_unit, pai_increment_minimum, paoa_event_type, paoa_option_id, paoa_ontology_acc, paoa_ontology_db_id, paoa_sex);
+			return Objects.hash(pi_stable_id, pi_db_id, pi_name, pi_description, pi_major_version, pi_minor_version, pi_is_deprecated, pr_stable_id, pr_db_id, pr_name, pr_description, pr_major_version, pr_minor_version, pr_is_mandatory, pr_level, pr_stage, pr_stage_label, pr_schedule_key, pa_stable_id, pa_db_id, pa_name, pa_description, pa_major_version, pa_minor_version, pa_unit, pa_datatype, pa_parameter_type, pa_formula, pa_required, pa_metadata, pa_important, pa_derived, pa_annotate, pa_increment, pa_options, pa_sequence, pa_media, pa_data_analysis, pa_data_analysis_notes, pao_name, pao_description, pao_normal, pai_increment_value, pai_increment_datatype, pai_increment_unit, pai_increment_minimum, paoa_event_type, paoa_option_id, paoa_ontology_acc, paoa_ontology_db_id, paoa_sex);
 		}
 	}
 
@@ -727,6 +731,7 @@ public class ImpressDataValidationTest extends TestCase {
 			data.pr_level = rs.getString("pr_level");
 			data.pr_stage = rs.getString("pr_stage");
 			data.pr_stage_label = rs.getString("pr_stage_label");
+			data.pr_schedule_key = rs.getInt("pr_schedule_key");
 			data.pa_stable_id = rs.getString("pa_stable_id");
 			data.pa_db_id = rs.getInt("pa_db_id");
 			data.pa_name = rs.getString("pa_name");
@@ -896,6 +901,7 @@ public class ImpressDataValidationTest extends TestCase {
             data.setLevel(rs.getString("level"));
             data.setStage(rs.getString("stage"));
             data.setStageLabel(rs.getString("stage_label"));
+			data.setScheduleKey(rs.getInt("schedule_key"));
 
             return data;
         }
