@@ -18,8 +18,8 @@ package org.mousephenotype.cda.loads.create.load;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
-import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.db.pojo.Experiment;
+import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.loads.common.*;
@@ -41,6 +41,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 /**
  * Loads the experiments from a database with a dcc schema into the cda database.
@@ -65,21 +66,19 @@ public class ExperimentLoader implements CommandLineRunner {
     private final NamedParameterJdbcTemplate jdbcCda;
 
     private Set<String> badDates                     = new ConcurrentSkipListSet<>();
-    private Set<String> experimentsMissingSamples    = new ConcurrentSkipListSet<>();        // value = specimenId + "_" + cda phenotypingCenterPk
-    private Set<String> ignoredExperimentsInfo       = new ConcurrentSkipListSet<>();
-    private Set<String> missingBackgroundStrains     = new ConcurrentSkipListSet<>();
     private Set<String> missingColonyIds             = new ConcurrentSkipListSet<>();
     private Set<String> missingProjects              = new ConcurrentSkipListSet<>();
     private Set<String> experimentsMissingProjects   = new ConcurrentSkipListSet<>();
     private Set<String> missingCenters               = new ConcurrentSkipListSet<>();
+    private Set<String> missingDatasourceShortNames  = new ConcurrentSkipListSet<>();
     private Set<String> experimentsMissingCenters    = new ConcurrentSkipListSet<>();
     private Set<String> missingPipelines             = new ConcurrentSkipListSet<>();
     private Set<String> experimentsMissingPipelines  = new ConcurrentSkipListSet<>();
     private Set<String> missingProcedures            = new ConcurrentSkipListSet<>();
     private Set<String> experimentsMissingProcedures = new ConcurrentSkipListSet<>();
 
-    private Set<String> skippedExperiments           = new ConcurrentSkipListSet<>();         // A set of all experiments that were skipped (exclusive of the experiments in ingoredExperiments)
-    private Set<String> unsupportedParametersMap     = new ConcurrentSkipListSet<>();
+    private Set<String> skippedExperiments       = new ConcurrentSkipListSet<>();         // A set of all experiments that were skipped (exclusive of the experiments in ingoredExperiments)
+    private Set<String> unsupportedParametersMap = new ConcurrentSkipListSet<>();
 
     private static Set<UniqueExperimentId> ignoredExperiments;                  // Experments purposefully ignored.
 
@@ -117,7 +116,6 @@ public class ExperimentLoader implements CommandLineRunner {
     private static Map<String, Integer>          cdaOrganisation_idMap;
     private static Map<String, PhenotypedColony> phenotypedColonyMap;
     private static Map<String, MissingColonyId>  missingColonyMap;
-    private static Set<String>                   missingDatasourceShortNames = new ConcurrentSkipListSet<>();
     private static Map<String, OntologyTerm>     ontologyTermMap;
 
     private int bioModelsAddedCount = 0;
@@ -188,10 +186,10 @@ public class ExperimentLoader implements CommandLineRunner {
         CommonUtils.printJvmMemoryConfiguration();
 
 
-        String message = "**** LOADING " + dccSqlUtils.getDbName() + " EXPERIMENTS ****";
-        logger.info(org.apache.commons.lang3.StringUtils.repeat("*", message.length()));
-        logger.info(message);
-        logger.info(org.apache.commons.lang3.StringUtils.repeat("*", message.length()));
+        String banner = "**** LOADING " + dccSqlUtils.getDbName() + " EXPERIMENTS ****";
+        logger.info(org.apache.commons.lang3.StringUtils.repeat("*", banner.length()));
+        logger.info(banner);
+        logger.info(org.apache.commons.lang3.StringUtils.repeat("*", banner.length()));
 
 
         CommonUtils.printJvmMemoryConfiguration();
@@ -219,7 +217,7 @@ public class ExperimentLoader implements CommandLineRunner {
         derivedImpressParameters = cdaSqlUtils.getImpressDerivedParameters();
         logger.info("loaded {} derivedImpressParameter rows", derivedImpressParameters.size());
 
-        metadataAndDataAnalysisParameters = cdaSqlUtils.getImpressMetadataAndDataAnalysisParameters();
+        metadataAndDataAnalysisParameters = cdaSqlUtils.getImpressMetadataAndIsImportantParameters();
         logger.info("loaded {} requiredImpressParameter rows", metadataAndDataAnalysisParameters.size());
 
         samplesMap = cdaSqlUtils.getBiologicalSamplesMapBySampleKey();
@@ -269,7 +267,6 @@ public class ExperimentLoader implements CommandLineRunner {
             UniqueExperimentId uniqueExperiment = new UniqueExperimentId(dccExperiment.getPhenotypingCenter(), dccExperiment.getExperimentId());
 
             if (ignoredExperiments.contains(uniqueExperiment)) {
-                ignoredExperimentsInfo.add("Ignoring center::experiment " + ignoredExperiments.toString());
                 continue;
             }
 
@@ -334,89 +331,72 @@ public class ExperimentLoader implements CommandLineRunner {
 
         System.out.println("New biological models for line-level experiments: " + bioModelsAddedCount);
 
-        if (dccExperiments.size() != Integer.parseInt(loadCounts.get(1).get(0))) {
-            logger.warn("Failed to load all experiments from DCC. Expected {}, Loaded {}", dccExperiments.size(), loadCounts.get(1).get(0));
-        } else {
-            logger.info("Loaded all expected experiments from DCC. Expected {}, Loaded {}", dccExperiments.size(), loadCounts.get(1).get(0));
+
+        // Log infos
+
+
+        if ( ! missingColonyMap.values().isEmpty()) {
+            logger.info("Missing colonyIds::reason");
+            missingColonyMap.values()
+                    .stream()
+                    .sorted()
+                    .forEach(missing -> System.out.println(missing.getColonyId() + "::" + missing.getReason()));
         }
 
-        // Log info sets
-
-        for (String missingBackgroundStrain : missingBackgroundStrains) {
-            logger.info(missingBackgroundStrain);
-        }
-
-
-        for (MissingColonyId missing : missingColonyMap.values()) {
-            if (missing.getLogLevel() == 0) {
-                logger.info("colonyId: " + missing.getColonyId() + ": " + missing.getReason() + ".");
-            }
-        }
-
-        for (String ignoredExperimentInfo : ignoredExperimentsInfo) {
-            logger.info(ignoredExperimentInfo);
-        }
-
-        for (String badDate : badDates) {
-            logger.info(badDate);
+        if ( ! badDates.isEmpty()) {
+            logger.info("Bad/invalid dates:");
+            badDates.stream().sorted().forEach(System.out::println);
         }
 
 
-        // Log warning sets
+        // Log warnings
 
-        for (String missingColonyId : missingColonyIds) {
-            logger.warn(missingColonyId);
+        // Remove any colonyIds that are already known to be missing.
+        missingColonyIds = missingColonyIds
+                .stream()
+                .filter(colonyId -> ! missingColonyMap.containsKey(colonyId))
+                .collect(Collectors.toSet());
+
+        // Log any remaining missing colonyIds and add them to the missing_colony_id table.
+        if ( ! missingColonyIds.isEmpty()) {
+            logger.warn("{} missing colony ids:", missingColonyIds.size());
+            missingColonyIds
+                    .stream()
+                    .sorted()
+                    .map(colonyId -> {
+                        System.out.println(colonyId);
+                        cdaSqlUtils.insertMissingColonyId(colonyId, 0, "Missing from ExperimentLoader");
+                        return colonyId;
+                    })
+                    .collect(Collectors.toList());
         }
 
-        for (MissingColonyId missing : missingColonyMap.values()) {
-            if (missing.getLogLevel() == 1) {
-                // Log the message as a warning
-                message = missing.getReason() + ". colonyId: " + missing.getColonyId();
-                logger.warn(message);
-
-                // Add the missing colony id to the missing_colony_id table and set log_level to INFO.
-                cdaSqlUtils.insertMissingColonyId(missing.getColonyId(), 0, missing.getReason());
-            }
+        if ( ! missingDatasourceShortNames.isEmpty()) {
+            logger.warn("Missing datasourceShortNames:");
+            missingDatasourceShortNames.stream().sorted().forEach(System.out::println);
         }
 
-        for (String missingDatasourceShortName : missingDatasourceShortNames) {
-            logger.warn(missingDatasourceShortName);
+        if ( ! missingProjects.isEmpty()) {
+            logger.warn("Missing projects:");
+            missingProjects.stream().sorted().forEach(System.out::println);
+//            experimentsMissingProjects.stream().sorted().forEach(System.out::println);
         }
 
-        for (String experimentMissingSample : experimentsMissingSamples) {
-            logger.warn(experimentMissingSample);
+        if ( ! missingCenters.isEmpty()) {
+            logger.warn("Missing centers: ");
+            missingCenters.stream().sorted().forEach(System.out::println);
+//            experimentsMissingCenters.stream().sorted().forEach(System.out::println);
         }
 
-        for (String missingProject : missingProjects) {
-            logger.warn(missingProject);
+        if ( ! missingPipelines.isEmpty()) {
+            logger.warn("Missing pipelines: ");
+            missingPipelines.stream().sorted().forEach(System.out::println);
+//            experimentsMissingPipelines.stream().sorted().forEach(System.out::println);
         }
 
-        for (String experimentMissingProject : experimentsMissingProjects) {
-            logger.warn(experimentMissingProject);
-        }
-
-        for (String missingCenter : missingCenters) {
-            logger.warn(missingCenter);
-        }
-
-        for (String experimentMissingCenter : experimentsMissingCenters) {
-            logger.warn(experimentMissingCenter);
-        }
-
-        for (String missingPipeline : missingPipelines) {
-            logger.warn(missingPipeline);
-        }
-
-        for (String experimentMissingPipeline : experimentsMissingPipelines) {
-            logger.warn(experimentMissingPipeline);
-        }
-
-        for (String missingProcedure : missingProcedures) {
-            logger.warn(missingProcedure);
-        }
-
-        for (String experimentMissingProcedure : experimentsMissingProcedures) {
-            logger.warn(experimentMissingProcedure);
+        if ( ! missingProcedures.isEmpty()) {
+            logger.warn("Missing procedures: ");
+            missingProcedures.stream().sorted().forEach(System.out::println);
         }
 
         logger.info("Wrote {} sample-Level procedures", sampleLevelProcedureCount);
@@ -524,10 +504,7 @@ public class ExperimentLoader implements CommandLineRunner {
 
             PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
             if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
-                String errMsg = "Unable to get phenotypedColony for experiment samples for colonyId "
-                        + dccExperiment.getColonyId()
-                        + " to apply special 3i project remap rule. Rule NOT applied, defaulted to MGP project.";
-                missingColonyIds.add(errMsg);
+                missingColonyIds.add(dccExperiment.getColonyId());
 
             } else {
 
@@ -639,18 +616,20 @@ public class ExperimentLoader implements CommandLineRunner {
         dbId = cdaDb_idMap.get(dccExperiment.getDatasourceShortName());
 
         if (phenotypingCenterPk == null) {
-            missingCenters.add("Missing phenotyping center '" + dccExperiment.getPhenotypingCenter() + "'");
-            if (dccExperiment.isLineLevel()) {
-                experimentsMissingCenters.add("Null/invalid phenotyping center '" + dccExperiment.getPhenotypingCenter() + "'\tproject::colony::line\t" + dccExperiment.getProject() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
-            } else {
-                experimentsMissingCenters.add("Null/invalid phenotyping center '" + dccExperiment.getPhenotypingCenter() + "'\tproject::colony::experiment\t" + dccExperiment.getProject() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
+            if ( ! missingCenters.contains(dccExperiment.getPhenotypingCenter())) {
+                missingCenters.add(dccExperiment.getPhenotypingCenter());
+                if (dccExperiment.isLineLevel()) {
+                    experimentsMissingCenters.add("Null/invalid phenotyping center '" + dccExperiment.getPhenotypingCenter() + "'\tproject::colony::line\t" + dccExperiment.getProject() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
+                } else {
+                    experimentsMissingCenters.add("Null/invalid phenotyping center '" + dccExperiment.getPhenotypingCenter() + "'\tproject::colony::experiment\t" + dccExperiment.getProject() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
+                }
             }
 
             return null;
         }
 
         if (dbId == null) {
-            missingDatasourceShortNames.add("Missing datasourceShortName '" + dccExperiment.getDatasourceShortName() + "'");
+            missingDatasourceShortNames.add(dccExperiment.getDatasourceShortName());
 
             return null;
         }
@@ -658,32 +637,38 @@ public class ExperimentLoader implements CommandLineRunner {
 
         projectPk = cdaProject_idMap.get(dccExperiment.getProject());
         if (projectPk == null) {
-            missingProjects.add("Missing project '" + dccExperiment.getProject() + "'");
-            if (dccExperiment.isLineLevel()) {
-                experimentsMissingProjects.add("Null/invalid project '" + dccExperiment.getProject() + "'\tcenter::colony::line\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
-            } else {
-                experimentsMissingProjects.add("Null/invalid project '" + dccExperiment.getProject() + "'\tcenter::colony::experiment\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
+            if ( ! missingProjects.contains(dccExperiment.getProject())) {
+                missingProjects.add(dccExperiment.getProject());
+                if (dccExperiment.isLineLevel()) {
+                    experimentsMissingProjects.add("Null/invalid project '" + dccExperiment.getProject() + "'\tcenter::colony::line\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
+                } else {
+                    experimentsMissingProjects.add("Null/invalid project '" + dccExperiment.getProject() + "'\tcenter::colony::experiment\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
+                }
             }
             return null;
         }
         pipelinePk = cdaPipeline_idMap.get(dccExperiment.getPipeline());
         if (pipelinePk == null) {
-            missingPipelines.add("Missing pipeline '" + dccExperiment.getPipeline() + "'");
-            if (dccExperiment.isLineLevel()) {
-                experimentsMissingPipelines.add("Null/invalid pipeline '" + dccExperiment.getPipeline() + "'\tcenter::colony::line\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
-            } else {
-                experimentsMissingPipelines.add("Null/invalid pipeline '" + dccExperiment.getPipeline() + "'\tcenter::colony::experiment\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
+            if ( ! missingPipelines.contains(dccExperiment.getPipeline())) {
+                missingPipelines.add(dccExperiment.getPipeline());
+                if (dccExperiment.isLineLevel()) {
+                    experimentsMissingPipelines.add("Null/invalid pipeline '" + dccExperiment.getPipeline() + "'\tcenter::colony::line\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
+                } else {
+                    experimentsMissingPipelines.add("Null/invalid pipeline '" + dccExperiment.getPipeline() + "'\tcenter::colony::experiment\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
+                }
             }
             return null;
         }
         pipelineStableId = dccExperiment.getPipeline();
         procedurePk = cdaProcedure_idMap.get(dccExperiment.getProcedureId());
         if (procedurePk == null) {
-            missingProcedures.add("Missing procedure '" + dccExperiment.getProcedureId() + "'");
-            if (dccExperiment.isLineLevel()) {
-                experimentsMissingProcedures.add("Null/invalid procedure '" + dccExperiment.getProcedureId() + "'\tcenter::colony::line\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
-            } else {
-                experimentsMissingProcedures.add("Null/invalid procedure '" + dccExperiment.getProcedureId() + "'\tcenter::colony::experiment\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
+            if ( ! missingProcedures.contains(dccExperiment.getProcedureId())) {
+                missingProcedures.add(dccExperiment.getProcedureId());
+                if (dccExperiment.isLineLevel()) {
+                    experimentsMissingProcedures.add("Null/invalid procedure '" + dccExperiment.getProcedureId() + "'\tcenter::colony::line\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
+                } else {
+                    experimentsMissingProcedures.add("Null/invalid procedure '" + dccExperiment.getProcedureId() + "'\tcenter::colony::experiment\t" + dccExperiment.getPhenotypingCenter() + "::" + dccExperiment.getColonyId() + "::" + dccExperiment.getExperimentId());
+                }
             }
             return null;
         }
@@ -775,7 +760,7 @@ public class ExperimentLoader implements CommandLineRunner {
 
             PhenotypedColony phenotypedColony = phenotypedColonyMap.get(dccExperiment.getColonyId());
             if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
-                missingColonyIds.add("Null/invalid colony '" + dccExperiment.getColonyId() + "'\tcenter\t" + dccExperiment.getPhenotypingCenter());
+                missingColonyIds.add(dccExperiment.getColonyId());
                 return null;
             }
 
@@ -1012,7 +997,9 @@ public class ExperimentLoader implements CommandLineRunner {
         SimpleDateFormat dateFormat  = new SimpleDateFormat("yyyy-MM-dd");
 
         Date dccDate = dccExperiment.getDateOfExperiment();
-        String message = "Invalid experiment date '" + dccDate + "' for center " + dccExperiment.getPhenotypingCenter();
+        String message = "Invalid experiment date '" + dccDate + "'" +
+                " for datasource " + dccExperiment.getDatasourceShortName() +
+                ", center " + dccExperiment.getPhenotypingCenter();
 
         try {
 
@@ -1366,9 +1353,15 @@ public class ExperimentLoader implements CommandLineRunner {
                     try {
                         timePoint = simpleDateFormat.parse(parsedIncrementValue);                                       // timePoint (overridden if increment value represents a date.
                         SimpleDateFormat ymdFormat = new SimpleDateFormat("yyyy-MM-dd");
+
                         Date maxDate = new Date();
                         Date minDate = ymdFormat.parse("1975-01-01");
-                        String message = "Invalid timepoint date '" + ymdFormat.format(timePoint) + "' for center " + dccExperiment.getPhenotypingCenter();
+                        String message = "Invalid timepoint date '" + ymdFormat.format(timePoint) + "'" +
+                                " for datasource " + dccExperiment.getDatasourceShortName() +
+                                ", center " + dccExperiment.getPhenotypingCenter() +
+                                ", experimentId '" + dccExperiment.getExperimentId() + "'";
+
+
                         if ( ! commonUtils.isDateValid(timePoint, minDate, maxDate)) {
                             valueMissing = 1;
                             badDates.add(message);

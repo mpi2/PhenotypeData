@@ -78,10 +78,10 @@ public class SearchController {
         Integer pageNumber = Integer.parseInt(page);
         Integer rowsPerPage = Integer.parseInt(rows);
         Integer start = (pageNumber-1) * rowsPerPage;
-        
+
         	term=removeSpecialCharacters(term);
         	type=removeSpecialCharacters(type);
-        
+
 
         if (type.equalsIgnoreCase("gene")) {
             model = searchGenes(term, start, rowsPerPage, model);

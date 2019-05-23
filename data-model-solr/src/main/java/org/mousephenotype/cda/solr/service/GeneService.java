@@ -56,7 +56,8 @@ public class GeneService extends BasicService implements WebStatus{
 	private static final Logger log = LoggerFactory.getLogger(GeneService.class);
 
 	public static final class GeneFieldValue {
-		public final static String CENTRE_WTSI = "WTSI";
+		// on 05-Apr-2019 the WTSI tests started breaking because the DCC renamed WTSI to WSI. Change to WSI here.
+		public final static String CENTRE_WTSI = "WSI";
 		public final static String PHENOTYPE_STATUS_COMPLETE = "Phenotyping Complete";
 		public final static String PHENOTYPE_STATUS_STARTED = "Phenotyping Started";
 	}
@@ -75,9 +76,8 @@ public class GeneService extends BasicService implements WebStatus{
 	 */
 	public Set<String> getGenesByLatestPhenotypeStatusAndProductionCentre(
 			String latestPhenotypeStatus,
-                        String latestProductionCentre)
-			throws SolrServerException, IOException {
-
+            String latestProductionCentre) throws SolrServerException, IOException
+	{
 		SolrQuery solrQuery = new SolrQuery();
 		String queryString = "(" + GeneDTO.LATEST_PHENOTYPE_STATUS + ":\""
 				+ latestPhenotypeStatus + "\") AND ("

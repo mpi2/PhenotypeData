@@ -43,6 +43,7 @@ import org.springframework.util.Assert;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 /**
  * Loads the specimens from a database with a dcc schema into the cda database.
@@ -75,6 +76,7 @@ public class SampleLoader implements CommandLineRunner {
 
     private NamedParameterJdbcTemplate jdbcCda;
 
+    private static Set<String> backgroundStrainMismatches  = new ConcurrentSkipListSet<>();
     private static Set<String> missingCenters              = new ConcurrentSkipListSet<>();
     private static Set<String> missingColonyIds            = new ConcurrentSkipListSet<>();
     private static Set<String> missingDatasourceShortNames = new ConcurrentSkipListSet<>();
@@ -223,28 +225,46 @@ public class SampleLoader implements CommandLineRunner {
         executor.shutdown();
 
 
-        // Log warning sets
+        // Log infos
 
-        for (String missingColonyId : missingColonyIds) {
-            logger.warn(missingColonyId);
+
+        if ( ! backgroundStrainMismatches.isEmpty()) {
+            logger.info("Background strain mismatches: imits_background_strain::DCC_specimen_strain:");
+            backgroundStrainMismatches.stream().sorted().forEach(System.out::println);
         }
 
-        for (MissingColonyId missing : missingColonyMap.values()) {
-            if (missing.getLogLevel() == 1) {
-                // Log the message as a warning
-                logger.warn(missing.getReason() + ". colonyId: " + missing.getColonyId());
 
-                // Add the missing colony id to the missing_colony_id table and set log_level to INFO.
-                cdaSqlUtils.insertMissingColonyId(missing.getColonyId(), 0, missing.getReason());
-            }
+        // Log warnings
+
+
+        // Remove any colonyIds that are already known to be missing.
+        missingColonyIds = missingColonyIds
+                .stream()
+                .filter(colonyId -> ! missingColonyMap.containsKey(colonyId))
+                .collect(Collectors.toSet());
+
+        // Log any remaining missing colonyIds and add them to the missing_colony_id table.
+        if ( ! missingColonyIds.isEmpty()) {
+            logger.warn("Missing colony ids:");
+        }
+        missingColonyIds
+                .stream()
+                .sorted()
+                .map(colonyId -> {
+                    System.out.println(colonyId);
+                    cdaSqlUtils.insertMissingColonyId(colonyId, 0, "Missing from SampleLoader");
+                    return colonyId;
+                })
+                .collect(Collectors.toList());
+
+        if ( ! missingDatasourceShortNames.isEmpty()) {
+            logger.warn("Missing datasourceShortNames:");
+            missingDatasourceShortNames.stream().sorted().forEach(System.out::println);
         }
 
-        for (String missingDatasourceShortName : missingDatasourceShortNames) {
-            logger.warn(missingDatasourceShortName);
-        }
-
-        for (String missingCenter : missingCenters) {
-            logger.warn(missingCenter);
+        if ( ! missingCenters.isEmpty()) {
+            logger.warn("Missing centers: ");
+            missingCenters.stream().sorted().forEach(System.out::println);
         }
     }
 
@@ -306,10 +326,7 @@ public class SampleLoader implements CommandLineRunner {
 
             PhenotypedColony phenotypedColony = phenotypedColonyMap.get(specimen.getColonyID());
             if ((phenotypedColony == null) || (phenotypedColony.getColonyName() == null)) {
-                String errMsg = "Unable to get phenotypedColony for experiment samples for colonyId "
-                        + specimen.getColonyID()
-                        + " to apply special 3i project remap rule. Rule NOT applied, defaulted to MGP project.";
-                missingColonyIds.add(errMsg);
+                missingColonyIds.add(specimen.getColonyID());
 
             } else {
 
@@ -361,14 +378,23 @@ public class SampleLoader implements CommandLineRunner {
 
             // If iMits has the colony, use it to get the strain name.
             if (colony != null) {
+
+                // Log any mutant background strain mismatches between imits and the DCC, ignoring null and blank specimens
+                if (( ! specimen.isIsBaseline())
+                        && ( ! colony.getBackgroundStrain().equalsIgnoreCase(specimen.getStrainID()))
+                        && (specimen.getStrainID() != null)
+                        && ( ! specimen.getStrainID().trim().equals("null"))
+                        && ( ! specimen.getStrainID().trim().isEmpty())) {
+                    backgroundStrainMismatches.add(colony.getBackgroundStrain() + "::" + specimen.getStrainID());
+                }
+
                 specimen.setStrainID(colony.getBackgroundStrain());
             }
 
             // If the strainId is still null, the colonyId was not found in iMits and the specimen.strainId is null.
             // We cannot create a strain without a strain name, so treat this as a missing colonyId.
             if ((specimen.getStrainID() == null) || (specimen.getStrainID().trim().isEmpty())) {
-                String message = "Specimen not found in phenotyped_colony table and specimen strainId is null. colonyId: " + specimen.getColonyID();
-                missingColonyIds.add(message);
+                missingColonyIds.add(specimen.getColonyID());
                 return null;
             }
 
@@ -430,7 +456,7 @@ public class SampleLoader implements CommandLineRunner {
             return null;
         }
         if (dbId == null) {
-            missingDatasourceShortNames.add("Missing datasourceShortName '" + specimenExtended.getDatasourceShortName() + "'");
+            missingDatasourceShortNames.add(specimenExtended.getDatasourceShortName());
             return null;
         }
 

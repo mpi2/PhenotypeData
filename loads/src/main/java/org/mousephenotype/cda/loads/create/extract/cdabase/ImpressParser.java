@@ -16,13 +16,16 @@
 
 package org.mousephenotype.cda.loads.create.extract.cdabase;
 
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
+import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.mousephenotype.impress.GetParameterIncrementsResponse;
-import org.mousephenotype.impress.GetParameterMPTermsResponse;
-import org.mousephenotype.impress.GetParameterOptionsResponse;
-import org.mousephenotype.impress.wsdlclients.*;
+import org.mousephenotype.cda.loads.create.extract.cdabase.support.ImpressUtils;
+import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.impress2.ImpressParamMpterm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
@@ -33,8 +36,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -45,85 +48,85 @@ import java.sql.SQLException;
 import java.util.*;
 
 /*
- *  Classes generated using this command line:
+ * Impress Version 2
  *
- *  1. Create a temporary directory for the generated sources and targets and create the sources and targets directories:
- *     mkdir ~/impresswsdl
- *  2. cd to ~/impresswsdl
- *  3. mkdir sources
- *  4. mkdir targets
- *  5. Create a wsdlclients xml file describing the service:
- *     A. Paste the url of the web service into a browser:
- *         https://www.mousephenotype.org/impress/soap/server\?wsdlclients
- *     B. Save the page: File -> Save Page As -> ~/impresswsdl/impresswsdl.xml
- *  6. Generate the classes:
- *         wsimport -keep -s `pwd`/sources -d `pwd`/targets -verbose -encoding UTF-8 -extension -Xnocompile -p org.mousephenotype.impress -wsdllocation https://www.mousephenotype.org/impress/soap/server\?wsdlclients "file:/Users/mrelac/impresswsdl/impresswsdl.xml"
- *  7. Create package org.mousephenotype.impress
- *  8. Copy the generated sources to the org.mousephenotype.impress package
- *         cp -r * ~/workspace/PhenotypeData/loads/src/main/java/
+ * Data read from the IMPRESS URL. See: https://api.mousephenotype.org/impress
+ *
  */
 
 @ComponentScan
+@Component
 public class ImpressParser implements CommandLineRunner {
 
     private DataSource         cdabaseDataSource;
     private CdaSqlUtils        cdabaseSqlUtils;
+    private ImpressUtils       impressUtils;
     private ApplicationContext context;
     private Datasource         datasource;
     private Logger             logger         = LoggerFactory.getLogger(this.getClass());
     private Integer            mpDbId;
     private Set<String>        normalCategory = new HashSet<>();
+    private Set<String>        omitPipelines  = new HashSet<>();
 
-    private Map<String, Parameter>    parametersByStableIdMap = new HashMap<>();                                        // This is the map of parameters indexed by parameter stableId
-    private Map<String, Procedure>    proceduresByStableIdMap = new HashMap<>();                                        // This is the map of procedures indexed by procedure stableId
-    private Map<String, OntologyTerm> updatedOntologyTerms;                                                             // This is the map of all ontology terms, updated, indexed by ontology accession id
+    // This is the map of all ontology terms, updated, indexed by original ontology accession id
+    private Map<String, OntologyTerm> updatedOntologyTermsByOriginalOntologyAccessionId;
 
     private final String IMPRESS_SHORT_NAME = "IMPReSS";
 
-    // SOAP web service classes
-    private ParameterMPTermsClient         parameterMPTermsClient;
-    private ParameterIncrementsClient      parameterIncrementsClient;
-    private ParameterOntologyOptionsClient parameterOntologyOptionsClient;
-    private ParameterOptionsClient         parameterOptionsClient;
-    private ParametersClient               parametersClient;
-    private PipelineClient                 pipelineClient;
-    private PipelineKeysClient             pipelineKeysClient;
-    private ProcedureClient                procedureClient;
-    private ProcedureKeysClient            procedureKeysClient;
+    // RESTful web service classes
+    private Map<Integer, Schedule>     schedulesById                   = new HashMap<>();
+    private Map<Integer, Procedure>    proceduresById                  = new HashMap<>();
+    private Map<Integer, Parameter>    parametersById                  = new HashMap<>();
+    private Map<Integer, String>       unitsById                       = new HashMap<>();
+    private Map<Integer, OntologyTerm> updatedOntologyTermsByStableKey = new HashMap<>();
+
+    // Sets for missing terms for display at the end of the run.
+    private Set<String> missingOntologyTerms = new HashSet<>();
+    private Set<String> missingMpTerms       = new HashSet<>();
+
+    // To support the -c / --component flag, these hold the pipelineId, scheduleId, procedureId, and parameterId.
+    // A value of 0 for any component  means process all of those components and their dependencies.
+    private int pipelineIdComponent = 0;
+    private int scheduleIdComponent = 0;
+    private int procedureIdComponent = 0;
+    private int parameterIdComponent = 0;
+
+    private int associationCounter = 0;
+
+
+    private final String[] OPT_HELP = {"h", "help"};
+    private final String[] OPT_OMIT_PIPELINES = {"o", "omitPipelines"};
+    private final String[] OPT_COMPONENT = {"c", "component"};
+
+    private final String OPT_OMIT_PIPELINES_DESCRIPTION =
+            "By default, no pipelines are omitted. Specify this parameter once for every pipeline you want to skip. The" +
+            " pipeline value you supply is an approximate 'starts-with' match, so you only need to specify the starting" +
+            " characters that uniquely identify the pipeline(s) you want to omit. You may specify this parameter multiple times.";
+    private final String OPT_COMPONENT_DESCRIPTION =
+            "By default, all pipelines, schedules, procedures, and parameters are processed. Use this option to execute" +
+            " a single pipelineId [::scheduleId [::procedureId [::parameterId]]]. This parameter may be specified only once.";
+    private boolean help    = false;
+
+    public static final String USAGE = "Usage: [--help/-h] | [--component/-c pipelineId[::scheduleId[::procedureId[::parameterId]]]] | [--omitPipelines/-o p1] [--omitPipelines/-o p2] [...]";
+
 
     @Inject
     @Lazy
     public ImpressParser(
             ApplicationContext context,
             CdaSqlUtils cdabaseSqlUtils,
-            DataSource cdabaseDataSource,
-            ParameterIncrementsClient parameterIncrementsClient,
-            ParameterMPTermsClient parameterMPTermsClient,
-            ParameterOntologyOptionsClient parameterOntologyOptionsClient,
-            ParameterOptionsClient parameterOptionsClient,
-            ParametersClient parametersClient,
-            PipelineClient pipelineClient,
-            PipelineKeysClient pipelineKeysClient,
-            ProcedureClient procedureClient,
-            ProcedureKeysClient procedureKeysClient
+            ImpressUtils impressUtils,
+            DataSource cdabaseDataSource
     ) {
         this.context = context;
         this.cdabaseSqlUtils = cdabaseSqlUtils;
+        this.impressUtils = impressUtils;
         this.cdabaseDataSource = cdabaseDataSource;
-        this.parameterIncrementsClient = parameterIncrementsClient;
-        this.parameterMPTermsClient = parameterMPTermsClient;
-        this.parameterOntologyOptionsClient = parameterOntologyOptionsClient;
-        this.parameterOptionsClient = parameterOptionsClient;
-        this.parametersClient = parametersClient;
-        this.pipelineClient = pipelineClient;
-        this.pipelineKeysClient = pipelineKeysClient;
-        this.procedureClient = procedureClient;
-        this.procedureKeysClient = procedureKeysClient;
     }
 
     /**
      * This class is intended to be a command-line callable java main program that creates and populates the impress
-     * tables using the impress SOAP web service.
+     * tables using the impress 2 rest web service.
      */
     public static void main(String[] args) throws Exception {
         SpringApplication app = new SpringApplication(ImpressParser.class);
@@ -133,96 +136,60 @@ public class ImpressParser implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... strings) throws Exception {
+    public void run(String... args) throws Exception {
 
-        initialise();
+        initialise(args);
 
-        // LOAD PIPELINES
-        List<String> pipelineKeys = pipelineKeysClient.getPipelineKeys().getGetPipelineKeysResult().getItem();
+        // LOAD UNITS
+        unitsById = impressUtils.getUnits();
 
-        for (String pipelineKey : pipelineKeys) {
+        // LOAD ONTOLOGY TERM MAP FROM WEB SERVICE
+        Map<String, Integer> ontologyTermStableKeysByAccFromWs = impressUtils.getOntologyTermStableKeysByAccFromWs();
 
-            if (pipelineKey.startsWith("HAS_")) {
-                // Do not load the Harwell Ageing Screen pipeline (per Terry 2016-08-18)
-                logger.info("Skipping pipeline {} (the Harwell Ageing Screen pipeline)", pipelineKey);
+        // LOAD ontologyTermsByStableKey MAP WITH UPDATED TERMS
+        for (Map.Entry<String, Integer> entry : ontologyTermStableKeysByAccFromWs.entrySet()) {
+            String acc = entry.getKey();
+            Integer stableKey = entry.getValue();
+            OntologyTerm updatedTerm = updatedOntologyTermsByOriginalOntologyAccessionId.get(acc);
+            updatedOntologyTermsByStableKey.put(stableKey, updatedTerm);
+        }
+
+        // LOAD PIPELINES and their child elements
+        List<Pipeline> pipelines = impressUtils.getPipelines(datasource);
+
+        for (Pipeline pipeline : pipelines) {
+
+            // Skip any pipelines starting with the -o/--omitPipelines flag value(s) (multiple -o flags permitted)
+            if (shouldSkip(pipeline)) {
+                logger.info("Skipping omitted pipelineId {} ({})", pipeline.getStableKey(), pipeline.getStableId());
                 continue;
             }
 
-            logger.info("Loading pipeline {}", pipelineKey);
+            loadPipeline(pipeline);
+        }
 
-            Pipeline pipeline = null;
-
-            try {
-                pipeline = getPipeline(pipelineKey);
-            } catch (Exception e) {
-                e.printStackTrace();
-                logger.error("INSERT OF pipeline {} FAILED:", pipelineKey);
-                System.exit(1);
+        if ( ! missingOntologyTerms.isEmpty()) {
+            logger.info("Missing ontology terms:");
+            Collections.sort(new ArrayList<>(missingOntologyTerms));
+            for (String term : missingOntologyTerms) {
+                logger.warn(term);
             }
-            if (cdabaseSqlUtils.insertPhenotypePipeline(pipeline) == null) {
-                logger.warn("INSERT OF pipeline " + pipelineKey + " failed. Pipeline skipped...");
-                continue;
+        }
+
+        if ( ! missingMpTerms.isEmpty()) {
+            logger.info("Missing MP ontology terms:");
+            Collections.sort(new ArrayList<>(missingMpTerms));
+            for (String term : missingMpTerms) {
+                logger.warn(term);
             }
+        }
 
-            // LOAD PROCEDURES
-
-            /*
-             * If procedure DOES NOT EXIST in procedure map
-             *    INSERT procedure from web service
-             *    add to procedure map
-             *    If parameter DOES NOT EXIST in parameter map
-             *        INSERT parameter from web service
-             *        add to parameter map
-             *    INSERT phenotype_procedure_parameter
-             *
-             * INSERT phenotype_pipeline_procedure
-             */
-
-            List<String> procedureKeys = procedureKeysClient.getProcedureKeys(pipeline.getStableId()).getGetProcedureKeysResult().getItem();
-
-            for (String procedureKey : procedureKeys) {
-
-                logger.debug("  Loading procedure: {}", procedureKey);
-
-                Procedure procedure = proceduresByStableIdMap.get(procedureKey);
-                if (procedure == null) {
-                    procedure = getProcedure(procedureKey, pipeline);                                                   // Get the procedure details from the web service
-                    cdabaseSqlUtils.insertPhenotypeProcedure(pipeline.getId(), procedure);                              // INSERT the procedure
-                    try {
-                        proceduresByStableIdMap.put(procedure.getStableId(), procedure);                                    // Add the procedure to the map
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        logger.error("INSERT OF pipeline::procedure {}::{} FAILED", pipelineKey, procedureKey);
-                        System.exit(1);
-                    }
-
-                    // LOAD PARAMETERS
-                    NodeList parameterNodesMap = ((Element) parametersClient.getParameters(procedureKey).getGetParametersResult()).getChildNodes();
-                    for (int i = 0; i < parameterNodesMap.getLength(); i++) {
-                        NodeList  parameterNodes = parameterNodesMap.item(i).getChildNodes();
-                        Parameter parameter      = getParameter(parameterNodes, procedure);
-
-                        logger.debug("    Loading parameter: {}", parameter.getStableId());
-
-                        if ( ! parametersByStableIdMap.containsKey(parameter.getStableId())) {
-                            try {
-                                parameter = insertParameter(parameter, procedure, pipelineKey);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                logger.error("INSERT OF pipeline::procedure::parameter {}::{}::{} FAILED", pipelineKey, procedureKey, parameter.getStableId());
-                                System.exit(1);
-                            }
-                            if (parameter == null) {
-                                continue;                                                                               // If the INSERT failed, continue on to the next parameter
-                            }
-                            parametersByStableIdMap.put(parameter.getStableId(), parameter);
-                        }
-
-                        cdabaseSqlUtils.insertPhenotypeProcedureParameter(procedure.getId(), parameter.getId());        // INSERT into the phenotype_procedure_parameter lookup table
-                    }
-                }
-
-                cdabaseSqlUtils.insertPhenotypePipelineProcedure(pipeline.getId(), procedure.getId());                  // INSERT into the phenotype_pipeline_procedure lookup table
+        Set<String> exceptions = impressUtils.getExceptions();
+        if ( ! exceptions.isEmpty()) {
+            System.out.println(" ");
+            logger.info("exceptions:");
+            for (String exception : exceptions) {
+                logger.warn(exception);
             }
         }
     }
@@ -231,7 +198,122 @@ public class ImpressParser implements CommandLineRunner {
     // PRIVATE METHODS
 
 
-    private void initialise() throws IOException, SQLException {
+    @Transactional
+    public void loadPipeline(Pipeline pipeline) {
+
+        if ((pipelineIdComponent > 0) && (pipeline.getStableKey() != pipelineIdComponent)) {
+            return;
+        }
+
+        System.out.println(" ");
+        logger.info("***** Loading pipelineId {} ({}) *****", pipeline.getStableKey(), pipeline.getStableId());
+
+        if (cdabaseSqlUtils.insertPhenotypePipeline(pipeline) == null) {
+            logger.warn("INSERT OF pipeline {} ({}) FAILED. PIPELINE SKIPPED...", pipeline.getStableKey(), pipeline.getStableId());
+            return;
+        }
+
+
+        // LOAD SCHEDULES
+        for (Integer scheduleId : pipeline.getScheduleCollection()) {
+
+            if ((scheduleIdComponent > 0) && (scheduleId != scheduleIdComponent)) {
+                continue;
+            }
+
+            Schedule schedule = schedulesById.get(scheduleId);
+
+            if (schedule == null) {
+                schedule = impressUtils.getSchedule(pipeline.getStableKey(), scheduleId);
+                schedulesById.put(scheduleId, schedule);
+
+                logger.debug("      Loading pipelineId::scheduleId {}::{}", pipeline.getStableKey(), scheduleId);
+            }
+
+
+            // LOAD PROCEDURES
+            for (Integer procedureId : schedule.getProcedureCollection()) {
+
+                if ((procedureIdComponent > 0) && (procedureId != procedureIdComponent)) {
+                    continue;
+                }
+
+                Procedure procedure = proceduresById.get(procedureId);
+
+                if (procedure == null) {
+
+                    procedure = impressUtils.getProcedure(pipeline.getStableKey(), scheduleId, procedureId, datasource);
+                    if (procedure == null) {
+                        logger.warn("Unable to get procedureId {}. Skipping...", procedureId);
+                        continue;
+                    }
+
+                    // Add SCHEDULE components to PROCEDURE
+                    procedure.setStageLabel(schedule.getTimeLabel());
+                    procedure.setStage(schedule.getStage());
+
+                    proceduresById.put(procedureId, procedure);
+
+                    logger.info("    Loading pipelineId::scheduleId::procedureId::procedureKey {}::{}::{}::{}", pipeline.getStableKey(), scheduleId, procedureId, procedure.getStableId());
+
+                    if (cdabaseSqlUtils.insertPhenotypeProcedure(pipeline.getId(), procedure) == null) {
+                        logger.warn("INSERT OF procedureId {} ({}) FAILED. PROCEDURE SKIPPED...", procedure.getStableKey(), procedure.getStableId());
+                        continue;
+                    }
+                }
+
+
+                // LOAD PARAMETERS
+                for (Integer parameterId : procedure.getParameterCollection()) {
+
+                    if ((parameterIdComponent > 0) && (parameterId != parameterIdComponent)) {
+                        continue;
+                    }
+
+                    logger.debug("      Loading pipelineId::scheduleId::procedureId::parameterId   {}::{}::{}::{}", pipeline.getStableKey(), schedule.getScheduleId(), procedure.getStableKey(), parameterId);
+                    Parameter parameter = parametersById.get(parameterId);
+
+                    if (parameter == null) {
+
+                        parameter = impressUtils.getParameter(pipeline.getStableKey(), scheduleId, procedureId, parameterId, datasource, unitsById);
+                        if (parameter == null) {
+                            logger.warn("Unable to get parameterId {}. Skipping...", parameterId);
+                            continue;
+                        }
+                        parametersById.put(parameterId, parameter);
+
+                        logger.debug("INSERTing parameterId {} ({})", parameter.getStableKey(), parameter.getStableId());
+
+                        parameter = insertParameter(pipeline, parameter, procedure, pipeline.getStableId());
+                        if (parameter == null) {
+                            logger.warn("INSERT OF parameterId {} ({}) FAILED. PARAMETER SKIPPED...", parameter.getStableKey(), parameter.getStableId());
+                            continue;
+                        }
+                    }
+
+                    // INSERT into the phenotype_procedure_parameter lookup table
+                    cdabaseSqlUtils.insertPhenotypeProcedureParameter(procedure.getId(), parameter.getId());
+                }
+
+                // INSERT into the phenotype_pipeline_procedure lookup table
+                cdabaseSqlUtils.insertPhenotypePipelineProcedure(pipeline.getId(), procedure.getId());
+            }
+        }
+    }
+
+
+    private void initialise(String[] args) throws IOException, SQLException {
+
+        // Parse and load command-line parameters
+        OptionParser parser  = new OptionParser();
+        OptionSet    options = parseOptions(parser, args);
+
+        logger.info("Program Arguments: " + (args.length > 0 ? StringUtils.join(args, ", ") : "<none>"));
+
+        if (help) {
+            parser.printHelpOn(System.out);
+            System.exit(0);
+        }
 
         datasource = new Datasource();
         datasource.setShortName(IMPRESS_SHORT_NAME);
@@ -242,7 +324,7 @@ public class ImpressParser implements CommandLineRunner {
         // Create impress tables
         String impressSchemaLocation = "scripts/impress_schema.sql";
 
-        logger.info("[re]creating IMPReSS tables from : " + impressSchemaLocation);
+        logger.info("recreating IMPReSS tables from : " + impressSchemaLocation);
         Resource r = context.getResource(impressSchemaLocation);
         ScriptUtils.executeSqlScript(cdabaseDataSource.getConnection(), r);
 
@@ -261,354 +343,205 @@ public class ImpressParser implements CommandLineRunner {
 
         // Load updated ontology terms
         List<OntologyTerm> originalTerms = cdabaseSqlUtils.getOntologyTerms();
-        updatedOntologyTerms = cdabaseSqlUtils.getUpdatedOntologyTermMap(originalTerms, null, null);     // We're trying to update all terms. Ignore infos and warnings, as most don't apply to IMPReSS.
+        updatedOntologyTermsByOriginalOntologyAccessionId = cdabaseSqlUtils.getUpdatedOntologyTermMap(originalTerms, null, null);     // We're trying to update all terms. Ignore infos and warnings, as most don't apply to IMPReSS.
+
+        logger.info("impress.service.url = {}", impressUtils.getImpressServiceUrl());
     }
 
-    private List<ParameterIncrement> getIncrements(String parameterKey) {
 
-        List<ParameterIncrement> parameterIncrements = new ArrayList<>();
+    protected OptionSet parseOptions(OptionParser parser, String[] args) {
 
-        List<Map<String, String>> incrementsList = new ArrayList<>();
+        OptionSet options = null;
+        OptionSpec<String> omitSpec;
+        OptionSpec<String> componentSpec;
 
+        parser.allowsUnrecognizedOptions();
 
-        // Create a map of increments from the IMPReSS web service.
-        GetParameterIncrementsResponse response              = parameterIncrementsClient.getParameterIncrements(parameterKey);
-        NodeList                       incrementNodeList = ((Element) response.getGetParameterIncrementsResult()).getChildNodes();
+        parser.acceptsAll(Arrays.asList(OPT_HELP), "Display help/usage information\t" + USAGE)
+                .forHelp();
 
-        // Parse out the keys and values for this parameter increment
-        for (int i = 0; i < incrementNodeList.getLength(); i++) {
-            NodeList incrementNodes = incrementNodeList.item(i).getChildNodes();
+        omitSpec = parser.acceptsAll(Arrays.asList(OPT_OMIT_PIPELINES), OPT_OMIT_PIPELINES_DESCRIPTION)
+                .withRequiredArg()
+                .withValuesSeparatedBy(",")
+                .forHelp();
 
-            Map<String, String> incrementChildNodeListMap = new HashMap<>();
+        componentSpec = parser.acceptsAll(Arrays.asList(OPT_COMPONENT), OPT_COMPONENT_DESCRIPTION)
+                .withRequiredArg()
+                .forHelp();
 
-            // Parse out the keys and values for this parameter
-            for (int j = 0; j < incrementNodes.getLength(); j++) {
-                NodeList incrementChildNodeList = incrementNodes.item(j).getChildNodes();
-                incrementChildNodeListMap.put(incrementChildNodeList.item(0).getTextContent(), incrementChildNodeList.item(1).getTextContent());
-            }
+        try {
 
-            incrementsList.add(incrementChildNodeListMap);
+            options = parser.parse(args);
+
+        } catch (Exception e) {
+
+            System.out.println(e.getLocalizedMessage());
+            System.out.println(usage());
+            System.exit(1);
         }
 
-        for (Map<String, String> map : incrementsList) {
-            ParameterIncrement increment = new ParameterIncrement();
-            increment.setDataType(map.get("type").toUpperCase());
-            increment.setMinimum(map.get("min"));
-            increment.setUnit(map.get("unit"));
-            increment.setValue(map.get("string"));
-
-            parameterIncrements.add(increment);
+        help = (options.has("help"));
+        if (options.has("o")) {
+            omitPipelines.addAll(options.valuesOf(omitSpec));
         }
 
-        return parameterIncrements;
+        if (options.has("c")) {
+            String components = options.valueOf(componentSpec);
+            parseComponents(components);
+        }
+
+        return options;
     }
 
-    private List<ParameterOption> getOptions(String parameterKey) {
+    private void parseComponents(String components) {
 
-        List<ParameterOption> parameterOptions = new ArrayList<>();
-
-        List<Map<String, String>> optionsList = new ArrayList<>();
-
-        GetParameterOptionsResponse response = parameterOptionsClient.getParameterOptions(parameterKey);
-        NodeList optionNodeList = ((Element) response.getGetParameterOptionsResult()).getChildNodes();
-
-        for (int i = 0; i < optionNodeList.getLength(); i++) {
-            NodeList optionNodes = optionNodeList.item(i).getChildNodes();
-
-            Map<String, String> optionChildNodeListMap = new HashMap<>();
-
-            // Parse out the keys and values for this parameter
-            for (int j = 0; j < optionNodes.getLength(); j++) {
-                NodeList optionChildNodeList = optionNodes.item(j).getChildNodes();
-                optionChildNodeListMap.put(optionChildNodeList.item(0).getTextContent(), optionChildNodeList.item(1).getTextContent());
-            }
-
-            optionsList.add(optionChildNodeListMap);
+        String[] parts = components.split("::");
+        if (parts.length > 4) {
+            System.out.println(usage());
+            System.exit(1);
         }
 
-        for (Map<String, String> map : optionsList) {
-            ParameterOption option = new ParameterOption();
-            option.setName(map.get("name"));
-            option.setDescription(map.get("description"));
+        Integer i;
+        switch (parts.length) {
+            case 4:
+                i = CommonUtils.tryParseInt(parts[3]);
+                if (i == null) {
+                    System.out.println(usage());
+                    System.exit(1);
+                }
+                parameterIdComponent = i;
 
-            // This is the same format as the populate method, parameterStableId_NormalOption
-            String candidate = parameterKey + "_" + option.getName();
-            option.setNormalCategory(normalCategory.contains(candidate));
+            case 3:
+                i = CommonUtils.tryParseInt(parts[2]);
+                if (i == null) {
+                    System.out.println(usage());
+                    System.exit(1);
+                }
+                procedureIdComponent = i;
 
-            parameterOptions.add(option);
+            case 2:
+                i = CommonUtils.tryParseInt(parts[1]);
+                if (i == null) {
+                    System.out.println(usage());
+                    System.exit(1);
+                }
+                scheduleIdComponent = i;
+
+            case 1:
+                i = CommonUtils.tryParseInt(parts[0]);
+                if (i == null) {
+                    System.out.println(usage());
+                    System.exit(1);
+                }
+                pipelineIdComponent = i;
+
         }
-
-        return parameterOptions;
     }
 
-    private Parameter getParameter(NodeList parameterNodes, Procedure procedure) {
-
-        Parameter parameter;
-        Map<String, String> map = new HashMap<>();
-
-        // Parse out the keys and values for this parameter
-        for (int j = 0; j < parameterNodes.getLength(); j++) {
-            NodeList m = parameterNodes.item(j).getChildNodes();
-            map.put(m.item(0).getTextContent(), m.item(1).getTextContent());
-        }
-
-        String parameterStableId = map.get("parameter_key");
-
-        parameter = parametersByStableIdMap.get(parameterStableId);
-        if (parameter == null) {
-            parameter = new Parameter();
-            parameter.setStableId(map.get("parameter_key"));
-            parameter.setStableKey(Integer.parseInt(map.get("parameter_id")));
-            parameter.setDatasource(datasource);
-            parameter.setName(map.get("parameter_name"));
-            parameter.setDescription(map.get("description"));
-            parameter.setMajorVersion(Integer.parseInt(map.get("major_version")));
-            parameter.setMinorVersion(Integer.parseInt(map.get("minor_version")));
-            parameter.setType(map.get("type"));
-            parameter.setRequiredFlag(Boolean.parseBoolean(map.get("is_required")));
-            parameter.setRequiredForDataAnalysisFlag(Boolean.parseBoolean(map.get("is_required_for_data_analysis")));
-            parameter.setDataAnalysisNotes(map.get("data_analysis_notes"));
-            parameter.setOptionsFlag(Boolean.parseBoolean(map.get("is_option")));
-            parameter.setMetaDataFlag(map.get("type").equals("procedureMetadata"));
-            parameter.setMediaFlag(Boolean.parseBoolean(map.get("is_media")));
-            parameter.setIncrementFlag(Boolean.parseBoolean(map.get("is_increment")));
-            parameter.setDerivedFlag(Boolean.parseBoolean(map.get("is_derived")));
-            parameter.setAnnotateFlag(Boolean.parseBoolean(map.get("is_annotation")));
-            if (parameter.getDerivedFlag()) {
-                parameter.setFormula(map.get("derivation"));
-            }
-
-            parameter.setUnit(map.get("unit"));
-
-            parameter.setDatatype(map.get("value_type"));
-        }
-
-        procedure.addParameter(parameter);
-
-        return parameter;
+    private String usage() {
+        return USAGE;
     }
 
-    private List<ParameterOntologyAnnotationWithSex> getPhenotypeParameterOntologyAssociations(String pipelineKey, String procedureKey, Parameter parameter) {
+    private List<ParameterOntologyAnnotationWithSex> getPhenotypeParameterOntologyAssociations(Pipeline pipeline, Procedure procedure, Parameter parameter) {
 
-        List<ParameterOntologyAnnotationWithSex> annotations          = new ArrayList<>();
+        List<ParameterOntologyAnnotationWithSex> annotations = new ArrayList<>();
 
-        // Get the map of ontology terms from the IMPReSS web service.
-        List<Map<String, String>> ontologyTermsFromWs = new ArrayList<>();
-        NodeList ontologyTermMap = ((Element) parameterOntologyOptionsClient.getParameterOntologyOptions(parameter.getStableId()).getGetParameterOntologyOptionsResult()).getChildNodes();
+        // Get this parameter's ontology annotations.
+        // NOTE: if ontologyTermsFromWs is null, continue on to the mp ontology terms.
+        Map<String, String> ontologyTermsFromWs = impressUtils.getOntologyTermsFromWs(pipeline.getStableKey(), procedure.getScheduleKey(), procedure.getStableKey(), parameter);
+        if (ontologyTermsFromWs != null) {
 
-        for (int i = 0; i < ontologyTermMap.getLength(); i++) {
-            NodeList ontologyTermNodes = ontologyTermMap.item(i).getChildNodes();
+            for (Map.Entry<String, String> entry : ontologyTermsFromWs.entrySet()) {
 
-            Map<String, String> map = new HashMap<>();
+                ParameterOntologyAnnotationWithSex ontologyAnnotation = new ParameterOntologyAnnotationWithSex();
 
-            // Parse out the keys and values for this parameter
-            for (int j = 0; j < ontologyTermNodes.getLength(); j++) {
-                NodeList m = ontologyTermNodes.item(j).getChildNodes();
-                map.put(m.item(0).getTextContent(), m.item(1).getTextContent());
-            }
+                String originalOntologyAcc  = entry.getKey();                                                           // Get the original accession id
+                String originalOntologyName = ImpressUtils.newlineToSpace(entry.getValue());                            // Get the original ontology term
 
-            ontologyTermsFromWs.add(map);
-        }
-
-        /*
-         * Loop through this parameter's ontology terms, creating an ontologyAnnotation for each term. Add each
-          * ontologyAnnotation to this parameter's annotations list.
-         */
-        for (Map<String, String> ontologyTermFromWs : ontologyTermsFromWs) {
-
-            ParameterOntologyAnnotationWithSex ontologyAnnotation = new ParameterOntologyAnnotationWithSex();
-
-            if (ontologyTermFromWs.get("sex") != null && ! ontologyTermFromWs.get("sex").isEmpty()) {                   // Get SexType
-                SexType sexType = getSexType(ontologyTermFromWs.get("sex"), parameter.getStableId());
-                ontologyAnnotation.setSex(sexType);
-            }
-
-            String       ontologyAcc  = ontologyTermFromWs.get("ontology_id");                                          // Extract the ontology term accession id from the web service
-            String       ontologyName = ontologyTermFromWs.get("ontology_term");                                        // Extract the term name from the web service in case we need to create one.
-            OntologyTerm ontologyTerm = updatedOntologyTerms.get(ontologyAcc);                                          // Get the updated ontology term
-            if (ontologyTerm == null) {
-
-                if ((ontologyAcc == null) || (ontologyAcc.trim().isEmpty())) {
-                    logger.error("NO ONTOLOGY TERM WAS FOUND FOR pipeline::procedure::parameter {}::{}::{}, ontologyAcc '{}', ontologyName '{}'. Skipping parameter...",
-                                 pipelineKey, procedureKey, parameter.getStableId(), ontologyAcc, ontologyName);
+                OntologyTerm updatedOntologyTerm = getUpdatedOntologyTerm(originalOntologyAcc, originalOntologyName, pipeline, procedure, parameter);
+                if (updatedOntologyTerm == null) {
                     continue;
                 }
 
-                DatasourceEntityId dsId = new DatasourceEntityId();
-                dsId.setAccession(ontologyAcc);
-                dsId.setDatabaseId(mpDbId);
-
-                ontologyTerm = new OntologyTerm();
-                ontologyTerm.setId(dsId);
-                ontologyTerm.setName(ontologyName == null || ontologyName.trim().isEmpty() ? ontologyAcc : ontologyName.trim());
-                ontologyTerm.setDescription(ontologyTerm.getName());
-                ontologyTerm.setIsObsolete(false);
-
-                cdabaseSqlUtils.insertOntologyTerm(ontologyTerm);
-                updatedOntologyTerms.put(ontologyTerm.getId().getAccession(), ontologyTerm);
-
-                logger.warn("Created ontology term {}, name '{}' for pipeline::procedure::parameter {}::{}::{}", ontologyTerm.getId(), ontologyTerm.getName(), pipelineKey, procedureKey, parameter.getStableId());
+                ontologyAnnotation.setOntologyTerm(updatedOntologyTerm);
+                parameter.addAnnotation(ontologyAnnotation);
+                annotations.add(ontologyAnnotation);
             }
-
-            ontologyAnnotation.setOntologyTerm(ontologyTerm);
-            parameter.addAnnotation(ontologyAnnotation);
-            annotations.add(ontologyAnnotation);
         }
 
-        // Create a map of MP terms from the IMPReSS web service.
-        GetParameterMPTermsResponse response = parameterMPTermsClient.getParameterMPTerms(parameter.getStableId());
-        NodeList mpOntologyTermMap = ((Element) response.getGetParameterMPTermsResult()).getChildNodes();
+        // Get this parameter's MP ontology annotations.
+        Map<String, String> mpOntologyTermsFromWs = impressUtils.getMpOntologyTermsFromWs(pipeline.getStableKey(), procedure.getScheduleKey(), procedure.getStableKey(), parameter);
+        if (mpOntologyTermsFromWs != null) {
 
-        List<Map<String, String>> mpOntologyTermsFromWs = new ArrayList<>();
+            // Get the outcome and sex for each of this parameter's MP terms
+            Map<String, List<ImpressParamMpterm>> impressParamMpTermsByOntologyTermAccessionId = impressUtils.getParamMpTermsByOntologyTermAccessionId(
+                    pipeline.getStableKey(), procedure.getScheduleKey(), procedure.getStableKey(), parameter, updatedOntologyTermsByStableKey);
 
-        for (int i = 0; i < mpOntologyTermMap.getLength(); i++) {
-            NodeList mpOntologyTermNodes = mpOntologyTermMap.item(i).getChildNodes();
+            for (Map.Entry<String, String> entry : mpOntologyTermsFromWs.entrySet()) {
 
-            Map<String, String> map = new HashMap<>();
+                String ontologyAcc  = entry.getKey();                                                                   // Get the accession id
+                String ontologyName = ImpressUtils.newlineToSpace(entry.getValue());                                    // Get the ontology term
 
-            // Parse out the keys and values for this parameter
-            for (int j = 0; j < mpOntologyTermNodes.getLength(); j++) {
-                NodeList m = mpOntologyTermNodes.item(j).getChildNodes();
-                map.put(m.item(0).getTextContent(), m.item(1).getTextContent());
-            }
-
-            mpOntologyTermsFromWs.add(map);
-        }
-
-        /*
-         * Loop through this parameter's mp ontology terms, creating an mpOntologyAnnotation for each mp term. Add each
-         * mpOntologyAnnotation to this parameter's annotations list. If no ontology term exists, create one using the
-         * ontologyAcc and ontologyName.
-         */
-        for (Map<String, String> mpOntologyTermFromWs : mpOntologyTermsFromWs) {
-
-            ParameterOntologyAnnotationWithSex mpOntologyAnnotation = new ParameterOntologyAnnotationWithSex();
-
-            String outcome = mpOntologyTermFromWs.get("selection_outcome");
-            PhenotypeAnnotationType phenotypeAnnotationType = ((outcome == null) || (outcome.trim().isEmpty()) ? null : PhenotypeAnnotationType.find(outcome));
-            mpOntologyAnnotation.setType(phenotypeAnnotationType);
-
-            if (mpOntologyTermFromWs.get("sex") != null && ! mpOntologyTermFromWs.get("sex").isEmpty()) {               // Get SexType
-                SexType sexType = getSexType(mpOntologyTermFromWs.get("sex"), parameter.getStableId());
-                mpOntologyAnnotation.setSex(sexType);
-            }
-
-            String       mpOntologyAcc  = mpOntologyTermFromWs.get("mp_id");                                            // Extract the mp term accession id from the web service
-            String       mpOntologyName = mpOntologyTermFromWs.get("mp_term");                                          // Extract the mp term name from the web service in case we need to create one.
-            OntologyTerm mpOntologyTerm = updatedOntologyTerms.get(mpOntologyAcc);                                      // Try to get the updated ontology term. Create and add it to the database and to the updatedOntologyTerms list if it is missing.
-            if (mpOntologyTerm == null) {
-
-                if ((mpOntologyAcc == null) || (mpOntologyAcc.trim().isEmpty())) {
-                    logger.error("NO MP ONTOLOGY TERM WAS FOUND FOR pipeline::procedure::parameter {}::{}::{}, mpOntologyAcc '{}', mpOntologyName '{}'. Skipping parameter...",
-                                 pipelineKey, procedureKey, parameter.getStableId(), mpOntologyAcc, mpOntologyName);
+                OntologyTerm ontologyTerm = getUpdatedOntologyTerm(ontologyAcc, ontologyName, pipeline, procedure, parameter); // If the ontology term can't be found/created, continue to the next.
+                if (ontologyTerm == null) {
                     continue;
                 }
 
-                DatasourceEntityId dsId = new DatasourceEntityId();
-                dsId.setAccession(mpOntologyAcc);
-                dsId.setDatabaseId(mpDbId);
+                // Remap original ontology acc and name to be updated.
+                ontologyAcc = ontologyTerm.getId().getAccession();
+                ontologyName = ontologyTerm.getName();
 
-                mpOntologyTerm = new OntologyTerm();
-                mpOntologyTerm.setId(dsId);
-                mpOntologyTerm.setName(mpOntologyName == null || mpOntologyName.trim().isEmpty() ? mpOntologyAcc : mpOntologyName.trim());
-                mpOntologyTerm.setDescription(mpOntologyTerm.getName());
-                mpOntologyTerm.setIsObsolete(false);
+                List<ImpressParamMpterm> paramMpterms = impressParamMpTermsByOntologyTermAccessionId.get(ontologyAcc);
+                if (paramMpterms == null) {
+                    logger.warn("No paramMpTerms for ontologyAcc {} for pipelineKey::scheduleId::procedureKey::parameterKey {}::{}::{}::{}",
+                                ontologyAcc, pipeline.getStableId(), procedure.getScheduleKey(), procedure.getStableId(), parameter.getStableId());
+                    continue;
+                }
+                for (ImpressParamMpterm paramMpterm : paramMpterms) {
 
-                cdabaseSqlUtils.insertOntologyTerm(mpOntologyTerm);
-                updatedOntologyTerms.put(mpOntologyTerm.getId().getAccession(), mpOntologyTerm);
+                    ParameterOntologyAnnotationWithSex mpOntologyAnnotation = new ParameterOntologyAnnotationWithSex();
 
-                logger.warn("Created MP ontology term {}, name '{}' for pipeline::procedure::parameter {}::{}::{}", mpOntologyTerm.getId(), mpOntologyTerm.getName(), pipelineKey, procedureKey, parameter.getStableId());
-            }
+                    // OUTCOME
+                    String outcome = paramMpterm.getSelectionOutcome();
+                    PhenotypeAnnotationType phenotypeAnnotationType = ((outcome == null) || (outcome.trim().isEmpty()) ? null : PhenotypeAnnotationType.find(outcome));
+                    mpOntologyAnnotation.setType(phenotypeAnnotationType);
 
-            if (parameter.isOptionsFlag()) {                                                                            // Add mp options as specified by the web service
-                if (mpOntologyTermFromWs.get("option").length() > 0) {
-                    String optionName = mpOntologyTermFromWs.get("option");
+                    // SEX
+                    String sex = paramMpterm.getSex();
+                    if ((sex != null) && (!sex.trim().isEmpty())) {                                                       // Get SexType
+                        SexType sexType = getSexType(sex, parameter.getStableId());
+                        mpOntologyAnnotation.setSex             (sexType);
+                    }
 
-                    // Look up the option in this parameter's options list so we can extract the phenotype_parameter_option primary key.
-                    for (ParameterOption parameterOption : parameter.getOptions()) {
-                        if (parameterOption.getName().equals(optionName)) {
-                            parameterOption.setNormalCategory(true);
-                            mpOntologyAnnotation.setOption(parameterOption);
-                            logger.debug("Associate " + outcome + " to option " + parameterOption.getName() + " to parameter " + parameter.getStableId() + " with MP Ontology term '" + mpOntologyTermFromWs.get("mp_term") + "'. ");
-                            break;
+                    // OPTIONS - If this ontology term has options, wire them up.
+                    if (parameter.isOptionsFlag()) {
+                        String optionName = paramMpterm.getOptionText();
+
+                        // Look up the option in this parameter's options list so we can extract the phenotype_parameter_option primary key.
+                        for (ParameterOption parameterOption : parameter.getOptions()) {
+                            if (parameterOption.getName().equals(optionName)) {
+                                parameterOption.setNormalCategory(true);
+                                mpOntologyAnnotation.setOption(parameterOption);
+
+                                // log every 1000th association for spot checking.
+                                if ((++associationCounter % 200) == 0) {
+                                    logger.info("Associate outcome {} to option {} for parameterKey {} ({}) with MP Ontology term {}", outcome, parameterOption.getName(), parameter.getStableId(), parameter.getStableKey(), ontologyTerm.getId().getAccession());
+                                }
+                                break;
+                            }
                         }
                     }
-                } else {
-                    logger.debug("Associate " + outcome + " to parameter " + parameter.getStableId() + " with MP Ontology term '" + mpOntologyTermFromWs.get("mp_term") + "'.");
+
+                    mpOntologyAnnotation.setOntologyTerm(ontologyTerm);
+                    parameter.addAnnotation(mpOntologyAnnotation);
+                    annotations.add(mpOntologyAnnotation);
                 }
             }
-
-            mpOntologyAnnotation.setOntologyTerm(mpOntologyTerm);
-            parameter.addAnnotation(mpOntologyAnnotation);
-            annotations.add(mpOntologyAnnotation);
         }
 
         return annotations;
     }
 
-    private Pipeline getPipeline(String pipelineKey) {
-
-        NodeList pipelineNodes = ((Element) pipelineClient.getPipeline(pipelineKey).getGetPipelineResult()).getChildNodes();
-
-        Map<String, String> map = new HashMap<>();
-        // Parse out the keys and values for this pipeline
-        for (int j = 0; j < pipelineNodes.getLength(); j++) {
-            NodeList m = pipelineNodes.item(j).getChildNodes();
-            map.put(m.item(0).getTextContent(), m.item(1).getTextContent());
-        }
-
-        logger.debug("Parsed pipeline map: {}", map);
-
-        Pipeline pipeline = new Pipeline();
-        pipeline.setStableId(map.get("pipeline_key"));
-        pipeline.setStableKey(Integer.valueOf(map.get("pipeline_id")));
-        pipeline.setDatasource(datasource);
-        pipeline.setName(map.get("pipeline_name"));
-        pipeline.setDescription(map.get("description"));
-        pipeline.setMajorVersion(Integer.parseInt(map.get("major_version")));
-        pipeline.setMinorVersion(Integer.parseInt(map.get("minor_version")));
-
-        return pipeline;
-    }
-
-    private Procedure getProcedure(String procedureKey, Pipeline pipeline) {
-
-        Procedure procedure;
-        Map<String, String> map = new HashMap<>();
-
-        NodeList procedureNodes = ((Element) procedureClient.getProcedure(procedureKey, pipeline.getStableId()).getGetProcedureResult()).getChildNodes();
-
-        // Parse out the keys and values for this procedure
-        for (int j = 0; j < procedureNodes.getLength(); j++) {
-            NodeList m = procedureNodes.item(j).getChildNodes();
-            map.put(m.item(0).getTextContent(), m.item(1).getTextContent());
-        }
-
-        String procedureStableId = map.get("procedure_key");
-
-        procedure = proceduresByStableIdMap.get(procedureStableId);
-        if (procedure == null) {
-            procedure = new Procedure();
-            procedure.setStableId(procedureStableId);
-            procedure.setStableKey(Integer.parseInt(map.get("procedure_id")));
-            procedure.setDatasource(datasource);
-            procedure.setName(map.get("procedure_name"));
-            procedure.setDescription(map.get("description"));
-            procedure.setStage(map.get("stage"));
-            procedure.setStageLabel(map.get("stage_label"));
-            procedure.setLevel(map.get("level"));
-            procedure.setMajorVersion(Integer.parseInt(map.get("major_version")));
-            procedure.setMinorVersion(Integer.parseInt(map.get("minor_version")));
-            procedure.setMandatory(Boolean.parseBoolean(map.get("is_mandatory")));
-
-            procedure.addPipeline(pipeline);
-        }
-
-        pipeline.addProcedure(procedure);
-
-        return procedure;
-    }
-    
     private SexType getSexType(String sex, String parameterKey) {
 
         // Default value for sexType is null
@@ -625,12 +558,49 @@ public class ImpressParser implements CommandLineRunner {
         return sexType;
     }
 
+
+    private OntologyTerm getUpdatedOntologyTerm(String ontologyAcc, String ontologyName, Pipeline pipeline, Procedure procedure, Parameter parameter) {
+        OntologyTerm ontologyTerm = updatedOntologyTermsByOriginalOntologyAccessionId.get(ontologyAcc);                                          // Get the updated ontology term if it exists.
+        if (ontologyTerm == null) {
+
+            if ((ontologyAcc == null) || (ontologyAcc.trim().isEmpty())) {
+                logger.error("Empty/null ontologyAcc for {}({})::{}({})::{}({}). Skipping ...",
+                             pipeline.getStableKey(), pipeline.getStableId(),
+                             procedure.getStableKey(), procedure.getStableId(),
+                             parameter.getStableKey(), parameter.getStableId());
+                return null;
+            }
+
+            DatasourceEntityId dsId = new DatasourceEntityId();
+            dsId.setAccession(ontologyAcc);
+            dsId.setDatabaseId(mpDbId);
+
+            ontologyTerm = new OntologyTerm();
+            ontologyTerm.setId(dsId);
+            ontologyTerm.setName(ontologyName == null || ontologyName.trim().isEmpty() ? ontologyAcc : ontologyName.trim());
+            ontologyTerm.setDescription(ontologyTerm.getName());
+            ontologyTerm.setIsObsolete(false);
+
+            cdabaseSqlUtils.insertOntologyTerm(ontologyTerm);
+            updatedOntologyTermsByOriginalOntologyAccessionId.put(ontologyTerm.getId().getAccession(), ontologyTerm);
+
+            logger.warn("Created ontology term {}, name '{}' for {}({})::{}({})::{}({})",
+                        ontologyTerm.getId(), ontologyTerm.getName(),
+                        pipeline.getStableKey(), pipeline.getStableId(),
+                        procedure.getStableKey(), procedure.getStableId(),
+                        parameter.getStableKey(), parameter.getStableId());
+        }
+
+        return ontologyTerm;
+    }
+
+
     /**
      * Inserts the specified {@link Parameter} and any related increments, options, and ontology annotations
      * @param parameter the {@link Parameter} instance to be inserted
      * @return the same {@link Parameter} instance, with primary keys set, if successful; null otherwise
      */
-    private Parameter insertParameter(Parameter parameter, Procedure procedure, String pipelineKey) {
+    private Parameter insertParameter(Pipeline pipeline, Parameter parameter, Procedure procedure, String pipelineKey) {
         Integer phenotypeParameterPk = cdabaseSqlUtils.insertPhenotypeParameter(parameter);
         if (phenotypeParameterPk == null) {
             logger.warn("INSERT OF pipeline::procedure::parameter " + pipelineKey + "::" + procedure.getStableId() + "::" + phenotypeParameterPk + " failed. Parameter skipped...");
@@ -639,21 +609,37 @@ public class ImpressParser implements CommandLineRunner {
 
         // INCREMENTS
         if (parameter.isIncrementFlag()) {
-            List<ParameterIncrement> increments = getIncrements(parameter.getStableId());
+
+            List<ParameterIncrement> increments = impressUtils.getIncrements(pipeline.getStableKey(), procedure.getScheduleKey(), procedure.getStableKey(), parameter.getStableKey());
             cdabaseSqlUtils.insertPhenotypeParameterIncrements(parameter.getId(), increments);
         }
 
         // OPTIONS
         if (parameter.isOptionsFlag()) {
-            List<ParameterOption> options = getOptions(parameter.getStableId());
+
+            List<ParameterOption> options = impressUtils.getOptions(pipeline.getStableKey(), procedure.getScheduleKey(), procedure.getStableKey(), parameter, normalCategory);
             cdabaseSqlUtils.insertPhenotypeParameterOptions(parameter.getId(), options);
             parameter.setOptions(options);                                                                              // Set the list of options (with their primary keys) for use by the next step.
         }
 
         // ONTOLOGY ANNOTATIONS
-        List<ParameterOntologyAnnotationWithSex> annotations = getPhenotypeParameterOntologyAssociations(pipelineKey, procedure.getStableId(), parameter);
+        List<ParameterOntologyAnnotationWithSex> annotations =
+                getPhenotypeParameterOntologyAssociations(pipeline, procedure, parameter);
         cdabaseSqlUtils.insertPhenotypeParameterOntologyAnnotations(parameter.getId(), annotations);
 
         return parameter;
+    }
+
+
+    private boolean shouldSkip(Pipeline pipeline) {
+        String pipelineStableId = pipeline.getStableId();
+        for (String omitPipeline : omitPipelines) {
+            if (pipelineStableId.startsWith(omitPipeline)) {
+
+                return true;
+            }
+        }
+
+        return false;
     }
 }

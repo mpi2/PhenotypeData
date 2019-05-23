@@ -989,6 +989,10 @@ public class StatisticalResultDTO {
         }
     }
 
+    public String getLifeStageName() {
+        return lifeStageName;
+    }
+
     public List<String> getFemaleIntermediateMpTermName() {
 
         return femaleIntermediateMpTermName;

@@ -59,15 +59,15 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
 
     private final String[] expectedHeadings = new String[] {
             "Marker Symbol"
-          , "MGI Accession ID"
-          , "Colony Name"
-          , "Es Cell Name"
-          , "Colony Background Strain"
-          , "Cohort Production Centre"
-          , "Production Consortium"
-          , "Phenotyping Centre"
-          , "Phenotyping Consortium"
-          , "Allele Symbol"
+            , "MGI Accession ID"
+            , "Colony Name"
+            , "Es Cell Name"
+            , "Colony Background Strain"
+            , "Cohort Production Centre"
+            , "Production Consortium"
+            , "Phenotyping Centre"
+            , "Phenotyping Consortium"
+            , "Allele Symbol"
     };
 
 
@@ -85,15 +85,15 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
         if (lineNumber == 1) {
             String[] actualHeadings = new String[] {
                     newPhenotypedColony.getGene().getSymbol()
-                  , newPhenotypedColony.getGene().getId().getAccession()
-                  , newPhenotypedColony.getColonyName()
-                  , newPhenotypedColony.getEs_cell_name()
-                  , newPhenotypedColony.getBackgroundStrain()
-                  , newPhenotypedColony.getProductionCentre().getName()
-                  , newPhenotypedColony.getProductionConsortium().getName()
-                  , newPhenotypedColony.getPhenotypingCentre().getName()
-                  , newPhenotypedColony.getPhenotypingConsortium().getName()
-                  , newPhenotypedColony.getAlleleSymbol()
+                    , newPhenotypedColony.getGene().getId().getAccession()
+                    , newPhenotypedColony.getColonyName()
+                    , newPhenotypedColony.getEs_cell_name()
+                    , newPhenotypedColony.getBackgroundStrain()
+                    , newPhenotypedColony.getProductionCentre().getName()
+                    , newPhenotypedColony.getProductionConsortium().getName()
+                    , newPhenotypedColony.getPhenotypingCentre().getName()
+                    , newPhenotypedColony.getPhenotypingConsortium().getName()
+                    , newPhenotypedColony.getAlleleSymbol()
             };
 
             for (int i = 0; i < expectedHeadings.length; i++) {

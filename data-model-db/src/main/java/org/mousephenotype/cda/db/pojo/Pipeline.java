@@ -26,12 +26,16 @@ package org.mousephenotype.cda.db.pojo;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
 @Entity
 @Table(name = "phenotype_pipeline")
 public class Pipeline extends PipelineEntry {
+
+    @Transient
+    private List<Integer> scheduleCollection;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
@@ -63,4 +67,11 @@ public class Pipeline extends PipelineEntry {
         this.procedures = procedures;
     }
 
+    public List<Integer> getScheduleCollection() {
+        return scheduleCollection;
+    }
+
+    public void setScheduleCollection(List<Integer> scheduleCollection) {
+        this.scheduleCollection = scheduleCollection;
+    }
 }

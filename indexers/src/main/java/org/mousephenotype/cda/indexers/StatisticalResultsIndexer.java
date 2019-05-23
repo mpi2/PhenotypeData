@@ -860,7 +860,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                     doc.addMpTermIdOptions(term.getIntermediateIds());
                     doc.addMpTermNameOptions(term.getIntermediateNames());
                 }else{
-                	logger.info("term is null in indexer for mpId"+mpId);
+                	logger.debug("term is null in indexer for mpId"+mpId);
                 }
 
             });

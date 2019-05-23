@@ -179,9 +179,9 @@ public class TestConfigSolr {
 		return new HttpSolrClient(solrBaseUrl + "/statistical-result");
 	}
 
-	@Bean(name = "phenotypeCenterService")
+	@Bean
 	PhenotypeCenterService phenotypeCenterService() {
-		return new PhenotypeCenterService(solrBaseUrl + "/experiment", impressService);
+		return new PhenotypeCenterService(getExperimentCore());
 	}
 
 
