@@ -330,6 +330,7 @@ public class OntologyParser {
 
         TERM_REPLACED_BY = factory.getOWLAnnotationProperty(IRI.create("http://purl.obolibrary.org/obo/IAO_0100001"));
 
+System.out.println("OntologyParser: PATH TO OWLFILE:" + pathToOwlFile);
         ontology = manager.loadOntologyFromOntologyDocument(IRI.create(new File(pathToOwlFile)));
 
         ancestorsCache = new HashMap<>();
