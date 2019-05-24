@@ -173,9 +173,8 @@
             </div>
 
 
-            <%-- <p> No hits that meet the p value threshold. <jsp:include page="heatmapFrag.jsp"/></p> --%>
             <c:if test="${ attemptRegistered && !phenotypeStarted }">
-                <div class="alert alert-info">
+                <div class="alert alert-info mt-3">
                     <h5>Registered for phenotyping</h5>
 
                     <p>Phenotyping is planned for a knockout strain of this gene but
@@ -184,12 +183,11 @@
             </c:if>
 
 
-            <c:if test="${!attemptRegistered}">
-                <div class="alert alert-info">
+            <c:if test="${!attemptRegistered and allMeasurementsNumber <= 0}">
+                <div class="alert alert-info mt-3">
                     <h5>Not currently registered for phenotyping</h5>
 
-                    <p>Phenotyping is currently not planned for a knockout strain of this gene.
-                    </p>
+                    <p>Phenotyping is currently not planned for a knockout strain of this gene.</p>
                 </div>
             </c:if>
 

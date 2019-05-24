@@ -317,14 +317,23 @@
             <div class="row">
                 <div class="col-12 white-bg">
                     <div class="page-content pt-3 pb-5">
-                        <div class="float-right"><a href="${cmsBaseUrl}/help/gene-page/lacz-expression/" target="_blank"><i class="fa fa-question-circle" style="font-size: xx-large"></i></a></div>
+                        <div class="container">
+                            <div class="row justify-content-end pb-1">
+                                <div class="float-right"><a href="${cmsBaseUrl}/help/gene-page/lacz-expression/" target="_blank"><i class="fa fa-question-circle" style="font-size: xx-large"></i></a></div>
+                            </div>
+
+
                         <c:if test="${empty impcAdultExpressionImageFacetsWholemount
                                                   and empty impcAdultExpressionImageFacetsSection
                                                   and empty expressionAnatomyToRow
                                                   and empty impcEmbryoExpressionImageFacets
                                                   and empty embryoExpressionAnatomyToRow
                                                   and empty expressionFacets}">
-                            <div class="alert alert-warning mt-3">Expression data not available</div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="alert alert-warning mt-3">Expression data not available</div>
+                                </div>
+                            </div>
                         </c:if>
 
                         <c:if test="${not empty impcAdultExpressionImageFacetsWholemount
@@ -332,7 +341,8 @@
                                                   or not empty expressionAnatomyToRow
                                                   or not empty impcEmbryoExpressionImageFacets
                                                   or not empty embryoExpressionAnatomyToRow}">
-
+                                    <div class="row">
+                                        <div class="col-12">
                             <h4>IMPC lacZ Expression Data</h4>
                             <!-- section for expression data here -->
                             <ul class="nav nav-tabs" id="expressionTab" role="tablist">
@@ -414,7 +424,10 @@
                                         </c:choose>
                                     </div--%>
                             </div>
+                                        </div>
+                                    </div>
                         </c:if>
+                    </div>
                     </div>
                 </div>
             </div>
