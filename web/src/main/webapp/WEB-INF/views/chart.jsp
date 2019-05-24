@@ -54,6 +54,8 @@
             <div class="container single single--no-side">
 
             <div class="breadcrumbs" style="box-shadow: none; margin-top: auto; margin: auto; padding: auto">
+                <div style="float: right;"><a href="${cmsBaseUrl}/help/quick-guide-to-the-website/chart-page/" target="_blank" style="color: #ce6211;"><i class="fa fa-question-circle" style="font-size: xx-large"></i></a></div>
+
                 <div class="row">
                     <div class="col-md-12">
                         <p><a href="/">Home</a> <span>></span>

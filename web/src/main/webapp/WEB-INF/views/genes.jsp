@@ -271,7 +271,7 @@
         <div class="container data-heading">
             <div class="row row-shadow">
                 <div class="col-12 no-gutters">
-                    <h2>Gene: ${gene.markerSymbol} <i class="fal fa-bell" style="float: right"></i></h2>
+                    <h2>Gene: ${gene.markerSymbol} <a href="${cmsBaseUrl}/help/gene-page/" target="_blank"><i class="fa fa-question-circle" style="float: right; color: #212529;"></i></a></h2>
                 </div>
             </div>
         </div>
@@ -313,9 +313,11 @@
         </div>
 
         <div class="container single single--no-side">
+
             <div class="row">
                 <div class="col-12 white-bg">
-                    <div class="page-content pt-5 pb-5">
+                    <div class="page-content pt-3 pb-5">
+                        <div class="float-right"><a href="${cmsBaseUrl}/help/gene-page/lacz-expression/" target="_blank"><i class="fa fa-question-circle" style="font-size: xx-large"></i></a></div>
                         <c:if test="${empty impcAdultExpressionImageFacetsWholemount
                                                   and empty impcAdultExpressionImageFacetsSection
                                                   and empty expressionAnatomyToRow
@@ -429,27 +431,35 @@
         <div class="container single single--no-side">
             <div class="row">
                 <div class="col-12 white-bg">
-                    <div class="page-content pt-5 pb-5">
-                        <div>
-                            <c:if test="${empty impcImageGroups and empty solrFacets}">
-                                <div class="alert alert-warningmt-3">Phenotype associated images not available</div>
-                            </c:if>
+                    <div class="page-content pt-3 pb-5">
+                        <div class="container">
+                            <div class="row justify-content-end pb-1">
+                                <div class="float-right"><a href="${cmsBaseUrl}/help/gene-page/images/" target="_blank"><i class="fa fa-question-circle" style="font-size: xx-large"></i></a></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <c:if test="${empty impcImageGroups and empty solrFacets}">
+                                        <div class="alert alert-warning mt-3">Phenotype associated images not available</div>
+                                    </c:if>
 
-                            <c:if test="${not empty impcImageGroups or not empty solrFacets}">
-                                <c:if test="${not empty impcImageGroups}">
-                                    <jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>
-                                </c:if>
-
-                                <c:if test="${not empty impcImageFacets and not empty solrFacets}">
-                                    <hr>
-                                </c:if>
-
-                                <c:if test="${not empty solrFacets}">
-                                    <h5>Legacy Phenotype Associated Images</h5>
-                                    <jsp:include page="genesLegacyPhenoAssocImg_frag.jsp"></jsp:include>
-                                </c:if>
-
-                            </c:if>
+                                    <c:if test="${not empty impcImageGroups or not empty solrFacets}">
+                                        <c:if test="${not empty impcImageGroups}">
+                                            <jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>
+                                        </c:if>
+                                    </c:if>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <c:if test="${not empty impcImageFacets and not empty solrFacets}">
+                                        <hr>
+                                    </c:if>
+                                    <c:if test="${not empty solrFacets}">
+                                        <h5>Legacy Phenotype Associated Images</h5>
+                                        <jsp:include page="genesLegacyPhenoAssocImg_frag.jsp"></jsp:include>
+                                    </c:if>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -469,49 +479,59 @@
         <div class="container single single--no-side">
             <div class="row">
                 <div class="col-12 white-bg">
-                    <div class="page-content pb-5">
-                        <ul class="nav nav-tabs" id="diseasesTab" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link active" id="byAnnotation-tab" data-toggle="tab" href="#byAnnotation"
-                                   role="tab" aria-controls="byAnnotation-tab" aria-selected="false">By Annotation and
-                                    Orthology (<span id="diseases_by_annotation_count">0</span>)</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="byPhenotype-tab" data-toggle="tab" href="#byPhenotype"
-                                   role="tab" aria-controls="byPhenotype-tab" aria-selected="false">By phenotypic
-                                    Similarity (<span id="diseases_by_phenotype_count">0</span>)</a>
-                            </li>
-                        </ul>
-                        <div class="tab-content mt-2" id="diseasesTabContent">
-                            <div class="tab-pane fade show active" id="byAnnotation" role="tabpanel"
-                                 aria-labelledby="byAnnotation-tab">
-                                <c:choose>
-                                    <c:when test="${!hasModelsByOrthology}">
-                                        <div class="alert alert-warning mt-3">
-                                            No associations by disease annotation and gene orthology found.
-                                        </div>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <table id="diseases_by_annotation"
-                                               class="table tablesorter disease" style="width:100%"></table>
-                                    </c:otherwise>
-                                </c:choose>
+                    <div class="page-content pt-3 pb-5">
+                        <div class="container">
+                            <div class="row justify-content-end">
+                                <div class="float-right"><a href="${cmsBaseUrl}/help/gene-page/disease-models/" target="_blank"><i class="fa fa-question-circle" style="font-size: xx-large"></i></a></div>
                             </div>
-                            <div class="tab-pane fade" id="byPhenotype" role="tabpanel"
-                                 aria-labelledby="byPhenotype-tab">
-                                <c:choose>
-                                    <c:when test="${empty modelAssociations}">
-                                        <div class="alert alert-warning mt-3">
-                                            No associations by phenotypic similarity found.
+                            <div class="row">
+                                <div class="col-12">
+                                    <ul class="nav nav-tabs" id="diseasesTab" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" id="byAnnotation-tab" data-toggle="tab" href="#byAnnotation"
+                                               role="tab" aria-controls="byAnnotation-tab" aria-selected="false">By Annotation and
+                                                Orthology (<span id="diseases_by_annotation_count">0</span>)</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="byPhenotype-tab" data-toggle="tab" href="#byPhenotype"
+                                               role="tab" aria-controls="byPhenotype-tab" aria-selected="false">By phenotypic
+                                                Similarity (<span id="diseases_by_phenotype_count">0</span>)</a>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content mt-2" id="diseasesTabContent">
+                                        <div class="tab-pane fade show active" id="byAnnotation" role="tabpanel"
+                                             aria-labelledby="byAnnotation-tab">
+                                            <c:choose>
+                                                <c:when test="${!hasModelsByOrthology}">
+                                                    <div class="alert alert-warning mt-3">
+                                                        No associations by disease annotation and gene orthology found.
+                                                    </div>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <table id="diseases_by_annotation"
+                                                           class="table tablesorter disease" style="width:100%"></table>
+                                                </c:otherwise>
+                                            </c:choose>
                                         </div>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <table id="diseases_by_phenotype" class="table tablesorter disease"
-                                               style="width:100%"></table>
-                                    </c:otherwise>
-                                </c:choose>
+                                        <div class="tab-pane fade" id="byPhenotype" role="tabpanel"
+                                             aria-labelledby="byPhenotype-tab">
+                                            <c:choose>
+                                                <c:when test="${empty modelAssociations}">
+                                                    <div class="alert alert-warning mt-3">
+                                                        No associations by phenotypic similarity found.
+                                                    </div>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <table id="diseases_by_phenotype" class="table tablesorter disease"
+                                                           style="width:100%"></table>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -529,8 +549,17 @@
         <div class="container single single--no-side">
             <div class="row">
                 <div class="col-12 white-bg">
-                    <div class="page-content pt-5 pb-5">
-                        <jsp:include page="orderSectionFrag.jsp"></jsp:include>
+                    <div class="page-content pt-3 pb-5">
+                        <div class="container">
+                            <div class="row justify-content-end">
+                                <div><a href="${cmsBaseUrl}/help/gene-page/ordering-mice-or-mouse-prodcuts/"><i class="fa fa-question-circle" style="font-size: xx-large"></i></a></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <jsp:include page="orderSectionFrag.jsp"></jsp:include>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
