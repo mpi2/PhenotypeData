@@ -339,7 +339,7 @@ public class ExperimentLoader implements CommandLineRunner {
             logger.info("Missing colonyIds::reason");
             missingColonyMap.values()
                     .stream()
-                    .sorted()
+                    .sorted(Comparator.comparing(MissingColonyId::getColonyId))
                     .forEach(missing -> System.out.println(missing.getColonyId() + "::" + missing.getReason()));
         }
 
