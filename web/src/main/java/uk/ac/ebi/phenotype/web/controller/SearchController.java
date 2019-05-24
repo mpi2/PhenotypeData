@@ -33,8 +33,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Controller
@@ -79,10 +77,6 @@ public class SearchController {
         Integer rowsPerPage = Integer.parseInt(rows);
         Integer start = (pageNumber-1) * rowsPerPage;
 
-        	term=removeSpecialCharacters(term);
-        	type=removeSpecialCharacters(type);
-
-
         if (type.equalsIgnoreCase("gene")) {
             model = searchGenes(term, start, rowsPerPage, model);
         } else {
@@ -92,10 +86,6 @@ public class SearchController {
         Long numberOfResults = Long.parseLong((String)model.asMap().get("numberOfResults"));
         Long numPages = (long) Math.ceil((double) numberOfResults / rowsPerPage);
 
-//        if(term.contentEquals("*")) {
-//        	term="";//change back to empty string
-//        	//note need to set this to get around javascript hacking when using direct ${param.term} in jsp
-//        }
         model.addAttribute("term", term);
         model.addAttribute("type", type);
         model.addAttribute("currentPage", pageNumber);
@@ -105,22 +95,7 @@ public class SearchController {
 
         return "search";
     }
-    /**
-     * remove coding from the search string so javascript cannot be hacked on the search interface
-     * @param searchString
-     * @return
-     */
-    private String removeSpecialCharacters(String searchString) {
-    	Pattern pt = Pattern.compile("[^a-zA-Z0-9\\s]");//allow spaces also as well as alpha numeric characters.
-        Matcher match= pt.matcher(searchString);
-        while(match.find())
-        {
-            String s= match.group();
-            searchString=searchString.replaceAll("\\"+s, "");
-        }
-        System.out.println(searchString);
-        return searchString;
-	}
+
 
 
     private Model searchGenes(String term, Integer start, Integer rows, Model model) throws SolrServerException, IOException {
