@@ -364,19 +364,24 @@ public class SampleLoader implements CommandLineRunner {
          * {@link StrainMapper} class takes care of remapping.
          *
          * NOTE: If the strain does not yet exist, it is created and inserted into the strain table.
-         *
-         * NOTE: This remapping takes precedence over the iMits background strain value, so if there is a
-         * {@link PhenotypedColony} entry for this strain, it should be updated with the remapped strain. This
-         * makes it safe to use later on.
          */
 
+        /*
+         * 24-May-2019 (mrelac)
+         * By DEV call consensus, the CDA and the DCA have agreed that the strain to be used for mutants shall be the
+         *  strain as provided by the DCC/centers rather than the imits colony strain. We also agreed to document all
+         *  cases where the dcc strain name for mutants does not match the (non-null, non-empty) colonyId strain name.
+         *
+         * A quick check of dcc_europhenome_final and dcc_10_0 for mutant specimens with null strain, strain = 'null',
+         * or strain = '' yielded 0 results.
+         */
 
-        // Get strain (remapped if necessary), phenotypingCenter, phenotypingCenterPk, and productionCenterPk. The
+        // Get phenotypingCenter, phenotypingCenterPk, and productionCenterPk. This block was added to prevent
+        // dereferencing of colony (which may be null) outside of this block.
         // extra block was added to make sure colony, which may be null, isn't dereferenced outside this block.
         {
             PhenotypedColony colony = phenotypedColonyMap.get(specimen.getColonyID());
 
-            // If iMits has the colony, use it to get the strain name.
             if (colony != null) {
 
                 // Log any mutant background strain mismatches between imits and the DCC, ignoring null and blank specimens
@@ -387,14 +392,11 @@ public class SampleLoader implements CommandLineRunner {
                         && ( ! specimen.getStrainID().trim().isEmpty())) {
                     backgroundStrainMismatches.add(colony.getBackgroundStrain() + "::" + specimen.getStrainID());
                 }
-
-                specimen.setStrainID(colony.getBackgroundStrain());
             }
 
-            // If the strainId is still null, the colonyId was not found in iMits and the specimen.strainId is null.
-            // We cannot create a strain without a strain name, so treat this as a missing colonyId.
-            if ((specimen.getStrainID() == null) || (specimen.getStrainID().trim().isEmpty())) {
-                missingColonyIds.add(specimen.getColonyID());
+            // If this mutant's strainId is null, we cannot create a strain, so log an error and skip the specimen.
+            if ((specimen.getStrainID() == null) && ( ! specimen.isIsBaseline())) {
+                logger.error("Specimen {}'s strain is null. Skipping specimen.", specimen.getSpecimenID());
                 return null;
             }
 
