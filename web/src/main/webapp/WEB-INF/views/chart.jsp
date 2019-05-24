@@ -58,9 +58,9 @@
 
                 <div class="row">
                     <div class="col-md-12">
-                        <p><a href="/">Home</a> <span>></span>
-                            <a href="${baseUrl}/search">Genes</a> <span>></span>
-                            <a href="${baseUrl}/genes/${gene.mgiAccessionId}">${gene.markerSymbol}</a> <span>></span>
+                        <p><a href="/">Home</a> <span><span class="fal fa-angle-right"></span></span>
+                            <a href="${baseUrl}/search">Genes</a> <span><span class="fal fa-angle-right"></span></span>
+                            <a href="${baseUrl}/genes/${gene.mgiAccessionId}">${gene.markerSymbol}</a> <span><span class="fal fa-angle-right"></span></span>
                             ${parameter.procedureNames[0]} / ${parameter.name}
                         </p>
                     </div>

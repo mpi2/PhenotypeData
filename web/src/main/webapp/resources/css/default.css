@@ -6239,7 +6239,7 @@ ul#menu-top-nav li a {
     padding-bottom: 7px;
     padding-top: 15px; }
 ul#menu-top-nav li a:hover {
-    border-bottom: 5px solid #fff;
+    border-bottom: 5px solid #8e8e8e;
     text-decoration: none; }
 ul#menu-top-nav li.current-menu-item a {
     border-bottom: 5px solid #fff; }
@@ -6691,7 +6691,7 @@ ul#menu-top-nav li.current-menu-item a {
     margin: 0; }
 .breadcrumbs a {
     color: black;
-    text-decoration: underline;
+    text-decoration: none;
     text-decoration-color: #978f89;
     margin-right: 20px; }
 .breadcrumbs span {
