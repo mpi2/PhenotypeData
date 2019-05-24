@@ -7450,3 +7450,10 @@ hr {
     background-color: #ececec;
 }
 
+ul#menu-footer-access {
+    padding: 0;
+    margin: 0; }
+ul#menu-footer-access li {
+    display: inline;
+    font-size: 80%;
+    margin-left: 10px; }
