@@ -27,7 +27,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 @SpringBootApplication
@@ -592,14 +595,25 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     }
 
 
-    /* NOTE: updated on 2016/05/03 to 100 x [S―(PP1_S + PP2_S + PP3_S + PP4_S)/4]/S */
-    /** Formula :  IMPC_ACS_037_001	"IMPC_ACS_007_001 IMPC_ACS_008_001 + IMPC_ACS_009_001 + IMPC_ACS_010_001 + 4 / IMPC_ACS_006_001 - IMPC_ACS_006_001 / 100 *"
+    /**
+     * NOTE: updated on 2016/05/03 to 100 x [S―(PP1_S + PP2_S + PP3_S + PP4_S)/4]/S
+     *
+     * Formula :  IMPC_ACS_037_001	"IMPC_ACS_007_001 IMPC_ACS_008_001 + IMPC_ACS_009_001 + IMPC_ACS_010_001 + 4 / IMPC_ACS_006_001 - IMPC_ACS_006_001 / 100 *"
      * x = ( IMPC_ACS_007_001 + IMPC_ACS_008_001 + IMPC_ACS_009_001 + IMPC_ACS_010_001 ) / 4;
      * x -= IMPC_ACS_006_001 ;
      * x /= IMPC_ACS_006_001 ;
      * x *= 100 ;
+     *
+     * NOTE: updated on 2019/05/22
+     *
+     * Per Elissa Chessler @ JAX on behalf of the Behaviour working group 2019-05
+     * If PPI_4 is provided (it's an optional parameter in IMPReSS), use all four PPI intervals to
+     * compute the derived parameter, else use PPI_1, 2, and 3 only (they are all required parameters)
+     *
+     * When 3 values are provided, the formula is: 100 * ((S - ((PP1_S + PP2_S + PP3_S) / 3)) / S)
+     * When 4 values are provided, the formula is: 100 * ((S - ((PP1_S + PP2_S + PP3_S + PP4_S) / 4)) / S)
      */
-    private int IMPC_ACS_037_001()
+    protected int IMPC_ACS_037_001()
             throws SQLException{
 
         int i = 0;
@@ -607,12 +621,13 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         deleteObservationsForParameterId(parameterToCreate);
         Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
 
+        String IMPC_ACS_006_001 = "IMPC_ACS_006_001";
         String IMPC_ACS_007_001 = "IMPC_ACS_007_001";
         String IMPC_ACS_008_001 = "IMPC_ACS_008_001";
         String IMPC_ACS_009_001 = "IMPC_ACS_009_001";
         String IMPC_ACS_010_001 = "IMPC_ACS_010_001";
-        String IMPC_ACS_006_001 = "IMPC_ACS_006_001";
 
+        // Gather set of data that contains all 4 PP parameters
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(IMPC_ACS_007_001);
         paramsOfInterest.add(IMPC_ACS_008_001);
@@ -621,7 +636,18 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         paramsOfInterest.add(IMPC_ACS_010_001);
 
         Map<String, Map<String, ObservationDTO>> parameterMap = new HashMap<>();
-        Set<String> animalIds =  getResultsIntersectionByParameter(paramsOfInterest, parameterMap);
+        Set<String> animalIds = new HashSet<>(getResultsIntersectionByParameter(paramsOfInterest, parameterMap));
+
+        // Gather set of data that contains just 3 PP parameters
+        paramsOfInterest = new ArrayList<>();
+        paramsOfInterest.add(IMPC_ACS_006_001);
+        paramsOfInterest.add(IMPC_ACS_007_001);
+        paramsOfInterest.add(IMPC_ACS_008_001);
+        paramsOfInterest.add(IMPC_ACS_009_001);
+
+        Set<String> threeSet = getResultsIntersectionByParameter(paramsOfInterest, parameterMap);
+        animalIds.addAll(threeSet);
+
 
         for (String id: animalIds){
             if (parameterMap.get(IMPC_ACS_006_001).get(id).getDataPoint() != 0){ // denominator
@@ -629,32 +655,32 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 ObservationDTO dto = parameterMap.get(IMPC_ACS_007_001).get(id);
                 Datasource datasource = datasourcesById.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
-//                String metadataGroup = parameterMap.get(IMPC_ACS_007_001).get(id).getMetadataGroup() + "_" +
-//                        parameterMap.get(IMPC_ACS_008_001).get(id).getMetadataGroup() + "_" +
-//                        parameterMap.get(IMPC_ACS_009_001).get(id).getMetadataGroup() + "_" +
-//                        parameterMap.get(IMPC_ACS_006_001).get(id).getMetadataGroup() + "_" +
-//                        parameterMap.get(IMPC_ACS_010_001).get(id).getMetadataGroup();
-//                String metadata = parameterMap.get(IMPC_ACS_007_001).get(id).getMetadataCombined() + "_" +
-//                        parameterMap.get(IMPC_ACS_008_001).get(id).getMetadataCombined() + "_" +
-//                        parameterMap.get(IMPC_ACS_009_001).get(id).getMetadataCombined() + "_" +
-//                        parameterMap.get(IMPC_ACS_006_001).get(id).getMetadataCombined() + "_" +
-//                        parameterMap.get(IMPC_ACS_010_001).get(id).getMetadataCombined();
-//                currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroup));
-//                currentExperiment.setMetadataCombined(metadata);
 
                 // Use the same metadata as the other parameters in this procedure
                 currentExperiment.setMetadataCombined(dto.getMetadataCombined());
                 currentExperiment.setMetadataGroup(dto.getMetadataGroup());
 
                 observationDAO.saveExperiment(currentExperiment);
-                // compute data point
-                Float dataPoint = (dto.getDataPoint() + parameterMap.get(IMPC_ACS_008_001).get(id).getDataPoint() +
-                        parameterMap.get(IMPC_ACS_009_001).get(id).getDataPoint() + parameterMap.get(IMPC_ACS_010_001).get(id).getDataPoint()) / 4;
-                dataPoint = parameterMap.get(IMPC_ACS_006_001).get(id).getDataPoint() - dataPoint;
-                dataPoint /= parameterMap.get(IMPC_ACS_006_001).get(id).getDataPoint();
-                dataPoint *=100;
-                Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
 
+                // compute data point
+                // When 3 values are provided, the formula is: 100 * ((S - ((PP1_S + PP2_S + PP3_S) / 3)) / S)
+                // When 4 values are provided, the formula is: 100 * ((S - ((PP1_S + PP2_S + PP3_S + PP4_S) / 4)) / S)
+
+                Float PP1_S = dto.getDataPoint();
+                Float PP2_S = parameterMap.get(IMPC_ACS_008_001).get(id).getDataPoint();
+                Float PP3_S = parameterMap.get(IMPC_ACS_009_001).get(id).getDataPoint();
+
+                Float mean = (PP1_S + PP2_S + PP3_S) / 3;
+
+                if (parameterMap.containsKey(IMPC_ACS_010_001) && parameterMap.get(IMPC_ACS_010_001).containsKey(id)) {
+                    Float PP4_S = parameterMap.get(IMPC_ACS_010_001).get(id).getDataPoint();
+                    mean = (PP1_S + PP2_S + PP3_S + PP4_S) / 4;
+                }
+
+                Float S = parameterMap.get(IMPC_ACS_006_001).get(id).getDataPoint();
+                Float dataPoint = 100 * ((S - mean) / S);
+
+                Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
                 observationDAO.saveObservation(observation);
             }
 
@@ -2544,7 +2570,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         }
 
         query = " SELECT id from observation where parameter_stable_id=?";
-        try (PreparedStatement statement = dbConnection.prepareStatement(query)) {
+        try (PreparedStatement statement = dbConnection.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             statement.setString(1, parameterId);
             ResultSet res = statement.executeQuery();
             ArrayList<String> deleteQueries = new ArrayList<>();
@@ -2893,7 +2919,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     /**
      * Pre-load the organisations by short name using UPPER CASE
      */
-    private void loadAllOrganisations() {
+    protected void loadAllOrganisations() {
 
         List<Organisation> organisationList = organisationDAO.getAllOrganisations();
         for (Organisation o: organisationList) {
@@ -2906,7 +2932,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     /**
      * Pre-load the pipeline information for quick look-up
      */
-    private void loadAllPipelinesByStableIds() {
+    protected void loadAllPipelinesByStableIds() {
 
         List<Pipeline> pipelineList = phenotypePipelineDAO.getAllPhenotypePipelines();
 
@@ -2916,7 +2942,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     }
 
     // load all datasourcesById in a map to make things faster
-    private void loadAllDatasources() {
+    protected void loadAllDatasources() {
         List<Datasource> dsList = datasourceDAO.getAllDatasources();
         for (Datasource ds: dsList) {
             datasourcesById.put(ds.getId(), ds);
@@ -2924,7 +2950,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     }
 
     // load all projects in a map to make things faster
-    private void loadAllProjects() {
+    protected void loadAllProjects() {
         List<Project> projectList = projectDAO.getAllProjects();
         for (Project project: projectList) {
             projects.put(project.getId(), project);
