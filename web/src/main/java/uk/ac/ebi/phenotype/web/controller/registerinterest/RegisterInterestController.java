@@ -122,7 +122,7 @@ public class RegisterInterestController {
     private       EmailUtils       emailUtils    = new EmailUtils();
 
     // Properties
-    private String          drupalBaseUrl;
+    private String          cmsBaseUrl;
     private String          paBaseUrl;
     private PasswordEncoder passwordEncoder;
     private SqlUtils        sqlUtils;
@@ -153,7 +153,7 @@ public class RegisterInterestController {
     @Inject
     public RegisterInterestController(
             String paBaseUrl,
-            String drupalBaseUrl,
+            String cmsBaseUrl,
             PasswordEncoder passwordEncoder,
             SqlUtils sqlUtils,
             String smtpFrom,
@@ -164,7 +164,7 @@ public class RegisterInterestController {
             String recaptchaPublic
     ) {
         this.paBaseUrl = paBaseUrl;
-        this.drupalBaseUrl = drupalBaseUrl;
+        this.cmsBaseUrl = cmsBaseUrl;
         this.passwordEncoder = passwordEncoder;
         this.sqlUtils = sqlUtils;
         this.smtpFrom = smtpFrom;
@@ -191,7 +191,7 @@ public class RegisterInterestController {
 
         HttpSession session = request.getSession();
         session.setAttribute("paBaseUrl", paBaseUrl);
-        session.setAttribute("drupalBaseUrl", drupalBaseUrl);
+        session.setAttribute("cmsBaseUrl", cmsBaseUrl);
         session.setAttribute("recaptchaPublic", recaptchaPublic);
 
         return "loginPage";
@@ -208,7 +208,7 @@ public class RegisterInterestController {
 
         HttpSession session = request.getSession();
         session.setAttribute("paBaseUrl", paBaseUrl);
-        session.setAttribute("drupalBaseUrl", drupalBaseUrl);
+        session.setAttribute("cmsBaseUrl", cmsBaseUrl);
 
         return "redirect: " + paBaseUrl + "/summary";
     }

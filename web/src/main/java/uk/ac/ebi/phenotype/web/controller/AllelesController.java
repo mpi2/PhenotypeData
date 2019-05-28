@@ -128,10 +128,21 @@ System.out.println("controller here");
         log.info("#### alleles1: debug: " + debug);
         boolean d = debug != null && debug.equals("true");
         if (creLine){
-        	model.addAttribute("creLine", creLine);
+            model.addAttribute("creLine", creLine);
         }
 
-        return allelesCommon(acc, allele_name, null, null, model, request, attributes);
+        return allelesCommon(acc, allele_name, null, null, model, request, attributes, false);
+    }
+
+    @RequestMapping("/allelesFrag/{acc}/{allele_name:.*}")
+    public String alleles2Frag(
+            @PathVariable String acc,
+            @PathVariable(value="allele_name") String allele_name,  // redefine, so that string after dot will not be truncated
+            @RequestParam(value = "creLine", required = false, defaultValue = "false") Boolean creLine,
+            Model model,
+            HttpServletRequest request,
+            RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
+        return allelesCommon(acc, allele_name, null, null, model, request, attributes, true);
     }
 
     @RequestMapping("/alleles/{acc}/{cassette}/{design_id}")
@@ -151,7 +162,7 @@ System.out.println("controller here");
 
         if (bare) model.addAttribute("bare", bare);
 
-        return allelesCommon(acc, null , cassette, design_id, model, request, attributes);
+        return allelesCommon(acc, null , cassette, design_id, model, request, attributes, false);
     }
 
 
@@ -414,7 +425,14 @@ System.out.println("controller here");
             String design_id,
             Model model,
             HttpServletRequest request,
-            RedirectAttributes attributes) throws Exception {
+            RedirectAttributes attributes,
+            boolean fragment) throws Exception {
+
+        String view = "alleles";
+
+        if (fragment) {
+            view = "allelesFrag";
+        }
 
         log.info("#### AllelesController::allelesCommon");
         log.info("#### acc: " + acc);
@@ -446,12 +464,14 @@ System.out.println("controller here");
 
         if (constructs == null) {
             log.info("return empty data");
-            return "alleles";
+            return view;
         }
 
         model.addAttribute("mice", constructs.get("mice"));
         model.addAttribute("es_cells", constructs.get("es_cells"));
         model.addAttribute("targeting_vectors", constructs.get("targeting_vectors"));
+        model.addAttribute("tissue_enquiry_links", constructs.get("tissue_enquiry_links"));
+        model.addAttribute("tissue_distribution_centres", constructs.get("tissue_distribution_centres"));
         model.addAttribute("summary", constructs.get("summary"));
         model.addAttribute("other_available_alleles_with_mice", constructs.get("other_alleles_with_mice"));
         model.addAttribute("other_available_alleles_with_es_cells", constructs.get("other_alleles_with_es_cells"));
@@ -470,7 +490,7 @@ System.out.println("controller here");
         if (model.containsAttribute("show_header")) {
             return "alleles_noheader";
         }
-        return "alleles";
+        return view;
     }
 
 

@@ -71,7 +71,7 @@ public class ScatterChartAndTableProvider {
 			+ "         align: 'right', "
 			+ "         style: { "
 			+ "           fontSize: '13px', "
-			+ "           fontFamily: 'Verdana, sans-serif' "
+		    + "            fontFamily: '\"Roboto\", sans-serif;'\n"
 			+ "         }, "
 			+ "         formatter: function() { return Highcharts.dateFormat('%b %Y', this.value); } "
 			+ "       },"
@@ -233,8 +233,8 @@ public class ScatterChartAndTableProvider {
 
 		String chartString = " chart = new Highcharts.Chart({ " + " colors:" + ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaOpaque) + ", " +
 		" chart: { type: 'scatter',	zoomType: 'xy',	renderTo: '" + divId + "'}, " +
-		" title: { text: '" + title + "'}, " +
-		" subtitle: {	text: '" + subtitle + "'	}," +
+		" title: { text: ''}, " +
+		" subtitle: {	text: ''	}," +
 		" credits: { enabled: false }," +
 		" xAxis: { title: { enabled: true,	text: '" + xTitle + "' } }," +
 		" yAxis: { title: {	text: '" + yTitle + "'		}	}, " +

@@ -433,6 +433,7 @@ public class ImageService implements WebStatus{
 	 * @param parameterAssociationValue
 	 * @param mpId
 	 * @param colonyId
+	 * @param parameterAssociationStableId TODO
 	 * @return
 	 * @throws SolrServerException
 	 * @throws IOException
@@ -440,15 +441,18 @@ public class ImageService implements WebStatus{
 	public QueryResponse getImages(String mgiAccession, String parameterStableId,
 			String experimentOrControl, int numberOfImagesToRetrieve, SexType sex,
 			String metadataGroup, String strain, String anatomyId,
-			String parameterAssociationValue, String mpId, String colonyId) throws SolrServerException, IOException {
+			String parameterAssociationValue, String mpId, String colonyId, String parameterAssociationStableId) throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery().setQuery("*:*");
 		//gene accession will take precedence if both acc and symbol supplied
 		if(StringUtils.isNotEmpty(mgiAccession)){
 			solrQuery.addFilterQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"");
 		}
+		
+		if(StringUtils.isNotEmpty(experimentOrControl)) {
 		solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":"
 				+ experimentOrControl);
+		}
 		if (StringUtils.isNotEmpty(metadataGroup)) {
 			solrQuery.addFilterQuery(ObservationDTO.METADATA_GROUP + ":"
 					+ metadataGroup);
@@ -483,12 +487,55 @@ public class ImageService implements WebStatus{
 			solrQuery.addFilterQuery(ObservationDTO.COLONY_ID + ":\""
 					+ colonyId+"\"");
 		}
+		if (StringUtils.isNotEmpty(parameterAssociationStableId)) {
+			solrQuery.addFilterQuery(ObservationDTO.PARAMETER_ASSOCIATION_STABLE_ID + ":"
+					+ "\""+parameterAssociationStableId+"\"");//put in quotes for "no expression" query
+		}
 		
 		solrQuery.setRows(numberOfImagesToRetrieve);
-        logger.info("solr Query in image service "+solrQuery);
+        System.out.println("solr Query in image service "+solrQuery);
 		QueryResponse response = solr.query(solrQuery);
 		return response;
 	}
+	
+	
+	public QueryResponse getHeadlineImages(String mgiAccession, String parameterStableId, int numberOfImagesToRetrieve, SexType sex,
+			String parameterAssociationValue, String parameterAssociationStableId) throws SolrServerException, IOException {
+
+		//need equivalent to this in order to get both control and experimental images filtered by gene if experimental image
+		//https://wwwdev.ebi.ac.uk/mi/impc/dev/solr/impc_images/select?q=*:*&fq=(gene_accession_id:%22MGI:2446296%22%20OR%20biological_sample_group:%22control%22)&fq=parameter_association_stable_id:%22MGP_IMM_086_001%22&rows=1000
+		SolrQuery solrQuery = new SolrQuery().setQuery("*:*");
+		//gene accession will take precedence if both acc and symbol supplied
+		if(StringUtils.isNotEmpty(mgiAccession)){
+		solrQuery.addFilterQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\" OR "+ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control");
+		}
+		if (sex != null) {
+			solrQuery.addFilterQuery("sex:" + sex.name());
+		}
+		if (StringUtils.isNotEmpty(parameterStableId)) {
+			solrQuery.addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":"
+					+ parameterStableId);
+		}
+		if (StringUtils.isNotEmpty(parameterAssociationValue)) {
+			solrQuery.addFilterQuery(ObservationDTO.PARAMETER_ASSOCIATION_VALUE + ":"
+					+ "\""+parameterAssociationValue+"\"");//put in quotes for "no expression" query
+		}
+		
+		if (StringUtils.isNotEmpty(parameterAssociationStableId)) {
+			solrQuery.addFilterQuery(ObservationDTO.PARAMETER_ASSOCIATION_STABLE_ID + ":"
+					+ "\""+parameterAssociationStableId+"\"");//put in quotes for "no expression" query
+		}
+		
+		solrQuery.setRows(numberOfImagesToRetrieve);
+		//group controls and experimental together
+		solrQuery.addSort(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP , SolrQuery.ORDER.desc);
+        System.out.println("solr Query in image service "+solrQuery);
+		QueryResponse response = solr.query(solrQuery);
+		return response;
+	}
+	
+	
+	
 
 
 	/**
@@ -911,7 +958,7 @@ public class ImageService implements WebStatus{
 						QueryResponse responseExperimental = this
 								.getImages(acc,count.getName(),
 										"experimental", 1,null, null,
-										null, anatomyId, null, null, null);
+										null, anatomyId, null, null, null, null);
 						if (responseExperimental.getResults().size() > 0) {
 
 							ImageDTO imgDoc = responseExperimental
@@ -928,7 +975,7 @@ public class ImageService implements WebStatus{
 											imgDoc
 													.getStrainName(),
 											anatomyId,
-											null, null, null);
+											null, null, null, null);
 
 							list = getControls(numberOfControls, null, imgDoc,
 									null, null, null);
@@ -1176,7 +1223,7 @@ public class ImageService implements WebStatus{
 		List<ImageDTO> mutants=new ArrayList<>();
 	
 		QueryResponse responseExperimental = this.getImages(acc, parameterStableId,"experimental", Integer.MAX_VALUE, 
-						null, null, null, anatomyId, parameterAssociationValue, mpId, colonyId);
+						null, null, null, anatomyId, parameterAssociationValue, mpId, colonyId, null);
 		
 		if (responseExperimental != null && responseExperimental.getResults().size()>0) {
 			//mutants=responseExperimental.getResults();

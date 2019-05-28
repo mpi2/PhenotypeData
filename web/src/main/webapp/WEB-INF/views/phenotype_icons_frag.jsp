@@ -1,80 +1,89 @@
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<div>
-	<div class="abnormalities">
-		<div class="allicons"></div>
-	
-		<div class="no-sprite sprite_embryo_phenotype" data-hasqtip="27"
-			title="${gene.markerSymbol} embryo phenotype measurements"></div>
-		<div class="no-sprite sprite_reproductive_system_phenotype"
-			data-hasqtip="27" title="${gene.markerSymbol}reproductive system phenotype measurments"></div>
-		<div class="no-sprite sprite_mortality_aging" data-hasqtip="27"
-			title="${gene.markerSymbol} mortality/aging"></div>
-		<div class="no-sprite sprite_growth_size_body_region_phenotype"
-			data-hasqtip="27" title="${gene.markerSymbol} growth/size/body region phenotype measurments"></div>
-		<div class="no-sprite sprite_homeostasis_metabolism_phenotype_or_adipose_tissue_phenotype"
-			data-hasqtip="27" title="${gene.markerSymbol} homeostasis/metabolism phenotype or adipose tissue phenotype measurments"></div>
-		<div class="no-sprite sprite_behavior_neurological_phenotype_or_nervous_system_phenotype"
-			data-hasqtip="27"
-			title="${gene.markerSymbol} behavior/neurological phenotype or nervous system phenotype measurments"></div>
-		<div class="no-sprite sprite_cardiovascular_system_phenotype"
-			data-hasqtip="27" title="${gene.markerSymbol} cardiovascular system phenotype measurments"></div>
-		<div class="no-sprite sprite_respiratory_system_phenotype"
-			data-hasqtip="27" title="${gene.markerSymbol} respiratory system phenotype measurments"></div>
-		<div class="no-sprite sprite_digestive_alimentary_phenotype_or_liver_biliary_system_phenotype"
-			data-hasqtip="27"
-			title="${gene.markerSymbol} digestive/alimentary phenotype or liver/biliary system phenotype measurments"></div>
-		<div class="no-sprite sprite_renal_urinary_system_phenotype"
-			data-hasqtip="27" title="${gene.markerSymbol} renal/urinary system phenotype measurments"></div>
-	
-		<div class="no-sprite sprite_limbs_digits_tail_phenotype"
-			data-hasqtip="27" title="${gene.markerSymbol} limbs/digits/tail phenotype measurments"></div>
-		<div class="no-sprite sprite_skeleton_phenotype" data-hasqtip="27"
-			title="${gene.markerSymbol} skeleton phenotype measurments"></div>
-		<div class="no-sprite sprite_immune_system_phenotype_or_hematopoietic_system_phenotype"
-			data-hasqtip="27"
-			title="${gene.markerSymbol} immune system phenotype or hematopoietic system phenotype measurments"></div>
-		<div class="no-sprite sprite_muscle_phenotype" data-hasqtip="27"
-			title="${gene.markerSymbol} muscle phenotype measurments"></div>
-		<div class="no-sprite sprite_integument_phenotype_or_pigmentation_phenotype"
-			data-hasqtip="27"
-			title="${gene.markerSymbol} integument phenotype or pigmentation phenotype measurments"></div>
-	
-		<div class="no-sprite sprite_craniofacial_phenotype " data-hasqtip="27"
-			title="${gene.markerSymbol} craniofacial phenotype measurments"></div>
-		<div class="no-sprite sprite_hearing_vestibular_ear_phenotype "
-			data-hasqtip="27" title="${gene.markerSymbol} hearing/vestibular/ear phenotype measurments"></div>
-		<div class="no-sprite sprite_taste_olfaction_phenotype "
-			data-hasqtip="27" title="${gene.markerSymbol} taste/olfaction phenotype measurments"></div>
-		<div class="no-sprite sprite_endocrine_exocrine_gland_phenotype "
-			data-hasqtip="27" title="${gene.markerSymbol} endocrine/exocrine gland phenotype measurments"></div>
-		<div class="no-sprite sprite_vision_eye_phenotype" data-hasqtip="27"
-			title="${gene.markerSymbol} vision/eye phenotype measurments"></div>
-	
-		<c:forEach var="group" items="${significantTopLevelMpGroups.keySet()}">
-			<c:if test="${group != 'mammalian phenotype' }">
-				<a href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}&${significantTopLevelMpGroups.get(group)}'>
-					<div class="sprite_orange sprite_${group.replaceAll(' |/', '_')}" data-hasqtip="27" title="${gene.markerSymbol} ${group} measurements"></div>
-				</a>
-			</c:if>		
-		</c:forEach>
-		
-		<c:forEach var="group" items="${notsignificantTopLevelMpGroups.keySet()}">
-			<c:if test="${group != 'mammalian phenotype' }">
-				<a href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}&${notsignificantTopLevelMpGroups.get(group)}'>
-					<div class="sprite_blue sprite_${group.replaceAll(' |/', '_')}"	data-hasqtip="27" title="${gene.markerSymbol} ${group} measurements"></div>
-				</a>
-			</c:if>		
-		</c:forEach>
-	
-	</div>
-  	<div class="floatright"  style="clear: both">
-  		<div class="abnormalities_key">
-			<span style="color: #e27010">Significant &nbsp; &nbsp; </span>
-            <span style="color: #0978a1">Not Significant &nbsp; &nbsp; </span>
-            <span style="color: #c2c2c2">Not tested &nbsp; &nbsp; </span>
+<script>
+    function filterAllData() {
+        var val = [];
+        var legend = '';
+        $('#phIconGrid').find('input:checked').each(function() {
+            val.push($(this).data('value'));
+            var category = $(this).attr("title").replace(new RegExp(' phenotype', 'g'), '');
+            var significance = $(this).attr("value");
+            var color = significance === 'significant'  ? 'badge-primary' : 'badge-info';
+            legend += '<span class="badge ' + color + ' mr-1">' + category + '</span>';
+        });
+        legend = legend === '' ? ' all phenotypes' : legend;
+        $('#phDataTitle').html(legend);
+        $('#all-chart').html("     <div class=\"pre-content\">\n" +
+            "                        <div class=\"row no-gutters\">\n" +
+            "                            <div class=\"col-12 my-5\">\n" +
+            "                                <p class=\"h4 text-center text-justify\"><i class=\"fas fa-atom fa-spin\"></i> A moment please while we gather the data . . . .</p>\n" +
+            "                            </div>\n" +
+            "                        </div>\n" +
+            "                    </div>");
+        $('#alldata-tab').trigger('click');
+        $('#phenotypesTab').scrollTop();
+        $.ajax({
+            url : '/data/experimentsFrag?geneAccession=' + '${gene.mgiAccessionId}' + '&' + val.join('&'),
+            type: 'GET',
+            success: function(data){
+                $('#all-chart').html(data);
+            }
+        });
+    }
+</script>
+
+<div class="container" style="min-width: 300px">
+    <div class="row no-gutters justify-content-center">View data by physiological system</div>
+    <div class="row no-gutters">
+
+        <div class="container text-center text-muted"  id="phIconGrid">
+            <c:forEach var="i" begin="0" end="3">
+                <div class="row no-gutters btn-group-toggle" data-toggle="buttons">
+                    <c:forEach var="j" begin="0" end="4">
+                        <c:choose>
+                            <c:when test="${not empty significantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}">
+                                <label class="col-sm btn btn-outline-primary btn-icon significant m-1" href="#phenotypesTab" title="${fn:replace(phenotypeGroups[i*5 + j], 'phenotype', '')}" data-toggle="tooltip">
+                                    <input type="checkbox"  autocomplete="off" data-value="${significantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}" onchange="filterAllData()" title="${phenotypeGroups[i*5 + j]}" value="significant">
+                                    <i class="${phenotypeGroupIcons[i*5 + j]}"></i>
+                                </label>
+                            </c:when>
+                            <c:when test="${not empty notsignificantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}">
+                                <label class="col-sm btn btn-outline-info btn-icon m-1" href="#phenotypesTab" title="${fn:replace(phenotypeGroups[i*5 + j], 'phenotype', '')}" data-toggle="tooltip">
+                                    <input type="checkbox" autocomplete="off" data-value="${notsignificantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}" onchange="filterAllData()" title="${phenotypeGroups[i*5 + j]}" value="no_significant">
+                                    <i class="${phenotypeGroupIcons[i*5 + j]}"></i>
+                                </label>
+                            </c:when>
+                            <c:otherwise>
+<%--                                <span class="col-sm m-1" title="${fn:replace(phenotypeGroups[i*5 + j], 'phenotype', '')}" data-toggle="tooltip">--%>
+<%--                                                                    <a class="btn btn-outline-light btn-icon non-tested disabled " >--%>
+<%--                                    <i class="${phenotypeGroupIcons[i*5 + j]}"></i>--%>
+<%--                                </a>--%>
+<%--                                </span>--%>
+
+                                <label class="col-sm btn btn-outline-light btn-icon non-tested m-1" href="#phenotypesTab" title="${fn:replace(phenotypeGroups[i*5 + j], 'phenotype', '')}" data-toggle="tooltip">
+                                    <input type="checkbox" autocomplete="off" data-value="${notsignificantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}" onchange="filterAllData()" title="${phenotypeGroups[i*5 + j]}" value="no_significant" class="disabled">
+                                    <i class="${phenotypeGroupIcons[i*5 + j]}"></i>
+                                </label>
+
+                            </c:otherwise>
+                        </c:choose>
+                    </c:forEach>
+                </div>
+            </c:forEach>
         </div>
-	</div>
+    </div>
+    <div class="row no-gutters font-weight-light text-center" style="font-size: 0.8em;">
+        <div class="col text-primary">
+            Significant
+        </div>
+        <div class="col text-info">
+            Not Significant
+        </div>
+        <div class="col text-muted">
+            Not tested
+        </div>
+    </div>
 </div>
+

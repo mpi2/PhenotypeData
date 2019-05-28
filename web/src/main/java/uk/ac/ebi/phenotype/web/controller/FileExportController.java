@@ -108,17 +108,13 @@ public class FileExportController {
 	private String hostName;
 
 	@Autowired
-	@Qualifier("admintoolsDataSource")
-	private DataSource admintoolsDataSource;
-
-	@Autowired
 	private ReferenceDAO referenceDAO;
 
 	@Autowired
 	private GwasDAO gwasDao;	
 
 	@Autowired
-	private SearchController searchController;
+	private BatchQueryController searchController;
 
 	@Autowired
 	private SearchUrlServiceFactory urlFactory;
@@ -609,7 +605,7 @@ public class FileExportController {
 	private List<String> composeProtocolDataTableRows(JSONObject json, HttpServletRequest request) {
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
-		String impressBaseUrl = request.getAttribute("drupalBaseUrl").toString().replace("https", "http")
+		String impressBaseUrl = request.getAttribute("cmsBaseUrl").toString().replace("https", "http")
 				+ "/impress/protocol/";
 
 		List<String> rowData = new ArrayList<>();

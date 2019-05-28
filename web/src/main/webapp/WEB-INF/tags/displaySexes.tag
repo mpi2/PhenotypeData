@@ -13,14 +13,14 @@
             <%-- ${containsBoth} --%>
              <c:choose>
                 	<c:when test="${containsBoth}">
-                		<span class="bothSexes"> <img alt="Female" src="${baseUrl}/img/female.jpg"/> <img alt="Male" src="${baseUrl}/img/male.jpg"/> </span>
+                		<span class="bothSexes" style="font-size: 1.8em;"> <i class="far fa-venus"></i> <i class="far fa-mars"></i></span>
                 	</c:when>
                 	<c:otherwise>
 			                <c:set var="count" value="0" scope="page"/>
 			                <c:forEach var="sex" items="${sexes}"><c:set var="count" value="${count + 1}" scope="page"/>
 			               			<c:if test="${sex == 'female'}"><c:set var="europhenome_gender" value="Female"/>
-			                        <img alt="Female" src="${baseUrl}/img/female.jpg"/></c:if><c:if test="${sex == 'male'}"><c:set
-			                            var="europhenome_gender" value="Male"/><img alt="Male" src="${baseUrl}/img/male.jpg"/>
+										<i class="fal fa-venus" style="font-size: 1.8em;"></i></c:if><c:if test="${sex == 'male'}"><c:set
+										var="europhenome_gender" value="Male"/><i class="fal fa-mars" style="font-size: 1.8em;"></i>
 			                    	</c:if>
 			                	 	
 			               	</c:forEach>

@@ -4,36 +4,33 @@
 
 <!-- time series charts here-->
 	<c:if test="${timeSeriesChartsAndTable.chart!=null}">
-	
-    <br/> <br/>
-    
-    <p class = "chartTitle">${timeSeriesChartsAndTable.title}</p>
-	<p class = "chartSubtitle">${timeSeriesChartsAndTable.subtitle}</p>
-		<div id="timechart${experimentNumber}"> </div>		
-		    
-	  <div>
-		<p>
-			<a class="toggle-button btn"> <i class="fa fa-caret-right"> </i> More Statistics </a>
-		</p>
 
-		<div class="toggle-div hidden">
-			<p>
-			<c:if test="${isDerivedBodyWeight}"> <!-- these don't work for IPGTT -->
-				<a href='${srUrl}'> Statistical result raw XML </a> &nbsp;&nbsp;
-				<a href='${gpUrl}'> Genotype phenotype raw XML </a>&nbsp;&nbsp;
-			</c:if>
-			
-				<a href='${baseUrl}${phenStatDataUrl}'> PhenStat-ready raw experiment data</a>
-			
-			</p>
+		<div class="row">
 
-			<table id="timeTable">
+			<div class="col-md-12">
+				<div id="timechart${experimentNumber}"></div>
+			</div>
+		</div>
+
+	  <div class="row">
+		<div class="col-md-12">
+
+			<%--<p>--%>
+			<%--<c:if test="${isDerivedBodyWeight}"> <!-- these don't work for IPGTT -->--%>
+				<%--<a href='${srUrl}'> Statistical result raw XML </a> &nbsp;&nbsp;--%>
+				<%--<a href='${gpUrl}'> Genotype phenotype raw XML </a>&nbsp;&nbsp;--%>
+			<%--</c:if>--%>
+			<%----%>
+				<%--<a href='${baseUrl}${phenStatDataUrl}'> PhenStat-ready raw experiment data</a>--%>
+			<%--</p>--%>
+
+			<table class="table table-striped">
 
 				<c:choose>
 						<c:when test="${isDerivedBodyWeight}">
 
 				<tr>
-					<th>Weeks</th>
+					<th>Week</th>
 					<c:forEach var="lineMap" items="${timeSeriesChartsAndTable.lines}"
 						varStatus="keyCount">
 						<th>${lineMap.key}</th>

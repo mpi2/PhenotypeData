@@ -67,8 +67,19 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.mousephenotype.cda</groupId>
             <artifactId>data-model-solr</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.mousephenotype.cda</groupId>
+            <artifactId>data-model-stats</artifactId>
+            <version>1.0.0</version>
         </dependency>
 
         <dependency>
@@ -329,6 +340,11 @@
             <scope>compile</scope>
         </dependency>
 
+        <!-- <dependency>
+        	<groupId>uk.ac.ebi.phenotype</groupId>
+        	<artifactId>stats-rest-service</artifactId>
+        	<version>0.0.1</version>
+        </dependency> -->
     </dependencies>
 
     <build>
@@ -341,6 +357,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <mainClass>uk.ac.ebi.PhenotypeArchive</mainClass>
+                    <!-- <mainClass> uk.ac.ebi.phenotype.web.dao.StatisticsDataLoader</mainClass> -->
                 </configuration>
                 <executions>
                     <execution>

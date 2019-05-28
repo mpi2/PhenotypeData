@@ -203,8 +203,8 @@ public class BasicService {
      * @param response
      * @return HashMap with facets + counts: <facet_field, <field_value, count>>
      */
-    protected HashMap<String, HashMap<String, Long>> getFacets(QueryResponse response){
-    	HashMap<String, HashMap<String, Long>> res = new HashMap<>();
+    protected Map<String, Map<String, Long>> getFacets(QueryResponse response){
+    	Map<String, Map<String, Long>> res = new HashMap<>();
     	for (FacetField facet: response.getFacetFields()){
     		HashMap<String, Long> facetMap = new HashMap<>();
     		for (Count values : facet.getValues()){

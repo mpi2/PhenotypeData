@@ -18,22 +18,18 @@ package uk.ac.ebi.phenotype.web.controller;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.json.JSONException;
+import org.mousephenotype.cda.db.pojo.CategoricalResult;
 import org.mousephenotype.cda.enumerations.EmbryoViability;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.service.ExperimentService;
-import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.ImpressService;
-import org.mousephenotype.cda.solr.service.StatisticalResultService;
-import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
-import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
-import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.*;
+import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
-import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
 import org.mousephenotype.cda.solr.web.dto.EmbryoViability_DTO;
+import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
 import org.mousephenotype.cda.web.ChartType;
 import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.slf4j.Logger;
@@ -49,16 +45,21 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.ac.ebi.phenotype.chart.*;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
+import uk.ac.ebi.phenotype.web.dao.Statistics;
+import uk.ac.ebi.phenotype.web.dao.StatisticsRepository;
+import uk.ac.ebi.phenotype.web.dao.StatisticsService;
+import uk.ac.ebi.phenotype.web.dao.StatisticsServiceUtilities;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.springframework.web.bind.annotation.ValueConstants.DEFAULT_NONE;
 
@@ -67,36 +68,17 @@ import static org.springframework.web.bind.annotation.ValueConstants.DEFAULT_NON
 public class ChartsController {
 
     private final Logger log = LoggerFactory.getLogger(ChartsController.class);
-
-    @Autowired
-    private CategoricalChartAndTableProvider categoricalChartAndTableProvider;
-
-    @Autowired
-    private TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider;
-
-    @Autowired
-    private UnidimensionalChartAndTableProvider continousChartAndTableProvider;
-
-    @Autowired
-    private ScatterChartAndTableProvider scatterChartAndTableProvider;
-
-    @Autowired
-    private AbrChartAndTableProvider abrChartAndTableProvider;
-
-    @Autowired
-    private ViabilityChartAndDataProvider viabilityChartAndDataProvider;
-
-    @Autowired
-    private ExperimentService experimentService;
-
-    @Autowired
-    private StatisticalResultService srService;
-
-    @Autowired
-    private GeneService geneService;
-    
-    @Autowired
-    private ImpressService is;
+    private final CategoricalChartAndTableProvider categoricalChartAndTableProvider;
+    private final TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider;
+    private final UnidimensionalChartAndTableProvider continousChartAndTableProvider;
+    private final ScatterChartAndTableProvider scatterChartAndTableProvider;
+    private final AbrChartAndTableProvider abrChartAndTableProvider;
+    private final ViabilityChartAndDataProvider viabilityChartAndDataProvider;
+    private final ExperimentService experimentService;
+    private final StatisticalResultService srService;
+    private final GeneService geneService;
+    private final ImpressService is;
+    private final ImageService imageService;
     
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
@@ -104,6 +86,26 @@ public class ChartsController {
 
     @Value("${solr_url}")
     public String SOLR_URL;
+    
+//    @Autowired
+//    private StatsRepository repo;
+    @Autowired
+	 private StatisticsService statsService;
+
+    @Inject
+    public ChartsController(CategoricalChartAndTableProvider categoricalChartAndTableProvider, TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider, UnidimensionalChartAndTableProvider continousChartAndTableProvider, ScatterChartAndTableProvider scatterChartAndTableProvider, AbrChartAndTableProvider abrChartAndTableProvider, ViabilityChartAndDataProvider viabilityChartAndDataProvider, ExperimentService experimentService, StatisticalResultService srService, GeneService geneService, ImpressService is, ImageService imageService) {
+        this.categoricalChartAndTableProvider = categoricalChartAndTableProvider;
+        this.timeSeriesChartAndTableProvider = timeSeriesChartAndTableProvider;
+        this.continousChartAndTableProvider = continousChartAndTableProvider;
+        this.scatterChartAndTableProvider = scatterChartAndTableProvider;
+        this.abrChartAndTableProvider = abrChartAndTableProvider;
+        this.viabilityChartAndDataProvider = viabilityChartAndDataProvider;
+        this.experimentService = experimentService;
+        this.srService = srService;
+        this.geneService = geneService;
+        this.is = is;
+        this.imageService=imageService;
+    }
 
 
     /**
@@ -136,8 +138,7 @@ public class ChartsController {
      * @throws IOException
      * @throws URISyntaxException
      * @throws SolrServerException, IOException
-     */
-    
+     */ 
     @RequestMapping("/charts")
     public String charts(@RequestParam(required = false, value = "accession") String[] accessionsParams,
                          @RequestParam(required = false, value = "parameter_stable_id") String[] parameterIds,
@@ -150,6 +151,8 @@ public class ChartsController {
                          @RequestParam(required = false, value = "chart_type") ChartType chartType,
                          @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds,
                          @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession,
+                         @RequestParam(required = false, value = "pageTitle") String pageTitle,
+                         @RequestParam(required = false, value = "pageLinkBack") String pageLinkBack,
                          HttpServletRequest request, HttpServletResponse response,
                          Model model) {
         try {
@@ -163,6 +166,7 @@ public class ChartsController {
                 }
             }
             response.addHeader("Access-Control-Allow-Origin", "*");//allow javascript requests from other domain - note spring way of doing this does not work!!!! as usual!!!
+            model.addAttribute("pageTitle", pageTitle);
 //            response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
 //            response.setHeader("Access-Control-Max-Age", "3600");
 //            response.setHeader("Access-Control-Allow-Headers", "x-requested-with");
@@ -173,29 +177,10 @@ public class ChartsController {
         return "";
     }
 
-    /**
-     * Will only ever return one chart!
-     *
-     * @param accession
-     * @param strain
-     * @param metadataGroup
-     * @param parameterStableId
-     * @param gender
-     * @param zygosity
-     * @param phenotypingCenter
-     * @param strategies
-     * @param model
-     * @return
-     * @throws GenomicFeatureNotFoundException
-     * @throws ParameterNotFoundException
-     * @throws IOException
-     * @throws URISyntaxException
-     * @throws SolrServerException, IOException
-     */
     
     
     @RequestMapping("/chart")
-    public String chart(@RequestParam(required = true, value = "experimentNumber") String experimentNumber,
+    public String chart(@RequestParam(required = true, value = "experimentNumber", defaultValue = "1") String experimentNumber,
                         @RequestParam(required = false, value = "accession") String[] accession,
                         @RequestParam(required = false, value = "strain_accession_id") String strain,
                         @RequestParam(required = false, value = "allele_accession_id") String alleleAccession,
@@ -208,244 +193,357 @@ public class ChartsController {
                         @RequestParam(required = false, value = "pipeline_stable_id") String pipelineStableId,
                         @RequestParam(required = false, value = "chart_type") ChartType chartType,
                         @RequestParam(required = false, value = "chart_only", defaultValue = "false") boolean chartOnly,
-                        @RequestParam(required = false, value = "standAlone") boolean standAlone, Model model)
-            throws GenomicFeatureNotFoundException, ParameterNotFoundException, IOException, URISyntaxException, SolrServerException, SpecificExperimentException {
-    	if(parameterStableId!=null && !parameterStableId.equals("")){
-    		boolean isDerivedBodyWeight=TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId);
-    		model.addAttribute("isDerivedBodyWeight", isDerivedBodyWeight);
-    	}
-        UnidimensionalDataSet unidimensionalChartDataSet = null;
-        ChartData timeSeriesForParam = null;
-        CategoricalResultAndCharts categoricalResultAndChart = null;
+                        @RequestParam(required = false, value = "standAlone") boolean standAlone, 
+                        @RequestParam(required = false, value = "fromFile") boolean fromFile,
+                        Model model)
+			            throws ParameterNotFoundException, IOException, URISyntaxException, SolrServerException, SpecificExperimentException {
+			
+			if(parameterStableId!=null && !parameterStableId.equals("")){
+				boolean isDerivedBodyWeight=TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId);
+				model.addAttribute("isDerivedBodyWeight", isDerivedBodyWeight);
+			}
 
-        boolean statsError = false;
+			UnidimensionalDataSet unidimensionalChartDataSet = null;
+			ChartData seriesParameterChartData = null;
+			CategoricalResultAndCharts categoricalResultAndChart = null;
+			
+			boolean statsError = false;
+			
+			if (parameterStableId.startsWith("IMPC_FER_")) {
+			    String url = config.get("baseUrl") + "/genes/" + accession[0];
+			    return "redirect:" + url;
+			}
+			
+			
+			// TODO need to check we don't have more than one accession and one
+			// parameter throw and exception if we do
+			// get the parameter object from the stable id
+			ParameterDTO parameter = is.getParameterByStableId(parameterStableId);  
+			model.addAttribute("parameter", parameter);
+			
+			
+			if (parameter == null) {
+				System.out.println("throwing parameter not found exception");
+			    throw new ParameterNotFoundException("Parameter " + parameterStableId + " can't be found.", parameterStableId);
+			}
+			
+			//3i procedures with at least some headline images associated
+			if(parameter.getStableId().startsWith("MGP_BMI") || parameter.getStableId().startsWith("MGP_MLN") ||parameter.getStableId().startsWith("MGP_IMM") ) {
+				
+				System.out.println("flow cytomerty for 3i detected get headline images");
+				//lets get the 3i headline images
+				//example query http://ves-hx-d8.ebi.ac.uk:8986/solr/impc_images/select?q=parameter_stable_id:MGP_IMM_233_001
+				//or maybe we need to filter by parameter association first based no the initial parameter
+				//spleen Immunophenotyping e.g. Sik3 has many
+				//chart example= http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:2446296&parameter_stable_id=MGP_IMM_086_001
+				//bone marrow chart example=http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1353467&parameter_stable_id=MGP_BMI_018_001
+				//http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1353467&parameter_stable_id=MGP_BMI_018_001
+				//http://ves-hx-d8.ebi.ac.uk:8986/solr/impc_images/select?q=parameter_stable_id:MGP_IMM_233_001&fq=parameter_association_stable_id:MGP_IMM_086_001&fq=gene_symbol:Sik3
+				//http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1915276&parameter_stable_id=MGP_MLN_114_001
+				//accession[0]
+				QueryResponse imagesResponse = imageService.getHeadlineImages(accession[0], null,1000, null, null, parameter.getStableId());
+				System.out.println("number of images found="+imagesResponse.getResults().getNumFound());
+				model.addAttribute("headlineImages",imagesResponse.getBeans(ImageDTO.class));
+			}
+			
+			String metadata = null;
+			List<String> metadataList = null;
+			
+			String xUnits = parameter.getUnitX();
+			ObservationType observationTypeForParam = parameter.getObservationType();
+			List<String> genderList = getParamsAsList(gender);
+			
+			// Use the first phenotyping center passed in (ignore the others?)
+			// should only now be one center at this stage for one graph/experiment
+			// TODO put length check and exception here
+			// List<String> phenotypingCenters = getParamsAsList(phenotypingCenter);
+			
+			String metaDataGroupString = null;
+			if (metadataGroup != null && ! metadataGroup.equals(DEFAULT_NONE)) {
+			    metaDataGroupString = metadataGroup;
+			}
+			
+			List<String> zyList = getParamsAsList(zygosity);
+			
+			ImpressBaseDTO pipeline = null;
+			
+			if (pipelineStableId != null &&  ! pipelineStableId.equals("")) {
+			    log.debug("pipe stable id=" + pipelineStableId);
+			    pipeline = is.getPipeline(pipelineStableId);
+			    model.addAttribute("pipeline", pipeline);
+			    model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
+			}
+			
+			model.addAttribute("phenotypingCenter", phenotypingCenter);
+			
+			ExperimentDTO experiment = null;
+			
+			GeneDTO gene = geneService.getGeneById(accession[0]);
+			model.addAttribute("gene", gene);
+			//boolean testNew=true;//change to look at old chart with current code
+//			if(parameterStableId.equalsIgnoreCase("IMPC_HEM_038_001")&& testNew) {
+//				//get experiment object from the new rest service as a temporary measure we can convert to an experiment object and then we don't have to rewrite the chart code?? and easy to test if experiment objects are the same??
+//				System.out.println("Get data from new rest service");
+//				List<Statistics>stats=statsService.findAll();
+//				assert(stats.size()==1);
+//				experiment = StatisticsServiceUtilities.convertToExperiment(parameterStableId, stats);
+//				System.out.println("stats from repository size="+stats.size());
+//			}
+//			else {
+			experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
+			System.out.println("experiment from solr="+experiment);
+			//}
+			//error getting procedure for this page?? http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1915276&parameter_stable_id=MGP_MLN_057_001
+			ProcedureDTO proc=null;
+			if(experiment!=null) {
+				proc = is.getProcedureByStableId(experiment.getProcedureStableId());
+			
+			    String procedureUrl="";
+			    String parameterUrl="";
+			    if (proc != null) {
+					//procedureDescription = String.format("<a href=\"%s\">%s</a>", is.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()),  "Procedure: "+ proc.getName());
+			    	procedureUrl=is.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString());
+			    	model.addAttribute("procedureUrl", procedureUrl);
+			    }
+				if (parameter.getStableKey() != null) {
+					//title = String.format("<a href=\"%s\">%s</a>", is.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey()),  "Parameter: "+ parameter.getName());
+					parameterUrl=is.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey());
+					model.addAttribute("parameterUrl", parameterUrl);
+				}
+			    model.addAttribute("alleleSymbol",experiment.getAlleleSymobl());
+			    setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
+			    if (pipeline == null) {
+			        // if we don't already have the pipeline from the url params get it via the experiment returned
+			        pipeline = is.getPipeline(experiment.getPipelineStableId());
+			    }
+			
+			    if (experiment.getMetadataGroup() != null){
+			        metadata = experiment.getMetadataHtml();
+			        metadataList = experiment.getMetadata();
+			    }
+			    
+			    try {
+			        
+			        if (chartType != null) {
+			
+			            ScatterChartAndData scatterChartAndData;
+			
+			            switch (chartType) {
+			
+			                case UNIDIMENSIONAL_SCATTER_PLOT:
+			
+			                    scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, null, null, parameter, experimentNumber);
+			                    model.addAttribute("scatterChartAndData", scatterChartAndData);
+			
+			                    if (observationTypeForParam.equals(ObservationType.unidimensional)) {
+			                        List<UnidimensionalStatsObject> unidimenStatsObjects = scatterChartAndData.getUnidimensionalStatsObjects();
+			                        unidimensionalChartDataSet = new UnidimensionalDataSet();
+			                        unidimensionalChartDataSet.setStatsObjects(unidimenStatsObjects);
+			                        model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+			                    }
+			                    break;
+			
+			                case UNIDIMENSIONAL_ABR_PLOT:
+			
+			                    seriesParameterChartData = abrChartAndTableProvider.getAbrChartAndData(experiment, parameter, "abrChart" + experimentNumber, SOLR_URL);
+			                    model.addAttribute("abrChart", seriesParameterChartData.getChart());
+			                    break;
+			
+			                case UNIDIMENSIONAL_BOX_PLOT:
+			
+			                    try {
+			                        unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xUnits);
+			                    } catch (JSONException e) {
+			                        e.printStackTrace();
+			                    }
+			                    model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+			
+			                    scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, unidimensionalChartDataSet.getMin(), unidimensionalChartDataSet.getMax(), parameter, experimentNumber);
+			                    model.addAttribute("scatterChartAndData", scatterChartAndData);
+			
+			                    break;
+			
+			                case CATEGORICAL_STACKED_COLUMN:
+			
+			                    categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, accession[0], experimentNumber);
+			                    model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
+			                    break;
+			
+			                case TIME_SERIES_LINE:
+			
+			                    seriesParameterChartData = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber);
+			                    model.addAttribute("timeSeriesChartsAndTable", seriesParameterChartData);
+			                    break;
+			
+			                default:
+			
+			                    log.error("Unknown how to display graph for observation type: " + observationTypeForParam);
+			                    break;
+			            }
+			        }else{
+			            log.error("chart type is null");
+			        }
+			
+			    } catch (SQLException e) {
+			        log.error(ExceptionUtils.getFullStackTrace(e));
+			        statsError = true;
+			    }
+			}  else {
+			    System.out.println("empty experiment");
+			    model.addAttribute("emptyExperiment", true);
+			}
+			
+			if (parameterStableId.startsWith("IMPC_VIA_")) {
+			    // Its a viability outcome param which means its a line level query
+			    // so we don't use the normal experiment query in experiment service
+			    ViabilityDTO viability = experimentService.getSpecificViabilityExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession);
+			    ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, viability);
+			    model.addAttribute("viabilityDTO", viabilityDTO);
+			   }
+			
+			if (parameterStableId.startsWith("IMPC_EVL_")) {
+			    // Its an E9.5 embryonic viability outcome param which means its a line level query
+			    // so we don't use the normal experiment query in experiment service
+			    // Note:  EmbryoViability.E9_5 specifies the set of related parameters passed to getSpecificEmbryoViability_ExperimentDTO
+			    EmbryoViability_DTO embryoViability = experimentService.getSpecificEmbryoViability_ExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession, EmbryoViability.E9_5);
+			    EmbryoViability_DTO embryoViability_DTO = viabilityChartAndDataProvider.doEmbryo_ViabilityData(parameter, embryoViability);
+			    model.addAttribute("embryoViabilityDTO", embryoViability_DTO);
+			    }
+			
+			if (parameterStableId.startsWith("IMPC_EVM_")) {
+			    // Its an E12.5 embryonic viability outcome param which means its a line level query
+			    // so we don't use the normal experiment query in experiment service
+			    // Note:  EmbryoViability.E12_5 specifies the set of related parameters passed to getSpecificEmbryoViability_ExperimentDTO
+			    EmbryoViability_DTO embryoViability = experimentService.getSpecificEmbryoViability_ExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession, EmbryoViability.E12_5);
+			    EmbryoViability_DTO embryoViability_DTO = viabilityChartAndDataProvider.doEmbryo_ViabilityData(parameter, embryoViability);
+			    model.addAttribute("embryoViabilityDTO", embryoViability_DTO);
+			    }
+			
+			if (parameterStableId.startsWith("IMPC_EVO_")) {
+			    // Its an E14.5 embryonic viability outcome param which means its a line level query
+			    // so we don't use the normal experiment query in experiment service
+			    // Note:  EmbryoViability.E14_5 specifies the set of related parameters passed to getSpecificEmbryoViability_ExperimentDTO
+			    EmbryoViability_DTO embryoViability = experimentService.getSpecificEmbryoViability_ExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession, EmbryoViability.E14_5);
+			    EmbryoViability_DTO embryoViability_DTO = viabilityChartAndDataProvider.doEmbryo_ViabilityData(parameter, embryoViability);
+			    model.addAttribute("embryoViabilityDTO", embryoViability_DTO);
+			    }
+			
+			if (parameterStableId.startsWith("IMPC_EVP_")) {
+			    // Its an E18.5 embryonic viability outcome param which means its a line level query
+			    // so we don't use the normal experiment query in experiment service
+			    // Note:  EmbryoViability.E18_5 specifies the set of related parameters passed to getSpecificEmbryoViability_ExperimentDTO
+			    EmbryoViability_DTO embryoViability = experimentService.getSpecificEmbryoViability_ExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession, EmbryoViability.E18_5);
+			    EmbryoViability_DTO embryoViability_DTO = viabilityChartAndDataProvider.doEmbryo_ViabilityData(parameter, embryoViability);
+			    model.addAttribute("embryoViabilityDTO", embryoViability_DTO);
+			    }
+			
 
-        if (parameterStableId.startsWith("IMPC_FER_")) {
-            String url = config.get("baseUrl") + "/genes/" + accession[0];
-            return "redirect:" + url;
-        }
-
-		// TODO need to check we don't have more than one accession and one
-        // parameter throw and exception if we do
-        // get the parameter object from the stable id
-        ParameterDTO parameter = is.getParameterByStableId(parameterStableId);     
-        
-        if (parameter == null) {
-        	System.out.println("throwing parameter not found exception");
-            throw new ParameterNotFoundException("Parameter " + parameterStableId + " can't be found.", parameterStableId);
-        }
-
-        String metadata = null;
-        String xUnits = parameter.getUnitX();
-        ObservationType observationTypeForParam = parameter.getObservationType();
-        List<String> genderList = getParamsAsList(gender);
-
-		// Use the first phenotyping center passed in (ignore the others?)
-        // should only now be one center at this stage for one graph/experiment
-        // TODO put length check and exception here
-        // List<String> phenotypingCenters = getParamsAsList(phenotypingCenter);
-       
-        String metaDataGroupString = null;
-        if (metadataGroup != null && ! metadataGroup.equals(DEFAULT_NONE)) {
-            metaDataGroupString = metadataGroup;
-        }
-
-        List<String> zyList = getParamsAsList(zygosity);
-
-        Integer pipelineId = null;
-        ImpressBaseDTO pipeline = null;
-
-        if (pipelineStableId != null &&  ! pipelineStableId.equals("")) {
-            log.debug("pipe stable id=" + pipelineStableId);
-            pipeline = is.getPipeline(pipelineStableId);
-            pipelineId = pipeline.getId();
-            model.addAttribute("pipeline", pipeline);
-            model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
-        }
-
-        model.addAttribute("phenotypingCenter", phenotypingCenter);
-
-        ExperimentDTO experiment = null;
-        
-
-        // 29-Apr-2015 (mrelac) The team has determined that we don't display fertility graphs because Impress does not require all the supporting
-        // data to be uploaded, and some centers don't upload it, so we don't know if the data is valid or not.
-
-//        if (parameterStableId.startsWith("IMPC_FER_")) {
-//			// Its a fertility outcome param which means its a line level query
-//            // so we don't use the normal experiment query in experiment service
-//            //http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/query?q=parameter_stable_id:IMPC_FER_*&facet=true&facet.field=parameter_stable_id&rows=300&fq=gene_accession_id:%22MGI:1918788%22
-//            //http://localhost:8080/phenotype-archive/charts?accession=MGI:1918788&parameter_stable_id=IMPC_FER_001_001
-//            FertilityDTO fertility = experimentService.getSpecificFertilityExperimentDTO(parameter.getId(), pipelineId, accession[0], phenotypingCenterId, strain, metaDataGroupString, alleleAccession);
-//            FertilityDTO fertilityDTO = fertilityChartAndDataProvider.doFertilityData(parameter, fertility);
-//            if (fertilityDTO != null) {
-//                model.addAttribute("fertilityDTO", fertilityDTO);
-//                BiologicalModel expBiologicalModel = bmDAO.getBiologicalModelById(fertilityDTO.getParamStableIdToObservation().entrySet().iterator().next().getValue().getBiologicalModelId());
-//                setTitlesForGraph(model, expBiologicalModel);
-//            }
-//            return "chart";
-//        }
-
-        experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
-
-        if (parameterStableId.startsWith("IMPC_VIA_")) {
-            // Its a viability outcome param which means its a line level query
-            // so we don't use the normal experiment query in experiment service
-            ViabilityDTO viability = experimentService.getSpecificViabilityExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession);
-            ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, viability);
-            model.addAttribute("viabilityDTO", viabilityDTO);
-            setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
-        }
-
-        if (parameterStableId.startsWith("IMPC_EVL_")) {
-            // Its an E9.5 embryonic viability outcome param which means its a line level query
-            // so we don't use the normal experiment query in experiment service
-            // Note:  EmbryoViability.E9_5 specifies the set of related parameters passed to getSpecificEmbryoViability_ExperimentDTO
-            EmbryoViability_DTO embryoViability = experimentService.getSpecificEmbryoViability_ExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession, EmbryoViability.E9_5);
-            EmbryoViability_DTO embryoViability_DTO = viabilityChartAndDataProvider.doEmbryo_ViabilityData(parameter, embryoViability);
-            model.addAttribute("embryoViabilityDTO", embryoViability_DTO);
-            setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
-        }
-
-        if (parameterStableId.startsWith("IMPC_EVM_")) {
-            // Its an E12.5 embryonic viability outcome param which means its a line level query
-            // so we don't use the normal experiment query in experiment service
-            // Note:  EmbryoViability.E12_5 specifies the set of related parameters passed to getSpecificEmbryoViability_ExperimentDTO
-            EmbryoViability_DTO embryoViability = experimentService.getSpecificEmbryoViability_ExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession, EmbryoViability.E12_5);
-            EmbryoViability_DTO embryoViability_DTO = viabilityChartAndDataProvider.doEmbryo_ViabilityData(parameter, embryoViability);
-            model.addAttribute("embryoViabilityDTO", embryoViability_DTO);
-            setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
-        }
-
-        if (parameterStableId.startsWith("IMPC_EVO_")) {
-            // Its an E14.5 embryonic viability outcome param which means its a line level query
-            // so we don't use the normal experiment query in experiment service
-            // Note:  EmbryoViability.E14_5 specifies the set of related parameters passed to getSpecificEmbryoViability_ExperimentDTO
-            EmbryoViability_DTO embryoViability = experimentService.getSpecificEmbryoViability_ExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession, EmbryoViability.E14_5);
-            EmbryoViability_DTO embryoViability_DTO = viabilityChartAndDataProvider.doEmbryo_ViabilityData(parameter, embryoViability);
-            model.addAttribute("embryoViabilityDTO", embryoViability_DTO);
-            setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
-        }
-
-        if (parameterStableId.startsWith("IMPC_EVP_")) {
-            // Its an E18.5 embryonic viability outcome param which means its a line level query
-            // so we don't use the normal experiment query in experiment service
-            // Note:  EmbryoViability.E18_5 specifies the set of related parameters passed to getSpecificEmbryoViability_ExperimentDTO
-            EmbryoViability_DTO embryoViability = experimentService.getSpecificEmbryoViability_ExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession, EmbryoViability.E18_5);
-            EmbryoViability_DTO embryoViability_DTO = viabilityChartAndDataProvider.doEmbryo_ViabilityData(parameter, embryoViability);
-            model.addAttribute("embryoViabilityDTO", embryoViability_DTO);
-            setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
-        }
-
-        
-        
-        if (experiment != null) {
-            if (pipeline == null) {
-                // if we don't already have the pipeline from the url params get it via the experiment returned
-                pipeline = is.getPipeline(experiment.getPipelineStableId());
-            }
-
-            if (experiment.getMetadataGroup() != null){
-            	metadata = experiment.getMetadataHtml();
-            }
-
-            String xAxisTitle = xUnits;
-            setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
-
-            try {
-				// if (chartType == null){
-                // chartType = GraphUtils.getDefaultChartType(parameter);
-                // // chartType might still be null after this
-                // if(chartType==ChartType.PIE){
-                // viabilityDTO =
-                // viabilityChartAndDataProvider.doViabilityData(null, null);
-                // model.addAttribute("viabilityDTO", viabilityDTO);
-                // //model.addAttribute("tableData", viabilityDTO);
-                // return "chart";
-                // }
-                // }
-                if (chartType != null) {
-
-                    ScatterChartAndData scatterChartAndData;
-
-                    switch (chartType) {
-
-                        case UNIDIMENSIONAL_SCATTER_PLOT:
-
-                            scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, null, null, parameter, experimentNumber);
-                            model.addAttribute("scatterChartAndData", scatterChartAndData);
-
-                            if (observationTypeForParam.equals(ObservationType.unidimensional)) {
-                                List<UnidimensionalStatsObject> unidimenStatsObjects = scatterChartAndData.getUnidimensionalStatsObjects();
-                                unidimensionalChartDataSet = new UnidimensionalDataSet();
-                                unidimensionalChartDataSet.setStatsObjects(unidimenStatsObjects);
-                                model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
-                            }
-                            break;
-
-                        case UNIDIMENSIONAL_ABR_PLOT:
-
-                            // get experiments for other parameters too
-                            model.addAttribute("abrChart", abrChartAndTableProvider.getChart(pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, "abrChart" + experimentNumber, SOLR_URL));
-                            break;
-
-	                    case UNIDIMENSIONAL_BOX_PLOT:
-
-                            try {
-                                unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xAxisTitle);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
-
-		                    scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, unidimensionalChartDataSet.getMin(), unidimensionalChartDataSet.getMax(), parameter, experimentNumber);
-		                    model.addAttribute("scatterChartAndData", scatterChartAndData);
-
-		                    break;
-
-	                    case CATEGORICAL_STACKED_COLUMN:
-
-                            categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, accession[0], experimentNumber);
-                            model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
-                            break;
-
-                        case TIME_SERIES_LINE:
-
-                            timeSeriesForParam = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber);
-                            model.addAttribute("timeSeriesChartsAndTable", timeSeriesForParam);
-                            break;
-
-                        default:
-
-                            log.error("Unknown how to display graph for observation type: " + observationTypeForParam);
-                            break;
-                    }
-                }else{
-                	log.error("chart type is null");
-                }
-
-            } catch (SQLException e) {
-                log.error(ExceptionUtils.getFullStackTrace(e));
-                statsError = true;
-            }
-
-            model.addAttribute("pipeline", pipeline);
-            model.addAttribute("metadata", metadata);
-            model.addAttribute("phenotypingCenter", phenotypingCenter);
-            model.addAttribute("experimentNumber", experimentNumber);
-            model.addAttribute("statsError", statsError);
-            model.addAttribute("gpUrl", experiment.getGenotypePhenotypeUrl());
-            model.addAttribute("srUrl", experiment.getStatisticalResultUrl());
-            model.addAttribute("phenStatDataUrl", experiment.getDataPhenStatFormatUrl());
-            model.addAttribute("chartOnly", chartOnly);
-
-        } else {
-            System.out.println("empty experiment");
-            model.addAttribute("emptyExperiment", true);
-        }
-
-        return "chart";
-    }
+			model.addAttribute("pipeline", pipeline);
+			model.addAttribute("phenotypingCenter", phenotypingCenter);
+			model.addAttribute("experimentNumber", experimentNumber);
+			model.addAttribute("statsError", statsError);
+			if(experiment!=null) {
+			    model.addAttribute("gpUrl", experiment.getGenotypePhenotypeUrl());
+			    model.addAttribute("srUrl", experiment.getStatisticalResultUrl());
+			    model.addAttribute("phenStatDataUrl", experiment.getDataPhenStatFormatUrl());
+			}
+			model.addAttribute("chartOnly", chartOnly);
+			
+			// Metadata
+			Map<String, String> metadataMap = null;
+			if (metadataList != null) {
+			    metadataMap = metadataList
+			            .stream()
+			            .map(x -> Arrays.asList((x.split("="))))
+			            .filter(x -> x.size()==2)
+			            .collect(Collectors.toMap(
+			                    k->k.get(0),
+			                    v->v.get(1),
+			                    (v1, v2) -> v1.concat(", ".concat(v2)),
+			                    TreeMap::new
+			            ));
+			}
+			model.addAttribute("metadata", metadata);
+			model.addAttribute("metadataMap", metadataMap);
+			
+			
+			Integer numberFemaleMutantMice = 0;
+			Integer numberMaleMutantMice = 0;
+			Integer numberFemaleControlMice = 0;
+			Integer numberMaleControlMice = 0;
+			
+			if (unidimensionalChartDataSet != null) {
+			    List<UnidimensionalStatsObject> statsObjects = unidimensionalChartDataSet.getStatsObjects();
+			    for (UnidimensionalStatsObject so : statsObjects) {
+			        if (so.getSexType() == SexType.female) {
+			            if (so.getLine().equals("Control")) {
+			                numberFemaleControlMice = so.getSampleSize();
+			            } else {
+			                numberFemaleMutantMice = so.getSampleSize();
+			            }
+			        } else if (so.getSexType() == SexType.male) {
+			            if (so.getLine().equals("Control")) {
+			                numberMaleControlMice = so.getSampleSize();
+			            } else {
+			                numberMaleMutantMice = so.getSampleSize();
+			            }
+			        }
+			    }
+			}
+			
+			if (categoricalResultAndChart != null) {
+			    final List<CategoricalResult> statsResults = categoricalResultAndChart.getStatsResults();
+			    for (CategoricalResult cr : statsResults) {
+			        numberFemaleControlMice = cr.getFemaleControls();
+			        numberFemaleMutantMice = cr.getFemaleMutants();
+			        numberMaleControlMice = cr.getMaleControls();
+			        numberMaleMutantMice = cr.getMaleMutants();
+			    }
+			}
+			
+			if (seriesParameterChartData != null) {
+			    final ExperimentDTO e = seriesParameterChartData.getExperiment();
+			    final Set<ObservationDTO> controls = e.getControls();
+			    final Set<ObservationDTO> mutants = e.getMutants();
+			
+			    // Count each specimen only once, not matter how many time's it's been measured
+			    Set<String> specimensSeen = new HashSet<>();
+			
+			    for (ObservationDTO o : controls) {
+			        if ( ! specimensSeen.contains(o.getExternalSampleId())) {
+			            specimensSeen.add(o.getExternalSampleId());
+			            if (SexType.valueOf(o.getSex()) == SexType.female) {
+			                numberFemaleControlMice += 1;
+			            } else if (SexType.valueOf(o.getSex()) == SexType.male) {
+			                numberMaleControlMice += 1;
+			            }
+			        }
+			    }
+			
+			    for (ObservationDTO o : mutants) {
+			        if ( ! specimensSeen.contains(o.getExternalSampleId())) {
+			            specimensSeen.add(o.getExternalSampleId());
+			            if (SexType.valueOf(o.getSex()) == SexType.female) {
+			                numberFemaleMutantMice += 1;
+			            } else if (SexType.valueOf(o.getSex()) == SexType.male) {
+			                numberMaleMutantMice += 1;
+			            }
+			        }
+			    }
+			
+			
+			}
+			
+			
+			model.addAttribute("numberFemaleMutantMice", numberFemaleMutantMice);
+			model.addAttribute("numberMaleMutantMice", numberMaleMutantMice);
+			model.addAttribute("numberFemaleControlMice", numberFemaleControlMice);
+			model.addAttribute("numberMaleControlMice", numberMaleControlMice);
+			
+			final int totalSamples = Stream.of(numberFemaleMutantMice, numberMaleMutantMice, numberFemaleControlMice, numberMaleControlMice).filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
+			model.addAttribute("numberMice", totalSamples);
+			return "chart";
+	}
     
 
     private void setTitlesForGraph(Model model, String geneticBackground, String alleleSymbol) {
@@ -538,6 +636,89 @@ public class ChartsController {
         model.addAttribute("allParameters", allParameters);
         return "stats";
     }
+    
+//    private String createChartsFromFiles(String[] accessionsParams, String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter,
+//			String[] strains, String[] metadataGroup, String[] zygosity, Model model, ChartType chartType, String[] alleleAccession)
+//        throws SolrServerException, IOException, GenomicFeatureNotFoundException, ParameterNotFoundException, URISyntaxException {
+//
+//    Long time = System.currentTimeMillis();
+//    GraphUtils graphUtils = new GraphUtils(experimentService, srService);
+//    List<String> geneIds = getParamsAsList(accessionsParams);
+//    List<String> paramIds = getParamsAsList(parameterIds);
+//    List<String> genderList = getParamsAsList(gender);
+//    List<String> phenotypingCentersList = getParamsAsList(phenotypingCenter);
+//    List<String> strainsList = getParamsAsList(strains);
+//    List<String> metadataGroups = getParamsAsList(metadataGroup);
+//    List<String> pipelineStableIds = getParamsAsList(pipelineStableIdsArray);
+//    List<String> alleleAccessions = getParamsAsList(alleleAccession);
+//
+//    // add sexes explicitly here so graphs urls are created separately
+//    if (genderList.isEmpty()) {
+//        genderList.add(SexType.male.name());
+//        genderList.add(SexType.female.name());
+//    }
+//
+//    List<String> zyList = getParamsAsList(zygosity);
+//    if (zyList.isEmpty()) {
+//        zyList.add(ZygosityType.homozygote.name());
+//        zyList.add(ZygosityType.heterozygote.name());
+//        zyList.add(ZygosityType.hemizygote.name());
+//    }
+//
+//    Set<String> allGraphUrlSet = new LinkedHashSet<>();
+//    String allParameters = "";
+//
+//    // All ABR parameters are displayed on the same chart so we don't want to duplicate an identical chart for every ABR parameter
+//    List<String> abrParameters =  new ArrayList<>();
+//    abrParameters.addAll(paramIds);
+//    abrParameters.retainAll(Constants.ABR_PARAMETERS);
+//    if (abrParameters.size() > 1){
+//        for (int i = 1; i < abrParameters.size(); i++) { // remove all ABR params but the first one
+//            paramIds.remove(abrParameters.get(i));
+//        }
+//    }
+//    if(geneIds.size()==0) {
+//    	System.err.println("There are no geneIds for this request....probably and error");
+//    }
+//
+//    for (String geneId : geneIds) {
+//
+//        GeneDTO gene = geneService.getGeneById(geneId);
+//
+//        if (gene == null) {
+//            throw new GenomicFeatureNotFoundException("Gene " + geneId + " can't be found.", geneId);
+//        }
+//
+//        log.debug(gene.toString());
+//
+//        model.addAttribute("gene", gene);
+//
+//        List<String> pNames = new ArrayList<>();
+//
+//        for (String parameterId : paramIds) {
+//
+//            ParameterDTO parameter = is.getParameterByStableId(parameterId);
+//            if(parameter==null) {
+//            	System.err.println("no parameter returned skipping for parameterId="+parameterId);
+//            	continue;
+//            }
+//            pNames.add(StringUtils.capitalize(parameter.getName()) + " (" + parameter.getStableId() + ")");
+//			// instead of an experiment list here we need just the outline
+//            // of the experiments - how many, observation types
+//            Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId, parameter, pipelineStableIds, zyList, phenotypingCentersList,
+//            								strainsList, metadataGroups, chartType, alleleAccessions);
+//            allGraphUrlSet.addAll(graphUrlsForParam);
+//
+//        }// end of parameterId iterations
+//
+//        allParameters = StringUtils.join(pNames, ", ");
+//
+//    }// end of gene iterations
+//    log.info(allGraphUrlSet.size() + " chart links.");
+//    model.addAttribute("allGraphUrlSet", allGraphUrlSet);
+//    model.addAttribute("allParameters", allParameters);
+//    return "stats";
+//}
 
     /**
      * Exception handler for gene not found

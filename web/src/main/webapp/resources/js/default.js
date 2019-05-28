@@ -268,11 +268,11 @@
         initWindow();
         initScrolling();
         initSlider();
-        initTooltips();
+       // initTooltips();
         initAccordions();
         initSections();
         initFancybox();
-        initTablesort();
+        // initTablesort();
         initTableFilter();
         initReduceLongTables();
         initRowtoggle();

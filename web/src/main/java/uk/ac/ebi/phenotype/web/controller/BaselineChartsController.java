@@ -168,7 +168,7 @@ public class BaselineChartsController {
 					+ "           align: 'right', "
 					+ "           style: { "
 					+ "              fontSize: '15px',"
-					+ "              fontFamily: 'Verdana, sans-serif'"
+					+ "              fontFamily: '\"Roboto\", sans-serif'"
 					+ "         } "
 					+ "     }, "
 					+ " }, \n"

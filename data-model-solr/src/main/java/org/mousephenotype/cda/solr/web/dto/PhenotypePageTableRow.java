@@ -34,9 +34,9 @@ public class PhenotypePageTableRow extends DataTableRow {
         super();
     }
 
-    public PhenotypePageTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, String drupalBaseUrl, boolean hasImages)
+    public PhenotypePageTableRow(PhenotypeCallSummaryDTO pcs, String baseUrl, String cmsBaseUrl, boolean hasImages)
     throws UnsupportedEncodingException, SolrServerException {
-        super(pcs, baseUrl, drupalBaseUrl);
+        super(pcs, baseUrl, cmsBaseUrl);
     }
     /**
      * Sort by:

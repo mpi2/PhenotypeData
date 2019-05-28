@@ -17,7 +17,6 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
@@ -25,7 +24,6 @@ import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 import org.hibernate.HibernateException;
-import org.hibernate.exception.JDBCConnectionException;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.bean.ExpressionImagesBean;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
@@ -35,25 +33,21 @@ import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.web.dto.*;
 import org.mousephenotype.cda.utilities.DataReaderTsv;
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.phenodigm2.Disease;
 import uk.ac.ebi.phenodigm2.DiseaseModelAssociation;
@@ -73,9 +67,9 @@ import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -84,6 +78,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class GenesController {
@@ -91,69 +86,64 @@ public class GenesController {
     private final Logger LOGGER = LoggerFactory.getLogger(GenesController.class);
     private static final int numberOfImagesToDisplay = 5;
 
-    @Autowired
-    private PhenotypeSummaryDAO phenSummary;
-
-    @Autowired
-    private ImagesSolrDao imagesSolrDao;
-
-    @Autowired
-    private PhenotypeCallSummarySolr phenotypeCallSummaryService;
-
-    @Autowired
-    ObservationService observationService;
-
-    @Autowired
-    SolrIndex solrIndex;
-
-    @Autowired
-    SolrIndex2 solrIndex2;
-
-    @Autowired
-    ImageService imageService;
-
-    @Autowired
-    ExpressionService expressionService;
-
-    @Autowired
-    private GeneService geneService;
-
-    @Autowired
-    private PostQcService postqcService;
-
-    @Autowired
-    private UniprotService uniprotService;
-
-    @Autowired
-    OrderService orderService;
-
-    @Autowired
-    private ImpressService impressService;
-
-    @Autowired
-    private WebDao phenoDigm2Dao;
-
-    @Autowired
-    private RegisterInterestUtils riUtils;
+    private final PhenotypeSummaryDAO phenSummary;
+    private final ImagesSolrDao imagesSolrDao;
+    private final PhenotypeCallSummarySolr phenotypeCallSummaryService;
+    private final ObservationService observationService;
+    private final SolrIndex solrIndex;
+    private final SolrIndex2 solrIndex2;
+    private final ImageService imageService;
+    private final ExpressionService expressionService;
+    private final GeneService geneService;
+    private final StatisticalResultService statisticalResultService;
+    private final PostQcService postqcService;
+    private final UniprotService uniprotService;
+    private final OrderService orderService;
+    private final ImpressService impressService;
+    private final WebDao phenoDigm2Dao;
+    private final RegisterInterestUtils riUtils;
 
     @Resource(name = "globalConfiguration")
     Map<String, String> config;
 
-    private String drupalBaseUrl;
+    private String cmsBaseUrl;
 
     private PharosService pharosService;
+
+    @Inject
+    public GenesController(PhenotypeCallSummarySolr phenotypeCallSummaryService, PhenotypeSummaryDAO phenSummary, ImagesSolrDao imagesSolrDao, ObservationService observationService, SolrIndex solrIndex, SolrIndex2 solrIndex2, WebDao phenoDigm2Dao, ImageService imageService, ExpressionService expressionService, RegisterInterestUtils riUtils, GeneService geneService, ImpressService impressService, PostQcService postqcService, UniprotService uniprotService, OrderService orderService, StatisticalResultService statisticalResultService) {
+        this.phenotypeCallSummaryService = phenotypeCallSummaryService;
+        this.phenSummary = phenSummary;
+        this.imagesSolrDao = imagesSolrDao;
+        this.observationService = observationService;
+        this.solrIndex = solrIndex;
+        this.solrIndex2 = solrIndex2;
+        this.phenoDigm2Dao = phenoDigm2Dao;
+        this.imageService = imageService;
+        this.expressionService = expressionService;
+        this.riUtils = riUtils;
+        this.geneService = geneService;
+        this.impressService = impressService;
+        this.postqcService = postqcService;
+        this.uniprotService = uniprotService;
+        this.orderService = orderService;
+        this.statisticalResultService = statisticalResultService;
+    }
 
     @PostConstruct
     private void postConstruct() {
 
-        drupalBaseUrl = config.get("drupalBaseUrl");
+        cmsBaseUrl = config.get("cmsBaseUrl");
         pharosService = new PharosService();
 
     }
 
     HttpProxy proxy = new HttpProxy();
 
-    private static final List<String> genesWithVignettes = Arrays.asList(new String[]{"MGI:1913761", "MGI:97491", "MGI:1922814", "MGI:3039593", "MGI:1915138", "MGI:1915138", "MGI:1195985", "MGI:102806", "MGI:1195985", "MGI:1915138", "MGI:1337104", "MGI:3039593", "MGI:1922814", "MGI:97491", "MGI:1928849", "MGI:2151064", "MGI:104606", "MGI:103226", "MGI:1920939", "MGI:95698", "MGI:1915091", "MGI:1924285", "MGI:1914797", "MGI:1351614", "MGI:2147810"});
+    private static final List<String> genesWithVignettes = Arrays.asList("MGI:1913761", "MGI:97491", "MGI:1922814", "MGI:3039593", "MGI:1915138", "MGI:1915138", "MGI:1195985", "MGI:102806", "MGI:1195985", "MGI:1915138", "MGI:1337104", "MGI:3039593", "MGI:1922814", "MGI:97491", "MGI:1928849", "MGI:2151064", "MGI:104606", "MGI:103226", "MGI:1920939", "MGI:95698", "MGI:1915091", "MGI:1924285", "MGI:1914797", "MGI:1351614", "MGI:2147810");
+    private static final List<String> phenotypeGroups = Arrays.asList("mortality/aging", "embryo phenotype", "reproductive system phenotype", "growth/size/body region phenotype", "homeostasis/metabolism phenotype or adipose tissue phenotype", "behavior/neurological phenotype or nervous system phenotype", "cardiovascular system phenotype", "respiratory system phenotype", "digestive/alimentary phenotype or liver/biliary system phenotype", "renal/urinary system phenotype", "limbs/digits/tail phenotype", "skeleton phenotype", "immune system phenotype or hematopoietic system phenotype", "muscle phenotype", "integument phenotype or pigmentation phenotype", "craniofacial phenotype", "hearing/vestibular/ear phenotype", "taste/olfaction phenotype", "endocrine/exocrine gland phenotype", "vision/eye phenotype");
+    private static final List<String> phenotypeGroupIcons = Arrays.asList("fas fa-skull-crossbones", "icon-embryo", "icon-reproductive", "fas fa-balance-scale-right", "fas fa-bolt", "fas fa-brain", "fas fa-heart", "fas fa-lungs", "fas fa-stomach", "fas fa-kidneys", "fas fa-hand-paper", "fas fa-bone", "fas fa-tint", "fas fa-dumbbell", "fas fa-diagnoses", "fas fa-meh", "fas fa-ear", "icon-nose", "icon-glands", "fas fa-eye");
+
 
     /**
      * Runs when the request missing an accession ID. This redirects to the
@@ -222,7 +212,7 @@ public class GenesController {
             List<String> sex = new ArrayList<String>();
             sex.add(pcs.getSex().toString());
             // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
-            GenePageTableRow pr = new GenePageTableRow(pcs, url, drupalBaseUrl);
+            GenePageTableRow pr = new GenePageTableRow(pcs, url, cmsBaseUrl);
             phenotypes.add(pr);
         }
 
@@ -238,7 +228,6 @@ public class GenesController {
 
     private void processGeneRequest(String acc, Model model, HttpServletRequest request)
             throws GenomicFeatureNotFoundException, URISyntaxException, IOException, SQLException, SolrServerException {
-        List<Map<String, String>> postQcDataMapList = new ArrayList<>();
         int numberOfTopLevelMpTermsWithStatisticalResult = 0;
         GeneDTO gene = geneService.getGeneById(acc);
 
@@ -255,9 +244,7 @@ public class GenesController {
             geneStatus = solrIndex.getGeneStatus(acc);
             model.addAttribute("geneStatus", geneStatus);
             // if gene status is null then the jsp declares a warning message at status div
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (JSONException | IOException e) {
             e.printStackTrace();
         } catch (IndexOutOfBoundsException exception) {
             throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
@@ -298,9 +285,6 @@ public class GenesController {
             }
             model.addAttribute("numberOfTopLevelMpTermsWithStatisticalResult", numberOfTopLevelMpTermsWithStatisticalResult);
 
-            postQcDataMapList = observationService.getDistinctPipelineAlleleCenterListByGeneAccession(acc);
-
-            model.addAttribute("postQcDataMapList", postQcDataMapList);
             String genePageUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
             Map<String, String> status = geneService.getProductionStatus(acc, genePageUrl);
             prodStatusIcons = (status.get("productionIcons").equalsIgnoreCase("")) ? prodStatusIcons : status.get("productionIcons");
@@ -308,9 +292,7 @@ public class GenesController {
 
             model.addAttribute("orderPossible", status.get("orderPossible"));
 
-            //bodyweight parameter to see if we have bodyweight data for button to link to
-            ParameterDTO parameter = impressService.getParameterByStableId("IMPC_BWT_008_001");
-            if (observationService.getChartPivots("accession=" + acc, acc, parameter, null, null, null, null, null, null).size() > 0) {
+            if (observationService.hasBodyWeight(acc)) {
                 model.addAttribute("bodyWeight", true);
             }
 
@@ -328,7 +310,7 @@ public class GenesController {
 //		}
 
 
-        boolean               loggedIn = false;
+        boolean loggedIn = false;
         try {
 
             loggedIn = riUtils.isLoggedIn();
@@ -400,7 +382,7 @@ public class GenesController {
             e.printStackTrace();
         }
 
-        ArrayList<GenePageTableRow> rowsForPhenotypeTable = processPhenotypes(acc, model, null, null, request);
+        List<GenePageTableRow> rowsForPhenotypeTable = processPhenotypes(acc, model, null, null, request);
 
         model.addAttribute("viabilityCalls", viabilityCalls);
         model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
@@ -414,6 +396,9 @@ public class GenesController {
         model.addAttribute("attemptRegistered", geneService.checkAttemptRegistered(acc));
         model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
         model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
+        model.addAttribute("allMeasurementsNumber", statisticalResultService.getPvaluesByAlleleAndPhenotypingCenterAndPipelineCount(acc, null, null, null, null, null, null, null, null));
+        model.addAttribute("phenotypeGroups", phenotypeGroups);
+        model.addAttribute("phenotypeGroupIcons", phenotypeGroupIcons);
         if (genesWithVignettes.contains(acc)) {
             model.addAttribute("hasVignette", true);
         }
@@ -433,41 +418,8 @@ public class GenesController {
         //model.addAttribute("alleleProductsCre2", orderService.getCreData(acc));
         model.addAttribute("creLineAvailable", orderService.crelineAvailable(acc));
 
-        PhenotypeDisplayStatus phenotypeDisplayStatus = getPhenotypeDisplayStatus(phenotypeStarted, numberOfTopLevelMpTermsWithStatisticalResult, postQcDataMapList, rowsForPhenotypeTable);
-        model.addAttribute("phenotypeDisplayStatus", phenotypeDisplayStatus);
     }
 
-
-    /**
-     * Encapsulate logic for how we are displaying phenotype information in the
-     * gene page here so easy to read through and error check
-     *
-     * @return
-     */
-    private PhenotypeDisplayStatus getPhenotypeDisplayStatus(boolean phenotypeStarted, int numberOfTopLevelMpTermsWithStatisticalResult, List<Map<String, String>> postQcDataMapList, ArrayList<GenePageTableRow> rowsForPhenotypeTable) {
-        //example of gene with preQc but not postQc Iqgap2
-        //example of gene with preQc but not significant  Stox2, Mast3
-        //example with lots of phenotype data http://localhost:8080/phenotype-archive/genes/MGI:109331
-
-        PhenotypeDisplayStatus displayStatus = new PhenotypeDisplayStatus();
-        if (phenotypeStarted) {
-            displayStatus.setDisplayHeatmap(true);
-        }
-
-        if (numberOfTopLevelMpTermsWithStatisticalResult > 0) {
-            displayStatus.setPostQcTopLevelMPTermsAvailable(true);
-        }
-
-        //dataMap is not empty
-        if (!postQcDataMapList.isEmpty()) {
-            displayStatus.setPostQcDataAvailable(true);
-        }
-        if (rowsForPhenotypeTable.size() > 0) {
-            displayStatus.setEitherPostQcOrPreQcSignificantDataIsAvailable(true);
-        }
-
-        return displayStatus;
-    }
 
     /**
      * @author ilinca
@@ -508,6 +460,7 @@ public class GenesController {
 
         // Pass on any query string after the
         String queryString = request.getQueryString();
+
         processPhenotypes(acc, model, topLevelMpTermName, resourceFullname, request);
 
         return "PhenoFrag";
@@ -614,18 +567,17 @@ public class GenesController {
 
     private Map<String, Map<String, Integer>> sortPhenFacets(Map<String, Map<String, Integer>> phenFacets) {
 
-        Map<String, Map<String, Integer>> sortPhenFacets = phenFacets;
         for (String key : phenFacets.keySet()) {
-            sortPhenFacets.put(key, new TreeMap<String, Integer>(phenFacets.get(key)));
+            phenFacets.put(key, new TreeMap<>(phenFacets.get(key)));
         }
-        return sortPhenFacets;
+        return phenFacets;
     }
 
-    private ArrayList<GenePageTableRow> processPhenotypes(String acc, Model model, List<String> topLevelMpTermName, List<String> resourceFullname, HttpServletRequest request)
+    private List<GenePageTableRow> processPhenotypes(String acc, Model model, List<String> topLevelMpTermName, List<String> resourceFullname, HttpServletRequest request)
             throws IOException, URISyntaxException, SolrServerException {
 
-        List<PhenotypeCallSummaryDTO> phenotypeList = new ArrayList<PhenotypeCallSummaryDTO>();
-        PhenotypeFacetResult phenoResult = null;
+        List<PhenotypeCallSummaryDTO> phenotypeList;
+        PhenotypeFacetResult phenoResult;
 
 
         //for image links we need a query that brings back mp terms and colony_ids that have mp terms
@@ -641,10 +593,10 @@ public class GenesController {
             // sort facets
             model.addAttribute("phenoFacets", sortPhenFacets(phenoFacets));
 
-        } catch (HibernateException | JSONException e) {
+        } catch (JSONException e) {
             LOGGER.error("ERROR GETTING PHENOTYPE LIST");
             e.printStackTrace();
-            phenotypeList = new ArrayList<PhenotypeCallSummaryDTO>();
+            phenotypeList = new ArrayList<>();
         }
 
         // This is a map because we need to support lookups
@@ -652,7 +604,7 @@ public class GenesController {
 
         for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 
-            DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), drupalBaseUrl);
+            DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), cmsBaseUrl);
 
             // Collapse rows on sex	and p-value		
             if (phenotypes.containsKey(pr.hashCode())) {
@@ -733,11 +685,9 @@ public class GenesController {
                     row.setImagesEvidenceLink(imageLink);
                 }
             }
-
         }
 
-        ArrayList<GenePageTableRow> l = new ArrayList(phenotypes.values());
-        Collections.sort(l);
+        List<GenePageTableRow> l = phenotypes.values().stream().map(x -> ((GenePageTableRow) x)).collect(Collectors.toList());
         model.addAttribute("rowsForPhenotypeTable", l);
         return l;
     }
@@ -867,30 +817,12 @@ public class GenesController {
             throws SolrServerException, IOException, SQLException {
         boolean overview = true;
         boolean embryoOnly = false;
-        List<Count> parameterCounts = expressionService.getLaczCategoricalParametersForGene(acc);
-
-        List<AnatomogramDataBean> anatomogramDataBeans = expressionService.getAnatomogramDataBeans(parameterCounts);
-        Map<String, Long> topLevelMaCounts = expressionService.getLacSelectedTopLevelMaCountsForAnatomogram(anatomogramDataBeans);
-        Set<String> topLevelMaIds = expressionService.getLacSelectedTopLevelMaIdsForAnatomogram(anatomogramDataBeans);
-
-        //System.out.println("Genes controller: topLevelMaCounts"+topLevelMaCounts);
-        model.addAttribute("topLevelMaCounts", topLevelMaCounts);
-        model.addAttribute("topLevelMaIds", topLevelMaIds);
-        JSONObject anatomogram = expressionService.getAnatomogramJson(anatomogramDataBeans);
-        model.addAttribute("anatomogram", anatomogram);
 
         ExpressionImagesBean section = expressionService.getLacImageDataForGene(acc, null, "IMPC_ALZ_075_001", overview);
         ExpressionImagesBean wholemount = expressionService.getLacImageDataForGene(acc, null, "IMPC_ALZ_076_001", overview);
         model.addAttribute("sectionExpressionImagesBean", section);
         model.addAttribute("wholemountExpressionImagesBean", wholemount);
 
-//		model.addAttribute("haveImpcAdultImagesSection", section.getHaveImpcImages());
-//		model.addAttribute("haveImpcAdultImagesWholemount", wholemount.getHaveImpcImages());
-        //need to do these for section and wholemount
-//		model.addAttribute("impcAdultExpressionImageFacetsSection", section.getFilteredTopLevelAnatomyTerms());
-//		model.addAttribute("impcAdultExpressionFacetToDocsSection", section.getExpFacetToDocs());
-//		model.addAttribute("impcAdultExpressionImageFacetsWholemount", wholemount.getFilteredTopLevelAnatomyTerms());
-//		model.addAttribute("impcAdultExpressionFacetToDocsWholemount", wholemount.getExpFacetToDocs());
         expressionService.getExpressionDataForGene(acc, model, embryoOnly);
     }
 
@@ -907,70 +839,18 @@ public class GenesController {
         //good test gene:Nxn with selected top level emap terms
         boolean overview = true;
         boolean embryoOnly = true;
-        //get embryo images
-        //solrQuery.addFilterQuery(ImageDTO.PARAMETER_STABLE_ID + ":IMPC_ELZ_064_001" + " OR "
-        //+ ImageDTO.PARAMETER_STABLE_ID + ":IMPC_ELZ_063_001");
 
         //impcEmbryoExpressionFacetToDocsWholemount
         ExpressionImagesBean wholemount = expressionService.getLacImageDataForGene(acc, null, "IMPC_ELZ_064_001", overview);
         ExpressionImagesBean section = expressionService.getLacImageDataForGene(acc, null, "IMPC_ELZ_063_001", overview);
         model.addAttribute("sectionExpressionImagesEmbryoBean", section);
         model.addAttribute("wholemountExpressionImagesEmbryoBean", wholemount);
-//		model.addAttribute("impcEmbryoExpressionImageFacetsWholemount", wholemount.getExpFacetToDocs());
-//		model.addAttribute("impcEmbryoExpressionImageFacetsSection", section.getExpFacetToDocs());
-//		
-//		
-//		model.addAttribute("topLevelMaCountsEmbryoWholemount", wholemount.getFilteredTopLevelAnatomyTerms());
-//		model.addAttribute("topLevelMaCountsEmbryoSection", section.getFilteredTopLevelAnatomyTerms());
-//		model.addAttribute("haveImpcAdultImagesEmbryoSection", section.getHaveImpcImages());
-//		model.addAttribute("haveImpcAdultImagesEmbryoWholemount", wholemount.getHaveImpcImages());
+
         expressionService.getExpressionDataForGene(acc, model, embryoOnly);
 
     }
 
-    /**
-     * Error handler for gene not found
-     *
-     * @param exception
-     * @return redirect to error page
-     *
-     */
-    @ExceptionHandler(GenomicFeatureNotFoundException.class)
-    public ModelAndView handleGenomicFeatureNotFoundException(GenomicFeatureNotFoundException exception) {
 
-        ModelAndView mv = new ModelAndView("identifierErrorGenes");
-        mv.addObject("errorMessage", exception.getMessage());
-        mv.addObject("acc", exception.getAcc());
-        mv.addObject("type", "MGI gene");
-        mv.addObject("exampleURI", "/genes/MGI:104874");
-        return mv;
-    }
-
-    @ExceptionHandler(JDBCConnectionException.class)
-    public ModelAndView handleJDBCConnectionException(JDBCConnectionException exception) {
-
-        ModelAndView mv = new ModelAndView("uncaughtException");
-        System.out.println(ExceptionUtils.getFullStackTrace(exception));
-        mv.addObject("errorMessage", "An error occurred connecting to the database");
-        return mv;
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ModelAndView handleGeneralException(Exception exception) {
-
-        ModelAndView mv = new ModelAndView("uncaughtException");
-        System.out.println(ExceptionUtils.getFullStackTrace(exception));
-        return mv;
-    }
-
-    /**
-     * Display an identifier error page
-     */
-    @RequestMapping("/identifierErrorGenes")
-    public String identifierError(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes) {
-
-        return "identifierErrorGenes";
-    }
 
     /**
      * @throws IOException
@@ -1083,6 +963,7 @@ public class GenesController {
             modelAssocsJsArray = "[" + String.join(", ", jsons) + "]";
         }
         model.addAttribute("modelAssociations", modelAssocsJsArray);
+        model.addAttribute("modelAssociationsNumber", modelAssociations.size());
         model.addAttribute("hasModelsByOrthology", hasModelsByOrthology);
         model.addAttribute("hasModelAssociations", modelAssociations.size()>0);
     }

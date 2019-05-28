@@ -18,7 +18,7 @@
         resTemp[0].remove();
 </script>
 
-<table id="phenotypes"  class="table tableSorter">
+<table id="phenotypes" class="table tableSorter clickableRows dt-responsive" style="width: 100%">
 
     <thead>
     <tr>
@@ -30,7 +30,6 @@
         <th>Procedure | Parameter</th>
         <th>Phenotyping Center | Source</th>
         <th>P Value</th>
-        <th>Data</th>
     </tr>
     </thead>
 
@@ -39,65 +38,53 @@
         <c:set var="europhenome_gender" value="Both-Split"/>
         <tr>
 
-            <td><a href="${baseUrl}/genes/${phenotype.gene.accessionId}">${phenotype.gene.symbol}</a><br/>
+            <td><span href="${baseUrl}/genes/${phenotype.gene.accessionId}">${phenotype.gene.symbol}</span><br/>
                 <span class="smallerAlleleFont"><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></span>
             </td>
 
             <td>${phenotype.zygosity.getShortName()}</td>
 
             <td style="font-family:Verdana;font-weight:bold;">
-           
-                
-  <t:displaySexes sexes="${phenotype.sexes}"></t:displaySexes>
-                  
-                
+
+
+                <t:displaySexes sexes="${phenotype.sexes}"></t:displaySexes>
+
+
             </td>
 
             <td>${phenotype.lifeStageName}</td>
 
             <td>
-                <a href="${baseUrl}/phenotypes/${phenotype.phenotypeTerm.id}">${phenotype.phenotypeTerm.name}</a>
+                <span href="${baseUrl}/phenotypes/${phenotype.phenotypeTerm.id}">${phenotype.phenotypeTerm.name}</span>
             </td>
 
             <td>${phenotype.procedure.name} | ${phenotype.parameter.name}</td>
 
             <td>${phenotype.phenotypingCenter} | ${phenotype.dataSourceName}</td>
 
-            <td>${phenotype.prValueAsString}</td>
+            <td data-sort="${phenotype.prValueAsString}">
+                <t:formatScientific>${phenotype.prValueAsString}</t:formatScientific>
+            </td>
 
-            
-           
-            
-               	<td  class="postQcLink">
-           
+
             <c:if test="${phenotype.getEvidenceLink().getDisplay()}">
                 <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("IMAGE")}'>
-                    <a href="${phenotype.getEvidenceLink().getUrl() }"><i class="fa fa-image" alt="${phenotype.getEvidenceLink().getAlt()}"></i>
-                    </a>
+                    <td data-sort="${phenotype.getEvidenceLink().getUrl()}">
+                    </td>
                 </c:if>
                 <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("GRAPH")}'>
-                    <a href="${phenotype.getEvidenceLink().getUrl() }" class="fancyboxGraph"><i class="fa fa-bar-chart-o" alt="${phenotype.getEvidenceLink().getAlt()}"></i>
-                    </a>
+                    <td data-sort="${phenotype.getEvidenceLink().getUrl() }&pageTitle=${phenotype.phenotypeTerm.name} phenotype with knockout ${phenotype.gene.symbol}&linkBack=linkback link here"></td>
                 </c:if>
-                 <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("TABLE")}'>
-                    <a href="${phenotype.getEvidenceLink().getUrl() }"><i class="fa fa-table" alt="${phenotype.getEvidenceLink().getAlt()}"></i>
-                    </a>
+                <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("TABLE")}'>
+                    <td data-sort="${phenotype.getEvidenceLink().getUrl()}"></td>
                 </c:if>
             </c:if>
 
             <c:if test="${!phenotype.getEvidenceLink().getDisplay()}">
-                <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("IMAGE")}'>
-                    <i class="fa fa-image" title="No images available."></i>
-                </c:if>
-                <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("GRAPH")}'>
-                    <i class="fa fa-bar-chart-o" title="No supporting data supplied."></i>
-                </c:if>
+                <td data-sort="none"></td>
             </c:if>
 
-            
-        </td> <!-- This is closing the td from the 2 ifs above -->
-            
-            
+
         </tr>
     </c:forEach>
     </tbody>

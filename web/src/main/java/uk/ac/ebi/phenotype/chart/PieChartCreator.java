@@ -63,7 +63,7 @@ String pieChart="";
 	private static String makeChart(Map<String, Integer> labelToNumber, String chartId, String title, String subtitle,
 			List<String> colors) {
 		String chart = "$(function () { $('#"+chartId+"').highcharts({ "
-				 + " chart: { plotBackgroundColor: null, plotShadow: false}, "
+				 + " chart: { plotBackgroundColor: null, plotShadow: false, style: { fontFamily: '\"Roboto\", sans-serif' }}, "
 				 + " colors:"+colors+", "
 				 + " title: {  text: '"+title+"' }, "
 				 + " subtitle: {  text: '"+subtitle+"' }, "

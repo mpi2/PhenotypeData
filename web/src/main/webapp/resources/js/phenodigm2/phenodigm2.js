@@ -220,8 +220,8 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
     // a part of addToRow for disease pages
     var addToDiseaseRow = function (x) {
         var trow = tbody.append("tr").attr("class", "phenotable").attr("geneid", x[0]["markerId"]);
-        trow.append("td").append("a").classed(pt + "link", true)
-                .attr("href", impc.urls.genes + x[0]["markerId"]).html(x[0]["markerSymbol"]);
+        trow.append("td").append("span").classed(pt + "link", true)
+                .html(x[0]["markerSymbol"]);
         var ximg = impc.isImpc(x) ? impc.logohtml : "";
         trow.append("td").html(x.length + " <span class='small'>(" + x[0].markerNumModels + ") " + ximg);
         return trow;
@@ -230,10 +230,10 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
     var addToGenesRow = function (x) {        
         // x is now an array of objects, display a summary row
         var trow = tbody.append("tr").attr("class", "phenotable").attr("diseaseid", x[0]["diseaseId"]);
-        trow.append("td").append("a").classed(pt + "link", true)
-                .attr("href", impc.urls.disease + x[0]["diseaseId"]).html(x[0]["diseaseTerm"]);
-        trow.append("td").append("a").classed(pt + "link", true)
-                .attr("href", x[0]["diseaseUrl"]).html(x[0]["diseaseId"]);
+        trow.append("td").append("span").classed(pt + "link", true)
+                .html(x[0]["diseaseTerm"]);
+        trow.append("td").append("span").classed(pt + "link", true)
+                .html(x[0]["diseaseId"]);
         return trow;
     };
     // Create a row in table (but skip x if phenoscore below threshold)
@@ -242,6 +242,10 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
             return;
         }
         var trow = addSpecific(x);
+        if (config.count === undefined) {
+            config.count = 0;
+        }
+        config.count += 1;
         addScoreTds(trow, x);
     };
 

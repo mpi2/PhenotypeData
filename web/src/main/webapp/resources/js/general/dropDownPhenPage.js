@@ -1,11 +1,11 @@
 $(document).ready(function(){						
 	
 	// bubble popup for brief panel documentation
-	$.fn.qTip({
-		'pageName': 'phenotypes',	
-		'tip': 'top right',
-		'corner' : 'right top'
-	});
+//	$.fn.qTip({
+//		'pageName': 'phenotypes',	
+//		'tip': 'top right',
+//		'corner' : 'right top'
+//	}); removed as causing errors and should use bootstrap instead???? JW
 	
 	var selectedFilters = "";
 	var dropdownsList = new Array();
@@ -15,30 +15,36 @@ $(document).ready(function(){
 	
 	function initPhenoDataTable(){
             var aDataTblCols = [0,1,2,3,4,5,6,7,8];
-            $('table#phenotypes').dataTable( {
-           // 	$.fn.initDataTable($('table#phenotypes'), {
-            	"aoColumns": [
-            	              { "sType": "html", "mRender":function( data, type, full ) {
-            	            	  return (type === "filter") ? $(data).text() : data;
-            	              }},
-            	              { "sType": "string"},
-            	              { "sType": "string"},
-            	              { "sType": "html", "mRender":function( data, type, full ) {
-            	            	  return (type === "filter") ? $(data).text() : data;
-            	              }},
-            	              { "sType": "string"},
-            	              { "sType": "string"},
-            	              { "sType": "html"},
-                              { "sType": "allnumeric", "aTargets": [ 3 ] },
-                              { "sType": "string", "bSortable" : false }
-                      ],
-                "aaSorting": [[ 7, 'asc' ]],//sort by the p value on init
-
-        		"bDestroy": true,
-        		"bFilter":false,
-        		"bPaginate":true,
-                "sPaginationType": "bootstrap"
-            });
+            $('table#phenotypes').dataTable(
+                {
+                    "bFilter":false,
+                    "bLengthChange": false,
+					"responsive": true,
+                    'columnDefs': [
+                        {
+                            "targets": [ 8 ],
+                            "visible": false
+                        },
+                        {
+                            "targets": [ 0 ],
+                            "max-width": "100px"
+                        }
+                    ],
+                    'rowCallback': function (row, data, index) {
+                        $(row).on('click', function () {
+                            var url = data[8]['@data-sort'];
+                            if (url !== "none") {
+                                window.location.href = decodeURIComponent(url);
+                            } else {
+                                console.log(row);
+                                row.removeClass('clickableRows');
+                                row.addClass('unClickableRows');
+                                row.addClass('text-muted');
+							}
+                        });
+                    }
+                }
+			);
         }
 	
 	function removeFilterSelects(){ // Remove selected options when going back to the page
@@ -112,101 +118,53 @@ $(document).ready(function(){
 	//put filtering in another text field than the default so we can position it with the other controls like dropdown ajax filters for project etc
 
 	//stuff for dropdown tick boxes here
-	var allDropdowns = new Array();
-	allDropdowns[0] = $('#resource_fullname');
-	allDropdowns[1] = $('#procedure_name');
-	allDropdowns[2] = $('#marker_symbol');
-	allDropdowns[3] = $('#mp_term_name');
-	createDropdown(allDropdowns[3].sort(), "Phenotype: All", allDropdowns);
-	createDropdown(allDropdowns[0],"Source: All", allDropdowns);
-	createDropdown(allDropdowns[1], "Procedure: All", allDropdowns);
-	createDropdown(allDropdowns[2].sort(), "Gene: All", allDropdowns);
+	$('.selectpicker').selectpicker();
+	$('#procedure_name').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+		 refreshGenesPhenoFrag();
+		});
+	$('#marker_symbol').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {
+		 refreshGenesPhenoFrag();
+		});
 	
-	function createDropdown(multipleSel, emptyText,  allDd){
-		$(multipleSel).dropdownchecklist( { firstItemChecksAll: false, emptyText: emptyText, icon: {}, 
-			minWidth: 150, onItemClick: function(checkbox, selector){
-				var justChecked = checkbox.prop("checked");
-				var values = [];
-				for(var  i=0; i < selector.options.length; i++ ) {
-					if (selector.options[i].selected && (selector.options[i].value != "")) {
-						values .push(selector.options[i].value);
-					}
-				}
-
-				if(justChecked){				    		 
-					values.push( checkbox.val());
-				}else{//just unchecked value is in the array so we remove it as already ticked
-					var index = $.inArray(checkbox.val(), values);
-					values.splice(index, 1);
-				}  
-				
-				// add current one and create drop down object 
-				dd1 = new Object();
-				dd1.name = multipleSel.attr('id'); 
-				dd1.array = values; // selected values
-				
-				dropdownsList[0] = dd1;
-				
-				var ddI  = 1; 
-				for (var ii=0; ii<allDd.length; ii++) { 
-					if ($(allDd[ii]).attr('id') != multipleSel.attr('id')) {
-						dd = new Object();
-						dd.name = allDd[ii].attr('id'); 
-						dd.array = allDd[ii].val() || []; 
-						dropdownsList[ddI++] = dd;
-					}
-				}
-				refreshGenesPhenoFrag(dropdownsList);
-				addParamsToURL();
-			}, textFormatFunction: function(options) {
-				var selectedOptions = options.filter(":selected");
-		        var countOfSelected = selectedOptions.size();
-		        var size = options.size();
-		        var text = "";
-		        if (size > 1){
-		        	options.each(function() {
-	                    if ($(this).prop("selected")) {
-	                        if ( text != "" ) { text += ", "; }
-	                        /* NOTE use of .html versus .text, which can screw up ampersands for IE */
-	                        var optCss = $(this).attr('style');
-	                        var tempspan = $('<span/>');
-	                        tempspan.html( $(this).html() );
-	                        if ( optCss == null ) {
-	                                text += tempspan.html();
-	                        } else {
-	                                tempspan.attr('style',optCss);
-	                                text += $("<span/>").append(tempspan).html();
-	                        }
-	                    }
-	                });
-		        }
-		        switch(countOfSelected) {
-		           case 0: return emptyText;
-		           case 1: return selectedOptions.text();
-		           case options.size(): return emptyText;
-		           default: return text;
-		        }
-			}
-		} );
-	}
+	$('#mp_term_name').on('changed.bs.select', function (e, clickedIndex, isSelected, previousValue) {	
+		 refreshGenesPhenoFrag();
+		});
 	
-	//if filter parameters are already set then we need to set them as selected in the dropdowns
-	var previousParams=$("#filterParams").html();
 	
-	function refreshGenesPhenoFrag(dropdownsList) {
+	function refreshGenesPhenoFrag() {
 		var rootUrl = window.location.href;
 		var newUrl = rootUrl.replace("phenotypes", "geneVariantsWithPhenotypeTable").split("#")[0];
 		var output ='?';
 		selectedFilters = "";
-		for (var it = 0; it < dropdownsList.length; it++){
-			if (dropdownsList[it].array.length > 0){
-				selectedFilters += '&' + dropdownsList[it].name + '=' + dropdownsList[it].array.join('&' + dropdownsList[it].name + '=');
+		
+		
+		if($('#procedure_name').val().length > 0){
+			
+			for (var it = 0; it < $('#procedure_name').val().length; it++){
+			selectedFilters += '&' +'procedure_name' + '='+$('#procedure_name').val()[it];
 			}
 		}
+		
+		if($('#marker_symbol').val().length > 0){
+			
+			for (var it = 0; it < $('#marker_symbol').val().length; it++){
+			selectedFilters += '&' +'marker_symbol' + '='+$('#marker_symbol').val()[it];
+			}
+		}
+		if($('#mp_term_name').val().length > 0){
+			
+			for (var it = 0; it < $('#mp_term_name').val().length; it++){
+			selectedFilters += '&' +'mp_term_name' + '='+$('#mp_term_name').val()[it];
+			}
+		}
+		
 		newUrl += output + selectedFilters;
+		console.log('new url='+newUrl);
 		refreshPhenoTable(newUrl);
 		return false;
 	}
+	
+	
 	
 	
 	/** 

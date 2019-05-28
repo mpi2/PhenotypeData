@@ -20,89 +20,22 @@ import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 public class ChartData {
-    @Override
-    public String toString() {
-        return "ChartData [expBiologicalModel=" + expBiologicalModel + ", experiment=" + experiment + ", chart=" + chart
-                + ", organisation=" + organisation + ", min=" + min + ", max=" + max + ", id=" + id + ", lines=" + lines
-                + "]";
-    }
 
-    
-private String title;
-public String getTitle() {
-	return title;
-}
-
-public void setTitle(String title) {
-	this.title = title;
-}
-
-public String getSubtitle() {
-	return subtitle;
-}
-
-public void setSubTitle(String subtitle) {
-	this.subtitle = subtitle;
-}
-
-private ParameterDTO parameter;
-
-public ParameterDTO getParameter() {
-	return parameter;
-}
-
-public void setParameter(ParameterDTO parameter) {
-	this.parameter = parameter;
-}
-
-public void setSubtitle(String subtitle) {
-	this.subtitle = subtitle;
-}
-
-
-private String subtitle;
-    BiologicalModel expBiologicalModel;
+    private String title;
+    private ParameterDTO parameter;
+    private String subTitle;
+    private BiologicalModel expBiologicalModel;
     private ExperimentDTO experiment;
     private String chart;
-    String organisation = "";
-    private Float min = new Float(0);
-    private Float max = new Float(1000000000);
+    private String organisation = "";
+    private Float min = 0f;
+    private Float max = 1000000000f;
     private String id;
     private Map<String, List<DiscreteTimePoint>> lines;
 
-    public Map<String, List<DiscreteTimePoint>> getLines() {
-        return lines;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public BiologicalModel getExpBiologicalModel() {
-        return expBiologicalModel;
-    }
-
-    public void setExpBiologicalModel(BiologicalModel expBiologicalModel) {
-        this.expBiologicalModel = expBiologicalModel;
-    }
-
-    public Float getMin() {
-        return min;
-    }
-
-    public void setMin(Float min) {
-        this.min = min;
-    }
 
     public void alterMinMax(double d, double e) {
         String chartString = getChart();
@@ -111,58 +44,14 @@ private String subtitle;
         setChart(newChartString);
     }
 
-    public Float getMax() {
-        return max;
-    }
-
-    public void setMax(Float max) {
-        this.max = max;
-    }
-
-    public String getChart() {
-        return chart;
-    }
-
-    public void setChart(String chart) {
-        this.chart = chart;
-    }
-
-    public String getOrganisation() {
-        return organisation;
-    }
-
-    public void setOrganisation(String organisation) {
-        this.organisation = organisation;
-    }
-
-    /**
-     * @return the experiment
-     */
-    public ExperimentDTO getExperiment() {
-        return experiment;
-    }
-
-    /**
-     * @param experiment the experiment to set
-     */
-    public void setExperiment(ExperimentDTO experiment) {
-        this.experiment = experiment;
-    }
-
-    public void setLines(Map<String, List<DiscreteTimePoint>> lines) {
-        this.lines = lines;
-
-    }
 
     public Set<Float> getUniqueTimePoints() {
-        Set timeSet = new TreeSet();
+        Set<Float> timeSet = new TreeSet<>();
         for (String key : this.lines.keySet()) {
             List<DiscreteTimePoint> line = this.lines.get(key);
             for (DiscreteTimePoint point : line) {
                 Float time = point.getDiscreteTime();
-                if (!timeSet.contains(time)) {
-                    timeSet.add(time);
-                }
+                timeSet.add(time);
 
             }
         }
@@ -198,5 +87,125 @@ private String subtitle;
 
         return maxWeek;
     }
+
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public ParameterDTO getParameter() {
+        return parameter;
+    }
+
+    public void setParameter(ParameterDTO parameter) {
+        this.parameter = parameter;
+    }
+
+    public String getSubTitle() {
+        return subTitle;
+    }
+
+    public void setSubTitle(String subTitle) {
+        this.subTitle = subTitle;
+    }
+
+    public BiologicalModel getExpBiologicalModel() {
+        return expBiologicalModel;
+    }
+
+    public void setExpBiologicalModel(BiologicalModel expBiologicalModel) {
+        this.expBiologicalModel = expBiologicalModel;
+    }
+
+    public ExperimentDTO getExperiment() {
+        return experiment;
+    }
+
+    public void setExperiment(ExperimentDTO experiment) {
+        this.experiment = experiment;
+    }
+
+    public String getChart() {
+        return chart;
+    }
+
+    public void setChart(String chart) {
+        this.chart = chart;
+    }
+
+    public String getOrganisation() {
+        return organisation;
+    }
+
+    public void setOrganisation(String organisation) {
+        this.organisation = organisation;
+    }
+
+    public Float getMin() {
+        return min;
+    }
+
+    public void setMin(Float min) {
+        this.min = min;
+    }
+
+    public Float getMax() {
+        return max;
+    }
+
+    public void setMax(Float max) {
+        this.max = max;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Map<String, List<DiscreteTimePoint>> getLines() {
+        return lines;
+    }
+
+    public void setLines(Map<String, List<DiscreteTimePoint>> lines) {
+        this.lines = lines;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChartData chartData = (ChartData) o;
+        return Objects.equals(title, chartData.title) &&
+                Objects.equals(parameter, chartData.parameter) &&
+                Objects.equals(subTitle, chartData.subTitle) &&
+                Objects.equals(expBiologicalModel, chartData.expBiologicalModel) &&
+                Objects.equals(experiment, chartData.experiment) &&
+                Objects.equals(chart, chartData.chart) &&
+                Objects.equals(organisation, chartData.organisation) &&
+                Objects.equals(min, chartData.min) &&
+                Objects.equals(max, chartData.max) &&
+                Objects.equals(id, chartData.id) &&
+                Objects.equals(lines, chartData.lines);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, parameter, subTitle, expBiologicalModel, experiment, chart, organisation, min, max, id, lines);
+    }
+
+    @Override
+    public String toString() {
+        return "ChartData [expBiologicalModel=" + expBiologicalModel + ", experiment=" + experiment + ", chart=" + chart
+                + ", organisation=" + organisation + ", min=" + min + ", max=" + max + ", id=" + id + ", lines=" + lines
+                + "]";
+    }
+
 
 }

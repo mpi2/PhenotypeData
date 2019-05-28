@@ -10,236 +10,379 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
+<div class="container-fluid">
+    <div class="row flex-xl-nowrap">
+        <div class="col-lg-8">
+            <!-- only display a normal div if no phenotype icons displayed -->
+            <div id="phenoSumSmallDiv">
+                <div class="row no-gutters">
+                    <div class="col-md-2 align-middle text-right pr-1">
+                        <div class="align-middle font-weight-bold pr-2">Name</div>
+                    </div>
+                    <div class="col-md-10 align-middle">
+                        <span>${gene.markerName}</span>
+                    </div>
+                </div>
+                <div class="row no-gutters">
+                    <div class="col-md-2 align-middle text-right pr-1">
+                        <div class="align-middle font-weight-bold pr-2">MGI ID</div>
+                    </div>
+                    <div class="col-md-10 align-middle">
+                        <span>${gene.mgiAccessionId}</span>
+                    </div>
+                </div>
+                <div class="row no-gutters">
+                    <div class="col-md-2 align-middle text-right pr-1">
+                        <div class="align-middle font-weight-bold pr-2">Synonyms</div>
+                    </div>
+                    <div class="col-md-10 align-middle">
+                        <c:if test='${fn:length(gene.markerSynonym) gt 1}'>
 
-  	<c:if test="${phenotypeDisplayStatus.postQcTopLevelMPTermsAvailable}">
-    	<jsp:include page="phenotype_icons_frag.jsp"/>
-	</c:if>
-   
-	<c:if test="${phenotypeDisplayStatus.postQcTopLevelMPTermsAvailable}">
-    	<div id="phenoSumDiv">
-    </c:if>
-    <c:if test="${!phenotypeDisplayStatus.postQcTopLevelMPTermsAvailable}"> <!-- only display a normal div if no phenotype icons displayed -->
-    	<div id="phenoSumSmallDiv">
-    </c:if>
-    <c:if test="${phenotypeDisplayStatus.postQcTopLevelMPTermsAvailable}">
-        <h5 class="sectHint">All Phenotypes Summary</h5>
-        <p>Based on automated MP annotations supported by experiments on knockout mouse models. 
-    
-      		Click on icons to go to all ${gene.markerSymbol} data for that phenotype.
-      	</p> 
-      	
-        </c:if>
-        
-        <c:if test="${phenotypeDisplayStatus.postQcDataAvailable || phenotypeDisplayStatus.displayHeatmap || bodyWeight }">
-	        <div id="all_data" class="with-label">
-	        
-		        <span class="label">All Data:</span> 
-		         <c:if test="${bodyWeight}">
-		        <a id="bodyWeightBtn" class="btn" href="${baseUrl}/charts?accession=${acc}&parameter_stable_id=IMPC_BWT_008_001&&chart_type=TIME_SERIES_LINE" title="Body Weight Curves">Body Weight Data</a>
-		        </c:if>
-		        <c:if test="${phenotypeDisplayStatus.postQcDataAvailable}">
-		            <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
-		            <a id="allAdultDataBtn" class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}' title="All Data">${gene.markerSymbol} Measurements</a>
-		        </c:if>
-		       
-				<c:if test="${phenotypeDisplayStatus.displayHeatmap}">
-		        	<%-- <jsp:include page="heatmapFrag.jsp"/> split out from frag as need to display heatmap in different location to button --%>
-		        	<c:if test="${phenotypeStarted}">
-	 						<a id="heatmap_link" class="btn">Heatmap / Table</a>
-					
-					</c:if>
-		        </c:if>
-		       
-	        </div>
-	        
-	        				
-								
-        </c:if>
-        <c:if test="${gene.embryoDataAvailable || gene.embryoAnalysisUrl!=null || gene.dmddImageDataAvailable || hasVignette}">
-        	<div id="embryo" class="with-label">
-        	<span class="label">Embryo Data: </span>
-		        <c:if test="${gene.embryoDataAvailable}">
-		            <a id="embryoViewerBtn" class="btn" href="${drupalBaseUrl}/embryoviewer/?mgi=${acc}" title="3D Embryo Images are Available">3D Embryo Imaging</a>
-		        </c:if>
-		        
-		        <c:if test="${gene.embryoAnalysisUrl!=null}">
-		            <a id="embryoAnalysisBtn" class="btn" href="${gene.embryoAnalysisUrl}" title="Automated 3D Volumetric Analysis of Embryo images">3D Embryo Vol Analysis</a>
-		        </c:if>
-		        
-		        <c:if test="${gene.dmddImageDataAvailable}">
-		            <a id="DmddViewerBtn" class="btn" href="https://dmdd.org.uk/mutants/${gene.markerSymbol}" target="_blank" title="Embryo Images and Manual Phenotypes from the DMDD project" >DMDD Images and Phenotypes</a>
-		        </c:if> 
-		
-		        <c:if test="${hasVignette}">
-		            <a class="btn" href="${baseUrl}/embryo/vignettes#${acc}" title="embryo vignette exists for this gene">Embryo Vignette</a>
-		        </c:if>
-			</div>
-		</c:if>			
-				
-				
-				<c:if test="${phenotypeDisplayStatus.displayHeatmap}">
-		        <div id="heatmap_toggle_div" class="section hidden">
-							<h2 class="title" id="heatmap">Phenotype Heatmap of Preliminary Data
-								<span class="documentation"><a href='' id='heatmapSection' class="fa fa-question-circle pull-right"></a></span>
-							</h2>
-	
-							<div class="dcc-heatmap-root">
-								<div class="phenodcc-heatmap"
-									 id="phenodcc-heatmap"></div>
-							</div>
-				</div><!-- end of Pre-QC phenotype heatmap -->
-			</c:if>
-       
+                            <c:forEach var="synonym" items="${gene.markerSynonym}" varStatus="loop">
+                                <span>${synonym}</span>
+                            </c:forEach>
 
-       
-    </div>
-  
+                        </c:if>
+                        <c:if test='${fn:length(gene.markerSynonym) == 1}'>
 
-						
-    <c:if test="${!phenotypeDisplayStatus.eitherPostQcOrPreQcSignificantDataIsAvailable}"><!-- no significant postQC data or preQcData-->
-    
-	   <%--  <c:choose> --%>
-	    	<c:if test="${ attemptRegistered && phenotypeStarted }"> 
-	    		No results meet the p-value threshold
-	 		</c:if>
-	 		<%-- <c:if test="${phenotypeDisplayStatus.postQcDataAvailable}">
-				 		No significant phenotype associations were found with data that has
-			          passed quality control (QC), but you can click
-			          on the "All Adult Data" button to see all phenotype data that has
-			          passed QC. Preliminary phenotype assocations
-			          may appear with new pre-QC phenotype data.
-	 		</c:if> --%>
-	         <%-- <p> No hits that meet the p value threshold. <jsp:include page="heatmapFrag.jsp"/></p> --%>
-	         <c:if test="${ attemptRegistered && !phenotypeStarted }"> 
-		        <div class="alert alert-info">
-		          <h5>Registered for phenotyping</h5>
-		
-		          <p>Phenotyping is planned for a knockout strain of this gene but
-		            data is not currently available.</p>
-		        </div>
-		    </c:if>
-	    
-	    	
-	    	<c:if test="${!attemptRegistered}"> 
-		        <div class="alert alert-info">
-		          <h5>Not currently registered for phenotyping</h5>
-		
-		          <p>Phenotyping is currently not planned for a knockout strain of this gene.
-		          </p>
-		        </div>
-		    </c:if>
-		      
-		      	<br/>
-	  </c:if> 
-	    	
-	    	
-   
-     
+                            <c:forEach var="synonym" items="${gene.markerSynonym}" varStatus="loop">
+                                <span>${synonym}</span>
+                                <c:if test="${!loop.last}">,&nbsp;</c:if>
+                            </c:forEach>
 
-     
-    <%-- <c:if test="${phenotypeDisplayStatus.postQcDataAvailable && !phenotypeDisplayStatus.eitherPostQcOrPreQcSignificantDataIsAvailable}"> don't think we need this section now??
-      <div class="alert alert-info">
-        <h5>No Significant Phenotype Associations Found</h5>
+                        </c:if>
+                        <c:if test="${(empty gene.markerSynonym)}">
+                            N/A
+                        </c:if>
+                    </div>
+                </div>
 
-        <p>No significant phenotype associations were found with data that has
-          passed quality control (QC), but you can click
-          on the "All Adult Data" button to see all phenotype data that has
-          passed QC. Preliminary phenotype assocations
-          may appear with new pre-QC phenotype data.</p>
-      </div>
-      <br/>
-      <!-- best example http://localhost:8080/PhenotypeArchive/genes/MGI:1913955 -->
-      <div class="floatright marginup" style="clear: both">
-        <a id="allAdultDataBtn" class="btn" href='${baseUrl}/experiments?geneAccession=${gene.mgiAccessionId}'>All Adult Data</a>
-      </div>
-        <div class="clear"></div>
-    </c:if> --%>
+                <div class="row no-gutters">
+                    <div class="col-md-2 align-middle text-right pr-1">
+                        <div class="align-middle font-weight-bold pr-2">Viability</div>
+                    </div>
+                    <div class="col-md-10 align-middle">
+                        <c:if test="${viabilityCalls != null && viabilityCalls.size() > 0}">
+                            <t:viabilityButton callList="${viabilityCalls}" link=""></t:viabilityButton>
+                        </c:if>
+                        <c:if test="${viabilityCalls == null || viabilityCalls.size() <= 0}">
+                            N/A
+                        </c:if>
 
-  <%--   <c:if
-            test="${gene.embryoDataAvailable}">
-      <div class="floatright marginup"
-           style="clear: both">
-        <a class="btn"
-           href="${drupalBaseUrl}/embryoviewer?mgi=${acc}">3D Imaging</a>
-      </div>
-    </c:if> --%>
-  <%-- </c:when> --%>
-  <%-- <c:when test="${hasPreQcThatMeetsCutOff}"> --%>
-    <!-- Only pre QC data available, suppress post QC phenotype summary -->
- <%--  </c:when>
-  <c:otherwise> --%>
-   <%--  <div class="alert alert-info">There are currently no IMPC phenotype associations
-      for the gene ${gene.markerSymbol} </div>
-    <br/> --%>
- <%--  </c:otherwise> --%>
-<%-- </c:choose> --%>
+                    </div>
+                </div>
+                    <div class="row no-gutters">
+                        <div class="col-md-2 align-middle text-right pr-1">
+                            <div class="align-middle font-weight-bold pr-2">Other links</div>
+                        </div>
+                        <div class="col-md-10 align-middle">
+                            <a target="_blank" class="page-nav-link"
+                               href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}"
+                               title="See gene page at JAX" style="font-size: initial; display: inline;">MGI &nbsp;<i
+                                    class="fas fa-external-link"></i></a>
+                            <a target="_blank" class="page-nav-link"
+                               href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}"
+                               title="Visualise mouse gene with ensembl genome broswer"
+                               style="font-size: initial; display: inline;">Ensembl &nbsp;<i
+                                    class="fas fa-external-link"></i></a>
+                        </div>
+                    </div>
+                <div class="row no-gutters justify-content-around mt-3 text-center page-content">
+                    <c:if test='${rowsForPhenotypeTable.size() > 0}'>
+                        <a href="#phenotypesTab" class="col-sm-2" onclick="$('#significant-tab').trigger('click')">
+                            <i class="fal fa-file-medical-alt mb-1 text-dark" style="font-size: 5em;"></i>
+                            <span class="page-nav-link">Significant phenotypes (${rowsForPhenotypeTable.size()})</span>
+                        </a>
+                    </c:if>
+                    <c:if test='${rowsForPhenotypeTable.size() <= 0}'>
+                        <span class="col-sm-2">
+                            <i class="fal fa-file-medical-alt mb-1 text-muted" style="font-size: 5em;"></i>
+                            <span class="page-nav-link-muted text-muted">Significant phenotypes (0)</span>
+                        </span>
+                    </c:if>
+                    <c:if test='${notsignificantTopLevelMpGroups.size() + significantTopLevelMpGroups.size() > 0}'>
 
-<div id="phenotypes"></div> <!-- Empty anchor for links, used for disease paper. Don't remove.  -->
+                        <a href="#phenotypesTab" class="col-sm-2" onclick="$('#alldata-tab').trigger('click')">
+                            <i class="fal fa-ruler-combined mb-1 text-dark" style="font-size: 5em;"></i>
+                            <span class="page-nav-link">All measurements (${allMeasurementsNumber})</span>
+                        </a>
+                    </c:if>
+                    <c:if test='${notsignificantTopLevelMpGroups.size() + significantTopLevelMpGroups.size() <= 0}'>
+
+                        <span class="col-sm-2">
+                            <i class="fal fa-ruler-combined mb-1 text-muted" style="font-size: 5em;"></i>
+                            <span class="page-nav-link-muted text-muted">All measurements (0)</span>
+                        </span>
+                    </c:if>
+                    <c:if test="${not empty impcAdultExpressionImageFacetsWholemount
+                                                  or not empty impcAdultExpressionImageFacetsSection
+                                                  or not empty expressionAnatomyToRow
+                                                  or not empty impcEmbryoExpressionImageFacets
+                                                  or not empty embryoExpressionAnatomyToRow}">
+                        <a href="#expression" class="col-sm-2">
+                            <i class="fal fa-images mb-1 text-dark" style="font-size: 5em;" data-toggle="tooltip"
+                               data-placement="top"></i>
+                            <span class="page-nav-link">Expression & images (${expressionAnatomyToRow.size() + embryoExpressionAnatomyToRow.size()})</span>
+                        </a>
+                    </c:if>
+                    <c:if test="${empty impcAdultExpressionImageFacetsWholemount
+                                                  and empty impcAdultExpressionImageFacetsSection
+                                                  and empty expressionAnatomyToRow
+                                                  and empty impcEmbryoExpressionImageFacets
+                                                  and empty embryoExpressionAnatomyToRow
+                                                  and empty expressionFacets}">
+                        <span class="col-sm-2">
+                            <i class="fal fa-images mb-1 text-muted" style="font-size: 5em;" data-toggle="tooltip"
+                               data-placement="top"></i>
+                            <span class="page-nav-link-muted text-muted">Expression & images (0)</span>
+                        </span>
+                    </c:if>
+                    <c:if test='${hasModelsByOrthology or hasModelAssociations}'>
+                        <a href="#diseases" class="col-sm-2">
+                            <i class="fal fa-procedures mb-1 text-dark" style="font-size: 5em;" data-toggle="tooltip"
+                               data-placement="top"></i>
+                            <span class="page-nav-link">Disease models (<span id="diseaseModelTotal">0</span>)</span>
+                        </a>
+                    </c:if>
+
+                    <c:if test='${not hasModelsByOrthology and not hasModelAssociations}'>
+                        <span class="col-sm-2">
+                            <i class="fal fa-procedures mb-1 text-muted" style="font-size: 5em;" data-toggle="tooltip"
+                               data-placement="top"></i>
+                            <span class="page-nav-link-muted text-muted">Disease models (0)</span>
+                        </span>
+                    </c:if>
+                    <c:if test='${orderRows.size() > 0}'>
+                        <a href="#order" class="col-sm-2">
+                            <i class="fal fa-shopping-cart mb-1 text-dark" style="font-size: 5em;" data-toggle="tooltip"
+                               data-placement="top"></i>
+                            <span class="page-nav-link">Order (${orderRows.size()})</span>
+                        </a>
+                    </c:if>
+                    <c:if test='${orderRows.size() <= 0}'>
+                        <span class="col-sm-2">
+                            <i class="fal fa-shopping-cart mb-1 text-muted" style="font-size: 5em;"
+                               data-toggle="tooltip"
+                               data-placement="top"></i>
+                            <span class="page-nav-link-muted text-muted">Order (0)</span>
+                        </span>
+                    </c:if>
+                </div>
 
 
-<%--<c:if test='${hasPreQcThatMeetsCutOff || rowsForPhenotypeTable.size() > 0}'>--%>
-<c:if test='${rowsForPhenotypeTable.size() > 0}'>
-  <!-- Associations table -->
-  <div id="phenotypeTableDiv" class="inner-division">
-  <h5>Significant Phenotypes</h5>
+            </div>
 
 
-  <div class="row-fluid">
-    <div class="container span12">
-      <br/>
+            <c:if test="${ attemptRegistered && !phenotypeStarted }">
+                <div class="alert alert-info mt-3">
+                    <h5>Registered for phenotyping</h5>
 
-      <div class="row-fluid" id="phenotypesDiv">
+                    <p>Phenotyping is planned for a knockout strain of this gene but
+                        data is not currently available.</p>
+                </div>
+            </c:if>
 
-        <div class="container span12">
- 
-          <c:if test="${not empty rowsForPhenotypeTable}">
-            <form class="tablefiltering no-style" id="target" action="destination.html">
-           
-              <c:forEach
-                      var="phenoFacet" items="${phenoFacets}"
-                      varStatus="phenoFacetStatus">
-                <select id="${phenoFacet.key}" class="impcdropdown"
-                        multiple="multiple"
-                        title="Filter on ${phenoFacet.key}">
-                  <c:forEach
-                          var="facet" items="${phenoFacet.value}">
-                    <option>${facet.key}</option>
-                  </c:forEach>
-                </select>
-              </c:forEach>
-           
-              <div class="clear"></div>
-            </form> 
-            <div class="clear"></div>
 
-            <c:set var="count" value="0" scope="page"/>
-            <c:forEach
-                    var="phenotype" items="${rowsForPhenotypeTable}"
-                    varStatus="status">
-              <c:forEach
-                      var="sex" items="${phenotype.sexes}">
-                <c:set var="count" value="${count + 1}" scope="page"/>
-              </c:forEach>
-            </c:forEach>
+            <c:if test="${!attemptRegistered and allMeasurementsNumber <= 0}">
+                <div class="alert alert-info mt-3">
+                    <h5>Not currently registered for phenotyping</h5>
 
-            <jsp:include page="PhenoFrag.jsp"></jsp:include>
-            <br/>
-
-              <div id="export">
-                  <p class="textright">
-                      Download data as:
-                      <a id="tsvDownload" href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=tsv&fileName=${gene.markerSymbol}" target="_blank" class="button fa fa-download">TSV</a>
-                      <a id="xlsDownload" href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=xls&fileName=${gene.markerSymbol}" target="_blank" class="button fa fa-download">XLS</a>
-                  </p>
-              </div>
-
-          </c:if>
+                    <p>Phenotyping is currently not planned for a knockout strain of this gene.</p>
+                </div>
+            </c:if>
 
         </div>
-      </div>
-    </div>
-  </div>
+        <div class="col-lg-4">
+            <jsp:include page="phenotype_icons_frag.jsp"/>
+            <c:if test="${ bodyWeight }">
+                <div id="all_data" class="with-label text-center">
 
-</div><!-- end of div for mini section line -->
+                    <c:if test="${bodyWeight}">
+                        <a id="bodyWeightBtn" class="btn btn-outline-primary mt-2"
+                           href="${baseUrl}/charts?accession=${acc}&parameter_stable_id=IMPC_BWT_008_001&&chart_type=TIME_SERIES_LINE"
+                           title="Body Weight Curves" style="display: inline-block; max-width: 300px; width: 80%;">Body
+                            weight</a>
+                    </c:if>
+                </div>
+            </c:if>
+        </div>
+    </div>
+
+
+    <div id="phenotypes"></div>
+    <!-- Empty anchor for links, used for disease paper. Don't remove. -->
+
+
+    <c:if test='${notsignificantTopLevelMpGroups.size() > 0 || rowsForPhenotypeTable.size() > 0}'>
+
+
+        <ul class="nav nav-tabs" id="phenotypesTab" role="tablist">
+            <li class="nav-item">
+                <c:if test='${rowsForPhenotypeTable.size() > 0}'>
+                    <a class="nav-link active" id="significant-tab" data-toggle="tab" href="#significant"
+                       role="tab" aria-controls="significant-tab" aria-selected="true"><i
+                            class="fal fa-file-medical-alt"></i>&nbsp; Significant phenotypes (${rowsForPhenotypeTable.size()})</a>
+                </c:if>
+                <c:if test='${rowsForPhenotypeTable.size() <= 0}'>
+                    <a class="nav-link" id="significant-tab" data-toggle="tab" href="#significant"
+                       role="tab" aria-controls="significant-tab" aria-selected="true"><i
+                            class="fal fa-file-medical-alt"></i>&nbsp; Significant phenotypes (0)</a>
+                </c:if>
+
+            </li>
+            <li class="nav-item">
+                <c:if test='${rowsForPhenotypeTable.size() > 0}'>
+                    <a class="nav-link" id="alldata-tab" data-toggle="tab" href="#alldata"
+                       role="tab" aria-controls="alldata-tab" aria-selected="false"><i
+                            class="fal fa-ruler-combined"></i>&nbsp;
+                        All measurements  (${allMeasurementsNumber})</a>
+                </c:if>
+                <c:if test='${allMeasurementsNumber <= 0}'>
+                    <a class="nav-link active" id="alldata-tab" data-toggle="tab" href="#alldata"
+                       role="tab" aria-controls="alldata-tab" aria-selected="false"><i
+                            class="fal fa-ruler-combined"></i>&nbsp;
+                        All measurements (0)</a>
+                </c:if>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="phenotypesTabContent" id="phenotypeAssociations">
+            <c:if test='${rowsForPhenotypeTable.size() <= 0}'>
+                <div class="tab-pane fade show" id="significant" role="tabpanel"
+                     aria-labelledby="significant-tab">
+                    <c:if test="${ attemptRegistered && phenotypeStarted }">
+                        <div class="alert alert-warning mt-3" role="alert">
+                            No results meet the p-value threshold
+                        </div>
+                    </c:if>
+                </div>
+            </c:if>
+            <!-- Associations table -->
+            <c:if test='${rowsForPhenotypeTable.size() > 0}'>
+                <div class="tab-pane fade show active" id="significant" role="tabpanel"
+                     aria-labelledby="significant-tab">
+                    <div id="phenotypeTableDiv" class="inner-division">
+                        <div class="row">
+                            <div class="container">
+
+                                <div class="row" id="phenotypesDiv">
+
+                                    <div class="container">
+
+                                        <c:if test="${not empty rowsForPhenotypeTable}">
+                                        <div class="row">
+                                            <div class="col" id="target" action="destination.html">
+
+                                                    <%--c:forEach
+                                                            var="phenoFacet" items="${phenoFacets}"
+                                                            varStatus="phenoFacetStatus">
+                                                        <select id="top_level_mp_term_name" class="selectpicker"
+                                                                multiple="multiple"
+                                                                title="Filter on ${phenoFacet.key}">
+                                                            <c:forEach
+                                                                    var="facet" items="${phenoFacet.value}">
+                                                                <option>${facet.key}</option>
+                                                            </c:forEach>
+                                                        </select>
+                                                    </c:forEach--%>
+
+                                            </div>
+                                        </div>
+
+
+                                        <c:set var="count" value="0" scope="page"/>
+                                        <c:forEach
+                                                var="phenotype" items="${rowsForPhenotypeTable}"
+                                                varStatus="status">
+                                            <c:forEach
+                                                    var="sex" items="${phenotype.sexes}">
+                                                <c:set var="count" value="${count + 1}" scope="page"/>
+                                            </c:forEach>
+                                        </c:forEach>
+
+                                        <jsp:include page="PhenoFrag.jsp"></jsp:include>
+
+                                        <div id="export">
+                                            <p class="textright">
+                                                Download data as:
+                                                <a id="tsvDownload"
+                                                   href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=tsv&fileName=${gene.markerSymbol}"
+                                                   target="_blank" class="btn btn-outline-primary"><i
+                                                        class="fa fa-download"></i>&nbsp;TSV</a>
+                                                <a id="xlsDownload"
+                                                   href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=xls&fileName=${gene.markerSymbol}"
+                                                   target="_blank" class="btn btn-outline-primary"><i
+                                                        class="fa fa-download"></i>&nbsp;XLS</a>
+                                            </p>
+                                            </c:if>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div><!-- end of div for mini section line -->
+                </div>
+            </c:if>
+            <c:if test='${rowsForPhenotypeTable.size() > 0}'>
+            <div class="tab-pane fade show" id="alldata" role="tabpanel"
+                 aria-labelledby="alldata-tab">
+                </c:if>
+                <c:if test='${rowsForPhenotypeTable.size() <= 0}'>
+                <div class="tab-pane fade show active" id="alldata" role="tabpanel"
+                     aria-labelledby="alldata-tab">
+                    </c:if>
+                    <p class="mt-3">
+                        Filtered by: <span id="phDataTitle"> all phenotypes</span>
+                    </p>
+                    <div id="all-chart">
+                        <c:if test='${rowsForPhenotypeTable.size() <= 0}'>
+                            <jsp:include page="/experimentsFrag" flush="true">
+                                <jsp:param name="geneAccession"
+                                           value="${gene.mgiAccessionId}"/>
+                            </jsp:include>
+                        </c:if>
+                            <%--p class="textright">
+                                Download data as:
+                                <a id="tsvDownload"
+                                   href="${baseUrl}/experiments/export?${requestScope['javax.servlet.forward.query_string']}&fileType=tsv&fileName=allData${allelePageDTO.getGeneSymbol()}"
+                                   target="_blank" class="button fa fa-download">TSV</a>
+                                <a id="xlsDownload"
+                                   href="${baseUrl}/experiments/export?${requestScope['javax.servlet.forward.query_string']}&fileType=xls&fileName=allData${allelePageDTO.getGeneSymbol()}"
+                                   target="_blank" class="button fa fa-download">XLS</a>
+                            </p--%>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </c:if>
+</div>
+
+<c:if test='${rowsForPhenotypeTable.size() > 0}'>
+    <script>
+        var first = true;
+        $("#alldata-tab").on('click', function () {
+            if (first) {
+                $('#all-chart').html("     <div class=\"pre-content\">\n" +
+                    "                        <div class=\"row no-gutters\">\n" +
+                    "                            <div class=\"col-12 my-5\">\n" +
+                    "                                <p class=\"h4 text-center text-justify\"><i class=\"fas fa-atom fa-spin\"></i> A moment please while we gather the data . . . .</p>\n" +
+                    "                            </div>\n" +
+                    "                        </div>\n" +
+                    "                    </div>");
+                $.ajax({
+                    url: '/data/experimentsFrag?geneAccession=' + '${gene.mgiAccessionId}',
+                    type: 'GET',
+                    success: function (data) {
+                        $('#all-chart').html(data);
+                        first = false;
+                    }
+                });
+            }
+        });
+    </script>
 </c:if>
 

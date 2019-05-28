@@ -19,13 +19,19 @@
 <!-- script src="${baseUrl}/js/charts/parallel/pie.js"></script-->
 <script src="${baseUrl}/js/charts/parallel/options.js"></script>
 
-<!-- div><a href="#" id="inverted" class="right toggle">Dark</a></div-->
-<!-- div><a href="#" id="no_ticks" class="right toggle">Hide Ticks</a></div-->
-<div id="row-fluid">
+<div class="container" id="row-fluid">
 
-	<div id="pager" class="info"></div> <div class="clear"></div>
-	<div id="parallel"></div>
-	<div id="myGrid"></div>
+	<div class="row">
+		<div id="pager" class="info"></div>
+	</div>
+
+	<div class="row">
+		<div id="parallel"></div>
+	</div>
+
+	<div class="row">
+		<div id="myGrid"></div>
+	</div>
 
 	<c:if test="${dataJs != null }">
 		<script type="text/javascript">
@@ -115,7 +121,8 @@
 			parallel_height = 380; // min height
 		$('#parallel').css({
 			height : parallel_height + 'px',
-			width : '100%'
+			width : '100%',
+			marginBottom: '60px'
 		});
 
 		slicky.update();

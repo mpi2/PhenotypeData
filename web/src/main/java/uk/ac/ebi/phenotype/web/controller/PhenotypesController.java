@@ -57,6 +57,10 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Controller
 public class PhenotypesController {
@@ -94,11 +98,21 @@ public class PhenotypesController {
     @Resource(name = "globalConfiguration")
     Map<String, String> config;
 
-    private String drupalBaseUrl;
+    private String cmsBaseUrl;
 
     @PostConstruct
     private void postConstruct() {
-        drupalBaseUrl = config.get("drupalBaseUrl");
+        cmsBaseUrl = config.get("cmsBaseUrl");
+    }
+    
+    /**
+     * Convenience method for developing the new buf zoo style - delete when style done JW
+     * @return
+     */
+    @RequestMapping(value="/phenotypes/index", method = RequestMethod.GET)
+    public String loadIndex() {
+    	System.out.println("inde page loading");
+    	return "index";
     }
 
     /**
@@ -149,7 +163,7 @@ public class PhenotypesController {
         model.addAttribute("phenotype", mpTerm);
 
 
-        List<ImpressDTO> procedures = new ArrayList<ImpressDTO>(impressService.getProceduresByMpTerm(phenotypeId, true));
+        List<ImpressDTO> procedures = new ArrayList<ImpressDTO>(impressService.getProceduresByMpTerm(phenotypeId, true)).stream().filter(distinctByKey(ImpressDTO::getProcedureName)).collect(Collectors.toList());
 	    Collections.sort(procedures, ImpressDTO.getComparatorByProcedureNameImpcFirst());
 	    model.addAttribute("procedures", procedures);
 
@@ -169,6 +183,11 @@ public class PhenotypesController {
         
         return "phenotypes";
         
+    }
+
+    public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Set<Object> seen = ConcurrentHashMap.newKeySet();
+        return t -> seen.add(keyExtractor.apply(t));
     }
     
     
@@ -222,7 +241,7 @@ public class PhenotypesController {
         for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
 
             // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
-            DataTableRow pr = new PhenotypePageTableRow(pcs, baseUrl, drupalBaseUrl, false);
+            DataTableRow pr = new PhenotypePageTableRow(pcs, baseUrl, cmsBaseUrl, false);
 
 	        // Collapse rows on sex
             if (phenotypes.containsKey(pr.hashCode())) {
@@ -321,7 +340,7 @@ public class PhenotypesController {
             List<String> sex = new ArrayList<String>();
             sex.add(pcs.getSex().toString());
             // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
-            PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, url, drupalBaseUrl, false);
+            PhenotypePageTableRow pr = new PhenotypePageTableRow(pcs, url, cmsBaseUrl, false);
             phenotypes.add(pr);
         } 
         
@@ -418,7 +437,7 @@ public class PhenotypesController {
     		ParameterDTO param = impressService.getParameterByStableId(parameterStableId);
     		if (param.getObservationType().equals(ObservationType.unidimensional)){
     			res.add(param);
-    		} 
+    		}
     	}
         Collections.sort(res, ImpressBaseDTO.getComparatorByNameImpcFirst());
 
