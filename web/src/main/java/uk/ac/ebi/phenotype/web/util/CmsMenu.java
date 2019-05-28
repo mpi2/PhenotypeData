@@ -17,12 +17,12 @@ package uk.ac.ebi.phenotype.web.util;
 
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -114,7 +114,7 @@ public class CmsMenu extends HttpProxy {
 
 		for (int i = 0; i < menu.length(); i++) {
 			JSONObject topLevel = (JSONObject) menu.get(i);
-			MenuItem   mi       = new MenuItem(topLevel.getString("link"), topLevel.getString("name"));
+			MenuItem mi = new MenuItem(topLevel.getString("link"), topLevel.getString("name"));
 
 			JSONArray children = topLevel.getJSONArray("children");
 			for (int j = 0; j < children.length(); j++) {

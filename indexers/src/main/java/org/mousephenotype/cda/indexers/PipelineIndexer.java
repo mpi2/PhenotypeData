@@ -541,7 +541,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 
 		Map<String, ProcedureDTO> procedureIdToProcedureMap = new HashMap<>();
         String q = "SELECT id as pproc_id, stable_id, name, stable_key, " +
-                "is_mandatory, stage, stage_label, description, " +
+                "is_mandatory, level, stage, stage_label, schedule_key, description, " +
                 "concat(name, '___', stable_id) as proc_name_id " +
                 "FROM phenotype_procedure " ;
 
@@ -558,8 +558,10 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 				proc.setProcNameId(resultSet.getString("proc_name_id"));
 				proc.setRequired(resultSet.getBoolean("is_mandatory"));
 				proc.setDescription(resultSet.getString("description"));
+				proc.setLevel(resultSet.getString("level"));
 				proc.setStage(resultSet.getString("stage"));
 				proc.setStageLabel(resultSet.getString("stage_label"));
+				proc.setScheduleKey(resultSet.getInt("schedule_key"));
 				for (String parameterId : procIdToParams.get(proc.getStableId())){
 					proc.addParameter(paramIdToParameter.get(parameterId));
 				}

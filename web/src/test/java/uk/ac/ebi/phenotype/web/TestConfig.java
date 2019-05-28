@@ -55,86 +55,48 @@ public class TestConfig {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-//    @Value("${datasource.komp2.url}")
-//    private String datasourceKomp2Url;
-//
-//    @Value("${solr.host}")
-//    private String solrHost;
-//
-//    @Value("${cms_base_url}")
-//    private String cmsBaseUrl;
-//
-//
-//	@Value("${base_url}")
-//	private String baseUrl;
-//
-//    @Value("${internal_solr_url}")
-//    private String internalSolrUrl;
-//
-//    @PostConstruct
-//    public void initialise() {
-//        logger.info("dataSource.komp2.url: " + datasourceKomp2Url);
-//        logger.info("solr.host:            " + solrHost);
-//        logger.info("baseUrl:              " + baseUrl);
-//        logger.info("internalSolrUrl:      " + internalSolrUrl);
-//    }
+    @Value("${datasource.komp2.url}")
+    private String datasourceKomp2Url;
+
+    @Value("${solr.host}")
+    private String solrHost;
+
+    @Value("${cms_base_url}")
+    private String cmsBaseUrl;
+
+
+	@Value("${base_url}")
+	private String baseUrl;
+
+    @Value("${internal_solr_url}")
+    private String internalSolrUrl;
+
+    @PostConstruct
+    public void initialise() {
+        logger.info("dataSource.komp2.url: " + datasourceKomp2Url);
+        logger.info("solr.host:            " + solrHost);
+        logger.info("baseUrl:              " + baseUrl);
+        logger.info("internalSolrUrl:      " + internalSolrUrl);
+    }
 //
 //	@Bean
 //	public PropertyPlaceholderConfigurer getPropertyPlaceholderConfigurer() {
 //		return new PropertyPlaceholderConfigurer();
 //	}
 
-//    @Bean (name="globalConfiguration")
-//    public Map <String, String> globalConfiguration(){
-//
-//    	Map <String, String> gc = new HashMap<>();
-//    	gc.put("baseUrl", "${baseUrl}");
-//    	gc.put("cmsBaseUrl", "${cmsBaseUrl}");
-//    	gc.put("solrUrl", "${solrUrl}");
-//    	gc.put("internalSolrUrl", "${internalSolrUrl}");
-//    	gc.put("mediaBaseUrl", "${mediaBaseUrl}");
-//    	gc.put("impcMediaBaseUrl", "${impcMediaBaseUrl}");
-//    	gc.put("pdfThumbnailUrl", "${pdfThumbnailUrl}");
-//    	gc.put("googleAnalytics", "${googleAnalytics}");
-//    	gc.put("liveSite", "${liveSite}");
-//
-//    	return gc;
-//    }
+    @Bean (name="globalConfiguration")
+    public Map <String, String> globalConfiguration(){
 
-//	@Bean
-//	@Primary
-//	@PersistenceContext(name="komp2Context")
-//	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-//		LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
-//		emf.setDataSource(komp2DataSource());
-//		emf.setPackagesToScan("org.mousephenotype.cda.db.pojo", "org.mousephenotype.cda.db.entity");
-//
-//		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-//		emf.setJpaVendorAdapter(vendorAdapter);
-//
-//		return emf;
-//	}
-
-//	@Bean(name = "sessionFactory")
-//	public SessionFactory sessionFactory() {
-//		SessionFactory sessionFactory = new SessionFactory();
-////		sessionFactory.setDataSource(komp2DataSource());
-////		sessionFactory.setPackagesToScan("org.mousephenotype.cda.db");
-//		return sessionFactory;
-//	}
-
-//	@Bean(name = "komp2TxManager")
-//    @Primary
-//	public PlatformTransactionManager txManager() {
-//		return new DataSourceTransactionManager(komp2DataSource());
-//	}
-
-
-//	@Bean
-//	@ConfigurationProperties(prefix = "datasource.admintools")
-//	public DataSource admintoolsDataSource() {
-//		return DataSourceBuilder.create().build();
-//	}
+    	Map <String, String> gc = new HashMap<>();
+    	gc.put("baseUrl", "${baseUrl}");
+    	gc.put("cmsBaseUrl", "${cmsBaseUrl}");
+    	gc.put("solrUrl", "${solrUrl}");
+    	gc.put("internalSolrUrl", "${internalSolrUrl}");
+    	gc.put("mediaBaseUrl", "${mediaBaseUrl}");
+    	gc.put("impcMediaBaseUrl", "${impcMediaBaseUrl}");
+    	gc.put("pdfThumbnailUrl", "${pdfThumbnailUrl}");
+    	gc.put("googleAnalytics", "${googleAnalytics}");
+    	gc.put("liveSite", "${liveSite}");
 
 
 

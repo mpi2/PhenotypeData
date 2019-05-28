@@ -37,6 +37,8 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Service;
 
+import uk.ac.ebi.phenotype.web.dao.StatisticsService;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
@@ -50,6 +52,7 @@ public class UnidimensionalChartAndTableProvider {
 
 	@Autowired
 	ImpressService impressService;
+	
 
 	/**
 	 * return one unidimensional data set per experiment - one experiment should
@@ -59,7 +62,10 @@ public class UnidimensionalChartAndTableProvider {
 	 */
 	public UnidimensionalDataSet doUnidimensionalData(ExperimentDTO experiment, String chartId, ParameterDTO parameter, ChartType boxOrScatter, Boolean byMouseId, String yAxisTitle)
 			throws SQLException, IOException, URISyntaxException, JSONException {
-
+		
+		//http://localhost:8090/phenotype-archive/charts?accession=MGI:1915747&parameter_stable_id=IMPC_HEM_038_001
+		long startTime = System.currentTimeMillis();
+System.out.println("start time="+System.currentTimeMillis());
 		ChartData chartAndTable = null;
 		List<UnidimensionalDataSet> unidimensionalDataSets = new ArrayList<>();
 
@@ -131,6 +137,20 @@ public class UnidimensionalChartAndTableProvider {
 		unidimensionalDataSet.setMax(boxMinMax.get("max"));
 		unidimensionalDataSet.setTitle(title);
 		unidimensionalDataSet.setSubtitle(procedureDescription);
+		System.out.println("end time="+System.currentTimeMillis());
+		long endTime=System.currentTimeMillis();
+		long timeTaken=endTime-startTime;
+		System.out.println("solr time taken="+timeTaken);
+		
+		//lets do the same thing here and return another chart created by the stats rest service for speed comparison and make sure show the same chart!!
+		long fileStartTime = System.currentTimeMillis();
+
+		//Stats stats = statsService.getTestStatsData();
+		
+		long fileEndTime=System.currentTimeMillis();
+		long fileTimeTaken=fileEndTime-fileStartTime;
+		System.out.println("file time taken="+fileTimeTaken);
+		
 		return unidimensionalDataSet;
 
 	}

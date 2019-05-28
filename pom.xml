@@ -24,6 +24,8 @@
         <module>data-model</module>
         <module>data-model-db</module>
         <module>data-model-solr</module>
+        <module>data-model-stats</module>
+        <!-- <module>data-model-stats</module>moved into web module for the moment. -->
         <module>indexers</module>
         <module>loads</module>
         <module>reports</module>

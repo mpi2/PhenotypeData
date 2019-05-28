@@ -54,11 +54,13 @@
             <div class="container single single--no-side">
 
             <div class="breadcrumbs" style="box-shadow: none; margin-top: auto; margin: auto; padding: auto">
+                <div style="float: right;"><a href="${cmsBaseUrl}/help/quick-guide-to-the-website/chart-page/" target="_blank" style="color: #ce6211;"><i class="fa fa-question-circle" style="font-size: xx-large"></i></a></div>
+
                 <div class="row">
                     <div class="col-md-12">
-                        <p><a href="/">Home</a> <span>></span>
-                            <a href="${baseUrl}/search">Genes</a> <span>></span>
-                            <a href="${baseUrl}/genes/${gene.mgiAccessionId}">${gene.markerSymbol}</a> <span>></span>
+                        <p><a href="/">Home</a> <span><span class="fal fa-angle-right"></span></span>
+                            <a href="${baseUrl}/search">Genes</a> <span><span class="fal fa-angle-right"></span></span>
+                            <a href="${baseUrl}/genes/${gene.mgiAccessionId}">${gene.markerSymbol}</a> <span><span class="fal fa-angle-right"></span></span>
                             ${parameter.procedureNames[0]} / ${parameter.name}
                         </p>
                     </div>
@@ -108,28 +110,24 @@
                 <div class="col-md-6">
                     <table class="table table-striped">
                         <tr>
-                            <th>Phenotyping center</th>
-                            <td>${phenotypingCenter}</td>
-                        </tr>
-                        <tr>
-                            <th>Phenotyping procedure</th>
-                            <td><a href="${procedureUrl}">${parameter.procedureNames[0]}</a></td>
+                            <th style="font-weight: bolder;">Testing protocol</th>
+                            <td><a href="${procedureUrl}" style="font-weight: bolder;">${parameter.procedureNames[0]}</a></td>
                         </tr>
                         <tr>
                             <th>Measured value</th>
                             <td><a href="${parameterUrl}">${parameter.name}</a></td>
                         </tr>
                         <tr>
+                            <th>Testing environment</th>
+                            <td><a class="w-100" data-toggle="modal" data-target="#conditions" href="#">Lab conditions and equipment</a></td>
+                        </tr>
+                        <tr>
                             <th>Background Strain</th>
                             <td><t:formatAllele>${geneticBackgroundString}</t:formatAllele></td>
                         </tr>
                         <tr>
-                            <td colspan="2">
-
-                                <button type="button" class="btn btn-outline-primary w-100" data-toggle="modal" data-target="#conditions">Show experimental conditions</button>
-
-                                <!-- Metadata group: ${metadata} -->
-                            </td>
+                            <th>Phenotyping center</th>
+                            <td>${phenotypingCenter}</td>
                         </tr>
                     </table>
 

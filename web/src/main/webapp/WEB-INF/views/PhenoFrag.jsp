@@ -52,7 +52,7 @@ resTemp[0].remove();
     <tbody>
     <c:forEach var="phenotype" items="${rowsForPhenotypeTable}" varStatus="status">
         <c:set var="europhenome_gender" value="Both-Split"/>
-        <tr>
+        <tr title="${!phenotype.getEvidenceLink().getDisplay() ? 'No supporting data supplied.' : ''}" data-toggle="tooltip">
 
             <td>
 

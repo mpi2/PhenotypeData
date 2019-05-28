@@ -45,16 +45,24 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.security.web.util.UrlUtils;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 /**
  * Created by mrelac on 12/06/2017.
@@ -231,6 +239,110 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         public void setCreateNewSession(boolean createNewSession) {
             this.createNewSession = createNewSession;
+        }
+    }
+    
+    
+    @Component
+    public class PdxFinderURLFilter implements Filter {
+
+        @Override
+        public void destroy() {}
+
+
+        @Override
+        public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterchain)
+                throws IOException, ServletException {
+
+            HttpServletRequest request = (HttpServletRequest) servletRequest;
+            HttpServletResponse response = (HttpServletResponse) servletResponse;
+
+            filterchain.doFilter(new PdxFinderXSSFilter((HttpServletRequest) request), response);
+
+        }
+
+        @Override
+        public void init(FilterConfig filterconfig) throws ServletException {
+
+        }
+
+    }
+    
+    
+    public class PdxFinderXSSFilter extends HttpServletRequestWrapper {
+
+        private Pattern[] patterns = new Pattern[]{
+                // Script fragments
+                Pattern.compile("<script>(.*?)</script>", Pattern.CASE_INSENSITIVE),
+                // src='...'
+                Pattern.compile("src[\r\n]*=[\r\n]*\\\'(.*?)\\\'", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
+                Pattern.compile("src[\r\n]*=[\r\n]*\\\"(.*?)\\\"", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
+                // lonely script tags
+                Pattern.compile("</script>", Pattern.CASE_INSENSITIVE),
+                Pattern.compile("<script(.*?)>", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
+
+                Pattern.compile("<(.*?)>", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
+                // eval(...)
+                Pattern.compile("eval\\((.*?)\\)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
+                // expression(...)
+                Pattern.compile("expression\\((.*?)\\)", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL),
+                // javascript:...
+                Pattern.compile("javascript:", Pattern.CASE_INSENSITIVE),
+                // vbscript:...
+                Pattern.compile("vbscript:", Pattern.CASE_INSENSITIVE),
+                // onload(...)=...
+                Pattern.compile("onload(.*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL)
+        };
+
+        public PdxFinderXSSFilter(HttpServletRequest servletRequest) {
+            super(servletRequest);
+        }
+
+        @Override
+        public String[] getParameterValues(String parameter) {
+            String[] values = super.getParameterValues(parameter);
+
+            if (values == null) {
+                return null;
+            }
+
+            int count = values.length;
+            String[] encodedValues = new String[count];
+            for (int i = 0; i < count; i++) {
+                encodedValues[i] = stripXSS(values[i]);
+            }
+
+            return encodedValues;
+        }
+
+        @Override
+        public String getParameter(String parameter) {
+            String value = super.getParameter(parameter);
+
+            return stripXSS(value);
+        }
+
+        @Override
+        public String getHeader(String name) {
+            String value = super.getHeader(name);
+            return stripXSS(value);
+        }
+
+        private String stripXSS(String value) {
+        	//System.out.println("in strip XSS method");
+            if (value != null) {
+                // ToDO :  Integrate OWASP ESAPI or AntiSamy library to avoid encoded attacks
+                // value = ESAPI.encoder().canonicalize(value);
+            	//System.out.println("replacing value in strip XSS method");
+                // Avoid null characters
+                value = value.replaceAll("\0", "");
+
+                // Remove all sections that match a pattern
+                for (Pattern scriptPattern : patterns){
+                    value = scriptPattern.matcher(value).replaceAll("");
+                }
+            }
+            return value;
         }
     }
 }

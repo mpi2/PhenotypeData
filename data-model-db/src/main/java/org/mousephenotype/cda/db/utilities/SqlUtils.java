@@ -138,7 +138,8 @@ public class SqlUtils {
      * Given two {@link JdbcTemplate} instances and a query, executes the query against {@code jdbc1}, then
      * against {@code jdbc2}, returning the set difference of the results found in {@code jdbc1} but not
      * found in {@code jdbc2}. If there are no differences, an empty list is returned. If results are returned,
-     * the first row is the column headings. Subsequent rows are the data.
+     * the first row is the column headings. Subsequent rows are the data.. Strict comparison rules are used for Strings:
+     * i.e., no mapping of null to empty string, no trimming of strings, no lowercasing of strings before comparison.
      *
      * @param jdbc1 the first {@link JdbcTemplate} instance
      * @param jdbc2 the second {@link JdbcTemplate} instance
@@ -150,18 +151,39 @@ public class SqlUtils {
      * @throws Exception
      */
     public List<String[]> queryDiff(NamedParameterJdbcTemplate jdbc1, NamedParameterJdbcTemplate jdbc2, String query) throws Exception {
+        return queryDiff(jdbc1, jdbc2, query, false);
+    }
+
+    /**
+     * Given two {@link JdbcTemplate} instances and a query, executes the query against {@code jdbc1}, then
+     * against {@code jdbc2}, returning the set difference of the results found in {@code jdbc1} but not
+     * found in {@code jdbc2}. If there are no differences, an empty list is returned. If results are returned,
+     * the first row is the column headings. Subsequent rows are the data.
+     *
+     * @param jdbc1 the first {@link JdbcTemplate} instance
+     * @param jdbc2 the second {@link JdbcTemplate} instance
+     * @param query the query to execute against both {@link JdbcTemplate} instances
+     * @param useLenient if true, for String types, trim leading and trailing spaces, lowercase the strings, and convert NULLs to empty strings first.
+     *                   if false, use exact comparison.
+     *
+     * @return the set difference of the results found in jdbc1 but not found in jdbc2. If there are no differences,
+     *         an empty list is returned.
+     *
+     * @throws Exception
+     */
+    public List<String[]> queryDiff(NamedParameterJdbcTemplate jdbc1, NamedParameterJdbcTemplate jdbc2, String query, boolean useLenient) throws Exception {
         List<String[]> results = new ArrayList<>();
 
         Set<List<String>> results1 = new HashSet<>();
         SqlRowSet         rs1      = jdbc1.queryForRowSet(query, new HashMap<>());
         while (rs1.next()) {
-            results1.add(getData(rs1));
+            results1.add(getData(rs1, useLenient));
         }
 
         Set<List<String>> results2 = new HashSet<>();
         SqlRowSet rs2 = jdbc2.queryForRowSet(query, new HashMap<>());
         while (rs2.next()) {
-            results2.add(getData(rs2));
+            results2.add(getData(rs2, useLenient));
         }
 
         // Fill the results list with the rows found in results1 but not found in results2.
@@ -286,7 +308,8 @@ public class SqlUtils {
 
     /**
      * Given an {@link SqlRowSet}, extracts each column of data, converting to type {@link String} as necessary,
-     * returning the row's cells in a {@link List<String>}
+     * returning the row's cells in a {@link List<String>}. Strict comparison rules are used for Strings: i.e., no
+     * mapping of null to empty string, no trimming of strings, no lowercasing of strings before comparison.
      *
      * @param rs the sql result containng a row of data
      *
@@ -295,6 +318,23 @@ public class SqlUtils {
      * @throws Exception
      */
     public List<String> getData(SqlRowSet rs) throws Exception {
+        return getData(rs, false);
+    }
+
+    /**
+     * Given an {@link SqlRowSet}, extracts each column of data, converting to type {@link String} as necessary,
+     * returning the row's cells in a {@link List<String>}.
+     * NOTE: for String types, trim leading and trailing spaces, lowercase the strings, and convert NULLs to empty strings first.
+     *
+     * @param rs the sql result containng a row of data
+     * @param useLenient if true, for String types, trim leading and trailing spaces, lowercase the strings, and convert NULLs to empty strings first.
+     *                   if false, use exact comparison.
+     *
+     * @return the row's cells in a {@link List<String>}
+     *
+     * @throws Exception
+     */
+    public List<String> getData(SqlRowSet rs, boolean useLenient) throws Exception {
         List<String> newRow = new ArrayList<>();
 
         SqlRowSetMetaData md = rs.getMetaData();
@@ -306,7 +346,15 @@ public class SqlUtils {
                 case Types.CHAR:
                 case Types.VARCHAR:
                 case Types.LONGVARCHAR:
-                    newRow.add(rs.getString(i));
+                    String s = rs.getString(i);
+                    if (useLenient) {
+                        if (s == null) {
+                            s = "";                                     // remap null strings to empty string
+                        }
+                        newRow.add(s.trim().toLowerCase());             // trim spaces and convert to lowercase
+                    } else {
+                        newRow.add(s);
+                    }
                     break;
 
                 case Types.INTEGER:

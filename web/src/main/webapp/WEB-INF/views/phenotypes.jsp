@@ -51,7 +51,7 @@
         <div class="container data-heading">
             <div class="row row-shadow">
                 <div class="col-12 no-gutters">
-                    <h2>Phenotype: ${phenotype.getMpTerm()}</h2>
+                    <h2>Phenotype: ${phenotype.getMpTerm()} <a href="${cmsBaseUrl}/help/quick-guide-to-the-website/phenotype-page/" target="_blank"><i class="fa fa-question-circle" style="float: right; color: #212529;"></i></a></h2>
                 </div>
             </div>
         </div>

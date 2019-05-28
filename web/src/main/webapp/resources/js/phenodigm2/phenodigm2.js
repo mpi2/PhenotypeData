@@ -242,6 +242,10 @@ impc.phenodigm2.makeTable = function (darr, target, config) {
             return;
         }
         var trow = addSpecific(x);
+        if (config.count === undefined) {
+            config.count = 0;
+        }
+        config.count += 1;
         addScoreTds(trow, x);
     };
 

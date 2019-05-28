@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenotype.generic.util;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import org.apache.commons.lang.StringUtils;
@@ -400,6 +401,17 @@ public class SolrIndex2 {
         marker_symbol = gene.get("marker_symbol");
         title = getTitle(marker_symbol, allele_name);
 
+        ArrayList<String> tissueEnquiryLinks =  new ArrayList<>();
+        ArrayList<String> tissueEnquiryCenters = new ArrayList<>();
+
+        if (alleleObject.getBoolean("tissues_available")) {
+            tissueEnquiryLinks =  new ArrayList<>(Arrays.asList(alleleObject.getJSONArray("tissue_enquiry_links").join(",", true).split(",")));
+            tissueEnquiryCenters = new ArrayList<>(Arrays.asList(alleleObject.getJSONArray("tissue_distribution_centres").join(",", true).split(",")));
+        }
+
+        mapper.put("tissue_enquiry_links", tissueEnquiryLinks);
+        mapper.put("tissue_distribution_centres", tissueEnquiryCenters);
+
 
         mapper.put("title", title);
         mapper.put("mice", mice);
@@ -754,6 +766,7 @@ public class SolrIndex2 {
         allele.put("allele_description" , alleleDoc.get("allele_description"));
         allele.put("genbank_file" , alleleDoc.get("genbank_file"));
         allele.put("allele_image" , alleleDoc.get("allele_image"));
+        allele.put("tissue_enquiry_links", alleleDoc.get("tissue_enquiry_links"));
         allele.put("allele_simple_image" , alleleDoc.get("allele_simple_image"));
         allele.put("cassette" , alleleDoc.get("cassette"));
         allele.put("design_id" , alleleDoc.get("design_id"));
