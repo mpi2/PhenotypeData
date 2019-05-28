@@ -6606,7 +6606,7 @@ ul#menu-top-nav li.current-menu-item a {
 
 .single-header {
     position: relative;
-    height: 180px; }
+    height: 240px; }
 @media (min-width: 768px) {
     .single-header {
         height: 296px; } }
