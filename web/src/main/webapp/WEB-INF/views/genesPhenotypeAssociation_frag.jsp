@@ -184,7 +184,7 @@
             </c:if>
 
 
-            <c:if test="${!attemptRegistered}">
+            <c:if test="${!attemptRegistered and allMeasurementsNumber <= 0}">
                 <div class="alert alert-info">
                     <h5>Not currently registered for phenotyping</h5>
 
