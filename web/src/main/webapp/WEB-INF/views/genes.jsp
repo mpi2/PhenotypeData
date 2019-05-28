@@ -327,8 +327,7 @@
                                                   and empty impcAdultExpressionImageFacetsSection
                                                   and empty expressionAnatomyToRow
                                                   and empty impcEmbryoExpressionImageFacets
-                                                  and empty embryoExpressionAnatomyToRow
-                                                  and empty expressionFacets}">
+                                                  and empty embryoExpressionAnatomyToRow}">
                             <div class="row">
                                 <div class="col-12">
                                     <div class="alert alert-warning mt-3">Expression data not available</div>

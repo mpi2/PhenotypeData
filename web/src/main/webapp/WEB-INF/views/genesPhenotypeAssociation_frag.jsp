@@ -129,8 +129,7 @@
                                                   and empty impcAdultExpressionImageFacetsSection
                                                   and empty expressionAnatomyToRow
                                                   and empty impcEmbryoExpressionImageFacets
-                                                  and empty embryoExpressionAnatomyToRow
-                                                  and empty expressionFacets}">
+                                                  and empty embryoExpressionAnatomyToRow}">
                         <span class="col-sm-2">
                             <i class="fal fa-images mb-1 text-muted" style="font-size: 5em;" data-toggle="tooltip"
                                data-placement="top"></i>
@@ -184,7 +183,7 @@
             </c:if>
 
 
-            <c:if test="${!attemptRegistered}">
+            <c:if test="${!attemptRegistered and allMeasurementsNumber <= 0}">
                 <div class="alert alert-info">
                     <h5>Not currently registered for phenotyping</h5>
 
