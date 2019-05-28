@@ -24,7 +24,8 @@
     <title><jsp:invoke fragment="title" /> | International Mouse Phenotyping Consortium</title>
     <link rel="profile" href="http://gmpg.org/xfn/11">
     <link rel="pingback" href="https://mousephenotypetest.org/xmlrpc.php">
-   <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-TXfwrfuHVznxCssTxWoPZjhcss/hp38gEOH8UPZG/JcXonvBQ6SlsIF49wUzsGno" crossorigin="anonymous">
+<%--   <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-TXfwrfuHVznxCssTxWoPZjhcss/hp38gEOH8UPZG/JcXonvBQ6SlsIF49wUzsGno" crossorigin="anonymous">--%>
+    <link rel="stylesheet" href="${baseUrl}/css/vendor/fapro/css/all.min.css" />
     <link rel="apple-touch-icon-precomposed" sizes="57x57" href="${baseUrl}/img/apple-touch-icon-57x57.png" />
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${baseUrl}/img/apple-touch-icon-114x114.png" />
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${baseUrl}/img/apple-touch-icon-72x72.png" />
@@ -45,8 +46,6 @@
     <meta name="msapplication-wide310x150logo" content="${baseUrl}/img/mstile-310x150.png" />
     <meta name="msapplication-square310x310logo" content="${baseUrl}/img/mstile-310x310.png" />
     <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
-    <!-- <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script src="http://code.jquery.com/jquery-migrate-1.4.1.js"></script> -->
     <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/object-fit-images/3.2.4/ofi.min.js'></script>
     <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js' async></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.css"/>
@@ -57,10 +56,7 @@
             integrity="sha256-eGE6blurk5sHj+rmkfsGYeKyZx3M4bG+ZlFyA7Kns7E="
             crossorigin="anonymous"></script>
 
-
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-
-
 
     <script type='text/javascript' src="${baseUrl}/js/general/toggle.js?v=${version}" async></script>
     <script type="text/javascript" src="${baseUrl}/js/head.min.js?v=${version}" async></script>

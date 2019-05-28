@@ -34,8 +34,7 @@
     <title><jsp:invoke fragment="title"></jsp:invoke> | International Mouse Phenotyping Consortium</title>
     <link rel="profile" href="http://gmpg.org/xfn/11">
     <link rel="pingback" href="https://mousephenotypetest.org/xmlrpc.php">
-   <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-TXfwrfuHVznxCssTxWoPZjhcss/hp38gEOH8UPZG/JcXonvBQ6SlsIF49wUzsGno"
-          crossorigin="anonymous">
+    <link rel="stylesheet" href="${baseUrl}/css/vendor/fapro/css/all.min.css" />
     <link rel="apple-touch-icon-precomposed" sizes="57x57" href="${baseUrl}/img/apple-touch-icon-57x57.png" />
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${baseUrl}/img/apple-touch-icon-114x114.png" />
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${baseUrl}/img/apple-touch-icon-72x72.png" />

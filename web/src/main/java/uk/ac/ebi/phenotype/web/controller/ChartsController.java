@@ -45,10 +45,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.ac.ebi.phenotype.chart.*;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
-import uk.ac.ebi.phenotype.web.dao.Statistics;
-import uk.ac.ebi.phenotype.web.dao.StatisticsRepository;
 import uk.ac.ebi.phenotype.web.dao.StatisticsService;
-import uk.ac.ebi.phenotype.web.dao.StatisticsServiceUtilities;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -280,21 +277,10 @@ public class ChartsController {
 			
 			GeneDTO gene = geneService.getGeneById(accession[0]);
 			model.addAttribute("gene", gene);
-			//boolean testNew=true;//change to look at old chart with current code
-//			if(parameterStableId.equalsIgnoreCase("IMPC_HEM_038_001")&& testNew) {
-//				//get experiment object from the new rest service as a temporary measure we can convert to an experiment object and then we don't have to rewrite the chart code?? and easy to test if experiment objects are the same??
-//				System.out.println("Get data from new rest service");
-//				List<Statistics>stats=statsService.findAll();
-//				assert(stats.size()==1);
-//				experiment = StatisticsServiceUtilities.convertToExperiment(parameterStableId, stats);
-//				System.out.println("stats from repository size="+stats.size());
-//			}
-//			else {
+
 			experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
-			System.out.println("experiment from solr="+experiment);
-			//}
-			//error getting procedure for this page?? http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1915276&parameter_stable_id=MGP_MLN_057_001
-			ProcedureDTO proc=null;
+
+			ProcedureDTO proc;
 			if(experiment!=null) {
 				proc = is.getProcedureByStableId(experiment.getProcedureStableId());
 			

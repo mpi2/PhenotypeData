@@ -107,8 +107,6 @@
 
                 <c:forEach begin="0" end="${menu.size()-1}" var="i">
                     <h3 class="mt-2"><a class="${menu.get(i).mobileCssId}" href="${menu.get(i).url}">${menu.get(i).name}</a></h3>
-
-
                     <div class="mobile-nav__sub-pages">
                         <c:if test="${menu.get(i).children.size() > 0}">
                             <c:forEach begin="0" end="${menu.get(i).children.size()-1}" var="j">
@@ -139,30 +137,33 @@
 
     <c:forEach begin="0" end="${menu.size()-1}" var="i">
     <div class="${menu.get(i).menuId} sub-menu collapse" id="${menu.get(i).menuId}">
-        <div class="${menu.get(i).menuId}__inside">
-            <div class="container">
-                <div class="row no-gutters justify-content-end">
-                    <div class="col col-auto text-left">
-                        <a href="${menu.get(i).url}"><c:if test="${menu.get(i).name.toLowerCase().contains('data')}">Understanding the </c:if>${menu.get(i).name}</a>
-                    </div>
-                    <c:if test="${menu.get(i).children.size() > 0}">
-                        <c:forEach begin="0" end="${menu.get(i).children.size()-1}" var="j">
-                            <div class="col col-auto text-left">
-                                <a href="${menu.get(i).children.get(j).url}">${menu.get(i).children.get(j).name}</a>
-                                <div class="sub-pages">
-                                    <c:if test="${menu.get(i).children.get(j).children.size() > 0}">
-                                        <c:forEach begin="0" end="${menu.get(i).children.get(j).children.size()-1}" var="k">
-                                            <p><a href="${menu.get(i).children.get(j).children.get(k).url}">${menu.get(i).children.get(j).children.get(k).name}</a></p>
-                                        </c:forEach>
-                                    </c:if>
+        <c:if test="${menu.get(i).children.size() > 0}">
+            <div class="${menu.get(i).menuId}__inside">
+                    <div class="container">
+                        <div class="row no-gutters justify-content-end">
+
+                            <c:if test="${menu.get(i).name.toLowerCase().contains('about')}">
+                                <div class="col col-auto text-left">
+                                    <a href="${menu.get(i).url}">${menu.get(i).name}</a>
                                 </div>
-                            </div>
-                        </c:forEach>
-                    </c:if>
-                </div>
+                            </c:if>
+                            <c:forEach begin="0" end="${menu.get(i).children.size()-1}" var="j">
+                                <div class="col col-auto text-left">
+                                    <a href="${menu.get(i).children.get(j).url}">${menu.get(i).children.get(j).name}</a>
+                                    <div class="sub-pages">
+                                        <c:if test="${menu.get(i).children.get(j).children.size() > 0}">
+                                            <c:forEach begin="0" end="${menu.get(i).children.get(j).children.size()-1}" var="k">
+                                                <p><a href="${menu.get(i).children.get(j).children.get(k).url}">${menu.get(i).children.get(j).children.get(k).name}</a></p>
+                                            </c:forEach>
+                                        </c:if>
+                                    </div>
+                                </div>
+                            </c:forEach>
+                        </div>
+                    </div>
             </div>
-        </div>
-        <div class="${menu.get(i).menuId}__drop"></div>
+            <div class="${menu.get(i).menuId}__drop"></div>
+        </c:if>
     </div>
     </c:forEach>
 </div>
