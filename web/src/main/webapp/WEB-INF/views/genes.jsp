@@ -41,7 +41,7 @@
         <script src="//d3js.org/d3.v4.min.js"></script>
             <script type="text/javascript">var impc = {baseUrl: "${baseUrl}"}</script>        
             <script type="text/javascript" src="${baseUrl}/js/vendor/underscore/underscore-1.8.3.min.js"></script>
-            <script type="text/javascript" src="${baseUrl}/js/phenodigm2/phenodigm2.js?v=${version}" async></script>
+            <script type="text/javascript" src="${baseUrl}/js/phenodigm2/phenodigm2.js?v=${version}"></script>
             <link rel="stylesheet" type="text/css" href="${baseUrl}/css/phenodigm2.css" async>
         <%-- End of phenodigm2 requirements --%>
 
