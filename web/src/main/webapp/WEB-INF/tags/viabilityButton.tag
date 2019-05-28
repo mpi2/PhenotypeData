@@ -12,13 +12,13 @@
 	<c:forEach var="call" items="${callList}" varStatus="loop">
 		<%--<span class="left">${call.replaceAll("Homozygous - ","Hom<br/>")}</span>--%>
 		<c:if test="${fn:contains(call, 'Lethal')}">
-			<a class="badge badge-danger" style="font-size: 80%;" href="${cmsBaseurl}/data/charts?accession=${geneAcc}&parameter_stable_id=IMPC_VIA_001_001">${call}</a>
+			<a class="badge badge-danger" style="font-size: 80%;" href="${baseUrl}/charts?accession=${geneAcc}&parameter_stable_id=IMPC_VIA_001_001">${call}</a>
 		</c:if>
 		<c:if test="${fn:contains(call, 'Subviable')}">
-			<a class="badge badge-warning" style="font-size: 80%;" href="${cmsBaseurl}/data/charts?accession=${geneAcc}&parameter_stable_id=IMPC_VIA_001_001">${call}</a>
+			<a class="badge badge-warning" style="font-size: 80%;" href="${baseUrl}/charts?accession=${geneAcc}&parameter_stable_id=IMPC_VIA_001_001">${call}</a>
 		</c:if>
 		<c:if test="${fn:contains(call, 'Viable')}">
-			<a class="badge badge-success" style="font-size: 80%;" href="${cmsBaseurl}/data/charts?accession=${geneAcc}&parameter_stable_id=IMPC_VIA_001_001">${call}</a>
+			<a class="badge badge-success" style="font-size: 80%;" href="${baseUrl}/charts?accession=${geneAcc}&parameter_stable_id=IMPC_VIA_001_001">${call}</a>
 		</c:if>
 	</c:forEach>
 	<!--</a> -->
@@ -30,13 +30,13 @@
 	<c:forEach var="call" items="${callList}" varStatus="loop">
 		<%--<span class="left">${call.replaceAll("Homozygous - ","Hom<br/>")}</span>--%>
 		<c:if test="${fn:contains(call, 'Lethal')}">
-			<a class="badge badge-danger" style="font-size: 80%;" href="${cmsBaseurl}/data/charts?accession=${geneAcc}&parameter_stable_id=IMPC_VIA_001_001">${call}</a>
+			<a class="badge badge-danger" style="font-size: 80%;" href="${baseUrl}/charts?accession=${geneAcc}&parameter_stable_id=IMPC_VIA_001_001">${call}</a>
 		</c:if>
 		<c:if test="${fn:contains(call, 'Subviable')}">
-			<a class="badge badge-warning" style="font-size: 80%;" href="${cmsBaseurl}/data/charts?accession=${geneAcc}&parameter_stable_id=IMPC_VIA_001_001">${call}</a>
+			<a class="badge badge-warning" style="font-size: 80%;" href="${baseUrl}/charts?accession=${geneAcc}&parameter_stable_id=IMPC_VIA_001_001">${call}</a>
 		</c:if>
 		<c:if test="${fn:contains(call, 'Viable')}">
-			<a class="badge badge-success" style="font-size: 80%;" href="${cmsBaseurl}/data/charts?accession=${geneAcc}&parameter_stable_id=IMPC_VIA_001_001">${call}</a>
+			<a class="badge badge-success" style="font-size: 80%;" href="${baseUrl}/charts?accession=${geneAcc}&parameter_stable_id=IMPC_VIA_001_001">${call}</a>
 		</c:if>
 	</c:forEach>
 	<!--/span-->

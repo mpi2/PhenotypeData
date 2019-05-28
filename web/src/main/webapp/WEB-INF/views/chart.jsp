@@ -90,7 +90,7 @@
                     </div>
                     <div class="card-body">
                         <p>
-        <c:if test="${embryoViabilityDTO==null}">
+        <c:if test="${embryoViabilityDTO==null && viabilityDTO==null}">
                             A <b>${parameter.procedureNames[0]}</b> phenotypic assay was performed on <b>${numberMice}
                             mice</b>. The charts show the results of measuring <b>${parameter.name}</b> in <b>${numberFemaleMutantMice}
                             female</b>, <b>${numberMaleMutantMice} male</b> mutants compared to
@@ -98,11 +98,16 @@
             mutants <b>${zygosity}</b> the <b><t:formatAllele>${alleleSymbol}</t:formatAllele></b> allele.
         </c:if>
 
-        <c:if test="${embryoViabilityDTO!=null}">
+        <c:if test="${embryoViabilityDTO!=null || viabilityDTO!=null}">
             A <b>${parameter.procedureNames[0]}</b> phenotypic assay was performed on a mutant strain carrying the <b><t:formatAllele>${alleleSymbol}</t:formatAllele></b> allele. The
             charts below show the proportion of wild type, heterozygous, and homozygous offspring.
         </c:if>
                         </p>
+
+                        <c:if test="${numberMice > 500}">
+                            <small>* The high throughput nature of the IMPC means that large control sample sizes may accumulate over a long period of time.  See the <a href="${cmsBaseUrl}/about-impc/animal-welfare">animal welfare guidelines</a> for more information.</small>
+                        </c:if>
+
                     </div>
                 </div>
             </div>

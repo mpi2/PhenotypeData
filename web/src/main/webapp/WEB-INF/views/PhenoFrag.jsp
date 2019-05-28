@@ -110,7 +110,7 @@ resTemp[0].remove();
                     </td>
                 </c:if>
                 <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("GRAPH")}'>
-                    <td data-sort="${phenotype.getEvidenceLink().getUrl() }&pageTitle=${phenotype.phenotypeTerm.name} phenotype with knockout ${gene.markerSymbol}&linkBack=linkback link here">
+                    <td data-sort="${phenotype.getEvidenceLink().getUrl() }&phenotype=${phenotype.phenotypeTerm.name}&phenotypeId=${phenotype.phenotypeTerm.id}">
 
                     </td>
                 </c:if>
