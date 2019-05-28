@@ -10,7 +10,7 @@
             name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 
     <jsp:attribute name="header">
-        <link href="https://www.mousephenotypetest.org/wp-content/themes/impc/css/styles.css?ver=40ab77c511c0b72810d6828792c28c78"
+        <link href="${cmsBaseUrl}/wp-content/themes/impc/css/styles.css?ver=40ab77c511c0b72810d6828792c28c78"
               rel="stylesheet" type="text/css"/>
 		<script type="application/ld+json">
             {
