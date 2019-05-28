@@ -23,7 +23,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title><jsp:invoke fragment="title" /> | International Mouse Phenotyping Consortium</title>
     <link rel="profile" href="http://gmpg.org/xfn/11">
-    <link rel="pingback" href="https://mousephenotypetest.org/xmlrpc.php">
+    <link rel="pingback" href="${cmsBaseUrl}/xmlrpc.php">
 <%--   <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-TXfwrfuHVznxCssTxWoPZjhcss/hp38gEOH8UPZG/JcXonvBQ6SlsIF49wUzsGno" crossorigin="anonymous">--%>
     <link rel="stylesheet" href="${baseUrl}/css/vendor/fapro/css/all.min.css" />
     <link rel="apple-touch-icon-precomposed" sizes="57x57" href="${baseUrl}/img/apple-touch-icon-57x57.png" />
@@ -126,8 +126,8 @@
 <main id="main" class="main" role="main">
 
         <div class="single-header">
-            <img src="https://www.mousephenotypetest.org/wp-content/uploads/2019/02/understanding-150x150.png"
-                 srcset="https://www.mousephenotypetest.org/wp-content/uploads/2019/02/understanding-300x62.png 300w, https://www.mousephenotypetest.org/wp-content/uploads/2019/02/understanding-768x158.png 768w, https://www.mousephenotypetest.org/wp-content/uploads/2019/02/understanding-1024x210.png 1024w, https://www.mousephenotypetest.org/wp-content/uploads/2019/02/understanding.png 1440w"
+            <img src="${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-150x150.png"
+                 srcset="${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-300x62.png 300w, ${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-768x158.png 768w, ${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-1024x210.png 1024w, ${cmsBaseUrl}/wp-content/uploads/2019/02/understanding.png 1440w"
                  sizes="100%"/>
 
             <div class="container">

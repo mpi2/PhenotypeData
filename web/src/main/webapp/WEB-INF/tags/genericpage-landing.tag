@@ -33,7 +33,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title><jsp:invoke fragment="title"></jsp:invoke> | International Mouse Phenotyping Consortium</title>
     <link rel="profile" href="http://gmpg.org/xfn/11">
-    <link rel="pingback" href="https://mousephenotypetest.org/xmlrpc.php">
+    <link rel="pingback" href="${cmsBaseUrl}/xmlrpc.php">
     <link rel="stylesheet" href="${baseUrl}/css/vendor/fapro/css/all.min.css" />
     <link rel="apple-touch-icon-precomposed" sizes="57x57" href="${baseUrl}/img/apple-touch-icon-57x57.png" />
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${baseUrl}/img/apple-touch-icon-114x114.png" />
@@ -131,7 +131,7 @@
 <main id="main" class="main" role="main">
     <div class="container-fluid">
         <div class="single-header">
-            <img src="https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner-150x150.png" srcset="https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner-300x62.png 300w, https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner-768x158.png 768w, https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner-1024x210.png 1024w, https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner.png 1440w" sizes="100%" />
+            <img src="${cmsBaseUrl}/wp-content/uploads/2018/12/utdBanner-150x150.png" srcset="${cmsBaseUrl}/wp-content/uploads/2018/12/utdBanner-300x62.png 300w, ${cmsBaseUrl}/wp-content/uploads/2018/12/utdBanner-768x158.png 768w, ${cmsBaseUrl}/wp-content/uploads/2018/12/utdBanner-1024x210.png 1024w, ${cmsBaseUrl}/wp-content/uploads/2018/12/utdBanner.png 1440w" sizes="100%" />
 
 
 
@@ -154,13 +154,13 @@
                             <div class="row">
                                 <div class="col-12 d-none d-md-block">
                                     <p><a href="/">Home</a> <span>></span>
-                                        <a href="https://www.mousephenotypetest.org/understanding-the-data/research-highlights/">
+                                        <a href="${cmsBaseUrl}/understanding-the-data/research-highlights/">
                                             Research highlights </a><span>></span>
                                         <jsp:invoke fragment="breadcrumb" /> </p>
                                 </div>
                                 <div class="col-12 d-block d-md-none">
                                     <p><a href="/">Home</a><span>></span>
-                                        <a href="https://www.mousephenotypetest.org/understanding-the-data/research-highlights/">
+                                        <a href="${cmsBaseUrl}/understanding-the-data/research-highlights/">
                                             Research highlights </a><span>></span>
                                         <jsp:invoke fragment="breadcrumb" /> </p>
                                 </div>
