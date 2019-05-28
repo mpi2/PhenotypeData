@@ -63,7 +63,7 @@
                     </div>
                     <div class="col-md-10 align-middle">
                         <c:if test="${viabilityCalls != null && viabilityCalls.size() > 0}">
-                            <t:viabilityButton callList="${viabilityCalls}" link=""></t:viabilityButton>
+                            <t:viabilityButton callList="${viabilityCalls}" geneAcc="${gene.mgiAccessionId}"></t:viabilityButton>
                         </c:if>
                         <c:if test="${viabilityCalls == null || viabilityCalls.size() <= 0}">
                             N/A
@@ -71,22 +71,22 @@
 
                     </div>
                 </div>
-                    <div class="row no-gutters">
-                        <div class="col-md-2 align-middle text-right pr-1">
-                            <div class="align-middle font-weight-bold pr-2">Other links</div>
-                        </div>
-                        <div class="col-md-10 align-middle">
-                            <a target="_blank" class="page-nav-link"
-                               href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}"
-                               title="See gene page at JAX" style="font-size: initial; display: inline;">MGI &nbsp;<i
-                                    class="fas fa-external-link"></i></a>
-                            <a target="_blank" class="page-nav-link"
-                               href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}"
-                               title="Visualise mouse gene with ensembl genome broswer"
-                               style="font-size: initial; display: inline;">Ensembl &nbsp;<i
-                                    class="fas fa-external-link"></i></a>
-                        </div>
+                <div class="row no-gutters">
+                    <div class="col-md-2 align-middle text-right pr-1">
+                        <div class="align-middle font-weight-bold pr-2">Other links</div>
                     </div>
+                    <div class="col-md-10 align-middle">
+                        <a target="_blank" class="page-nav-link"
+                           href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}"
+                           title="See gene page at JAX" style="font-size: initial; display: inline;">MGI &nbsp;<i
+                                class="fas fa-external-link"></i></a>
+                        <a target="_blank" class="page-nav-link"
+                           href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}"
+                           title="Visualise mouse gene with ensembl genome broswer"
+                           style="font-size: initial; display: inline;">Ensembl &nbsp;<i
+                                class="fas fa-external-link"></i></a>
+                    </div>
+                </div>
                 <div class="row no-gutters justify-content-around mt-3 text-center page-content">
                     <c:if test='${rowsForPhenotypeTable.size() > 0}'>
                         <a href="#phenotypesTab" class="col-sm-2" onclick="$('#significant-tab').trigger('click')">
@@ -173,8 +173,9 @@
             </div>
 
 
+            <%-- <p> No hits that meet the p value threshold. <jsp:include page="heatmapFrag.jsp"/></p> --%>
             <c:if test="${ attemptRegistered && !phenotypeStarted }">
-                <div class="alert alert-info mt-3">
+                <div class="alert alert-info">
                     <h5>Registered for phenotyping</h5>
 
                     <p>Phenotyping is planned for a knockout strain of this gene but
@@ -183,11 +184,12 @@
             </c:if>
 
 
-            <c:if test="${!attemptRegistered and allMeasurementsNumber <= 0}">
-                <div class="alert alert-info mt-3">
+            <c:if test="${!attemptRegistered}">
+                <div class="alert alert-info">
                     <h5>Not currently registered for phenotyping</h5>
 
-                    <p>Phenotyping is currently not planned for a knockout strain of this gene.</p>
+                    <p>Phenotyping is currently not planned for a knockout strain of this gene.
+                    </p>
                 </div>
             </c:if>
 
