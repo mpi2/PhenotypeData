@@ -7419,17 +7419,17 @@ hr {
     border-style: solid;
 }
 
-.clickableRows > tbody > tr:hover {
-    background-color: #ed7b2538;
+.clickableRow:hover {
+    background-color: #ed7b2538 !important;
     cursor: pointer;
 }
 
-.clickableRows > tbody > tr > td:focus {
+.clickableRow > td:focus {
     outline-style: none;
 }
 
 
-.unClickableRows:hover {
+.unClickableRow:hover {
     background-color: #ecececf5 !important;
     cursor: inherit !important;
 }
@@ -7450,6 +7450,10 @@ hr {
     background-color: #ececec;
 }
 
+.detail-view:hover {
+    background-color: white !important;
+}
+
 ul#menu-footer-access {
     padding: 0;
     margin: 0; }
@@ -7457,3 +7461,41 @@ ul#menu-footer-access li {
     display: inline;
     font-size: 80%;
     margin-left: 10px; }
+
+.pheno-row {
+    display: contents;
+}
+
+
+.row-shadow {
+    box-shadow: none;
+}
+
+@media (min-width: 575px) {
+    .pheno-row {
+        display: flex;
+    }
+    .row-shadow {
+        box-shadow: 0px 25px 50px 0px rgba(0, 0, 0, 0.5);
+        z-index: 1;
+        position: relative;
+    }
+}
+
+@media (min-width: 375px) {
+    .page-nav-link-icon {
+        font-size: 3em; }
+}
+@media (min-width: 768px) {
+    .page-nav-link-icon {
+        font-size: 3em; }
+}
+@media (min-width: 992px) {
+    .page-nav-link-icon {
+        font-size: 4em; }
+
+}
+@media (min-width: 1200px) {
+    .page-nav-link-icon {
+        font-size: 5em; }
+}

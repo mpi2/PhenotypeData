@@ -45,7 +45,7 @@
       <!-- <h2 class="title" id="section-impc_expression">Expression Overview<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
       -->
 
-      <script>
+<%--      <script>
           $(document).ready(function () {
               $('#embryoExpressionTable').DataTable({
                   responsive: true,
@@ -53,14 +53,14 @@
                   "bLengthChange": false
               });
           });
-      </script>
+      </script>--%>
       <div class="row justify-content-center">
           <div class="col-md-12">
-              <table id="embryoExpressionTable" class="table dt-responsive" style="width:100%">
+              <table id="embryoExpressionTable" data-toggle="table" data-pagination="true" data-mobile-responsive="true" data-sortable="true">
                   <thead>
-                  <th>Anatomy</th>
+                  <th data-sortable="true">Anatomy</th>
                   <th
-                          title="Number of heterozygous mutant specimens with data for the specified anatomy">
+                          title="Number of heterozygous mutant specimens with data for the specified anatomy" data-sortable="true">
                       #HET Specimens
                   </th>
                   <th
@@ -70,7 +70,7 @@
                   <th title="">Mutant Expr</th>
                   <%-- <th>Mutant specimens</th> --%>
                   <th
-                          title="An clickable image icon will show if images are available for mutant specimens">
+                          title="An clickable image icon will show if images are available for mutant specimens" data-sortable="true">
                       Images
                   </th>
                   </thead>

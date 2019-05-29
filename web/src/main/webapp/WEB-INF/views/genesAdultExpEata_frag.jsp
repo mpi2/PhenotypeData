@@ -32,7 +32,7 @@
     </div-->
 
 
-    <script>
+<%--    <script>
         $(document).ready(function () {
             $('#expressionTable').DataTable({
                 responsive: true,
@@ -40,31 +40,31 @@
                 "bLengthChange": false
             });
         });
-    </script>
+    </script>--%>
 
     <!-- <h2 class="title" id="section-impc_expression">Expression Overview<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
     -->
     <div class="row justify-content-center">
         <div class="col-sm-12">
-            <table id="expressionTable" class="table dt-responsive" style="width:100%">
+            <table id="expressionTable" data-toggle="table" data-pagination="true" data-mobile-responsive="true" data-sortable="true">
                 <thead>
-                <th>Anatomy</th>
+                <th data-sortable="true">Anatomy</th>
                 <th
-                        title="Number of heterozygous mutant specimens with data for the specified anatomy">
+                        title="Number of heterozygous mutant specimens with data for the specified anatomy" data-sortable="true">
                     #HET Specimens
                 </th>
                 <th
-                        title="If there are images for homozygous specimens this value will be 'Yes'">
+                        title="If there are images for homozygous specimens this value will be 'Yes'" data-sortable="true">
                     HOM Images?
                 </th>
-                <th class="wtExp"
+                <th
                     title="Status of expression for Wild Type specimens from any colony with data for this anatomy">
                     WT Expr
                 </th>
                 <th title="">Mutant Expr</th>
                 <%-- <th>Mutant specimens</th> --%>
                 <th
-                        title="An clickable image icon will show if images are available for mutant specimens">
+                        title="An clickable image icon will show if images are available for mutant specimens" data-sortable="true">
                     Images
                 </th>
                 </thead>
@@ -86,7 +86,7 @@
 																<c:if
                                                                         test="${!mutantImagesAnatomyToRow[mapEntry.key].homImages}">No</c:if></span>
                         </td>
-                        <td class="wtExp">
+                        <td>
                             <c:choose>
                                 <c:when
                                         test="${wtAnatomyToRow[mapEntry.key].expression}">

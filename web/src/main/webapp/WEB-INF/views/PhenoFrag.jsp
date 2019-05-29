@@ -22,37 +22,30 @@
     </c:forEach>
 </c:forEach>
 
+<script>
+    function sortPValue(a, b, rowA, rowB) {
+        if (parseFloat(rowA._6_data.value) < parseFloat(rowB._6_data.value)) return 1;
+        if (parseFloat(rowA._6_data.value) > parseFloat(rowB._6_data.value)) return -1;
+        return 0;
+    }
+</script>
 
-<!-- <script>
-$(document).ready(function() {
-$('#genes').DataTable({responsive: true});
-} );
-var resTemp = document.getElementsByClassName("resultCount");
-if (resTemp.length > 1)
-resTemp[0].remove();
-</script> -->
-
-
-<table id="genes" class="table dt-responsive clickableRows" style="width:100%;">
+<table id="significantPhenotypesTable" data-toggle="table" data-pagination="true" data-mobile-responsive="true" data-sortable="true">
     <thead>
     <tr>
-        <th class="headerSort">Phenotype</th>
-        <th class="headerSort">System</th>
-        <th class="headerSort">Allele</th>
-        <th class="headerSort" title="Zygosity">Zyg</th>
-        <th class="headerSort">Sex</th>
-        <th class="headerSort">Life Stage</th>
-
-
-        <!-- <th class="headerSort">Source</th> -->
-        <th>P Value</th>
-        <!--th class="headerSort">Data</th-->
+        <th data-sortable="true">Phenotype</th>
+        <th data-sortable="true">System</th>
+        <th data-sortable="true">Allele</th>
+        <th title="Zygosity" data-sortable="true">Zyg</th>
+        <th data-sortable="true">Sex</th>
+        <th data-sortable="true">Life Stage</th>
+        <th data-sortable="true" data-sorter="sortPValue" data-sort-name="value">P Value</th>
     </tr>
     </thead>
     <tbody>
     <c:forEach var="phenotype" items="${rowsForPhenotypeTable}" varStatus="status">
         <c:set var="europhenome_gender" value="Both-Split"/>
-        <tr title="${!phenotype.getEvidenceLink().getDisplay() ? 'No supporting data supplied.' : ''}" data-toggle="tooltip">
+        <tr title="${!phenotype.getEvidenceLink().getDisplay() ? 'No supporting data supplied.' : ''}" data-toggle="tooltip" data-link="${phenotype.getEvidenceLink().url}" class="${phenotype.getEvidenceLink().getDisplay() ? 'clickableRow' : 'unClickableRow'}">
 
             <td>
 
@@ -99,48 +92,48 @@ resTemp[0].remove();
             <td>${phenotype.lifeStageName} <%-- length= ${phenotype.phenotypeCallUniquePropertyBeans} --%></td>
 
 
-            <td data-sort="${phenotype.prValueAsString}">
+            <td data-value="${phenotype.prValueAsString}">
                 <t:formatScientific>${phenotype.prValueAsString}</t:formatScientific></td>
 
 
-            <c:if test="${phenotype.getEvidenceLink().getDisplay()}">
-                <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("IMAGE")}'>
-                    <td data-sort="${phenotype.getEvidenceLink().getUrl() }">
+<%--            <c:if test="${phenotype.getEvidenceLink().getDisplay()}">--%>
+<%--                <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("IMAGE")}'>--%>
+<%--                    <td data-sort="${phenotype.getEvidenceLink().getUrl() }">--%>
 
-                    </td>
-                </c:if>
-                <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("GRAPH")}'>
-                    <td data-sort="${phenotype.getEvidenceLink().getUrl() }&phenotype=${phenotype.phenotypeTerm.name}&phenotypeId=${phenotype.phenotypeTerm.id}">
+<%--                    </td>--%>
+<%--                </c:if>--%>
+<%--                <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("GRAPH")}'>--%>
+<%--                    <td data-sort="${phenotype.getEvidenceLink().getUrl() }&phenotype=${phenotype.phenotypeTerm.name}&phenotypeId=${phenotype.phenotypeTerm.id}">--%>
 
-                    </td>
-                </c:if>
-                <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("TABLE")}'>
-                    <td data-sort="${phenotype.getEvidenceLink().getUrl() }">
+<%--                    </td>--%>
+<%--                </c:if>--%>
+<%--                <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("TABLE")}'>--%>
+<%--                    <td data-sort="${phenotype.getEvidenceLink().getUrl() }">--%>
 
-                    </td>
-                </c:if>
-            </c:if>
+<%--                    </td>--%>
+<%--                </c:if>--%>
+<%--            </c:if>--%>
 
-            <c:if test="${phenotype.getImagesEvidenceLink().getDisplay()}">
-                <td data-sort="${phenotype.getImagesEvidenceLink().url}">
+<%--            <c:if test="${phenotype.getImagesEvidenceLink().getDisplay()}">--%>
+<%--                <td data-sort="${phenotype.getImagesEvidenceLink().url}">--%>
 
-                </td>
-            </c:if>
+<%--                </td>--%>
+<%--            </c:if>--%>
 
-            <c:if test="${!phenotype.getEvidenceLink().getDisplay()}">
-                <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("IMAGE")}'>
-                    <td data-sort="none">
-                        <i class="fa fa-image" title="No images available."></i>
-                    </td>
-                </c:if>
-                <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("GRAPH")}'>
-                    <td data-sort="none">
-                        <i class="fa fa-bar-chart-o" title="No supporting data supplied."></i>
-                    </td>
-                </c:if>
+<%--            <c:if test="${!phenotype.getEvidenceLink().getDisplay()}">--%>
+<%--                <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("IMAGE")}'>--%>
+<%--                    <td data-sort="none">--%>
+<%--                        <i class="fa fa-image" title="No images available."></i>--%>
+<%--                    </td>--%>
+<%--                </c:if>--%>
+<%--                <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("GRAPH")}'>--%>
+<%--                    <td data-sort="none">--%>
+<%--                        <i class="fa fa-bar-chart-o" title="No supporting data supplied."></i>--%>
+<%--                    </td>--%>
+<%--                </c:if>--%>
 
 
-            </c:if>
+<%--            </c:if>--%>
 
 
             <!-- This is closing the td from the 2 ifs above -->

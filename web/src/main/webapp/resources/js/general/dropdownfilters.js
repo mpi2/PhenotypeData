@@ -12,9 +12,15 @@ $(document).ready(function(){
 	removeFilterSelects();
 	var selectedFilters = "";
 	var dropdownsList = new Array();
+
+	$('').click(
+		function () {
+		}
+	);
+/*
     initGenePhenotypesTable();
-	/* var oDataTable = $('table#phenotypes').dataTable();
-						oDataTable.fnDestroy();  */
+	/!* var oDataTable = $('table#phenotypes').dataTable();
+						oDataTable.fnDestroy();  *!/
 	// use jquery DataTable for table searching/sorting/pagination
     function initGenePhenotypesTable(){
 		var aDataTblCols = [0,1,2,3,4,5,6,7];
@@ -76,7 +82,7 @@ $(document).ready(function(){
 //	        "sPaginationType": "bootstrap"
 //		});
     }
-
+*/
 	// Sort the individual table containing p-values
 	$.fn.dataTableExt.oSort['pvalues-asc']  = function(a,b) {
 		var x = 0;

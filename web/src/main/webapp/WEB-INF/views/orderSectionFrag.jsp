@@ -2,12 +2,35 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<!-- just for testing with styles remove -->
+<script>
+    function detailFormatter(index, row) {
+        console.log(row);
+        $.ajax({
+            url: row[0],
+            type: 'GET',
+            success: function (data) {
+                $('#orderAllele' + index).html(data);
+            }
+        });
+        return "<div class='container'>" +
+            '<div id="orderAllele' + index + '" class="col-12">' +
+            "     <div class=\"pre-content\">\n" +
+            "                        <div class=\"row no-gutters\">\n" +
+            "                            <div class=\"col-12 my-5\">\n" +
+            "                                <p class=\"h4 text-center text-justify\"><i class=\"fas fa-atom fa-spin\"></i> A moment please while we gather the data . . . .</p>\n" +
+            "                            </div>\n" +
+            "                        </div>\n" +
+            "                    </div>" +
+            '</div>' +
+            '</div>';
+    }
+</script>
+
 <c:if test="${orderRows.size() > 0}">
     <c:if test="${creLine}">
         <c:set var="creLineParam" value="&creLine=true"/>
     </c:if>
-    <table id="creLineTable" class="table tableSorter">
+    <table id="creLineTable" data-toggle="table" data-pagination="true" data-mobile-responsive="true" data-sortable="true"   data-detail-view="true" data-detail-formatter="detailFormatter">
         <thead>
         <tr>
             <th class="hidden">Allele Frag</th>

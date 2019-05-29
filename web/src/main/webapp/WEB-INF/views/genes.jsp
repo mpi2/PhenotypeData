@@ -496,7 +496,7 @@
                             <div class="row justify-content-end">
                                 <div class="float-right"><a href="${cmsBaseUrl}/help/gene-page/disease-models/" target="_blank"><i class="fa fa-question-circle" style="font-size: xx-large"></i></a></div>
                             </div>
-                            <div class="row">
+                            <div class="row d-sm-flex d-none">
                                 <div class="col-12">
                                     <ul class="nav nav-tabs" id="diseasesTab" role="tablist">
                                         <li class="nav-item">
@@ -534,7 +534,7 @@
                                                     </div>
                                                 </c:when>
                                                 <c:otherwise>
-                                                    <table id="diseases_by_phenotype" class="table tablesorter disease"
+                                                    <table id="diseases_by_phenotype" class="table tablesorter disease hidden-xs"
                                                            style="width:100%"></table>
                                                 </c:otherwise>
                                             </c:choose>
@@ -599,7 +599,6 @@
                         searching: false,
                         order: [[4, 'desc'], [3, 'desc'], [2, 'desc']],
                         pagingType: "full_numbers",
-                        responsive: true,
                         initComplete: function(settings, json) {
                             $('#diseases_by_annotation_count').text(settings.aoData.length);
                             diseaseModelTotal += settings.aoData.length;
@@ -614,7 +613,6 @@
                         filter: curatedDiseases,
                         minScore: 0,
                         innerTables: true,
-                        responsive: true
                     }
                 },
                 {
@@ -661,15 +659,20 @@
                             '                                        </div>');
                     }
                 }
-                var orderTable = $("#creLineTable").DataTable({
+                $('#significantPhenotypesTable').on('click-row.bs.table', function (e, row) {
+                    if(row._data['link']) {
+                        window.location = row._data['link'];
+                    }
+                });
+/*                var orderTable = $("#creLineTable").DataTable({
                     "bFilter": false,
-                    "bLengthChange": false,
                     "order": [],
+                    "bLengthChange": false,
                     "columnDefs": [
                         {
                             "orderable": false,
                             "targets": 'no-sort',
-                            "className": 'details-control'
+                            "className": 'ordering-info'
                         },
                         {
                             "orderable": false,
@@ -683,7 +686,8 @@
                     this
                         .child(
                             $(
-                                '<div id="orderAllele' + idx + '">' +
+                                "<div class='container'>" +
+                                '<div id="orderAllele' + idx + '" class="col-12">' +
                                 "     <div class=\"pre-content\">\n" +
                                 "                        <div class=\"row no-gutters\">\n" +
                                 "                            <div class=\"col-12 my-5\">\n" +
@@ -691,18 +695,19 @@
                                 "                            </div>\n" +
                                 "                        </div>\n" +
                                 "                    </div>" +
+                                '</div>' +
                                 '</div>'
                             )
                         );
                 } );
 
-                $('#creLineTable tbody').on('click', 'td.details-control', function () {
+                $('#creLineTable tbody').on('click', 'td.ordering-info', function () {
                     var tr  = $(this).closest('tr'),
                         row = orderTable.row(tr);
 
                     if (row.child.isShown()) {
                         tr.find('a').html('Show ordering information&nbsp;<i class="fa fa-caret-down"></i>');
-                        tr.next('tr').removeClass('details-row');
+                        tr.next('tr').removeClass('ordering-info');
                         row.child.hide();
                         tr.removeClass('shown');
                     }
@@ -719,10 +724,10 @@
                             });
                         }
                         row.child.show();
-                        tr.next('tr').addClass('details-row');
+                        tr.next('tr').addClass('ordering-info');
                         tr.addClass('shown');
                     }
-                });
+                });*/
             });
         </script>
 
