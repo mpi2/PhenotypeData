@@ -141,10 +141,15 @@
 
 </head>
 
+
+<c:choose>
+    <c:when test="${not empty bodyTag}">
+        <jsp:invoke fragment="bodyTag"/>
+    </c:when>
+    <c:otherwise>
 <body>
-
-
-<jsp:invoke fragment="bodyTag"/>
+    </c:otherwise>
+</c:choose>
 
 <t:menu />
 
