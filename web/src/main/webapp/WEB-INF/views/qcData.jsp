@@ -14,7 +14,7 @@
         <div class="container data-heading">
             <div class="row row-shadow">
                 <div class="col-12 no-gutters">
-                    <h2>QC data fo rAllele ${title}</h2>
+                    <h2>QC data for Allele ${title}</h2>
                 </div>
             </div>
         </div>
