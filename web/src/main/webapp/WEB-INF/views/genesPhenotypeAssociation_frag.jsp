@@ -14,9 +14,9 @@
     <div class="row flex-xl-nowrap">
         <div class="col-lg-8">
             <!-- only display a normal div if no phenotype icons displayed -->
-            <div id="phenoSumSmallDiv" class="text-center">
+            <div id="phenoSumSmallDiv" class="text-left">
                 <div class="row no-gutters mb-2 mb-sm-0">
-                    <div class="col-sm-2 align-middle text-sm-right pr-1">
+                    <div class="col align-middle text-sm-right pr-1">
                         <div class="align-middle font-weight-bold pr-2">Name</div>
                     </div>
                     <div class="col-sm-10 align-middle text-sm-left">
@@ -24,7 +24,7 @@
                     </div>
                 </div>
                 <div class="row no-gutters mb-2 mb-sm-0">
-                    <div class="col-sm-2 align-middle text-sm-right pr-1">
+                    <div class="col align-middle text-sm-right pr-1">
                         <div class="align-middle font-weight-bold pr-2">MGI ID</div>
                     </div>
                     <div class="col-sm-10 align-middle text-sm-left">
@@ -32,7 +32,7 @@
                     </div>
                 </div>
                 <div class="row no-gutters mb-2 mb-sm-0">
-                    <div class="col-sm-2 align-middle text-sm-right pr-1">
+                    <div class="col align-middle text-sm-right pr-1">
                         <div class="align-middle font-weight-bold pr-2">Synonyms</div>
                     </div>
                     <div class="col-sm-10 align-middle text-sm-left">
@@ -58,7 +58,7 @@
                 </div>
 
                 <div class="row no-gutters mb-2 mb-sm-0">
-                    <div class="col-sm-2 align-middle text-sm-right pr-1">
+                    <div class="col align-middle text-sm-right pr-1">
                         <div class="align-middle font-weight-bold pr-2">Viability</div>
                     </div>
                     <div class="col-sm-10 align-middle text-sm-left">
@@ -72,7 +72,7 @@
                     </div>
                 </div>
                 <div class="row no-gutters mb-2 mb-sm-0">
-                    <div class="col-sm-2 align-middle text-sm-right pr-1">
+                    <div class="col align-middle text-sm-right pr-1">
                         <div class="align-middle font-weight-bold pr-2">Other links</div>
                     </div>
                     <div class="col-sm-10 align-middle text-sm-left">
@@ -89,27 +89,27 @@
                 </div>
                 <div class="row no-gutters justify-content-around mt-3 text-center page-content">
                     <c:if test='${rowsForPhenotypeTable.size() > 0}'>
-                        <a href="#phenotypesTab" class="col-sm-2" onclick="$('#significant-tab').trigger('click')">
+                        <a href="#phenotypesTab" class="col" onclick="$('#significant-tab').trigger('click')">
                             <i class="fal fa-file-medical-alt mb-1 text-dark page-nav-link-icon"></i>
                             <span class="page-nav-link">Significant phenotypes (${rowsForPhenotypeTable.size()})</span>
                         </a>
                     </c:if>
                     <c:if test='${rowsForPhenotypeTable.size() <= 0}'>
-                        <span class="col-sm-2">
+                        <span class="col">
                             <i class="fal fa-file-medical-alt mb-1 text-muted page-nav-link-icon"></i>
                             <span class="page-nav-link-muted text-muted">Significant phenotypes (0)</span>
                         </span>
                     </c:if>
                     <c:if test='${notsignificantTopLevelMpGroups.size() + significantTopLevelMpGroups.size() > 0}'>
 
-                        <a href="#phenotypesTab" class="col-sm-2" onclick="$('#alldata-tab').trigger('click')">
+                        <a href="#phenotypesTab" class="col" onclick="$('#alldata-tab').trigger('click')">
                             <i class="fal fa-ruler-combined mb-1 text-dark page-nav-link-icon"></i>
                             <span class="page-nav-link">All measurements (${allMeasurementsNumber})</span>
                         </a>
                     </c:if>
                     <c:if test='${notsignificantTopLevelMpGroups.size() + significantTopLevelMpGroups.size() <= 0}'>
 
-                        <span class="col-sm-2">
+                        <span class="col">
                             <i class="fal fa-ruler-combined mb-1 text-muted page-nav-link-icon"></i>
                             <span class="page-nav-link-muted text-muted">All measurements (0)</span>
                         </span>
@@ -119,7 +119,7 @@
                                                   or not empty expressionAnatomyToRow
                                                   or not empty impcEmbryoExpressionImageFacets
                                                   or not empty embryoExpressionAnatomyToRow}">
-                        <a href="#expression" class="col-sm-2">
+                        <a href="#expression" class="col">
                             <i class="fal fa-images mb-1 text-dark page-nav-link-icon" data-toggle="tooltip"
                                data-placement="top"></i>
                             <span class="page-nav-link">Expression & images (${expressionAnatomyToRow.size() + embryoExpressionAnatomyToRow.size()})</span>
@@ -130,14 +130,14 @@
                                                   and empty expressionAnatomyToRow
                                                   and empty impcEmbryoExpressionImageFacets
                                                   and empty embryoExpressionAnatomyToRow}">
-                        <span class="col-sm-2">
+                        <span class="col">
                             <i class="fal fa-images mb-1 text-muted page-nav-link-icon" data-toggle="tooltip"
                                data-placement="top"></i>
                             <span class="page-nav-link-muted text-muted">Expression & images (0)</span>
                         </span>
                     </c:if>
                     <c:if test='${hasModelsByOrthology or hasModelAssociations}'>
-                        <a href="#diseases" class="col-sm-2">
+                        <a href="#diseases" class="col">
                             <i class="fal fa-procedures mb-1 text-dark page-nav-link-icon" data-toggle="tooltip"
                                data-placement="top"></i>
                             <span class="page-nav-link">Disease models (<span id="diseaseModelTotal">0</span>)</span>
@@ -145,21 +145,29 @@
                     </c:if>
 
                     <c:if test='${not hasModelsByOrthology and not hasModelAssociations}'>
-                        <span class="col-sm-2">
+                        <span class="col">
                             <i class="fal fa-procedures mb-1 text-muted page-nav-link-icon" data-toggle="tooltip"
                                data-placement="top"></i>
                             <span class="page-nav-link-muted text-muted">Disease models (0)</span>
                         </span>
                     </c:if>
+<c:if test='${not hasModelsByOrthology and not hasModelAssociations}'>
+                    <span class="col">
+                            <i class="fal fa-microscope mb-1 page-nav-link-icon"
+                               data-toggle="tooltip"
+                               data-placement="top"></i>
+                            <span class="page-nav-link">Histopathology (10)</span>
+                    </span>
+</c:if>
                     <c:if test='${orderRows.size() > 0}'>
-                        <a href="#order" class="col-sm-2">
+                        <a href="#order" class="col">
                             <i class="fal fa-shopping-cart mb-1 text-dark page-nav-link-icon" data-toggle="tooltip"
                                data-placement="top"></i>
                             <span class="page-nav-link">Order (${orderRows.size()})</span>
                         </a>
                     </c:if>
                     <c:if test='${orderRows.size() <= 0}'>
-                        <span class="col-sm-2">
+                        <span class="col">
                             <i class="fal fa-shopping-cart mb-1 text-muted page-nav-link-icon"
                                data-toggle="tooltip"
                                data-placement="top"></i>
@@ -264,11 +272,11 @@
                      aria-labelledby="significant-tab">
                     <div id="phenotypeTableDiv" class="inner-division">
                         <div class="row">
-                            <div class="container">
+                            <div class="container p-0 p-md-2">
 
                                 <div class="row" id="phenotypesDiv">
 
-                                    <div class="container">
+                                    <div class="container p-0 p-md-2">
 
                                         <c:if test="${not empty rowsForPhenotypeTable}">
                                         <div class="row">

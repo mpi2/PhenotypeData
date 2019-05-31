@@ -38,10 +38,10 @@
     <div class="header__nav">
         <div class="container">
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-3">
                     <a href="/" class="header__logo-link active"><img class="header__logo" src="${baseUrl}/img/impc-logo-tag@2x.png"/></a>
                 </div>
-                <div class="col-md-9 text-right">
+                <div class="col-9 text-right">
                     <span class="d-none d-lg-block">
                         <div class="menu-main-nav-container">
                             <ul id="menu-main-nav" class="menu">
@@ -66,7 +66,7 @@
                             <div class="row search-pop no-gutters">
                                 <div class="search-pop__input col col-9 text-left">
                                     <p><br/></p>
-                                    <input id="searchField" type="search" class="form-control" id="s" name="s" placeholder="Search documentation and news...">
+                                    <input id="searchField" type="search" class="form-control" id="s" name="s" placeholder="Search documentation and news">
                                 </div>
                                 <div class="col col-3 text-right search-submit">
                                     <button type="submit">Search <i class="fal fa-search"></i></button>
@@ -94,7 +94,7 @@
                 <div class="row">
                     <div class="col col-10 text-left">
                         <input type="search" class="form-control" id="s" name="s"
-                               placeholder="Search documentation and news...">
+                               placeholder="Search documentation and news">
                     </div>
                     <div class="col col-2 text-right">
                         <button type="submit"><i class="fas fa-search"></i></button>

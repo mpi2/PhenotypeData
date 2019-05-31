@@ -317,7 +317,7 @@
             <div class="row">
                 <div class="col-12 white-bg">
                     <div class="page-content pt-3 pb-5">
-                        <div class="container">
+                        <div class="container p-0 p-md-2">
                             <div class="row justify-content-end pb-1">
                                 <div class="float-right"><a href="${cmsBaseUrl}/help/gene-page/lacz-expression/" target="_blank"><i class="fa fa-question-circle" style="font-size: xx-large"></i></a></div>
                             </div>
@@ -444,7 +444,7 @@
             <div class="row">
                 <div class="col-12 white-bg">
                     <div class="page-content pt-3 pb-5">
-                        <div class="container">
+                        <div class="container p-0 p-md-2">
                             <div class="row justify-content-end pb-1">
                                 <div class="float-right"><a href="${cmsBaseUrl}/help/gene-page/images/" target="_blank"><i class="fa fa-question-circle" style="font-size: xx-large"></i></a></div>
                             </div>
@@ -492,11 +492,11 @@
             <div class="row">
                 <div class="col-12 white-bg">
                     <div class="page-content pt-3 pb-5">
-                        <div class="container">
+                        <div class="container p-0 p-md-2">
                             <div class="row justify-content-end">
                                 <div class="float-right"><a href="${cmsBaseUrl}/help/gene-page/disease-models/" target="_blank"><i class="fa fa-question-circle" style="font-size: xx-large"></i></a></div>
                             </div>
-                            <div class="row d-sm-flex d-none">
+                            <div class="row d-lg-flex d-none">
                                 <div class="col-12">
                                     <ul class="nav nav-tabs" id="diseasesTab" role="tablist">
                                         <li class="nav-item">
@@ -542,6 +542,9 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="row d-lg-none d-flex">
+                                <span class="alert alert-secondary">Please visit the desktop version to see this section</span>
+                            </div>
                         </div>
 
                     </div>
@@ -562,7 +565,7 @@
             <div class="row">
                 <div class="col-12 white-bg">
                     <div class="page-content pt-3 pb-5">
-                        <div class="container">
+                        <div class="container p-0 p-md-2">
                             <div class="row justify-content-end">
                                 <div><a href="${cmsBaseUrl}/help/gene-page/ordering-mice-or-mouse-prodcuts/"><i class="fa fa-question-circle" style="font-size: xx-large"></i></a></div>
                             </div>

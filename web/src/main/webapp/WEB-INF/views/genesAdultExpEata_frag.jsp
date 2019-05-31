@@ -18,7 +18,7 @@
 <c:set var="noColor" scope="page" value="text-info"/>
 <c:set var="amColor" scope="page" value="text-warning"/>
 <c:set var="noAvaColor" scope="page" value="text-danger"/>
-<div class="container">
+<div class="container p-0 p-md-2">
     <div class="row justify-content-center">
         <span title="Expression" class="${yesColor} mr-3"><i class="${expressionIcon}"></i>&nbsp;Expression</span>
         <span title="No Expression" class="${noColor} mr-3"> <i class="${noExpressionIcon}"></i>&nbsp;No Expression</span>

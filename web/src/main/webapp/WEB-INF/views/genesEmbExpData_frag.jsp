@@ -33,7 +33,7 @@
 
 <div class="row justify-content-center" id="embryo1">
 
-  <div class="container">
+  <div class="container p-0 p-md-2">
       <div class="mb-2 row justify-content-center">
           <span title="Expression" class="${yesColor} mr-3"><i class="${expressionIcon}"></i>&nbsp;Expression</span>
           <span title="No Expression" class="${noColor} mr-3"> <i class="${noExpressionIcon}"></i>&nbsp;No Expression</span>

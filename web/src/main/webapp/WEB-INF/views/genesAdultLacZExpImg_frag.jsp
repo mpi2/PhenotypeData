@@ -15,7 +15,7 @@
 -->
 
 <div class="tz-gallery small">
-    <div class="container">
+    <div class="container p-md-0">
         <div class="heading">
             <h5>LacZ Wholemount Images</h5>
         </div>
@@ -41,7 +41,7 @@
 
 
 <div class="tz-gallery small">
-    <div class="container">
+    <div class="container p-md-0">
         <div class="heading">
             <h5>LacZ Section Images</h5>
         </div>
@@ -66,7 +66,7 @@
 </div>
 
 <c:if test="${not empty expressionFacets}">
-    <div class="container">
+    <div class="container p-0 p-md-2">
         <div class="heading row">
             <h5>LacZ Section Images</h5>
         </div>
