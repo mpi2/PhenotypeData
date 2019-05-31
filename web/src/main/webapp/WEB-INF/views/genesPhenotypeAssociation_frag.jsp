@@ -63,7 +63,8 @@
                     </div>
                     <div class="col-sm-10 align-middle text-sm-left">
                         <c:if test="${viabilityCalls != null && viabilityCalls.size() > 0}">
-                            <t:viabilityButton callList="${viabilityCalls}" geneAcc="${gene.mgiAccessionId}"></t:viabilityButton>
+                            <t:viabilityButton callList="${viabilityCalls}"
+                                               geneAcc="${gene.mgiAccessionId}"></t:viabilityButton>
                         </c:if>
                         <c:if test="${viabilityCalls == null || viabilityCalls.size() <= 0}">
                             N/A
@@ -151,14 +152,14 @@
                             <span class="page-nav-link-muted text-muted">Disease models (0)</span>
                         </span>
                     </c:if>
-<c:if test='${not hasModelsByOrthology and not hasModelAssociations}'>
-                    <span class="col">
-                            <i class="fal fa-microscope mb-1 page-nav-link-icon"
-                               data-toggle="tooltip"
-                               data-placement="top"></i>
-                            <span class="page-nav-link">Histopathology (10)</span>
-                    </span>
-</c:if>
+                    <c:if test='${rowsForHistopathTable.size() > 0}'>
+                        <a href="#histopath" class="col">
+                                <i class="fal fa-microscope mb-1 text-dark page-nav-link-icon"
+                                   data-toggle="tooltip"
+                                   data-placement="top"></i>
+                                <span class="page-nav-link">Histopathology (${rowsForHistopathTable.size()})</span>
+                        </a>
+                    </c:if>
                     <c:if test='${orderRows.size() > 0}'>
                         <a href="#order" class="col">
                             <i class="fal fa-shopping-cart mb-1 text-dark page-nav-link-icon" data-toggle="tooltip"
@@ -230,7 +231,8 @@
                 <c:if test='${rowsForPhenotypeTable.size() > 0}'>
                     <a class="nav-link active" id="significant-tab" data-toggle="tab" href="#significant"
                        role="tab" aria-controls="significant-tab" aria-selected="true"><i
-                            class="fal fa-file-medical-alt"></i>&nbsp; Significant phenotypes (${rowsForPhenotypeTable.size()})</a>
+                            class="fal fa-file-medical-alt"></i>&nbsp; Significant phenotypes
+                        (${rowsForPhenotypeTable.size()})</a>
                 </c:if>
                 <c:if test='${rowsForPhenotypeTable.size() <= 0}'>
                     <a class="nav-link" id="significant-tab" data-toggle="tab" href="#significant"
@@ -241,10 +243,12 @@
             </li>
             <li class="nav-item">
                 <c:if test='${allMeasurementsNumber > 0}'>
-                    <a class="nav-link${rowsForPhenotypeTable.size() <= 0 ? ' active' : ''}" id="alldata-tab" data-toggle="tab" href="#alldata"
-                       role="tab" aria-controls="alldata-tab" aria-selected="${rowsForPhenotypeTable.size() <= 0 ? 'true' : 'false'}"><i
+                    <a class="nav-link${rowsForPhenotypeTable.size() <= 0 ? ' active' : ''}" id="alldata-tab"
+                       data-toggle="tab" href="#alldata"
+                       role="tab" aria-controls="alldata-tab"
+                       aria-selected="${rowsForPhenotypeTable.size() <= 0 ? 'true' : 'false'}"><i
                             class="fal fa-ruler-combined"></i>&nbsp;
-                        All measurements  (${allMeasurementsNumber})</a>
+                        All measurements (${allMeasurementsNumber})</a>
                 </c:if>
                 <c:if test='${allMeasurementsNumber <= 0}'>
                     <a class="nav-link active" id="alldata-tab" data-toggle="tab" href="#alldata"
