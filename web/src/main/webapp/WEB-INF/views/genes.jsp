@@ -602,10 +602,9 @@
                                             <tr>
                                                 <th data-sortable="true">Phenotype</th>
                                                 <th data-sortable="true">Allele</th>
-                                                <th title="Zygosity" data-sortable="true">Zyg</th>
+                                                <th title="Zygosity" data-sortable="true">Zygosity</th>
                                                 <th data-sortable="true">Sex</th>
                                                 <th data-sortable="true">Life Stage</th>
-                                                <th data-sortable="true" data-sorter="sortPValue" data-sort-name="value">P Value</th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -614,52 +613,21 @@
                                                 <tr title="${!phenotype.getEvidenceLink().getDisplay() ? 'No supporting data supplied.' : ''}" data-toggle="tooltip" data-link="${phenotype.getEvidenceLink().url}" class="clickableRow">
 
                                                     <td>
-
-                                                        <c:if test="${ empty phenotype.phenotypeTerm.id }">
-                                                            ${phenotype.phenotypeTerm.name}
-                                                        </c:if>
-                                                        <c:if test="${not empty phenotype.phenotypeTerm.id}">
-                                                            <%--a href="${baseUrl}/phenotypes/${phenotype.phenotypeTerm.id}">${phenotype.phenotypeTerm.name}</a--%>
-                                                            <span>${phenotype.phenotypeTerm.name}</span>
-                                                        </c:if>
-
+                                                        ${phenotype.phenotypeTerm.name}
                                                     </td>
-<%--                                                    <td class="text-lg-center" style="font-size: 1.25em;">--%>
-<%--                <span class="row_abnormalities">--%>
-<%--                    <c:set var="marginLeftCount" value="0"/>--%>
-<%--                    <c:forEach var="topLevelMpGroup" items="${phenotype.topLevelMpGroups }" varStatus="groupCount">--%>
-<%--                        <c:choose>--%>
-<%--                            <c:when test="${topLevelMpGroup eq 'NA' }">--%>
-<%--                                &lt;%&ndash; <div title="${topLevelMpGroup}" >${topLevelMpGroup}</div> don't display a top level icon if there is no top level group for the top level mp term&ndash;%&gt;--%>
-<%--                            </c:when>--%>
-<%--                            <c:otherwise>--%>
 
-<%--                                <i class="${phenotypeGroupIcons[phenotypeGroups.indexOf(topLevelMpGroup)]} text-primary"--%>
-<%--                                   data-hasqtip="27" title="${topLevelMpGroup}"></i>--%>
-<%--                            </c:otherwise>--%>
-<%--                        </c:choose>--%>
-
-<%--                    </c:forEach>--%>
-<%--                </span>--%>
-<%--                                                    </td>--%>
                                                     <td>
-                                                        <!-- note that allele page takes mgi GENE id not allele id -->
-                                                            <%--a
-                                                                    href="${baseUrl}/alleles/${acc}/${phenotype.allele.superScript}"><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele>
-                                                            </a--%>
                                                         <span><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></span>
-
                                                     </td>
+
                                                     <td title="${phenotype.zygosity}">${phenotype.zygosity.getShortName()}</td>
+
                                                     <td>
                                                         <c:set var="count" value="0" scope="page"/>
                                                         <t:displaySexes sexes="${phenotype.sexes}"></t:displaySexes>
                                                     </td>
-                                                    <td>${phenotype.lifeStageName} <%-- length= ${phenotype.phenotypeCallUniquePropertyBeans} --%></td>
 
-
-                                                    <td data-value="${phenotype.prValueAsString}">
-                                                        <t:formatScientific>${phenotype.prValueAsString}</t:formatScientific></td>
+                                                    <td>${phenotype.lifeStageName}</td>
 
                                                 </tr>
                                             </c:forEach>

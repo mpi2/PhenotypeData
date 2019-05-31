@@ -5,17 +5,17 @@
 
 <c:if test="${not empty summary}">
 
-<div class="section">
-    <div class="inner">
+<div class="row">
+    <div class="col-12">
     <h3>Summary</h3>
     <div style="font-size: 110%; font-weight: bold;">
         <p>${summary['allele_description']}</p>
         
         <c:if test="${not empty summary['statuses']}">
-        <table>
+        <table class="table">
             <c:if test="${not empty summary['status_mice']}">
 
-                <tr style="background-color: ${summary['status_mice']['COLOUR']} !important;">
+                <tr >
 
                     <td style="width:30%">${summary['status_mice']['TEXT']}</td>
 
@@ -32,8 +32,6 @@
                     </c:if>                        
                  
                     </td>
-                    <td></td>
-                    <td></td>
                     <td>
                         <c:if test="${not empty other_available_alleles_with_mice}">
                             <c:if test="${not empty summary['status_mice']['orders'] || not empty summary['status_mice']['contacts']}">These alleles are available as mice</br></c:if>
@@ -67,8 +65,6 @@
                     </c:if>                        
 
                     </td>
-                    <td></td>
-                    <td></td>
                     <td>
                         <c:if test="${not empty other_available_alleles_with_es_cells}">
                             <c:if test="${not empty summary['status_es_cells']['orders'] || not empty summary['status_es_cells']['contacts']}">These alleles are also available as ES Cells</br></c:if>
@@ -90,24 +86,16 @@
 
 
 
-    <div class="section">
-        <div class="inner">
+    <div class="row">
+        <div class="col-12 m-5">
 
         <c:if test="${not empty summary['map_image']}">
-			<h3>Allele Map</h3>
+			<h4>Allele Map</h4>
         <div id="image">
             <img alt="image not found!" src="${summary['map_image']}" width="930px">
         </div>
         </c:if>
 
-
-                        
-                        
-        <style>
-                .wrap_table  { display: block; }
-                .wrap_table  td {display: inline-block; }
-        </style>
-                        
                         
         <table class="wrap_table">
                 <tr>
