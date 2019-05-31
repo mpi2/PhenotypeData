@@ -12,7 +12,7 @@
 
     <jsp:body>
 
-        <c:set var="selectUrl" value='${baseUrl}/gene/allele2?kw="${acc}"'/>
+        <c:set var="selectUrl" value='${baseUrl}/genes/${acc}#order'/>
         <c:if test="${creLine}">
             <c:set var="selectUrl" value="${baseUrl}/order/creline?acc=${acc}"/>
         </c:if>

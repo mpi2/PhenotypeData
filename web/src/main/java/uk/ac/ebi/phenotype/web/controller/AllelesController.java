@@ -148,6 +148,8 @@ System.out.println("controller here");
 
         if (bare) model.addAttribute("bare", bare);
         model.addAttribute("qcData", constructs);
+        model.addAttribute("type", type);
+        model.addAttribute("name", name);
 
         String simple = request.getParameter("simple");
         boolean s = simple != null && simple.equals("true");
@@ -344,15 +346,6 @@ System.out.println("controller here");
         model.addAttribute("other_available_alleles_with_es_cells", constructs.get("other_alleles_with_es_cells"));
         model.addAttribute("title", constructs.get("title"));
 
-        //                    <a class="hasTooltip" href="${baseUrl}/alleles/qc_data/${mouse['allele_type']}/mouse/${mouse['colony_name']}">QC data</a>
-        //model.addAttribute("qc_data_mouse", "alleles/qc_data/" + constructs.get("mice").get("title"));
-
-
-        //log.info("#### mice: " + constructs.get("mice"));
-        //log.info("#### es_cells: " + constructs.get("es_cells"));
-//        log.info("#### targeting_vectors: " + constructs.get("targeting_vectors"));
-//        log.info("#### summary: " + constructs.get("summary"));
-//        log.info("#### title: " + constructs.get("title"));
 
         if (model.containsAttribute("show_header")) {
             return "alleles_noheader";
