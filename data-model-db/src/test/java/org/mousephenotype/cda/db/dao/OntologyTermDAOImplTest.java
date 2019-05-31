@@ -3,12 +3,11 @@ package org.mousephenotype.cda.db.dao;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.config.TestConfig;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,7 +16,7 @@ import java.util.List;
 /**
  * Created by jmason on 21/08/2015.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {TestConfig.class})
 public class OntologyTermDAOImplTest extends TestCase {
 
@@ -34,7 +33,6 @@ public class OntologyTermDAOImplTest extends TestCase {
 		List<OntologyTerm> terms = ontologyTermDAO.getAllOntologyTerms();
 		logger.debug("Terms count is: " + terms.size());
 		assertTrue(terms.size() >= 10);
-
 	}
 
 
@@ -50,7 +48,6 @@ public class OntologyTermDAOImplTest extends TestCase {
 			String testedValue = term.getName();
 			assertTrue(testedValue.equals(termTestString));
 		}
-
 	}
 
 
@@ -66,7 +63,6 @@ public class OntologyTermDAOImplTest extends TestCase {
 			String testedValue = term.getId().getAccession();
 			assertTrue(testedValue.equals(termTestString));
 		}
-
 	}
 
 

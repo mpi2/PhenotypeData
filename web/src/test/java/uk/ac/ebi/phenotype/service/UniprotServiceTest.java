@@ -18,31 +18,10 @@ import java.io.IOException;
  *
  */
 
-//@RunWith(SpringJUnit4ClassRunner.class)
-//@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-//@ContextConfiguration(loader=AnnotationConfigContextLoader.class)
-
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes = {TestConfig.class})
 public class UniprotServiceTest {
-
-//	// Only wire up the Uniprot service for this test suite
-//	@Configuration
-//	@ComponentScan(
-//		basePackages = {"uk.ac.ebi.phenotype.service"},
-//		useDefaultFilters = false,
-//		includeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {UniprotService.class})
-//		})
-//	static class ContextConfiguration {
-//
-//		@Bean
-//		public static PropertySourcesPlaceholderConfigurer propertyConfigurer() {
-//			return new PropertySourcesPlaceholderConfigurer();
-//		}
-//
-//	}
-
 
 	@Autowired
     UniprotService uniprotService;

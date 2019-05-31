@@ -24,10 +24,9 @@ import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.sql.ResultSet;
@@ -38,10 +37,8 @@ import java.util.*;
 /**
  * Created by mrelac on 16/04/2018. This test compares two impress table sets that are expected to be identical.
  */
-@Ignore
 @RunWith(SpringRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test2.properties")
-@Import(ImpressTestConfig.class)
+@SpringBootTest(classes = ImpressTestConfig.class)
 public class ImpressDataValidationTest extends TestCase {
 
 	@Autowired
@@ -228,7 +225,7 @@ public class ImpressDataValidationTest extends TestCase {
 		}
 	}
 
-//@Ignore
+@Ignore
    	@Test
    	public void compareDBDetails() {
 		String testName = new Object() {}.getClass().getEnclosingMethod().getName();

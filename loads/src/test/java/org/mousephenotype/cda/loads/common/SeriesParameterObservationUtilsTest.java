@@ -20,8 +20,7 @@ import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.ProcedureMetadata;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.PostConstruct;
@@ -33,8 +32,7 @@ import java.util.*;
  * Created by mrelac on 09/12/16.
  */
 @RunWith(SpringRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-@Import(SeriesParameterObservationUtilsTestConfig.class)
+@SpringBootTest(classes = SeriesParameterObservationUtilsTestConfig.class)
 public class SeriesParameterObservationUtilsTest extends TestCase {
 
 	private SeriesParameterObservationUtils utils;

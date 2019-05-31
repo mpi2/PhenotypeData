@@ -25,7 +25,6 @@ package org.mousephenotype.cda.db.dao;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.config.TestConfig;
 import org.mousephenotype.cda.db.impress.Utilities;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Parameter;

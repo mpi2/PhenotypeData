@@ -67,6 +67,7 @@ public class OntologyParserTest {
 
 
     // Because it had that IRI used twice, once with ObjectProperty and once with AnnotationProperty RO_0002200
+    // last run: 16 seconds
     @Test
     public void testUberon()  throws Exception {
 
@@ -77,6 +78,7 @@ public class OntologyParserTest {
     }
 
 
+    // last run: 30 seconds
     @Test
     public void testNarrowSynonyms() throws Exception {
 
@@ -105,6 +107,7 @@ public class OntologyParserTest {
     }
 
 
+    // last run: 56 seconds
     @Test
     public void testEquivalent() throws Exception {
 
@@ -206,6 +209,7 @@ public class OntologyParserTest {
     }
 
 
+    // last run: 41 seconds
     @Test
     public void findSpecificMpTermMP_0020422() throws Exception {
 
@@ -221,6 +225,7 @@ public class OntologyParserTest {
     }
 
 
+    // last run: 17 seconds
     @Test
     public void testRootTermAndTopTermsInOntologyParserMap() throws Exception {
 

@@ -15,9 +15,9 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
+import org.json.JSONArray;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.List;

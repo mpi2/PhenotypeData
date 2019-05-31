@@ -358,7 +358,7 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
                     if ((query.name.startsWith("parameter"))) {
                         q += excludedParameters;
                     }
-                    diffs = sqlUtils.queryDiff(jdbcCdabasePrevious, jdbcCdabaseCurrent, q, useLenient);
+                    diffs = sqlUtils.queryDiff(jdbcCdabasePrevious, jdbcCdabaseCurrent, q, parser.useLenient());
                     int numErrorsToShow = Math.min(ivNumErrorsToShow, diffs.size());
                     if (diffs.size() == 0) {
                         logger.info("SUCCESS:\t{}: {}", query.name, ImpressUtils.newlineToSpace(query.query));

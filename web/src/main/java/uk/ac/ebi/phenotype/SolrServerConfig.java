@@ -3,8 +3,6 @@ package uk.ac.ebi.phenotype;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.mousephenotype.cda.solr.service.ImpressService;
-import org.mousephenotype.cda.solr.service.PhenotypeCenterProcedureCompletenessService;
-import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -138,21 +136,5 @@ public class SolrServerConfig {
     @Bean(name = "statisticalResultCore")
     HttpSolrClient getStatisticalResultCore() {
         return new HttpSolrClient.Builder(solrBaseUrl + "/statistical-result").build();
-    }
-
-
-    ///////////
-    // SERVICES
-    ///////////
-
-
-    @Bean
-    PhenotypeCenterService phenotypeCenterService() {
-        return new PhenotypeCenterService(getExperimentCore());
-    }
-
-    @Bean
-    PhenotypeCenterProcedureCompletenessService phenotypeCenterProcedureCompletenessService() {
-        return new PhenotypeCenterProcedureCompletenessService(phenotypeCenterService(), impressService);
     }
 }

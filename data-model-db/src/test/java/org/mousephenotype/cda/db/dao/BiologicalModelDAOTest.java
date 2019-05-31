@@ -20,7 +20,6 @@ package org.mousephenotype.cda.db.dao;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.config.TestConfig;
 import org.mousephenotype.cda.db.pojo.BiologicalModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -41,10 +40,10 @@ public class BiologicalModelDAOTest extends TestCase {
 	BiologicalModelDAO biologicalModelDAO;
 
 	@Test
-	public void testGetAllBiologicalModels() throws Exception {
+	public void testGetAllBiologicalModels() {
 		BiologicalModel bm;
 
 		bm = biologicalModelDAO.findByDbidAndAllelicCompositionAndGeneticBackgroundAndZygosity(12, "", "involves: C57BL/6", "homozygote");
-		assert(bm!=null);
+		assert(bm != null);
 	}
 }

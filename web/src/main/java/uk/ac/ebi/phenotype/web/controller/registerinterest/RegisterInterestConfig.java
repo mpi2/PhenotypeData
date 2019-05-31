@@ -54,7 +54,7 @@ public class RegisterInterestConfig {
     }
 
     @Bean
-    public SqlUtils sqlUtils() {
+    public SqlUtils riSqlUtils() {
         return new SqlUtils(jdbc());
     }
 
@@ -133,6 +133,6 @@ public class RegisterInterestConfig {
 
     @Bean
     public CoreService coreService() {
-        return new CoreService(new GenerateService(paBaseUrl, sqlUtils()), new SendService(sqlUtils(), smtpHost, smtpPort, smtpFrom, smtpReplyto));
+        return new CoreService(new GenerateService(paBaseUrl, riSqlUtils()), new SendService(riSqlUtils(), smtpHost, smtpPort, smtpFrom, smtpReplyto));
     }
 }

@@ -25,22 +25,15 @@ import org.mousephenotype.cda.enumerations.EmbryoViability;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.service.ExperimentService;
-import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.ImpressService;
-import org.mousephenotype.cda.solr.service.StatisticalResultService;
-import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
-import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
-import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.*;
+import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
-import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
 import org.mousephenotype.cda.solr.web.dto.EmbryoViability_DTO;
+import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
 import org.mousephenotype.cda.web.ChartType;
 import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -53,14 +46,15 @@ import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.springframework.web.bind.annotation.ValueConstants.DEFAULT_NONE;
 
@@ -68,37 +62,18 @@ import static org.springframework.web.bind.annotation.ValueConstants.DEFAULT_NON
 @Controller
 public class ChartsController {
 
-    private final Logger log = LoggerFactory.getLogger(ChartsController.class);
-
-    @Autowired
-    private CategoricalChartAndTableProvider categoricalChartAndTableProvider;
-
-    @Autowired
-    private TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider;
-
-    @Autowired
-    private UnidimensionalChartAndTableProvider continousChartAndTableProvider;
-
-    @Autowired
-    private ScatterChartAndTableProvider scatterChartAndTableProvider;
-
-    @Autowired
-    private AbrChartAndTableProvider abrChartAndTableProvider;
-
-    @Autowired
-    private ViabilityChartAndDataProvider viabilityChartAndDataProvider;
-
-    @Autowired
-    private ExperimentService experimentService;
-
-    @Autowired
-    private StatisticalResultService srService;
-
-    @Autowired
-    private GeneService geneService;
-    
-    @Autowired
-    private ImpressService is;
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
+	private final CategoricalChartAndTableProvider categoricalChartAndTableProvider;
+	private final TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider;
+	private final UnidimensionalChartAndTableProvider continousChartAndTableProvider;
+	private final ScatterChartAndTableProvider scatterChartAndTableProvider;
+	private final AbrChartAndTableProvider abrChartAndTableProvider;
+	private final ViabilityChartAndDataProvider viabilityChartAndDataProvider;
+	private final ExperimentService experimentService;
+	private final StatisticalResultService srService;
+	private final GeneService geneService;
+	private final ImpressService is;
+	private final ImageService imageService;
     
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
@@ -108,7 +83,19 @@ public class ChartsController {
     public String SOLR_URL;
 
     @Inject
-    public ChartsController(CategoricalChartAndTableProvider categoricalChartAndTableProvider, TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider, UnidimensionalChartAndTableProvider continousChartAndTableProvider, ScatterChartAndTableProvider scatterChartAndTableProvider, AbrChartAndTableProvider abrChartAndTableProvider, ViabilityChartAndDataProvider viabilityChartAndDataProvider, ExperimentService experimentService, StatisticalResultService srService, GeneService geneService, ImpressService is, ImageService imageService) {
+    public ChartsController(
+    		CategoricalChartAndTableProvider categoricalChartAndTableProvider,
+			TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider,
+			UnidimensionalChartAndTableProvider continousChartAndTableProvider,
+			ScatterChartAndTableProvider scatterChartAndTableProvider,
+			AbrChartAndTableProvider abrChartAndTableProvider,
+			ViabilityChartAndDataProvider viabilityChartAndDataProvider,
+			ExperimentService experimentService,
+			StatisticalResultService srService,
+			GeneService geneService,
+			ImpressService is,
+			ImageService imageService
+	) {
         this.categoricalChartAndTableProvider = categoricalChartAndTableProvider;
         this.timeSeriesChartAndTableProvider = timeSeriesChartAndTableProvider;
         this.continousChartAndTableProvider = continousChartAndTableProvider;

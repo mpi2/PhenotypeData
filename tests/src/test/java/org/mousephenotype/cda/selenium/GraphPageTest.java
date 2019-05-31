@@ -30,11 +30,12 @@ import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.selenium.config.TestConfig;
 import org.mousephenotype.cda.selenium.exception.TestException;
-import org.mousephenotype.cda.solr.service.*;
-import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
 import org.mousephenotype.cda.selenium.support.GenePage;
 import org.mousephenotype.cda.selenium.support.GraphPage;
 import org.mousephenotype.cda.selenium.support.TestUtils;
+import org.mousephenotype.cda.solr.service.ObservationService;
+import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.web.dto.GraphTestDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.web.ChartType;
@@ -45,11 +46,9 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.validation.constraints.NotNull;
@@ -69,7 +68,6 @@ import static org.junit.Assert.assertTrue;
  * Selenium test for graph page query coverage ensuring each page works as expected.
  */
 @RunWith(SpringRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 @SpringBootTest(classes = TestConfig.class)
 public class GraphPageTest {
 
@@ -88,37 +86,27 @@ public class GraphPageTest {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
-    @Autowired
-    private DesiredCapabilities desiredCapabilities;
-
-    @Autowired
-    private Environment env;
-
-    @Autowired
-    private GeneService geneService;
-
-    @Autowired
-    @Qualifier("postqcService")
-    protected PostQcService genotypePhenotypeService;
-
-    @Autowired
-    private MpService mpService;
-
-    @Autowired
-    private ObservationService observationService;
-
-    @Autowired
-    private PhenotypePipelineDAO phenotypePipelineDAO;
-
-    @Autowired
-    private PostQcService postQcService;
-
-    @NotNull
-    @Value("${base_url}")
-    private String baseUrl;
+    @Value("${paBaseUrl}")
+    private String paBaseUrl;
 
     @Value("${seleniumUrl}")
     private String seleniumUrl;
+
+
+    @NotNull @Autowired
+    private DesiredCapabilities desiredCapabilities;
+
+    @NotNull @Autowired
+    private Environment env;
+
+    @NotNull @Autowired
+    private ObservationService observationService;
+
+    @NotNull @Autowired
+    private PhenotypePipelineDAO pipelineDAO;
+
+    @NotNull @Autowired
+    private PostQcService postQcService;
 
 
     @Before
@@ -165,7 +153,7 @@ public class GraphPageTest {
             RunStatus status = new RunStatus();
 
             try {
-                GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphUrl, baseUrl);
+                GraphPage graphPage = new GraphPage(driver, wait, pipelineDAO, graphUrl, paBaseUrl);
                 status.add(graphPage.validate());
 
             } catch (TestException e) {
@@ -203,14 +191,14 @@ public class GraphPageTest {
         for (GraphTestDTO geneGraph : geneGraphs) {
             RunStatus status = new RunStatus();
 
-            genePageTarget = baseUrl + "/genes/" + geneGraph.getMgiAccessionId();
+            genePageTarget = paBaseUrl + "/genes/" + geneGraph.getMgiAccessionId();
 
 //genePageTarget = baseUrl + "/genes/MGI:2652819";
 
             message = "";
 
             try {
-                GenePage genePage = new GenePage(driver, wait, genePageTarget, geneGraph.getMgiAccessionId(), phenotypePipelineDAO, baseUrl);
+                GenePage genePage = new GenePage(driver, wait, genePageTarget, geneGraph.getMgiAccessionId(), pipelineDAO, paBaseUrl);
 
                 List<String> graphUrls = genePage.getGraphUrls();
 
@@ -225,7 +213,7 @@ System.out.println("TESTING GRAPH URL " + graphPageTarget + " (GENE PAGE " + gen
 
 
 
-                GraphPage graphPage = new GraphPage(driver, wait, phenotypePipelineDAO, graphPageTarget, baseUrl);
+                GraphPage graphPage = new GraphPage(driver, wait, pipelineDAO, graphPageTarget, paBaseUrl);
                 status.add(graphPage.validate());
 
             } catch (Exception e) {
@@ -260,19 +248,19 @@ System.out.println("TESTING GRAPH URL " + graphPageTarget + " (GENE PAGE " + gen
         String testName = "testKnownGraphs";
 
         List<String> graphUrls = Arrays.asList(new String[]{
-                  baseUrl + "/charts?accession=MGI:3588194&allele_accession_id=MGI:5755614&zygosity=homozygote&parameter_stable_id=IMPC_ABR_010_001&pipeline_stable_id=BCM_001&phenotyping_center=BCM"                   // UNIDIMENSIONAL_ABR_PLOT
-                , baseUrl + "/charts?accession=MGI:2149209&allele_accession_id=MGI:5548754&zygosity=homozygote&parameter_stable_id=IMPC_ABR_004_001&pipeline_stable_id=UCD_001&phenotyping_center=UC%20Davis"            // UNIDIMENSIONAL_ABR_PLOT
-                , baseUrl + "/charts?accession=MGI:2146574&allele_accession_id=MGI:4419159&zygosity=homozygote&parameter_stable_id=IMPC_ABR_008_001&pipeline_stable_id=MGP_001&phenotyping_center=WTSI"                  // UNIDIMENSIONAL_ABR_PLOT
-                , baseUrl + "/charts?accession=MGI:1860086&allele_accession_id=MGI:4363171&zygosity=homozygote&parameter_stable_id=ESLIM_022_001_001&pipeline_stable_id=ESLIM_001&phenotyping_center=WTSI"               // TIME_SERIES_LINE
-                , baseUrl + "/charts?accession=MGI:1929878&allele_accession_id=MGI:5548713&zygosity=homozygote&parameter_stable_id=IMPC_XRY_028_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"        // UNIDIMENSIONAL_BOX_PLOT
-                , baseUrl + "/charts?accession=MGI:1920093&zygosity=homozygote&allele_accession_id=MGI:5548625&parameter_stable_id=IMPC_CSD_033_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"        // CATEGORICAL_STACKED_COLUMN
-                , baseUrl + "/charts?accession=MGI:1100883&allele_accession_id=MGI:2668337&zygosity=heterozygote&parameter_stable_id=ESLIM_001_001_087&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"    // CATEGORICAL_STACKED_COLUMN
-                , baseUrl + "/charts?accession=MGI:98216&allele_accession_id=EUROALL:15&zygosity=homozygote&parameter_stable_id=ESLIM_021_001_005&pipeline_stable_id=ESLIM_001&phenotyping_center=ICS"                   // UNIDIMENSIONAL_BOX_PLOT
-                , baseUrl + "/charts?accession=MGI:1270128&allele_accession_id=MGI:4434551&zygosity=homozygote&parameter_stable_id=ESLIM_015_001_014&pipeline_stable_id=ESLIM_002&phenotyping_center=HMGU"               // UNIDIMENSIONAL_BOX_PLOT
-                , baseUrl + "/charts?accession=MGI:96816&allele_accession_id=MGI:5605843&zygosity=heterozygote&parameter_stable_id=IMPC_CSD_024_001&pipeline_stable_id=UCD_001&phenotyping_center=UC%20Davis"            // CATEGORICAL_STACKED_COLUMN
-                , baseUrl + "/charts?accession=MGI:1096574&allele_accession_id=MGI:5548394&zygosity=heterozygote&parameter_stable_id=IMPC_XRY_009_001&pipeline_stable_id=HMGU_001&phenotyping_center=HMGU"               // UNIDIMENSIONAL_BOX_PLOT with failed stats (no p-value/effect size)
+                  paBaseUrl + "/charts?accession=MGI:3588194&allele_accession_id=MGI:5755614&zygosity=homozygote&parameter_stable_id=IMPC_ABR_010_001&pipeline_stable_id=BCM_001&phenotyping_center=BCM"                   // UNIDIMENSIONAL_ABR_PLOT
+                , paBaseUrl + "/charts?accession=MGI:2149209&allele_accession_id=MGI:5548754&zygosity=homozygote&parameter_stable_id=IMPC_ABR_004_001&pipeline_stable_id=UCD_001&phenotyping_center=UC%20Davis"            // UNIDIMENSIONAL_ABR_PLOT
+                , paBaseUrl + "/charts?accession=MGI:2146574&allele_accession_id=MGI:4419159&zygosity=homozygote&parameter_stable_id=IMPC_ABR_008_001&pipeline_stable_id=MGP_001&phenotyping_center=WTSI"                  // UNIDIMENSIONAL_ABR_PLOT
+                , paBaseUrl + "/charts?accession=MGI:1860086&allele_accession_id=MGI:4363171&zygosity=homozygote&parameter_stable_id=ESLIM_022_001_001&pipeline_stable_id=ESLIM_001&phenotyping_center=WTSI"               // TIME_SERIES_LINE
+                , paBaseUrl + "/charts?accession=MGI:1929878&allele_accession_id=MGI:5548713&zygosity=homozygote&parameter_stable_id=IMPC_XRY_028_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"        // UNIDIMENSIONAL_BOX_PLOT
+                , paBaseUrl + "/charts?accession=MGI:1920093&zygosity=homozygote&allele_accession_id=MGI:5548625&parameter_stable_id=IMPC_CSD_033_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"        // CATEGORICAL_STACKED_COLUMN
+                , paBaseUrl + "/charts?accession=MGI:1100883&allele_accession_id=MGI:2668337&zygosity=heterozygote&parameter_stable_id=ESLIM_001_001_087&pipeline_stable_id=ESLIM_001&phenotyping_center=MRC%20Harwell"    // CATEGORICAL_STACKED_COLUMN
+                , paBaseUrl + "/charts?accession=MGI:98216&allele_accession_id=EUROALL:15&zygosity=homozygote&parameter_stable_id=ESLIM_021_001_005&pipeline_stable_id=ESLIM_001&phenotyping_center=ICS"                   // UNIDIMENSIONAL_BOX_PLOT
+                , paBaseUrl + "/charts?accession=MGI:1270128&allele_accession_id=MGI:4434551&zygosity=homozygote&parameter_stable_id=ESLIM_015_001_014&pipeline_stable_id=ESLIM_002&phenotyping_center=HMGU"               // UNIDIMENSIONAL_BOX_PLOT
+                , paBaseUrl + "/charts?accession=MGI:96816&allele_accession_id=MGI:5605843&zygosity=heterozygote&parameter_stable_id=IMPC_CSD_024_001&pipeline_stable_id=UCD_001&phenotyping_center=UC%20Davis"            // CATEGORICAL_STACKED_COLUMN
+                , paBaseUrl + "/charts?accession=MGI:1096574&allele_accession_id=MGI:5548394&zygosity=heterozygote&parameter_stable_id=IMPC_XRY_009_001&pipeline_stable_id=HMGU_001&phenotyping_center=HMGU"               // UNIDIMENSIONAL_BOX_PLOT with failed stats (no p-value/effect size)
                 //jw set to ignore as does respond but takes forever!!!, baseUrl + "/charts?accession=MGI:1930948&allele_accession_id=MGI:4432700&zygosity=heterozygote&parameter_stable_id=ESLIM_015_001_006&pipeline_stable_id=ESLIM_002&phenotyping_center=ICS"              // UNIDIMENSIONAL_BOX_PLOT with 4 graphs
-                , baseUrl + "/charts?accession=MGI:1920740&allele_accession_id=MGI:5605791&zygosity=homozygote&parameter_stable_id=IMPC_ACS_033_001&pipeline_stable_id=HMGU_001&phenotyping_center=HMGU"                 // UNIDIMENSIONAL_BOX_PLOT Statistics failed, no p-value, Effect Size
+                , paBaseUrl + "/charts?accession=MGI:1920740&allele_accession_id=MGI:5605791&zygosity=homozygote&parameter_stable_id=IMPC_ACS_033_001&pipeline_stable_id=HMGU_001&phenotyping_center=HMGU"                 // UNIDIMENSIONAL_BOX_PLOT Statistics failed, no p-value, Effect Size
         });
 
         graphEngine(testName, graphUrls);

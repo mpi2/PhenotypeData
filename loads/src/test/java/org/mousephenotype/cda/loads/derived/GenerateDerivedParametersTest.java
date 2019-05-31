@@ -5,8 +5,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -15,7 +15,7 @@ import java.sql.*;
 
 
 @RunWith(SpringRunner.class)
-@Import(GenerateDerivedParametersTestConfig.class)
+@ContextConfiguration(classes = GenerateDerivedParametersTestConfig.class)
 @Sql(scripts = {"/sql/h2/cda/schema.sql", "/sql/h2/impress/impressSchema.sql", "/sql/h2/GenerateDerivedParameterTestData.sql"})
 @Rollback
 public class GenerateDerivedParametersTest {
@@ -80,7 +80,6 @@ public class GenerateDerivedParametersTest {
         }
 
         assert resultCount == 2;
-
     }
 
 
@@ -92,6 +91,4 @@ public class GenerateDerivedParametersTest {
             System.out.print(rsmd.getColumnName(i) + ": " + columnValue );
         }
     }
-
-
 }

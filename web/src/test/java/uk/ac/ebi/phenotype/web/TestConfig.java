@@ -20,43 +20,24 @@ import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import uk.ac.ebi.phenotype.service.UniprotService;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * This class acts as a spring bootstrap. No code requiring spring should be placed in this class, as, at this
- * point, spring is not yet initialised.
- * <p/>
  * Created by mrelac on 29/06/2015.
  */
 
-/**
- * IMPORTANT NOTE: In order to run the tests, you must specify the "profile", a directory under the /configfiles
- * resource directory, which must contain a test.properties file. e.g. mvn test -Dprofile=dev
- *
- * Examples: /Users/mrelac/configfiles/beta/test.properties,
- *           /Users/mrelac/configfiles/dev/test.properties,
- *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/beta/test.properties
- *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/dev/test.properties
- */
-
-// NOTE: Don't use @TestPropertySource. Why? See: http://stackoverflow.com/questions/28418071/how-to-override-config-value-from-propertysource-used-in-a-configurationproper
-
 @Configuration
 @EnableAutoConfiguration
-//@ComponentScan(value = {"org.mousephenotype", "uk.ac.ebi.phenotype"},
-//	excludeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION, value = ComponentScanNonParticipant.class)
-//)
 public class TestConfig {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Value("${datasource.komp2.url}")
-    private String datasourceKomp2Url;
 
     @Value("${solr.host}")
     private String solrHost;
@@ -73,19 +54,15 @@ public class TestConfig {
 
     @PostConstruct
     public void initialise() {
-        logger.info("dataSource.komp2.url: " + datasourceKomp2Url);
+        logger.info("dataSource.komp2.url: " + komp2DataSource());
         logger.info("solr.host:            " + solrHost);
         logger.info("baseUrl:              " + baseUrl);
         logger.info("internalSolrUrl:      " + internalSolrUrl);
     }
-//
-//	@Bean
-//	public PropertyPlaceholderConfigurer getPropertyPlaceholderConfigurer() {
-//		return new PropertyPlaceholderConfigurer();
-//	}
+
 
     @Bean (name="globalConfiguration")
-    public Map <String, String> globalConfiguration(){
+    public Map<String, String> globalConfiguration(){
 
     	Map <String, String> gc = new HashMap<>();
     	gc.put("baseUrl", "${baseUrl}");
@@ -98,8 +75,8 @@ public class TestConfig {
     	gc.put("googleAnalytics", "${googleAnalytics}");
     	gc.put("liveSite", "${liveSite}");
 
-
-
+		return gc;
+	}
 
 
 	//////////////
@@ -116,8 +93,6 @@ public class TestConfig {
 	private String password;
 
 	@Bean
-//	@Primary
-	@ConfigurationProperties("datasource.komp2")
 	public DataSource komp2DataSource() {
 
 		DataSource komp2DataSource = SqlUtils.getConfiguredDatasource(komp2Url, username, password);
@@ -130,16 +105,4 @@ public class TestConfig {
 	public UniprotService uniprotService() {
 		return new UniprotService();
 	}
-
-
-
-
-	///////
-	// DAOs
-	///////
-
-//	@Bean
-//	public ObservationDAO observationDAO() {
-//		return new ObservationDAOImpl(sessionFactory());
-//	}
 }

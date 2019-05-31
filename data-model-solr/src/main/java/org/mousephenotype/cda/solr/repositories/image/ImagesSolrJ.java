@@ -354,9 +354,9 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 		QueryResponse response = server.query(query);
 		return response.getResults().getNumFound();
 	}
+
 	@Override
 	public String getServiceName(){
 		return "Sanger Image Service";
 	}
-
 }

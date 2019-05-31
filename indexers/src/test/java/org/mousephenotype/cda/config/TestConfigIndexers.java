@@ -55,7 +55,6 @@ public class TestConfigIndexers {
 
     @Bean
     @Primary
-    @ConfigurationProperties("datasource.komp2")
     public DataSource komp2DataSource() {
 
         DataSource komp2DataSource = SqlUtils.getConfiguredDatasource(komp2Url, username, password);

@@ -32,16 +32,14 @@ public class OntologyParserTestConfig {
     @Value("${datasource.komp2.jdbc-url}")
     private String komp2Url;
 
-    @NotNull
     @Value("${datasource.komp2.username}")
     private String username;
 
-    @NotNull
     @Value("${datasource.komp2.password}")
     private String password;
 
+
     @Bean
-    @ConfigurationProperties("datasource.komp2")
     public DataSource dataSource() {
 
         DataSource dataSource = null;

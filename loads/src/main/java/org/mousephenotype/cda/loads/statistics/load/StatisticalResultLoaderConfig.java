@@ -29,7 +29,6 @@ import javax.sql.DataSource;
 import static org.mousephenotype.cda.db.utilities.SqlUtils.getConfiguredDatasource;
 
 @Configuration
-@PropertySource(value="file:${user.home}/configfiles/${profile:dev}/datarelease.properties")
 @ComponentScan(basePackages = {"org.mousephenotype.cda.loads.statistics.load", "org.mousephenotype.cda.db.dao"},
         excludeFilters = {
             @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {GwasDAO.class, ReferenceDAO.class})})
@@ -39,7 +38,7 @@ public class StatisticalResultLoaderConfig implements ApplicationContextAware {
 
     private ApplicationContext context;
 
-    @Value("${datasource.komp2.url}")
+    @Value("${datasource.komp2.jdbc-url}")
     String komp2Url;
 
     @Value("${datasource.komp2.username}")

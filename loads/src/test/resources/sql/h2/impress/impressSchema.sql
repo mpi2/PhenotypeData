@@ -227,3 +227,11 @@ CREATE TABLE `phenotype_procedure_parameter` (
   `parameter_id` int(10) NOT NULL,
   UNIQUE (`procedure_id`,`parameter_id`)
 );
+
+--
+-- Table structure for table `phenotype_parameter_type`
+-- Taken from last line of http://ves-ebi-d9:8080/jenkins/job/DataRelease_GenerateDerivedParameters/configure
+--
+
+DROP TABLE IF EXISTS `phenotype_parameter_type`;
+CREATE TABLE IF NOT EXISTS phenotype_parameter_type AS SELECT DISTINCT parameter_stable_id, observation_type FROM observation;

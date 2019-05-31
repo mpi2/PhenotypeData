@@ -4,10 +4,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.loads.integration.data.config.BatchLoaderTestConfig;
 import org.mousephenotype.cda.loads.integration.data.config.BatchPhenotypedColonyLoaderTestConfig;
-import org.semanticweb.owlapi.metrics.IntegerValuedMetric;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.test.JobLauncherTestUtils;
@@ -17,9 +15,8 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -29,12 +26,11 @@ import java.sql.SQLException;
 
 import static junit.framework.TestCase.assertTrue;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {BatchPhenotypedColonyLoaderTestConfig.class, BatchLoaderTestConfig.class})
 public class PhenotypedColonyLoaderFunctionalTest {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
-    private SqlUtils sqlUtils = new SqlUtils();
 
     @Autowired
     private ApplicationContext context;
@@ -77,8 +73,6 @@ public class PhenotypedColonyLoaderFunctionalTest {
     @Test
     public void testing() throws Exception {
 
-        System.out.println("This is a test");
-
         final BatchStatus status = jobLauncherTestUtils.launchJob().getStatus();
         Assert.assertEquals("COMPLETED", status.toString());
 
@@ -94,8 +88,5 @@ public class PhenotypedColonyLoaderFunctionalTest {
 
         final int EXPECTED_COLONY_COUNT = 7;
         assertTrue( "Expected " + EXPECTED_COLONY_COUNT + " colonies. Found " + colonyCount, colonyCount == EXPECTED_COLONY_COUNT);
-
     }
-
-
 }

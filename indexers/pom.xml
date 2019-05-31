@@ -121,16 +121,18 @@
                 <configuration>
                     <mainClass>org.mousephenotype.cda.indexers.IndexerManager</mainClass>
                 </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                        <configuration>
-                            <classifier>exec</classifier>
-                        </configuration>
-                    </execution>
-                </executions>
+				<executions>
+					<execution>
+						<id>repackage</id>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+						<configuration>
+							<classifier>exec</classifier>
+							<attach>false</attach>
+						</configuration>
+					</execution>
+				</executions>
             </plugin>
 
         </plugins>

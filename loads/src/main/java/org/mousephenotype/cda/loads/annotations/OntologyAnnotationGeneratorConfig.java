@@ -3,12 +3,12 @@ package org.mousephenotype.cda.loads.annotations;
 import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
+import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.config.DataSourceCdaConfig;
 import org.mousephenotype.cda.loads.common.config.DataSourceCdabaseConfig;
 import org.mousephenotype.cda.loads.common.config.DataSourceDccConfig;
 import org.mousephenotype.cda.loads.statistics.generate.StatisticalDatasetGeneratorConfig;
-import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.loads.statistics.load.StatisticalResultLoaderConfig;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +24,6 @@ import javax.sql.DataSource;
 import static org.mousephenotype.cda.db.utilities.SqlUtils.getConfiguredDatasource;
 
 @Configuration
-@PropertySource(value = "file:${user.home}/configfiles/${profile:dev}/datarelease.properties")
 @ComponentScan(basePackages = {"org.mousephenotype.cda.loads.annotations", "org.mousephenotype.cda.loads.statistics.load", "org.mousephenotype.cda.db"},
         includeFilters = {
                 @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {
@@ -90,6 +89,4 @@ public class OntologyAnnotationGeneratorConfig {
     public DataSource komp2DataSource() {
         return getConfiguredDatasource(komp2Url, komp2Username, komp2Password);
     }
-
-
 }

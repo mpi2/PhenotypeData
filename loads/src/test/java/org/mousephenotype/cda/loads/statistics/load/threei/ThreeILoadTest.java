@@ -4,30 +4,24 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.mousephenotype.cda.db.statistics.MpTermService;
-import org.mousephenotype.cda.loads.statistics.load.StatisticalResultLoaderConfig;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.jdbc.datasource.init.ScriptUtils;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.sql.DataSource;
 import java.sql.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ComponentScan(basePackages = "org.mousephenotype.cda.loads.statistics.load",
-        excludeFilters = {
-                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {StatisticalResultLoaderConfig.class})}
-)
-@ContextConfiguration(classes = TestConfigThreeI.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = TestConfigThreeI.class)
 public class ThreeILoadTest {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -60,8 +54,9 @@ public class ThreeILoadTest {
 
         for (String schema : cdaSchemas) {
             logger.info("cda schema: " + schema);
-            Resource r = context.getResource(schema);
-            ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), r);
+            Resource                  r = new ClassPathResource(schema);
+            ResourceDatabasePopulator p = new ResourceDatabasePopulator(r);
+            p.execute(cdaDataSource);
         }
     }
 

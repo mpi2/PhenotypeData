@@ -30,7 +30,6 @@ import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.openqa.selenium.By;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -40,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.validation.constraints.NotNull;
@@ -58,7 +56,6 @@ import java.util.List;
  */
 
 @RunWith(SpringRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 @SpringBootTest(classes = TestConfig.class)
 public class
 ImpcImagesTest {
@@ -78,21 +75,22 @@ ImpcImagesTest {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
-    @Autowired
-    private DesiredCapabilities desiredCapabilities;
-
-    @Autowired
-    private GeneService geneService;
-
-    @Autowired
-    private PhenotypePipelineDAO phenotypePipelineDAO;
-
-    @NotNull
-    @Value("${base_url}")
-    private String baseUrl;
+    @Value("${paBaseUrl}")
+    private String paBaseUrl;
 
     @Value("${seleniumUrl}")
     private String seleniumUrl;
+
+
+    @NotNull @Autowired
+    private DesiredCapabilities desiredCapabilities;
+
+    @NotNull @Autowired
+    private GeneService geneService;
+
+    @NotNull @Autowired
+    private PhenotypePipelineDAO pipelineDAO;
+
 
     @Before
     public void setup() throws MalformedURLException {
@@ -128,14 +126,14 @@ ImpcImagesTest {
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         for (String geneId : geneIds) {
             RunStatus status = new RunStatus();
-            target = baseUrl + "/genes/" + geneId;
+            target = paBaseUrl + "/genes/" + geneId;
 
             try {
                 driver.get(target);
 
                 wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
 
-                GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, baseUrl);
+                GenePage genePage = new GenePage(driver, wait, target, geneId, pipelineDAO, paBaseUrl);
 
                 if (genePage.hasImpcImages()) {
                     List<String> parameters = genePage.getAssociatedImpcImageUrls();

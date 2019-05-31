@@ -4,8 +4,7 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 
-@RunWith(SpringJUnit4ClassRunner.class)
-//@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
+//@RunWith(SpringJUnit4ClassRunner.class)
 //@SpringBootTest(classes = {TestConfigIndexers.class})
 public class StatsServiceTest {
 

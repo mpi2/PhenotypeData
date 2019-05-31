@@ -32,7 +32,6 @@ import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 
 @Configuration
-@PropertySource(value="file:${user.home}/configfiles/${profile:dev}/datarelease.properties")
 @ComponentScan(basePackages = {"org.mousephenotype.cda.loads.derived", "org.mousephenotype.cda.db.dao"},
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {GwasDAO.class, ReferenceDAO.class})})
@@ -40,7 +39,7 @@ public class GenerateDerivedParametersConfig {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("${datasource.komp2_derived.url}")
+    @Value("${datasource.komp2_derived.jdbc-url}")
     String komp2Url;
 
     @Value("${datasource.komp2_derived.username}")

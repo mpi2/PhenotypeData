@@ -17,8 +17,8 @@ import java.sql.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
 import java.util.Date;
+import java.util.*;
 
 
 /**
@@ -32,6 +32,8 @@ public class SqlUtils {
 
     private final static Integer MAXIMUM_POOL_SIZE        = 100;            // Default is 10. OntologyParserTest times out with 10.
     private final static Integer CONNECTION_TIMEOUT_IN_MS = 30000;          // Default is 30k (30 seconds)
+    private final static Integer MAX_LIFETIME             = 30000;          // Default is 1,800,000 ms. Should be several seconds shorter than db connection limit
+
 
     /**
      * Overloaded helper methods for preparing SQL statement
@@ -431,6 +433,22 @@ public class SqlUtils {
 //        return ds;
 //    }
 
+
+
+    /**
+     * From https://github.com/brettwooldridge/HikariCP#configuration-knobs-baby
+     * maxLifetime:
+     * This property controls the maximum lifetime of a connection in the pool. An in-use connection will never be retired,
+     * only when it is closed will it then be removed. On a connection-by-connection basis, minor negative attenuation is
+     * applied to avoid mass-extinction in the pool. We strongly recommend setting this value, and it should be several
+     * seconds shorter than any database or infrastructure imposed connection time limit. A value of 0 indicates no maximum
+     * lifetime (infinite lifetime), subject of course to the idleTimeout setting. Default: 1800000 (30 minutes)
+     * @param url
+     * @param username
+     * @param password
+     * @return
+     */
+
     public static DataSource getConfiguredDatasource(String url, String username, String password) {
        HikariDataSource ds = new HikariDataSource();
         ds.setJdbcUrl(url);
@@ -440,6 +458,7 @@ public class SqlUtils {
         ds.setConnectionInitSql("SELECT 1");
         ds.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
         ds.setConnectionTimeout(CONNECTION_TIMEOUT_IN_MS);
+        ds.setMaxLifetime(MAX_LIFETIME);
 
         try {
             logger.info("Using database {} with URL: {}", ds.getConnection().getCatalog(), url);

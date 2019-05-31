@@ -9,7 +9,7 @@
  * specific language governing permissions and limitations under the License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.config;
+package org.mousephenotype.cda.db.dao;
 
 import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.*;

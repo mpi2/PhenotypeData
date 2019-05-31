@@ -21,12 +21,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 
 import javax.validation.constraints.NotNull;
 
 @Configuration
-@PropertySource(value="file:${user.home}/configfiles/${profile:dev}/datarelease.properties")
 public class StatisticalDatasetGeneratorConfig {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());

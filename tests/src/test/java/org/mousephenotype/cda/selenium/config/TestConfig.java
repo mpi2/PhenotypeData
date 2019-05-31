@@ -16,15 +16,15 @@
 
 package org.mousephenotype.cda.selenium.config;
 
-/**
- * This class acts as a spring bootstrap. No code requiring spring should be placed in this class, as, at this
- * point, spring is not yet initialised.
- *
- * Created by mrelac on 29/06/2015.
- */
-
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.hibernate.SessionFactory;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAOImpl;
+import org.mousephenotype.cda.db.dao.SecondaryProjectDAO;
+import org.mousephenotype.cda.db.dao.SecondaryProjectDAOImpl;
+import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.selenium.exception.TestException;
+import org.mousephenotype.cda.solr.service.*;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,29 +44,14 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 
-/**
- * IMPORTANT NOTE: In order to run the tests, you must specify the "profile", a directory under the /configfiles
- * resource directory, which must contain a test.properties file.
- *
- * Examples: /Users/mrelac/configfiles/beta/test.properties,
- *           /Users/mrelac/configfiles/dev/test.properties,
- *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/beta/test.properties
- *           /net/isilonP/public/rw/homes/tc_mi01/configfiles/dev/test.properties
- */
-
-// NOTE: Don't use @TestPropertySource. Why? See: http://stackoverflow.com/questions/28418071/how-to-override-config-value-from-propertysource-used-in-a-configurationproper
 
 @Configuration
-@ComponentScan(value = "org.mousephenotype.cda",
-               excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = {"org.mousephenotype.cda.db.entity.*OntologyDAO"})
-)
-@PropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-@EnableAutoConfiguration
+@ComponentScan
 public class TestConfig {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("${datasource.komp2.url}")
+    @Value("${datasource.komp2.jdbc-url}")
     private String datasourceKomp2Url;
 
     @Value("${solr.host}")
@@ -83,6 +68,9 @@ public class TestConfig {
 
 	@Value("${browserName}")
  	private String browserName;
+
+    @Value("${solr.host}")
+    private String solrBaseUrl;
 
 
     @PostConstruct
@@ -102,37 +90,6 @@ public class TestConfig {
         logger.info("platform:             " + desiredCapabilities().getPlatform().name());
     }
 
-	@Bean
-	@Primary
-    @ConfigurationProperties(prefix = "datasource.komp2")
-	public DataSource komp2DataSource() {
-        DataSource ds = DataSourceBuilder.create().build();
-		return ds;
-	}
-
-	@Bean
-	@Primary
-	@PersistenceContext(name="komp2Context")
-	public LocalContainerEntityManagerFactoryBean emf(EntityManagerFactoryBuilder builder){
-		return builder
-			.dataSource(komp2DataSource())
-			.packages("org.mousephenotype.cda.db")
-			.persistenceUnit("komp2")
-			.build();
-	}
-
-	@Bean(name = "sessionFactory")
-	public HibernateJpaSessionFactoryBean sessionFactory(EntityManagerFactory emf) {
-		HibernateJpaSessionFactoryBean factory = new HibernateJpaSessionFactoryBean();
-		factory.setEntityManagerFactory(emf);
-		return factory;
-	}
-
-	@Bean(name = "komp2TxManager")
-    @Primary
-	public PlatformTransactionManager txManager() {
-		return new DataSourceTransactionManager(komp2DataSource());
-	}
 
     @Bean
     public DesiredCapabilities desiredCapabilities() throws TestException {
@@ -173,15 +130,112 @@ public class TestConfig {
         return desiredCapabilities;
     }
 
+
+    //////////////
+    // DATASOURCES
+    //////////////
+
+    @Value("${datasource.komp2.jdbc-url}")
+    protected String cdabaseUrl;
+
+    @Value("${datasource.komp2.username}")
+    protected String cdabaseUsername;
+
+    @Value("${datasource.komp2.password}")
+    protected String cdabasePassword;
+
+    @Bean
+    public DataSource komp2DataSource() {
+        return SqlUtils.getConfiguredDatasource(cdabaseUrl, cdabaseUsername, cdabasePassword);
+    }
+
+
+    // Read only solr servers
+
+    @Bean
+    public HttpSolrClient experimentCore() {
+        return new HttpSolrClient.Builder(solrBaseUrl + "/experiment").build();
+    }
+
+    // gene
+    @Bean
+    public HttpSolrClient geneCore() {
+        return new HttpSolrClient.Builder(solrBaseUrl + "/gene").build();
+    }
+
+    // genotype-phenotype
+    @Bean
+    public HttpSolrClient genotypePhenotypeCore() {
+        return new HttpSolrClient.Builder(solrBaseUrl + "/genotype-phenotype").build();
+    }
+
+    // mp
 	@Bean
-	@ConfigurationProperties(prefix = "datasource.admintools")
-	public DataSource admintoolsDataSource() {
-		return DataSourceBuilder.create().build();
-	}
+    public HttpSolrClient mpCore() { return new HttpSolrClient.Builder(solrBaseUrl + "/mp").build(); }
+
+    // pipeline
+    @Bean
+    public HttpSolrClient pipelineCore() {
+        return new HttpSolrClient.Builder(solrBaseUrl + "/pipeline").build();
+    }
+
+
+    ///////
+    // DAOs
+    ///////
+
+    @Bean
+    public PhenotypePipelineDAO pipelineDAO() {
+        return new PhenotypePipelineDAOImpl(sessionFactory());
+    }
+
+    @Bean
+    public SecondaryProjectDAO sceondaryProjectDAO() {
+        return new SecondaryProjectDAOImpl(sessionFactory());
+    }
+
+
+    ///////////
+    // SERVICES
+    ///////////
+
+    @Bean
+    public GeneService geneService() {
+        return new GeneService(geneCore());
+    }
+
+    @Bean
+    public ImpressService impressService() {
+        return new ImpressService(pipelineCore());
+    }
+
+    @Bean
+    public MpService mpService() {
+        return new MpService(mpCore());
+    }
+
+    @Bean
+    public ObservationService observationService() {
+        return new ObservationService(experimentCore());
+    }
+
+    @Bean
+    public PostQcService postQcService() {
+        return new PostQcService(genotypePhenotypeCore(), sceondaryProjectDAO());
+    }
+
+    @Bean
+    public AbstractGenotypePhenotypeService genotypePhenotypeService() {
+        return new AbstractGenotypePhenotypeService(impressService(), genotypePhenotypeCore());
+    }
+
+
+    ////////////////
+    // Miscellaneous
+    ////////////////
 
     @Bean(name = "sessionFactoryHibernate")
-    @Primary
-    public SessionFactory getSessionFactory() {
+    public SessionFactory sessionFactory() {
 
         LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
         sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
@@ -189,6 +243,4 @@ public class TestConfig {
 
         return sessionBuilder.buildSessionFactory();
     }
-
-
 }

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import uk.ac.ebi.phenotype.web.util.CaptchaHttpProxy;
@@ -15,31 +16,27 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@ComponentScan
 public class CaptchaFilter extends OncePerRequestFilter {
 
     private final Logger           log              = LoggerFactory.getLogger(this.getClass().getCanonicalName());
     private       CaptchaHttpProxy captchaHttpProxy = new CaptchaHttpProxy();
 
     // See https://www.google.com/recaptcha for setup
-    @NotNull
     @Value("${recaptcha.secret}")
     private String recaptchaSecret;
 
-    @NotNull
     @Value("${recaptcha.url}")
     private String recaptchaUrl;
 
-    @NotNull
     @Value("${recaptcha.response.param}")
     private String recaptchaResponseParam;
 
-    @NotNull
     @Value("${paBaseUrl}")
     private String paBaseUrl;
 

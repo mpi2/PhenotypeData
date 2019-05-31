@@ -109,13 +109,13 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
-            <version>3.3</version>
+            <version>3.6.1</version>
         </dependency>
 
         <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
-            <version>1.4.1</version>
+            <version>3.6</version>
         </dependency>
 
         <!-- For command line option parsing -->
@@ -158,8 +158,14 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-test</artifactId>
-            <version>1.4.1.RELEASE</version>
             <scope>test</scope>
+        </dependency>
+
+        <!-- This dependency (and a bootstrap.properties) is all that's required to pull configuration values
+             from the configService. -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
         </dependency>
 
     </dependencies>
@@ -174,11 +180,13 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>repackage</id>
                         <goals>
                             <goal>repackage</goal>
                         </goals>
                         <configuration>
                             <classifier>exec</classifier>
+                            <attach>false</attach>
                         </configuration>
                     </execution>
                 </executions>

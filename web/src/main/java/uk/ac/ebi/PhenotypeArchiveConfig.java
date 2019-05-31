@@ -5,11 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.boot.web.support.ErrorPageFilter;
-import org.springframework.context.annotation.*;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.CacheControl;
 import org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -18,10 +17,8 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
-
 import uk.ac.ebi.phenotype.web.util.DeploymentInterceptor;
 
-import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -40,7 +37,6 @@ import java.util.concurrent.TimeUnit;
         //"uk.ebi.phenotype.stat",
         "uk.ac.ebi.phenotype.web.controller"},
         excludeFilters = @ComponentScan.Filter(value = org.mousephenotype.cda.annotations.ComponentScanNonParticipant.class, type = FilterType.ANNOTATION))
-@PropertySource("file:${user.home}/configfiles/${profile:dev}/application.properties")
 @EnableScheduling
 public class PhenotypeArchiveConfig {
 
@@ -77,14 +73,6 @@ public class PhenotypeArchiveConfig {
     @Value("${live_site}")
     private String liveSite;
 
-//    @Value("${root_stats_directory}")
-//    private String rootStatsDirectory;
-//    
-//    @Value("${original_stats_directory}")
-//    private String originalStatsDirectory;
-    
-    
-    @NotNull
     @Value("${paBaseUrl}")
     private String paBaseUrl;
     
@@ -106,9 +94,6 @@ public class PhenotypeArchiveConfig {
         map.put("paBaseUrl", paBaseUrl);
         return map;
     }
-    
-//    @Autowired
-//    StatsRepository statsRepository;
 
     @Bean
     public InternalResourceViewResolver viewResolver() {
@@ -161,5 +146,4 @@ public class PhenotypeArchiveConfig {
 
         };
     }
-
 }

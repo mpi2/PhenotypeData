@@ -177,11 +177,11 @@ public class FileUnidimensionalChartAndTableProvider {
 	private String createContinuousBoxPlotChartsString(String experimentNumber, Float yMin, Float yMax,ParameterDTO parameter, String yAxisTitle,
 		List<ChartsSeriesElement> chartsSeriesElementsList, ExperimentDTO experiment) throws JSONException {
 
-		JSONArray categories = new JSONArray();
-		String boxPlotObject = "";
-		String seriesData = "";
-		int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
-		int column = 0;
+		JSONArray categories    = new JSONArray();
+		String    boxPlotObject = "";
+		String    seriesData    = "";
+		int       decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
+		int       column        = 0;
 
 		for (ChartsSeriesElement chartsSeriesElement : chartsSeriesElementsList) {
 			// fist get the raw data for each column (only one column per data

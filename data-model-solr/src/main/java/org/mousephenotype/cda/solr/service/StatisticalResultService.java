@@ -1086,7 +1086,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 		SolrQuery query = buildQuery(geneAccession, procedureName,alleleSymbol, phenotypingCenter, pipelineName, procedureStableIds, resource, mpTermId, null, null, null, null, null, null, null, null);
 		query.setRows(0);
-		long solrResults = solr.query(query).getResults().getNumFound();
+		long solrResults = statisticalResultCore.query(query).getResults().getNumFound();
 
 		return solrResults;
 	}

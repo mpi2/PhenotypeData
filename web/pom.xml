@@ -301,7 +301,6 @@
         </dependency>
 
         <!-- springframework.boot-->
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
@@ -347,9 +346,14 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <id>repackage</id>
                         <goals>
                             <goal>repackage</goal>
                         </goals>
+                        <configuration>
+                            <classifier>exec</classifier>
+                            <attach>false</attach>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

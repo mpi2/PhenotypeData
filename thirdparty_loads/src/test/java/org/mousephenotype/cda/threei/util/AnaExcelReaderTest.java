@@ -21,7 +21,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
@@ -32,7 +31,6 @@ import static junit.framework.TestCase.assertTrue;
  * Unit test for AnaExcelReader.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
 public class AnaExcelReaderTest {
 
 

@@ -18,12 +18,11 @@ package org.mousephenotype.cda.loads.derived;
 
 import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.db.dao.GwasDAO;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
+import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -33,21 +32,21 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 
 @Configuration
 @EnableTransactionManagement
-@EnableAutoConfiguration
+@SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
 @ComponentScan(basePackages = {"org.mousephenotype.cda.db.dao"}, excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {
                 GwasDAO.class,
-                ReferenceDAO.class})}
+                ReferenceDAO.class,
+                MongoAutoConfiguration.class,
+                MongoDataAutoConfiguration.class})}
 )
 public class GenerateDerivedParametersTestConfig {
 
@@ -60,18 +59,6 @@ public class GenerateDerivedParametersTestConfig {
                 .setName("komp2")
                 .build();
     }
-
-
-    @Bean
-    @PersistenceContext(name = "komp2Context")
-    public LocalContainerEntityManagerFactoryBean emf(EntityManagerFactoryBuilder builder) {
-        return builder
-                .dataSource(komp2DataSource())
-                .packages("org.mousephenotype.cda.db")
-                .persistenceUnit("komp2")
-                .build();
-    }
-
 
     @Bean(name = "komp2TxManager")
     protected PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
@@ -91,9 +78,6 @@ public class GenerateDerivedParametersTestConfig {
         return sessionBuilder.buildSessionFactory();
     }
 
-    @Autowired
-    PhenotypePipelineDAO ppDAO;
-
     @Bean
     public CdaSqlUtils cdaSqlUtils() {
         return new CdaSqlUtils(jdbcCda());
@@ -103,5 +87,4 @@ public class GenerateDerivedParametersTestConfig {
     public NamedParameterJdbcTemplate jdbcCda() {
         return new NamedParameterJdbcTemplate(komp2DataSource());
     }
-
 }

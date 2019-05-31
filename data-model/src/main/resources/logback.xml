@@ -68,5 +68,6 @@
     <!-- UtilitiesTest has sometimes throws a warning that it cannot shut down the H2 or the HSQL database(s). They can be safely ignored. -->
     <logger name="org.springframework.jdbc.datasource.embedded.H2EmbeddedDatabaseConfigurer"                                     level="ERROR" />
     <logger name="org.springframework.jdbc.datasource.embedded.HsqlEmbeddedDatabaseConfigurer"                                   level="ERROR" />
+    <logger name="org.springframework.batch.core.configuration.annotation.DefaultBatchConfigurer"                                level="ERROR" />
 
 </configuration>

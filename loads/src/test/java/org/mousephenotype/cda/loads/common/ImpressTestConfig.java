@@ -31,8 +31,8 @@ import javax.sql.DataSource;
 @Configuration
 public class ImpressTestConfig {
 
-	@Value("${datasource.impress.current.url}")
-	String impressCurrentUrl;
+	@Value("${datasource.impress.current.jdbc-url}")
+	protected String impressCurrentUrl;
 
 	@Value("${datasource.impress.current.username}")
 	protected String impressCurrentUsername;
@@ -40,8 +40,8 @@ public class ImpressTestConfig {
 	@Value("${datasource.impress.current.password}")
 	protected String impressCurrentPassword;
 
-	@Value("${datasource.impress.previous.url}")
-	String impressPreviousUrl;
+	@Value("${datasource.impress.previous.jdbc-url}")
+	protected String impressPreviousUrl;
 
 	@Value("${datasource.impress.previous.username}")
 	protected String impressPreviousUsername;

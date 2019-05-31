@@ -2,16 +2,18 @@ package org.mousephenotype.cda.loads.statistics.load.threei;
 
 
 import org.hibernate.SessionFactory;
-import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.db.dao.OntologyTermDAO;
+import org.mousephenotype.cda.db.dao.OntologyTermDAOImpl;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.dao.ReferenceDAO;
-import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAOImpl;
 import org.mousephenotype.cda.db.statistics.MpTermService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
-import org.springframework.context.annotation.*;
+import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -19,12 +21,10 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 
 /**
@@ -32,11 +32,13 @@ import javax.sql.DataSource;
  */
 @Configuration
 @EnableTransactionManagement
-@EnableAutoConfiguration
-@ComponentScan(basePackages = "org.mousephenotype.cda.db.dao", excludeFilters = {
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {GwasDAO.class, ReferenceDAO.class})}
-)
+@ComponentScan
 public class TestConfigThreeI {
+
+
+    //////////////
+    // DATASOURCES
+    //////////////
 
     // cda database
     @Bean
@@ -47,63 +49,81 @@ public class TestConfigThreeI {
                 .setName("cda_test")
                 .build();
     }
-
-
     @Bean
-    @PersistenceContext(name = "komp2Context")
-    public LocalContainerEntityManagerFactoryBean emf(EntityManagerFactoryBuilder builder) {
-        return builder
-                .dataSource(cdaDataSource())
-                .packages("org.mousephenotype.cda.db")
-                .persistenceUnit("komp2")
-                .build();
+    public CdaSqlUtils cdaSqlUtils() {
+        return new CdaSqlUtils(jdbcCda());
+    }
+    @Bean
+    public NamedParameterJdbcTemplate jdbcCda() {
+        return new NamedParameterJdbcTemplate(cdaDataSource());
     }
 
+    // komp2 database
+    @Value("${datasource.komp2.jdbc-url}")
+    protected String komp2Url;
 
-    @Bean(name = "komp2TxManager")
-    protected PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
-        JpaTransactionManager tm = new JpaTransactionManager();
-        tm.setEntityManagerFactory(emf);
-        tm.setDataSource(cdaDataSource());
-        return tm;
+    @Value("${datasource.komp2.username}")
+    protected String username;
+
+    @Value("${datasource.komp2.password}")
+    protected String password;
+
+    @Bean
+    public DataSource komp2DataSource() {
+        return SqlUtils.getConfiguredDatasource(komp2Url, username, password);
     }
 
     @Bean(name = "sessionFactoryHibernate")
-    public SessionFactory getSessionFactory() {
+    public SessionFactory sessionFactory() {
 
-        LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(cdaDataSource());
+        LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
         sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
         sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
 
         return sessionBuilder.buildSessionFactory();
     }
 
+    @Bean(name = "komp2TxManager")
+    @Primary
+    protected PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
+        JpaTransactionManager tm = new JpaTransactionManager();
+        tm.setEntityManagerFactory(emf);
+        tm.setDataSource(komp2DataSource());
+        return tm;
+    }
+
+
+    ///////
+    // DAOs
+    ///////
+
+    @Bean
+    public OntologyTermDAO ontologyTermDAO() {
+        return new OntologyTermDAOImpl(sessionFactory());
+    }
+
+    @Bean
+    public PhenotypePipelineDAO pipelineDAO() {
+        return new PhenotypePipelineDAOImpl(sessionFactory());
+    }
+
+
+    ///////////
+    // SERVICES
+    ///////////
+
+    @Bean
+    public MpTermService mpTermService() {
+        return new MpTermService(ontologyTermDAO(), pipelineDAO());
+    }
+
+
+    ////////////////
+    // MISCELLANEOUS
+    ////////////////
+
     @Bean(name = "threeIFile")
     public Resource threeIFile() {
         return new ClassPathResource("data/threei_test_data.csv");
     }
-
-    @Autowired
-    OntologyTermDAO ontologyTermDAO;
-
-    @Autowired
-    PhenotypePipelineDAO ppDAO;
-
-    @Bean
-    public MpTermService mpTermService() {
-        return new MpTermService(ontologyTermDAO, ppDAO);
-    }
-
-
-    @Bean
-    public CdaSqlUtils cdaSqlUtils() {
-        return new CdaSqlUtils(jdbcCda());
-    }
-
-
-    @Bean
-    public NamedParameterJdbcTemplate jdbcCda() {
-        return new NamedParameterJdbcTemplate(cdaDataSource());
-    }
-
 }

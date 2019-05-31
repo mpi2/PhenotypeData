@@ -1,13 +1,12 @@
 package org.mousephenotype.cda.loads.europubmed;
 
+import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -23,22 +22,23 @@ import java.util.Properties;
 
 @Configuration
 @EnableAutoConfiguration
-@PropertySource("file:${user.home}/configfiles/${profile:dev}/application.properties")
 public class MouseMineAlleleReferenceParserConfig {
+
+    @Value("${datasource.komp2.jdbc-url}")
+    private String komp2Url;
+
+    @Value("${datasource.komp2.username}")
+    private String username;
+
+    @Value("${datasource.komp2.password}")
+    private String password;
+
 
     @Bean
     @Primary
-    @ConfigurationProperties(prefix = "datasource.komp2")
     public DataSource komp2DataSource() {
-        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
+        return SqlUtils.getConfiguredDatasource(komp2Url, username, password);
     }
-
-    @Bean
-    @ConfigurationProperties(prefix = "datasource.admintools")
-    public DataSource admintoolsDataSource() {
-        return DataSourceBuilder.create().driverClassName("com.mysql.jdbc.Driver").build();
-    }
-
 
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {

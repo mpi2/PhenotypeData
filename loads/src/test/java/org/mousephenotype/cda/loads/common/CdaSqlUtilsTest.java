@@ -4,18 +4,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.pojo.Strain;
-import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Import;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.datasource.init.ScriptUtils;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +23,7 @@ import java.util.Map;
  * Created by mrelac on 27/09/16.
  */
 @RunWith(SpringRunner.class)
-@Import(CdaSqlUtilsTestConfig.class)
+@SpringBootTest(classes = CdaSqlUtilsTestConfig.class)
 @Sql(scripts = {"/sql/h2/cda/schema.sql", "/sql/h2/impress/impressSchema.sql"})
 public class CdaSqlUtilsTest {
 
@@ -229,13 +228,14 @@ public class CdaSqlUtilsTest {
     private DataSource cdaDataSource;
 
     @Before
-    public void before() throws SQLException {
-        Resource r = context.getResource("sql/CdaSqlUtilsTest.sql");
-        ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), r);
+    public void before() {
+        Resource r = new ClassPathResource("sql/CdaSqlUtilsTest.sql");
+        ResourceDatabasePopulator p = new ResourceDatabasePopulator(r);
+        p.execute(cdaDataSource);
     }
 
     @Test
-    public void testGetStrain() throws DataLoadException {
+    public void testGetStrain()  {
         Strain strain = cdaSqlUtils.getStrainsByNameOrMgiAccessionIdMap().get("C57BL/6J");
         assert strain.getId().getAccession().equals("MGI:3028467");
     }

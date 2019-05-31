@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
 
 
 @Service
-public class ImageService implements WebStatus{
+public class ImageService extends BasicService implements WebStatus {
 
 	private static final Logger logger = LoggerFactory.getLogger(ImageService.class);
 

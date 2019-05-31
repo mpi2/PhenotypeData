@@ -12,15 +12,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.jdbc.datasource.init.ScriptUtils;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.sql.DataSource;
 import javax.transaction.Transactional;
 import java.sql.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration(classes = StatisticalResultLoaderTestConfig.class)
 @Transactional
 public class StatisticalResultLoaderTest {
@@ -50,11 +50,19 @@ public class StatisticalResultLoaderTest {
                 "sql/h2/statistical_results.sql"
         };
 
+//        for (String schema : cdaSchemas) {
+//            logger.info("cda schema: " + schema);
+//            Resource r = context.getResource(schema);
+//            ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), r);
+//        }
+
         for (String schema : cdaSchemas) {
             logger.info("cda schema: " + schema);
-            Resource r = context.getResource(schema);
-            ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), r);
+            Resource                  r = new ClassPathResource(schema);
+            ResourceDatabasePopulator p = new ResourceDatabasePopulator(r);
+            p.execute(cdaDataSource);
         }
+
     }
 
 

@@ -1,7 +1,9 @@
 package org.mousephenotype.cda.loads.statistics.load;
 
 
+import com.mongodb.Mongo;
 import org.hibernate.SessionFactory;
+import org.mockito.Mockito;
 import org.springframework.util.Assert;
 import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.db.dao.OntologyTermDAO;
@@ -42,6 +44,28 @@ import javax.sql.DataSource;
                 ReferenceDAO.class})}
 )
 public class StatisticalResultLoaderTestConfig {
+
+
+
+
+
+
+
+    public StatisticalResultLoaderTestConfig() {
+        this.mongo = Mockito.mock(Mongo.class);
+    }
+
+    private Mongo mongo;
+    @Bean
+    public Mongo mongo() {
+        return mongo;
+    }
+
+
+
+
+
+
 
     // cda database
     @Bean

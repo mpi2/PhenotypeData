@@ -10,7 +10,6 @@ import org.mousephenotype.cda.solr.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -23,7 +22,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
 
 
 @Configuration
@@ -37,7 +35,7 @@ public class TestConfigSolr {
 
 
 	//////////////
-	// datasources
+	// DATASOURCES
 	//////////////
 
 	@Value("${datasource.komp2.jdbc-url}")
@@ -51,7 +49,6 @@ public class TestConfigSolr {
 
 	@Bean
 	@Primary
-	@ConfigurationProperties("datasource.komp2")
 	public DataSource dataSource() {
 
 		DataSource komp2DataSource = SqlUtils.getConfiguredDatasource(komp2Url, username, password);
@@ -61,7 +58,7 @@ public class TestConfigSolr {
 
 
 	/////////////////////////
-	// Read only solr servers
+	// READ-ONLY SOLR SERVERS
 	/////////////////////////
 
 	// allele
