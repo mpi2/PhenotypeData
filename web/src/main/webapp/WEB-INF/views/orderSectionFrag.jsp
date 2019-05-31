@@ -47,7 +47,6 @@
             <th>MGI Allele</th>
             <th>Allele Type</th>
             <th>Availability</th>
-            <th class="no-sort"></th>
         </tr>
         </thead>
         <tbody>
@@ -83,9 +82,9 @@
                         </c:forEach>
                     </c:if--%>
                 </td>
-                <td>
+<%--                <td>
                     <a class="btn btn-outline-primary">Show ordering information &nbsp;<i class="fa fa-caret-down"></i></a>
-                </td>
+                </td>--%>
             </tr>
         </c:forEach>
         </tbody>
