@@ -3,26 +3,37 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
 <script>
+    var orderContent = {};
     function detailFormatter(index, row) {
-        console.log(row);
-        $.ajax({
-            url: row[0],
-            type: 'GET',
-            success: function (data) {
-                $('#orderAllele' + index).html(data);
-            }
-        });
-        return "<div class='container'>" +
-            '<div id="orderAllele' + index + '" class="col-12">' +
-            "     <div class=\"pre-content\">\n" +
-            "                        <div class=\"row no-gutters\">\n" +
-            "                            <div class=\"col-12 my-5\">\n" +
-            "                                <p class=\"h4 text-center text-justify\"><i class=\"fas fa-atom fa-spin\"></i> A moment please while we gather the data . . . .</p>\n" +
-            "                            </div>\n" +
-            "                        </div>\n" +
-            "                    </div>" +
-            '</div>' +
-            '</div>';
+        if(!row._data['shown']) {
+            $.ajax({
+                url: row._data['link'],
+                type: 'GET',
+                success: function (data) {
+                    $('#orderAllele' + index).html(data);
+                    row._data['shown'] = true;
+                    orderContent[index] = data;
+                }
+            });
+            return "<div class='container'>" +
+                '<div id="orderAllele' + index + '" class="col-12">' +
+                "     <div class=\"pre-content\">\n" +
+                "                        <div class=\"row no-gutters\">\n" +
+                "                            <div class=\"col-12 my-5\">\n" +
+                "                                <p class=\"h4 text-center text-justify\"><i class=\"fas fa-atom fa-spin\"></i> A moment please while we gather the data . . . .</p>\n" +
+                "                            </div>\n" +
+                "                        </div>\n" +
+                "                    </div>" +
+                '</div>' +
+                '</div>';
+        } else {
+            return "<div class='container'>" +
+                '<div id="orderAllele' + index + '" class="col-12">' +
+                orderContent[index] +
+                '</div>' +
+                '</div>';
+        }
+
     }
 </script>
 
@@ -33,8 +44,6 @@
     <table id="creLineTable" data-toggle="table" data-pagination="true" data-mobile-responsive="true" data-sortable="true"   data-detail-view="true" data-detail-formatter="detailFormatter">
         <thead>
         <tr>
-            <th class="hidden">Allele Frag</th>
-            <th class="hidden">Shown</th>
             <th>MGI Allele</th>
             <th>Allele Type</th>
             <th>Availability</th>
@@ -43,9 +52,7 @@
         </thead>
         <tbody>
         <c:forEach var="row" items="${orderRows}" varStatus="status">
-            <tr>
-                <td>${baseUrl}/allelesFrag/${row.mgiAccessionId}/${row.encodedAlleleName}?${creLineParam}</td>
-                <td>false</td>
+            <tr data-link="${baseUrl}/allelesFrag/${row.mgiAccessionId}/${row.encodedAlleleName}?${creLineParam}" data-shown="false">
                 <td>
                     <span class="text-dark" style="font-size: larger; font-weight: bolder;">${row.markerSymbol}<sup>${row.alleleName}</sup></span>
                 </td>
