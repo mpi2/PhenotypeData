@@ -73,7 +73,7 @@
                     </td>
                 </c:if>
                 <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("GRAPH")}'>
-                    <td data-sort="${phenotype.getEvidenceLink().getUrl() }&pageTitle=${phenotype.phenotypeTerm.name} phenotype with knockout ${phenotype.gene.symbol}&linkBack=linkback link here"></td>
+                    <td data-sort="${phenotype.getEvidenceLink().getUrl() }"></td>
                 </c:if>
                 <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("TABLE")}'>
                     <td data-sort="${phenotype.getEvidenceLink().getUrl()}"></td>
