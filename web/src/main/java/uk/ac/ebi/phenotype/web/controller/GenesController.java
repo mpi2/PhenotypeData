@@ -688,7 +688,10 @@ public class GenesController {
         }
 
         List<GenePageTableRow> l = phenotypes.values().stream().map(x -> ((GenePageTableRow) x)).collect(Collectors.toList());
+        List<GenePageTableRow> histopath = l.stream().filter(phenotype -> phenotype.getEvidenceLink().getUrl().contains("histopathsum")).collect(Collectors.toList());
+        l = l.stream().filter(phenotype -> !phenotype.getEvidenceLink().getUrl().contains("histopathsum")).collect(Collectors.toList());
         model.addAttribute("rowsForPhenotypeTable", l);
+        model.addAttribute("rowsForHistopathTable", histopath);
         return l;
     }
 
