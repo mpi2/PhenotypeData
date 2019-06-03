@@ -1,6 +1,7 @@
 package uk.ac.ebi.phenotype.web.dao;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -31,11 +32,12 @@ public class StatsClient {
     	this.statisticsUrl=statisticsUrl;
     }
     
-    public ResponseEntity<Statistics> getUniqueStatsResult(String geneAccession, String alleleAccession, String parameterStableId,
+    public ResponseEntity<List<Statistics>> getUniqueStatsResult(String geneAccession, String alleleAccession, String parameterStableId,
    		 String pipelineStableId,  String zygosity,  String phenotypingCenter,  String metaDataGroup){
     	//http://localhost:8080/stats/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession=MGI:2443170&alleleAccession=MGI:2159965&parameterStableId=IMPC_HEM_038_001&pipelineStableId=IMPC_001&zygosity=homozygote&phenotypingCenter=MARC&metaDataGroup=08aa37a898ab923b9ffdbd01c0077040
-    ResponseEntity<Statistics> statsResponse=null;
-    	String SINGLE_STATS_URL = statisticsUrl+"/api/singleStatistic?accession={geneAccession}&allele_accession_id={alleleAccession}&parameter_stable_id={parameterStableId}&pipeline_stable_id={pipelineStableId}&zygosity={zygosity}&phenotyping_center={phenotypingCenter}&metadata_group={metaDataGroup}";
+    ResponseEntity<List<Statistics>> statsResponse=null;
+    System.out.println("SINGLE_STATS_URL="+statisticsUrl+"api/singleStatistic?accession="+geneAccession+"&allele_accession_id="+alleleAccession+"&parameter_stable_id="+parameterStableId+"&pipeline_stable_id="+pipelineStableId+"&zygosity="+zygosity+"&phenotyping_center="+phenotypingCenter+"&metadata_group="+metaDataGroup);
+    	String SINGLE_STATS_URL = statisticsUrl+"api/singleStatistic?accession={geneAccession}&allele_accession_id={alleleAccession}&parameter_stable_id={parameterStableId}&pipeline_stable_id={pipelineStableId}&zygosity={zygosity}&phenotyping_center={phenotypingCenter}&metadata_group={metaDataGroup}";
         
     	System.out.println("SINGLE_STATS_URL="+SINGLE_STATS_URL);
 		try {
@@ -49,7 +51,7 @@ public class StatsClient {
 			    params.put("metaDataGroup", metaDataGroup);
 			statsResponse = template
 			        .exchange(SINGLE_STATS_URL, HttpMethod.GET, null,
-			                new ParameterizedTypeReference<Statistics>() {
+			                new ParameterizedTypeReference<List<Statistics>>() {
 			                }, params);
 			System.out.println("singleStatsResponse="+statsResponse);
 		} catch (RestClientException e) {

@@ -350,7 +350,7 @@ public class ChartsController {
 			GeneDTO gene = geneService.getGeneById(accession[0]);
 			model.addAttribute("gene", gene);
 			boolean testNew=true;//change to look at old chart with current code
-			if(parameterStableId.equalsIgnoreCase("IMPC_HEM_038_001")&& testNew) {
+			//if(parameterStableId.equalsIgnoreCase("IMPC_HEM_038_001")&& testNew) {
 				//get experiment object from the new rest service as a temporary measure we can convert to an experiment object and then we don't have to rewrite the chart code?? and easy to test if experiment objects are the same??
 				System.out.println("Get data from new rest service");
 				long startTime = System.currentTimeMillis();
@@ -360,16 +360,13 @@ public class ChartsController {
 				long endTime=System.currentTimeMillis();
 				long timeTaken=endTime-startTime;
 				System.out.println("time taken="+timeTaken);
-				//experiment=statsService.getSpecificExperimentDTOFromRepository(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
-				//List<Stats>stats=statsService.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(accession[0], alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroupString);
 				
-				System.out.println("stats from repository size="+experiment);
-			}
-			else {
+//			
+				if(experiment==null) {
+					System.err.println("no experiment found using stats service falling back to solr");
 			experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
-			//System.out.println("experiment from solr="+experiment);
-			}
-			//error getting procedure for this page?? http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1915276&parameter_stable_id=MGP_MLN_057_001
+			
+				}
 			ProcedureDTO proc=null;
 			if(experiment!=null) {
 				proc = is.getProcedureByStableId(experiment.getProcedureStableId());

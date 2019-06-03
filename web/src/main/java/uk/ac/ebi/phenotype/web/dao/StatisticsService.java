@@ -12,6 +12,7 @@ import javax.inject.Inject;
 
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.springframework.hateoas.PagedResources;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -37,10 +38,10 @@ public class StatisticsService {
 	}
 	
 	
-	public ResponseEntity<Statistics> getUniqueStatsResult(String geneAccession, String alleleAccession, String parameterStableId,
+	public ResponseEntity<List<Statistics>> getUniqueStatsResult(String geneAccession, String alleleAccession, String parameterStableId,
 			 String pipelineStableId,  String zygosity,  String phenotypingCenter,  String metaDataGroup){
 		System.out.println("statsClient url="+statsClient.getStatsUrl());
-		ResponseEntity<Statistics> stats=statsClient.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId,
+		ResponseEntity<List<Statistics>> stats=statsClient.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId,
 		 pipelineStableId,  zygosity,  phenotypingCenter,  metaDataGroup);
 		return stats;
 	
@@ -51,16 +52,23 @@ public class StatisticsService {
 	public ExperimentDTO getSpecificExperimentDTOFromRest(String parameterStableId, String pipelineStableId, String geneAccession, List<String> genderList, List<String> zyList, String phenotypingCenter, String strain, String metaDataGroup, String alleleAccession, String ebiMappedSolrUrl)
 	{
 		String zygosity=null;
+		ExperimentDTO exp=null;
 	
 //		if(zyList.isEmpty()||zyList==null) {
 //			zygosity=null;
 //		}else {
 //			
 //		}
-		ResponseEntity<Statistics> response = this.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroup);
-		Statistics stats = response.getBody();
-		//System.out.println("stats size="+stats.size());
-		ExperimentDTO exp = StatisticsServiceUtilities.convertToExperiment(parameterStableId, stats);
+		ResponseEntity<List<Statistics>> response = this.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId, pipelineStableId, zyList.get(0), phenotypingCenter, metaDataGroup);
+		if(response.getStatusCode()==HttpStatus.OK) {
+			List<Statistics> stats = response.getBody();
+			//System.out.println("stats size="+stats.size());
+			if(stats.size()>0) {
+				exp = StatisticsServiceUtilities.convertToExperiment(parameterStableId, stats.get(0));
+			}
+				
+		}
+		
 		
 		System.out.println("experiment from file="+exp);
 		return exp;
