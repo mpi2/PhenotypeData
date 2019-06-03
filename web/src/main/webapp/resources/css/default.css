@@ -6606,7 +6606,7 @@ ul#menu-top-nav li.current-menu-item a {
 
 .single-header {
     position: relative;
-    height: 240px; }
+    height: 240px !important; }
 @media (min-width: 768px) {
     .single-header {
         height: 296px; } }
@@ -6943,7 +6943,7 @@ td>a:hover {
     font-size: 20px;
     padding-top: 15px;
     padding-bottom: 15px;
-    width: 170px;
+    width: 170px !important;
     margin: 0; }
 .portal-search__tabs a.right-shadow {
     box-shadow: inset 7px -7px 9px -7px rgba(0, 0, 0, 0.5); }
