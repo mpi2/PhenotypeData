@@ -26,7 +26,7 @@ import java.util.Properties;
 public class PhenotypeArchiveDatabaseConfig {
 
 
-    @Value("${datasource.komp2.url}")
+    @Value("${datasource.komp2.jdbc-url}")
     String komp2Url;
 
     @Value("${datasource.komp2.username}")

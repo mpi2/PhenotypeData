@@ -54,10 +54,10 @@ public class TestConfig {
 
     @PostConstruct
     public void initialise() {
-        logger.info("dataSource.komp2.url: " + komp2DataSource());
-        logger.info("solr.host:            " + solrHost);
-        logger.info("baseUrl:              " + baseUrl);
-        logger.info("internalSolrUrl:      " + internalSolrUrl);
+        logger.info("dataSource.komp2.jdbc-url: " + komp2DataSource());
+        logger.info("solr.host:            		" + solrHost);
+        logger.info("baseUrl:              		" + baseUrl);
+        logger.info("internalSolrUrl:      		" + internalSolrUrl);
     }
 
 

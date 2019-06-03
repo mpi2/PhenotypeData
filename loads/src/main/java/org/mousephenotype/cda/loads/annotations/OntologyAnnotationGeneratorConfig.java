@@ -44,7 +44,7 @@ public class OntologyAnnotationGeneratorConfig {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("${datasource.komp2.url}")
+    @Value("${datasource.komp2.jdbc-url}")
     String komp2Url;
 
     @Value("${datasource.komp2.username}")

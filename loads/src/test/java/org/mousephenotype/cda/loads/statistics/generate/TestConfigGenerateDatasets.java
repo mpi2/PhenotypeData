@@ -164,7 +164,7 @@ public class TestConfigGenerateDatasets {
 //	}
 //
 //
-//	@Value("${datasource.komp2.url}")
+//	@Value("${datasource.komp2.jdbc-url}")
 //	String komp2Url;
 //
 //	@Value("${datasource.komp2.username}")

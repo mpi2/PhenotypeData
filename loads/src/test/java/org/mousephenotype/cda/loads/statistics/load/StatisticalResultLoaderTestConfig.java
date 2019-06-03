@@ -1,10 +1,7 @@
 package org.mousephenotype.cda.loads.statistics.load;
 
 
-import com.mongodb.Mongo;
 import org.hibernate.SessionFactory;
-import org.mockito.Mockito;
-import org.springframework.util.Assert;
 import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
@@ -12,7 +9,6 @@ import org.mousephenotype.cda.db.dao.ReferenceDAO;
 import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.statistics.load.threei.TestConfigThreeI;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +23,7 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.util.Assert;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManagerFactory;
@@ -44,28 +41,6 @@ import javax.sql.DataSource;
                 ReferenceDAO.class})}
 )
 public class StatisticalResultLoaderTestConfig {
-
-
-
-
-
-
-
-    public StatisticalResultLoaderTestConfig() {
-        this.mongo = Mockito.mock(Mongo.class);
-    }
-
-    private Mongo mongo;
-    @Bean
-    public Mongo mongo() {
-        return mongo;
-    }
-
-
-
-
-
-
 
     // cda database
     @Bean
@@ -125,5 +100,4 @@ public class StatisticalResultLoaderTestConfig {
     public NamedParameterJdbcTemplate jdbcCda() {
         return new NamedParameterJdbcTemplate(cdaDataSource());
     }
-
 }

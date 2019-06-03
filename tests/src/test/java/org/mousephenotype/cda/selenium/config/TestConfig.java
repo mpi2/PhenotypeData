@@ -28,20 +28,12 @@ import org.mousephenotype.cda.solr.service.*;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
-import org.springframework.context.annotation.*;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.HibernateJpaSessionFactoryBean;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.annotation.PostConstruct;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 
 
@@ -79,11 +71,11 @@ public class TestConfig {
     }
 
     private void logParameters()  throws TestException {
-        logger.info("dataSource.komp2.url: " + datasourceKomp2Url);
-        logger.info("solr.host:            " + solrHost);
-        logger.info("baseUrl:              " + baseUrl);
-        logger.info("internalSolrUrl:      " + internalSolrUrl);
-		logger.info("seleniumUrl:          " + seleniumUrl);
+        logger.info("dataSource.komp2.jdbc-url: " + datasourceKomp2Url);
+        logger.info("solr.host:                 " + solrHost);
+        logger.info("baseUrl:                   " + baseUrl);
+        logger.info("internalSolrUrl:           " + internalSolrUrl);
+		logger.info("seleniumUrl:               " + seleniumUrl);
 
         logger.info("browserName:          " + desiredCapabilities().getBrowserName());
         logger.info("version:              " + desiredCapabilities().getVersion());

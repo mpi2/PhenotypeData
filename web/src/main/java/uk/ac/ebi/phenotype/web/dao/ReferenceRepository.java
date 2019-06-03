@@ -1,16 +1,13 @@
 package uk.ac.ebi.phenotype.web.dao;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.repository.CountQuery;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 import uk.ac.ebi.phenotype.web.dto.Publication;
-import org.bson.types.ObjectId;
-
-import java.util.List;
 
 
 @Repository
@@ -59,5 +56,4 @@ public interface ReferenceRepository extends MongoRepository<Publication, Object
 
     @CountQuery("{$and: [{$or: [{title: {$regex : ?1 }}, {abstractText: {$regex : ?1 }}, {authorString: {$regex : ?1 }}]}, {reviewed: true, falsePositive: false, meshHeadingList: {'$regex' : ?0, '$options' : 'i'}}]}")
     int countByMeshtermFiltered(String meshTerm, String filter);
-
 }

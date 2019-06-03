@@ -19,14 +19,10 @@
 
     <dependencies>
     
-    <dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-rest</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-mongodb</artifactId>
-        </dependency> 
 
         <dependency>
             <groupId>org.mousephenotype.cda</groupId>
@@ -53,7 +49,7 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
             <version>3.0</version>
-    </dependency>
+        </dependency>
 
         <!-- JSON Dependencies -->
         <dependency>
