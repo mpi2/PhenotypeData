@@ -1,10 +1,10 @@
 package uk.ac.ebi.phenotype.service;
 
 import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 
-@RunWith(SpringJUnit4ClassRunner.class)
+//@RunWith(SpringRunner.class)
 //@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 //@SpringBootTest(classes = {TestConfigIndexers.class})
 public class StatsServiceTest {
