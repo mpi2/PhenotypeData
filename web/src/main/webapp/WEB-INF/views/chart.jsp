@@ -42,15 +42,6 @@
 
         <c:if test="${ ! chartOnly}">
 
-            <!-- <div class="container mt-3" id="section-associations"> -->
-                <%-- <div class="row">
-                    <div class="col-md-12 no-gutters">
-                        <h3>Allele -<t:formatAllele>${symbol}</t:formatAllele></h3>
-                    </div>
-                </div> --%>
-            <!-- </div> -->
-
-
             <div class="container single single--no-side">
 
             <div class="breadcrumbs" style="box-shadow: none; margin-top: auto; margin: auto; padding: auto">
@@ -95,7 +86,7 @@
                             mice</b>. The charts show the results of measuring <b>${parameter.name}</b> in <b>${numberFemaleMutantMice}
                             female</b>, <b>${numberMaleMutantMice} male</b> mutants compared to
                             <b>${numberFemaleControlMice} female</b>, <b>${numberMaleControlMice} male</b> controls.  The
-            mutants <b>${zygosity}</b> the <b><t:formatAllele>${alleleSymbol}</t:formatAllele></b> allele.
+            mutants are <b>${zygosity}</b> for the <b><t:formatAllele>${alleleSymbol}</t:formatAllele></b> allele.
         </c:if>
 
         <c:if test="${embryoViabilityDTO!=null || viabilityDTO!=null}">

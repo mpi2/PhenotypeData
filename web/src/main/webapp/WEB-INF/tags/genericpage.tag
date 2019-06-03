@@ -160,12 +160,6 @@
                  srcset="${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-300x62.png 300w, ${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-768x158.png 768w, ${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-1024x210.png 1024w, ${cmsBaseUrl}/wp-content/uploads/2019/02/understanding.png 1440w"
                  sizes="100%"/>
 
-            <div class="container">
-                <div class="row">
-                    <div class="col ">
-
-                    </div>
-                </div>
                 <div class="row text-center">
                     <div class="col-12 col-md-8 offset-md-2">
                         <div class="portal-search pb-5 mb-5 mt-5">

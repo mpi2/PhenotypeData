@@ -392,6 +392,12 @@ public class SampleLoader implements CommandLineRunner {
                         && ( ! specimen.getStrainID().trim().isEmpty())) {
                     backgroundStrainMismatches.add(colony.getBackgroundStrain() + "::" + specimen.getStrainID());
                 }
+
+                // If the background strain of the mutant specimen has not been provided in the XML file
+                // use the background strain of the colony (from iMits)
+                if ( !specimen.isIsBaseline() && specimen.getStrainID() == null && colony.getBackgroundStrain() != null) {
+                    specimen.setStrainID(colony.getBackgroundStrain());
+                }
             }
 
             // If this mutant's strainId is null, we cannot create a strain, so log an error and skip the specimen.
