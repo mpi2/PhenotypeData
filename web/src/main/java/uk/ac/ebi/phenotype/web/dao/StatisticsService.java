@@ -54,11 +54,6 @@ public class StatisticsService {
 		String zygosity=null;
 		ExperimentDTO exp=null;
 	
-//		if(zyList.isEmpty()||zyList==null) {
-//			zygosity=null;
-//		}else {
-//			
-//		}
 		ResponseEntity<List<Statistics>> response = this.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId, pipelineStableId, zyList.get(0), phenotypingCenter, metaDataGroup);
 		//if(response.getStatusCode()==HttpStatus.OK) {
 			List<Statistics> stats = response.getBody();
@@ -74,23 +69,6 @@ public class StatisticsService {
 		return exp;
 }
 	
-	
-//	public ExperimentDTO getSpecificExperimentDTOFromRepository(String parameterStableId, String pipelineStableId, String geneAccession, List<String> genderList, List<String> zyList, String phenotypingCenter, String strain, String metaDataGroup, String alleleAccession, String ebiMappedSolrUrl)
-//	{
-//		String zygosity=null;
-//	
-////		if(zyList.isEmpty()||zyList==null) {
-////			zygosity=null;
-////		}else {
-////			
-////		}
-//		List<Statistics> stats = statsRepository.findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup(geneAccession, alleleAccession, parameterStableId, pipelineStableId, "homozygote", phenotypingCenter, metaDataGroup);
-//		assert(stats.size()>0);
-//		ExperimentDTO exp = StatisticsServiceUtilities.convertToExperiment(parameterStableId, stats);
-//		
-//		System.out.println("experiment from file="+exp);
-//		return exp;
-//}
 
 	
 	
