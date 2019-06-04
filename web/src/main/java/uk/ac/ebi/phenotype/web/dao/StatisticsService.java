@@ -60,14 +60,14 @@ public class StatisticsService {
 //			
 //		}
 		ResponseEntity<List<Statistics>> response = this.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId, pipelineStableId, zyList.get(0), phenotypingCenter, metaDataGroup);
-		if(response.getStatusCode()==HttpStatus.OK) {
+		//if(response.getStatusCode()==HttpStatus.OK) {
 			List<Statistics> stats = response.getBody();
 			//System.out.println("stats size="+stats.size());
 			if(stats.size()>0) {
 				exp = StatisticsServiceUtilities.convertToExperiment(parameterStableId, stats.get(0));
 			}
 				
-		}
+		//}
 		
 		
 		System.out.println("experiment from file="+exp);

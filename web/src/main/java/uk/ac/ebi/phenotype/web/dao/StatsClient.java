@@ -36,14 +36,15 @@ public class StatsClient {
    		 String pipelineStableId,  String zygosity,  String phenotypingCenter,  String metaDataGroup){
     	//http://localhost:8080/stats/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession=MGI:2443170&alleleAccession=MGI:2159965&parameterStableId=IMPC_HEM_038_001&pipelineStableId=IMPC_001&zygosity=homozygote&phenotypingCenter=MARC&metaDataGroup=08aa37a898ab923b9ffdbd01c0077040
     ResponseEntity<List<Statistics>> statsResponse=null;
-    System.out.println("SINGLE_STATS_URL="+statisticsUrl+"api/singleStatistic?accession="+geneAccession+"&allele_accession_id="+alleleAccession+"&parameter_stable_id="+parameterStableId+"&pipeline_stable_id="+pipelineStableId+"&zygosity="+zygosity+"&phenotyping_center="+phenotypingCenter+"&metadata_group="+metaDataGroup);
-    	String SINGLE_STATS_URL = statisticsUrl+"api/singleStatistic?accession={geneAccession}&allele_accession_id={alleleAccession}&parameter_stable_id={parameterStableId}&pipeline_stable_id={pipelineStableId}&zygosity={zygosity}&phenotyping_center={phenotypingCenter}&metadata_group={metaDataGroup}";
-        
+    System.out.println("SINGLE_STATS_URL="+statisticsUrl+"api/stats?accession="+geneAccession+"&parameter_stable_id="+parameterStableId+"&pipeline_stable_id="+pipelineStableId+"&zygosity="+zygosity+"&phenotyping_center="+phenotypingCenter+"&metadata_group="+metaDataGroup);
+    	//String SINGLE_STATS_URL = statisticsUrl+"api/singleStatistic?accession={geneAccession}&allele_accession_id={alleleAccession}&parameter_stable_id={parameterStableId}&pipeline_stable_id={pipelineStableId}&zygosity={zygosity}&phenotyping_center={phenotypingCenter}&metadata_group={metaDataGroup}";
+    String SINGLE_STATS_URL = statisticsUrl+"api/stats?accession={geneAccession}&parameter_stable_id={parameterStableId}&pipeline_stable_id={pipelineStableId}&zygosity={zygosity}&phenotyping_center={phenotypingCenter}&metadata_group={metaDataGroup}";
+    
     	System.out.println("SINGLE_STATS_URL="+SINGLE_STATS_URL);
 		try {
 			Map<String, String> params = new HashMap<>();
 			    params.put("geneAccession", geneAccession);
-			    params.put("alleleAccession", alleleAccession);
+			    //params.put("alleleAccession", alleleAccession);//ignore allele accession until in stats file and service
 			    params.put("parameterStableId", parameterStableId);
 			    params.put("pipelineStableId", pipelineStableId);
 			    params.put("zygosity", zygosity);
