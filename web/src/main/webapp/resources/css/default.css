@@ -6119,7 +6119,7 @@ h4 {
     z-index: -1;
     position: relative; }
 .header__logo {
-    width: 230px; }
+    width: 190px; }
 .header__logo-link {
     padding-bottom: 16px;
     padding-top: 16px; }
@@ -7484,6 +7484,8 @@ ul#menu-footer-access li {
         width: 170px !important;
 
     }
+}
+@media (max-width: 375px) {
 
     .single-header{
         height: 240px !important;
