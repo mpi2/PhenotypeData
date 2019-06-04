@@ -33,9 +33,6 @@ import java.net.URL;
 public class JSONRestUtil {
 
 
-	@Autowired
-	private static ObjectMapper objectMapper;
-
 	private final static Logger log = LoggerFactory.getLogger(JSONRestUtil.class);
 
 	/**

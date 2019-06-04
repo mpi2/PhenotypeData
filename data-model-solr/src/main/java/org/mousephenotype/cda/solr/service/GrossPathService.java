@@ -133,18 +133,6 @@ public class GrossPathService {
 
 		//List<ObservationDTO> filteredObservations = screenOutObservationsThatAreNormal(allObservations);
 		Map<String, List<ObservationDTO>> anatomyNames = this.getAnatomyNamesToObservationsMap(allObservations);// We
-																								// want
-																								// each
-																								// row
-																								// to
-																								// represent
-																								// and
-																								// antomy
-																								// set
-																								// i.e
-																								// related
-																								// to
-																								// Brain
 
 		Map<String, List<ObservationDTO>> sampleToObservations = this.getSampleToObservationMap(allObservations);
 		Map<String, List<SolrDocument>> sampleToImages = this.getSampleToImagesMap(images);
