@@ -22,13 +22,11 @@ import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
-import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -39,9 +37,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import uk.ac.ebi.phenotype.web.dao.ReferenceRepository;
 import uk.ac.ebi.phenotype.web.dao.ReferenceService;
-import uk.ac.ebi.phenotype.web.dto.*;
+import uk.ac.ebi.phenotype.web.dto.AlleleRef;
+import uk.ac.ebi.phenotype.web.dto.CitingPaper;
+import uk.ac.ebi.phenotype.web.dto.FullTextUrl;
+import uk.ac.ebi.phenotype.web.dto.Publication;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -56,7 +56,6 @@ import java.net.URL;
 import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 

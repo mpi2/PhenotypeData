@@ -1,13 +1,12 @@
 package uk.ac.ebi.phenotype.service;
 
-
+import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
-
-@RunWith(SpringJUnit4ClassRunner.class)
-//@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-//@SpringBootTest(classes = {TestConfigIndexers.class})
+@RunWith(SpringRunner.class)
+@SpringBootTest()
 public class StatsServiceTest {
 
 	
@@ -32,8 +31,8 @@ public class StatsServiceTest {
 //	public void tearDown() throws Exception {
 //	}
 //
-//	@Test
-//	public void testGetTestStatsData() {
+	@Test
+	public void testGetTestStatsData() {
 //		ResponseEntity<PagedResources<Statistics>> statsResponse=null;
 //		try {
 //			statsResponse = statsService.getStatsData(0, 2);
@@ -44,8 +43,8 @@ public class StatsServiceTest {
 //		System.out.println("test response ="+statsResponse);
 //		System.out.println("stats list="+statsResponse.getBody().getContent());
 //		assert(statsResponse.getBody().getContent().size()==2);
-//	}
-//
+	}
+
 //	@Test
 //	public void testGetDataForGeneAccession() {
 //		ResponseEntity<PagedResources<Statistics>> statsResponse=null;
@@ -125,5 +124,4 @@ public class StatsServiceTest {
 ////		assert((stats.get(0).getMetaDataGroup().equals(metadataGroup)));
 //
 //	}
-
 }
