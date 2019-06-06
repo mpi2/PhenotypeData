@@ -28,12 +28,14 @@ import java.util.List;
  */
 public class ProcedureDTO extends ImpressBaseDTO{
 
-	private boolean required;
-	private String procNameId;
-	private String observationType;	
-	private String description;
-	private String stage;
-	private String stageLabel;
+	private boolean            required;
+	private String             procNameId;
+	private String             observationType;
+	private String             description;
+	private String             level;
+	private String             stage;
+	private String             stageLabel;
+	private int                scheduleKey;
 	private List<ParameterDTO> parameters;
 	
 	public ProcedureDTO(Integer id, Integer stableKey, String stableId, String name){
@@ -111,5 +113,21 @@ public class ProcedureDTO extends ImpressBaseDTO{
 
 	public void setStageLabel(String stageLabel) {
 		this.stageLabel = stageLabel;
+	}
+
+	public String getLevel() {
+		return level;
+	}
+
+	public void setLevel(String level) {
+		this.level = level;
+	}
+
+	public int getScheduleKey() {
+		return scheduleKey;
+	}
+
+	public void setScheduleKey(int scheduleKey) {
+		this.scheduleKey = scheduleKey;
 	}
 }

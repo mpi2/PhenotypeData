@@ -42,23 +42,16 @@
 
         <c:if test="${ ! chartOnly}">
 
-            <!-- <div class="container mt-3" id="section-associations"> -->
-                <%-- <div class="row">
-                    <div class="col-md-12 no-gutters">
-                        <h3>Allele -<t:formatAllele>${symbol}</t:formatAllele></h3>
-                    </div>
-                </div> --%>
-            <!-- </div> -->
-
-
             <div class="container single single--no-side">
 
             <div class="breadcrumbs" style="box-shadow: none; margin-top: auto; margin: auto; padding: auto">
+                <div style="float: right;"><a href="${cmsBaseUrl}/help/quick-guide-to-the-website/chart-page/" target="_blank" style="color: #ce6211;"><i class="fa fa-question-circle" style="font-size: xx-large"></i></a></div>
+
                 <div class="row">
                     <div class="col-md-12">
-                        <p><a href="/">Home</a> <span>></span>
-                            <a href="${baseUrl}/search">Genes</a> <span>></span>
-                            <a href="${baseUrl}/genes/${gene.mgiAccessionId}">${gene.markerSymbol}</a> <span>></span>
+                        <p><a href="/">Home</a> <span><span class="fal fa-angle-right"></span></span>
+                            <a href="${baseUrl}/search">Genes</a> <span><span class="fal fa-angle-right"></span></span>
+                            <a href="${baseUrl}/genes/${gene.mgiAccessionId}">${gene.markerSymbol}</a> <span><span class="fal fa-angle-right"></span></span>
                             ${parameter.procedureNames[0]} / ${parameter.name}
                         </p>
                     </div>
@@ -88,19 +81,24 @@
                     </div>
                     <div class="card-body">
                         <p>
-        <c:if test="${embryoViabilityDTO==null}">
+        <c:if test="${embryoViabilityDTO==null && viabilityDTO==null}">
                             A <b>${parameter.procedureNames[0]}</b> phenotypic assay was performed on <b>${numberMice}
                             mice</b>. The charts show the results of measuring <b>${parameter.name}</b> in <b>${numberFemaleMutantMice}
                             female</b>, <b>${numberMaleMutantMice} male</b> mutants compared to
                             <b>${numberFemaleControlMice} female</b>, <b>${numberMaleControlMice} male</b> controls.  The
-            mutants <b>${zygosity}</b> the <b><t:formatAllele>${alleleSymbol}</t:formatAllele></b> allele.
+            mutants are <b>${zygosity}</b> for the <b><t:formatAllele>${alleleSymbol}</t:formatAllele></b> allele.
         </c:if>
 
-        <c:if test="${embryoViabilityDTO!=null}">
+        <c:if test="${embryoViabilityDTO!=null || viabilityDTO!=null}">
             A <b>${parameter.procedureNames[0]}</b> phenotypic assay was performed on a mutant strain carrying the <b><t:formatAllele>${alleleSymbol}</t:formatAllele></b> allele. The
             charts below show the proportion of wild type, heterozygous, and homozygous offspring.
         </c:if>
                         </p>
+
+                        <c:if test="${numberMice > 500}">
+                            <small>* The high throughput nature of the IMPC means that large control sample sizes may accumulate over a long period of time.  See the <a href="${cmsBaseUrl}/about-impc/animal-welfare">animal welfare guidelines</a> for more information.</small>
+                        </c:if>
+
                     </div>
                 </div>
             </div>

@@ -78,6 +78,10 @@ public class CdabaseConfig extends DataSourceCdabaseConfig {
     @Value("${cdabase.workspace}")
     protected String cdabaseWorkspace;
 
+    @NotNull
+    @Value("${impress.service.url}")
+    protected String impressServiceUrl;
+
 
     @Inject
     @Lazy
@@ -391,7 +395,7 @@ public class CdabaseConfig extends DataSourceCdabaseConfig {
 
     // Impress Web Service beans
 
-
+    String defaultUrl = "http://www.mousephenotype.org/impress/soap/server";
     @Bean
     public Jaxb2Marshaller marshaller() {
         Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
@@ -404,7 +408,7 @@ public class CdabaseConfig extends DataSourceCdabaseConfig {
     @Bean
     public ParameterMPTermsClient parameterMpTermsClient(Jaxb2Marshaller marshaller) {
         ParameterMPTermsClient client = new ParameterMPTermsClient();
-        client.setDefaultUri("https://www.mousephenotype.org/impress/soap/server");
+        client.setDefaultUri(defaultUrl);
         client.setMarshaller(marshaller);
         client.setUnmarshaller(marshaller);
         return client;
@@ -413,7 +417,7 @@ public class CdabaseConfig extends DataSourceCdabaseConfig {
     @Bean
     public ParameterIncrementsClient parameterIncrementsClient(Jaxb2Marshaller marshaller) {
         ParameterIncrementsClient client = new ParameterIncrementsClient();
-        client.setDefaultUri("https://www.mousephenotype.org/impress/soap/server");
+        client.setDefaultUri(defaultUrl);
         client.setMarshaller(marshaller);
         client.setUnmarshaller(marshaller);
         return client;
@@ -422,7 +426,7 @@ public class CdabaseConfig extends DataSourceCdabaseConfig {
     @Bean
     public ParameterOntologyOptionsClient parameterOntologyOptionsClient(Jaxb2Marshaller marshaller) {
         ParameterOntologyOptionsClient client = new ParameterOntologyOptionsClient();
-        client.setDefaultUri("https://www.mousephenotype.org/impress/soap/server");
+        client.setDefaultUri(defaultUrl);
         client.setMarshaller(marshaller);
         client.setUnmarshaller(marshaller);
         return client;
@@ -431,7 +435,7 @@ public class CdabaseConfig extends DataSourceCdabaseConfig {
     @Bean
     public ParameterOptionsClient parameterOptionsClient(Jaxb2Marshaller marshaller) {
         ParameterOptionsClient client = new ParameterOptionsClient();
-        client.setDefaultUri("https://www.mousephenotype.org/impress/soap/server");
+        client.setDefaultUri(defaultUrl);
         client.setMarshaller(marshaller);
         client.setUnmarshaller(marshaller);
         return client;
@@ -440,7 +444,7 @@ public class CdabaseConfig extends DataSourceCdabaseConfig {
     @Bean
     public ParametersClient parametersClient(Jaxb2Marshaller marshaller) {
         ParametersClient client = new ParametersClient();
-        client.setDefaultUri("https://www.mousephenotype.org/impress/soap/server");
+        client.setDefaultUri(defaultUrl);
         client.setMarshaller(marshaller);
         client.setUnmarshaller(marshaller);
         return client;
@@ -449,7 +453,7 @@ public class CdabaseConfig extends DataSourceCdabaseConfig {
     @Bean
     public PipelineClient pipelineClient(Jaxb2Marshaller marshaller) {
         PipelineClient client = new PipelineClient();
-        client.setDefaultUri("https://www.mousephenotype.org/impress/soap/server");
+        client.setDefaultUri(defaultUrl);
         client.setMarshaller(marshaller);
         client.setUnmarshaller(marshaller);
         return client;
@@ -458,7 +462,7 @@ public class CdabaseConfig extends DataSourceCdabaseConfig {
     @Bean
     public PipelineKeysClient pipelineKeysClient(Jaxb2Marshaller marshaller) {
         PipelineKeysClient client = new PipelineKeysClient();
-        client.setDefaultUri("https://www.mousephenotype.org/impress/soap/server");
+        client.setDefaultUri(defaultUrl);
         client.setMarshaller(marshaller);
         client.setUnmarshaller(marshaller);
         return client;
@@ -467,7 +471,7 @@ public class CdabaseConfig extends DataSourceCdabaseConfig {
     @Bean
     public ProcedureClient procedureClient(Jaxb2Marshaller marshaller) {
         ProcedureClient client = new ProcedureClient();
-        client.setDefaultUri("https://www.mousephenotype.org/impress/soap/server");
+        client.setDefaultUri(defaultUrl);
         client.setMarshaller(marshaller);
         client.setUnmarshaller(marshaller);
         return client;
@@ -476,10 +480,15 @@ public class CdabaseConfig extends DataSourceCdabaseConfig {
     @Bean
     public ProcedureKeysClient procedureKeysClient(Jaxb2Marshaller marshaller) {
         ProcedureKeysClient client = new ProcedureKeysClient();
-        client.setDefaultUri("https://www.mousephenotype.org/impress/soap/server");
+        client.setDefaultUri(defaultUrl);
         client.setMarshaller(marshaller);
         client.setUnmarshaller(marshaller);
         return client;
+    }
+
+    @Bean
+    public String impressServiceUrl() {
+        return impressServiceUrl;
     }
 
     // NOTE: Using @Lazy here and in the @Autowire to postpone creation of this bean (so that @PostConstruct can be used)

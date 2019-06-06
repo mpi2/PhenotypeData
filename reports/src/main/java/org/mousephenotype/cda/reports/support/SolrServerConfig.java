@@ -2,8 +2,7 @@ package org.mousephenotype.cda.reports.support;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.mousephenotype.cda.solr.service.ImpressService;
-import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
+import org.mousephenotype.cda.solr.service.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -148,9 +147,27 @@ public class SolrServerConfig {
 		return new HttpSolrClient(solrBaseUrl + "/statistical-result");
 	}
 
-	@Bean(name = "phenotypeCenterService")
+
+	// Service Beans
+
+
+	@Bean
 	PhenotypeCenterService phenotypeCenterService() {
-		return new PhenotypeCenterService(solrBaseUrl + "/experiment", impressService());
+		return new PhenotypeCenterService(getExperimentCore());
 	}
 
+	@Bean
+	PhenotypeCenterProcedureCompletenessService phenotypeCenterProcedureCompletenessService() {
+		return new PhenotypeCenterProcedureCompletenessService(phenotypeCenterService(), impressService());
+	}
+
+	@Bean
+	PhenotypeCenterAllService phenotypeCenterAllService() {
+		return new PhenotypeCenterAllService(getStatisticalResultCore(), getMpCore());
+	}
+
+	@Bean
+	PhenotypeCenterProcedureCompletenessAllService phenotypeCenterProcedureCompletenessAllService() {
+		return new PhenotypeCenterProcedureCompletenessAllService(phenotypeCenterAllService(), getStatisticalResultCore());
+	}
 }

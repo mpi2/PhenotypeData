@@ -41,7 +41,7 @@
         <script src="//d3js.org/d3.v4.min.js"></script>
             <script type="text/javascript">var impc = {baseUrl: "${baseUrl}"}</script>        
             <script type="text/javascript" src="${baseUrl}/js/vendor/underscore/underscore-1.8.3.min.js"></script>
-            <script type="text/javascript" src="${baseUrl}/js/phenodigm2/phenodigm2.js?v=${version}" async></script>
+            <script type="text/javascript" src="${baseUrl}/js/phenodigm2/phenodigm2.js?v=${version}"></script>
             <link rel="stylesheet" type="text/css" href="${baseUrl}/css/phenodigm2.css" async>
         <%-- End of phenodigm2 requirements --%>
 
@@ -140,8 +140,10 @@
                             /*var script = document.createElement('script');
                             //script.src = "
 
+
                 ${cmsBaseUrl}/heatmap/js/heatmap.1.3.1.js";
                             script.src = "
+
 
                 ${baseUrl}/js/vendor/dcc/heatmap.js";
                             script.onload = function () {
@@ -151,17 +153,21 @@
                                     'container': 'phenodcc-heatmap',
                                     'mgiid': '
 
+
                 ${gene.mgiAccessionId}',
                                     'mode': 'ontological',
                                     'ncol': 5,
                                     'title': '
 
+
                 ${gene.markerSymbol}',
                                     'url': {
                                         'jssrc': '
 
+
                 ${fn:replace(cmsBaseUrl, "https:", "")}/heatmap/js/',
                                         'json': '
+
 
                 ${fn:replace(cmsBaseUrl, "https:", "")}/heatmap/rest/',
                                         'viz': dcc.heatmapUrlGenerator
@@ -271,7 +277,8 @@
         <div class="container data-heading">
             <div class="row row-shadow">
                 <div class="col-12 no-gutters">
-                    <h2>Gene: ${gene.markerSymbol} <i class="fal fa-bell" style="float: right"></i></h2>
+                    <h2>Gene: ${gene.markerSymbol} <a href="${cmsBaseUrl}/help/gene-page/" target="_blank"><i
+                            class="fa fa-question-circle" style="float: right; color: #212529;"></i></a></h2>
                 </div>
             </div>
         </div>
@@ -313,106 +320,126 @@
         </div>
 
         <div class="container single single--no-side">
+
             <div class="row">
                 <div class="col-12 white-bg">
-                    <div class="page-content pt-5 pb-5">
-                        <c:if test="${empty impcAdultExpressionImageFacetsWholemount
+                    <div class="page-content pt-3 pb-5">
+                        <div class="container p-0 p-md-2">
+                            <div class="row justify-content-end pb-1">
+                                <div class="float-right"><a href="${cmsBaseUrl}/help/gene-page/lacz-expression/"
+                                                            target="_blank"><i class="fa fa-question-circle"
+                                                                               style="font-size: xx-large"></i></a>
+                                </div>
+                            </div>
+
+
+                            <c:if test="${empty impcAdultExpressionImageFacetsWholemount
                                                   and empty impcAdultExpressionImageFacetsSection
                                                   and empty expressionAnatomyToRow
                                                   and empty impcEmbryoExpressionImageFacets
-                                                  and empty embryoExpressionAnatomyToRow
-                                                  and empty expressionFacets}">
-                            <div class="alert alert-warning mt-3">Expression data not available</div>
-                        </c:if>
+                                                  and empty embryoExpressionAnatomyToRow}">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="alert alert-warning mt-3">Expression data not available</div>
+                                    </div>
+                                </div>
+                            </c:if>
 
-                        <c:if test="${not empty impcAdultExpressionImageFacetsWholemount
+                            <c:if test="${not empty impcAdultExpressionImageFacetsWholemount
                                                   or not empty impcAdultExpressionImageFacetsSection
                                                   or not empty expressionAnatomyToRow
                                                   or not empty impcEmbryoExpressionImageFacets
                                                   or not empty embryoExpressionAnatomyToRow}">
-
-                            <h4>IMPC lacZ Expression Data</h4>
-                            <!-- section for expression data here -->
-                            <ul class="nav nav-tabs" id="expressionTab" role="tablist">
-                                <li class="nav-item">
-                                    <a class="nav-link active" id="adult-tab" data-toggle="tab" href="#adult"
-                                       role="tab" aria-controls="adult-tab" aria-selected="false">Adult Expression
-                                        (${expressionAnatomyToRow.size()})</a>
-                                </li>
-                                <!--li class="nav-item">
-                                    <a class="nav-link" id="adult-image-tab" data-toggle="tab" href="#adult-image"
-                                       role="tab" aria-controls="adult-image-tab" aria-selected="false">Adult Expression
-                                        Image</a>
-                                </li-->
-                                <li class="nav-item">
-                                    <a class="nav-link" id="_embryo-tab" data-toggle="tab" href="#_embryo"
-                                       role="tab" aria-controls="_embryo-tab" aria-selected="true">Embryo
-                                        Expression (${embryoExpressionAnatomyToRow.size()})</a>
-                                </li>
-                                <!--li class="nav-item">
-                                    <a class="nav-link" id="embryo-image-tab" data-toggle="tab" href="#embryo-image"
-                                       role="tab" aria-controls="embryo-image-tab" aria-selected="false">Embryo
-                                        Expression Images</a>
-                                </li-->
-                            </ul>
-                            <div class="tab-content" id="expressionTabContent">
-                                <div class="tab-pane fade show active" id="adult" role="tabpanel"
-                                     aria-labelledby="adult-tab">
-                                    <c:choose>
-                                        <c:when test="${not empty expressionAnatomyToRow }">
-                                            <div>
-                                                <!-- Expression in Anatomogram -->
-                                                <jsp:include page="genesAnatomogram_frag.jsp"></jsp:include>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h4>IMPC lacZ Expression Data</h4>
+                                        <!-- section for expression data here -->
+                                        <ul class="nav nav-tabs" id="expressionTab" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link active" id="adult-tab" data-toggle="tab"
+                                                   href="#adult"
+                                                   role="tab" aria-controls="adult-tab" aria-selected="false">Adult
+                                                    Expression
+                                                    (${expressionAnatomyToRow.size()})</a>
+                                            </li>
+                                            <!--li class="nav-item">
+                                                <a class="nav-link" id="adult-image-tab" data-toggle="tab" href="#adult-image"
+                                                   role="tab" aria-controls="adult-image-tab" aria-selected="false">Adult Expression
+                                                    Image</a>
+                                            </li-->
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="_embryo-tab" data-toggle="tab" href="#_embryo"
+                                                   role="tab" aria-controls="_embryo-tab" aria-selected="true">Embryo
+                                                    Expression (${embryoExpressionAnatomyToRow.size()})</a>
+                                            </li>
+                                            <!--li class="nav-item">
+                                                <a class="nav-link" id="embryo-image-tab" data-toggle="tab" href="#embryo-image"
+                                                   role="tab" aria-controls="embryo-image-tab" aria-selected="false">Embryo
+                                                    Expression Images</a>
+                                            </li-->
+                                        </ul>
+                                        <div class="tab-content" id="expressionTabContent">
+                                            <div class="tab-pane fade show active" id="adult" role="tabpanel"
+                                                 aria-labelledby="adult-tab">
+                                                <c:choose>
+                                                    <c:when test="${not empty expressionAnatomyToRow }">
+                                                        <div>
+                                                            <!-- Expression in Anatomogram -->
+                                                            <jsp:include page="genesAnatomogram_frag.jsp"></jsp:include>
+                                                        </div>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <div class="alert alert-warning mt-3">
+                                                            <!-- Expression in Anatomogram -->
+                                                            No Adult expression data was found for this gene.
+                                                        </div>
+                                                    </c:otherwise>
+                                                </c:choose>
                                             </div>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <div class="alert alert-warning mt-3">
-                                                <!-- Expression in Anatomogram -->
-                                                No Adult expression data was found for this gene.
+                                                <%--div class="tab-pane fade" id="adult-image" role="tabpanel"
+                                                     aria-labelledby="adult-image-tab">
+                                                    <c:choose>
+                                                        <c:when test="${not empty wholemountExpressionImagesBean.filteredTopLevelAnatomyTerms && not empty sectionExpressionImagesBean.filteredTopLevelAnatomyTerms}">
+                                                            <jsp:include page="genesAdultLacZExpImg_frag.jsp"></jsp:include>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <h5>
+                                                                No expression image was found for this adult tab
+                                                            </h5>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </div--%>
+                                            <div class="tab-pane fade" id="_embryo" role="tabpanel"
+                                                 aria-labelledby="_embryo-tab">
+                                                <c:choose>
+                                                    <c:when test="${not empty embryoExpressionAnatomyToRow}">
+                                                        <jsp:include page="genesEmbExpData_frag.jsp"></jsp:include>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <div class="alert alert-warning mt-3">
+                                                            No Embryo expression data was found for this gene.
+                                                        </div>
+                                                    </c:otherwise>
+                                                </c:choose>
                                             </div>
-                                        </c:otherwise>
-                                    </c:choose>
+                                                <%--div class="tab-pane fade" id="embryo-image" role="tabpanel"
+                                                     aria-labelledby="embryo-image-tab">
+                                                    <c:choose>
+                                                        <c:when test="${not empty wholemountExpressionImagesEmbryoBean.expFacetToDocs || not empty sectionExpressionEmbryoImagesBean.expFacetToDocs}">
+                                                            <jsp:include page="genesEmbExpImg_frag.jsp"></jsp:include>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <h5>
+                                                                No expression image was found for this embryo tab
+                                                            </h5>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </div--%>
+                                        </div>
+                                    </div>
                                 </div>
-                                    <%--div class="tab-pane fade" id="adult-image" role="tabpanel"
-                                         aria-labelledby="adult-image-tab">
-                                        <c:choose>
-                                            <c:when test="${not empty wholemountExpressionImagesBean.filteredTopLevelAnatomyTerms && not empty sectionExpressionImagesBean.filteredTopLevelAnatomyTerms}">
-                                                <jsp:include page="genesAdultLacZExpImg_frag.jsp"></jsp:include>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <h5>
-                                                    No expression image was found for this adult tab
-                                                </h5>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </div--%>
-                                <div class="tab-pane fade" id="_embryo" role="tabpanel" aria-labelledby="_embryo-tab">
-                                    <c:choose>
-                                        <c:when test="${not empty embryoExpressionAnatomyToRow}">
-                                            <jsp:include page="genesEmbExpData_frag.jsp"></jsp:include>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <div class="alert alert-warning mt-3">
-                                                No Embryo expression data was found for this gene.
-                                            </div>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </div>
-                                    <%--div class="tab-pane fade" id="embryo-image" role="tabpanel"
-                                         aria-labelledby="embryo-image-tab">
-                                        <c:choose>
-                                            <c:when test="${not empty wholemountExpressionImagesEmbryoBean.expFacetToDocs || not empty sectionExpressionEmbryoImagesBean.expFacetToDocs}">
-                                                <jsp:include page="genesEmbExpImg_frag.jsp"></jsp:include>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <h5>
-                                                    No expression image was found for this embryo tab
-                                                </h5>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </div--%>
-                            </div>
-                        </c:if>
+                            </c:if>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -429,27 +456,38 @@
         <div class="container single single--no-side">
             <div class="row">
                 <div class="col-12 white-bg">
-                    <div class="page-content pt-5 pb-5">
-                        <div>
-                            <c:if test="${empty impcImageGroups and empty solrFacets}">
-                                <div class="alert alert-warningmt-3">Phenotype associated images not available</div>
-                            </c:if>
+                    <div class="page-content pt-3 pb-5">
+                        <div class="container p-0 p-md-2">
+                            <div class="row justify-content-end pb-1">
+                                <div class="float-right"><a href="${cmsBaseUrl}/help/gene-page/images/" target="_blank"><i
+                                        class="fa fa-question-circle" style="font-size: xx-large"></i></a></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <c:if test="${empty impcImageGroups and empty solrFacets}">
+                                        <div class="alert alert-warning mt-3">Phenotype associated images not
+                                            available
+                                        </div>
+                                    </c:if>
 
-                            <c:if test="${not empty impcImageGroups or not empty solrFacets}">
-                                <c:if test="${not empty impcImageGroups}">
-                                    <jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>
-                                </c:if>
-
-                                <c:if test="${not empty impcImageFacets and not empty solrFacets}">
-                                    <hr>
-                                </c:if>
-
-                                <c:if test="${not empty solrFacets}">
-                                    <h5>Legacy Phenotype Associated Images</h5>
-                                    <jsp:include page="genesLegacyPhenoAssocImg_frag.jsp"></jsp:include>
-                                </c:if>
-
-                            </c:if>
+                                    <c:if test="${not empty impcImageGroups or not empty solrFacets}">
+                                        <c:if test="${not empty impcImageGroups}">
+                                            <jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>
+                                        </c:if>
+                                    </c:if>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <c:if test="${not empty impcImageFacets and not empty solrFacets}">
+                                        <hr>
+                                    </c:if>
+                                    <c:if test="${not empty solrFacets}">
+                                        <h5>Legacy Phenotype Associated Images</h5>
+                                        <jsp:include page="genesLegacyPhenoAssocImg_frag.jsp"></jsp:include>
+                                    </c:if>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -469,54 +507,140 @@
         <div class="container single single--no-side">
             <div class="row">
                 <div class="col-12 white-bg">
-                    <div class="page-content pb-5">
-                        <ul class="nav nav-tabs" id="diseasesTab" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link active" id="byAnnotation-tab" data-toggle="tab" href="#byAnnotation"
-                                   role="tab" aria-controls="byAnnotation-tab" aria-selected="false">By Annotation and
-                                    Orthology (<span id="diseases_by_annotation_count">0</span>)</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="byPhenotype-tab" data-toggle="tab" href="#byPhenotype"
-                                   role="tab" aria-controls="byPhenotype-tab" aria-selected="false">By phenotypic
-                                    Similarity (<span id="diseases_by_phenotype_count">0</span>)</a>
-                            </li>
-                        </ul>
-                        <div class="tab-content mt-2" id="diseasesTabContent">
-                            <div class="tab-pane fade show active" id="byAnnotation" role="tabpanel"
-                                 aria-labelledby="byAnnotation-tab">
-                                <c:choose>
-                                    <c:when test="${!hasModelsByOrthology}">
-                                        <div class="alert alert-warning mt-3">
-                                            No associations by disease annotation and gene orthology found.
-                                        </div>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <table id="diseases_by_annotation"
-                                               class="table tablesorter disease" style="width:100%"></table>
-                                    </c:otherwise>
-                                </c:choose>
+                    <div class="page-content pt-3 pb-5">
+                        <div class="container p-0 p-md-2">
+                            <div class="row justify-content-end">
+                                <div class="float-right"><a href="${cmsBaseUrl}/help/gene-page/disease-models/"
+                                                            target="_blank"><i class="fa fa-question-circle"
+                                                                               style="font-size: xx-large"></i></a>
+                                </div>
                             </div>
-                            <div class="tab-pane fade" id="byPhenotype" role="tabpanel"
-                                 aria-labelledby="byPhenotype-tab">
-                                <c:choose>
-                                    <c:when test="${empty modelAssociations}">
-                                        <div class="alert alert-warning mt-3">
-                                            No associations by phenotypic similarity found.
+                            <div class="row d-lg-flex d-none">
+                                <div class="col-12">
+                                    <ul class="nav nav-tabs" id="diseasesTab" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" id="byAnnotation-tab" data-toggle="tab"
+                                               href="#byAnnotation"
+                                               role="tab" aria-controls="byAnnotation-tab" aria-selected="false">By
+                                                Annotation and
+                                                Orthology (<span id="diseases_by_annotation_count">0</span>)</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" id="byPhenotype-tab" data-toggle="tab"
+                                               href="#byPhenotype"
+                                               role="tab" aria-controls="byPhenotype-tab" aria-selected="false">By
+                                                phenotypic
+                                                Similarity (<span id="diseases_by_phenotype_count">0</span>)</a>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content mt-2" id="diseasesTabContent">
+                                        <div class="tab-pane fade show active" id="byAnnotation" role="tabpanel"
+                                             aria-labelledby="byAnnotation-tab">
+                                            <c:choose>
+                                                <c:when test="${!hasModelsByOrthology}">
+                                                    <div class="alert alert-warning mt-3">
+                                                        No associations by disease annotation and gene orthology found.
+                                                    </div>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <table id="diseases_by_annotation"
+                                                           class="table tablesorter disease" style="width:100%"></table>
+                                                </c:otherwise>
+                                            </c:choose>
                                         </div>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <table id="diseases_by_phenotype" class="table tablesorter disease"
-                                               style="width:100%"></table>
-                                    </c:otherwise>
-                                </c:choose>
+                                        <div class="tab-pane fade" id="byPhenotype" role="tabpanel"
+                                             aria-labelledby="byPhenotype-tab">
+                                            <c:choose>
+                                                <c:when test="${empty modelAssociations}">
+                                                    <div class="alert alert-warning mt-3">
+                                                        No associations by phenotypic similarity found.
+                                                    </div>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <table id="diseases_by_phenotype"
+                                                           class="table tablesorter disease hidden-xs"
+                                                           style="width:100%"></table>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row d-lg-none d-flex">
+                                <span class="alert alert-secondary">Please visit the desktop version to see this section</span>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
         </div>
 
+
+        <c:if test="${rowsForHistopathTable.size() > 0}">
+            <div class="container" id="histopath">
+                <div class="row">
+                    <div class="col-12 no-gutters">
+                        <h3><i class="fal fa-microscope"></i>&nbsp;Histopathology</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="container single single--no-side">
+                <div class="row">
+                    <div class="col-12 white-bg">
+                        <div class="page-content pt-3 pb-5">
+                            <div class="container p-0 p-md-2">
+                                <div class="row justify-content-end">
+                                    <div><a href="${cmsBaseUrl}/help/gene-page/"><i class="fa fa-question-circle"
+                                                                                    style="font-size: xx-large"></i></a>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <table id="histopathPhenotypesTable" data-toggle="table" data-pagination="true" data-mobile-responsive="true" data-sortable="true">
+                                            <thead>
+                                            <tr>
+                                                <th data-sortable="true">Phenotype</th>
+                                                <th data-sortable="true">Allele</th>
+                                                <th title="Zygosity" data-sortable="true">Zygosity</th>
+                                                <th data-sortable="true">Sex</th>
+                                                <th data-sortable="true">Life Stage</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <c:forEach var="phenotype" items="${rowsForHistopathTable}" varStatus="status">
+                                                <c:set var="europhenome_gender" value="Both-Split"/>
+                                                <tr title="${!phenotype.getEvidenceLink().getDisplay() ? 'No supporting data supplied.' : ''}" data-toggle="tooltip" data-link="${phenotype.getEvidenceLink().url}" class="clickableRow">
+
+                                                    <td>
+                                                        ${phenotype.phenotypeTerm.name}
+                                                    </td>
+
+                                                    <td>
+                                                        <span><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></span>
+                                                    </td>
+
+                                                    <td title="${phenotype.zygosity}">${phenotype.zygosity.getShortName()}</td>
+
+                                                    <td>
+                                                        <c:set var="count" value="0" scope="page"/>
+                                                        <t:displaySexes sexes="${phenotype.sexes}"></t:displaySexes>
+                                                    </td>
+
+                                                    <td>${phenotype.lifeStageName}</td>
+
+                                                </tr>
+                                            </c:forEach>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </c:if>
 
         <div class="container" id="order">
             <div class="row">
@@ -529,8 +653,18 @@
         <div class="container single single--no-side">
             <div class="row">
                 <div class="col-12 white-bg">
-                    <div class="page-content pt-5 pb-5">
-                        <jsp:include page="orderSectionFrag.jsp"></jsp:include>
+                    <div class="page-content pt-3 pb-5">
+                        <div class="container p-0 p-md-2">
+                            <div class="row justify-content-end">
+                                <div><a href="${cmsBaseUrl}/help/gene-page/ordering-mice-or-mouse-prodcuts/"><i
+                                        class="fa fa-question-circle" style="font-size: xx-large"></i></a></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <jsp:include page="orderSectionFrag.jsp"></jsp:include>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -546,6 +680,9 @@
         </script>
         <script type="text/javascript">
             // disease tables drive by phenodigm core
+
+            var diseaseModelTotal = 0;
+
             var diseaseTableConfs = [
                 {
                     id: '#diseases_by_annotation',
@@ -555,7 +692,11 @@
                         searching: false,
                         order: [[4, 'desc'], [3, 'desc'], [2, 'desc']],
                         pagingType: "full_numbers",
-                        responsive: true
+                        initComplete: function (settings, json) {
+                            $('#diseases_by_annotation_count').text(settings.aoData.length);
+                            diseaseModelTotal += settings.aoData.length;
+                            $("#diseaseModelTotal").text(diseaseModelTotal);
+                        }
                     },
                     phenodigm2Conf: {
                         pageType: "genes",
@@ -565,7 +706,6 @@
                         filter: curatedDiseases,
                         minScore: 0,
                         innerTables: true,
-                        responsive: true
                     }
                 },
                 {
@@ -575,7 +715,12 @@
                         pageLength: 20,
                         lengthMenu: [20, 50, 100],
                         pagingType: "full_numbers",
-                        responsive: true
+                        responsive: true,
+                        initComplete: function (settings, json) {
+                            $('#diseases_by_phenotype_count').text(settings.aoData.length);
+                            diseaseModelTotal += settings.aoData.length;
+                            $("#diseaseModelTotal").text(diseaseModelTotal);
+                        }
                     },
                     phenodigm2Conf: {
                         pageType: "genes",
@@ -590,12 +735,11 @@
                 }];
 
             function renderAllele(acc, alleleName) {
-              return '<div id="' + alleleName + '"></div>'
+                return '<div id="' + alleleName + '"></div>'
             };
 
             $(document).ready(function () {
                 // create phenodigm tables
-                var diseaseModelTotal = 0;
                 for (var i = 0; i < diseaseTableConfs.length; i++) {
                     var dTable = diseaseTableConfs[i];
                     impc.phenodigm2.makeTable(modelAssociations, dTable.id, dTable.phenodigm2Conf);
@@ -607,76 +751,81 @@
                             '                                            No associations found.\n' +
                             '                                        </div>');
                     }
-
-                    $(dTable.id + '_count').text(dTable.phenodigm2Conf.count);
-                    diseaseModelTotal += dTable.phenodigm2Conf.count ? dTable.phenodigm2Conf.count : 0;
-
-
                 }
-                $("#diseaseModelTotal").text(diseaseModelTotal);
-                var orderTable = $("#creLineTable").DataTable({
-                    "bFilter": false,
-                    "bLengthChange": false,
-                    "order": [],
-                    "columnDefs": [
-                        {
-                            "orderable": false,
-                            "targets": 'no-sort',
-                            "className": 'details-control'
-                        },
-                        {
-                            "orderable": false,
-                            "targets": 'hidden',
-                            "visible": false
-                        }
-                    ]
-                });
-
-                orderTable.rows().every( function (idx) {
-                    this
-                        .child(
-                            $(
-                                '<div id="orderAllele' + idx + '">' +
-                                "     <div class=\"pre-content\">\n" +
-                                "                        <div class=\"row no-gutters\">\n" +
-                                "                            <div class=\"col-12 my-5\">\n" +
-                                "                                <p class=\"h4 text-center text-justify\"><i class=\"fas fa-atom fa-spin\"></i> A moment please while we gather the data . . . .</p>\n" +
-                                "                            </div>\n" +
-                                "                        </div>\n" +
-                                "                    </div>" +
-                                '</div>'
-                            )
-                        );
-                } );
-
-                $('#creLineTable tbody').on('click', 'td.details-control', function () {
-                    var tr  = $(this).closest('tr'),
-                        row = orderTable.row(tr);
-
-                    if (row.child.isShown()) {
-                        tr.find('a').html('Show ordering information&nbsp;<i class="fa fa-caret-down"></i>');
-                        tr.next('tr').removeClass('details-row');
-                        row.child.hide();
-                        tr.removeClass('shown');
-                    }
-                    else {
-                        tr.find('a').html('Hide ordering information&nbsp;<i class="fa fa-caret-up"></i>');
-                        if(row.data()[1] === 'false') {
-                            $.ajax({
-                                url: row.data()[0],
-                                type: 'GET',
-                                success: function (data) {
-                                    console.log('#orderAllele' + row.index());
-                                    $('#orderAllele' + row.index()).html(data);
-                                    row.data()[1] = 'true';
-                                }
-                            });
-                        }
-                        row.child.show();
-                        tr.next('tr').addClass('details-row');
-                        tr.addClass('shown');
+                $('#significantPhenotypesTable').on('click-row.bs.table', function (e, row) {
+                    if (row._data['link']) {
+                        window.location = row._data['link'];
                     }
                 });
+                $('#histopathPhenotypesTable').on('click-row.bs.table', function (e, row) {
+                    if (row._data['link']) {
+                        window.location = row._data['link'];
+                    }
+                });
+                /*                var orderTable = $("#creLineTable").DataTable({
+                                    "bFilter": false,
+                                    "order": [],
+                                    "bLengthChange": false,
+                                    "columnDefs": [
+                                        {
+                                            "orderable": false,
+                                            "targets": 'no-sort',
+                                            "className": 'ordering-info'
+                                        },
+                                        {
+                                            "orderable": false,
+                                            "targets": 'hidden',
+                                            "visible": false
+                                        }
+                                    ]
+                                });
+
+                                orderTable.rows().every( function (idx) {
+                                    this
+                                        .child(
+                                            $(
+                                                "<div class='container'>" +
+                                                '<div id="orderAllele' + idx + '" class="col-12">' +
+                                                "     <div class=\"pre-content\">\n" +
+                                                "                        <div class=\"row no-gutters\">\n" +
+                                                "                            <div class=\"col-12 my-5\">\n" +
+                                                "                                <p class=\"h4 text-center text-justify\"><i class=\"fas fa-atom fa-spin\"></i> A moment please while we gather the data . . . .</p>\n" +
+                                                "                            </div>\n" +
+                                                "                        </div>\n" +
+                                                "                    </div>" +
+                                                '</div>' +
+                                                '</div>'
+                                            )
+                                        );
+                                } );
+
+                                $('#creLineTable tbody').on('click', 'td.ordering-info', function () {
+                                    var tr  = $(this).closest('tr'),
+                                        row = orderTable.row(tr);
+
+                                    if (row.child.isShown()) {
+                                        tr.find('a').html('Show ordering information&nbsp;<i class="fa fa-caret-down"></i>');
+                                        tr.next('tr').removeClass('ordering-info');
+                                        row.child.hide();
+                                        tr.removeClass('shown');
+                                    }
+                                    else {
+                                        tr.find('a').html('Hide ordering information&nbsp;<i class="fa fa-caret-up"></i>');
+                                        if(row.data()[1] === 'false') {
+                                            $.ajax({
+                                                url: row.data()[0],
+                                                type: 'GET',
+                                                success: function (data) {
+                                                    $('#orderAllele' + row.index()).html(data);
+                                                    row.data()[1] = 'true';
+                                                }
+                                            });
+                                        }
+                                        row.child.show();
+                                        tr.next('tr').addClass('ordering-info');
+                                        tr.addClass('shown');
+                                    }
+                                });*/
             });
         </script>
 

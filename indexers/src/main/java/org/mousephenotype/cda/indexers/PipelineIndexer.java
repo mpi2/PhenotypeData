@@ -44,6 +44,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @EnableAutoConfiguration
@@ -112,10 +113,12 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 
 	@Override
 	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
-        documentCount = 0;
-        Set<String> noTermSet = new HashSet<>();
-        RunStatus runStatus = new RunStatus();
-		long start = System.currentTimeMillis();
+
+		Set<MissingMpId> missingMpIds = new HashSet<>();
+		RunStatus        runStatus    = new RunStatus();
+		long             start        = System.currentTimeMillis();
+
+		documentCount = 0;
 
 		try {
 
@@ -187,7 +190,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 								doc.addMpId(mpId);
 								OntologyTermDTO mp = mpParser.getOntologyTerm(mpId);
 								if (mp == null) {
-									noTermSet.add(pipeline.getName() + ":" + procedure.getName() + ":" + mpId);
+									missingMpIds.add(new MissingMpId(pipeline.getStableId(), procedure.getStableId(), param.getStableId(), mpId));
 									continue;
 								}
 
@@ -209,7 +212,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 								try {
 									doc.addAbnormalMpTerm(mpParser.getOntologyTerm(mpId).getName());
 								} catch (NullPointerException e) {
-									logger.warn(" Cannot get information (abnormal) from mpIdToMp map for id {}", mpId);
+									missingMpIds.add(new MissingMpId(pipeline.getStableId(), procedure.getStableId(), param.getStableId(), mpId));
 								}
 							}
 						}
@@ -219,7 +222,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 								try {
 									doc.addIncreasedMpTerm(mpParser.getOntologyTerm(mpId).getName());
 								} catch (NullPointerException e) {
-									logger.warn(" Cannot get information (increased) from mpIdToMp map for id {}", mpId);
+									missingMpIds.add(new MissingMpId(pipeline.getStableId(), procedure.getStableId(), param.getStableId(), mpId));
 								}
 							}
 						}
@@ -230,10 +233,10 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 									try {
 										doc.addDecreasedMpTerm(mpParser.getOntologyTerm(mpId).getName());
 									} catch (NullPointerException e) {
-										logger.warn(" Cannot get information (decreased) from mpIdToMp map for id {}", mpId);
+										missingMpIds.add(new MissingMpId(pipeline.getStableId(), procedure.getStableId(), param.getStableId(), mpId));
 									}
 								} else {
-									logger.warn(" Cannot find MP term (decreased) for MP ID {}", mpId);
+									missingMpIds.add(new MissingMpId(pipeline.getStableId(), procedure.getStableId(), param.getStableId(), mpId));
 								}
 							}
 						}
@@ -267,10 +270,21 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 				}
 			}
 
-			List<String> noTermList = new ArrayList<>(noTermSet);
-			Collections.sort(noTermList);
-			for (String mpId : noTermList) {
-                runStatus.addWarning( "No mp term for " + mpId);
+			// Log the missing mp terms
+			if ( ! missingMpIds.isEmpty()) {
+				System.out.println("Missing mp terms: (mpTermId::pipelineStableId::procedureStableId::parameterStableId)");
+				missingMpIds
+						.stream()
+						.sorted(Comparator
+								.comparing((MissingMpId missingMpId) -> missingMpId.mpId)
+								.thenComparing(missingMpId -> missingMpId.pipelineId)
+								.thenComparing(missingMpId -> missingMpId.procedureId)
+								.thenComparing(missingMpId -> missingMpId.parameterId))
+						.map(missingMpID -> {
+							System.out.println(missingMpID.toString());
+							return missingMpID;
+						})
+						.collect(Collectors.toSet());
 			}
 
 			pipelineCore.commit();
@@ -280,8 +294,8 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 			throw new IndexerException(e);
 		}
 
-		if (runStatus.hasWarnings()) {
-            runStatus.addWarning("No mp term COUNT: " + noTermSet.size());
+		if ( ! missingMpIds.isEmpty()) {
+            runStatus.addWarning("Missing mp term COUNT: " + missingMpIds.size());
         }
 
         logger.info(" Added {} total beans in {}", documentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
@@ -527,7 +541,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 
 		Map<String, ProcedureDTO> procedureIdToProcedureMap = new HashMap<>();
         String q = "SELECT id as pproc_id, stable_id, name, stable_key, " +
-                "is_mandatory, stage, stage_label, description, " +
+                "is_mandatory, level, stage, stage_label, schedule_key, description, " +
                 "concat(name, '___', stable_id) as proc_name_id " +
                 "FROM phenotype_procedure " ;
 
@@ -544,8 +558,10 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 				proc.setProcNameId(resultSet.getString("proc_name_id"));
 				proc.setRequired(resultSet.getBoolean("is_mandatory"));
 				proc.setDescription(resultSet.getString("description"));
+				proc.setLevel(resultSet.getString("level"));
 				proc.setStage(resultSet.getString("stage"));
 				proc.setStageLabel(resultSet.getString("stage_label"));
+				proc.setScheduleKey(resultSet.getInt("schedule_key"));
 				for (String parameterId : procIdToParams.get(proc.getStableId())){
 					proc.addParameter(paramIdToParameter.get(parameterId));
 				}
@@ -774,5 +790,41 @@ protected void addAbnormalEmapOntology(){
 		}
 
 		return map;
+	}
+
+	public class MissingMpId {
+		public final String pipelineId;
+		public final String procedureId;
+		public final String parameterId;
+		public final String mpId;
+
+		public MissingMpId(String pipelineId, String procedureId, String parameterId, String mpId) {
+			this.pipelineId = pipelineId;
+			this.procedureId = procedureId;
+			this.parameterId = parameterId;
+			this.mpId = mpId;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			MissingMpId that = (MissingMpId) o;
+			return Objects.equals(pipelineId, that.pipelineId) &&
+					Objects.equals(procedureId, that.procedureId) &&
+					Objects.equals(parameterId, that.parameterId) &&
+					Objects.equals(mpId, that.mpId);
+		}
+
+		@Override
+		public int hashCode() {
+
+			return Objects.hash(pipelineId, procedureId, parameterId, mpId);
+		}
+
+		@Override
+		public String toString() {
+			return mpId + "::" + pipelineId + "::" + procedureId + "::" + parameterId;
+		}
 	}
 }

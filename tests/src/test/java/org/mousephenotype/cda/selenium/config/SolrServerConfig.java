@@ -151,7 +151,7 @@ public class SolrServerConfig {
 
 	@Bean(name = "phenotypeCenterService")
 	PhenotypeCenterService phenotypeCenterService() {
-		return new PhenotypeCenterService(solrBaseUrl + "/experiment", impressService());
+		return new PhenotypeCenterService(getExperimentCore());
 	}
 
 }

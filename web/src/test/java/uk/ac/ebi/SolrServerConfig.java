@@ -3,7 +3,6 @@ package uk.ac.ebi;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.mousephenotype.cda.solr.service.ImpressService;
-import org.mousephenotype.cda.solr.service.PhenotypeCenterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -169,22 +168,4 @@ public class SolrServerConfig {
 	HttpSolrClient getPreqcCore() {
 		return new HttpSolrClient(solrBaseUrl + "/preqc");
 	}
-
-
-//	@Bean(name = "preqcCore") //DELETEME
-//	HttpSolrClient getPreqcCore() {
-//		return new HttpSolrClient(solrBaseUrl + "/genotype-phenotype");
-//	}
-
-	//StatisticalResult
-	@Bean(name = "statisticalResultCore")
-	HttpSolrClient getStatisticalResultCore() {
-		return new HttpSolrClient(solrBaseUrl + "/statistical-result");
-	}
-
-	@Bean(name = "phenotypeCenterService")
-	PhenotypeCenterService phenotypeCenterService() {
-		return new PhenotypeCenterService(solrBaseUrl + "/experiment", impressService);
-	}
-
 }

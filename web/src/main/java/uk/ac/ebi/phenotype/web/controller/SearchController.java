@@ -78,10 +78,11 @@ public class SearchController {
         Integer pageNumber = Integer.parseInt(page);
         Integer rowsPerPage = Integer.parseInt(rows);
         Integer start = (pageNumber-1) * rowsPerPage;
+
         
         	term=removeSpecialCharacters(term);
         	type=removeSpecialCharacters(type);
-        
+
 
         if (type.equalsIgnoreCase("gene")) {
             model = searchGenes(term, start, rowsPerPage, model);
@@ -92,10 +93,6 @@ public class SearchController {
         Long numberOfResults = Long.parseLong((String)model.asMap().get("numberOfResults"));
         Long numPages = (long) Math.ceil((double) numberOfResults / rowsPerPage);
 
-//        if(term.contentEquals("*")) {
-//        	term="";//change back to empty string
-//        	//note need to set this to get around javascript hacking when using direct ${param.term} in jsp
-//        }
         model.addAttribute("term", term);
         model.addAttribute("type", type);
         model.addAttribute("currentPage", pageNumber);
@@ -105,6 +102,7 @@ public class SearchController {
 
         return "search";
     }
+    
     /**
      * remove coding from the search string so javascript cannot be hacked on the search interface
      * @param searchString
@@ -121,6 +119,7 @@ public class SearchController {
         System.out.println(searchString);
         return searchString;
 	}
+
 
 
     private Model searchGenes(String term, Integer start, Integer rows, Model model) throws SolrServerException, IOException {

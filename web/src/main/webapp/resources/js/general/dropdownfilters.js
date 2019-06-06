@@ -12,9 +12,15 @@ $(document).ready(function(){
 	removeFilterSelects();
 	var selectedFilters = "";
 	var dropdownsList = new Array();
+
+	$('').click(
+		function () {
+		}
+	);
+/*
     initGenePhenotypesTable();
-	/* var oDataTable = $('table#phenotypes').dataTable();
-						oDataTable.fnDestroy();  */
+	/!* var oDataTable = $('table#phenotypes').dataTable();
+						oDataTable.fnDestroy();  *!/
 	// use jquery DataTable for table searching/sorting/pagination
     function initGenePhenotypesTable(){
 		var aDataTblCols = [0,1,2,3,4,5,6,7];
@@ -33,16 +39,21 @@ $(document).ready(function(){
 					}
                 ],
 				'rowCallback': function (row, data, index) {
+					var url = data[7]['@data-sort'];
+					if (url !== "none") {
                 	$(row).on('click', function () {
-                		var url = data[7]['@data-sort'];
-                		if (url !== "none") {
+
                             window.location.href = decodeURIComponent(url);
-                        } else {
-                            row.removeClass('clickableRows');
-                            row.addClass('unClickableRows');
-                            row.addClass('text-muted');
-						}
+
                     });
+					} else {
+						$(row).removeClass('clickableRows');
+						$(row).addClass('unClickableRows');
+						$(row).addClass('text-muted');
+						$(row).prop('title', 'No data available');
+						$(row).prop('data-toggle', "tooltip");
+
+					}
                 }
             }
 		);
@@ -71,7 +82,7 @@ $(document).ready(function(){
 //	        "sPaginationType": "bootstrap"
 //		});
     }
-
+*/
 	// Sort the individual table containing p-values
 	$.fn.dataTableExt.oSort['pvalues-asc']  = function(a,b) {
 		var x = 0;

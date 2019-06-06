@@ -80,8 +80,6 @@ public class PhenotypeArchiveConfig {
 
     @Value("${live_site}")
     private String liveSite;
-
-  
     
     @NotNull
     @Value("${paBaseUrl}")

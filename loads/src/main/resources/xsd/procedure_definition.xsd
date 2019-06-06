@@ -27,7 +27,7 @@
     xmlns:pc="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/common"
     targetNamespace="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/procedure" elementFormDefault="qualified"
     xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" jaxb:version="1.0">
-    <xs:import namespace="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/common"  schemaLocation="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/common/common.xsd"/>
+    <xs:import namespace="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/common"  schemaLocation="common.xsd"/>
 
     <xs:element name="centreProcedureSet">
     <xs:complexType>

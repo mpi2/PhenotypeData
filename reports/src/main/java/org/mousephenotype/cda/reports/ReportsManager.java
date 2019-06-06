@@ -25,6 +25,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.PropertySource;
+
 import java.io.File;
 import java.util.List;
 
@@ -96,7 +97,10 @@ public class ReportsManager implements CommandLineRunner {
     private PhenotypeOverviewPerGeneReport phenotypeOverviewPerGeneReport;
 
     @Autowired
-    private ProcedureCompletenessReport procedureCompletenessReport;
+    private ProcedureCompletenessImpcReport procedureCompletenessImpcReport;
+
+    @Autowired
+    private ProcedureCompletenessAllReport procedureCompletenessAllReport;
 
     @Autowired
     private ViabilityReport viabilityReport;
@@ -131,7 +135,8 @@ public class ReportsManager implements CommandLineRunner {
         METABOLISM_DEXA("metabolismDEXA", "Metabolism DEXA"),
         METABOLISM_IPGTT("metabolismIPGTT", "Metabolism IPGTT"),
         PHENOTYPE_OVERVIEW_PER_GENE("phenotypeOverviewPerGene", "Phenotype overview per gene report"),
-        PROCEDURE_COMPLETENESS("procedureCompleteness", "Procedure completeness report"),
+        PROCEDURE_COMPLETENESS_IMPC("procedureCompletenessImpc", "Procedure completeness for IMPC data source report"),
+        PROCEDURE_COMPLETENESS_ALL("procedureCompletenessAll", "Procedure completeness for All data sources report"),
         VIABILITY("viability", "Viability report"),
         LACZMPOVERLAP("laczmpoverlap", "Lacz and MP call overlap report"),
         ZYGOSITY("zygosity", "Zygosity report"),
@@ -305,9 +310,14 @@ public class ReportsManager implements CommandLineRunner {
                         file = phenotypeOverviewPerGeneReport.targetFile;
                         break;
 
-                    case PROCEDURE_COMPLETENESS:
-                        procedureCompletenessReport.run(args);
-                        file = procedureCompletenessReport.targetFile;
+                    case PROCEDURE_COMPLETENESS_IMPC:
+                        procedureCompletenessImpcReport.run(args);
+                        file = procedureCompletenessImpcReport.targetFile;
+                        break;
+
+                    case PROCEDURE_COMPLETENESS_ALL:
+                        procedureCompletenessAllReport.run(args);
+                        file = procedureCompletenessAllReport.targetFile;
                         break;
 
                     case VIABILITY:

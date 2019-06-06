@@ -5,62 +5,114 @@
 
 <!-- PieChart here -->
 <c:if test="${viabilityDTO!=null}">
-	
-	<div id="totalChart" class="onethirdForPie ">	</div>
-	<script type="text/javascript">
-		${viabilityDTO.totalChart}
-	</script>
+
+	<div class="container">
+		<div class="row">
+
+			<div id="totalChart" class="col-4">	</div>
+			<script type="text/javascript">
+				${viabilityDTO.totalChart}
+			</script>
+
+			<div id="maleChart" class="col-4 "></div>
+			<script type="text/javascript">
+				${viabilityDTO.maleChart}
+			</script>
 
 
-  <div id="maleChart" class="onethirdForPie "></div>          		
-  <script type="text/javascript">
-		${viabilityDTO.maleChart}
-	</script>
-	
-									
-  <div id="femaleChart" class="onethirdForPie "></div>  
-  <script type="text/javascript">
-		${viabilityDTO.femaleChart}
-	</script>
-	
-	
-	<table>
-	<tr><th></th><th>WT</th><th>Hom</th><th>Het</th><th>Total</th></tr>
-	<tr>
-		<td>Male and Female</td>
-		<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_004_001'].dataPoint}"/></td>
-		<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_006_001'].dataPoint}"/></td>
-		<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_005_001'].dataPoint}"/></td>
-		<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_003_001'].dataPoint}"/></td>
-	</tr>
-	<tr>
-		<td>Male</td>
-		<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_007_001'].dataPoint}"/></td>
-		<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_009_001'].dataPoint}"/></td>
-		<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_008_001'].dataPoint}"/></td>
-		<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_010_001'].dataPoint}"/></tr>
-	<tr>
-		<td>Female</td>
-		<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_011_001'].dataPoint}"/></td>
-		<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_013_001'].dataPoint}"/></td>
-		<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_012_001'].dataPoint}"/></td>
-		<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_014_001'].dataPoint}"/></tr>
-	</table>
+			<div id="femaleChart" class="col-4 "></div>
+			<script type="text/javascript">
+				${viabilityDTO.femaleChart}
+			</script>
 
-
-
-	<div>
-		<p>
-			<a class="toggle-button btn"> <i class="fa fa-caret-right"> </i> More Statistics </a>
-		</p>
-
-		<div class="toggle-div hidden">
-			<p>
-				<a href='${srUrl}'> Statistical result raw XML </a> &nbsp;&nbsp;
-				<a href='${gpUrl}'> Genotype phenotype raw XML </a>&nbsp;&nbsp;
-				<a href='${baseUrl}${phenStatDataUrl}'> PhenStat-ready raw experiment data</a>
-			</p>
 		</div>
 	</div>
+
+
+
+	<div class="row">
+		<div class="col-md-12">
+			<div class="row">
+				<div class="col-md-4">
+
+					<c:if test="${categoricalResultAndChart.combinedPValue!=null}">
+						<h4> Results of statistical analysis  </h4>
+
+						<dl class="alert alert-success">
+							<dt>Combined Male and Female P value</dt>
+							<dd><t:formatScientific>${categoricalResultAndChart.combinedPValue}</t:formatScientific></dd>
+
+								<%-- <dt>Males only</dt>
+                                <dd>${categoricalResultAndChart.malePValue}</dd>
+
+                                <dt>Females only</dt>
+                                <dd>${categoricalResultAndChart.femalePValue}</dd> --%>
+						</dl>
+					</c:if>
+
+
+				</div>
+
+
+
+				<div class="col-md-12">
+
+					<table class="table table-striped small">
+						<thead>
+						<tr>
+							<th></th>
+							<th>WT</th>
+							<th>Hom</th>
+							<th>Het</th>
+							<th>Total</th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr>
+							<th>Male and Female</th>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_004_001'].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_006_001'].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_005_001'].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_003_001'].dataPoint}"/></td>
+						</tr>
+						<tr>
+							<th>Male</th>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_007_001'].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_009_001'].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_008_001'].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_010_001'].dataPoint}"/></td>
+						</tr>
+						<tr>
+							<th>Female</th>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_011_001'].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_013_001'].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_012_001'].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_014_001'].dataPoint}"/></td>
+						</tr>
+						</tbody>
+					</table>
+
+				</div>
+
+			</div>
+
+
+			<div class="row mt-5">
+				<div class="col-md-12">
+					<h4> Access the results programmatically </h4>
+					<hr>
+					<p>
+						<a target="_blank" class="btn btn-outline-primary btn-sm" href='${srUrl}'> Statistical result raw XML </a>
+						<a target="_blank" class="btn btn-outline-primary btn-sm" href='${gpUrl}'> Genotype phenotype raw XML </a>
+						<a target="_blank" class="btn btn-outline-primary btn-sm" href='${baseUrl}${phenStatDataUrl}'> PhenStat-ready raw experiment data</a>
+					</p>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+
+
 
 </c:if>

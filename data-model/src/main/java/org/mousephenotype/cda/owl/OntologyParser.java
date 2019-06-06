@@ -330,10 +330,38 @@ public class OntologyParser {
 
         TERM_REPLACED_BY = factory.getOWLAnnotationProperty(IRI.create("http://purl.obolibrary.org/obo/IAO_0100001"));
 
-        ontology = manager.loadOntologyFromOntologyDocument(IRI.create(new File(pathToOwlFile)));
+        ontology = setUpOntology(manager, pathToOwlFile);
 
         ancestorsCache = new HashMap<>();
+    }
 
+    private OWLOntology setUpOntology(OWLOntologyManager manager, String pathToOwlFile) throws OWLOntologyStorageException{
+
+        final int MAX_RETRIES = 20;
+        final int MAX_SLEEP_IN_SECONDS = 10;
+
+        for (int i = 0; i <= MAX_RETRIES; i++) {
+
+            try {
+                return manager.loadOntologyFromOntologyDocument(IRI.create(new File(pathToOwlFile)));
+
+            } catch (Exception e) {
+
+                if (i < MAX_RETRIES) {
+                    // Pause a random number of milliseconds.
+                    Random random       = new Random();
+                    long   milliseconds = new Double(random.nextInt(MAX_SLEEP_IN_SECONDS * 1000)).longValue();
+                    logger.info("OntologyParser: PATH TO OWLFILE: {}. Retry attempt #{}. Sleeping for {} milliseconds.", pathToOwlFile, i, milliseconds);
+
+                    try {
+                        Thread.sleep(milliseconds);
+                    } catch (Exception ee) {
+                    }
+                }
+            }
+        }
+
+        throw new OWLOntologyStorageException("Maximum Retries exceeded. Unable to load ontology file " + pathToOwlFile);
     }
 
     /**

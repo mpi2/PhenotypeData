@@ -405,8 +405,8 @@
                and old cache.
       -->
     <filterCache class="solr.FastLRUCache"
-                 size="512"
-                 initialSize="512"
+                 size="1024"
+                 initialSize="0"
                  autowarmCount="0"/>
 
     <!-- Query Result Cache
@@ -418,8 +418,8 @@
                        to occupy
       -->
     <queryResultCache class="solr.LRUCache"
-                      size="512"
-                      initialSize="512"
+                      size="32"
+                      initialSize="0"
                       autowarmCount="0"/>
 
     <!-- Document Cache
@@ -429,19 +429,21 @@
          this cache will not be autowarmed.
       -->
     <documentCache class="solr.LRUCache"
-                   size="512"
-                   initialSize="512"
+                   size="32"
+                   initialSize="0"
                    autowarmCount="0"/>
     
     <!-- custom cache currently used by block join --> 
     <!-- *** Phenodigm2 *** 
     	This block was not present in Phenodigm1 -->
+    <!--
     <cache name="perSegFilter"
       class="solr.search.LRUCache"
       size="10"
       initialSize="0"
       autowarmCount="10"
       regenerator="solr.NoOpRegenerator" />
+    -->
 
     <!-- Field Value Cache
 
@@ -451,7 +453,7 @@
       -->
     <!--
        <fieldValueCache class="solr.FastLRUCache"
-                        size="512"
+                        size="64"
                         autowarmCount="128"
                         showItems="32" />
       -->

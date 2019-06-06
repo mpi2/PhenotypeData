@@ -38,10 +38,10 @@
     <div class="header__nav">
         <div class="container">
             <div class="row">
-                <div class="col-md-3">
-                    <a href="/" class="header__logo-link active"><img class="header__logo" src="${cmsBaseUrl}/wp-content/themes/impc/images/impc-logo-tag@2x.png"/></a>
+                <div class="col-3">
+                    <a href="/" class="header__logo-link active"><img class="header__logo" src="${baseUrl}/img/impc-logo-tag@2x.png"/></a>
                 </div>
-                <div class="col-md-9 text-right">
+                <div class="col-9 text-right">
                     <span class="d-none d-lg-block">
                         <div class="menu-main-nav-container">
                             <ul id="menu-main-nav" class="menu">
@@ -66,7 +66,7 @@
                             <div class="row search-pop no-gutters">
                                 <div class="search-pop__input col col-9 text-left">
                                     <p><br/></p>
-                                    <input id="searchField" type="search" class="form-control" id="s" name="s" placeholder="Search documentation and news...">
+                                    <input id="searchField" type="search" class="form-control" id="s" name="s" placeholder="Search documentation and news">
                                 </div>
                                 <div class="col col-3 text-right search-submit">
                                     <button type="submit">Search <i class="fal fa-search"></i></button>
@@ -94,7 +94,7 @@
                 <div class="row">
                     <div class="col col-10 text-left">
                         <input type="search" class="form-control" id="s" name="s"
-                               placeholder="Search documentation and news...">
+                               placeholder="Search documentation and news">
                     </div>
                     <div class="col col-2 text-right">
                         <button type="submit"><i class="fas fa-search"></i></button>
@@ -107,8 +107,6 @@
 
                 <c:forEach begin="0" end="${menu.size()-1}" var="i">
                     <h3 class="mt-2"><a class="${menu.get(i).mobileCssId}" href="${menu.get(i).url}">${menu.get(i).name}</a></h3>
-
-
                     <div class="mobile-nav__sub-pages">
                         <c:if test="${menu.get(i).children.size() > 0}">
                             <c:forEach begin="0" end="${menu.get(i).children.size()-1}" var="j">
@@ -139,30 +137,33 @@
 
     <c:forEach begin="0" end="${menu.size()-1}" var="i">
     <div class="${menu.get(i).menuId} sub-menu collapse" id="${menu.get(i).menuId}">
-        <div class="${menu.get(i).menuId}__inside">
-            <div class="container">
-                <div class="row no-gutters justify-content-end">
-                    <div class="col col-auto text-left">
-                        <a href="${menu.get(i).url}"><c:if test="${menu.get(i).name.toLowerCase().contains('data')}">Understanding the </c:if>${menu.get(i).name}</a>
-                    </div>
-                    <c:if test="${menu.get(i).children.size() > 0}">
-                        <c:forEach begin="0" end="${menu.get(i).children.size()-1}" var="j">
-                            <div class="col col-auto text-left">
-                                <a href="${menu.get(i).children.get(j).url}">${menu.get(i).children.get(j).name}</a>
-                                <div class="sub-pages">
-                                    <c:if test="${menu.get(i).children.get(j).children.size() > 0}">
-                                        <c:forEach begin="0" end="${menu.get(i).children.get(j).children.size()-1}" var="k">
-                                            <p><a href="${menu.get(i).children.get(j).children.get(k).url}">${menu.get(i).children.get(j).children.get(k).name}</a></p>
-                                        </c:forEach>
-                                    </c:if>
+        <c:if test="${menu.get(i).children.size() > 0}">
+            <div class="${menu.get(i).menuId}__inside">
+                    <div class="container">
+                        <div class="row no-gutters justify-content-end">
+
+                            <c:if test="${menu.get(i).name.toLowerCase().contains('about')}">
+                                <div class="col col-auto text-left">
+                                    <a href="${menu.get(i).url}">${menu.get(i).name}</a>
                                 </div>
-                            </div>
-                        </c:forEach>
-                    </c:if>
-                </div>
+                            </c:if>
+                            <c:forEach begin="0" end="${menu.get(i).children.size()-1}" var="j">
+                                <div class="col col-auto text-left">
+                                    <a href="${menu.get(i).children.get(j).url}">${menu.get(i).children.get(j).name}</a>
+                                    <div class="sub-pages">
+                                        <c:if test="${menu.get(i).children.get(j).children.size() > 0}">
+                                            <c:forEach begin="0" end="${menu.get(i).children.get(j).children.size()-1}" var="k">
+                                                <p><a href="${menu.get(i).children.get(j).children.get(k).url}">${menu.get(i).children.get(j).children.get(k).name}</a></p>
+                                            </c:forEach>
+                                        </c:if>
+                                    </div>
+                                </div>
+                            </c:forEach>
+                        </div>
+                    </div>
             </div>
-        </div>
-        <div class="${menu.get(i).menuId}__drop"></div>
+            <div class="${menu.get(i).menuId}__drop"></div>
+        </c:if>
     </div>
     </c:forEach>
 </div>

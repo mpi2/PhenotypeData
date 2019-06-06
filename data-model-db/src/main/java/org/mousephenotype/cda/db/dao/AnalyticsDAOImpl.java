@@ -259,10 +259,10 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 			ResultSet resultSet;
 
 			if (excludeRelease != null) {
-				statement = connection.prepareStatement("SELECT DISTINCT data_release_version FROM meta_history WHERE data_release_version <> ? ORDER BY data_release_version ASC");
+				statement = connection.prepareStatement("SELECT DISTINCT data_release_version FROM meta_history WHERE data_release_version <> ? ORDER BY CAST(data_release_version as unsigned) ASC");
 				statement.setString(1, excludeRelease);
 			} else {
-				statement = connection.prepareStatement("SELECT DISTINCT data_release_version FROM meta_history ORDER BY data_release_version ASC");
+				statement = connection.prepareStatement("SELECT DISTINCT data_release_version FROM meta_history ORDER BY CAST(data_release_version as unsigned) ASC");
 			}
 			resultSet = statement.executeQuery();
 

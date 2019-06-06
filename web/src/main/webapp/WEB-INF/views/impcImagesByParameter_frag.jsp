@@ -13,7 +13,7 @@
 
         <c:forEach var="group" items="${impcImageGroups}" varStatus="status">
 
-<div class="col-sm-2">
+<div class="col-lg-2 col-4">
             <c:forEach var="doc" items="${group.result}">
             
 	
@@ -88,5 +88,7 @@
         </c:forEach>
         
 </div>
+
+
 
 

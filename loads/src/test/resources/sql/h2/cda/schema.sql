@@ -1716,14 +1716,6 @@ CREATE TABLE ima_image_record_annotation_vw (
 );
 
 
-DROP TABLE IF EXISTS mts_mouse_allele_mv;
-CREATE TABLE mts_mouse_allele_mv (
-	MOUSE_ID INT(11)      NOT NULL,
-	ALLELE   VARCHAR(250) NOT NULL,
-
-	PRIMARY KEY (MOUSE_ID)
-);
-
 
 DROP TABLE IF EXISTS higher_level_annotation;
 CREATE TABLE higher_level_annotation (

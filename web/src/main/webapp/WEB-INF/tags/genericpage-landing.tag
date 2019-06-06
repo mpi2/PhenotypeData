@@ -33,9 +33,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title><jsp:invoke fragment="title"></jsp:invoke> | International Mouse Phenotyping Consortium</title>
     <link rel="profile" href="http://gmpg.org/xfn/11">
-    <link rel="pingback" href="https://mousephenotypetest.org/xmlrpc.php">
-   <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-TXfwrfuHVznxCssTxWoPZjhcss/hp38gEOH8UPZG/JcXonvBQ6SlsIF49wUzsGno"
-          crossorigin="anonymous">
+    <link rel="pingback" href="${cmsBaseUrl}/xmlrpc.php">
+    <link rel="stylesheet" href="${baseUrl}/css/vendor/fapro/css/all.min.css" />
     <link rel="apple-touch-icon-precomposed" sizes="57x57" href="${baseUrl}/img/apple-touch-icon-57x57.png" />
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${baseUrl}/img/apple-touch-icon-114x114.png" />
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${baseUrl}/img/apple-touch-icon-72x72.png" />
@@ -113,26 +112,52 @@
     var ${entry.key} = "${entry.value}";
     </c:forEach>
 
-    <%--var baseUrl = "${baseUrl}";--%>
-    <%--var solrUrl = '${solrUrl}';--%>
-    <%--var pdfThumbnailUrl = "${pdfThumbnailUrl}";--%>
-    <%--var cmsBaseUrl = "${cmsBaseUrl}";--%>
-    <%--var mediaBaseUrl = "${mediaBaseUrl}";--%>
 </script>
+
+    <jsp:invoke fragment="header" />
+
+    <%--
+    Include google tracking code on live site
+    --%>
+    <c:if test="${liveSite}">
+        <script>
+            (function (i, s, o, g, r, a, m) {
+                i['GoogleAnalyticsObject'] = r;
+                i[r] = i[r] || function () {
+                    (i[r].q = i[r].q || []).push(arguments)
+                }, i[r].l = 1 * new Date();
+                a = s.createElement(o),
+                    m = s.getElementsByTagName(o)[0];
+                a.async = 1;
+                a.src = g;
+                m.parentNode.insertBefore(a, m)
+            })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+            ga('create', 'UA-23433997-1', 'auto');
+            ga('send', 'pageview');
+        </script>
+    </c:if>
 
     <jsp:invoke fragment="header" />
 
 </head>
 
+
+<c:choose>
+<c:when test="${not empty bodyTag}">
+    <jsp:invoke fragment="bodyTag"/>
+</c:when>
+<c:otherwise>
 <body>
-<jsp:invoke fragment="bodyTag"/>
+</c:otherwise>
+</c:choose>
 
 <t:menu />
 
 <main id="main" class="main" role="main">
     <div class="container-fluid">
         <div class="single-header">
-            <img src="https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner-150x150.png" srcset="https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner-300x62.png 300w, https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner-768x158.png 768w, https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner-1024x210.png 1024w, https://www.mousephenotypetest.org/wp-content/uploads/2018/12/utdBanner.png 1440w" sizes="100%" />
+            <img src="${cmsBaseUrl}/wp-content/uploads/2018/12/utdBanner-150x150.png" srcset="${cmsBaseUrl}/wp-content/uploads/2018/12/utdBanner-300x62.png 300w, ${cmsBaseUrl}/wp-content/uploads/2018/12/utdBanner-768x158.png 768w, ${cmsBaseUrl}/wp-content/uploads/2018/12/utdBanner-1024x210.png 1024w, ${cmsBaseUrl}/wp-content/uploads/2018/12/utdBanner.png 1440w" sizes="100%" />
 
 
 
@@ -155,13 +180,13 @@
                             <div class="row">
                                 <div class="col-12 d-none d-md-block">
                                     <p><a href="/">Home</a> <span>></span>
-                                        <a href="https://www.mousephenotypetest.org/understanding-the-data/research-highlights/">
+                                        <a href="${cmsBaseUrl}/understanding-the-data/research-highlights/">
                                             Research highlights </a><span>></span>
                                         <jsp:invoke fragment="breadcrumb" /> </p>
                                 </div>
                                 <div class="col-12 d-block d-md-none">
                                     <p><a href="/">Home</a><span>></span>
-                                        <a href="https://www.mousephenotypetest.org/understanding-the-data/research-highlights/">
+                                        <a href="${cmsBaseUrl}/understanding-the-data/research-highlights/">
                                             Research highlights </a><span>></span>
                                         <jsp:invoke fragment="breadcrumb" /> </p>
                                 </div>

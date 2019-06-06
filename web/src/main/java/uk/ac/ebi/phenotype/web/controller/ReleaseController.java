@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class ReleaseController {
@@ -345,6 +346,15 @@ public class ReleaseController {
 		 */
 		List<String> releases = analyticsDAO.getReleases(metaInfo.get("data_release_version"));
 
+		// Sort the releases as Doubles, in descending order (so the most recent previous shows at the top)
+		releases = releases
+				.stream()
+				.map(Double::valueOf)
+				.sorted(Comparator
+						.comparingDouble(Double::valueOf))
+				.map(d -> d.toString())
+				.sorted(Comparator.reverseOrder())
+				.collect(Collectors.toList());
 		model.addAttribute("metaInfo", metaInfo);
 		model.addAttribute("releases", releases);
 		model.addAttribute("phenotypingCenters", phenotypingCenters);

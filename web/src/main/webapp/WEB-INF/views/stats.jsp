@@ -24,7 +24,9 @@
                         var chartUrl = graphUrl + '&experimentNumber=' + id;
                         $.ajax({
                             url: chartUrl,
-                            cache: false
+                            cache: true,
+                            tryCount : 0,
+                            retryLimit : 3
                         })
                             .done(function (html) {
                                 $('#' + id).append(html);
@@ -37,6 +39,22 @@
                                     console.log('id=' + $('#chart' + id).html(''));
                                 }
 
+                            })
+                            .fail(function (jqXHR, textStatus) {
+                                if (textStatus == 'timeout') {
+                                    console.log(textStatus);
+                                    this.tryCount++;
+                                    if (this.tryCount <= this.retryLimit) {
+                                        $.ajax(this);
+                                        return;
+                                    }
+                                    return;
+                                }
+                                if (jqXHR.status == 500) {
+                                    console.log('There was an error');
+                                } else {
+                                    console.log('There was an error');
+                                }
                             });
                     });
                 });
@@ -247,3 +265,4 @@
     </jsp:body>
 
 </t:genericpage>
+

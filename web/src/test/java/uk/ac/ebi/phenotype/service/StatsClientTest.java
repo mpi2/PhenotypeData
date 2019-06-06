@@ -92,7 +92,7 @@ public class StatsClientTest {
 //
 	@Test
 	public void testGetIndividualStatsData() {
-		ResponseEntity<Statistics> statsResponse=null;
+		ResponseEntity<List<Statistics>> statsResponse=null;
 		String geneAccession="MGI:2443170";
 		String alleleAccession="MGI:2159965";
 		String parameterStableId="IMPC_HEM_038_001";
@@ -109,7 +109,7 @@ public class StatsClientTest {
 			e.printStackTrace();
 		}
 		System.out.println("test response ="+statsResponse);
-		assertTrue(statsResponse.getBody().getGeneAccession()!=null);
+		assertTrue(statsResponse.getBody().get(0).getGeneAccession()!=null);
 	}
 	
 	@Test
@@ -157,8 +157,8 @@ public class StatsClientTest {
 		String ebiMappedSolrUrl="//ves-ebi-d0.ebi.ac.uk:8986/solr";
 		String strain="";//we hve colonyId now so what do we do with this?
 		String zygosity="homozygote";
-		ResponseEntity<Statistics> stats = statsClient.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId, pipelineStableId, zygosity, phenotypingCenter, metadataGroup);
-		assert(stats.getBody().getGeneAccession()!=null);
+		ResponseEntity<List<Statistics>> stats = statsClient.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId, pipelineStableId, zygosity, phenotypingCenter, metadataGroup);
+		assert(stats.getBody().get(0).getGeneAccession()!=null);
 		//assert(experimentDTO.getMetadataGroup().equals(metadataGroup));
 
 

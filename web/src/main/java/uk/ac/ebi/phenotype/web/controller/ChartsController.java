@@ -48,6 +48,7 @@ import org.mousephenotype.cda.enumerations.EmbryoViability;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ImageService;
@@ -60,6 +61,9 @@ import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
+
+import org.mousephenotype.cda.solr.service.*;
+import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.mousephenotype.cda.solr.web.dto.EmbryoViability_DTO;
 import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
@@ -93,7 +97,9 @@ import uk.ac.ebi.phenotype.chart.ViabilityChartAndDataProvider;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
 import uk.ac.ebi.phenotype.web.dao.StatisticsService;
-import uk.ac.ebi.phenotype.web.dao.StatsClient;
+
+
+
 
 
 @Controller
@@ -118,13 +124,13 @@ public class ChartsController {
 
     @Value("${solr_url}")
     public String SOLR_URL;
+
     @Value("${statistics_url}")
     public String statisticsUrl;
     
-//    @Autowired
-//    private StatsRepository repo;
-   // @Autowired
 	 private StatisticsService statsService;
+
+ 
 
     @Inject
     public ChartsController(CategoricalChartAndTableProvider categoricalChartAndTableProvider, TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider, UnidimensionalChartAndTableProvider continousChartAndTableProvider, ScatterChartAndTableProvider scatterChartAndTableProvider, AbrChartAndTableProvider abrChartAndTableProvider, ViabilityChartAndDataProvider viabilityChartAndDataProvider, ExperimentService experimentService, StatisticalResultService srService, GeneService geneService, ImpressService is, ImageService imageService) {
@@ -181,8 +187,6 @@ public class ChartsController {
      * @throws URISyntaxException
      * @throws SolrServerException, IOException
      */
-
-    
     @RequestMapping("/charts")
     public String charts(@RequestParam(required = false, value = "accession") String[] accessionsParams,
                          @RequestParam(required = false, value = "parameter_stable_id") String[] parameterIds,
@@ -210,10 +214,9 @@ public class ChartsController {
                 }
             }
             response.addHeader("Access-Control-Allow-Origin", "*");//allow javascript requests from other domain - note spring way of doing this does not work!!!! as usual!!!
+
             model.addAttribute("pageTitle", pageTitle);
-//            response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
-//            response.setHeader("Access-Control-Max-Age", "3600");
-//            response.setHeader("Access-Control-Allow-Headers", "x-requested-with");
+
             return createCharts(accessionsParams, pipelineStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, chartType, alleleAccession);
         } catch (Exception e){
             e.printStackTrace();
@@ -510,7 +513,7 @@ public class ChartsController {
 			    model.addAttribute("embryoViabilityDTO", embryoViability_DTO);
 			    }
 			
-
+	
 			model.addAttribute("pipeline", pipeline);
 			model.addAttribute("phenotypingCenter", phenotypingCenter);
 			model.addAttribute("experimentNumber", experimentNumber);

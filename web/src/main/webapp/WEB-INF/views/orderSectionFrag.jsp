@@ -2,27 +2,56 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<!-- just for testing with styles remove -->
+<script>
+    var orderContent = {};
+    function detailFormatter(index, row) {
+        if(!row._data['shown']) {
+            $.ajax({
+                url: row._data['link'],
+                type: 'GET',
+                success: function (data) {
+                    $('#orderAllele' + index).html(data);
+                    row._data['shown'] = true;
+                    orderContent[index] = data;
+                }
+            });
+            return "<div class='container'>" +
+                '<div id="orderAllele' + index + '" class="col-12">' +
+                "     <div class=\"pre-content\">\n" +
+                "                        <div class=\"row no-gutters\">\n" +
+                "                            <div class=\"col-12 my-5\">\n" +
+                "                                <p class=\"h4 text-center text-justify\"><i class=\"fas fa-atom fa-spin\"></i> A moment please while we gather the data . . . .</p>\n" +
+                "                            </div>\n" +
+                "                        </div>\n" +
+                "                    </div>" +
+                '</div>' +
+                '</div>';
+        } else {
+            return "<div class='container'>" +
+                '<div id="orderAllele' + index + '" class="col-12">' +
+                orderContent[index] +
+                '</div>' +
+                '</div>';
+        }
+
+    }
+</script>
+
 <c:if test="${orderRows.size() > 0}">
     <c:if test="${creLine}">
         <c:set var="creLineParam" value="&creLine=true"/>
     </c:if>
-    <table id="creLineTable" class="table tableSorter">
+    <table id="creLineTable" data-toggle="table" data-pagination="true" data-mobile-responsive="true" data-sortable="true"   data-detail-view="true" data-detail-formatter="detailFormatter">
         <thead>
         <tr>
-            <th class="hidden">Allele Frag</th>
-            <th class="hidden">Shown</th>
             <th>MGI Allele</th>
             <th>Allele Type</th>
             <th>Availability</th>
-            <th class="no-sort"></th>
         </tr>
         </thead>
         <tbody>
         <c:forEach var="row" items="${orderRows}" varStatus="status">
-            <tr>
-                <td>${baseUrl}/allelesFrag/${row.mgiAccessionId}/${row.encodedAlleleName}?${creLineParam}</td>
-                <td>false</td>
+            <tr data-link="${baseUrl}/allelesFrag/${row.mgiAccessionId}/${row.encodedAlleleName}?${creLineParam}" data-shown="false">
                 <td>
                     <span class="text-dark" style="font-size: larger; font-weight: bolder;">${row.markerSymbol}<sup>${row.alleleName}</sup></span>
                 </td>
@@ -53,9 +82,9 @@
                         </c:forEach>
                     </c:if--%>
                 </td>
-                <td>
+<%--                <td>
                     <a class="btn btn-outline-primary">Show ordering information &nbsp;<i class="fa fa-caret-down"></i></a>
-                </td>
+                </td>--%>
             </tr>
         </c:forEach>
         </tbody>
@@ -70,4 +99,5 @@
             Knockin ${alleleProductsCre2.get("product_type")} are available for this gene.</a></div>
     </c:when>
 </c:choose>
+                            	
                             	
