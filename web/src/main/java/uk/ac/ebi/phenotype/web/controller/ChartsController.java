@@ -352,22 +352,29 @@ public class ChartsController {
 			
 			GeneDTO gene = geneService.getGeneById(accession[0]);
 			model.addAttribute("gene", gene);
-			boolean testNew=true;//change to look at old chart with current code
-			//if(parameterStableId.equalsIgnoreCase("IMPC_HEM_038_001")&& testNew) {
+			boolean testBoth=false;//change to look at old chart with current code
+			
 				//get experiment object from the new rest service as a temporary measure we can convert to an experiment object and then we don't have to rewrite the chart code?? and easy to test if experiment objects are the same??
 				System.out.println("Get data from new rest service");
 				long startTime = System.currentTimeMillis();
-				System.out.println("start time="+System.currentTimeMillis());
+		
 				experiment=statsService.getSpecificExperimentDTOFromRest(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
-				System.out.println("end time="+System.currentTimeMillis());
+				
 				long endTime=System.currentTimeMillis();
 				long timeTaken=endTime-startTime;
-				System.out.println("time taken="+timeTaken);
+				System.out.println("time taken to get experiment="+timeTaken);
 				
 //			
-				if(experiment==null) {
+				if(experiment==null || testBoth) {
 					System.err.println("no experiment found using stats service falling back to solr");
-			experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
+					long startTimeSolr = System.currentTimeMillis();
+				
+					experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
+	
+					long endTimeSolr=System.currentTimeMillis();
+					long timeTakenSolr=endTimeSolr-startTimeSolr;
+					System.out.println("solr time taken to get experiment="+timeTakenSolr);
+			
 			
 				}
 			ProcedureDTO proc=null;

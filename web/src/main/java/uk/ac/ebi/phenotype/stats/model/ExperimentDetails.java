@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ExperimentDetails {
 	
+	
 	@JsonProperty("status")
 	private String status;//"Successful",
 	@JsonProperty("procedure_group")
@@ -109,6 +110,7 @@ public class ExperimentDetails {
 	public void setPipelineStableId(String pipelineStableId) {
 		this.pipelineStableId = pipelineStableId;
 	}
+	
 	public String getStrainAccessionId() {
 		return strainAccessionId;
 	}

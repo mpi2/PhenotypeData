@@ -4,6 +4,8 @@ import javax.annotation.Resource;
 
 import org.springframework.data.annotation.Id;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @Resource
 public class Statistics  {
 	

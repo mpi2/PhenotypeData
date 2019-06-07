@@ -65,7 +65,7 @@ public class StatisticsService {
 		//}
 		
 		
-		System.out.println("experiment from file="+exp);
+		//System.out.println("experiment from file="+exp);
 		return exp;
 }
 	

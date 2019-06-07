@@ -139,19 +139,6 @@ public class UnidimensionalChartAndTableProvider {
 		unidimensionalDataSet.setTitle(title);
 		unidimensionalDataSet.setSubtitle(procedureDescription);
 		System.out.println("end time="+System.currentTimeMillis());
-		long endTime=System.currentTimeMillis();
-		long timeTaken=endTime-startTime;
-		System.out.println("solr time taken="+timeTaken);
-		
-		//lets do the same thing here and return another chart created by the stats rest service for speed comparison and make sure show the same chart!!
-		long fileStartTime = System.currentTimeMillis();
-
-		//Stats stats = statsService.getTestStatsData();
-		
-		long fileEndTime=System.currentTimeMillis();
-		long fileTimeTaken=fileEndTime-fileStartTime;
-		System.out.println("file time taken="+fileTimeTaken);
-		
 		return unidimensionalDataSet;
 	}
 
