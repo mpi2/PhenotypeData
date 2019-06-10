@@ -34,472 +34,275 @@
 
 	</jsp:attribute>
 
-	<jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
+	<jsp:attribute name="bodyTag"><body class="no-sidebars small-header"></jsp:attribute>
 
-	<jsp:attribute name="addToFooter">
-			<div class="region region-pinned">
+	<jsp:attribute name="addToFooter" />
 
-        <div id="flyingnavi" class="block smoothScroll ">
-
-            <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
-
-            <ul>
-                <li><a href="#top">Release Notes</a></li>
-                <li><a href="#new-features">Highlights</a></li>
-                <li><a href="#data_reports">Data Reports</a></li>
-                <li><a href="#phenome-links">Phenotype Associations</a></li>
-                <li><a href="#statistical-analysis">Statistical Analysis</a></li>
-                <li><a href="#trends">History</a></li>
-            </ul>
-
-            <div class="clear"></div>
-
-        </div>
-
-    </div>
-
-	</jsp:attribute>
 	<jsp:body>
 
-	<div class="region region-content">
-		<div class="block block-system">
-			<div class="content">
-				<div class="node node-gene">
-			        <h1 class="title" id="top">IMPC Release Notes</h1>
-                    <div class="section">
-                        <div class="inner">
-                            <div class="half">
-                                <div class="with-label"><span class="label">IMPC</span>
-                                    <ul>
-                                        <li>Release:&nbsp;${metaInfo["data_release_version"]}</li>
-                                        <li>Published:&nbsp;${metaInfo["data_release_date"]}</li>
-                                    </ul>
-                                </div>
+        <div class="container data-heading">
+            <div class="row row-shadow">
+                <div class="col-12 no-gutters">
+                    <h1 class="title" id="top">IMPC Release Notes</h1>
+                </div>
+            </div>
+        </div>
 
-                                <div class="with-label"><span class="label">Statistical Package</span>
-                                    <ul>
-                                        <li>${metaInfo["statistical_packages"]}</li>
-                                        <li>Version:&nbsp;${metaInfo["PhenStat_release_version"]}</li>
-                                    </ul>
-                                </div>
-                                <div class="with-label"><span class="label">Genome Assembly</span>
-                                    <ul>
-                                        <li>${metaInfo["species"]}</li>
-                                        <li>Version:&nbsp${metaInfo["genome_assembly_version"]}</li>
-                                    </ul>
-                                </div>
+        <div class="container single single--no-side">
+        <div class="row row-over-shadow">
+            <div class="col-12 white-bg">
+                <div class="page-content pt-5 pb-5">
+
+                    <div class="row">
+                        <div class="col-6">
+                            <div>
+                                <h4>IMPC</h4>
+                                <ul class="mt-0">
+                                    <li>Release:&nbsp;${metaInfo["data_release_version"]}</li>
+                                    <li>Published:&nbsp;${metaInfo["data_release_date"]}</li>
+                                </ul>
                             </div>
 
-                            <div class="half">
-                                <div class="with-label"><span class="label">Summary</span>
-                                    <ul>
-                                        <li>Number of phenotyped genes:&nbsp;<fmt:formatNumber type="number" maxFractionDigits="3" value="${metaInfo['phenotyped_genes']}"/></li>
-                                        <li>Number of phenotyped mutant lines:&nbsp;<fmt:formatNumber type="number" maxFractionDigits="3" value="${metaInfo['phenotyped_lines']}"/></li>
-                                        <li>Number of phenotype calls:&nbsp;<fmt:formatNumber type="number" maxFractionDigits="3" value="${metaInfo['statistically_significant_calls']}"/></li>
-                                    </ul>
-                                </div>
-                                </br>
-                                <div class="with-label"><span class="label">Data access</span>
-                                    <ul>
-                                        <li>Ftp site:&nbsp;<a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-${metaInfo['data_release_version']}">ftp://ftp.ebi.ac.uk/pub/databases/impc/release-${metaInfo['data_release_version']}</a>
-                                        </li>
-                                        <li>RESTful interfaces:&nbsp;<a
-                                                href="${baseUrl}/documentation/data-access">APIs</a></li>
-                                    </ul>
-                                </div>
+                            <div>
+                                <h4>Statistical Package</h4>
+                                <ul class="mt-0">
+                                    <li>${metaInfo["statistical_packages"]}</li>
+                                    <li>Version:&nbsp;${metaInfo["PhenStat_release_version"]}</li>
+                                </ul>
                             </div>
-
-                            <div class="clear"></div>
-                        </div>
-                    </div>
-
-                    <div class="section">
-
-                        <h2 class="title" id="new-features">Highlights</h2>
-
-                        <div class="inner">
-                            <div id="highlightsDiv">
-                                <div class="container span12">
-                                    <h3>Data release ${metaInfo["data_release_version"]}</h3>
-
-                                    <div class="pad10px">
-                                        <strong>Data release ${metaInfo["data_release_version"]} represents a major data release. Changes include:</strong>
-                                        ${metaInfo["data_release_notes"]}
-                                    </div>
-                                </div>
-                                <div class="clear"></div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <div class="section">
-                        <h2 class="title" id="data_reports">Data Reports</h2>
-	
-                        <div class="inner">
-                            <div id="dataReportsDiv">
-                                <div class="container span12">
-                                    <h3>Lines and Specimens</h3>
-                                    <table id="lines_specimen">
-                                        <thead>
-                                        <tr>
-                                            <th class="headerSort">Phenotyping Center</th>
-                                            <th class="headerSort">Mutant Lines</th>
-                                            <th class="headerSort">Baseline Mice</th>
-                                            <th class="headerSort">Mutant Mice</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <c:forEach var="center" items="${phenotypingCenters}">
-                                            <c:set var="phenotyped_lines" value="phenotyped_lines_${center}"/>
-                                            <c:set var="control_specimens" value="control_specimens_${center}"/>
-                                            <c:set var="mutant_specimens" value="mutant_specimens_${center}"/>
-                                            <tr>
-                                                <td>${center}</td>
-                                                <td><fmt:formatNumber type="number" maxFractionDigits="3" value="${metaInfo[phenotyped_lines]}"/></td>
-                                                <td><fmt:formatNumber type="number" maxFractionDigits="3" value="${metaInfo[control_specimens]}"/></td>
-                                                <td><fmt:formatNumber type="number" maxFractionDigits="3" value="${metaInfo[mutant_specimens]}"/></td>
-                                            </tr>
-                                        </c:forEach>
-                                        </tbody>
-                                    </table>
-
-                                    <h3>Experimental Data and Quality Checks</h3>
-                                    <table id="exp_data">
-                                        <thead>
-                                        <tr>
-                                            <th class="headerSort">Data Type</th>
-                                            <c:forEach var="qcType" items="${qcTypes}">
-                                                <th class="headerSort">${fn:replace(qcType, '_', ' ')}</th>
-                                            </c:forEach>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <c:forEach var="dataType" items="${dataTypes}">
-                                            <tr>
-                                                <td>${fn:replace(dataType, '_', ' ')}</td>
-                                                <c:forEach var="qcType" items="${qcTypes}">
-                                                    <c:set var="qcKey" value="${dataType}_datapoints_${qcType}"/>
-                                                    <c:set var="qcValue" value="${metaInfo[qcKey]}"/>
-                                                    <td>
-                                                        <c:choose>
-                                                            <c:when test="${qcValue != null && qcValue != ''}">
-                                                                <fmt:formatNumber type="number" maxFractionDigits="3" value="${qcValue}"/>
-                                                                <c:if test="${qcType != 'QC_passed'}"><sup>*</sup></c:if>
-                                                            </c:when>
-                                                            <c:otherwise>0</c:otherwise>
-                                                        </c:choose>
-                                                    </td>
-                                                </c:forEach>
-                                            </tr>
-                                        </c:forEach>
-                                        </tbody>
-                                    </table>
-                                    <p><sup>*</sup>&nbsp;Excluded from statistical analysis.</p>
-									
-                                    <!-- <h3>Procedures</h3>
-
-                                    <div id="lineProcedureChart">
-                                        <script type="text/javascript">
-                                            ${lineProcedureChart}
-                                        </script>
-                                    </div>
-	
-	                                <a id="checkAllProcedures" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
-    									<a id="uncheckAllProcedures"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a> -->
-    								
-<%-- 
-                                    <h3>Allele Types</h3>
-                                    <table id="allele_types">
-                                        <thead>
-                                        <tr>
-                                            <th class="headerSort">Mutation</th>
-                                            <th class="headerSort">Name</th>
-                                            <th class="headerSort">Mutant Lines</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <c:forEach var="alleleType" items="${alleleTypes}">
-                                            <c:set var="alleleTypeKey" value="targeted_allele_type_${alleleType}"/>
-                                            <tr>
-                                                <td>Targeted Mutation</td>
-                                                <td>${alleleType}</td>
-                                                <td>${metaInfo[alleleTypeKey]}</td>
-                                            </tr>
-                                        </c:forEach>
-                                        </tbody>
-                                    </table>
-                                    <p>Mouse knockout programs:&nbsp;${metaInfo['mouse_knockout_programs']}</p> 
---%>
-
-                                </div>
-                            </div>
-                            <div class="clear"></div>
-                        </div>
-                        <!--  closing off inner here -->
-                    </div>
-
-					<div class="section">
-					<h2>Distribution of Phenotype Annotations</h2>
-					<div class="inner">
-						<div id="distribution">
-							<script type="text/javascript">
-								${annotationDistributionChart}
-							</script>
-						</div>
-					</div>
-				</div><!-- closing off section -->
-
-					<div class="section">
-						<h2 class="title" id="section-associations"> Status </h2>
-						<div class="inner">
-							<h3>Overall</h3>
-							<div class="half">
-								<div id="genotypeStatusChart">
-			          				<script type="text/javascript">${genotypeStatusChart.getChart()}</script>
-								</div>
-							</div>
-							<div class="half">
-			         			<div id="phenotypeStatusChart">
-			          				<script type="text/javascript">${phenotypeStatusChart.getChart()}</script>
-								</div>
-							</div>
-		         	  <div class="clear"></div>
-
-			        <div>
-			        <h3>By Center</h3>
-			       		<div class="half">
-				         	<div id="genotypeStatusByCenterChart">
-				         		<script type="text/javascript">${genotypingDistributionChart}</script>
-							</div>
-							<a id="checkAllGenByCenter" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
-    						<a id="uncheckAllGenByCenter"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
-    						<div class="clear both"></div>
-						</div>
-			       		<div class="half">
-				         	<div id="phenotypeStatusByCenterChart">
-				         		<script type="text/javascript">${phenotypingDistributionChart}</script>
-							</div>
-							<a id="checkAllPhenByCenter" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
-    						<a id="uncheckAllPhenByCenter"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
-    						<div class="clear both"></div>
-						</div>
-			   	   	<div class="clear"></div>
-			      </div>
-			      <p>More charts and status information are available from <a href="https://www.mousephenotype.org/imits/v2/reports/mi_production/komp2_graph_report_display">iMits</a>. </p>
-		      </div>
-		    </div> <!-- section -->
-
-		    <!-- div class="section">
-						<h2 class="title" id="section-associations"> Fertility and Viability </h2>
-		            <div class="inner">
-
-										<div class="half">
-											<div id="fertilityChart">
-				            		<script type="text/javascript">${fertilityChart}</script>
-											</div>
-
-											<table>
-											<thead>
-												<tr>
-												<th class="headerSort">Fertility</th>
-												<th class="headerSort">Number of Strains</th>
-												</tr>
-											</thead>
-											<tbody>
-												<c:forEach var="status" items="${fertilityMap.entrySet()}">
-													<tr><td>${status.getKey()}</td><td>${status.getValue()}</td></tr>
-												</c:forEach>
-											</tbody>
-
-											</table>
-									</div>
-
-									<div class="half">
-											<div id="viabilityChart">
-				            		<script type="text/javascript">${viabilityChart}</script>
-											</div>
-
-											<table>
-											<thead>
-												<tr>
-												<th class="headerSort">Viability</th>
-												<th class="headerSort">Number of Strains</th>
-												</tr>
-											</thead>
-											<tbody>
-												<c:forEach var="status" items="${viabilityMap.entrySet()}">
-													<tr><td>${status.getKey()}</td><td>${status.getValue()}</td></tr>
-												</c:forEach>
-											</tbody>
-
-											</table>
-									</div>
-
-									<div class="clear"> </div>
-		         </div>
-		    </div--> <!-- section -->
-
-
-
-
-
-				<div class="section">
-
-			    <h2 class="title" id="phenome-links">Phenotype Associations</h2>
-
-					<div class="inner">
-						<div id="phenotypesDiv">
-							<div class="container span12">
-
-							<div id="callProcedureChart">
-								<script type="text/javascript">
-									${callProcedureChart}
-								</script>
-							</div>
-							
-							<a id="checkAllPhenCalls" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
-    						<a id="uncheckAllPhenCalls"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
-    						<div class="clear both"></div>
-
-<%-- 
-                            <h2>Phenotype Associations Overview
-                                <span class="documentation">
-                                    <a href='' id='phenomePanel' class="fa fa-question-circle pull-right"></a>
-                                </span>
-                            </h2>
-
-							<p>We provide a 'phenome' overview of statistically significant calls.
-							By following the links below, you'll access the details of the phenotype calls for each center.</p>
-							<table>
-							  <thead>
-								<tr>
-								<th class="headerSort">Phenotyping Center</th>
-								<th class="headerSort">Significant MP Calls</th>
-								<th class="headerSort">Pipeline</th>
-								</tr>
-							</thead>
-							<tbody>
-							<c:forEach var="center" items="${phenotypingCenters}">
-							<c:set var="centerMapKey" value="phenotype_pipelines_${center}" />
-							<c:set var="pipelines" value="${metaInfo[centerMapKey]}" />
-							<c:forEach var="pipeline" items="${fn:split(pipelines, ',')}">
-							<tr><td>${center}</td><td><a href="${baseUrl}/phenome?phenotyping_center=${center}&pipeline_stable_id=${pipeline}">Browse</td><td>${pipeline}</td></tr>
-							</c:forEach>
-							</c:forEach>
-							</tbody>
-							</table> 
---%>
-
-							</div>
-						</div>
-					</div>
-				</div><!-- end of section -->
-
-<%-- 				<div class="section">
-
-			    <h2 class="title" id="statistical-analysis">Statistical Analysis</h2>
-
-					<div class="inner">
-						<div id="statisticsDiv">
-							<div class="container span12">
-
-							<h3>Statistical Methods</h3>
-							<table id="statistical_methods">
-							<thead>
-							<tr>
-								<th class="headerSort">Data</th>
-								<th class="headerSort">Statistical Method</th>
-							</tr>
-							</thead>
-							<tbody>
-							<c:forEach var="entry" items="${statisticalMethods}">
-							<c:set var="dataType" value="${entry.key}" />
-							<c:forEach var="method" items="${entry.value}">
-							<tr>
-							<td>${dataType}</td>
-							<td>${method}</td>
-							</tr>
-							</c:forEach>
-							</c:forEach>
-							</tbody>
-							</table>
-
-							<h3>P-value distributions</h3>
-							<c:forEach var="entry" items="${statisticalMethods}">
-								<c:set var="dataType" value="${entry.key}" />
-								<c:forEach var="method" items="${entry.value}">
-									<c:set var="chartName" value="${statisticalMethodsShortName[method]}Chart" />
-									<div id="${chartName}">
-										<script type="text/javascript">
-											${distributionCharts[chartName]}
-										</script>
-									</div>
-								</c:forEach>
-							</c:forEach>
-							</div>
-						</div>
-					</div>
-				</div><!-- end of section --> --%>
-
-				<div class="section">
-
-                    <h2 class="title" id="trends">History</h2>
-
-                    <div class="inner">
-                        <div id="phenotypesDiv">
-                            <div class="container span12">
-                                <h3>Trends</h3>
-
-                                <div id="trendsChart">
-                                    <script type="text/javascript">
-                                        ${trendsChart}
-                                    </script>
-                                </div>
-                                <br/>
-                                <br/>
-                                <br/>
-
-                                <div id="datapointsTrendsChart">
-                                    <script type="text/javascript">
-                                        ${datapointsTrendsChart}
-                                    </script>
-                                </div>
-                                <a id="checkAllDataPoints" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
-    							<a id="uncheckAllDataPoints"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
-    							<div class="clear both"></div>
-                             <br/><br/>
-
-<!-- 
-                                <div id="topLevelTrendsChart">
-                                    <script type="text/javascript">
-                                        ${topLevelTrendsChart}
-                                    </script>
-                                </div>
-                                <a id="checkAllTopLevels" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
-    							<a id="uncheckAllTopLevels"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
-    							<div class="clear both"></div> 
-    							<br/>
-                             <br/>
-                             <br/>
--->
-
-                                <h3>Previous Releases</h3>
-                                <ul>
-                                    <c:forEach var="release" items="${releases}">
-                                        <li><a href="${baseUrl}/release_notes/IMPC_Release_Notes_${release}.html">Release ${release} notes</a></li>
-                                    </c:forEach>
+                            <div>
+                                <h4>Genome Assembly</h4>
+                                <ul class="mt-0">
+                                    <li>${metaInfo["species"]}</li>
+                                    <li>Version:&nbsp${metaInfo["genome_assembly_version"]}</li>
                                 </ul>
                             </div>
                         </div>
-                    </div>
-                </div>
-                    <!-- end of section -->
+                        <div class="col-6">
+                            <div>
+                                <h4>Summary</h4>
+                                <ul class="mt-0">
+                                    <li>Number of phenotyped genes:&nbsp;<fmt:formatNumber type="number" maxFractionDigits="3" value="${metaInfo['phenotyped_genes']}"/></li>
+                                    <li>Number of phenotyped mutant lines:&nbsp;<fmt:formatNumber type="number" maxFractionDigits="3" value="${metaInfo['phenotyped_lines']}"/></li>
+                                    <li>Number of phenotype calls:&nbsp;<fmt:formatNumber type="number" maxFractionDigits="3" value="${metaInfo['statistically_significant_calls']}"/></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4>Data access</h4>
+                                <ul class="mt-0">
+                                    <li>Ftp site:&nbsp;<a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-${metaInfo['data_release_version']}">ftp://ftp.ebi.ac.uk/pub/databases/impc/release-${metaInfo['data_release_version']}</a>
+                                    </li>
+                                    <li>RESTful interfaces:&nbsp;<a
+                                            href="${baseUrl}/documentation/data-access">APIs</a></li>
+                                </ul>
+                            </div>
 
-		</div>
-	</div>
-</div>
-</div>
+                        </div>
+                    </div> <!-- end row -->
+
+                    <div class="row mt-5">
+                        <div class="col-12">
+                            <h2 id="new-features">Highlights</h2>
+                        <div class="col-12">
+                            <h4>Data release ${metaInfo["data_release_version"]}</h4>
+
+                            <div class="well">
+                                <strong>Release notes:</strong>
+                                    ${metaInfo["data_release_notes"]}
+                            </div>
+                        </div>
+                        </div>
+
+                    </div> <!-- end row -->
+
+
+                    <div class="row mt-5">
+                        <div class="col-12">
+                            <h2 class="title" id="data_reports">Data Reports</h2>
+                            <div class="col-12">
+                            <h3>Lines and Specimens</h3>
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th class="headerSort">Phenotyping Center</th>
+                                    <th class="headerSort">Mutant Lines</th>
+                                    <th class="headerSort">Baseline Mice</th>
+                                    <th class="headerSort">Mutant Mice</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <c:forEach var="center" items="${phenotypingCenters}">
+                                    <c:set var="phenotyped_lines" value="phenotyped_lines_${center}"/>
+                                    <c:set var="control_specimens" value="control_specimens_${center}"/>
+                                    <c:set var="mutant_specimens" value="mutant_specimens_${center}"/>
+                                    <tr>
+                                        <td>${center}</td>
+                                        <td><fmt:formatNumber type="number" maxFractionDigits="3" value="${metaInfo[phenotyped_lines]}"/></td>
+                                        <td><fmt:formatNumber type="number" maxFractionDigits="3" value="${metaInfo[control_specimens]}"/></td>
+                                        <td><fmt:formatNumber type="number" maxFractionDigits="3" value="${metaInfo[mutant_specimens]}"/></td>
+                                    </tr>
+                                </c:forEach>
+                                </tbody>
+                            </table>
+
+                            <h3>Experimental Data and Quality Checks</h3>
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th class="headerSort">Data Type</th>
+                                    <c:forEach var="qcType" items="${qcTypes}">
+                                        <th class="headerSort">${fn:replace(qcType, '_', ' ')}</th>
+                                    </c:forEach>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <c:forEach var="dataType" items="${dataTypes}">
+                                    <tr>
+                                        <td>${fn:replace(dataType, '_', ' ')}</td>
+                                        <c:forEach var="qcType" items="${qcTypes}">
+                                            <c:set var="qcKey" value="${dataType}_datapoints_${qcType}"/>
+                                            <c:set var="qcValue" value="${metaInfo[qcKey]}"/>
+                                            <td>
+                                                <c:choose>
+                                                    <c:when test="${qcValue != null && qcValue != ''}">
+                                                        <fmt:formatNumber type="number" maxFractionDigits="3" value="${qcValue}"/>
+                                                        <c:if test="${qcType != 'QC_passed'}"><sup>*</sup></c:if>
+                                                    </c:when>
+                                                    <c:otherwise>0</c:otherwise>
+                                                </c:choose>
+                                            </td>
+                                        </c:forEach>
+                                    </tr>
+                                </c:forEach>
+                                </tbody>
+                            </table>
+                            <p><sup>*</sup>&nbsp;Excluded from statistical analysis.</p>
+
+                        </div>
+                        </div>
+                    </div> <!-- end row -->
+
+                    <div class="row mt-5">
+
+
+                        <div class="col-12">
+                            <h2>Distribution of Phenotype Annotations</h2>
+                            <div id="distribution">
+                                <script type="text/javascript">
+                                    ${annotationDistributionChart}
+                                </script>
+                            </div>
+                        </div>
+
+                    </div> <!-- end row -->
+
+                    <div class="row mt-5">
+                        <div class="col-12">
+                            <h2 class="title" id="section-associations"> Status </h2>
+                            <div class="row">
+                                <div class="col-12">
+                                    <h4>Overall</h4>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div id="genotypeStatusChart">
+                                                <script type="text/javascript">${genotypeStatusChart.getChart()}</script>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div id="phenotypeStatusChart">
+                                                <script type="text/javascript">${phenotypeStatusChart.getChart()}</script>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <h4>By Center</h4>
+                            <div class="row">
+                            <div class="col-6">
+                                <div id="genotypeStatusByCenterChart">
+                                    <script type="text/javascript">${genotypingDistributionChart}</script>
+                                </div>
+                                <a id="checkAllGenByCenter" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
+                                <a id="uncheckAllGenByCenter"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
+                                <div class="clear both"></div>
+                            </div>
+                            <div class="col-6">
+                                <div id="phenotypeStatusByCenterChart">
+                                    <script type="text/javascript">${phenotypingDistributionChart}</script>
+                                </div>
+                                <a id="checkAllPhenByCenter" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
+                                <a id="uncheckAllPhenByCenter"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
+                                <div class="clear both"></div>
+                            </div>
+                            </div>
+                        </div>
+                        <p>More charts and status information are available from <a href="https://www.mousephenotype.org/imits/v2/reports/mi_production/komp2_graph_report_display">iMits</a>. </p>
+                    </div> <!-- end row -->
+
+                    <div class="row mt-5">
+
+                        <div class="col-12">
+
+                            <h2>Phenotype Associations</h2>
+
+                            <div id="callProcedureChart">
+                                <script type="text/javascript">
+                                    ${callProcedureChart}
+                                </script>
+                            </div>
+
+                            <a id="checkAllPhenCalls" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
+                            <a id="uncheckAllPhenCalls"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
+                            <div class="clear both"></div>
+
+                        </div>
+                    </div> <!-- end row -->
+
+                    <div class="row mt-5">
+
+                        <div class="col-12">
+                            <h2>Trends</h2>
+
+                            <div id="trendsChart">
+                                <script type="text/javascript">
+                                    ${trendsChart}
+                                </script>
+                            </div>
+
+                            <div id="datapointsTrendsChart">
+                                <script type="text/javascript">
+                                    ${datapointsTrendsChart}
+                                </script>
+                            </div>
+                            <a id="checkAllDataPoints" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
+                            <a id="uncheckAllDataPoints"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
+                            <div class="clear both"></div>
+                            <br/><br/>
+
+
+                            <h3>Previous Releases</h3>
+                            <ul>
+                                <c:forEach var="release" items="${releases}">
+                                    <li><a href="${baseUrl}/release_notes/IMPC_Release_Notes_${release}.html">Release ${release} notes</a></li>
+                                </c:forEach>
+                            </ul>
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>
+        </div>
+        </div>
+
+
+
+
+
 
 </jsp:body>
 
