@@ -30,6 +30,7 @@ public class SqlUtils {
     private static final Logger      logger      = LoggerFactory.getLogger(SqlUtils.class);
     private              CommonUtils commonUtils = new CommonUtils();
 
+    private final static Integer INITIAL_POOL_CONNECTIONS = 1;
     private final static Integer MAXIMUM_POOL_SIZE        = 100;            // Default is 10. OntologyParserTest times out with 10.
     private final static Integer CONNECTION_TIMEOUT_IN_MS = 30000;          // Default is 30k (30 seconds)
     private final static Integer MAX_LIFETIME             = 30000;          // Default is 1,800,000 ms. Should be several seconds shorter than db connection limit
@@ -456,6 +457,7 @@ public class SqlUtils {
         ds.setPassword(password);
 
         ds.setConnectionInitSql("SELECT 1");
+        ds.setMinimumIdle(INITIAL_POOL_CONNECTIONS);
         ds.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
         ds.setConnectionTimeout(CONNECTION_TIMEOUT_IN_MS);
         ds.setMaxLifetime(MAX_LIFETIME);

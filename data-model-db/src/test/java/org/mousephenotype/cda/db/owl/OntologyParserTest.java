@@ -24,8 +24,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
-import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
@@ -44,19 +42,16 @@ public class OntologyParserTest {
 
 
     @Value("${owlpath}")
-    protected     String         owlpath;
+    protected String owlpath;
 
-    @NotNull
     @Autowired
-    private DataSource dataSource;
+    private OntologyParserFactory ontologyParserFactory;
 
 
 	@Test
 	public void findSpecificMaTermMA_0002405() throws Exception {
 
-	    OntologyParserFactory f = new OntologyParserFactory(dataSource, owlpath);
-
-	    ontologyParser = f.getMaParser();
+	    ontologyParser = ontologyParserFactory.getMaParser();
 
 		List<OntologyTermDTO> termList = ontologyParser.getTerms();
 		Map<String, OntologyTermDTO> terms = termList.stream()
@@ -71,9 +66,7 @@ public class OntologyParserTest {
     @Test
     public void testUberon()  throws Exception {
 
-		OntologyParserFactory f = new OntologyParserFactory(dataSource, owlpath);
-
-		ontologyParser = f.getUberonParser();
+		ontologyParser = ontologyParserFactory.getUberonParser();
         assertNotNull(ontologyParser);
     }
 
@@ -82,9 +75,7 @@ public class OntologyParserTest {
     @Test
     public void testNarrowSynonyms() throws Exception {
 
-		OntologyParserFactory f = new OntologyParserFactory(dataSource, owlpath);
-
-		ontologyParser = f.getMpHpParser();
+		ontologyParser = ontologyParserFactory.getMpHpParser();
 
         OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0006325");
 
@@ -111,9 +102,7 @@ public class OntologyParserTest {
     @Test
     public void testEquivalent() throws Exception {
 
-        OntologyParserFactory f = new OntologyParserFactory(dataSource, owlpath);
-
-        ontologyParser = f.getMpHpParser();
+        ontologyParser = ontologyParserFactory.getMpHpParser();
 
         List<OntologyTermDTO> terms = ontologyParser.getTerms();
         assertFalse("Term list is empty!", terms.isEmpty());
@@ -135,9 +124,7 @@ public class OntologyParserTest {
     @Test
     public void testReplacementOptions() throws Exception {
 
-        OntologyParserFactory f = new OntologyParserFactory(dataSource, owlpath);
-
-        ontologyParser = f.getMpParser();
+        ontologyParser = ontologyParserFactory.getMpParser();
 
         List<OntologyTermDTO> termList = ontologyParser.getTerms();
         Map<String, OntologyTermDTO> terms =
@@ -174,9 +161,7 @@ public class OntologyParserTest {
     @Test
     public void findSpecificEmapaTermEMAPA_18025() throws Exception {
 
-        OntologyParserFactory f = new OntologyParserFactory(dataSource, owlpath);
-
-        ontologyParser = f.getEmapaParser();
+        ontologyParser = ontologyParserFactory.getEmapaParser();
         List<OntologyTermDTO> termList = ontologyParser.getTerms();
         Map<String, OntologyTermDTO> terms =
                 termList.stream()
@@ -190,11 +175,9 @@ public class OntologyParserTest {
     @Test
     public void findMaTermByReferenceFromMpTerm() throws Exception {
 
-        OntologyParserFactory f = new OntologyParserFactory(dataSource, owlpath);
+        ontologyParser = ontologyParserFactory.getMpMaParser();
 
-        ontologyParser = f.getMpMaParser();
-
-        OntologyParser maParser = f.getMaParser();
+        OntologyParser maParser = ontologyParserFactory.getMaParser();
 
         Set<String> referencedClasses = ontologyParser.getReferencedClasses("MP:0001926",
                 OntologyParserFactory.VIA_PROPERTIES, "MA");
@@ -283,7 +266,6 @@ public class OntologyParserTest {
         assertTrue("Expected at least 12 child ids but found " + size, size >= 12);
         size = term.getChildNames().size();
         assertTrue("Expected at least 12 child names but found " + size, size >= 12);
-
     }
 
 
@@ -319,9 +301,7 @@ public class OntologyParserTest {
     @Test
     public void testMpMaMapping() throws OWLOntologyCreationException, OWLOntologyStorageException, SQLException, IOException {
 
-        OntologyParserFactory f = new OntologyParserFactory(dataSource, owlpath);
-
-        ontologyParser = f.getMpMaParser();
+        ontologyParser = ontologyParserFactory.getMpMaParser();
 
         Set<OWLObjectPropertyImpl> viaProperties = new HashSet<>();
         viaProperties.add(new OWLObjectPropertyImpl(IRI.create("http://purl.obolibrary.org/obo/BFO_0000052")));

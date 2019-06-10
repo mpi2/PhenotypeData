@@ -17,7 +17,10 @@
 package org.mousephenotype.cda.db.owl;
 
 
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +31,13 @@ import javax.validation.constraints.NotNull;
 
 @Configuration
 public class OntologyParserTestConfig {
+
+
+    @Value("${owlpath}")
+    protected String owlpath;
+
+    @Value("${solr.host}")
+    private String solrBaseUrl;
 
     @Value("${datasource.komp2.jdbc-url}")
     private String komp2Url;
@@ -55,5 +65,23 @@ public class OntologyParserTestConfig {
         }
 
         return dataSource;
+    }
+
+    @Bean
+    public OntologyParserFactory ontologyParserFactory() {
+        return new OntologyParserFactory(dataSource(), owlpath);
+    }
+
+
+    /////////////////////////
+    // READ-ONLY SOLR SERVERS
+    /////////////////////////
+
+    // Needed for OntologyParserFactory bean creation.
+
+    // phenodigm
+    @Bean
+    public HttpSolrClient phenodigmCore() {
+        return new HttpSolrClient.Builder(solrBaseUrl + "/phenodigm").build();
     }
 }

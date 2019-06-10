@@ -18,6 +18,7 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.sql.PreparedStatement;
