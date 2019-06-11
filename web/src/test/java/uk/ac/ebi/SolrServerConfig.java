@@ -84,7 +84,7 @@ public class SolrServerConfig {
         //new core keeps old url address
 		return new HttpSolrClient(solrBaseUrl + "/phenodigm");
 	}
-        
+
 	//Configuration
 	@Bean(name = "configurationCore")
 	public HttpSolrClient getConfigurationCore() {
