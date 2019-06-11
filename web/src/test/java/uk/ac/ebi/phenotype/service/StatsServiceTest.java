@@ -31,8 +31,8 @@ public class StatsServiceTest {
 //	public void tearDown() throws Exception {
 //	}
 //
-	@Test
-	public void testGetTestStatsData() {
+//	@Test
+//	public void testGetTestStatsData() {
 //		ResponseEntity<PagedResources<Statistics>> statsResponse=null;
 //		try {
 //			statsResponse = statsService.getStatsData(0, 2);
@@ -43,7 +43,7 @@ public class StatsServiceTest {
 //		System.out.println("test response ="+statsResponse);
 //		System.out.println("stats list="+statsResponse.getBody().getContent());
 //		assert(statsResponse.getBody().getContent().size()==2);
-	}
+	//}
 
 //	@Test
 //	public void testGetDataForGeneAccession() {
