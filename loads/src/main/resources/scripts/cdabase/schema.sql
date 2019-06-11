@@ -1988,7 +1988,7 @@ INSERT INTO project(id, name, fullname, description) VALUES(14, 'Phenomin', 'Phe
 INSERT INTO project(id, name, fullname, description) VALUES(15, 'Helmholtz GMC', 'Helmholtz German Mouse Clinic', 'Characterisation of mouse models for human diseases to understand molecular mechanisms of human disorders and for the development of new therapies');
 INSERT INTO project(id, name, fullname, description) VALUES(16, 'MRC', 'MRC project', '-');
 INSERT INTO project(id, name, fullname, description) VALUES(17, 'MARC', 'Model Animal Research Center', 'Nanjing University - Model Animal Research Center');
-INSERT INTO project(id, name, fullname, description) VALUES(18, 'RBRC', 'RIKEN BioResource Center', 'RIKEN BioResource Center - Japan');
+INSERT INTO project(id, name, fullname, description) VALUES(18, 'RBRC', 'RIKEN BioResource Research Center', 'RIKEN BioResource Research Center - Japan');
 INSERT INTO project(id, name, fullname, description) VALUES(19, 'CAM-SU GRC', 'Cambrige-Soochow Genomic Resource Center', 'Cambrige-Soochow Genomic Resource Center');
 INSERT INTO project(id, name, fullname, description) VALUES(20, 'EMBL Monterotondo', 'European Molecular Biology Laboratory Monterotondo', 'European Molecular Biology Laboratory Monterotondo');
 INSERT INTO project(id, name, fullname, description) VALUES(21, 'Infrafrontier-I3', 'Infrafrontier-I3 Consortium', 'Infrafrontier-I3 Consortium');
@@ -2032,7 +2032,7 @@ INSERT INTO organisation(id, name, fullname, country) VALUES(22, 'Fleming', 'Res
 INSERT INTO organisation(id, name, fullname, country) VALUES(23, 'CMHD', 'Centre for Modeling Human Disease', 'Canada');
 INSERT INTO organisation(id, name, fullname, country) VALUES(24, 'CIPHE', 'Centre d''ImmunoPhenomique', 'France');
 INSERT INTO organisation(id, name, fullname, country) VALUES(25, 'BCM', 'Baylor College of Medicine', 'USA');
-INSERT INTO organisation(id, name, fullname, country) VALUES(26, 'RBRC', 'RIKEN BioResource Center', 'Japan');
+INSERT INTO organisation(id, name, fullname, country) VALUES(26, 'RBRC', 'RIKEN BioResource Research Center', 'Japan');
 INSERT INTO organisation(id, name, fullname, country) VALUES(27, 'TCP', 'The Centre for Phenogenomics', 'Canada');
 INSERT INTO organisation(id, name, fullname, country) VALUES(28, 'NING', 'Nanjing University Model Animal Research Center', 'China');
 INSERT INTO organisation(id, name, fullname, country) VALUES(29, 'CDTA', 'Institut de Transgenose (CDTA Orleans)', 'France');
