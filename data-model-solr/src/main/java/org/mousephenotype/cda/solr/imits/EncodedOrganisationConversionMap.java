@@ -38,7 +38,7 @@ public class EncodedOrganisationConversionMap {
         imitsCenters.put("TCP", "The Toronto Centre for Phenogenomics");
         imitsCenters.put("ICS", "Institut Clinique de la Souris");
         imitsCenters.put("MARC", "Model Animal Research Center of Nanjing University");
-        imitsCenters.put("RIKEN BRC", "RIKEN BioResource Center");
+        imitsCenters.put("RIKEN BRC", "RIKEN BioResource Research Center");
 
         dccCenterMap.put("NCOM", "CMHD");
         dccCenterMap.put("H", "MRC Harwell");
