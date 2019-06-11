@@ -11,6 +11,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.sql.*;
 
 
@@ -20,13 +21,13 @@ import java.sql.*;
 @Rollback
 public class GenerateDerivedParametersTest {
 
-    @Autowired DataSource komp2DataSource;
-    @Autowired BiologicalModelDAO biologicalModelDAO;
-    @Autowired DatasourceDAO datasourceDAO;
-    @Autowired OrganisationDAO organisationDAO;
-    @Autowired PhenotypePipelineDAO phenotypePipelineDAO;
-    @Autowired ObservationDAO observationDAO;
-    @Autowired ProjectDAO projectDAO;
+    @Autowired @NotNull DataSource komp2DataSource;
+    @Autowired @NotNull BiologicalModelDAO biologicalModelDAO;
+    @Autowired @NotNull DatasourceDAO datasourceDAO;
+    @Autowired @NotNull OrganisationDAO organisationDAO;
+    @Autowired @NotNull PhenotypePipelineDAO phenotypePipelineDAO;
+    @Autowired @NotNull ObservationDAO observationDAO;
+    @Autowired @NotNull ProjectDAO projectDAO;
 
     GenerateDerivedParameters generateDerivedParameters;
 

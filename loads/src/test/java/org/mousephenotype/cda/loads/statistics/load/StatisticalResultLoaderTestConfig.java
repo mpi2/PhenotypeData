@@ -2,10 +2,7 @@ package org.mousephenotype.cda.loads.statistics.load;
 
 
 import org.hibernate.SessionFactory;
-import org.mousephenotype.cda.db.dao.GwasDAO;
-import org.mousephenotype.cda.db.dao.OntologyTermDAO;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.dao.ReferenceDAO;
+import org.mousephenotype.cda.db.dao.*;
 import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.statistics.load.threei.TestConfigThreeI;
@@ -73,7 +70,7 @@ public class StatisticalResultLoaderTestConfig {
     }
 
     @Bean(name = "sessionFactoryHibernate")
-    public SessionFactory getSessionFactory() {
+    public SessionFactory sessionFactory() {
 
         LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(cdaDataSource());
         sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
@@ -88,6 +85,11 @@ public class StatisticalResultLoaderTestConfig {
         Assert.notNull(ontologyTermDAO, "ontologyTermDAO cannot be null");
         Assert.notNull(phenotypePipelineDAO, "phenotypePipelineDAO cannot be null");
         return new MpTermService(ontologyTermDAO, phenotypePipelineDAO);
+    }
+
+    @Bean
+    public PhenotypePipelineDAO phenotypePipelineDAO() {
+        return new PhenotypePipelineDAOImpl(sessionFactory());
     }
 
     @Bean

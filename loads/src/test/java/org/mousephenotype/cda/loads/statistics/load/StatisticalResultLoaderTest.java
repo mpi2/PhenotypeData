@@ -50,19 +50,12 @@ public class StatisticalResultLoaderTest {
                 "sql/h2/statistical_results.sql"
         };
 
-//        for (String schema : cdaSchemas) {
-//            logger.info("cda schema: " + schema);
-//            Resource r = context.getResource(schema);
-//            ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), r);
-//        }
-
         for (String schema : cdaSchemas) {
             logger.info("cda schema: " + schema);
             Resource                  r = new ClassPathResource(schema);
             ResourceDatabasePopulator p = new ResourceDatabasePopulator(r);
             p.execute(cdaDataSource);
         }
-
     }
 
 
@@ -105,10 +98,10 @@ public class StatisticalResultLoaderTest {
 
                 printResultSet(resultSet);
                 System.out.println("");
-
             }
-
         }
+
+        Assert.assertEquals(13, resultCount.intValue());
 
         statsQuery = "SELECT * FROM stats_categorical_results ";
         resultCount = 0;
@@ -135,15 +128,11 @@ public class StatisticalResultLoaderTest {
                     Assert.assertTrue(resultSet.getString("male_mp_acc") != null ||
                             resultSet.getString("female_mp_acc") == null);
                 }
-
             }
-
         }
 
         Assert.assertEquals(13, resultCount.intValue());
-
     }
-
 
 
     @Test
@@ -196,15 +185,12 @@ public class StatisticalResultLoaderTest {
 
                 printResultSet(resultSet);
                 System.out.println("");
-
             }
-
         }
 
-
         Assert.assertEquals(16, resultCount.intValue());
-
     }
+
 
     private void printResultSet(ResultSet resultSet) throws SQLException {
         ResultSetMetaData rsmd = resultSet.getMetaData();
@@ -214,6 +200,4 @@ public class StatisticalResultLoaderTest {
             System.out.print(rsmd.getColumnName(i) + ": " + columnValue );
         }
     }
-
-
 }

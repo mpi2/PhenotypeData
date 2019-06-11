@@ -3,20 +3,19 @@ INSERT INTO `phenotype_pipeline` VALUES (1,'IMPC_001',6,'IMPC Pipeline','The IMP
 INSERT INTO `phenotype_pipeline` VALUES (6,'UCD_001',6,'UCD Pipeline','',1,0,13,0);
 INSERT INTO `phenotype_pipeline` VALUES (31,'ESLIM_002',6,'EUMODIC Pipeline 2','EUMODIC Pipeline 2',1,0,2,0);
 
-INSERT INTO `phenotype_procedure` VALUES (63,150,'IMPC_HEM_002',6,'Hematology','Hematological assessment of blood determines blood cell counts (white blood cells, red blood cells, hemoglobin, and platelets) and additional hematological parameters (hematocrit, mean cell volume, mean corpuscular hemoglobin, mean cell hemoglobin concentration) can be derived using these indices. These tests will indicate abnormalities in the production of blood and its components (blood cells and hemoglobin) as well as in the associated blood-forming organs.&nbsp;Ontological description: MP:0002429 - abnormal blood cell morphology/development.',2,9,1,'experiment','Terminal','Week 16');
-INSERT INTO `phenotype_procedure` VALUES (237,19,'ESLIM_016_001',6,'Haematology','For the determination of blood cell counts (white blood cells, red blood cells, platelets), haemoglobin measurement and the calculation of haematological indexes (mean cell volume, mean corpuscular haemoglobin and mean cell haemoglobin concentration). Haematology measurements are obtained using either the Beckman Coulter AcT Diff or Siemens Advia 2120.',1,0,0,'experiment','Adult','Week 13');
+INSERT INTO `phenotype_procedure` VALUES (63,150,'IMPC_HEM_002',6,'Hematology','Hematological assessment of blood determines blood cell counts (white blood cells, red blood cells, hemoglobin, and platelets) and additional hematological parameters (hematocrit, mean cell volume, mean corpuscular hemoglobin, mean cell hemoglobin concentration) can be derived using these indices. These tests will indicate abnormalities in the production of blood and its components (blood cells and hemoglobin) as well as in the associated blood-forming organs.&nbsp;Ontological description: MP:0002429 - abnormal blood cell morphology/development.',2,9,1,'experiment','Terminal','Week 16',0);
+INSERT INTO `phenotype_procedure` VALUES (237,19,'ESLIM_016_001',6,'Haematology','For the determination of blood cell counts (white blood cells, red blood cells, platelets), haemoglobin measurement and the calculation of haematological indexes (mean cell volume, mean corpuscular haemoglobin and mean cell haemoglobin concentration). Haematology measurements are obtained using either the Beckman Coulter AcT Diff or Siemens Advia 2120.',1,0,0,'experiment','Adult','Week 13',0);
 
-INSERT INTO `phenotype_parameter` VALUES (2271,'IMPC_HEM_001_001',6,'White blood cell count','white_blood_cell_count',1,3,'10^3/ul ','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',1921);
-INSERT INTO `phenotype_parameter` VALUES (2272,'IMPC_HEM_002_001',6,'Red blood cell count','red_blood_cell_count',1,3,'10^6/ul','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',1922);
-
-INSERT INTO `phenotype_parameter` VALUES (8573,'ESLIM_016_001_001',6,'White blood cell count ','White_blood_cell_count',1,0,'10^3/ul ','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',520);
-INSERT INTO `phenotype_parameter` VALUES (8574,'ESLIM_016_001_002',6,'Red blood cell count  ','Red_blood_cell_count',1,0,'10^6/ul','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',521);
-INSERT INTO `phenotype_parameter` VALUES (8575,'ESLIM_016_001_003',6,'Haemoglobin','Haemoglobin',1,0,'g/dl','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',522);
-INSERT INTO `phenotype_parameter` VALUES (8576,'ESLIM_016_001_004',6,'Haematocrit','Haematocrit',1,0,'%','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',523);
-INSERT INTO `phenotype_parameter` VALUES (8577,'ESLIM_016_001_005',6,'Mean cell volume','Mean_cell_volume',1,0,'fl','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',524);
-INSERT INTO `phenotype_parameter` VALUES (8578,'ESLIM_016_001_006',6,'Mean corpuscular haemoglobin','Mean_corpuscular_haemoglobin',1,0,'pg','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',525);
-INSERT INTO `phenotype_parameter` VALUES (8579,'ESLIM_016_001_007',6,'Mean cell haemoglobin concentration  ','Mean_cell_haemoglobin_concentration',1,0,'g/dl','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',526);
-INSERT INTO `phenotype_parameter` VALUES (8580,'ESLIM_016_001_008',6,'Platelets count','Platelets_count',1,0,'10^3/ul ','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,0,'',527);
+INSERT INTO `phenotype_parameter` VALUES (2271,'IMPC_HEM_001_001',6,'White blood cell count','white_blood_cell_count',1,3,'10^3/ul ','FLOAT','simpleParameter',NULL,                         1,0,0,0,1,0,0,0,0,'',1921);
+INSERT INTO `phenotype_parameter` VALUES (2272,'IMPC_HEM_002_001',6,'Red blood cell count','red_blood_cell_count',1,3,'10^6/ul','FLOAT','simpleParameter',NULL,                              1,0,0,0,1,0,0,0,0,'',1922);
+INSERT INTO `phenotype_parameter` VALUES (8573,'ESLIM_016_001_001',6,'White blood cell count ','White_blood_cell_count',1,0,'10^3/ul ','FLOAT','simpleParameter',NULL,                       1,0,0,0,1,0,0,0,0,'',520);
+INSERT INTO `phenotype_parameter` VALUES (8574,'ESLIM_016_001_002',6,'Red blood cell count  ','Red_blood_cell_count',1,0,'10^6/ul','FLOAT','simpleParameter',NULL,                           1,0,0,0,1,0,0,0,0,'',521);
+INSERT INTO `phenotype_parameter` VALUES (8575,'ESLIM_016_001_003',6,'Haemoglobin','Haemoglobin',1,0,'g/dl','FLOAT','simpleParameter',NULL,                                                  1,0,0,0,1,0,0,0,0,'',522);
+INSERT INTO `phenotype_parameter` VALUES (8576,'ESLIM_016_001_004',6,'Haematocrit','Haematocrit',1,0,'%','FLOAT','simpleParameter',NULL,                                                     1,0,0,0,1,0,0,0,0,'',523);
+INSERT INTO `phenotype_parameter` VALUES (8577,'ESLIM_016_001_005',6,'Mean cell volume','Mean_cell_volume',1,0,'fl','FLOAT','simpleParameter',NULL,                                          1,0,0,0,1,0,0,0,0,'',524);
+INSERT INTO `phenotype_parameter` VALUES (8578,'ESLIM_016_001_006',6,'Mean corpuscular haemoglobin','Mean_corpuscular_haemoglobin',1,0,'pg','FLOAT','simpleParameter',NULL,                  1,0,0,0,1,0,0,0,0,'',525);
+INSERT INTO `phenotype_parameter` VALUES (8579,'ESLIM_016_001_007',6,'Mean cell haemoglobin concentration  ','Mean_cell_haemoglobin_concentration',1,0,'g/dl','FLOAT','simpleParameter',NULL,1,0,0,0,1,0,0,0,0,'',526);
+INSERT INTO `phenotype_parameter` VALUES (8580,'ESLIM_016_001_008',6,'Platelets count','Platelets_count',1,0,'10^3/ul ','FLOAT','simpleParameter',NULL,                                      1,0,0,0,1,0,0,0,0,'',527);
 
 
 INSERT INTO phenotype_parameter_lnk_ontology_annotation (annotation_id, parameter_id) VALUES (2766, 2271);
@@ -111,7 +110,7 @@ INSERT INTO `phenotyped_colony` VALUES (2473,'ET9321','DEPD00591_2_A10','MGI:134
 INSERT INTO `phenotyped_colony` VALUES (7237,'TCPA0975Cre','EPD0431_4_C04','MGI:101770',3,'Bfsp1<tm1b(EUCOMM)Wtsi>','C57BL/6NCrl',2,12,32,12);
 
 
-CREATE TABLE procedure_colony_id
+CREATE TABLE IF NOT EXISTS procedure_colony_id
 (
   procedure_stable_id varchar(30)  not null,
   colony_id           varchar(100) not null

@@ -30,6 +30,8 @@ public class SqlUtils {
     private static final Logger      logger      = LoggerFactory.getLogger(SqlUtils.class);
     private              CommonUtils commonUtils = new CommonUtils();
 
+    // Hikari parameters:
+    //    https://github.com/brettwooldridge/HikariCP#configuration-knobs-baby
     private final static Integer INITIAL_POOL_CONNECTIONS = 1;
     private final static Integer MAXIMUM_POOL_SIZE        = 100;            // Default is 10. OntologyParserTest times out with 10.
     private final static Integer CONNECTION_TIMEOUT_IN_MS = 30000;          // Default is 30k (30 seconds)

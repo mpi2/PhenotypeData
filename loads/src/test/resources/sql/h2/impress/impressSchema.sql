@@ -32,6 +32,7 @@ CREATE TABLE `phenotype_parameter` (
   `media` tinyint(1) DEFAULT '0',
   `data_analysis_notes` text,
   `stable_key` int(10) DEFAULT '0',
+
   PRIMARY KEY (`id`)
 );
 
