@@ -10,7 +10,7 @@ import java.util.List;
  * Created by ilinca on 06/01/2017.
  */
 public class CommonUtilsTest {
-//@Ignore
+
     @Test
     public void testGetBitMask() {
 
@@ -41,7 +41,6 @@ public class CommonUtilsTest {
 
     }
 
-//@Ignore
     @Test
     public void parseImpressStatusTest() {
         CommonUtils commonUtils = new CommonUtils();

@@ -382,7 +382,8 @@ public class SqlUtils {
                     if (ts != null)  {
                         Date date = new Date(ts.getTime());
                         if (date != null) {
-                            formattedDate = commonUtils.formattedDate(date);
+                            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                            formattedDate = dateFormat.format(date);
                         }
                     }
                     newRow.add(formattedDate);

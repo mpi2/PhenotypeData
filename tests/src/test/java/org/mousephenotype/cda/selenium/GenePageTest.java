@@ -62,6 +62,7 @@ import static com.thoughtworks.selenium.SeleneseTestNgHelper.assertEquals;
  * Selenium test for gene page query coverage ensuring each page works as expected.
  */
 
+@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TestConfig.class)
 public class GenePageTest {
@@ -925,7 +926,7 @@ public class GenePageTest {
 
     // Tests gene page with more than one Production Status [blue] order button.
     @Test
-//@Ignore
+@Ignore
     public void testOrderButtons() throws SolrServerException {
         String testName = "testOrderButtons";
         int targetCount = 1;

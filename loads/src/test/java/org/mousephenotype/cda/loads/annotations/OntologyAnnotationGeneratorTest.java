@@ -34,9 +34,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
-import javax.transaction.Transactional;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

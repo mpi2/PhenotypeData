@@ -24,13 +24,13 @@ import org.mousephenotype.cda.loads.integration.data.config.TestConfig;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -39,21 +39,15 @@ import java.util.Map;
  * and cda set of databases.
  * The specimen and experiment tested here was missing from dcc_6_0 and dcc_6_1 but both were present in the live komp2 database.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ComponentScan
+@RunWith(SpringRunner.class)
 @ContextConfiguration(classes = TestConfig.class)
 public class ProjectMapperThreeITest {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    CdaSqlUtils cdaSqlUtils;
+    @Autowired @NotNull private CdaSqlUtils cdaSqlUtils;
+    @Autowired @NotNull private DataSource cdaDataSource;
+    @Autowired @NotNull private ApplicationContext context;
 
-
-    @Autowired
-    private DataSource cdaDataSource;
-
-    @Autowired
-    private ApplicationContext context;
 
     @Test
     public void testCaseInsensitiveProjectLookup() throws SQLException {
@@ -104,7 +98,5 @@ public class ProjectMapperThreeITest {
 
         Assert.assertTrue(m.get("Bcm") == 25);
         Assert.assertTrue(m.get("BCM") == null);
-
     }
-
 }

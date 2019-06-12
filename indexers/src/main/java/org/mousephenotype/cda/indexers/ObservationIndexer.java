@@ -19,6 +19,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.db.WeightMap;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -69,8 +70,6 @@ import java.util.*;
 public class ObservationIndexer extends AbstractIndexer implements CommandLineRunner {
 
 	private final Logger logger = LoggerFactory.getLogger(ObservationIndexer.class);
-
-	final String DATETIME_FORMAT = WeightMap.DATETIME_FORMAT;
 
 	private Connection connection;
 
@@ -251,7 +250,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 				ZonedDateTime dateOfExperiment = null;
 				try {
-					dateOfExperiment = ZonedDateTime.parse(r.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
+					dateOfExperiment = ZonedDateTime.parse(r.getString("date_of_experiment"), DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT_OPTIONAL_MILLISECONDS).withZone(ZoneId.of("UTC")));
 					o.setDateOfExperiment(dateOfExperiment);
 				} catch (NullPointerException e) {
 					logger.debug("  No date of experiment set for experiment external ID: {}", r.getString("external_id"));
@@ -652,9 +651,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				+ "INNER JOIN ontology_term ot ON ot.acc=ls.developmental_stage_acc "
 		        + "INNER JOIN organisation prod_org ON bs.organisation_id=prod_org.id ";
 
-		final String DATETIME_FORMAT_WITH_SECONDS = "yyyy-MM-dd HH:mm:ss.S";
-		final String DATETIME_FORMAT_NO_SECONDS = "yyyy-MM-dd HH:mm:ss";
-
 		try (PreparedStatement p = connection.prepareStatement(query)) {
 
 			ResultSet resultSet = p.executeQuery();
@@ -673,7 +669,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				try {
 					rawDOB = resultSet.getString("date_of_birth");
 
-					DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATETIME_FORMAT_NO_SECONDS);
+					DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT_OPTIONAL_MILLISECONDS);
 					b.dateOfBirth = ZonedDateTime.parse(rawDOB, formatter.withZone(ZoneId.of("UTC")));
 
 				} catch (NullPointerException e) {
@@ -684,7 +680,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 				} catch (DateTimeParseException e) {
 
-					DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATETIME_FORMAT_WITH_SECONDS);
+					DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT_OPTIONAL_MILLISECONDS);
 					b.dateOfBirth = ZonedDateTime.parse(rawDOB, formatter.withZone(ZoneId.of("UTC")));
 				}
 

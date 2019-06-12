@@ -4,10 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.constants.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -37,7 +34,6 @@ public class WeightMap {
 
     private static final String ipgttWeightParameter = "IMPC_IPG_001_001";
 
-    public static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.S";
     private Map<Integer, List<BodyWeight>> weightMap = new HashMap<>();
     private Map<Integer, BodyWeight> ipgttWeightMap = new HashMap<>();
     private DataSource komp2DataSource;
@@ -205,12 +201,12 @@ public class WeightMap {
                 BodyWeight b = new BodyWeight();
                 try {
                     b.date = ZonedDateTime.parse(resultSet.getString("date_of_experiment"),
-                            DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
+                            DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT_OPTIONAL_MILLISECONDS).withZone(ZoneId.of("UTC")));
                 } catch (NullPointerException e) {
                     e.printStackTrace();
                     b.date = null;
                     logger.debug("  No date of experiment set for sample id {} parameter {}",
-                            resultSet.getString("biological_sample_id"), resultSet.getString("parameter_stable_id"));
+                                 resultSet.getString("biological_sample_id"), resultSet.getString("parameter_stable_id"));
                 }
 
                 b.weight = resultSet.getFloat("weight");
@@ -253,7 +249,7 @@ public class WeightMap {
                 BodyWeight b = new BodyWeight();
                 try {
                     b.date = ZonedDateTime.parse(resultSet.getString("date_of_experiment"),
-                            DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
+                            DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT_OPTIONAL_MILLISECONDS).withZone(ZoneId.of("UTC")));
                 } catch (NullPointerException e) {
                     e.printStackTrace();
                     b.date = null;
@@ -336,5 +332,4 @@ public class WeightMap {
             return Objects.hash(parameterStableId, date, weight, daysOld);
         }
     }
-
 }

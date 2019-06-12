@@ -7,7 +7,6 @@ import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.statistics.load.threei.TestConfigThreeI;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -17,14 +16,12 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.util.Assert;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 
 @Configuration
@@ -48,18 +45,6 @@ public class StatisticalResultLoaderTestConfig {
                 .setName("cda_test")
                 .build();
     }
-
-
-    @Bean
-    @PersistenceContext(name = "komp2Context")
-    public LocalContainerEntityManagerFactoryBean emf(EntityManagerFactoryBuilder builder) {
-        return builder
-                .dataSource(cdaDataSource())
-                .packages("org.mousephenotype.cda.db")
-                .persistenceUnit("komp2")
-                .build();
-    }
-
 
     @Bean(name = "komp2TxManager")
     protected PlatformTransactionManager transactionManager(EntityManagerFactory emf) {

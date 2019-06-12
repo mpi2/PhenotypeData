@@ -3,7 +3,7 @@
 INSERT INTO `phenotype_pipeline` VALUES (8,'MGP_001',6,'MGP Select Pipeline','',1,0,15,NULL);
 
 INSERT INTO `phenotype_procedure` VALUES
-  (109, 215, 'MGP_BCI_001', 6, 'Buffy coat peripheral blood leukocyte immunophenotyping', '', 1, 0, 0, 'experiment', 'Terminal', 'Week 16');
+  (109, 215, 'MGP_BCI_001', 6, 'Buffy coat peripheral blood leukocyte immunophenotyping', '', 1, 0, 0, 'experiment', 'Terminal', 'Week 16', 0);
 
 INSERT INTO `phenotype_parameter`
   (`id`,`stable_id`,`db_id`,`name`,`description`,`major_version`,`minor_version`,`unit`,`datatype`,`parameter_type`,`formula`,`required`,`metadata`,`important`,`derived`,`annotate`,`increment`,`options`,`sequence`,`media`,`data_analysis_notes`,`stable_key`)
@@ -35,4 +35,3 @@ INSERT INTO ontology_term (acc, db_id, name, is_obsolete, replacement_acc) VALUE
   ('EFO:0002948', 15, 'postnatal',          0, null),
   ('EFO:0005857', 15, 'mouse embryo stage', 0, null),
   ('MA:0002405',   8, 'postnatal mouse',    0, null);
-

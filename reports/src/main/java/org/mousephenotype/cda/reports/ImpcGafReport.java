@@ -34,6 +34,7 @@ import org.springframework.stereotype.Component;
 import java.beans.Introspector;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -114,7 +115,7 @@ public class ImpcGafReport extends AbstractReport {
             }
 
             // Write the data.
-            Date releaseDate = commonUtils.tryParseDate(new SimpleDateFormat("dd MMM yyyy"), analyticsDAO.getMetaData().get("data_release_date"));
+            Date releaseDate = tryParseDate(new SimpleDateFormat("dd MMM yyyy"), analyticsDAO.getMetaData().get("data_release_date"));
             String dataReleaseDate = (releaseDate == null ? "" : new SimpleDateFormat("yyyyMMdd").format(releaseDate));
 
             for (GenotypePhenotypeDTO gpDTO : geneToPhenotypes.values()) {
@@ -160,5 +161,30 @@ public class ImpcGafReport extends AbstractReport {
         }
 
         log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
+    }
+
+
+    /**
+     * Given a <code>SimpleDateFormat</code> instance that may be null or may describe a date input format string, this
+     * method attempts to convert the value to a <code>Date</code>. If successful,
+     * the <code>Date</code> instance is returned; otherwise, <code>null</code> is returned.
+     * NOTE: the [non-null] object is first converted to a string and is trimmed of whitespace.
+     *
+     * @param formatter a <code>SimpleDateFormat</code> instance describing the input string date format
+     * @param value     the <code>String</code> representation, matching <code>formatter></code> to try to convert
+     * @return If <code>value</code> is a valid date as described by <code>formatter</code>; null otherwise
+     */
+    private Date tryParseDate(SimpleDateFormat formatter, String value) {
+        if ((formatter == null) || (value == null)) {
+            return null;
+        }
+
+        Date retVal = null;
+        try {
+            retVal = formatter.parse(value.trim());
+        } catch (ParseException pe) {
+        }
+
+        return retVal;
     }
 }

@@ -31,7 +31,6 @@ import org.mousephenotype.cda.selenium.support.SearchFacetTable;
 import org.mousephenotype.cda.selenium.support.SearchPage;
 import org.mousephenotype.cda.selenium.support.TestUtils;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
-import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.utilities.UrlUtils;
@@ -45,7 +44,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -66,6 +64,7 @@ import static org.junit.Assert.fail;
  *
  * Selenium test for search coverage ensuring each page works as expected.
  */
+@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TestConfig.class)
 public class SearchPageTest {
