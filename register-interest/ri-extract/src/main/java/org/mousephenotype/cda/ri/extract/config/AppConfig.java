@@ -16,10 +16,11 @@
 
 package org.mousephenotype.cda.ri.extract.config;
 
+import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.ri.core.entities.Gene;
 import org.mousephenotype.cda.ri.core.entities.ImitsStatus;
 import org.mousephenotype.cda.ri.core.exceptions.InterestException;
-import org.mousephenotype.cda.ri.core.utils.SqlUtils;
+import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
 import org.mousephenotype.cda.ri.extract.Downloader;
 import org.mousephenotype.cda.ri.extract.GeneLoader;
 import org.mousephenotype.cda.ri.extract.GeneProcessor;
@@ -116,8 +117,8 @@ public class AppConfig {
     }
 
     @Bean
-    public SqlUtils sqlUtils() {
-        return new SqlUtils(jdbc());
+    public RiSqlUtils sqlUtils() {
+        return new RiSqlUtils(jdbc());
     }
 
     @Value("${datasource.ri.url}")

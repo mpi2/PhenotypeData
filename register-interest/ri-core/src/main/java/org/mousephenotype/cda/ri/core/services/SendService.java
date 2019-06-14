@@ -18,7 +18,7 @@ package org.mousephenotype.cda.ri.core.services;
 
 import org.mousephenotype.cda.ri.core.entities.Summary;
 import org.mousephenotype.cda.ri.core.utils.EmailUtils;
-import org.mousephenotype.cda.ri.core.utils.SqlUtils;
+import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,7 +38,7 @@ public class SendService {
     public static final String DEFAULT_WELCOME_SUBJECT = "Welcome to the IMPC gene registration system";
     public static final String DEFAULT_SUMMARY_SUBJECT = "Complete list of IMPC genes for which you have registered interest";
 
-    private SqlUtils   sqlUtils;
+    private RiSqlUtils riSqlUtils;
     private EmailUtils emailUtils = new EmailUtils();
 
     @NotNull
@@ -60,13 +60,13 @@ public class SendService {
 
     @Inject
     public SendService(
-            SqlUtils sqlUtils,
+            RiSqlUtils riSqlUtils,
             String smtpHost,
             Integer smtpPort,
             String smtpFrom,
             String smtpReplyto
     ) {
-        this.sqlUtils = sqlUtils;
+        this.riSqlUtils = riSqlUtils;
         this.smtpHost = smtpHost;
         this.smtpPort = smtpPort;
         this.smtpFrom = smtpFrom;
@@ -82,7 +82,7 @@ public class SendService {
         try {
 
             Transport.send(message);
-            sqlUtils.updateGeneSent(summary);
+            riSqlUtils.updateGeneSent(summary);
 
         } catch (MessagingException e) {
 

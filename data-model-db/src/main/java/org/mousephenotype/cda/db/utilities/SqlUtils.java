@@ -454,10 +454,11 @@ public class SqlUtils {
      */
 
     public static DataSource getConfiguredDatasource(String url, String username, String password) {
-       HikariDataSource ds = new HikariDataSource();
+        HikariDataSource ds = new HikariDataSource();
         ds.setJdbcUrl(url);
         ds.setUsername(username);
         ds.setPassword(password);
+        ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
 
         ds.setConnectionInitSql("SELECT 1");
         ds.setMinimumIdle(INITIAL_POOL_CONNECTIONS);

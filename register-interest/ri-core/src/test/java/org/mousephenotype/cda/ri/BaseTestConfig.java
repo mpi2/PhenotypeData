@@ -17,7 +17,7 @@
 package org.mousephenotype.cda.ri;
 
 import org.mousephenotype.cda.ri.core.services.GenerateService;
-import org.mousephenotype.cda.ri.core.utils.SqlUtils;
+import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -43,8 +43,8 @@ public class BaseTestConfig {
     }
 
     @Bean
-    protected SqlUtils sqlUtils() {
-        return new SqlUtils(jdbc());
+    protected RiSqlUtils riSqlUtils() {
+        return new RiSqlUtils(jdbc());
     }
 
     @Bean
@@ -54,6 +54,6 @@ public class BaseTestConfig {
 
     @Bean
     protected GenerateService generateService() {
-        return new GenerateService(PA_BASE_URL, sqlUtils());
+        return new GenerateService(PA_BASE_URL, riSqlUtils());
     }
 }

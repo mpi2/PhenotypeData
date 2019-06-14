@@ -46,8 +46,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by mrelac on 12/05/2017.
  */
-public class SqlUtils {
-    private static final Logger logger = LoggerFactory.getLogger(SqlUtils.class);
+public class RiSqlUtils {
+    private static final Logger logger = LoggerFactory.getLogger(RiSqlUtils.class);
 
     private static final Integer INITIAL_POOL_CONNECTIONS = 1;
 
@@ -56,7 +56,7 @@ public class SqlUtils {
     private NamedParameterJdbcTemplate jdbcInterest;
     
     @Inject
-    public SqlUtils(NamedParameterJdbcTemplate jdbcInterest) {
+    public RiSqlUtils(NamedParameterJdbcTemplate jdbcInterest) {
         this.jdbcInterest = jdbcInterest;
     }
 
@@ -336,40 +336,6 @@ public class SqlUtils {
         }
 
         return allSummaries;
-    }
-
-    public static DataSource getConfiguredDatasource(String url, String username, String password) {
-        org.apache.tomcat.jdbc.pool.DataSource ds = new org.apache.tomcat.jdbc.pool.DataSource();
-        ds.setUrl(url);
-        ds.setUsername(username);
-        ds.setPassword(password);
-        ds.setDriverClassName("com.mysql.jdbc.Driver");
-        ds.setInitialSize(INITIAL_POOL_CONNECTIONS);
-        ds.setMaxActive(50);
-        ds.setMinIdle(INITIAL_POOL_CONNECTIONS);
-        ds.setMaxIdle(INITIAL_POOL_CONNECTIONS);
-        ds.setTestOnBorrow(true);
-        ds.setValidationQuery("SELECT 1");
-        ds.setValidationInterval(5000);
-        ds.setMaxAge(30000);
-        ds.setMaxWait(35000);
-        ds.setTestWhileIdle(true);
-        ds.setTimeBetweenEvictionRunsMillis(5000);
-        ds.setMinEvictableIdleTimeMillis(5000);
-        ds.setValidationInterval(30000);
-        ds.setRemoveAbandoned(true);
-        ds.setRemoveAbandonedTimeout(10000); // 10 seconds before abandoning a query
-
-        try {
-            logger.info("Using cdasource database {} with initial pool size {}. URL: {}", ds.getConnection().getCatalog(), ds.getInitialSize(), url);
-
-        } catch (Exception e) {
-
-            System.err.println(e.getLocalizedMessage());
-            e.printStackTrace();
-        }
-
-        return ds;
     }
 
     /**

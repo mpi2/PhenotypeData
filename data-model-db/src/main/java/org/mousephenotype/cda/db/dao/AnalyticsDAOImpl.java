@@ -282,6 +282,7 @@ public class AnalyticsDAOImpl extends HibernateDAOImpl implements AnalyticsDAO {
 	}
 
 
+	@Transactional(readOnly = true)
 	public String getCurrentRelease() {
 
 		String query = "SELECT property_value as release_version FROM meta_info WHERE property_key='data_release_version'";

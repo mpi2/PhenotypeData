@@ -16,14 +16,14 @@
 
 package org.mousephenotype.cda.ri.extract;
 
+import org.mousephenotype.cda.ri.core.entities.Gene;
+import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
-import org.mousephenotype.cda.ri.core.entities.Gene;
-import org.mousephenotype.cda.ri.core.utils.SqlUtils;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 
@@ -33,9 +33,9 @@ import java.util.Map;
 public class GeneWriter implements ItemWriter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @NotNull
     @Autowired
-    @Qualifier("sqlUtils")
-    private SqlUtils sqlUtils;
+    private RiSqlUtils riSqlUtils;
 
     private int insertCount = 0;
     private int updateCount = 0;
@@ -50,7 +50,7 @@ public class GeneWriter implements ItemWriter {
      */
     @Override
     public void write(List items) throws Exception {
-        Map<String, Integer> results = sqlUtils.updateOrInsertGene((List<Gene>)items);
+        Map<String, Integer> results = riSqlUtils.updateOrInsertGene((List<Gene>)items);
         insertCount += results.get("insertCount");
         updateCount += results.get("updateCount");
     }

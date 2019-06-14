@@ -17,7 +17,7 @@
 package org.mousephenotype.cda.ri.extract;
 
 import org.mousephenotype.cda.ri.core.exceptions.InterestException;
-import org.mousephenotype.cda.ri.core.utils.SqlUtils;
+import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -68,7 +68,7 @@ public class ApplicationExtract implements CommandLineRunner {
     private GeneLoader         imitsLoader;
     private String             pathToGeneStatusChangeReport;
     private DataSource         riDataSource;
-    private SqlUtils           sqlUtils;
+    private RiSqlUtils         riSqlUtils;
 
 
     public static void main(String[] args) throws Exception {
@@ -88,7 +88,7 @@ public class ApplicationExtract implements CommandLineRunner {
             List<Downloader> downloader,
             GeneLoader imitsLoader,
             DataSource riDataSource,
-            SqlUtils sqlUtils
+            RiSqlUtils riSqlUtils
     ) {
 
         this.jobBuilderFactory = jobBuilderFactory;
@@ -97,7 +97,7 @@ public class ApplicationExtract implements CommandLineRunner {
         this.downloader = downloader;
         this.imitsLoader = imitsLoader;
         this.riDataSource = riDataSource;
-        this.sqlUtils = sqlUtils;
+        this.riSqlUtils = riSqlUtils;
     }
 
     /**
@@ -124,9 +124,9 @@ public class ApplicationExtract implements CommandLineRunner {
 
         // Populate Spring Batch tables if necessary.
         try {
-            boolean exists = sqlUtils.columnInSchemaMysql(riDataSource.getConnection(), "BATCH_JOB_INSTANCE", "JOB_INSTANCE_ID");
+            boolean exists = riSqlUtils.columnInSchemaMysql(riDataSource.getConnection(), "BATCH_JOB_INSTANCE", "JOB_INSTANCE_ID");
             if ( ! exists) {
-                sqlUtils.createSpringBatchTables(riDataSource);
+                riSqlUtils.createSpringBatchTables(riDataSource);
             }
 
         } catch (Exception e) {

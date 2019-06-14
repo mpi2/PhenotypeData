@@ -16,11 +16,11 @@
 
 package uk.ac.ebi.phenotype.web.controller.registerinterest;
 
+import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.ri.core.services.CoreService;
 import org.mousephenotype.cda.ri.core.services.GenerateService;
 import org.mousephenotype.cda.ri.core.services.SendService;
-import org.mousephenotype.cda.ri.core.utils.SqlUtils;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -54,12 +54,11 @@ public class RegisterInterestConfig {
     }
 
     @Bean
-    public SqlUtils riSqlUtils() {
-        return new SqlUtils(jdbc());
+    public RiSqlUtils riSqlUtils() {
+        return new RiSqlUtils(jdbc());
     }
 
     @Bean
-    @Qualifier("riDataSource")
     public DataSource riDataSource() {
         return SqlUtils.getConfiguredDatasource(riDbUrl, dbUsername, dbPassword);
     }
