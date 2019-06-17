@@ -69,7 +69,7 @@ public class GenerateDerivedParametersTestConfig {
     }
 
     @Bean(name = "sessionFactoryHibernate")
-    public SessionFactory getSessionFactory() {
+    public SessionFactory sessionFactory() {
 
         LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
         sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");

@@ -631,7 +631,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
                 + "JOIN experiment e ON e.id = eo.experiment_id\n"
                 + "WHERE (missing = 0)  AND (((TRIM(IFNULL(parameter_status, ''))) != '')\n"
                 + "   OR (TRIM(IFNULL(parameter_status_message, '')) != ''))\n"
-                + "GROUP BY observation_type, e.organisation_id\n"
+                + "GROUP BY observation_type, e.organisation_id, o.observation_type, o.parameter_status, o.parameter_status_message\n"
                 + "ORDER BY e.organisation_id limit 1000000\n";
 
         try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
@@ -675,7 +675,7 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
                 + "JOIN experiment_observation eo ON eo.observation_id = o.id\n"
                 + "JOIN experiment e ON e.id = eo.experiment_id\n"
                 + "WHERE (missing = 1) AND (TRIM(IFNULL(o.parameter_status, '')) = '')\n"
-                + "GROUP BY o.observation_type, e.organisation_id\n"
+                + "GROUP BY o.observation_type, e.organisation_id, o.parameter_status, o.parameter_status_message\n"
                 + "ORDER BY e.organisation_id limit 1000000\n";
 
         try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
