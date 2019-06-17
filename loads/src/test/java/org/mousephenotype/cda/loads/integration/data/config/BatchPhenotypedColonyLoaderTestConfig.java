@@ -16,7 +16,6 @@
 
 package org.mousephenotype.cda.loads.integration.data.config;
 
-import javafx.application.Application;
 import org.mousephenotype.cda.loads.create.extract.cdabase.steps.PhenotypedColonyLoader;
 import org.mousephenotype.cda.loads.create.extract.cdabase.steps.PhenotypedColonyProcessor;
 import org.mousephenotype.cda.loads.create.extract.cdabase.steps.PhenotypedColonyWriter;
@@ -25,15 +24,11 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
-import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.net.MalformedURLException;
