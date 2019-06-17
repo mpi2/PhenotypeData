@@ -239,7 +239,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                                     try {
                                         procedureStableIds.add(procedure.getStableId());
                                     } catch (NullPointerException e) {
-                                        logger.error("Procedure lookup for center::colonyId::mgiAccessionId {}::{}::{}, procedureStableKey {} failed. Skipping...", strain.getCentre(), strain.getColonyId(), strain.getMgi(), procedureStableKey);
+                                        logger.error("Procedure lookup for center::colonyId::mgiAccessionId {}::{}::{}, procedureStableKey {} failed.", strain.getCentre(), strain.getColonyId(), strain.getMgi(), procedureStableKey);
                                     }
                 					gene.setProcedureStableId(procedureStableIds);
 
