@@ -60,7 +60,14 @@ package org.mousephenotype.cda.selenium;
   *
   * Selenium test for phenotype page coverage ensuring each page works as expected.
   */
-@RunWith(SpringRunner.class)
+
+
+// FIXME FIXME FIXME
+ @Ignore
+
+
+
+ @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TestConfig.class)
 public class PhenotypePageTest {
 

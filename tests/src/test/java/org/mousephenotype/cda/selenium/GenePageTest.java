@@ -62,7 +62,12 @@ import static com.thoughtworks.selenium.SeleneseTestNgHelper.assertEquals;
  * Selenium test for gene page query coverage ensuring each page works as expected.
  */
 
+
+// FIXME FIXME FIXME
 @Ignore
+
+
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TestConfig.class)
 public class GenePageTest {

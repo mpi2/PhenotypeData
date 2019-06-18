@@ -56,6 +56,12 @@ import java.util.List;
  * Selenium test for impc images coverage ensuring each page works as expected.
  */
 
+
+// FIXME FIXME FIXME
+@Ignore
+
+
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TestConfig.class)
 public class

@@ -71,12 +71,12 @@
             <artifactId>tomcat-jdbc</artifactId>
         </dependency>
 
-            <!-- This dependency (and a bootstrap.properties) is all that's required to pull configuration values
-                 from the configService. -->
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-starter-config</artifactId>
-            </dependency>
+        <!-- This dependency (and a bootstrap.properties) is all that's required to pull configuration values
+             from the configService. -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
 
     </dependencies>
 
@@ -86,13 +86,14 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
 
-                <!-- Exclude slow-running tests by default here. To run all tests,
-                     mvn -Dtest=**/* test -->
                 <configuration>
-                    <includes>**</includes>
+                    <!-- Exclude slow-running tests by default here. To run all tests: mvn -Dtest=** test -->
                     <excludes>
                         <exclude>**/OntologyParserTest.java</exclude>
                     </excludes>
+
+                    <!-- Don't fail if there are no runnable tests -->
+                    <failIfNoTests>false</failIfNoTests>
                 </configuration>
 
             </plugin>

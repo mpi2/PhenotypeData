@@ -208,14 +208,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M3</version>
 
-                <!-- Exclude slow-running tests by default here. To run all tests,
-                     mvn -Dtest=**/* test -->
                 <configuration>
+                    <!-- Exclude all loads tests by default here. To run all tests: mvn -Dtest=** test -->
                     <excludes>
-                        <exclude>**/*.java</exclude>
+                        <exclude>**</exclude>
                     </excludes>
+
+                    <!-- Don't fail if there are no runnable tests -->
+                    <failIfNoTests>false</failIfNoTests>
                 </configuration>
 
             </plugin>

@@ -57,11 +57,12 @@
 
     <build>
         <plugins>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>org.mousephenotype.cda.reports.ReportsManager </mainClass>
+                    <mainClass>org.mousephenotype.cda.reports.ReportsManager</mainClass>
                 </configuration>
                 <executions>
                     <execution>
@@ -75,6 +76,17 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+
+                <configuration>
+                    <!-- Don't fail if there are no runnable tests -->
+                    <failIfNoTests>false</failIfNoTests>
+                </configuration>
+
             </plugin>
 
         </plugins>

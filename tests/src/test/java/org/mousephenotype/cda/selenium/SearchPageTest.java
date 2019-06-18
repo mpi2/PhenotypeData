@@ -64,7 +64,13 @@ import static org.junit.Assert.fail;
  *
  * Selenium test for search coverage ensuring each page works as expected.
  */
+
+
+// FIXME FIXME FIXME
 @Ignore
+
+
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TestConfig.class)
 public class SearchPageTest {

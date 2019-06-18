@@ -144,11 +144,12 @@
 
     <build>
         <plugins>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>org.springframework.boot.loader.PropertiesLauncher</mainClass>
+<!--                    <mainClass>org.springframework.boot.loader.PropertiesLauncher</mainClass>-->
                     <!-- Discuss with Jeremy and Jonathan, how to use properties
                          to specify main class to run. For now locally I
                          created a variable I can pass it
@@ -167,6 +168,17 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+
+                <configuration>
+                    <!-- Don't fail if there are no runnable tests -->
+                    <failIfNoTests>false</failIfNoTests>
+                </configuration>
+
             </plugin>
 
         </plugins>

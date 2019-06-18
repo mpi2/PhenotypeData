@@ -53,6 +53,12 @@ import java.util.Date;
  * Selenium test for release page tests.
  */
 
+
+// FIXME FIXME FIXME
+@Ignore
+
+
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TestConfig.class)
 public class ReleasePageTest {

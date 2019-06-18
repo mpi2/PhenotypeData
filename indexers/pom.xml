@@ -114,13 +114,14 @@
 	</dependencies>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <mainClass>org.mousephenotype.cda.indexers.IndexerManager</mainClass>
-                </configuration>
+		<plugins>
+
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>org.mousephenotype.cda.indexers.IndexerManager</mainClass>
+				</configuration>
 				<executions>
 					<execution>
 						<id>repackage</id>
@@ -133,23 +134,25 @@
 						</configuration>
 					</execution>
 				</executions>
-            </plugin>
+			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 
-                <!-- Exclude slow-running tests by default here. To run all tests,
-                     mvn -Dtest=**/* test -->
 				<configuration>
-					<includes>**</includes>
+					<!-- Exclude slow-running tests by default here. To run all tests: mvn -Dtest=** test -->
 					<excludes>
 						<exclude>**/ObservationIndexerTest.java</exclude>
 					</excludes>
+
+					<!-- Don't fail if there are no runnable tests -->
+					<failIfNoTests>false</failIfNoTests>
 				</configuration>
 
 			</plugin>
 
-        </plugins>
+		</plugins>
     </build>
 
 </project>
