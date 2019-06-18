@@ -32,8 +32,8 @@ public class IndexerConfig {
     @Value("${buildIndexesSolrUrl}")
     private String writeSolrBaseUrl;
 
-    @Value("${solr.host}")
-    private String solrBaseUrl;
+    @Value("${internal_solr_url}")
+    private String internalSolrUrl;
 
 
     /////////////////////
@@ -44,7 +44,7 @@ public class IndexerConfig {
     @Bean
     SolrClient phenodigmCore() {
         // readonly
-        return new HttpSolrClient.Builder(solrBaseUrl + "/phenodigm").build();
+        return new HttpSolrClient.Builder(internalSolrUrl + "/phenodigm").build();
     }
 
 

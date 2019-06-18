@@ -48,10 +48,9 @@ public class SexualDimorphismWithBodyWeightReport extends AbstractReport {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
+    @NotNull @Autowired
     SexualDimorphismDAO sexualDimorphismDAO;
 
-    @NotNull
     @Value("${cms_base_url}")
     protected String cmsBaseUrl;
 

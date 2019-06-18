@@ -49,7 +49,7 @@ import java.util.*;
 public class ImpressService extends BasicService implements WebStatus {
 
 	@Value("${cms_base_url}")
-	public String CMS_BASE_URL;
+	public String cmsBaseUrl;
 
 	private SolrClient pipelineCore;
 
@@ -419,7 +419,7 @@ public class ImpressService extends BasicService implements WebStatus {
 
 	public String getProcedureUrlByKey(String procedureStableKey) {
 
-		return CMS_BASE_URL + "/impress/protocol/" + procedureStableKey;
+		return cmsBaseUrl + "/impress/protocol/" + procedureStableKey;
 	}
 
 
@@ -451,7 +451,7 @@ public class ImpressService extends BasicService implements WebStatus {
 	public String getPipelineUrlByStableId(String stableId){
 		Integer pipelineKey = getPipelineStableKey(stableId);
 		if (pipelineKey != null ){
-			return CMS_BASE_URL + "/impress/procedures/" + pipelineKey;
+			return cmsBaseUrl + "/impress/procedures/" + pipelineKey;
 		}
 		else return "#";
 	}
@@ -641,6 +641,6 @@ public class ImpressService extends BasicService implements WebStatus {
 
 	public String getParameterUrlByProcedureAndParameterKey(Integer procedureKey,Integer parameterKey) {
 		
-		return CMS_BASE_URL + "/impress/parameterontologies/"+parameterKey + "/"+procedureKey;
+		return cmsBaseUrl + "/impress/parameterontologies/"+parameterKey + "/"+procedureKey;
 	}
 }

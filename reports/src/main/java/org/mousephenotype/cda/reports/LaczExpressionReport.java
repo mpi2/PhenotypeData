@@ -43,7 +43,8 @@ public class LaczExpressionReport extends AbstractReport {
     protected String       reportsHostname;
     protected ImageService imageService;
 
-    public final String REPORTS_HOSTNAME_KEY = "reports_hostname";
+    public final String IMAGE_COLLECTION_LINK_BASE_KEY = "image_collection_link_base";
+    public String imageCollectionLinkBase = "https://www.mousephenotype.org/data";
 
     @Inject
     public LaczExpressionReport(ImageService imageService) {
@@ -67,15 +68,15 @@ public class LaczExpressionReport extends AbstractReport {
 
 
         PropertySource ps = new SimpleCommandLinePropertySource(args);
-        if ( ! ps.containsProperty(REPORTS_HOSTNAME_KEY)) {
+        if (ps.containsProperty(IMAGE_COLLECTION_LINK_BASE_KEY)) {
+            imageCollectionLinkBase = ps.getProperty(IMAGE_COLLECTION_LINK_BASE_KEY).toString();
+
             throw new ReportException("Required reports_hostname parameter is missing. Format is like http://www.mousephenotype.org.");
         }
 
-        reportsHostname = ps.getProperty(REPORTS_HOSTNAME_KEY).toString();
-
         long start = System.currentTimeMillis();
 
-        List<String[]> result = imageService.getLaczExpressionSpreadsheet(reportsHostname);
+        List<String[]> result = imageService.getLaczExpressionSpreadsheet(imageCollectionLinkBase);
         csvWriter.writeAll(result);
 
         try {

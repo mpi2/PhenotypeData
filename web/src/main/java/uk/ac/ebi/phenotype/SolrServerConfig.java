@@ -34,8 +34,8 @@ public class SolrServerConfig {
     public static final int THREAD_COUNT = 3;
 
 
-    @Value("${solr.host}")
-    private String solrBaseUrl;
+    @Value("${internal_solr_url}")
+    private String internalSolrUrl;
 
     @NotNull
     @Autowired
@@ -44,7 +44,7 @@ public class SolrServerConfig {
 
     // Required for spring-data-solr repositories
     @Bean
-    public SolrClient solrClient() { return new HttpSolrClient.Builder(solrBaseUrl).build(); }
+    public SolrClient solrClient() { return new HttpSolrClient.Builder(internalSolrUrl).build(); }
 
     @Bean
     public SolrOperations solrTemplate() { return new SolrTemplate(solrClient()); }
@@ -53,12 +53,12 @@ public class SolrServerConfig {
 
     @Bean(name = "allele2Core")
     HttpSolrClient getAllele2Core() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/allele2").build();
+        return new HttpSolrClient.Builder(internalSolrUrl + "/allele2").build();
     }
 
     @Bean(name = "productCore")
     HttpSolrClient getProductCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/product").build();
+        return new HttpSolrClient.Builder(internalSolrUrl + "/product").build();
     }
 
 
@@ -69,69 +69,69 @@ public class SolrServerConfig {
     // allele
     @Bean(name = "alleleCore")
     public HttpSolrClient getAlleleCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/allele").build();
+        return new HttpSolrClient.Builder(internalSolrUrl + "/allele").build();
     }
 
     // anatomy
     @Bean(name = "anatomyCore")
-    HttpSolrClient getAnatomyCore() { return new HttpSolrClient.Builder(solrBaseUrl + "/anatomy").build();	}
+    HttpSolrClient getAnatomyCore() { return new HttpSolrClient.Builder(internalSolrUrl + "/anatomy").build();	}
 
     // autosuggest
     @Bean(name = "autosuggestCore")
     HttpSolrClient getAutosuggestCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/autosuggest").build();
+        return new HttpSolrClient.Builder(internalSolrUrl + "/autosuggest").build();
     }
 
     // experiment
     @Bean(name = "experimentCore")
     HttpSolrClient getExperimentCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/experiment").build();
+        return new HttpSolrClient.Builder(internalSolrUrl + "/experiment").build();
     }
 
     // gene
     @Bean(name = "geneCore")
     HttpSolrClient getGeneCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/gene").build();
+        return new HttpSolrClient.Builder(internalSolrUrl + "/gene").build();
     }
 
     // genotype-phenotype
     // TK: this core seems to be used only in the test packages - remove?
     @Bean(name = "genotypePhenotypeCore")
     HttpSolrClient getGenotypePhenotypeCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/genotype-phenotype").build();
+        return new HttpSolrClient.Builder(internalSolrUrl + "/genotype-phenotype").build();
     }
 
     // images
     @Bean(name = "sangerImagesCore")
     HttpSolrClient getImagesCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/images").build();
+        return new HttpSolrClient.Builder(internalSolrUrl + "/images").build();
     }
 
     // impc_images
     @Bean(name = "impcImagesCore")
     HttpSolrClient getImpcImagesCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/impc_images").build();
+        return new HttpSolrClient.Builder(internalSolrUrl + "/impc_images").build();
     }
 
     // mp
     @Bean(name = "mpCore")
-    HttpSolrClient getMpCore() { return new HttpSolrClient.Builder(solrBaseUrl + "/mp").build(); }
+    HttpSolrClient getMpCore() { return new HttpSolrClient.Builder(internalSolrUrl + "/mp").build(); }
 
     // phenodigm
     @Bean(name = "phenodigmCore")
     public HttpSolrClient getPhenodigmCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/phenodigm").build();
+        return new HttpSolrClient.Builder(internalSolrUrl + "/phenodigm").build();
     }
 
     // pipeline
     @Bean(name = "pipelineCore")
     HttpSolrClient getPipelineCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/pipeline").build();
+        return new HttpSolrClient.Builder(internalSolrUrl + "/pipeline").build();
     }
 
     // statistical-result
     @Bean(name = "statisticalResultCore")
     HttpSolrClient getStatisticalResultCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/statistical-result").build();
+        return new HttpSolrClient.Builder(internalSolrUrl + "/statistical-result").build();
     }
 }

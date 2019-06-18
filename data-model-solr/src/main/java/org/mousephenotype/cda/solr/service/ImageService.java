@@ -39,13 +39,11 @@ import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.Assert;
 
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -72,10 +70,6 @@ public class ImageService extends BasicService implements WebStatus {
 
 	}
 
-
-	@NotNull
-	@Value("${base_url}")
-	private String baseUrl;
 
     public List<ImageSummary> getImageSummary(String markerAccessionId)
     throws SolrServerException, IOException {
@@ -551,7 +545,7 @@ public class ImageService extends BasicService implements WebStatus {
 	}
 
 
-	public List<String[]> getLaczExpressionSpreadsheet(String reportsHostname) {
+	public List<String[]> getLaczExpressionSpreadsheet(String imageCollectionLinkBase) {
         SolrQuery query = new SolrQuery();
         ArrayList<String[]> res = new ArrayList<>();
         String[] aux = new String[0];
@@ -607,8 +601,7 @@ public class ImageService extends BasicService implements WebStatus {
                 List<String> row = new ArrayList<>();
                 ArrayList<String> params = new ArrayList<>();
                 ArrayList<String> paramValues = new ArrayList<>();
-                String urlToImagePicker = reportsHostname + baseUrl
-                        + "/imageComparator?acc=";
+                String urlToImagePicker = imageCollectionLinkBase + "/imageComparator?acc=";
 
                 for (SolrDocument doc : group.getResult()) {
                     if (row.size() == 0) {

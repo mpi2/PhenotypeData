@@ -30,8 +30,8 @@ public class TestConfigSolr {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Value("${solr.host}")
-	private String solrBaseUrl;
+	@Value("${internal_solr_url}")
+	private String internalSolrUrl;
 
 
 	//////////////
@@ -64,87 +64,87 @@ public class TestConfigSolr {
 	// allele
 	@Bean(name = "alleleCore")
 	public HttpSolrClient alleleCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/allele").build();
+		return new HttpSolrClient.Builder(internalSolrUrl + "/allele").build();
 	}
 
 	// allele2
 	@Bean(name = "allele2Core")
 	public HttpSolrClient allele2Core() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/allele2").build();
+		return new HttpSolrClient.Builder(internalSolrUrl + "/allele2").build();
 	}
 
 	// anatomy
 	@Bean(name = "anatomyCore")
 	HttpSolrClient anatomyCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/anatomy").build();
+		return new HttpSolrClient.Builder(internalSolrUrl + "/anatomy").build();
 	}
 
 	// autosuggest
 	@Bean(name = "autosuggestCore")
 	HttpSolrClient autosuggestCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/autosuggest").build();
+		return new HttpSolrClient.Builder(internalSolrUrl + "/autosuggest").build();
 	}
 
 	// experiment
 	@Bean(name = "experimentCore")
 	HttpSolrClient experimentCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/experiment").build();
+		return new HttpSolrClient.Builder(internalSolrUrl + "/experiment").build();
 	}
 
 	// gene
 	@Bean(name = "geneCore")
 	HttpSolrClient geneCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/gene").build();
+		return new HttpSolrClient.Builder(internalSolrUrl + "/gene").build();
 	}
 
 	// genotype-phenotype
 	@Bean(name = "genotypePhenotypeCore")
 	HttpSolrClient genotypePhenotypeCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/genotype-phenotype").build();
+		return new HttpSolrClient.Builder(internalSolrUrl + "/genotype-phenotype").build();
 	}
 
 	// images
 	@Bean(name = "sangerImagesCore")
 	HttpSolrClient imagesCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/images").build();
+		return new HttpSolrClient.Builder(internalSolrUrl + "/images").build();
 	}
 
 	// impc_images
 	@Bean(name = "impcImagesCore")
 	HttpSolrClient impcImagesCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/impc_images").build();
+		return new HttpSolrClient.Builder(internalSolrUrl + "/impc_images").build();
 	}
 
 	// mgi-phenotype
 	@Bean(name = "mgiPhenotypeCore")
 	HttpSolrClient mgiPhenotypeCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/mgi-phenotype").build();
+		return new HttpSolrClient.Builder(internalSolrUrl + "/mgi-phenotype").build();
 	}
 
 	// mp
 	@Bean(name = "mpCore")
-	HttpSolrClient mpCore() { return new HttpSolrClient.Builder(solrBaseUrl + "/mp").build(); }
+	HttpSolrClient mpCore() { return new HttpSolrClient.Builder(internalSolrUrl + "/mp").build(); }
 
 	// phenodigm
 	@Bean(name = "phenodigmCore")
 	public HttpSolrClient phenodigmCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/phenodigm").build();
+		return new HttpSolrClient.Builder(internalSolrUrl + "/phenodigm").build();
 	}
 
 	// pipeline
 	@Bean(name = "pipelineCore")
 	HttpSolrClient pipelineCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/pipeline").build();
+		return new HttpSolrClient.Builder(internalSolrUrl + "/pipeline").build();
 	}
 
 	// product
 	@Bean(name = "productCore")
-	HttpSolrClient productCore() { return new HttpSolrClient.Builder(solrBaseUrl + "/product").build(); }
+	HttpSolrClient productCore() { return new HttpSolrClient.Builder(internalSolrUrl + "/product").build(); }
 
 	// statistical-result
 	@Bean(name = "statisticalResultCore")
 	HttpSolrClient statisticalResultCore() {
-		return new HttpSolrClient.Builder(solrBaseUrl + "/statistical-result").build();
+		return new HttpSolrClient.Builder(internalSolrUrl + "/statistical-result").build();
 	}
 
 
@@ -243,7 +243,7 @@ public class TestConfigSolr {
 	/////////////////////////////////////////////
 
 	@Bean
-	public SolrClient solrClient() { return new HttpSolrClient.Builder(solrBaseUrl).build(); }
+	public SolrClient solrClient() { return new HttpSolrClient.Builder(internalSolrUrl).build(); }
 
 	@Bean
 	public SolrOperations solrTemplate() { return new SolrTemplate(solrClient()); }

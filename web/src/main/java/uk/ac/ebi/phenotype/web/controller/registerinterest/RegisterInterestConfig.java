@@ -36,15 +36,12 @@ public class RegisterInterestConfig {
 
     // Database properties
 
-    @NotNull
     @Value("${datasource.ri.password}")
     private String dbPassword;
 
-    @NotNull
     @Value("${datasource.ri.username}")
     private String dbUsername;
 
-    @NotNull
     @Value("${datasource.ri.url}")
     private String riDbUrl;
 
@@ -65,31 +62,24 @@ public class RegisterInterestConfig {
 
 
     // e-mail server properties
-    @NotNull
     @Value("${mail.smtp.from}")
     private String smtpFrom;
 
-    @NotNull
     @Value("${mail.smtp.host}")
     private String smtpHost;
 
-    @NotNull
     @Value("${mail.smtp.port}")
     private Integer smtpPort;
 
-    @NotNull
     @Value("${mail.smtp.replyto}")
     private String smtpReplyto;
 
-    @NotNull
     @Value("${paBaseUrl}")
     String paBaseUrl;
 
-    @NotNull
     @Value("${cms_base_url}")
     private String cmsBaseUrl;
 
-    @NotNull
     @Value("${recaptcha.public}")
     private String recaptchaPublic;
 

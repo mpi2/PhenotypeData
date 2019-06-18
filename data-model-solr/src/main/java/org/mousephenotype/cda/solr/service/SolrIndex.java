@@ -47,41 +47,33 @@ public class SolrIndex {
 	public static final String IMG_NOT_FOUND = "No information available";
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
-	
-	@NotNull
+
 	@Value("${pdf_thumbnail_url}")
 	private String pdfThumbnailUrl;
 
-	@NotNull
 	@Value("${impc_media_base_url}")
 	private String impcMediaBaseUrl;
 
-	@Autowired
-	@Qualifier("autosuggestCore")
+
+	@NotNull @Autowired
 	SolrClient autosuggestCore;
 
-	@Autowired
-	@Qualifier("mpCore")
+	@NotNull @Autowired
 	SolrClient mpCore;
 
-	@Autowired
-	@Qualifier("geneCore")
+	@NotNull @Autowired
 	SolrClient geneCore;
 
-	@Autowired
-	@Qualifier("phenodigmCore")
+	@NotNull @Autowired
 	SolrClient phenodigmCore;
 
-	@Autowired
-	@Qualifier("anatomyCore")
+	@NotNull @Autowired
 	SolrClient anatomyCore;
 
-	@Autowired
-	@Qualifier("impcImagesCore")
+	@NotNull @Autowired
 	SolrClient impcImagesCore;
 
-	@Autowired
-	@Qualifier("allele2Core")
+	@NotNull @Autowired
 	SolrClient allele2Core;
 
 	private List<String> phenoStatuses = new ArrayList<String>();

@@ -46,9 +46,6 @@ public class TestConfig {
     @Value("${datasource.komp2.jdbc-url}")
     private String datasourceKomp2Url;
 
-    @Value("${solr.host}")
-    private String solrHost;
-
     @Value("${base_url}")
     private String baseUrl;
 
@@ -61,9 +58,6 @@ public class TestConfig {
 	@Value("${browserName}")
  	private String browserName;
 
-    @Value("${solr.host}")
-    private String solrBaseUrl;
-
 
     @PostConstruct
     private void initialise() throws TestException {
@@ -72,7 +66,6 @@ public class TestConfig {
 
     private void logParameters()  throws TestException {
         logger.info("dataSource.komp2.jdbc-url: " + datasourceKomp2Url);
-        logger.info("solr.host:                 " + solrHost);
         logger.info("baseUrl:                   " + baseUrl);
         logger.info("internalSolrUrl:           " + internalSolrUrl);
 		logger.info("seleniumUrl:               " + seleniumUrl);
@@ -146,29 +139,29 @@ public class TestConfig {
 
     @Bean
     public HttpSolrClient experimentCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/experiment").build();
+        return new HttpSolrClient.Builder(internalSolrUrl + "/experiment").build();
     }
 
     // gene
     @Bean
     public HttpSolrClient geneCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/gene").build();
+        return new HttpSolrClient.Builder(internalSolrUrl + "/gene").build();
     }
 
     // genotype-phenotype
     @Bean
     public HttpSolrClient genotypePhenotypeCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/genotype-phenotype").build();
+        return new HttpSolrClient.Builder(internalSolrUrl + "/genotype-phenotype").build();
     }
 
     // mp
 	@Bean
-    public HttpSolrClient mpCore() { return new HttpSolrClient.Builder(solrBaseUrl + "/mp").build(); }
+    public HttpSolrClient mpCore() { return new HttpSolrClient.Builder(internalSolrUrl + "/mp").build(); }
 
     // pipeline
     @Bean
     public HttpSolrClient pipelineCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/pipeline").build();
+        return new HttpSolrClient.Builder(internalSolrUrl + "/pipeline").build();
     }
 
 

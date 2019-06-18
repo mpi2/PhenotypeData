@@ -32,8 +32,8 @@ public class OntologyParserTestConfig {
     @Value("${owlpath}")
     protected String owlpath;
 
-    @Value("${solr.host}")
-    private String solrBaseUrl;
+    @Value("${internal_solr_url}")
+    private String internalSolrUrl;
 
     @Value("${datasource.komp2.jdbc-url}")
     private String komp2Url;
@@ -78,7 +78,7 @@ public class OntologyParserTestConfig {
     // phenodigm
     @Bean
     public HttpSolrClient phenodigmCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/phenodigm").build();
+        return new HttpSolrClient.Builder(internalSolrUrl + "/phenodigm").build();
     }
 
 

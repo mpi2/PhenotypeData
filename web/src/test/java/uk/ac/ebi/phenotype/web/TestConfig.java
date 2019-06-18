@@ -43,15 +43,11 @@ public class TestConfig {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("${solr.host}")
-    private String solrHost;
+	@Value("${base_url}")
+	private String baseUrl;
 
     @Value("${cms_base_url}")
     private String cmsBaseUrl;
-
-
-	@Value("${base_url}")
-	private String baseUrl;
 
     @Value("${internal_solr_url}")
     private String internalSolrUrl;
@@ -59,7 +55,6 @@ public class TestConfig {
     @PostConstruct
     public void initialise() {
         logger.info("dataSource.komp2.jdbc-url: " + komp2DataSource());
-        logger.info("solr.host:            		" + solrHost);
         logger.info("baseUrl:              		" + baseUrl);
         logger.info("internalSolrUrl:      		" + internalSolrUrl);
     }

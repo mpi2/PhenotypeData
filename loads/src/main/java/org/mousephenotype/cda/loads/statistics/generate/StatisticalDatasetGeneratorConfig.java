@@ -29,18 +29,17 @@ public class StatisticalDatasetGeneratorConfig {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @NotNull
-    @Value("${solr.host}")
-    private String solrBaseUrl;
+    @Value("${internal_solr_url}")
+    private String internalSolrUrl;
 
     @Bean(name = "experimentCore")
     HttpSolrClient getExperimentCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/experiment").build();
+        return new HttpSolrClient.Builder(internalSolrUrl + "/experiment").build();
     }
 
     //Pipeline
     @Bean(name = "pipelineCore")
     HttpSolrClient getPipelineCore() {
-        return new HttpSolrClient.Builder(solrBaseUrl + "/pipeline").build();
+        return new HttpSolrClient.Builder(internalSolrUrl + "/pipeline").build();
     }
 }
