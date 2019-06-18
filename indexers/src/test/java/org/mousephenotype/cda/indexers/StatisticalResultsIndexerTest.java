@@ -4,7 +4,6 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.config.TestConfigIndexers;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.solr.service.AbstractGenotypePhenotypeService;
@@ -32,7 +31,7 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ContextConfiguration(classes = {TestConfigIndexers.class})
+@ContextConfiguration(classes = {IndexersTestConfig.class})
 public class StatisticalResultsIndexerTest implements ApplicationContextAware {
 
     private static final Logger logger = LoggerFactory.getLogger(StatisticalResultsIndexerTest.class);

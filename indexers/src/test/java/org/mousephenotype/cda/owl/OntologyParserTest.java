@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.db.owl;
+package org.mousephenotype.cda.owl;
 
 /**
  * Created by ilinca on 10/08/2016.
@@ -9,16 +9,12 @@ package org.mousephenotype.cda.db.owl;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.owl.OntologyParser;
-import org.mousephenotype.cda.owl.OntologyParserFactory;
-import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -41,8 +37,8 @@ public class OntologyParserTest {
     private       OntologyParser ontologyParser;
 
 
-    @Value("${owlpath}")
-    protected String owlpath;
+    @Autowired
+    private String owlpath;
 
     @Autowired
     private OntologyParserFactory ontologyParserFactory;

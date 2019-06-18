@@ -87,11 +87,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
 
                 <configuration>
-                    <!-- Exclude slow-running tests by default here. To run all tests: mvn -Dtest=** test -->
-                    <excludes>
-                        <exclude>**/OntologyParserTest.java</exclude>
-                    </excludes>
-
                     <!-- Don't fail if there are no runnable tests -->
                     <failIfNoTests>false</failIfNoTests>
                 </configuration>

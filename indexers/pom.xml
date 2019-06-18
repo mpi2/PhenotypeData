@@ -144,6 +144,7 @@
 					<!-- Exclude slow-running tests by default here. To run all tests: mvn -Dtest=** test -->
 					<excludes>
 						<exclude>**/ObservationIndexerTest.java</exclude>
+						<exclude>**/OntologyParserTest.java</exclude>
 					</excludes>
 
 					<!-- Don't fail if there are no runnable tests -->

@@ -14,20 +14,16 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.db.owl;
+package org.mousephenotype.cda.owl;
 
 
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
-import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
 
 @Configuration
 public class OntologyParserTestConfig {
@@ -83,5 +79,15 @@ public class OntologyParserTestConfig {
     @Bean
     public HttpSolrClient phenodigmCore() {
         return new HttpSolrClient.Builder(solrBaseUrl + "/phenodigm").build();
+    }
+
+
+    ////////////////
+    // MISCELLANEOUS
+    ////////////////
+
+    @Bean
+    public String owlPath() {
+        return owlpath;
     }
 }

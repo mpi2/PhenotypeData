@@ -3,7 +3,6 @@ package org.mousephenotype.cda.indexers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.config.TestConfigIndexers;
 import org.mousephenotype.cda.indexers.utils.EmbryoRestData;
 import org.mousephenotype.cda.indexers.utils.EmbryoRestGetter;
 import org.slf4j.Logger;
@@ -17,7 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ContextConfiguration(classes = {TestConfigIndexers.class})
+@ContextConfiguration(classes = {IndexersTestConfig.class})
 public class EmbryoRestGetterTest {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());

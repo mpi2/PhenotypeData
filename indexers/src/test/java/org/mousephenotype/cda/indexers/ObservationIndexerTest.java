@@ -6,7 +6,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.config.TestConfigIndexers;
 import org.mousephenotype.cda.db.WeightMap;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.OntologyBean;
@@ -34,7 +33,7 @@ import java.util.stream.Collectors;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ContextConfiguration(classes = {TestConfigIndexers.class})
+@ContextConfiguration(classes = {IndexersTestConfig.class})
 public class ObservationIndexerTest {
 
     private ObservationIndexer observationIndexer;

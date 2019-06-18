@@ -25,7 +25,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.config.TestConfigIndexers;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.InvalidCoreNameException;
 import org.mousephenotype.cda.indexers.exceptions.MissingRequiredArgumentException;
@@ -48,7 +47,7 @@ import static org.junit.Assert.fail;
 // */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ContextConfiguration(classes = {TestConfigIndexers.class})
+@ContextConfiguration(classes = {IndexersTestConfig.class})
 public class IndexerManagerTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

@@ -3,7 +3,6 @@ package org.mousephenotype.cda.indexers;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.config.TestConfigIndexers;
 import org.mousephenotype.cda.indexers.utils.PhisService;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
@@ -22,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ContextConfiguration(classes = {TestConfigIndexers.class})
+@ContextConfiguration(classes = {IndexersTestConfig.class})
 public class PhisServiceTest {
 
 	@Autowired

@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.config;
+package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -30,7 +30,7 @@ import javax.sql.DataSource;
  */
 @Configuration
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
-public class TestConfigIndexers {
+public class IndexersTestConfig {
 
 
     @Value("${owlpath}")
