@@ -16,7 +16,6 @@
 package uk.ac.ebi.phenotype.generic.util;
 
 import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import org.apache.commons.lang.StringUtils;
@@ -48,8 +47,8 @@ public class SolrIndex2 {
     private static final String ALLELE_NAME_FIELD = "allele_name_str";
     private static final String ALLELE_TYPE_FIELD = "allele_type";
 
-	@Value("${imits.solr.host}")
-    private String IMITS_SOLR_CORE_URL;
+	@Value("${internal_solr_url}")
+    private String internalSolrUrl;
 
     private static final Map<String, String> phraseMap;
 
@@ -631,7 +630,7 @@ public class SolrIndex2 {
 
         String target = "type:Allele AND (allele_mgi_accession_id:\"" + StringUtils.join(alleleAccession, "\" OR allele_mgi_accession_id:\"") + "\")";
 
-        String search_url = IMITS_SOLR_CORE_URL + "/allele2" + "/select?q="
+        String search_url = internalSolrUrl + "/allele2" + "/select?q="
                 + target
                 + "&start=0&rows=100&hl=true&wt=json";
 
@@ -676,7 +675,7 @@ public class SolrIndex2 {
 
         String hostUrl;
         String url;
-            hostUrl = IMITS_SOLR_CORE_URL + "/product";
+            hostUrl = internalSolrUrl + "/product";
         
 
         url = hostUrl + searchUrl;
@@ -692,7 +691,7 @@ public class SolrIndex2 {
 
         String hostUrl;
         String url;
-        hostUrl = IMITS_SOLR_CORE_URL + "/allele2";
+        hostUrl = internalSolrUrl + "/allele2";
         url = hostUrl + searchUrl;
 
         return url;

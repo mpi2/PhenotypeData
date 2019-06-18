@@ -31,9 +31,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
 public class TestAdvancedSearchConfig {
 
-    @Value("${imits.solr.host}")
-    private String imitsSolrBaseUrl;
-
     @Value("${solr.host}")
     private String solrBaseUrl;
 

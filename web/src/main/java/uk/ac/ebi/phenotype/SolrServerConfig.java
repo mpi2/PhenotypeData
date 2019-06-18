@@ -34,9 +34,6 @@ public class SolrServerConfig {
     public static final int THREAD_COUNT = 3;
 
 
-    @Value("${imits.solr.host}")
-    private String imitsSolrBaseUrl;
-
     @Value("${solr.host}")
     private String solrBaseUrl;
 
@@ -61,7 +58,7 @@ public class SolrServerConfig {
 
     @Bean(name = "productCore")
     HttpSolrClient getProductCore() {
-        return new HttpSolrClient.Builder(imitsSolrBaseUrl + "/product").build();
+        return new HttpSolrClient.Builder(solrBaseUrl + "/product").build();
     }
 
 
