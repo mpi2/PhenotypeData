@@ -27,7 +27,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.validation.constraints.NotNull;
 import java.util.*;
 
 @Component
@@ -42,7 +41,6 @@ public class ImpressUtils {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @NotNull
     @Value("${impress.service.url}")
     protected String impressServiceUrl;
 
