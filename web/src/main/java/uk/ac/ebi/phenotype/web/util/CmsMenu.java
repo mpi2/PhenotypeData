@@ -87,10 +87,11 @@ public class CmsMenu extends HttpProxy {
 		} catch (Exception e) {
 			// If we can't get the menu, default to the logged out menu
 			log.error("Cannot retrieve menu from CMS. Using default menu.", e);
-			content = DEFAULT_MENU;
+			publicMenu = DEFAULT_MENU;
+			content = publicMenu;
 		}
 
-		content = content.replaceAll("https://www.mousephenotypetest.org", cmsBaseUrl);
+		content = content.replaceAll("https:\\\\/\\\\/www.mousephenotype.org", cmsBaseUrl);
 
 		try {
 			final JSONArray jsonMenu = new JSONArray(content);
@@ -136,8 +137,8 @@ public class CmsMenu extends HttpProxy {
 				if (childMi.getChildren() != null) {
 					childMi.setChildren(
 							childMi.getChildren().stream()
-									.sorted(Comparator.comparing(MenuItem::getSort, Comparator.nullsLast(Comparator.naturalOrder())))
-									.collect(Collectors.toList()));
+								.sorted(Comparator.comparing(MenuItem::getSort, Comparator.nullsLast(Comparator.naturalOrder())))
+								.collect(Collectors.toList()));
 				}
 
 				mi.addChild(childMi);
