@@ -988,6 +988,8 @@ CREATE TABLE stats_categorical_results (
 	dependent_variable         VARCHAR(200),
 	mp_acc                     VARCHAR(20)      NULL,
 	mp_db_id                   INT(10)          NULL,
+    male_mp_acc                VARCHAR(20)      NULL,
+    female_mp_acc              VARCHAR(20)      NULL,
 	control_selection_strategy VARCHAR(100),
 	male_controls              INT(10),
 	male_mutants               INT(10),
