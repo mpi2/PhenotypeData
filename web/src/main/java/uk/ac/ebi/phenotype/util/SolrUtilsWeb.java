@@ -34,11 +34,7 @@ public class SolrUtilsWeb {
 	@Value("${impc_media_base_url}")
 	private String impcMediaBaseUrl;
 
-	@Value("${pdf_thumbnail_url}")
-	private String pdfThumbnailUrl;
 
-
-//	@NotNull
 	private SolrIndex solrIndex;
 
 
@@ -86,7 +82,7 @@ public class SolrUtilsWeb {
 				String smallThumbNailPath = thumbnailPath + "/";
 				img = "<img class='thumbnailStyle' src='" + smallThumbNailPath + "'/>";
 				if(downloadUrl.contains("/annotation/")){
-					img="<img class='thumbnailStyle' src='../" + pdfThumbnailUrl + "'/>";
+					img="<img class='thumbnailStyle' src='../" + Constants.PDF_THUMBNAIL_RELATIVE_URL + "'/>";
 				}
 			} else
 			if(doc.getInt("omero_id")==0)
@@ -95,7 +91,7 @@ public class SolrUtilsWeb {
 				String smallThumbNailPath = doc.getString("thumbnail_url");
 				img = "<img class='thumbnailStyle' src='" + smallThumbNailPath + "'/>";
 				if(downloadUrl.contains("/annotation/")){
-					img="<img class='thumbnailStyle' src='../" + pdfThumbnailUrl + "'/>";
+					img="<img class='thumbnailStyle' src='../" + Constants.PDF_THUMBNAIL_RELATIVE_URL + "'/>";
 				}
 			}else{
 				//link = IMG_NOT_FOUND;

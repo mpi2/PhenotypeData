@@ -17,6 +17,7 @@ package org.mousephenotype.cda.indexers;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.PhisService;
@@ -28,7 +29,6 @@ import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
@@ -65,10 +65,6 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	@NotNull
 	@Value("${impc_media_base_url}")
 	private String impcMediaBaseUrl;
-
-	@NotNull
-	@Value("${pdf_thumbnail_url}")
-	private String pdfThumbnailUrl;
 
 	@Autowired
 	@Qualifier("experimentCore")
@@ -257,7 +253,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 					if (downloadFilePath.endsWith(".pdf")) {
 						// http://wwwdev.ebi.ac.uk/mi/media/omero/webclient/annotation/119501/
 						imageDTO.setDownloadUrl(impcAnnotationBaseUrl + "/annotation/" + omeroId);
-						imageDTO.setJpegUrl(pdfThumbnailUrl);// pdf thumnail
+						imageDTO.setJpegUrl(Constants.PDF_THUMBNAIL_RELATIVE_URL);// pdf thumnail
 						// placeholder
 					} else {
 						imageDTO.setDownloadUrl(impcMediaBaseUrl + "/archived_files/download/" + omeroId);

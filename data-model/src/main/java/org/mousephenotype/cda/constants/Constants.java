@@ -43,7 +43,11 @@ public class Constants {
             "'GMC_920_001_001'", "'GMC_909_001_002'", "'GMC_914_001_001'");
 
 
+    // Displayable messages
     public static final String[] EMPTY_ROW                = new String[]{""};
     public static final String   NO_INFORMATION_AVAILABLE = "No information available";
     public static final String   IMAGE_COMING_SOON        = "Image coming soon<br>";
+
+    // PDF thumbnail icon (so PDFs show a PDF icon.
+    public static final String PDF_THUMBNAIL_RELATIVE_URL = "img/filetype_pdf.img";
 }

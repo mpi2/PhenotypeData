@@ -1,6 +1,7 @@
 package uk.ac.ebi;
 
 import org.hibernate.SessionFactory;
+import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,9 +67,6 @@ public class PhenotypeArchiveConfig {
     @Value("${monarch_url}")
     private String monarchUrl;
 
-    @Value("${pdf_thumbnail_url}")
-    private String pdfThumbnailUrl;
-
     @Value("${google_analytics}")
     private String googleAnalytics;
 
@@ -90,7 +88,7 @@ public class PhenotypeArchiveConfig {
         map.put("mediaBaseUrl", mediaBaseUrl);
         map.put("impcMediaBaseUrl", impcMediaBaseUrl);
         map.put("monarchUrl", monarchUrl);
-        map.put("pdfThumbnailUrl", pdfThumbnailUrl);
+        map.put("pdfThumbnailUrl", Constants.PDF_THUMBNAIL_RELATIVE_URL);
         map.put("googleAnalytics", googleAnalytics);
         map.put("liveSite", liveSite);
         map.put("paBaseUrl", paBaseUrl);
