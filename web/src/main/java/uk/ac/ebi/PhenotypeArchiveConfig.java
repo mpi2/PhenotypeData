@@ -1,6 +1,7 @@
 package uk.ac.ebi;
 
 import org.hibernate.SessionFactory;
+import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
+import uk.ac.ebi.phenotype.util.SolrUtilsWeb;
 import uk.ac.ebi.phenotype.web.util.DeploymentInterceptor;
 
 import java.util.HashMap;
@@ -145,5 +147,15 @@ public class PhenotypeArchiveConfig {
             }
 
         };
+    }
+
+    @Bean
+    public SolrUtilsWeb solrUtilsWeb() {
+        return new SolrUtilsWeb(solrIndexWeb());
+    }
+
+    @Bean
+    public SolrIndex solrIndexWeb() {
+        return new SolrIndex();
     }
 }

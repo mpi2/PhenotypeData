@@ -41,4 +41,9 @@ public class Constants {
             "'GMC_922_001_002'", "'GMC_923_001_001'", "'GMC_921_001_002'",
             "'GMC_902_001_003'", "'GMC_912_001_018'", "'GMC_917_001_001'",
             "'GMC_920_001_001'", "'GMC_909_001_002'", "'GMC_914_001_001'");
+
+
+    public static final String[] EMPTY_ROW                = new String[]{""};
+    public static final String   NO_INFORMATION_AVAILABLE = "No information available";
+    public static final String   IMAGE_COMING_SOON        = "Image coming soon<br>";
 }

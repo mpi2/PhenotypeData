@@ -24,6 +24,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.generic.util.Tools;
@@ -49,6 +50,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestUtils;
 import uk.ac.ebi.phenotype.service.BatchQueryForm;
+import uk.ac.ebi.phenotype.util.SolrUtilsWeb;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -98,8 +100,8 @@ public class DataTableController {
 	@Autowired
 	private PaperController paperController;
 
-	private String IMG_NOT_FOUND = "Image coming soon<br>";
-	private String NO_INFO_MSG = "No information available";
+	@NotNull @Autowired
+	private SolrUtilsWeb solrUtilsWeb;
 
 	@Autowired
 	private ReferenceDAO referenceDAO;
@@ -967,7 +969,7 @@ public class DataTableController {
 						imgLink = "<a rel='nofollow' class='fancybox' fullres='" + fullSizePath +  "' href='" + largeThumbNailPath + "'>" + img + "</a>";
 					}
 				} else {
-					imgLink = IMG_NOT_FOUND;
+					imgLink = Constants.IMAGE_COMING_SOON;
 				}
 
 				try {
@@ -1036,7 +1038,7 @@ public class DataTableController {
 					j.getJSONArray("aaData").add(rowData);
 				} catch (Exception e) {
 					// some images have no annotations
-					rowData.add("No information available");
+					rowData.add(Constants.NO_INFORMATION_AVAILABLE);
 					rowData.add(imgLink);
 					j.getJSONArray("aaData").add(rowData);
 				}
@@ -1109,7 +1111,7 @@ public class DataTableController {
 				String imgSubSetLink = null;
 				String thisImgUrl = null;
 
-				List pathAndImgCount = solrIndex.fetchImpcImagePathByAnnotName(query, thisFqStr);
+				List pathAndImgCount = solrUtilsWeb.fetchImpcImagePathByAnnotName(query, thisFqStr);
 
 				int imgCount = (int) pathAndImgCount.get(1);
 
@@ -1293,7 +1295,7 @@ public class DataTableController {
 					j.getJSONArray("aaData").add(rowData);
 				} catch (Exception e) {
 					// some images have no annotations
-					rowData.add("No information available");
+					rowData.add(Constants.NO_INFORMATION_AVAILABLE);
 					rowData.add(imgLink);
 					j.getJSONArray("aaData").add(rowData);
 				}
@@ -2310,17 +2312,6 @@ public class DataTableController {
 				rowData.add(resultSet.getString("date_of_publication"));
 				String pmid = "<span class='pmid' id=" + dbidStr + ">" + resultSet.getInt("pmid") + "</span>";
 				rowData.add(pmid);
-
-//				String[] grantIds = resultSet.getString("grant_id").split(delimeter);
-//				String[] grantAgencies = resultSet.getString("agency").split(delimeter);
-//				Set<String> gIdsAgencies = new HashSet<>();
-//
-//				for( int i=0; i<grantIds.length; i++ ) {
-//					if (!grantIds[i].equals("")){
-//						gIdsAgencies.add(grantIds[i] + " (" + grantAgencies[i] + ")");
-//					}
-//				}
-//				rowData.add(gIdsAgencies.size()>0 ? StringUtils.join(gIdsAgencies, ", ") : "No information available");
 				rowData.add(resultSet.getString("title"));
 
 				String[] urls = resultSet.getString("paper_url").split(delimeter);

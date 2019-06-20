@@ -19,6 +19,7 @@ package org.mousephenotype.cda.reports;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.ObservationService;
@@ -233,12 +234,12 @@ public class MetabolismIPGTTReport extends AbstractReport {
             if (hasWarnings[0]) {
                 retVal.add(DATA_ERROR);
             } else if (data[0] == null) {
-                retVal.add(NO_INFO_AVAILABLE);
+                retVal.add(Constants.NO_INFORMATION_AVAILABLE);
             } else {
                 retVal.add(Float.toString(data[0]));
             }
         } else {
-            retVal.add(NO_INFO_AVAILABLE);
+            retVal.add(Constants.NO_INFORMATION_AVAILABLE);
         }
 
         data = mouseInfoMap.get("IMPC_IPG_002_001");
@@ -250,14 +251,14 @@ public class MetabolismIPGTTReport extends AbstractReport {
             } else {
 	            for (Float aData : data) {
 		            if (aData == null) {
-			            retVal.add(NO_INFO_AVAILABLE);
+			            retVal.add(Constants.NO_INFORMATION_AVAILABLE);
 		            } else {
 			            retVal.add(Float.toString(aData));
 		            }
 	            }
             }
         } else {
-            retVal.add(NO_INFO_AVAILABLE);
+            retVal.add(Constants.NO_INFORMATION_AVAILABLE);
         }
 
         data = mouseInfoMap.get("IMPC_IPG_010_001");
@@ -265,12 +266,12 @@ public class MetabolismIPGTTReport extends AbstractReport {
             if (hasWarnings[2]) {
                 retVal.add(DATA_ERROR);
             } else if (data[0] == null) {
-                retVal.add(NO_INFO_AVAILABLE);
+                retVal.add(Constants.NO_INFORMATION_AVAILABLE);
             } else {
                 retVal.add(Float.toString(data[0]));
             }
         } else {
-            retVal.add(NO_INFO_AVAILABLE);
+            retVal.add(Constants.NO_INFORMATION_AVAILABLE);
         }
 
         // Metadata
@@ -279,7 +280,7 @@ public class MetabolismIPGTTReport extends AbstractReport {
         if (metadataList != null) {
             retVal.add(StringUtils.join(metadataList, "::"));
         } else {
-            retVal.add(NO_INFO_AVAILABLE);
+            retVal.add(Constants.NO_INFORMATION_AVAILABLE);
         }
 
         return retVal;

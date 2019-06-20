@@ -19,6 +19,7 @@ package org.mousephenotype.cda.reports;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.ObservationService;
@@ -178,12 +179,12 @@ public class MetabolismCBCReport extends AbstractReport {
                 log.debug("Multiple values found for simple parameter IMPC_CBC_015_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
-                retVal.add(NO_INFO_AVAILABLE);
+                retVal.add(Constants.NO_INFORMATION_AVAILABLE);
             } else {
                 retVal.add(Float.toString(data.get(0)));
             }
         } else {
-            retVal.add(NO_INFO_AVAILABLE);
+            retVal.add(Constants.NO_INFORMATION_AVAILABLE);
         }
 
         data = mouseInfoMap.get("IMPC_CBC_016_001");
@@ -192,12 +193,12 @@ public class MetabolismCBCReport extends AbstractReport {
                 log.debug("Multiple values found for simple parameter IMPC_CBC_016_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
-                retVal.add(NO_INFO_AVAILABLE);
+                retVal.add(Constants.NO_INFORMATION_AVAILABLE);
             } else {
                 retVal.add(Float.toString(data.get(0)));
             }
         } else {
-            retVal.add(NO_INFO_AVAILABLE);
+            retVal.add(Constants.NO_INFORMATION_AVAILABLE);
         }
 
         data = mouseInfoMap.get("IMPC_CBC_017_001");
@@ -206,12 +207,12 @@ public class MetabolismCBCReport extends AbstractReport {
                 log.debug("Multiple values found for simple parameter IMPC_CBC_017_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
-                retVal.add(NO_INFO_AVAILABLE);
+                retVal.add(Constants.NO_INFORMATION_AVAILABLE);
             } else {
                 retVal.add(Float.toString(data.get(0)));
             }
         } else {
-            retVal.add(NO_INFO_AVAILABLE);
+            retVal.add(Constants.NO_INFORMATION_AVAILABLE);
         }
 
         data = mouseInfoMap.get("IMPC_CBC_018_001");
@@ -220,12 +221,12 @@ public class MetabolismCBCReport extends AbstractReport {
                 log.debug("Multiple values found for simple parameter IMPC_CBC_018_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
-                retVal.add(NO_INFO_AVAILABLE);
+                retVal.add(Constants.NO_INFORMATION_AVAILABLE);
             } else {
                 retVal.add(Float.toString(data.get(0)));
             }
         } else {
-            retVal.add(NO_INFO_AVAILABLE);
+            retVal.add(Constants.NO_INFORMATION_AVAILABLE);
         }
 
         data = mouseInfoMap.get("IMPC_CBC_020_001");
@@ -234,12 +235,12 @@ public class MetabolismCBCReport extends AbstractReport {
                 log.debug("Multiple values found for simple parameter IMPC_CBC_020_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
-                retVal.add(NO_INFO_AVAILABLE);
+                retVal.add(Constants.NO_INFORMATION_AVAILABLE);
             } else {
                 retVal.add(Float.toString(data.get(0)));
             }
         } else {
-            retVal.add(NO_INFO_AVAILABLE);
+            retVal.add(Constants.NO_INFORMATION_AVAILABLE);
         }
 
         data = mouseInfoMap.get("IMPC_CBC_025_001");
@@ -248,12 +249,12 @@ public class MetabolismCBCReport extends AbstractReport {
                 log.debug("Multiple values found for simple parameter IMPC_CBC_025_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
-                retVal.add(NO_INFO_AVAILABLE);
+                retVal.add(Constants.NO_INFORMATION_AVAILABLE);
             } else {
                 retVal.add(Float.toString(data.get(0)));
             }
         } else {
-            retVal.add(NO_INFO_AVAILABLE);
+            retVal.add(Constants.NO_INFORMATION_AVAILABLE);
         }
 
         data = mouseInfoMap.get("IMPC_CBC_026_001");
@@ -262,12 +263,12 @@ public class MetabolismCBCReport extends AbstractReport {
                 log.debug("Multiple values found for simple parameter IMPC_CBC_026_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
-                retVal.add(NO_INFO_AVAILABLE);
+                retVal.add(Constants.NO_INFORMATION_AVAILABLE);
             } else {
                 retVal.add(Float.toString(data.get(0)));
             }
         } else {
-            retVal.add(NO_INFO_AVAILABLE);
+            retVal.add(Constants.NO_INFORMATION_AVAILABLE);
         }
 
         data = mouseInfoMap.get("IMPC_CBC_027_001");
@@ -276,12 +277,12 @@ public class MetabolismCBCReport extends AbstractReport {
                 log.debug("Multiple values found for simple parameter IMPC_CBC_027_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
-                retVal.add(NO_INFO_AVAILABLE);
+                retVal.add(Constants.NO_INFORMATION_AVAILABLE);
             } else {
                 retVal.add(Float.toString(data.get(0)));
             }
         } else {
-            retVal.add(NO_INFO_AVAILABLE);
+            retVal.add(Constants.NO_INFORMATION_AVAILABLE);
         }
 
         data = mouseInfoMap.get("IMPC_CBC_032_001");
@@ -290,12 +291,12 @@ public class MetabolismCBCReport extends AbstractReport {
                 log.debug("Multiple values found for simple parameter IMPC_CBC_032_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
-                retVal.add(NO_INFO_AVAILABLE);
+                retVal.add(Constants.NO_INFORMATION_AVAILABLE);
             } else {
                 retVal.add(Float.toString(data.get(0)));
             }
         } else {
-            retVal.add(NO_INFO_AVAILABLE);
+            retVal.add(Constants.NO_INFORMATION_AVAILABLE);
         }
 
         data = mouseInfoMap.get("IMPC_CBC_052_001");
@@ -304,12 +305,12 @@ public class MetabolismCBCReport extends AbstractReport {
                 log.debug("Multiple values found for simple parameter IMPC_CBC_052_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
-                retVal.add(NO_INFO_AVAILABLE);
+                retVal.add(Constants.NO_INFORMATION_AVAILABLE);
             } else {
                 retVal.add(Float.toString(data.get(0)));
             }
         } else {
-            retVal.add(NO_INFO_AVAILABLE);
+            retVal.add(Constants.NO_INFORMATION_AVAILABLE);
         }
 
         data = mouseInfoMap.get("IMPC_CBC_053_001");
@@ -318,12 +319,12 @@ public class MetabolismCBCReport extends AbstractReport {
                 log.debug("Multiple values found for simple parameter IMPC_CBC_053_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
-                retVal.add(NO_INFO_AVAILABLE);
+                retVal.add(Constants.NO_INFORMATION_AVAILABLE);
             } else {
                 retVal.add(Float.toString(data.get(0)));
             }
         } else {
-            retVal.add(NO_INFO_AVAILABLE);
+            retVal.add(Constants.NO_INFORMATION_AVAILABLE);
         }
 
         data = mouseInfoMap.get("IMPC_INS_001_001");
@@ -332,12 +333,12 @@ public class MetabolismCBCReport extends AbstractReport {
                 log.debug("Multiple values found for simple parameter IMPC_INS_001_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
-                retVal.add(NO_INFO_AVAILABLE);
+                retVal.add(Constants.NO_INFORMATION_AVAILABLE);
             } else {
                 retVal.add(Float.toString(data.get(0)));
             }
         } else {
-            retVal.add(NO_INFO_AVAILABLE);
+            retVal.add(Constants.NO_INFORMATION_AVAILABLE);
         }
 
         // CBC Metadata
@@ -346,7 +347,7 @@ public class MetabolismCBCReport extends AbstractReport {
         if (metadataCBCList != null) {
             retVal.add(StringUtils.join(metadataCBCList, "::"));
         } else {
-            retVal.add(NO_INFO_AVAILABLE);
+            retVal.add(Constants.NO_INFORMATION_AVAILABLE);
         }
 
         // INS Metadata
@@ -356,7 +357,7 @@ public class MetabolismCBCReport extends AbstractReport {
             if (metadataINSList != null) {
                 retVal.add(StringUtils.join(metadataINSList, "::"));
             } else {
-                retVal.add(NO_INFO_AVAILABLE);
+                retVal.add(Constants.NO_INFORMATION_AVAILABLE);
             }
         }
 

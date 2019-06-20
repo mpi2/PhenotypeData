@@ -31,8 +31,6 @@ import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
@@ -44,15 +42,7 @@ import java.util.*;
 @Service
 public class SolrIndex {
 
-	public static final String IMG_NOT_FOUND = "No information available";
-
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
-
-	@Value("${pdf_thumbnail_url}")
-	private String pdfThumbnailUrl;
-
-	@Value("${impc_media_base_url}")
-	private String impcMediaBaseUrl;
 
 
 	@NotNull @Autowired
@@ -482,70 +472,6 @@ public class SolrIndex {
 		hm.put("id", id);
 		return hm;
 	}
-
-	public List fetchImpcImagePathByAnnotName(String query, String fqStr) throws IOException, URISyntaxException {
-
-    	List pathAndCount = new ArrayList<>();
-		//String mediaBaseUrl = config.get("mediaBaseUrl");
-        final int maxNum = 4; // max num of images to display in grid column
-
-		String qryBaseUrl = SolrUtils.getBaseURL(getSolrServer("impc_images")) + "/select?qf=imgQf&defType=edismax&wt=json&q=" + query
-				+ "&fq=" + fqStr + "&rows=";
-
-        String queryUrl = qryBaseUrl + maxNum;
-        String queryUrlCount = qryBaseUrl + "0";
-
-		//System.out.println("SolrIndex: " + queryUrl);
-		List<String> imgs = new ArrayList<String>();
-		//List<String> imgPath = new ArrayList<String>();
-
-        JSONObject imgCountJson = getResults(queryUrlCount);
-        JSONObject thumbnailJson = getResults(queryUrl);
-
-        Integer imgCount = imgCountJson.getJSONObject("response").getInt("numFound");
-        JSONArray docs = thumbnailJson.getJSONObject("response").getJSONArray("docs");
-
-        int dataLen = docs.size() < 5 ? docs.size() : maxNum;
-
-        for (int i = 0; i < dataLen; i ++) {
-            JSONObject doc = docs.getJSONObject(i);
-
-            //String link = null;
-			String img = null;
-
-            if (doc.containsKey("omero_id") && (doc.getInt("omero_id")!=0)) {
-                String fullSizePath =impcMediaBaseUrl+"/render_image/"+ doc.getString("omero_id"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
-                String downloadUrl=doc.getString("download_url");
-                //System.out.println("full size path="+downloadUrl);
-                String thumbnailPath = fullSizePath.replace("render_image", "render_birds_eye_view");
-                String smallThumbNailPath = thumbnailPath + "/";
-                img = "<img class='thumbnailStyle' src='" + smallThumbNailPath + "'/>";
-                if(downloadUrl.contains("/annotation/")){
-					img="<img class='thumbnailStyle' src='../" + pdfThumbnailUrl + "'/>";
-                }
-            } else 
-            if(doc.getInt("omero_id")==0)
-            {//we have a secondary project image (currently only available through PHIS)
-                String downloadUrl=doc.getString("download_url");
-                String smallThumbNailPath = doc.getString("thumbnail_url");
-                img = "<img class='thumbnailStyle' src='" + smallThumbNailPath + "'/>";
-                if(downloadUrl.contains("/annotation/")){
-					img="<img class='thumbnailStyle' src='../" + pdfThumbnailUrl + "'/>";
-                }
-            }else{
-                //link = IMG_NOT_FOUND;
-				img = IMG_NOT_FOUND;
-            }
-            //imgPath.add(link);
-			imgs.add(img);
-        }
-
-        //pathAndCount.add(StringUtils.join(imgPath, ""));
-		pathAndCount.add(StringUtils.join(imgs, ""));
-        pathAndCount.add(imgCount);
-
-        return pathAndCount;
-    }
 
 	/**
 	 * Merge all the facets together based on whether they include an underscore

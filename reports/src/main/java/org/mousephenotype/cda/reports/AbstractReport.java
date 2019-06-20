@@ -49,10 +49,7 @@ public abstract class AbstractReport {
     protected List<String>            resources           = Arrays.asList(new String[] {"IMPC", "3i"});
     protected ReportParser            parser              = new ReportParser();
 
-    public static final String DATA_ERROR = "DATA ERROR";
-    public static final String NO_INFO_AVAILABLE = "No information available";
-
-    public static final String[] EMPTY_ROW = new String[] { "" };
+    protected static final String DATA_ERROR = "DATA ERROR";
 
     public abstract String getDefaultFilename();
 

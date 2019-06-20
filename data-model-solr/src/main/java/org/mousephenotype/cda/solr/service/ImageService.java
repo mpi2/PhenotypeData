@@ -639,7 +639,7 @@ public class ImageService extends BasicService implements WebStatus {
                             if (doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_VALUE) != null) {
                                 paramValues.add(doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_VALUE).toArray(new Object[0])[i].toString());
                             } else {
-                                paramValues.add(SolrIndex.IMG_NOT_FOUND);
+                                paramValues.add(Constants.NO_INFORMATION_AVAILABLE);
                             }
                         }
                     }

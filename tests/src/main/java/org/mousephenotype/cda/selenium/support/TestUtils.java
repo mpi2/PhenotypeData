@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.selenium.support;
 
 import org.apache.commons.lang3.StringUtils;
+import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.openqa.selenium.*;
@@ -153,6 +154,9 @@ public class TestUtils {
         return ((attribute != null) && (attribute.contains(cssclass)));
     }
 
+    // FIXME FIXME FIXME - Clean this up.
+
+
 //    /**
 //     * Return target count prioritized as follows:
 //     * <p><b>NOTE: If the returned target size is less than the collection size,
@@ -219,7 +223,7 @@ public class TestUtils {
 //
 //        String[] parts = string1.split(delimiter);
 //        for (String part : parts) {
-//            if ((ignoreNoInfoAvailable) && (part.equals(SearchFacetTable.NO_INFO_AVAILABLE))) {
+//            if ((ignoreNoInfoAvailable) && (part.equals(SearchFacetTable.Constants.NO_INFORMATION_AVAILABLE))) {
 //                // Do nothing. This is the 'No information available' string, which the caller has asked us not to include.
 //            } else {
 //                string1Set.add(part);
@@ -227,7 +231,7 @@ public class TestUtils {
 //        }
 //        parts = string2.split(delimiter);
 //        for (String part : parts) {
-//            if ((ignoreNoInfoAvailable) && (part.equals(SearchFacetTable.NO_INFO_AVAILABLE))) {
+//            if ((ignoreNoInfoAvailable) && (part.equals(SearchFacetTable.Constants.NO_INFORMATION_AVAILABLE))) {
 //                // Do nothing. This is the 'No information available' string, which the caller has asked us not to include.
 //            } else {
 //                string2Set.add(part);
@@ -613,7 +617,6 @@ public class TestUtils {
      * @return a copy of the input collection, with empty strings replaced with 'No information available'.
      */
     public String[][] patchEmptyFields(String[][] dataIn) {
-        final String NO_INFO_AVAILABLE = "No information available";
         String[][] dataOut = new String[dataIn.length][dataIn[0].length];
 
         for (int rowIndex = 0; rowIndex < dataIn.length; rowIndex++) {
@@ -621,18 +624,18 @@ public class TestUtils {
                 String cellIn = dataIn[rowIndex][colIndex];
                 String cellOut = "";
                 if (cellIn == null) {
-                    cellOut = NO_INFO_AVAILABLE;
+                    cellOut = Constants.NO_INFORMATION_AVAILABLE;
                 } else {
                     String[] parts = dataIn[rowIndex][colIndex].split("\\|");
                     if (parts.length == 0) {
-                        cellOut = NO_INFO_AVAILABLE;
+                        cellOut = Constants.NO_INFORMATION_AVAILABLE;
                     } else {
                         for (int delimeterIndex = 0; delimeterIndex < parts.length; delimeterIndex++) {
                             if (delimeterIndex > 0)
                                 cellOut += "|";
                             String part = parts[delimeterIndex];
                             if ((part == null) || part.trim().isEmpty())
-                                cellOut += NO_INFO_AVAILABLE;
+                                cellOut += Constants.NO_INFORMATION_AVAILABLE;
                             else
                                 cellOut += part.trim();
                         }

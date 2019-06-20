@@ -18,49 +18,44 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.db.dao.*;
 import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.db.pojo.ReferenceDTO;
 import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
-import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
-import org.mousephenotype.cda.solr.service.dto.*;
+import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
+import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import uk.ac.ebi.phenotype.service.*;
+import org.springframework.web.bind.annotation.*;
+import uk.ac.ebi.phenotype.service.BatchQueryForm;
 import uk.ac.ebi.phenotype.service.search.SearchUrlService;
 import uk.ac.ebi.phenotype.service.search.SearchUrlServiceFactory;
 import uk.ac.ebi.phenotype.util.SearchSettings;
+import uk.ac.ebi.phenotype.util.SolrUtilsWeb;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
@@ -103,8 +98,6 @@ public class FileExportController {
 	@Autowired
 	AlleleDAO alleleDAO;
 
-	private String NO_INFO_MSG = "No information available";
-
 	private String hostName;
 
 	@Autowired
@@ -118,6 +111,9 @@ public class FileExportController {
 
 	@Autowired
 	private SearchUrlServiceFactory urlFactory;
+
+	@NotNull @Autowired
+	private SolrUtilsWeb solrUtilsWeb;
 
 
 	private String hostname = null;
@@ -671,8 +667,8 @@ public class FileExportController {
 								String value = list.getString(l);
 
 								termLists.add("Procedure:" + value);
-								lists.add(NO_INFO_MSG);
-								link_lists.add(NO_INFO_MSG);
+								lists.add(Constants.NO_INFORMATION_AVAILABLE);
+								link_lists.add(Constants.NO_INFORMATION_AVAILABLE);
 							}
 						}
 						else if (fld.equals("annotationTermId")) {
@@ -682,7 +678,7 @@ public class FileExportController {
 
 							for (int l = 0; l < list.size(); l++) {
 								String value = list.getString(l);
-								String termVal = termList.size() == 0 ? NO_INFO_MSG : termList.getString(l);
+								String termVal = termList.size() == 0 ? Constants.NO_INFORMATION_AVAILABLE : termList.getString(l);
 
 								if (value.startsWith("MP:")) {
 									link_lists.add(hostName + mpBaseUrl + value);
@@ -694,7 +690,7 @@ public class FileExportController {
 								}
 								else if (value.startsWith("EMAP:")) {
 									//link_lists.add(hostName + maBaseUrl + value);
-									link_lists.add(NO_INFO_MSG);
+									link_lists.add(Constants.NO_INFORMATION_AVAILABLE);
 									termLists.add("EMAP:" + termVal);
 								}
 
@@ -715,7 +711,7 @@ public class FileExportController {
 					}
 				}
 
-				data.add(termLists.size() == 0 ? NO_INFO_MSG : StringUtils.join(termLists, "|")); // term
+				data.add(termLists.size() == 0 ? Constants.NO_INFORMATION_AVAILABLE : StringUtils.join(termLists, "|")); // term
 				// names
 				data.add(StringUtils.join(lists, "|"));
 				data.add(StringUtils.join(link_lists, "|"));
@@ -759,7 +755,7 @@ public class FileExportController {
 					if (hm.get("fullLink") != null) {
 						data.add(hm.get("fullLink").toString());
 					} else {
-						data.add(NO_INFO_MSG);
+						data.add(Constants.NO_INFORMATION_AVAILABLE);
 					}
 
 					String imgCount = sumFacets.get(i + 1).toString();
@@ -835,23 +831,23 @@ public class FileExportController {
 					} else {
 						/*
 						 * if ( fld.equals("annotationTermId") ){
-						 * data.add(NO_INFO_MSG); data.add(NO_INFO_MSG);
-						 * data.add(NO_INFO_MSG); } else if (
+						 * data.add(Constants.NO_INFORMATION_AVAILABLE); data.add(Constants.NO_INFORMATION_AVAILABLE);
+						 * data.add(Constants.NO_INFORMATION_AVAILABLE); } else if (
 						 * fld.equals("symbol_gene") ){
 						 */
 						if (fld.equals("gene_symbol")) {
-							data.add(NO_INFO_MSG);
-							data.add(NO_INFO_MSG);
+							data.add(Constants.NO_INFORMATION_AVAILABLE);
+							data.add(Constants.NO_INFORMATION_AVAILABLE);
 						} else if (fld.equals("procedure_name")) {
-							data.add(NO_INFO_MSG);
+							data.add(Constants.NO_INFORMATION_AVAILABLE);
 						} else if (fld.equals("anatomy_term")) {
-							data.add(NO_INFO_MSG);
-							data.add(NO_INFO_MSG);
+							data.add(Constants.NO_INFORMATION_AVAILABLE);
+							data.add(Constants.NO_INFORMATION_AVAILABLE);
 						}
 					}
 				}
 
-				data.add(doc.containsKey("jpeg_url") ? doc.getString("jpeg_url") : NO_INFO_MSG);
+				data.add(doc.containsKey("jpeg_url") ? doc.getString("jpeg_url") : Constants.NO_INFORMATION_AVAILABLE);
 				rowData.add(StringUtils.join(data, "\t"));
 			}
 		} else {
@@ -905,8 +901,8 @@ public class FileExportController {
 					data.add(annot.getId());
 					data.add(annot.getLink());
 				} else {
-					data.add(NO_INFO_MSG);
-					data.add(NO_INFO_MSG);
+					data.add(Constants.NO_INFORMATION_AVAILABLE);
+					data.add(Constants.NO_INFORMATION_AVAILABLE);
 				}
 
 
@@ -915,7 +911,7 @@ public class FileExportController {
 				String thisFqStr = annotFq + ":\"" + qVal + "\"";
 				//System.out.println("***fq: "+thisFqStr);
 
-				List pathAndImgCount = solrIndex.fetchImpcImagePathByAnnotName(query, thisFqStr);
+				List pathAndImgCount = solrUtilsWeb.fetchImpcImagePathByAnnotName(query, thisFqStr);
 
 				int imgCount = (int) pathAndImgCount.get(1);
 
@@ -965,7 +961,7 @@ public class FileExportController {
 			if (doc.has("mp_definition")) {
 				data.add(doc.getString("mp_definition"));
 			} else {
-				data.add(NO_INFO_MSG);
+				data.add(Constants.NO_INFORMATION_AVAILABLE);
 			}
 
 			if (doc.has("mp_term_synonym")) {
@@ -976,7 +972,7 @@ public class FileExportController {
 				}
 				data.add(StringUtils.join(syns, "|"));
 			} else {
-				data.add(NO_INFO_MSG);
+				data.add(Constants.NO_INFORMATION_AVAILABLE);
 			}
 
 			if (doc.has("top_level_mp_term")) {
@@ -987,7 +983,7 @@ public class FileExportController {
 				}
 				data.add(StringUtils.join(tops, "|"));
 			} else {
-				data.add(NO_INFO_MSG);
+				data.add(Constants.NO_INFORMATION_AVAILABLE);
 			}
 
 			if (doc.has("hp_term")) {
@@ -1005,8 +1001,8 @@ public class FileExportController {
 				data.add(StringUtils.join(terms, "|"));
 				data.add(StringUtils.join(ids, "|"));
 			} else {
-				data.add(NO_INFO_MSG);
-				data.add(NO_INFO_MSG);
+				data.add(Constants.NO_INFORMATION_AVAILABLE);
+				data.add(Constants.NO_INFORMATION_AVAILABLE);
 			}
 
 			rowData.add(StringUtils.join(data, "\t"));
@@ -1046,7 +1042,7 @@ public class FileExportController {
 				}
 				data.add(StringUtils.join(syns, "|"));
 			} else {
-				data.add(NO_INFO_MSG);
+				data.add(Constants.NO_INFORMATION_AVAILABLE);
 			}
 
 			// get stage (embryo or adult)
@@ -1096,9 +1092,9 @@ public class FileExportController {
 			String hostname = request.getAttribute("mappedHostname").toString().replace("https", "http");
 			String dataUrl = hostname + baseUrl + "/order?acc=" + markerAcc + "&allele=" + alleleName +"&bare=true";
 
-			String orderTagetingVector = NO_INFO_MSG;
-			String orderEScell = NO_INFO_MSG;
-			String orderMouse = NO_INFO_MSG;
+			String orderTagetingVector = Constants.NO_INFORMATION_AVAILABLE;
+			String orderEScell = Constants.NO_INFORMATION_AVAILABLE;
+			String orderMouse = Constants.NO_INFORMATION_AVAILABLE;
 
 			if ( doc.containsKey("targeting_vector_available") && doc.getBoolean("targeting_vector_available") ){
 				orderTagetingVector = dataUrl + "&type=targeting_vector";
@@ -1153,7 +1149,7 @@ public class FileExportController {
 				// output
 
 			} else {
-				data.add(NO_INFO_MSG);
+				data.add(Constants.NO_INFORMATION_AVAILABLE);
 			}
 
 			// MGI gene id
@@ -1166,7 +1162,7 @@ public class FileExportController {
 			if (doc.has("marker_name")) {
 				data.add(doc.getString("marker_name"));
 			} else {
-				data.add(NO_INFO_MSG);
+				data.add(Constants.NO_INFORMATION_AVAILABLE);
 			}
 
 			if (doc.has("marker_synonym")) {
@@ -1180,7 +1176,7 @@ public class FileExportController {
 				// separator in CSV
 				// output
 			} else {
-				data.add(NO_INFO_MSG);
+				data.add(Constants.NO_INFORMATION_AVAILABLE);
 			}
 
 			// ES/Mice production status
@@ -1202,8 +1198,8 @@ public class FileExportController {
 
 
 			if (phenotypeStatus.isEmpty()) {
-				data.add(NO_INFO_MSG);
-				data.add(NO_INFO_MSG); // link column
+				data.add(Constants.NO_INFORMATION_AVAILABLE);
+				data.add(Constants.NO_INFORMATION_AVAILABLE); // link column
 			} else if (phenotypeStatus.contains("___")) {
 				// multiple phenotyping statusses, eg, complete and legacy
 				String[] phStatuses = phenotypeStatus.split("___");
