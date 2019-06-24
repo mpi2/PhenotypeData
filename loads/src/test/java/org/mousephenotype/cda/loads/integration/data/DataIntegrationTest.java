@@ -21,11 +21,16 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.db.pojo.BiologicalSample;
+import org.mousephenotype.cda.db.pojo.Project;
 import org.mousephenotype.cda.loads.common.BioModelResults;
+import org.mousephenotype.cda.loads.common.BioSampleKey;
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.create.extract.dcc.DccExperimentExtractor;
 import org.mousephenotype.cda.loads.create.extract.dcc.DccSpecimenExtractor;
 import org.mousephenotype.cda.loads.create.load.ExperimentLoader;
 import org.mousephenotype.cda.loads.create.load.SampleLoader;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.loads.integration.data.config.TestConfig;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
@@ -39,6 +44,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -442,6 +448,35 @@ public class DataIntegrationTest {
         System.out.println("  SUCCESS");
 
 
+    }
+
+    @Test
+    public void testLoadSampleSpecimenWithProject() throws SQLException, IOException, DataLoadException {
+        Resource dataResource   = context.getResource("classpath:sql/h2/SampleSpecimenWithProject-data.sql");
+        Resource specimenResource = context.getResource("classpath:xml/LoadSampleSpecimenWithProject.xml");
+
+        ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), dataResource);
+
+        String[] extractSpecimenArgs = new String[]{
+                "--datasourceShortName=IMPC",
+                "--filename=" + specimenResource.getFile().getAbsolutePath()
+        };
+
+        String[] loadArgs = new String[] { };
+
+        dccSpecimenExtractor.run(extractSpecimenArgs);
+        sampleLoader.run(loadArgs);
+
+        final String EXPECTED_PROJECT_NAME = "RBRC";
+
+        CdaSqlUtils                         cdaSqlUtils = new CdaSqlUtils(jdbcCda);
+        Map<BioSampleKey, BiologicalSample> map = cdaSqlUtils.getBiologicalSamplesMapBySampleKey();
+        Assert.assertEquals(map.size(), 1);
+
+        BiologicalSample actualBiologicalSample = map.entrySet().iterator().next().getValue();
+        Project          project                = cdaSqlUtils.getProjectsById().get(actualBiologicalSample.getProject().getId());
+
+        Assert.assertEquals(EXPECTED_PROJECT_NAME, project.getName());
     }
 
 //    @Test

@@ -458,6 +458,7 @@ CREATE TABLE biological_sample (
 	sample_group              VARCHAR(100)     NOT NULL,
 	organisation_id           INT(10) NOT NULL,
 	production_center_id      INT(10) NOT NULL,
+    project_id                INT(10) UNSIGNED NOT NULL,
 
 	PRIMARY KEY (id),
 	UNIQUE (external_id, organisation_id)

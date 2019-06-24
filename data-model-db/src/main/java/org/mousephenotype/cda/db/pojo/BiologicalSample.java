@@ -95,6 +95,10 @@ public class BiologicalSample implements Serializable {
 	@JoinColumn(name = "production_center_id")
 	private Organisation productionCenter;
 
+	@OneToOne
+	@JoinColumn(name = "project_id")
+	private Project project;
+
 	//a association table is used to store the link between the 2 entities
 	// will implement this later!
 	//@OneToOne
@@ -215,5 +219,13 @@ public class BiologicalSample implements Serializable {
 
 	public void setProductionCenter(Organisation productionCenter) {
 		this.productionCenter = productionCenter;
+	}
+
+	public Project getProject() {
+		return project;
+	}
+
+	public void setProject(Project project) {
+		this.project = project;
 	}
 }

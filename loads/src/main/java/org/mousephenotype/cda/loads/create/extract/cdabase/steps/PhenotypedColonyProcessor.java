@@ -103,7 +103,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
             }
 
             organisations = cdaSqlUtils.getOrganisations();
-            projects = cdaSqlUtils.getProjects();
+            projects = cdaSqlUtils.getProjectsByName();
 
             return null;
         }
