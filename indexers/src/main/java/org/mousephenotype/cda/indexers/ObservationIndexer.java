@@ -30,7 +30,10 @@ import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.OntologyBean;
-import org.mousephenotype.cda.solr.service.dto.*;
+import org.mousephenotype.cda.solr.service.dto.BasicBean;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTOWrite;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
@@ -206,387 +209,373 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		int missingBiologicalDataErrorCount = 0;
 		observationCore.deleteByQuery("*:*");
 
-		String query = "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, "
-				+ "o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, "
-				+ "o.biological_sample_id, "
-				+ "e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, "
-				+ "e.date_of_experiment, e.external_id, e.id as experiment_id, "
-				+ "e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, "
-				+ "co.category as raw_category, uo.data_point as unidimensional_data_point, "
-				+ "mo.data_point as multidimensional_data_point, tso.data_point as time_series_data_point, "
-				+ "tro.text as text_value, mo.order_index, mo.dimension, tso.time_point, "
-				+ "tso.discrete_point, iro.file_type, iro.download_file_path, o.sequence_id as sequence_id "
-				+ "FROM observation o "
-				+ "LEFT OUTER JOIN categorical_observation co ON o.id=co.id "
-				+ "LEFT OUTER JOIN unidimensional_observation uo ON o.id=uo.id "
-				+ "LEFT OUTER JOIN multidimensional_observation mo ON o.id=mo.id "
-				+ "LEFT OUTER JOIN time_series_observation tso ON o.id=tso.id "
-				+ "LEFT OUTER JOIN image_record_observation iro ON o.id=iro.id "
-				+ "LEFT OUTER JOIN text_observation tro ON o.id=tro.id "
-				+ "INNER JOIN experiment_observation eo ON eo.observation_id=o.id "
-				+ "INNER JOIN experiment e on eo.experiment_id=e.id " + "WHERE o.missing=0";
+		List<String> observationQueries = new ArrayList<>();
+		observationQueries.add("SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, o.biological_sample_id, o.sequence_id as sequence_id ,e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, co.category as raw_category, FROM observation o INNER JOIN categorical_observation co ON o.id=co.id INNER JOIN experiment_observation eo ON eo.observation_id=o.id INNER JOIN experiment e on eo.experiment_id=e.id WHERE o.missing=0");
+		observationQueries.add("SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, o.biological_sample_id, o.sequence_id as sequence_id ,e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, uo.data_point as unidimensional_data_point, FROM observation o INNER JOIN unidimensional_observation uo ON o.id=uo.id INNER JOIN experiment_observation eo ON eo.observation_id=o.id INNER JOIN experiment e on eo.experiment_id=e.id WHERE o.missing=0");
+		observationQueries.add("SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, o.biological_sample_id, o.sequence_id as sequence_id ,e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, mo.data_point as multidimensional_data_point, mo.order_index, mo.dimension, FROM observation o INNER JOIN multidimensional_observation mo ON o.id=mo.id INNER JOIN experiment_observation eo ON eo.observation_id=o.id INNER JOIN experiment e on eo.experiment_id=e.id WHERE o.missing=0");
+		observationQueries.add("SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, o.biological_sample_id, o.sequence_id as sequence_id ,e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, tso.data_point as time_series_data_point, tso.time_point, tso.discrete_point, FROM observation o INNER JOIN time_series_observation tso ON o.id=tso.id INNER JOIN experiment_observation eo ON eo.observation_id=o.id INNER JOIN experiment e on eo.experiment_id=e.id WHERE o.missing=0");
+		observationQueries.add("SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, o.biological_sample_id, o.sequence_id as sequence_id ,e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, tro.text as text_value, FROM observation o INNER JOIN text_observation tro ON o.id=tro.id INNER JOIN experiment_observation eo ON eo.observation_id=o.id INNER JOIN experiment e on eo.experiment_id=e.id WHERE o.missing=0");
+		observationQueries.add("SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, o.biological_sample_id, o.sequence_id as sequence_id ,e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, iro.file_type, iro.download_file_pathFROM observation o INNER JOIN image_record_observation iro ON o.id=iro.id INNER JOIN experiment_observation eo ON eo.observation_id=o.id INNER JOIN experiment e on eo.experiment_id=e.id WHERE o.missing=0");
 
-		try (PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,  java.sql.ResultSet.CONCUR_READ_ONLY)) {
+		for (String query : observationQueries) {
 
-			p.setFetchSize(Integer.MIN_VALUE);
-			ResultSet r = p.executeQuery();
+			try (PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
-			while (r.next()) {
+				p.setFetchSize(Integer.MIN_VALUE);
+				ResultSet r = p.executeQuery();
 
-				ObservationDTOWrite o = new ObservationDTOWrite();
-				o.setId(r.getString("id"));
-				o.setParameterId(r.getInt("parameter_id"));
-				o.setExperimentId(r.getInt("experiment_id"));
-				o.setExperimentSourceId(r.getString("external_id"));
+				while (r.next()) {
 
-				if (StringUtils.isNotEmpty(r.getString("sequence_id"))) {
-					if (isInteger(r.getString("sequence_id"))) {
-						Integer seqId = Integer.parseInt(r.getString("sequence_id"));
-						o.setSequenceId(seqId);
-					}
-				}
+					ObservationDTOWrite o = new ObservationDTOWrite();
+					o.setId(r.getString("id"));
+					o.setParameterId(r.getInt("parameter_id"));
+					o.setExperimentId(r.getInt("experiment_id"));
+					o.setExperimentSourceId(r.getString("external_id"));
 
-				ZonedDateTime dateOfExperiment = null;
-				try {
-					dateOfExperiment = ZonedDateTime.parse(r.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
-					o.setDateOfExperiment(dateOfExperiment);
-				} catch (NullPointerException e) {
-					logger.debug("  No date of experiment set for experiment external ID: {}", r.getString("external_id"));
-					o.setDateOfExperiment(null);
-				}
-
-				o.setParameterId(parameterMap.get(r.getInt("parameter_id")).getId());
-				o.setParameterName(parameterMap.get(r.getInt("parameter_id")).getName());
-				o.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).getStableId());
-				o.setDataType(parameterMap.get(r.getInt("parameter_id")).getDatatype());
-
-				o.setProcedureId(procedureMap.get(r.getInt("procedure_id")).getId());
-				o.setProcedureName(procedureMap.get(r.getInt("procedure_id")).getName());
-				String procedureStableId = procedureMap.get(r.getInt("procedure_id")).getStableId();
-				o.setProcedureStableId(procedureStableId);
-				o.setProcedureGroup(procedureStableId.substring(0, procedureStableId.lastIndexOf("_")));
-
-				o.setPipelineId(pipelineMap.get(r.getInt("pipeline_id")).getId());
-				o.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).getName());
-				o.setPipelineStableId(pipelineMap.get(r.getInt("pipeline_id")).getStableId());
-
-				if (anatomyMap.containsKey(r.getInt("parameter_id"))) {
-
-					String anatomyTermId = anatomyMap.get(r.getInt("parameter_id"));
-
-					if (anatomyTermId != null) {
-
-						if (o.getAnatomyId() == null) {
-							// Initialize all the collections of anatomy terms
-							o.setAnatomyId(new ArrayList<>());
-							o.setAnatomyTerm(new ArrayList<>());
-							o.setAnatomyTermSynonym(new ArrayList<>());
-							o.setIntermediateAnatomyId(new ArrayList<>());
-							o.setIntermediateAnatomyTerm(new ArrayList<>());
-							o.setIntermediateAnatomyTermSynonym(new ArrayList<>());
-							o.setSelectedTopLevelAnatomyId(new ArrayList<>());
-							o.setSelectedTopLevelAnatomyTerm(new ArrayList<>());
-							o.setSelectedTopLevelAnatomyTermSynonym(new ArrayList<>());
-						}
-
-						if (anatomyTermId.startsWith("MA:")) {
-							addAnatomyInfo (maParser.getOntologyTerm(anatomyTermId), o);
-						} else if (anatomyTermId.startsWith("EMAPA:")) {
-							addAnatomyInfo (emapaParser.getOntologyTerm(anatomyTermId), o);
-						}
-
-
-					}
-				}
-
-				o.setDataSourceId(datasourceMap.get(r.getInt("datasource_id")).id);
-				o.setDataSourceName(datasourceMap.get(r.getInt("datasource_id")).name);
-
-				o.setProjectId(projectMap.get(r.getInt("project_id")).id);
-				o.setProjectName(projectMap.get(r.getInt("project_id")).name);
-
-				o.setMetadataGroup(r.getString("metadata_group"));
-				if (r.wasNull()) {
-					o.setMetadataGroup("");
-					o.setMetadata(new ArrayList<>());
-				}
-
-				String metadataCombined = r.getString("metadata_combined");
-				if (!r.wasNull()) {
-					o.setMetadata(new ArrayList<>(Arrays.asList(metadataCombined.split("::"))));
-				}
-
-				// Add experimenter ID(s) to the metadata
-				if (experimenterData.containsKey(o.getExperimentId())) {
-					if (o.getMetadata()==null) {
-						o.setMetadata(new ArrayList<>(experimenterData.get(o.getExperimentId())));
-					} else {
-						o.getMetadata().addAll(experimenterData.get(o.getExperimentId()));
-					}
-				}
-
-				// Add the Biological data
-				String bioSampleId = r.getString("biological_sample_id");
-				if (r.wasNull()) {
-					// Line level data
-
-					BiologicalDataBean b = lineBiologicalData.get(r.getString("experiment_id"));
-					if (b == null) {
-						runStatus.addError(
-								" Cannot find biological data for line level experiment " + r.getString("experiment_id"));
-						continue;
-					}
-					o.setBiologicalModelId(b.biologicalModelId);
-					o.setGeneAccession(b.geneAcc);
-					o.setGeneSymbol(b.geneSymbol);
-					o.setAlleleAccession(b.alleleAccession);
-					o.setAlleleSymbol(b.alleleSymbol);
-					o.setStrainAccessionId(b.strainAcc);
-					o.setStrainName(b.strainName);
-					o.setGeneticBackground(b.geneticBackground);
-					o.setAllelicComposition(b.allelicComposition);
-					o.setPhenotypingCenter(b.phenotypingCenterName);
-					o.setPhenotypingCenterId(b.phenotypingCenterId);
-					o.setSpecimenProjectName(b.specimenProjectName);
-					o.setSpecimenProjectId((b.specimenProjectId));
-					o.setSpecimenProjectName(b.specimenProjectName);
-					o.setSpecimenProjectId(b.specimenProjectId);
-					o.setColonyId(b.colonyId);
-
-					// Viability applies to both sexes
-					if (o.getParameterStableId().contains("_VIA_")) {
-						o.setSex(SexType.both.getName());
-					} else {
-						// Fertility applies to the sex tested, separate
-						// parameters per male//female
-						if (maleFertilityParameters.contains(o.getParameterStableId())) {
-							o.setSex(SexType.male.getName());
-						} else if (femaleFertilityParameters.contains(o.getParameterStableId())) {
-							o.setSex(SexType.female.getName());
-						}
-						if (o.getSex() == null) {
-							o.setSex(SexType.both.getName());
+					if (StringUtils.isNotEmpty(r.getString("sequence_id"))) {
+						if (isInteger(r.getString("sequence_id"))) {
+							Integer seqId = Integer.parseInt(r.getString("sequence_id"));
+							o.setSequenceId(seqId);
 						}
 					}
 
-					if (b.zygosity != null) {
-						o.setZygosity(b.zygosity);
-					} else {
-						// Default to hom
-						o.setZygosity(ZygosityType.homozygote.getName());
+					ZonedDateTime dateOfExperiment = null;
+					try {
+						dateOfExperiment = ZonedDateTime.parse(r.getString("date_of_experiment"), DateTimeFormatter.ofPattern(DATETIME_FORMAT).withZone(ZoneId.of("UTC")));
+						o.setDateOfExperiment(dateOfExperiment);
+					} catch (NullPointerException e) {
+						logger.debug("  No date of experiment set for experiment external ID: {}", r.getString("external_id"));
+						o.setDateOfExperiment(null);
 					}
 
-					// All line level parameters are sample group "experimental"
-					// due to the nature of the
-					// procedures (i.e. no control mice will go through VIA or
-					// FER procedures.)
-					o.setGroup(BiologicalSampleType.experimental.getName());
+					o.setParameterId(parameterMap.get(r.getInt("parameter_id")).getId());
+					o.setParameterName(parameterMap.get(r.getInt("parameter_id")).getName());
+					o.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).getStableId());
+					o.setDataType(parameterMap.get(r.getInt("parameter_id")).getDatatype());
 
-				} else {
-					// Specimen level data
+					o.setProcedureId(procedureMap.get(r.getInt("procedure_id")).getId());
+					o.setProcedureName(procedureMap.get(r.getInt("procedure_id")).getName());
+					String procedureStableId = procedureMap.get(r.getInt("procedure_id")).getStableId();
+					o.setProcedureStableId(procedureStableId);
+					o.setProcedureGroup(procedureStableId.substring(0, procedureStableId.lastIndexOf("_")));
+
+					o.setPipelineId(pipelineMap.get(r.getInt("pipeline_id")).getId());
+					o.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).getName());
+					o.setPipelineStableId(pipelineMap.get(r.getInt("pipeline_id")).getStableId());
+
+					if (anatomyMap.containsKey(r.getInt("parameter_id"))) {
+
+						String anatomyTermId = anatomyMap.get(r.getInt("parameter_id"));
+
+						if (anatomyTermId != null) {
+
+							if (o.getAnatomyId() == null) {
+								// Initialize all the collections of anatomy terms
+								o.setAnatomyId(new ArrayList<>());
+								o.setAnatomyTerm(new ArrayList<>());
+								o.setAnatomyTermSynonym(new ArrayList<>());
+								o.setIntermediateAnatomyId(new ArrayList<>());
+								o.setIntermediateAnatomyTerm(new ArrayList<>());
+								o.setIntermediateAnatomyTermSynonym(new ArrayList<>());
+								o.setSelectedTopLevelAnatomyId(new ArrayList<>());
+								o.setSelectedTopLevelAnatomyTerm(new ArrayList<>());
+								o.setSelectedTopLevelAnatomyTermSynonym(new ArrayList<>());
+							}
+
+							if (anatomyTermId.startsWith("MA:")) {
+								addAnatomyInfo(maParser.getOntologyTerm(anatomyTermId), o);
+							} else if (anatomyTermId.startsWith("EMAPA:")) {
+								addAnatomyInfo(emapaParser.getOntologyTerm(anatomyTermId), o);
+							}
 
 
-					BiologicalDataBean b = biologicalData.get(bioSampleId);
+						}
+					}
 
-					if (b == null) {
+					o.setDataSourceId(datasourceMap.get(r.getInt("datasource_id")).id);
+					o.setDataSourceName(datasourceMap.get(r.getInt("datasource_id")).name);
 
-						if (missingBiologicalDataErrorCount++ < MAX_MISSING_BIOLOGICAL_DATA_ERROR_COUNT_DISPLAYED) {
+					o.setProjectId(projectMap.get(r.getInt("project_id")).id);
+					o.setProjectName(projectMap.get(r.getInt("project_id")).name);
+
+					o.setMetadataGroup(r.getString("metadata_group"));
+					if (r.wasNull()) {
+						o.setMetadataGroup("");
+						o.setMetadata(new ArrayList<>());
+					}
+
+					String metadataCombined = r.getString("metadata_combined");
+					if (!r.wasNull()) {
+						o.setMetadata(new ArrayList<>(Arrays.asList(metadataCombined.split("::"))));
+					}
+
+					// Add experimenter ID(s) to the metadata
+					if (experimenterData.containsKey(o.getExperimentId())) {
+						if (o.getMetadata() == null) {
+							o.setMetadata(new ArrayList<>(experimenterData.get(o.getExperimentId())));
+						} else {
+							o.getMetadata().addAll(experimenterData.get(o.getExperimentId()));
+						}
+					}
+
+					// Add the Biological data
+					String bioSampleId = r.getString("biological_sample_id");
+					if (r.wasNull()) {
+						// Line level data
+
+						BiologicalDataBean b = lineBiologicalData.get(r.getString("experiment_id"));
+						if (b == null) {
 							runStatus.addError(
-									" Cannot find biological data for specimen id: " + bioSampleId + ", experiment id: " + r.getString("experiment_id"));
+									" Cannot find biological data for line level experiment " + r.getString("experiment_id"));
+							continue;
+						}
+						o.setBiologicalModelId(b.biologicalModelId);
+						o.setGeneAccession(b.geneAcc);
+						o.setGeneSymbol(b.geneSymbol);
+						o.setAlleleAccession(b.alleleAccession);
+						o.setAlleleSymbol(b.alleleSymbol);
+						o.setStrainAccessionId(b.strainAcc);
+						o.setStrainName(b.strainName);
+						o.setGeneticBackground(b.geneticBackground);
+						o.setAllelicComposition(b.allelicComposition);
+						o.setPhenotypingCenter(b.phenotypingCenterName);
+						o.setPhenotypingCenterId(b.phenotypingCenterId);
+						o.setColonyId(b.colonyId);
+
+						// Viability applies to both sexes
+						if (o.getParameterStableId().contains("_VIA_")) {
+							o.setSex(SexType.both.getName());
+						} else {
+							// Fertility applies to the sex tested, separate
+							// parameters per male//female
+							if (maleFertilityParameters.contains(o.getParameterStableId())) {
+								o.setSex(SexType.male.getName());
+							} else if (femaleFertilityParameters.contains(o.getParameterStableId())) {
+								o.setSex(SexType.female.getName());
+							}
+							if (o.getSex() == null) {
+								o.setSex(SexType.both.getName());
+							}
 						}
 
-						continue;
+						if (b.zygosity != null) {
+							o.setZygosity(b.zygosity);
+						} else {
+							// Default to hom
+							o.setZygosity(ZygosityType.homozygote.getName());
+						}
+
+						// All line level parameters are sample group "experimental"
+						// due to the nature of the
+						// procedures (i.e. no control mice will go through VIA or
+						// FER procedures.)
+						o.setGroup(BiologicalSampleType.experimental.getName());
+
+					} else {
+						// Specimen level data
+
+
+						BiologicalDataBean b = biologicalData.get(bioSampleId);
+
+						if (b == null) {
+
+							if (missingBiologicalDataErrorCount++ < MAX_MISSING_BIOLOGICAL_DATA_ERROR_COUNT_DISPLAYED) {
+								runStatus.addError(
+										" Cannot find biological data for specimen id: " + bioSampleId + ", experiment id: " + r.getString("experiment_id"));
+							}
+
+							continue;
+						}
+
+						o.setBiologicalModelId(b.biologicalModelId);
+						o.setGeneAccession(b.geneAcc);
+						o.setGeneSymbol(b.geneSymbol);
+						o.setAlleleAccession(b.alleleAccession);
+						o.setAlleleSymbol(b.alleleSymbol);
+						o.setStrainAccessionId(b.strainAcc);
+						o.setStrainName(b.strainName);
+						o.setGeneticBackground(b.geneticBackground);
+						o.setAllelicComposition(b.allelicComposition);
+						o.setPhenotypingCenter(b.phenotypingCenterName);
+						o.setPhenotypingCenterId(b.phenotypingCenterId);
+
+						o.setColonyId(b.colonyId);
+						o.setZygosity(b.zygosity);
+						o.setDateOfBirth(b.dateOfBirth);
+						if (b.dateOfBirth != null && dateOfExperiment != null) {
+
+							Instant dob = b.dateOfBirth.toInstant();
+							Instant expDate = dateOfExperiment.toInstant();
+							int ageInDays = (int) Duration.between(dob, expDate).toDays();
+							int daysInWeek = 7;
+							int ageInWeeks = ageInDays / daysInWeek;
+							o.setAgeInDays(ageInDays);
+							o.setAgeInWeeks(ageInWeeks);
+						}
+						o.setSex(b.sex);
+						o.setGroup(b.sampleGroup);
+						o.setBiologicalSampleId(b.biologicalSampleId);
+						o.setExternalSampleId(b.externalSampleId);
+
+						if (b.productionCenterName != null) {
+							o.setProductionCenter(b.productionCenterName);
+						}
+						if (b.productionCenterId != null) {
+							o.setProductionCenterId(b.productionCenterId);
+						}
+						if (b.litterId != null) {
+							o.setLitterId(b.litterId);
+						}
+
 					}
 
-					o.setBiologicalModelId(b.biologicalModelId);
-					o.setGeneAccession(b.geneAcc);
-					o.setGeneSymbol(b.geneSymbol);
-					o.setAlleleAccession(b.alleleAccession);
-					o.setAlleleSymbol(b.alleleSymbol);
-					o.setStrainAccessionId(b.strainAcc);
-					o.setStrainName(b.strainName);
-					o.setGeneticBackground(b.geneticBackground);
-					o.setAllelicComposition(b.allelicComposition);
-					o.setPhenotypingCenter(b.phenotypingCenterName);
-					o.setPhenotypingCenterId(b.phenotypingCenterId);
-					o.setSpecimenProjectName(b.specimenProjectName);
-					o.setSpecimenProjectId(b.specimenProjectId);
-					o.setColonyId(b.colonyId);
-					o.setZygosity(b.zygosity);
-					o.setDateOfBirth(b.dateOfBirth);
-					if(b.dateOfBirth!=null && dateOfExperiment !=null ){
 
-						Instant dob=b.dateOfBirth.toInstant();
-						Instant expDate=dateOfExperiment.toInstant();
-						int ageInDays = (int) Duration.between(dob, expDate).toDays();
-						int daysInWeek = 7;
-						int ageInWeeks = ageInDays / daysInWeek;
-						o.setAgeInDays(ageInDays);
-						o.setAgeInWeeks(ageInWeeks);
-					}
-					o.setSex(b.sex);
-					o.setGroup(b.sampleGroup);
-					o.setBiologicalSampleId(b.biologicalSampleId);
-					o.setExternalSampleId(b.externalSampleId);
-
-					if (b.productionCenterName != null) {
-						o.setProductionCenter(b.productionCenterName);
-					}
-					if (b.productionCenterId != null) {
-						o.setProductionCenterId(b.productionCenterId);
-					}
-					if (b.litterId != null) {
-						o.setLitterId(b.litterId);
+					//
+					// NOTE
+					// Developmental stage must be set after the colony ID, pipeline ID and procedure ID fields are set
+					//
+					BasicBean developmentalStage = getDevelopmentalStage(o.getPipelineStableId(), o.getProcedureStableId(), o.getColonyId());
+					if (developmentalStage != null) {
+						o.setDevelopmentStageAcc(developmentalStage.getId());
+						o.setDevelopmentStageName(developmentalStage.getName());
 					}
 
-				}
+					o.setObservationType(r.getString("observation_type"));
 
+					String cat = r.getString("raw_category");
+					if (!r.wasNull()) {
 
-				//
-				// NOTE
-				// Developmental stage must be set after the colony ID, pipeline ID and procedure ID fields are set
-				//
-				BasicBean developmentalStage = getDevelopmentalStage(o.getPipelineStableId(), o.getProcedureStableId(), o.getColonyId());
-				if (developmentalStage != null) {
-					o.setDevelopmentStageAcc(developmentalStage.getId());
-					o.setDevelopmentStageName(developmentalStage.getName());
-				}
+						String param = r.getString("parameter_stable_id");
+						if (translateCategoryNames.containsKey(param)) {
 
-				o.setObservationType(r.getString("observation_type"));
+							String transCat = translateCategoryNames.get(param).get(cat);
+							// System.out.println("param with cat is="+param+"
+							// cat="+cat);
+							// System.out.println("transCat="+transCat);
+							if (transCat != null && !transCat.equals("")) {
+								o.setCategory(transCat);
+							} else {
+								o.setCategory(cat);
+							}
 
-				String cat = r.getString("raw_category");
-				if (!r.wasNull()) {
-
-					String param = r.getString("parameter_stable_id");
-					if (translateCategoryNames.containsKey(param)) {
-
-						String transCat = translateCategoryNames.get(param).get(cat);
-						// System.out.println("param with cat is="+param+"
-						// cat="+cat);
-						// System.out.println("transCat="+transCat);
-						if (transCat != null && !transCat.equals("")) {
-							o.setCategory(transCat);
 						} else {
 							o.setCategory(cat);
 						}
-
-					} else {
-						o.setCategory(cat);
 					}
-				}
 
-				// Add the correct "data point" for the type
-				switch (r.getString("observation_type")) {
-				case "unidimensional":
-					o.setDataPoint(r.getFloat("unidimensional_data_point"));
-					break;
-				case "multidimensional":
-					o.setDataPoint(r.getFloat("multidimensional_data_point"));
-					break;
-				case "time_series":
-					o.setDataPoint(r.getFloat("time_series_data_point"));
-					break;
-				}
-
-				Integer order_index = r.getInt("order_index");
-				if (!r.wasNull()) {
-					o.setOrderIndex(order_index);
-				}
-
-				String dimension = r.getString("dimension");
-				if (!r.wasNull()) {
-					o.setDimension(dimension);
-				}
-
-				String time_point = r.getString("time_point");
-				if (!r.wasNull()) {
-					o.setTimePoint(time_point);
-				}
-
-				Float discrete_point = r.getFloat("discrete_point");
-				if (!r.wasNull()) {
-					o.setDiscretePoint(discrete_point);
-				}
-
-				String text_value = r.getString("text_value");
-				if (!r.wasNull()) {
-					o.setTextValue(text_value);
-				}
-
-				if (ontologyEntityMap.containsKey(Integer.parseInt(o.getId()))) {
-
-					List<OntologyBean> subOntBeans = ontologyEntityMap.get(Integer.parseInt(o.getId()));
-					for (OntologyBean bean : subOntBeans) {
-						o.addSubTermId(bean.getId());
-						o.addSubTermName(bean.getName());
-						o.addSubTermDescription(bean.getDescription());
+					// Add the correct "data point" for the type
+					switch (r.getString("observation_type")) {
+						case "unidimensional":
+							o.setDataPoint(r.getFloat("unidimensional_data_point"));
+							break;
+						case "multidimensional":
+							o.setDataPoint(r.getFloat("multidimensional_data_point"));
+							break;
+						case "time_series":
+							o.setDataPoint(r.getFloat("time_series_data_point"));
+							break;
 					}
-				}
-				String file_type = r.getString("file_type");
-				if (!r.wasNull()) {
-					o.setFileType(file_type);
-				}
 
-				String download_file_path = r.getString("download_file_path");
-				if (!r.wasNull()) {
-					o.setDownloadFilePath(download_file_path);
-				}
+					Integer order_index = r.getInt("order_index");
+					if (!r.wasNull()) {
+						o.setOrderIndex(order_index);
+					}
 
-				if (parameterAssociationMap.containsKey(r.getInt("id"))) {
-					for (ParameterAssociationBean pb : parameterAssociationMap.get(r.getInt("id"))) {
+					String dimension = r.getString("dimension");
+					if (!r.wasNull()) {
+						o.setDimension(dimension);
+					}
 
-						// Will never be null, we hope
-						o.addParameterAssociationStableId(pb.parameterStableId);
-						o.addParameterAssociationName(pb.parameterAssociationName);
-						if (StringUtils.isNotEmpty(pb.parameterAssociationValue)) {
-							o.addParameterAssociationValue(pb.parameterAssociationValue);
+					String time_point = r.getString("time_point");
+					if (!r.wasNull()) {
+						o.setTimePoint(time_point);
+					}
+
+					Float discrete_point = r.getFloat("discrete_point");
+					if (!r.wasNull()) {
+						o.setDiscretePoint(discrete_point);
+					}
+
+					String text_value = r.getString("text_value");
+					if (!r.wasNull()) {
+						o.setTextValue(text_value);
+					}
+
+					if (ontologyEntityMap.containsKey(Integer.parseInt(o.getId()))) {
+
+						List<OntologyBean> subOntBeans = ontologyEntityMap.get(Integer.parseInt(o.getId()));
+						for (OntologyBean bean : subOntBeans) {
+							o.addSubTermId(bean.getId());
+							o.addSubTermName(bean.getName());
+							o.addSubTermDescription(bean.getDescription());
 						}
-						if (StringUtils.isNotEmpty(pb.sequenceId)) {
-							o.addParameterAssociationSequenceId(pb.sequenceId);
+					}
+					String file_type = r.getString("file_type");
+					if (!r.wasNull()) {
+						o.setFileType(file_type);
+					}
+
+					String download_file_path = r.getString("download_file_path");
+					if (!r.wasNull()) {
+						o.setDownloadFilePath(download_file_path);
+					}
+
+					if (parameterAssociationMap.containsKey(r.getInt("id"))) {
+						for (ParameterAssociationBean pb : parameterAssociationMap.get(r.getInt("id"))) {
+
+							// Will never be null, we hope
+							o.addParameterAssociationStableId(pb.parameterStableId);
+							o.addParameterAssociationName(pb.parameterAssociationName);
+							if (StringUtils.isNotEmpty(pb.parameterAssociationValue)) {
+								o.addParameterAssociationValue(pb.parameterAssociationValue);
+							}
+							if (StringUtils.isNotEmpty(pb.sequenceId)) {
+								o.addParameterAssociationSequenceId(pb.sequenceId);
+							}
+
+							if (StringUtils.isNotEmpty(pb.dimId)) {
+								o.addParameterAssociationDimId(pb.dimId);
+							}
+
+						}
+					}
+
+					// Add weight parameters only if this observation isn't itself a
+					// weight parameter
+					if (!WeightMap.isWeightParameter(o.getParameterStableId())) {
+						WeightMap.BodyWeight b = weightMap.getNearestWeight(o.getBiologicalSampleId(), o.getParameterStableId(), dateOfExperiment);
+
+						if (o.getProcedureGroup().contains("_IPG")) {
+							b = weightMap.getNearestIpgttWeight(o.getBiologicalSampleId());
 						}
 
-						if (StringUtils.isNotEmpty(pb.dimId)) {
-							o.addParameterAssociationDimId(pb.dimId);
+						if (b != null) {
+							o.setWeight(b.getWeight());
+							o.setWeightDate(b.getDate());
+							o.setWeightDaysOld(b.getDaysOld());
+							o.setWeightParameterStableId(b.getParameterStableId());
 						}
+					}
 
+					// 60 seconds between commits
+					documentCount++;
+					observationCore.addBean(o, 60000);
+
+					count++;
+
+					if (count % 2000000 == 0) {
+						logger.info(" Added " + count + " beans");
 					}
 				}
 
-				// Add weight parameters only if this observation isn't itself a
-				// weight parameter
-				if ( ! WeightMap.isWeightParameter(o.getParameterStableId()) )
-				{
-					WeightMap.BodyWeight b = weightMap.getNearestWeight(o.getBiologicalSampleId(), o.getParameterStableId(), dateOfExperiment);
 
-					if (o.getProcedureGroup().contains("_IPG")) {
-						b = weightMap.getNearestIpgttWeight(o.getBiologicalSampleId());
-					}
+				// Final commit to save the rest of the docs
+				observationCore.commit();
 
-					if (b != null) {
-						o.setWeight(b.getWeight());
-						o.setWeightDate(b.getDate());
-						o.setWeightDaysOld(b.getDaysOld());
-						o.setWeightParameterStableId(b.getParameterStableId());
-					}
-				}
-
-				// 60 seconds between commits
-				documentCount++;
-				observationCore.addBean(o, 60000);
-
-				count++;
-
-				if (count % 2000000 == 0) {
-					logger.info(" Added " + count + " beans");
-				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.out.println(" Big error :" + e.getMessage());
 			}
-
-			// Final commit to save the rest of the docs
-			observationCore.commit();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println(" Big error :" + e.getMessage());
 		}
 
 		if (missingBiologicalDataErrorCount > 0) {
@@ -681,8 +670,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				b.geneSymbol = resultSet.getString("symbol");
 				b.phenotypingCenterId = resultSet.getInt("phenotyping_center_id");
 				b.phenotypingCenterName = resultSet.getString("phenotyping_center_name");
-				b.specimenProjectId = resultSet.getInt(ObservationDTOBase.SPECIMEN_PROJECT_ID);
-				b.specimenProjectName = resultSet.getString(ObservationDTOBase.SPECIMEN_PROJECT_ID);
 				b.sampleGroup = resultSet.getString("sample_group");
 				b.sex = resultSet.getString("sex");
 				b.strainAcc = resultSet.getString("strain_acc");
@@ -733,8 +720,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				b.colonyId = resultSet.getString("colony_id");
 				b.phenotypingCenterId = resultSet.getInt("phenotyping_center_id");
 				b.phenotypingCenterName = resultSet.getString("phenotyping_center_name");
-				b.specimenProjectId = resultSet.getInt(ObservationDTOBase.SPECIMEN_PROJECT_ID);
-				b.specimenProjectName = resultSet.getString(ObservationDTOBase.SPECIMEN_PROJECT_NAME);
 				b.strainAcc = resultSet.getString("strain_acc");
 				b.strainName = resultSet.getString("strain_name");
 				b.geneticBackground = resultSet.getString("genetic_background");
@@ -779,6 +764,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				lineBiologicalData.put(resultSet.getString("experiment_id"), b);
 			}
 		}
+
 	}
 
 	/**
@@ -1036,29 +1022,27 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	 */
 	class BiologicalDataBean {
 
-		public String        alleleAccession;
-		public String        alleleSymbol;
-		public Integer       biologicalModelId;
-		public Integer       biologicalSampleId;
-		public String        colonyId;
+		public String alleleAccession;
+		public String alleleSymbol;
+		public Integer biologicalModelId;
+		public Integer biologicalSampleId;
+		public String colonyId;
 		public ZonedDateTime dateOfBirth;
-		public String        externalSampleId;
-		public String        geneAcc;
-		public String        geneSymbol;
-		public String        phenotypingCenterName;
-		public Integer       phenotypingCenterId;
-		public String        specimenProjectName;
-		public Integer       specimenProjectId;
-		public String        sampleGroup;
-		public String        sex;
-		public String        strainAcc;
-		public String        strainName;
-		public String        geneticBackground;
-		public String        allelicComposition;
-		public String        zygosity;
-		public String        productionCenterName;
-		public Integer       productionCenterId;
-		public String        litterId;
+		public String externalSampleId;
+		public String geneAcc;
+		public String geneSymbol;
+		public String phenotypingCenterName;
+		public Integer phenotypingCenterId;
+		public String sampleGroup;
+		public String sex;
+		public String strainAcc;
+		public String strainName;
+		public String geneticBackground;
+		public String allelicComposition;
+		public String zygosity;
+		public String productionCenterName;
+		public Integer productionCenterId;
+		public String litterId;
 
 	}
 
