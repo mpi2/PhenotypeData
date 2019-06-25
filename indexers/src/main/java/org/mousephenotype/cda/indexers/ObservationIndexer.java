@@ -493,6 +493,20 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
                             break;
 
+                        case ontological:
+
+                            String ontologyId = r.getString("ontology_id");
+                            if (!r.wasNull()) {
+                                o.setOntologyId(ontologyId);
+                            }
+
+                            String ontologyTerm = r.getString("ontology_term");
+                            if (!r.wasNull()) {
+                                o.setOntologyTerm(ontologyTerm);
+                            }
+
+                            break;
+
                         case text:
 
                             String text_value = r.getString("text_value");
