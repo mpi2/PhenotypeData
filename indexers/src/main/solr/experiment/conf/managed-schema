@@ -543,6 +543,10 @@
         <field name="child_anatomy_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="child_anatomy_term_synonym" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
+        <!-- ontology terms -->
+        <field name="ontology_id" type="string" indexed="true" stored="true" multiValued="false"/>
+        <field name="ontology_term" type="string" indexed="true" stored="true" multiValued="false"/>
+
         <!-- images -->
         <field name="download_file_path" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="file_type" type="string" indexed="true" stored="true" multiValued="false"/>
