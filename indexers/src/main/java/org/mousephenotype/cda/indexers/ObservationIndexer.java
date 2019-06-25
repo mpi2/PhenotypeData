@@ -30,10 +30,7 @@ import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.OntologyBean;
-import org.mousephenotype.cda.solr.service.dto.BasicBean;
-import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTOWrite;
-import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
@@ -340,6 +337,8 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 						o.setAllelicComposition(b.allelicComposition);
 						o.setPhenotypingCenter(b.phenotypingCenterName);
 						o.setPhenotypingCenterId(b.phenotypingCenterId);
+						o.setSpecimenProjectName(b.specimenProjectName);
+						o.setSpecimenProjectId((b.specimenProjectId));
 						o.setColonyId(b.colonyId);
 
 						// Viability applies to both sexes
@@ -398,6 +397,8 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 						o.setAllelicComposition(b.allelicComposition);
 						o.setPhenotypingCenter(b.phenotypingCenterName);
 						o.setPhenotypingCenterId(b.phenotypingCenterId);
+						o.setSpecimenProjectName(b.specimenProjectName);
+						o.setSpecimenProjectId(b.specimenProjectId);
 
 						o.setColonyId(b.colonyId);
 						o.setZygosity(b.zygosity);
@@ -670,6 +671,8 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				b.geneSymbol = resultSet.getString("symbol");
 				b.phenotypingCenterId = resultSet.getInt("phenotyping_center_id");
 				b.phenotypingCenterName = resultSet.getString("phenotyping_center_name");
+				b.specimenProjectId = resultSet.getInt(ObservationDTOBase.SPECIMEN_PROJECT_ID);
+				b.specimenProjectName = resultSet.getString(ObservationDTOBase.SPECIMEN_PROJECT_ID);
 				b.sampleGroup = resultSet.getString("sample_group");
 				b.sex = resultSet.getString("sex");
 				b.strainAcc = resultSet.getString("strain_acc");
@@ -720,6 +723,8 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				b.colonyId = resultSet.getString("colony_id");
 				b.phenotypingCenterId = resultSet.getInt("phenotyping_center_id");
 				b.phenotypingCenterName = resultSet.getString("phenotyping_center_name");
+				b.specimenProjectId = resultSet.getInt(ObservationDTOBase.SPECIMEN_PROJECT_ID);
+				b.specimenProjectName = resultSet.getString(ObservationDTOBase.SPECIMEN_PROJECT_NAME);
 				b.strainAcc = resultSet.getString("strain_acc");
 				b.strainName = resultSet.getString("strain_name");
 				b.geneticBackground = resultSet.getString("genetic_background");
@@ -764,7 +769,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				lineBiologicalData.put(resultSet.getString("experiment_id"), b);
 			}
 		}
-
 	}
 
 	/**
@@ -844,7 +848,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				parameterAssociationMap.get(obsId).add(pb);
 			}
 		}
-
 	}
 
 	/**
@@ -911,7 +914,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 			}
 		}
-
 	}
 
 	void populateDatasourceDataMap() throws SQLException {
@@ -945,7 +947,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 			}
 		}
 	}
-
 
 
 	/**
@@ -1022,28 +1023,29 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	 */
 	class BiologicalDataBean {
 
-		public String alleleAccession;
-		public String alleleSymbol;
-		public Integer biologicalModelId;
-		public Integer biologicalSampleId;
-		public String colonyId;
+		public String        alleleAccession;
+		public String        alleleSymbol;
+		public Integer       biologicalModelId;
+		public Integer       biologicalSampleId;
+		public String        colonyId;
 		public ZonedDateTime dateOfBirth;
-		public String externalSampleId;
-		public String geneAcc;
-		public String geneSymbol;
-		public String phenotypingCenterName;
-		public Integer phenotypingCenterId;
-		public String sampleGroup;
-		public String sex;
-		public String strainAcc;
-		public String strainName;
-		public String geneticBackground;
-		public String allelicComposition;
-		public String zygosity;
-		public String productionCenterName;
-		public Integer productionCenterId;
-		public String litterId;
-
+		public String        externalSampleId;
+		public String        geneAcc;
+		public String        geneSymbol;
+		public String        phenotypingCenterName;
+		public Integer       phenotypingCenterId;
+		public String        specimenProjectName;
+		public Integer       specimenProjectId;
+		public String        sampleGroup;
+		public String        sex;
+		public String        strainAcc;
+		public String        strainName;
+		public String        geneticBackground;
+		public String        allelicComposition;
+		public String        zygosity;
+		public String        productionCenterName;
+		public Integer       productionCenterId;
+		public String        litterId;
 	}
 
 
@@ -1069,5 +1071,4 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		public String sequenceId;
 		public String dimId;
 	}
-
 }
