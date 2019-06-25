@@ -441,6 +441,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
                             if (!r.wasNull()) {
                                 o.setOrderIndex(order_index);
                             }
+
                             break;
 
                         case time_series:
@@ -477,6 +478,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
                                     o.setCategory(cat);
                                 }
                             }
+
                             break;
 
                         case image_record:
@@ -495,14 +497,14 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
                         case ontological:
 
-                            String ontologyId = r.getString("ontology_id");
-                            if (!r.wasNull()) {
-                                o.setOntologyId(ontologyId);
-                            }
+                            if (ontologyEntityMap.containsKey(Integer.parseInt(o.getId()))) {
 
-                            String ontologyTerm = r.getString("ontology_term");
-                            if (!r.wasNull()) {
-                                o.setOntologyTerm(ontologyTerm);
+                                List<OntologyBean> subOntBeans = ontologyEntityMap.get(Integer.parseInt(o.getId()));
+                                for (OntologyBean bean : subOntBeans) {
+                                    o.addSubTermId(bean.getId());
+                                    o.addSubTermName(bean.getName());
+                                    o.addSubTermDescription(bean.getDescription());
+                                }
                             }
 
                             break;
@@ -513,6 +515,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
                             if (!r.wasNull()) {
                                 o.setTextValue(text_value);
                             }
+
                             break;
 
                         default:
@@ -521,15 +524,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
                     } // end switch
 
 
-                    if (ontologyEntityMap.containsKey(Integer.parseInt(o.getId()))) {
-
-                        List<OntologyBean> subOntBeans = ontologyEntityMap.get(Integer.parseInt(o.getId()));
-                        for (OntologyBean bean : subOntBeans) {
-                            o.addSubTermId(bean.getId());
-                            o.addSubTermName(bean.getName());
-                            o.addSubTermDescription(bean.getDescription());
-                        }
-                    }
 
                     if (parameterAssociationMap.containsKey(r.getInt("id"))) {
                         for (ParameterAssociationBean pb : parameterAssociationMap.get(r.getInt("id"))) {

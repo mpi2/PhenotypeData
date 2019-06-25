@@ -79,8 +79,6 @@ public class ObservationDTOBase {
 	public final static String METADATA_GROUP = "metadata_group";
 	public final static String DOWNLOAD_FILE_PATH = "download_file_path";
 	public final static String FILE_TYPE = "file_type";
-	public final static String ONTOLOGY_ID = "ontology_id";
-	public final static String ONTOLOGY_TERM = "ontology_term";
 	public final static String PARAMETER_ASSOCIATION_STABLE_ID = "parameter_association_stable_id";
 	public final static String PARAMETER_ASSOCIATION_SEQUENCE_ID = "parameter_association_sequence_id";
 	public final static String PARAMETER_ASSOCIATION_DIM_ID = "parameter_association_dim_id";
@@ -277,12 +275,6 @@ public class ObservationDTOBase {
 
 	@Field(FILE_TYPE)
 	protected String fileType;
-
-	@Field(ONTOLOGY_ID)
-	protected String ontologyId;
-
-	@Field(ONTOLOGY_TERM)
-	protected String ontologyTerm;
 
 	@Field(PARAMETER_ASSOCIATION_STABLE_ID)
     protected List<String> parameterAssociationStableId;
@@ -842,8 +834,6 @@ public class ObservationDTOBase {
 				", alleleSymbol='" + alleleSymbol + '\'' +
 				", downloadFilePath='" + downloadFilePath + '\'' +
 				", fileType='" + fileType + '\'' +
-				", ontologyId='" + ontologyId + '\'' +
-				", ontologyTerm='" + ontologyTerm + '\'' +
 				", parameterAssociationStableId=" + parameterAssociationStableId +
 				", parameterAssociationSequenceId=" + parameterAssociationSequenceId +
 				", parameterAssociationDimId=" + parameterAssociationDimId +
@@ -931,8 +921,6 @@ public class ObservationDTOBase {
 				Objects.equals(alleleSymbol, that.alleleSymbol) &&
 				Objects.equals(downloadFilePath, that.downloadFilePath) &&
 				Objects.equals(fileType, that.fileType) &&
-				Objects.equals(ontologyId, that.ontologyId) &&
-				Objects.equals(ontologyTerm, that.ontologyTerm) &&
 				Objects.equals(parameterAssociationStableId, that.parameterAssociationStableId) &&
 				Objects.equals(parameterAssociationSequenceId, that.parameterAssociationSequenceId) &&
 				Objects.equals(parameterAssociationDimId, that.parameterAssociationDimId) &&
@@ -967,7 +955,7 @@ public class ObservationDTOBase {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, dataSourceId, dataSourceName, projectId, projectName, pipelineName, pipelineStableId, procedureStableId, procedureGroup, parameterStableId, dataType, pipelineId, procedureId, parameterId, strainAccessionId, strainName, geneticBackground, allelicComposition, experimentSourceId, geneSymbol, geneAccession, experimentId, phenotypingCenterId, phenotypingCenter, specimenProjectId, specimenProjectName, productionCenterId, productionCenter, litterId, observationType, colonyId, biologicalSampleId, biologicalModelId, zygosity, sex, group, category, dataPoint, orderIndex, dimension, timePoint, discretePoint, externalSampleId, parameterName, procedureName, metadataGroup, metadata, alleleAccession, alleleSymbol, downloadFilePath, fileType, ontologyId, ontologyTerm, parameterAssociationStableId, parameterAssociationSequenceId, parameterAssociationDimId, parameterAssociationName, parameterAssociationValue, weightParameterStableId, weightDaysOld, weight, developmentalStageAcc, developmentalStageName, textValue, subTermName, subTermId, subTermDescription, sequenceId, anatomyId, anatomyTerm, anatomyIdTerm, anatomyTermSynonym, intermediateAnatomyId, intermediateAnatomyTerm, intermediateAnatomyTermSynonym, topLevelAnatomyId, topLevelAnatomyTerm, topLevelAnatomyTermSynonym, selectedTopLevelAnatomyId, selectedTopLevelAnatomyTerm, selectedTopLevelAnatomyTermSynonym, ageInDays, ageInWeeks);
+		return Objects.hash(id, dataSourceId, dataSourceName, projectId, projectName, pipelineName, pipelineStableId, procedureStableId, procedureGroup, parameterStableId, dataType, pipelineId, procedureId, parameterId, strainAccessionId, strainName, geneticBackground, allelicComposition, experimentSourceId, geneSymbol, geneAccession, experimentId, phenotypingCenterId, phenotypingCenter, specimenProjectId, specimenProjectName, productionCenterId, productionCenter, litterId, observationType, colonyId, biologicalSampleId, biologicalModelId, zygosity, sex, group, category, dataPoint, orderIndex, dimension, timePoint, discretePoint, externalSampleId, parameterName, procedureName, metadataGroup, metadata, alleleAccession, alleleSymbol, downloadFilePath, fileType, parameterAssociationStableId, parameterAssociationSequenceId, parameterAssociationDimId, parameterAssociationName, parameterAssociationValue, weightParameterStableId, weightDaysOld, weight, developmentalStageAcc, developmentalStageName, textValue, subTermName, subTermId, subTermDescription, sequenceId, anatomyId, anatomyTerm, anatomyIdTerm, anatomyTermSynonym, intermediateAnatomyId, intermediateAnatomyTerm, intermediateAnatomyTermSynonym, topLevelAnatomyId, topLevelAnatomyTerm, topLevelAnatomyTermSynonym, selectedTopLevelAnatomyId, selectedTopLevelAnatomyTerm, selectedTopLevelAnatomyTermSynonym, ageInDays, ageInWeeks);
 	}
 
 	/**
@@ -1613,22 +1601,6 @@ public class ObservationDTOBase {
 
 	public void setFileType(String fileType) {
 		this.fileType = fileType;
-	}
-
-	public String getOntologyId() {
-		return ontologyId;
-	}
-
-	public void setOntologyId(String ontologyId) {
-		this.ontologyId = ontologyId;
-	}
-
-	public String getOntologyTerm() {
-		return ontologyTerm;
-	}
-
-	public void setOntologyTerm(String ontologyTerm) {
-		this.ontologyTerm = ontologyTerm;
 	}
 
 	public void addParameterAssociationValue(String parameterAssValue) {
