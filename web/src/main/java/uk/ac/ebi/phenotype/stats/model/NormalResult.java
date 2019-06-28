@@ -1,7 +1,6 @@
 package uk.ac.ebi.phenotype.stats.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
@@ -10,31 +9,31 @@ public class NormalResult {
 	@JsonProperty("batch_included")
 	private Boolean batchIncluded;// true,
 	@JsonProperty("batch_p_val")
-	private Double batchPValue;// 3.38268269546894e-06,
+	private String batchPValue;// 3.38268269546894e-06,
 	@JsonProperty("residual_variances_homogeneity")
 	private Boolean residualVariancesHomogeneity;// : false,
 	@JsonProperty("residual_variances_homogeneity_p_val")
-	private Double residualVariancesHomogeneityPVal;// : 0.0216828136119118,
+	private String residualVariancesHomogeneityPVal;// : 0.0216828136119118,
 	@JsonProperty("genotype_contribution")
-	private Double genotypeContribution;// : 0.618217417150485,
+	private GenotypeContribution genotypeContribution;// : 0.618217417150485,
 	@JsonProperty("genotype_estimate")
-	private Double genotypeEstimate;// : -0.0142470730062138,
+	private GenotypeEstimate genotypeEstimate;// : -0.0142470730062138,
 	@JsonProperty("genotype_standard_error")
 	private Double genotypeStandardError;// : 0.0292248626248843,
 	@JsonProperty("genotype_p_val")
-	private Double genotypePValue;// : 0.626780054354097,
+	private String genotypePValue;// : 0.626780054354097,
 
 	@JsonProperty("genotype_percentage_change")
-	private String genotypePercentageChange;// : "Female: -32.4272586778729%, Male: -32.4272586778729%",
+	private GenotypePercentageChange genotypePercentageChange;// : "Female: -32.4272586778729%, Male: -32.4272586778729%",
 
 	@JsonProperty("sex_estimate")
-	private Double sexEstimate;// : {},
+	private SexEstimate sexEstimate;// : {},
 	@JsonProperty("sex_standard_error")
 	private Double sexStandardError;
 	@JsonProperty("sex_p_val")
 	private Double sexPValue;
 	@JsonProperty("weight_estimate")
-	private Double weightEstimate;
+	private WeightEstimate weightEstimate;
 	@JsonProperty("weight_standard_error")
 	private Double weightStandardError;
 	@JsonProperty("weight_p_val")
@@ -42,17 +41,17 @@ public class NormalResult {
 	@JsonProperty("gp1_genotype")
 	private String gp1Genotype;// : "control",
 	@JsonProperty("gp1_residuals_normality_test")
-	private Double gp1ResidualsNormalTest;// : 7.37e-10,
+	private GpResidualsNormalityTest gp1ResidualsNormalityTest;// : 7.37e-10,
 	@JsonProperty("gp2_genotype")
 	private String gp2Genotype;// : "experimental")
 	@JsonProperty("gp2_residuals_normality_test")
-	private Double gp2ResidualsNormalityTest;// : 4.85000879067445e-05,
+	private GpResidualsNormalityTest gp2ResidualsNormalityTest;// : 4.85000879067445e-05,
 	@JsonProperty("blups_test")
-	private Double blurpsTest;// : 8.99274577563096e-10,
+	private String blurpsTest;// : 8.99274577563096e-10,
 	@JsonProperty("rotated_residuals_normality_test")
-	private Double rotatedResidualsNormalTest;// : 7.37e-10,
+	private String rotatedResidualsNormalTest;// : 7.37e-10,
 	@JsonProperty("intercept_estimate")
-	private Double interceptEstimate;// : 0.0442470730062141,
+	private InterceptEstimate interceptEstimate;// : 0.0442470730062141,
 	@JsonProperty("intercept_standard_error")
 	private Double interceptStandardError;// : 0.0036142897908856,
 	@JsonProperty("interaction_included")
@@ -65,11 +64,11 @@ public class NormalResult {
 		this.batchIncluded = batchIncluded;
 	}
 
-	public Double getBatchPValue() {
+	public String getBatchPValue() {
 		return batchPValue;
 	}
 
-	public void setBatchPValue(Double batchPValue) {
+	public void setBatchPValue(String batchPValue) {
 		this.batchPValue = batchPValue;
 	}
 
@@ -81,27 +80,27 @@ public class NormalResult {
 		this.residualVariancesHomogeneity = residualVariancesHomogeneity;
 	}
 
-	public Double getResidualVariancesHomogeneityPVal() {
+	public String getResidualVariancesHomogeneityPVal() {
 		return residualVariancesHomogeneityPVal;
 	}
 
-	public void setResidualVariancesHomogeneityPVal(Double residualVariancesHomogeneityPVal) {
+	public void setResidualVariancesHomogeneityPVal(String residualVariancesHomogeneityPVal) {
 		this.residualVariancesHomogeneityPVal = residualVariancesHomogeneityPVal;
 	}
 
-	public Double getGenotypeContribution() {
+	public GenotypeContribution getGenotypeContribution() {
 		return genotypeContribution;
 	}
 
-	public void setGenotypeContribution(Double genotypeContribution) {
+	public void setGenotypeContribution(GenotypeContribution genotypeContribution) {
 		this.genotypeContribution = genotypeContribution;
 	}
 
-	public Double getGenotypeEstimate() {
+	public GenotypeEstimate getGenotypeEstimate() {
 		return genotypeEstimate;
 	}
 
-	public void setGenotypeEstimate(Double genotypeEstimate) {
+	public void setGenotypeEstimate(GenotypeEstimate genotypeEstimate) {
 		this.genotypeEstimate = genotypeEstimate;
 	}
 
@@ -113,27 +112,27 @@ public class NormalResult {
 		this.genotypeStandardError = genotypeStandardError;
 	}
 
-	public Double getGenotypePValue() {
+	public String getGenotypePValue() {
 		return genotypePValue;
 	}
 
-	public void setGenotypePValue(Double genotypePValue) {
+	public void setGenotypePValue(String genotypePValue) {
 		this.genotypePValue = genotypePValue;
 	}
 
-	public String getGenotypePercentageChange() {
+	public GenotypePercentageChange getGenotypePercentageChange() {
 		return genotypePercentageChange;
 	}
 
-	public void setGenotypePercentageChange(String genotypePercentageChange) {
+	public void setGenotypePercentageChange(GenotypePercentageChange genotypePercentageChange) {
 		this.genotypePercentageChange = genotypePercentageChange;
 	}
 
-	public Double getSexEstimate() {
+	public SexEstimate getSexEstimate() {
 		return sexEstimate;
 	}
 
-	public void setSexEstimate(Double sexEstimate) {
+	public void setSexEstimate(SexEstimate sexEstimate) {
 		this.sexEstimate = sexEstimate;
 	}
 
@@ -153,11 +152,11 @@ public class NormalResult {
 		this.sexPValue = sexPValue;
 	}
 
-	public Double getWeightEstimate() {
+	public WeightEstimate getWeightEstimate() {
 		return weightEstimate;
 	}
 
-	public void setWeightEstimate(Double weightEstimate) {
+	public void setWeightEstimate(WeightEstimate weightEstimate) {
 		this.weightEstimate = weightEstimate;
 	}
 
@@ -185,12 +184,12 @@ public class NormalResult {
 		this.gp1Genotype = gp1Genotype;
 	}
 
-	public Double getGp1ResidualsNormalTest() {
-		return gp1ResidualsNormalTest;
+	public GpResidualsNormalityTest getGp1ResidualsNormalTest() {
+		return gp1ResidualsNormalityTest;
 	}
 
-	public void setGp1ResidualsNormalTest(Double gp1ResidualsNormalTest) {
-		this.gp1ResidualsNormalTest = gp1ResidualsNormalTest;
+	public void setGp1ResidualsNormalTest(GpResidualsNormalityTest gp1ResidualsNormalTest) {
+		this.gp1ResidualsNormalityTest = gp1ResidualsNormalTest;
 	}
 
 	public String getGp2Genotype() {
@@ -201,35 +200,35 @@ public class NormalResult {
 		this.gp2Genotype = gp2Genotype;
 	}
 
-	public Double getGp2ResidualsNormalityTest() {
+	public GpResidualsNormalityTest getGp2ResidualsNormalityTest() {
 		return gp2ResidualsNormalityTest;
 	}
 
-	public void setGp2ResidualsNormalityTest(Double gp2ResidualsNormalityTest) {
+	public void setGp2ResidualsNormalityTest(GpResidualsNormalityTest gp2ResidualsNormalityTest) {
 		this.gp2ResidualsNormalityTest = gp2ResidualsNormalityTest;
 	}
 
-	public Double getBlurpsTest() {
+	public String getBlurpsTest() {
 		return blurpsTest;
 	}
 
-	public void setBlurpsTest(Double blurpsTest) {
+	public void setBlurpsTest(String blurpsTest) {
 		this.blurpsTest = blurpsTest;
 	}
 
-	public Double getRotatedResidualsNormalTest() {
+	public String getRotatedResidualsNormalTest() {
 		return rotatedResidualsNormalTest;
 	}
 
-	public void setRotatedResidualsNormalTest(Double rotatedResidualsNormalTest) {
+	public void setRotatedResidualsNormalTest(String rotatedResidualsNormalTest) {
 		this.rotatedResidualsNormalTest = rotatedResidualsNormalTest;
 	}
 
-	public Double getInterceptEstimate() {
+	public InterceptEstimate getInterceptEstimate() {
 		return interceptEstimate;
 	}
 
-	public void setInterceptEstimate(Double interceptEstimate) {
+	public void setInterceptEstimate(InterceptEstimate interceptEstimate) {
 		this.interceptEstimate = interceptEstimate;
 	}
 
@@ -249,19 +248,19 @@ public class NormalResult {
 		this.interactionIncluded = interactionIncluded;
 	}
 
-	public Double getInteractionPVal() {
+	public String getInteractionPVal() {
 		return interactionPVal;
 	}
 
-	public void setInteractionPVal(Double interactionPVal) {
+	public void setInteractionPVal(String interactionPVal) {
 		this.interactionPVal = interactionPVal;
 	}
 
-	public Double getSexFvkoEstimate() {
+	public SexFvkoEstimate getSexFvkoEstimate() {
 		return sexFvkoEstimate;
 	}
 
-	public void setSexFvkoEstimate(Double sexFvkoEstimate) {
+	public void setSexFvkoEstimate(SexFvkoEstimate sexFvkoEstimate) {
 		this.sexFvkoEstimate = sexFvkoEstimate;
 	}
 
@@ -273,35 +272,35 @@ public class NormalResult {
 		this.sexFvkoStandardError = sexFvkoStandardError;
 	}
 
-	public Double getSexFvkoPVal() {
+	public String getSexFvkoPVal() {
 		return sexFvkoPVal;
 	}
 
-	public void setSexFvkoPVal(Double sexFvkoPVal) {
+	public void setSexFvkoPVal(String sexFvkoPVal) {
 		this.sexFvkoPVal = sexFvkoPVal;
 	}
 
-	public Double getSexMykoEstimate() {
+	public SexMvkoEstimate getSexMykoEstimate() {
 		return sexMykoEstimate;
 	}
 
-	public void setSexMykoEstimate(Double sexMykoEstimate) {
+	public void setSexMykoEstimate(SexMvkoEstimate sexMykoEstimate) {
 		this.sexMykoEstimate = sexMykoEstimate;
 	}
 
-	public Double getSexMvkoStandardError() {
+	public String getSexMvkoStandardError() {
 		return sexMvkoStandardError;
 	}
 
-	public void setSexMvkoStandardError(Double sexMvkoStandardError) {
+	public void setSexMvkoStandardError(String sexMvkoStandardError) {
 		this.sexMvkoStandardError = sexMvkoStandardError;
 	}
 
-	public Double getSexMvkoPVal() {
+	public String getSexMvkoPVal() {
 		return sexMvkoPVal;
 	}
 
-	public void setSexMvkoPVal(Double sexMvkoPVal) {
+	public void setSexMvkoPVal(String sexMvkoPVal) {
 		this.sexMvkoPVal = sexMvkoPVal;
 	}
 
@@ -346,19 +345,19 @@ public class NormalResult {
 	}
 
 	@JsonProperty("interaction_p_val")
-	private Double interactionPVal;// : 0.623132324183186,
+	private String interactionPVal;// : 0.623132324183186,
 	@JsonProperty("sex_fvko_estimate")
-	private Double sexFvkoEstimate;// : {},
+	private SexFvkoEstimate sexFvkoEstimate;// : {},
 	@JsonProperty("sex_fvko_standard_error")
 	private Double sexFvkoStandardError;// : {},
 	@JsonProperty("sex_fvko_p_val")
-	private Double sexFvkoPVal;// : {},
+	private String sexFvkoPVal;// : {},
 	@JsonProperty("sex_mvko_estimate")
-	private Double sexMykoEstimate;// : {},
+	private SexMvkoEstimate sexMykoEstimate;// : {},
 	@JsonProperty("sex_mvko_standard_error")
-	private Double sexMvkoStandardError;// : {},
+	private String sexMvkoStandardError;// : {},
 	@JsonProperty("sex_mvko_p_val")
-	private Double sexMvkoPVal;// : {},
+	private String sexMvkoPVal;// : {},
 	@JsonProperty("classification_tag")
 	private String classificationTag;// : "If phenotype is significant - both sexes equally",
 	@JsonProperty("transformation")

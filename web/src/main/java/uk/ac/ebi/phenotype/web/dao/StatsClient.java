@@ -38,13 +38,13 @@ public class StatsClient {
     ResponseEntity<List<Statistics>> statsResponse=null;
     System.out.println("SINGLE_STATS_URL="+statisticsUrl+"api/stats?accession="+geneAccession+"&parameter_stable_id="+parameterStableId+"&pipeline_stable_id="+pipelineStableId+"&zygosity="+zygosity+"&phenotyping_center="+phenotypingCenter+"&metadata_group="+metaDataGroup);
     	//String SINGLE_STATS_URL = statisticsUrl+"api/singleStatistic?accession={geneAccession}&allele_accession_id={alleleAccession}&parameter_stable_id={parameterStableId}&pipeline_stable_id={pipelineStableId}&zygosity={zygosity}&phenotyping_center={phenotypingCenter}&metadata_group={metaDataGroup}";
-    String SINGLE_STATS_URL = statisticsUrl+"api/stats?accession={geneAccession}&parameter_stable_id={parameterStableId}&pipeline_stable_id={pipelineStableId}&zygosity={zygosity}&phenotyping_center={phenotypingCenter}&metadata_group={metaDataGroup}";
+    String SINGLE_STATS_URL = statisticsUrl+"api/stats?accession={geneAccession}&allele_accession_id={alleleAccession}&parameter_stable_id={parameterStableId}&pipeline_stable_id={pipelineStableId}&zygosity={zygosity}&phenotyping_center={phenotypingCenter}&metadata_group={metaDataGroup}";
     
     	System.out.println("SINGLE_STATS_URL="+SINGLE_STATS_URL);
 		try {
 			Map<String, String> params = new HashMap<>();
 			    params.put("geneAccession", geneAccession);
-			    //params.put("alleleAccession", alleleAccession);//ignore allele accession until in stats file and service
+			    params.put("alleleAccession", alleleAccession);//ignore allele accession until in stats file and service
 			    params.put("parameterStableId", parameterStableId);
 			    params.put("pipelineStableId", pipelineStableId);
 			    params.put("zygosity", zygosity);

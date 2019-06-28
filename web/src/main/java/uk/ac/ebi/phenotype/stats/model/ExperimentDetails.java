@@ -4,6 +4,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ExperimentDetails {
 	
+	@JsonProperty("allele_accession_id")
+	private String alleleAccession;
+
+	public String getAlleleAccession() {
+		return alleleAccession;
+	}
+
+	public void setAlleleAccession(String alleleAccession) {
+		this.alleleAccession = alleleAccession;
+	}
 	
 	@JsonProperty("status")
 	private String status;//"Successful",
