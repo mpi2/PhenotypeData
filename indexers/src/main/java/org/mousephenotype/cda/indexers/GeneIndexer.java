@@ -234,7 +234,13 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 
                 					List<String> procedureStableIds = new ArrayList<>();
                 					List<String> procedureNames = new ArrayList<>();
-                					procedureStableIds.add(procedure.getStableId());
+
+                					// Sometimes there is no stableId, which causes an NPE to be thrown. Log the info.
+                                    try {
+                                        procedureStableIds.add(procedure.getStableId());
+                                    } catch (NullPointerException e) {
+                                        logger.error("Procedure lookup for center::colonyId::mgiAccessionId {}::{}::{}, procedureStableKey {} failed.", strain.getCentre(), strain.getColonyId(), strain.getMgi(), procedureStableKey);
+                                    }
                 					gene.setProcedureStableId(procedureStableIds);
 
                 					procedureNames.add(procedure.getName());
@@ -246,9 +252,9 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 				}
                 			}
                 		}
+
                 		gene.setEmbryoModalities(embryoModalitiesForGene);
                 	}
-
                 }
                 
                 if(dmddImageData.containsKey(gene.getMgiAccessionId())){
