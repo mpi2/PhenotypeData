@@ -114,8 +114,6 @@
 
 </script>
 
-    <jsp:invoke fragment="header" />
-
     <%--
     Include google tracking code on live site
     --%>
