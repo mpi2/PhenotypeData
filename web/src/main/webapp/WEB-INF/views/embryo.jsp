@@ -14,7 +14,7 @@
 		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
         <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
         <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
-        <script type='text/javascript' src='${baseUrl}/js/slider.js?v=${version}'></script> 
+        <script type='text/javascript' src='${baseUrl}/js/slider.js?v=${version}'></script>
         <link rel="stylesheet" href='${baseUrl}/css/slider.css?v=${version}'/>
 		<link href="${baseUrl}/css/alleleref.css" rel="stylesheet" />
     </jsp:attribute>
@@ -137,8 +137,6 @@
 					</div>
 				</div>
 			</div>
-
-			<c:set var="vignettesLink" value='<a class="btn" style="float: right" href="${baseUrl}/embryo/vignettes">Full Analysis</a>'/>
 
 			<div class="row mb-5">
 				<div class="col-12">
