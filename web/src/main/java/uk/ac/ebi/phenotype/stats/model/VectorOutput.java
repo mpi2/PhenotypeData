@@ -7,5 +7,13 @@ public class VectorOutput {
 	
 	@JsonProperty("normal_result")
 	private NormalResult normalResult;
+
+	public NormalResult getNormalResult() {
+		return normalResult;
+	}
+
+	public void setNormalResult(NormalResult normalResult) {
+		this.normalResult = normalResult;
+	}
 	
 }

@@ -31,7 +31,7 @@
                             <h4> Results of statistical analysis  </h4>
 
                             <dl class="alert alert-success">
-                                <dt>P value</dt>
+                                <dt>P value Bah</dt>
                                 <dd><t:formatScientific>${data.result.nullTestSignificance}</t:formatScientific></dd>
 
                                 <dt>Classification</dt>

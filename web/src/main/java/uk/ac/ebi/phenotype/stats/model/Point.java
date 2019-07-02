@@ -1,7 +1,5 @@
 package uk.ac.ebi.phenotype.stats.model;
 
-import java.util.Date;
-
 public class Point {
 	
 	private String sex;

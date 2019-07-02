@@ -359,6 +359,7 @@ public class ChartsController {
 				long startTime = System.currentTimeMillis();
 		
 				experiment=statsService.getSpecificExperimentDTOFromRest(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
+				//do stuff for stats summary table under chart
 				
 				long endTime=System.currentTimeMillis();
 				long timeTaken=endTime-startTime;
