@@ -28,7 +28,7 @@ $(document).ready(function(){
 			emptyText: emptyText, 
 			icon: {}, 
 			minWidth: 150, 
-			onItemClick: function(checkbox, selector){	
+			onItemClick: function(checkbox, selector){
 				
 				var values  = getSelectedValues(selector, checkbox);				
 				// add current one and create drop down object 
@@ -53,28 +53,26 @@ $(document).ready(function(){
 			textFormatFunction: function(options) {
 				
 				var selectedOptions = options.filter(":selected");
-		        var text = "";
-		        if (options.size() > 1){
-		        	options.each(function() {
-	                    if ($(this).prop("selected")) {
-	                        if ( text != "" ) { text += ", "; }
-	                        var optCss = $(this).attr('style');
-	                        var tempspan = $('<span/>');
-	                        tempspan.html( $(this).html() );
-	                        if ( optCss == null ) {
-	                        	text += tempspan.html();
-	                        } else {
-	                        	tempspan.attr('style',optCss);
-	                        	text += $("<span/>").append(tempspan).html();
-	                        }
-	                    }
-	                });
+				var numberOfselectedOptions = Object.keys(selectedOptions).length-2;
+
+				var text = "";
+		        if (numberOfselectedOptions > 1){
+					selectedOptions.each(function() {
+							if ( text !== "" ) { text += ", "; }
+						var optCss = $(this).attr('style');
+						var tempspan = $('<span/>');
+						tempspan.html( $(this).html() );
+						if ( optCss == null ) {
+							text += tempspan.html();
+						} else {
+							tempspan.attr('style',optCss);
+							text += $("<span/>").append(tempspan).html();
+						}
+					});
 		        }
-		        
-		        switch(selectedOptions.size()) {
+		        switch(numberOfselectedOptions) {
 		           case 0: return emptyText;
 		           case 1:return selectedOptions.text();
-		           case options.size():  return emptyText;
 		           default: return text;
 		        }
 			}
