@@ -165,5 +165,4 @@ public class IDRReport extends AbstractReport {
             return gene;
         }
     }
-
 }

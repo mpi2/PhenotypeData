@@ -97,6 +97,4 @@ public interface ObservationDAO extends HibernateDAO {
      * @throws SQLException
      */
     public List<String[]> getMissingOntologyTerms() throws SQLException;
-
-
 }

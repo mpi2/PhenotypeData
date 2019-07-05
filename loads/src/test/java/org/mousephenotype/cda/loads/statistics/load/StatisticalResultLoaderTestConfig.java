@@ -2,7 +2,10 @@ package org.mousephenotype.cda.loads.statistics.load;
 
 
 import org.hibernate.SessionFactory;
-import org.mousephenotype.cda.db.dao.*;
+import org.mousephenotype.cda.db.dao.OntologyTermDAO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.dao.PhenotypePipelineDAOImpl;
+import org.mousephenotype.cda.db.dao.ReferenceDAO;
 import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.statistics.load.threei.TestConfigThreeI;
@@ -31,7 +34,6 @@ import javax.sql.DataSource;
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {
                 StatisticalResultLoaderConfig.class,
                 TestConfigThreeI.class,
-                GwasDAO.class,
                 ReferenceDAO.class})}
 )
 public class StatisticalResultLoaderTestConfig {

@@ -277,10 +277,6 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
 
     private List<ValidationQuery> contentQueries = Arrays.asList(new ValidationQuery[] {
 
-//            new ValidationQuery("procedureStageLabel", procedureStageLabel),                      // Omit this test. The komp2 values for stage label don't match impress v1!
-//            new ValidationQuery("parameterDatatype", parameterDatatype),                          // Omit this test. Spot-checking revealed V1 has blank datatype, V2 has non-blank datatype.
-//            new ValidationQuery("parameterFormula", parameterFormula),                            // Omit this test, as the new impress V2 formulas are similar to, but slightly different from the impress V1 formulas.
-
             new ValidationQuery("pipeline", pipeline),
             new ValidationQuery("procedure", procedure),
             new ValidationQuery("procedureLevel", procedureLevel),

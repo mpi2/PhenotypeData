@@ -61,15 +61,6 @@ public class TestConfig {
 			.build();
 	}
 
-	// FIXME FIXME FIXME Get rid of this!
-	@Bean(name = "admintoolsDataSource")
-	public DataSource admintoolsDataSource() {
-		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
-			.ignoreFailedDrops(true)
-			.setName("admintoolstest")
-			.build();
-	}
-
 
 	protected Properties buildHibernateProperties() {
 		Properties hibernateProperties = new Properties();

@@ -17,7 +17,6 @@
 package org.mousephenotype.cda.loads.derived;
 
 import org.hibernate.SessionFactory;
-import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.slf4j.LoggerFactory;
@@ -34,7 +33,7 @@ import javax.sql.DataSource;
 @Configuration
 @ComponentScan(basePackages = {"org.mousephenotype.cda.loads.derived", "org.mousephenotype.cda.db.dao"},
         excludeFilters = {
-                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {GwasDAO.class, ReferenceDAO.class})})
+                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {ReferenceDAO.class})})
 public class GenerateDerivedParametersConfig {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());

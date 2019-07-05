@@ -278,11 +278,7 @@ public class ExpressionService extends BasicService {
 	 * @throws SQLException
 	 */
 	public ExpressionImagesBean  getLacImageDataForGene(String acc, String topMaNameFilter, String parameterStableId, boolean imagesOverview) throws SolrServerException, IOException  {
-		//options currently used as parameters
-		//expressionService.getLacImageDataForGene(acc, null, "IMPC_ALZ_075_001", overview, embryoOnly, model);
-		//expressionService.getLacImageDataForGene(acc, null,"IMPC_ALZ_076_001", overview, embryoOnly, model);
-//		expressionService.getLacImageDataForGene(acc, null, "IMPC_ELZ_064_001",overview, embryoOnly, model);
-//		expressionService.getLacImageDataForGene(acc, null, "IMPC_ELZ_063_001",overview, embryoOnly, model);
+
 		QueryResponse laczResponse = null;
 		String noTopTermId = "";
 		String topLevelField = "";// type ma or emap imageDTO field for top

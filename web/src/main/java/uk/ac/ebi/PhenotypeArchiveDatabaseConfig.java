@@ -35,26 +35,12 @@ public class PhenotypeArchiveDatabaseConfig {
     @Value("${datasource.komp2.password}")
     String komp2Password;
 
-    @Value("${datasource.admintools.url}")
-    String admintools2Url;
-
-    @Value("${datasource.admintools.username}")
-    String admintools2Username;
-
-    @Value("${datasource.admintools.password}")
-    String admintoolsPassword;
-
-
     @Bean
     @Primary
     public DataSource komp2DataSource() {
         return SqlUtils.getConfiguredDatasource(komp2Url, komp2Username, komp2Password);
     }
 
-    @Bean
-    public DataSource admintoolsDataSource() {
-        return SqlUtils.getConfiguredDatasource(admintools2Url, admintools2Username, admintoolsPassword);
-    }
 
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {

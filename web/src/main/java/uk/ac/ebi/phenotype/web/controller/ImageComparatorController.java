@@ -17,9 +17,6 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.Expression;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -37,25 +34,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.*;
+import java.util.List;
 
 @Controller
 public class ImageComparatorController {
 
-	@Autowired
-	ImageService imageService;
+	@NotNull @Autowired
+	private ImageService imageService;
 
-	@Autowired
-	ExpressionService expressionService;
+	@NotNull @Autowired
+	private ExpressionService expressionService;
 
-	@Autowired
-	GeneService geneService;
-	
-	@Autowired
-	AnatomyService anatomyService;
+	@NotNull @Autowired
+	private GeneService geneService;
+
+	@NotNull @Autowired
+	private AnatomyService anatomyService;
 
 	
 	@RequestMapping("/imageComparator")
@@ -218,15 +214,10 @@ public class ImageComparatorController {
 		return "comparatorBasicTest";
 		
 	}
-	
-	
-	
 
 	private void addGeneToPage(String acc, Model model)
 			throws SolrServerException, IOException {
 		GeneDTO gene = geneService.getGeneById(acc,GeneDTO.MGI_ACCESSION_ID, GeneDTO.MARKER_SYMBOL);//added for breadcrumb so people can go back to the gene page
 		model.addAttribute("gene",gene);
 	}
-
-	
 }

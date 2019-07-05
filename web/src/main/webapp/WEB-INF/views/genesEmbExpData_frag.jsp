@@ -173,7 +173,6 @@
 
                               <c:if
                                       test="${embryoMutantImagesAnatomyToRow[mapEntry.key].wholemountImagesAvailable}">
-                                  <!-- imageComparator?acc=MGI:1859162&anatomy_term=respiratory%20system&parameter_stable_id=IMPC_ALZ_075_001 -->
                                   <a
                                           href='${baseUrl}/imageComparator?acc=${acc}&anatomy_id=${mapEntry.value.abnormalAnatomyId}&parameter_stable_id=IMPC_ELZ_064_001' class="mr-1" style="font-size: small"><i
                                           title="Wholemount Images available (click on this icon to view images)"

@@ -110,9 +110,8 @@
 		<c:set var="selectUrl" value="${baseUrl}/order/creline?acc=${acc}"/>
 	</c:if>
 	
-<h1 class="title" id="top">${title}        
-    <%-- <span style="font-size: 40%;">See <a href="${baseUrl}/alleles/${acc}${creLineParam}">all alleles</a> for ${summary['marker_symbol']}</span> --%>
-    
+<h1 class="title" id="top">${title}
+
     	<span style="font-size: 40%;">See <a href="${fn:escapeXml(selectUrl)}">&nbsp; all <c:if test="${creLine}">Cre </c:if>Alleles</a> for ${summary['marker_symbol']}</span>
    
 </h1>

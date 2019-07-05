@@ -736,5 +736,4 @@ public class ObservationDAOImpl extends HibernateDAOImpl implements ObservationD
 
         return data;
     }
-
 }

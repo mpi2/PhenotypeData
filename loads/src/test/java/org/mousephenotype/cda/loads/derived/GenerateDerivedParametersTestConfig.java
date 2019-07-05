@@ -17,7 +17,6 @@
 package org.mousephenotype.cda.loads.derived;
 
 import org.hibernate.SessionFactory;
-import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -43,7 +42,6 @@ import javax.sql.DataSource;
 @SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
 @ComponentScan(basePackages = {"org.mousephenotype.cda.db.dao"}, excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {
-                GwasDAO.class,
                 ReferenceDAO.class,
                 MongoAutoConfiguration.class,
                 MongoDataAutoConfiguration.class})}

@@ -1,7 +1,6 @@
 package org.mousephenotype.cda.loads.statistics.load;
 
 import org.hibernate.SessionFactory;
-import org.mousephenotype.cda.db.dao.GwasDAO;
 import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.dao.ReferenceDAO;
@@ -31,7 +30,7 @@ import static org.mousephenotype.cda.db.utilities.SqlUtils.getConfiguredDatasour
 @Configuration
 @ComponentScan(basePackages = {"org.mousephenotype.cda.loads.statistics.load", "org.mousephenotype.cda.db.dao"},
         excludeFilters = {
-            @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {GwasDAO.class, ReferenceDAO.class})})
+            @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {ReferenceDAO.class})})
 public class StatisticalResultLoaderConfig implements ApplicationContextAware {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());

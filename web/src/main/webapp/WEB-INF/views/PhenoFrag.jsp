@@ -43,10 +43,7 @@ resTemp[0].remove();
         <th class="headerSort">Sex</th>
         <th class="headerSort">Life Stage</th>
 
-
-        <!-- <th class="headerSort">Source</th> -->
         <th>P Value</th>
-        <!--th class="headerSort">Data</th-->
     </tr>
     </thead>
     <tbody>
@@ -84,10 +81,7 @@ resTemp[0].remove();
                 </span>
             </td>
             <td>
-                <!-- note that allele page takes mgi GENE id not allele id -->
-                <%--a
-                        href="${baseUrl}/alleles/${acc}/${phenotype.allele.superScript}"><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele>
-                </a--%>
+
                 <span><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></span>
 
             </td>
@@ -142,12 +136,7 @@ resTemp[0].remove();
 
             </c:if>
 
-
-            <!-- This is closing the td from the 2 ifs above -->
-
         </tr>
     </c:forEach>
     </tbody>
 </table>
-
-<!-- /row -->

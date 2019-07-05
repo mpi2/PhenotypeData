@@ -112,22 +112,6 @@
             <version>2.0</version>
         </dependency>
 
-
-        <!-- For processing MS Excel files -->
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <version>3.8</version>
-            <exclusions>
-                <!-- Exclude xml-apis as it's provided by tomcat -->
-                <exclusion>
-                    <groupId>xml-apis</groupId>
-                    <artifactId>xml-apis</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-
         <!-- servlet API is provided by the container -->
         <dependency>
             <groupId>javax.servlet</groupId>

@@ -141,16 +141,9 @@
                                 </c:otherwise>
                             </c:choose>
                         </td>
-
-                            <%-- <td>
-                            <c:forEach var="specimen" items="${mapEntry.value.specimen}">
-                            <i title="zygosity= ${specimen.value.zyg}">${specimen.key}</i>
-                            </c:forEach></td> --%>
-
                         <td>
                             <c:if
                                     test="${mutantImagesAnatomyToRow[mapEntry.key].wholemountImagesAvailable}">
-                                <!-- imageComparator?acc=MGI:1859162&anatomy_term=respiratory%20system&parameter_stable_id=IMPC_ALZ_075_001 -->
                                 <a
                                         href='${baseUrl}/imageComparator?acc=${acc}&anatomy_id=${mapEntry.value.abnormalAnatomyId}&parameter_stable_id=IMPC_ALZ_076_001' class="mr-1" style="font-size: small"><i
                                         title="Wholemount Images available (click on this icon to view images)"
@@ -181,4 +174,3 @@
     </div>
 
 </div>
-

@@ -73,7 +73,7 @@ public class SecondaryProjectDAOImpl extends HibernateDAOImpl implements Seconda
 			while (resultSet.next()) {
 				String acc = resultSet.getString("acc");
 				String groupLabel=resultSet.getString("group_label");
-				SecondaryProjectBean bean=new SecondaryProjectBean(acc, groupLabel);
+				SecondaryProjectBean bean = new SecondaryProjectBean(acc, groupLabel);
 				
 				projectBeans.add(bean);
 			}
@@ -81,5 +81,4 @@ public class SecondaryProjectDAOImpl extends HibernateDAOImpl implements Seconda
 
 		return projectBeans;
 	}
-
 }

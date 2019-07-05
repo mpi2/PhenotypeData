@@ -716,7 +716,6 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 				String acc = resultSet.getString("ontology_acc");
 				if (emap2EmapaMap.get(acc) != null) {
 					String emapaAcc = emap2EmapaMap.get(acc);
-					//System.out.println(acc + " mapped to " + emapaAcc);
 					paramToEmapa.put(parameterStableId, emapaAcc);
 				}
 				else {
@@ -728,5 +727,4 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		logger.debug(" paramToMa size = " + paramToEmapa.size());
 		return paramToEmapa;
 	}
-
 }
