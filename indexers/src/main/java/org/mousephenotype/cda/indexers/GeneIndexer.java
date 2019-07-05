@@ -218,42 +218,46 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 		gene.setEmbryoDataAvailable(true);
                 		List<String> embryoModalitiesForGene=new ArrayList<>();
 
-                		for( EmbryoStrain strain : embryoStrainsForGene){
+                		try {
 
-                			if(strain.getModalities()!=null && strain.getModalities().size()>0){
-                				embryoModalitiesForGene.addAll(strain.getModalities());
-                			}
-                			if(strain.getAnalysisViewUrl()!=null){
-                				gene.setEmbryoAnalysisUrl(strain.getAnalysisViewUrl());
-                				gene.setEmbryoAnalysisName("volumetric analysis");
-                			}
-                			for ( String procedureStableKey : strain .getProcedureStableKeys() ){
-                                Procedure procedure = phenotypePipelineDAO.getProcedureByStableKey(procedureStableKey);
+                            for (EmbryoStrain strain : embryoStrainsForGene) {
 
-                				if ( gene.getProcedureStableId() == null ){
+                                if (strain.getModalities() != null && strain.getModalities().size() > 0) {
+                                    embryoModalitiesForGene.addAll(strain.getModalities());
+                                }
+                                if (strain.getAnalysisViewUrl() != null) {
+                                    gene.setEmbryoAnalysisUrl(strain.getAnalysisViewUrl());
+                                    gene.setEmbryoAnalysisName("volumetric analysis");
+                                }
+                                for (String procedureStableKey : strain.getProcedureStableKeys()) {
+                                    Procedure procedure = phenotypePipelineDAO.getProcedureByStableKey(procedureStableKey);
 
-                					List<String> procedureStableIds = new ArrayList<>();
-                					List<String> procedureNames = new ArrayList<>();
+                                    if (gene.getProcedureStableId() == null) {
 
-                					// Sometimes there is no stableId, which causes an NPE to be thrown. Log the info.
-                                    try {
-                                        procedureStableIds.add(procedure.getStableId());
-                                    } catch (NullPointerException e) {
-                                        logger.error("Procedure lookup for center::colonyId::mgiAccessionId {}::{}::{}, procedureStableKey {} failed.", strain.getCentre(), strain.getColonyId(), strain.getMgi(), procedureStableKey);
+                                        List<String> procedureStableIds = new ArrayList<>();
+                                        List<String> procedureNames = new ArrayList<>();
+
+                                        // Sometimes there is no stableId, which causes an NPE to be thrown. Log the info.
+                                        try {
+                                            procedureStableIds.add(procedure.getStableId());
+                                        } catch (NullPointerException e) {
+                                            logger.error("Procedure lookup for center::colonyId::mgiAccessionId {}::{}::{}, procedureStableKey {} failed.", strain.getCentre(), strain.getColonyId(), strain.getMgi(), procedureStableKey);
+                                        }
+                                        gene.setProcedureStableId(procedureStableIds);
+
+                                        procedureNames.add(procedure.getName());
+                                        gene.setProcedureName(procedureNames);
+                                    } else {
+                                        gene.getProcedureStableId().add(procedure.getStableId());
+                                        gene.getProcedureName().add(procedure.getName());
                                     }
-                					gene.setProcedureStableId(procedureStableIds);
-
-                					procedureNames.add(procedure.getName());
-                					gene.setProcedureName(procedureNames);
-                				}
-                				else {
-                					gene.getProcedureStableId().add(procedure.getStableId());
-	                				gene.getProcedureName().add(procedure.getName());
-                				}
-                			}
-                		}
-
+                                }
+                            }
+                        } catch (Exception e) {
+                		    logger.info("Could not get embryo modalities for gene {}", gene.getMarkerSymbol());
+                        }
                 		gene.setEmbryoModalities(embryoModalitiesForGene);
+
                 	}
                 }
                 
