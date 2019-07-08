@@ -53,12 +53,9 @@ public class OrganisationDAOImpl extends HibernateDAOImpl implements Organisatio
 
 	@Transactional(readOnly = true)
 	public Organisation getOrganisationByName(String name) {
-		return (Organisation) getCurrentSession().createQuery("from Organisation as o where o.name= ?").setString(0, name).uniqueResult();
+		return (Organisation) getCurrentSession()
+				.createQuery("from Organisation as o where o.name= ?1")
+				.setParameter(1, name)
+				.uniqueResult();
 	}
-
-	@Transactional(readOnly = true)
-	public Organisation getOrganisationById(Integer id) {
-		return (Organisation) getCurrentSession().createQuery("from Organisation as o where o.id= ?").setInteger(0, id).uniqueResult();
-	}
-
 }

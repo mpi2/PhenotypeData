@@ -24,19 +24,14 @@ package org.mousephenotype.cda.db.dao;
  */
 
 
-import java.util.List;
-
 import org.mousephenotype.cda.db.pojo.Datasource;
+
+import java.util.List;
 
 
 public interface DatasourceDAO extends HibernateDAO {
 
-	public List<Datasource> getAllDatasources();
-
-	public Datasource getDatasourceByName(String name);
-
-	public Datasource getDatasourceByShortName(String shortName);
-
-	public Datasource getDatasourceById(Integer externalDbId);
-
+	List<Datasource> getAllDatasources();
+	Datasource getDatasourceByShortName(String shortName);
+	Datasource getDatasourceById(Integer externalDbId);
 }

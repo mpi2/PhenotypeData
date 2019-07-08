@@ -28,54 +28,19 @@ import org.mousephenotype.cda.enumerations.ObservationType;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
 
 public interface ObservationDAO extends HibernateDAO {
 
-	public List<Observation> getObservationsBySampleIdAndParameterStableId(int sampleId, String parameterStableId);
+	void saveExperiment(Experiment experiment);
 
-	public void saveExperiment(Experiment experiment);
-	public void saveObservation(Observation observation);
+	void saveObservation(Observation observation);
 
-	public Observation createSimpleObservation(ObservationType observationType, String simpleValue, Parameter parameter, BiologicalSample sample, Datasource datasource, Experiment experiment, String parameterStatus);
+	Observation createSimpleObservation(ObservationType observationType, String simpleValue, Parameter parameter, BiologicalSample sample, Datasource datasource, Experiment experiment, String parameterStatus);
 
-	public Observation createObservation(ObservationType observationType, String firstDimensionValue, String secondDimensionValue, String secondDimensionUnit, Parameter parameter, BiologicalSample sample, Datasource datasource, Experiment experiment, String parameterStatus);
+	Observation createObservation(ObservationType observationType, String firstDimensionValue, String secondDimensionValue, String secondDimensionUnit, Parameter parameter, BiologicalSample sample, Datasource datasource, Experiment experiment, String parameterStatus);
 
-	public Observation createTimeSeriesObservationWithOriginalDate(ObservationType observationType, String firstDimensionValue, String secondDimensionValue, String actualTimepoint, String secondDimensionUnit, Parameter parameter, BiologicalSample sample, Datasource datasource, Experiment experiment, String parameterStatus);
-
-	public int deleteAllExperimentsByOrganisationAndDatasource(Organisation organisation, Datasource datasource);
-	public int deleteAllCategoricalObservationsByOrganisationAndDatasource(Organisation organisation, Datasource datasource);
-	public int deleteAllTimeSeriesObservationsByOrganisationAndDatasource(Organisation organisation, Datasource datasource);
-	public int deleteAllUnidimensionalObservationsByOrganisationAndDatasource(Organisation organisation, Datasource datasource);
-	public int deleteAllMetadataObservationsByOrganisationAndDatasource(Organisation organisation, Datasource datasource);
-
-	public int deleteAllExperimentsByDatasource(Datasource datasource);
-	public int deleteAllCategoricalObservationsByDatasource(Datasource datasource);
-	public int deleteAllTimeSeriesObservationsByDatasource(Datasource datasource);
-	public int deleteAllUnidimensionalObservationsByDatasource(Datasource datasource);
-	public int deleteAllMetadataObservationsByDatasource(Datasource datasource);
-
-	public int deleteAllCategoricalObservationsWithoutExperimentByDatasource(Datasource datasource);
-	public int deleteAllTimeSeriesObservationsWithoutExperimentByDatasource(Datasource datasource);
-	public int deleteAllUnidimensionalObservationsWithoutExperimentByDatasource(Datasource datasource);
-	public int deleteAllMetadataObservationsWithoutExperimentByDatasource(Datasource datasource);
-
-	public int deleteAllExperimentsWithoutObservationByDatasource(Datasource datasource);
-
-	public List<Parameter> getAllParametersWithObservations();
-	public List<Integer> getAllParameterIdsWithObservationsByOrganisation(Organisation organisation) throws SQLException;
-	public List<Integer> getAllCategoricalParameterIdsWithObservationsByOrganisation(Organisation organisation) throws SQLException;
-
-	public List<Observation> getAllObservationsByParameter(Parameter parameter);
-	public List<ImageRecordObservation> getAllImageObservations();
-
-	public Observation getObservationById(Integer obsId);
-
-	public List<Organisation> getAllOrganisationsWithObservations();
-	public List<Integer> getAllOrganisationIdsWithObservations() throws SQLException;
-
-	public List<Map<String, String>> getDistinctUnidimensionalOrgPipelineParamStrainZygosityGeneAccessionAlleleAccessionMetadata() throws SQLException;
+	Observation createTimeSeriesObservationWithOriginalDate(ObservationType observationType, String firstDimensionValue, String secondDimensionValue, String actualTimepoint, String secondDimensionUnit, Parameter parameter, BiologicalSample sample, Datasource datasource, Experiment experiment, String parameterStatus);
 
     /**
      * Fetch count of records NOT missing but with not null/empty parameter_status or parameter_status_message.

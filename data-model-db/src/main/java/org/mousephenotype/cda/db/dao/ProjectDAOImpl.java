@@ -49,17 +49,8 @@ public class ProjectDAOImpl extends HibernateDAOImpl implements ProjectDAO {
 	@Transactional(readOnly = true)
 	@SuppressWarnings("unchecked")
 	public List<Project> getAllProjects() {
-		return getCurrentSession().createQuery("from Project").list();
+		return getCurrentSession()
+				.createQuery("from Project")
+				.list();
 	}
-
-	@Transactional(readOnly = true)
-	public Project getProjectByName(String name) {
-		return (Project) getCurrentSession().createQuery("from Project as p where p.name= ?").setString(0, name).uniqueResult();
-	}
-
-	@Transactional(readOnly = true)
-	public Project getProjectById(Integer projectId) {
-		return (Project) getCurrentSession().createQuery("from Project as p where p.id= ?").setInteger(0, projectId).uniqueResult();
-	}
-
 }

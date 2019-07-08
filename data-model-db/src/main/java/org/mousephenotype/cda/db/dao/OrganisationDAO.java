@@ -24,9 +24,9 @@ package org.mousephenotype.cda.db.dao;
  */
 
 
-import java.util.List;
-
 import org.mousephenotype.cda.db.pojo.Organisation;
+
+import java.util.List;
 
 
 public interface OrganisationDAO extends HibernateDAO {
@@ -43,11 +43,4 @@ public interface OrganisationDAO extends HibernateDAO {
 	 * @return the organisation
 	 */
 	public Organisation getOrganisationByName(String name);
-
-	/**
-	 * Find an organisation by its id.
-	 * @param id the organisation internal id
-	 * @return the organisation
-	 */
-	public Organisation getOrganisationById(Integer id);
 }

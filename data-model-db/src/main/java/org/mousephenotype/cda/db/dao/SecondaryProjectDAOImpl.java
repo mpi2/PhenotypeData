@@ -28,9 +28,6 @@ import org.mousephenotype.cda.db.beans.SecondaryProjectBean;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -44,7 +41,6 @@ public class SecondaryProjectDAOImpl extends HibernateDAOImpl implements Seconda
 
 	}
 
-
 	/**
 	 * Creates a new Hibernate sequence region data access manager.
 	 * @param sessionFactory the Hibernate session factory
@@ -53,32 +49,24 @@ public class SecondaryProjectDAOImpl extends HibernateDAOImpl implements Seconda
 		this.sessionFactory = sessionFactory;
 	}
 
+	@Transactional(readOnly = true)
+	@Override
+	public Set<SecondaryProjectBean> getAccessionsBySecondaryProjectId(String projectId)
+			throws SQLException {
+		return (new LinkedHashSet<>(getCurrentSession()
+											.createQuery("from genes_secondary_project where secondary_project_id=?1")
+											.setParameter(1, projectId)
+											.getResultList()));
+	}
 
 	@Transactional(readOnly = true)
 	@Override
 	public Set<SecondaryProjectBean> getAccessionsBySecondaryProjectId(String projectId, String group_label)
 		throws SQLException {
-		Set<SecondaryProjectBean> projectBeans = new LinkedHashSet<>();
-
-		String query = (group_label == null) ? "select * from genes_secondary_project where secondary_project_id=?" : "select * from genes_secondary_project where secondary_project_id=? AND group_label=?";
-
-		try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
-
-			statement.setString(1, projectId);
-			if (group_label != null) {
-				statement.setString(2, group_label);
-			}
-
-			ResultSet resultSet = statement.executeQuery();
-			while (resultSet.next()) {
-				String acc = resultSet.getString("acc");
-				String groupLabel=resultSet.getString("group_label");
-				SecondaryProjectBean bean = new SecondaryProjectBean(acc, groupLabel);
-				
-				projectBeans.add(bean);
-			}
-		}
-
-		return projectBeans;
+		return (new LinkedHashSet<>(getCurrentSession()
+			.createQuery("from genes_secondary_project where secondary_project_id=?1 AND group_label=?2")
+			.setParameter(1, projectId)
+			.setParameter(2, group_label)
+			.getResultList()));
 	}
 }

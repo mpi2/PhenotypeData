@@ -25,22 +25,9 @@ package org.mousephenotype.cda.db.dao;
 
 
 import org.mousephenotype.cda.db.pojo.Allele;
-import org.mousephenotype.cda.db.pojo.GenomicFeature;
-
-import java.util.List;
 
 
 public interface AlleleDAO extends HibernateDAO {
 
-	public List<Allele> getAllAlleles();
-
-	public Allele getAlleleByAccession(String accession);
-
-	public Allele getAlleleBySymbolAndGene(String symbol, GenomicFeature gene);
-
-	public Allele getAlleleBySymbol(String symbol);
-
-	public List<Allele> getAlleleByGeneSymbol(String geneSymbol);
-
-	public List<Allele> getAlleleByGeneAccession(String geneAccession);
+	Allele getAlleleByAccession(String accession);
 }

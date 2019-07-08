@@ -31,30 +31,11 @@ import java.util.List;
 
 public interface StrainDAO extends HibernateDAO {
 
-        public List<Strain> getAllStrains();
-
         /**
          * Find a strain by its nane.
          * @param name the strain name
          * @return the strain
          */
         public Strain getStrainByName(String name);
-
-        /**
-         * Find a strain by its name or synonym.
-         * @param name the strain name or synonym
-         * @return the strain
-         */
-        public Strain getStrainBySynonym(String name);
-
-        /**
-         * Save a strain
-         * @param strain the strain to save
-         */
-        public void saveStrain(Strain strain);
-
-        public Strain getStrainByAcc(String strain);
-
-        public void saveOrUpdateStrain(Strain strain);
 }
 

@@ -24,9 +24,9 @@ package org.mousephenotype.cda.db.dao;
  */
 
 
-import java.util.List;
-
 import org.mousephenotype.cda.db.pojo.Project;
+
+import java.util.List;
 
 
 public interface ProjectDAO extends HibernateDAO {
@@ -35,14 +35,5 @@ public interface ProjectDAO extends HibernateDAO {
 	 * Get all projects in the system
 	 * @return all projects
 	 */
-	public List<Project> getAllProjects();
-
-	/**
-	 * Find an project by its number.
-	 * @param name the project name
-	 * @return the project
-	 */
-	public Project getProjectByName(String name);
-
-	public Project getProjectById(Integer projectId);
+	List<Project> getAllProjects();
 }

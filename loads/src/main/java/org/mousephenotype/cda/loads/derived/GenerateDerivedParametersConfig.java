@@ -17,12 +17,14 @@
 package org.mousephenotype.cda.loads.derived;
 
 import org.hibernate.SessionFactory;
-import org.mousephenotype.cda.db.dao.ReferenceDAO;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -31,9 +33,7 @@ import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 
 @Configuration
-@ComponentScan(basePackages = {"org.mousephenotype.cda.loads.derived", "org.mousephenotype.cda.db.dao"},
-        excludeFilters = {
-                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {ReferenceDAO.class})})
+@ComponentScan(basePackages = {"org.mousephenotype.cda.loads.derived", "org.mousephenotype.cda.db.dao"})
 public class GenerateDerivedParametersConfig {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());

@@ -25,9 +25,6 @@ package org.mousephenotype.cda.db.dao;
 
 import org.hibernate.Session;
 
-import java.sql.SQLException;
-import java.util.Collection;
-
 
 /**
  * Please add a description about HibernateDAO.java
@@ -35,13 +32,5 @@ import java.util.Collection;
 
 public interface HibernateDAO {
 
-	public int optimizeTable(String tableName);
-
-	public Session getSession();
-
-	public void flushAndClearSession();
-
-	@SuppressWarnings("rawtypes")
-	public Collection executeNativeQuery(String sql) throws SQLException;
-
+	Session getSession();
 }

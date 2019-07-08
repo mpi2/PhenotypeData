@@ -3,7 +3,6 @@ package org.mousephenotype.cda.loads.statistics.load;
 import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.dao.ReferenceDAO;
 import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.slf4j.LoggerFactory;
@@ -12,7 +11,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -28,9 +30,7 @@ import javax.sql.DataSource;
 import static org.mousephenotype.cda.db.utilities.SqlUtils.getConfiguredDatasource;
 
 @Configuration
-@ComponentScan(basePackages = {"org.mousephenotype.cda.loads.statistics.load", "org.mousephenotype.cda.db.dao"},
-        excludeFilters = {
-            @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {ReferenceDAO.class})})
+@ComponentScan(basePackages = {"org.mousephenotype.cda.loads.statistics.load", "org.mousephenotype.cda.db.dao"})
 public class StatisticalResultLoaderConfig implements ApplicationContextAware {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());

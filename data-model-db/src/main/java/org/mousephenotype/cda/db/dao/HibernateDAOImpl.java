@@ -23,7 +23,6 @@ package org.mousephenotype.cda.db.dao;
  * @since February 2012
  */
 
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.engine.spi.SessionImplementor;
@@ -35,11 +34,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Collection;
-import java.util.LinkedList;
 
 /*
 * Implementation of the HibernateDAO interface
@@ -108,43 +103,12 @@ public class HibernateDAOImpl implements HibernateDAO {
 		this.sessionFactory = sessionFactory;
 	}
 
-	@SuppressWarnings("rawtypes")
-	public Collection executeNativeQuery(String sql) throws SQLException {
-
-		LinkedList<Object> results = new LinkedList<Object>();
-
-		Connection connection = getConnection();
-		Statement stmt = connection.createStatement();
-		ResultSet rs = null;
-		rs = stmt.executeQuery(sql);
-		while (rs.next()) {
-		  results.add(rs.getString(1));
-		}
-
-		rs.close();
-
-		return results;
-	}
-
-	@Transactional(readOnly = true)
-	public int optimizeTable(String tableName) {
-		Query query = getCurrentSession().createSQLQuery(
-				"optimize table " + tableName);
-		return query.executeUpdate();
-	}
-
-
 	/**
 	 * Returns the session associated with the ongoing reward transaction.
 	 * @return the transactional session
 	 */
 	protected Session getCurrentSession() {
 		return sessionFactory.getCurrentSession();
-	}
-
-	public void flushAndClearSession() {
-		getCurrentSession().flush();
-		getCurrentSession().clear();
 	}
 
 	protected void finalize() {
@@ -154,7 +118,4 @@ public class HibernateDAOImpl implements HibernateDAO {
 		getCurrentSession().close();
 
 	}
-
-
-
 }

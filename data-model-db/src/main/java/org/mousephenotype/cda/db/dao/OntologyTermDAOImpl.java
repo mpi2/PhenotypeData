@@ -25,8 +25,6 @@ package org.mousephenotype.cda.db.dao;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.mousephenotype.cda.db.beans.AggregateCountXYBean;
-import org.mousephenotype.cda.db.pojo.Datasource;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +33,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -60,55 +57,38 @@ public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTer
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	public List<OntologyTerm> getAllOntologyTerms() {
-		return getCurrentSession().createQuery("from OntologyTerm")
-		                          .list();
+		return getCurrentSession()
+				.createQuery("from OntologyTerm")
+				.list();
 	}
 
 
 	@Transactional(readOnly = true)
 	public OntologyTerm getOntologyTermByName(String name) {
-		return (OntologyTerm) getCurrentSession().createQuery("from OntologyTerm as o where o.name = :name")
-		                                         .setString("name", name)
-		                                         .uniqueResult();
+		return (OntologyTerm) getCurrentSession()
+				.createQuery("from OntologyTerm as o where o.name = :name")
+		        .setParameter("name", name)
+		        .uniqueResult();
 	}
 
 
 	@Transactional(readOnly = true)
 	public OntologyTerm getOntologyTermByAccession(String accession) {
-		return (OntologyTerm) getCurrentSession().createQuery("from OntologyTerm as ot where ot.id.accession = :accession")
-		                                         .setString("accession", accession)
-		                                         .uniqueResult();
+		return (OntologyTerm) getCurrentSession()
+				.createQuery("from OntologyTerm as ot where ot.id.accession = :accession")
+		        .setParameter("accession", accession)
+		        .uniqueResult();
 	}
 
 
 	@Transactional(readOnly = true)
 	public OntologyTerm getOntologyTermByAccessionAndDatabaseId(String accession, int databaseId) {
-		return (OntologyTerm) getCurrentSession().createQuery("from OntologyTerm as ot where ot.id.accession = :accession and ot.id.databaseId = :databaseId")
-		                                         .setString("accession", accession)
-		                                         .setInteger("databaseId", databaseId)
-		                                         .uniqueResult();
+		return (OntologyTerm) getCurrentSession()
+				.createQuery("from OntologyTerm as ot where ot.id.accession = :accession and ot.id.databaseId = :databaseId")
+				.setParameter("accession", accession)
+				.setParameter("databaseId", databaseId)
+				.uniqueResult();
 	}
-
-
-
-	@Transactional(readOnly = false)
-	public int deleteAllTerms(String shortName) {
-
-		Session session = getSession();
-
-		// get the database id
-		Datasource d = (Datasource) session.createQuery("from Datasource as d where d.shortName = :shortName")
-		                                   .setString("shortName", shortName)
-		                                   .uniqueResult();
-
-		// execute the delete query
-		String hqlDelete = "delete OntologyTerm as ot where ot.id.databaseId = :dbId";
-		int deletedEntities = session.createQuery(hqlDelete)
-		                             .setInteger("dbId", d.getId())
-		                             .executeUpdate();
-		return deletedEntities;
-	}
-
 
 	@Transactional(readOnly = false)
 	public int batchInsertion(Collection<OntologyTerm> ontologyTerms) {
@@ -127,16 +107,7 @@ public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTer
 	}
 
 	@Override
-	public OntologyTerm getOntologyTermByNameAndDatabaseId(String name, int databaseId) {
-		return (OntologyTerm)this.getCurrentSession().createQuery("from OntologyTerm as o where o.name= :name and o.id.databaseId = :databaseId")
-			.setString("name", name)
-			.setInteger("databaseId", databaseId)
-			.uniqueResult();
-	}
-
-
-	@Override
-	public long getWebStatus() throws Exception {
+	public long getWebStatus() {
 		int rows = 0;
 		String statusQuery="SELECT count(*) FROM ontology_term";
 
@@ -147,7 +118,6 @@ public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTer
 			while (resultSet.next()) {
 				rows = resultSet.getInt(1);
 			}
-			statement.close();
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -159,10 +129,8 @@ public class OntologyTermDAOImpl extends HibernateDAOImpl implements OntologyTer
 		 return rows;
 	}
 
-
 	@Override
 	public String getServiceName() {
 		return "Ontology Dao";
 	}
-
 }

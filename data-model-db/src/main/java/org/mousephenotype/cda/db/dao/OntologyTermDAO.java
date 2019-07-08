@@ -33,17 +33,13 @@ import java.util.List;
 
 public interface OntologyTermDAO extends HibernateDAO, WebStatus{
 
-	public List<OntologyTerm> getAllOntologyTerms();
+	List<OntologyTerm> getAllOntologyTerms();
 
-	public OntologyTerm getOntologyTermByName(String name);
+	OntologyTerm getOntologyTermByName(String name);
 
-	public OntologyTerm getOntologyTermByAccession(String accession);
+	OntologyTerm getOntologyTermByAccession(String accession);
 
-	public OntologyTerm getOntologyTermByAccessionAndDatabaseId(String accession, int databaseId);
+	OntologyTerm getOntologyTermByAccessionAndDatabaseId(String accession, int databaseId);
 
-	public int deleteAllTerms(String datasourceName);
-
-	public int batchInsertion(Collection<OntologyTerm> ontologyTerms);
-
-	OntologyTerm getOntologyTermByNameAndDatabaseId(String name, int databaseId);
+	int batchInsertion(Collection<OntologyTerm> ontologyTerms);
 }

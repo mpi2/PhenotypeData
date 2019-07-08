@@ -1,7 +1,6 @@
 package org.mousephenotype.cda.loads.annotations;
 
 import org.hibernate.SessionFactory;
-import org.mousephenotype.cda.db.dao.ReferenceDAO;
 import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.config.DataSourceCdaConfig;
@@ -36,7 +35,6 @@ import static org.mousephenotype.cda.db.utilities.SqlUtils.getConfiguredDatasour
                         DataSourceDccConfig.class,
                         StatisticalResultLoaderConfig.class,
                         StatisticalDatasetGeneratorConfig.class,
-                        ReferenceDAO.class,
                         CdaSqlUtils.class})})
 public class OntologyAnnotationGeneratorConfig {
 

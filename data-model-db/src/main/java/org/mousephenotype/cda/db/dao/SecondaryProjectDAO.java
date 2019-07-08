@@ -33,6 +33,6 @@ import java.util.Set;
 
 public interface SecondaryProjectDAO extends HibernateDAO {
 
-	public Set<SecondaryProjectBean> getAccessionsBySecondaryProjectId(String projectId, String group_label) throws SQLException;
-
+	Set<SecondaryProjectBean> getAccessionsBySecondaryProjectId(String projectId) throws SQLException;
+	Set<SecondaryProjectBean> getAccessionsBySecondaryProjectId(String projectId, String group_label) throws SQLException;
 }

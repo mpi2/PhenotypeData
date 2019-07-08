@@ -37,37 +37,7 @@ public interface GenomicFeatureDAO extends HibernateDAO {
 	 * Get all genomic feature
 	 * @return all coordinate system
 	 */
-	public List<GenomicFeature> getAllGenomicFeatures();
 
-	public GenomicFeature getGenomicFeatureByAccession(String accession);
-
-	public GenomicFeature getGenomicFeatureByAccessionAndDbId(String accession, int dbId);
-
-	public GenomicFeature getGenomicFeatureBySymbol(String symbol);
-
-	public GenomicFeature getGenomicFeatureBySymbolOrSynonym(String symbol);
-
-	public int deleteAllGenomicFeatures();
-	public int batchInsertion(Collection<GenomicFeature> genomicFeatures, int batchSize);
-
-	/**
-	 * Find a coordinate system by its name.
-	 * @param name the coordinate system name
-	 * @return the coordinate system
-	 */
-	public GenomicFeature getGenomicFeatureByName(String name);
-
-	public GenomicFeature getGenomicFeatureByBiotype(String biotype);
-
-	public Map<String, GenomicFeature> getGenomicFeaturesByBiotype(String biotype);
-
-	public Map<String, GenomicFeature> getGenomicFeaturesByBiotypeAndNoSubtype(String biotype);
-
-	/**
-	 * Save a genomic feature representation
-	 * @param feature genomic feature to be saved.
-	 */
-	public void saveGenomicFeature(GenomicFeature feature);
-
-
+	GenomicFeature getGenomicFeatureByAccession(String accession);
+	GenomicFeature getGenomicFeatureByAccessionAndDbId(String accession, int dbId);
 }

@@ -26,11 +26,8 @@ package org.mousephenotype.cda.db.dao;
 
 import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.db.pojo.Allele;
-import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 
 @Repository
@@ -49,46 +46,9 @@ public class AlleleDAOImpl extends HibernateDAOImpl implements AlleleDAO {
 		this.sessionFactory = sessionFactory;
 	}
 
-
-	@Transactional(readOnly = true)
-	@SuppressWarnings("unchecked")
-	public List<Allele> getAllAlleles() {
-		return getCurrentSession().createQuery("from Allele").list();
-	}
-
-
 	@Transactional(readOnly = true)
 	public Allele getAlleleByAccession(String accession) {
-		return (Allele) getCurrentSession().createQuery("from Allele as a where a.id.accession = ?").setString(0, accession).uniqueResult();
+		return (Allele) getCurrentSession().createQuery("from Allele as a where a.id.accession = ?1").setParameter(1, accession).uniqueResult();
 
 	}
-
-
-	@Transactional(readOnly = true)
-	public Allele getAlleleBySymbolAndGene(String symbol, GenomicFeature gene) {
-		return (Allele) getCurrentSession().createQuery("from Allele as a where a.symbol = ? and a.gene.id.accession=?").setString(0, symbol).setString(1, gene.getId().getAccession()).uniqueResult();
-
-	}
-
-
-	@Transactional(readOnly = true)
-	public Allele getAlleleBySymbol(String symbol) {
-		return (Allele) getCurrentSession().createQuery("from Allele as a where a.symbol = ?").setString(0, symbol).uniqueResult();
-
-	}
-
-
-	@Transactional(readOnly = true)
-	@SuppressWarnings("unchecked")
-	public List<Allele> getAlleleByGeneSymbol(String geneSymbol) {
-		return getCurrentSession().createQuery("from Allele as a where a.gene.symbol = ?").setString(0, geneSymbol).list();
-	}
-
-
-	@Transactional(readOnly = true)
-	@SuppressWarnings("unchecked")
-	public List<Allele> getAlleleByGeneAccession(String geneAccession) {
-		return getCurrentSession().createQuery("from Allele as a where a.gene.id.accession = ?").setString(0, geneAccession).list();
-	}
-
 }

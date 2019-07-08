@@ -24,38 +24,14 @@ package org.mousephenotype.cda.db.dao;
  */
 
 
-import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.pojo.BiologicalModel;
+import org.mousephenotype.cda.db.pojo.LiveSample;
 
 import java.util.List;
 
 public interface BiologicalModelDAO extends HibernateDAO {
 
-	public void saveBiologicalSample(BiologicalSample sample);
-	public int deleteAllBiologicalSamplesByDatasource(Datasource datasource);
-
-	public List<LiveSample> getAllLiveSamples();
-	public List<LiveSample> getAllLiveSamplesByDatasourceId(int databaseId);
-	public List<LiveSample> getAllLiveSampleByOrganisation(Organisation organisation);
-	public List<LiveSample> getAllLiveSampleByOrganisationAndDatasource(Organisation organisation, Datasource datasource);
-
-	public void saveLiveSample(LiveSample sample);
-	public int deleteAllLiveSamplesByDatasource(Datasource datasource);
-	public int  deleteAllLiveSamplesWithoutModelsByDatasource(Datasource datasource);
-	public LiveSample getLiveSampleBySampleIdAndOrganisationId(String sampleId, Integer organisationId);
-
-
-
-	public BiologicalModel findByDbidAndAllelicCompositionAndGeneticBackgroundAndZygosity(Integer id, String allelicComposition, String geneticBackground, String zygosity);
-
-	public BiologicalModel getBiologicalModelById(int modelId);
-	public BiologicalSample getBiologicalSampleById(int sampleId);
-
-	public List<BiologicalModel> getAllBiologicalModelsByDatasourceId(int databaseId);
-	public List<BiologicalModel> getAllBiologicalModelsByAccession(String accession);
-
-	public void saveBiologicalModel(BiologicalModel model);
-
-	public int deleteAllBiologicalModelsByDatasource(Datasource datasource);
-	public void deleteAllBiologicalModelsAndRelatedDataByDatasourceOrganisation(Datasource ds, Organisation o);
-
+	List<LiveSample> getAllLiveSamples();
+	BiologicalModel findByDbidAndAllelicCompositionAndGeneticBackgroundAndZygosity(Integer id, String allelicComposition, String geneticBackground, String zygosity);
+	BiologicalModel getBiologicalModelById(int modelId);
 }
