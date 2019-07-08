@@ -11,8 +11,8 @@ import java.util.List;
  */
 public interface Exportable<T> {
 
-    public abstract List<String> getRow(T t);
-    public abstract List<String> getHeading();
+    List<String> getRow(T t);
+    List<String> getHeading();
 
     default List<List<String>> getRows(List<T> rawRows) {
 
