@@ -1104,6 +1104,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		gene.setAccessionId(dto.getMarkerAccessionId());
 		gene.setSymbol(dto.getMarkerSymbol());
 
+
 		ImpressBaseDTO procedure  = new ImpressBaseDTO(null, dto.getProcedureStableKey(), dto.getProcedureStableId(), dto.getProcedureName());
 		ImpressBaseDTO parameter = new ImpressBaseDTO(null, dto.getParameterStableKey(), dto.getParameterStableId(), dto.getParameterName());
 		ImpressBaseDTO pipeline = new ImpressBaseDTO(null, dto.getPipelineStableKey(), dto.getPipelineStableId(), dto.getPipelineName());
@@ -1112,6 +1113,9 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 				dto.getStatus(), allele, gene, zygosity,
 				pipeline, procedure, parameter, graphBaseUrl, dto.getpValue(), dto.getFemaleMutantCount(),
 				dto.getMaleMutantCount(), dto.getEffectSize(), dto.getMetadataGroup());
+		if(dto.getTopLevelMpTermName() != null) {
+			row.setTopLevelMpTerm(String.join(", ", dto.getTopLevelMpTermName().stream().filter(x -> x!=null).collect(Collectors.toList())));
+		}
 
 		return row;
 

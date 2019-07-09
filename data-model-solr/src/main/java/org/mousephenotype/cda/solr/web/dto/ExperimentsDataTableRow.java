@@ -20,6 +20,7 @@ public class ExperimentsDataTableRow extends DataTableRow{
 	Integer maleMutantCount;
 	Double effectSize;
 	String metadataGroup;
+	String topLevelMpTerm = "";
 		
 	@Override
 	public int compareTo(DataTableRow o) {
@@ -71,7 +72,7 @@ public class ExperimentsDataTableRow extends DataTableRow{
 	 * ! Keep it in synch with toTabbedString !
 	 */
 	public static String getTabbedHeader(){
-		return "allele\t" + "phenotypingCenter\t" + "procedure\t" + "parameter\t" +
+		return "allele\t" + "phenotypingCenter\t" + "topLevelMPTerm\t" + "procedure\t" + "parameter\t" +
 			"zygosity\t" + "femaleMutantCount\t" + "maleMutantCount\t" +
 			"statisticalMethod\t" + "pValue\t" + "status\t" + "data";
 	}
@@ -87,6 +88,7 @@ public class ExperimentsDataTableRow extends DataTableRow{
 		
 		return allele.getSymbol() + "\t" +
 				phenotypingCenter + "\t" +
+				topLevelMpTerm + "\t" +
 				procedure.getName() + "\t" +
 				parameter.getName() + "\t" +
 				zygosity.getName() + "\t" +
@@ -157,5 +159,7 @@ public class ExperimentsDataTableRow extends DataTableRow{
 	public void setMetadataGroup(String metadataGroup) {
 		this.metadataGroup = metadataGroup;
 	}
+
+	public void setTopLevelMpTerm(String topLevelMpTerm) { this.topLevelMpTerm =  topLevelMpTerm; }
 	
 }

@@ -102,6 +102,42 @@ public class ExperimentsController {
 
 		return "experimentsFrag";
 	}
+
+
+	/**
+	 * Runs when the request missing an accession ID. This redirects to the
+	 * search page which defaults to showing all genes in the list
+	 */
+	@RequestMapping("/experimentsTableFrag")
+	public String getTable(
+			@RequestParam(required = true, value = "geneAccession") String geneAccession,
+			@RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol,
+			@RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter,
+			@RequestParam(required = false, value = "pipelineName") List<String> pipelineName,
+			@RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId,
+			@RequestParam(required = false, value = "procedureName") List<String> procedureName,
+			@RequestParam(required = false, value = "mpTermId") List<String> mpTermId,
+			@RequestParam(required = false, value = "resource") ArrayList<String> resource,
+			Model model,
+			HttpServletRequest request)
+			throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
+
+		AllelePageDTO allelePageDTO = srService.getAllelesInfo(geneAccession, null, null, null, null, null, null, null);
+		Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
+		int rows = 0;
+		String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
+
+		experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
+
+		for ( List<ExperimentsDataTableRow> list : experimentRows.values()){
+			rows += list.size();
+		}
+		model.addAttribute("rows", rows);
+		model.addAttribute("experimentRows", experimentRows);
+		model.addAttribute("allelePageDTO", allelePageDTO);
+
+		return "experimentsTableFrag";
+	}
 	
 	@RequestMapping("/experiments")
 	public String getBasicInfo(

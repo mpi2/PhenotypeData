@@ -35,7 +35,6 @@
 </script>
 
 <div class="container" style="min-width: 300px">
-    <div class="row no-gutters justify-content-center">View data by physiological system</div>
     <div class="row no-gutters">
 
         <div class="container text-center text-muted"  id="phIconGrid">
@@ -44,26 +43,18 @@
                     <c:forEach var="j" begin="0" end="4">
                         <c:choose>
                             <c:when test="${not empty significantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}">
-                                <label class="col-sm col-3 btn btn-outline-primary btn-icon significant m-1" href="#phenotypesTab" title="${fn:replace(phenotypeGroups[i*5 + j], 'phenotype', '')}" data-toggle="tooltip">
-                                    <input type="checkbox"  autocomplete="off" data-value="${significantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}" onchange="filterAllData()" title="${phenotypeGroups[i*5 + j]}" value="significant">
+                                <label class="col-sm col-3 btn-outline-primary btn-icon significant m-1" href="#phenotypesTab" title="${fn:replace(phenotypeGroups[i*5 + j], 'phenotype', '')}" data-toggle="tooltip">
                                     <i class="${phenotypeGroupIcons[i*5 + j]}"></i>
                                 </label>
                             </c:when>
                             <c:when test="${not empty notsignificantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}">
-                                <label class="col-sm col-3 btn btn-outline-info btn-icon m-1" href="#phenotypesTab" title="${fn:replace(phenotypeGroups[i*5 + j], 'phenotype', '')}" data-toggle="tooltip">
-                                    <input type="checkbox" autocomplete="off" data-value="${notsignificantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}" onchange="filterAllData()" title="${phenotypeGroups[i*5 + j]}" value="no_significant">
+                                <label class="col-sm col-3 btn-outline-info btn-icon m-1" href="#phenotypesTab" title="${fn:replace(phenotypeGroups[i*5 + j], 'phenotype', '')}" data-toggle="tooltip">
                                     <i class="${phenotypeGroupIcons[i*5 + j]}"></i>
                                 </label>
                             </c:when>
                             <c:otherwise>
-<%--                                <span class="col-sm m-1" title="${fn:replace(phenotypeGroups[i*5 + j], 'phenotype', '')}" data-toggle="tooltip">--%>
-<%--                                                                    <a class="btn btn-outline-light btn-icon non-tested disabled " >--%>
-<%--                                    <i class="${phenotypeGroupIcons[i*5 + j]}"></i>--%>
-<%--                                </a>--%>
-<%--                                </span>--%>
 
-                                <label class="col-sm col-3 btn btn-outline-light btn-icon non-tested m-1" href="#phenotypesTab" title="${fn:replace(phenotypeGroups[i*5 + j], 'phenotype', '')}" data-toggle="tooltip">
-                                    <input type="checkbox" autocomplete="off" data-value="${notsignificantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}" onchange="filterAllData()" title="${phenotypeGroups[i*5 + j]}" value="no_significant" class="disabled">
+                                <label class="col-sm col-3 btn-outline-light btn-icon non-tested m-1" href="#phenotypesTab" title="${fn:replace(phenotypeGroups[i*5 + j], 'phenotype', '')}" data-toggle="tooltip">
                                     <i class="${phenotypeGroupIcons[i*5 + j]}"></i>
                                 </label>
 
