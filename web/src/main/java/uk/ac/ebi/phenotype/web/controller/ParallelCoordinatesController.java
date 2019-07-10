@@ -89,7 +89,7 @@ public class ParallelCoordinatesController {
             e.printStackTrace();
         }
 
-		return "parallel2";
+		return "parallel";
 
 	}
 

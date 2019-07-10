@@ -146,7 +146,7 @@
         _appendControl: function() {
             var self = this, sourceSelect = this.sourceSelect, options = this.options;
             
-            var tablefilter = $("<div/>").addClass("tablefilter tablefilter_add");
+            var tablefilter = $("<div/>").addClass("rounded");
             // the control is wrapped in a basic container
             // inline-block at this level seems to give us better size control
             var wrapper = $("<div/>");
@@ -587,7 +587,7 @@
             	try {
                 	text = this.options.textFormatFunction(selectOptions);
                 } catch(ex) {
-                	alert( 'textFormatFunction failed: ' + ex );
+                	console.log( 'textFormatFunction failed: ' + ex );
                 }
             } else if (firstItemChecksAll && (firstOption != null) && firstOption.prop("selected")) {
                 // just set the text from the first item
