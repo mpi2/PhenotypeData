@@ -1,11 +1,13 @@
 package uk.ac.ebi.phenotype.stats.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Result {
 	
 	@JsonProperty("vectoroutput")
+	//@JsonIgnore
 	private  VectorOutput vectoroutput;
 	
 	public VectorOutput getVectoroutput() {

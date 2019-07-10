@@ -168,6 +168,13 @@
                     </div>
                 </div>
             </div>
+            
+           stats experiment= ${statsExperiment.results}
+            <br/>
+             <br/>
+              <br/>
+               <br/>
+            solr experiment= ${solrExperiment.results}
 
 <script>
     $(function () {

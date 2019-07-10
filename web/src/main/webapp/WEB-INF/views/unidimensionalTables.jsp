@@ -22,7 +22,7 @@
 
                 <div class="row">
                     <div class="col-md-6">
-
+data result=============${data}
                 <c:if test="${data.result.statisticalMethod!=null and data.result.statisticalMethod!='Wilcoxon rank sum test with continuity correction' and data.result.statisticalMethod!='Reference Ranges Plus framework'}">
 
                     <c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificance!=null}">
@@ -31,7 +31,7 @@
                             <h4> Results of statistical analysis  </h4>
 
                             <dl class="alert alert-success">
-                                <dt>P value Bah</dt>
+                                <dt>P value</dt>
                                 <dd><t:formatScientific>${data.result.nullTestSignificance}</t:formatScientific></dd>
 
                                 <dt>Classification</dt>

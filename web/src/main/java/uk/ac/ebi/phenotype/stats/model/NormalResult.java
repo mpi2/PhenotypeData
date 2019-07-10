@@ -24,7 +24,15 @@ public class NormalResult {
 	private String genotypePValue;// : 0.626780054354097,
 
 	@JsonProperty("genotype_percentage_change")
-	private GenotypePercentageChange genotypePercentageChange;// : "Female: -32.4272586778729%, Male: -32.4272586778729%",
+	private GenotypePercentageChange genotypePercentageChange;// "genotype_percentage_change":{"sexfemale_genotypeexperimental":1.30037066864167,"sexmale_genotypeexperimental":5.07831051934796}
+
+	public GpResidualsNormalityTest getGp1ResidualsNormalityTest() {
+		return gp1ResidualsNormalityTest;
+	}
+
+	public void setGp1ResidualsNormalityTest(GpResidualsNormalityTest gp1ResidualsNormalityTest) {
+		this.gp1ResidualsNormalityTest = gp1ResidualsNormalityTest;
+	}
 
 	@JsonProperty("sex_estimate")
 	private SexEstimate sexEstimate;// : {},
