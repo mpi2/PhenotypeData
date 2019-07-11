@@ -22,7 +22,7 @@
 
                 <div class="row">
                     <div class="col-md-6">
-data result=============${data}
+
                 <c:if test="${data.result.statisticalMethod!=null and data.result.statisticalMethod!='Wilcoxon rank sum test with continuity correction' and data.result.statisticalMethod!='Reference Ranges Plus framework'}">
 
                     <c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificance!=null}">

@@ -1,8 +1,6 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
-
-
 <c:choose>
 
 
@@ -132,7 +130,13 @@
             </div>
         </c:if>
 
-        <p class="alert alert-info w-100">Mouseover the charts for more information. Click and drag to zoom the chart. Click on the legends to disable/enable data.</p>
+<c:if test="${statsServiceResult}">
+	<p class="alert alert-success w-100">
+	Result is from New Statistical Result Service!!! How quick was this???
+	</p>
+</c:if>
+        <p class="alert alert-info w-100">
+Mouseover the charts for more information. Click and drag to zoom the chart. Click on the legends to disable/enable data.</p>
 
         <c:choose>
             <c:when test="${param['chart_type'] eq 'UNIDIMENSIONAL_SCATTER_PLOT'}">

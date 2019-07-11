@@ -316,7 +316,8 @@ public class ChartsController {
 			
 			GeneDTO gene = geneService.getGeneById(accession[0]);
 			model.addAttribute("gene", gene);
-			boolean testBoth=true;//change to look at old chart with current code
+			boolean testBoth=false;//change to look at old chart with current code
+			boolean statsServiceResult=true;
 			
 				//get experiment object from the new rest service as a temporary measure we can convert to an experiment object and then we don't have to rewrite the chart code?? and easy to test if experiment objects are the same??
 				System.out.println("Get data from new rest service");
@@ -325,25 +326,26 @@ public class ChartsController {
 				experiment=statsService.getSpecificExperimentDTOFromRest(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
 				//do stuff for stats summary table under chart
 				//System.out.println("stats experiment="+experiment);
-				model.addAttribute("statsExperiment", experiment);
+				//model.addAttribute("statsExperiment", experiment);
 				long endTime=System.currentTimeMillis();
 				long timeTaken=endTime-startTime;
 				System.out.println("time taken to get experiment="+timeTaken);
-				
 //			
 				if(experiment==null || testBoth) {
 					System.err.println("no experiment found using stats service falling back to solr");
 					long startTimeSolr = System.currentTimeMillis();
 				
 					experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
-					model.addAttribute("solrExperiment", experiment);
+					statsServiceResult=false;
+					//model.addAttribute("solrExperiment", experiment);
 					//System.out.println("solr experiment="+experiment);
 					long endTimeSolr=System.currentTimeMillis();
 					long timeTakenSolr=endTimeSolr-startTimeSolr;
 					System.out.println("solr time taken to get experiment="+timeTakenSolr);
-			
-			
 				}
+				
+				model.addAttribute("statsServiceResult", statsServiceResult);//tell the interface where we got the data from  - temp measure for testing
+				
 			ProcedureDTO proc=null;
 			if(experiment!=null) {
 				proc = is.getProcedureByStableId(experiment.getProcedureStableId());
