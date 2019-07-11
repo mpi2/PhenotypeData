@@ -173,12 +173,12 @@ Mouseover the charts for more information. Click and drag to zoom the chart. Cli
                 </div>
             </div>
             
-           stats experiment= ${statsExperiment.results}
+           
             <br/>
              <br/>
               <br/>
                <br/>
-            solr experiment= ${solrExperiment.results}
+            
 
 <script>
     $(function () {
