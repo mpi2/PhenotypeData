@@ -581,6 +581,7 @@ public class PhenomeChartProvider {
 
 				if (dataArray.length() > 0) {
 					scatterJsonObject.put("data", dataArray);
+					scatterJsonObject.put("showCheckbox", true);
 					series.put(scatterJsonObject);
 				}
 			}

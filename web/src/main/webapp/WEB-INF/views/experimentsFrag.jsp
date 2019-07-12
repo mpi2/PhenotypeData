@@ -23,9 +23,14 @@
         </p-->
         <!-- chart here -->
         <p class="mt-3">This section allows you to view data points that have been statistically analyzed to establish significance phenotypes.   You can also view a table of  All results (520)</p>
+        <select class="selectpicker" multiple data-live-search="true">
+            <option>Mustard</option>
+            <option>Ketchup</option>
+            <option>Relish</option>
+        </select>
         <div class="alert alert-info alert-dismissible fade show" role="alert">
             <div>
-                <ul>
+                <ul style="margin-top: 0px">
                     <li>Mouseover the data points for more information</li>
                     <li>Click and drag to zoom the chart</li>
                     <li>Click on the legends to disable/enable data</li>

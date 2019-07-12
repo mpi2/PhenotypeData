@@ -77,6 +77,7 @@
      replaced with below as unable to get his due to CORS or licence?-->
      
     <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" media='all'/>
+
     <link href="${baseUrl}/css/impc-icons.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" type="text/css" href="https://ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css">
 
