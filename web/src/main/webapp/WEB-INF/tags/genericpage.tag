@@ -57,6 +57,8 @@
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.14.2/dist/bootstrap-table.min.css">
     <script src="https://unpkg.com/bootstrap-table@1.14.2/dist/bootstrap-table.min.js"></script>
     <script src="https://unpkg.com/bootstrap-table@1.14.2/dist/extensions/mobile/bootstrap-table-mobile.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.15.3/dist/extensions/cookie/bootstrap-table-cookie.min.js"></script>
+
 
 
     <script
@@ -103,8 +105,7 @@
     }
 
     <c:forEach var="entry" items="${requestConfig}">
-    var ${entry.key} = "${entry.value}";
-    </c:forEach>
+    <c:if test="${entry.key != 'internalSolrUrl' && entry.key != 'mappedHostname' && entry.key != 'isProxied'}">var ${entry.key} = "${entry.value}";</c:if></c:forEach>
 
 
     $(document).ready(function () {
@@ -157,31 +158,31 @@
 
 <main id="main" class="main" role="main">
 
-        <div class="single-header">
-            <img src="${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-150x150.png"
-                 srcset="${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-300x62.png 300w, ${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-768x158.png 768w, ${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-1024x210.png 1024w, ${cmsBaseUrl}/wp-content/uploads/2019/02/understanding.png 1440w"
-                 sizes="100%"/>
+    <div class="single-header">
+        <img src="${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-150x150.png"
+             srcset="${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-300x62.png 300w, ${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-768x158.png 768w, ${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-1024x210.png 1024w, ${cmsBaseUrl}/wp-content/uploads/2019/02/understanding.png 1440w"
+             sizes="100%"/>
 
-                <div class="row text-center">
-                    <div class="col-12 col-md-8 offset-md-2">
-                        <div class="portal-search pb-5 mb-5 mt-5">
-                            <div class="portal-search__tabs">
-                                <a id="geneSearchTab" data-type="gene" class="portalTab portalTabSearchPage left-shadow <c:if test="${param.type != 'phenotype'}">active</c:if>" href="${baseUrl}/search">Genes</a>
-                                <a id="phenotypeSearchTab" data-type="pheno" class=" portalTab portalTabSearchPage right-shadow <c:if test="${param.type == 'phenotype'}">active</c:if>" href="${baseUrl}/search?type=phenotype">Phenotypes</a>
-                            </div>
-                            <div class="portal-search__inputs">
-                                <form id="searchForm" action="${baseUrl}/search">
-                                    <input id="searchTerm" name="term" class="portal-search__input" value="${term}" placeholder="Search the data..." type="text"/>
-                                    <button id="searchIcon" type="submit"><i class="fas fa-search"></i></button>
-                                    <input id="searchType" type="hidden" name="type" value="${type}">
-                                    <div id="searchLoader" class="lds-ring">
-                                        <div></div>
-                                        <div></div>
-                                        <div></div>
-                                        <div></div>
-                                    </div>
-                                </form>
-                            </div>
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-12 col-md-8 offset-md-2">
+                    <div class="portal-search pb-5 mb-5 mt-5">
+                        <div class="portal-search__tabs">
+                            <a id="geneSearchTab" data-type="gene" class="portalTab portalTabSearchPage left-shadow <c:if test="${param.type != 'phenotype'}">active</c:if>" href="${baseUrl}/search">Genes</a>
+                            <a id="phenotypeSearchTab" data-type="pheno" class=" portalTab portalTabSearchPage right-shadow <c:if test="${param.type == 'phenotype'}">active</c:if>" href="${baseUrl}/search?type=phenotype">Phenotypes</a>
+                        </div>
+                        <div class="portal-search__inputs">
+                            <form id="searchForm" action="${baseUrl}/search">
+                                <input id="searchTerm" name="term" class="portal-search__input" value="${term}" placeholder="Search the data..." type="text"/>
+                                <button id="searchIcon" type="submit"><i class="fas fa-search"></i></button>
+                                <input id="searchType" type="hidden" name="type" value="${type}">
+                                <div id="searchLoader" class="lds-ring">
+                                    <div></div>
+                                    <div></div>
+                                    <div></div>
+                                    <div></div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>

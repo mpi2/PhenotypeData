@@ -7427,6 +7427,17 @@ hr {
 }
 
 
+.clickableRow > td {
+    padding: 0 !important;
+}
+
+
+.clickableRow > td a {
+    display: block;
+    padding: 0.75rem;
+    text-decoration: none;
+}
+
 .unClickableRow:hover {
     background-color: #ecececf5 !important;
     cursor: inherit !important;
