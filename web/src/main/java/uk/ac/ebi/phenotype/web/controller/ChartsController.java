@@ -323,7 +323,7 @@ public class ChartsController {
 				System.out.println("Get data from new rest service");
 				long startTime = System.currentTimeMillis();
 		
-				experiment=statsService.getSpecificExperimentDTOFromRest(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
+				experiment=statsService.getSpecificExperimentDTOFromRest(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession);
 				//do stuff for stats summary table under chart
 				//System.out.println("stats experiment="+experiment);
 				//model.addAttribute("statsExperiment", experiment);

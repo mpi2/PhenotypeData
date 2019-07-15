@@ -26,6 +26,7 @@ public class StatisticsServiceUtilities {
 		
 		ExperimentDTO exp = new ExperimentDTO();
 		exp.setAlleleAccession(stat.getAlleleAccession());
+		exp.setGeneMarker(stat.getGeneSymbol());
 		exp.setMetadataGroup(stat.getMetaDataGroup());
 		exp.setParameterStableId(parameterStableId);
 		exp.setProcedureStableId(stat.getProcedureStableId());
