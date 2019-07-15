@@ -61,6 +61,9 @@ public class StatisticsService {
 			if(stats.size()>0) {
 				exp = StatisticsServiceUtilities.convertToExperiment(parameterStableId, stats.get(0));
 			}
+			if(stats.size()>1) {
+				System.err.println("more than one stats result returned from Stats Service");
+			}
 				
 		//}
 		
