@@ -37,7 +37,7 @@ public class StatisticsService {
 		this.statsClient=new StatsClient(statsUrl);
 	}
 	
-	
+	//git test
 	public ResponseEntity<List<Statistics>> getUniqueStatsResult(String geneAccession, String alleleAccession, String parameterStableId,
 			 String pipelineStableId,  String zygosity,  String phenotypingCenter,  String metaDataGroup){
 		System.out.println("statsClient url="+statsClient.getStatsUrl());
