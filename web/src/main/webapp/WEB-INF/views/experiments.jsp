@@ -85,16 +85,17 @@
                                         <jsp:param name="geneAccession"
                                                    value="<%=request.getParameter(\"geneAccession\")%>"/>
                                     </jsp:include>
-                                    <p class="textright">
-                                        Download data as:
-                                        <a id="tsvDownload"
-                                           href="${baseUrl}/experiments/export?${requestScope['javax.servlet.forward.query_string']}&fileType=tsv&fileName=allData${allelePageDTO.getGeneSymbol()}"
-                                           target="_blank" class="button fa fa-download">TSV</a>
-                                        <a id="xlsDownload"
-                                           href="${baseUrl}/experiments/export?${requestScope['javax.servlet.forward.query_string']}&fileType=xls&fileName=allData${allelePageDTO.getGeneSymbol()}"
-                                           target="_blank" class="button fa fa-download">XLS</a>
-                                    </p>
+
                                 </div>
+                                <p class="textright">
+                                    Download data as:
+                                    <a id="tsvDownload"
+                                       href="${baseUrl}/experiments/export?${requestScope['javax.servlet.forward.query_string']}&fileType=tsv&fileName=allData${allelePageDTO.getGeneSymbol()}"
+                                       target="_blank" class="button fa fa-download">TSV</a>
+                                    <a id="xlsDownload"
+                                       href="${baseUrl}/experiments/export?${requestScope['javax.servlet.forward.query_string']}&fileType=xls&fileName=allData${allelePageDTO.getGeneSymbol()}"
+                                       target="_blank" class="button fa fa-download">XLS</a>
+                                </p>
 
                             </div>
                         </div> <!-- parameter list -->

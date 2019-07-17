@@ -532,10 +532,18 @@ public class PhenomeChartProvider {
 			for (String procedure : parametersByProcedure.keySet()) {
 
 				JSONObject scatterJsonObject = new JSONObject();
+				JSONObject bandJsonObject = new JSONObject();
 				JSONArray dataArray = new JSONArray();
 
 				scatterJsonObject.put("type", "scatter");
 				scatterJsonObject.put("name", procedure);
+
+				bandJsonObject.put("type", "areasplinerange");
+				bandJsonObject.put("name",  procedure + "AsBand");
+				bandJsonObject.put("lineWidth",  0);
+				bandJsonObject.put("linkedTo",  ":previous");
+				bandJsonObject.put("fillOpacity",  0.3);
+				bandJsonObject.put("zIndex",  0);
 
 				// create a series here
 				for (String parameterStableId : parametersByProcedure.get(procedure)) {
@@ -581,8 +589,9 @@ public class PhenomeChartProvider {
 
 				if (dataArray.length() > 0) {
 					scatterJsonObject.put("data", dataArray);
-					scatterJsonObject.put("showCheckbox", true);
+					bandJsonObject.put("data", dataArray);
 					series.put(scatterJsonObject);
+					series.put(bandJsonObject);
 				}
 			}
 			chartString = createPvaluesOverviewChart(minimalPvalue, pointFormat.toString(), series, new JSONArray(procedureLabels));

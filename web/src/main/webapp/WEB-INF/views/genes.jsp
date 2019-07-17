@@ -23,6 +23,7 @@
                 async></script>
         <%--script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script--%>
         <script src="https://code.highcharts.com/highcharts.js"></script>
+        <script src="http://code.highcharts.com/highcharts-more.js"></script>
         <script src="https://code.highcharts.com/modules/exporting.js"></script>
 
         <%--script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script--%>
