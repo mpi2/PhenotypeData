@@ -52,6 +52,10 @@ public class PhenotypeArchiveConfig {
 
     @Value("${solr_url}")
     private String solrUrl;
+    
+    @Value("${statistics_url}")
+    private String statisticsUrl;
+
 
     @Value("${base_url}")
     private String baseUrl;
@@ -76,13 +80,6 @@ public class PhenotypeArchiveConfig {
 
     @Value("${live_site}")
     private String liveSite;
-
-//    @Value("${root_stats_directory}")
-//    private String rootStatsDirectory;
-//    
-//    @Value("${original_stats_directory}")
-//    private String originalStatsDirectory;
-    
     
     @NotNull
     @Value("${paBaseUrl}")
@@ -104,6 +101,7 @@ public class PhenotypeArchiveConfig {
         map.put("googleAnalytics", googleAnalytics);
         map.put("liveSite", liveSite);
         map.put("paBaseUrl", paBaseUrl);
+        map.put("statisticsUrl", statisticsUrl);
         return map;
     }
     
