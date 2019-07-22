@@ -13,88 +13,11 @@
         <link href="${baseUrl}/css/alleleref.css" rel="stylesheet" />
         <link type="text/css" rel="stylesheet" href="${baseUrl}/css/vendor/jstree.min.css"/>
 
-        <!--style>
-
-            /*------ tabs stuff --------*/
-            div.ui-tabs {
-                border: none;
-                width: 100%;
-            }
-            div#tabs > ul.ui-tabs-nav {
-                border: none;
-                border-bottom: 1px solid gray;
-                border-radius: 0;
-                padding-bottom: 5px;
-                margin-bottom: 0px;
-                background: none;
-                list-style-type: none;
-            }
-            div#tabs > ul li {
-                float: left;
-                border: none;
-                background: none;
-                margin-bottom: 0;
-                padding-bottom: 0;
-            }
-            div#tabs > ul li a {
-                margin: 0 0px -3px 15px;
-                font-size: 16px;
-                text-decoration: none;
-                padding: 3px 8px;
-                border-radius: 3px;
-                color: white;
-                background-color: #0978A1;
-            }
-            #tabs .ui-tabs-active {
-                border: none;
-                background: none;
-            }
-            #tabs .ui-tabs-active > a {
-                border: 1px solid grey;
-                border-bottom: 5px solid white;
-                color: #0978A1;
-                background-color: white;
-            }
-            .ui-tabs-panel {
-                margin-top: 20px;
-            }
-            #tabs .ui-tabs-active > a:hover {
-                background: none;
-            }
-            div#tabs > ul li a:hover {
-                background: rgb(144,195,212);;
-            }
-
-            /*------ highcharts stuff --------*/
-            div.chart {
-                border: 1px solid lightgrey;
-                width: 99%;
-                margin: 30px auto;
-            }
-            div.clear {
-                clear: both;
-            }
-            div#agencyName {
-                font-weight: bold;
-                font-size: 20px;
-                margin: 10px 0;
-            }
-            table#alleleRef {
-                table-layout: fixed;
-                width: 100% !important;
-            }
-
-
-         </style-->
-
         <style>
             table#alleleRef {
                 width: 100% !important;
             }
         </style>
-
-        <%--<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>--%>
-        <%--<script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>--%>
 
         <script src="https://code.highcharts.com/highcharts.js"></script>
         <script src="https://code.highcharts.com/modules/exporting.js"></script>
@@ -108,12 +31,6 @@
             $(document).ready(function () {
                 'use strict';
 
-                // test only
-                //var baseUrl = '//dev.mousephenotype.org/data';
-                //var baseUrl = 'http://localhost:8080/phenotype-archive';
-                //var solrUrl = "${internalSolrUrl};"
-
-                // get alleleref in dataTable
                 var tableHeader = "<thead><th></th></thead>";
                 var tableCols = 1;
                 var isAlleleRef = true;
@@ -147,37 +64,6 @@
 
                 $.fn.fetchAlleleRefDataTable2(oConf2);
                 $.fn.fetchAllelePaperDataPointsIncrement();
-
-              /*  // find out which tab to open from hash tag
-                var matches = window.location.hash.match(/(\d)$/);
-                var tabIndex = matches == null ? 0 : matches[0];
-
-                var tabs = $( "#tabs" ).tabs({
-                    active: 0,
-                    activate: function(event, ui) {
-                        if (ui.newTab.index() == 0) {
-                            $('div#agencyBox').hide();
-                        }
-                        else if (ui.newTab.index() == 1){
-                            // get paper stats as highcharts
-                            // need to load highcharts after a tab is activated to ensure the width of charts
-                            // will stay inside the parent container
-                            $('div#agencyBox').show();
-                            var chartWeek = "chartWeek";
-                            var chartMonth = "chartMonth";
-                            $.fn.fetchAllelePaperDataPointsIncrement();//chartYearIncrease, chartMonthIncrease, chartQuarter, chartGrantQuarter);
-                        }
-                        else if (ui.newTab.index() == 2){
-                            $('div#agencyBox').hide();  // container for agency funded papers
-                            var oConf2 = oConf;
-                            oConf2.consortium = true;
-                            oConf2.id = "consortiumPapers";
-
-                            $.fn.fetchAlleleRefDataTable2(oConf2);
-                        }
-                    }
-                });
-                tabs.tabs({active: tabIndex});*/
             });
 
         </script>
