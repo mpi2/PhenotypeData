@@ -116,16 +116,23 @@
 
                     <h2 class="title">Gene KO effect comparator for ${systemName} continuous parameters</h2>
 
-                    <p>This tool allows you to visualize continuous parameters used by the consortium to assess cardiovascular phenotypes.
-                        The measurement values are corrected to account for batch effects to represent the true genotype effect thus allowing a side by side
-                        comparison/visualisation.</p>
+
+                    <p>The parallel coordinates viewer allows to compare variation across parameters for a particular mouse line, as well as across lines, for continous parameters.</p>
+
+                    <p>The values displayed are the genotype effect. The measurement values are corrected to account for batch effects to represent the true genotype effect, thus allowing a side-by-side comparison.</p>
 
                     <p>Use this interactive graph and table:</p>
+
                     <ul>
-                    <li>Drag your mouse pointer on any parameter axis to select a region of interest, while the associated gene/s will be automatically filtered for in the gene table below. You can click on a line to highlight it and filter by procedure from the “Procedures” list. Click on the parameter name to know more about it – you get redirected to the IMPReSS pages.</li>
-                    <li>Click on any row in the gene table (space next to the gene name) to highlight the corresponding values in the graph above, or click on the gene name to open the associated gene page. When you select a gene row, the parameter name in the graph will change to orange if genotype is significant.</li>
-                    <li>Click “Clear filters” to return to the default view.</li>
+                        <li>Drag your mouse pointer on any parameter axis to select a region of interest and highlight the relevant mouse lines in the chart. The associated gene/s will be automatically filtered for in the gene table below.</li>
+                        <li>You can click on a line to highlight it. The associated gene will be automatically filtered for in the gene table below.</li>
+                        <li>You can filter by procedure. You can learn more about the parameters by searching for them in <a href="${cmsBaseUrl}/impress">IMPReSS</a></li>
+                        <li>Click on any row in the gene table to highlight the corresponding values in the graph above. Clicking on the gene name will open the associated gene page.</li>
+                        <li>When you select a gene row, the parameter name in the graph will change to bold if genotype is significant.</li>
+                        <li>Reload page to return to the default view.</li>
                     </ul>
+
+
                     <div id="widgets_pc" class="widgets">	</div>
                     <div id="spinner"><i class="fa fa-refresh fa-spin"></i></div>
                     <br style="clear: both" />
