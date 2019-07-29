@@ -115,7 +115,7 @@
                                             <div class="col-12 col-md-6">
                                                 <p><b>Name: </b>${gene.markerName}<br>
                                                     <b>Human orthologs: </b>
-                                                    <c:forEach var="orth" items="${gene.humanGeneSymbol}">${orth}</c:forEach><br>
+                                                    <c:forEach var="orth" items="${gene.humanGeneSymbol}" varStatus="loop">${orth}<c:if test="${!loop.last}">, </c:if></c:forEach><br>
                                                     <b>Synonyms: </b>
                                                     <c:forEach var="syn" items="${gene.markerSynonym}" varStatus="loop">
                                                         ${syn}<c:if test="${!loop.last}">,</c:if>
@@ -238,5 +238,7 @@
     </jsp:body>
 
 </t:genericpage>
+
+
 
 

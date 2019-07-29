@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;

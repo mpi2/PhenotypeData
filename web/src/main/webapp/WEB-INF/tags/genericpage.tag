@@ -57,6 +57,8 @@
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.14.2/dist/bootstrap-table.min.css">
     <script src="https://unpkg.com/bootstrap-table@1.14.2/dist/bootstrap-table.min.js"></script>
     <script src="https://unpkg.com/bootstrap-table@1.14.2/dist/extensions/mobile/bootstrap-table-mobile.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-table@1.15.3/dist/extensions/cookie/bootstrap-table-cookie.min.js"></script>
+
 
 
     <script

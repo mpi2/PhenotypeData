@@ -1,19 +1,17 @@
-package uk.ac.ebi.phenotype.web.dao;
+package uk.ac.ebi.phenotype.stats.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * used to store more information about the list returned e.g. how many potential restuls of the pagination
- * @author jwarren
- *
- */
-public class StatsResponseWrapper {
+import org.springframework.hateoas.Resources;
 
+import uk.ac.ebi.phenotype.stats.model.Statistics;
+
+public class StatsResources extends Resources<Statistics> {
+
+private List<Statistics> stats;
 	
-	private List<Statistics> stats;
-	
-	public StatsResponseWrapper() {
+	public StatsResources() {
 		stats=new ArrayList<>();
 	}
 
@@ -29,6 +27,5 @@ public class StatsResponseWrapper {
 	public String toString() {
 		return "StatsList [stats=" + stats + "]";
 	}
-	
 	
 }

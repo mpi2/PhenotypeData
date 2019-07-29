@@ -15,6 +15,29 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
+import static org.springframework.web.bind.annotation.ValueConstants.DEFAULT_NONE;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -25,6 +48,20 @@ import org.mousephenotype.cda.enumerations.EmbryoViability;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+
+import org.mousephenotype.cda.solr.service.ExperimentService;
+import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.ImageService;
+import org.mousephenotype.cda.solr.service.ImpressService;
+import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.ImageDTO;
+import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
+
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
@@ -42,23 +79,27 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import uk.ac.ebi.phenotype.chart.*;
+
+import uk.ac.ebi.phenotype.chart.AbrChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.CategoricalChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.CategoricalResultAndCharts;
+import uk.ac.ebi.phenotype.chart.ChartColors;
+import uk.ac.ebi.phenotype.chart.ChartData;
+import uk.ac.ebi.phenotype.chart.Constants;
+import uk.ac.ebi.phenotype.chart.GraphUtils;
+import uk.ac.ebi.phenotype.chart.ScatterChartAndData;
+import uk.ac.ebi.phenotype.chart.ScatterChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.TimeSeriesChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
+import uk.ac.ebi.phenotype.chart.UnidimensionalDataSet;
+import uk.ac.ebi.phenotype.chart.UnidimensionalStatsObject;
+import uk.ac.ebi.phenotype.chart.ViabilityChartAndDataProvider;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
 import uk.ac.ebi.phenotype.web.dao.StatisticsService;
 
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static org.springframework.web.bind.annotation.ValueConstants.DEFAULT_NONE;
+
 
 
 @Controller
@@ -83,11 +124,13 @@ public class ChartsController {
 
     @Value("${solr_url}")
     public String SOLR_URL;
+
+    @Value("${statistics_url}")
+    public String statisticsUrl;
     
-//    @Autowired
-//    private StatsRepository repo;
-    @Autowired
 	 private StatisticsService statsService;
+
+ 
 
     @Inject
     public ChartsController(CategoricalChartAndTableProvider categoricalChartAndTableProvider, TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider, UnidimensionalChartAndTableProvider continousChartAndTableProvider, ScatterChartAndTableProvider scatterChartAndTableProvider, AbrChartAndTableProvider abrChartAndTableProvider, ViabilityChartAndDataProvider viabilityChartAndDataProvider, ExperimentService experimentService, StatisticalResultService srService, GeneService geneService, ImpressService is, ImageService imageService) {
@@ -102,8 +145,16 @@ public class ChartsController {
         this.geneService = geneService;
         this.is = is;
         this.imageService=imageService;
+       
     }
 
+    
+    @PostConstruct
+    public void init() {
+    	 System.out.println("solr url being set in StatsClient="+SOLR_URL);
+         System.out.println("statistics url being set in StatsClient="+statisticsUrl);
+         statsService=new StatisticsService(statisticsUrl);
+    }
 
     /**
      * Runs when the request missing an accession ID. This redirects to the
@@ -135,7 +186,7 @@ public class ChartsController {
      * @throws IOException
      * @throws URISyntaxException
      * @throws SolrServerException, IOException
-     */ 
+     */
     @RequestMapping("/charts")
     public String charts(@RequestParam(required = false, value = "accession") String[] accessionsParams,
                          @RequestParam(required = false, value = "parameter_stable_id") String[] parameterIds,
@@ -148,6 +199,8 @@ public class ChartsController {
                          @RequestParam(required = false, value = "chart_type") ChartType chartType,
                          @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds,
                          @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession,
+                         @RequestParam(required = false, value = "pageTitle") String pageTitle,
+                         @RequestParam(required = false, value = "pageLinkBack") String pageLinkBack,
                          HttpServletRequest request, HttpServletResponse response,
                          Model model) {
         try {
@@ -161,6 +214,9 @@ public class ChartsController {
                 }
             }
             response.addHeader("Access-Control-Allow-Origin", "*");//allow javascript requests from other domain - note spring way of doing this does not work!!!! as usual!!!
+
+            model.addAttribute("pageTitle", pageTitle);
+
             return createCharts(accessionsParams, pipelineStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, chartType, alleleAccession);
         } catch (Exception e){
             e.printStackTrace();
@@ -221,20 +277,9 @@ public class ChartsController {
 			//3i procedures with at least some headline images associated
 			if(parameter.getStableId().startsWith("MGP_BMI") || parameter.getStableId().startsWith("MGP_MLN") ||parameter.getStableId().startsWith("MGP_IMM") ) {
 				
-				System.out.println("flow cytomerty for 3i detected get headline images");
-				//lets get the 3i headline images
-				//example query http://ves-hx-d8.ebi.ac.uk:8986/solr/impc_images/select?q=parameter_stable_id:MGP_IMM_233_001
-				//or maybe we need to filter by parameter association first based no the initial parameter
-				//spleen Immunophenotyping e.g. Sik3 has many
-				//chart example= http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:2446296&parameter_stable_id=MGP_IMM_086_001
-				//bone marrow chart example=http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1353467&parameter_stable_id=MGP_BMI_018_001
-				//http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1353467&parameter_stable_id=MGP_BMI_018_001
-				//http://ves-hx-d8.ebi.ac.uk:8986/solr/impc_images/select?q=parameter_stable_id:MGP_IMM_233_001&fq=parameter_association_stable_id:MGP_IMM_086_001&fq=gene_symbol:Sik3
-				//http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1915276&parameter_stable_id=MGP_MLN_114_001
-				//accession[0]
-				QueryResponse imagesResponse = imageService.getHeadlineImages(accession[0], null,1000, null, null, parameter.getStableId());
-				System.out.println("number of images found="+imagesResponse.getResults().getNumFound());
-				model.addAttribute("headlineImages",imagesResponse.getBeans(ImageDTO.class));
+				addFlowCytometryImages(accession, model, parameter);
+						
+					
 			}
 			
 			String metadata = null;
@@ -271,10 +316,37 @@ public class ChartsController {
 			
 			GeneDTO gene = geneService.getGeneById(accession[0]);
 			model.addAttribute("gene", gene);
-
-			experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
-
-			ProcedureDTO proc;
+			boolean testBoth=false;//change to look at old chart with current code
+			boolean statsServiceResult=true;
+			
+				//get experiment object from the new rest service as a temporary measure we can convert to an experiment object and then we don't have to rewrite the chart code?? and easy to test if experiment objects are the same??
+				System.out.println("Get data from new rest service");
+				long startTime = System.currentTimeMillis();
+		
+				experiment=statsService.getSpecificExperimentDTOFromRest(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession);
+				//do stuff for stats summary table under chart
+				//System.out.println("stats experiment="+experiment);
+				//model.addAttribute("statsExperiment", experiment);
+				long endTime=System.currentTimeMillis();
+				long timeTaken=endTime-startTime;
+				System.out.println("time taken to get experiment="+timeTaken);
+//			
+				if(experiment==null || testBoth) {
+					System.err.println("no experiment found using stats service falling back to solr");
+					long startTimeSolr = System.currentTimeMillis();
+				
+					experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
+					statsServiceResult=false;
+					//model.addAttribute("solrExperiment", experiment);
+					//System.out.println("solr experiment="+experiment);
+					long endTimeSolr=System.currentTimeMillis();
+					long timeTakenSolr=endTimeSolr-startTimeSolr;
+					System.out.println("solr time taken to get experiment="+timeTakenSolr);
+				}
+				
+				model.addAttribute("statsServiceResult", statsServiceResult);//tell the interface where we got the data from  - temp measure for testing
+				
+			ProcedureDTO proc=null;
 			if(experiment!=null) {
 				proc = is.getProcedureByStableId(experiment.getProcedureStableId());
 			
@@ -344,7 +416,7 @@ public class ChartsController {
 			                    break;
 			
 			                case CATEGORICAL_STACKED_COLUMN:
-
+			
 			                    categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, accession[0], experimentNumber);
 			                    model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
 			                    break;
@@ -417,7 +489,7 @@ public class ChartsController {
 			    model.addAttribute("embryoViabilityDTO", embryoViability_DTO);
 			    }
 			
-
+	
 			model.addAttribute("pipeline", pipeline);
 			model.addAttribute("phenotypingCenter", phenotypingCenter);
 			model.addAttribute("experimentNumber", experimentNumber);
@@ -523,6 +595,48 @@ public class ChartsController {
 			final int totalSamples = Stream.of(numberFemaleMutantMice, numberMaleMutantMice, numberFemaleControlMice, numberMaleControlMice).filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
 			model.addAttribute("numberMice", totalSamples);
 			return "chart";
+	}
+
+
+	private void addFlowCytometryImages(String[] accession, Model model, ParameterDTO parameter)
+			throws SolrServerException, IOException {
+		System.out.println("flow cytomerty for 3i detected get headline images");
+		//lets get the 3i headline images
+		//example query http://ves-hx-d8.ebi.ac.uk:8986/solr/impc_images/select?q=parameter_stable_id:MGP_IMM_233_001
+		//or maybe we need to filter by parameter association first based no the initial parameter
+		//spleen Immunophenotyping e.g. Sik3 has many
+		//chart example= http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:2446296&parameter_stable_id=MGP_IMM_086_001
+		//bone marrow chart example=http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1353467&parameter_stable_id=MGP_BMI_018_001
+		//http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1353467&parameter_stable_id=MGP_BMI_018_001
+		//http://ves-hx-d8.ebi.ac.uk:8986/solr/impc_images/select?q=parameter_stable_id:MGP_IMM_233_001&fq=parameter_association_stable_id:MGP_IMM_086_001&fq=gene_symbol:Sik3
+		//http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1915276&parameter_stable_id=MGP_MLN_114_001
+		//accession[0]
+		QueryResponse imagesResponse = imageService.getHeadlineImages(accession[0], null,1000, null, null, parameter.getStableId());
+		System.out.println("number of images found="+imagesResponse.getResults().getNumFound());
+		List<ImageDTO> wtAndMutantImages = imagesResponse.getBeans(ImageDTO.class);
+		List<ImageDTO> controlImages=new ArrayList<>();
+		List<ImageDTO> mutantImages=new ArrayList<>();
+		for(ImageDTO image: wtAndMutantImages) {
+			if(image.isControl())
+			{
+				System.out.println("control found");
+				controlImages.add(image);
+			}
+			if(image.isMutant()) {
+				System.out.println("mutant found");
+				mutantImages.add(image);
+			}
+		}
+		
+			
+		int imageCountMax=controlImages.size();
+		if(mutantImages.size()>imageCountMax) {
+			imageCountMax=mutantImages.size();
+		}
+				model.addAttribute("controlImages", controlImages);
+				model.addAttribute("mutantImages", mutantImages);
+				System.out.println("imageCountMax="+imageCountMax);
+				model.addAttribute("imageCountMax",imageCountMax);
 	}
     
 

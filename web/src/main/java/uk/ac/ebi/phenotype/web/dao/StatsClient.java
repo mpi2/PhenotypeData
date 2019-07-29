@@ -1,53 +1,50 @@
 package uk.ac.ebi.phenotype.web.dao;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.PagedResources;
-import org.springframework.hateoas.Resource;
-import org.springframework.hateoas.Resources;
-import org.springframework.hateoas.mvc.TypeReferences;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import uk.ac.ebi.phenotype.web.dao.Statistics;
+import uk.ac.ebi.phenotype.service.RestConfiguration;
+import uk.ac.ebi.phenotype.stats.model.Statistics;
 
-@Component
+
 public class StatsClient {
+	
+	private  String statisticsUrl;//"http://localhost:8080/statisticses?page={page}&size={size}";
+    
+    //private static final String SINGLE_STATS_URL = "http://localhost:8080/statisticses/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession={geneAccession}&alleleAccession={alleleAccession}&parameterStableId={parameterStableId}&pipelineStableId={pipelineStableId}&zygosity={zygosity}&phenotypingCenter={phenotypingCenter}&metaDataGroup={metaDataGroup}"; 
+    
+    RestTemplate template;
+    
 
-    private static final String URL = "http://localhost:8080/stats?page={page}&size={size}";
-    
-    private static final String GENEURL = "http://localhost:8080/stats/search/findByGeneSymbol?geneSymbol={geneSymbol}";
-    
-    private static final String GENE_ACCESSION_URL = "http://localhost:8080/stats/search/findByGeneAccession?geneAccession={geneAccession}";
-    
-    private static final String SINGLE_STATS_URL = "http://localhost:8080/stats/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession={geneAccession}&alleleAccession={alleleAccession}&parameterStableId={parameterStableId}&pipelineStableId={pipelineStableId}&zygosity={zygosity}&phenotypingCenter={phenotypingCenter}&metaDataGroup={metaDataGroup}";
-    
-    
-    private static final String HALF_STATS_URL = "http://localhost:8080/stats/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession={geneAccession}&alleleAccession={alleleAccession}&parameterStableId={parameterStableId}&pipelineStableId={pipelineStableId}&zygosity={zygosity}&phenotypingCenter={phenotypingCenter}&metaDataGroup={metaDataGroup}";
-    
-    @Autowired
-    RestTemplate template;//=new RestTemplate();
-    
-    
-    public StatsClient(RestTemplate restTemplate) {
-    	this.template=restTemplate;
+    public StatsClient(String statisticsUrl) {
+    	RestConfiguration restConfiguration=new RestConfiguration();
+		RestTemplateBuilder builder=new RestTemplateBuilder();
+		template = restConfiguration.restTemplate(builder);
+    	this.statisticsUrl=statisticsUrl;
     }
     
-    public ResponseEntity<PagedResources<Statistics>> getUniqueStatsResult(String geneAccession, String alleleAccession, String parameterStableId,
+    public ResponseEntity<List<Statistics>> getUniqueStatsResult(String geneAccession, String alleleAccession, String parameterStableId,
    		 String pipelineStableId,  String zygosity,  String phenotypingCenter,  String metaDataGroup){
     	//http://localhost:8080/stats/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession=MGI:2443170&alleleAccession=MGI:2159965&parameterStableId=IMPC_HEM_038_001&pipelineStableId=IMPC_001&zygosity=homozygote&phenotypingCenter=MARC&metaDataGroup=08aa37a898ab923b9ffdbd01c0077040
-    	ResponseEntity<PagedResources<Statistics>> statsResponse=null;
+    ResponseEntity<List<Statistics>> statsResponse=null;
+    System.out.println("SINGLE_STATS_URL="+statisticsUrl+"api/stats?accession="+geneAccession+"&parameter_stable_id="+parameterStableId+"&pipeline_stable_id="+pipelineStableId+"&zygosity="+zygosity+"&phenotyping_center="+phenotypingCenter+"&metadata_group="+metaDataGroup);
+    	//String SINGLE_STATS_URL = statisticsUrl+"api/singleStatistic?accession={geneAccession}&allele_accession_id={alleleAccession}&parameter_stable_id={parameterStableId}&pipeline_stable_id={pipelineStableId}&zygosity={zygosity}&phenotyping_center={phenotypingCenter}&metadata_group={metaDataGroup}";
+    String SINGLE_STATS_URL = statisticsUrl+"api/stats?accession={geneAccession}&allele_accession_id={alleleAccession}&parameter_stable_id={parameterStableId}&pipeline_stable_id={pipelineStableId}&zygosity={zygosity}&phenotyping_center={phenotypingCenter}&metadata_group={metaDataGroup}";
+    
+    	System.out.println("SINGLE_STATS_URL="+SINGLE_STATS_URL);
 		try {
 			Map<String, String> params = new HashMap<>();
 			    params.put("geneAccession", geneAccession);
-			    params.put("alleleAccession", alleleAccession);
+			    params.put("alleleAccession", alleleAccession);//ignore allele accession until in stats file and service
 			    params.put("parameterStableId", parameterStableId);
 			    params.put("pipelineStableId", pipelineStableId);
 			    params.put("zygosity", zygosity);
@@ -55,7 +52,7 @@ public class StatsClient {
 			    params.put("metaDataGroup", metaDataGroup);
 			statsResponse = template
 			        .exchange(SINGLE_STATS_URL, HttpMethod.GET, null,
-			                new ParameterizedTypeReference<PagedResources<Statistics>>() {
+			                new ParameterizedTypeReference<List<Statistics>>() {
 			                }, params);
 			System.out.println("singleStatsResponse="+statsResponse);
 		} catch (RestClientException e) {
@@ -69,7 +66,9 @@ public class StatsClient {
     public ResponseEntity<PagedResources<Statistics>> findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosity(String geneAccession, String alleleAccession, String parameterStableId,
       		 String pipelineStableId, String zygosity){
        	//http://localhost:8080/stats/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession=MGI:2443170&alleleAccession=MGI:2159965&parameterStableId=IMPC_HEM_038_001&pipelineStableId=IMPC_001&zygosity=homozygote&phenotypingCenter=MARC&metaDataGroup=08aa37a898ab923b9ffdbd01c0077040
-       	ResponseEntity<PagedResources<Statistics>> statsResponse=null;
+    	String HALF_STATS_URL = statisticsUrl+"statisticses/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession={geneAccession}&alleleAccession={alleleAccession}&parameterStableId={parameterStableId}&pipelineStableId={pipelineStableId}&zygosity={zygosity}&phenotypingCenter={phenotypingCenter}&metaDataGroup={metaDataGroup}";
+    	   
+    	ResponseEntity<PagedResources<Statistics>> statsResponse=null;
    		try {
    			Map<String, String> params = new HashMap<>();
    			    params.put("geneAccession", geneAccession);
@@ -90,11 +89,41 @@ public class StatsClient {
            return statsResponse;
    	
        }
+    
+    public ResponseEntity<PagedResources<Statistics>> findByGeneAccessionAndAlleleAccessionAndParameterStableId(String geneAccession, String alleleAccession, String parameterStableId){
+     		// String pipelineStableId, String zygosity){
+      	//http://localhost:8080/stats/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession=MGI:2443170&alleleAccession=MGI:2159965&parameterStableId=IMPC_HEM_038_001&pipelineStableId=IMPC_001&zygosity=homozygote&phenotypingCenter=MARC&metaDataGroup=08aa37a898ab923b9ffdbd01c0077040
+   	String HALF_STATS_URL = statisticsUrl+"statisticses/search/findByGeneAccessionAndAlleleAccessionAndParameterStableId?geneAccession={geneAccession}&alleleAccession={alleleAccession}&parameterStableId={parameterStableId}";//&pipelineStableId={pipelineStableId}&zygosity={zygosity}&phenotypingCenter={phenotypingCenter}&metaDataGroup={metaDataGroup}";";
+   			//+ "AndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession={geneAccession}&alleleAccession={alleleAccession}&parameterStableId={parameterStableId}&pipelineStableId={pipelineStableId}&zygosity={zygosity}&phenotypingCenter={phenotypingCenter}&metaDataGroup={metaDataGroup}";
+   	   
+   	ResponseEntity<PagedResources<Statistics>> statsResponse=null;
+  		try {
+  			Map<String, String> params = new HashMap<>();
+  			    params.put("geneAccession", geneAccession);
+  			    params.put("alleleAccession", alleleAccession);
+ 			    params.put("parameterStableId", parameterStableId);
+ 			    //params.put("pipelineStableId", pipelineStableId);
+  			    //params.put("zygosity", zygosity);
+  			 
+  			statsResponse = template
+  			        .exchange(HALF_STATS_URL, HttpMethod.GET, null,
+  			                new ParameterizedTypeReference<PagedResources<Statistics>>() {
+  			                }, params);
+  			System.out.println("singleStatsResponse="+statsResponse);
+  		} catch (RestClientException e) {
+  			// TODO Auto-generated catch block
+  			e.printStackTrace();
+  		}
+          return statsResponse;
+  	
+      }
 
 
    
 
     public ResponseEntity<PagedResources<Statistics>> getStats(int offset, int limit) {
+    	
+    	String URL=statisticsUrl+"statisticses?page={page}&size={size}";
         Map<String, Integer> params = new HashMap<>();
         params.put("page", offset / limit);
         params.put("size", limit);
@@ -131,7 +160,7 @@ public class StatsClient {
 
     
     public ResponseEntity<PagedResources<Statistics>> getStatsDataForGeneAccession(String geneAccession) {
-		
+    	String GENE_ACCESSION_URL = statisticsUrl+"statisticses/search/findByGeneAccession?geneAccession={geneAccession}";
 		 ResponseEntity<PagedResources<Statistics>> statsResponse=null;
 		try {
 			Map<String, String> params = new HashMap<>();
@@ -151,7 +180,7 @@ public class StatsClient {
 
 
 	public ResponseEntity<PagedResources<Statistics>> getStatsDataForGeneSymbol(String geneSymbol) {
-		
+		String GENEURL =statisticsUrl+"statisticses/search/findByGeneSymbol?geneSymbol={geneSymbol}";
 		 ResponseEntity<PagedResources<Statistics>> statsResponse=null;
 		try {
 			Map<String, String> params = new HashMap<>();
@@ -166,5 +195,9 @@ public class StatsClient {
 			e.printStackTrace();
 		}
         return statsResponse;
+	}
+
+	public String getStatsUrl() {
+		return this.statisticsUrl;
 	}
 }

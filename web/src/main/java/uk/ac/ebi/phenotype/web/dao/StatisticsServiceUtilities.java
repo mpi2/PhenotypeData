@@ -9,18 +9,24 @@ import java.util.List;
 import java.util.Set;
 
 import org.mousephenotype.cda.db.pojo.StatisticalResult;
+import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 
+import uk.ac.ebi.phenotype.stats.model.NormalResult;
+import uk.ac.ebi.phenotype.stats.model.Point;
+import uk.ac.ebi.phenotype.stats.model.Statistics;
+
 public class StatisticsServiceUtilities {
 	
-	public static ExperimentDTO convertToExperiment(String parameterStableId, Collection<Statistics> stats) {
-		Statistics stat = stats.iterator().next();
+	public static ExperimentDTO convertToExperiment(String parameterStableId, Statistics stat) {
+		
 		ExperimentDTO exp = new ExperimentDTO();
 		exp.setAlleleAccession(stat.getAlleleAccession());
+		exp.setGeneMarker(stat.getGeneSymbol());
 		exp.setMetadataGroup(stat.getMetaDataGroup());
 		exp.setParameterStableId(parameterStableId);
 		exp.setProcedureStableId(stat.getProcedureStableId());
@@ -88,9 +94,11 @@ public class StatisticsServiceUtilities {
 
 		//set the overview stats here
 		//stat.getResult().getDetails().get
-		List<? extends StatisticalResult> results = new ArrayList<>();
-		StatisticalResult result = new StatisticalResult();
-		//result.setStatisticalMethod();
+		List<? extends UnidimensionalResult> results = new ArrayList<>();
+		UnidimensionalResult result = new UnidimensionalResult();
+		NormalResult normalResult = stat.getResult().getVectoroutput().getNormalResult();
+		result.setStatisticalMethod(normalResult.getMethod());
+		result.setNullTestSignificance(Double.valueOf(normalResult.getGenotypePValue()));
 		exp.setResults(results);
 		// question - hard coding this here until hamed puts in a field of
 		// observation_type in the stats file in next version...
