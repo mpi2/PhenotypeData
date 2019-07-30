@@ -15,8 +15,6 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.service.*;
@@ -28,7 +26,9 @@ import org.mousephenotype.cda.solr.web.dto.PhenotypeTableRowAnatomyPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -56,7 +56,7 @@ public class AnatomyController {
 	ExpressionService expressionService;
 
 	@Autowired
-	PostQcService gpService;
+	GenotypePhenotypeService gpService;
 
 
 	@Autowired
@@ -205,32 +205,32 @@ public class AnatomyController {
      */
     @RequestMapping(value="/anatomyTree/json/{anatomyId}", method=RequestMethod.GET)
     public @ResponseBody String getParentChildren( @PathVariable String anatomyId, @RequestParam(value = "type", required = true) String type, Model model)
-    throws SolrServerException, IOException , URISyntaxException {
+    throws SolrServerException, IOException , JSONException {
 
     	if (type.equals("parents")){
 
 	    	JSONObject data = new JSONObject();
-	    	data.element("id", anatomyId);
+	    	data.put("id", anatomyId);
 	    	JSONArray nodes = new JSONArray();
 
 	    	for (OntologyBean term : anatomyService.getParents(anatomyId)){
-	    		nodes.add(term.toJson());
+	    		nodes.put(term.toJson());
 	    	}
 
-	    	data.element("children", nodes);
+	    	data.put("children", nodes);
 			return data.toString();
 
     	} else if (type.equals("children")){
 
     		JSONObject data = new JSONObject();
-        	data.element("id", anatomyId);
+        	data.put("id", anatomyId);
         	JSONArray nodes = new JSONArray();
 
         	for (OntologyBean term : anatomyService.getChildren(anatomyId)){
-	    		nodes.add(term.toJson());
+	    		nodes.put(term.toJson());
 	    	}
 
-        	data.element("children", nodes);
+        	data.put("children", nodes);
     		return data.toString();
     	}
     	return "";

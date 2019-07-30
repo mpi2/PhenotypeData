@@ -1,6 +1,5 @@
 package uk.ac.ebi.phenotype.web.controller;
 
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.web.WebStatus;
@@ -35,10 +34,10 @@ public class WebStatusController {
     ObservationService observationService;
 
     @Autowired
-    private PostQcService postqcService;
+    private GenotypePhenotypeService genotypePhenotypeService;
 
     @Autowired
-    private StatisticalResultService srService;
+    private StatisticalResultService statisticalResultService;
 
     @Autowired
     private AlleleService alleleService;
@@ -63,9 +62,6 @@ public class WebStatusController {
 
     @Autowired
     AutoSuggestService autoSuggestService;
-
-    @Autowired
-    private PhenotypePipelineDAO ppDAO;
 
     @Autowired
     PhenodigmService phenodigmService;
@@ -93,8 +89,8 @@ public class WebStatusController {
         // System.out.println("calling webStatus initialisation method");
         webStatusObjects = new ArrayList<>();
         webStatusObjects.add(observationService);
-        webStatusObjects.add(postqcService);
-        webStatusObjects.add(srService);
+        webStatusObjects.add(genotypePhenotypeService);
+        webStatusObjects.add(statisticalResultService);
         webStatusObjects.add(alleleService);
         webStatusObjects.add(sangerImages);
         webStatusObjects.add(impcImageService);
@@ -103,7 +99,6 @@ public class WebStatusController {
         webStatusObjects.add(pipelineService);
         webStatusObjects.add(geneService);
         webStatusObjects.add(autoSuggestService);
-        webStatusObjects.add(ppDAO);
         webStatusObjects.add(phenodigmService);
 
         nonEssentialWebStatusObjects = new ArrayList<>();
@@ -261,5 +256,4 @@ public class WebStatusController {
         }
 
     }
-
 }

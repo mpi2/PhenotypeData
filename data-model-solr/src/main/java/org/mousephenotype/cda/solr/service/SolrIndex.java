@@ -16,10 +16,7 @@
 
 package org.mousephenotype.cda.solr.service;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
@@ -31,6 +28,9 @@ import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotNull;
@@ -167,7 +167,7 @@ public class SolrIndex {
 	 * @throws URISyntaxException
 	 */
 	public Integer getNumFound(String query, String core, String mode,
-			String solrParams) throws IOException, URISyntaxException {
+			String solrParams) throws IOException, URISyntaxException, JSONException {
 		JSONObject json = getResults(composeSolrUrl(core, mode, query,
 				solrParams, 0, 0, false));
 		return json.getJSONObject("response").getInt("numFound");
@@ -486,7 +486,7 @@ public class SolrIndex {
 	 * @return a json array which combined all the passed in facets filtered for
 	 *         inclusion of underscore
 	 */
-	public JSONArray mergeFacets(JSONObject facetFields) {
+	public JSONArray mergeFacets(JSONObject facetFields) throws JSONException {
 
 		JSONArray fields = new JSONArray();
 
@@ -503,14 +503,14 @@ public class SolrIndex {
 		for (String facet : facetNames) {
 
 			JSONArray arr = facetFields.getJSONArray(facet);
-			for (int i = 0; i < arr.size(); i = i + 2) {
+			for (int i = 0; i < arr.length(); i = i + 2) {
 
 				if ( (Integer) arr.get(i + 1) > 0 ) {
 					// We only want facet fields that contain an underscore
 					// as it contains ID info we want
 					if (((String) arr.get(i)).contains("_")) {
-						fields.add(arr.get(i));
-						fields.add(arr.get(i + 1));
+						fields.put(arr.get(i));
+						fields.put(arr.get(i + 1));
 					}
 				}
 			}
@@ -618,7 +618,7 @@ public class SolrIndex {
         }
     }
 
-	public List<AnnotNameValCount> mergeImpcFacets(String query, JSONObject json, String baseUrl) {
+	public List<AnnotNameValCount> mergeImpcFacets(String query, JSONObject json, String baseUrl) throws JSONException {
 
 
 	    query = query.replaceAll("\"", "");
@@ -629,7 +629,6 @@ public class SolrIndex {
 		hm.put("symbol_gene", "Gene");
         hm.put("marker_synonym_symbol_gene", "Gene");
 		hm.put("procedure_name", "Procedure");
-      //  hm.put("parameter_association_name_procedure_name", "Procedure");
 		hm.put("anatomy_id_term", "Anatomy");
         hm.put("anatomy_term_synonym_anatomy_id_term", "Anatomy");
         hm.put("selected_top_level_anatomy_id_anatomy_id_term", "Anatomy");
@@ -639,26 +638,26 @@ public class SolrIndex {
         hm.put("intermediate_anatomy_term_anatomy_id_term", "Anatomy");
         hm.put("intermediate_anatomy_term_synonym_anatomy_id_term", "Anatomy");
 
-		Set<String> ffList = facetFields.keySet();
+		Set<String> ffList = new HashSet<>();
 
-		Set<String> ignoreFields = new HashSet<>();
+		facetFields.keys()
+				.forEachRemaining(key -> ffList.add(key.toString()));
+
         Set<String> seenGenes = new HashSet<>();
         Set<String> seenProcedures = new HashSet<>();
         Set<String> seenAnatomy = new HashSet<>();
         String separator = "___";
 
         for( String fieldName : ffList){
-			//System.out.println("facet field: "+ fieldName);
             try {
                 JSONArray arr = facetFields.getJSONArray(fieldName);
 
-                for (int i = 0; i < arr.size(); i = i + 2) {
+                for (int i = 0; i < arr.length(); i = i + 2) {
 					if (! arr.get(i+1).toString().equals("0")) {
 						Object facetValue = arr.get(i);
 
 						if (facetValue instanceof String) {
 							String fv = facetValue.toString();
-							//System.out.println(fieldName + " -- " + fv);
 
 							if (fv.toLowerCase().contains(query.toLowerCase()) || query.equals("*:*") || query.equals("*")) {
 
@@ -815,7 +814,7 @@ public class SolrIndex {
 	 * @throws URISyntaxException
 	 */
 	public String getGeneStatus(String accession) throws IOException,
-			URISyntaxException {
+			URISyntaxException, JSONException {
 
 		String url = SolrUtils.getBaseURL(getSolrServer("gene"))
 				+ "/select?wt=json&q=mgi_accession_id:"
@@ -826,7 +825,7 @@ public class SolrIndex {
 		JSONObject json = getResults(url);
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
-		if (docs.size() > 1) {
+		if (docs.length() > 1) {
 			log.error("Error, Only expecting 1 document from an accession/gene request");
 		}
 
@@ -893,7 +892,7 @@ public class SolrIndex {
 
 		try {
 			String content = proxy.getContent(new URL(url));
-			return (JSONObject) JSONSerializer.toJSON(content);
+			return new JSONObject(content);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -901,225 +900,7 @@ public class SolrIndex {
 		return null;
 	}
 
-
-	public JSONObject getImageInfo(int imageId) throws SolrServerException, IOException,
-			IOException, URISyntaxException {
-
-		String url = SolrUtils.getBaseURL(getSolrServer("images"))
-				+ "/select?wt=json&q=id:" + imageId;
-		JSONObject json = getResults(url);
-		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-
-		if (docs.size() > 1) {
-			log.error("Error, Only expecting 1 document from an accession/gene request");
-		}
-		if(docs.size()<1) {//if nothing returned return an empty json object
-			return new JSONObject();
-		}
-
-		JSONObject imageInfo = docs.getJSONObject(0);
-		return imageInfo;
-
-	}
-
-	public Map<String, JSONObject> getExampleImages(int controlImageId,
-			int expImageId) throws SolrServerException, IOException ,
-			URISyntaxException {
-		Map<String, JSONObject> map = new HashMap<String, JSONObject>();
-		JSONObject controlDocument = this.getImageInfo(controlImageId);
-		JSONObject expDocument = this.getImageInfo(expImageId);
-
-		map.put("control", controlDocument);
-		map.put("experimental", expDocument);
-		return map;
-	}
-
-	public class PfamAnnotations {
-
-		public String scdbId;
-		public String scdbLink;
-		public String clanId;
-		public String clanAcc;
-		public String clanDesc;
-		public String uniprotAcc;
-		public String uniprotId;
-		public String pfamAacc;
-		public String pfamAId;
-		public String pfamAgoId;
-		public String pfamAgoTerm;
-		public String pfamAgoCat;
-		public String pfamAnnots;
-
-		// these getters/setters are needed as JSONSerializer.toJSON() works on JavaBeans
-		public String getScdbId() {
-			return scdbId;
-		}
-		public void setScdbId(String scdbId) {
-			this.scdbId = scdbId;
-		}
-		public String getScdbLink() {
-			return scdbLink;
-		}
-		public void setScdbLink(String scdbLink) {
-			this.scdbLink = scdbLink;
-		}
-		public String getClanId() {
-			return clanId;
-		}
-		public void setClanId(String clanId) {
-			this.clanId = clanId;
-		}
-		public String getClanAcc() {
-			return clanAcc;
-		}
-		public void setClanAcc(String clanAcc) {
-			this.clanAcc = clanAcc;
-		}
-		public String getClanDesc() {
-			return clanDesc;
-		}
-		public void setClanDesc(String clanDesc) {
-			this.clanDesc = clanDesc;
-		}
-		public String getUniprotAcc() {
-			return uniprotAcc;
-		}
-		public void setUniprotAcc(String uniprotAcc) {
-			this.uniprotAcc = uniprotAcc;
-		}
-		public String getUniprotId() {
-			return uniprotId;
-		}
-		public void setUniprotId(String uniprotId) {
-			this.uniprotId = uniprotId;
-		}
-		public String getPfamAacc() {
-			return pfamAacc;
-		}
-		public void setPfamAacc(String pfamAacc) {
-			this.pfamAacc = pfamAacc;
-		}
-		public String getPfamAId() {
-			return pfamAId;
-		}
-		public void setPfamAId(String pfamAId) {
-			this.pfamAId = pfamAId;
-		}
-		public String getPfamAgoId() {
-			return pfamAgoId;
-		}
-		public void setPfamAgoId(String pfamAgoId) {
-			this.pfamAgoId = pfamAgoId;
-		}
-		public String getPfamAgoTerm() {
-			return pfamAgoTerm;
-		}
-		public void setPfamAgoTerm(String pfamAgoTerm) {
-			this.pfamAgoTerm = pfamAgoTerm;
-		}
-		public String getPfamAgoCat() {
-			return pfamAgoCat;
-		}
-		public void setPfamAgoCat(String pfamAgoCat) {
-			this.pfamAgoCat = pfamAgoCat;
-		}
-		public String getPfamAnnots() {
-			return pfamAnnots;
-		}
-		public void setPfamAnnots(String pfamAnnots) {
-			this.pfamAnnots = pfamAnnots;
-		}
-
-	 }
-
-	@SuppressWarnings("deprecation")
-	public String getMgiGenesClansDataTable(String baseUrl) throws IOException, URISyntaxException {
-
-		String qParam = "&q=latest_phenotype_status:\"Phenotyping Complete\" OR latest_phenotype_status:\"Phenotyping Started\"";
-		//String facetParam = "&facet=on&facet.field=clan_id&facet.mincount=1&facet.limit=-1&facet.sort=count";
-		String flParam = "&fl=mgi_accession_id,marker_symbol,latest_phenotype_status,pfama_json";
-		String internalBaseSolrUrl = SolrUtils.getBaseURL(getSolrServer("allele")) + "/select?wt=json";
-		//String internalBaseSolrUrl = "http://localhost:8090/solr/allele/select?";
-
-		String url = internalBaseSolrUrl + qParam + flParam;
-
-		JSONObject json = getResults(url);
-
-		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
-		int totalDocs = json.getJSONObject("response").getInt("numFound");
-
-        JSONObject j = new JSONObject();
-		j.put("aaData", new Object[0]);
-
-		j.put("iTotalRecords", totalDocs);
-		j.put("iTotalDisplayRecords", totalDocs);
-
-		for (int i = 0; i < docs.size(); i++) {
-
-			List<String> rowData = new ArrayList<String>();
-
-			JSONObject doc = docs.getJSONObject(i);
-
-			String mgiId = doc.getString("mgi_accession_id");
-			String geneLink = baseUrl + "/genes/" + mgiId;
-			String marker = "<a href='" + geneLink + "'>" + doc.getString("marker_symbol") + "</a>";
-			rowData.add(marker);
-
-			String phenoStatus = doc.getString("latest_phenotype_status");
-			rowData.add(phenoStatus);
-
-			if ( doc.containsKey("pfama_json") ){
-				JSONArray pfamJsonStrs = doc.getJSONArray("pfama_json");
-
-				List<String> clans = new ArrayList<>();
-				List<String> scdbs = new ArrayList<>();
-	            List<String> pfamAs = new ArrayList<>();
-
-	            String pfamBaseUrl = "http://pfam.xfam.org";
-	            String scopBaseUrl = "http://scop.mrc-lmb.cam.ac.uk/scop/search.cgi?sunid=";
-
-				for ( int p=0; p<pfamJsonStrs.size(); p++ ){
-					String pfstr = pfamJsonStrs.getString(p).replaceAll("^\"|\"$", "");
-					JSONObject pfamj = JSONObject.fromObject(pfstr);
-
-					if ( doc.containsKey("pfamAacc") ){
-						String pfamAacc = doc.getString("pfamAacc");
-						String pfamUrl = pfamBaseUrl + "/family/" + pfamAacc;
-						String pfamLink = "<a href='" + pfamUrl + "'>" + pfamAacc + "</a>";
-						rowData.add(pfamLink);
-					}
-
-					String clanUrl = pfamBaseUrl + "/clan/" + pfamj.getString("clanAcc");
-					String clanLink = "<a href='" + clanUrl + "'>" + pfamj.getString("clanId") + "</a>";
-					clans.add(clanLink);
-
-					if ( doc.containsKey("scdbId") ){
-						String scdbId = doc.getString("scdbId");
-						if ( scdbId.equals("SCOP") ){
-							rowData.add(scopBaseUrl + pfamj.getString("scdbLink"));
-						}
-						else if ( scdbId.equals("CATH") ){
-							rowData.add("cath_url");
-						}
-						else if ( scdbId.equals("MEROPS") ){
-							rowData.add("merops_url");
-						}
-					}
-				}
-			}
-			else {
-				rowData.add("not available");
-				rowData.add("not available");
-				rowData.add("not available");
-			}
-
-			j.getJSONArray("aaData").add(rowData);
-		}
-
-		return j.toString();
-	}
-
-	public Map<String, Map<String, Map<String, JSONArray>>> getGO2ImpcGeneAnnotationStats() throws IOException, URISyntaxException{
+	public Map<String, Map<String, Map<String, JSONArray>>> getGO2ImpcGeneAnnotationStats() throws IOException, URISyntaxException, JSONException {
 		String internalBaseSolrUrl = SolrUtils.getBaseURL(getSolrServer("gene")) + "/select?";
 
 		Map<String, Map<String, Map<String, JSONArray>>> statusEvidCount = new LinkedHashMap<>();
@@ -1198,7 +979,7 @@ public class SolrIndex {
 			        else if ( annot.equals(noGo) || annot.equals(allPheno) )  {
 			        	int numFound = json.getJSONObject("response").getInt("numFound");
 			        	JSONArray ja = new JSONArray();
-			        	ja.add(numFound);
+			        	ja.put(numFound);
 			        	jlist.put(domain, ja);
 			        	annotCounts.put(annot, jlist);
 			        }
@@ -1208,7 +989,7 @@ public class SolrIndex {
 			statusEvidCount.put(status, annotCounts);
 
 		}
+
 		return statusEvidCount;
 	}
-
 }

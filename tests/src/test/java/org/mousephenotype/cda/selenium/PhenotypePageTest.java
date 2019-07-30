@@ -23,14 +23,13 @@ package org.mousephenotype.cda.selenium;
  import org.junit.Ignore;
  import org.junit.Test;
  import org.junit.runner.RunWith;
- import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
  import org.mousephenotype.cda.selenium.config.TestConfig;
  import org.mousephenotype.cda.selenium.exception.TestException;
  import org.mousephenotype.cda.selenium.support.PhenotypePage;
  import org.mousephenotype.cda.selenium.support.PhenotypeProcedure;
  import org.mousephenotype.cda.selenium.support.TestUtils;
+ import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
  import org.mousephenotype.cda.solr.service.MpService;
- import org.mousephenotype.cda.solr.service.PostQcService;
  import org.mousephenotype.cda.utilities.CommonUtils;
  import org.mousephenotype.cda.utilities.RunStatus;
  import org.openqa.selenium.*;
@@ -102,11 +101,8 @@ public class PhenotypePageTest {
      @NotNull @Autowired
      private MpService mpService;
 
-     @NotNull @Autowired
-     private PhenotypePipelineDAO phenotypePipelineDAO;
-
     @NotNull @Autowired
-    private PostQcService postQcService;
+    private GenotypePhenotypeService genotypePhenotypeService;
 
 
     @Before
@@ -145,7 +141,7 @@ public class PhenotypePageTest {
     public void testMGI_MPLinksAreValid() throws SolrServerException, IOException {
         RunStatus status = new RunStatus();
         String testName = "testMGI_MPLinksAreValid";
-        List<String> phenotypeIds = new ArrayList(postQcService.getAllPhenotypesWithGeneAssociations());
+        List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllPhenotypesWithGeneAssociations());
         String target = "";
         String message;
         Date start = new Date();
@@ -232,7 +228,7 @@ public class PhenotypePageTest {
     public void testPageForEveryTopLevelMPTermId() throws TestException {
         String testName = "testPageForEveryTopLevelMPTermId";
         try {
-            List<String> phenotypeIds = new ArrayList(postQcService.getAllTopLevelPhenotypes());
+            List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllTopLevelPhenotypes());
 
             phenotypeIdsTestEngine(testName, phenotypeIds);
         } catch (Exception e) {
@@ -256,7 +252,7 @@ public class PhenotypePageTest {
         String testName = "testPageForEveryIntermediateLevelMPTermId";
 
         try {
-            List<String> phenotypeIds = new ArrayList(postQcService.getAllIntermediateLevelPhenotypes());
+            List<String> phenotypeIds = new ArrayList(genotypePhenotypeService.getAllIntermediateLevelPhenotypes());
 
             phenotypeIdsTestEngine(testName, phenotypeIds);
         } catch (Exception e) {
@@ -420,7 +416,7 @@ public class PhenotypePageTest {
          RunStatus status = new RunStatus();
 
          try {
-             PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypePipelineDAO, paBaseUrl);
+             PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, paBaseUrl);
 
              // Definition
              String definition = phenotypePage.getDefinition();
@@ -488,7 +484,7 @@ public class PhenotypePageTest {
             target = paBaseUrl + "/phenotypes/" + phenotypeId;
 
             try {
-                PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypePipelineDAO, paBaseUrl);
+                PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, paBaseUrl);
                 if (phenotypePage.hasPhenotypesTable()) {
                     mpLinkElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));
                     status = phenotypePage.validate();

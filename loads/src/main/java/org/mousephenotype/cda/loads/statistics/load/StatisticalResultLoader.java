@@ -3,7 +3,7 @@ package org.mousephenotype.cda.loads.statistics.load;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.statistics.*;
@@ -37,23 +37,23 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
     final private Logger logger = LoggerFactory.getLogger(getClass());
 
-    protected DataSource komp2DataSource;
+    protected DataSource    komp2DataSource;
     protected MpTermService mpTermService;
 
 
-    protected Map<String, NameIdDTO> organisationMap = new HashMap<>();
-    protected Map<String, NameIdDTO> pipelineMap = new HashMap<>();
-    protected Map<String, NameIdDTO> procedureMap = new HashMap<>();
-    protected Map<String, NameIdDTO> parameterMap = new HashMap<>();
+    protected Map<String, NameIdDTO> nameIdDtoByOrganisationName  = new HashMap<>();
+    protected Map<String, NameIdDTO> nameIdDtoByPipelineStableId  = new HashMap<>();
+    protected Map<String, NameIdDTO> nameIdDtoByProcedureStableId = new HashMap<>();
+    protected Map<String, NameIdDTO> nameIdDtoByParameterStableId                 = new HashMap<>();
 
-    protected Map<String, Integer> datasourceMap = new HashMap<>();
-    protected Map<String, Integer> projectMap = new HashMap<>();
-    protected Map<String, String> colonyAlleleMap = new HashMap<>();
-    protected Map<String, Map<String, String>> colonyProcedureMap = new HashMap<>();
-    protected Map<String, Map<ZygosityType, Integer>> bioModelMap = new HashMap<>();
-    protected Map<Integer, String> bioModelStrainMap = new HashMap<>();
-    protected Map<String, Integer> controlBioModelMap = new HashMap<>();
-    public Map<String, ObservationType> parameterTypeMap = new HashMap<>();
+    protected Map<String, Long>                    datasourceDbIdByDatasourceShortName = new HashMap<>();
+    protected Map<String, Long>                    projectIdByProjectName              = new HashMap<>();
+    protected Map<String, String>                  colonyAlleleMap                     = new HashMap<>();
+    protected Map<String, Map<String, String>>     procedureStableIdByColonyId         = new HashMap<>();
+    protected Map<String, Map<ZygosityType, Long>> bioModelMap                         = new HashMap<>();
+    protected Map<Long, String>                    strainNameByBiologicalModelId       = new HashMap<>();
+    protected Map<String, Long>                    controlBioModelMap                  = new HashMap<>();
+    public    Map<String, ObservationType>         parameterTypeMap                    = new HashMap<>();
 
 
     protected void populateParameterTypeMap() throws SQLException {
@@ -76,7 +76,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     }
 
     protected void populateControlBioModelMap() throws SQLException {
-        Map<String, Integer> map = controlBioModelMap;
+        Map<String, Long> map = controlBioModelMap;
 
         String query = "SELECT  * FROM biological_model bm " +
                 "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bm.id " +
@@ -88,7 +88,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             while (r.next()) {
 
                 String background = r.getString("name");
-                Integer modelId = r.getInt("biological_model_id");
+                Long modelId = r.getLong("biological_model_id");
 
                 map.put(background, modelId);
             }
@@ -98,7 +98,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     }
 
     protected void populateBioModelMap() throws SQLException {
-        Map<String, Map<ZygosityType, Integer>> map = bioModelMap;
+        Map<String, Map<ZygosityType, Long>> map = bioModelMap;
 
         String query = "SELECT DISTINCT colony_id, ls.zygosity, bm.id as biological_model_id, strain.name " +
                 "FROM live_sample ls " +
@@ -115,10 +115,10 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
                 String colonyId = r.getString("colony_id");
                 ZygosityType zyg = ZygosityType.valueOf(r.getString("zygosity"));
-                Integer modelId = r.getInt("biological_model_id");
+                Long modelId = r.getLong("biological_model_id");
                 String strain = r.getString("name");
 
-                bioModelStrainMap.put(modelId, strain);
+                strainNameByBiologicalModelId.put(modelId, strain);
 
                 map.putIfAbsent(colonyId, new HashMap<>());
                 map.get(colonyId).put(zyg, modelId);
@@ -148,14 +148,14 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     }
 
     protected void populateDatasourceMap() throws SQLException {
-        Map<String, Integer> map = datasourceMap;
+        Map<String, Long> map = datasourceDbIdByDatasourceShortName;
 
         String query = "SELECT * FROM external_db";
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
             ResultSet r = p.executeQuery();
             while (r.next()) {
-                map.put(r.getString("short_name"), r.getInt("id"));
+                map.put(r.getString("short_name"), r.getLong("id"));
             }
         }
 
@@ -163,24 +163,22 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     }
 
     protected void populateProjectMap() throws SQLException {
-        Map<String, Integer> map = projectMap;
+        Map<String, Long> map = projectIdByProjectName;
 
         String query = "SELECT * FROM project";
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
             ResultSet r = p.executeQuery();
             while (r.next()) {
-                map.put(r.getString("name"), r.getInt("id"));
+                map.put(r.getString("name"), r.getLong("id"));
             }
         }
 
         logger.info(" Mapped {} project entries", map.size());
     }
 
-
-
     protected void populateOrganisationMap() throws SQLException {
-        Map<String, NameIdDTO> map = organisationMap;
+        Map<String, NameIdDTO> map = nameIdDtoByOrganisationName;
 
         // Populate the organisation map with this query
         String query = "SELECT * FROM organisation";
@@ -188,7 +186,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
             ResultSet r = p.executeQuery();
             while (r.next()) {
-                map.put(r.getString("name"), new NameIdDTO(r.getInt("id"), r.getString("name")));
+                map.put(r.getString("name"), new NameIdDTO(r.getLong("id"), r.getString("name")));
             }
         }
 
@@ -196,14 +194,14 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     }
 
     protected void populatePipelineMap() throws SQLException {
-        Map<String, NameIdDTO> map = pipelineMap;
+        Map<String, NameIdDTO> map = nameIdDtoByPipelineStableId;
 
         String query = "SELECT * FROM phenotype_pipeline";
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
             ResultSet r = p.executeQuery();
             while (r.next()) {
-                map.put(r.getString("stable_id"), new NameIdDTO(r.getInt("id"), r.getString("name"), r.getString("stable_id")));
+                map.put(r.getString("stable_id"), new NameIdDTO(r.getLong("id"), r.getString("name"), r.getString("stable_id")));
             }
         }
 
@@ -216,7 +214,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
      * @throws SQLException
      */
     protected void populateColonyProcedureMap() throws SQLException {
-        Map<String, Map<String, String>> map = colonyProcedureMap;
+        Map<String, Map<String, String>> map = procedureStableIdByColonyId;
 
         // procedure_colony_id created by Derived Parameter job
         // Query to generate is:
@@ -246,7 +244,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
      * @throws SQLException
      */
     protected void populateProcedureMap() throws SQLException {
-        Map<String, NameIdDTO> map = procedureMap;
+        Map<String, NameIdDTO> map = nameIdDtoByProcedureStableId;
 
         // Order by ID en
         String query = "SELECT * FROM phenotype_procedure";
@@ -255,7 +253,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             ResultSet r = p.executeQuery();
             while (r.next()) {
                 String procGroup = r.getString("stable_id");
-                map.put(procGroup, new NameIdDTO(r.getInt("id"), r.getString("name"), r.getString("stable_id")));
+                map.put(procGroup, new NameIdDTO(r.getLong("id"), r.getString("name"), r.getString("stable_id")));
             }
         }
 
@@ -263,22 +261,19 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
     }
 
     protected void populateParameterMap() throws SQLException {
-        Map<String, NameIdDTO> map = parameterMap;
+        Map<String, NameIdDTO> map = nameIdDtoByParameterStableId;
 
         String query = "SELECT * FROM phenotype_parameter";
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(query)) {
             ResultSet r = p.executeQuery();
             while (r.next()) {
-                map.put(r.getString("stable_id"), new NameIdDTO(r.getInt("id"), r.getString("name"), r.getString("stable_id")));
+                map.put(r.getString("stable_id"), new NameIdDTO(r.getLong("id"), r.getString("name"), r.getString("stable_id")));
             }
         }
 
         logger.info(" Mapped {} parameter entries", map.size());
     }
-
-
-
 
     public StatisticalResultLoader() { }
 
@@ -289,8 +284,6 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         this.komp2DataSource = komp2DataSource;
         this.mpTermService = mpTermService;
     }
-
-
 
     protected boolean isValidInt(String str) {
         if (str == null) {
@@ -637,16 +630,16 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
     protected class NameIdDTO {
 
-        int dbId;
+        Long   dbId;
         String name;
         String stableId;
 
-        public NameIdDTO(int dbId, String name) {
+        public NameIdDTO(Long dbId, String name) {
             this.dbId = dbId;
             this.name = name;
         }
 
-        public NameIdDTO(int dbId, String name, String stableId) {
+        public NameIdDTO(Long dbId, String name, String stableId) {
             this.dbId = dbId;
             this.name = name;
             this.stableId = stableId;
@@ -660,11 +653,11 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             this.name = name;
         }
 
-        public int getDbId() {
+        public Long getDbId() {
             return dbId;
         }
 
-        public void setDbId(int dbId) {
+        public void setDbId(Long dbId) {
             this.dbId = dbId;
         }
 
@@ -690,16 +683,16 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             return null;
         }
 
-        NameIdDTO center = organisationMap.get(data.getCenter());
-        NameIdDTO pipeline = pipelineMap.get(data.getPipeline());
+        NameIdDTO center = nameIdDtoByOrganisationName.get(data.getCenter());
+        NameIdDTO pipeline = nameIdDtoByPipelineStableId.get(data.getPipeline());
 
         // Get actual colony procedure
         // key is [procedure_group][colonyID] => procedure_stable_id that has data for this combination
         String actualProc = null;
 
-        if (colonyProcedureMap.containsKey(data.getProcedure()) &&
-                colonyProcedureMap.get(data.getProcedure()).containsKey(data.getColonyId())) {
-            actualProc = colonyProcedureMap.get(data.getProcedure()).get(data.getColonyId());
+        if (procedureStableIdByColonyId.containsKey(data.getProcedure()) &&
+                procedureStableIdByColonyId.get(data.getProcedure()).containsKey(data.getColonyId())) {
+            actualProc = procedureStableIdByColonyId.get(data.getProcedure()).get(data.getColonyId());
         }
 
         if (actualProc == null) {
@@ -707,9 +700,9 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
             return null;
         }
 
-        NameIdDTO procedure = procedureMap.get(actualProc!=null ? actualProc : procedureMap.get(data.getProcedure()));
+        NameIdDTO procedure = nameIdDtoByProcedureStableId.get(actualProc!=null ? actualProc : nameIdDtoByProcedureStableId.get(data.getProcedure()));
 
-        NameIdDTO parameter = parameterMap.get(data.getDependentVariable());
+        NameIdDTO parameter = nameIdDtoByParameterStableId.get(data.getDependentVariable());
 
         // result contains a "statistical result" that has the
         // ability to produce a PreparedStatement ready for database insertion
@@ -864,8 +857,8 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         result.setMetadataGroup(data.getMetadataGroup());
         result.setStatisticalMethod(data.getStatisticalMethod().isEmpty() ? "-" : data.getStatisticalMethod());
 
-        result.setDataSourceId(datasourceMap.get(data.getDataSourceName()));
-        result.setProjectId(projectMap.get(data.getProjectName()));
+        result.setDataSourceId(datasourceDbIdByDatasourceShortName.get(data.getDataSourceName()));
+        result.setProjectId(projectIdByProjectName.get(data.getProjectName()));
 
         result.setOrganisationId(center.getDbId());
         result.setOrganisationName(center.getName());
@@ -888,10 +881,10 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
         result.setControlSelectionMethod(strategy);
 
-        Integer bioModelId = bioModelMap.get(data.getColonyId()).get(ZygosityType.valueOf(data.getZygosity()));
+        Long bioModelId = bioModelMap.get(data.getColonyId()).get(ZygosityType.valueOf(data.getZygosity()));
         result.setExperimentalId(bioModelId);
 
-        Integer controlBioModelId = controlBioModelMap.get(bioModelStrainMap.get(bioModelId));
+        Long controlBioModelId = controlBioModelMap.get(strainNameByBiologicalModelId.get(bioModelId));
         result.setControlId(controlBioModelId);
 
 

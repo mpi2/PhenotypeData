@@ -16,19 +16,15 @@
 package org.mousephenotype.cda.solr.generic.util;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.pojo.StatisticalResult;
-import org.mousephenotype.cda.enumerations.ObservationType;
-import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -42,37 +38,26 @@ import java.util.*;
 @Service
 public class PhenotypeCallSummarySolr {
 
-	@Autowired
-	@Qualifier("postqcService")
-	PostQcService genotypePhenotypeService;
-
 	@Value("cmsBaseUrl")
 	private String cmsBaseUrl;
 
-	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+
+	private GenotypePhenotypeService genotypePhenotypeService;
 
 
-	public PhenotypeFacetResult getPhenotypeCallByGeneAccession(String accId) throws IOException, URISyntaxException, SolrServerException {
-		return this.getPhenotypeCallByGeneAccessionAndFilter(accId, null, null);
+	@Inject
+	public PhenotypeCallSummarySolr(GenotypePhenotypeService genotypePhenotypeService) {
+		this.genotypePhenotypeService = genotypePhenotypeService;
 	}
 
-	
-	public PhenotypeFacetResult getPhenotypeCallByMPAccessionAndFilter(String phenotype_id, List<String> procedureName,  List<String> markerSymbol,  List<String> mpTermName) 
-	throws IOException, URISyntaxException, SolrServerException {
-		return genotypePhenotypeService.getMPCallByMPAccessionAndFilter(phenotype_id,  procedureName, markerSymbol, mpTermName);
+	public PhenotypeFacetResult getPhenotypeCallByMPAccessionAndFilter(String phenotype_id, List<String> procedureName, List<String> markerSymbol, List<String> mpTermName)
+			throws IOException, JSONException, URISyntaxException {
+		return genotypePhenotypeService.getMPCallByMPAccessionAndFilter(phenotype_id, procedureName, markerSymbol, mpTermName);
 	}
 
-
-	public PhenotypeFacetResult getPhenotypeCallByGeneAccessionAndFilter(String accId, List<String> topLevelMpTermName, List<String> resourceFullname) throws IOException, URISyntaxException, SolrServerException {
+	public PhenotypeFacetResult getPhenotypeCallByGeneAccessionAndFilter(String accId, List<String> topLevelMpTermName, List<String> resourceFullname)
+			throws IOException, JSONException, URISyntaxException {
 		return genotypePhenotypeService.getMPByGeneAccessionAndFilter(accId, topLevelMpTermName, resourceFullname);
-	}
-
-
-
-
-
-	public List<? extends StatisticalResult> getStatisticalResultFor(String accession, String parameterStableId, ObservationType observationType, String strainAccession, String alleleAccession) throws IOException, URISyntaxException {
-		return genotypePhenotypeService.getStatsResultFor(accession, parameterStableId, observationType, strainAccession, alleleAccession);
 	}
 
 	/**
@@ -81,12 +66,10 @@ public class PhenotypeCallSummarySolr {
 	 * @param baseUrl
 	 * @throws IOException
 	 * @throws URISyntaxException
-	 * @throws SolrServerException, IOException
+	 * @throws IOException, SolrServerException
 	 */
 	
-	public List<DataTableRow> getPhenotypeRows(PhenotypeFacetResult phenoResult, String baseUrl)
-			throws IOException, URISyntaxException, SolrServerException {
-
+	public List<DataTableRow> getPhenotypeRows(PhenotypeFacetResult phenoResult, String baseUrl) throws IOException, SolrServerException {
 
 		List<PhenotypeCallSummaryDTO> phenotypeList;
 		phenotypeList = phenoResult.getPhenotypeCallSummaries();
@@ -121,8 +104,5 @@ public class PhenotypeCallSummarySolr {
 		Collections.sort(list);
 
 		return list;
-
 	}
-
-
 }

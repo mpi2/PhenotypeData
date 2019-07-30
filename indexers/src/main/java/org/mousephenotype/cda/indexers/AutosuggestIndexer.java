@@ -16,25 +16,26 @@
 
 package org.mousephenotype.cda.indexers;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.indexers.beans.AutosuggestBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
+import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
@@ -42,47 +43,44 @@ import java.util.*;
 /**  
  * pdsimplify: This class references deprecated PhenodigmDTO
  */
+// Autocomplete is no longer a requirement in the newly skinned BZ PA app. Refactor this class if autocomplete becomes a requirement again.
+@Deprecated
 @EnableAutoConfiguration
 public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRunner {
 
-	private final Logger logger = LoggerFactory.getLogger(AutosuggestIndexer.class);
+    private final Logger logger              = LoggerFactory.getLogger(this.getClass());
+    private final int    MP_CORE_MAX_RESULTS = 350000;
 
-
-    @Autowired
-    @Qualifier("autosuggestCore")
-    private SolrClient autosuggestCore;
-
-    @Autowired
-    @Qualifier("allele2Core")
     private SolrClient allele2Core;
-
-    @Autowired
-    @Qualifier("geneCore")
-    private SolrClient geneCore;
-
-    @Autowired
-    @Qualifier("mpCore")
-    private SolrClient mpCore;
-
-    @Autowired
-    @Qualifier("anatomyCore")
     private SolrClient anatomyCore;
-
-    @Autowired
-    @Qualifier("pipelineCore")
+    private SolrClient autosuggestCore;
+    private SolrClient geneCore;
+    private SolrClient mpCore;
+    private SolrClient phenodigmCore;
     private SolrClient pipelineCore;
 
-	@Autowired
-	@Qualifier("phenodigmCore")
-	private SolrClient phenodigmCore;
+    public AutosuggestIndexer(
+            @NotNull DataSource komp2DataSource,
+            @NotNull OntologyTermRepository ontologyTermRepository,
+            @NotNull SolrClient allele2Core,
+            @NotNull SolrClient anatomyCore,
+            @NotNull SolrClient autosuggestCore,
+            @NotNull SolrClient geneCore,
+            @NotNull SolrClient mpCore,
+            @NotNull SolrClient phenodigmCore,
+            @NotNull SolrClient pipelineCore) {
+        super(komp2DataSource, ontologyTermRepository);
+        this.allele2Core = allele2Core;
+        this.anatomyCore = anatomyCore;
+        this.autosuggestCore = autosuggestCore;
+        this.geneCore = geneCore;
+        this.mpCore = mpCore;
+        this.phenodigmCore = phenodigmCore;
+        this.pipelineCore = pipelineCore;
+    }
 
 
-    public static final long MIN_EXPECTED_ROWS = 218000;
-    //public static final int PHENODIGM_CORE_MAX_RESULTS = 350000;
-    public static final int MP_CORE_MAX_RESULTS = 350000;
-
-
-    // Sets used to insure uniqueness when loading core components.
+// Sets used to insure uniqueness when loading core components.
 
     // gene
     Set<String> mgiAccessionIdSet = new HashSet();
@@ -159,7 +157,6 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     public RunStatus validateBuild() throws IndexerException {
         return super.validateBuild(autosuggestCore);
     }
-
 
 
     @Override

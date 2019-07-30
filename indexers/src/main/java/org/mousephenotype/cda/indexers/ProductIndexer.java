@@ -3,17 +3,17 @@ package org.mousephenotype.cda.indexers;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.ProductDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 
+import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,23 +28,29 @@ import java.util.Map;
  */
 public class ProductIndexer  extends AbstractIndexer implements CommandLineRunner {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Autowired
-    @Qualifier("productCore")
-    private SolrClient productCore;
-
-    // This is needed only for validation.
-    @Autowired
-    @Qualifier("allele2Core")
-    private SolrClient allele2Core;
-
-    @NotNull
     @Value("${productFile}")
     String pathToProductFile;
 
-    Map<String, Integer> columns = new HashMap<>();
-    Integer productDocCount;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private Map<String, Integer> columns = new HashMap<>();
+    private Integer              productDocCount;
+
+    private SolrClient allele2Core;
+    private SolrClient productCore;
+
+
+    public ProductIndexer(
+            @NotNull DataSource komp2DataSource,
+            @NotNull OntologyTermRepository ontologyTermRepository,
+            SolrClient allele2Core,
+            SolrClient productCore)
+    {
+        super(komp2DataSource, ontologyTermRepository);
+        this.allele2Core = allele2Core;
+        this.productCore = productCore;
+    }
+
 
     @Override
     public RunStatus run() throws IndexerException, IOException, SolrServerException, SQLException {

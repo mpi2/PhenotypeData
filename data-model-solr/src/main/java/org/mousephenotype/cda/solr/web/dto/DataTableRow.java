@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.web.dto;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;

@@ -108,11 +108,11 @@ public class BiologicalModelLoader implements InitializingBean, Step {
             String zygosity = null;
 
             // NOTE: MGI GIVES US MULTIPLE GENES, SEPARATED BY ',', WHICH MUST BE EXPANDED IN THE Processor.
-            AccDbId gene = new AccDbId(fs.readString("markerAccessionId"), DbIdType.MGI.intValue());
+            AccDbId gene = new AccDbId(fs.readString("markerAccessionId"), DbIdType.MGI.longValue());
 
             // NOTE: WE ARE PUTTING THE GENE SYMBOL INTO THE ACCESSION ID FIELD. IT MUST BE TRANSLATED IN THE Processor LATER AND EXPANDED IF THERE IS MORE THAN ONE ALLELE (SEPARATED BY "|")
-            AccDbId alleleSymbol = new AccDbId(fs.readString("alleleSymbol"), DbIdType.MGI.intValue());
-            AccDbId phenotype = new AccDbId(fs.readString("mpAccessionId"), DbIdType.MGI.intValue());
+            AccDbId alleleSymbol = new AccDbId(fs.readString("alleleSymbol"), DbIdType.MGI.longValue());
+            AccDbId phenotype = new AccDbId(fs.readString("mpAccessionId"), DbIdType.MGI.longValue());
 
             BioModelInsertDTOMGI bioModel = new BioModelInsertDTOMGI(
                     dbId, allelicComposition, geneticBackground, zygosity, gene, alleleSymbol, phenotype

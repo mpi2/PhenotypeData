@@ -394,6 +394,28 @@ public class CommonUtils {
         return retVal;
     }
 
+    /**
+     * Given an <code>Object</code> that may be null or may be a Long, this
+     * method attempts to convert the value to a <code>Long</code>. If successful,
+     * the <code>Long</code> value is returned; otherwise, <code>null</code> is returned.
+     * NOTE: the [non-null] object is first converted to a string and is trimmed of whitespace.
+     *
+     * @param o the object to try to convert
+     * @return the converted value, if <em>o</em> is an <code>Long</code>; null otherwise
+     */
+    public static Long tryParseLong(Object o) {
+        if (o == null)
+            return null;
+
+        Long retVal = null;
+        try {
+            retVal = Long.parseLong(o.toString().trim().replace(",", ""));    // Remove commas. Number strings like '48,123' don't parse.
+        } catch (NumberFormatException nfe) {
+        }
+
+        return retVal;
+    }
+
 
     /**
      * @param truthValues

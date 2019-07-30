@@ -20,6 +20,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.mousephenotype.cda.db.pojo.Synonym;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.indexers.beans.MPStrainBean;
 import org.mousephenotype.cda.indexers.beans.ParamProcedurePipelineBean;
 import org.mousephenotype.cda.indexers.beans.PhenotypeCallSummaryBean;
@@ -29,7 +30,7 @@ import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
-import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
@@ -41,13 +42,14 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 
+import javax.inject.Inject;
+import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Connection;
@@ -67,56 +69,51 @@ import java.util.*;
 public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     private final Logger logger = LoggerFactory.getLogger(MPIndexer.class);
-    private static final int LEVELS_FOR_NARROW_SYNONYMS = 2;
-
-    // Map of Synonym, keyed by synonym symbol
-    private Map<String, Synonym> synonymsBySymbol;
-
-    @Autowired
-    @Qualifier("alleleCore")
-    private SolrClient alleleCore;
-
-    // TODO replace with service (imported below)
-    @Autowired
-    @Qualifier("genotypePhenotypeCore")
-    private SolrClient genotypePhenotypeCore;
-
-    /**
-     * Destination Solr core
-     */
-    @Autowired
-    @Qualifier("mpCore")
-    private SolrClient mpCore;
-
-    @Autowired
-    @Qualifier("postqcService")
-    PostQcService postqcService;
 
 
-    private static Connection komp2DbConnection;
-
-    Map<String, List<AlleleDTO>> alleles;
+    private Map<String, List<AlleleDTO>> allelesByMgiAlleleAccessionId;
+    private Map<String, Synonym>         synonymsBySynonymSymbol;
 
     // Phenotype call summaries (1)
     Map<String, List<PhenotypeCallSummaryBean>> phenotypes1;
-    Map<String, List<String>> impcBeans;
-    Map<String, List<String>> legacyBeans;
+    Map<String, List<String>>                   impcBeans;
+    Map<String, List<String>>                   legacyBeans;
+
     // Phenotype call summaries (2)
-    Map<String, List<PhenotypeCallSummaryBean>> phenotypes2;
-    Map<String, List<MPStrainBean>> strains;
+    Map<String, List<PhenotypeCallSummaryBean>>   phenotypes2;
+    Map<String, List<MPStrainBean>>               strains;
     Map<String, List<ParamProcedurePipelineBean>> pppBeans;
 
-    Map<String, Long> mpCalls = new HashMap<>();
+    Map<String, Long>    mpCalls            = new HashMap<>();
     Map<String, Integer> mpGeneVariantCount = new HashMap<>();
 
-    private OntologyParser mpHpParser;
-    private OntologyParser mpParser;
-    private OntologyParser mpMaParser;
-    private OntologyParser maParser;
-    OntologyParserFactory ontologyParserFactory;
+    private OntologyParser        mpHpParser;
+    private OntologyParser        mpParser;
+    private OntologyParser        mpMaParser;
+    private OntologyParser        maParser;
+    private OntologyParserFactory ontologyParserFactory;
 
-    public MPIndexer() {
 
+    private SolrClient               alleleCore;
+    private SolrClient               genotypePhenotypeCore;
+    private SolrClient               mpCore;
+    private GenotypePhenotypeService genotypePhenotypeService;
+
+
+    @Inject
+    public MPIndexer(
+            @NotNull DataSource komp2DataSource,
+            @NotNull OntologyTermRepository ontologyTermRepository,
+            @NotNull SolrClient alleleCore,
+            @NotNull SolrClient genotypePhenotypeCore,
+            @NotNull SolrClient mpCore,
+            @NotNull GenotypePhenotypeService genotypePhenotypeService)
+    {
+        super(komp2DataSource, ontologyTermRepository);
+        this.alleleCore = alleleCore;
+        this.genotypePhenotypeCore = genotypePhenotypeCore;
+        this.mpCore = mpCore;
+        this.genotypePhenotypeService = genotypePhenotypeService;
     }
 
 
@@ -126,7 +123,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return super.validateBuild(mpCore);
     }
 
-
     @Override
     public RunStatus run ()
             throws IndexerException{
@@ -134,11 +130,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         int count = 0;
         RunStatus runStatus;
         long start = System.currentTimeMillis();
-        initializeDatabaseConnections();
-        System.out.println("Started supporting beans");
-        initialiseSupportingBeans();
 
-        try {
+        try (Connection connection = komp2DataSource.getConnection()) {
+            initialiseSupportingBeans(connection);
             ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
             mpParser = ontologyParserFactory.getMpParser();
             logger.info("Loaded mp parser");
@@ -151,7 +145,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
 
             // maps MP to number of phenotyping calls
-            runStatus = populateMpCallMaps(synonymsBySymbol);
+            runStatus = populateMpCallMaps(synonymsBySynonymSymbol);
 
             for (String error : runStatus.getErrorMessages()) {
                 logger.error(error);
@@ -230,16 +224,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                             mp.setMpNarrowSynonym(new ArrayList<>(nss));
                         }
                     }
-
-
-                    //mp.setMpNarrowSynonym(new ArrayList(getRestrictedNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
-                    // the fix removes checking for phenotyping calls as we need those mp being tested by have no phenotype found included as well
-
-//                    if (isOKForNarrowSynonyms(mp)){
-//                        mp.setMpNarrowSynonym(new ArrayList(mpHpParser.getNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
-//                    } else  {
-//                        mp.setMpNarrowSynonym(new ArrayList(getRestrictedNarrowSynonyms(mpTerm, LEVELS_FOR_NARROW_SYNONYMS)));
-//                    }
                 }
 
                 getMaTermsForMp(mp);
@@ -259,10 +243,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 documentCount++;
                 mpCore.addBean(mp, 60000);
 
-//                if (documentCount % 100 == 0){
-//                    System.out.println("Added " + documentCount);
-//                }
-
                 mpParser.fillJsonTreePath("MP:0000001", "/data/phenotypes/", mpGeneVariantCount, ontologyParserFactory.TOP_LEVEL_MP_TERMS, false); // call this if you want node ids from the objects
             }
 
@@ -280,17 +260,14 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     // 22-Mar-2017 (mrelac) Added status to query for errors and warnings.
     public Map<String, Integer> getPhenotypeGeneVariantCounts(String termId, RunStatus status, Map<String, Synonym> synonyms)
-            throws IOException, URISyntaxException, SolrServerException {
+            throws IOException, URISyntaxException, SolrServerException, JSONException {
 
         // Errors and warnings are returned in PhenotypeFacetResult.status.
-        PhenotypeFacetResult phenoResult = postqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null);
+        PhenotypeFacetResult phenoResult = genotypePhenotypeService.getMPCallByMPAccessionAndFilter(termId, null, null, null);
         status.add(phenoResult.getStatus());
-        //PhenotypeFacetResult preQcResult = preqcService.getMPCallByMPAccessionAndFilter(termId,  null, null, null, synonyms);
-        //status.add(preQcResult.getStatus());
 
         List<PhenotypeCallSummaryDTO> phenotypeList;
         phenotypeList = phenoResult.getPhenotypeCallSummaries();
-        //phenotypeList.addAll(preQcResult.getPhenotypeCallSummaries());
 
         // This is a map because we need to support lookups
         Map<Integer, DataTableRow> phenotypes = new HashMap<Integer, DataTableRow>();
@@ -364,9 +341,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         }
 
         return  synonyms;
-
     }
-
 
     private TreeSet<String> getNarrowSynonymsOutsideSlim(OntologyTermDTO mpFromFullOntology,  int levels, TreeSet<String> synonyms){
 
@@ -385,7 +360,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         }
 
         return synonyms;
-
     }
 
     private boolean isOKForNarrowSynonyms(MpDTO mp) throws IOException, SolrServerException {
@@ -409,10 +383,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         }
 
         return false;
-
     }
 
-    private RunStatus populateMpCallMaps(Map<String, Synonym> synonyms) throws IOException, SolrServerException, URISyntaxException {
+    private RunStatus populateMpCallMaps(Map<String, Synonym> synonyms)
+            throws IOException, SolrServerException, URISyntaxException, JSONException {
         RunStatus status = new RunStatus();
 
         List<SolrClient> ss = new ArrayList<>();
@@ -445,69 +419,48 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 }
             }
         }
-        //System.out.println("FINISHED");
 
         return status;
     }
 
 
-    private long sumPhenotypingCalls(String mpId)
-            throws SolrServerException, IOException {
+    private long sumPhenotypingCalls(String mpId) {
 
         return mpCalls.containsKey(mpId) ? mpCalls.get(mpId) : new Long(0);
 
     }
 
-
-    /**
-     * Initialize the database connections required
-     *
-     * @throws IndexerException when there's an issue
-     */
-    private void initializeDatabaseConnections() throws IndexerException {
-
-        try {
-            komp2DbConnection = komp2DataSource.getConnection();
-        } catch (SQLException e) {
-            throw new IndexerException(e);
-        }
-
-    }
-
-
-    private void initialiseSupportingBeans()
-            throws IndexerException {
+    private void initialiseSupportingBeans(Connection connection) throws IndexerException {
 
         try {
             // Alleles
-            alleles = IndexerMap.getGeneToAlleles(alleleCore);
+            allelesByMgiAlleleAccessionId = IndexerMap.getGeneToAlleles(alleleCore);
 
             // Phenotype call summaries (1)
-            phenotypes1 = getPhenotypeCallSummary1();
-            impcBeans = getImpcPipe();
-            legacyBeans = getLegacyPipe();
+            phenotypes1 = getPhenotypeCallSummary1(connection);
+            impcBeans = getImpcPipe(connection);
+            legacyBeans = getLegacyPipe(connection);
 
             // Phenotype call summaries (2)
-            phenotypes2 = getPhenotypeCallSummary2();
-            strains = getStrains();
-            pppBeans = getPPPBeans();
+            phenotypes2 = getPhenotypeCallSummary2(connection);
+            strains = getStrains(connection);
+            pppBeans = getPPPBeans(connection);
 
             // Synonyms
-            synonymsBySymbol = IndexerMap.getSynonymsBySynonym(komp2DbConnection);
+            synonymsBySynonymSymbol = IndexerMap.getSynonymsBySynonym(connection);
 
         } catch (SQLException e) {
             throw new IndexerException(e);
         }
     }
 
-
-    private Map<String, List<PhenotypeCallSummaryBean>> getPhenotypeCallSummary1()
+    private Map<String, List<PhenotypeCallSummaryBean>> getPhenotypeCallSummary1(Connection connection)
             throws SQLException {
 
         Map<String, List<PhenotypeCallSummaryBean>> beans = new HashMap<>();
 
         String q = "select distinct gf_acc, mp_acc, concat(mp_acc,'_',gf_acc) as mp_mgi, parameter_id, procedure_id, pipeline_id, allele_acc, strain_acc from phenotype_call_summary where gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null";
-        PreparedStatement ps = komp2DbConnection.prepareStatement(q);
+        PreparedStatement ps = connection.prepareStatement(q);
         ResultSet rs = ps.executeQuery();
         int count = 0;
         while (rs.next()) {
@@ -535,13 +488,13 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private Map<String, List<String>> getImpcPipe()
+    private Map<String, List<String>> getImpcPipe(Connection connection)
             throws SQLException {
 
         Map<String, List<String>> beans = new HashMap<>();
 
         String q = "select distinct external_db_id as 'impc', concat (mp_acc,'_', gf_acc) as mp_mgi from phenotype_call_summary where external_db_id = 22";
-        PreparedStatement ps = komp2DbConnection.prepareStatement(q);
+        PreparedStatement ps = connection.prepareStatement(q);
         ResultSet rs = ps.executeQuery();
         int count = 0;
         while (rs.next()) {
@@ -558,13 +511,12 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private Map<String, List<String>> getLegacyPipe()
-            throws SQLException {
+    private Map<String, List<String>> getLegacyPipe(Connection connection) throws SQLException {
 
         Map<String, List<String>> beans = new HashMap<>();
 
         String q = "select distinct external_db_id as 'legacy', concat (mp_acc,'_', gf_acc) as mp_mgi from phenotype_call_summary where external_db_id = 12";
-        PreparedStatement ps = komp2DbConnection.prepareStatement(q);
+        PreparedStatement ps = connection.prepareStatement(q);
         ResultSet rs = ps.executeQuery();
         int count = 0;
         while (rs.next()) {
@@ -581,13 +533,13 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private Map<String, List<PhenotypeCallSummaryBean>> getPhenotypeCallSummary2()
+    private Map<String, List<PhenotypeCallSummaryBean>> getPhenotypeCallSummary2(Connection connection)
             throws SQLException {
 
         Map<String, List<PhenotypeCallSummaryBean>> beans = new HashMap<>();
 
         String q = "select distinct gf_acc, mp_acc, parameter_id, procedure_id, pipeline_id, concat(parameter_id,'_',procedure_id,'_',pipeline_id) as ididid, allele_acc, strain_acc from phenotype_call_summary where gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null";
-        PreparedStatement ps = komp2DbConnection.prepareStatement(q);
+        PreparedStatement ps = connection.prepareStatement(q);
         ResultSet rs = ps.executeQuery();
         int count = 0;
         while (rs.next()) {
@@ -615,13 +567,13 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private Map<String, List<MPStrainBean>> getStrains()
+    private Map<String, List<MPStrainBean>> getStrains(Connection connection)
             throws SQLException {
 
         Map<String, List<MPStrainBean>> beans = new HashMap<>();
 
         String q = "select distinct name, acc from strain where db_id=3";
-        PreparedStatement ps = komp2DbConnection.prepareStatement(q);
+        PreparedStatement ps = connection.prepareStatement(q);
         ResultSet rs = ps.executeQuery();
         int count = 0;
         while (rs.next()) {
@@ -643,13 +595,13 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return beans;
     }
 
-    private Map<String, List<ParamProcedurePipelineBean>> getPPPBeans()
+    private Map<String, List<ParamProcedurePipelineBean>> getPPPBeans(Connection connection)
             throws SQLException {
 
         Map<String, List<ParamProcedurePipelineBean>> beans = new HashMap<>();
 
         String q = "select concat(pp.id,'_',pproc.id,'_',ppipe.id) as ididid, pp.name as parameter_name, pp.stable_key as parameter_stable_key, pp.stable_id as parameter_stable_id, pproc.name as procedure_name, pproc.stable_key as procedure_stable_key, pproc.stable_id as procedure_stable_id, ppipe.name as pipeline_name, ppipe.stable_key as pipeline_key, ppipe.stable_id as pipeline_stable_id from phenotype_parameter pp inner join phenotype_procedure_parameter ppp on pp.id=ppp.parameter_id inner join phenotype_procedure pproc on ppp.procedure_id=pproc.id inner join phenotype_pipeline_procedure ppproc on pproc.id=ppproc.procedure_id inner join phenotype_pipeline ppipe on ppproc.pipeline_id=ppipe.id";
-        PreparedStatement ps = komp2DbConnection.prepareStatement(q);
+        PreparedStatement ps = connection.prepareStatement(q);
         ResultSet rs = ps.executeQuery();
         int count = 0;
         while (rs.next()) {
@@ -685,7 +637,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mp.addIntermediateMpTerm(mpDTO.getIntermediateNames());
             mp.addIntermediateMpTermSynonym(mpDTO.getIntermediateSynonyms());
         }
-
     }
 
     /**
@@ -709,9 +660,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mp.addTopLevelMpTermInclusive(mpDTO.getName());
             mp.addTopLevelMpIdInclusive(mpDTO.getAccessionId());
         }
-
     }
-
 
     private void addPhenotype1(MpDTO mp, RunStatus runStatus) {
         if (phenotypes1.containsKey(mp.getMpId())) {
@@ -727,8 +676,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     // From JS mapping script - row.get('legacy')
                     mp.setLegacyPhenotypeStatus(1);
                 }
-                //addPreQc(mp, pheno1.getGfAcc(), runStatus);
-                addAllele(mp, alleles.get(pheno1.getGfAcc()), false);
+                addAllele(mp, allelesByMgiAlleleAccessionId.get(pheno1.getGfAcc()), false);
             }
         }
     }
@@ -739,22 +687,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mp.setLatestPhenotypeStatus(new ArrayList<String>());
         }
     }
-
-//    private void addPreQc(MpDTO mp, String gfAcc, RunStatus runStatus) {
-//        SolrQuery query = new SolrQuery("mp_term_id:\"" + mp.getMpId() + "\" AND marker_accession_id:\"" + gfAcc + "\"");
-//        query.setFields("mp_term_id", "marker_accession_id");
-//        try {
-//            QueryResponse response = preqcCore.query(query);
-//            for (SolrDocument doc : response.getResults()) {
-//                if (doc.getFieldValue("mp_term_id") != null) {
-//                    // From JS mapping script - row.get('preqc_mp_id')
-//                    mp.getLatestPhenotypeStatus().add("Phenotyping Started");
-//                }
-//            }
-//        } catch (Exception e) {
-//            runStatus.addError(" Caught error accessing PreQC core: " + e.getMessage() + ".\nQuery: " + query);
-//        }
-//    }
 
     private void addAllele(MpDTO mp, List<AlleleDTO> alleles, boolean includeStatus) {
         if (alleles != null) {
@@ -971,9 +903,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     }
 
-    // PROTECTED METHODS
     public static void main(String[] args) throws IndexerException {
         SpringApplication.run(MPIndexer.class, args);
     }
-
 }

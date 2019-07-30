@@ -21,7 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.reports.support.ReportException;
-import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.slf4j.Logger;
@@ -48,7 +48,7 @@ public class HitsPerLineReport extends AbstractReport {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    PostQcService postQcService;
+    GenotypePhenotypeService genotypePhenotypeService;
 
     @Autowired
     StatisticalResultService statisticalResultService;
@@ -81,9 +81,9 @@ public class HitsPerLineReport extends AbstractReport {
             String[] headerParams  ={"# Hits", "# Colonies With This Many HOM Hits", "# Colonies With This Many HET Hits", "# Colonies With This Many Calls"};
             zygosityTable.add(headerParams);
 
-            Map<String, Long> homsMap = postQcService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.homozygote, 1, statisticalResultService.P_VALUE_THRESHOLD);
-            Map<String, Long> hetsMap = postQcService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.heterozygote, 1, statisticalResultService.P_VALUE_THRESHOLD);
-            Map<String, Long> allMap = postQcService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, null, 1, statisticalResultService.P_VALUE_THRESHOLD);
+            Map<String, Long> homsMap = genotypePhenotypeService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.homozygote, 1, statisticalResultService.P_VALUE_THRESHOLD);
+            Map<String, Long> hetsMap = genotypePhenotypeService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.heterozygote, 1, statisticalResultService.P_VALUE_THRESHOLD);
+            Map<String, Long> allMap = genotypePhenotypeService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, null, 1, statisticalResultService.P_VALUE_THRESHOLD);
 
             Map<String, Long> homsNoHits = statisticalResultService.getColoniesNoMPHit(resources, ZygosityType.homozygote);
             Map<String, Long> hetsNoHits = statisticalResultService.getColoniesNoMPHit(resources, ZygosityType.heterozygote);

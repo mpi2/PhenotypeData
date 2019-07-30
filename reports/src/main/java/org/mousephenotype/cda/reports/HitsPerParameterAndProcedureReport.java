@@ -20,7 +20,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.reports.support.ReportException;
-import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +43,7 @@ public class HitsPerParameterAndProcedureReport extends AbstractReport {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    PostQcService postQcService;
+    GenotypePhenotypeService genotypePhenotypeService;
 
     public HitsPerParameterAndProcedureReport() {
         super();
@@ -73,12 +73,12 @@ public class HitsPerParameterAndProcedureReport extends AbstractReport {
             List<String[]> parameters = new ArrayList<>();
             String[] headerParams  ={"Parameter Id", "Parameter Name", "# Significant Hits"};
             parameters.add(headerParams);
-            parameters.addAll(postQcService.getHitsDistributionByParameter(resources));
+            parameters.addAll(genotypePhenotypeService.getHitsDistributionByParameter(resources));
 
             List<String[]> procedures = new ArrayList<>();
             String[] headerProcedures  ={"Procedure Id", "Procedure Name", "# Significant Hits"};
             procedures.add(headerProcedures);
-            procedures.addAll(postQcService.getHitsDistributionByProcedure(resources));
+            procedures.addAll(genotypePhenotypeService.getHitsDistributionByProcedure(resources));
 
             result.add(parameters);
             result.add(procedures);

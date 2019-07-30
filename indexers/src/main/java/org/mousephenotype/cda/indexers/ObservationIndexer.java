@@ -21,6 +21,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.db.WeightMap;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -39,8 +40,6 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -69,62 +68,53 @@ import java.util.*;
 @EnableAutoConfiguration
 public class ObservationIndexer extends AbstractIndexer implements CommandLineRunner {
 
-	private final Logger logger = LoggerFactory.getLogger(ObservationIndexer.class);
-
-	private Connection connection;
-
-	@NotNull
-	@Autowired
-	@Qualifier("komp2DataSource")
-	DataSource komp2DataSource;
-
-	@NotNull
-	@Autowired
-	@Qualifier("experimentCore")
-	SolrClient observationCore;
-
-	// NOTE: Loading weightMap takes upwards of 8 minutes; therefore, it is not spring-managed. Load it manually and only when needed.
-	WeightMap weightMap;
-
 	@Value("${experimenterIdMap}")
 	String experimenterIdMap;
 
-	Map<String, BiologicalDataBean> biologicalData = new HashMap<>();
-	Map<String, BiologicalDataBean> lineBiologicalData = new HashMap<>();
 
-	Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
-	Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
-	Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
+	private final Logger logger = LoggerFactory.getLogger(ObservationIndexer.class);
 
-	Map<String, String> emap2emapaIdMap = new HashMap<>();
-	Map<Integer, String> anatomyMap = new HashMap<>();
-
-	Map<Integer, DatasourceBean> datasourceMap = new HashMap<>();
-	Map<Integer, DatasourceBean> projectMap = new HashMap<>();
-	Map<Integer, List<ParameterAssociationBean>> parameterAssociationMap = new HashMap<>();
-
-	Map<Integer, List<String>> experimenterData = new HashMap<>();
+	private final List<String> MALE_FERTILITY_PARAMETERS   = Arrays.asList("IMPC_FER_001_001", "IMPC_FER_006_001",
+																	   "IMPC_FER_007_001", "IMPC_FER_008_001", "IMPC_FER_009_001");
+	private final List<String> FEMALE_FERTILITY_PARAMETERS = Arrays.asList("IMPC_FER_019_001", "IMPC_FER_010_001",
+																				 "IMPC_FER_011_001", "IMPC_FER_012_001", "IMPC_FER_013_001");
 
 
-	Map<String, Map<String, String>> translateCategoryNames = new HashMap<>();
+	private Map<Long, String>                         anatomyMap              = new HashMap<>();
+	private Map<String, BiologicalDataBean>           biologicalData          = new HashMap<>();
+	private Map<Long, DatasourceBean>                 datasourceMap           = new HashMap<>();
+	private Map<String, String>                       emap2emapaIdMap         = new HashMap<>();
+	private Map<Long, List<String>>                   experimenterData        = new HashMap<>();
+	private Map<String, BiologicalDataBean>           lineBiologicalData      = new HashMap<>();
+	private Map<Long, List<OntologyBean>>             ontologyEntityMap;
+	private Map<Long, List<ParameterAssociationBean>> parameterAssociationMap = new HashMap<>();
+	private Map<Long, ParameterDTO>                   parameterMap            = new HashMap<>();
+	private Map<Long, ImpressBaseDTO>                 pipelineMap             = new HashMap<>();
+	private Map<Long, ImpressBaseDTO>                 procedureMap            = new HashMap<>();
+	private Map<Long, DatasourceBean>                 projectMap              = new HashMap<>();
+	private Map<String, Map<String, String>>          translateCategoryNames  = new HashMap<>();
+	private WeightMap                                 weightMap;                                   // NOTE: Loading weightMap takes upwards of 8 minutes; therefore, it is not spring-managed. Load it manually and only when needed.
 
-	private Map<Integer, List<OntologyBean>> ontologyEntityMap;
+	private OntologyParser        emapaParser;
+	private OntologyParser        maParser;
+	private OntologyParserFactory ontologyParserFactory;
 
-	OntologyParser emapaParser;
-	OntologyParser maParser;
-	OntologyParserFactory ontologyParserFactory;
 
-	public static final List<String> maleFertilityParameters = Arrays.asList("IMPC_FER_001_001", "IMPC_FER_006_001",
-			"IMPC_FER_007_001", "IMPC_FER_008_001", "IMPC_FER_009_001");
-	public static final List<String> femaleFertilityParameters = Arrays.asList("IMPC_FER_019_001", "IMPC_FER_010_001",
-			"IMPC_FER_011_001", "IMPC_FER_012_001", "IMPC_FER_013_001");
+	private SolrClient experimentCore;
 
-	public ObservationIndexer() {
+
+	public ObservationIndexer(
+			@NotNull DataSource komp2DataSource,
+			@NotNull OntologyTermRepository ontologyTermRepository,
+			@NotNull SolrClient experimentCore)
+	{
+		super(komp2DataSource, ontologyTermRepository);
+		this.experimentCore = experimentCore;
 	}
 
 	@Override
 	public RunStatus validateBuild() throws IndexerException {
-		return super.validateBuild(observationCore);
+		return super.validateBuild(experimentCore);
 	}
 
 	public static void main(String[] args) throws IndexerException {
@@ -139,9 +129,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		RunStatus runStatus = new RunStatus();
 		long start = System.currentTimeMillis();
 
-		try {
-
-			connection = komp2DataSource.getConnection();
+		try (Connection connection = komp2DataSource.getConnection()) {
 
 			ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
 			emapaParser = ontologyParserFactory.getEmapaParser();
@@ -157,26 +145,26 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 			logger.debug(" ontology entity map size: " + ontologyEntityMap.size());
 
 			logger.debug("  populating datasource map");
-			populateDatasourceDataMap();
+			populateDatasourceDataMap(connection);
 
 			logger.debug("  populating experimenter map");
-			populateExperimenterDataMap();
+			populateExperimenterDataMap(connection);
 			logger.debug("  map size: " + experimenterData.size());
 
 			logger.debug("  populating categorynames map");
-			populateCategoryNamesDataMap();
+			populateCategoryNamesDataMap(connection);
 			logger.debug("  map size: " + translateCategoryNames.size());
 
 			logger.debug("  populating biological data map");
-			populateBiologicalDataMap();
+			populateBiologicalDataMap(connection);
 			logger.debug("  map size: " + biologicalData.size());
 
 			logger.debug("  populating line data map");
-			populateLineBiologicalDataMap();
+			populateLineBiologicalDataMap(connection);
 			logger.debug("  map size: " + lineBiologicalData.size());
 
 			logger.debug("  populating parameter association map");
-			populateParameterAssociationMap();
+			populateParameterAssociationMap(connection);
 			logger.debug("  map size: " + parameterAssociationMap.size());
 
 			logger.debug("  populating emap to emapa map");
@@ -184,13 +172,13 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 			logger.debug(" map size: "+ emap2emapaIdMap.size());
 
 			logger.debug("  populating anatomy map");
-			populateAnatomyMap();
+			populateAnatomyMap(connection);
 			logger.debug("  map size: " + anatomyMap.size());
 
 			logger.info("  maps populated");
 
 
-			count = populateObservationSolrCore(runStatus);
+			count = populateObservationSolrCore(connection, runStatus);
 
 		} catch (SolrServerException | SQLException | IOException |OWLOntologyCreationException | OWLOntologyStorageException e) {
 			e.printStackTrace();
@@ -201,12 +189,12 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		return runStatus;
 	}
 
-	public long populateObservationSolrCore(RunStatus runStatus) throws SQLException, IOException, SolrServerException {
+	public long populateObservationSolrCore(Connection connection, RunStatus runStatus) throws IOException, SolrServerException {
 
 		int count = 0;
 		final int MAX_MISSING_BIOLOGICAL_DATA_ERROR_COUNT_DISPLAYED = 100;
 		int missingBiologicalDataErrorCount = 0;
-		observationCore.deleteByQuery("*:*");
+		experimentCore.deleteByQuery("*:*");
 
 		String query = "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, "
 				+ "o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, "
@@ -237,8 +225,8 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 				ObservationDTOWrite o = new ObservationDTOWrite();
 				o.setId(r.getString("id"));
-				o.setParameterId(r.getInt("parameter_id"));
-				o.setExperimentId(r.getInt("experiment_id"));
+				o.setParameterId(r.getLong("parameter_id"));
+				o.setExperimentId(r.getLong("experiment_id"));
 				o.setExperimentSourceId(r.getString("external_id"));
 
 				if (StringUtils.isNotEmpty(r.getString("sequence_id"))) {
@@ -257,24 +245,24 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					o.setDateOfExperiment(null);
 				}
 
-				o.setParameterId(parameterMap.get(r.getInt("parameter_id")).getId());
-				o.setParameterName(parameterMap.get(r.getInt("parameter_id")).getName());
-				o.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).getStableId());
+				o.setParameterId(parameterMap.get(r.getLong("parameter_id")).getId());
+				o.setParameterName(parameterMap.get(r.getLong("parameter_id")).getName());
+				o.setParameterStableId(parameterMap.get(r.getLong("parameter_id")).getStableId());
 				o.setDataType(parameterMap.get(r.getInt("parameter_id")).getDatatype());
 
-				o.setProcedureId(procedureMap.get(r.getInt("procedure_id")).getId());
-				o.setProcedureName(procedureMap.get(r.getInt("procedure_id")).getName());
-				String procedureStableId = procedureMap.get(r.getInt("procedure_id")).getStableId();
+				o.setProcedureId(procedureMap.get(r.getLong("procedure_id")).getId());
+				o.setProcedureName(procedureMap.get(r.getLong("procedure_id")).getName());
+				String procedureStableId = procedureMap.get(r.getLong("procedure_id")).getStableId();
 				o.setProcedureStableId(procedureStableId);
 				o.setProcedureGroup(procedureStableId.substring(0, procedureStableId.lastIndexOf("_")));
 
-				o.setPipelineId(pipelineMap.get(r.getInt("pipeline_id")).getId());
-				o.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).getName());
-				o.setPipelineStableId(pipelineMap.get(r.getInt("pipeline_id")).getStableId());
+				o.setPipelineId(pipelineMap.get(r.getLong("pipeline_id")).getId());
+				o.setPipelineName(pipelineMap.get(r.getLong("pipeline_id")).getName());
+				o.setPipelineStableId(pipelineMap.get(r.getLong("pipeline_id")).getStableId());
 
-				if (anatomyMap.containsKey(r.getInt("parameter_id"))) {
+				if (anatomyMap.containsKey(r.getLong("parameter_id"))) {
 
-					String anatomyTermId = anatomyMap.get(r.getInt("parameter_id"));
+					String anatomyTermId = anatomyMap.get(r.getLong("parameter_id"));
 
 					if (anatomyTermId != null) {
 
@@ -296,15 +284,13 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 						} else if (anatomyTermId.startsWith("EMAPA:")) {
 							addAnatomyInfo (emapaParser.getOntologyTerm(anatomyTermId), o);
 						}
-
-
 					}
 				}
 
-				o.setDataSourceId(datasourceMap.get(r.getInt("datasource_id")).id);
+				o.setDataSourceId(datasourceMap.get(r.getLong("datasource_id")).id);
 				o.setDataSourceName(datasourceMap.get(r.getInt("datasource_id")).name);
 
-				o.setProjectId(projectMap.get(r.getInt("project_id")).id);
+				o.setProjectId(projectMap.get(r.getLong("project_id")).id);
 				o.setProjectName(projectMap.get(r.getInt("project_id")).name);
 
 				o.setMetadataGroup(r.getString("metadata_group"));
@@ -357,9 +343,9 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					} else {
 						// Fertility applies to the sex tested, separate
 						// parameters per male//female
-						if (maleFertilityParameters.contains(o.getParameterStableId())) {
+						if (MALE_FERTILITY_PARAMETERS.contains(o.getParameterStableId())) {
 							o.setSex(SexType.male.getName());
-						} else if (femaleFertilityParameters.contains(o.getParameterStableId())) {
+						} else if (FEMALE_FERTILITY_PARAMETERS.contains(o.getParameterStableId())) {
 							o.setSex(SexType.female.getName());
 						}
 						if (o.getSex() == null) {
@@ -435,9 +421,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					if (b.litterId != null) {
 						o.setLitterId(b.litterId);
 					}
-
 				}
-
 
 				//
 				// NOTE
@@ -569,7 +553,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 				// 60 seconds between commits
 				documentCount++;
-				observationCore.addBean(o, 60000);
+				experimentCore.addBean(o, 60000);
 
 				count++;
 
@@ -579,7 +563,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 			}
 
 			// Final commit to save the rest of the docs
-			observationCore.commit();
+			experimentCore.commit();
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -629,7 +613,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	 * @throws SQLException
 	 *             when a database exception occurs
 	 */
-	void populateBiologicalDataMap() throws SQLException {
+	void populateBiologicalDataMap(Connection connection) throws SQLException {
 
 		String query = "SELECT CAST(bs.id AS CHAR) as biological_sample_id, bs.organisation_id as phenotyping_center_id, "
 				+ "org.name as phenotyping_center_name, bs.sample_group, bs.external_id as external_sample_id, "
@@ -660,8 +644,8 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 				b.alleleAccession = resultSet.getString("allele_accession");
 				b.alleleSymbol = resultSet.getString("allele_symbol");
-				b.biologicalModelId = resultSet.getInt("biological_model_id");
-				b.biologicalSampleId = resultSet.getInt("biological_sample_id");
+				b.biologicalModelId = resultSet.getLong("biological_model_id");
+				b.biologicalSampleId = resultSet.getLong("biological_sample_id");
 				b.colonyId = resultSet.getString("colony_id");
 
 				String rawDOB = null;
@@ -687,7 +671,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				b.externalSampleId = resultSet.getString("external_sample_id");
 				b.geneAcc = resultSet.getString("acc");
 				b.geneSymbol = resultSet.getString("symbol");
-				b.phenotypingCenterId = resultSet.getInt("phenotyping_center_id");
+				b.phenotypingCenterId = resultSet.getLong("phenotyping_center_id");
 				b.phenotypingCenterName = resultSet.getString("phenotyping_center_name");
 				b.sampleGroup = resultSet.getString("sample_group");
 				b.sex = resultSet.getString("sex");
@@ -696,7 +680,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				b.geneticBackground = resultSet.getString("genetic_background");
 				b.allelicComposition = resultSet.getString("allelic_composition");
 				b.zygosity = resultSet.getString("zygosity");
-				b.productionCenterId = resultSet.getInt("production_center_id");
+				b.productionCenterId = resultSet.getLong("production_center_id");
 				b.productionCenterName = resultSet.getString("production_center_name");
 				b.litterId = resultSet.getString("litter_id");
 
@@ -713,7 +697,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	 * @throws SQLException
 	 *             when a database exception occurs
 	 */
-	void populateLineBiologicalDataMap() throws SQLException {
+	void populateLineBiologicalDataMap(Connection connection) throws SQLException {
 
 		String query = "SELECT e.id as experiment_id, e.colony_id, e.biological_model_id, "
 				+ "e.organisation_id as phenotyping_center_id, org.name as phenotyping_center_name, "
@@ -737,7 +721,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				BiologicalDataBean b = new BiologicalDataBean();
 
 				b.colonyId = resultSet.getString("colony_id");
-				b.phenotypingCenterId = resultSet.getInt("phenotyping_center_id");
+				b.phenotypingCenterId = resultSet.getLong("phenotyping_center_id");
 				b.phenotypingCenterName = resultSet.getString("phenotyping_center_name");
 				b.strainAcc = resultSet.getString("strain_acc");
 				b.strainName = resultSet.getString("strain_name");
@@ -745,7 +729,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				b.allelicComposition = resultSet.getString("allelic_composition");
 				b.alleleAccession = resultSet.getString("allele_accession");
 				b.alleleSymbol = resultSet.getString("allele_symbol");
-				b.biologicalModelId = resultSet.getInt("biological_model_id");
+				b.biologicalModelId = resultSet.getLong("biological_model_id");
 				b.geneAcc = resultSet.getString("acc");
 				b.geneSymbol = resultSet.getString("symbol");
 
@@ -774,7 +758,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 						b.allelicComposition = resultSet.getString("allelic_composition");
 						b.alleleAccession = resultSet2.getString("allele_accession");
 						b.alleleSymbol = resultSet2.getString("allele_symbol");
-						b.biologicalModelId = resultSet2.getInt("biological_model_id");
+						b.biologicalModelId = resultSet2.getLong("biological_model_id");
 						b.geneAcc = resultSet2.getString("acc");
 						b.geneSymbol = resultSet2.getString("symbol");
 					}
@@ -793,7 +777,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	 * @throws SQLException
 	 *             when a database exception occurs
 	 */
-	void populateCategoryNamesDataMap() throws SQLException {
+	void populateCategoryNamesDataMap(Connection connection) throws SQLException {
 
 		String query = "SELECT pp.stable_id, ppo.name, ppo.description FROM phenotype_parameter pp "
 				+ "INNER JOIN phenotype_parameter_lnk_option pplo ON pp.id=pplo.parameter_id "
@@ -832,9 +816,9 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		}
 	}
 
-	void populateParameterAssociationMap() throws SQLException {
+	void populateParameterAssociationMap(Connection connection) throws SQLException {
 
-		Map<String, String> stableIdToNameMap = this.getAllParameters();
+		Map<String, String> stableIdToNameMap = this.getAllParameters(connection);
 		String query = "SELECT id, observation_id, parameter_id, sequence_id, dim_id, parameter_association_value FROM parameter_association  where parameter_association_value is not  null";
 
 		try (PreparedStatement p = connection.prepareStatement(query)) {
@@ -843,10 +827,10 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 			while (resultSet.next()) {
 
-				Integer obsId = resultSet.getInt("observation_id");
+				Long observationId = resultSet.getLong("observation_id");
 
 				ParameterAssociationBean pb = new ParameterAssociationBean();
-				pb.observationId = obsId;
+				pb.observationId = observationId;
 				pb.parameterStableId = resultSet.getString("parameter_id");
 				pb.parameterAssociationValue = resultSet.getString("parameter_association_value");
 				if (stableIdToNameMap.get(pb.parameterStableId) != null) {
@@ -855,14 +839,13 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				pb.sequenceId = resultSet.getString("sequence_id");
 				pb.dimId = resultSet.getString("dim_id");
 
-				if (!parameterAssociationMap.containsKey(obsId)) {
-					parameterAssociationMap.put(obsId, new ArrayList<>());
+				if (!parameterAssociationMap.containsKey(observationId)) {
+					parameterAssociationMap.put(observationId, new ArrayList<>());
 				}
 
-				parameterAssociationMap.get(obsId).add(pb);
+				parameterAssociationMap.get(observationId).add(pb);
 			}
 		}
-
 	}
 
 	/**
@@ -871,12 +854,12 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	 * @throws SQLException
 	 *             When a database error occurrs
 	 */
-	Map<String, String> getAllParameters() throws SQLException {
+	Map<String, String> getAllParameters(Connection connection) throws SQLException {
 		Map<String, String> parameters = new HashMap<>();
 
 		String query = "SELECT stable_id, name FROM phenotype_parameter";
 
-		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+		try (PreparedStatement statement = connection.prepareStatement(query)) {
 			ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next()) {
 				parameters.put(resultSet.getString("stable_id"), resultSet.getString("name"));
@@ -886,7 +869,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		return parameters;
 	}
 
-	void populateExperimenterDataMap() throws SQLException, IOException {
+	void populateExperimenterDataMap(Connection connection) throws SQLException, IOException {
 
 		Map<String, String> nameMap = new HashMap<>();
 		List<String> lines = Files.readAllLines(Paths.get(experimenterIdMap));
@@ -904,8 +887,8 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 			ResultSet resultSet = p.executeQuery();
 			while (resultSet.next()) {
 
-				if ( ! experimenterData.containsKey(resultSet.getInt("experiment_id"))) {
-					experimenterData.put(resultSet.getInt("experiment_id"), new ArrayList<>());
+				if ( ! experimenterData.containsKey(resultSet.getLong("experiment_id"))) {
+					experimenterData.put(resultSet.getLong("experiment_id"), new ArrayList<>());
 				}
 
 				String ids = resultSet.getString("value");
@@ -923,16 +906,13 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					//Hash the ID
 					loadId = DigestUtils.md5Hex(loadId).substring(0,5).toUpperCase();
 
-					experimenterData.get(resultSet.getInt("experiment_id")).add(parameterName + " = " + loadId);
-
+					experimenterData.get(resultSet.getLong("experiment_id")).add(parameterName + " = " + loadId);
 				}
-
 			}
 		}
-
 	}
 
-	void populateDatasourceDataMap() throws SQLException {
+	void populateDatasourceDataMap(Connection connection) throws SQLException {
 
 		List<String> queries = new ArrayList<>();
 		queries.add("SELECT id, short_name as name, 'DATASOURCE' as datasource_type FROM external_db");
@@ -948,15 +928,15 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 					DatasourceBean b = new DatasourceBean();
 
-					b.id = resultSet.getInt("id");
+					b.id = resultSet.getLong("id");
 					b.name = resultSet.getString("name");
 
 					switch (resultSet.getString("datasource_type")) {
 					case "DATASOURCE":
-						datasourceMap.put(resultSet.getInt("id"), b);
+						datasourceMap.put(resultSet.getLong("id"), b);
 						break;
 					case "PROJECT":
-						projectMap.put(resultSet.getInt("id"), b);
+						projectMap.put(resultSet.getLong("id"), b);
 						break;
 					}
 				}
@@ -982,7 +962,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	 * @exception SQLException
 	 *                When a database error occurrs
 	 */
-	void populateAnatomyMap() throws SQLException {
+	void populateAnatomyMap(Connection connection) throws SQLException {
 
 		String query = "SELECT DISTINCT p.id, p.stable_id, o.ontology_acc " +
 			"FROM phenotype_parameter p " +
@@ -990,12 +970,12 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 			"INNER JOIN phenotype_parameter_ontology_annotation o ON o.id=l.annotation_id " +
 			"WHERE p.stable_id like '%_ALZ_%' OR p.stable_id like '%_ELZ_%' " ;
 
-		try (PreparedStatement statement = getConnection().prepareStatement(query)) {
+		try (PreparedStatement statement = connection.prepareStatement(query)) {
 			ResultSet resultSet = statement.executeQuery();
 			while (resultSet.next()) {
 				String ontoAcc = resultSet.getString("ontology_acc");
 				if (ontoAcc != null) {
-					anatomyMap.put(resultSet.getInt("id"),
+					anatomyMap.put(resultSet.getLong("id"),
 							ontoAcc.startsWith("EMAP:") ? emap2emapaIdMap.get(ontoAcc) : ontoAcc);
 				}
 				else {
@@ -1004,15 +984,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 			}
 		}
 
-	}
-
-
-
-	public Connection getConnection() {
-		return connection;
-	}
-	public void setConnection(Connection connection) {
-		this.connection = connection;
 	}
 
 	Map<String, Map<String, String>> getTranslateCategoryNames() {
@@ -1027,11 +998,11 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		return biologicalData;
 	}
 
-	Map<Integer, DatasourceBean> getDatasourceMap() {
+	Map<Long, DatasourceBean> getDatasourceMap() {
 		return datasourceMap;
 	}
 
-	Map<Integer, DatasourceBean> getProjectMap() {
+	Map<Long, DatasourceBean> getProjectMap() {
 		return projectMap;
 	}
 
@@ -1040,27 +1011,27 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	 */
 	class BiologicalDataBean {
 
-		public String alleleAccession;
-		public String alleleSymbol;
-		public Integer biologicalModelId;
-		public Integer biologicalSampleId;
-		public String colonyId;
+		public String        alleleAccession;
+		public String        alleleSymbol;
+		public Long          biologicalModelId;
+		public Long          biologicalSampleId;
+		public String        colonyId;
 		public ZonedDateTime dateOfBirth;
-		public String externalSampleId;
-		public String geneAcc;
-		public String geneSymbol;
-		public String phenotypingCenterName;
-		public Integer phenotypingCenterId;
-		public String sampleGroup;
-		public String sex;
-		public String strainAcc;
-		public String strainName;
-		public String geneticBackground;
-		public String allelicComposition;
-		public String zygosity;
-		public String productionCenterName;
-		public Integer productionCenterId;
-		public String litterId;
+		public String        externalSampleId;
+		public String        geneAcc;
+		public String        geneSymbol;
+		public String        phenotypingCenterName;
+		public Long          phenotypingCenterId;
+		public String        sampleGroup;
+		public String        sex;
+		public String        strainAcc;
+		public String        strainName;
+		public String        geneticBackground;
+		public String        allelicComposition;
+		public String        zygosity;
+		public String        productionCenterName;
+		public Long          productionCenterId;
+		public String        litterId;
 
 	}
 
@@ -1070,7 +1041,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	 */
 	class DatasourceBean {
 
-		public Integer id;
+		public Long   id;
 		public String name;
 	}
 
@@ -1081,11 +1052,10 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 		public String parameterAssociationName;
 		public String parameterAssociationValue;
-		public Integer id;
-		public Integer observationId;
+		public Long   id;
+		public Long   observationId;
 		public String parameterStableId;
 		public String sequenceId;
 		public String dimId;
 	}
-
 }

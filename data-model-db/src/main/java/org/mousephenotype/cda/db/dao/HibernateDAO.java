@@ -23,14 +23,11 @@ package org.mousephenotype.cda.db.dao;
  * @since February 2012
  */
 
-import org.hibernate.Session;
-
-
 /**
  * Please add a description about HibernateDAO.java
  */
 
 public interface HibernateDAO {
 
-	Session getSession();
+//	Session getSession();
 }

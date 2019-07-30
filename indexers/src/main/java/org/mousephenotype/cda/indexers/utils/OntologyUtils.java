@@ -42,8 +42,8 @@ public class OntologyUtils {
      * 
      * @throws java.sql.SQLException when a database exception occurs
      */
-    public static Map<Integer, ImpressBaseDTO> populateImpressPipeline(Connection connection) throws SQLException {
-        Map<Integer, ImpressBaseDTO> impressMap;
+    public static Map<Long, ImpressBaseDTO> populateImpressPipeline(Connection connection) throws SQLException {
+        Map<Long, ImpressBaseDTO> impressMap;
 
         String query = "SELECT id, stable_key, name, stable_id FROM phenotype_pipeline";
         try (PreparedStatement p = connection.prepareStatement(query)) {
@@ -90,8 +90,8 @@ public class OntologyUtils {
      *
      * @throws java.sql.SQLException when a database exception occurs
      */
-    public static Map<Integer, ImpressBaseDTO> populateImpressProcedure(Connection connection) throws SQLException {
-        Map<Integer, ImpressBaseDTO> impressMap;
+    public static Map<Long, ImpressBaseDTO> populateImpressProcedure(Connection connection) throws SQLException {
+        Map<Long, ImpressBaseDTO> impressMap;
 
         String query = "SELECT id, stable_key, name, stable_id FROM phenotype_procedure";
 
@@ -112,10 +112,10 @@ public class OntologyUtils {
      *
      * @throws java.sql.SQLException when a database exception occurs
      */
-    public static Map<Integer, ParameterDTO> populateImpressParameter(Connection connection) 
+    public static Map<Long, ParameterDTO> populateImpressParameter(Connection connection)
     throws SQLException {
         
-    	Map<Integer, ParameterDTO> impressMap;
+    	Map<Long, ParameterDTO> impressMap;
 
         String query = "SELECT id, stable_key, name, stable_id, annotate, datatype FROM phenotype_parameter";
 
@@ -137,9 +137,9 @@ public class OntologyUtils {
      *
      * @throws SQLException when a database error occurs
      */
-    public static Map<Integer, OrganisationBean> populateOrganisationMap(Connection connection) throws SQLException {
+    public static Map<Long, OrganisationBean> populateOrganisationMap(Connection connection) throws SQLException {
 
-        Map<Integer, OrganisationBean> map = new HashMap<>();
+        Map<Long, OrganisationBean> map = new HashMap<>();
         String query = "SELECT id, name, fullname, country FROM organisation";
         try (PreparedStatement p = connection.prepareStatement(query)) {
 
@@ -147,7 +147,7 @@ public class OntologyUtils {
             while (resultSet.next()) {
                 OrganisationBean b = new OrganisationBean();
 
-                b.setId(resultSet.getInt("id"));
+                b.setId(resultSet.getLong("id"));
                 b.setName(resultSet.getString("name"));
                 b.setFullname(resultSet.getString("fullname"));
                 b.setCountry(resultSet.getString("country"));
@@ -162,38 +162,38 @@ public class OntologyUtils {
     // PRIVATE METHODS
 
     
-    private static Map<Integer, ImpressBaseDTO> populateImpressMap(PreparedStatement p) throws SQLException {
+    private static Map<Long, ImpressBaseDTO> populateImpressMap(PreparedStatement p) throws SQLException {
 
-        Map<Integer, ImpressBaseDTO> impressMap = new HashMap<>();
+        Map<Long, ImpressBaseDTO> impressMap = new HashMap<>();
         ResultSet resultSet = p.executeQuery();
 
         while (resultSet.next()) {
-            ImpressBaseDTO b = new ImpressBaseDTO(resultSet.getInt("id"), 
-            		resultSet.getInt("stable_key"), 
+            ImpressBaseDTO b = new ImpressBaseDTO(resultSet.getLong("id"),
+            		resultSet.getLong("stable_key"),
             		resultSet.getString("stable_id"), 
             		resultSet.getString("name"));
-            impressMap.put(resultSet.getInt("id"), b);
+            impressMap.put(resultSet.getLong("id"), b);
         }
 
         return impressMap;
     }
     
     
-    private static Map<Integer, ParameterDTO> populateParameterMap(PreparedStatement p) throws SQLException {
+    private static Map<Long, ParameterDTO> populateParameterMap(PreparedStatement p) throws SQLException {
 
-        Map<Integer, ParameterDTO> impressMap = new HashMap<>();
+        Map<Long, ParameterDTO> impressMap = new HashMap<>();
         ResultSet resultSet = p.executeQuery();
 
         while (resultSet.next()) {
         	
         	ParameterDTO b = new ParameterDTO();
-        	b.setId(resultSet.getInt("id"));
-        	b.setStableKey(resultSet.getInt("stable_key")); 
+        	b.setId(resultSet.getLong("id"));
+        	b.setStableKey(resultSet.getLong("stable_key"));
         	b.setStableId(resultSet.getString("stable_id")); 
         	b.setName(resultSet.getString("name"));
         	b.setAnnotate(resultSet.getBoolean("annotate"));
         	b.setDataType(resultSet.getString("datatype"));
-            impressMap.put(resultSet.getInt("id"), b);
+            impressMap.put(resultSet.getLong("id"), b);
             
         }
 

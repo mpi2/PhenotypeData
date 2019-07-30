@@ -80,13 +80,13 @@ public class CdaSqlUtilsTest {
     public void getCdaPipeline_idsByDccPipelineTest() {
 
 
-        final Map<String, Integer> cdaPipeline_idsByDccPipeline = cdaSqlUtils.getCdaPipeline_idsByDccPipeline();
+        final Map<String, Long> cdaPipeline_idsByDccPipeline = cdaSqlUtils.getCdaPipeline_idsByDccPipeline();
 
         for (Map.Entry e : cdaPipeline_idsByDccPipeline.entrySet()) {
             System.out.println("key: " +e.getKey() + ", Value: " + e.getValue());
         }
 
-        final Integer hrwlip_001 = cdaPipeline_idsByDccPipeline.get("HRWLIP_001");
+        final Long hrwlip_001 = cdaPipeline_idsByDccPipeline.get("HRWLIP_001");
         assert (hrwlip_001 != null);
         assert (hrwlip_001 == 27);
 

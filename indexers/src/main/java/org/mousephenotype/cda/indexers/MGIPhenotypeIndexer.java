@@ -17,6 +17,7 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
@@ -28,13 +29,12 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -49,19 +49,21 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
 
 	private final Logger logger = LoggerFactory.getLogger(MGIPhenotypeIndexer.class);
 
-	@Autowired
-    @Qualifier("komp2DataSource")
-    DataSource komp2DataSource;
 
-	@Autowired
-    @Qualifier("mgiPhenotypeCore")
-    SolrClient mgiPhenotypeCore;
+    private SolrClient            mgiPhenotypeCore;
+    private OntologyParser        mpParser;
+    private OntologyParserFactory ontologyParserFactory;
 
-    OntologyParser mpParser;
-    OntologyParserFactory ontologyParserFactory;
 
-	public MGIPhenotypeIndexer() {
+    public MGIPhenotypeIndexer(
+            @NotNull DataSource komp2DataSource,
+            @NotNull OntologyTermRepository ontologyTermRepository,
+            @NotNull SolrClient mgiPhenotypeCore)
+    {
+        super(komp2DataSource, ontologyTermRepository);
+        this.mgiPhenotypeCore = mgiPhenotypeCore;
     }
+
 
     @Override
     public RunStatus validateBuild() throws IndexerException {
@@ -77,15 +79,14 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
     @Override
     public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
 
-
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
 
-        try {
+        try (Connection connection = komp2DataSource.getConnection()) {
             ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
             mpParser = ontologyParserFactory.getMpParser();
-            count = populateMgiPhenotypeSolrCore(runStatus);
+            count = populateMgiPhenotypeSolrCore(connection, runStatus);
 
         } catch (SQLException | IOException | SolrServerException | OWLOntologyStorageException | OWLOntologyCreationException ex) {
             throw new IndexerException(ex);
@@ -99,9 +100,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
 
 
     // Returns document count.
-    public int populateMgiPhenotypeSolrCore(RunStatus runStatus) throws SQLException, IOException, SolrServerException {
-
-	    Connection connection = komp2DataSource.getConnection();
+    public int populateMgiPhenotypeSolrCore(Connection connection, RunStatus runStatus) throws SQLException, IOException, SolrServerException {
 
 	    int count = 1;
 
@@ -118,7 +117,6 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
 	        "  INNER JOIN genomic_feature gf ON bmgf.gf_acc = gf.acc " +
 	        "  INNER JOIN allele al ON bma.allele_acc = al.acc " +
 	        "  INNER JOIN external_db org ON org.id=bm.db_id ";
-
 
         try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
             p.setFetchSize(Integer.MIN_VALUE);
@@ -215,5 +213,4 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
 
         return count;
     }
-
 }

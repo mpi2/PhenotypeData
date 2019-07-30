@@ -47,8 +47,7 @@ public class AnatomogramMapper {
     );
 
 
-    public static Map<String, Set<String>> getMapping( OntologyParser maParser, OntologyParser uberonParser, String prefix, String prefixOfWantedTerms)
-    throws OWLOntologyCreationException, IOException {
+    public static Map<String, Set<String>> getMapping(OntologyParser maParser, OntologyParser uberonParser, String prefix, String prefixOfWantedTerms) {
 
         nonUberonAnatomogramMap.put("UBERON_0001954", "EFO_0000530");
         nonUberonAnatomogramMap.put("UBERON_0002418", "EFO_0000949");
@@ -88,7 +87,6 @@ public class AnatomogramMapper {
         }
 
         return res;
-
     }
 
 

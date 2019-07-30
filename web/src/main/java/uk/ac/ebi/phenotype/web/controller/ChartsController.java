@@ -15,8 +15,8 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.json.JSONException;
@@ -320,7 +320,7 @@ public class ChartsController {
 			    String parameterUrl="";
 			    if (proc != null) {
 					//procedureDescription = String.format("<a href=\"%s\">%s</a>", is.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()),  "Procedure: "+ proc.getName());
-			    	procedureUrl=is.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString());
+			    	procedureUrl=is.getProcedureUrlByKey(((Long)proc.getStableKey()).toString());
 			    	model.addAttribute("procedureUrl", procedureUrl);
 			    }
 				if (parameter.getStableKey() != null) {
@@ -399,11 +399,11 @@ public class ChartsController {
 			                    break;
 			            }
 			        }else{
-			            log.error("chart type is null");
+			            log.error("chart type is ull");
 			        }
 
 			    } catch (SQLException e) {
-			        log.error(ExceptionUtils.getFullStackTrace(e));
+			        log.error(ExceptionUtils.getStackTrace(e));
 			        statsError = true;
 			    }
 			}  else {
@@ -664,7 +664,7 @@ public class ChartsController {
     @ExceptionHandler(GenomicFeatureNotFoundException.class)
     public ModelAndView handleGenomicFeatureNotFoundException(GenomicFeatureNotFoundException exception) {
 
-        log.error(ExceptionUtils.getFullStackTrace(exception));
+        log.error(ExceptionUtils.getStackTrace(exception));
 
         ModelAndView mv = new ModelAndView("identifierError");
         mv.addObject("errorMessage", exception.getMessage());
@@ -684,7 +684,7 @@ public class ChartsController {
     @ExceptionHandler(ParameterNotFoundException.class)
     public ModelAndView handleParameterNotFoundException(ParameterNotFoundException exception) {
 
-	    log.error(ExceptionUtils.getFullStackTrace(exception));
+	    log.error(ExceptionUtils.getStackTrace(exception));
 
         ModelAndView mv = new ModelAndView("identifierError");
         mv.addObject("errorMessage", exception.getMessage());
@@ -704,7 +704,7 @@ public class ChartsController {
     @ExceptionHandler(SpecificExperimentException.class)
     public ModelAndView handleSpecificExperimentException(SpecificExperimentException exception) {
 
-	    log.error(ExceptionUtils.getFullStackTrace(exception));
+	    log.error(ExceptionUtils.getStackTrace(exception));
 
         ModelAndView mv = new ModelAndView("Specific Experiment Not Found Error");
         mv.addObject("errorMessage", exception.getMessage());

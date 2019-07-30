@@ -2,7 +2,7 @@ package org.mousephenotype.cda.loads.statistics.generate;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;

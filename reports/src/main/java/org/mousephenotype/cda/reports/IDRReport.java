@@ -3,14 +3,9 @@ package org.mousephenotype.cda.reports;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
-import org.mousephenotype.cda.db.dao.SecondaryProjectDAO;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.MpService;
-import org.mousephenotype.cda.solr.service.StatisticalResultService;
-import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,18 +28,7 @@ public class IDRReport extends AbstractReport {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private StatisticalResultService statisticalResultService;
-
-    @Autowired
     private GeneService geneService;
-
-    @Autowired
-    private MpService mpService;
-
-    @Autowired
-    private SecondaryProjectDAO secondaryProjectDAO;
-
-    private Map<String, AnatomyDTO> anatomyMap = new HashMap<>();
 
     public IDRReport() {
         super();
@@ -58,10 +42,8 @@ public class IDRReport extends AbstractReport {
     public void run(String[] args)
             throws ReportException, SolrServerException, IOException {
 
-        List<GeneRowForHeatMap> geneRows = new ArrayList<>();
         List<IdrRow> data = getDataFromCsv("/Users/ilinca/Documents/temp/pharos-tcrd3.1.4.csv");
         Pattern pattern = Pattern.compile("<span>(.*?)</span>");
-//        Map<String, List<IdrRow>> mapByHumanGene = data.stream().collect(Collectors.groupingBy(IdrRow::getGene));
         Map<String, List<IdrRow>> mapByHumanGene = new HashMap<>();
         for (IdrRow row : data){
             if (!mapByHumanGene.containsKey(row.getGene())){
@@ -158,7 +140,6 @@ public class IDRReport extends AbstractReport {
             this.targetFamily = targetFamily;
             this.pharosUrl = pharosUrl;
             this.gene = gene;
-
         }
 
         public String getGene(){

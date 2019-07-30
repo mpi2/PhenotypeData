@@ -1,12 +1,9 @@
 package org.mousephenotype.cda.indexers.utils;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-//import lombok.Data;
+import java.util.List;
 
-//@Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EmbryoRestData {
 	
@@ -25,7 +22,4 @@ public class EmbryoRestData {
 	public List<EmbryoStrain> getStrains() {
 		return this.strains;
 	}
-	
-	
-
 }

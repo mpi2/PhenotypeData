@@ -1,5 +1,6 @@
 package org.mousephenotype.cda.indexers.utils;
 
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
@@ -20,14 +21,12 @@ import java.util.stream.Stream;
  * @author jwarren
  *
  */
-//@Service
 public class EmbryoRestGetter {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	private String embryoViewerFilename;
 
 
-	@Inject
 	public EmbryoRestGetter(String embryoViewerFilename) {
 	    this.embryoViewerFilename = embryoViewerFilename;
     }
@@ -45,29 +44,32 @@ public class EmbryoRestGetter {
             JSONObject jsonObject = coloniesArray.getJSONObject(i);
             embryoStrain = new EmbryoStrain();
             embryoStrain.setColonyId(jsonObject.getString("colony_id"));
-            embryoStrain.setMgi(jsonObject.getString("mgi"));
+            embryoStrain.setMgiGeneAccessionId(jsonObject.getString("mgi"));
             embryoStrain.setCentre(jsonObject.getString("centre"));
             embryoStrain.setUrl(jsonObject.getString("url"));
             if(jsonObject.has("analysis_view_url")){
             	embryoStrain.setAnalysisViewUrl(jsonObject.getString("analysis_view_url"));
             }
-            
 
-            List<String> procedureStableKeys = new ArrayList<String>();
-            List<String> parameterStableKeys = new ArrayList<String>();
-            List<String> modalities          = new ArrayList<String>();
+
+            List<Long> procedureStableKeys = new ArrayList<>();
+            List<Long> parameterStableKeys = new ArrayList<>();
+            List<String>  modalities          = new ArrayList<>();
 
             JSONArray jProcParam = jsonObject.getJSONArray("procedures_parameters");
             for (int j = 0; j < jProcParam.length(); j++) {
 
                 JSONObject jo = (JSONObject) jProcParam.get(j);
 
-                // the procedure_id on the harwell RESTful interface is actually a stable_key
-                String procedure_stable_key = jo.getString("procedure_id");
-                String parameter_stable_key = jo.getString("parameter_id");
+                // Harwell's supplied procedure_id and parameter_id fields are cda procedure_stable_key and parameter_stable_key.
+                Long procedureStableKey = CommonUtils.tryParseLong(jo.getString("procedure_id"));
+                Long parameterStableKey = CommonUtils.tryParseLong(jo.getString("parameter_id"));
+                if ((procedureStableKey == null) || (parameterStableKey == null)) {
+                    continue;
+                }
                 String modality             = jo.getString("modality");
-                procedureStableKeys.add(procedure_stable_key);
-                parameterStableKeys.add(parameter_stable_key);
+                procedureStableKeys.add(procedureStableKey);
+                parameterStableKeys.add(parameterStableKey);
 
                 modalities.add(modality.replace("&#956", "micro"));
             }

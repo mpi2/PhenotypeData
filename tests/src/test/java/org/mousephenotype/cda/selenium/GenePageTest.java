@@ -22,7 +22,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.selenium.config.TestConfig;
 import org.mousephenotype.cda.selenium.support.GenePage;
 import org.mousephenotype.cda.selenium.support.TestUtils;
@@ -103,9 +102,6 @@ public class GenePageTest {
     @NotNull @Autowired
     private GeneService geneService;
 
-    @NotNull @Autowired
-    private PhenotypePipelineDAO phenotypePipelineDAO;
-
 
     @Before
     public void setup() throws MalformedURLException {
@@ -152,7 +148,7 @@ public class GenePageTest {
             System.out.println("gene[" + i + "] URL: " + target);
 
             try {
-                GenePage genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, paBaseUrl);
+                GenePage genePage = new GenePage(driver, wait, target, geneId, paBaseUrl);
                 boolean phenotypesTableRequired = false;
                 RunStatus status = genePage.validate(phenotypesTableRequired);
                 if (status.hasErrors()) {
@@ -539,7 +535,7 @@ public class GenePageTest {
         GenePage genePage;
 
         try {
-            genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, paBaseUrl);
+            genePage = new GenePage(driver, wait, target, geneId, paBaseUrl);
         } catch (Exception e) {
             message = "ERROR: Failed to load gene page URL: " + target;
             System.out.println(message);
@@ -803,7 +799,7 @@ public class GenePageTest {
         GenePage genePage;
 
         try {
-            genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, paBaseUrl);
+            genePage = new GenePage(driver, wait, target, geneId, paBaseUrl);
 
             List<WebElement> elements = driver.findElements(By.xpath("//a[@id='allAdultDataBtn']"));
             if (elements.isEmpty()) {
@@ -844,7 +840,7 @@ public class GenePageTest {
         GenePage genePage = null;
 
         try {
-            genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, paBaseUrl);
+            genePage = new GenePage(driver, wait, target, geneId, paBaseUrl);
         } catch (Exception e) {
             message = "ERROR: Failed to load gene page URL: " + target;
             status.addError(message);
@@ -949,7 +945,7 @@ public class GenePageTest {
         GenePage genePage;
 
         try {
-            genePage = new GenePage(driver, wait, target, geneId, phenotypePipelineDAO, paBaseUrl);
+            genePage = new GenePage(driver, wait, target, geneId, paBaseUrl);
         } catch (Exception e) {
             message = "ERROR: Failed to load gene page URL: " + target;
             System.out.println(message);

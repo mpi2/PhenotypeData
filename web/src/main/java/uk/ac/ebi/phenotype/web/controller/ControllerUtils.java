@@ -19,7 +19,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
 import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
 
@@ -82,7 +82,7 @@ public class ControllerUtils {
 	 * @return <sex, percentage>, to be used on overview pie chart
 	 * @throws SolrServerException, IOException
 	 */
-	public static PhenotypeGeneSummaryDTO getPercentages(String phenotype_id, StatisticalResultService srService, PostQcService gpService)
+	public static PhenotypeGeneSummaryDTO getPercentages(String phenotype_id, StatisticalResultService srService, GenotypePhenotypeService gpService)
 			throws SolrServerException, IOException {
 
 		PhenotypeGeneSummaryDTO pgs = new PhenotypeGeneSummaryDTO();

@@ -17,7 +17,7 @@ package uk.ac.ebi.phenotype.chart;
 
 import java.util.ArrayList;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class HeatmapDTO {
 

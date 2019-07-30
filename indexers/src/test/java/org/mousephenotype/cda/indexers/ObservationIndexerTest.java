@@ -1,24 +1,25 @@
 package org.mousephenotype.cda.indexers;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.WeightMap;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -36,33 +37,46 @@ import java.util.stream.Collectors;
 @ContextConfiguration(classes = {IndexersTestConfig.class})
 public class ObservationIndexerTest {
 
-    private ObservationIndexer observationIndexer;
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    @Qualifier("komp2DataSource")
-    private DataSource ds;
+    private Connection         connection;
+    private ObservationIndexer observationIndexer;
+
+    private SolrClient             experimentCore;
+    private DataSource             komp2DataSource;
+    private OntologyTermRepository ontologyTermRepository;
+
+    @Inject
+    public ObservationIndexerTest(
+            SolrClient experimentCore,
+            DataSource komp2DataSource,
+            OntologyTermRepository ontologyTermRepository) throws SQLException
+    {
+        this.experimentCore = experimentCore;
+        this.komp2DataSource = komp2DataSource;
+        this.ontologyTermRepository = ontologyTermRepository;
+
+        connection = komp2DataSource.getConnection();
+    }
 
 
     @Before
-    public void setUp() throws Exception {
-	    observationIndexer = new ObservationIndexer();
-	    observationIndexer.setConnection(ds.getConnection());
+    public void setUp() {
+	    observationIndexer = new ObservationIndexer(komp2DataSource, ontologyTermRepository, experimentCore);
     }
 
     @Test
     public void testGetOntologyParameterSubTerms() throws SQLException {
 
-        Map<Integer, List<OntologyBean>> map = IndexerMap.getOntologyParameterSubTerms(ds.getConnection());
+        Map<Long, List<OntologyBean>> map = IndexerMap.getOntologyParameterSubTerms(connection);
 
         boolean found = false;
-        for (Integer mapId : map.keySet()) {
+        for (Long mapId : map.keySet()) {
             List<OntologyBean> list = map.get(mapId);
             if (list.size() > 1) {
 
                 System.out.println("Found an observation with more than one ontology term association");
-                System.out.println("For map ID " + mapId + ": " + StringUtils.join( list.stream().map(OntologyBean::getName).collect(Collectors.toList() ), ", "));
+                System.out.println("For map ID " + mapId + ": " + StringUtils.join(list.stream().map(OntologyBean::getName).collect(Collectors.toList() ), ", "));
 
                 list.stream().forEach(x -> {
                     System.out.println(x);
@@ -85,7 +99,7 @@ public class ObservationIndexerTest {
     public void testPopulateBiologicalDataMap() throws Exception {
         observationIndexer.initialise();
 
-        observationIndexer.populateBiologicalDataMap();
+        observationIndexer.populateBiologicalDataMap(connection);
         Map<String, ObservationIndexer.BiologicalDataBean> bioDataMap = observationIndexer.getBiologicalData();
 
         Assert.assertTrue(bioDataMap.size() > 1000);
@@ -97,9 +111,7 @@ public class ObservationIndexerTest {
 			    Assert.assertTrue(! StringUtils.isEmpty(biologicalDataBean.alleleAccession));
 			    Assert.assertTrue(! StringUtils.isEmpty(biologicalDataBean.geneticBackground));
 		    }
-
 	    }
-
     }
 
 
@@ -109,7 +121,7 @@ public class ObservationIndexerTest {
     public void testPopulateLineBiologicalDataMap() throws Exception {
         observationIndexer.initialise();
 
-        observationIndexer.populateLineBiologicalDataMap();
+        observationIndexer.populateLineBiologicalDataMap(connection);
         Map<String, ObservationIndexer.BiologicalDataBean> bioDataMap = observationIndexer.getLineBiologicalData();
         Assert.assertTrue(bioDataMap.size() > 50);
 
@@ -124,22 +136,22 @@ public class ObservationIndexerTest {
 	public void testWeightMap() throws Exception {
 
         // Instantiate WeightMap here as it takes upwards of 8 minutes to load.
-        WeightMap weightMap = new WeightMap(ds);
+        WeightMap weightMap = new WeightMap(komp2DataSource);
 
         logger.info("Size of weight map {}", weightMap.size());
         Assert.assertTrue(weightMap.size() > 50);
 
 
         ZonedDateTime dateOfExperiment = ZonedDateTime.ofInstant(new SimpleDateFormat("yyyy-MM-dd").parse("2015-04-29").toInstant(), ZoneId.of("UTC"));
-		System.out.println("Weight map for specimen 94369 is : " + weightMap.get(94369));
-        System.out.println("Nearest weight to 2015-04-29 00:00:00 is " + weightMap.getNearestWeight(94369, dateOfExperiment) );
+		System.out.println("Weight map for specimen 94369 is : " + weightMap.get(94369L));
+        System.out.println("Nearest weight to 2015-04-29 00:00:00 is " + weightMap.getNearestWeight(94369L, dateOfExperiment) );
 
 
-		Integer testDbId = null;
-		try (Connection c = ds.getConnection(); PreparedStatement s = c.prepareStatement("SELECT * FROM biological_sample where external_id = 'B6NTAC-USA/680.8f_5016035'") ) {
+		Long testDbId = null;
+		try (PreparedStatement s = connection.prepareStatement("SELECT * FROM biological_sample where external_id = 'B6NTAC-USA/680.8f_5016035'") ) {
             ResultSet rs = s.executeQuery();
             while (rs.next()) {
-                testDbId = rs.getInt("id");
+                testDbId = rs.getLong("id");
             }
         }
 
@@ -161,8 +173,7 @@ public class ObservationIndexerTest {
 
 	@Test
     public void testImpressDataMaps() throws Exception {
-        Map<Integer, ImpressBaseDTO> bioDataMap;
-        Connection connection = ds.getConnection();
+        Map<Long, ImpressBaseDTO> bioDataMap;
 
         // Pipelines
         bioDataMap = IndexerMap.getImpressPipelines(connection);
@@ -175,7 +186,7 @@ public class ObservationIndexerTest {
         logger.info("Size of procedure data map {}", bioDataMap.size());
 
         //Parameters
-        Map<Integer, ParameterDTO>  paramMap = IndexerMap.getImpressParameters(connection);
+        Map<Long, ParameterDTO>  paramMap = IndexerMap.getImpressParameters(connection);
         Assert.assertTrue(paramMap.size() > 500);
         logger.info("Size of parameter data map {}", paramMap.size());
 
@@ -185,8 +196,8 @@ public class ObservationIndexerTest {
     public void testDatasourceDataMaps() throws Exception {
         observationIndexer.initialise();
 
-        observationIndexer.populateDatasourceDataMap();
-        Map<Integer, ObservationIndexer.DatasourceBean> bioDataMap;
+        observationIndexer.populateDatasourceDataMap(connection);
+        Map<Long, ObservationIndexer.DatasourceBean> bioDataMap;
 
         // Project
         bioDataMap = observationIndexer.getProjectMap();
@@ -204,7 +215,7 @@ public class ObservationIndexerTest {
     public void testpopulateCategoryNamesDataMap() throws Exception {
         observationIndexer.initialise();
 
-        observationIndexer.populateCategoryNamesDataMap();
+        observationIndexer.populateCategoryNamesDataMap(connection);
         Map<String, Map<String, String>> bioDataMap = observationIndexer.getTranslateCategoryNames();
 
         Assert.assertTrue(bioDataMap.size() > 5);

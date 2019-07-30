@@ -20,7 +20,7 @@
 
 package org.mousephenotype.cda.solr.service;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,7 +52,7 @@ public class GenotypePhenotypeServiceTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private PostQcService postQcService;
+    private GenotypePhenotypeService genotypePhenotypeService;
 
     @Autowired
     private GeneService geneService;
@@ -69,12 +69,12 @@ public class GenotypePhenotypeServiceTest {
         List<String> resources = new ArrayList<>();
         resources.add("IMPC");
         try {
-//			TreeSet<CountTableRow> result = postQcService.getAssociationsCount("MP:0000269", resources);
+//			TreeSet<CountTableRow> result = genotypePhenotypeService.getAssociationsCount("MP:0000269", resources);
 //			for(CountTableRow row : result){
 //				logger.info(row.getMpId()+" "+ row.getCategory()+" "+row.getCount());
 //			}
 
-            TreeSet<CountTableRow> result2 = postQcService.getAssociationsCount("MP:0005377", resources);
+            TreeSet<CountTableRow> result2 = genotypePhenotypeService.getAssociationsCount("MP:0005377", resources);
 //			for(CountTableRow row : result2){
 //				logger.info(row.getMpId()+" "+ row.getCategory()+" "+row.getCount());
 //			}
@@ -94,7 +94,7 @@ public class GenotypePhenotypeServiceTest {
             throws SolrServerException, IOException {
         logger.debug("Test if all genes in genotype-phenotype core are indexed in the gene core.");
 
-        Set<String> gpGenes = postQcService.getAllGenesWithPhenotypeAssociations();
+        Set<String> gpGenes = genotypePhenotypeService.getAllGenesWithPhenotypeAssociations();
 
         Set<String> gGenes      = geneService.getAllGenes();
         Set<String> knownToMiss = new HashSet<>();  // Ignore these genes because they only have legacy phenotype data.
@@ -134,7 +134,7 @@ public class GenotypePhenotypeServiceTest {
     public void testAllGPPhenotypeInMP() throws SolrServerException, IOException {
         logger.debug("Test if all phenotypes in genotype-phenotype core are indexed in the mp core.");
 
-        Set<String> gpPhen = postQcService.getAllPhenotypesWithGeneAssociations();
+        Set<String> gpPhen = genotypePhenotypeService.getAllPhenotypesWithGeneAssociations();
 
         Set<String> mpPhen = mpService.getAllPhenotypes();
 
@@ -158,7 +158,7 @@ public class GenotypePhenotypeServiceTest {
         List<String> geneSymbols = null;
         try {
 
-            geneSymbols = postQcService.getGenesForMpId(phenotypeId);
+            geneSymbols = genotypePhenotypeService.getGenesForMpId(phenotypeId);
 
         } catch (IOException | URISyntaxException | SolrServerException e) {
 

@@ -16,14 +16,13 @@
 
 package org.mousephenotype.cda.selenium.support;
 
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.selenium.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.DataReaderTsv;
 import org.mousephenotype.cda.utilities.DataReaderXls;
 import org.mousephenotype.cda.web.DownloadType;
-import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.LoggerFactory;
@@ -40,15 +39,14 @@ import java.util.*;
  */
 public class SearchPage {
 
-    private final String               baseUrl;
-    protected final CommonUtils        commonUtils = new CommonUtils();
-    private final WebDriver            driver;
-    private final PhenotypePipelineDAO phenotypePipelineDAO;
-    private Random                     random = new Random();
-    private String                     target;
-    protected final TestUtils          testUtils = new TestUtils();
-    private final int                  timeoutInSeconds;
-    private final WebDriverWait        wait;
+    private         String        baseUrl;
+    protected final CommonUtils   commonUtils = new CommonUtils();
+    private         WebDriver     driver;
+    private         Random        random      = new Random();
+    private         String        target;
+    protected final TestUtils     testUtils   = new TestUtils();
+    private         int           timeoutInSeconds;
+    private         WebDriverWait wait;
 
     private SearchGeneTable      geneTable;
     private SearchPhenotypeTable phenotypeTable;
@@ -409,14 +407,13 @@ public class SearchPage {
      * Creates a new <code>SearchPage</code> instance. No web page is loaded.
      * @param driver Web driver
      * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
-     * @param phenotypePipelineDAO
      * @param baseUrl A fully-qualified hostname and path, such as
      *   http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
      * @param map a map of HTML table-related definitions, keyed by <code>
      * TableComponent</code>.
      */
-    public SearchPage(WebDriver driver, int timeoutInSeconds, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl, Map<SearchFacetTable.TableComponent, By> map) throws TestException {
-        this(driver, timeoutInSeconds, null, phenotypePipelineDAO, baseUrl, map);
+    public SearchPage(WebDriver driver, int timeoutInSeconds, String baseUrl, Map<SearchFacetTable.TableComponent, By> map) throws TestException {
+        this(driver, timeoutInSeconds, null, baseUrl, map);
         this.target = driver.getCurrentUrl();
         this.map = map;
     }
@@ -427,7 +424,6 @@ public class SearchPage {
      * @param driver Web driver
      * @param timeoutInSeconds The <code>WebDriver</code> timeout, in seconds
      * @param target target search URL
-     * @param phenotypePipelineDAO
      * @param baseUrl A fully-qualified hostname and path, such as
      *   http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
      * @param map a map of HTML table-related definitions, keyed by <code>
@@ -435,10 +431,9 @@ public class SearchPage {
      *
      * @throws TestException If the target cannot be set
      */
-    public SearchPage(WebDriver driver, int timeoutInSeconds, String target, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl, Map<SearchFacetTable.TableComponent, By> map) throws TestException {
+    public SearchPage(WebDriver driver, int timeoutInSeconds, String target, String baseUrl, Map<SearchFacetTable.TableComponent, By> map) throws TestException {
         this.driver = driver;
         this.timeoutInSeconds = timeoutInSeconds;
-        this.phenotypePipelineDAO = phenotypePipelineDAO;
         this.baseUrl = baseUrl;
         this.map = map;
         wait = new WebDriverWait(driver, timeoutInSeconds);

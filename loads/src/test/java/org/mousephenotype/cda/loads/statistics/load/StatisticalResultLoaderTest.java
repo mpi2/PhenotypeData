@@ -11,7 +11,6 @@ import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -27,11 +26,8 @@ import java.sql.*;
 @Transactional
 public class StatisticalResultLoaderTest {
 
-
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private ApplicationContext context;
 
     @Autowired
     private DataSource cdaDataSource;

@@ -52,6 +52,13 @@ public class SqlUtils {
             s.setInt(index, var);
         }
     }
+    static public void setSqlParameter(PreparedStatement s, Long var, int index) throws SQLException {
+        if(var==null) {
+            s.setNull(index, Types.INTEGER);
+        } else {
+            s.setLong(index, var);
+        }
+    }
     static public void setSqlParameter(PreparedStatement s, String var, int index) throws SQLException {
         if(var==null) {
             s.setNull(index, java.sql.Types.VARCHAR);
@@ -458,7 +465,7 @@ public class SqlUtils {
         ds.setJdbcUrl(url);
         ds.setUsername(username);
         ds.setPassword(password);
-        ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
+//        ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
 
         ds.setConnectionInitSql("SELECT 1");
         ds.setMinimumIdle(INITIAL_POOL_CONNECTIONS);

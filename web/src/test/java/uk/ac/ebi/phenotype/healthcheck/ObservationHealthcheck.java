@@ -24,8 +24,10 @@ package uk.ac.ebi.phenotype.healthcheck;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.db.dao.ObservationDAO;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mousephenotype.cda.db.pojo.ObservationMissingNotMissingCount;
+import org.mousephenotype.cda.db.pojo.ObservationMissingOntologyTerm;
+import org.mousephenotype.cda.db.repositories.ObservationMissingNotMissingCountRepository;
+import org.mousephenotype.cda.db.repositories.ObservationMissingOntologyTermRepository;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -69,8 +71,8 @@ public class ObservationHealthcheck {
 
     private final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
 
-    @Autowired
-    ObservationDAO observationDAO;
+    private ObservationMissingOntologyTermRepository observationMissingOntologyTermRepository;
+    private ObservationMissingNotMissingCountRepository observationMissingNotMissingCountRepository;
 
 
     /**
@@ -80,25 +82,29 @@ public class ObservationHealthcheck {
      * @throws SQLException
      */
     @Test
-    public void testMissingIsZero() throws SQLException {
-        String testName = "testMissingIsZero";
+    public void ObservationIsNotMissingAndParameterStatusAndParameterStatusMessageAreEmpty() {
+        String testName = "testObservationIsNotMissingAndParameterStatusAndParameterStatusMessageAreEmpty";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Date start = new Date();
-        List<String[]> data = observationDAO.getNotMissingNotEmpty();
+
         System.out.println(dateFormat.format(start) + ": " + testName + " started.");
+
+        List<ObservationMissingNotMissingCount> data = observationMissingNotMissingCountRepository.getObservationIsNotMissingAndParameterStatusAndParameterStatusMessageAreEmpty();
         if ( ! data.isEmpty()) {
-            System.out.println("WARNING: there were " + data.size() + " parameter values for not-missing data");
-            System.out.printf("%10s %10s %15s %20s %-50s %-100s\n", "missing", "count", "organisation_id", "observation_type", "parameter_status", "parameter_status_message");
-            for (String[] s : data) {
-                System.out.printf("%10s %10s %15s %20s %-50s %-100s\n", s[0], s[1], s[2], s[3], s[4], s[5]);
-            }
-            fail("There were parameter values for not-missing data");
+            String format = "%10s %10s %15s %20s %-50s %-100s\n";
+            System.out.println("WARNING: there are observations that are missing but that have no parameter_status or parameter_status_message values:");
+            System.out.printf(format, "missing", "count", "organisation_id", "observation_type", "parameter_status", "parameter_status_message");
+            data
+                    .stream()
+                    .map(d -> System.out.printf(format, d.getMissing(), d.getCount(), d.getOrganisationId(), d.getObservationType(), d.getParameterStatus(), d.getParameterStatusMessage()));
+            fail("There were parameter status values for not-missing data");
         } else {
             System.out.println("SUCCESS: " + testName);
         }
     }
 
     /**
+     *
      * When <code>missing</code> is one, <code>parameter_status</code> should
      * contain a controlled vocabulary message, taken from the <code>ontology_term</code>
      * table, describing the reason the data is missing. This field must not be
@@ -107,20 +113,23 @@ public class ObservationHealthcheck {
      * @throws SQLException
      */
     @Test
-    public void testMissingIsOne() throws SQLException {
-        String testName = "testMissingIsOne";
+    public void testObservationIsMissingAndParameterStatusIsNotEmpty() {
+        String testName = "testObservationIsMissingAndParameterStatusIsNotEmpty";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Date start = new Date();
-        List<String[]> data = observationDAO.getMissingEmpty();
+
         System.out.println(dateFormat.format(start) + ": " + testName + " started.");
+
+        List<ObservationMissingNotMissingCount> data = observationMissingNotMissingCountRepository.getObservationIsMissingAndParameterStatusIsNotEmpty();
         if ( ! data.isEmpty()) {
-            System.out.println("WARNING: there were null/empty parameter values for missing data:");
-            System.out.printf("%10s %10s %15s %20s %-50s %-100s\n", "missing", "count", "organisation_id", "observation_type", "parameter_status", "parameter_status_message");
-            for (String[] s : data) {
-                System.out.printf("%10s %10s %15s %20s %-50s %-100s\n", s[0], s[1], s[2], s[3], s[4], s[5]);
+            String format = "%10s %10s %15s %20s %-50s %-100s\n";
+            System.out.println("WARNING: there are observations that are not missing but that have non-empty parameter_status values:");
+            System.out.printf(format, "missing", "count", "organisation_id", "observation_type", "parameter_status", "parameter_status_message");
+            data
+                    .stream()
+                    .map(d -> System.out.printf(format, d.getMissing(), d.getCount(), d.getOrganisationId(), d.getObservationType(), d.getParameterStatus(), d.getParameterStatusMessage()));
             }
-            System.out.println("WARNING: There were null/empty parameter values for missing data");
-        } else {
+        else {
             System.out.println("SUCCESS: " + testName);
         }
     }
@@ -132,20 +141,23 @@ public class ObservationHealthcheck {
      * @throws SQLException
      */
     @Test
-    public void testMissingParameterStatusFromOntologyTerm() throws SQLException {
+    public void testMissingParameterStatusFromOntologyTerm() {
         String testName = "testMissingParameterStatusFromOntologyTerm";
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Date start = new Date();
-        List<String[]> data = observationDAO.getMissingOntologyTerms();
+
         System.out.println(dateFormat.format(start) + ": " + testName + " started.");
+
+        List<ObservationMissingOntologyTerm> data = observationMissingOntologyTermRepository.getParameterStatusMissingFromOntologyTerms();
         if ( ! data.isEmpty()) {
+            String format = "%50s %10s %15s %20s\n";
             System.out.println("WARNING: there are ontology.parameter_status terms that do not exist in ontology_term.acc:");
-            System.out.printf("%50s %10s %15s %20s\n", "parameter_status", "acc", "organisation_id", "observation_type");
-            for (String[] s : data) {
-                System.out.printf("%50s %10s %15s %20s\n", s[0], s[1], s[2], s[3]);
-            }
-            System.out.println("WARNING: There are ontology.parameter_status terms that do not exist in ontology_term.acc");
-        } else {
+            System.out.printf(format, "parameter_status", "acc", "organisation_id", "observation_type");
+            data
+                    .stream()
+                    .map(d -> System.out.printf(format, d.getParameterStatus(), d.getAcc(), d.getOrganisationId(), d.getObservationType()));
+        }
+        else {
             System.out.println("SUCCESS: " + testName);
         }
     }

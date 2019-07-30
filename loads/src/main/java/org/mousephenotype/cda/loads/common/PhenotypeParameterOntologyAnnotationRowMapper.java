@@ -41,11 +41,11 @@ public class PhenotypeParameterOntologyAnnotationRowMapper implements RowMapper<
     public PhenotypeParameterOntologyAnnotation mapRow(ResultSet rs, int rowNum) throws SQLException {
         PhenotypeParameterOntologyAnnotation row = new PhenotypeParameterOntologyAnnotation();
 
-        row.setId(rs.getInt("id"));
+        row.setId(rs.getLong("id"));
         row.setEventType(rs.getString("event_type"));
         row.setOptionId(rs.getInt("option_id"));
         row.setOntologyAcc(rs.getString("ontology_acc"));
-        row.setOntologyDbId(rs.getInt("ontology_db_id"));
+        row.setOntologyDbId(rs.getLong("ontology_db_id"));
         row.setSex(rs.getString("sex"));
 
         return row;

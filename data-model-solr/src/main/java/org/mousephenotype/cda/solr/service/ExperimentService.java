@@ -51,17 +51,17 @@ public class ExperimentService{
 
     private ObservationService       observationService;
     private StatisticalResultService statisticalResultService;
-    private PostQcService            postQcService;
+    private GenotypePhenotypeService genotypePhenotypeService;
 
     @Inject
     public ExperimentService(
             ObservationService observationService,
             StatisticalResultService statisticalResultService,
-            PostQcService postQcService)
+            GenotypePhenotypeService genotypePhenotypeService)
     {
         this.observationService = observationService;
         this.statisticalResultService = statisticalResultService;
-        this.postQcService = postQcService;
+        this.genotypePhenotypeService = genotypePhenotypeService;
     }
 
     public ExperimentService() {
@@ -592,8 +592,8 @@ public class ExperimentService{
         experiment.setStatisticalResultUrl(ebiMappedSolrUrl + "/statistical-result/select?" + statisticalResultService.buildQuery(acc, null, null, phenotypingCenters, null, null, null, null, null,
             null, zyList, strain, parameterStableId, pipelineStableId, metadataGroup, alleleAccession));
 
-        experiment.setGenotypePhenotypeUrl(ebiMappedSolrUrl  + "/genotype-phenotype/select?" + postQcService.buildQuery(acc, null, null, phenotypingCenters, null, null, null, null, null,
-                null, zyList, strain, parameterStableId, pipelineStableId, null, alleleAccession));
+        experiment.setGenotypePhenotypeUrl(ebiMappedSolrUrl  + "/genotype-phenotype/select?" + genotypePhenotypeService.buildQuery(acc, null, null, phenotypingCenters, null, null, null, null, null,
+                                                                                                                                   null, zyList, strain, parameterStableId, pipelineStableId, null, alleleAccession));
 
         String experimentRawDataUrl = "/exportraw?";
         if (phenotypingCenter != null ) { experimentRawDataUrl += "phenotyping_center=" + phenotypingCenter + "&";}

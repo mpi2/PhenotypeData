@@ -30,7 +30,7 @@ public class StatisticalResult {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    protected Integer id;
+    protected Long id;
 
     @OneToOne
     @JoinColumn(name = "control_id")
@@ -110,11 +110,11 @@ public class StatisticalResult {
     @Transient
     private ZygosityType zygosityType;
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

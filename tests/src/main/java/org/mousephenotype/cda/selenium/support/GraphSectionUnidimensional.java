@@ -16,7 +16,6 @@
 
 package org.mousephenotype.cda.selenium.support;
 
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.selenium.exception.TestException;
 import org.mousephenotype.cda.utilities.RunStatus;
@@ -71,15 +70,14 @@ public class GraphSectionUnidimensional extends GraphSection {
      *
      * @param driver <code>WebDriver</code> instance
      * @param wait <code>WebDriverWait</code> instance
-     * @param phenotypePipelineDAO <code>PhenotypePipelineDAO</code> instance
      * @param graphUrl the graph url
      * @param chartElement <code>WebElement</code> pointing to the HTML
      *                     div.chart element of the unidimensional chart section.
      *
      * @throws TestException
      */
-    public GraphSectionUnidimensional(WebDriver driver, WebDriverWait wait, PhenotypePipelineDAO phenotypePipelineDAO, String graphUrl, WebElement chartElement) throws TestException {
-        super(driver, wait, phenotypePipelineDAO, graphUrl, chartElement);
+    public GraphSectionUnidimensional(WebDriver driver, WebDriverWait wait, String graphUrl, WebElement chartElement) throws TestException {
+        super(driver, wait, graphUrl, chartElement);
     }
 
     @Override

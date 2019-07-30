@@ -2,27 +2,28 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.mousephenotype.cda.db.dao.*;
+import org.mousephenotype.cda.db.repositories.GenesSecondaryProjectRepository;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
+import org.mousephenotype.cda.db.repositories.ParameterRepository;
 import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
+import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.ImpressService;
-import org.mousephenotype.cda.solr.service.PostQcService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
-import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
 
-import javax.persistence.EntityManagerFactory;
+import javax.inject.Inject;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 
 /**
  * TestConfig sets up the in memory database for supporting the database tests.
@@ -30,6 +31,7 @@ import javax.sql.DataSource;
  */
 @Configuration
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
+@EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
 public class IndexersTestConfig {
 
 
@@ -38,6 +40,23 @@ public class IndexersTestConfig {
 
     @Value("${internal_solr_url}")
     private String internalSolrUrl;
+
+
+    private GenesSecondaryProjectRepository genesSecondaryProjectRepository;
+    private OntologyTermRepository          ontologyTermRepository;
+    private ParameterRepository             parameterRepository;
+
+
+    @Inject
+    public IndexersTestConfig(
+            @NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository,
+            @NotNull OntologyTermRepository ontologyTermRepository,
+            @NotNull ParameterRepository parameterRepository)
+    {
+        this.genesSecondaryProjectRepository = genesSecondaryProjectRepository;
+        this.ontologyTermRepository = ontologyTermRepository;
+        this.parameterRepository = parameterRepository;
+    }
 
 
     //////////////
@@ -160,31 +179,6 @@ public class IndexersTestConfig {
     }
 
 
-    ///////
-    // DAOs
-    ///////
-
-    @Bean
-    public DatasourceDAO datasourceDAO() {
-        return new DatasourceDAOImpl();
-    }
-
-    @Bean
-    public OntologyTermDAO ontologyTermDAO() {
-        return new OntologyTermDAOImpl();
-    }
-
-    @Bean
-    public PhenotypePipelineDAO pipelineDAO() {
-        return new PhenotypePipelineDAOImpl();
-    }
-
-    @Bean
-    public SecondaryProjectDAO secondaryProjectDAO() {
-        return new SecondaryProjectDAOImpl();
-    }
-
-
     ///////////
     // SERVICES
     ///////////
@@ -196,12 +190,12 @@ public class IndexersTestConfig {
 
     @Bean
     public MpTermService mpTermService() {
-        return new MpTermService(ontologyTermDAO(), pipelineDAO());
+        return new MpTermService(ontologyTermRepository, parameterRepository);
     }
 
     @Bean
-    public PostQcService postqcService() {
-        return new PostQcService(genotypePhenotypeCore(), secondaryProjectDAO());
+    public GenotypePhenotypeService genotypePhenotypeService() {
+        return new GenotypePhenotypeService(impressService(), genotypePhenotypeCore(), genesSecondaryProjectRepository);
     }
 
 
@@ -215,22 +209,22 @@ public class IndexersTestConfig {
     @Bean
     public SolrOperations solrTemplate() { return new SolrTemplate(solrClient()); }
 
-    @Bean(name = "sessionFactoryHibernate")
-    protected LocalSessionFactoryBean sessionFactory() {
-        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-        sessionFactory.setDataSource(komp2DataSource());
-        sessionFactory.setPackagesToScan("org.mousephenotype.cda.db");
-        return sessionFactory;
-    }
-
-    @Bean(name = "komp2TxManager")
-    @Primary
-    protected PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
-        JpaTransactionManager tm = new JpaTransactionManager();
-        tm.setEntityManagerFactory(emf);
-        tm.setDataSource(komp2DataSource());
-        return tm;
-    }
+//    @Bean(name = "sessionFactoryHibernate")
+//    protected LocalSessionFactoryBean sessionFactory() {
+//        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
+//        sessionFactory.setDataSource(komp2DataSource());
+//        sessionFactory.setPackagesToScan("org.mousephenotype.cda.db");
+//        return sessionFactory;
+//    }
+//
+//    @Bean(name = "komp2TxManager")
+//    @Primary
+//    protected PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
+//        JpaTransactionManager tm = new JpaTransactionManager();
+//        tm.setEntityManagerFactory(emf);
+//        tm.setDataSource(komp2DataSource());
+//        return tm;
+//    }
 
 
     ////////////////

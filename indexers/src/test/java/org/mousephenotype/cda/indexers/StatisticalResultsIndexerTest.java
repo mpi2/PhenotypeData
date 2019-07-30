@@ -1,12 +1,12 @@
 package org.mousephenotype.cda.indexers;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
-import org.mousephenotype.cda.solr.service.AbstractGenotypePhenotypeService;
+import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -453,7 +453,7 @@ public class StatisticalResultsIndexerTest implements ApplicationContextAware {
 
                 // PhenStat results
                 if (result.getStatus().equals("Success") && result.getNullTestPValue() != null) {
-                    if (result.getNullTestPValue() <= AbstractGenotypePhenotypeService.P_VALUE_THRESHOLD) {
+                    if (result.getNullTestPValue() <= GenotypePhenotypeService.P_VALUE_THRESHOLD) {
                         assert (result.getSignificant());
                     } else {
                         assert (!result.getSignificant());
@@ -462,7 +462,7 @@ public class StatisticalResultsIndexerTest implements ApplicationContextAware {
 
                 // Wilcoxon and fisher's exact results
                 if (result.getStatus().equals("Success") && result.getNullTestPValue() == null) {
-                    if (result.getpValue() <= AbstractGenotypePhenotypeService.P_VALUE_THRESHOLD) {
+                    if (result.getpValue() <= GenotypePhenotypeService.P_VALUE_THRESHOLD) {
                         assert (result.getSignificant());
                     } else {
                         assert (!result.getSignificant());

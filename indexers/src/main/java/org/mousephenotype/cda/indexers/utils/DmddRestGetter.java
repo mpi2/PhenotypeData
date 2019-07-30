@@ -6,7 +6,6 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -20,26 +19,19 @@ import java.util.stream.Stream;
  * @author jwarren
  *
  */
-//@Service
 public class DmddRestGetter {
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 	private String dmddFileName;
 
-public static void main(String [] args) throws JSONException {
-	
-	DmddRestGetter getter=new DmddRestGetter("/Users/jwarren/Documents/DMDD.txt");
-	getter.readEmbryoViewerFile();
-	DmddRestData data = getter.getEmbryoRestData();
-}
-	@Inject
+
 	public DmddRestGetter(String dmddFileName) {
 	    this.dmddFileName = dmddFileName;
     }
 
 	public DmddRestData getEmbryoRestData() throws JSONException {
 
-        
         String             content      = readEmbryoViewerFile();
         JSONObject         json         = new JSONObject(content);
         DmddRestData       dmddRestData =new DmddRestData();

@@ -24,8 +24,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -54,7 +54,7 @@ public class ZygosityReport extends AbstractReport {
     GeneService geneService;
 
     @Autowired
-    PostQcService postQcService;
+    GenotypePhenotypeService genotypePhenotypeService;
 
     @Autowired
     ObservationService observationService;
@@ -97,7 +97,7 @@ public class ZygosityReport extends AbstractReport {
         try {
 
             // Get the list of phenotype calls
-            List<GenotypePhenotypeDTO> gps = postQcService.getAllGenotypePhenotypes(resources);
+            List<GenotypePhenotypeDTO> gps = genotypePhenotypeService.getAllGenotypePhenotypes(resources);
 
             for (GenotypePhenotypeDTO gp : gps) {
 

@@ -10,17 +10,18 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.constants.ParameterConstants;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.pojo.PhenotypeAnnotationType;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
+import org.mousephenotype.cda.db.repositories.ParameterRepository;
 import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.db.statistics.ResultDTO;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
@@ -31,7 +32,7 @@ import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
-import org.mousephenotype.cda.solr.service.AbstractGenotypePhenotypeService;
+import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
@@ -42,13 +43,12 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -68,7 +68,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     private Boolean SAVE = Boolean.TRUE;
     private Map<String, List<String>> impressAbnormals = new HashMap<>();
 
-    private Double SIGNIFICANCE_THRESHOLD = AbstractGenotypePhenotypeService.P_VALUE_THRESHOLD;
+    private Double SIGNIFICANCE_THRESHOLD = GenotypePhenotypeService.P_VALUE_THRESHOLD;
     private final double REPORT_INTERVAL = 100000;
 
     static final String RESOURCE_3I = "3i";
@@ -76,52 +76,51 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     private final List<String> EMBRYO_PROCEDURES_NO_VIA = Arrays.asList("IMPC_GPL", "IMPC_GEL", "IMPC_GPM", "IMPC_GEM", "IMPC_GPO", "IMPC_GEO", "IMPC_GPP", "IMPC_GEP");
     private final List<String> EMBRYO_PROCEDURES_VIA = Arrays.asList("IMPC_EVL_001_001", "IMPC_EVM_001_001", "IMPC_EVO_001_001", "IMPC_EVP_001_001");
 
+    private   Map<Long, ImpressBaseDTO>     pipelineMap              = new HashMap<>();
+    private   Map<Long, ImpressBaseDTO>     procedureMap             = new HashMap<>();
+    private   Map<Long, ParameterDTO>       parameterMap             = new HashMap<>();
+    private   Map<String, ResourceBean>     resourceMap              = new HashMap<>();
+    private   Map<String, List<String>>     sexesMap                 = new HashMap<>();
+    private   Set<String>                   alreadyReported          = new HashSet<>();
+    private   Map<Long, BiologicalDataBean> biologicalDataMap        = new HashMap<>();
+    private   Map<String, Set<String>>      parameterMpTermMap       = new HashMap<>();
+    private   Map<String, String>           embryoSignificantResults = new HashMap<>();
+    protected Set<String>                   VIA_SIGNIFICANT          = new HashSet<>();
+    protected Set<String>                   MALE_FER_SIGNIFICANT     = new HashSet<>();
+    protected Set<String>                   FEMALE_FER_SIGNIFICANT   = new HashSet<>();
+    private   List<String>                  shouldHaveAdded          = new ArrayList<>();
 
-    @Autowired
-    @Qualifier("komp2DataSource")
-    private DataSource komp2DataSource;
-
-    @Autowired
-    @Qualifier("statisticalResultCore")
-    private SolrClient statisticalResultCore;
-
-    @Autowired
-    private PhenotypePipelineDAO phenotypePipelineDAO;
-
-    @Autowired
-    private MpTermService mpTermService;
-
-    private Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
-    private Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
-    private Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
-    private Map<String, ResourceBean> resourceMap = new HashMap<>();
-    private Map<String, List<String>> sexesMap = new HashMap<>();
-    private Set<String> alreadyReported = new HashSet<>();
-
-    private Map<Integer, BiologicalDataBean> biologicalDataMap = new HashMap<>();
-    private Map<String, Set<String>> parameterMpTermMap = new HashMap<>();
-
-    private Map<String, String> embryoSignificantResults = new HashMap<>();
-    protected Set<String> VIA_SIGNIFICANT = new HashSet<>();
-    protected Set<String> MALE_FER_SIGNIFICANT = new HashSet<>();
-    protected Set<String> FEMALE_FER_SIGNIFICANT = new HashSet<>();
-
-    private List<String> shouldHaveAdded = new ArrayList<>();
-
-    void setPipelineMap(Map<Integer, ImpressBaseDTO> pipelineMap) {
+    void setPipelineMap(Map<Long, ImpressBaseDTO> pipelineMap) {
         this.pipelineMap = pipelineMap;
     }
-    void setProcedureMap(Map<Integer, ImpressBaseDTO> procedureMap) {
+    void setProcedureMap(Map<Long, ImpressBaseDTO> procedureMap) {
         this.procedureMap = procedureMap;
     }
-    void setParameterMap(Map<Integer, ParameterDTO> parameterMap) {
+    void setParameterMap(Map<Long, ParameterDTO> parameterMap) {
         this.parameterMap = parameterMap;
     }
 
-    private OntologyParser mpParser;
-    private OntologyParser mpMaParser;
-    private OntologyParser maParser;
-    OntologyParserFactory ontologyParserFactory;
+    private OntologyParser        mpParser;
+    private OntologyParser        mpMaParser;
+    private OntologyParser        maParser;
+    private OntologyParserFactory ontologyParserFactory;
+
+    private MpTermService       mpTermService;
+    private ParameterRepository parameterRepository;
+    private SolrClient          statisticalResultCore;
+
+    public StatisticalResultsIndexer(
+            @NotNull DataSource komp2DataSource,
+            @NotNull OntologyTermRepository ontologyTermRepository,
+            @NotNull MpTermService mpTermService,
+            @NotNull ParameterRepository parameterRepository,
+            @NotNull SolrClient statisticalResultCore)
+    {
+        super(komp2DataSource, ontologyTermRepository);
+        this.mpTermService = mpTermService;
+        this.parameterRepository = parameterRepository;
+        this.statisticalResultCore = statisticalResultCore;
+    }
 
     public void setMpParser(OntologyParser mpParser) {
         this.mpParser = mpParser;
@@ -143,15 +142,12 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         this.ontologyParserFactory = ontologyParserFactory;
     }
 
+
     @Override
     public RunStatus validateBuild() throws IndexerException {
         return super.validateBuild(statisticalResultCore);
     }
 
-
-    public static void main(String[] args) throws IndexerException {
-        SpringApplication.run(StatisticalResultsIndexer.class, args);
-    }
 
 
     @Override
@@ -161,7 +157,6 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         RunStatus runStatus = new RunStatus();
 
         try {
-
             Connection connection = komp2DataSource.getConnection();
 
             synchronized(this) {
@@ -321,22 +316,22 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             doc.setResourceName(resourceMap.get(RESOURCE_3I).shortName);
             doc.setResourceFullname(resourceMap.get(RESOURCE_3I).name);
         } else {
-            doc.setResourceId(r.getInt("resource_id"));
+            doc.setResourceId(r.getLong("resource_id"));
             doc.setResourceName(r.getString("resource_name"));
             doc.setResourceFullname(r.getString("resource_fullname"));
         }
 
-        doc.setProjectId(r.getInt("project_id"));
+        doc.setProjectId(r.getLong("project_id"));
         doc.setProjectName(r.getString("project_name"));
         doc.setPhenotypingCenter(r.getString("phenotyping_center"));
-        doc.setControlBiologicalModelId(r.getInt("control_id"));
-        doc.setMutantBiologicalModelId(r.getInt("experimental_id"));
+        doc.setControlBiologicalModelId(r.getLong("control_id"));
+        doc.setMutantBiologicalModelId(r.getLong("experimental_id"));
         doc.setZygosity(r.getString("experimental_zygosity"));
         doc.setDependentVariable(r.getString("dependent_variable"));
-        doc.setExternalDbId(r.getInt("external_db_id"));
-        doc.setDbId(r.getInt("db_id"));
-        doc.setOrganisationId(r.getInt("organisation_id"));
-        doc.setPhenotypingCenterId(r.getInt("phenotyping_center_id"));
+        doc.setExternalDbId(r.getLong("external_db_id"));
+        doc.setDbId(r.getLong("db_id"));
+        doc.setOrganisationId(r.getLong("organisation_id"));
+        doc.setPhenotypingCenterId(r.getLong("phenotyping_center_id"));
 
         doc.setControlSelectionMethod(r.getString("control_selection_strategy"));
         doc.setStatisticalMethod(r.getString("statistical_method"));
@@ -407,18 +402,18 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
         doc.setDocId(docId);
         doc.setDataType(r.getString("data_type"));
-        doc.setResourceId(r.getInt("resource_id"));
+        doc.setResourceId(r.getLong("resource_id"));
         doc.setResourceName(r.getString("resource_name"));
         doc.setResourceFullname(r.getString("resource_fullname"));
-        doc.setProjectId(r.getInt("project_id"));
+        doc.setProjectId(r.getLong("project_id"));
         doc.setProjectName(r.getString("project_name"));
         doc.setPhenotypingCenter(r.getString("phenotyping_center"));
-        doc.setMutantBiologicalModelId(r.getInt("biological_model_id"));
+        doc.setMutantBiologicalModelId(r.getLong("biological_model_id"));
         doc.setZygosity(r.getString("experimental_zygosity"));
         doc.setDependentVariable(r.getString("dependent_variable"));
-        doc.setExternalDbId(r.getInt("external_db_id"));
-        doc.setDbId(r.getInt("db_id"));
-        doc.setPhenotypingCenterId(r.getInt("phenotyping_center_id"));
+        doc.setExternalDbId(r.getLong("external_db_id"));
+        doc.setDbId(r.getLong("db_id"));
+        doc.setPhenotypingCenterId(r.getLong("phenotyping_center_id"));
 
         doc.setStatisticalMethod("Supplied as data");
         doc.setColonyId(r.getString("colony_id"));
@@ -663,9 +658,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
         ResultDTO result = new ResultDTO();
         try {
-            result.setPipelineId(resultSet.getInt("pipeline_id"));
-            result.setProcedureId(resultSet.getInt("procedure_id"));
-            result.setParameterId(resultSet.getInt("parameter_id"));
+            result.setPipelineId(resultSet.getLong("pipeline_id"));
+            result.setProcedureId(resultSet.getLong("procedure_id"));
+            result.setParameterId(resultSet.getLong("parameter_id"));
             result.setParameterStableId(resultSet.getString("dependent_variable"));
 
             result.setNullTestPvalue(resultSet.getDouble("categorical_p_value"));
@@ -753,7 +748,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                     // Lookup and cache the impress object corresponding to the parameter in question
                     if (!impressAbnormals.containsKey(doc.getParameterStableId())) {
 
-                        Parameter parameter = phenotypePipelineDAO.getParameterByStableId(doc.getParameterStableId());
+                        Parameter parameter = parameterRepository.getByStableId(doc.getParameterStableId());
 
                         List<String> abnormalMpIds = parameter.getAnnotations()
                                 .stream()
@@ -878,7 +873,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     }
 
 
-    private void addBiologicalData(StatisticalResultDTO doc, Integer biologicalModelId) {
+    private void addBiologicalData(StatisticalResultDTO doc, Long biologicalModelId) {
 
         BiologicalDataBean b = biologicalDataMap.get(biologicalModelId);
 
@@ -940,7 +935,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 b.strainName = resultSet.getString("strain_name");
                 b.geneticBackground = resultSet.getString("genetic_background");
 
-                biologicalDataMap.put(resultSet.getInt("id"), b);
+                biologicalDataMap.put(resultSet.getLong("id"), b);
             }
         }
         logger.info(" Mapped {} biological data entries", biologicalDataMap.size());
@@ -965,7 +960,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
             while (resultSet.next()) {
                 ResourceBean b = new ResourceBean();
-                b.id = resultSet.getInt("id");
+                b.id = resultSet.getLong("id");
                 b.name = resultSet.getString("name");
                 b.shortName = resultSet.getString("short_name");
                 resourceMap.put(resultSet.getString("short_name"), b);
@@ -1082,9 +1077,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             }
 
             logger.info(" Mapped {} {} significant data entries", sq.set.size(), sq.label);
-
         }
-
     }
 
     void populateParameterMpTermMap() throws SQLException {
@@ -1115,7 +1108,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     }
 
     class ResourceBean {
-        Integer id;
+        Long id;
         String name;
         String shortName;
 
@@ -1965,4 +1958,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     }
 
 
+    public static void main(String[] args) throws IndexerException {
+        SpringApplication.run(StatisticalResultsIndexer.class, args);
+    }
 }

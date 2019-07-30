@@ -15,8 +15,6 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.exporter.Exporter;
@@ -27,6 +25,8 @@ import org.mousephenotype.cda.utilities.DisplayPager;
 import org.mousephenotype.cda.utilities.DisplaySorter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -100,7 +100,7 @@ public class PublicationController implements Exportable<Publication> {
             @RequestParam(value = "doAlleleRef", required = false) String params,
             HttpServletRequest request,
             HttpServletResponse response,
-            Model model) {
+            Model model) throws JSONException {
         System.out.println("alleleref params: " + params);
 
         PublicationFetcher publicationFetcher = buildPublicationFetcher(request, params);
@@ -132,10 +132,10 @@ public class PublicationController implements Exportable<Publication> {
     // PRIVATE METHODS
 
 
-    private PublicationFetcher buildPublicationFetcher(HttpServletRequest request, String params) {
-        JSONObject jParams = (JSONObject) JSONSerializer.toJSON(params);
+    private PublicationFetcher buildPublicationFetcher(HttpServletRequest request, String params) throws JSONException {
+        JSONObject jParams = new JSONObject(params);
 
-        String agency = jParams.containsKey("kw") ? jParams.getString("kw") : null;
+        String agency = jParams.has("kw") ? jParams.getString("kw") : null;
         String filter = request.getParameter("sSearch");
         String publicationTypeName = jParams.getString("id");
 
@@ -180,7 +180,7 @@ public class PublicationController implements Exportable<Publication> {
         return responseHeaders;
     }
 
-    private String fetchPublicationContent(PublicationFetcher publicationFetcher) {
+    private String fetchPublicationContent(PublicationFetcher publicationFetcher) throws JSONException {
 
         final int DISPLAY_THRESHOLD = 5;
 
@@ -290,7 +290,7 @@ public class PublicationController implements Exportable<Publication> {
             rowData2.add("<div class='innerData'>" + inOneRow + "</div>");
             rowData = rowData2;
 
-            j.getJSONArray("aaData").add(rowData);
+            j.getJSONArray("aaData").put(rowData);
 
         }
 

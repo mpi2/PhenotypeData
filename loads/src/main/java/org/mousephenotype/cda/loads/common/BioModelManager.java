@@ -49,7 +49,7 @@ public class BioModelManager {
     private DccSqlUtils  dccSqlUtils;
 
     private static Map<String, Allele>           allelesBySymbolMap;
-    private static Map<BioModelKey, Integer>     bioModelPkMap;          // key is BioModelKey key. Value is biological model primary key.
+    private static Map<BioModelKey, Long>        bioModelPkMap;          // key is BioModelKey key. Value is biological model primary key.
     private static Map<String, GenomicFeature>   genesByAccMap;
     private static Map<String, PhenotypedColony> phenotypedColonyMap;
     private static Map<String, Strain>           strainsByNameOrMgiAccessionIdMap;
@@ -70,7 +70,7 @@ public class BioModelManager {
      *
      * @return the biological model primary key if found; null otherwise.
      */
-    public synchronized Integer getBiologicalModelPk(BioModelKey bioModelKey) {
+    public synchronized Long getBiologicalModelPk(BioModelKey bioModelKey) {
 
         return bioModelPkMap.get(bioModelKey);
     }
@@ -78,15 +78,15 @@ public class BioModelManager {
 
 
 
-    public synchronized int insertMutantIfMissing(SpecimenExtended specimenExtended, String zygosity,
-                                                   int dbId, int biologicalSamplePk,
-                                                   int phenotypingCenterPk) throws DataLoadException
+    public synchronized Long insertMutantIfMissing(SpecimenExtended specimenExtended, String zygosity,
+                                                  Long dbId, Long biologicalSamplePk,
+                                                  Long phenotypingCenterPk) throws DataLoadException
     {
 
         Specimen specimen = specimenExtended.getSpecimen();
 
         BioModelKey key = createMutantKey(specimenExtended.getDatasourceShortName(), specimen.getColonyID(), zygosity);
-        Integer     biologicalModelPk = getBiologicalModelPk(key);
+        Long biologicalModelPk = getBiologicalModelPk(key);
         if (biologicalModelPk == null) {
             biologicalModelPk = insert(dbId, biologicalSamplePk, phenotypingCenterPk, specimenExtended);
         } else {
@@ -97,14 +97,14 @@ public class BioModelManager {
         return biologicalModelPk;
     }
 
-    public synchronized int insertControlIfMissing(SpecimenExtended specimenExtended, int dbId, int biologicalSamplePk,
-                                    int phenotypingCenterPk) throws DataLoadException
+    public synchronized Long insertControlIfMissing(SpecimenExtended specimenExtended, Long dbId, Long biologicalSamplePk,
+                                    Long phenotypingCenterPk) throws DataLoadException
     {
 
         Specimen specimen = specimenExtended.getSpecimen();
 
         BioModelKey key               = createControlKey(specimenExtended.getDatasourceShortName(), specimen.getStrainID());
-        Integer     biologicalModelPk = getBiologicalModelPk(key);
+        Long     biologicalModelPk = getBiologicalModelPk(key);
         if (biologicalModelPk == null) {
             biologicalModelPk = insert(dbId, biologicalSamplePk, phenotypingCenterPk, specimenExtended);
         } else {
@@ -116,10 +116,10 @@ public class BioModelManager {
     }
 
 
-    public synchronized int insertLineIfMissing(String zygosity, int dbId, int phenotypingCenterPk, DccExperimentDTO lineExperiment) throws DataLoadException
+    public synchronized long insertLineIfMissing(String zygosity, long dbId, long phenotypingCenterPk, DccExperimentDTO lineExperiment) throws DataLoadException
     {
         BioModelKey key               = createMutantKey(lineExperiment.getDatasourceShortName(), lineExperiment.getColonyId(), zygosity);
-        Integer     biologicalModelPk = getBiologicalModelPk(key);
+        Long     biologicalModelPk = getBiologicalModelPk(key);
 
         if (biologicalModelPk == null) {
             biologicalModelPk = insert(dbId, lineExperiment);
@@ -198,7 +198,7 @@ public class BioModelManager {
         return allelesBySymbolMap;
     }
 
-    public Map<BioModelKey, Integer> getBioModelPkMap() {
+    public Map<BioModelKey, Long> getBioModelPkMap() {
         return bioModelPkMap;
     }
 
@@ -243,9 +243,9 @@ public class BioModelManager {
      * @return the biological_model primary key of the newly inserted record.
      * @throws DataLoadException
      */
-    private int insert(int dbId, int biologicalSamplePk, int phenotypingCenterPk, SpecimenExtended specimenExtended) throws DataLoadException {
+    private Long insert(Long dbId, Long biologicalSamplePk, Long phenotypingCenterPk, SpecimenExtended specimenExtended) throws DataLoadException {
 
-        int    biologicalModelPk;
+        Long   biologicalModelPk;
         String datasourceShortName = specimenExtended.getDatasourceShortName();
         String zygosity;
 
@@ -276,7 +276,7 @@ public class BioModelManager {
      *
      * @throws DataLoadException
      */
-    private int insert(int dbId, DccExperimentDTO lineExperiment) throws DataLoadException {
+    private long insert(long dbId, DccExperimentDTO lineExperiment) throws DataLoadException {
 
         String datasourceShortName = lineExperiment.getDatasourceShortName();
 
@@ -288,10 +288,10 @@ public class BioModelManager {
     }
 
 
-    private int insertMutant(int dbId, Integer biologicalSamplePk, String datasourceShortName,
+    private long insertMutant(long dbId, Long biologicalSamplePk, String datasourceShortName,
                              String colonyId, String zygosity) throws DataLoadException {
 
-        int    biologicalModelPk;
+        long   biologicalModelPk;
         String message;
 
         PhenotypedColony colony = phenotypedColonyMap.get(colonyId);
@@ -323,11 +323,11 @@ public class BioModelManager {
         return biologicalModelPk;
     }
 
-    private int insertControl(int dbId, int biologicalSamplePk, String datasourceShortName, String strainName) throws DataLoadException {
+    private Long insertControl(Long dbId, Long biologicalSamplePk, String datasourceShortName, String strainName) throws DataLoadException {
 
         String allelicComposition = "";
         String zygosity           = ZygosityType.homozygote.getName();
-        int    biologicalModelPk;
+        Long   biologicalModelPk;
 
         Strain strain = strainsByNameOrMgiAccessionIdMap.get(strainName);
         AccDbId strainAcc = new AccDbId(strain.getId().getAccession(), strain.getId().getDatabaseId());

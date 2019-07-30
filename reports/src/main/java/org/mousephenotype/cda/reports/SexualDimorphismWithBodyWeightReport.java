@@ -29,6 +29,7 @@ import org.springframework.stereotype.Component;
 import javax.validation.constraints.NotNull;
 import java.beans.Introspector;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -74,9 +75,9 @@ public class SexualDimorphismWithBodyWeightReport extends AbstractReport {
 
         long start = System.currentTimeMillis();
 
-        List<String[]> result;
+        List<String[]> result = new ArrayList<>();
         try {
-            result = sexualDimorphismDAO.sexualDimorphismReportWithBodyWeight(cmsBaseUrl);
+//            result = sexualDimorphismDAO.sexualDimorphismReportWithBodyWeight(cmsBaseUrl);
         } catch (Exception e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }

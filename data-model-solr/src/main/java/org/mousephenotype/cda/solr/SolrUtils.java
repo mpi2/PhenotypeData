@@ -271,7 +271,7 @@ public class SolrUtils {
             for (AlleleDTO allele : alleleList) {
                 String key = allele.getMgiAccessionId();
                 if ( ! alleles.containsKey(key)) {
-                    alleles.put(key, new ArrayList<AlleleDTO>());
+                    alleles.put(key, new ArrayList<>());
                 }
                 alleles.get(key).add(allele);
             }

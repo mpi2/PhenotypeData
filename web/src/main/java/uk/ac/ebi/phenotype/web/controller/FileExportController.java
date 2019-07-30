@@ -16,17 +16,15 @@
 
 package uk.ac.ebi.phenotype.web.controller;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.constants.Constants;
-import org.mousephenotype.cda.db.dao.AlleleDAO;
-import org.mousephenotype.cda.db.dao.StrainDAO;
 import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.db.pojo.Strain;
+import org.mousephenotype.cda.db.repositories.AlleleRepository;
+import org.mousephenotype.cda.db.repositories.StrainRepository;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
@@ -43,6 +41,9 @@ import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -56,7 +57,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.sql.SQLException;
@@ -87,13 +87,13 @@ public class FileExportController {
 	private Map<String, String> config;
 
 	@NotNull @Autowired
-	private StrainDAO strainDAO;
-
-	@NotNull @Autowired
-	private AlleleDAO alleleDAO;
-
-	@NotNull @Autowired
 	private SolrUtilsWeb solrUtilsWeb;
+
+	@NotNull @Autowired
+	private AlleleRepository alleleRepository;
+
+	@NotNull @Autowired
+	private StrainRepository strainRepository;
 
 
 	private String hostName;
@@ -132,15 +132,15 @@ public class FileExportController {
 		if (alleleAccession!=null) {
 			alleleAccessionId = alleleAccession;
 		}
-		Allele allele = alleleDAO.getAlleleByAccession(alleleAccessionId);
+
+		Allele allele = alleleRepository.getById_Accession(alleleAccessionId);
 		String sex = (sexesParameter != null && sexesParameter.length > 1) ? SexType.valueOf(sexesParameter[0]).getName() : "null";
-		List<String> zygosities = (zygositiesParameter == null) ? null : Arrays.asList(zygositiesParameter);
 		String geneAcc = allele.getGene().getId().getAccession();
 		String alleleAcc = allele.getId().getAccession();
 
 		String strainAccession = null;
 		if (strainParameter != null) {
-			Strain s = strainDAO.getStrainByName(strainParameter);
+			Strain s = strainRepository.getStrainByName(strainParameter);
 			if (s != null) {
 				strainAccession = s.getId().getAccession();
 			}
@@ -387,7 +387,7 @@ public class FileExportController {
 
 	public List<String> composeDataTableExportRows(String query, String solrCoreName, JSONObject json,
 												   Integer iDisplayStart, Integer iDisplayLength, boolean showImgView, String solrParams,
-												   HttpServletRequest request, boolean legacyOnly, String fqStr) throws IOException, URISyntaxException {
+												   HttpServletRequest request, boolean legacyOnly, String fqStr) throws IOException, URISyntaxException, JSONException {
 		List<String> rows = null;
 
 		if (solrCoreName.equals("gene")) {
@@ -413,7 +413,7 @@ public class FileExportController {
 	}
 
 
-	private List<String> composeProtocolDataTableRows(JSONObject json, HttpServletRequest request) {
+	private List<String> composeProtocolDataTableRows(JSONObject json, HttpServletRequest request) throws JSONException {
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
 		String impressBaseUrl = request.getAttribute("cmsBaseUrl").toString().replace("https", "http")
@@ -423,7 +423,7 @@ public class FileExportController {
 		rowData.add("Parameter\tProcedure\tProcedure Impress link\tPipeline"); // column
 		// names
 
-		for (int i = 0; i < docs.size(); i++) {
+		for (int i = 0; i < docs.length(); i++) {
 			List<String> data = new ArrayList<>();
 			JSONObject doc = docs.getJSONObject(i);
 			data.add(doc.getString("parameter_name"));
@@ -432,20 +432,13 @@ public class FileExportController {
 			JSONArray procedure_stable_keys = doc.getJSONArray("procedure_stable_key");
 
 			List<String> procedureLinks = new ArrayList<String>();
-			for (int p = 0; p < procedures.size(); p++) {
+			for (int p = 0; p < procedures.length(); p++) {
 				// String procedure = procedures.get(p).toString();
 				String procedure_stable_key = procedure_stable_keys.get(p).toString();
 				procedureLinks.add(impressBaseUrl + procedure_stable_key);
 			}
 
-			// String procedure = doc.getString("procedure_name");
-			// data.add(procedure);
 			data.add(StringUtils.join(procedures, "|"));
-
-			// String procedure_stable_key =
-			// doc.getString("procedure_stable_key");
-			// String procedureLink = impressBaseUrl + procedure_stable_key;
-			// data.add(procedureLink);
 			data.add(StringUtils.join(procedureLinks, "|"));
 
 			data.add(doc.getString("pipeline_name"));
@@ -455,7 +448,7 @@ public class FileExportController {
 	}
 
 	private List<String> composeImageDataTableRows(String query, JSONObject json, Integer iDisplayStart,
-												   Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request) {
+												   Integer iDisplayLength, boolean showImgView, String solrParams, HttpServletRequest request) throws JSONException {
 		// System.out.println("query: "+ query + " -- "+ solrParams);
 
 		String mediaBaseUrl = config.get("mediaBaseUrl").replace("https:", "http:");
@@ -472,7 +465,7 @@ public class FileExportController {
 			rowData.add("Annotation term\tAnnotation id\tAnnotation id link\tImage link"); // column
 			// names
 
-			for (int i = 0; i < docs.size(); i++) {
+			for (int i = 0; i < docs.length(); i++) {
 
 				JSONObject doc = docs.getJSONObject(i);
 
@@ -489,7 +482,7 @@ public class FileExportController {
 
 						if (fld.equals("expName")) {
 
-							for (int l = 0; l < list.size(); l++) {
+							for (int l = 0; l < list.length(); l++) {
 								String value = list.getString(l);
 
 								termLists.add("Procedure:" + value);
@@ -499,12 +492,12 @@ public class FileExportController {
 						}
 						else if (fld.equals("annotationTermId")) {
 
-							JSONArray termList = doc.containsKey("annotationTermName")
+							JSONArray termList = doc.has("annotationTermName")
 									? doc.getJSONArray("annotationTermName") : new JSONArray();
 
-							for (int l = 0; l < list.size(); l++) {
+							for (int l = 0; l < list.length(); l++) {
 								String value = list.getString(l);
-								String termVal = termList.size() == 0 ? Constants.NO_INFORMATION_AVAILABLE : termList.getString(l);
+								String termVal = termList.length() == 0 ? Constants.NO_INFORMATION_AVAILABLE : termList.getString(l);
 
 								if (value.startsWith("MP:")) {
 									link_lists.add(hostName + mpBaseUrl + value);
@@ -525,7 +518,7 @@ public class FileExportController {
 						}
 						else if (fld.equals("symbol_gene")) {
 							// gene symbol and its link
-							for (int l = 0; l < list.size(); l++) {
+							for (int l = 0; l < list.length(); l++) {
 								String[] parts = list.getString(l).split("_");
 								String symbol = parts[0];
 								String mgiId = parts[1];
@@ -556,7 +549,7 @@ public class FileExportController {
 
 			JSONArray sumFacets = solrIndex.mergeFacets(facetFields);
 
-			int numFacets = sumFacets.size();
+			int numFacets = sumFacets.length();
 			int quotient = (numFacets / 2) / iDisplayLength - ((numFacets / 2) % iDisplayLength) / iDisplayLength;
 			int remainder = (numFacets / 2) % iDisplayLength;
 			int start = iDisplayStart * 2; // 2 elements(name, count), hence
@@ -604,7 +597,7 @@ public class FileExportController {
 
 	private List<String> composeImpcImageDataTableRows(String query, JSONObject json, Integer iDisplayStart,
 													   Integer iDisplayLength, boolean showImgView, String fqStrOri, HttpServletRequest request)
-			throws IOException, URISyntaxException {
+			throws IOException, URISyntaxException, JSONException, JSONException {
 
 		//System.out.println("***JSON: "+json.toString());
 		// currently just use the solr field value
@@ -625,7 +618,7 @@ public class FileExportController {
 			// column names
 			rowData.add("Procedure\tGene symbol\tGene symbol link\tAnatomy term\tAnatomy term link\tImage link"); // column names
 
-			for (int i = 0; i < docs.size(); i++) {
+			for (int i = 0; i < docs.length(); i++) {
 				List<String> data = new ArrayList<>();
 				JSONObject doc = docs.getJSONObject(i);
 				// String[] fields = {"annotationTermName", "annotationTermId",
@@ -645,7 +638,7 @@ public class FileExportController {
 							JSONArray maIds = doc.getJSONArray("anatomy_id");
 							List<String> ma_Terms = new ArrayList<>();
 							List<String> ma_links = new ArrayList<>();
-							for (int m = 0; m < maTerms.size(); m++) {
+							for (int m = 0; m < maTerms.length(); m++) {
 								ma_Terms.add(maTerms.get(m).toString());
 								ma_links.add(hostName + maBaseUrl + maIds.get(m).toString());
 							}
@@ -673,7 +666,7 @@ public class FileExportController {
 					}
 				}
 
-				data.add(doc.containsKey("jpeg_url") ? doc.getString("jpeg_url") : Constants.NO_INFORMATION_AVAILABLE);
+				data.add(doc.has("jpeg_url") ? doc.getString("jpeg_url") : Constants.NO_INFORMATION_AVAILABLE);
 				rowData.add(StringUtils.join(data, "\t"));
 			}
 		} else {
@@ -722,7 +715,6 @@ public class FileExportController {
 				String annotFq = annot.getFq();
 				data.add(annotVal);
 
-//				System.out.println(displayAnnotName + " : " + annotVal);
 				if (annot.getId() != null) {
 					data.add(annot.getId());
 					data.add(annot.getLink());
@@ -731,11 +723,8 @@ public class FileExportController {
 					data.add(Constants.NO_INFORMATION_AVAILABLE);
 				}
 
-
-				//String thisFqStr = defaultFqStr + " AND " + annot.getFq() + ":\"" + annotVal + "\"";
 				String qVal = annotFq.equals("gene_accession_id") || annotFq.equals("anatomy_id") ? annotId : annotVal;
 				String thisFqStr = annotFq + ":\"" + qVal + "\"";
-				//System.out.println("***fq: "+thisFqStr);
 
 				List pathAndImgCount = solrUtilsWeb.fetchImpcImagePathByAnnotName(query, thisFqStr);
 
@@ -748,7 +737,6 @@ public class FileExportController {
 					data.add(sb.toString());
 
 					String imgSubSetLink = mediaBaseUrl + defaultQStr + "&" + thisFqStr;
-					//System.out.println("IMG LINK: " + imgSubSetLink );
 					data.add(imgSubSetLink);
 
 					rowData.add(StringUtils.join(data, "\t"));
@@ -759,7 +747,7 @@ public class FileExportController {
 		return rowData;
 	}
 
-	private List<String> composeMpDataTableRows(JSONObject json, HttpServletRequest request) {
+	private List<String> composeMpDataTableRows(JSONObject json, HttpServletRequest request)  throws JSONException {
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
 		String baseUrl = request.getAttribute("baseUrl") + "/phenotypes/";
@@ -775,7 +763,7 @@ public class FileExportController {
 						"\tComputationally mapped human phenotype terms" +
 						"\tComputationally mapped human phenotype term Ids");
 
-		for (int i = 0; i < docs.size(); i++) {
+		for (int i = 0; i < docs.length(); i++) {
 			List<String> data = new ArrayList<>();
 			JSONObject doc = docs.getJSONObject(i);
 
@@ -793,7 +781,7 @@ public class FileExportController {
 			if (doc.has("mp_term_synonym")) {
 				List<String> syns = new ArrayList<>();
 				JSONArray syn = doc.getJSONArray("mp_term_synonym");
-				for (int t = 0; t < syn.size(); t++) {
+				for (int t = 0; t < syn.length(); t++) {
 					syns.add(syn.getString(t));
 				}
 				data.add(StringUtils.join(syns, "|"));
@@ -804,7 +792,7 @@ public class FileExportController {
 			if (doc.has("top_level_mp_term")) {
 				List<String> tops = new ArrayList<>();
 				JSONArray top = doc.getJSONArray("top_level_mp_term");
-				for (int t = 0; t < top.size(); t++) {
+				for (int t = 0; t < top.length(); t++) {
 					tops.add(top.getString(t));
 				}
 				data.add(StringUtils.join(tops, "|"));
@@ -836,7 +824,7 @@ public class FileExportController {
 		return rowData;
 	}
 
-	private List<String> composeAnatomyDataTableRows(JSONObject json, HttpServletRequest request) throws IOException, URISyntaxException {
+	private List<String> composeAnatomyDataTableRows(JSONObject json, HttpServletRequest request) throws IOException, URISyntaxException, JSONException {
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
 		String baseUrl = request.getAttribute("baseUrl") + "/anatomy/";
@@ -851,7 +839,7 @@ public class FileExportController {
 						"\tLacZ Expression Images"); // column
 		// names
 
-		for (int i = 0; i < docs.size(); i++) {
+		for (int i = 0; i < docs.length(); i++) {
 			List<String> data = new ArrayList<>();
 			JSONObject doc = docs.getJSONObject(i);
 
@@ -863,7 +851,7 @@ public class FileExportController {
 			if (doc.has(AnatomyDTO.ANATOMY_TERM_SYNONYM)) {
 				List<String> syns = new ArrayList<>();
 				JSONArray syn = doc.getJSONArray(AnatomyDTO.ANATOMY_TERM_SYNONYM);
-				for (int t = 0; t < syn.size(); t++) {
+				for (int t = 0; t < syn.length(); t++) {
 					syns.add(syn.getString(t));
 				}
 				data.add(StringUtils.join(syns, "|"));
@@ -879,15 +867,14 @@ public class FileExportController {
 			//get expression only images
 			JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomyId, config, 1);
 			JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
-			data.add(expressionImageDocs.size() == 0 ? "No" : "Yes");
+			data.add(expressionImageDocs.length() == 0 ? "No" : "Yes");
 
 			rowData.add(StringUtils.join(data, "\t"));
 		}
 		return rowData;
 	}
 
-	private List<String> composeProductDataTableRows(JSONObject json, HttpServletRequest request) throws IOException, URISyntaxException {
-		//System.out.println("JSON: "+ json.toString());
+	private List<String> composeProductDataTableRows(JSONObject json, HttpServletRequest request) throws IOException, JSONException {
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
 		String baseUrl = request.getAttribute("baseUrl").toString();
@@ -901,19 +888,16 @@ public class FileExportController {
 						+ "\tOrder Mouse"
 		);
 
-//		System.out.println("No. docs: "+docs.size());
-		for (int i = 0; i < docs.size(); i++) {
+		for (int i = 0; i < docs.length(); i++) {
 			List<String> data = new ArrayList<>();
 			JSONObject doc = docs.getJSONObject(i);
 
-			//String alleleName = "<span class='allelename'>"+ URLEncoder.encode(doc.getString("allele_name"), "UTF-8")+"</span>";
-			//String alleleName = "<span class='allelename'>"+ doc.getString("allele_name")+ "</span>";
 			String alleleName = URLEncoder.encode(doc.getString("allele_name"), "UTF-8");
 			String markerAcc = doc.getString("mgi_accession_id");
 			String markerSymbol = doc.getString("marker_symbol");
-			String mutationType = (doc.containsKey("mutation_type")) ? doc.getString("mutation_type") + "; " : "";
-			mutationType += doc.containsKey("allele_description") ? doc.getString("allele_description") : "" ;
-			String vectorMap = doc.containsKey("allele_simple_image") ? doc.getString("allele_simple_image").replace("https", "http") : "";
+			String mutationType = (doc.has("mutation_type")) ? doc.getString("mutation_type") + "; " : "";
+			mutationType += doc.has("allele_description") ? doc.getString("allele_description") : "" ;
+			String vectorMap = doc.has("allele_simple_image") ? doc.getString("allele_simple_image").replace("https", "http") : "";
 
 			String hostname = request.getAttribute("mappedHostname").toString().replace("https", "http");
 			String dataUrl = hostname + baseUrl + "/order?acc=" + markerAcc + "&allele=" + alleleName +"&bare=true";
@@ -922,13 +906,13 @@ public class FileExportController {
 			String orderEScell = Constants.NO_INFORMATION_AVAILABLE;
 			String orderMouse = Constants.NO_INFORMATION_AVAILABLE;
 
-			if ( doc.containsKey("targeting_vector_available") && doc.getBoolean("targeting_vector_available") ){
+			if ( doc.has("targeting_vector_available") && doc.getBoolean("targeting_vector_available") ){
 				orderTagetingVector = dataUrl + "&type=targeting_vector";
 			}
-			if ( doc.containsKey("es_cell_available") && doc.getBoolean("es_cell_available")){
+			if ( doc.has("es_cell_available") && doc.getBoolean("es_cell_available")){
 				orderEScell = dataUrl + "&type=es_cell";
 			}
-			if ( doc.containsKey("mouse_available") && doc.getBoolean("mouse_available")){
+			if ( doc.has("mouse_available") && doc.getBoolean("mouse_available")){
 				orderMouse = dataUrl + "&type=mouse";
 			}
 
@@ -939,14 +923,13 @@ public class FileExportController {
 			data.add(orderEScell);
 			data.add(orderMouse);
 
-			//System.out.println(StringUtils.join(data, "\t"));
 			rowData.add(StringUtils.join(data, "\t"));
 		}
 
 		return rowData;
 	}
 
-	private List<String> composeGeneDataTableRows(JSONObject json, HttpServletRequest request, boolean legacyOnly) {
+	private List<String> composeGeneDataTableRows(JSONObject json, HttpServletRequest request, boolean legacyOnly) throws JSONException {
 
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
@@ -956,17 +939,17 @@ public class FileExportController {
 				"Gene symbol\tHuman ortholog\tGene id\tGene name\tGene synonym\tProduction status\tPhenotype status\tPhenotype status link"); // column
 		// names
 
-		for (int i = 0; i < docs.size(); i++) {
+		for (int i = 0; i < docs.length(); i++) {
 			List<String> data = new ArrayList<>();
 			JSONObject doc = docs.getJSONObject(i);
 
 			data.add(doc.getString("marker_symbol"));
 
-			if (doc.containsKey("human_gene_symbol")) {
+			if (doc.has("human_gene_symbol")) {
 				List<String> hsynData = new ArrayList<>();
 
 				JSONArray hs = doc.getJSONArray("human_gene_symbol");
-				for (int s = 0; s < hs.size(); s++) {
+				for (int s = 0; s < hs.length(); s++) {
 					hsynData.add(hs.getString(s));
 				}
 				data.add(StringUtils.join(hsynData, "|")); // use | as a
@@ -994,7 +977,7 @@ public class FileExportController {
 			if (doc.has("marker_synonym")) {
 				List<String> synData = new ArrayList<>();
 				JSONArray syn = doc.getJSONArray("marker_synonym");
-				for (int s = 0; s < syn.size(); s++) {
+				for (int s = 0; s < syn.length(); s++) {
 					synData.add(syn.getString(s));
 				}
 				data.add(StringUtils.join(synData, "|")); // use | as a
@@ -1013,13 +996,13 @@ public class FileExportController {
 
 			data.add(prodStatus);
 
-			String statusField = (doc.containsKey(GeneDTO.LATEST_PHENOTYPE_STATUS)) ? doc.getString(GeneDTO.LATEST_PHENOTYPE_STATUS) : null;
+			String statusField = (doc.has(GeneDTO.LATEST_PHENOTYPE_STATUS)) ? doc.getString(GeneDTO.LATEST_PHENOTYPE_STATUS) : null;
 
 			// made this as null by default: don't want to show this for now
 			//Integer legacyPhenotypeStatus = null;
-			Integer legacyPhenotypeStatus = (doc.containsKey(GeneDTO.LEGACY_PHENOTYPE_STATUS)) ? doc.getInt(GeneDTO.LEGACY_PHENOTYPE_STATUS) : null;
+			Integer legacyPhenotypeStatus = (doc.has(GeneDTO.LEGACY_PHENOTYPE_STATUS)) ? doc.getInt(GeneDTO.LEGACY_PHENOTYPE_STATUS) : null;
 
-			Integer hasQc = (doc.containsKey(GeneDTO.HAS_QC)) ? doc.getInt(GeneDTO.HAS_QC) : null;
+			Integer hasQc = (doc.has(GeneDTO.HAS_QC)) ? doc.getInt(GeneDTO.HAS_QC) : null;
 			String phenotypeStatus = geneService.getPhenotypingStatus(statusField, hasQc, legacyPhenotypeStatus, genePageUrl, toExport, legacyOnly);
 
 
@@ -1071,7 +1054,7 @@ public class FileExportController {
 		return rowData;
 	}
 
-	private List<String> composeDiseaseDataTableRows(JSONObject json, HttpServletRequest request) {
+	private List<String> composeDiseaseDataTableRows(JSONObject json, HttpServletRequest request) throws JSONException {
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 
 		String baseUrl = request.getAttribute("baseUrl") + "/disease/";
@@ -1079,14 +1062,8 @@ public class FileExportController {
 		List<String> rowData = new ArrayList<>();
 		// column names
 		rowData.add("Disease id" + "\tDisease id link" + "\tDisease name" + "\tSource");
-//				+ "\tCurated genes from human (OMIM, Orphanet)" + "\tCurated genes from mouse (MGI)"
-//				+ "\tCurated genes from human data with IMPC prediction"
-//				+ "\tCurated genes from human data with MGI prediction" + "\tCandidate genes by phenotype - IMPC data"
-//				+ "\tCandidate genes by phenotype - Novel IMPC prediction in linkage locus"
-//				+ "\tCandidate genes by phenotype - MGI data"
-//				+ "\tCandidate genes by phenotype - Novel MGI prediction in linkage locus");
 
-		for (int i = 0; i < docs.size(); i++) {
+		for (int i = 0; i < docs.length(); i++) {
 			List<String> data = new ArrayList<>();
 			JSONObject doc = docs.getJSONObject(i);
 
@@ -1096,16 +1073,6 @@ public class FileExportController {
 
 			data.add(doc.getString("disease_term"));
 			data.add(doc.getString("disease_source"));
-
-//			data.add(doc.getString("human_curated"));
-//			data.add(doc.getString("mouse_curated"));
-//			data.add(doc.getString("impc_predicted_known_gene"));
-//			data.add(doc.getString("mgi_predicted_known_gene"));
-//
-//			data.add(doc.getString("impc_predicted"));
-//			data.add(doc.getString("impc_novel_predicted_in_locus"));
-//			data.add(doc.getString("mgi_predicted"));
-//			data.add(doc.getString("mgi_novel_predicted_in_locus"));
 
 			rowData.add(StringUtils.join(data, "\t"));
 		}
@@ -1196,7 +1163,7 @@ public class FileExportController {
 	}
 
 	private List<String> composeBatchQueryDataTableRows(List<QueryResponse> solrResponses, String dataTypeName,
-														String gridFields, HttpServletRequest request, List<String> queryIds) throws UnsupportedEncodingException {
+														String gridFields, HttpServletRequest request, List<String> queryIds) throws JSONException {
 
 		SolrDocumentList results = new SolrDocumentList();
 

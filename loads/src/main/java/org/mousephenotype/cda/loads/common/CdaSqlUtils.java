@@ -269,9 +269,9 @@ public class CdaSqlUtils {
      *
      * @return a map of {@link BiologicalModel}, keyed by {@link BioModelKey}
      */
-    public synchronized Map<BioModelKey, Integer> getBiologicalModelPksMapByBioModelKey() {
+    public synchronized Map<BioModelKey, Long> getBiologicalModelPksMapByBioModelKey() {
 
-        Map<BioModelKey, Integer> map = new HashMap<>();
+        Map<BioModelKey, Long> map = new HashMap<>();
 
         String query =
                 "SELECT\n" +
@@ -297,11 +297,11 @@ public class CdaSqlUtils {
             BiologicalModel bm = new BiologicalModel();
 
             Datasource ds = new Datasource();
-            ds.setId(new Integer(item.get("db_id").toString()));
+            ds.setId(new Long(item.get("db_id").toString()));
             datasourceShortName = item.get("short_name").toString();
             ds.setShortName(datasourceShortName);
 
-            bm.setId(new Integer(item.get("id").toString()));
+            bm.setId(new Long(item.get("id").toString()));
             bm.setDatasource(ds);
             bm.setAllelicComposition(item.get("allelic_composition").toString());
             bm.setGeneticBackground(item.get("genetic_background").toString());
@@ -361,8 +361,8 @@ public class CdaSqlUtils {
      *
      * @return A complete map of cda db_id, keyed by datasourceShortName
      */
-    public synchronized Map<String, Integer> getCdaDb_idsByDccDatasourceShortName() {
-        Map<String, Integer> map = new ConcurrentHashMapAllowNull<>();
+    public synchronized Map<String, Long> getCdaDb_idsByDccDatasourceShortName() {
+        Map<String, Long> map = new ConcurrentHashMapAllowNull<>();
 
         List<Datasource> results = jdbcCda.query("SELECT * FROM external_db", new BeanPropertyRowMapper(Datasource.class));
         for (Datasource result : results) {
@@ -376,8 +376,8 @@ public class CdaSqlUtils {
      *
      * @return A complete map of cda organisation_id primary keys, keyed by dcc center.centerId
      */
-    public synchronized Map<String, Integer> getCdaOrganisation_idsByDccCenterId() {
-        Map<String, Integer> map = new ConcurrentHashMapAllowNull<>();
+    public synchronized Map<String, Long> getCdaOrganisation_idsByDccCenterId() {
+        Map<String, Long> map = new ConcurrentHashMapAllowNull<>();
 
         Map<String, Organisation> organisations = getOrganisations();
 
@@ -398,8 +398,8 @@ public class CdaSqlUtils {
      *
      * @return A complete map of cda project_id primary keys, keyed by dcc center.project
      */
-    public synchronized Map<String, Integer> getCdaProject_idsByDccProject() {
-        Map<String, Integer> map = new ConcurrentHashMapAllowNull<>(ConcurrentHashMapAllowNull.CASE_INSENSITIVE_KEYS);
+    public synchronized Map<String, Long> getCdaProject_idsByDccProject() {
+        Map<String, Long> map = new ConcurrentHashMapAllowNull<>(ConcurrentHashMapAllowNull.CASE_INSENSITIVE_KEYS);
 
         Map<String, Project> projects = getProjects();
 
@@ -419,14 +419,14 @@ public class CdaSqlUtils {
      *
      * @return A complete map of cda pipeline primary keys, keyed by dcc center.pipeline
      */
-    public synchronized Map<String, Integer> getCdaPipeline_idsByDccPipeline() {
-        Map<String, Integer> map = new ConcurrentHashMapAllowNull<>();
+    public synchronized Map<String, Long> getCdaPipeline_idsByDccPipeline() {
+        Map<String, Long> map = new ConcurrentHashMapAllowNull<>();
 
         List<Map<String, Object>> results = jdbcCda.queryForList("SELECT id, stable_id FROM phenotype_pipeline", new HashMap<>());
 
         for (Map<String, Object> result : results) {
             String  stableId = result.get("stable_id").toString();
-            Integer id       = Integer.valueOf(result.get("id").toString());
+            Long id       = Long.valueOf(result.get("id").toString());
             map.put(stableId, id);
         }
 
@@ -437,14 +437,14 @@ public class CdaSqlUtils {
      *
      * @return A complete map of cda procedure primary keys, keyed by dcc procedure_.procedureId
      */
-    public synchronized Map<String, Integer> getCdaProcedure_idsByDccProcedureId() {
-        Map<String, Integer> map = new ConcurrentHashMapAllowNull<>();
+    public synchronized Map<String, Long> getCdaProcedure_idsByDccProcedureId() {
+        Map<String, Long> map = new ConcurrentHashMapAllowNull<>();
 
         List<Map<String, Object>> results = jdbcCda.queryForList("SELECT id, stable_id FROM phenotype_procedure", new HashMap<>());
 
         for (Map<String, Object> result : results) {
             String  stableId = result.get("stable_id").toString();
-            Integer id       = Integer.valueOf(result.get("id").toString());
+            Long id       = Long.valueOf(result.get("id").toString());
             map.put(stableId, id);
         }
 
@@ -455,14 +455,14 @@ public class CdaSqlUtils {
      *
      * @return A complete map of cda parameter primary keys, keyed by dcc procedure_.parameterId
      */
-    public synchronized  Map<String, Integer> getCdaParameter_idsByDccParameterId() {
-        Map<String, Integer> map = new ConcurrentHashMapAllowNull<>();
+    public synchronized  Map<String, Long> getCdaParameter_idsByDccParameterId() {
+        Map<String, Long> map = new ConcurrentHashMapAllowNull<>();
 
         List<Map<String, Object>> results = jdbcCda.queryForList("SELECT id, stable_id FROM phenotype_parameter", new HashMap<>());
 
         for (Map<String, Object> result : results) {
             String  stableId = result.get("stable_id").toString();
-            Integer id       = Integer.valueOf(result.get("id").toString());
+            Long id       = Long.valueOf(result.get("id").toString());
             map.put(stableId, id);
         }
 
@@ -521,14 +521,14 @@ public class CdaSqlUtils {
      * @param shortName
      * @return
      */
-    public int getDbIdByShortName(String shortName) {
+    public long getDbIdByShortName(String shortName) {
 
         String query = "SELECT id FROM external_db WHERE short_name = :shortName";
         Map<String, Object> parameterMap = new HashMap<>();
 
         parameterMap.put("shortName", shortName);
 
-        return jdbcCda.queryForObject(query, parameterMap, Integer.class);
+        return jdbcCda.queryForObject(query, parameterMap, Long.class);
     }
 
     public String getDbName() {
@@ -538,7 +538,6 @@ public class CdaSqlUtils {
 
         return dbname;
     }
-
 
     /**
      * Return the <code>GenomicFeature</code> matching the given {@code mgiAccessionId}
@@ -551,7 +550,6 @@ public class CdaSqlUtils {
     public GenomicFeature getGene(String mgiAccessionId) {
         return getGenesByAcc().get(mgiAccessionId);
     }
-
 
     /**
      * Return the <code>GenomicFeature</code> matching the given {@code geneSymbol}
@@ -614,9 +612,9 @@ public class CdaSqlUtils {
     }
 
     @Transactional
-    public int insertBiologicalModelImpc(BioModelInsertDTOMutant mutant) throws DataLoadException {
+    public long insertBiologicalModelImpc(BioModelInsertDTOMutant mutant) throws DataLoadException {
 
-        int biologicalModelId = insertBiologicalModel(mutant.getDbId(), mutant.getAllelicComposition(), mutant.getGeneticBackground(), mutant.getZygosity());
+        Long biologicalModelId = insertBiologicalModel(mutant.getDbId(), mutant.getAllelicComposition(), mutant.getGeneticBackground(), mutant.getZygosity());
         insertBiologicalModelGenes(biologicalModelId, mutant.getGenes());
         insertBiologicalModelAlleles(biologicalModelId, mutant.getAlleles());
         insertBiologicalModelStrains(biologicalModelId, mutant.getStrains());
@@ -624,14 +622,13 @@ public class CdaSqlUtils {
             insertBiologicalModelSample(biologicalModelId, mutant.biologicalSamplePk);
         }
 
-
         return biologicalModelId;
     }
 
     @Transactional
-    public int insertBiologicalModelImpc(BioModelInsertDTOControl control) throws DataLoadException {
+    public long insertBiologicalModelImpc(BioModelInsertDTOControl control) throws DataLoadException {
 
-        int biologicalModelId = insertBiologicalModel(control.getDbId(), control.getAllelicComposition(), control.getGeneticBackground(), control.getZygosity());
+        Long biologicalModelId = insertBiologicalModel(control.getDbId(), control.getAllelicComposition(), control.getGeneticBackground(), control.getZygosity());
         insertBiologicalModelStrains(biologicalModelId, control.getStrains());
         if (control.biologicalSamplePk != null) {
             insertBiologicalModelSample(biologicalModelId, control.biologicalSamplePk);
@@ -646,7 +643,7 @@ public class CdaSqlUtils {
      * @param biologicalSampleId
      * @throws DataLoadException
      */
-    public void insertBiologicalModelSample(int biologicalModelId, int biologicalSampleId) throws DataLoadException {
+    public void insertBiologicalModelSample(long biologicalModelId, long biologicalSampleId) throws DataLoadException {
 
         final String insert = "INSERT INTO biological_model_sample (" +
                 "biological_model_id,   biological_sample_id) VALUES (" +
@@ -683,8 +680,8 @@ public class CdaSqlUtils {
         return count;
     }
     @Transactional
-    protected int insertBiologicalModelMGI(BioModelInsertDTOMGI model) throws DataLoadException {
-        int biologicalModelId = 0;
+    protected Long insertBiologicalModelMGI(BioModelInsertDTOMGI model) throws DataLoadException {
+        long biologicalModelId = 0L;
 
         biologicalModelId = insertBiologicalModel(model.getDbId(), model.getAllelicComposition(), model.getGeneticBackground(), model.getZygosity());
         insertBiologicalModelGenes(biologicalModelId, model.getGenes());
@@ -708,15 +705,15 @@ public class CdaSqlUtils {
      * @return a map with the number of rows inserted ("count") and the biologicalSampleId ("biologicalSampleId")
      * @throws DataLoadException
      */
-    public synchronized Map<String, Integer> insertBiologicalSample(String externalId, int dbId, OntologyTerm sampleType, String sampleGroup, int phenotypingCenterId, Integer productionCenterId) throws DataLoadException {
-        Map<String, Integer> results = new HashMap<>();
+    public synchronized Map<String, Long> insertBiologicalSample(String externalId, long dbId, OntologyTerm sampleType, String sampleGroup, long phenotypingCenterId, long productionCenterId) throws DataLoadException {
+        Map<String, Long> results = new HashMap<>();
 
         final String insert = "INSERT INTO biological_sample (external_id, db_id, sample_type_acc, sample_type_db_id, sample_group, organisation_id, production_center_id) " +
                                    "VALUES (:external_id, :db_id, :sample_type_acc, :sample_type_db_id, :sample_group, :organisation_id, :production_center_id)";
 
         // Insert biological sample. Ignore any duplicates.
-        int count = 0;
-        int id = 0;
+        Long count = 0L;
+        Long id = 0L;
         Map<String, Object> parameterMap = new HashMap<>();
         try {
             parameterMap.put("external_id", externalId);
@@ -729,13 +726,13 @@ public class CdaSqlUtils {
             KeyHolder keyholder = new GeneratedKeyHolder();
             SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
 
-            count = jdbcCda.update(insert, parameterSource, keyholder);
+            count = new Long(jdbcCda.update(insert, parameterSource, keyholder));
             if (count > 0) {
-                id = keyholder.getKey().intValue();
+                id = keyholder.getKey().longValue();
             }
 
         } catch (DuplicateKeyException e) {
-            id = jdbcCda.queryForObject("SELECT id FROM biological_sample WHERE external_id = :external_id AND organisation_id = :organisation_id", parameterMap, Integer.class);
+            id = jdbcCda.queryForObject("SELECT id FROM biological_sample WHERE external_id = :external_id AND organisation_id = :organisation_id", parameterMap, Long.class);
         }
 
         results.put("count", count);
@@ -745,26 +742,26 @@ public class CdaSqlUtils {
     }
 
     // Returns the newly-inserted primary key if successful; 0 otherwise.
-    public int insertExperiment(
-            int db_id,
+    public long insertExperiment(
+            long db_id,
             String external_id,
             String sequence_id,
             Date date_of_experiment,
-            int organisation_id,
-            int project_id,
-            int pipeline_id,
+            long organisation_id,
+            long project_id,
+            long pipeline_id,
             String pipeline_stable_id,
-            int procedure_id,
+            long procedure_id,
             String procedure_stable_id,
             String colony_id,
             String procedure_status,
             String procedure_status_message,
-            Integer biological_model_id,
+            long biological_model_id,
             String metadataCombined,
             String metadataGroup
     ) throws DataLoadException {
 
-        int pk = 0;
+        long pk = 0;
 
         final String insert = "INSERT INTO experiment (" +
                 "db_id, external_id, sequence_id, date_of_experiment, organisation_id, project_id," +
@@ -809,7 +806,7 @@ public class CdaSqlUtils {
         return pk;
     }
 
-    public void insertExperiment_observation(int experimentPk, int observationPk) throws DataLoadException {
+    public void insertExperiment_observation(long experimentPk, long observationPk) throws DataLoadException {
 
         final String insert = "INSERT INTO experiment_observation (" +
                 "experiment_id, observation_id) " +
@@ -840,7 +837,7 @@ public class CdaSqlUtils {
      * @return the number of rows inserted
      * @throws DataLoadException
      */
-    public int insertLiveSample(int biologicalSampleId, String colonyId, Date dateOfBirth, OntologyTerm developmentalStage, String litterId, String sex, String zygosity) throws DataLoadException {
+    public int insertLiveSample(long biologicalSampleId, String colonyId, Date dateOfBirth, OntologyTerm developmentalStage, String litterId, String sex, String zygosity) throws DataLoadException {
         int count = 0;
 
         final String insert = "INSERT INTO live_sample (id, colony_id, date_of_birth, developmental_stage_acc, developmental_stage_db_id, litter_id, sex, zygosity) " +
@@ -1406,7 +1403,7 @@ public class CdaSqlUtils {
     *
     * @throws DataLoadException
     */
-    public OntologyTerm getMappedBiotype(int dbId, String term) throws DataLoadException {
+    public OntologyTerm getMappedBiotype(long dbId, String term) throws DataLoadException {
         String mappedTerm = loadUtils.translateTerm(term);
 
         return getOntologyTerm(dbId, mappedTerm);
@@ -1455,7 +1452,7 @@ public class CdaSqlUtils {
      * @throws DataLoadException if more than one term would be returned
      */
 
-    public OntologyTerm getOntologyTerm(int dbId, String term) throws DataLoadException {
+    public OntologyTerm getOntologyTerm(long dbId, String term) throws DataLoadException {
         List<OntologyTerm> terms = new ArrayList<>();
 
         List<OntologyTerm> ontologyTerms = new ArrayList<>(getOntologyTerms(dbId).values());
@@ -1474,7 +1471,7 @@ public class CdaSqlUtils {
         }
     }
 
-    private Map<Integer, Map<String, OntologyTerm>> ontologyTermMaps = new ConcurrentHashMapAllowNull<>();       // keyed by dbId
+    private Map<Long, Map<String, OntologyTerm>> ontologyTermMaps = new ConcurrentHashMapAllowNull<>();       // keyed by dbId
 
     /**
      * Return a CASE-INSENSITIVE {@link TreeMap} of <code>OntologyTerm</code>s matching the given {@code dbId}, indexed by dbId
@@ -1483,7 +1480,7 @@ public class CdaSqlUtils {
      * @param dbId the dbId of the desired terms
      * @return a map of <code>OntologyTerm</code>s matching the given {@code dbId}, indexed by ontology name
      */
-    public Map<String, OntologyTerm> getOntologyTerms(int dbId) {
+    public Map<String, OntologyTerm> getOntologyTerms(long dbId) {
         Map<String, OntologyTerm> ontologyTerms = ontologyTermMaps.get(dbId);
         if (ontologyTerms == null) {
             ontologyTerms = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -1611,11 +1608,11 @@ public class CdaSqlUtils {
     }
 
     // SimpleParameter version. Returns the newly-inserted primary key if successful; 0 otherwise.
-    public int insertObservation(
-            int dbId,
-            Integer biologicalSamplePk,
+    public long insertObservation(
+            long dbId,
+            long biologicalSamplePk,
             String parameterStableId,
-            int parameterId,
+            long parameterId,
             String sequenceId,
             int populationId,
             ObservationType observationType,
@@ -1740,11 +1737,11 @@ public class CdaSqlUtils {
 
 
     // MediaSampleParameter version. Returns the newly-inserted primary key if successful; 0 otherwise.
-    public int insertObservation(
-            int dbId,
-            Integer biologicalSamplePk,
+    public long insertObservation(
+            long dbId,
+            long biologicalSamplePk,
             String parameterStableId,
-            int parameterPk,
+            long parameterPk,
             String sequenceId,
             int populationId,
             ObservationType observationType,
@@ -1755,15 +1752,15 @@ public class CdaSqlUtils {
             MediaFile mediaFile,
             DccExperimentDTO dccExperimentDTO,
             String phenotypingCenter,
-            int phenotypingCenterPk,
-            int experimentPk,
+            long phenotypingCenterPk,
+            long experimentPk,
             List<SimpleParameter> simpleParameterList,
             List<OntologyParameter> ontologyParameterList
     ) throws DataLoadException {
 
-        String URI = mediaFile.getURI();
-        KeyHolder keyholder     = new GeneratedKeyHolder();
-        int       observationPk;
+        String    URI       = mediaFile.getURI();
+        KeyHolder keyholder = new GeneratedKeyHolder();
+        long      observationPk;
 
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("dbId", dbId);
@@ -1828,7 +1825,7 @@ public class CdaSqlUtils {
             } else {
                 // Save parameter associations
                 for (ParameterAssociation parameterAssociation : mediaFile.getParameterAssociation()) {
-                    int parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
+                    long parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
 
                     // Save Dimensions
                     for (Dimension dimension : parameterAssociation.getDim()) {
@@ -1848,11 +1845,11 @@ public class CdaSqlUtils {
 
 
     // MediaParameter version. Returns the newly-inserted primary key if successful; 0 otherwise.
-    public synchronized int insertObservation(
-            int dbId,
-            Integer biologicalSamplePk,
+    public synchronized long insertObservation(
+            long dbId,
+            long biologicalSamplePk,
             String parameterStableId,
-            int parameterPk,
+            long parameterPk,
             String sequenceId,
             int populationId,
             ObservationType observationType,
@@ -1862,11 +1859,11 @@ public class CdaSqlUtils {
             MediaParameter mediaParameter,
             DccExperimentDTO dccExperimentDTO,
             String phenotypingCenter,
-            int phenotypingCenterPk
+            long phenotypingCenterPk
     ) throws DataLoadException {
 
-        KeyHolder keyholder     = new GeneratedKeyHolder();
-        int       observationPk;
+        KeyHolder keyholder = new GeneratedKeyHolder();
+        long      observationPk;
 
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("dbId", dbId);
@@ -1936,11 +1933,11 @@ public class CdaSqlUtils {
 
 
     // OntologyParameter version. Returns the newly-inserted primary key if successful; 0 otherwise.
-    public int insertObservation(
-            int dbId,
-            Integer biologicalSamplePk,
+    public long insertObservation(
+            long dbId,
+            long biologicalSamplePk,
             String parameterStableId,
-            int parameterPk,
+            long parameterPk,
             Integer sequenceId,
             int populationId,
             ObservationType observationType,
@@ -1949,11 +1946,11 @@ public class CdaSqlUtils {
             String parameterStatusMessage,
             OntologyParameter ontologyParameter,
             String experimentId,                     // Used for logging/debugging purposes only.
-            int experimentPk                         // Used for logging/debugging purposes only.
+            long experimentPk                        // Used for logging/debugging purposes only.
     ) throws DataLoadException {
 
         KeyHolder keyholder     = new GeneratedKeyHolder();
-        int       observationPk;
+        long observationPk;
 
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("dbId", dbId);
@@ -2030,11 +2027,11 @@ public class CdaSqlUtils {
 
 
     // SeriesMediaParameterValue version. Returns the newly-inserted primary key if successful; 0 otherwise.
-    public int insertObservation(
-            int dbId,
-            Integer biologicalSamplePk,
+    public long insertObservation(
+            long dbId,
+            long biologicalSamplePk,
             String parameterStableId,
-            int parameterPk,
+            long parameterPk,
             String sequenceId,
             int populationId,
             ObservationType observationType,
@@ -2043,16 +2040,16 @@ public class CdaSqlUtils {
             String parameterStatusMessage,
             SeriesMediaParameterValue seriesMediaParameterValue,
             DccExperimentDTO dccExperimentDTO,
-            int samplePk,
+            long samplePk,
             String phenotypingCenter,
-            int phenotypingCenterPk,
-            int experimentPk,
+            long phenotypingCenterPk,
+            long experimentPk,
             List<SimpleParameter> simpleParameterList,
             List<OntologyParameter> ontologyParameterList
     ) throws DataLoadException {
 
         KeyHolder keyholder     = new GeneratedKeyHolder();
-        int       observationPk;
+        long       observationPk;
 
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("dbId", dbId);
@@ -2117,7 +2114,7 @@ public class CdaSqlUtils {
                     if (seriesMediaParameterValue.getParameterAssociation() != null && seriesMediaParameterValue.getParameterAssociation().size() > 0) {
 
                         for (ParameterAssociation parameterAssociation : seriesMediaParameterValue.getParameterAssociation()) {
-                            Integer parameterAssociationPk = null;
+                            Long parameterAssociationPk = null;
                             try {
                                 parameterAssociationPk = insertParameterAssociation(observationPk, parameterAssociation, simpleParameterList, ontologyParameterList);
                             } catch (DataIntegrityViolationException e) {
@@ -2167,11 +2164,11 @@ public class CdaSqlUtils {
 
 
     // SeriesParameter version. Returns the newly-inserted primary key if successful; 0 otherwise.
-    public int insertObservation(
-            int dbId,
-            Integer biologicalSamplePk,
+    public long insertObservation(
+            long dbId,
+            long biologicalSamplePk,
             String parameterStableId,
-            int parameterPk,
+            long parameterPk,
             String sequenceId,
             int populationId,
             ObservationType observationType,
@@ -2184,8 +2181,8 @@ public class CdaSqlUtils {
             Float discretePoint
     ) throws DataLoadException {
 
-        KeyHolder keyholder     = new GeneratedKeyHolder();
-        int       observationPk;
+        KeyHolder keyholder = new GeneratedKeyHolder();
+        long      observationPk;
 
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("dbId", dbId);
@@ -2349,7 +2346,7 @@ public class CdaSqlUtils {
 
 
     // Returns the parameter association primary key.
-    public int insertParameterAssociation(int observationPk, ParameterAssociation parameterAssociation,
+    public long insertParameterAssociation(long observationPk, ParameterAssociation parameterAssociation,
                                            List<SimpleParameter> simpleParameterList,
                                            List<OntologyParameter> ontologyParameterList)
     {
@@ -2465,9 +2462,9 @@ public class CdaSqlUtils {
      * @param parameter The instance to be inserted
      * @return the primary key, if inserted; null otherwise
      */
-    public Integer insertPhenotypeParameter(Parameter parameter) {
+    public long insertPhenotypeParameter(Parameter parameter) {
 
-        Integer pk = null;
+        Long pk = null;
 
         String insert =
                 "INSERT INTO phenotype_parameter (stable_id, db_id, name, description, major_version, minor_version," +
@@ -2508,7 +2505,7 @@ public class CdaSqlUtils {
         int count = jdbcCda.update(insert, parameterSource, keyholder);
 
         if (count > 0) {
-            pk = keyholder.getKey().intValue();
+            pk = keyholder.getKey().longValue();
             parameter.setId(pk);
         }
 
@@ -2519,7 +2516,7 @@ public class CdaSqlUtils {
      * Inserts the {@code phenotypeParameterIncrement} instances and updates the primary keys in each {@code phenotypeParameterIncrement}
      * @param parameterIncrements The list of instances to be inserted
      */
-    public void insertPhenotypeParameterIncrements(int phenotypeParameterPk, List<ParameterIncrement> parameterIncrements) {
+    public void insertPhenotypeParameterIncrements(long phenotypeParameterPk, List<ParameterIncrement> parameterIncrements) {
 
         final String insertIncrement =
                 "INSERT INTO phenotype_parameter_increment (increment_value, increment_datatype, increment_unit, increment_minimum)" +
@@ -2555,7 +2552,7 @@ public class CdaSqlUtils {
      * Inserts the {@code phenotypeParameterOntologyAnnotation} instances and updates the primary keys in each
      * @param phenotypeParameterOntologyAnnotations The list of instances to be inserted
      */
-    public void insertPhenotypeParameterOntologyAnnotations(int phenotypeParameterId, List<ParameterOntologyAnnotationWithSex> phenotypeParameterOntologyAnnotations) {
+    public void insertPhenotypeParameterOntologyAnnotations(long phenotypeParameterId, List<ParameterOntologyAnnotationWithSex> phenotypeParameterOntologyAnnotations) {
 
         final String insertOntologyAnnotation =
                 "INSERT INTO phenotype_parameter_ontology_annotation (event_type, option_id, ontology_acc, ontology_db_id, sex)" +
@@ -2592,7 +2589,7 @@ public class CdaSqlUtils {
      * Inserts the {@code phenotypeParameterOption} instances and updates the primary keys in each {@code phenotypeParameterOption}
      * @param parameterOptions The list of instances to be inserted
      */
-    public void insertPhenotypeParameterOptions(int phenotypeParameterId, List<ParameterOption> parameterOptions) {
+    public void insertPhenotypeParameterOptions(long phenotypeParameterId, List<ParameterOption> parameterOptions) {
 
         final String insertOption =
                 "INSERT INTO phenotype_parameter_option (name, description, normal)" +
@@ -2628,9 +2625,9 @@ public class CdaSqlUtils {
      * @param pipeline The instance to be inserted
      * @return the primary key, if inserted; null otherwise
      */
-    public Integer insertPhenotypePipeline(Pipeline pipeline) {
+    public Long insertPhenotypePipeline(Pipeline pipeline) {
 
-        Integer pk = null;
+        Long pk = null;
 
         String insert = "INSERT INTO phenotype_pipeline (stable_id, db_id, name, description, major_version, minor_version, stable_key, is_deprecated)" +
                                                " VALUES (:stableId, :dbId, :name, :description, :majorVersion, :minorVersion, :stableKey, :isDeprecated)";
@@ -2651,14 +2648,14 @@ public class CdaSqlUtils {
         int count = jdbcCda.update(insert, parameterSource, keyholder);
 
         if (count > 0) {
-            pk = keyholder.getKey().intValue();
+            pk = keyholder.getKey().longValue();
             pipeline.setId(pk);
         }
 
         return pk;
     }
 
-    public void insertPhenotypePipelineProcedure(int phenotypePipelinePk, int phenotypeProcedurePk) {
+    public void insertPhenotypePipelineProcedure(long phenotypePipelinePk, long phenotypeProcedurePk) {
 
         final String insertPhenotypePipelineProcedure = "INSERT INTO phenotype_pipeline_procedure (pipeline_id, procedure_id) VALUES (:pipelineId, :procedureId)";
 
@@ -2675,9 +2672,9 @@ public class CdaSqlUtils {
      * @param procedure The instance to be inserted
      * @return the primary key, if inserted; null otherwise
      */
-    public Integer insertPhenotypeProcedure(int phenotypePipelinePk, Procedure procedure) {
+    public Long insertPhenotypeProcedure(long phenotypePipelinePk, Procedure procedure) {
 
-        Integer procedurePk = null;
+        Long procedurePk = null;
 
         final String insertProcedure =
                 "INSERT INTO phenotype_procedure (stable_key, stable_id, db_id, name, description, major_version, minor_version, is_mandatory, level, stage, stage_label, schedule_key)" +
@@ -2704,7 +2701,7 @@ public class CdaSqlUtils {
         int count = jdbcCda.update(insertProcedure, parameterSource, keyholder);
 
         if (count > 0) {
-            procedurePk = keyholder.getKey().intValue();
+            procedurePk = keyholder.getKey().longValue();
             procedure.setId(procedurePk);
 
             if (procedure.getMetaDataSet() != null) {
@@ -2720,7 +2717,7 @@ public class CdaSqlUtils {
         return procedurePk;
     }
 
-    public void insertPhenotypeProcedureParameter(int phenotypeProcedurePk, int phenotypeParameterPk) {
+    public void insertPhenotypeProcedureParameter(long phenotypeProcedurePk, long phenotypeParameterPk) {
 
         final String insertPhenotypeProcedureParameter = "INSERT INTO phenotype_procedure_parameter (procedure_id, parameter_id) VALUES (:procedureId, :parameterId)";
 
@@ -2731,7 +2728,7 @@ public class CdaSqlUtils {
             jdbcCda.update(insertPhenotypeProcedureParameter, parameterMap);
     }
 
-    public int insertProcedureMetadata(List<ProcedureMetadata> metadataList, String procedureId, int experimentPk, int observationPk) {
+    public int insertProcedureMetadata(List<ProcedureMetadata> metadataList, String procedureId, long experimentPk, long observationPk) {
         int pk = 0;
         final String insert = "INSERT INTO procedure_meta_data (procedure_id, experiment_id, parameter_id, sequence_id, parameter_status, value, observation_id)" +
                              " VALUES (:procedureId, :experimentPk, :parameterId, :sequenceId, :parameterStatus, :value, :observationPk)";
@@ -2950,7 +2947,7 @@ public class CdaSqlUtils {
         return count;
     }
 
-    public void updateObservationMissingFlag(int observationPk, boolean missing) {
+    public void updateObservationMissingFlag(long observationPk, boolean missing) {
         int iMissing = (missing ? 1 : 0);
         final String update = "UPDATE observation SET missing = :missing WHERE id = :observationPk";
 
@@ -2961,7 +2958,7 @@ public class CdaSqlUtils {
         jdbcCda.update(update, parameterMap);
     }
 
-    public void insertDimension(int parameterAssociationPk, Dimension dimension) {
+    public void insertDimension(long parameterAssociationPk, Dimension dimension) {
         final String insert = "INSERT INTO dimension (parameter_association_id, id,  origin, unit, value)" +
                                             " VALUES (:parameterAssociationPk, :id, :origin, :unit, :value)";
 
@@ -3118,7 +3115,7 @@ public class CdaSqlUtils {
         public Allele mapRow(ResultSet rs, int rowNum) throws SQLException {
             Allele allele = new Allele();
 
-            allele.setId(new DatasourceEntityId(rs.getString("acc"), rs.getInt("db_id")));
+            allele.setId(new DatasourceEntityId(rs.getString("acc"), rs.getLong("db_id")));
 
             if (ontologyTermsByAccessionId == null) {
                 getOntologyTermsByAccessionId();
@@ -3128,10 +3125,8 @@ public class CdaSqlUtils {
             allele.setName(rs.getString("name"));
             allele.setSymbol(rs.getString("symbol"));
             GenomicFeature gene = new GenomicFeature();
-            gene.setId(new DatasourceEntityId(rs.getString("gf_acc"), rs.getInt("gf_db_id")));
+            gene.setId(new DatasourceEntityId(rs.getString("gf_acc"), rs.getLong("gf_db_id")));
             allele.setGene(gene);
-//            allele.setGene(getGene(rs.getString("acc")));
-//            allele.setSynonyms(getSynonyms(rs.getString("acc")));
 
             return allele;
         }
@@ -3154,19 +3149,19 @@ public class CdaSqlUtils {
         public BiologicalSample mapRow(ResultSet rs, int rowNum) throws SQLException {
             BiologicalSample biologicalSample = new BiologicalSample();
 
-            biologicalSample.setId(rs.getInt("id"));
+            biologicalSample.setId(rs.getLong("id"));
             biologicalSample.setStableId(rs.getString("external_id"));
             Datasource datasource = new Datasource();
-            datasource.setId(rs.getInt("db_id"));
+            datasource.setId(rs.getLong("db_id"));
             datasource.setShortName(rs.getString("short_name"));
             biologicalSample.setDatasource(datasource);
-            biologicalSample.setType(new OntologyTerm(rs.getString("sample_type_acc"), rs.getInt("sample_type_db_id")));
+            biologicalSample.setType(new OntologyTerm(rs.getString("sample_type_acc"), rs.getLong("sample_type_db_id")));
             biologicalSample.setGroup(rs.getString("sample_group"));
             Organisation organisation = new Organisation();
-            organisation.setId(rs.getInt("organisation_id"));
+            organisation.setId(rs.getLong("organisation_id"));
             biologicalSample.setOrganisation(organisation);
             Organisation productionCenter = new Organisation();
-            productionCenter.setId(rs.getInt("production_center_id"));
+            productionCenter.setId(rs.getLong("production_center_id"));
             biologicalSample.setProductionCenter(productionCenter);
             // litter_id was moved to LiveSample.
 
@@ -3276,7 +3271,7 @@ public class CdaSqlUtils {
         public GenomicFeature mapRow(ResultSet rs, int rowNum) throws SQLException {
             GenomicFeature gene = new GenomicFeature();
 
-            gene.setId(new DatasourceEntityId(rs.getString("acc"), rs.getInt("db_id")));
+            gene.setId(new DatasourceEntityId(rs.getString("acc"), rs.getLong("db_id")));
             gene.setBiotype(getOntologyTerm(rs.getString("biotype_acc")));
             gene.setcMposition(rs.getString("cm_position"));
             gene.setName(rs.getString("name"));
@@ -3306,7 +3301,7 @@ public class CdaSqlUtils {
         public OntologyTerm mapRow(ResultSet rs, int rowNum) throws SQLException {
             OntologyTerm term = new OntologyTerm();
 
-            term.setId(new DatasourceEntityId(rs.getString("acc"), rs.getInt("db_id")));
+            term.setId(new DatasourceEntityId(rs.getString("acc"), rs.getLong("db_id")));
             term.setName(rs.getString("name").trim());                          // Trim the name. There are 600+ blank names.
             term.setDescription(rs.getString("description"));
             Integer isObsolete = rs.getInt("is_obsolete");
@@ -3334,11 +3329,11 @@ public class CdaSqlUtils {
         public Parameter mapRow(ResultSet rs, int rowNum) throws SQLException {
             Parameter parameter = new Parameter();
 
-            parameter.setId(rs.getInt("id"));
+            parameter.setId(rs.getLong("id"));
             parameter.setStableId(rs.getString("stable_id"));
 
             Datasource datasource = new Datasource();
-            datasource.setId(rs.getInt("db_id"));
+            datasource.setId(rs.getLong("db_id"));
             parameter.setDatasource(datasource);
             parameter.setName(rs.getString("name"));
 
@@ -3413,22 +3408,22 @@ public class CdaSqlUtils {
             phenotypedColony.setBackgroundStrain(rs.getString("background_strain_name"));
 
             Organisation phenotypingCenter = new Organisation();
-            phenotypingCenter.setId(rs.getInt("phenotyping_centre_organisation_id"));
+            phenotypingCenter.setId(rs.getLong("phenotyping_centre_organisation_id"));
             phenotypingCenter.setName(rs.getString("pc_phenotyping_centre_name"));
             phenotypedColony.setPhenotypingCentre(phenotypingCenter);
 
             Project phenotypingConsortium = new Project();
-            phenotypingConsortium.setId(rs.getInt("phenotyping_consortium_project_id"));
+            phenotypingConsortium.setId(rs.getLong("phenotyping_consortium_project_id"));
             phenotypingConsortium.setName(rs.getString("pc_phenotyping_project_name"));
             phenotypedColony.setPhenotypingConsortium(phenotypingConsortium);
 
             Organisation productionCenter = new Organisation();
-            productionCenter.setId(rs.getInt("production_centre_organisation_id"));
+            productionCenter.setId(rs.getLong("production_centre_organisation_id"));
             productionCenter.setName(rs.getString("pc_production_centre_name"));
             phenotypedColony.setProductionCentre(productionCenter);
 
             Project productionConsortium = new Project();
-            productionConsortium.setId(rs.getInt("production_consortium_project_id"));
+            productionConsortium.setId(rs.getLong("production_consortium_project_id"));
             productionConsortium.setName(rs.getString("pc_production_project_name"));
             phenotypedColony.setProductionConsortium(productionConsortium);
 
@@ -3453,7 +3448,7 @@ public class CdaSqlUtils {
         public Project mapRow(ResultSet rs, int rowNum) throws SQLException {
             Project project = new Project();
 
-            project.setId(rs.getInt("id"));
+            project.setId(rs.getLong("id"));
             project.setName(rs.getString("name"));
             project.setFullname(rs.getString("fullname"));
             project.setDescription(rs.getString("description"));
@@ -3480,7 +3475,7 @@ public class CdaSqlUtils {
             SequenceRegion region = new SequenceRegion();
 
             Datasource datasource = new Datasource();
-            datasource.setId(rs.getInt("coord_system_db_id"));
+            datasource.setId(rs.getLong("coord_system_db_id"));
 
             // NOTE: LOADING THE STRAIN COMPONENT ADDS A TREMENDOUS AMOUNT OF TIME, SO IT'S DISABLED.
 //            Strain strain = null;
@@ -3498,7 +3493,6 @@ public class CdaSqlUtils {
             coordinateSystem.setDatasource(datasource);
             coordinateSystem.setName(rs.getString("coord_system_name"));
             coordinateSystem.setId(rs.getInt("coord_system_id"));
-//            coordinateSystem.setStrain(strain);
 
             region.setCoordinateSystem(coordinateSystem);
             region.setName(rs.getString("seq_name"));
@@ -3527,7 +3521,7 @@ public class CdaSqlUtils {
 
             try {
                 strain.setBiotype(getOntologyTerm(rs.getString("biotype_acc")));
-                strain.setId(new DatasourceEntityId(rs.getString("acc"), rs.getInt("db_id")));
+                strain.setId(new DatasourceEntityId(rs.getString("acc"), rs.getLong("db_id")));
                 strain.setName(rs.getString("name"));
 
             } catch (Exception e) {
@@ -3557,7 +3551,7 @@ public class CdaSqlUtils {
             Synonym synonym = new Synonym();
 
             synonym.setAccessionId(rs.getString("acc"));
-            synonym.setDbId(rs.getInt("db_id"));
+            synonym.setDbId(rs.getLong("db_id"));
             synonym.setSymbol(rs.getString("symbol"));
 
             return synonym;
@@ -3581,11 +3575,11 @@ public class CdaSqlUtils {
         public Xref mapRow(ResultSet rs, int rowNum) throws SQLException {
             Xref xref = new Xref();
 
-            xref.setId(rs.getInt("id"));
+            xref.setId(rs.getLong("id"));
             xref.setAccession(rs.getString("acc"));
-            xref.setDatabaseId(rs.getInt("db_id"));
+            xref.setDatabaseId(rs.getLong("db_id"));
             xref.setXrefAccession(rs.getString("xref_acc"));
-            xref.setXrefDatabaseId(rs.getInt("xref_db_id"));
+            xref.setXrefDatabaseId(rs.getLong("xref_db_id"));
 
             return xref;
         }
@@ -3614,7 +3608,7 @@ public class CdaSqlUtils {
    	}
 
 
-   	private int insertBiologicalModel(int dbId, String allelicComposition, String geneticBackground, String zygosity) throws DataLoadException {
+   	private Long insertBiologicalModel(Long dbId, String allelicComposition, String geneticBackground, String zygosity) throws DataLoadException {
 
         final String insert = "INSERT INTO biological_model (" +
                 "db_id,   allelic_composition,  genetic_background,  zygosity) VALUES (" +
@@ -3635,7 +3629,7 @@ public class CdaSqlUtils {
 
             jdbcCda.update(insert, parameterSource, keyholder);
 
-            return keyholder.getKey().intValue();
+            return new Long(keyholder.getKey().intValue());
 
         } catch (DuplicateKeyException e) {
             detail = DataLoadException.DETAIL.DUPLICATE_KEY;
@@ -3659,7 +3653,7 @@ public class CdaSqlUtils {
      * 
      * @throws DataLoadException If the gene(s) are already associated with this biological model
      */
-    private int insertBiologicalModelGenes(int biologicalModelId, Set<AccDbId> genes) throws DataLoadException {
+    private int insertBiologicalModelGenes(Long biologicalModelId, Set<AccDbId> genes) throws DataLoadException {
 
         int count = 0;
 
@@ -3702,7 +3696,7 @@ public class CdaSqlUtils {
      *
      * @throws DataLoadException If the allele(s) are already associated with this biological model
      */
-    private int insertBiologicalModelAlleles(int biologicalModelId, Set<AccDbId> alleles) throws DataLoadException {
+    private int insertBiologicalModelAlleles(Long biologicalModelId, Set<AccDbId> alleles) throws DataLoadException {
 
         int count = 0;
         
@@ -3724,7 +3718,7 @@ public class CdaSqlUtils {
 
             try {
 
-                count += jdbcCda.update(insert, parameterSource, keyholder);
+                count += new Long(jdbcCda.update(insert, parameterSource, keyholder));
 
             } catch (DuplicateKeyException e) {
 
@@ -3735,7 +3729,7 @@ public class CdaSqlUtils {
         return count;
     }
 
-    private int insertBiologicalModelStrains(int biologicalModelId, Set<AccDbId> strains) throws DataLoadException {
+    private int insertBiologicalModelStrains(Long biologicalModelId, Set<AccDbId> strains) throws DataLoadException {
 
         int count = 0;
         
@@ -3757,7 +3751,7 @@ public class CdaSqlUtils {
 
             try {
 
-                count += jdbcCda.update(insert, parameterSource, keyholder);
+                count += new Long(jdbcCda.update(insert, parameterSource, keyholder));
 
             } catch (DuplicateKeyException e) {
 
@@ -3768,7 +3762,7 @@ public class CdaSqlUtils {
         return count;
     }
 
-    private int insertBiologicalModelPhenotypes(int biologicalModelId, Set<AccDbId> phenotypes) throws DataLoadException {
+    private int insertBiologicalModelPhenotypes(Long biologicalModelId, Set<AccDbId> phenotypes) throws DataLoadException {
 
         int count = 0;
         

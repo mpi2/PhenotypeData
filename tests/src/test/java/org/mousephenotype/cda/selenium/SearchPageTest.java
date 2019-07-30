@@ -19,11 +19,8 @@
  */
 package org.mousephenotype.cda.selenium;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import org.junit.*;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.selenium.config.TestConfig;
 import org.mousephenotype.cda.selenium.exception.TestException;
 import org.mousephenotype.cda.selenium.support.Facet;
@@ -45,6 +42,9 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -114,9 +114,6 @@ public class SearchPageTest {
 
     @NotNull @Autowired
     private DataSource komp2DataSource;
-
-    @NotNull @Autowired
-    private PhenotypePipelineDAO phenotypePipelineDAO;
 
 
 
@@ -225,7 +222,7 @@ public class SearchPageTest {
 //            // Apply searchPhrase. Click on this facet. Click on a random page. Click on each download type: Compare page values with download stream values.
 //            String target = paBaseUrl + "/search";
 //
-//            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, paBaseUrl, map);
+//            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, parameterRepository, paBaseUrl, map);
 //            if ( ! searchString.isEmpty()) {
 //                searchPage.submitSearch(searchString + "\n");
 //            }
@@ -348,7 +345,7 @@ public class SearchPageTest {
 //
 //            String target = paBaseUrl + "/search/" + facet.getCoreName() + "?kw=" + (searchTermGroup == null ? "*" : searchTermGroup.solrTarget);
 //
-//            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, paBaseUrl, imageMap);
+//            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, parameterRepository, paBaseUrl, imageMap);
 //
 //            WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//li[@id='" + facet.getFacetName() + "']//span[@class='fcount']")));
 //            filterCount = commonUtils.tryParseInt(element.getText().trim());
@@ -581,7 +578,7 @@ public class SearchPageTest {
 
         // Build and load the page.
         String target = paBaseUrl + "/search?q=" + searchTerm;
-        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, paBaseUrl, imageMap);
+        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, paBaseUrl, imageMap);
         searchPage.submitSearch(searchTerm + "\n");
 
         // Get each core's solr counts.
@@ -634,7 +631,7 @@ public class SearchPageTest {
             RunStatus status = new RunStatus();
             String target = paBaseUrl + "/search";
 
-            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, paBaseUrl, imageMap);
+            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, paBaseUrl, imageMap);
             List<String> autoSuggestions = searchPage.getAutosuggest(geneSymbol);
 
             boolean found = false;
@@ -679,7 +676,7 @@ public class SearchPageTest {
 
         String target = paBaseUrl + "/search";
 
-        SearchPage   searchPage      = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, paBaseUrl, imageMap);
+        SearchPage   searchPage      = new SearchPage(driver, timeoutInSeconds, target, paBaseUrl, imageMap);
         List<String> autoSuggestions = searchPage.getAutosuggest(geneSymbol);
 
         int numTerms = autoSuggestions.size();
@@ -734,7 +731,7 @@ public class SearchPageTest {
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
         String target = paBaseUrl + "/search/?kw=*";
-        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, paBaseUrl, imageMap);
+        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, paBaseUrl, imageMap);
 
         // Get each core's solr counts.
         Map<String, SolrData> solrCoreCountMap = getSolrCoreCounts(null);
@@ -848,7 +845,7 @@ int i = 0;
 
             // Build and load the page.
             String target = paBaseUrl + "/search?q=" + searchTermGroup.pageTarget;
-            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, paBaseUrl, imageMap);
+            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, paBaseUrl, imageMap);
             searchPage.submitSearch(searchTermGroup.pageTarget + "\n");
 
             // Get each core's solr counts.
@@ -894,7 +891,7 @@ int i = 0;
 //
 //            String target = paBaseUrl + "/search/" + facet.getCoreName() + "?kw=*";
 //            System.out.println("Testing facet " + facet.getTabName() + "   " + target);
-//            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, paBaseUrl, imageMap);
+//            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, parameterRepository, paBaseUrl, imageMap);
 //
 //            SearchPage.FacetFilter facetFilter = searchPage.getFacetFilter();
 //            String name = facetFilter.getName();
@@ -970,7 +967,7 @@ int i = 0;
         String searchString = "Hox";
         String target = paBaseUrl + "/search";
 
-        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, paBaseUrl, imageMap);
+        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, paBaseUrl, imageMap);
         List<String> rows = searchPage.getAutosuggest(searchString);
         String expectedStartsWith = "Hox";
 
@@ -1010,7 +1007,7 @@ int i = 0;
         String searchString = "Hox*";
         String target = paBaseUrl + "/search";
 
-        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, paBaseUrl, imageMap);
+        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, paBaseUrl, imageMap);
         List<String> rows = searchPage.getAutosuggest(searchString);
         String expectedStartsWith = "Hox";
 
@@ -1052,7 +1049,7 @@ int i = 0;
 //
 //        try {
 //            target = paBaseUrl + "/search";
-//            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, paBaseUrl, impcImageMap);
+//            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, parameterRepository, paBaseUrl, impcImageMap);
 //
 //            facet = Facet.IMPC_IMAGES;
 //
@@ -1115,7 +1112,7 @@ int i = 0;
 //
 //        String target = paBaseUrl + "/search";
 //
-//        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, paBaseUrl, impcImageMap);
+//        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, parameterRepository, paBaseUrl, impcImageMap);
 //
 //        // Select the correct tab.
 //        searchPage.clickTab(Facet.ANATOMY);
@@ -1230,7 +1227,7 @@ int i = 0;
         try {
             target = urlUtils.urlEncode(paBaseUrl + "/search?q=MGI\\:1353431#fq=*:*&facet=gene");
             System.out.println("target: " + target);
-            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, paBaseUrl, impcImageMap);
+            SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, paBaseUrl, impcImageMap);
 
             // Use the first gene div element in the search results.
             List<WebElement> geneElements = driver.findElements(By.xpath("//*[@id='geneGrid']/tbody/tr[1]"));
@@ -1294,7 +1291,7 @@ int i = 0;
 //            target = paBaseUrl + "/search#" + params.get(core) + "&facet=" + core;
 //
 //            try {
-//                SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, paBaseUrl, imageMap);
+//                SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, parameterRepository, paBaseUrl, imageMap);
 //                searchPage.clickFacetById(core);
 //                Facet facet = searchPage.getFacetByCoreName(core);
 //
@@ -1358,7 +1355,7 @@ int i = 0;
     // Verify that random genes appear in the autosuggest list.
     @Test
 @Ignore
-    public void testQueryingRandomGeneSymbols() throws TestException {
+    public void testQueryingRandomGeneSymbols() throws TestException, JSONException {
         String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
         Date start = new Date();
         RunStatus masterStatus = new RunStatus();
@@ -1383,12 +1380,12 @@ int i = 0;
         String message;
 
         if (docs != null) {
-            int size = docs.size();
+            int size = docs.length();
             for (int i = 0; i < size; i++) {
                 String geneSymbol1 = "";
                 try {
                     geneSymbol1 = docs.getJSONObject(i).getString("marker_symbol");
-                    SearchPage searchPage = new SearchPage(driver, timeoutInSeconds * 2, target, phenotypePipelineDAO, paBaseUrl, imageMap);
+                    SearchPage searchPage = new SearchPage(driver, timeoutInSeconds * 2, target, paBaseUrl, imageMap);
                     searchPage.submitSearch(geneSymbol1);
                     WebDriverWait localWait = new WebDriverWait(driver, 10);        // Wait up to 10 seconds.
                     localWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//ul[contains(@class, 'ui-autocomplete')]")));
@@ -1429,7 +1426,7 @@ int i = 0;
 
     @Test
 @Ignore
-    public void testRandomMgiIds() throws TestException {
+    public void testRandomMgiIds() throws TestException, JSONException {
         String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
         Date start = new Date();
         RunStatus masterStatus = new RunStatus();
@@ -1451,7 +1448,7 @@ int i = 0;
         JSONArray docs = JSONRestUtil.getDocArray(geneResults);
 
         if (docs != null) {
-            int size = docs.size();
+            int size = docs.length();
             int count;
             for (int i = 0; i < size; i++) {
                 RunStatus status = new RunStatus();
@@ -1495,7 +1492,7 @@ int i = 0;
 //
 //        String target = paBaseUrl + "/search";
 //        System.out.println("target Page URL: " + target);
-//        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, paBaseUrl, imageMap);
+//        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, parameterRepository, paBaseUrl, imageMap);
 //
 //        // For each core:
 //        //   Click the first subfacet.
@@ -1602,7 +1599,7 @@ int i = 0;
         String searchString = "Wnt1";
         String target = paBaseUrl + "/search";
 
-        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, phenotypePipelineDAO, paBaseUrl, imageMap);
+        SearchPage searchPage = new SearchPage(driver, timeoutInSeconds, target, paBaseUrl, imageMap);
         List<String> rows = searchPage.getAutosuggest(searchString);
         String expectedResult = "Wnt1";
 

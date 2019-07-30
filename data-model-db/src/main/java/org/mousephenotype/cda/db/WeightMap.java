@@ -34,9 +34,9 @@ public class WeightMap {
 
     private static final String ipgttWeightParameter = "IMPC_IPG_001_001";
 
-    private Map<Integer, List<BodyWeight>> weightMap = new HashMap<>();
-    private Map<Integer, BodyWeight> ipgttWeightMap = new HashMap<>();
-    private DataSource komp2DataSource;
+    private Map<Long, List<BodyWeight>> weightMap      = new HashMap<>();
+    private Map<Long, BodyWeight>       ipgttWeightMap = new HashMap<>();
+    private DataSource                  komp2DataSource;
 
     public WeightMap(@Named("komp2DataSource") DataSource komp2DataSource) throws SQLException {
         this.komp2DataSource = komp2DataSource;
@@ -61,11 +61,11 @@ public class WeightMap {
         logger.debug("  map size: " + ipgttWeightMap.size());
     }
 
-    public Map<Integer, List<BodyWeight>> get() {
+    public Map<Long, List<BodyWeight>> get() {
         return Collections.unmodifiableMap(weightMap);
     }
 
-    public List<BodyWeight> get(Integer specimenId) {
+    public List<BodyWeight> get(Long specimenId) {
         return weightMap.get(specimenId);
     }
 
@@ -74,7 +74,7 @@ public class WeightMap {
     }
 
 
-    public BodyWeight getNearestWeight(Integer specimenID, ZonedDateTime dateOfExperiment) {
+    public BodyWeight getNearestWeight(Long specimenID, ZonedDateTime dateOfExperiment) {
         return getNearestWeight(specimenID, null, dateOfExperiment);
     }
 
@@ -95,7 +95,7 @@ public class WeightMap {
      * @param dateOfExperiment the date the experiment was conducted
      * @return the nearest weight bean to the date of the experiment
      */
-    public BodyWeight getNearestWeight(Integer specimenID, String stableId, ZonedDateTime dateOfExperiment) {
+    public BodyWeight getNearestWeight(Long specimenID, String stableId, ZonedDateTime dateOfExperiment) {
 
         BodyWeight nearest = null;
         String procedureGroup = null;
@@ -165,7 +165,7 @@ public class WeightMap {
      * @param specimenID the specimen
      * @return the nearest weight to the date of the experiment
      */
-    public BodyWeight getNearestIpgttWeight(Integer specimenID) {
+    public BodyWeight getNearestIpgttWeight(Long specimenID) {
 
         BodyWeight nearest = null;
 
@@ -213,9 +213,9 @@ public class WeightMap {
                 b.parameterStableId = resultSet.getString("parameter_stable_id");
                 b.daysOld = resultSet.getInt("days_old");
 
-                final Integer specimenId = resultSet.getInt("biological_sample_id");
+                final Long specimenId = resultSet.getLong("biological_sample_id");
 
-                if (!weightMap.containsKey(specimenId)) {
+                if ( ! weightMap.containsKey(specimenId)) {
                     weightMap.put(specimenId, new ArrayList<>());
                 }
 
@@ -261,7 +261,7 @@ public class WeightMap {
                 b.parameterStableId = resultSet.getString("parameter_stable_id");
                 b.daysOld = resultSet.getInt("days_old");
 
-                final Integer specimenId = resultSet.getInt("biological_sample_id");
+                final Long specimenId = resultSet.getLong("biological_sample_id");
                 ipgttWeightMap.put(specimenId, b);
             }
         }

@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.beans.Field;
 import org.mousephenotype.cda.enumerations.ObservationType;
 

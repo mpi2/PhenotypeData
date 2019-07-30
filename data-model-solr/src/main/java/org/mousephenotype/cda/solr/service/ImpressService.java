@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -92,8 +92,8 @@ public class ImpressService extends BasicService implements WebStatus {
 			QueryResponse response = pipelineCore.query(query);
 
 			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
-				ProcedureDTO procedure = new ProcedureDTO(Integer.getInteger(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_ID).toString()),
-						Integer.getInteger(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_STABLE_KEY).toString()),
+				ProcedureDTO procedure = new ProcedureDTO(Long.getLong(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_ID).toString()),
+														  Long.getLong(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_STABLE_KEY).toString()),
 						group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_STABLE_ID).toString(),
 						group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_NAME).toString());
 				procedures.add(procedure);
@@ -207,15 +207,15 @@ public class ImpressService extends BasicService implements WebStatus {
 			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
 
 				ProcedureDTO procedure = new ProcedureDTO();
-				procedure.setId(Integer.getInteger(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_ID).toString()));
+				procedure.setId(Long.getLong(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_ID).toString()));
 				procedure.setName(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_NAME).toString());
 				procedure.setStableId(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_STABLE_ID).toString());
-				procedure.setStableKey(	Integer.getInteger(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_STABLE_KEY).toString()));
+				procedure.setStableKey(	Long.getLong(group.getResult().get(0).getFirstValue(ImpressDTO.PROCEDURE_STABLE_KEY).toString()));
 
 				for (SolrDocument doc : group.getResult()){
 					ParameterDTO parameter = new ParameterDTO();
-					parameter.setId((Integer)doc.getFirstValue(ImpressDTO.PARAMETER_ID));
-					parameter.setStableKey(	Integer.getInteger(doc.getFirstValue(ImpressDTO.PARAMETER_STABLE_KEY).toString()));
+					parameter.setId((Long)doc.getFirstValue(ImpressDTO.PARAMETER_ID));
+					parameter.setStableKey(	Long.getLong(doc.getFirstValue(ImpressDTO.PARAMETER_STABLE_KEY).toString()));
 					parameter.setStableId(doc.getFirstValue(ImpressDTO.PARAMETER_STABLE_ID).toString());
 					parameter.setName(doc.getFirstValue(ImpressDTO.PARAMETER_NAME).toString());
 					procedure.addParameter(parameter);
@@ -249,8 +249,8 @@ public class ImpressService extends BasicService implements WebStatus {
 				.setRows(1);
 		SolrDocument doc = pipelineCore.query(query).getResults().get(0);
 
-		return new ImpressBaseDTO((Integer)doc.getFirstValue(ImpressDTO.PIPELINE_ID),
-				Integer.getInteger(doc.getFirstValue(ImpressDTO.PIPELINE_STABLE_KEY).toString()),
+		return new ImpressBaseDTO((Long)doc.getFirstValue(ImpressDTO.PIPELINE_ID),
+				Long.getLong(doc.getFirstValue(ImpressDTO.PIPELINE_STABLE_KEY).toString()),
 				doc.getFirstValue(ImpressDTO.PIPELINE_STABLE_ID).toString(),
 				doc.getFirstValue(ImpressDTO.PIPELINE_NAME).toString());
 
@@ -312,7 +312,7 @@ public class ImpressService extends BasicService implements WebStatus {
 	}
 
 
-	public Integer getParameterIdByStableKey(String parameterStableKey) {
+	public Long getParameterIdByStableKey(String parameterStableKey) {
 
 		try {
 			SolrQuery query = new SolrQuery()
@@ -331,7 +331,7 @@ public class ImpressService extends BasicService implements WebStatus {
 	}
 
 
-	public Integer getProcedureStableKey(String procedureStableId) {
+	public Long getProcedureStableKey(String procedureStableId) {
 
 		try {
 			SolrQuery query = new SolrQuery()
@@ -398,7 +398,7 @@ public class ImpressService extends BasicService implements WebStatus {
 	}
 
 
-	public Integer getPipelineStableKey(String pipelineStableId) {
+	public Long getPipelineStableKey(String pipelineStableId) {
 
 		try {
 			SolrQuery query = new SolrQuery()
@@ -449,7 +449,7 @@ public class ImpressService extends BasicService implements WebStatus {
 
 
 	public String getPipelineUrlByStableId(String stableId){
-		Integer pipelineKey = getPipelineStableKey(stableId);
+		Long pipelineKey = getPipelineStableKey(stableId);
 		if (pipelineKey != null ){
 			return cmsBaseUrl + "/impress/procedures/" + pipelineKey;
 		}
@@ -630,16 +630,16 @@ public class ImpressService extends BasicService implements WebStatus {
 	}
 
 	
-	public static String getProcedureUrl(Integer procedureStableKey){
+	public static String getProcedureUrl(Long procedureStableKey){
 		return "/impress/protocol/" + procedureStableKey;
 	}
 
-	public static String getParameterUrl(Integer parameterStableKey){
+	public static String getParameterUrl(Long parameterStableKey){
 		return "/impress/parameterontologies/" + parameterStableKey ;
 	}
 
 
-	public String getParameterUrlByProcedureAndParameterKey(Integer procedureKey,Integer parameterKey) {
+	public String getParameterUrlByProcedureAndParameterKey(Long procedureKey,Long parameterKey) {
 		
 		return cmsBaseUrl + "/impress/parameterontologies/"+parameterKey + "/"+procedureKey;
 	}

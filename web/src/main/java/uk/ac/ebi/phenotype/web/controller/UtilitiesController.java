@@ -15,27 +15,21 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.Group;
 import org.mousephenotype.cda.enumerations.ObservationType;
-import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.PostQcService;
-import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
-import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -74,7 +68,7 @@ public class UtilitiesController {
             @RequestParam(required = false, value = "observationType") String observationType,
             @RequestParam(required = false, value = "parameterId") String[] parameterIds,
             Model model)
-            throws GenomicFeatureNotFoundException, IOException, URISyntaxException, SQLException {
+            throws IOException, URISyntaxException, JSONException {
         log.debug("calling stats links");
 
         //equivalent url from solr service http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment/select?q=observationType:unidimensional&wt=json&indent=true&start=0&rows=10
@@ -95,7 +89,7 @@ public class UtilitiesController {
 
 
 
-    private void getLinksForStats(Integer start, Integer length, Model model, ObservationType type, List<String> parameterIds) throws IOException, URISyntaxException, SQLException {
+    private void getLinksForStats(Integer start, Integer length, Model model, ObservationType type, List<String> parameterIds) throws IOException, URISyntaxException, JSONException {
         if (start == null) {
             start = 0;
         }

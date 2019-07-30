@@ -793,9 +793,9 @@ public class ImpressDataValidationTest extends TestCase {
             Integer integer;
 
             Datasource datasource = new Datasource();
-            datasource.setId(rs.getInt("db_id"));
+            datasource.setId(rs.getLong("db_id"));
 
-            data.setId(rs.getInt("id"));
+            data.setId(rs.getLong("id"));
             data.setStableId(rs.getString("stable_id"));
             data.setDatasource(datasource);
             data.setName(rs.getString("name"));
@@ -828,9 +828,9 @@ public class ImpressDataValidationTest extends TestCase {
             Integer integer;
 
             Datasource datasource = new Datasource();
-            datasource.setId(rs.getInt("db_id"));
+            datasource.setId(rs.getLong("db_id"));
 
-            data.setId(rs.getInt("id"));
+            data.setId(rs.getLong("id"));
             data.setStableId(rs.getString("stable_id"));
             data.setDatasource(datasource);
             data.setName(rs.getString("name"));
@@ -883,9 +883,9 @@ public class ImpressDataValidationTest extends TestCase {
             Integer integer;
 
             Datasource datasource = new Datasource();
-            datasource.setId(rs.getInt("db_id"));
+            datasource.setId(rs.getLong("db_id"));
 
-            data.setId(rs.getInt("id"));
+            data.setId(rs.getLong("id"));
             data.setStableKey(rs.getInt("stable_key"));
             data.setStableId(rs.getString("stable_id"));
             data.setDatasource(datasource);

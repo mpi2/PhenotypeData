@@ -64,7 +64,7 @@ public class ImpressParser implements CommandLineRunner {
     private ApplicationContext context;
     private Datasource         datasource;
     private Logger             logger         = LoggerFactory.getLogger(this.getClass());
-    private Integer            mpDbId;
+    private Long               mpDbId;
     private Set<String>        normalCategory = new HashSet<>();
     private Set<String>        omitPipelines  = new HashSet<>();
 
@@ -601,7 +601,7 @@ public class ImpressParser implements CommandLineRunner {
      * @return the same {@link Parameter} instance, with primary keys set, if successful; null otherwise
      */
     private Parameter insertParameter(Pipeline pipeline, Parameter parameter, Procedure procedure, String pipelineKey) {
-        Integer phenotypeParameterPk = cdabaseSqlUtils.insertPhenotypeParameter(parameter);
+        Long phenotypeParameterPk = cdabaseSqlUtils.insertPhenotypeParameter(parameter);
         if (phenotypeParameterPk == null) {
             logger.warn("INSERT OF pipeline::procedure::parameter " + pipelineKey + "::" + procedure.getStableId() + "::" + phenotypeParameterPk + " failed. Parameter skipped...");
             return null;

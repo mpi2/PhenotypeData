@@ -15,11 +15,12 @@
  ****************************************************************************** */
 package uk.ac.ebi.phenotype.service;
 
-import net.sf.json.JSONObject;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -76,7 +77,7 @@ public class QueryBrokerService {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public JSONObject runQueries(String subfacet, JSONObject queries) throws IOException, URISyntaxException {
+    public JSONObject runQueries(String subfacet, JSONObject queries) throws IOException, URISyntaxException, JSONException {
 
         JSONObject result = new JSONObject();
 
@@ -119,7 +120,7 @@ public class QueryBrokerService {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public JSONObject runQuery(String url) throws IOException, URISyntaxException {
+    public JSONObject runQuery(String url) throws IOException, URISyntaxException, JSONException {
 
         // Perhaps use cached result
         if (cache.containsKey(url)) {
@@ -140,5 +141,4 @@ public class QueryBrokerService {
 
         return result;
     }
-
 }

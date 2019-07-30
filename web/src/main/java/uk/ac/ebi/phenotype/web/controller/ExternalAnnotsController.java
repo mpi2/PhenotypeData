@@ -15,12 +15,12 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -70,11 +70,11 @@ public class ExternalAnnotsController {
 	}
 
 	@ExceptionHandler(Exception.class)
-	private ResponseEntity<String> getSolrErrorResponse(Exception e) {
+	private ResponseEntity<String> getSolrErrorResponse(Exception e) throws JSONException {
 		e.printStackTrace();
 		String bootstrap="<div class=\"alert\"><strong>Warning!</strong>  Error: Search functionality is currently unavailable</div>";
 		String errorJSON="{'aaData':[[' "+bootstrap+"','  ', ' ']], 'iTotalRecords':1,'iTotalDisplayRecords':1}";
-		JSONObject errorJson = (JSONObject) JSONSerializer.toJSON(errorJSON);
+		JSONObject errorJson = new JSONObject(errorJSON);
 		return new ResponseEntity<String>(errorJson.toString(), createResponseHeaders(), HttpStatus.CREATED);
 	}
 

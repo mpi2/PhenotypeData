@@ -21,8 +21,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.slf4j.Logger;
@@ -46,7 +46,7 @@ public class PhenotypeOverviewPerGeneReport extends AbstractReport {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    PostQcService postQcService;
+    GenotypePhenotypeService genotypePhenotypeService;
 
     @Autowired
     ObservationService observationService;
@@ -82,7 +82,7 @@ public class PhenotypeOverviewPerGeneReport extends AbstractReport {
 
         try {
 
-            List<GenotypePhenotypeDTO> gps = postQcService.getAllGenotypePhenotypes(resources);
+            List<GenotypePhenotypeDTO> gps = genotypePhenotypeService.getAllGenotypePhenotypes(resources);
 
             Map<String, Set<String>> geneToPhenotypes = new HashMap<>();
 

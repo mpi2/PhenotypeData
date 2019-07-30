@@ -23,25 +23,15 @@ package org.mousephenotype.cda.db.dao;
  * @since February 2012
  */
 
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.engine.spi.SessionImplementor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.sql.Connection;
-import java.sql.SQLException;
 
 /*
 * Implementation of the HibernateDAO interface
 */
 
-@Repository
-@Transactional
+//@Repository
+//@Transactional
 public class HibernateDAOImpl implements HibernateDAO {
 
 	protected final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
@@ -49,73 +39,73 @@ public class HibernateDAOImpl implements HibernateDAO {
 	/**
 	 * The session factory used to query the database
 	 */
-	@Autowired
-	@Qualifier("sessionFactoryHibernate")
-	protected SessionFactory sessionFactory;
+//	@Autowired
+//	@Qualifier("sessionFactoryHibernate")
+//	protected SessionFactory sessionFactory;
 
 	/**
 	 * Method to get a jdbc connection.
 	 *
 	 * @return a jdbc connection.
 	 */
-	public Connection getConnection() {
-		Session session = getSession();
-
-		SessionImplementor sessionImplementor = (SessionImplementor) session;
-		Connection connection = null;
-
-		try {
-			connection = sessionImplementor.getJdbcConnectionAccess().obtainConnection();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-		return connection;
-	}
-
-	/**
-	 * Method to get a session from the session factory.
-     *
-	 * @return a hibernate session.
-	 */
-	public Session getSession() {
-		Session sess = null;
-		try {
-			sess = sessionFactory.getCurrentSession();
-			if ( ! sess.isOpen()) {
-				sess = sessionFactory.openSession();
-			}
-		} catch (org.hibernate.HibernateException he) {
-			sess = sessionFactory.openSession();
-		}
-		return sess;
-
-	}
-
-	/**
-	 * @return Returns the sessionFactory.
-	 */
-	public SessionFactory getSessionFactory() {
-		return sessionFactory;
-	}
-
-	public void setSessionFactory(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
-
-	/**
-	 * Returns the session associated with the ongoing reward transaction.
-	 * @return the transactional session
-	 */
-	protected Session getCurrentSession() {
-		return sessionFactory.getCurrentSession();
-	}
-
-	protected void finalize() {
-
-		getCurrentSession().flush();
-		getCurrentSession().clear();
-		getCurrentSession().close();
-
-	}
+//	public Connection getConnection() {
+//		Session session = getSession();
+//
+//		SessionImplementor sessionImplementor = (SessionImplementor) session;
+//		Connection connection = null;
+//
+//		try {
+//			connection = sessionImplementor.getJdbcConnectionAccess().obtainConnection();
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		}
+//
+//		return connection;
+//	}
+//
+//	/**
+//	 * Method to get a session from the session factory.
+//     *
+//	 * @return a hibernate session.
+//	 */
+//	public Session getSession() {
+//		Session sess = null;
+//		try {
+//			sess = sessionFactory.getCurrentSession();
+//			if ( ! sess.isOpen()) {
+//				sess = sessionFactory.openSession();
+//			}
+//		} catch (org.hibernate.HibernateException he) {
+//			sess = sessionFactory.openSession();
+//		}
+//		return sess;
+//
+//	}
+//
+//	/**
+//	 * @return Returns the sessionFactory.
+//	 */
+//	public SessionFactory getSessionFactory() {
+//		return sessionFactory;
+//	}
+//
+//	public void setSessionFactory(SessionFactory sessionFactory) {
+//		this.sessionFactory = sessionFactory;
+//	}
+//
+//	/**
+//	 * Returns the session associated with the ongoing reward transaction.
+//	 * @return the transactional session
+//	 */
+//	protected Session getCurrentSession() {
+//		return sessionFactory.getCurrentSession();
+//	}
+//
+//	protected void finalize() {
+//
+//		getCurrentSession().flush();
+//		getCurrentSession().clear();
+//		getCurrentSession().close();
+//
+//	}
 }

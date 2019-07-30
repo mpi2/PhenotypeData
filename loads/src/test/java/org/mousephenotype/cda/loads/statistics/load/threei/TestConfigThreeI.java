@@ -2,10 +2,8 @@ package org.mousephenotype.cda.loads.statistics.load.threei;
 
 
 import org.hibernate.SessionFactory;
-import org.mousephenotype.cda.db.dao.OntologyTermDAO;
-import org.mousephenotype.cda.db.dao.OntologyTermDAOImpl;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAOImpl;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
+import org.mousephenotype.cda.db.repositories.ParameterRepository;
 import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
@@ -13,27 +11,41 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
-import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.persistence.EntityManagerFactory;
+import javax.inject.Inject;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 
 /**
  * Created by mrelac on 02/05/2017.
  */
 @Configuration
+@EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
 @EnableTransactionManagement
 @ComponentScan
 public class TestConfigThreeI {
+
+
+    private OntologyTermRepository ontologyTermRepository;
+    private ParameterRepository    parameterRepository;
+
+
+    @Inject
+    public TestConfigThreeI(
+           @NotNull OntologyTermRepository ontologyTermRepository,
+           @NotNull ParameterRepository    parameterRepository)
+    {
+        this.ontologyTermRepository = ontologyTermRepository;
+        this.parameterRepository = parameterRepository;
+    }
 
 
     //////////////
@@ -83,29 +95,14 @@ public class TestConfigThreeI {
         return sessionBuilder.buildSessionFactory();
     }
 
-    @Bean(name = "komp2TxManager")
-    @Primary
-    protected PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
-        JpaTransactionManager tm = new JpaTransactionManager();
-        tm.setEntityManagerFactory(emf);
-        tm.setDataSource(komp2DataSource());
-        return tm;
-    }
-
-
-    ///////
-    // DAOs
-    ///////
-
-    @Bean
-    public OntologyTermDAO ontologyTermDAO() {
-        return new OntologyTermDAOImpl(sessionFactory());
-    }
-
-    @Bean
-    public PhenotypePipelineDAO pipelineDAO() {
-        return new PhenotypePipelineDAOImpl(sessionFactory());
-    }
+//    @Bean(name = "komp2TxManager")
+//    @Primary
+//    protected PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
+//        JpaTransactionManager tm = new JpaTransactionManager();
+//        tm.setEntityManagerFactory(emf);
+//        tm.setDataSource(komp2DataSource());
+//        return tm;
+//    }
 
 
     ///////////
@@ -114,7 +111,7 @@ public class TestConfigThreeI {
 
     @Bean
     public MpTermService mpTermService() {
-        return new MpTermService(ontologyTermDAO(), pipelineDAO());
+        return new MpTermService(ontologyTermRepository, parameterRepository);
     }
 
 

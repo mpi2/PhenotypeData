@@ -19,21 +19,21 @@ package org.mousephenotype.cda.reports;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.dao.AnalyticsDAO;
+import org.mousephenotype.cda.db.repositories.MetaInfoRepository;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.beans.Introspector;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -48,21 +48,30 @@ public class ImpcGafReport extends AbstractReport {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    PostQcService postQcService;
 
-    @Autowired
-    ObservationService observationService;
+    private GeneService              geneService;
+    private GenotypePhenotypeService genotypePhenotypeService;
+    private MetaInfoRepository       metaInfoRepository;
+    private ObservationService       observationService;
 
-    @Autowired
-    GeneService geneService;
 
-    @Autowired
-    AnalyticsDAO analyticsDAO;
-
-    public ImpcGafReport() {
+    @Inject
+    public ImpcGafReport(
+            @NotNull GeneService geneService,
+            @NotNull GenotypePhenotypeService genotypePhenotypeService,
+            @NotNull MetaInfoRepository metaInfoRepository,
+            @NotNull ObservationService observationService)
+    {
         super(ReportFormat.tsv);
+        this.geneService = geneService;
+        this.genotypePhenotypeService = genotypePhenotypeService;
+        this.metaInfoRepository = metaInfoRepository;
+        this.observationService = observationService;
     }
+
+    //    public ImpcGafReport() {
+//        super(ReportFormat.tsv);
+//    }
 
     @Override
     public String getDefaultFilename() {
@@ -91,7 +100,7 @@ public class ImpcGafReport extends AbstractReport {
 
         try {
 
-            List<GenotypePhenotypeDTO> gpDTOList = postQcService.getAllGenotypePhenotypes(resources);
+            List<GenotypePhenotypeDTO> gpDTOList = genotypePhenotypeService.getAllGenotypePhenotypes(resources);
 
             Map<String, GenotypePhenotypeDTO> geneToPhenotypes = new TreeMap<>();        // key is MGI Gene Id + "_" + MP ID. Value is GenotypePheontypeDTO.
 
@@ -115,7 +124,7 @@ public class ImpcGafReport extends AbstractReport {
             }
 
             // Write the data.
-            Date releaseDate = tryParseDate(new SimpleDateFormat("dd MMM yyyy"), analyticsDAO.getMetaData().get("data_release_date"));
+            Date releaseDate = tryParseDate(new SimpleDateFormat("dd MMM yyyy"), metaInfoRepository.findByPropertyKey("data_release_date").getPropertyValue());
             String dataReleaseDate = (releaseDate == null ? "" : new SimpleDateFormat("yyyyMMdd").format(releaseDate));
 
             for (GenotypePhenotypeDTO gpDTO : geneToPhenotypes.values()) {
@@ -150,7 +159,7 @@ public class ImpcGafReport extends AbstractReport {
                 csvWriter.writeRow(row);
             }
 
-        } catch (SolrServerException | SQLException | IOException e) {
+        } catch (SolrServerException | IOException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }
 

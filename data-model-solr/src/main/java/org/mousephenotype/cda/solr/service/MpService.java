@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -30,6 +29,8 @@ import org.mousephenotype.cda.solr.service.dto.HpDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.mousephenotype.cda.web.WebStatus;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -296,7 +297,7 @@ public class MpService extends BasicService implements WebStatus{
 	}
 
 	// get computationally mapped HP terms of MP from Solr json doc of an MP
-	public Set<SimpleOntoTerm> getComputationalHPTerms(JSONObject doc){
+	public Set<SimpleOntoTerm> getComputationalHPTerms(JSONObject doc) throws JSONException  {
 		// this mapping is computational
 		List<String> hpIds = getListFromJson(doc.getJSONArray(HpDTO.HP_ID));
 		List<String> hpTerms = getListFromJson(doc.getJSONArray(HpDTO.HP_TERM));

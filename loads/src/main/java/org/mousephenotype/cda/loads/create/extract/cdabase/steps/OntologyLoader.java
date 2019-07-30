@@ -46,7 +46,7 @@ public class OntologyLoader implements Step, Tasklet, InitializingBean {
 
     private CdaSqlUtils cdaSqlUtils;
     private CommonUtils          commonUtils = new CommonUtils();
-    private int                  dbId;
+    private long                 dbId;
     private final Logger         logger      = LoggerFactory.getLogger(this.getClass());
     private String               prefix;
     private StepBuilderFactory   stepBuilderFactory;

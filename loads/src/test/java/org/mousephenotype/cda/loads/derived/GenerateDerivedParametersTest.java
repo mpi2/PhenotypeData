@@ -4,12 +4,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.dao.*;
+import org.mousephenotype.cda.db.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.sql.*;
@@ -21,30 +23,69 @@ import java.sql.*;
 @Rollback
 public class GenerateDerivedParametersTest {
 
-    @Autowired @NotNull DataSource komp2DataSource;
-    @Autowired @NotNull BiologicalModelDAO biologicalModelDAO;
-    @Autowired @NotNull DatasourceDAO datasourceDAO;
-    @Autowired @NotNull OrganisationDAO organisationDAO;
-    @Autowired @NotNull PhenotypePipelineDAO phenotypePipelineDAO;
-    @Autowired @NotNull ObservationDAO observationDAO;
-    @Autowired @NotNull ProjectDAO projectDAO;
+    private BiologicalModelRepository biologicalModelRepository;
+    private DatasourceRepository      datasourceRepository;
+    private ExperimentRepository      experimentRepository;
+    private GenerateDerivedParameters generateDerivedParameters;
+    private DataSource                komp2DataSource;
+    private LiveSampleRepository      liveSampleRepository;
+    private ObservationRepository     observationRepository;
+    private OrganisationRepository    organisationRepository;
+    private ParameterRepository       parameterRepository;
+    private PipelineRepository        pipelineRepository;
+    private ProcedureRepository       procedureRepository;
+    private ProjectRepository         projectRepository;
 
-    GenerateDerivedParameters generateDerivedParameters;
+
+    @Inject
+    public GenerateDerivedParametersTest(
+            @NotNull BiologicalModelRepository biologicalModelRepository,
+            @NotNull DatasourceRepository      datasourceRepository,
+            @NotNull ExperimentRepository      experimentRepository,
+            @NotNull GenerateDerivedParameters generateDerivedParameters,
+            @NotNull DataSource                komp2DataSource,
+            @NotNull LiveSampleRepository      liveSampleRepository,
+            @NotNull ObservationRepository     observationRepository,
+            @NotNull OrganisationRepository    organisationRepository,
+            @NotNull ParameterRepository       parameterRepository,
+            @NotNull PipelineRepository        pipelineRepository,
+            @NotNull ProcedureRepository       procedureRepository,
+            @NotNull ProjectRepository         projectRepository)
+    {
+        this.biologicalModelRepository = biologicalModelRepository;
+        this.datasourceRepository = datasourceRepository;
+        this.experimentRepository = experimentRepository;
+        this.generateDerivedParameters = generateDerivedParameters;
+        this.komp2DataSource = komp2DataSource;
+        this.liveSampleRepository = liveSampleRepository;
+        this.observationRepository = observationRepository;
+        this.parameterRepository = parameterRepository;
+        this.procedureRepository = procedureRepository;
+        this.organisationRepository = organisationRepository;
+        this.pipelineRepository = pipelineRepository;
+        this.projectRepository = projectRepository;
+    }
+
+
 
     @Before
     public void setup() {
-        generateDerivedParameters = new GenerateDerivedParameters(komp2DataSource,
-                biologicalModelDAO,
-                datasourceDAO,
-                organisationDAO,
-                phenotypePipelineDAO,
-                observationDAO,
-                projectDAO
-        );
-        generateDerivedParameters.loadAllDatasources();
-        generateDerivedParameters.loadAllOrganisations();
-        generateDerivedParameters.loadAllPipelinesByStableIds();
-        generateDerivedParameters.loadAllProjects();
+        generateDerivedParameters = new GenerateDerivedParameters(
+                biologicalModelRepository,
+                datasourceRepository,
+                experimentRepository,
+                komp2DataSource,
+                liveSampleRepository,
+                observationRepository,
+                organisationRepository,
+                parameterRepository,
+                pipelineRepository,
+                procedureRepository,
+                projectRepository);
+        generateDerivedParameters.loadAllDatasourcesById();
+        generateDerivedParameters.loadAllOrganisationsById();
+        generateDerivedParameters.loadAllPipelinesByStableId();
+        generateDerivedParameters.loadAllProjectsById();
     }
 
     @Test
@@ -77,7 +118,6 @@ public class GenerateDerivedParametersTest {
                 System.out.println("");
 
             }
-
         }
 
         assert resultCount == 2;

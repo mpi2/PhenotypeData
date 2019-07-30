@@ -3,17 +3,16 @@ package org.mousephenotype.cda.loads.create.releasenotes;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.dao.OntologyTermDAO;
-import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
-import java.io.File;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
@@ -29,7 +28,7 @@ import java.util.regex.Pattern;
  * Populate meta_info table and associated tables to a new datarelease. Must be run at the end of the release process, after the solr cores are built as well.
  * This is a replacement for the one in AdminTools.
  */
-public class ReleaseAnalyticsManager {
+public class ReleaseAnalyticsManager implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(ReleaseAnalyticsManager.class);
 
@@ -189,74 +188,51 @@ public class ReleaseAnalyticsManager {
     Pattern allelePattern = Pattern.compile(ALLELE_NOMENCLATURE);
     Pattern targetedClass1Pattern = Pattern.compile(TARGETED_ALLELE_CLASS_1);
 
-    PreparedStatement insertAlleleStatement;
-    PreparedStatement alleleTypeStatement;
-    PreparedStatement insertWithdrawnMarkerStatement;
+    HashMap<String, List<String>> alleles          = new HashMap<>();
+    Map<String, Integer>          alleleTypes      = new HashMap<>();
+    Map<String, Integer>          vectorProjects   = new HashMap<>();
+    Map<String, Integer>          phenotypedLines  = new HashMap<>();
+    Map<String, Integer>          mutantSpecimens  = new HashMap<>();
+    Map<String, Integer>          controlSpecimens = new HashMap<>();
+    Map<String, List<String>>     centerPipelines  = new HashMap<>();
 
-    @Autowired
-    DataSource komp2DataSource;
-    private OntologyTermDAO ontologyTermDAO;
-    private PostQcService postQcService;
-
-    //private PhenotypeSummaryDAO phenSummary;
-
-    HashMap<String, List<String>> alleles = new HashMap<String, List<String>>();
-    Map<String, Integer> alleleTypes = new HashMap<String, Integer>();
-    Map<String, Integer> vectorProjects = new HashMap<String, Integer>();
-    Map<String, Integer> phenotypedLines = new HashMap<String, Integer>();
-    Map<String, Integer> mutantSpecimens = new HashMap<String, Integer>();
-    Map<String, Integer> controlSpecimens = new HashMap<String, Integer>();
-    Map<String, List<String>> centerPipelines = new HashMap<String, List<String>>();
-
-    List<String> alleleTypeList = new ArrayList<String>();
-    List<String> vectorProjectList = new ArrayList<String>();
-    List<String> phenotypingCenterList = new ArrayList<String>();
+    List<String> alleleTypeList        = new ArrayList<>();
+    List<String> vectorProjectList     = new ArrayList<>();
+    List<String> phenotypingCenterList = new ArrayList<>();
 
 
-    public ReleaseAnalyticsManager(ApplicationContext applicationContext) throws ClassNotFoundException, SQLException {
+    private GenotypePhenotypeService genotypePhenotypeService;
 
+
+    @Inject
+    public ReleaseAnalyticsManager(
+            @NotNull GenotypePhenotypeService genotypePhenotypeService,
+            @NotNull DataSource komp2DataSource) throws SQLException
+    {
+        this.genotypePhenotypeService = genotypePhenotypeService;
         connection = komp2DataSource.getConnection();
-        postQcService = (PostQcService) applicationContext.getBean("postqcService");
-
-        //ontologyTermDAO = (OntologyTermDAO) applicationContext.getBean("ontologyTermDAO");
-
     }
 
     public static void help() {
         StringBuffer buffer = new StringBuffer();
         buffer.append("ReleaseAnalyticsManager usage:\n\n");
-        buffer.append("\tReleaseAnalyticsManager --dir <filename> --context <Spring context>\n");
-//		buffer.append("\t--dir|-d\tdirectory containing the MGI reports\n");
-        buffer.append("\t--context|-c\tSpring application context configuration file\n");
+        buffer.append("\tReleaseAnalyticsManager --dir <filename>\n");
         buffer.append("\t--dr\tData release version\n");
         buffer.append("\t--drdate\tData release date\n");
         System.out.println(buffer);
         System.exit(1);
     }
 
-    public static void main(String[] args) throws SQLException, ClassNotFoundException, IOException, SolrServerException {
+    @Override
+    public void run(String... args) throws Exception {
 
         OptionParser parser = new OptionParser();
-//		parser.accepts( "dir" ).withRequiredArg();
-        parser.accepts("context").withRequiredArg();
 
         parser.accepts("dr").withOptionalArg();
         parser.accepts("drdate").withOptionalArg();
         parser.accepts("psversion").withOptionalArg();
 
         OptionSet options = parser.parse(args);
-
-        if (!options.has("context")) {
-            help();
-        }
-
-        // Check context file exists
-        String contextFile = (String) options.valueOf("context");
-        File f = new File(contextFile);
-        if (!f.isFile() || !f.canRead()) {
-            System.err.println("Context file " + contextFile + " not readable.");
-            help();
-        }
 
         boolean redoDataDesc = false;
         if (options.has("dr")) {
@@ -277,18 +253,14 @@ public class ReleaseAnalyticsManager {
 
         // Update the facts about this release
         updateStaticFacts();
-
-        ApplicationContext applicationContext = new FileSystemXmlApplicationContext("file:" + contextFile);
-
-        ReleaseAnalyticsManager manager = new ReleaseAnalyticsManager(applicationContext);
-        manager.populateMetaInfo();
-        manager.createAnalyticsTables();
-        manager.pValuesDistribution();
-        manager.populateMPTerms();
-        manager.populateMetaInfoWithMPTerms();
-        ////manager.setStatisticalMethods();
-
+        populateMetaInfo();
+        createAnalyticsTables();
+        pValuesDistribution();
+        populateMPTerms();
+        populateMetaInfoWithMPTerms();
     }
+
+
 
     private void insertMPTerm(
             Statement insertStatement,
@@ -337,7 +309,6 @@ public class ReleaseAnalyticsManager {
                 String query = "INSERT INTO analytics_mp_calls(phenotyping_center,marker_symbol,marker_accession_id,colony_id,mp_term_id,mp_term_name,mp_term_level) " +
                         "VALUES(" + values.toString() + ")";
                 insertStatement.executeUpdate(query);
-
             }
         }
     }
@@ -350,7 +321,7 @@ public class ReleaseAnalyticsManager {
         Statement insertStatement = connection.createStatement();
 
 
-        dataset = postQcService.getAllMPByPhenotypingCenterAndColonies(resource);
+        dataset = genotypePhenotypeService.getAllMPByPhenotypingCenterAndColonies(resource);
 
         System.out.println("TOP LEVEL");
         String mpTermAccField = GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID;
@@ -805,4 +776,9 @@ public class ReleaseAnalyticsManager {
         return result;
     }
 
+
+    public static void main(String args[]) {
+
+        SpringApplication.run(ReleaseAnalyticsManager.class, args);
+    }
 }

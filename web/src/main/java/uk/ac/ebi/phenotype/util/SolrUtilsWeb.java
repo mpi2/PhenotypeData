@@ -15,13 +15,14 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.util;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -44,7 +45,7 @@ public class SolrUtilsWeb {
 	}
 
 
-	public List fetchImpcImagePathByAnnotName(String query, String fqStr) throws IOException, URISyntaxException {
+	public List fetchImpcImagePathByAnnotName(String query, String fqStr) throws IOException, URISyntaxException, JSONException  {
 
 		List pathAndCount = new ArrayList<>();
 		//String mediaBaseUrl = config.get("mediaBaseUrl");
@@ -56,9 +57,7 @@ public class SolrUtilsWeb {
 		String queryUrl = qryBaseUrl + maxNum;
 		String queryUrlCount = qryBaseUrl + "0";
 
-		//System.out.println("SolrIndex: " + queryUrl);
-		List<String> imgs = new ArrayList<String>();
-		//List<String> imgPath = new ArrayList<String>();
+		List<String> imgs = new ArrayList<>();
 
 		JSONObject imgCountJson  = solrIndex.getResults(queryUrlCount);
 		JSONObject thumbnailJson = solrIndex.getResults(queryUrl);
@@ -66,7 +65,7 @@ public class SolrUtilsWeb {
 		Integer   imgCount = imgCountJson.getJSONObject("response").getInt("numFound");
 		JSONArray docs     = thumbnailJson.getJSONObject("response").getJSONArray("docs");
 
-		int dataLen = docs.size() < 5 ? docs.size() : maxNum;
+		int dataLen = docs.length() < 5 ? docs.length() : maxNum;
 
 		for (int i = 0; i < dataLen; i ++) {
 			JSONObject doc = docs.getJSONObject(i);
@@ -74,7 +73,7 @@ public class SolrUtilsWeb {
 			//String link = null;
 			String img = null;
 
-			if (doc.containsKey("omero_id") && (doc.getInt("omero_id")!=0)) {
+			if (doc.has("omero_id") && (doc.getInt("omero_id")!=0)) {
 				String fullSizePath =impcMediaBaseUrl+"/render_image/"+ doc.getString("omero_id"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
 				String downloadUrl=doc.getString("download_url");
 				//System.out.println("full size path="+downloadUrl);

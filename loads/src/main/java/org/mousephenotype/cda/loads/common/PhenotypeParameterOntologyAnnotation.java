@@ -18,12 +18,12 @@ package org.mousephenotype.cda.loads.common;
 
 public class PhenotypeParameterOntologyAnnotation {
 
-    private int id;
-    private String eventType;
+    private long    id;
+    private String  eventType;
     private Integer optionId;
-    private String ontologyAcc;
-    private Integer ontologyDbId;
-    private String sex;
+    private String  ontologyAcc;
+    private Long    ontologyDbId;
+    private String  sex;
 
     public PhenotypeParameterOntologyAnnotation() {
     }
@@ -38,11 +38,11 @@ public class PhenotypeParameterOntologyAnnotation {
         this.sex = ppoa.sex;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -70,11 +70,11 @@ public class PhenotypeParameterOntologyAnnotation {
         this.ontologyAcc = ontologyAcc;
     }
 
-    public Integer getOntologyDbId() {
+    public Long getOntologyDbId() {
         return ontologyDbId;
     }
 
-    public void setOntologyDbId(Integer ontologyDbId) {
+    public void setOntologyDbId(Long ontologyDbId) {
         this.ontologyDbId = ontologyDbId;
     }
 

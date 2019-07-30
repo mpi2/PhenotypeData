@@ -16,7 +16,6 @@
 
 package org.mousephenotype.cda.loads.derived;
 
-import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
@@ -28,12 +27,8 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
-import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 @Configuration
@@ -56,23 +51,23 @@ public class GenerateDerivedParametersTestConfig {
                 .build();
     }
 
-    @Bean(name = "komp2TxManager")
-    protected PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
-        JpaTransactionManager tm = new JpaTransactionManager();
-        tm.setEntityManagerFactory(emf);
-        tm.setDataSource(komp2DataSource());
-        return tm;
-    }
-
-    @Bean(name = "sessionFactoryHibernate")
-    public SessionFactory sessionFactory() {
-
-        LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
-        sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
-        sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
-
-        return sessionBuilder.buildSessionFactory();
-    }
+//    @Bean(name = "komp2TxManager")
+//    protected PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
+//        JpaTransactionManager tm = new JpaTransactionManager();
+//        tm.setEntityManagerFactory(emf);
+//        tm.setDataSource(komp2DataSource());
+//        return tm;
+//    }
+//
+//    @Bean(name = "sessionFactoryHibernate")
+//    public SessionFactory sessionFactory() {
+//
+//        LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
+//        sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
+//        sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
+//
+//        return sessionBuilder.buildSessionFactory();
+//    }
 
     @Bean
     public CdaSqlUtils cdaSqlUtils() {

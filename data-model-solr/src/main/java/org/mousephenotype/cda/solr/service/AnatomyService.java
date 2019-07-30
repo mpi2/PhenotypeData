@@ -15,25 +15,24 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.FacetField;
-import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
-import org.mousephenotype.cda.solr.service.dto.BasicBean;
-import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class AnatomyService extends BasicService implements WebStatus {
@@ -93,25 +92,6 @@ public class AnatomyService extends BasicService implements WebStatus {
 	}
 
 	/**
-	 * Return all anatomy terms from the anatomy core.
-	 *
-	 * @return all anas from the anatomy core.
-	 * @throws SolrServerException, IOException
-	 */
-	public List<AnatomyDTO> getAllMaTerms() throws SolrServerException, IOException  {
-
-		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery(AnatomyDTO.ANATOMY_ID + ":*");
-		solrQuery.setRows(1000000);
-		QueryResponse rsp;
-		rsp = anatomyCore.query(solrQuery);
-		List<AnatomyDTO> anas = rsp.getBeans(AnatomyDTO.class);
-
-		return anas;
-	}
-
-
-	/**
 	 * @author ilinca
 	 * @since 2016/05/03
 	 * @param id
@@ -153,8 +133,6 @@ public class AnatomyService extends BasicService implements WebStatus {
 		return parents;
 	}
 
-
-
 	/**
 	 * @author ilinca
 	 * @since 2016/05/03
@@ -189,48 +167,6 @@ public class AnatomyService extends BasicService implements WebStatus {
 			children.add(new OntologyBean(mps.get(0).getChildAnatomyId().get(i), mps.get(0).getChildAnatomyTerm().get(i)));
 		}
 
-		return children;
-	}
-	
-	
-	public Set<BasicBean> getAllTopLevelPhenotypesAsBasicBeans() throws SolrServerException, IOException  {
-
-		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.addFacetField("top_level_mp_term_id");
-		solrQuery.setRows(0);
-		QueryResponse rsp = anatomyCore.query(solrQuery);
-		logger.debug("solr query in basicbean=" + solrQuery);
-
-		HashSet<BasicBean> allTopLevelPhenotypes = new LinkedHashSet<BasicBean>();
-		for (FacetField ff : rsp.getFacetFields()) {
-			for (Count count : ff.getValues()) {
-				String mpArray[] = count.getName().split("___");
-				BasicBean bean = new BasicBean();
-				bean.setName(mpArray[0]);
-				bean.setId(mpArray[1]);
-				allTopLevelPhenotypes.add(bean);
-			}
-
-		}
-		return allTopLevelPhenotypes;
-	}
-
-	public ArrayList<String> getChildrenFor(String mpId) throws SolrServerException, IOException  {
-
-		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery(MpDTO.MP_ID + ":\"" + mpId + "\"");
-		solrQuery.setFields(MpDTO.CHILD_MP_ID);
-		QueryResponse rsp = anatomyCore.query(solrQuery);
-		SolrDocumentList res = rsp.getResults();
-		ArrayList<String> children = new ArrayList<String>();
-
-		for (SolrDocument doc : res) {
-			if (doc.containsKey(MpDTO.CHILD_MP_ID)) {
-				for (Object child : doc.getFieldValues(MpDTO.CHILD_MP_ID)) {
-					children.add((String) child);
-				}
-			}
-		}
 		return children;
 	}
 

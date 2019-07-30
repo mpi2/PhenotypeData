@@ -17,35 +17,21 @@ package uk.ac.ebi.phenotype.web.controller;
 
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
-import org.mousephenotype.cda.solr.web.dto.GenePageTableRow;
 import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
-import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
-import uk.ac.ebi.phenotype.web.dao.SecondaryProject3iImpl;
-import uk.ac.ebi.phenotype.web.dao.SecondaryProjectService;
-import uk.ac.ebi.phenotype.web.util.FileExportUtils;
+import uk.ac.ebi.phenotype.web.dao.GenesSecondaryProject3IImpl;
+import uk.ac.ebi.phenotype.web.dao.GenesSecondaryProjectService;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -55,11 +41,11 @@ public class GeneHeatmapController {
 
     @Autowired
     @Qualifier("idg")
-	private SecondaryProjectService idgSecondaryProjectService;
+	private GenesSecondaryProjectService idgGenesSecondaryProjectService;
 
     @Autowired
     @Qualifier("threeI")
-	private SecondaryProject3iImpl threeISecondaryProjectDAO;
+	private GenesSecondaryProject3IImpl threeISecondaryProjectDAO;
 
     @Autowired
     StatisticalResultService srService;
@@ -80,10 +66,10 @@ public class GeneHeatmapController {
 
 		if (project.equalsIgnoreCase("idg")) {
 
-			Long time = System.currentTimeMillis();
-			SecondaryProjectService secondaryProjectService = this.getSecondaryProjectDao(project);
-			List<GeneRowForHeatMap> geneRows = secondaryProjectService.getGeneRowsForHeatMap(request);
-			List<BasicBean> xAxisBeans = secondaryProjectService.getXAxisForHeatMap();
+			Long                         time                         = System.currentTimeMillis();
+			GenesSecondaryProjectService genesSecondaryProjectService = this.getSecondaryProjectDao(project);
+			List<GeneRowForHeatMap>      geneRows                     = genesSecondaryProjectService.getGeneRowsForHeatMap(request);
+			List<BasicBean>              xAxisBeans                   = genesSecondaryProjectService.getXAxisForHeatMap();
 		    model.addAttribute("geneRows", geneRows);
 		    model.addAttribute("xAxisBeans", xAxisBeans);
 			System.out.println("HeatMap: Getting the data took " + (System.currentTimeMillis() - time) + "ms");
@@ -98,22 +84,22 @@ public class GeneHeatmapController {
 			throws SolrServerException, IOException, SQLException {
 
 		System.out.println("calling heatmap controller method for 3i");
-		String project="threeI";
-		Long time = System.currentTimeMillis();
-	    List<BasicBean> xAxisBeans = srService.getProceduresForDataSource("3i"); //procedures
-		SecondaryProjectService secondaryProjectService = this.getSecondaryProjectDao(project);
-		List<GeneRowForHeatMap> geneRows = secondaryProjectService.getGeneRowsForHeatMap(request);
+		String                       project                      ="threeI";
+		Long                         time                         = System.currentTimeMillis();
+	    List<BasicBean>              xAxisBeans                   = srService.getProceduresForDataSource("3i"); //procedures
+		GenesSecondaryProjectService genesSecondaryProjectService = this.getSecondaryProjectDao(project);
+		List<GeneRowForHeatMap>      geneRows                     = genesSecondaryProjectService.getGeneRowsForHeatMap(request);
 	    model.addAttribute("geneRows", geneRows);
 	    model.addAttribute("xAxisBeans", xAxisBeans);
 		System.out.println("HeatMap: Getting the data took " + (System.currentTimeMillis() - time) + "ms");
 	    return "threeIMap";
 	}
 
-	private SecondaryProjectService getSecondaryProjectDao(String project) {
-		if(project.equalsIgnoreCase(SecondaryProjectService.SecondaryProjectIds.IDG.name())){
-			return idgSecondaryProjectService;
+	private GenesSecondaryProjectService getSecondaryProjectDao(String project) {
+		if(project.equalsIgnoreCase(GenesSecondaryProjectService.SecondaryProjectIds.IDG.name())){
+			return idgGenesSecondaryProjectService;
 		}
-		if(project.equalsIgnoreCase(SecondaryProjectService.SecondaryProjectIds.threeI.name())){
+		if(project.equalsIgnoreCase(GenesSecondaryProjectService.SecondaryProjectIds.threeI.name())){
 			return threeISecondaryProjectDAO;
 		}
 		return null;

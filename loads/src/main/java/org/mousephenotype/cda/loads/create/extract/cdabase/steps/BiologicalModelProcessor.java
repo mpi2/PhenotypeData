@@ -87,7 +87,7 @@ public class BiologicalModelProcessor implements ItemProcessor<BioModelInsertDTO
                 logger.info("No allele accession id found for allele symbol '" + alleleSymbol + "'. Skipping...");
                 return null;
             } else {
-                alleles.add(new AccDbId(allele.getId().getAccession(), DbIdType.MGI.intValue()));
+                alleles.add(new AccDbId(allele.getId().getAccession(), DbIdType.MGI.longValue()));
             }
         } else {
             logger.info("No alleleSymbol was found for bioModel " + bioModelIn + ". Skipping...");
@@ -103,7 +103,7 @@ public class BiologicalModelProcessor implements ItemProcessor<BioModelInsertDTO
         // Inflate any rows with multiple genes that are separated by ",".
         String[]      geneAccessionIds = bioModelIn.getGenes().iterator().next().getAcc().split(Pattern.quote(","));
         for (String geneAccessionId : geneAccessionIds) {
-            genes.add(new AccDbId(geneAccessionId, DbIdType.MGI.intValue()));
+            genes.add(new AccDbId(geneAccessionId, DbIdType.MGI.longValue()));
         }
         if (genes.size() > 1) {
             logger.info("MULTI-GENE: " + bioModelIn);       // As of 2017-10-06, there were only five of these.
@@ -112,7 +112,7 @@ public class BiologicalModelProcessor implements ItemProcessor<BioModelInsertDTO
 
 
         // As of 2017-10-05, phenotypes don't appear more than once on an given input line. Just load them.
-        phenotypes.add(new AccDbId(bioModelIn.getPhenotypes().iterator().next().getAcc(), DbIdType.MGI.intValue()));
+        phenotypes.add(new AccDbId(bioModelIn.getPhenotypes().iterator().next().getAcc(), DbIdType.MGI.longValue()));
 
 
         // If the biological model already exists, use it; otherwise, create a new one with empty collections and add it to the map.

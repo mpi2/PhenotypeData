@@ -16,16 +16,12 @@
 
 package uk.ac.ebi.phenotype.web;
 
-import org.hibernate.SessionFactory;
-import org.mousephenotype.cda.db.dao.ObservationDAO;
-import org.mousephenotype.cda.db.dao.ObservationDAOImpl;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 import uk.ac.ebi.phenotype.service.UniprotService;
 
 import javax.annotation.PostConstruct;
@@ -104,15 +100,15 @@ public class TestConfig {
 	// HIBERNATE
 	////////////
 
-	@Bean(name = "sessionFactoryHibernate")
-	public SessionFactory sessionFactory() {
-
-		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
-		sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
-		sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
-
-		return sessionBuilder.buildSessionFactory();
-	}
+//	@Bean(name = "sessionFactoryHibernate")
+//	public SessionFactory sessionFactory() {
+//
+//		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
+//		sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
+//		sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
+//
+//		return sessionBuilder.buildSessionFactory();
+//	}
 
 
 	///////////
@@ -122,15 +118,5 @@ public class TestConfig {
 	@Bean
 	public UniprotService uniprotService() {
 		return new UniprotService();
-	}
-
-
-	///////
-	// DAOs
-	///////
-
-	@Bean
-	public ObservationDAO observationDAO() {
-		return new ObservationDAOImpl(sessionFactory());
 	}
 }

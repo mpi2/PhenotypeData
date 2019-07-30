@@ -2,8 +2,7 @@ package org.mousephenotype.cda.reports.support;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.hibernate.SessionFactory;
-import org.mousephenotype.cda.db.dao.*;
+import org.mousephenotype.cda.db.repositories.*;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
@@ -14,18 +13,21 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 
 /**
  * ReportType bean configuration
  */
 
 @Configuration
+@EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
 public class ReportsConfig {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -33,6 +35,31 @@ public class ReportsConfig {
 	@Value("${internal_solr_url}")
 	private String internalSolrUrl;
 
+
+	private BiologicalModelRepository       biologicalModelRepository;
+	private DatasourceRepository            datasourceRepository;
+	private GenesSecondaryProjectRepository genesSecondaryProjectRepository;
+	private ImpressService                  impressService;
+	private OrganisationRepository          organisationRepository;
+	private PipelineRepository              pipelineRepository;
+
+	@Inject
+	public ReportsConfig(
+			@NotNull BiologicalModelRepository biologicalModelRepository,
+			@NotNull DatasourceRepository datasourceRepository,
+			@NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository,
+			@NotNull ImpressService impressService,
+			@NotNull OrganisationRepository organisationRepository,
+			@NotNull PipelineRepository pipelineRepository)
+	{
+		this.biologicalModelRepository = biologicalModelRepository;
+		this.datasourceRepository = datasourceRepository;
+		this.genesSecondaryProjectRepository = genesSecondaryProjectRepository;
+		this.impressService = impressService;
+		this.organisationRepository = organisationRepository;
+		this.pipelineRepository = pipelineRepository;
+	}
+	
 
 	////////////////////////////////
 	// DataSources and JdbcTemplates
@@ -241,44 +268,14 @@ public class ReportsConfig {
 	///////
 
 	@Bean
-	public AnalyticsDAO analyticsDAO() {
-    	return new AnalyticsDAOImpl(sessionFactory());
-	}
-
-	@Bean
-	public BiologicalModelDAO biologicalModelDao() {
-    	return new BiologicalModelDAOImpl(sessionFactory());
-	}
-
-	@Bean
-	public DatasourceDAO datasourceDAO() {
-    	return new DatasourceDAOImpl(sessionFactory());
-	}
-
-	@Bean
 	public ImagesSolrDao imagesSolrDao() {
     	return new ImagesSolrJ();
 	}
 
-	@Bean
-	public OrganisationDAO organisationDAO() {
-    	return new OrganisationDAOImpl(sessionFactory());
-	}
-
-	@Bean
-	public PhenotypePipelineDAO pipelineDao() {
-    	return new PhenotypePipelineDAOImpl(sessionFactory());
-	}
-
-	@Bean
-	public SecondaryProjectDAO secondaryProjectDAO() {
-		return new SecondaryProjectDAOImpl();
-	}
-
-	@Bean
-	public SexualDimorphismDAO sexualDimorphismDAO() {
-		return new SexualDimorphismDAOImpl();
-	}
+//	@Bean
+//	public SexualDimorphismDAO sexualDimorphismDAO() {
+//		return new SexualDimorphismDAOImpl();
+//	}
 
 
 
@@ -341,18 +338,19 @@ public class ReportsConfig {
 	}
 
 	@Bean
-	public PostQcService postQcService() {
-    	return new PostQcService(genotypePhenotypeCore(), secondaryProjectDAO());
+	public GenotypePhenotypeService genotypePhenotypeService() {
+    	return new GenotypePhenotypeService(impressService, genotypePhenotypeCore(), genesSecondaryProjectRepository);
 	}
 
 	@Bean StatisticalResultService statisticalResultService() {
     	return new StatisticalResultService(
-    			biologicalModelDao(),
-				datasourceDAO(),
-				impressService(),
-				organisationDAO(),
-				pipelineDao(),
-				postQcService(),
+    			impressService(),
+				genotypePhenotypeCore(),
+				genesSecondaryProjectRepository,
+				biologicalModelRepository,
+				datasourceRepository,
+				organisationRepository,
+				pipelineRepository,
 				statisticalResultCore());
 	}
 
@@ -361,16 +359,16 @@ public class ReportsConfig {
 	//	Other
 	/////////
 
-	@Primary
-	@Bean(name = "sessionFactoryHibernate")
-	public SessionFactory sessionFactory() {
-
-		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
-		sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
-		sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
-
-		return sessionBuilder.buildSessionFactory();
-	}
+//	@Primary
+//	@Bean(name = "sessionFactoryHibernate")
+//	public SessionFactory sessionFactory() {
+//
+//		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
+//		sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
+//		sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
+//
+//		return sessionBuilder.buildSessionFactory();
+//	}
 
 	@Bean
 	public SolrClient solrClient() { return new HttpSolrClient.Builder(internalSolrUrl).build(); }

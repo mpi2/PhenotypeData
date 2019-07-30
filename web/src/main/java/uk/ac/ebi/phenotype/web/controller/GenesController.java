@@ -15,8 +15,6 @@
  ****************************************************************************** */
 package uk.ac.ebi.phenotype.web.controller;
 
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
@@ -37,6 +35,8 @@ import org.mousephenotype.cda.utilities.DataReaderTsv;
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -85,21 +85,21 @@ public class GenesController {
     private static final int numberOfImagesToDisplay = 5;
 
     private final PhenotypeSummaryDAO phenSummary;
-    private final ImagesSolrDao imagesSolrDao;
+    private final ImagesSolrDao            imagesSolrDao;
     private final PhenotypeCallSummarySolr phenotypeCallSummaryService;
-    private final ObservationService observationService;
-    private final SolrIndex solrIndex;
-    private final SolrIndex2 solrIndex2;
-    private final ImageService imageService;
-    private final ExpressionService expressionService;
-    private final GeneService geneService;
+    private final ObservationService       observationService;
+    private final SolrIndex                solrIndex;
+    private final SolrIndex2               solrIndex2;
+    private final ImageService             imageService;
+    private final ExpressionService        expressionService;
+    private final GeneService              geneService;
     private final StatisticalResultService statisticalResultService;
-    private final PostQcService postqcService;
-    private final UniprotService uniprotService;
-    private final OrderService orderService;
-    private final ImpressService impressService;
-    private final WebDao phenoDigm2Dao;
-    private final RegisterInterestUtils riUtils;
+    private final GenotypePhenotypeService genotypePhenotypeService;
+    private final UniprotService           uniprotService;
+    private final OrderService             orderService;
+    private final ImpressService           impressService;
+    private final WebDao                   phenoDigm2Dao;
+    private final RegisterInterestUtils    riUtils;
 
     @Resource(name = "globalConfiguration")
     Map<String, String> config;
@@ -109,7 +109,7 @@ public class GenesController {
     private PharosService pharosService;
 
     @Inject
-    public GenesController(PhenotypeCallSummarySolr phenotypeCallSummaryService, PhenotypeSummaryDAO phenSummary, ImagesSolrDao imagesSolrDao, ObservationService observationService, SolrIndex solrIndex, SolrIndex2 solrIndex2, WebDao phenoDigm2Dao, ImageService imageService, ExpressionService expressionService, RegisterInterestUtils riUtils, GeneService geneService, ImpressService impressService, PostQcService postqcService, UniprotService uniprotService, OrderService orderService, StatisticalResultService statisticalResultService) {
+    public GenesController(PhenotypeCallSummarySolr phenotypeCallSummaryService, PhenotypeSummaryDAO phenSummary, ImagesSolrDao imagesSolrDao, ObservationService observationService, SolrIndex solrIndex, SolrIndex2 solrIndex2, WebDao phenoDigm2Dao, ImageService imageService, ExpressionService expressionService, RegisterInterestUtils riUtils, GeneService geneService, ImpressService impressService, GenotypePhenotypeService genotypePhenotypeService, UniprotService uniprotService, OrderService orderService, StatisticalResultService statisticalResultService) {
         this.phenotypeCallSummaryService = phenotypeCallSummaryService;
         this.phenSummary = phenSummary;
         this.imagesSolrDao = imagesSolrDao;
@@ -122,7 +122,7 @@ public class GenesController {
         this.riUtils = riUtils;
         this.geneService = geneService;
         this.impressService = impressService;
-        this.postqcService = postqcService;
+        this.genotypePhenotypeService = genotypePhenotypeService;
         this.uniprotService = uniprotService;
         this.orderService = orderService;
         this.statisticalResultService = statisticalResultService;
@@ -199,15 +199,15 @@ public class GenesController {
                             @RequestParam(required = false, value = "resource_fullname") List<String> resourceFullname,
                             @RequestParam(value = "heatmap", required = false, defaultValue = "false") Boolean showHeatmap,
                             Model model, HttpServletRequest request, HttpServletResponse response, RedirectAttributes attributes)
-            throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SQLException, SolrServerException {
+            throws URISyntaxException, IOException, SolrServerException, JSONException {
 
         PhenotypeFacetResult phenoResult = phenotypeCallSummaryService.getPhenotypeCallByGeneAccessionAndFilter(acc, topLevelMpTermName, resourceFullname);
         List<PhenotypeCallSummaryDTO> phenotypeList = phenoResult.getPhenotypeCallSummaries();
-        List<GenePageTableRow> phenotypes = new ArrayList<GenePageTableRow>();
+        List<GenePageTableRow> phenotypes = new ArrayList<>();
         String url = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 
         for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
-            List<String> sex = new ArrayList<String>();
+            List<String> sex = new ArrayList<>();
             sex.add(pcs.getSex().toString());
             // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
             GenePageTableRow pr = new GenePageTableRow(pcs, url, cmsBaseUrl);
@@ -486,7 +486,7 @@ public class GenesController {
             }
         }
         Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
-        Set<String> allelesWithData = postqcService.getAllGenotypePhenotypesForGene(acc);
+        Set<String> allelesWithData = genotypePhenotypeService.getAllGenotypePhenotypesForGene(acc);
         Map<String, String> alleleCassette = (allelesWithData.size() > 0 && allelesWithData != null) ? solrIndex2.getAlleleImage(allelesWithData) : null;
         String genePageUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
         Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl);

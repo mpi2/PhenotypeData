@@ -13,12 +13,12 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
+
 package org.mousephenotype.cda.solr.service;
 
-import net.sf.json.JSONArray;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -46,6 +46,9 @@ import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -566,7 +569,7 @@ public class ObservationService extends BasicService implements WebStatus {
      * @throws SQLException
      */
     public List<Map<String, String>> getLinksListForStats(Integer start, Integer length, ObservationType type, List<String> parameterIds)
-            throws IOException, URISyntaxException, SQLException {
+            throws IOException, URISyntaxException, JSONException {
 
         if (start == null) {
             start = 0;
@@ -578,13 +581,13 @@ public class ObservationService extends BasicService implements WebStatus {
         String url = SolrUtils.getBaseURL(experimentCore) + "/select?" + "q=" + ObservationDTO.OBSERVATION_TYPE + ":" + type + " AND "
         + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental" + "&wt=json&indent=true&start=" + start + "&rows=" + length;
 
-        net.sf.json.JSONObject result = JSONRestUtil.getResults(url);
-        JSONArray resultsArray = JSONRestUtil.getDocArray(result);
+        JSONObject result       = JSONRestUtil.getResults(url);
+        JSONArray  resultsArray = JSONRestUtil.getDocArray(result);
 
         List<Map<String, String>> listWithStableId = new ArrayList<>();
-        for (int i = 0; i < resultsArray.size(); i++) {
+        for (int i = 0; i < resultsArray.length(); i++) {
             Map<String, String> map = new HashMap<>();
-            net.sf.json.JSONObject exp = resultsArray.getJSONObject(i);
+            JSONObject exp = resultsArray.getJSONObject(i);
             String statbleParamId = exp.getString(ObservationDTO.PARAMETER_STABLE_ID);
             String accession = exp.getString(ObservationDTO.GENE_ACCESSION_ID);
             map.put("paramStableId", statbleParamId);
@@ -1841,7 +1844,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
 			SolrDocument doc = group.getResult().get(0);
 			ImpressBaseDTO pipeline = new ImpressBaseDTO();
-			pipeline.setId(Integer.getInteger(doc.getFirstValue(ObservationDTO.PIPELINE_ID).toString()));
+			pipeline.setId(Long.getLong(doc.getFirstValue(ObservationDTO.PIPELINE_ID).toString()));
 			pipeline.setStableId(doc.getFirstValue(ObservationDTO.PIPELINE_STABLE_ID).toString());
 			pipeline.setName(doc.getFirstValue(ObservationDTO.PIPELINE_NAME).toString());
 			pipelines.add(pipeline);

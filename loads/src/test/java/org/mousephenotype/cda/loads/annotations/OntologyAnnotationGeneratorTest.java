@@ -22,9 +22,10 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.db.dao.OntologyTermDAO;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
+import org.mousephenotype.cda.db.repositories.ParameterRepository;
+import org.mousephenotype.cda.db.repositories.PipelineRepository;
 import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.db.statistics.ResultDTO;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -55,16 +56,16 @@ public class OntologyAnnotationGeneratorTest {
     private  final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private PhenotypePipelineDAO pipelineDAO;
+    private ParameterRepository parameterRepository;
+
+    @Autowired
+    private PipelineRepository pipelineRepository;
 
     @Autowired
     private MpTermService mpTermService;
 
     @Autowired
-    private OntologyTermDAO ontologyTermDAO;
-
-    @Autowired
-    private PhenotypePipelineDAO phenotypePipelineDAO;
+    private OntologyTermRepository ontologyTermRepository;
 
     @Autowired
     private DataSource komp2DataSource;
@@ -78,14 +79,15 @@ public class OntologyAnnotationGeneratorTest {
         connection = komp2DataSource.getConnection();
         connection.setAutoCommit(false);
 
-        mpGenerator = new OntologyAnnotationGenerator(mpTermService, ontologyTermDAO, komp2DataSource, phenotypePipelineDAO);
+        mpGenerator = new OntologyAnnotationGenerator(komp2DataSource, mpTermService, ontologyTermRepository, parameterRepository);
     }
 
 
     @Test
     public void testGetAllOptionsForParameter() throws Exception {
-        Parameter p = pipelineDAO.getParameterByStableId("IMPC_XRY_001_001");
-        Map<String, OntologyTerm> results =  mpTermService.getAllOptionsForParameter(connection, ontologyTermDAO, p, PhenotypeAnnotationType.abnormal);
+        Parameter parameter = parameterRepository.getByStableId("IMPC_XRY_001_001");
+
+        Map<String, OntologyTerm> results =  mpTermService.getAllOptionsForParameter(connection, ontologyTermRepository, parameter, PhenotypeAnnotationType.abnormal);
 
         // Should only have one result
         for(String key : results.keySet()) {
@@ -97,9 +99,9 @@ public class OntologyAnnotationGeneratorTest {
 
     @Test
     public void testGetAnnotationTypeMap() throws Exception {
-        Parameter p = pipelineDAO.getParameterByStableId("IMPC_HEM_001_001");
+        Parameter parameter = parameterRepository.getByStableId("IMPC_HEM_001_001");
 
-        MultiKeyMap annotationsMap = mpTermService.getAnnotationTypeMap(p.getStableId(), connection, ontologyTermDAO);
+        MultiKeyMap annotationsMap = mpTermService.getAnnotationTypeMap(parameter.getStableId(), connection, ontologyTermRepository, parameterRepository);
 
         Map<String, OntologyTerm> shouldHave = new HashMap<>();
 
@@ -114,10 +116,9 @@ public class OntologyAnnotationGeneratorTest {
 
     @Test
     public void testGetAnnotationTypeMap3iParameter() throws Exception {
-        Parameter p = pipelineDAO.getParameterByStableId("MGP_PBI_036_001");
-//        System.out.println(pipelineDAO);
+        Parameter parameter = parameterRepository.getByStableId("MGP_PBI_036_001");
 
-        MultiKeyMap annotationsMap = mpTermService.getAnnotationTypeMap(p.getStableId(), connection, ontologyTermDAO);
+        MultiKeyMap annotationsMap = mpTermService.getAnnotationTypeMap(parameter.getStableId(), connection, ontologyTermRepository, parameterRepository);
         Set<OntologyTerm> annotationsFlatMap = new HashSet();
         for (Object k : annotationsMap.keySet()) {
 //            String g = (String)k;
@@ -126,12 +127,12 @@ public class OntologyAnnotationGeneratorTest {
 
         // populate possible ontology associations
         Map<String, List<OntologyTerm>> shouldHave = new HashMap<>();
-        for (ParameterOntologyAnnotation pa : p.getAnnotations()) {
-            if(!shouldHave.containsKey(p.getStableId())) {
-                shouldHave.put(p.getStableId(), new ArrayList<OntologyTerm>());
+        for (ParameterOntologyAnnotation pa : parameter.getAnnotations()) {
+            if(!shouldHave.containsKey(parameter.getStableId())) {
+                shouldHave.put(parameter.getStableId(), new ArrayList<OntologyTerm>());
             }
 
-            shouldHave.get(p.getStableId()).add(pa.getOntologyTerm());
+            shouldHave.get(parameter.getStableId()).add(pa.getOntologyTerm());
         }
 
         for(String key : shouldHave.keySet()) {
@@ -146,9 +147,9 @@ public class OntologyAnnotationGeneratorTest {
 
     @Test
     public void testGetAnnotationTypeMapNoNormal() throws Exception {
-        Parameter p = pipelineDAO.getParameterByStableId("M-G-P_014_001_001");
+        Parameter parameter = parameterRepository.getByStableId("M-G-P_014_001_001");
 
-        MultiKeyMap annotationsMap = mpTermService.getAnnotationTypeMap(p.getStableId(), connection, ontologyTermDAO);
+        MultiKeyMap annotationsMap = mpTermService.getAnnotationTypeMap(parameter.getStableId(), connection, ontologyTermRepository, parameterRepository);
 
         Map<String, OntologyTerm> shouldHave = new HashMap<>();
 
@@ -164,7 +165,8 @@ public class OntologyAnnotationGeneratorTest {
     @Test
     public void testManyAnnotationTypeMaps() throws Exception {
 
-        List<Pipeline> pipelines = pipelineDAO.getAllPhenotypePipelines();
+        List<Pipeline> pipelines = new ArrayList<>();
+        pipelineRepository.findAll().forEach(pipelines::add);
         Collections.shuffle(pipelines);
         for (Pipeline pipeline : pipelines) {
 
@@ -176,7 +178,7 @@ public class OntologyAnnotationGeneratorTest {
                 for (Parameter parameter : procedure.getParameters()) {
 
                     logger.info("Testing parameter: {}", parameter);
-                    MultiKeyMap annotationsMap = mpTermService.getAnnotationTypeMap(parameter.getStableId(), connection, ontologyTermDAO);
+                    MultiKeyMap annotationsMap = mpTermService.getAnnotationTypeMap(parameter.getStableId(), connection, ontologyTermRepository, parameterRepository);
                     System.out.println(annotationsMap);
 
                     Map<PhenotypeAnnotationType, OntologyTerm> shouldHave = new HashMap<>();
@@ -202,18 +204,19 @@ public class OntologyAnnotationGeneratorTest {
 
     @Test
     public void testGetUnidimensionalResultsAndTerm_IMPC_HEM_001_001() throws SQLException {
-        Parameter p = pipelineDAO.getParameterByStableId("IMPC_HEM_001_001");
-        Pipeline pipe = pipelineDAO.getPhenotypePipelineByStableId("MGP_001");
+        Parameter parameter = parameterRepository.getByStableId("IMPC_HEM_001_001");
+
+        Pipeline pipeline = pipelineRepository.getByStableId("MGP_001");
         List<ResultDTO> results = mpGenerator.getUnidimensionalResults(connection);
         assert(results.size()>100);
         for ( ResultDTO result : results) {
             if(result.getGeneAcc().equals("MGI:1926116")) {// Gene: Fam175b
-                if(result.getParameterId().equals(p.getId())) { //Parameter: IMPC_HEM_001_001
-                    if(result.getPipelineId().equals(pipe.getId())) {
+                if(result.getParameterId().equals(parameter.getId())) { //Parameter: IMPC_HEM_001_001
+                    if(result.getPipelineId().equals(pipeline.getId())) {
                         System.out.println("============= FOUND =============");
                         System.out.println(result);
 
-                        OntologyTerm term = mpTermService.getMPTerm(p.getStableId(), result, null, connection, 1.0f, true);
+                        OntologyTerm term = mpTermService.getMPTerm(parameter.getStableId(), result, null, connection, 1.0f, true);
                         System.out.println(" Found term: " + term);
 
                         assert(term!=null);
@@ -241,7 +244,7 @@ public class OntologyAnnotationGeneratorTest {
     @Test
     public void testProcessRRPlusParameters() throws SQLException {
 
-        mpGenerator.processRRPlusParameters(komp2DataSource.getConnection(), pipelineDAO);
+        mpGenerator.processRRPlusParameters(komp2DataSource.getConnection());
     }
 
 
@@ -266,7 +269,9 @@ public class OntologyAnnotationGeneratorTest {
 
         for (ResultDTO result : lineResults) {
 
-            Parameter p = pipelineDAO.getParameterById(result.getParameterId());
+            Parameter p = parameterRepository.getById(result.getParameterId());
+
+                    parameterRepository.getById(result.getParameterId());
 
             if (p.getStableId().contains("FER")) {
 
@@ -284,8 +289,8 @@ public class OntologyAnnotationGeneratorTest {
 
         mpGenerator.processLineParameters(lineResults);
 
-        Parameter mp = pipelineDAO.getParameterByStableId("IMPC_FER_001_001"); //male fertility
-        Parameter fp = pipelineDAO.getParameterByStableId("IMPC_FER_019_001"); //female fertility
+        Parameter mp = parameterRepository.getByStableId("IMPC_FER_001_001"); //fale fertility
+        Parameter fp = parameterRepository.getByStableId("IMPC_FER_019_001"); //female fertility
         String query = "SELECT * FROM phenotype_call_summary WHERE parameter_id IN (" + mp.getId() + ", " + fp.getId() + ")";
         int checked = 0;
         try (Connection cnx = komp2DataSource.getConnection(); PreparedStatement statement = cnx.prepareStatement(query)) {
@@ -319,13 +324,13 @@ public class OntologyAnnotationGeneratorTest {
 
         Set<Parameter> embLineParams = new HashSet<>();
         for(String parm : Arrays.asList("IMPC_EVL_001_001", "IMPC_EVM_001_001", "IMPC_EVO_001_001", "IMPC_EVP_001_001")) {
-            embLineParams.add(pipelineDAO.getParameterByStableId(parm));
+            embLineParams.add(parameterRepository.getByStableId(parm));
         }
 
         assert(lineResults.size()>100);
         for (ResultDTO result : lineResults) {
 
-            assert(embLineParams.contains(pipelineDAO.getParameterById(result.getParameterId())));
+            assert(embLineParams.contains(parameterRepository.getById(result.getParameterId())));
         }
     }
 
@@ -333,7 +338,7 @@ public class OntologyAnnotationGeneratorTest {
     @Test
     public void testCategoricalResults() throws SQLException {
 
-        Integer parameterId = pipelineDAO.getParameterByStableId("M-G-P_026_001_029").getId();
+        Long parameterId = parameterRepository.getByStableId("M-G-P_026_001_029").getId();
         List<ResultDTO> categoriocalResults = mpGenerator.getCategoricalResults(connection);
 
         assert(categoriocalResults.size()>100);
@@ -346,7 +351,7 @@ public class OntologyAnnotationGeneratorTest {
                 continue;
             }
 
-            logger.info("Found parameter {} for {} (id: {}). Looking for {}", pipelineDAO.getParameterById(result.getParameterId()), result.getGeneAcc(), result.getParameterId(), parameterId);
+            logger.info("Found parameter {} for {} (id: {}). Looking for {}", parameterRepository.getById(result.getParameterId()), result.getGeneAcc(), result.getParameterId(), parameterId);
             if (result.getParameterId().equals(parameterId)) {
                 foundCenpjMGPParameter = Boolean.TRUE;
 
@@ -355,7 +360,7 @@ public class OntologyAnnotationGeneratorTest {
 
                     // Effect is significant, find out which term to associate
 
-                    Parameter parameter = pipelineDAO.getParameterById(result.getParameterId());
+                    Parameter parameter = parameterRepository.getById(result.getParameterId());
 
                     // Check the female specific term
                     if (result.getFemalePvalue() != null && result.getFemalePvalue() <= SIGNIFICANCE_THRESHOLD) {
@@ -388,7 +393,7 @@ public class OntologyAnnotationGeneratorTest {
     @Test
     public void testCategoricalResultBmp4EyelidClosure() throws SQLException {
 
-        Integer parameterId = pipelineDAO.getParameterByStableId("IMPC_EYE_005_001").getId();
+        Long parameterId = parameterRepository.getByStableId("IMPC_EYE_005_001").getId();
         List<ResultDTO> categoriocalResults = mpGenerator.getCategoricalResults(connection);
 
         assert(categoriocalResults.size()>100);
@@ -401,7 +406,7 @@ public class OntologyAnnotationGeneratorTest {
                 continue;
             }
 
-            logger.info("Found parameter {} for {} (id: {}). Looking for {}", pipelineDAO.getParameterById(result.getParameterId()), result.getGeneAcc(), result.getParameterId(), parameterId);
+            logger.info("Found parameter {} for {} (id: {}). Looking for {}", parameterRepository.getById(result.getParameterId()), result.getGeneAcc(), result.getParameterId(), parameterId);
             if (result.getParameterId().equals(parameterId)) {
                 foundParameter = Boolean.TRUE;
 
@@ -409,7 +414,7 @@ public class OntologyAnnotationGeneratorTest {
 
                     // Effect is significant, find out which term to associate
 
-                    Parameter parameter = pipelineDAO.getParameterById(result.getParameterId());
+                    Parameter parameter = parameterRepository.getById(result.getParameterId());
                     OntologyTerm term=null;
 
                     // Check the female specific term
@@ -453,7 +458,7 @@ public class OntologyAnnotationGeneratorTest {
     @Test
     public void testSexuallyDimorphicCategoricalResult() throws SQLException {
 
-        Integer parameterId = pipelineDAO.getParameterByStableId("IMPC_EYE_092_001").getId();
+    Long parameterId = parameterRepository.getByStableId("IMPC_EYE_092_001").getId();
         List<ResultDTO> categoriocalResults = mpGenerator.getCategoricalResults(connection);
 
         assert(categoriocalResults.size()>100);
@@ -466,7 +471,7 @@ public class OntologyAnnotationGeneratorTest {
                 continue;
             }
 
-            logger.info("Found parameter {} for {} (id: {}). Looking for {}", pipelineDAO.getParameterById(result.getParameterId()), result.getGeneAcc(), result.getParameterId(), parameterId);
+            logger.info("Found parameter {} for {} (id: {}). Looking for {}", parameterRepository.getById(result.getParameterId()), result.getGeneAcc(), result.getParameterId(), parameterId);
             if (result.getParameterId().equals(parameterId)) {
                 foundParameter = Boolean.TRUE;
 
@@ -475,7 +480,7 @@ public class OntologyAnnotationGeneratorTest {
 
                     // Effect is significant, find out which term to associate
 
-                    Parameter parameter = pipelineDAO.getParameterById(result.getParameterId());
+                    Parameter parameter = parameterRepository.getById(result.getParameterId());
 
                     // Check the female specific term
                     if (result.getFemalePvalue() != null && result.getFemalePvalue() <= SIGNIFICANCE_THRESHOLD) {

@@ -15,8 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -472,111 +470,6 @@ public class ExpressionService extends BasicService {
 		}
 		return anatomogramDataBeans;
 
-	}
-
-	public JSONObject getAnatomogramJson(List<AnatomogramDataBean> anatomogramDataBeans) {
-		JSONObject anatomogram = new JSONObject();
-
-		JSONArray expList = new JSONArray();
-		JSONArray noExpList = new JSONArray();
-		JSONArray allPaths = new JSONArray();
-
-//		Map<String, Set<String>> maId2Uberon = new HashMap<>();
-//		Map<String, Set<String>> uberon2MaId = new HashMap<>();
-		Map<String, Set<String>> maId2MappedUberonEfo = new HashMap<>();
-		Map<String, Set<String>> mappedUberonEfo2MaId = new HashMap<>();
-
-		Map<String, String> maName2maId = new HashMap<>();
-		Map<String, String> maId2maName = new HashMap<>();
-		Map<String, Set<String>> topLevelName2maId = new HashMap<>();
-		Map<String, List<String>> maId2topLevelName = new HashMap<>();
-
-
-		for (AnatomogramDataBean dataBean : anatomogramDataBeans) {
-			if (dataBean.getMaId() != null && dataBean.getMappedUberonIdsForAnatomogram() != null) {
-				//System.out.println("ANATOMODATA: " + dataBean);
-
-				List<String> uberonIdsForAnatomogram = dataBean.getMappedUberonIdsForAnatomogram();
-
-				addAnatomogramSpecialIds(dataBean, expList, allPaths, uberonIdsForAnatomogram, maId2MappedUberonEfo, mappedUberonEfo2MaId, maId2maName, maName2maId, maId2topLevelName, topLevelName2maId);
-				if (dataBean.getMappedEfoIdsForAnatomogram() != null) {
-					List<String> efoIdForAnatomogram = dataBean.getMappedEfoIdsForAnatomogram();
-					addAnatomogramSpecialIds(dataBean, expList, allPaths, efoIdForAnatomogram, maId2MappedUberonEfo, mappedUberonEfo2MaId, maId2maName, maName2maId, maId2topLevelName, topLevelName2maId);
-				}
-			}
-		}
-
-		anatomogram.put("expression", expList);
-		anatomogram.put("noExpression", noExpList);
-		anatomogram.put("allPaths", allPaths);
-
-		anatomogram.put("maName2maIdMap", maName2maId);
-		anatomogram.put("maId2MaNameMap", maId2maName);
-		anatomogram.put("topLevelName2maIdMap", topLevelName2maId);
-		anatomogram.put("maId2UberonEfoMap", maId2MappedUberonEfo);
-
-		anatomogram.put("uberonEfo2MaIdMap", mappedUberonEfo2MaId);
-		anatomogram.put("maId2topLevelNameMap", maId2topLevelName);
-
-
-		//System.out.println("ANATOMOGRAM: " + anatomogram);
-		return anatomogram;
-	}
-
-	private void addAnatomogramSpecialIds(AnatomogramDataBean dataBean, JSONArray expList, JSONArray allPaths, List<String> uberonEfoIdsForAnatomogram,
-//				  Map<String, Set<String>> maId2Uberon,
-//				  Map<String, Set<String>> uberon2MaId,
-				  Map<String, Set<String>> maId2MappedUberonEfo,
-				  Map<String, Set<String>> mappedUberonEfo2MaId,
-				  Map<String, String> maId2maName,
-				  Map<String, String> maName2maId,
-				  Map<String, List<String>> maId2topLevelName,
-				  Map<String, Set<String>> topLevelName2maId ) {
-
-		String maTermId = dataBean.getMaId();
-
-		maId2MappedUberonEfo.put(maTermId, new HashSet(dataBean.getMappedUberonIdsForAnatomogram()));
-
-		maId2maName.put(maTermId, dataBean.getMaTerm());
-		maName2maId.put(dataBean.getMaTerm(), maTermId);
-		List<String> maTopLevelNames = dataBean.getTopLevelMaNames();
-
-		maId2topLevelName.put(maTermId, maTopLevelNames);
-
-		for (String toplevelname : maTopLevelNames ){
-			if (!topLevelName2maId.containsKey(toplevelname)) {
-				topLevelName2maId.put(toplevelname, new HashSet<>());
-			}
-			topLevelName2maId.get(toplevelname).add(maTermId);
-		}
-
-
-		for (String id : uberonEfoIdsForAnatomogram) {
-
-			if (!mappedUberonEfo2MaId.containsKey(id)) {
-				mappedUberonEfo2MaId.put(id, new HashSet<>());
-			}
-			mappedUberonEfo2MaId.get(id).add(maTermId);
-
-			//System.out.println("uberon " + id + " --- " + maTermId);
-			if (!maId2MappedUberonEfo.containsKey(maTermId)) {
-				maId2MappedUberonEfo.put(maTermId, new HashSet<>());
-			}
-			maId2MappedUberonEfo.get(maTermId).add(id);
-
-			//System.out.println("MA " + maTermId + " --- " + id);
-
-			JSONObject exp = new JSONObject();
-			exp.put("factorName", maTermId); // used as a note to say what this id is, blank if unknown
-			exp.put("value", "1");
-			exp.put("svgPathId", id);
-			if (!expList.contains(exp)) {
-				expList.add(exp);
-			}
-			if (!allPaths.contains(id)) {
-				allPaths.add(id);
-			}
-		}
 	}
 
 	/**

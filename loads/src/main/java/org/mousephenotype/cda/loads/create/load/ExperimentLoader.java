@@ -17,7 +17,7 @@
 package org.mousephenotype.cda.loads.create.load;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.pojo.Experiment;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.ObservationType;
@@ -92,11 +92,11 @@ public class ExperimentLoader implements CommandLineRunner {
     // lookup maps returning cda table primary key given dca unique string
     // Initialise them here, as this code gets called multiple times for different dcc data sources
     // and these maps must be cleared before their second and subsequent uses.
-    private static Map<String, Integer>                cdaDb_idMap                       = new ConcurrentHashMapAllowNull<>();
-    private static Map<String, Integer>                cdaProject_idMap                  = new ConcurrentHashMapAllowNull<>();
-    private static Map<String, Integer>                cdaPipeline_idMap                 = new ConcurrentHashMapAllowNull<>();
-    private static Map<String, Integer>                cdaProcedure_idMap                = new ConcurrentHashMapAllowNull<>();
-    private static Map<String, Integer>                cdaParameter_idMap                = new ConcurrentHashMapAllowNull<>();
+    private static Map<String, Long>                   cdaDb_idMap                       = new ConcurrentHashMapAllowNull<>();
+    private static Map<String, Long>                   cdaProject_idMap                  = new ConcurrentHashMapAllowNull<>();
+    private static Map<String, Long>                   cdaPipeline_idMap                 = new ConcurrentHashMapAllowNull<>();
+    private static Map<String, Long>                   cdaProcedure_idMap                = new ConcurrentHashMapAllowNull<>();
+    private static Map<String, Long>                   cdaParameter_idMap                = new ConcurrentHashMapAllowNull<>();
     private static Map<String, String>                 cdaParameterNameMap               = new ConcurrentHashMapAllowNull<>();          // map of impress parameter names keyed by stable_parameter_id
     private static Set<String>                         derivedImpressParameters          = new ConcurrentSkipListSet<>();
     private static Set<String>                         metadataAndDataAnalysisParameters = new ConcurrentSkipListSet<>();
@@ -113,7 +113,7 @@ public class ExperimentLoader implements CommandLineRunner {
     private static Map<Long, List<MediaSampleParameter>> mediaSampleParameterMap = new ConcurrentHashMapAllowNull<>();
 
     private static BioModelManager               bioModelManager;
-    private static Map<String, Integer>          cdaOrganisation_idMap;
+    private static Map<String, Long>             cdaOrganisation_idMap;
     private static Map<String, PhenotypedColony> phenotypedColonyMap;
     private static Map<String, MissingColonyId>  missingColonyMap;
     private static Map<String, OntologyTerm>     ontologyTermMap;
@@ -460,25 +460,25 @@ public class ExperimentLoader implements CommandLineRunner {
     }
 
     private Experiment insertExperiment(DccExperimentDTO dccExperiment) throws DataLoadException {
-        Experiment experiment = new Experiment();
-        Integer dbId;
-        Integer phenotypingCenterPk = null;
-        String phenotypingCenter;
-        Integer projectPk;
-        Integer pipelinePk;
-        String pipelineStableId;
-        Integer procedurePk;
-        String procedureStableId;
-        String externalId;
-        String procedureStatus;
-        String procedureStatusMessage;
+        Experiment experiment          = new Experiment();
+        Long       dbId;
+        Long       phenotypingCenterPk = null;
+        String     phenotypingCenter;
+        Long       projectPk;
+        Long       pipelinePk;
+        String     pipelineStableId;
+        Long       procedurePk;
+        String     procedureStableId;
+        String     externalId;
+        String     procedureStatus;
+        String     procedureStatusMessage;
 
         String colonyId;
-        Date dateOfExperiment;
+        Date   dateOfExperiment;
         String sequenceId;
 
-        Integer biologicalModelPk;
-        Integer biologicalSamplePk;
+        Long   biologicalModelPk;
+        Long   biologicalSamplePk;
         String metadataCombined;
         String metadataGroup;
 
@@ -826,7 +826,7 @@ public class ExperimentLoader implements CommandLineRunner {
         metadataGroup = StringUtils.join(metadataGroupList, "::");
         metadataGroup = DigestUtils.md5Hex(metadataGroup);
 
-        int experimentPk = cdaSqlUtils.insertExperiment(
+        long experimentPk = cdaSqlUtils.insertExperiment(
                 dbId,
                 externalId,
                 sequenceId,
@@ -864,7 +864,7 @@ public class ExperimentLoader implements CommandLineRunner {
     }
 
 
-    private void createObservations( DccExperimentDTO dccExperiment, int dbId, int experimentPk, String phenotypingCenter, int phenotypingCenterPk, Integer biologicalSamplePk, int missing) throws DataLoadException {
+    private void createObservations( DccExperimentDTO dccExperiment, long dbId, long experimentPk, String phenotypingCenter, long phenotypingCenterPk, Long biologicalSamplePk, int missing) throws DataLoadException {
 
         // simpleParameters
         List<SimpleParameter> simpleParameterList = dccSqlUtils.getSimpleParameters(dccExperiment.getDcc_procedure_pk());
@@ -1021,15 +1021,15 @@ public class ExperimentLoader implements CommandLineRunner {
         return dateOfExperiment;
     }
 
-    private void insertSimpleParameter(DccExperimentDTO dccExperiment, SimpleParameter simpleParameter, int experimentPk,
-                                       int dbId, Integer biologicalSamplePk, int missing) throws DataLoadException {
+    private void insertSimpleParameter(DccExperimentDTO dccExperiment, SimpleParameter simpleParameter, long experimentPk,
+                                       long dbId, Long biologicalSamplePk, int missing) throws DataLoadException {
 
         if (dccExperiment.getSpecimenId() != null && dccExperiment.getSpecimenId().equals("B6NC_46853_163447") && dccExperiment.getProcedureId().startsWith("IMPC_CBC")) {
             logger.debug("CANARY -- specimen B6NC_46853_163447\n{}, \nParameter: {}", dccExperiment, simpleParameter.getParameterID());
         }
 
         String parameterStableId = simpleParameter.getParameterID();
-        Integer parameterPk = cdaParameter_idMap.get(parameterStableId);
+        Long parameterPk = cdaParameter_idMap.get(parameterStableId);
         if (parameterPk == null) {
             logger.warn("Experiment {}: unknown parameterStableId {} for simpleParameter {}. Skipping...",
                         dccExperiment, parameterStableId, simpleParameter.getParameterID());
@@ -1082,7 +1082,7 @@ public class ExperimentLoader implements CommandLineRunner {
             }
         }
 
-        int observationPk;
+        long observationPk;
         try {
             observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
                                                           sequenceId, populationId, observationType, missing,
@@ -1110,8 +1110,8 @@ public class ExperimentLoader implements CommandLineRunner {
     }
 
     private void insertMediaParameter(DccExperimentDTO dccExperiment, MediaParameter mediaParameter,
-                                      int experimentPk, int dbId, Integer biologicalSamplePk, String phenotypingCenter,
-                                      int phenotypingCenterPk, int missing) throws DataLoadException
+                                      long experimentPk, long dbId, Long biologicalSamplePk, String phenotypingCenter,
+                                      long phenotypingCenterPk, int missing) throws DataLoadException
     {
         if (dccExperiment.isLineLevel()) {
             unsupportedParametersMap.add("Line-level procedure " + dccExperiment.getExperimentId() + " contains MediaParameters, which is currently unsupported. Skipping parameters.");
@@ -1119,7 +1119,7 @@ public class ExperimentLoader implements CommandLineRunner {
         }
 
         String parameterStableId = mediaParameter.getParameterID();
-        int parameterPk = cdaParameter_idMap.get(parameterStableId);
+        long parameterPk = cdaParameter_idMap.get(parameterStableId);
         String sequenceId = null;
         ObservationType observationType = ObservationType.image_record;
         String URI = mediaParameter.getURI();
@@ -1134,7 +1134,7 @@ public class ExperimentLoader implements CommandLineRunner {
 
         int populationId = 0;
 
-        int observationPk;
+        long observationPk;
         try {
             observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
                                                           sequenceId, populationId, observationType, missing,
@@ -1155,8 +1155,8 @@ public class ExperimentLoader implements CommandLineRunner {
     }
 
     public void insertMediaSampleParameter(DccExperimentDTO dccExperiment, MediaSampleParameter mediaSampleParameter,
-                                           int experimentPk, int dbId, Integer biologicalSamplePk, String phenotypingCenter,
-                                           int phenotypingCenterPk, List<SimpleParameter> simpleParameterList,
+                                           long experimentPk, long dbId, Long biologicalSamplePk, String phenotypingCenter,
+                                           long phenotypingCenterPk, List<SimpleParameter> simpleParameterList,
                                            List<OntologyParameter> ontologyParameterList, int missing) throws DataLoadException
     {
         if (dccExperiment.isLineLevel()) {
@@ -1164,11 +1164,11 @@ public class ExperimentLoader implements CommandLineRunner {
             return;
         }
 
-        String          parameterStableId      = mediaSampleParameter.getParameterID();
-        int             parameterPk            = cdaParameter_idMap.get(parameterStableId);
-        int             populationId           = 0;
-        String          sequenceId             = null;
-        ObservationType observationType        = ObservationType.image_record;
+        String          parameterStableId = mediaSampleParameter.getParameterID();
+        long            parameterPk       = cdaParameter_idMap.get(parameterStableId);
+        int             populationId      = 0;
+        String          sequenceId        = null;
+        ObservationType observationType   = ObservationType.image_record;
 
         String[] rawParameterStatus = commonUtils.parseImpressStatus(mediaSampleParameter.getParameterStatus());
         String parameterStatus = rawParameterStatus[0];
@@ -1195,7 +1195,7 @@ public class ExperimentLoader implements CommandLineRunner {
         logger.debug("mediaSampleParam = " + info);
         logger.debug("mediaSampleString = " + mediaSampleString);
 
-        int observationPk = 0;
+        long observationPk = 0;
 
         for (MediaSample mediaSample : mediaSampleParameter.getMediaSample()) {
             for (MediaSection mediaSection : mediaSample.getMediaSection()) {
@@ -1235,8 +1235,8 @@ public class ExperimentLoader implements CommandLineRunner {
     }
 
     private void insertSeriesMediaParameter(DccExperimentDTO dccExperiment, SeriesMediaParameter seriesMediaParameter,
-                                            int experimentPk, int dbId, Integer biologicalSamplePk, String phenotypingCenter,
-                                            int phenotypingCenterPk, List<SimpleParameter> simpleParameterList,
+                                            long experimentPk, long dbId, Long biologicalSamplePk, String phenotypingCenter,
+                                            long phenotypingCenterPk, List<SimpleParameter> simpleParameterList,
                                             List<OntologyParameter> ontologyParameterList, int missing) throws DataLoadException
     {
         if (dccExperiment.isLineLevel()) {
@@ -1245,7 +1245,7 @@ public class ExperimentLoader implements CommandLineRunner {
         }
 
         String parameterStableId = seriesMediaParameter.getParameterID();
-        int parameterPk = cdaParameter_idMap.get(parameterStableId);
+        long parameterPk = cdaParameter_idMap.get(parameterStableId);
         String sequenceId = null;
         ObservationType observationType = ObservationType.image_record;
 
@@ -1263,7 +1263,7 @@ public class ExperimentLoader implements CommandLineRunner {
             String URI = value.getURI();
             missing = (URI == null || URI.isEmpty() || URI.endsWith("/") ? 1 : missing);
 
-            int observationPk;
+            long observationPk;
             try {
                 observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
                                                               sequenceId, populationId, observationType, missing,
@@ -1288,8 +1288,8 @@ public class ExperimentLoader implements CommandLineRunner {
     }
 
 
-    private void insertSeriesParameter(DccExperimentDTO dccExperiment, SeriesParameter seriesParameter, int experimentPk,
-                                       int dbId, Integer biologicalSamplePk, int missing) throws DataLoadException {
+    private void insertSeriesParameter(DccExperimentDTO dccExperiment, SeriesParameter seriesParameter, long experimentPk,
+                                       long dbId, Long biologicalSamplePk, int missing) throws DataLoadException {
 
         if (dccExperiment.isLineLevel()) {
             unsupportedParametersMap.add("Line-level procedure " + dccExperiment.getExperimentId() + " contains SeriesParameters, which is currently unsupported. Skipping parameters.");
@@ -1312,9 +1312,9 @@ public class ExperimentLoader implements CommandLineRunner {
             // Get the parameter data type.
             String          incrementValue  = seriesParameterValue.getIncrementValue();
             String          simpleValue     = seriesParameterValue.getValue();
-            int             observationPk   = 0;
+            long            observationPk   = 0;
             ObservationType observationType = cdaSqlUtils.computeObservationType(parameterStableId, simpleValue);
-            int             parameterPk     = cdaParameter_idMap.get(parameterStableId);
+            long            parameterPk     = cdaParameter_idMap.get(parameterStableId);
             String          sequenceId      = null;
             int             populationId    = 0;
             int             valueMissing    = missing;
@@ -1403,7 +1403,7 @@ public class ExperimentLoader implements CommandLineRunner {
     }
 
     private void insertOntologyParameters(DccExperimentDTO dccExperiment, OntologyParameter ontologyParameter,
-                                          int experimentPk, int dbId, Integer biologicalSamplePk, int missing) throws DataLoadException
+                                          long experimentPk, long dbId, Long biologicalSamplePk, int missing) throws DataLoadException
     {
         if (dccExperiment.isLineLevel()) {
             unsupportedParametersMap.add("Line-level procedure " + dccExperiment.getExperimentId() + " contains OntologyParameters, which is currently unsupported. Skipping parameters.");
@@ -1418,7 +1418,7 @@ public class ExperimentLoader implements CommandLineRunner {
             missing = 1;
 
         String parameterStableId = ontologyParameter.getParameterID();
-        int parameterPk = cdaParameter_idMap.get(parameterStableId);
+        long parameterPk = cdaParameter_idMap.get(parameterStableId);
 
         Integer sequenceId = null;
         BigInteger bi = ontologyParameter.getSequenceID();
@@ -1433,7 +1433,7 @@ public class ExperimentLoader implements CommandLineRunner {
         ObservationType observationType = ObservationType.ontological;
         int populationId = 0;
 
-        int observationPk;
+        long observationPk;
         try {
             observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
                                                           sequenceId, populationId, observationType, missing,

@@ -20,7 +20,7 @@ public class PhenotypeArchive extends SpringBootServletInitializer {
         return application.sources(PhenotypeArchive.class);
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         SpringApplication.run(PhenotypeArchive.class, args);
     }
 }

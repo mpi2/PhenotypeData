@@ -19,19 +19,19 @@ package org.mousephenotype.cda.indexers.beans;
  * Organisation DTO
  */
 public class OrganisationBean {
-	Integer id;
+	Long   id;
 	String name;
 	String fullname;
 	String country;
 
 
-	public Integer getId() {
+	public Long getId() {
 
 		return id;
 	}
 
 
-	public void setId(Integer id) {
+	public void setId(Long id) {
 
 		this.id = id;
 	}

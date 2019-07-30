@@ -29,11 +29,8 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
-import org.mousephenotype.cda.db.dao.BiologicalModelDAO;
-import org.mousephenotype.cda.db.dao.DatasourceDAO;
-import org.mousephenotype.cda.db.dao.OrganisationDAO;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.repositories.*;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -45,13 +42,12 @@ import org.mousephenotype.cda.solr.web.dto.*;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
@@ -63,53 +59,36 @@ import java.util.stream.Stream;
 
 
 @Service
-public class StatisticalResultService extends AbstractGenotypePhenotypeService implements WebStatus {
+public class StatisticalResultService extends GenotypePhenotypeService implements WebStatus {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	protected BiologicalModelDAO               biologicalModelDAO;
-	protected DatasourceDAO                    datasourceDAO;
-	protected ImpressService                   impressService;
-	protected OrganisationDAO                  organisationDAO;
-	protected PhenotypePipelineDAO             pipelineDAO;
-	protected AbstractGenotypePhenotypeService postqcService;
-	protected SolrClient                       statisticalResultCore;
+
+	protected BiologicalModelRepository biologicalModelRepository;
+	protected DatasourceRepository      datasourceRepository;
+	protected OrganisationRepository    organisationRepository;
+	protected ParameterRepository       parameterRepository;
+	protected PipelineRepository        pipelineRepository;
+	protected SolrClient                statisticalResultCore;
 
 
 	@Inject
 	public StatisticalResultService(
-			@Qualifier("biologicalModelDAOImpl") BiologicalModelDAO biologicalModelDAO,
-			DatasourceDAO datasourceDAO,
-			ImpressService impressService,
-			OrganisationDAO organisationDAO,
-			@Qualifier("phenotypePipelineDAOImpl") PhenotypePipelineDAO pipelineDAO,
-
-			// FIXME HUH?
-			@Qualifier("postqcService") AbstractGenotypePhenotypeService postqcService,
-
-
-			@Qualifier("statisticalResultCore") SolrClient statisticalResultCore)
+			@NotNull ImpressService impressService,
+			@NotNull SolrClient genotypePhenotypeCore,
+			@NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository,
+			@NotNull BiologicalModelRepository biologicalModelRepository,
+			@NotNull DatasourceRepository datasourceRepository,
+			@NotNull OrganisationRepository organisationRepository,
+			@NotNull PipelineRepository pipelineRepository,
+			@NotNull SolrClient statisticalResultCore)
 	{
-		super();
-		this.biologicalModelDAO = biologicalModelDAO;
-		this.datasourceDAO = datasourceDAO;
-		this.impressService = impressService;
-		this.organisationDAO = organisationDAO;
-		this.pipelineDAO = pipelineDAO;
-		this.postqcService = postqcService;
+		super(impressService, genotypePhenotypeCore, genesSecondaryProjectRepository);
+		this.biologicalModelRepository = biologicalModelRepository;
+		this.datasourceRepository = datasourceRepository;
+		this.organisationRepository = organisationRepository;
+		this.pipelineRepository = pipelineRepository;
 		this.statisticalResultCore = statisticalResultCore;
-	}
-
-	public StatisticalResultService() {
-		super();
-	}
-
-	@PostConstruct
-	public void postSetup() {
-		// Ensure the superclass attributes are set
-
-		// FIXME HUH?
-		super.genotypePhenotypeCore = statisticalResultCore;
 	}
 
 
@@ -282,8 +261,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		for( Count facet : response.getFacetField(StatisticalResultDTO.COLONY_ID).getValues()){
 			res.put(facet.getName(), facet.getCount());
 		}
-		return res;
 
+		return res;
 	}
 
 
@@ -439,7 +418,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
 
-				ImpressBaseDTO procedure = new ImpressBaseDTO(Integer.getInteger(group.getResult().get(0).getFirstValue(StatisticalResultDTO.PROCEDURE_ID).toString()),
+				ImpressBaseDTO procedure = new ImpressBaseDTO(Long.getLong(group.getResult().get(0).getFirstValue(StatisticalResultDTO.PROCEDURE_ID).toString()),
 						null,
 						group.getResult().get(0).getFirstValue(StatisticalResultDTO.PROCEDURE_STABLE_ID ).toString(),
 						group.getResult().get(0).getFirstValue(StatisticalResultDTO.PROCEDURE_NAME).toString());
@@ -1201,7 +1180,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 
 	public PhenotypeFacetResult getPhenotypeFacetResultByPhenotypingCenterAndPipeline(String phenotypingCenter, String pipelineStableId)
-			throws IOException, URISyntaxException, SolrServerException {
+			throws IOException, URISyntaxException, JSONException {
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter);
@@ -1217,7 +1196,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		query.set("version", "2.2");
 
 		String solrUrl = SolrUtils.getBaseURL(statisticalResultCore) + "/select?" + query;
-		return postqcService.createPhenotypeResultFromSolrResponse(solrUrl);
+		return createPhenotypeResultFromSolrResponse(solrUrl);
 	}
 
 
@@ -1253,10 +1232,10 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		r.setColonyId(result.getColonyId());
 		//       if(result.getControlBiologicalModelId()!= null) r.setControlBiologicalModel(biologicalModelDAO.getBiologicalModelById(result.getControlBiologicalModelId()));
 		r.setControlSelectionStrategy(result.getControlSelectionMethod());
-		if(result.getResourceId()!= null) r.setDatasource(datasourceDAO.getDatasourceById(result.getResourceId()));
+		if(result.getResourceId()!= null) r.setDatasource(datasourceRepository.getById(result.getResourceId()));
 		r.setDependentVariable(result.getDependentVariable());
 		if(result.getEffectSize()!= null) r.setEffectSize(new Double(result.getEffectSize()));
-		if(result.getMutantBiologicalModelId()!= null) r.setExperimentalBiologicalModel(biologicalModelDAO.getBiologicalModelById(result.getMutantBiologicalModelId()));
+		if(result.getMutantBiologicalModelId()!= null) r.setExperimentalBiologicalModel(biologicalModelRepository.getBiologicalModelById(result.getMutantBiologicalModelId()));
 		if(result.getZygosity()!= null) r.setExperimentalZygosity(ZygosityType.valueOf(result.getZygosity()));
 		r.setFemaleControls(result.getFemaleControlCount());
 		r.setFemaleMutants(result.getFemaleMutantCount());
@@ -1285,9 +1264,9 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		r.setMaleMutants(result.getMaleMutantCount());
 		r.setMetadataGroup(result.getMetadataGroup());
 		if(result.getNullTestPValue()!= null) r.setNullTestSignificance(new Double(result.getNullTestPValue()));
-		if(result.getPhenotypingCenter()!= null) r.setOrganisation(organisationDAO.getOrganisationByName(result.getPhenotypingCenter()));
-		if(result.getParameterStableId()!= null) r.setParameter(pipelineDAO.getParameterByStableId(result.getParameterStableId()));
-		if(result.getPipelineStableId()!= null) r.setPipeline(pipelineDAO.getPhenotypePipelineByStableId(result.getPipelineStableId()));
+		if(result.getPhenotypingCenter()!= null) r.setOrganisation(organisationRepository.getByName(result.getPhenotypingCenter()));
+		if(result.getParameterStableId()!= null) r.setParameter(parameterRepository.getByStableId(result.getParameterStableId()));
+		if(result.getPipelineStableId()!= null) r.setPipeline(pipelineRepository.getByStableId(result.getPipelineStableId()));
 		//    if(result.getProjectName()!= null) r.setProject(projectDAO.getProjectByName(result.getProjectName()));
 		if(result.getpValue()!= null) r.setpValue(new Double(result.getpValue()));
 		r.setRawOutput(result.getRawOutput());
@@ -1329,21 +1308,21 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 		CategoricalResult r = new CategoricalResult();
 		r.setColonyId(result.getColonyId());
-		if(result.getControlBiologicalModelId()!= null) r.setControlBiologicalModel(biologicalModelDAO.getBiologicalModelById(result.getControlBiologicalModelId()));
+		if(result.getControlBiologicalModelId()!= null) r.setControlBiologicalModel(biologicalModelRepository.getBiologicalModelById(result.getControlBiologicalModelId()));
 		r.setControlSelectionStrategy(result.getControlSelectionMethod());
 //        if(result.getResourceId()!= null) r.setDatasource(datasourceDAO.getDatasourceById(result.getResourceId()));
 		r.setDependentVariable(result.getDependentVariable());
 		if(result.getEffectSize()!= null) r.setEffectSize(new Double(result.getEffectSize()));
-		if(result.getMutantBiologicalModelId()!= null) r.setExperimentalBiologicalModel(biologicalModelDAO.getBiologicalModelById(result.getMutantBiologicalModelId()));
+		if (result.getMutantBiologicalModelId() != null) r.setExperimentalBiologicalModel(biologicalModelRepository.getBiologicalModelById(result.getMutantBiologicalModelId()));
 		if(result.getZygosity()!= null) r.setExperimentalZygosity(ZygosityType.valueOf(result.getZygosity()));
 		r.setFemaleControls(result.getFemaleControlCount());
 		r.setFemaleMutants(result.getFemaleMutantCount());
 		r.setMaleControls(result.getMaleControlCount());
 		r.setMaleMutants(result.getMaleMutantCount());
 		r.setMetadataGroup(result.getMetadataGroup());
-		if(result.getPhenotypingCenter()!= null) r.setOrganisation(organisationDAO.getOrganisationByName(result.getPhenotypingCenter()));
-		if(result.getParameterStableId()!= null) r.setParameter(pipelineDAO.getParameterByStableId(result.getParameterStableId()));
-		if(result.getPipelineStableId()!= null) r.setPipeline(pipelineDAO.getPhenotypePipelineByStableId(result.getPipelineStableId()));
+		if(result.getPhenotypingCenter()!= null) r.setOrganisation(organisationRepository.getByName(result.getPhenotypingCenter()));
+		if(result.getParameterStableId()!= null) r.setParameter(parameterRepository.getByStableId(result.getParameterStableId()));
+		if(result.getPipelineStableId()!= null) r.setPipeline(pipelineRepository.getByStableId(result.getPipelineStableId()));
 		//       if(result.getProjectName()!= null) r.setProject(projectDAO.getProjectByName(result.getProjectName()));
 		if(result.getpValue()!= null) r.setpValue(new Double(result.getpValue()));
 		r.setRawOutput(result.getRawOutput());

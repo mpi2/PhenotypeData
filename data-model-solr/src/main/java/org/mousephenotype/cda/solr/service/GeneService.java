@@ -15,9 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
@@ -31,6 +29,9 @@ import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -481,14 +482,14 @@ public class GeneService extends BasicService implements WebStatus{
 	 * @param doc represents a gene with imits status fields
 	 * @return the latest status at the gene level for both ES cells and alleles
 	 */
-	public String getLatestProductionStatuses(JSONObject doc, boolean toExport, String geneLink){
+	public String getLatestProductionStatuses(JSONObject doc, boolean toExport, String geneLink) throws JSONException {
 
 
-		String esCellStatus = doc.containsKey(GeneDTO.LATEST_ES_CELL_STATUS) && !GeneDTO.MOUSE_STATUS.equals("") ? getEsCellStatus(doc.getString(GeneDTO.LATEST_ES_CELL_STATUS), geneLink, toExport) : "";
+		String esCellStatus = doc.has(GeneDTO.LATEST_ES_CELL_STATUS) && !GeneDTO.MOUSE_STATUS.equals("") ? getEsCellStatus(doc.getString(GeneDTO.LATEST_ES_CELL_STATUS), geneLink, toExport) : "";
 
-		List<String> mouseStatus = doc.containsKey(GeneDTO.MOUSE_STATUS) && !GeneDTO.MOUSE_STATUS.equals("") ? getListFromJson (doc.getJSONArray(GeneDTO.MOUSE_STATUS)) : null;
+		List<String> mouseStatus = doc.has(GeneDTO.MOUSE_STATUS) && !GeneDTO.MOUSE_STATUS.equals("") ? getListFromJson (doc.getJSONArray(GeneDTO.MOUSE_STATUS)) : null;
 
-		List<String> alleleNames = doc.containsKey(GeneDTO.ALLELE_NAME) && !GeneDTO.ALLELE_NAME.equals("") ? getListFromJson(doc.getJSONArray(GeneDTO.ALLELE_NAME)) : null;
+		List<String> alleleNames = doc.has(GeneDTO.ALLELE_NAME) && !GeneDTO.ALLELE_NAME.equals("") ? getListFromJson(doc.getJSONArray(GeneDTO.ALLELE_NAME)) : null;
 
 		String miceStatus = getMiceProductionStatusButton(mouseStatus, alleleNames, toExport, geneLink);
 
@@ -653,9 +654,9 @@ public class GeneService extends BasicService implements WebStatus{
 	 *            represents a gene with imits status fields
 	 * @return the latest status at the gene level for ES cells and all statuses at the allele level for mice as a comma separated string
 	 */
-	public String getProductionStatusForEsCellAndMice(JSONObject doc, String url, boolean toExport){
+	public String getProductionStatusForEsCellAndMice(JSONObject doc, String url, boolean toExport) throws JSONException {
 
-		String esCellStatus = doc.containsKey(GeneDTO.LATEST_ES_CELL_STATUS) ? getEsCellStatus(doc.getString(GeneDTO.LATEST_ES_CELL_STATUS), url, toExport) : "";
+		String esCellStatus = doc.has(GeneDTO.LATEST_ES_CELL_STATUS) ? getEsCellStatus(doc.getString(GeneDTO.LATEST_ES_CELL_STATUS), url, toExport) : "";
 		String miceStatus = "";
 		final List<String> exportMiceStatus = new ArrayList<String>();
 
@@ -667,13 +668,13 @@ public class GeneService extends BasicService implements WebStatus{
 			// mice production status
 
 			// Mice: blue tm1/tm1a/tm1e... mice (depending on how many allele docs)
-			if ( doc.containsKey("mouse_status") ){
+			if ( doc.has("mouse_status") ){
 
 				JSONArray alleleNames = doc.getJSONArray("allele_name");
 
 				JSONArray mouseStatus = doc.getJSONArray("mouse_status");
 
-				for ( int i=0; i< mouseStatus.size(); i++ ) {
+				for ( int i=0; i< mouseStatus.length(); i++ ) {
 					String mouseStatusStr = mouseStatus.get(i).toString();
 
 					if ( mouseStatusStr.equals("Mice Produced") ){
@@ -706,7 +707,7 @@ public class GeneService extends BasicService implements WebStatus{
 				}	
 				// if no mice status found but there is already allele produced, mark it as "mice produced planned"
 				if ( alleleNames != null ) {
-					for (int j = 0; j < alleleNames.size(); j++) {
+					for (int j = 0; j < alleleNames.length(); j++) {
 						String alleleName = alleleNames.get(j).toString();
 						if (!alleleName.equals("") && !alleleName.equals("None") && mouseStatus.get(j).toString().equals("")) {
 							Matcher matcher = pattern.matcher(alleleName);

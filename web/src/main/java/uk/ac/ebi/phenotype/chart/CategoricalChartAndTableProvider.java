@@ -15,7 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.mousephenotype.cda.db.pojo.CategoricalResult;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.pojo.StatisticalResult;
@@ -362,7 +362,7 @@ public class CategoricalChartAndTableProvider {
 		ProcedureDTO proc = impressService.getProcedureByStableId(experiment.getProcedureStableId()) ;
 		String procedureDescription = "";
 		if (proc != null) {
-			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), "Procedure: "+proc.getName());
+			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Long)proc.getStableKey()).toString()), "Procedure: "+proc.getName());
 		}
 		if (parameter.getStableKey() != null) {
 			title = String.format("<a href=\"%s\">%s</a>", impressService.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey()),  "Parameter: "+ parameter.getName());

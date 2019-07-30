@@ -59,7 +59,7 @@ public class XrefFieldSetMapper implements FieldSetMapper<List<Xref>> {
                     entrez.setAccession(fs.readString("mgiMarkerAccessionId"));
                     entrez.setDatabaseId(DbIdType.MGI.intValue());
                     entrez.setXrefAccession(id);
-                    entrez.setXrefDatabaseId(DbIdType.EntrezGene.intValue());
+                    entrez.setXrefDatabaseId(DbIdType.EntrezGene.longValue());
                     xrefs.add(entrez);
                 }
             }
@@ -75,7 +75,7 @@ public class XrefFieldSetMapper implements FieldSetMapper<List<Xref>> {
                     ensembl.setAccession(fs.readString("mgiMarkerAccessionId"));
                     ensembl.setDatabaseId(DbIdType.MGI.intValue());
                     ensembl.setXrefAccession(id);
-                    ensembl.setXrefDatabaseId(DbIdType.Ensembl.intValue());
+                    ensembl.setXrefDatabaseId(DbIdType.Ensembl.longValue());
                     xrefs.add(ensembl);
                 }
             }
@@ -91,7 +91,7 @@ public class XrefFieldSetMapper implements FieldSetMapper<List<Xref>> {
                     vega.setAccession(fs.readString("mgiMarkerAccessionId"));
                     vega.setDatabaseId(DbIdType.MGI.intValue());
                     vega.setXrefAccession(id);
-                    vega.setXrefDatabaseId(DbIdType.VEGA.intValue());
+                    vega.setXrefDatabaseId(DbIdType.VEGA.longValue());
                     xrefs.add(vega);
                 }
             }
@@ -107,7 +107,7 @@ public class XrefFieldSetMapper implements FieldSetMapper<List<Xref>> {
                     ccds.setAccession(fs.readString("mgiMarkerAccessionId"));
                     ccds.setDatabaseId(DbIdType.MGI.intValue());
                     ccds.setXrefAccession(id);
-                    ccds.setXrefDatabaseId(DbIdType.cCDS.intValue());
+                    ccds.setXrefDatabaseId(DbIdType.cCDS.longValue());
                     xrefs.add(ccds);
                 }
             }

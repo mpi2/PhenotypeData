@@ -22,9 +22,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import org.springframework.orm.jpa.JpaVendorAdapter;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 import javax.sql.DataSource;
 
@@ -54,15 +51,15 @@ public class CdaSqlUtilsTestConfig {
 	}
 
 
-	@Bean
-	public LocalContainerEntityManagerFactoryBean entityManagerFactoryDcc1() {
-		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-		em.setDataSource(cdaBaseDataSourceH2());
-		em.setPackagesToScan("org.mousephenotype.cda.db.entity", "org.mousephenotype.cda.db.pojo");
-
-		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-		em.setJpaVendorAdapter(vendorAdapter);
-
-		return em;
-	}
+//	@Bean
+//	public LocalContainerEntityManagerFactoryBean entityManagerFactoryDcc1() {
+//		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
+//		em.setDataSource(cdaBaseDataSourceH2());
+//		em.setPackagesToScan("org.mousephenotype.cda.db.entity", "org.mousephenotype.cda.db.pojo");
+//
+//		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+//		em.setJpaVendorAdapter(vendorAdapter);
+//
+//		return em;
+//	}
 }

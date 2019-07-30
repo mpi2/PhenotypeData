@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import net.sf.json.JSONArray;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.PivotField;
@@ -23,6 +22,8 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.util.NamedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 
 import java.util.*;
 
@@ -225,12 +226,12 @@ public class BasicService {
 	 * @param jsonArray
 	 * @return List representation of the JSONArray using toString on individual objects
 	 */
-	public List<String> getListFromJson(JSONArray jsonArray){
+	public List<String> getListFromJson(JSONArray jsonArray) throws JSONException {
 		
 		List<String> list = new ArrayList<>();
 		if (jsonArray != null){
-			for (Object obj : jsonArray){
-				list.add(obj.toString());
+			for (int i = 0; i < list.size(); i++) {
+				list.add(jsonArray.get(i).toString());
 			}
 		}
 		

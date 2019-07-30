@@ -2,7 +2,6 @@ package org.mousephenotype.cda.indexers.configuration;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -10,24 +9,16 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
-import org.springframework.orm.hibernate5.HibernateTransactionManager;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
-import org.springframework.orm.jpa.JpaVendorAdapter;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
-import java.util.Properties;
 
 
 @Configuration
+@EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
 @EnableTransactionManagement
 public class IndexerConfig {
-
-    public static final int QUEUE_SIZE = 10000;
-    public static final int THREAD_COUNT = 3;
 
     @Value("${buildIndexesSolrUrl}")
     private String writeSolrBaseUrl;
@@ -160,52 +151,52 @@ public class IndexerConfig {
 	// support beans for hibernate wiring
     /////////////////////////////////////
 
-    protected Properties buildHibernateProperties() {
-	    Properties hibernateProperties = new Properties();
-
-	    hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-	    hibernateProperties.setProperty("hibernate.show_sql", "false");
-	    hibernateProperties.setProperty("hibernate.use_sql_comments", "true");
-	    hibernateProperties.setProperty("hibernate.format_sql", "true");
-	    hibernateProperties.setProperty("hibernate.generate_statistics", "false");
-	    hibernateProperties.setProperty("hibernate.current_session_context_class", "thread");
-
-	    return hibernateProperties;
-    }
-
-    @Primary
-	@Bean(name = "sessionFactoryHibernate")
-	public SessionFactory getSessionFactory() {
-
-		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
-		sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
-		sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
-
-		return sessionBuilder.buildSessionFactory();
-	}
-
-	@Bean
-	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-		em.setDataSource(komp2DataSource());
-		em.setPackagesToScan("org.mousephenotype.cda.db.entity", "org.mousephenotype.cda.db.pojo");
-
-		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-		em.setJpaVendorAdapter(vendorAdapter);
-		em.setJpaProperties(buildHibernateProperties());
-
-		return em;
-	}
-
-	@Bean
-	public HibernateTransactionManager transactionManager(SessionFactory s) {
-		HibernateTransactionManager txManager = new HibernateTransactionManager();
-		txManager.setSessionFactory(s);
-		return txManager;
-	}
-
-	@Bean
-	public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
-		return new PersistenceExceptionTranslationPostProcessor();
-	}
+//    protected Properties buildHibernateProperties() {
+//	    Properties hibernateProperties = new Properties();
+//
+//	    hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
+//	    hibernateProperties.setProperty("hibernate.show_sql", "false");
+//	    hibernateProperties.setProperty("hibernate.use_sql_comments", "true");
+//	    hibernateProperties.setProperty("hibernate.format_sql", "true");
+//	    hibernateProperties.setProperty("hibernate.generate_statistics", "false");
+//	    hibernateProperties.setProperty("hibernate.current_session_context_class", "thread");
+//
+//	    return hibernateProperties;
+//    }
+//
+//    @Primary
+//	@Bean(name = "sessionFactoryHibernate")
+//	public SessionFactory getSessionFactory() {
+//
+//		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
+//		sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
+//		sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
+//
+//		return sessionBuilder.buildSessionFactory();
+//	}
+//
+//	@Bean
+//	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+//		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
+//		em.setDataSource(komp2DataSource());
+//		em.setPackagesToScan("org.mousephenotype.cda.db.entity", "org.mousephenotype.cda.db.pojo");
+//
+//		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+//		em.setJpaVendorAdapter(vendorAdapter);
+//		em.setJpaProperties(buildHibernateProperties());
+//
+//		return em;
+//	}
+//
+//	@Bean
+//	public HibernateTransactionManager transactionManager(SessionFactory s) {
+//		HibernateTransactionManager txManager = new HibernateTransactionManager();
+//		txManager.setSessionFactory(s);
+//		return txManager;
+//	}
+//
+//	@Bean
+//	public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
+//		return new PersistenceExceptionTranslationPostProcessor();
+//	}
 }

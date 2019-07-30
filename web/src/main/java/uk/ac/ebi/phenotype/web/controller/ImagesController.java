@@ -15,31 +15,31 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.mousephenotype.cda.db.dao.GenomicFeatureDAO;
-import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.mousephenotype.cda.db.repositories.GenomicFeatureRepository;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.util.*;
 
 @Controller
@@ -74,15 +74,21 @@ public class ImagesController {
 	};
 
 
-	@Autowired
-	private ImagesSolrDao imagesSolrDao;
+	private GenomicFeatureRepository genomicFeatureRepository;
+	private ImagesSolrDao            imagesSolrDao;
+	private OntologyTermRepository   ontologyTermRepository;
 
-	@Autowired
-	GenomicFeatureDAO gfDAO;
 
-	@Autowired
-	OntologyTermDAO otDAO;
-
+	@Inject
+	public ImagesController(
+			GenomicFeatureRepository genomicFeatureRepository,
+			ImagesSolrDao imagesSolrDao,
+			OntologyTermRepository ontologyTermRepository)
+	{
+		this.genomicFeatureRepository = genomicFeatureRepository;
+		this.imagesSolrDao = imagesSolrDao;
+		this.ontologyTermRepository = ontologyTermRepository;
+	}
 
 
 	@RequestMapping("/images*")
@@ -109,7 +115,7 @@ public class ImagesController {
 
 	
 	private void sendQueryStringToSolr(HttpServletRequest request, Model model)
-	throws IOException, URISyntaxException {
+	throws IOException, URISyntaxException, JSONException {
 
 		String queryString = request.getQueryString();
 		String startString = "0";
@@ -201,8 +207,8 @@ public class ImagesController {
 		}
 
 		if (!geneId.equals("")) {
-			// 3 is the MGI database ID
-			GenomicFeature gf = gfDAO.getGenomicFeatureByAccessionAndDbId(geneId, 3);
+			// MGI
+			GenomicFeature gf = genomicFeatureRepository.getById_AccessionAndExternalDbShortName(geneId, "MGI");
 			String value = gf.getSymbol();
 			// String geneBc = "<a href='" + baseUrl + "/genes/" + geneId + "'>"
 			// + gf.getSymbol() + "</a>";
@@ -211,16 +217,16 @@ public class ImagesController {
 		}
 
 		if (!mpId.equals("")) {
-			// 5 is the Mammalian Phenotype database ID
-			OntologyTerm mpTerm = otDAO.getOntologyTermByAccessionAndDatabaseId(mpId, 5);
+			//  Mammalian Phenotype
+			OntologyTerm mpTerm = ontologyTermRepository.getById_AccessionAndExternalDbShortName(mpId, "MP");
 			String value = mpTerm.getName();
 			String mpBc = "<a href='" + baseUrl + "/phenotypes/" + mpId + "'>" + value + "</a>";
 			breadcrumbs.add("phenotype: \"" + mpBc + "\"");
 		}
 
 		if (!maId.equals("")) {
-			// 5 is the Mammalian Phenotype database ID
-			OntologyTerm maTerm = otDAO.getOntologyTermByAccession(maId);
+			// Mouse Adult Gross Anatomy
+			OntologyTerm maTerm = ontologyTermRepository.getById_AccessionAndExternalDbShortName(maId, "MA");
 			String value = maTerm.getName();
 			String mpBc = "<a href='" + baseUrl + "/phenotypes/" + maId + "'>" + value + "</a>";
 			breadcrumbs.add("anatomy: \"" + mpBc + "\"");
@@ -294,20 +300,18 @@ public class ImagesController {
 		if (!geneId.equals("")) {
 			queryTerms = geneId;
 			q = "accession:" + geneId.replace("MGI:", "MGI\\:");
-			queryTerms = gfDAO.getGenomicFeatureByAccession(geneId).getSymbol();
+			genomicFeatureRepository.getById_Accession(geneId).getSymbol();
 		}
 
 		if (!mpId.equals("")) {
 			queryTerms = mpId;
 			q = "annotationTermId:" + mpId.replace("MP:", "MP\\:");
-			queryTerms = otDAO.getOntologyTermByAccessionAndDatabaseId(mpId, 5).getName();
+			queryTerms = ontologyTermRepository.getById_AccessionAndExternalDbShortName(mpId, "MP").getName();
 		}
 
 		if (!maId.equals("")) {
-			queryTerms = maId;
 			q = "annotationTermId:" + maId.replace("MA:", "MA\\:");
-			queryTerms = otDAO.getOntologyTermByAccession(maId).getName();
-			// System.out.println("query term set to:" + queryTerms);
+			queryTerms = ontologyTermRepository.getById_AccessionAndExternalDbShortName(maId, "MA").getName();
 		}
 
 		if (mpId.equals("") && geneId.equals("") && maId.equals("")) {
@@ -347,7 +351,6 @@ public class ImagesController {
 		}
 	}
 
-
 	private String humanizeStrings(String[] filterField, String queryTerms) {
 
 		List<String> terms = new ArrayList<String>();
@@ -361,5 +364,4 @@ public class ImagesController {
 		queryTerms += ": " + StringUtils.join(terms, ", ");
 		return queryTerms;
 	}
-
 }

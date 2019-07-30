@@ -65,7 +65,7 @@ public class ProjectMapperThreeITest {
             ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), r);
         }
 
-        final Map<String, Integer> m = cdaSqlUtils.getCdaProject_idsByDccProject();
+        final Map<String, Long> m = cdaSqlUtils.getCdaProject_idsByDccProject();
 
         Assert.assertTrue(m.get("Eumodic") == 1);
         Assert.assertTrue(m.get("EUMODIC") == 1);
@@ -91,7 +91,7 @@ public class ProjectMapperThreeITest {
             ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), r);
         }
 
-        final Map<String, Integer> m = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId();
+        final Map<String, Long> m = cdaSqlUtils.getCdaOrganisation_idsByDccCenterId();
 
         logger.info("Getting Bcm, returned {} (Should be 25)", m.get("Bcm"));
         logger.info("Getting BCM, returned {} (Should be null)", m.get("BCM"));

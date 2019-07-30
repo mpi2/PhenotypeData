@@ -176,11 +176,11 @@ public class UnidimensionalResult extends StatisticalResult implements Serializa
         this.nullTestSignificance = pValue;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

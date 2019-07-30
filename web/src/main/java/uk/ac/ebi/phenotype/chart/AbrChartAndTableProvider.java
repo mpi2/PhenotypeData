@@ -107,7 +107,7 @@ public class AbrChartAndTableProvider {
 					if (procedureUrl == null){
 						ProcedureDTO proc = impressService.getProcedureByStableId(experiment.getProcedureStableId()) ;
 						if (proc != null) {
-							procedureUrl = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), proc.getName());
+							procedureUrl = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Long)proc.getStableKey()).toString()), proc.getName());
 						}
 					}
 					for (SexType sex : sexes){

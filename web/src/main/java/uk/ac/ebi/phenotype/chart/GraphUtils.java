@@ -15,7 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.solr.service.ExperimentService;

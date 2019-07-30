@@ -15,10 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
@@ -37,13 +34,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -108,7 +107,7 @@ public class DataTableController {
 
 			HttpServletRequest request,
 			HttpServletResponse response,
-			Model model) throws IOException, URISyntaxException, SolrServerException {
+			Model model) throws IOException, SolrServerException, JSONException {
 
 		String content = null;
 
@@ -125,7 +124,7 @@ public class DataTableController {
 
 		int counter = 0;
 
-		//System.out.println("id length: "+ queryIds.size());
+		//System.out.println("id length: "+ queryIds.length());
 		// will show only 10 records to the users to show how the data look like
 		for ( String id : queryIds ) {
 			counter++;
@@ -144,19 +143,11 @@ public class DataTableController {
 		}
 		//System.out.println("idstr: "+ batchIdListStr);
 		solrResponses.add(solrIndex.getBatchQueryJson(batchIdListStr, fllist, dataTypeName));
-		/*
-		if ( genes.size() == 0 ){
-			mgiIds = queryIds;
-		}*/
-
-		//System.out.println("Get " + mgiIds.size() + " out of " + queryIds.size() + " mgi genes by ensembl id/marker_symbol took: " + (System.currentTimeMillis() - time));
-		//System.out.println("mgi id: " + mgiIds);
-
 		content = fetchBatchQueryDataTableJson(request, solrResponses, fllist, oriDataTypeName, queryIds);
 		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 	}
 
-	public String fetchBatchQueryDataTableJson(HttpServletRequest request, List<QueryResponse> solrResponses, String fllist, String dataTypeName, List<String> queryIds ) {
+	public String fetchBatchQueryDataTableJson(HttpServletRequest request, List<QueryResponse> solrResponses, String fllist, String dataTypeName, List<String> queryIds ) throws JSONException {
 
 		SolrDocumentList results = new SolrDocumentList();
 
@@ -176,7 +167,6 @@ public class DataTableController {
 	 * Return jQuery dataTable from server-side for lazy-loading.
 	 * </p>
 	 *
-	 * @param bRegex =false bRegex_0=false bRegex_1=false bRegex_2=false
 	 * bSearchable_0=true bSearchable_1=true bSearchable_2=true bSortable_0=true
 	 * bSortable_1=true bSortable_2=true iColumns=3 for paging:
 	 * iDisplayLength=10 iDisplayStart=0 for sorting: iSortCol_0=0
@@ -194,11 +184,11 @@ public class DataTableController {
 			@RequestParam(value = "solrParams", required = false) String solrParams,
 			HttpServletRequest request,
 			HttpServletResponse response,
-			Model model) throws IOException, URISyntaxException {
+			Model model) throws IOException, URISyntaxException, JSONException {
 
-		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(solrParams);
+		JSONObject jParams = new JSONObject (solrParams);
 
-		String solrCoreName = jParams.containsKey("solrCoreName") ? jParams.getString("solrCoreName") : jParams.getString("facetName");
+		String solrCoreName = jParams.has("solrCoreName") ? jParams.getString("solrCoreName") : jParams.getString("facetName");
 		// use this for pattern matching later, instead of the modified complexphrase q string
 		String queryOri = jParams.getString("qOri");
 
@@ -208,7 +198,7 @@ public class DataTableController {
 		String solrParamStr = jParams.getString("params");
 
 		boolean legacyOnly = jParams.getBoolean("legacyOnly");
-		String evidRank = jParams.containsKey("evidRank") ? jParams.getString("evidRank") : "";
+		String evidRank = jParams.has("evidRank") ? jParams.getString("evidRank") : "";
 
 		// Get the query string
 		String[] pairs = solrParamStr.split("&");
@@ -227,7 +217,7 @@ public class DataTableController {
 		}
 
 		boolean showImgView = false;
-		if (jParams.containsKey("showImgView")) {
+		if (jParams.has("showImgView")) {
 			showImgView = jParams.getBoolean("showImgView");
 		}
 
@@ -237,15 +227,6 @@ public class DataTableController {
 		String content = fetchDataTableJson(request, json, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
 
 		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
-	}
-
-	@ExceptionHandler(Exception.class)
-	private ResponseEntity<String> getSolrErrorResponse(Exception e) {
-		e.printStackTrace();
-		String bootstrap = "<div class=\"alert\"><strong>Warning!</strong>  Error: Search functionality is currently unavailable</div>";
-		String errorJSON = "{'aaData':[[' " + bootstrap + "','  ', ' ']], 'iTotalRecords':1,'iTotalDisplayRecords':1}";
-		JSONObject errorJson = (JSONObject) JSONSerializer.toJSON(errorJSON);
-		return new ResponseEntity<String>(errorJson.toString(), createResponseHeaders(), HttpStatus.CREATED);
 	}
 
 	private HttpHeaders createResponseHeaders() {
@@ -271,7 +252,7 @@ public class DataTableController {
 									 String solrParams,
 									 boolean showImgView,
 									 String solrCoreName,
-									 boolean legacyOnly, String evidRank) throws IOException, URISyntaxException {
+									 boolean legacyOnly, String evidRank) throws IOException, URISyntaxException, JSONException {
 
 		request.setAttribute("displayStart", start);
 		request.setAttribute("displayLength", length);
@@ -297,7 +278,7 @@ public class DataTableController {
 		return jsonStr;
 	}
 
-	public String parseJsonforProductDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName) throws UnsupportedEncodingException {
+	public String parseJsonforProductDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName) throws UnsupportedEncodingException, JSONException {
 
 		String baseUrl = request.getAttribute("baseUrl").toString();
 
@@ -312,7 +293,7 @@ public class DataTableController {
 		j.put("iDisplayLength", request.getAttribute("displayLength"));
 
 
-		for (int i = 0; i < docs.size(); i ++) {
+		for (int i = 0; i < docs.length(); i ++) {
 			List<String> rowData = new ArrayList<String>();
 
 			// array element is an alternate of facetField and facetCount
@@ -320,7 +301,7 @@ public class DataTableController {
 
 			//String alleleName = "<span class='allelename'>"+ URLEncoder.encode(doc.getString("allele_name"), "UTF-8")+"</span>";
 
-			if ( !doc.containsKey(Allele2DTO.ALLELE_NAME)){
+			if ( !doc.has(Allele2DTO.ALLELE_NAME)){
 				// no point to show an allele that has no name
 				continue;
 			}
@@ -332,8 +313,8 @@ public class DataTableController {
 			String alleleLink = "";//"<a href='" + alleleUrl + "'>" + markerSymbol + "<sup>" + alleleName + "</sup></a>";
 
 			String mutationType = "";
-			String mt = doc.containsKey(Allele2DTO.MUTATION_TYPE) ? doc.getString(Allele2DTO.MUTATION_TYPE) : "";
-			String desc = doc.containsKey(Allele2DTO.ALLELE_DESCRIPTION) ? doc.getString(Allele2DTO.ALLELE_DESCRIPTION) : "";
+			String mt = doc.has(Allele2DTO.MUTATION_TYPE) ? doc.getString(Allele2DTO.MUTATION_TYPE) : "";
+			String desc = doc.has(Allele2DTO.ALLELE_DESCRIPTION) ? doc.getString(Allele2DTO.ALLELE_DESCRIPTION) : "";
 			List<String> mtDesc = new ArrayList<>(); mtDesc.add(mt); mtDesc.add(desc);
 
 			if (! mt.isEmpty() && ! desc.isEmpty()) {
@@ -343,18 +324,18 @@ public class DataTableController {
 			List<String> order = new ArrayList<>();
 			String dataUrl = baseUrl + "/order?acc=" + markerAcc + "&allele=" + alleleName +"&bare=true";
 
-			if ( doc.containsKey(Allele2DTO.TARGETING_VECTOR_AVAILABLE) && doc.getBoolean(Allele2DTO.TARGETING_VECTOR_AVAILABLE) ) {
+			if ( doc.has(Allele2DTO.TARGETING_VECTOR_AVAILABLE) && doc.getBoolean(Allele2DTO.TARGETING_VECTOR_AVAILABLE) ) {
 				order.add("<tr>");
 				order.add("<td><a target='_blank' href='" + dataUrl + "&type=targeting_vector'><i class='fa fa-shopping-cart'><span class='orderFont'> Targeting vector</span></i></a></td>");
 
-				if (doc.containsKey(Allele2DTO.VECTOR_ALLELE_IMAGE)) {
+				if (doc.has(Allele2DTO.VECTOR_ALLELE_IMAGE)) {
 					order.add("<td><a target='_blank' href='" + doc.getString(Allele2DTO.VECTOR_ALLELE_IMAGE) + "' title='map for vector'><i class='fa fa-th-list'></i></a></td>");
 				}
 				else {
 					order.add("<td></td>");
 				}
 
-				if (doc.containsKey(Allele2DTO.VECTOR_GENBANK_LINK)) {
+				if (doc.has(Allele2DTO.VECTOR_GENBANK_LINK)) {
 					order.add("<td><a target='_blank' href='" + doc.getString(Allele2DTO.VECTOR_GENBANK_LINK) + "' title='genbank file for vector'><i class='fa fa-file-text'></i></a></td>");
 				}
 				else {
@@ -362,18 +343,18 @@ public class DataTableController {
 				}
 				order.add("</tr>");
 			}
-			if ( doc.containsKey(Allele2DTO.ES_CELL_AVAILABLE) && doc.getBoolean(Allele2DTO.ES_CELL_AVAILABLE)){
+			if ( doc.has(Allele2DTO.ES_CELL_AVAILABLE) && doc.getBoolean(Allele2DTO.ES_CELL_AVAILABLE)){
 				order.add("<tr>");
 				order.add("<td><a target='_blank' href='" + dataUrl + "&type=es_cell'><i class='fa fa-shopping-cart'><span class='orderFont'> ES cell</span></i></a></td>");
 
-				if (doc.containsKey(Allele2DTO.ALLELE_SIMPLE_IMAGE)) {
+				if (doc.has(Allele2DTO.ALLELE_SIMPLE_IMAGE)) {
 					order.add("<td><a target='_blank' href='" + doc.getString(Allele2DTO.ALLELE_SIMPLE_IMAGE) + "' title='map for allele'><i class='fa fa-th-list'></i></a></td>");
 				}
 				else {
 					order.add("<td></td>");
 				}
 
-				if (doc.containsKey(Allele2DTO.GENBANK_FILE)) {
+				if (doc.has(Allele2DTO.GENBANK_FILE)) {
 					order.add("<td><a class='genbank' href='" + doc.getString(Allele2DTO.GENBANK_FILE) + "' title='genbank file for allele'><i class='fa fa-file-text'></i></a></td>");
 				}
 				else {
@@ -382,18 +363,18 @@ public class DataTableController {
 				order.add("</tr>");
 			}
 
-			if ( doc.containsKey(Allele2DTO.MOUSE_AVAILABLE) && doc.getBoolean(Allele2DTO.MOUSE_AVAILABLE)){
+			if ( doc.has(Allele2DTO.MOUSE_AVAILABLE) && doc.getBoolean(Allele2DTO.MOUSE_AVAILABLE)){
 				order.add("<tr>");
 				order.add("<td><a target='_blank' href='" + dataUrl + "&type=mouse'><i class='fa fa-shopping-cart'><span class='orderFont'> Mouse</span></i></a></td>");
 
-				if (doc.containsKey(Allele2DTO.ALLELE_SIMPLE_IMAGE)) {
+				if (doc.has(Allele2DTO.ALLELE_SIMPLE_IMAGE)) {
 					order.add("<td><a target='_blank' href='" + doc.getString(Allele2DTO.ALLELE_SIMPLE_IMAGE) + "' title='map for allele'><i class='fa fa-th-list'></i></a></td>");
 				}
 				else {
 					order.add("<td></td>");
 				}
 
-				if (doc.containsKey(Allele2DTO.GENBANK_FILE)) {
+				if (doc.has(Allele2DTO.GENBANK_FILE)) {
 					order.add("<td><a class='genbank' href='" + doc.getString(Allele2DTO.GENBANK_FILE) + "' title='genbank file for allele'><i class='fa fa-file-text'></i></a></td>");
 				}
 				else {
@@ -403,11 +384,11 @@ public class DataTableController {
 				order.add("</tr>");
 			}
 
-			if (doc.containsKey(Allele2DTO.TISSUES_AVAILABLE) && doc.containsKey(Allele2DTO.TISSUE_TYPES) && doc.containsKey(Allele2DTO.TISSUE_ENQUIRY_LINKS)){
+			if (doc.has(Allele2DTO.TISSUES_AVAILABLE) && doc.has(Allele2DTO.TISSUE_TYPES) && doc.has(Allele2DTO.TISSUE_ENQUIRY_LINKS)){
 				List<String> tissuesAvail = new ArrayList<>();
 
 				JSONArray tissueTypes = doc.getJSONArray(Allele2DTO.TISSUE_TYPES);
-				for (int t=0; t<tissueTypes.size(); t++){
+				for (int t=0; t<tissueTypes.length(); t++){
 					String href = "<a href='" + doc.getJSONArray(Allele2DTO.TISSUE_ENQUIRY_LINKS).get(t).toString() + "'>" + "<span><i class='fa fa-envelope'></i></span> " + tissueTypes.get(t).toString() + "</a>";
 					tissuesAvail.add("<li>" + href + "</li>");
 				}
@@ -423,7 +404,7 @@ public class DataTableController {
 			rowData.add(mutationType);
 			rowData.add("<table><tbody>" + StringUtils.join(order, "") + "</tbody></table>");
 
-			j.getJSONArray("aaData").add(rowData);
+			j.getJSONArray("aaData").put(rowData);
 		}
 
 		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
@@ -432,7 +413,7 @@ public class DataTableController {
 		return j.toString();
 	}
 
-	public String parseJsonforGeneDataTable(JSONObject json, HttpServletRequest request, String qryStr, String fqOri, String solrCoreName, boolean legacyOnly) throws UnsupportedEncodingException {
+	public String parseJsonforGeneDataTable(JSONObject json, HttpServletRequest request, String qryStr, String fqOri, String solrCoreName, boolean legacyOnly) throws UnsupportedEncodingException, JSONException {
 
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
@@ -457,7 +438,7 @@ public class DataTableController {
 
 		String baseUrl = request.getAttribute("baseUrl").toString();
 
-		for (int i = 0; i < docs.size(); i ++) {
+		for (int i = 0; i < docs.length(); i ++) {
 
 			List<String> rowData = new ArrayList<String>();
 
@@ -478,13 +459,13 @@ public class DataTableController {
 			rowData.add(prodStatus);
 
 
-			String statusField = (doc.containsKey(GeneDTO.LATEST_PHENOTYPE_STATUS)) ? doc.getString(GeneDTO.LATEST_PHENOTYPE_STATUS) : null;
+			String statusField = (doc.has(GeneDTO.LATEST_PHENOTYPE_STATUS)) ? doc.getString(GeneDTO.LATEST_PHENOTYPE_STATUS) : null;
 
 			// made this as null by default: don't want to show this for now
 			//Integer legacyPhenotypeStatus = null;
-			Integer legacyPhenotypeStatus = (doc.containsKey(GeneDTO.LEGACY_PHENOTYPE_STATUS)) ? doc.getInt(GeneDTO.LEGACY_PHENOTYPE_STATUS) : null;
+			Integer legacyPhenotypeStatus = (doc.has(GeneDTO.LEGACY_PHENOTYPE_STATUS)) ? doc.getInt(GeneDTO.LEGACY_PHENOTYPE_STATUS) : null;
 
-			Integer hasQc = (doc.containsKey(GeneDTO.HAS_QC)) ? doc.getInt(GeneDTO.HAS_QC) : null;
+			Integer hasQc = (doc.has(GeneDTO.HAS_QC)) ? doc.getInt(GeneDTO.HAS_QC) : null;
 			String phenotypeStatusHTMLRepresentation = geneService.getPhenotypingStatus(statusField, hasQc, legacyPhenotypeStatus, geneLink, toExport, legacyOnly);
 			rowData.add(phenotypeStatusHTMLRepresentation);
 
@@ -548,7 +529,7 @@ public class DataTableController {
 				rowData.add(interestTag);
 			}
 
-			j.getJSONArray("aaData").add(rowData);
+			j.getJSONArray("aaData").put(rowData);
 		}
 
 		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
@@ -579,7 +560,7 @@ public class DataTableController {
 	}
 
 
-	public String parseJsonforProtocolDataTable(JSONObject json, HttpServletRequest request, String solrCoreName) {
+	public String parseJsonforProtocolDataTable(JSONObject json, HttpServletRequest request, String solrCoreName) throws JSONException {
 
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
@@ -594,7 +575,7 @@ public class DataTableController {
 
 		String impressBaseUrl = request.getAttribute("cmsBaseUrl") + "/impress/protocol/";
 
-		for (int i = 0; i < docs.size(); i ++) {
+		for (int i = 0; i < docs.length(); i ++) {
 			List<String> rowData = new ArrayList<String>();
 
 			JSONObject doc = docs.getJSONObject(i);
@@ -607,7 +588,7 @@ public class DataTableController {
 			JSONArray procedure_stable_keys = doc.getJSONArray("procedure_stable_key");
 
 			List<String> procedureLinks = new ArrayList<String>();
-			for (int p = 0; p < procedures.size(); p ++) {
+			for (int p = 0; p < procedures.length(); p ++) {
 				String procedure = procedures.get(p).toString();
 				String procedure_stable_key = procedure_stable_keys.get(p).toString();
 				procedureLinks.add("<a href='" + impressBaseUrl + procedure_stable_key + "'>" + procedure + "</a>");
@@ -620,7 +601,7 @@ public class DataTableController {
 
 
 
-			j.getJSONArray("aaData").add(rowData);
+			j.getJSONArray("aaData").put(rowData);
 		}
 
 		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
@@ -629,20 +610,20 @@ public class DataTableController {
 		return j.toString();
 	}
 
-	public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreNamet) throws UnsupportedEncodingException {
+	public String parseJsonforMpDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreNamet) throws UnsupportedEncodingException, JSONException {
 
 		String baseUrl = request.getAttribute("baseUrl").toString();
 
-		JSONObject j = new JSONObject();
-		j.put("aaData", new Object[0]);
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("aaData", new Object[0]);
 
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
 
-		j.put("iTotalRecords", totalDocs);
-		j.put("iTotalDisplayRecords", totalDocs);
-		j.put("iDisplayStart", request.getAttribute("displayStart"));
-		j.put("iDisplayLength", request.getAttribute("displayLength"));
+		jsonObject.put("iTotalRecords", totalDocs);
+		jsonObject.put("iTotalDisplayRecords", totalDocs);
+		jsonObject.put("iDisplayStart", request.getAttribute("displayStart"));
+		jsonObject.put("iDisplayLength", request.getAttribute("displayLength"));
 
 		qryStr = URLDecoder.decode(qryStr, "UTF-8");
 		//System.out.println("kw decoded: "+ qryStr);
@@ -650,7 +631,7 @@ public class DataTableController {
 		// removes quotes or wildcard and highlight matched string
 		qryStr = qryStr.toLowerCase().replaceAll("\"", "").replaceAll("\\*", "");
 
-		for (int i = 0; i < docs.size(); i ++) {
+		for (int i = 0; i < docs.length(); i ++) {
 			List<String> rowData = new ArrayList<String>();
 
 			// array element is an alternate of facetField and facet
@@ -664,7 +645,7 @@ public class DataTableController {
 			String mpCol = null;
 
 			//System.out.println("DOC: "+ doc.toString());
-			if (doc.containsKey("mixSynQf")) {
+			if (doc.has("mixSynQf")) {
 
 				mpCol = "<div class='title'>" + mpLink + "</div>";
 
@@ -673,7 +654,8 @@ public class DataTableController {
 				String synMatch = null;
 				String syn = null;
 
-				for (Object d : data) {
+				for (int j = 0; j < data.length(); j++)  {
+				    Object d = data.get(j);
 					counter++;
 
 					if ( d.toString().startsWith("MP:") ){
@@ -709,7 +691,7 @@ public class DataTableController {
 			}
 
 			// some MP do not have definition
-			String mpDef = doc.containsKey(MpDTO.MP_DEFINITION) ? doc.getString(MpDTO.MP_DEFINITION): "No definition data available";
+			String mpDef = doc.has(MpDTO.MP_DEFINITION) ? doc.getString(MpDTO.MP_DEFINITION): "No definition data available";
 
 			int defaultLen = 30;
 			if (mpDef != null && mpDef.length() > defaultLen) {
@@ -726,16 +708,16 @@ public class DataTableController {
 			// link out to ontology browser page
 			rowData.add("<a href='" + baseUrl + "/ontologyBrowser?" + "termId=" + mpId + "'><i class=\"fa fa-share-alt-square\"></i> Browse</a>");
 
-			j.getJSONArray("aaData").add(rowData);
+			jsonObject.getJSONArray("aaData").put(rowData);
 		}
 
 		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
-		j.put("facet_fields", facetFields);
+		jsonObject.put("facet_fields", facetFields);
 
-		return j.toString();
+		return jsonObject.toString();
 	}
 
-	public String parseJsonforAnatomyDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName) throws IOException, URISyntaxException {
+	public String parseJsonforAnatomyDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName) throws IOException, URISyntaxException, JSONException {
 
 		//String baseUrl = request.getAttribute("baseUrl") + "/anatomy/";
 		String baseUrl = request.getAttribute("baseUrl").toString();
@@ -743,13 +725,13 @@ public class DataTableController {
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
 
-		JSONObject j = new JSONObject();
-		j.put("aaData", new Object[0]);
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("aaData", new Object[0]);
 
-		j.put("iTotalRecords", totalDocs);
-		j.put("iTotalDisplayRecords", totalDocs);
-		j.put("iDisplayStart", request.getAttribute("displayStart"));
-		j.put("iDisplayLength", request.getAttribute("displayLength"));
+		jsonObject.put("iTotalRecords", totalDocs);
+		jsonObject.put("iTotalDisplayRecords", totalDocs);
+		jsonObject.put("iDisplayStart", request.getAttribute("displayStart"));
+		jsonObject.put("iDisplayLength", request.getAttribute("displayLength"));
 
 		qryStr = URLDecoder.decode(qryStr, "UTF-8");
 		//System.out.println("kw decoded: "+ qryStr);
@@ -757,7 +739,7 @@ public class DataTableController {
 		// removes quotes or wildcard and highlight matched string
 		qryStr = qryStr.toLowerCase().replaceAll("\"", "").replaceAll("\\*", "");
 
-		for (int i = 0; i < docs.size(); i ++) {
+		for (int i = 0; i < docs.length(); i ++) {
 			List<String> rowData = new ArrayList<String>();
 
 			// array element is an alternate of facetField and facetCount
@@ -771,14 +753,15 @@ public class DataTableController {
 
 			String anatomyCol = "<div class='title'>" + anatomylink + "</div>";
 
-			if (doc.containsKey(AnatomyDTO.ANATOMY_TERM_SYNONYM)) {
+			if (doc.has(AnatomyDTO.ANATOMY_TERM_SYNONYM)) {
 
 				JSONArray data = doc.getJSONArray(AnatomyDTO.ANATOMY_TERM_SYNONYM);
 				int counter = 0;
 				String synMatch = null;
 				String syn = null;
 
-				for (Object d : data) {
+				for (int j = 0; j < data.length(); j++) {
+					Object d = data.get(j);
 					counter++;
 
 					syn = d.toString();
@@ -827,21 +810,21 @@ public class DataTableController {
              //e.printStackTrace();
              }
              rowData.add(mpDef);*/
-			j.getJSONArray("aaData").add(rowData);
+			jsonObject.getJSONArray("aaData").put(rowData);
 		}
 
 		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
-		j.put("facet_fields", facetFields);
+		jsonObject.put("facet_fields", facetFields);
 
-		return j.toString();
+		return jsonObject.toString();
 	}
 
-	private boolean hasExpressionData(String anatomyId) throws IOException, URISyntaxException {
+	private boolean hasExpressionData(String anatomyId) throws IOException, URISyntaxException, JSONException {
 		boolean expressionDataAvailable=false;
 		//check legacy Sanger images for any images
 		JSONObject maAssociatedExpressionImagesResponse = JSONImageUtils.getAnatomyAssociatedExpressionImages(anatomyId, config, 1);
 		JSONArray expressionImageDocs = maAssociatedExpressionImagesResponse.getJSONObject("response").getJSONArray("docs");
-		if(expressionImageDocs.size()>0){
+		if(expressionImageDocs.length()>0){
 			expressionDataAvailable=true;
 		}
 		//check experiment core for expression categorical data and impc images for parameter associated expression data
@@ -856,7 +839,7 @@ public class DataTableController {
 		return expressionDataAvailable;
 	}
 
-	public String parseJsonforImpcImageDataTable(JSONObject json, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri, String solrCoreName) throws IOException, URISyntaxException {
+	public String parseJsonforImpcImageDataTable(JSONObject json, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri, String solrCoreName) throws IOException, URISyntaxException, JSONException {
 
 		int start = (int) request.getAttribute("displayStart");
 		int length = (int) request.getAttribute("displayLength");
@@ -874,17 +857,17 @@ public class DataTableController {
 			JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 			int totalDocs = json.getJSONObject("response").getInt("numFound");
 
-			JSONObject j = new JSONObject();
-			j.put("aaData", new Object[0]);
-			j.put("imgHref", mediaBaseUrl + URLEncoder.encode(solrParams, "UTF-8"));
-			j.put("imgCount", totalDocs);
-			j.put("iTotalRecords", totalDocs);
-			j.put("iTotalDisplayRecords", totalDocs);
-			j.put("iDisplayStart", request.getAttribute("displayStart"));
-			j.put("iDisplayLength", request.getAttribute("displayLength"));
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("aaData", new Object[0]);
+			jsonObject.put("imgHref", mediaBaseUrl + URLEncoder.encode(solrParams, "UTF-8"));
+			jsonObject.put("imgCount", totalDocs);
+			jsonObject.put("iTotalRecords", totalDocs);
+			jsonObject.put("iTotalDisplayRecords", totalDocs);
+			jsonObject.put("iDisplayStart", request.getAttribute("displayStart"));
+			jsonObject.put("iDisplayLength", request.getAttribute("displayLength"));
 
 			//String imgBaseUrl = mediaBaseUrl + "/";
-			for (int i = 0; i < docs.size(); i ++) {
+			for (int i = 0; i < docs.length(); i ++) {
 
 				List<String> rowData = new ArrayList<String>();
 				JSONObject doc = docs.getJSONObject(i);
@@ -892,7 +875,7 @@ public class DataTableController {
 
 				String imgLink = null;
 
-				if (doc.containsKey("jpeg_url")) {
+				if (doc.has("jpeg_url")) {
 
 					String fullSizePath = doc.getString("jpeg_url"); //http://wwwdev.ebi.ac.uk/mi/media/omero/webgateway/render_image/7257/
 					String thumbnailPath = doc.getString("thumbnail_url");
@@ -917,7 +900,8 @@ public class DataTableController {
 					if (doc.has("anatomy_id")) {
 						JSONArray termIds   = doc.getJSONArray("anatomy_id");
 						JSONArray termNames = doc.getJSONArray("anatomy_term");
-						for( Object s : termIds ){
+						for (int j = 0; j < termIds.length(); j++) {
+							Object s = termIds.get(j);
 							log.info(i + " - anatomy: " + termNames.get(counter).toString());
 							log.debug(i + " - anatomy: " + termNames.get(counter).toString());
 							String name = termNames.get(counter).toString();
@@ -961,19 +945,19 @@ public class DataTableController {
 					rowData.add(annots);
 					rowData.add(imgLink);
 
-					j.getJSONArray("aaData").add(rowData);
+					jsonObject.getJSONArray("aaData").put(rowData);
 				} catch (Exception e) {
 					// some images have no annotations
 					rowData.add(Constants.NO_INFORMATION_AVAILABLE);
 					rowData.add(imgLink);
-					j.getJSONArray("aaData").add(rowData);
+					jsonObject.getJSONArray("aaData").put(rowData);
 				}
 			}
 
 			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
-			j.put("facet_fields", facetFields);
+			jsonObject.put("facet_fields", facetFields);
 
-			return j.toString();
+			return jsonObject.toString();
 		} else {
 
 			// annotation view: images group by annotationTerm per row
@@ -1075,7 +1059,7 @@ public class DataTableController {
 
 					rowData.add("<a rel='nofollow' href='" + thisImgUrl + "'>" + pathAndImgCount.get(0) + "</a>");
 					//rowData.add(pathAndImgCount.get(0).toString());  // link to this image only
-					j.getJSONArray("aaData").add(rowData);
+					j.getJSONArray("aaData").put(rowData);
 				}
 
 			}
@@ -1087,7 +1071,7 @@ public class DataTableController {
 		}
 	}
 
-	public String parseJsonforImageDataTable(JSONObject json, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri, String solrCoreName) throws IOException, URISyntaxException {
+	public String parseJsonforImageDataTable(JSONObject json, String solrParams, boolean showImgView, HttpServletRequest request, String query, String fqOri, String solrCoreName) throws IOException, URISyntaxException, JSONException {
 
 		String mediaBaseUrl = config.get("mediaBaseUrl");
 
@@ -1101,18 +1085,18 @@ public class DataTableController {
 			JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 			int totalDocs = json.getJSONObject("response").getInt("numFound");
 
-			JSONObject j = new JSONObject();
-			j.put("aaData", new Object[0]);
-			j.put("imgHref", imgUrl);
-			j.put("imgCount", totalDocs);
-			j.put("iTotalRecords", totalDocs);
-			j.put("iTotalDisplayRecords", totalDocs);
-			j.put("iDisplayStart", request.getAttribute("displayStart"));
-			j.put("iDisplayLength", request.getAttribute("displayLength"));
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("aaData", new Object[0]);
+			jsonObject.put("imgHref", imgUrl);
+			jsonObject.put("imgCount", totalDocs);
+			jsonObject.put("iTotalRecords", totalDocs);
+			jsonObject.put("iTotalDisplayRecords", totalDocs);
+			jsonObject.put("iDisplayStart", request.getAttribute("displayStart"));
+			jsonObject.put("iDisplayLength", request.getAttribute("displayLength"));
 
 			String imgBaseUrl = mediaBaseUrl + "/";
 
-			for (int i = 0; i < docs.size(); i ++) {
+			for (int i = 0; i < docs.length(); i ++) {
 
 				List<String> rowData = new ArrayList<String>();
 				JSONObject doc = docs.getJSONObject(i);
@@ -1142,7 +1126,8 @@ public class DataTableController {
 						else {
 							termNames = termIds; // temporary solution for those term ids that do not have term name
 						}
-						for (Object s : termIds) {
+						for (int j = 0; j < termIds.length(); j++) {
+							Object s = termIds.get(j);
 							if (s.toString().startsWith("MA:")) {
 								log.debug(i + " - MA: " + termNames.get(counter).toString());
 								String name = termNames.get(counter).toString();
@@ -1172,7 +1157,8 @@ public class DataTableController {
 
 					if (doc.has("expName")) {
 						JSONArray expNames = doc.getJSONArray("expName");
-						for (Object s : expNames) {
+						for (int j = 0; j < expNames.length(); j++) {
+							Object s = expNames.get(j);
 							log.debug(i + " - expTERM: " + s.toString());
 							exp.add(s.toString());
 						}
@@ -1217,19 +1203,19 @@ public class DataTableController {
 
 					rowData.add(annots);
 					rowData.add(imgLink);
-					j.getJSONArray("aaData").add(rowData);
+					jsonObject.getJSONArray("aaData").put(rowData);
 				} catch (Exception e) {
 					// some images have no annotations
 					rowData.add(Constants.NO_INFORMATION_AVAILABLE);
 					rowData.add(imgLink);
-					j.getJSONArray("aaData").add(rowData);
+					jsonObject.getJSONArray("aaData").put(rowData);
 				}
 			}
 
 			JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
-			j.put("facet_fields", facetFields);
+			jsonObject.put("facet_fields", facetFields);
 
-			return j.toString();
+			return jsonObject.toString();
 		} else {
 			// annotation view: images group by annotationTerm per row
 
@@ -1243,7 +1229,7 @@ public class DataTableController {
 
 			JSONArray facets = solrIndex.mergeFacets(facetFields);
 
-			int numFacets = facets.size();
+			int numFacets = facets.length();
 
 			//System.out.println("Number of facets: " + numFacets);
 			JSONObject j = new JSONObject();
@@ -1267,7 +1253,7 @@ public class DataTableController {
 			// and increase the end similarly.
 			for (int i = start * 2; i < end * 2; i = i + 2) {
 
-				if (facets.size() <= i) {
+				if (facets.length() <= i) {
 					break;
 				}//stop when we hit the end
 
@@ -1309,7 +1295,7 @@ public class DataTableController {
 
 					rowData.add(fetchImagePathByAnnotName(query, thisFqStr));
 
-					j.getJSONArray("aaData").add(rowData);
+					j.getJSONArray("aaData").put(rowData);
 				}
 
 			}
@@ -1320,20 +1306,20 @@ public class DataTableController {
 		}
 	}
 
-	public String parseJsonforDiseaseDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName) {
+	public String parseJsonforDiseaseDataTable(JSONObject json, HttpServletRequest request, String qryStr, String solrCoreName) throws JSONException {
 
 		String baseUrl = request.getAttribute("baseUrl") + "/disease/";
 
 		JSONArray docs = json.getJSONObject("response").getJSONArray("docs");
 		int totalDocs = json.getJSONObject("response").getInt("numFound");
 
-		JSONObject j = new JSONObject();
-		j.put("aaData", new Object[0]);
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("aaData", new Object[0]);
 
-		j.put("iTotalRecords", totalDocs);
-		j.put("iTotalDisplayRecords", totalDocs);
-		j.put("iDisplayStart", request.getAttribute("displayStart"));
-		j.put("iDisplayLength", request.getAttribute("displayLength"));
+		jsonObject.put("iTotalRecords", totalDocs);
+		jsonObject.put("iTotalDisplayRecords", totalDocs);
+		jsonObject.put("iDisplayStart", request.getAttribute("displayStart"));
+		jsonObject.put("iDisplayLength", request.getAttribute("displayLength"));
 
 		Map<String, String> srcBaseUrlMap = new HashMap<>();
 		srcBaseUrlMap.put("OMIM", "http://omim.org/entry/");
@@ -1342,7 +1328,7 @@ public class DataTableController {
 
 		qryStr = qryStr.replaceAll("\"", "");
 
-		for (int i = 0; i < docs.size(); i ++) {
+		for (int i = 0; i < docs.length(); i ++) {
 			List<String> rowData = new ArrayList<String>();
 
 			// disease link
@@ -1353,14 +1339,15 @@ public class DataTableController {
 			String diseaseCol = "<a href='" + baseUrl + diseaseId + "'>" + diseaseTerm + "</a>";
 
 			// disease column
-			if (doc.containsKey("disease_alts")) {
+			if (doc.has("disease_alts")) {
 
 				JSONArray data = doc.getJSONArray("disease_alts");
 				int counter = 0;
 				String synMatch = null;
 				String syn = null;
 
-				for (Object d : data) {
+				for (int j = 0; j < data.length(); j++) {
+					Object d = data.get(j);
 					counter++;
 					syn = d.toString();
 
@@ -1405,13 +1392,13 @@ public class DataTableController {
 			String impc = "<span class='status done candidateImpc'>IMPC</span>";
 			String mgi = "<span class='status done candidateMgi'>MGI</span>";
 
-			j.getJSONArray("aaData").add(rowData);
+			jsonObject.getJSONArray("aaData").put(rowData);
 		}
 
 		JSONObject facetFields = json.getJSONObject("facet_counts").getJSONObject("facet_fields");
-		j.put("facet_fields", facetFields);
+		jsonObject.put("facet_fields", facetFields);
 
-		return j.toString();
+		return jsonObject.toString();
 	}
 
 	private ArrayList<String> fetchImgGeneAnnotations(JSONObject doc, HttpServletRequest request) {
@@ -1421,7 +1408,8 @@ public class DataTableController {
 		try {
 			if (doc.has("symbol_gene")) {
 				JSONArray geneSymbols = doc.getJSONArray("symbol_gene");
-				for (Object s : geneSymbols) {
+				for (int i = 0; i < geneSymbols.length(); i++) {
+					Object s = geneSymbols.get(i);
 					String[] names = s.toString().split("_");
 					String url = request.getAttribute("baseUrl") + "/genes/" + names[1];
 					gene.add("<a href='" + url + "'>" + names[0] + "</a>");
@@ -1433,7 +1421,7 @@ public class DataTableController {
 		return gene;
 	}
 
-	public String fetchImagePathByAnnotName(String query, String fqStr) throws IOException, URISyntaxException {
+	public String fetchImagePathByAnnotName(String query, String fqStr) throws IOException, URISyntaxException, JSONException {
 
 		String mediaBaseUrl = config.get("mediaBaseUrl");
 
@@ -1449,7 +1437,7 @@ public class DataTableController {
 		JSONObject thumbnailJson = solrIndex.getResults(queryUrl);
 		JSONArray docs = thumbnailJson.getJSONObject("response").getJSONArray("docs");
 
-		int dataLen = docs.size() < 5 ? docs.size() : maxNum;
+		int dataLen = docs.length() < 5 ? docs.length() : maxNum;
 
 		for (int i = 0; i < dataLen; i ++) {
 			JSONObject doc = docs.getJSONObject(i);
@@ -1464,7 +1452,7 @@ public class DataTableController {
 		return StringUtils.join(imgPath, "");
 
 	}
-	private String concateAlleleNameInfo(JSONObject doc, HttpServletRequest request, String qryStr) throws UnsupportedEncodingException {
+	private String concateAlleleNameInfo(JSONObject doc, HttpServletRequest request, String qryStr) throws UnsupportedEncodingException, JSONException{
 
 		List<String> alleleNameInfo = new ArrayList<String>();
 
@@ -1500,7 +1488,8 @@ public class DataTableController {
 					String synMatch = null;
 					String syn = null;
 
-					for (Object d : data) {
+					for (int j = 0; j < data.length(); j++) {
+						Object d = data.get(j);
 						counter++;
 
 						syn = d.toString();
@@ -1553,7 +1542,7 @@ public class DataTableController {
 
 	}
 
-	private String concateGeneInfo(JSONObject doc, JSONObject json, String qryStr, HttpServletRequest request) throws UnsupportedEncodingException {
+	private String concateGeneInfo(JSONObject doc, JSONObject json, String qryStr, HttpServletRequest request) throws JSONException {
 
 		List<String> geneInfo = new ArrayList<String>();
 
@@ -1583,7 +1572,9 @@ public class DataTableController {
 					info.add(Tools.highlightMatchedStrIfFound(qryStr, doc.getString(field), "span", "subMatch"));
 				} else if (field.equals("human_gene_symbol")) {
 					JSONArray data = doc.getJSONArray(field);
-					for (Object h : data) {
+
+					for (int j = 0; j < data.length(); j++) {
+						Object h = data.get(j);
 						info.add(Tools.highlightMatchedStrIfFound(qryStr, h.toString(), "span", "subMatch"));
 					}
 				} else if (field.equals("marker_synonym")) {
@@ -1592,7 +1583,8 @@ public class DataTableController {
 					String synMatch = null;
 					String syn = null;
 
-					for (Object d : data) {
+					for (int j = 0; j < data.length(); j++) {
+						Object d = data.get(j);
 						counter++;
 
 						syn = d.toString();

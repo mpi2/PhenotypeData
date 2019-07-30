@@ -15,25 +15,24 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.PivotField;
-import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -51,6 +50,9 @@ import java.util.*;
 @SpringBootApplication
 public abstract class AbstractIndexer implements CommandLineRunner {
 
+    @Value("${owlpath}")
+    protected String owlpath;
+
     private final   Logger  logger    = LoggerFactory.getLogger(this.getClass());
 
     public static String EMBRYONIC_DAY_9_5  = "EFO:0007641";    // -> embryonic day 9.5
@@ -58,25 +60,24 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     public static String EMBRYONIC_DAY_14_5 = "EFO:0002565";    // -> embryonic day 14.5
     public static String EMBRYONIC_DAY_18_5 = "EFO:0002570";    // -> embryonic day 18.5
     public static String POSTPARTUM_STAGE   = "MmusDv:0000092"; // -> postpartum stage
-    public static String POSTNATAL_STAGE   = "EFO:0002948";
+    public static String POSTNATAL_STAGE    = "EFO:0002948";
 
     protected final int     MINIMUM_DOCUMENT_COUNT = 80;
 
-    protected Integer                efo_db_id = 15; // default as of 2016-05-06
-    private   Map<String, BasicBean> liveStageMap;
-    private   Map<String, BasicBean> stages    = new HashMap<>();
+    private Map<String, BasicBean> liveStageMap;
+    private Map<String, BasicBean> stages = new HashMap<>();
 
-    @Value("${owlpath}")
-    protected String owlpath;
 
-    @NotNull
-    @Autowired
-    OntologyTermDAO ontologyTermDAO;
+    protected DataSource             komp2DataSource;
+    protected OntologyTermRepository ontologyTermRepository;
 
-    @NotNull
-    @Autowired
-    @Qualifier("komp2DataSource")
-    DataSource komp2DataSource;
+    @Inject
+    public AbstractIndexer(
+            @NotNull DataSource komp2DataSource,
+            @NotNull OntologyTermRepository ontologyTermRepository) {
+        this.komp2DataSource = komp2DataSource;
+        this.ontologyTermRepository = ontologyTermRepository;
+    }
 
 
 	CommonUtils commonUtils = new CommonUtils();
@@ -275,7 +276,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
             if (stages == null || stages.size() == 0) {
                 Arrays.asList(POSTPARTUM_STAGE, EMBRYONIC_DAY_9_5, EMBRYONIC_DAY_12_5, EMBRYONIC_DAY_14_5, EMBRYONIC_DAY_18_5).forEach(x -> {
-                    OntologyTerm t = ontologyTermDAO.getOntologyTermByAccession(x);
+                    OntologyTerm t = ontologyTermRepository.getById_Accession(x);
                     stages.put(x, new BasicBean(t.getId().getAccession(), t.getName()));
                 });
             }

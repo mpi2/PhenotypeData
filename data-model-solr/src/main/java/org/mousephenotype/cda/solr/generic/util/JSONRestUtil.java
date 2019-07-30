@@ -15,14 +15,12 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.generic.util;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -44,32 +42,32 @@ public class JSONRestUtil {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public static JSONObject getResults(String url) throws IOException, URISyntaxException {
+	public static JSONObject getResults(String url) throws IOException, URISyntaxException, JSONException {
 
 		log.debug("GETTING CONTENT FROM: " + url);
 
 		HttpProxy proxy = new HttpProxy();
 		String content = proxy.getContent(new URL(url));
 
-		return (JSONObject) JSONSerializer.toJSON(content);
+		return new JSONObject(content);
 	}
 	
-	public static JSONArray getResultsArray(String url) throws IOException, URISyntaxException {
+	public static JSONArray getResultsArray(String url) throws IOException, URISyntaxException, JSONException {
 
 		log.debug("GETTING CONTENT FROM: " + url);
 
 		HttpProxy proxy = new HttpProxy();
 		String content = proxy.getContent(new URL(url));
 
-		return (JSONArray) JSONSerializer.toJSON(content);
+		return new JSONArray(content);
 	}
 
-	public static int getNumberFoundFromJsonResponse(JSONObject response) {
+	public static int getNumberFoundFromJsonResponse(JSONObject response) throws JSONException {
 		int numberFound = (int) response.getJSONObject("response").getInt("numFound");
 		return numberFound;
 	}
 
-	public static JSONArray getDocArray(JSONObject jsonResponse) {
+	public static JSONArray getDocArray(JSONObject jsonResponse) throws JSONException {
 		JSONArray docs = jsonResponse.getJSONObject(
 				"response").getJSONArray("docs");
 		return docs;

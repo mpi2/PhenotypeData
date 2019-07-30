@@ -18,6 +18,7 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.owl.AnatomogramMapper;
 import org.mousephenotype.cda.owl.OntologyParser;
@@ -29,8 +30,6 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -38,7 +37,9 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.core.io.Resource;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -57,29 +58,27 @@ import java.util.Set;
 @EnableAutoConfiguration
 public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner {
 
-	private final Logger logger = LoggerFactory.getLogger(AnatomyIndexer.class);
-
     @Value("classpath:uberonEfoMaAnatomogram_mapping.txt")
     Resource anatomogramResource;
 
-    @Autowired
-    @Qualifier("anatomyCore")
-    SolrClient anatomyCore;
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    @Qualifier("komp2DataSource")
-    DataSource komp2DataSource;
+    private SolrClient               anatomyCore;
+    private Map<String, Set<String>> maUberonEfoByTermId = new HashMap<>();
 
     private OntologyParser maParser;
-    private OntologyParser uberonParser;
     private OntologyParser emapaParser;
+    private OntologyParser uberonParser;
 
-    private Map<String, Set<String>> maUberonEfoMap = new HashMap<>();      // key = term_id.
 
-    protected OntologyParserFactory ontologyParserFactory;
-
-    public AnatomyIndexer() {
-
+    @Inject
+    public AnatomyIndexer(
+            @NotNull DataSource komp2DataSource,
+            @NotNull OntologyTermRepository ontologyTermRepository,
+            @NotNull SolrClient anatomyCore)
+    {
+        super(komp2DataSource, ontologyTermRepository);
+        this.anatomyCore = anatomyCore;
     }
 
     @Override
@@ -120,8 +119,8 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
                 // index UBERON/EFO id for MA id
 
-                if (maUberonEfoMap.containsKey(maId)) {
-                    for (String id : maUberonEfoMap.get(maId)){
+                if (maUberonEfoByTermId.containsKey(maId)) {
+                    for (String id : maUberonEfoByTermId.get(maId)){
                         if (id.startsWith("UBERON")){
                             anatomyTerm.addUberonIds(id);
                         } else if (id.startsWith("EFO")){
@@ -129,29 +128,6 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
                         }
                     }
                 }
-
-                //I don't think we need the terms for the intermediate terms, the mapper should already get the best hit. Not sure if we use these at all.
-                // also index all UBERON/EFO ids for intermediate MA ids
-//                Set<String> all_ae_mapped_uberonIds = new HashSet<>();
-//                Set<String> all_ae_mapped_efoIds = new HashSet<>();
-//
-//                for (String intermediateId : anatomyTerm.getIntermediateAnatomyId()) {
-//                    if (maUberonEfoMap.containsKey(intermediateId) && maUberonEfoMap.get(intermediateId).containsKey("uberon_id")) {
-//                        all_ae_mapped_uberonIds.addAll(maUberonEfoMap.get(intermediateId).get("uberon_id"));
-//                    }
-//                    if (maUberonEfoMap.containsKey(intermediateId) && maUberonEfoMap.get(intermediateId).containsKey("efo_id")) {
-//                        all_ae_mapped_efoIds.addAll(maUberonEfoMap.get(intermediateId).get("efo_id"));
-//                    }
-//                }
-//
-//                if (anatomyTerm.getUberonIds() != null) {
-//                    all_ae_mapped_uberonIds.addAll(anatomyTerm.getUberonIds());
-//                    anatomyTerm.setAll_ae_mapped_uberonIds(new ArrayList<String>(all_ae_mapped_uberonIds));
-//                }
-//                if (anatomyTerm.getEfoIds() != null) {
-//                    all_ae_mapped_efoIds.addAll(anatomyTerm.getEfoIds());
-//                    anatomyTerm.setAll_ae_mapped_efoIds(new ArrayList<String>(all_ae_mapped_efoIds));
-//                }
 
                 documentCount++;
                 anatomyCore.addBean(anatomyTerm, 60000);
@@ -228,20 +204,18 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
     private void initialiseSupportingBeans() {
 
         try {
-            ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
+            OntologyParserFactory ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
             emapaParser = ontologyParserFactory.getEmapaParserWithTreeJson();
             maParser = ontologyParserFactory.getMaParserWithTreeJson();
             uberonParser = ontologyParserFactory.getUberonParser();
-            maUberonEfoMap = AnatomogramMapper.getMapping(maParser, uberonParser, "UBERON", "MA");
+            maUberonEfoByTermId = AnatomogramMapper.getMapping(maParser, uberonParser, "UBERON", "MA");
 
         } catch (SQLException | IOException | OWLOntologyCreationException | OWLOntologyStorageException | JSONException e1) {
             e1.printStackTrace();
         }
     }
 
-    public static void main(String[] args) throws IndexerException, SQLException, IOException, SolrServerException {
+    public static void main(String[] args) {
         SpringApplication.run(AnatomyIndexer.class, args);
     }
-
-
 }

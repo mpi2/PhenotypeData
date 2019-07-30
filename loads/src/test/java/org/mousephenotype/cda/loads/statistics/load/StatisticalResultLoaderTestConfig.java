@@ -1,10 +1,8 @@
 package org.mousephenotype.cda.loads.statistics.load;
 
 
-import org.hibernate.SessionFactory;
-import org.mousephenotype.cda.db.dao.OntologyTermDAO;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAOImpl;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
+import org.mousephenotype.cda.db.repositories.ParameterRepository;
 import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.statistics.load.threei.TestConfigThreeI;
@@ -13,20 +11,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
-import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.util.Assert;
 
-import javax.inject.Inject;
-import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 
 @Configuration
+@EnableJpaRepositories(basePackages = "org.mousephenotype.cda.db.repositories")
 @EnableTransactionManagement
 @EnableAutoConfiguration
 @ComponentScan(basePackages = "org.mousephenotype.cda.db.dao", excludeFilters = {
@@ -35,6 +30,18 @@ import javax.sql.DataSource;
                 TestConfigThreeI.class})}
 )
 public class StatisticalResultLoaderTestConfig {
+
+    private OntologyTermRepository ontologyTermRepository;
+    private ParameterRepository    parameterRepository;
+
+    public StatisticalResultLoaderTestConfig(
+            @NotNull OntologyTermRepository ontologyTermRepository,
+            @NotNull ParameterRepository parameterRepository)
+    {
+        this.ontologyTermRepository = ontologyTermRepository;
+        this.parameterRepository = parameterRepository;
+    }
+
 
     // cda database
     @Bean
@@ -46,35 +53,27 @@ public class StatisticalResultLoaderTestConfig {
                 .build();
     }
 
-    @Bean(name = "komp2TxManager")
-    protected PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
-        JpaTransactionManager tm = new JpaTransactionManager();
-        tm.setEntityManagerFactory(emf);
-        tm.setDataSource(cdaDataSource());
-        return tm;
-    }
-
-    @Bean(name = "sessionFactoryHibernate")
-    public SessionFactory sessionFactory() {
-
-        LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(cdaDataSource());
-        sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
-        sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
-
-        return sessionBuilder.buildSessionFactory();
-    }
-
-    @Bean
-    @Inject
-    public MpTermService mpTermService(OntologyTermDAO ontologyTermDAO, PhenotypePipelineDAO phenotypePipelineDAO) {
-        Assert.notNull(ontologyTermDAO, "ontologyTermDAO cannot be null");
-        Assert.notNull(phenotypePipelineDAO, "phenotypePipelineDAO cannot be null");
-        return new MpTermService(ontologyTermDAO, phenotypePipelineDAO);
-    }
+//    @Bean(name = "komp2TxManager")
+//    protected PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
+//        JpaTransactionManager tm = new JpaTransactionManager();
+//        tm.setEntityManagerFactory(emf);
+//        tm.setDataSource(cdaDataSource());
+//        return tm;
+//    }
+//
+//    @Bean(name = "sessionFactoryHibernate")
+//    public SessionFactory sessionFactory() {
+//
+//        LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(cdaDataSource());
+//        sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
+//        sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
+//
+//        return sessionBuilder.buildSessionFactory();
+//    }
 
     @Bean
-    public PhenotypePipelineDAO phenotypePipelineDAO() {
-        return new PhenotypePipelineDAOImpl(sessionFactory());
+    public MpTermService mpTermService() {
+        return new MpTermService(ontologyTermRepository, parameterRepository);
     }
 
     @Bean

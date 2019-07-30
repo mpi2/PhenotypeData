@@ -15,14 +15,14 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.solr.generic.util.Tools;
-import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +32,6 @@ import uk.ac.ebi.phenotype.service.search.SearchUrlServiceFactory;
 import uk.ac.ebi.phenotype.util.SearchSettings;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -96,7 +95,7 @@ public class BatchQueryController {
 	@RequestMapping("/oldsearch")
 	public String searchResult2(
 			HttpServletRequest request,
-			Model model) throws IOException, URISyntaxException {
+			Model model) throws IOException, URISyntaxException, JSONException {
 		
 		
 		String paramString = request.getQueryString();
@@ -167,7 +166,7 @@ public class BatchQueryController {
 			@RequestParam(value = "iDisplayLength", required = false) Integer iDisplayLength,
 			@RequestParam(value = "showImgView", required = false) boolean showImgView,
 			HttpServletRequest request,
-			Model model) throws IOException, URISyntaxException {
+			Model model) throws IOException, URISyntaxException, JSONException {
 
 		if (StringUtils.isEmpty(dataType)) {
 			dataType = "gene";
@@ -196,7 +195,7 @@ public class BatchQueryController {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	private String processSearch(SearchSettings settings, Model model) throws IOException, URISyntaxException {
+	private String processSearch(SearchSettings settings, Model model) throws IOException, URISyntaxException, JSONException {
 
 		// fetch counts of hits in broad categories (used in webpage in tab headings)
 		JSONObject facetCounts = getMainFacetCounts(settings);
@@ -242,7 +241,7 @@ public class BatchQueryController {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public JSONObject fetchSearchResult(SearchUrlService urlService, SearchSettings settings, Boolean facet) throws IOException, URISyntaxException {
+	public JSONObject fetchSearchResult(SearchUrlService urlService, SearchSettings settings, Boolean facet) throws IOException, URISyntaxException, JSONException {
 
 		// create and execute the main solr query
 		String queryUrl = urlService.getGridQueryUrl(settings.getQuery(),
@@ -271,7 +270,7 @@ public class BatchQueryController {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	private JSONObject getMainFacetCounts(SearchSettings settings) throws IOException, URISyntaxException {
+	private JSONObject getMainFacetCounts(SearchSettings settings) throws IOException, URISyntaxException, JSONException {
 
 		// construct a map of queries, each query asking for number of hits in a core
 		JSONObject queries = new JSONObject();
@@ -305,7 +304,7 @@ public class BatchQueryController {
 		return queryBrokerService.runQueries(null, queries);
 	}
 
-	public String convert2DataTableJson(SearchUrlService urlservice , Boolean export, JSONObject searchHits, SearchSettings settings) throws IOException, URISyntaxException {
+	public String convert2DataTableJson(SearchUrlService urlservice , Boolean export, JSONObject searchHits, SearchSettings settings) throws IOException, URISyntaxException, JSONException {
 
 		String mode = settings.getDataType() + "Grid";
 		String solrCoreName = settings.getDataType() ;

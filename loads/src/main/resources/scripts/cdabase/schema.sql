@@ -1005,13 +1005,6 @@ CREATE TABLE procedure_meta_data (
 ) COLLATE=utf8_general_ci ENGINE=MyISAM ;
 
 
-DROP TABLE IF EXISTS genes_secondary_project;
-CREATE TABLE genes_secondary_project (
-	acc                        VARCHAR(30) NOT NULL,
-	secondary_project_id       VARCHAR(20) NOT NULL
-
-) COLLATE=utf8_general_ci ENGINE=MyISAM;
-
 -- The imits report that populates this table has two production center columns: production_centre_organisation_id,
 -- and cohort_production_centre_organisation_id. Since phenotype archive is only interested in the cohort production
 -- centre, for convenience we call it 'production center'. We load imits' 'cohort production centre' to the

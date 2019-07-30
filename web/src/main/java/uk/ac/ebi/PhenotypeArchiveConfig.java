@@ -1,6 +1,5 @@
 package uk.ac.ebi;
 
-import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.slf4j.Logger;
@@ -11,8 +10,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.CacheControl;
-import org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -30,14 +29,12 @@ import java.util.concurrent.TimeUnit;
  * Created by ilinca on 01/03/2017.
  */
 
-
-//@EnableMongoRepositories(value = {"org.mousephenotype.cda.file.stats"})
 @Configuration
+@EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
 @ComponentScan(value = {"uk.ac.ebi",
         "org.mousephenotype.cda.solr",
         "org.mousephenotype.cda.utilities",
         "org.mousephenotype.cda.db",
-        //"uk.ebi.phenotype.stat",
         "uk.ac.ebi.phenotype.web.controller"},
         excludeFilters = @ComponentScan.Filter(value = org.mousephenotype.cda.annotations.ComponentScanNonParticipant.class, type = FilterType.ANNOTATION))
 @EnableScheduling
@@ -104,12 +101,12 @@ public class PhenotypeArchiveConfig {
         return viewResolver;
     }
 
-    @Bean
-    OpenSessionInViewInterceptor getOpenSessionInViewInterceptor(SessionFactory session){
-        OpenSessionInViewInterceptor openSessionInViewInterceptor = new OpenSessionInViewInterceptor();
-        openSessionInViewInterceptor.setSessionFactory(session);
-        return openSessionInViewInterceptor;
-    }
+//    @Bean
+//    OpenSessionInViewInterceptor getOpenSessionInViewInterceptor(SessionFactory session){
+//        OpenSessionInViewInterceptor openSessionInViewInterceptor = new OpenSessionInViewInterceptor();
+//        openSessionInViewInterceptor.setSessionFactory(session);
+//        return openSessionInViewInterceptor;
+//    }
 
     @Bean
     public WebMvcConfigurerAdapter adapter() {

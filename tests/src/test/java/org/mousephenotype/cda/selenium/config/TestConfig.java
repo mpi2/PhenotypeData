@@ -17,11 +17,7 @@
 package org.mousephenotype.cda.selenium.config;
 
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.hibernate.SessionFactory;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAOImpl;
-import org.mousephenotype.cda.db.dao.SecondaryProjectDAO;
-import org.mousephenotype.cda.db.dao.SecondaryProjectDAOImpl;
+import org.mousephenotype.cda.db.repositories.GenesSecondaryProjectRepository;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.selenium.exception.TestException;
 import org.mousephenotype.cda.solr.service.*;
@@ -31,13 +27,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 
 
 @Configuration
+@EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
 @ComponentScan
 public class TestConfig {
 
@@ -63,6 +62,17 @@ public class TestConfig {
     private void initialise() throws TestException {
         logParameters();
     }
+
+
+    private GenesSecondaryProjectRepository genesSecondaryProjectRepository;
+
+    @Inject
+    public TestConfig(
+            @NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository)
+    {
+        this.genesSecondaryProjectRepository = genesSecondaryProjectRepository;
+    }
+
 
     private void logParameters()  throws TestException {
         logger.info("dataSource.komp2.jdbc-url: " + datasourceKomp2Url);
@@ -165,21 +175,6 @@ public class TestConfig {
     }
 
 
-    ///////
-    // DAOs
-    ///////
-
-    @Bean
-    public PhenotypePipelineDAO pipelineDAO() {
-        return new PhenotypePipelineDAOImpl(sessionFactory());
-    }
-
-    @Bean
-    public SecondaryProjectDAO sceondaryProjectDAO() {
-        return new SecondaryProjectDAOImpl(sessionFactory());
-    }
-
-
     ///////////
     // SERVICES
     ///////////
@@ -205,13 +200,8 @@ public class TestConfig {
     }
 
     @Bean
-    public PostQcService postQcService() {
-        return new PostQcService(genotypePhenotypeCore(), sceondaryProjectDAO());
-    }
-
-    @Bean
-    public AbstractGenotypePhenotypeService genotypePhenotypeService() {
-        return new AbstractGenotypePhenotypeService(impressService(), genotypePhenotypeCore());
+    public GenotypePhenotypeService genotypePhenotypeService() {
+        return new GenotypePhenotypeService(impressService(), genotypePhenotypeCore(), genesSecondaryProjectRepository);
     }
 
 
@@ -219,13 +209,13 @@ public class TestConfig {
     // Miscellaneous
     ////////////////
 
-    @Bean(name = "sessionFactoryHibernate")
-    public SessionFactory sessionFactory() {
-
-        LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
-        sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
-        sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
-
-        return sessionBuilder.buildSessionFactory();
-    }
+//    @Bean(name = "sessionFactoryHibernate")
+//    public SessionFactory sessionFactory() {
+//
+//        LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
+//        sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
+//        sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
+//
+//        return sessionBuilder.buildSessionFactory();
+//    }
 }

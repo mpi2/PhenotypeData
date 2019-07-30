@@ -154,10 +154,10 @@ public class ImpressDTO {
 	private String stageLabel;
 
 	@Field(SCHEDULE_KEY)
-	private int scheduleKey;
+	private Long scheduleKey;
 
 	@Field(PARAMETER_ID)
-	private int parameterId;
+	private Long parameterId;
 
 	@Field(PARAMETER_STABLE_ID)
 	private String parameterStableId;
@@ -166,11 +166,10 @@ public class ImpressDTO {
 	private String parameterName;
 
 	@Field(PARAMETER_STABLE_KEY)
-	private int parameterStableKey;
-
+	private Long parameterStableKey;
 
 	@Field(PROCEDURE_ID)
-	private Integer procedureId;
+	private Long procedureId;
 
 	@Field(PROCEDURE_STABLE_ID)
 	private String procedureStableId;
@@ -179,16 +178,16 @@ public class ImpressDTO {
 	private String procedureName;
 
 	@Field(PROCEDURE_STABLE_KEY)
-	private int procedureStableKey;
+	private Long procedureStableKey;
 
 	@Field(PIPELINE_ID)
-	private int pipelineId;
+	private Long pipelineId;
 
 	@Field(PIPELINE_STABLE_ID)
 	private String pipelineStableId;
 
 	@Field(PIPELINE_STABLE_KEY)
-	private int pipelineStableKey;
+	private Long pipelineStableKey;
 
 	@Field(PIPELINE_NAME)
 	private String pipelineName;
@@ -396,41 +395,25 @@ public class ImpressDTO {
 		return catgories;
 	}
 
-
 	public void setCatgories(List<String> catgories) {
 		this.catgories = catgories;
 	}
-
-
-	public void setProcedureStableKey(int procedureStableKey) {
-		this.procedureStableKey = procedureStableKey;
-	}
-
-
-	public void setPipelineStableKey(int pipelineStableKey) {
-		this.pipelineStableKey = pipelineStableKey;
-	}
-
 
 	public boolean isRequired() {
 		return required;
 	}
 
-
 	public void setRequired(boolean required) {
 		this.required = required;
 	}
-
 
 	public List<String> getCategories() {
 		return catgories;
 	}
 
-
 	public void setCategories(List<String> catgories) {
 		this.catgories = catgories;
 	}
-
 
 	public String getObservationType() {
 		return observationType;
@@ -456,11 +439,11 @@ public class ImpressDTO {
 		this.level = level;
 	}
 
-	public int getScheduleKey() {
+	public Long getScheduleKey() {
 		return scheduleKey;
 	}
 
-	public void setScheduleKey(int scheduleKey) {
+	public void setScheduleKey(Long scheduleKey) {
 		this.scheduleKey = scheduleKey;
 	}
 
@@ -713,19 +696,19 @@ public class ImpressDTO {
 	}
 
 
-	public int getParameterStableKey() {
+	public Long getParameterStableKey() {
 
 		return parameterStableKey;
 	}
 
 
-	public int getParameterId() {
+	public Long getParameterId() {
 
 		return parameterId;
 	}
 
 
-	public void setParameterId(int parameterId) {
+	public void setParameterId(Long parameterId) {
 
 		this.parameterId = parameterId;
 	}
@@ -754,18 +737,18 @@ public class ImpressDTO {
 		this.parameterName = parameterName;
 	}
 
-	public int getPipelineId() {
+	public Long getPipelineId() {
 
 		return pipelineId;
 	}
 
 
-	public void setPipelineId(int pipelineId) {
+	public void setPipelineId(Long pipelineId) {
 
 		this.pipelineId = pipelineId;
 	}
 
-	public void setParameterStableKey(int paramStableKey) {
+	public void setParameterStableKey(Long paramStableKey) {
 
 		this.parameterStableKey = paramStableKey;
 
@@ -883,12 +866,12 @@ public class ImpressDTO {
 	}
 
 
-	public Integer getProcedureId() {
+	public Long getProcedureId() {
 		return procedureId;
 	}
 
 
-	public void setProcedureId(Integer procedureId) {
+	public void setProcedureId(Long procedureId) {
 		this.procedureId = procedureId;
 	}
 
@@ -913,12 +896,12 @@ public class ImpressDTO {
 	}
 
 
-	public Integer getProcedureStableKey() {
+	public Long getProcedureStableKey() {
 		return procedureStableKey;
 	}
 
 
-	public void setProcedureStableKey(Integer procedureStableKey) {
+	public void setProcedureStableKey(Long procedureStableKey) {
 		this.procedureStableKey = procedureStableKey;
 	}
 
@@ -933,12 +916,12 @@ public class ImpressDTO {
 	}
 
 
-	public Integer getPipelineStableKey() {
+	public Long getPipelineStableKey() {
 		return pipelineStableKey;
 	}
 
 
-	public void setPipelineStableKey(Integer pipelineStableKey) {
+	public void setPipelineStableKey(Long pipelineStableKey) {
 		this.pipelineStableKey = pipelineStableKey;
 	}
 

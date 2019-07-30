@@ -22,9 +22,9 @@ package org.mousephenotype.cda.loads.common;
 public class BioSampleKey {
 
     private String specimenId;
-    private int phenotypingCenterPk;
+    private Long phenotypingCenterPk;
 
-    public BioSampleKey(String specimenId, int phenotypingCenterPk) {
+    public BioSampleKey(String specimenId, Long phenotypingCenterPk) {
         this.specimenId = specimenId;
         this.phenotypingCenterPk = phenotypingCenterPk;
     }
@@ -37,7 +37,7 @@ public class BioSampleKey {
      *
      * @return a key that uniquely identifies a sample
      */
-    public static BioSampleKey make(String specimenId, Integer phenotypingCenterPk) {
+    public static BioSampleKey make(String specimenId, Long phenotypingCenterPk) {
         return new BioSampleKey(specimenId, phenotypingCenterPk);
     }
 
@@ -49,11 +49,11 @@ public class BioSampleKey {
         this.specimenId = specimenId;
     }
 
-    public int getPhenotypingCenterPk() {
+    public Long getPhenotypingCenterPk() {
         return phenotypingCenterPk;
     }
 
-    public void setPhenotypingCenterPk(int phenotypingCenterPk) {
+    public void setPhenotypingCenterPk(Long phenotypingCenterPk) {
         this.phenotypingCenterPk = phenotypingCenterPk;
     }
 

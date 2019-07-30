@@ -17,18 +17,19 @@ package org.mousephenotype.cda.db.impress;
 
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.mousephenotype.cda.db.dao.DatasourceDAO;
-import org.mousephenotype.cda.db.dao.OntologyTermDAO;
 import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.repositories.DatasourceRepository;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.StageUnitType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.util.*;
 
 
@@ -42,18 +43,23 @@ import java.util.*;
 @Component
 public class Utilities {
 
-	private static final Logger logger = LoggerFactory.getLogger(Utilities.class);
+	private Long efoDbId = null;
 
-	@Autowired
-	OntologyTermDAO ontologyTermDAO;
-
-	@Autowired
-	DatasourceDAO datasourceDAO;
-
-	private Integer efoDbId=null;
 	private final Set<String> expectedDpc = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("9.5", "12.5", "13.5", "14.5", "15.5", "18.5")));
+	private final Logger      logger      = LoggerFactory.getLogger(this.getClass());
+
+	private OntologyTermRepository ontologyTermRepository;
+	private DatasourceRepository datasourceRepository;
 
 
+	@Inject
+	public Utilities(
+			@NotNull OntologyTermRepository ontologyTermRepository,
+			@NotNull DatasourceRepository datasourceRepository)
+	{
+		this.ontologyTermRepository = ontologyTermRepository;
+		this.datasourceRepository = datasourceRepository;
+	}
 
 	/**
 	 * Returns the observation type based on the parameter, when the parameter
@@ -78,7 +84,6 @@ public class Utilities {
 		}
 		return ret;
 	}
-
 
 	/**
 	 * Returns the observation type based on the parameter and a sample
@@ -240,7 +245,7 @@ public class Utilities {
 				return null;
 		}
 
-		term = ontologyTermDAO.getOntologyTermByName(termName);
+		term = ontologyTermRepository.getByName(termName);
 		if (term==null && termName!=null) {
 			// Term not found -- create it
 			term = createOntologyTerm(termName);
@@ -269,16 +274,15 @@ public class Utilities {
 		term.setId(new DatasourceEntityId(termAcc,efoDbId));
 		term.setDescription(termName);
 		term.setName(termName);
-		ontologyTermDAO.batchInsertion(Arrays.asList(term));
+		ontologyTermRepository.save(term);
 
 		return term;
 	}
 
 	private void initializeEfoDbId() {
 
-		if(efoDbId==null) {
-			efoDbId = datasourceDAO.getDatasourceByShortName("EFO").getId();
+		if (efoDbId == null) {
+			efoDbId = datasourceRepository.getByShortName("EFO").getId();
 		}
 	}
-
 }

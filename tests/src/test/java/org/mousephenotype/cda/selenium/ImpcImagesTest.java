@@ -22,7 +22,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.selenium.config.TestConfig;
 import org.mousephenotype.cda.selenium.support.GenePage;
 import org.mousephenotype.cda.selenium.support.TestUtils;
@@ -95,9 +94,6 @@ ImpcImagesTest {
     @NotNull @Autowired
     private GeneService geneService;
 
-    @NotNull @Autowired
-    private PhenotypePipelineDAO pipelineDAO;
-
 
     @Before
     public void setup() throws MalformedURLException {
@@ -140,7 +136,7 @@ ImpcImagesTest {
 
                 wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("span#enu")));
 
-                GenePage genePage = new GenePage(driver, wait, target, geneId, pipelineDAO, paBaseUrl);
+                GenePage genePage = new GenePage(driver, wait, target, geneId, paBaseUrl);
 
                 if (genePage.hasImpcImages()) {
                     List<String> parameters = genePage.getAssociatedImpcImageUrls();

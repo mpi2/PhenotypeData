@@ -15,7 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -121,7 +121,7 @@ System.out.println("start time="+System.currentTimeMillis());
 		ProcedureDTO proc = impressService.getProcedureByStableId(experiment.getProcedureStableId()) ;
 		String procedureDescription = "";
 		if (proc != null) {
-			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()),  "Procedure: "+ proc.getName());
+			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Long)proc.getStableKey()).toString()),  "Procedure: "+ proc.getName());
 		}
 		if (parameter.getStableKey() != null) {
 			title = String.format("<a href=\"%s\">%s</a>", impressService.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey()),  "Parameter: "+ parameter.getName());

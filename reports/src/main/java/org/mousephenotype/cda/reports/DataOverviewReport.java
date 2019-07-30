@@ -20,9 +20,9 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.reports.support.ReportException;
+import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +48,7 @@ public class DataOverviewReport extends AbstractReport {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    PostQcService postQcService;
+    GenotypePhenotypeService genotypePhenotypeService;
 
     @Autowired
     ImageService imageService;
@@ -94,7 +94,7 @@ public class DataOverviewReport extends AbstractReport {
 
             row = new ArrayList<>();
             row.add("# phenotype hits");
-            row.add(Long.toString(postQcService.getNumberOfDocuments(resources)));
+            row.add(Long.toString(genotypePhenotypeService.getNumberOfDocuments(resources)));
             overview.add(row.toArray(forArrayType));
 
             row = new ArrayList<>();
@@ -138,8 +138,8 @@ public class DataOverviewReport extends AbstractReport {
 
             // Process top level MP terms
             String mpTopLevelGenePivot = GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
-            Map<String, List<String>> topLevelMpTermByGeneMapAll = postQcService.getMpTermByGeneMap(genesAll, mpTopLevelGenePivot, resources);
-            Map<String, List<String>> topLevelMpTermByGeneMapComplete = postQcService.getMpTermByGeneMap(genesComplete, mpTopLevelGenePivot, resources);
+            Map<String, List<String>> topLevelMpTermByGeneMapAll = genotypePhenotypeService.getMpTermByGeneMap(genesAll, mpTopLevelGenePivot, resources);
+            Map<String, List<String>> topLevelMpTermByGeneMapComplete = genotypePhenotypeService.getMpTermByGeneMap(genesComplete, mpTopLevelGenePivot, resources);
 
             String[] headerTopLevel = {"Top Level MP term", "# associated genes with >= 1 procedure done", "% associated genes of all genes with >= 1 procedure done", "# associated genes with >= 13 procedures done", "% associated genes of all genes with >= 13 procedures done"};
             mpTable.add(headerTopLevel);
@@ -158,8 +158,8 @@ public class DataOverviewReport extends AbstractReport {
 
             // Process granular MP terms
             String mpGenePivot = GenotypePhenotypeDTO.MP_TERM_NAME + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
-            Map<String, List<String>> mpTermByGeneMapAll = postQcService.getMpTermByGeneMap(genesAll, mpGenePivot, resources);
-            Map<String, List<String>> mpTermByGeneMapComplete = postQcService.getMpTermByGeneMap(genesComplete, mpGenePivot, resources);
+            Map<String, List<String>> mpTermByGeneMapAll = genotypePhenotypeService.getMpTermByGeneMap(genesAll, mpGenePivot, resources);
+            Map<String, List<String>> mpTermByGeneMapComplete = genotypePhenotypeService.getMpTermByGeneMap(genesComplete, mpGenePivot, resources);
 
             String[] headerMp = {"MP term", "# Associated Genes With >= 1 Procedure Done", "% Associated Genes of All Genes With >= 1 Procedure Done", "# Associated Genes With >= 13 Procedures Done", "% Associated Genes of All Genes With >= 13 Procedures Done"};
             mpTable.add(headerMp);

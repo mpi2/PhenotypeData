@@ -16,12 +16,11 @@
 
 package org.mousephenotype.cda.selenium.support;
 
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.selenium.exception.TestException;
 import org.mousephenotype.cda.utilities.*;
 import org.mousephenotype.cda.web.DownloadType;
-import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -45,7 +44,6 @@ public class GenePage {
     private final WebDriver driver;
     private final String geneId;
     private final GeneTable geneTable;
-    private final PhenotypePipelineDAO phenotypePipelineDAO;
     private final String target;
     protected final TestUtils testUtils = new TestUtils();
     protected final UrlUtils urlUtils = new UrlUtils();
@@ -91,16 +89,14 @@ public class GenePage {
      * @param wait A valid <code>WebDriverWait</code> instance
      * @param target This page's target url
      * @param geneId This page's gene id
-     * @param phenotypePipelineDAO a <code>PhenotypePipelineDAO</code> instance
      * @param baseUrl A fully-qualified hostname and path, such as http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
      * @throws TestException
      */
-    public GenePage(WebDriver driver, WebDriverWait wait, String target, String geneId, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl) throws TestException {
+    public GenePage(WebDriver driver, WebDriverWait wait, String target, String geneId, String baseUrl) throws TestException {
         this.driver = driver;
         this.wait = wait;
         this.target = urlUtils.urlEncode(target);
         this.geneId = geneId;
-        this.phenotypePipelineDAO = phenotypePipelineDAO;
         this.baseUrl = baseUrl;
         this.geneTable = new GeneTable(driver, wait, target);
 
