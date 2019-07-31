@@ -65,7 +65,6 @@ import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -210,17 +209,26 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             // If this request has ben proxied, lookup the original Host value (defined to be the first in the list
             // of x-forwarded-for header).  The implementation of the getHeader method matches by equalsIgnoreCase,
             // allowing the lowercase comparison.
-            if (request.getHeader("x-forwarded-host") != null) {
+
+            String host = null;
+
+            if (ALLOWED_CORS_ACCESS_URLS.stream().anyMatch(requestHostname::contains)) {
+
+                host = ALLOWED_CORS_ACCESS_URLS.stream().filter(requestHostname::contains).findFirst().orElse("*");
+
+            } else if (request.getHeader("x-forwarded-host") != null) {
                 List<String> hosts = Arrays
                         .stream(request.getHeader("x-forwarded-host").split(","))
                         .map(String::trim)
                         .collect(Collectors.toList());
-                requestHostname = hosts.get(0);
+
+                if (ALLOWED_CORS_ACCESS_URLS.stream().anyMatch(hosts::contains)) {
+                    host = hosts.get(0);
+                }
             }
 
-            if (ALLOWED_CORS_ACCESS_URLS.stream().anyMatch(requestHostname::contains)) {
-                Optional<String> host = ALLOWED_CORS_ACCESS_URLS.stream().filter(requestHostname::contains).findFirst();
-                response.setHeader("Access-Control-Allow-Origin", host.orElse("*"));
+            if (host != null) {
+                response.setHeader("Access-Control-Allow-Origin", host);
             }
 
             chain.doFilter(req, res);
