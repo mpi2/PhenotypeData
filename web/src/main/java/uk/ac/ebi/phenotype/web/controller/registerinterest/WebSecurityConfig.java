@@ -64,6 +64,7 @@ import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -201,10 +202,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public class CorsFilter implements Filter {
 
+        private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+
         public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
             HttpServletResponse response = (HttpServletResponse) res;
             HttpServletRequest request = (HttpServletRequest) req;
             String requestHostname = request.getHeader("Host");
+
+            logger.debug("Dumping headers for request:\n" +
+                Collections.list(request.getHeaderNames()).stream()
+                    .map(k -> String.format("  Header '%s' = %s", k, request.getHeader(k)))
+                    .collect(Collectors.joining("\n")));
 
             // If this request has ben proxied, lookup the original Host value (defined to be the first in the list
             // of x-forwarded-for header).  The implementation of the getHeader method matches by equalsIgnoreCase,
