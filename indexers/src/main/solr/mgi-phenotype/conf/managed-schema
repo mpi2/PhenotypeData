@@ -473,7 +473,7 @@
         <field name="_version_" type="plong" indexed="true" stored="true"/> 
    
         <field name="doc_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-        <field name="ontology_db_id" type="pint" indexed="true" stored="true" required="true" multiValued="false" />
+        <field name="ontology_db_id" type="plong" indexed="true" stored="true" required="true" multiValued="false" />
 
         <field name="assertion_type" type="string" indexed="true" stored="true" required="true" multiValued="false" />
         <field name="assertion_type_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />

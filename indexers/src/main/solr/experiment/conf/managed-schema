@@ -440,27 +440,20 @@
         http://lucene.472066.n3.nabble.com/Using-pint-field-as-uniqueKey-td4358915.html
         -->
         <field name="id" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
-        <field name="phenotyping_center_id" type="pint" indexed="true" stored="true" multiValued="false"/>
+        <field name="phenotyping_center_id" type="plong" indexed="true" stored="true" multiValued="false"/>
         <field name="phenotyping_center" type="string" indexed="true" stored="true" multiValued="false"/>
-        <field name="production_center_id" type="pint" indexed="true" stored="true" multiValued="false"/>
+        <field name="production_center_id" type="plong" indexed="true" stored="true" multiValued="false"/>
         <field name="production_center" type="string" indexed="true" stored="true" multiValued="false"/>
-
-
-
-        <field name="specimen_project_id" type="pint" indexed="true" stored="true" multiValued="false"/>
+        <field name="specimen_project_id" type="plong" indexed="true" stored="true" multiValued="false"/>
         <field name="specimen_project_name" type="string" indexed="true" stored="true" multiValued="false"/>
-
-
-
-
         <field name="gene_accession_id" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="gene_symbol" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="allele_accession_id" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="allele_symbol" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="zygosity" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="sex" type="string" indexed="true" stored="true" multiValued="false"/>
-        <field name="biological_model_id" type="pint" indexed="true" stored="true" multiValued="false"/>
-        <field name="biological_sample_id" type="pint" indexed="true" stored="true" multiValued="false"/>
+        <field name="biological_model_id" type="plong" indexed="true" stored="true" multiValued="false"/>
+        <field name="biological_sample_id" type="plong" indexed="true" stored="true" multiValued="false"/>
         <field name="biological_sample_group" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="strain_accession_id" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="strain_name" type="string" indexed="true" stored="true" multiValued="false"/>
@@ -471,22 +464,22 @@
         <field name="date_of_birth" type="pdate" indexed="true" stored="true" multiValued="false"/>
         <field name="external_sample_id" type="string" indexed="true" stored="true" multiValued="false"/>
 
-        <field name="datasource_id" type="pint" indexed="true" stored="true" multiValued="false"/>
+        <field name="datasource_id" type="plong" indexed="true" stored="true" multiValued="false"/>
         <field name="datasource_name" type="string" indexed="true" stored="true" multiValued="false"/>
-        <field name="project_id" type="pint" indexed="true" stored="true" multiValued="false"/>
+        <field name="project_id" type="plong" indexed="true" stored="true" multiValued="false"/>
         <field name="project_name" type="string" indexed="true" stored="true" multiValued="false"/>
-        <field name="pipeline_id" type="pint" indexed="true" stored="true" multiValued="false"/>
+        <field name="pipeline_id" type="plong" indexed="true" stored="true" multiValued="false"/>
         <field name="pipeline_name" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="pipeline_stable_id" type="string" indexed="true" stored="true" multiValued="false"/>
-        <field name="procedure_id" type="pint" indexed="true" stored="true" multiValued="false"/>
+        <field name="procedure_id" type="plong" indexed="true" stored="true" multiValued="false"/>
         <field name="procedure_name" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="procedure_stable_id" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="procedure_group" type="string" indexed="true" stored="true" multiValued="false"/>
-        <field name="parameter_id" type="pint" indexed="true" stored="true" multiValued="false"/>
+        <field name="parameter_id" type="plong" indexed="true" stored="true" multiValued="false"/>
         <field name="parameter_name" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="parameter_stable_id" type="string" indexed="true" stored="true" multiValued="false"/>
 
-        <field name="experiment_id" type="pint" indexed="true" stored="true" multiValued="false"/>
+        <field name="experiment_id" type="plong" indexed="true" stored="true" multiValued="false"/>
         <field name="observation_type" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="data_type" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="experiment_source_id" type="string" indexed="true" stored="true" multiValued="false"/>
