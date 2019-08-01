@@ -579,7 +579,7 @@
         <field name="biological_model_id"     type="plong"    indexed="true" stored="true" multiValued="false" />
         <field name="biological_sample_id"    type="plong"    indexed="true" stored="true" multiValued="false" />
         <field name="biological_sample_group" type="string" indexed="true" stored="true" multiValued="false" />
-        <field name="colony_id"               type="plong"    indexed="true" stored="true" multiValued="false" />
+        <field name="colony_id"               type="pint"    indexed="true" stored="true" multiValued="false" />
         <field name="date_of_birth"           type="pdate"  indexed="true" stored="true" multiValued="false" />
         <field name="external_sample_id"      type="string" indexed="true" stored="true" multiValued="false" />
 
