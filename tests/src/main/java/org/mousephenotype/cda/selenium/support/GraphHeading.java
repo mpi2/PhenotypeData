@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.selenium.support;
 
-import org.mousephenotype.cda.db.impress.Utilities;
+import org.mousephenotype.cda.db.utilities.ImpressUtils;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.repositories.DatasourceRepository;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
@@ -75,7 +75,7 @@ public class GraphHeading {
     protected WebElement sopLinkElement;
 
     protected final CommonUtils     commonUtils = new CommonUtils();
-    protected final Utilities       impressUtils;
+    protected final ImpressUtils    impressUtils;
     protected       ObservationType observationType;
     protected       Parameter       parameterObject;
     protected final TestUtils       testUtils   = new TestUtils();
@@ -106,7 +106,7 @@ public class GraphHeading {
         this.parameterRepository = parameterRepository;
         this.wait = wait;
 
-        impressUtils = new Utilities(ontologyTermRepository, datasourceRepository);
+        impressUtils = new ImpressUtils(ontologyTermRepository, datasourceRepository);
         parse(chartType);
         setKeys();
     }
@@ -196,7 +196,7 @@ public class GraphHeading {
         return wait;
     }
 
-    public Utilities getImpressUtils() {
+    public ImpressUtils getImpressUtils() {
         return impressUtils;
     }
 

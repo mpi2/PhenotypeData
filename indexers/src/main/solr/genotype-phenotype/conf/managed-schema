@@ -485,7 +485,7 @@
         http://lucene.472066.n3.nabble.com/Using-pint-field-as-uniqueKey-td4358915.html
         -->
         <field name="doc_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
-        <field name="ontology_db_id" type="pint" indexed="true" stored="true" required="true" multiValued="false" />
+        <field name="ontology_db_id" type="plong" indexed="true" stored="true" required="true" multiValued="false" />
 
         <field name="assertion_type" type="string" indexed="true" stored="true" required="true" multiValued="false" />
         <field name="assertion_type_id" type="string" indexed="true" stored="true" required="true" multiValued="false" />

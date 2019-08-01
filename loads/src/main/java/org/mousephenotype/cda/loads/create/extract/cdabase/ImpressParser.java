@@ -23,7 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.mousephenotype.cda.loads.create.extract.cdabase.support.ImpressUtils;
+import org.mousephenotype.cda.loads.create.extract.cdabase.support.ImpressLoadUtils;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.impress2.ImpressParamMpterm;
 import org.slf4j.Logger;
@@ -60,7 +60,7 @@ public class ImpressParser implements CommandLineRunner {
 
     private DataSource         cdabaseDataSource;
     private CdaSqlUtils        cdabaseSqlUtils;
-    private ImpressUtils       impressUtils;
+    private ImpressLoadUtils   impressLoadUtils;
     private ApplicationContext context;
     private Datasource         datasource;
     private Logger             logger         = LoggerFactory.getLogger(this.getClass());
@@ -115,12 +115,12 @@ public class ImpressParser implements CommandLineRunner {
     public ImpressParser(
             ApplicationContext context,
             CdaSqlUtils cdabaseSqlUtils,
-            ImpressUtils impressUtils,
+            ImpressLoadUtils impressLoadUtils,
             DataSource cdabaseDataSource
     ) {
         this.context = context;
         this.cdabaseSqlUtils = cdabaseSqlUtils;
-        this.impressUtils = impressUtils;
+        this.impressLoadUtils = impressLoadUtils;
         this.cdabaseDataSource = cdabaseDataSource;
     }
 
@@ -141,10 +141,10 @@ public class ImpressParser implements CommandLineRunner {
         initialise(args);
 
         // LOAD UNITS
-        unitsById = impressUtils.getUnits();
+        unitsById = impressLoadUtils.getUnits();
 
         // LOAD ONTOLOGY TERM MAP FROM WEB SERVICE
-        Map<String, Integer> ontologyTermStableKeysByAccFromWs = impressUtils.getOntologyTermStableKeysByAccFromWs();
+        Map<String, Integer> ontologyTermStableKeysByAccFromWs = impressLoadUtils.getOntologyTermStableKeysByAccFromWs();
 
         // LOAD ontologyTermsByStableKey MAP WITH UPDATED TERMS
         for (Map.Entry<String, Integer> entry : ontologyTermStableKeysByAccFromWs.entrySet()) {
@@ -155,7 +155,7 @@ public class ImpressParser implements CommandLineRunner {
         }
 
         // LOAD PIPELINES and their child elements
-        List<Pipeline> pipelines = impressUtils.getPipelines(datasource);
+        List<Pipeline> pipelines = impressLoadUtils.getPipelines(datasource);
 
         for (Pipeline pipeline : pipelines) {
 
@@ -184,7 +184,7 @@ public class ImpressParser implements CommandLineRunner {
             }
         }
 
-        Set<String> exceptions = impressUtils.getExceptions();
+        Set<String> exceptions = impressLoadUtils.getExceptions();
         if ( ! exceptions.isEmpty()) {
             System.out.println(" ");
             logger.info("exceptions:");
@@ -224,7 +224,7 @@ public class ImpressParser implements CommandLineRunner {
             Schedule schedule = schedulesById.get(scheduleId);
 
             if (schedule == null) {
-                schedule = impressUtils.getSchedule(pipeline.getStableKey(), scheduleId);
+                schedule = impressLoadUtils.getSchedule(pipeline.getStableKey(), scheduleId);
                 schedulesById.put(scheduleId, schedule);
 
                 logger.debug("      Loading pipelineId::scheduleId {}::{}", pipeline.getStableKey(), scheduleId);
@@ -242,7 +242,7 @@ public class ImpressParser implements CommandLineRunner {
 
                 if (procedure == null) {
 
-                    procedure = impressUtils.getProcedure(pipeline.getStableKey(), scheduleId, procedureId, datasource);
+                    procedure = impressLoadUtils.getProcedure(pipeline.getStableKey(), scheduleId, procedureId, datasource);
                     if (procedure == null) {
                         logger.warn("Unable to get procedureId {}. Skipping...", procedureId);
                         continue;
@@ -275,7 +275,7 @@ public class ImpressParser implements CommandLineRunner {
 
                     if (parameter == null) {
 
-                        parameter = impressUtils.getParameter(pipeline.getStableKey(), scheduleId, procedureId, parameterId, datasource, unitsById);
+                        parameter = impressLoadUtils.getParameter(pipeline.getStableKey(), scheduleId, procedureId, parameterId, datasource, unitsById);
                         if (parameter == null) {
                             logger.warn("Unable to get parameterId {}. Skipping...", parameterId);
                             continue;
@@ -345,7 +345,7 @@ public class ImpressParser implements CommandLineRunner {
         List<OntologyTerm> originalTerms = cdabaseSqlUtils.getOntologyTerms();
         updatedOntologyTermsByOriginalOntologyAccessionId = cdabaseSqlUtils.getUpdatedOntologyTermMap(originalTerms, null, null);     // We're trying to update all terms. Ignore infos and warnings, as most don't apply to IMPReSS.
 
-        logger.info("impress.service.url = {}", impressUtils.getImpressServiceUrl());
+        logger.info("impress.service.url = {}", impressLoadUtils.getImpressServiceUrl());
     }
 
 
@@ -448,7 +448,7 @@ public class ImpressParser implements CommandLineRunner {
 
         // Get this parameter's ontology annotations.
         // NOTE: if ontologyTermsFromWs is null, continue on to the mp ontology terms.
-        Map<String, String> ontologyTermsFromWs = impressUtils.getOntologyTermsFromWs(pipeline.getStableKey(), procedure.getScheduleKey(), procedure.getStableKey(), parameter);
+        Map<String, String> ontologyTermsFromWs = impressLoadUtils.getOntologyTermsFromWs(pipeline.getStableKey(), procedure.getScheduleKey(), procedure.getStableKey(), parameter);
         if (ontologyTermsFromWs != null) {
 
             for (Map.Entry<String, String> entry : ontologyTermsFromWs.entrySet()) {
@@ -456,7 +456,7 @@ public class ImpressParser implements CommandLineRunner {
                 ParameterOntologyAnnotationWithSex ontologyAnnotation = new ParameterOntologyAnnotationWithSex();
 
                 String originalOntologyAcc  = entry.getKey();                                                           // Get the original accession id
-                String originalOntologyName = ImpressUtils.newlineToSpace(entry.getValue());                            // Get the original ontology term
+                String originalOntologyName = ImpressLoadUtils.newlineToSpace(entry.getValue());                            // Get the original ontology term
 
                 OntologyTerm updatedOntologyTerm = getUpdatedOntologyTerm(originalOntologyAcc, originalOntologyName, pipeline, procedure, parameter);
                 if (updatedOntologyTerm == null) {
@@ -470,17 +470,17 @@ public class ImpressParser implements CommandLineRunner {
         }
 
         // Get this parameter's MP ontology annotations.
-        Map<String, String> mpOntologyTermsFromWs = impressUtils.getMpOntologyTermsFromWs(pipeline.getStableKey(), procedure.getScheduleKey(), procedure.getStableKey(), parameter);
+        Map<String, String> mpOntologyTermsFromWs = impressLoadUtils.getMpOntologyTermsFromWs(pipeline.getStableKey(), procedure.getScheduleKey(), procedure.getStableKey(), parameter);
         if (mpOntologyTermsFromWs != null) {
 
             // Get the outcome and sex for each of this parameter's MP terms
-            Map<String, List<ImpressParamMpterm>> impressParamMpTermsByOntologyTermAccessionId = impressUtils.getParamMpTermsByOntologyTermAccessionId(
+            Map<String, List<ImpressParamMpterm>> impressParamMpTermsByOntologyTermAccessionId = impressLoadUtils.getParamMpTermsByOntologyTermAccessionId(
                     pipeline.getStableKey(), procedure.getScheduleKey(), procedure.getStableKey(), parameter, updatedOntologyTermsByStableKey);
 
             for (Map.Entry<String, String> entry : mpOntologyTermsFromWs.entrySet()) {
 
                 String ontologyAcc  = entry.getKey();                                                                   // Get the accession id
-                String ontologyName = ImpressUtils.newlineToSpace(entry.getValue());                                    // Get the ontology term
+                String ontologyName = ImpressLoadUtils.newlineToSpace(entry.getValue());                                    // Get the ontology term
 
                 OntologyTerm ontologyTerm = getUpdatedOntologyTerm(ontologyAcc, ontologyName, pipeline, procedure, parameter); // If the ontology term can't be found/created, continue to the next.
                 if (ontologyTerm == null) {
@@ -610,14 +610,14 @@ public class ImpressParser implements CommandLineRunner {
         // INCREMENTS
         if (parameter.isIncrementFlag()) {
 
-            List<ParameterIncrement> increments = impressUtils.getIncrements(pipeline.getStableKey(), procedure.getScheduleKey(), procedure.getStableKey(), parameter.getStableKey());
+            List<ParameterIncrement> increments = impressLoadUtils.getIncrements(pipeline.getStableKey(), procedure.getScheduleKey(), procedure.getStableKey(), parameter.getStableKey());
             cdabaseSqlUtils.insertPhenotypeParameterIncrements(parameter.getId(), increments);
         }
 
         // OPTIONS
         if (parameter.isOptionsFlag()) {
 
-            List<ParameterOption> options = impressUtils.getOptions(pipeline.getStableKey(), procedure.getScheduleKey(), procedure.getStableKey(), parameter, normalCategory);
+            List<ParameterOption> options = impressLoadUtils.getOptions(pipeline.getStableKey(), procedure.getScheduleKey(), procedure.getStableKey(), parameter, normalCategory);
             cdabaseSqlUtils.insertPhenotypeParameterOptions(parameter.getId(), options);
             parameter.setOptions(options);                                                                              // Set the list of options (with their primary keys) for use by the next step.
         }

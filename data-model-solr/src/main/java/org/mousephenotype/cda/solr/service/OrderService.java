@@ -71,7 +71,7 @@ public class OrderService {
 		return orderTableRows;
 	}
 
-	protected List<Allele2DTO> getAllele2DTOs(String geneAcc, Integer rows, boolean creLine) throws SolrServerException, IOException {
+	public List<Allele2DTO> getAllele2DTOs(String geneAcc, Integer rows, boolean creLine) throws SolrServerException, IOException {
 		
 		String q = "*:*";// default if no gene specified
 		if (geneAcc != null) {
@@ -134,7 +134,7 @@ public class OrderService {
 		return this.getProducts(null, alleleName, null, false);
 	}
 
-	protected Map<String, List<ProductDTO>> getProductsForGene(String geneAcc) throws SolrServerException, IOException {
+	public Map<String, List<ProductDTO>> getProductsForGene(String geneAcc) throws SolrServerException, IOException {
 		return this.getProducts(geneAcc, null, null, false);
 	}
 

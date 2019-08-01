@@ -17,7 +17,7 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
-import org.mousephenotype.cda.db.impress.Utilities;
+import org.mousephenotype.cda.db.utilities.ImpressUtils;
 import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.repositories.ParameterRepository;
@@ -55,21 +55,21 @@ public class OverviewChartsController {
 
 
 	private GenotypePhenotypeService genotypePhenotypeService;
-	private Utilities                impressUtilities;
+	private ImpressUtils             impressUtils;
 	private ObservationService       observationService;
 	private ParameterRepository      parameterRepository;
 	private StatisticalResultService statisticalResultService;
 
 	@Inject
 	public OverviewChartsController(
-			GenotypePhenotypeService genotypePhenotypeService,
-			Utilities impressUtilities,
-			ObservationService observationService,
-			ParameterRepository parameterRepository,
-			StatisticalResultService statisticalResultService)
+            GenotypePhenotypeService genotypePhenotypeService,
+            ImpressUtils impressUtils,
+            ObservationService observationService,
+            ParameterRepository parameterRepository,
+            StatisticalResultService statisticalResultService)
 	{
 		this.genotypePhenotypeService = genotypePhenotypeService;
-		this.impressUtilities = impressUtilities;
+		this.impressUtils = impressUtils;
 		this.observationService = observationService;
 		this.parameterRepository = parameterRepository;
 		this.statisticalResultService = statisticalResultService;
@@ -180,7 +180,7 @@ public class OverviewChartsController {
 				centerToFilter = tempCenters.toArray(new String[0]);
 			}
 
-			if( impressUtilities.checkType(p).equals(ObservationType.categorical) ){
+			if( impressUtils.checkType(p).equals(ObservationType.categorical) ){
 				CategoricalSet controlSet = observationService.getCategories(p, null , "control", OverviewChartsConstants.B6N_STRAINS, centerToFilter, sex);
 				controlSet.setName("Control");
 				CategoricalSet mutantSet = observationService.getCategories(p, null, "experimental", OverviewChartsConstants.B6N_STRAINS, centerToFilter, sex);
@@ -191,7 +191,7 @@ public class OverviewChartsController {
 				}
 			}
 
-			else if ( impressUtilities.checkType(p).equals(ObservationType.time_series) ){
+			else if ( impressUtils.checkType(p).equals(ObservationType.time_series) ){
 				Map<String, List<DiscreteTimePoint>> data = new HashMap<String, List<DiscreteTimePoint>>();
 				data.put("Control", observationService.getTimeSeriesControlData(parameter, OverviewChartsConstants.B6N_STRAINS, centerToFilter, sex));
 				data.putAll(observationService.getTimeSeriesMutantData(parameter, genes, OverviewChartsConstants.B6N_STRAINS, centerToFilter, sex));
@@ -200,7 +200,7 @@ public class OverviewChartsController {
 				chartRes = chart;
 			}
 
-			else if ( impressUtilities.checkType(p).equals(ObservationType.unidimensional) ){
+			else if ( impressUtils.checkType(p).equals(ObservationType.unidimensional) ){
 				StackedBarsData data = statisticalResultService.getUnidimensionalData(p, genes, OverviewChartsConstants.B6N_STRAINS, "experimental", centerToFilter, sex);
 				chartRes = uctp.getStackedHistogram(data, p, procedureName);
 			}

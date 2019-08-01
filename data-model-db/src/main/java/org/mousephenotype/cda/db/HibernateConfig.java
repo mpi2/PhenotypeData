@@ -4,13 +4,13 @@ import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
-import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -30,7 +30,7 @@ import java.util.Properties;
  * language governing permissions and limitations under the
  * License.
  ******************************************************************************/
-@Component
+@Configuration
 public class HibernateConfig {
 
     @Value("${datasource.komp2.jdbc-url}")
@@ -48,18 +48,16 @@ public class HibernateConfig {
         return SqlUtils.getConfiguredDatasource(komp2Url, komp2Username, komp2Password);
     }
 
+
     // HIBERNATE
 
 
     protected Properties buildHibernateProperties() {
         Properties hibernateProperties = new Properties();
 
-        hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
-        hibernateProperties.put("hibernate.hbm2ddl.import_files", "sql/test-data.sql");
         hibernateProperties.setProperty("hibernate.show_sql", "false");
         hibernateProperties.setProperty("hibernate.use_sql_comments", "true");
         hibernateProperties.setProperty("hibernate.format_sql", "true");
-        hibernateProperties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
         hibernateProperties.setProperty("hibernate.generate_statistics", "false");
         hibernateProperties.setProperty("hibernate.current_session_context_class", "thread");
 

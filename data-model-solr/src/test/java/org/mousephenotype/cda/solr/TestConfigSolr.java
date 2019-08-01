@@ -18,21 +18,24 @@ import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.util.Properties;
 
-
+// FIXME  FIXME FIXME
+@Deprecated
 @Configuration
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
-//@EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
-@ComponentScan(basePackageClasses = {HibernateConfig.class})
+@EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
+//@ComponentScan(basePackageClasses = {HibernateConfig.class})
 public class TestConfigSolr {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private GenesSecondaryProjectRepository genesSecondaryProjectRepository;
 
+	@Inject
 	public TestConfigSolr(@NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository) {
 		this.genesSecondaryProjectRepository = genesSecondaryProjectRepository;
 	}
