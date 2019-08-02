@@ -28,14 +28,12 @@ import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Connection;
@@ -49,7 +47,6 @@ import java.util.*;
  */
 
 @SpringBootApplication
-@Component
 public abstract class AbstractIndexer implements CommandLineRunner {
 
     @Value("${owlpath}")
@@ -69,17 +66,17 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     private Map<String, BasicBean> liveStageMap;
     private Map<String, BasicBean> stages = new HashMap<>();
 
-    protected DataSource             komp2DataSource;
-    protected OntologyTermRepository ontologyTermRepository;
 
+    @Autowired protected DataSource             komp2DataSource;
+    @Autowired protected OntologyTermRepository ontologyTermRepository;
 
-    @Inject
-    public AbstractIndexer(
-            @NotNull DataSource komp2DataSource,
-            @NotNull OntologyTermRepository ontologyTermRepository) {
-        this.komp2DataSource = komp2DataSource;
-        this.ontologyTermRepository = ontologyTermRepository;
-    }
+//    @Inject
+//    public AbstractIndexer(
+//            @NotNull DataSource komp2DataSource,
+//            @NotNull OntologyTermRepository ontologyTermRepository) {
+//        this.komp2DataSource = komp2DataSource;
+//        this.ontologyTermRepository = ontologyTermRepository;
+//    }
 
 
 	CommonUtils commonUtils = new CommonUtils();

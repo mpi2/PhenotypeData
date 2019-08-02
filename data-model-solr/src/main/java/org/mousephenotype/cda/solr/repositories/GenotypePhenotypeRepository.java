@@ -12,6 +12,4 @@ public interface GenotypePhenotypeRepository extends SolrCrudRepository<Genotype
 
 	List<GenotypePhenotypeDTO> findByParameterStableId(String stableId);
 	List<GenotypePhenotypeDTO> findByProcedureStableId(String stableId);
-
-
 }

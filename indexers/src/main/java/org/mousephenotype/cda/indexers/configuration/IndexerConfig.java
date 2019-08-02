@@ -2,6 +2,7 @@ package org.mousephenotype.cda.indexers.configuration;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -12,6 +13,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 
 
@@ -25,6 +27,18 @@ public class IndexerConfig {
 
     @Value("${internal_solr_url}")
     private String internalSolrUrl;
+
+
+    private DataSource             komp2DataSource;
+    private OntologyTermRepository ontologyTermRepository;
+    private SolrClient             pipelineCore;
+
+    @Inject
+    public IndexerConfig(DataSource komp2DataSource, OntologyTermRepository ontologyTermRepository, SolrClient pipelineCore) {
+        this.komp2DataSource = komp2DataSource;
+        this.ontologyTermRepository = ontologyTermRepository;
+        this.pipelineCore = pipelineCore;
+    }
 
 
     /////////////////////
