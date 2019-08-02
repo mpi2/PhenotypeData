@@ -71,6 +71,10 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     protected DataSource             komp2DataSource;
     protected OntologyTermRepository ontologyTermRepository;
 
+    public AbstractIndexer() {
+
+    }
+
     @Inject
     public AbstractIndexer(
             @NotNull DataSource komp2DataSource,

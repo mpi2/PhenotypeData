@@ -67,6 +67,10 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 
 	private SolrClient pipelineCore;
 
+	public PipelineIndexer() {
+
+	}
+
 	@Inject
 	public PipelineIndexer(
 			@NotNull DataSource komp2DataSource,
