@@ -53,7 +53,6 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-
 	private Map<String, String>          emapToEmapa;
 	private Map<String, ObservationType> parameterToObservationTypeMap;
 	private Map<String, ParameterDTO>    paramIdToParameter;

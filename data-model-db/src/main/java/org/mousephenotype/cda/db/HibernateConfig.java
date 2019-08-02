@@ -1,5 +1,9 @@
 package org.mousephenotype.cda.db;
 
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrRequest;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.common.util.NamedList;
 import org.hibernate.SessionFactory;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +17,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.util.Properties;
 
 /*******************************************************************************
@@ -46,6 +51,23 @@ public class HibernateConfig {
     @Primary
     public DataSource komp2DataSource() {
         return SqlUtils.getConfiguredDatasource(komp2Url, komp2Username, komp2Password);
+    }
+
+    // FIXME FIXME FIXME - Figure out how to git rid of this otherwise unnecessary bean.
+    // Required by spring. It doesn't appear to be used, but if you omit it, spring barks that '[A component required a bean named 'solrClient'] ... [could not be found]'
+    @Bean
+    public SolrClient solrClient() {
+        return new SolrClient() {
+            @Override
+            public NamedList<Object> request(SolrRequest solrRequest, String s) throws SolrServerException, IOException {
+                return null;
+            }
+
+            @Override
+            public void close() throws IOException {
+
+            }
+        };
     }
 
 

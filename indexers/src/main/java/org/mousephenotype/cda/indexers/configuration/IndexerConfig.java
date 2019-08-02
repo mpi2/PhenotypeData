@@ -3,21 +3,20 @@ package org.mousephenotype.cda.indexers.configuration;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
-import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
 
-
 @Configuration
+@ComponentScan(basePackages = "org.mousephenotype.cda.db")
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
 @EnableTransactionManagement
 public class IndexerConfig {
@@ -28,16 +27,14 @@ public class IndexerConfig {
     @Value("${internal_solr_url}")
     private String internalSolrUrl;
 
-
     private DataSource             komp2DataSource;
     private OntologyTermRepository ontologyTermRepository;
     private SolrClient             pipelineCore;
 
     @Inject
-    public IndexerConfig(DataSource komp2DataSource, OntologyTermRepository ontologyTermRepository, SolrClient pipelineCore) {
+    public IndexerConfig(DataSource komp2DataSource, OntologyTermRepository ontologyTermRepository) {
         this.komp2DataSource = komp2DataSource;
         this.ontologyTermRepository = ontologyTermRepository;
-        this.pipelineCore = pipelineCore;
     }
 
 
@@ -131,86 +128,9 @@ public class IndexerConfig {
     // datasources
     //////////////
 
-    @Value("${datasource.komp2.jdbc-url}")
-    private String komp2Url;
-
-    @Value("${datasource.komp2.username}")
-    private String username;
-
-    @Value("${datasource.komp2.password}")
-    private String password;
-
-
-    //////////////
-    // datasources
-    //////////////
-
-    @Bean
-    @Primary
-    @ConfigurationProperties(prefix = "datasource.komp2")
-    public DataSource komp2DataSource() {
-        DataSource komp2DataSource = SqlUtils.getConfiguredDatasource(komp2Url, username, password);
-
-        return komp2DataSource;
-    }
-
     @Bean
     @ConfigurationProperties(prefix = "datasource.uniprot")
     public DataSource uniprotDataSource() {
         return DataSourceBuilder.create().driverClassName("oracle.jdbc.driver.OracleDriver").build();
     }
-
-
-    /////////////////////////////////////
-	// support beans for hibernate wiring
-    /////////////////////////////////////
-
-//    protected Properties buildHibernateProperties() {
-//	    Properties hibernateProperties = new Properties();
-//
-//	    hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-//	    hibernateProperties.setProperty("hibernate.show_sql", "false");
-//	    hibernateProperties.setProperty("hibernate.use_sql_comments", "true");
-//	    hibernateProperties.setProperty("hibernate.format_sql", "true");
-//	    hibernateProperties.setProperty("hibernate.generate_statistics", "false");
-//	    hibernateProperties.setProperty("hibernate.current_session_context_class", "thread");
-//
-//	    return hibernateProperties;
-//    }
-//
-//    @Primary
-//	@Bean(name = "sessionFactoryHibernate")
-//	public SessionFactory getSessionFactory() {
-//
-//		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
-//		sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
-//		sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
-//
-//		return sessionBuilder.buildSessionFactory();
-//	}
-//
-//	@Bean
-//	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-//		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-//		em.setDataSource(komp2DataSource());
-//		em.setPackagesToScan("org.mousephenotype.cda.db.entity", "org.mousephenotype.cda.db.pojo");
-//
-//		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-//		em.setJpaVendorAdapter(vendorAdapter);
-//		em.setJpaProperties(buildHibernateProperties());
-//
-//		return em;
-//	}
-//
-//	@Bean
-//	public HibernateTransactionManager transactionManager(SessionFactory s) {
-//		HibernateTransactionManager txManager = new HibernateTransactionManager();
-//		txManager.setSessionFactory(s);
-//		return txManager;
-//	}
-//
-//	@Bean
-//	public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
-//		return new PersistenceExceptionTranslationPostProcessor();
-//	}
 }

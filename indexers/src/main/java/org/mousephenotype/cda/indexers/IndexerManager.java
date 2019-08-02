@@ -21,18 +21,18 @@ import joptsimple.OptionDescriptor;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.indexers.configuration.IndexerConfig;
 import org.mousephenotype.cda.indexers.exceptions.*;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
+import javax.inject.Inject;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -44,7 +44,11 @@ import java.util.*;
  *
  * @author mrelac
  */
-public class IndexerManager  {
+@SpringBootApplication
+public class IndexerManager  implements CommandLineRunner {
+
+    private ApplicationContext applicationContext;
+
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(IndexerManager.class);
     protected CommonUtils commonUtils = new CommonUtils();
 
@@ -156,7 +160,13 @@ public class IndexerManager  {
     private static final String DAILY_ARG = "daily";
     private static final String NO_DEPS_ARG = "nodeps";
 
-	private class IndexerItem {
+
+    @Inject
+    public IndexerManager(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
+    private class IndexerItem {
         public final String name;
         public final Class indexerClass;
 
@@ -177,12 +187,9 @@ public class IndexerManager  {
     }
 
 	private IndexerItem[] indexerItems;
-	private ApplicationContext applicationContext;
-
 
 
 	// GETTERS
-
 
     public Boolean getAll() {
         return all;
@@ -202,7 +209,6 @@ public class IndexerManager  {
 
 
     // PUBLIC/PROTECTED METHODS
-
 
     public void initialise(String[] args) throws IndexerException {
         logger.debug("IndexerManager called with args = " + StringUtils.join(args, ", "));
@@ -233,8 +239,10 @@ public class IndexerManager  {
         }
     }
 
+    @Override
+    public void run(String... args) throws Exception {
+        initialise(args);
 
-	public void run() throws IndexerException, IOException, SolrServerException, SQLException, URISyntaxException {
         System.out.println("run indexer...");
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         ExecutionStatsList executionStatsList = new ExecutionStatsList();
@@ -249,12 +257,8 @@ public class IndexerManager  {
             logger.info("[START] {} at {}", indexerItem.name.toUpperCase(), dateFormatter.format(new Date()));
             try {
 
-
-	            AbstractIndexer idx = (AbstractIndexer) indexerItem.indexerClass.newInstance();
-	            applicationContext.getAutowireCapableBeanFactory().autowireBean(idx);
-	            applicationContext.getAutowireCapableBeanFactory().initializeBean(idx, "IndexBean"+idx.getClass().toGenericString());
-	            runStatus = idx.run();
-
+                AbstractIndexer indexer = (AbstractIndexer) applicationContext.getAutowireCapableBeanFactory().createBean(indexerItem.indexerClass.newInstance().getClass());
+                runStatus = indexer.run();
 
                 if (runStatus.hasErrors()) {
                     for (String errorMessage : runStatus.getErrorMessages()) {
@@ -269,7 +273,7 @@ public class IndexerManager  {
                         }
                     }
 
-	                runStatus = idx.validateBuild();
+	                runStatus = indexer.validateBuild();
                     if (runStatus.hasErrors()) {
                         for (String errorMessage : runStatus.getErrorMessages()) {
                         	logger.error(errorMessage);
@@ -553,19 +557,15 @@ public class IndexerManager  {
         return options;
     }
 
-    public static void main(String[] args) throws IndexerException, IOException, SolrServerException, SQLException, URISyntaxException {
-        int retVal = mainReturnsStatus(args);
-        if (retVal != STATUS_OK) {
-            throw new IndexerException("Build failed: " + getStatusCodeName(retVal));
-        }
+    public static void main(String[] args) throws Exception {
+        SpringApplication.run(IndexerManager.class, args);
     }
 
-    public static int mainReturnsStatus(String[] args) throws IOException, SolrServerException, SQLException, URISyntaxException {
+    public int mainReturnsStatus(String[] args) throws Exception {
         try {
 
-            IndexerManager manager = new IndexerManager();
-            manager.initialise(args);
-            manager.run();
+            initialise(args);
+            run(args);
 
         } catch (IndexerException ie) {
             logExceptions(ie);

@@ -112,24 +112,6 @@
             <version>2.0</version>
         </dependency>
 
-        <!-- servlet API is provided by the container -->
-<!--        <dependency>-->
-<!--            <groupId>javax.servlet</groupId>-->
-<!--            <artifactId>javax.servlet-api</artifactId>-->
-<!--            <version>3.0.1</version>-->
-<!--            <scope>provided</scope>-->
-<!--        </dependency>-->
-
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version>
-            <scope>provided</scope>
-        </dependency>
-
-
-
-
         <!-- Spring Dependencies -->
         <dependency>
             <groupId>org.springframework</groupId>

@@ -78,7 +78,8 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     @Inject
     public AbstractIndexer(
             @NotNull DataSource komp2DataSource,
-            @NotNull OntologyTermRepository ontologyTermRepository) {
+            @NotNull OntologyTermRepository ontologyTermRepository)
+    {
         this.komp2DataSource = komp2DataSource;
         this.ontologyTermRepository = ontologyTermRepository;
     }
