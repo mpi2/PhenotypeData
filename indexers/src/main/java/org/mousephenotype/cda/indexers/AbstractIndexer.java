@@ -33,7 +33,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Connection;
@@ -67,16 +69,20 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     private Map<String, BasicBean> stages = new HashMap<>();
 
 
-    @Autowired protected DataSource             komp2DataSource;
-    @Autowired protected OntologyTermRepository ontologyTermRepository;
+    protected DataSource             komp2DataSource;
+    protected OntologyTermRepository ontologyTermRepository;
 
-//    @Inject
-//    public AbstractIndexer(
-//            @NotNull DataSource komp2DataSource,
-//            @NotNull OntologyTermRepository ontologyTermRepository) {
-//        this.komp2DataSource = komp2DataSource;
-//        this.ontologyTermRepository = ontologyTermRepository;
-//    }
+    protected AbstractIndexer() {
+
+    }
+
+    @Inject
+    public AbstractIndexer(
+            @NotNull DataSource komp2DataSource,
+            @NotNull OntologyTermRepository ontologyTermRepository) {
+        this.komp2DataSource = komp2DataSource;
+        this.ontologyTermRepository = ontologyTermRepository;
+    }
 
 
 	CommonUtils commonUtils = new CommonUtils();

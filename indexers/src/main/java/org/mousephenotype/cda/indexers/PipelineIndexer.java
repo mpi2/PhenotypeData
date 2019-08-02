@@ -64,16 +64,20 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 	private OntologyParser        mpParser;
 	private OntologyParserFactory ontologyParserFactory;
 
-	@Autowired private SolrClient pipelineCore;
+	private SolrClient pipelineCore;
 
-//	public PipelineIndexer(
-//			@NotNull DataSource komp2DataSource,
-//			@NotNull OntologyTermRepository ontologyTermRepository,
-//			@NotNull SolrClient pipelineCore)
-//	{
-//		super(komp2DataSource, ontologyTermRepository);
-//		this.pipelineCore = pipelineCore;
-//	}
+	private PipelineIndexer() {
+
+	}
+
+	public PipelineIndexer(
+			@NotNull DataSource komp2DataSource,
+			@NotNull OntologyTermRepository ontologyTermRepository,
+			@NotNull SolrClient pipelineCore)
+	{
+		super(komp2DataSource, ontologyTermRepository);
+		this.pipelineCore = pipelineCore;
+	}
 
 
 	@Override
