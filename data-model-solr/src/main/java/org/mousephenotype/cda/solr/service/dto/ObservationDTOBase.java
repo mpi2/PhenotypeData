@@ -121,13 +121,13 @@ public class ObservationDTOBase {
     protected String id;
 
     @Field(DATASOURCE_ID)
-    protected Integer dataSourceId;
+    protected Long dataSourceId;
 
     @Field(DATASOURCE_NAME)
     protected String dataSourceName;
 
     @Field(PROJECT_ID)
-    protected Integer projectId;
+    protected Long projectId;
 
     @Field(PROJECT_NAME)
     protected String projectName;
@@ -151,13 +151,13 @@ public class ObservationDTOBase {
     protected String dataType;
 
     @Field(PIPELINE_ID)
-    protected Integer pipelineId;
+    protected Long pipelineId;
 
     @Field(PROCEDURE_ID)
-    protected Integer procedureId;
+    protected Long procedureId;
 
     @Field(PARAMETER_ID)
-    protected Integer parameterId;
+    protected Long parameterId;
 
     @Field(STRAIN_ACCESSION_ID)
     protected String strainAccessionId;
@@ -181,28 +181,22 @@ public class ObservationDTOBase {
     protected String geneAccession;
 
     @Field(EXPERIMENT_ID)
-    protected Integer experimentId;
+    protected Long experimentId;
 
     @Field(PHENOTYPING_CENTER_ID)
-    protected Integer phenotypingCenterId;
+    protected Long phenotypingCenterId;
 
     @Field(PHENOTYPING_CENTER)
     protected String phenotypingCenter;
 
-
-
-
 	@Field(SPECIMEN_PROJECT_ID)
-	protected Integer specimenProjectId;
+	protected Long specimenProjectId;
 
 	@Field(SPECIMEN_PROJECT_NAME)
 	protected String specimenProjectName;
 
-
-
-
 	@Field(PRODUCTION_CENTER_ID)
-	protected Integer productionCenterId;
+	protected Long productionCenterId;
 
 	@Field(PRODUCTION_CENTER)
 	protected String productionCenter;
@@ -217,10 +211,10 @@ public class ObservationDTOBase {
     protected String colonyId;
 
     @Field(BIOLOGICAL_SAMPLE_ID)
-    protected Integer biologicalSampleId;
+    protected Long biologicalSampleId;
 
     @Field(BIOLOGICAL_MODEL_ID)
-    protected Integer biologicalModelId;
+    protected Long biologicalModelId;
 
     @Field(ZYGOSITY)
     protected String zygosity;
@@ -1057,7 +1051,7 @@ public class ObservationDTOBase {
 	/**
      * @return the pipelineId
      */
-    public Integer getPipelineId() {
+    public Long getPipelineId() {
         return pipelineId;
     }
 
@@ -1065,14 +1059,14 @@ public class ObservationDTOBase {
      * @param pipelineId
      *            the pipelineId to set
      */
-    public void setPipelineId(Integer pipelineId) {
+    public void setPipelineId(Long pipelineId) {
         this.pipelineId = pipelineId;
     }
 
     /**
      * @return the procedureId
      */
-    public Integer getProcedureId() {
+    public Long getProcedureId() {
         return procedureId;
     }
 
@@ -1080,14 +1074,14 @@ public class ObservationDTOBase {
      * @param procedureId
      *            the procedureId to set
      */
-    public void setProcedureId(Integer procedureId) {
+    public void setProcedureId(Long procedureId) {
         this.procedureId = procedureId;
     }
 
     /**
      * @return the parameterId
      */
-    public Integer getParameterId() {
+    public Long getParameterId() {
         return parameterId;
     }
 
@@ -1095,7 +1089,7 @@ public class ObservationDTOBase {
      * @param parameterId
      *            the parameterId to set
      */
-    public void setParameterId(Integer parameterId) {
+    public void setParameterId(Long parameterId) {
         this.parameterId = parameterId;
     }
 
@@ -1162,7 +1156,7 @@ public class ObservationDTOBase {
     /**
      * @return the experimentId
      */
-    public Integer getExperimentId() {
+    public Long getExperimentId() {
         return experimentId;
     }
 
@@ -1170,26 +1164,26 @@ public class ObservationDTOBase {
      * @param experimentId
      *            the experimentId to set
      */
-    public void setExperimentId(Integer experimentId) {
+    public void setExperimentId(Long experimentId) {
         this.experimentId = experimentId;
     }
 
     /**
      * @return the organisationId
      */
-    public Integer getPhenotypingCenterId() {
+    public Long getPhenotypingCenterId() {
         return phenotypingCenterId;
     }
 
-	public void setPhenotypingCenterId(Integer phenotypingCenterId) {
+	public void setPhenotypingCenterId(Long phenotypingCenterId) {
 		this.phenotypingCenterId = phenotypingCenterId;
 	}
 
-	public Integer getProductionCenterId() {
+	public Long getProductionCenterId() {
 		return productionCenterId;
 	}
 
-	public void setProductionCenterId(Integer productionCenterId) {
+	public void setProductionCenterId(Long productionCenterId) {
 		this.productionCenterId = productionCenterId;
 	}
 
@@ -1240,11 +1234,11 @@ public class ObservationDTOBase {
     }
 
 
-	public Integer getSpecimenProjectId() {
+	public Long getSpecimenProjectId() {
 		return specimenProjectId;
 	}
 
-	public void setSpecimenProjectId(Integer specimenProjectId) {
+	public void setSpecimenProjectId(Long specimenProjectId) {
 		this.specimenProjectId = specimenProjectId;
 	}
 
@@ -1275,7 +1269,7 @@ public class ObservationDTOBase {
     /**
      * @return the biologicalSampleId
      */
-    public Integer getBiologicalSampleId() {
+    public Long getBiologicalSampleId() {
         return biologicalSampleId;
     }
 
@@ -1283,14 +1277,14 @@ public class ObservationDTOBase {
      * @param biologicalSampleId
      *            the biologicalSampleId to set
      */
-    public void setBiologicalSampleId(Integer biologicalSampleId) {
+    public void setBiologicalSampleId(Long biologicalSampleId) {
         this.biologicalSampleId = biologicalSampleId;
     }
 
     /**
      * @return the biologicalModelId
      */
-    public Integer getBiologicalModelId() {
+    public Long getBiologicalModelId() {
         return biologicalModelId;
     }
 
@@ -1298,7 +1292,7 @@ public class ObservationDTOBase {
      * @param biologicalModelId
      *            the biologicalModelId to set
      */
-    public void setBiologicalModelId(Integer biologicalModelId) {
+    public void setBiologicalModelId(Long biologicalModelId) {
         this.biologicalModelId = biologicalModelId;
     }
 
@@ -1515,11 +1509,11 @@ public class ObservationDTOBase {
         this.alleleAccession = alleleAccession;
     }
 
-    public Integer getDataSourceId() {
+    public Long getDataSourceId() {
         return dataSourceId;
     }
 
-    public void setDataSourceId(Integer dataSourceId) {
+    public void setDataSourceId(Long dataSourceId) {
         this.dataSourceId = dataSourceId;
     }
 
@@ -1531,7 +1525,7 @@ public class ObservationDTOBase {
         this.dataSourceName = dataSourceName;
     }
 
-    public Integer getProjectId() {
+    public Long getProjectId() {
         return projectId;
     }
 
@@ -1539,7 +1533,7 @@ public class ObservationDTOBase {
         return projectName;
     }
 
-    public void setProjectId(Integer projectId) {
+    public void setProjectId(Long projectId) {
         this.projectId = projectId;
     }
 
