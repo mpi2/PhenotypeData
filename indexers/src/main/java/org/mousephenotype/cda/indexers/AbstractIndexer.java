@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -48,6 +49,7 @@ import java.util.*;
  */
 
 @SpringBootApplication
+@Component
 public abstract class AbstractIndexer implements CommandLineRunner {
 
     @Value("${owlpath}")
@@ -67,13 +69,9 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     private Map<String, BasicBean> liveStageMap;
     private Map<String, BasicBean> stages = new HashMap<>();
 
-
     protected DataSource             komp2DataSource;
     protected OntologyTermRepository ontologyTermRepository;
 
-    public AbstractIndexer() {
-
-    }
 
     @Inject
     public AbstractIndexer(

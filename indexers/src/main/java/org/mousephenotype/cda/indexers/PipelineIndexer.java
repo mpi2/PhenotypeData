@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -49,6 +50,7 @@ import java.util.stream.Collectors;
 
 
 @EnableAutoConfiguration
+@Component
 public class PipelineIndexer extends AbstractIndexer implements CommandLineRunner {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -64,12 +66,8 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 	private OntologyParser        mpParser;
 	private OntologyParserFactory ontologyParserFactory;
 
-
 	private SolrClient pipelineCore;
 
-	public PipelineIndexer() {
-
-	}
 
 	@Inject
 	public PipelineIndexer(
