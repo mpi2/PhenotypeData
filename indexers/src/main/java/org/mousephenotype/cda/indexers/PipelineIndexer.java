@@ -66,7 +66,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 
 	private SolrClient pipelineCore;
 
-	private PipelineIndexer() {
+	protected PipelineIndexer() {
 
 	}
 
