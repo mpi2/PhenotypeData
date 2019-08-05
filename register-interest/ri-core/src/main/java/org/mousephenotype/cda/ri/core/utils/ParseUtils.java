@@ -16,36 +16,10 @@
 
 package org.mousephenotype.cda.ri.core.utils;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 /**
  * Created by mrelac on 22/05/2017.
  */
 public class ParseUtils {
-
-    /**
-     * Given a <code>SimpleDateFormat</code> instance that may be null or may describe a date input format string, this
-     * method attempts to convert the value to a <code>Date</code>. If successful,
-     * the <code>Date</code> instance is returned; otherwise, <code>null</code> is returned.
-     * NOTE: the [non-null] object is first converted to a string and is trimmed of whitespace.
-     * @param formatter a <code>SimpleDateFormat</code> instance describing the input string date format
-     * @param value the <code>String</code> representation, matching <code>formatter></code> to try to convert
-     * @return If <code>value</code> is a valid date as described by <code>formatter</code>; null otherwise
-     */
-    public Date tryParseDate(SimpleDateFormat formatter, String value) {
-        if (formatter == null)
-            return null;
-
-        Date retVal = null;
-        try {
-            retVal = formatter.parse(value.trim());
-        }
-        catch (ParseException pe ) { }
-
-        return retVal;
-    }
 
     /**
      * Given an <code>Object</code> that may be null or may be a float or double, this

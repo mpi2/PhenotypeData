@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.ri.extract;
 
-import org.mousephenotype.cda.ri.core.utils.DateUtils;
+import org.mousephenotype.cda.utilities.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;

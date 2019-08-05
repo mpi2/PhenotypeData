@@ -14,22 +14,23 @@
  *  License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.ri.core.utils;
+package org.mousephenotype.cda.utilities;
 
 
-import org.mousephenotype.cda.ri.core.exceptions.InterestException;
+import org.slf4j.Logger;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Created by mrelac on 22/05/2017.
  */
 public class DateUtils {
-
-    public ParseUtils parseUtils = new ParseUtils();
 
     /**
      * Given two dates (in any order), returns a <code>String</code> in the
@@ -73,14 +74,14 @@ public class DateUtils {
         return result;
     }
 
-    public Date convertToDate(String dateString) throws InterestException {
+    public Date convertToDate(String dateString) {
         Date date = null;
 
         SimpleDateFormat sdf = new SimpleDateFormat("y-M-d H:m:s.S");
         if ((dateString != null) && ( ! dateString.trim().isEmpty())) {
-            date = parseUtils.tryParseDate(sdf, dateString.trim());
+            date = tryParseDate(sdf, dateString.trim());
             if (date == null) {
-                throw new InterestException("Invalid date: '" + dateString.trim() + "'");
+                throw new RuntimeException("Invalid date: '" + dateString.trim() + "'");
             }
         }
 
@@ -103,5 +104,74 @@ public class DateUtils {
         expiryTime.add(Calendar.MINUTE, timeToLiveInMinutes);
 
         return now.after(expiryTime);
+    }
+
+    /**
+     * Given a <code>SimpleDateFormat</code> instance that may be null or may describe a date input format string, this
+     * method attempts to convert the value to a <code>Date</code>. If successful,
+     * the <code>Date</code> instance is returned; otherwise, <code>null</code> is returned.
+     * NOTE: the [non-null] object is first converted to a string and is trimmed of whitespace.
+     * @param formatter a <code>SimpleDateFormat</code> instance describing the input string date format
+     * @param value the <code>String</code> representation, matching <code>formatter></code> to try to convert
+     * @return If <code>value</code> is a valid date as described by <code>formatter</code>; null otherwise
+     */
+    public Date tryParseDate(SimpleDateFormat formatter, String value) {
+        if (formatter == null)
+            return null;
+
+        Date retVal = null;
+        try {
+            retVal = formatter.parse(value.trim());
+        }
+        catch (ParseException pe ) { }
+
+        return retVal;
+    }
+
+    /**
+     * Method to parse various increment value date time formats
+     * Supported formats:
+     * 2012-12-12T12:12:12+00:00
+     * 2012-12-12T12:12:12+0000
+     * 2012-12-12T12:12:12Z
+     * 2012-12-12 12:12:12Z
+     * 2012-12-12T12:12:12
+     * 2012-12-12 12:12:12
+     * <p/>
+     * Unsuccessful parse returns null
+     *
+     * @param logger
+     * @param value date, or null if parse unsuccessful
+     * @return
+     */
+    public static Date parseIncrementValue(Logger logger, String value) {
+        Date                   d                = null;
+        List<SimpleDateFormat> supportedFormats = new ArrayList<>();
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXX"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ssZ"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss'Z'"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm"));
+
+        for (SimpleDateFormat format : supportedFormats) {
+            try {
+                logger.debug("Testing format: {}", format.toPattern());
+                d = format.parse(value);
+            } catch (ParseException e) {
+                // Not this format, try the next one
+                continue;
+            }
+            // If the parse is successful, stop processing the rest
+            logger.debug("Parsed datestring {} using format {}: {}", value, format.toPattern(), d.toString());
+
+            break;
+        }
+
+        return d;
     }
 }

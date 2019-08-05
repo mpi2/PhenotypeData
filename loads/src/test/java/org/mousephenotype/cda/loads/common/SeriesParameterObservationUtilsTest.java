@@ -70,8 +70,6 @@ public class SeriesParameterObservationUtilsTest extends TestCase {
    		for (String value : variousTimeValues) {
 
    			System.out.println("Testing date format: " + value);
-   			Date testDate = utils.parseIncrementValue(value);;
-   			assertTrue(testDate.compareTo(constantDate) == 0);
 
    			String testDateString = utils.getParsedIncrementValue(value);
    			assertTrue(testDateString.equals(finalDateString));
@@ -96,7 +94,6 @@ public class SeriesParameterObservationUtilsTest extends TestCase {
    			String testValue = utils.getParsedIncrementValue(value);
    			assertTrue(testValue.equals(value));
    		}
-
    	}
 
    	@Test

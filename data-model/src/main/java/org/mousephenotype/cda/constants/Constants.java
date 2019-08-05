@@ -12,8 +12,8 @@ import java.util.Set;
  */
 public class Constants {
 
-    // Brackets denote optional date components.
-    public static final String DATETIME_FORMAT_OPTIONAL_MILLISECONDS = "yyyy-MM-dd HH:mm:ss[.SSS]";
+    // Brackets denote optional components Single quotes denote literal characters.
+    public static final String DATETIME_FORMAT_OPTIONAL_MILLISECONDS = "yyyy-MM-dd['T'][' ']HH:mm:ss[.SSS]['Z']";
 
     // Only include images in the resource that have the following paths
     public static final Set<String> INCLUDE_IMAGE_PATHS = new HashSet<>(Arrays.asList("mousephenotype.org", "file:///nfs/komp2/web/images/3i"));

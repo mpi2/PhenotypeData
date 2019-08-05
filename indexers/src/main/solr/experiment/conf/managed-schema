@@ -444,7 +444,8 @@
         <field name="phenotyping_center" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="production_center_id" type="plong" indexed="true" stored="true" multiValued="false"/>
         <field name="production_center" type="string" indexed="true" stored="true" multiValued="false"/>
-
+        <field name="specimen_project_id" type="plong" indexed="true" stored="true" multiValued="false"/>
+        <field name="specimen_project_name" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="gene_accession_id" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="gene_symbol" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="allele_accession_id" type="string" indexed="true" stored="true" multiValued="false"/>
