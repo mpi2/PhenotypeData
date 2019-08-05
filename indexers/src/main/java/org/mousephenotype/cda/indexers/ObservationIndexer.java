@@ -253,7 +253,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				o.setParameterId(parameterMap.get(r.getLong("parameter_id")).getId());
 				o.setParameterName(parameterMap.get(r.getLong("parameter_id")).getName());
 				o.setParameterStableId(parameterMap.get(r.getLong("parameter_id")).getStableId());
-				o.setDataType(parameterMap.get(r.getInt("parameter_id")).getDatatype());
+				o.setDataType(parameterMap.get(r.getLong("parameter_id")).getDatatype());
 
 				o.setProcedureId(procedureMap.get(r.getLong("procedure_id")).getId());
 				o.setProcedureName(procedureMap.get(r.getLong("procedure_id")).getName());
@@ -293,10 +293,10 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				}
 
 				o.setDataSourceId(datasourceMap.get(r.getLong("datasource_id")).id);
-				o.setDataSourceName(datasourceMap.get(r.getInt("datasource_id")).name);
+				o.setDataSourceName(datasourceMap.get(r.getLong("datasource_id")).name);
 
 				o.setProjectId(projectMap.get(r.getLong("project_id")).id);
-				o.setProjectName(projectMap.get(r.getInt("project_id")).name);
+				o.setProjectName(projectMap.get(r.getLong("project_id")).name);
 
 				o.setMetadataGroup(r.getString("metadata_group"));
 				if (r.wasNull()) {
@@ -518,8 +518,8 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					o.setDownloadFilePath(download_file_path);
 				}
 
-				if (parameterAssociationMap.containsKey(r.getInt("id"))) {
-					for (ParameterAssociationBean pb : parameterAssociationMap.get(r.getInt("id"))) {
+				if (parameterAssociationMap.containsKey(r.getLong("id"))) {
+					for (ParameterAssociationBean pb : parameterAssociationMap.get(r.getLong("id"))) {
 
 						// Will never be null, we hope
 						o.addParameterAssociationStableId(pb.parameterStableId);
