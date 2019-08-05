@@ -93,12 +93,14 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     private OntologyParser        maParser;
     private OntologyParserFactory ontologyParserFactory;
 
-
     private SolrClient               alleleCore;
     private SolrClient               genotypePhenotypeCore;
     private SolrClient               mpCore;
     private GenotypePhenotypeService genotypePhenotypeService;
 
+    protected MPIndexer() {
+
+    }
 
     @Inject
     public MPIndexer(

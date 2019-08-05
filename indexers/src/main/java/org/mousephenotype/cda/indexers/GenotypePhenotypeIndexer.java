@@ -72,6 +72,9 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     private OntologyParser            maParser;
     private OntologyParserFactory     ontologyParserFactory;
 
+    protected GenotypePhenotypeIndexer() {
+
+    }
 
     @Inject
     public GenotypePhenotypeIndexer(

@@ -13,6 +13,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.BufferedReader;
@@ -37,7 +38,11 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
     private final Logger               logger  = LoggerFactory.getLogger(this.getClass());
     private       SolrClient           allele2Core;
 
+    protected Allele2Indexer() {
 
+    }
+
+    @Inject
     public Allele2Indexer(
             @NotNull DataSource komp2DataSource,
             @NotNull OntologyTermRepository ontologyTermRepository,

@@ -33,6 +33,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -54,7 +55,11 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
     private OntologyParser        mpParser;
     private OntologyParserFactory ontologyParserFactory;
 
+    protected MGIPhenotypeIndexer() {
 
+    }
+
+    @Inject
     public MGIPhenotypeIndexer(
             @NotNull DataSource komp2DataSource,
             @NotNull OntologyTermRepository ontologyTermRepository,

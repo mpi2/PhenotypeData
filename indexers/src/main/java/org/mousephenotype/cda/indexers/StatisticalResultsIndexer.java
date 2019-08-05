@@ -47,6 +47,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -109,6 +110,11 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     private ParameterRepository parameterRepository;
     private SolrClient          statisticalResultCore;
 
+    protected StatisticalResultsIndexer() {
+
+    }
+
+    @Inject
     public StatisticalResultsIndexer(
             @NotNull DataSource komp2DataSource,
             @NotNull OntologyTermRepository ontologyTermRepository,

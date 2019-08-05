@@ -45,6 +45,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -99,10 +100,14 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	private OntologyParser        maParser;
 	private OntologyParserFactory ontologyParserFactory;
 
-
 	private SolrClient experimentCore;
 
 
+	protected ObservationIndexer() {
+
+	}
+
+	@Inject
 	public ObservationIndexer(
 			@NotNull DataSource komp2DataSource,
 			@NotNull OntologyTermRepository ontologyTermRepository,
@@ -123,7 +128,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 
 	@Override
-	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
+	public RunStatus run() throws IndexerException, SQLException {
 		weightMap = new WeightMap(komp2DataSource);
 		long count = 0;
 		RunStatus runStatus = new RunStatus();

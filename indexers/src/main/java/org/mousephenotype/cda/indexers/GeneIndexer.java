@@ -83,6 +83,9 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
     private Map<String, List<MpDTO>>               mgiAccessionToMP                             = new HashMap<>();
     private Map<String, List<Map<String, String>>> phenotypeSummaryGeneAccessionsToPipelineInfo = new HashMap<>();
 
+    protected GeneIndexer() {
+
+    }
 
     @Inject
     public GeneIndexer(

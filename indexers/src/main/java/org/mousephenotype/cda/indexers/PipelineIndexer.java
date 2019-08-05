@@ -79,10 +79,13 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 		this.pipelineCore = pipelineCore;
 	}
 
-
 	@Override
 	public RunStatus validateBuild()	throws IndexerException {
 		return super.validateBuild(pipelineCore);
+	}
+
+	public static void main(String[] args) {
+		SpringApplication.run(PipelineIndexer.class, args);
 	}
 
 
@@ -108,7 +111,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 
 
 	@Override
-	public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
+	public RunStatus run() throws IndexerException, SQLException {
 
 		Set<MissingMpId> missingMpIds = new HashSet<>();
 		RunStatus        runStatus    = new RunStatus();
@@ -812,9 +815,5 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 		public String toString() {
 			return mpId + "::" + pipelineId + "::" + procedureId + "::" + parameterId;
 		}
-	}
-
-	public static void main(String[] args) throws IndexerException {
-		SpringApplication.run(PipelineIndexer.class, args);
 	}
 }

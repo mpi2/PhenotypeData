@@ -35,6 +35,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.sql.Connection;
@@ -52,7 +53,6 @@ import java.util.*;
 public class SangerImagesIndexer extends AbstractIndexer implements CommandLineRunner {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
 
     private final DateTimeFormatter YMD_HMS = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
@@ -75,6 +75,11 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 	private SolrClient alleleCore;
 	private SolrClient sangerImagesCore;
 
+	protected SangerImagesIndexer() {
+
+	}
+
+	@Inject
 	public SangerImagesIndexer(
 			@NotNull DataSource komp2DataSource,
 			@NotNull OntologyTermRepository ontologyTermRepository,

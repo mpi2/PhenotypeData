@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.BufferedReader;
@@ -39,7 +40,11 @@ public class ProductIndexer  extends AbstractIndexer implements CommandLineRunne
     private SolrClient allele2Core;
     private SolrClient productCore;
 
+    protected ProductIndexer() {
 
+    }
+
+    @Inject
     public ProductIndexer(
             @NotNull DataSource komp2DataSource,
             @NotNull OntologyTermRepository ontologyTermRepository,

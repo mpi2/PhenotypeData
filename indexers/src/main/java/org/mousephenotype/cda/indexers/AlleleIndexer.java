@@ -46,13 +46,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-/**
- * Index the allele core from the sanger allele2 core
- *
- * @author Matt
- * @author jmason
- *
- */
 @EnableAutoConfiguration
 public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner {
 
@@ -93,6 +86,9 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
     private SolrClient phenodigmCore;
     private DataSource uniprotDataSource;
 
+    protected AlleleIndexer() {
+
+    }
 
     @Inject
     public AlleleIndexer(

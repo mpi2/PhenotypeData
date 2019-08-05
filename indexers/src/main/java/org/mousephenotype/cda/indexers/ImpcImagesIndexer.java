@@ -89,6 +89,9 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	private ImpressService impressService;
 	private SolrClient     impcImagesCore;
 
+	protected ImpcImagesIndexer() {
+
+	}
 
 	@Inject
 	public ImpcImagesIndexer(

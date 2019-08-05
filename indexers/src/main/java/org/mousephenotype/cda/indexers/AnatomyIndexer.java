@@ -70,6 +70,9 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
     private OntologyParser emapaParser;
     private OntologyParser uberonParser;
 
+    protected AnatomyIndexer() {
+
+    }
 
     @Inject
     public AnatomyIndexer(
