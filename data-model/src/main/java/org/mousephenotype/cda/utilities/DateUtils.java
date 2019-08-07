@@ -115,7 +115,7 @@ public class DateUtils {
      * @param value the <code>String</code> representation, matching <code>formatter></code> to try to convert
      * @return If <code>value</code> is a valid date as described by <code>formatter</code>; null otherwise
      */
-    public Date tryParseDate(SimpleDateFormat formatter, String value) {
+    public static Date tryParseDate(SimpleDateFormat formatter, String value) {
         if (formatter == null)
             return null;
 

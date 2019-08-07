@@ -11,10 +11,8 @@
 package org.mousephenotype.cda.solr.service.dto;
 
 import org.apache.solr.client.solrj.beans.Field;
-import org.apache.solr.common.util.JavaBinCodec;
 
-import java.io.IOException;
-import java.time.ZoneId;
+import java.text.SimpleDateFormat;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -25,114 +23,96 @@ import java.util.Date;
  */
 public class ObservationDTOWrite extends ObservationDTOBase {
 
-
 	@Field(DATE_OF_EXPERIMENT)
-	private Iso8601ZonedDateTime solrDateOfExperiment;
-	private ZonedDateTime dateOfExperiment;
+	private String dateOfExperiment;
 
 	@Field(DATE_OF_BIRTH)
-	private Iso8601ZonedDateTime solrDateOfBirth;
-	private ZonedDateTime dateOfBirth;
+	private String dateOfBirth;
 
 	@Field(WEIGHT_DATE)
-	private Iso8601ZonedDateTime solrWeightDate;
-	private ZonedDateTime weightDate;
+	private String weightDate;
 
 
-	public Iso8601ZonedDateTime getSolrWeightDate() {
-		return new Iso8601ZonedDateTime(this.weightDate);
-	}
+	// dateOfExperiment
+	public void setDateOfExperiment(Date dateOfExperiment) {
 
-	public Iso8601ZonedDateTime getSolrDateOfExperiment() {
-		return new Iso8601ZonedDateTime(this.dateOfExperiment);
-	}
-
-	public Iso8601ZonedDateTime getSolrDateOfBirth() {
-		return new Iso8601ZonedDateTime(this.dateOfBirth);
-	}
-
-	/**
-	 * ======================================================================
-	 * Setters that will set the dateOfExperiment field as well as the solr field
-	 */
-
-	public void setSolrDateOfExperiment(Date solrDateOfExperimentBase) {
-		Iso8601ZonedDateTime solrDateOfExperiment = new Iso8601ZonedDateTime(ZonedDateTime.ofInstant(solrDateOfExperimentBase.toInstant(), ZoneId.of("UTC")));
-		this.solrDateOfExperiment = solrDateOfExperiment;
-		this.dateOfExperiment = solrDateOfExperiment.inner;
-	}
-
-	public void setSolrDateOfBirth(Date solrDateOfBirthBase) {
-		Iso8601ZonedDateTime solrDateOfBirth = new Iso8601ZonedDateTime(ZonedDateTime.ofInstant(solrDateOfBirthBase.toInstant(), ZoneId.of("UTC")));
-		this.solrDateOfBirth = solrDateOfBirth;
-		this.dateOfBirth = solrDateOfBirth.inner;
-	}
-
-	public void setSolrWeightDate(Date solrWeightDateBase) {
-		Iso8601ZonedDateTime solrWeightDate = new Iso8601ZonedDateTime(ZonedDateTime.ofInstant(solrWeightDateBase.toInstant(), ZoneId.of("UTC")));
-		this.solrWeightDate = solrWeightDate;
-		this.weightDate = solrWeightDate.inner;
-	}
-
-
-	public ZonedDateTime getDateOfExperiment() {
-		return dateOfExperiment;
+		if (dateOfExperiment != null) {
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+			this.dateOfExperiment = formatter.format(dateOfExperiment);
+		}
 	}
 
 	public void setDateOfExperiment(ZonedDateTime dateOfExperiment) {
-		this.dateOfExperiment = dateOfExperiment;
-		this.solrDateOfExperiment = (dateOfExperiment != null) ? new Iso8601ZonedDateTime(dateOfExperiment) : null;
+
+		if (dateOfExperiment != null) {
+			this.dateOfExperiment = dateOfExperiment.format(DateTimeFormatter.ISO_INSTANT);
+		}
 	}
 
-	public ZonedDateTime getDateOfBirth() {
-		return dateOfBirth;
+	public Date getDateOfExperimentAsDate()  throws Exception{
+
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+		return (dateOfExperiment == null ? null : formatter.parse(dateOfExperiment));
+	}
+
+	public ZonedDateTime getDateOfExperimentAsZonedDateTime() {
+		return (dateOfExperiment == null ? null : ZonedDateTime.parse(dateOfExperiment));
+	}
+
+
+	// dateOfBirth
+	public void setDateOfBirth(Date dateOfBirth) {
+
+		if (dateOfBirth != null) {
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+			this.dateOfBirth = formatter.format(dateOfBirth);
+		}
 	}
 
 	public void setDateOfBirth(ZonedDateTime dateOfBirth) {
-		this.dateOfBirth = dateOfBirth;
-		this.solrDateOfBirth = (dateOfBirth != null) ? new Iso8601ZonedDateTime(dateOfBirth) : null;
 
+		if (dateOfBirth != null) {
+			this.dateOfBirth = dateOfBirth.format(DateTimeFormatter.ISO_INSTANT);
+		}
 	}
 
-	public ZonedDateTime getWeightDate() {
-		return weightDate;
+	public Date getDateOfBirthAsDate()  throws Exception{
+
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+		return (dateOfBirth == null ? null : formatter.parse(dateOfBirth));
+	}
+
+	public ZonedDateTime getDateOfBirthAsZonedDateTime() {
+		return (dateOfBirth == null ? null : ZonedDateTime.parse(dateOfBirth));
+	}
+
+
+	// weightDate
+	public void setWeightDate(Date weightDate) {
+
+		if (weightDate != null) {
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+			this.weightDate = formatter.format(weightDate);
+		}
 	}
 
 	public void setWeightDate(ZonedDateTime weightDate) {
-		this.weightDate = weightDate;
-		this.solrWeightDate = (weightDate != null) ? new Iso8601ZonedDateTime(weightDate) : null;
-	}
 
-
-	public class Iso8601ZonedDateTime implements JavaBinCodec.ObjectResolver {
-		ZonedDateTime inner;
-
-		public Iso8601ZonedDateTime(ZonedDateTime zdt) {
-			inner = zdt;
-		}
-
-		public String toString() {
-
-			if (inner == null) {
-				return null;
-			}
-
-			return inner.format(DateTimeFormatter.ISO_INSTANT);
-		}
-
-		// Need an ObjectResolver to turn this Iso8601ZonedDateTime object into a string for Solr indexing
-		@Override
-		public Object resolve(Object o, JavaBinCodec codec) throws IOException {
-			if (o instanceof Iso8601ZonedDateTime)
-			{
-				return this.toString();
-			}
-			return o;
+		if (weightDate != null) {
+			this.weightDate = weightDate.format(DateTimeFormatter.ISO_INSTANT);
 		}
 	}
 
+	public Date getWeightDateAsDate()  throws Exception{
 
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
+		return (weightDate == null ? null : formatter.parse(weightDate));
+	}
 
-
+	public ZonedDateTime getWeightDateAsZonedDateTime() {
+		return (weightDate == null ? null : ZonedDateTime.parse(weightDate));
+	}
 }

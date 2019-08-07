@@ -247,7 +247,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					o.setDateOfExperiment(dateOfExperiment);
 				} catch (NullPointerException e) {
 					logger.debug("  No date of experiment set for experiment external ID: {}", r.getString("external_id"));
-					o.setDateOfExperiment(null);
+					o.setDateOfExperiment((Date) null);
 				}
 
 				o.setParameterId(parameterMap.get(r.getLong("parameter_id")).getId());
@@ -558,7 +558,20 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 				// 60 seconds between commits
 				documentCount++;
-				experimentCore.addBean(o, 60000);
+
+				try {
+
+					experimentCore.addBean(o, 60000);
+
+				} catch (Exception e) {
+
+					logger.error("Failed to add experimentId: {}, dateOfBirth: {},  dateOfExperiment: {}, weightDate: {}",
+								 o.getExperimentId(),
+								 o.getDateOfBirthAsZonedDateTime() == null ? "null" : o.getDateOfBirthAsZonedDateTime().toString(),
+								 o.getDateOfExperimentAsZonedDateTime() == null ? "null" : o.getDateOfExperimentAsZonedDateTime().toString(),
+								 o.getWeightDateAsZonedDateTime() == null ? "null" : o.getWeightDateAsZonedDateTime().toString());
+					continue;
+				}
 
 				count++;
 

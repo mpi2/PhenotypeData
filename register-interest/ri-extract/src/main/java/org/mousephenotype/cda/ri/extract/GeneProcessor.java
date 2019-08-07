@@ -21,6 +21,7 @@ import org.mousephenotype.cda.ri.core.entities.ImitsStatus;
 import org.mousephenotype.cda.ri.core.exceptions.InterestException;
 import org.mousephenotype.cda.ri.core.utils.ParseUtils;
 import org.mousephenotype.cda.ri.core.utils.Validator;
+import org.mousephenotype.cda.utilities.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
@@ -166,7 +167,7 @@ public class GeneProcessor implements ItemProcessor<Gene, Gene> {
         // date
         SimpleDateFormat sdf = new SimpleDateFormat("y-M-d h:m:s");
         if ((gene.getAssignmentStatusDateString() != null) && ( ! gene.getAssignmentStatusDateString().trim().isEmpty())) {
-            Date date = parseUtils.tryParseDate(sdf, gene.getAssignmentStatusDateString());
+            Date date = DateUtils.tryParseDate(sdf, gene.getAssignmentStatusDateString());
             if (date == null) {
                 errMessages.add("Invalid date '" + gene.getAssignmentStatusDate() + "'");
                 return null;
@@ -174,7 +175,7 @@ public class GeneProcessor implements ItemProcessor<Gene, Gene> {
             gene.setAssignmentStatusDate(date);
         }
         if ((gene.getConditionalAlleleProductionStatusDateString() != null) && ( ! gene.getConditionalAlleleProductionStatusDateString().trim().isEmpty())) {
-            Date date = parseUtils.tryParseDate(sdf, gene.getConditionalAlleleProductionStatusDateString());
+            Date date = DateUtils.tryParseDate(sdf, gene.getConditionalAlleleProductionStatusDateString());
             if (date == null) {
                 errMessages.add("Invalid date '" + gene.getConditionalAlleleProductionStatusDate() + "'");
                 return null;
@@ -182,7 +183,7 @@ public class GeneProcessor implements ItemProcessor<Gene, Gene> {
             gene.setConditionalAlleleProductionStatusDate(date);
         }
         if ((gene.getConditionalAlleleProductionStartDateString() != null) && ( ! gene.getConditionalAlleleProductionStartDateString().trim().isEmpty())) {
-            Date date = parseUtils.tryParseDate(sdf, gene.getConditionalAlleleProductionStartDateString());
+            Date date = DateUtils.tryParseDate(sdf, gene.getConditionalAlleleProductionStartDateString());
             if (date == null) {
                 errMessages.add("Invalid date '" + gene.getConditionalAlleleProductionStartDate() + "'");
                 return null;
@@ -190,7 +191,7 @@ public class GeneProcessor implements ItemProcessor<Gene, Gene> {
             gene.setConditionalAlleleProductionStartDate(date);
         }
         if ((gene.getNullAlleleProductionStatusDateString() != null) && (!gene.getNullAlleleProductionStatusDateString().trim().isEmpty())) {
-            Date date = parseUtils.tryParseDate(sdf, gene.getNullAlleleProductionStatusDateString());
+            Date date = DateUtils.tryParseDate(sdf, gene.getNullAlleleProductionStatusDateString());
             if (date == null) {
                 errMessages.add("Invalid date '" + gene.getNullAlleleProductionStatusDate() + "'");
                 return null;
@@ -198,7 +199,7 @@ public class GeneProcessor implements ItemProcessor<Gene, Gene> {
             gene.setNullAlleleProductionStatusDate(date);
         }
         if ((gene.getNullAlleleProductionStartDateString() != null) && ( ! gene.getNullAlleleProductionStartDateString().trim().isEmpty())) {
-            Date date = parseUtils.tryParseDate(sdf, gene.getNullAlleleProductionStartDateString());
+            Date date = DateUtils.tryParseDate(sdf, gene.getNullAlleleProductionStartDateString());
             if (date == null) {
                 errMessages.add("Invalid date '" + gene.getNullAlleleProductionStartDate() + "'");
                 return null;
@@ -206,7 +207,7 @@ public class GeneProcessor implements ItemProcessor<Gene, Gene> {
             gene.setNullAlleleProductionStartDate(date);
         }
         if ((gene.getPhenotypingStatusDateString() != null) && ( ! gene.getPhenotypingStatusDateString().trim().isEmpty())) {
-            Date date = parseUtils.tryParseDate(sdf, gene.getPhenotypingStatusDateString());
+            Date date = DateUtils.tryParseDate(sdf, gene.getPhenotypingStatusDateString());
             if (date == null) {
                 errMessages.add("Invalid date '" + gene.getPhenotypingStatusDate() + "'");
                 return null;
