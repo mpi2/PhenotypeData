@@ -18,7 +18,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 /**
- * This class is used for overriding the default Solr date stamp behaviour
+ * This class is used for overriding the default Solr date stamp behaviour.
+ * Solrj 7.7.1 expects dates to be in iso8601 format (e.g. yyyy-MM-ddTHH:mm:ssZ) and it queries all the annotated
+ * @Field variables for these dates. If they are not in the expected format, the addBean call fails.
  *
  */
 public class ObservationDTOWrite extends ObservationDTOBase {
