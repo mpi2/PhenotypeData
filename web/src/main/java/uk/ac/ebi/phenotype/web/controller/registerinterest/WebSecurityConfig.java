@@ -51,9 +51,6 @@ import org.springframework.security.web.util.UrlUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.inject.Inject;
 import javax.servlet.*;
@@ -87,7 +84,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private String paBaseUrl;
 
     private static final List<String> ALLOWED_CORS_ACCESS_URLS = Arrays.asList(
-            "mousephenotypedev.org",
             "www.mousephenotype.org",
             "web.mousephenotype.org",
             "beta.mousephenotype.org",
@@ -108,15 +104,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private CaptchaFilter captchaFilter;
 
-    private CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(ALLOWED_CORS_ACCESS_URLS);
-        configuration.setAllowedMethods(Arrays.asList("GET","POST"));
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
@@ -134,10 +121,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // see https://github.com/spring-projects/spring-security/issues/123
 //                .addHeaderWriter(new XFrameOptionsHeaderWriter(new WhiteListedAllowFromStrategy(Arrays.asList("www.immunophenotype.org", "wwwdev.ebi.ac.uk"))))
                 .addHeaderWriter(new XFrameOptionsHeaderWriter(strategy))
-
-                .and()
-
-                .cors().configurationSource(corsConfigurationSource())
 
                 .and()
 
@@ -202,6 +185,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public class CorsFilter implements Filter {
 
+        static final String X_FORWARDED_HOST = "x-forwarded-host";
         private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
         public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
@@ -214,25 +198,24 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .map(k -> String.format("  Header '%s' = %s", k, request.getHeader(k)))
                     .collect(Collectors.joining("\n")));
 
-            // If this request has ben proxied, lookup the original Host value (defined to be the first in the list
+            // If this request has ben proxied, match the original Host value (defined to be the first in the list
             // of x-forwarded-for header).  The implementation of the getHeader method matches by equalsIgnoreCase,
             // allowing the lowercase comparison.
 
             String host = null;
 
-            if (ALLOWED_CORS_ACCESS_URLS.stream().anyMatch(requestHostname::contains)) {
-
-                host = ALLOWED_CORS_ACCESS_URLS.stream().filter(requestHostname::contains).findFirst().orElse("*");
-
-            } else if (request.getHeader("x-forwarded-host") != null) {
+            if (request.getHeader(X_FORWARDED_HOST) != null) {
                 List<String> hosts = Arrays
-                        .stream(request.getHeader("x-forwarded-host").split(","))
+                        .stream(request.getHeader(X_FORWARDED_HOST).split(","))
                         .map(String::trim)
                         .collect(Collectors.toList());
 
-                if (ALLOWED_CORS_ACCESS_URLS.stream().anyMatch(hosts::contains)) {
+                if (hosts.stream().anyMatch(ALLOWED_CORS_ACCESS_URLS::contains)) {
                     host = hosts.get(0);
                 }
+
+            } else if (ALLOWED_CORS_ACCESS_URLS.stream().anyMatch(requestHostname::contains)) {
+                host = ALLOWED_CORS_ACCESS_URLS.stream().filter(requestHostname::contains).findFirst().orElse("*");
             }
 
             if (host != null) {
