@@ -219,7 +219,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
                 // Procedure prefix is the first two strings of the parameter after splitting on underscore
                 // i.e. IMPC_BWT_001_001 => IMPC_BWT
-                String procedurePrefix = StringUtils.join(Arrays.asList(parameterMap.get(r.getInt("parameter_id")).getStableId().split("_")).subList(0, 2), "_");
+                String procedurePrefix = StringUtils.join(Arrays.asList(parameterMap.get(r.getLong("parameter_id")).getStableId().split("_")).subList(0, 2), "_");
                 if (ParameterConstants.source3iProcedurePrefixes.contains(procedurePrefix)) {
                     doc.setResourceName("3i");
                     doc.setResourceFullname("Infection, Immunity and Immunophenotyping consortium");
@@ -230,14 +230,14 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
                 doc.setExternalId(r.getString("external_id"));
 
-                String pipelineStableId = pipelineMap.get(r.getInt("pipeline_id")).getStableId();
-                doc.setPipelineStableKey("" + pipelineMap.get(r.getInt("pipeline_id")).getStableKey());
-                doc.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).getName());
+                String pipelineStableId = pipelineMap.get(r.getLong("pipeline_id")).getStableId();
+                doc.setPipelineStableKey("" + pipelineMap.get(r.getLong("pipeline_id")).getStableKey());
+                doc.setPipelineName(pipelineMap.get(r.getLong("pipeline_id")).getName());
                 doc.setPipelineStableId(pipelineStableId);
 
-                String procedureStableId = procedureMap.get(r.getInt("procedure_id")).getStableId();
-                doc.setProcedureStableKey("" + procedureMap.get(r.getInt("procedure_id")).getStableKey());
-                doc.setProcedureName(procedureMap.get(r.getInt("procedure_id")).getName());
+                String procedureStableId = procedureMap.get(r.getLong("procedure_id")).getStableId();
+                doc.setProcedureStableKey("" + procedureMap.get(r.getLong("procedure_id")).getStableKey());
+                doc.setProcedureName(procedureMap.get(r.getLong("procedure_id")).getName());
                 doc.setProcedureStableId(procedureStableId);
 
                 if (SKIP_PROCEDURES.contains(procedurePrefix)) {
@@ -246,9 +246,9 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     continue;
                 }
 
-                doc.setParameterStableKey("" + parameterMap.get(r.getInt("parameter_id")).getStableKey());
-                doc.setParameterName(parameterMap.get(r.getInt("parameter_id")).getName());
-                doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).getStableId());
+                doc.setParameterStableKey("" + parameterMap.get(r.getLong("parameter_id")).getStableKey());
+                doc.setParameterName(parameterMap.get(r.getLong("parameter_id")).getName());
+                doc.setParameterStableId(parameterMap.get(r.getLong("parameter_id")).getStableId());
 
 
                 BasicBean stage = getDevelopmentalStage(pipelineStableId, procedureStableId, colonyId);

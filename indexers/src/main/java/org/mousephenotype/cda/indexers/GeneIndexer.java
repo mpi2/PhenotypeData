@@ -663,7 +663,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 }
 
                 String xrefAcc = resultSet.getString("xref_acc");
-                long xrefDbId = resultSet.getInt("xref_db_id");
+                long xrefDbId = resultSet.getLong("xref_db_id");
 
                 Xref xref = new Xref();
                 xref.setXrefAccession(xrefAcc);
