@@ -78,6 +78,7 @@ import java.util.stream.Collectors;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private DataSource riDataSource;
+    private CaptchaFilter captchaFilter;
 
     @NotNull
     @Value("${paBaseUrl}")
@@ -97,12 +98,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     // Must use qualifier to get ri database; otherwise, komp2 is served up.
     @Inject
-    public WebSecurityConfig(@Qualifier("riDataSource") DataSource riDataSource) {
+    public WebSecurityConfig(@Qualifier("riDataSource") DataSource riDataSource, CaptchaFilter captchaFilter) {
         this.riDataSource = riDataSource;
+        this.captchaFilter = captchaFilter;
     }
 
-    @Autowired
-    private CaptchaFilter captchaFilter;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -162,8 +162,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .ignoringAntMatchers("/addpmid")
                 .ignoringAntMatchers("/addpmidAllele")
                 .ignoringAntMatchers("/gwaslookup");
-        //.and().sessionManagement().invalidSessionStrategy(new RiSimpleRedirectInvalidSessionStrategy(paBaseUrl + "/search/gene?kw=*"))
-        ;
     }
 
     /**
