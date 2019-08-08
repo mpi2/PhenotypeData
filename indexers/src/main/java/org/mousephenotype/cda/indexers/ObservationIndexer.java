@@ -565,11 +565,13 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 				} catch (Exception e) {
 
-					logger.error("Failed to add experimentId: {}, dateOfBirth: {},  dateOfExperiment: {}, weightDate: {}",
+					logger.error("Failed to add experimentId: {}, dateOfBirth: {},  dateOfExperiment: {}, weightDate: {}. Reason: {}\nquery: {}",
 								 o.getExperimentId(),
 								 o.getDateOfBirthAsZonedDateTime() == null ? "null" : o.getDateOfBirthAsZonedDateTime().toString(),
 								 o.getDateOfExperimentAsZonedDateTime() == null ? "null" : o.getDateOfExperimentAsZonedDateTime().toString(),
-								 o.getWeightDateAsZonedDateTime() == null ? "null" : o.getWeightDateAsZonedDateTime().toString());
+								 o.getWeightDateAsZonedDateTime() == null ? "null" : o.getWeightDateAsZonedDateTime().toString(),
+                                 e.getLocalizedMessage(),
+                                 query);
 					continue;
 				}
 
