@@ -27,8 +27,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -141,8 +139,7 @@ public class ObservationIndexerTest {
         logger.info("Size of weight map {}", weightMap.size());
         Assert.assertTrue(weightMap.size() > 50);
 
-
-        ZonedDateTime dateOfExperiment = ZonedDateTime.ofInstant(new SimpleDateFormat("yyyy-MM-dd").parse("2015-04-29").toInstant(), ZoneId.of("UTC"));
+        Date dateOfExperiment = new SimpleDateFormat("yyyy-MM-dd").parse("2015-04-29");
 		System.out.println("Weight map for specimen 94369 is : " + weightMap.get(94369L));
         System.out.println("Nearest weight to 2015-04-29 00:00:00 is " + weightMap.getNearestWeight(94369L, dateOfExperiment) );
 
@@ -155,7 +152,7 @@ public class ObservationIndexerTest {
             }
         }
 
-        dateOfExperiment = ZonedDateTime.ofInstant(new SimpleDateFormat("yyyy-MM-dd").parse("2012-07-17").toInstant(), ZoneId.of("UTC"));
+        dateOfExperiment = new SimpleDateFormat("yyyy-MM-dd").parse("2012-07-17");
         System.out.println("Weight map for specimen 'B6NTAC-USA/680.8f_5016035' (DB ID is " + testDbId+ ") is : " + weightMap.get(testDbId));
         System.out.println("Nearest weight to 2012-07-17 00:00:00 is " + weightMap.getNearestWeight(testDbId, dateOfExperiment) );
         

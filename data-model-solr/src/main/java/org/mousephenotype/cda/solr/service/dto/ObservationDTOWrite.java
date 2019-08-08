@@ -23,6 +23,7 @@ import java.util.Date;
  * @Field variables for these dates. If they are not in the expected format, the addBean call fails.
  *
  */
+@Deprecated
 public class ObservationDTOWrite extends ObservationDTOBase {
 
 	@Field(DATE_OF_EXPERIMENT)

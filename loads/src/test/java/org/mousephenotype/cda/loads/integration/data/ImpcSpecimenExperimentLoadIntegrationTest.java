@@ -43,9 +43,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -74,8 +73,6 @@ public class ImpcSpecimenExperimentLoadIntegrationTest {
     @Autowired
     private NamedParameterJdbcTemplate jdbcCda;
 
-
-
     @Autowired
     private DccSpecimenExtractor dccSpecimenExtractor;
 
@@ -87,7 +84,6 @@ public class ImpcSpecimenExperimentLoadIntegrationTest {
 
     @Autowired
     private ExperimentLoader experimentLoader;
-
 
 
     // Set startServer to true to produce an in-memory h2 database browser.
@@ -283,7 +279,7 @@ public class ImpcSpecimenExperimentLoadIntegrationTest {
     public void testWeightMapIsDeterministicRegardlessOfOrderOfLoadedValues() throws Exception {
 
         Integer MAX_REPEATED_LOAD_ATTEMPTS = 10;
-        ZonedDateTime dateOfExperiment = ZonedDateTime.ofInstant(new SimpleDateFormat("yyyy-MM-dd").parse("2009-10-16").toInstant(), ZoneId.of("UTC"));
+        Date dateOfExperiment = new SimpleDateFormat("yyyy-MM-dd").parse("2009-10-16");
         Set<WeightMap.BodyWeight> nearestWeights = new HashSet<>();
 
         for (int i = 0; i<MAX_REPEATED_LOAD_ATTEMPTS; i++) {
@@ -356,7 +352,7 @@ public class ImpcSpecimenExperimentLoadIntegrationTest {
     public void testWeightMapReturnsWeightFromSameProcedure() throws Exception {
 
         Integer MAX_REPEATED_LOAD_ATTEMPTS = 5;
-        ZonedDateTime dateOfExperiment = ZonedDateTime.ofInstant(new SimpleDateFormat("yyyy-MM-dd").parse("2009-10-16").toInstant(), ZoneId.of("UTC"));
+        Date dateOfExperiment = new SimpleDateFormat("yyyy-MM-dd").parse("2009-10-16");
         Set<WeightMap.BodyWeight> nearestWeights = new HashSet<>();
 
         for (int i = 0; i<MAX_REPEATED_LOAD_ATTEMPTS; i++) {
@@ -439,8 +435,7 @@ public class ImpcSpecimenExperimentLoadIntegrationTest {
         ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), r);
     }
 
-
-    private WeightMap.BodyWeight getNearestWeightFromDatabase(ZonedDateTime dateOfExperiment) throws SQLException {
+    private WeightMap.BodyWeight getNearestWeightFromDatabase(Date dateOfExperiment) throws SQLException {
 
         WeightMap weightMap = new WeightMap(cdaDataSource);
         weightMap.initialize();

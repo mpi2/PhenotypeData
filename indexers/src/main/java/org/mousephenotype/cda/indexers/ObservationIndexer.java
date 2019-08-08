@@ -19,7 +19,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.db.WeightMap;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
@@ -33,7 +32,7 @@ import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTOWrite;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
@@ -57,10 +56,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.*;
 
 /**
@@ -228,7 +223,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 			while (r.next()) {
 
-				ObservationDTOWrite o = new ObservationDTOWrite();
+				ObservationDTO o = new ObservationDTO();
 				o.setId(r.getString("id"));
 				o.setParameterId(r.getLong("parameter_id"));
 				o.setExperimentId(r.getLong("experiment_id"));
@@ -241,15 +236,8 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					}
 				}
 
-				ZonedDateTime dateOfExperiment = null;
-				try {
-					dateOfExperiment = ZonedDateTime.parse(r.getString("date_of_experiment"), DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT_OPTIONAL_MILLISECONDS).withZone(ZoneId.of("UTC")));
-					o.setDateOfExperiment(dateOfExperiment);
-				} catch (NullPointerException e) {
-					logger.debug("  No date of experiment set for experiment external ID: {}", r.getString("external_id"));
-					o.setDateOfExperiment((Date) null);
-				}
-
+				Date dateOfExperiment = r.getDate("date_of_experiment");
+				o.setDateOfExperiment(dateOfExperiment);
 				o.setParameterId(parameterMap.get(r.getLong("parameter_id")).getId());
 				o.setParameterName(parameterMap.get(r.getLong("parameter_id")).getName());
 				o.setParameterStableId(parameterMap.get(r.getLong("parameter_id")).getStableId());
@@ -567,9 +555,9 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 					logger.error("Failed to add experimentId: {}, dateOfBirth: {},  dateOfExperiment: {}, weightDate: {}. Reason: {}\nquery: {}",
 								 o.getExperimentId(),
-								 o.getDateOfBirthAsZonedDateTime() == null ? "null" : o.getDateOfBirthAsZonedDateTime().toString(),
-								 o.getDateOfExperimentAsZonedDateTime() == null ? "null" : o.getDateOfExperimentAsZonedDateTime().toString(),
-								 o.getWeightDateAsZonedDateTime() == null ? "null" : o.getWeightDateAsZonedDateTime().toString(),
+								 o.getDateOfBirth() == null ? "null" : o.getDateOfBirth().toString(),
+								 o.getDateOfExperiment() == null ? "null" : o.getDateOfExperiment().toString(),
+								 o.getWeightDate() == null ? "null" : o.getWeightDate().toString(),
                                  e.getLocalizedMessage(),
                                  query);
 					continue;
@@ -598,7 +586,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	}
 
 
-	private void addAnatomyInfo(OntologyTermDTO term, ObservationDTOWrite doc) {
+	private void addAnatomyInfo(OntologyTermDTO term, ObservationDTO doc) {
 
 		if (term != null) {
 			doc.getAnatomyId().add(term.getAccessionId());
@@ -667,27 +655,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				b.biologicalModelId = resultSet.getLong("biological_model_id");
 				b.biologicalSampleId = resultSet.getLong("biological_sample_id");
 				b.colonyId = resultSet.getString("colony_id");
-
-				String rawDOB = null;
-
-				try {
-					rawDOB = resultSet.getString("date_of_birth");
-
-					DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT_OPTIONAL_MILLISECONDS);
-					b.dateOfBirth = ZonedDateTime.parse(rawDOB, formatter.withZone(ZoneId.of("UTC")));
-
-				} catch (NullPointerException e) {
-
-					b.dateOfBirth = null;
-					logger.debug("  No date of birth set for specimen external ID: {}",
-								 resultSet.getString("external_sample_id"));
-
-				} catch (DateTimeParseException e) {
-
-					DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT_OPTIONAL_MILLISECONDS);
-					b.dateOfBirth = ZonedDateTime.parse(rawDOB, formatter.withZone(ZoneId.of("UTC")));
-				}
-
+				b.dateOfBirth = resultSet.getDate("date_of_birth");
 				b.externalSampleId = resultSet.getString("external_sample_id");
 				b.geneAcc = resultSet.getString("acc");
 				b.geneSymbol = resultSet.getString("symbol");
@@ -703,7 +671,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				b.productionCenterId = resultSet.getLong("production_center_id");
 				b.productionCenterName = resultSet.getString("production_center_name");
 				b.litterId = resultSet.getString("litter_id");
-
 
 				biologicalData.put(resultSet.getString("biological_sample_id"), b);
 			}
@@ -1031,27 +998,27 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	 */
 	class BiologicalDataBean {
 
-		public String        alleleAccession;
-		public String        alleleSymbol;
-		public Long          biologicalModelId;
-		public Long          biologicalSampleId;
-		public String        colonyId;
-		public ZonedDateTime dateOfBirth;
-		public String        externalSampleId;
-		public String        geneAcc;
-		public String        geneSymbol;
-		public String        phenotypingCenterName;
-		public Long          phenotypingCenterId;
-		public String        sampleGroup;
-		public String        sex;
-		public String        strainAcc;
-		public String        strainName;
-		public String        geneticBackground;
-		public String        allelicComposition;
-		public String        zygosity;
-		public String        productionCenterName;
-		public Long          productionCenterId;
-		public String        litterId;
+		public String alleleAccession;
+		public String alleleSymbol;
+		public Long   biologicalModelId;
+		public Long   biologicalSampleId;
+		public String colonyId;
+		public Date   dateOfBirth;
+		public String externalSampleId;
+		public String geneAcc;
+		public String geneSymbol;
+		public String phenotypingCenterName;
+		public Long   phenotypingCenterId;
+		public String sampleGroup;
+		public String sex;
+		public String strainAcc;
+		public String strainName;
+		public String geneticBackground;
+		public String allelicComposition;
+		public String zygosity;
+		public String productionCenterName;
+		public Long   productionCenterId;
+		public String litterId;
 
 	}
 

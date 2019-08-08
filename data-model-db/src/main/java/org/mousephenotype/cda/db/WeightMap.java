@@ -2,7 +2,6 @@ package org.mousephenotype.cda.db;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.constants.Constants;
-import org.mousephenotype.cda.utilities.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,9 +11,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -75,7 +71,7 @@ public class WeightMap {
     }
 
 
-    public BodyWeight getNearestWeight(Long specimenID, ZonedDateTime dateOfExperiment) {
+    public BodyWeight getNearestWeight(Long specimenID, Date dateOfExperiment) {
         return getNearestWeight(specimenID, null, dateOfExperiment);
     }
 
@@ -96,7 +92,7 @@ public class WeightMap {
      * @param dateOfExperiment the date the experiment was conducted
      * @return the nearest weight bean to the date of the experiment
      */
-    public BodyWeight getNearestWeight(Long specimenID, String stableId, ZonedDateTime dateOfExperiment) {
+    public BodyWeight getNearestWeight(Long specimenID, String stableId, Date dateOfExperiment) {
 
         BodyWeight nearest = null;
         String procedureGroup = null;
@@ -201,8 +197,7 @@ public class WeightMap {
 
                 BodyWeight b = new BodyWeight();
                 try {
-                    b.date = ZonedDateTime.parse(resultSet.getString("date_of_experiment"),
-                            DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT_OPTIONAL_MILLISECONDS).withZone(ZoneId.of("UTC")));
+                    b.date = resultSet.getDate("date_of_experiment");
                 } catch (NullPointerException e) {
                     e.printStackTrace();
                     b.date = null;
@@ -249,8 +244,7 @@ public class WeightMap {
 
                 BodyWeight b = new BodyWeight();
                 try {
-                    b.date = ZonedDateTime.parse(resultSet.getString("date_of_experiment"),
-                            DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT_OPTIONAL_MILLISECONDS).withZone(ZoneId.of("UTC")));
+                    b.date = resultSet.getDate("date_of_experiment");
                 } catch (NullPointerException e) {
                     e.printStackTrace();
                     b.date = null;
@@ -273,9 +267,9 @@ public class WeightMap {
      * Internal class to act as Map value DTO for weight data
      */
     public class BodyWeight {
-        private String parameterStableId;
-        private ZonedDateTime date;
-        private Float weight;
+        private String  parameterStableId;
+        private Date    date;
+        private Float   weight;
         private Integer daysOld;
 
         public String getParameterStableId() {
@@ -286,11 +280,11 @@ public class WeightMap {
             this.parameterStableId = parameterStableId;
         }
 
-        public ZonedDateTime getDate() {
+        public Date getDate() {
             return date;
         }
 
-        public void setDate(ZonedDateTime date) {
+        public void setDate(Date date) {
             this.date = date;
         }
 
