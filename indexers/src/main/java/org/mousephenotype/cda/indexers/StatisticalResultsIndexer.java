@@ -831,20 +831,18 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     private void addImpressData(ResultSet r, StatisticalResultDTO doc)
             throws SQLException {
 
-        doc.setPipelineId(pipelineMap.get(r.getInt("pipeline_id")).getId());
-        doc.setPipelineStableKey(pipelineMap.get(r.getInt("pipeline_id")).getStableKey());
-        doc.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).getName());
-        doc.setPipelineStableId(pipelineMap.get(r.getInt("pipeline_id")).getStableId());
-        doc.setProcedureId(procedureMap.get(r.getInt("procedure_id")).getId());
-        doc.setProcedureStableKey(procedureMap.get(r.getInt("procedure_id")).getStableKey());
-        doc.setProcedureName(procedureMap.get(r.getInt("procedure_id")).getName());
-        doc.setProcedureStableId(procedureMap.get(r.getInt("procedure_id")).getStableId());
-        doc.setParameterId(parameterMap.get(r.getInt("parameter_id")).getId());
-        doc.setParameterStableKey(parameterMap.get(r.getInt("parameter_id")).getStableKey());
-        doc.setParameterName(parameterMap.get(r.getInt("parameter_id")).getName());
-        doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).getStableId());
-
-        //		doc.setAnnotate(parameterMap.get(r.getInt("parameter_id")).isAnnotate());
+        doc.setPipelineId(pipelineMap.get(r.getLong("pipeline_id")).getId());
+        doc.setPipelineStableKey(pipelineMap.get(r.getLong("pipeline_id")).getStableKey());
+        doc.setPipelineName(pipelineMap.get(r.getLong("pipeline_id")).getName());
+        doc.setPipelineStableId(pipelineMap.get(r.getLong("pipeline_id")).getStableId());
+        doc.setProcedureId(procedureMap.get(r.getLong("procedure_id")).getId());
+        doc.setProcedureStableKey(procedureMap.get(r.getLong("procedure_id")).getStableKey());
+        doc.setProcedureName(procedureMap.get(r.getLong("procedure_id")).getName());
+        doc.setProcedureStableId(procedureMap.get(r.getLong("procedure_id")).getStableId());
+        doc.setParameterId(parameterMap.get(r.getLong("parameter_id")).getId());
+        doc.setParameterStableKey(parameterMap.get(r.getLong("parameter_id")).getStableKey());
+        doc.setParameterName(parameterMap.get(r.getLong("parameter_id")).getName());
+        doc.setParameterStableId(parameterMap.get(r.getLong("parameter_id")).getStableId());
 
         // Create field that contains all possible MP terms (including intermediate and top level terms)
         // that this parameter can produce
