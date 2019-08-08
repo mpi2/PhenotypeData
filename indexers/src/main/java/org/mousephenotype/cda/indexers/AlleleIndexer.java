@@ -36,6 +36,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.File;
@@ -97,7 +98,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
             @NotNull SolrClient alleleCore,
             @NotNull SolrClient allele2Core,
             @NotNull SolrClient phenodigmCore,
-            @NotNull DataSource uniprotDataSource)
+            @NotNull @Named("uniprotDataSource") DataSource uniprotDataSource)
     {
         super(komp2DataSource, ontologyTermRepository);
         this.alleleCore = alleleCore;

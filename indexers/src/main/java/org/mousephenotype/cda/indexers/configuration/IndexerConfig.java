@@ -3,12 +3,14 @@ package org.mousephenotype.cda.indexers.configuration;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
+import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -127,6 +129,22 @@ public class IndexerConfig {
     //////////////
     // datasources
     //////////////
+
+
+
+    @Value("${datasource.uniprot.jdbc-url}")
+    String uniprotUrl;
+
+    @Value("${datasource.uniprot.username}")
+    String uniprotUsername;
+
+    @Value("${datasource.uniprot.password}")
+    String uniprotPassword;
+
+//    @Bean
+//    public DataSource uniprotDataSource() {
+//        return SqlUtils.getConfiguredDatasource(uniprotUrl, uniprotUsername, uniprotPassword);
+//    }
 
     @Bean
     @ConfigurationProperties(prefix = "datasource.uniprot")

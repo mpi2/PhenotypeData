@@ -17,7 +17,6 @@
 package org.mousephenotype.cda.solr;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTOWrite;
