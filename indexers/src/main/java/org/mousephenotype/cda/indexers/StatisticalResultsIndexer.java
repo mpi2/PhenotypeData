@@ -293,16 +293,10 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
     }
 
-
     private Double nullCheckResult(ResultSet r,  String field) throws SQLException {
         Double v = r.getDouble(field);
         return r.wasNull() ? null : v;
     }
-
-
-
-
-
 
     private StatisticalResultDTO parseResultCommonFields(ResultSet r) throws SQLException, IOException, SolrServerException {
 
@@ -314,7 +308,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         // Experiment details
 
         // Use the procedure prefix to associated with the result to find the procedure prefix
-        String procedurePrefix = StringUtils.join(Arrays.asList(procedureMap.get(r.getInt("procedure_id")).getStableId().split("_")).subList(0, 2), "_");
+        String procedurePrefix = StringUtils.join(Arrays.asList(procedureMap.get(r.getLong("procedure_id")).getStableId().split("_")).subList(0, 2), "_");
 
         if (ParameterConstants.source3iProcedurePrefixes.contains(procedurePrefix)) {
             // Override the resource for the 3i procedures
