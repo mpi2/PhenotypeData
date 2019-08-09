@@ -74,11 +74,11 @@ public class ImpressParser implements CommandLineRunner {
     private final String IMPRESS_SHORT_NAME = "IMPReSS";
 
     // RESTful web service classes
-    private Map<Integer, Schedule>     schedulesById                   = new HashMap<>();
-    private Map<Integer, Procedure>    proceduresById                  = new HashMap<>();
-    private Map<Integer, Parameter>    parametersById                  = new HashMap<>();
-    private Map<Integer, String>       unitsById                       = new HashMap<>();
-    private Map<Integer, OntologyTerm> updatedOntologyTermsByStableKey = new HashMap<>();
+    private Map<Long, Schedule>     schedulesById                   = new HashMap<>();
+    private Map<Long, Procedure>    proceduresById                  = new HashMap<>();
+    private Map<Long, Parameter>    parametersById                  = new HashMap<>();
+    private Map<Long, String>       unitsById                       = new HashMap<>();
+    private Map<Long, OntologyTerm> updatedOntologyTermsByStableKey = new HashMap<>();
 
     // Sets for missing terms for display at the end of the run.
     private Set<String> missingOntologyTerms = new HashSet<>();
@@ -86,10 +86,10 @@ public class ImpressParser implements CommandLineRunner {
 
     // To support the -c / --component flag, these hold the pipelineId, scheduleId, procedureId, and parameterId.
     // A value of 0 for any component  means process all of those components and their dependencies.
-    private int pipelineIdComponent = 0;
-    private int scheduleIdComponent = 0;
-    private int procedureIdComponent = 0;
-    private int parameterIdComponent = 0;
+    private long pipelineIdComponent = 0;
+    private long scheduleIdComponent = 0;
+    private long procedureIdComponent = 0;
+    private long parameterIdComponent = 0;
 
     private int associationCounter = 0;
 
@@ -144,12 +144,12 @@ public class ImpressParser implements CommandLineRunner {
         unitsById = impressLoadUtils.getUnits();
 
         // LOAD ONTOLOGY TERM MAP FROM WEB SERVICE
-        Map<String, Integer> ontologyTermStableKeysByAccFromWs = impressLoadUtils.getOntologyTermStableKeysByAccFromWs();
+        Map<String, Long> ontologyTermStableKeysByAccFromWs = impressLoadUtils.getOntologyTermStableKeysByAccFromWs();
 
         // LOAD ontologyTermsByStableKey MAP WITH UPDATED TERMS
-        for (Map.Entry<String, Integer> entry : ontologyTermStableKeysByAccFromWs.entrySet()) {
+        for (Map.Entry<String, Long> entry : ontologyTermStableKeysByAccFromWs.entrySet()) {
             String acc = entry.getKey();
-            Integer stableKey = entry.getValue();
+            Long stableKey = entry.getValue();
             OntologyTerm updatedTerm = updatedOntologyTermsByOriginalOntologyAccessionId.get(acc);
             updatedOntologyTermsByStableKey.put(stableKey, updatedTerm);
         }
@@ -215,7 +215,7 @@ public class ImpressParser implements CommandLineRunner {
 
 
         // LOAD SCHEDULES
-        for (Integer scheduleId : pipeline.getScheduleCollection()) {
+        for (Long scheduleId : pipeline.getScheduleCollection()) {
 
             if ((scheduleIdComponent > 0) && (scheduleId != scheduleIdComponent)) {
                 continue;
@@ -232,7 +232,7 @@ public class ImpressParser implements CommandLineRunner {
 
 
             // LOAD PROCEDURES
-            for (Integer procedureId : schedule.getProcedureCollection()) {
+            for (Long procedureId : schedule.getProcedureCollection()) {
 
                 if ((procedureIdComponent > 0) && (procedureId != procedureIdComponent)) {
                     continue;
@@ -264,7 +264,7 @@ public class ImpressParser implements CommandLineRunner {
 
 
                 // LOAD PARAMETERS
-                for (Integer parameterId : procedure.getParameterCollection()) {
+                for (Long parameterId : procedure.getParameterCollection()) {
 
                     if ((parameterIdComponent > 0) && (parameterId != parameterIdComponent)) {
                         continue;

@@ -33,7 +33,7 @@ public class PipelineEntry extends SourcedEntry {
 	String stableId;
 
 	@Column(name = "stable_key")
-	int stableKey;
+	Long stableKey;
 
 	@Column(name = "name")
 	private String name;
@@ -52,14 +52,14 @@ public class PipelineEntry extends SourcedEntry {
 	/**
 	 * @return the stableKey
 	 */
-	public int getStableKey() {
+	public long getStableKey() {
 		return stableKey;
 	}
 
 	/**
 	 * @param stableKey the stableKey to set
 	 */
-	public void setStableKey(int stableKey) {
+	public void setStableKey(long stableKey) {
 		this.stableKey = stableKey;
 	}
 
@@ -150,7 +150,7 @@ public class PipelineEntry extends SourcedEntry {
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result
 				+ ((stableId == null) ? 0 : stableId.hashCode());
-		result = prime * result + stableKey;
+		result = prime * result + stableKey.intValue();
 		return result;
 	}
 
@@ -206,8 +206,4 @@ public class PipelineEntry extends SourcedEntry {
 		}
 		return true;
 	}
-
-
-
-
 }

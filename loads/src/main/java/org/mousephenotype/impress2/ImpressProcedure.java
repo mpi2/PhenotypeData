@@ -6,32 +6,32 @@ import java.util.Collection;
 
 public class ImpressProcedure implements Serializable {
 
-    private Integer             procedureId;
-    private String              procedureKey;
-    private Short               minFemales   = 0;
-    private Short               minMales     = 0;
-    private Short               minAnimals   = 0;
-    private boolean             isVisible;
-    private boolean             isMandatory;
-    private boolean             isInternal;
-    private String              name;
-    private int                 type;
-    private String              level;
-    private int                 majorVersion = 1;
-    private int                 minorVersion = 0;
-    private String              description;
-    private String              oldProcedureKey;
-    private Collection<Integer> parameterCollection;
-    private Integer             scheduleId;
+    private Long             procedureId;
+    private String           procedureKey;
+    private Short            minFemales   = 0;
+    private Short            minMales     = 0;
+    private Short            minAnimals   = 0;
+    private boolean          isVisible;
+    private boolean          isMandatory;
+    private boolean          isInternal;
+    private String           name;
+    private int              type;
+    private String           level;
+    private int              majorVersion = 1;
+    private int              minorVersion = 0;
+    private String           description;
+    private String           oldProcedureKey;
+    private Collection<Long> parameterCollection;
+    private Long             scheduleId;
 
     public ImpressProcedure() {
     }
 
-    public ImpressProcedure(Integer procedureId) {
+    public ImpressProcedure(Long procedureId) {
         this.procedureId = procedureId;
     }
 
-    public ImpressProcedure(Integer procedureId, String procedureKey, int type, String level, int majorVersion, int minorVersion) {
+    public ImpressProcedure(Long procedureId, String procedureKey, int type, String level, int majorVersion, int minorVersion) {
         this.procedureId = procedureId;
         this.procedureKey = procedureKey;
         this.type = type;
@@ -40,11 +40,11 @@ public class ImpressProcedure implements Serializable {
         this.minorVersion = minorVersion;
     }
 
-    public Integer getProcedureId() {
+    public Long getProcedureId() {
         return procedureId;
     }
 
-    public void setProcedureId(Integer procedureId) {
+    public void setProcedureId(Long procedureId) {
         this.procedureId = procedureId;
     }
 
@@ -160,23 +160,22 @@ public class ImpressProcedure implements Serializable {
         this.oldProcedureKey = oldProcedureKey;
     }
 
-    public Collection<Integer> getParameterCollection() {
+    public Collection<Long> getParameterCollection() {
         return parameterCollection;
     }
 
-    public void setParameterCollection(Collection<Integer> parameterCollection) {
+    public void setParameterCollection(Collection<Long> parameterCollection) {
         this.parameterCollection = parameterCollection;
     }
 
-    public Integer getScheduleId() {
+    public Long getScheduleId() {
         return scheduleId;
     }
 
-    public void setScheduleId(Integer scheduleId) {
+    public void setScheduleId(Long scheduleId) {
         this.scheduleId = scheduleId;
     }
 
-    
 
     @Override
     public int hashCode() {
@@ -194,5 +193,4 @@ public class ImpressProcedure implements Serializable {
         ImpressProcedure other = (ImpressProcedure) object;
         return !((this.procedureId == null && other.procedureId != null) || (this.procedureId != null && !this.procedureId.equals(other.procedureId)));
     }
-
 }

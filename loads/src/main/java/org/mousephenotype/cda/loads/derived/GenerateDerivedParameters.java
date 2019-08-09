@@ -876,7 +876,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
             Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
             currentExperiment.setColonyId(colony.colonyId);
-            currentExperiment.setModel(biologicalModelRepository.getBiologicalModelById(colony.biologicalModelId));
+            currentExperiment.setModel(biologicalModelRepository.findById(colony.biologicalModelId).orElse(null));
 
             if(currentExperiment.getModel()==null) {
                 logger.warn("Skipping loading IMPC_VIA_032_001 for colony {} missing biological model", colony.colonyId);
@@ -1196,7 +1196,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 currentExperiment.setMetadataGroup(dto.getMetadataGroup());
 
                 currentExperiment.setColonyId(dto.getColony());
-                currentExperiment.setModel(biologicalModelRepository.getBiologicalModelById(dto.getBiologicalModelId()));
+                currentExperiment.setModel(biologicalModelRepository.findById(dto.getBiologicalModelId()).orElse(null));
 
                 if(currentExperiment.getModel()==null) {
                     logger.warn("Skipping loading {} for colony {} missing biological model", parameterToCreate, id);

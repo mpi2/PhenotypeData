@@ -529,7 +529,7 @@
         <field name="level" type="string" indexed="true" stored="true" required="false" multiValued="false" />
         <field name="stage" type="string" indexed="true" stored="true" required="false" multiValued="false" />
         <field name="stage_label" type="string" indexed="true" stored="true" required="false" multiValued="false" />
-        <field name="schedule_key" type="pint" indexed="true" stored="true" required="false" multiValued="false" />
+        <field name="schedule_key" type="plong" indexed="true" stored="true" required="false" multiValued="false" />
 
 
         <!-- MP stuff -->

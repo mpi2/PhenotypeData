@@ -22,5 +22,4 @@ import org.springframework.data.repository.CrudRepository;
 public interface BiologicalModelRepository extends CrudRepository<BiologicalModel, Long> {
 
     BiologicalModel getBiologicalModelByDatasource_IdAndAllelicCompositionAndGeneticBackgroundAndZygosity(Long id, String allelicComposition, String geneticBackground, String zygosity);
-    BiologicalModel getBiologicalModelById(Long id);
 }

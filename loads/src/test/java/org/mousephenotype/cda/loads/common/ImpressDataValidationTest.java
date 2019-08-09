@@ -898,7 +898,7 @@ public class ImpressDataValidationTest extends TestCase {
             data.setLevel(rs.getString("level"));
             data.setStage(rs.getString("stage"));
             data.setStageLabel(rs.getString("stage_label"));
-			data.setScheduleKey(rs.getInt("schedule_key"));
+			data.setScheduleKey(rs.getLong("schedule_key"));
 
             return data;
         }

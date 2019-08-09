@@ -1235,7 +1235,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 		if(result.getResourceId()!= null) r.setDatasource(datasourceRepository.getById(result.getResourceId()));
 		r.setDependentVariable(result.getDependentVariable());
 		if(result.getEffectSize()!= null) r.setEffectSize(new Double(result.getEffectSize()));
-		if(result.getMutantBiologicalModelId()!= null) r.setExperimentalBiologicalModel(biologicalModelRepository.getBiologicalModelById(result.getMutantBiologicalModelId()));
+		if(result.getMutantBiologicalModelId()!= null) r.setExperimentalBiologicalModel(biologicalModelRepository.findById(result.getMutantBiologicalModelId()).get());
 		if(result.getZygosity()!= null) r.setExperimentalZygosity(ZygosityType.valueOf(result.getZygosity()));
 		r.setFemaleControls(result.getFemaleControlCount());
 		r.setFemaleMutants(result.getFemaleMutantCount());
@@ -1308,12 +1308,12 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
 		CategoricalResult r = new CategoricalResult();
 		r.setColonyId(result.getColonyId());
-		if(result.getControlBiologicalModelId()!= null) r.setControlBiologicalModel(biologicalModelRepository.getBiologicalModelById(result.getControlBiologicalModelId()));
+		if(result.getControlBiologicalModelId()!= null) r.setControlBiologicalModel(biologicalModelRepository.findById(result.getControlBiologicalModelId()).get());
 		r.setControlSelectionStrategy(result.getControlSelectionMethod());
 //        if(result.getResourceId()!= null) r.setDatasource(datasourceDAO.getDatasourceById(result.getResourceId()));
 		r.setDependentVariable(result.getDependentVariable());
 		if(result.getEffectSize()!= null) r.setEffectSize(new Double(result.getEffectSize()));
-		if (result.getMutantBiologicalModelId() != null) r.setExperimentalBiologicalModel(biologicalModelRepository.getBiologicalModelById(result.getMutantBiologicalModelId()));
+		if (result.getMutantBiologicalModelId() != null) r.setExperimentalBiologicalModel(biologicalModelRepository.findById(result.getMutantBiologicalModelId()).get());
 		if(result.getZygosity()!= null) r.setExperimentalZygosity(ZygosityType.valueOf(result.getZygosity()));
 		r.setFemaleControls(result.getFemaleControlCount());
 		r.setFemaleMutants(result.getFemaleMutantCount());

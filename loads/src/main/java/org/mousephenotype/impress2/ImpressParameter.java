@@ -6,7 +6,7 @@ import java.util.Collection;
 
 public class ImpressParameter implements Serializable {
 
-    private Integer             parameterId;
+    private Long                parameterId;
     private String              parameterKey;
     private String              type         = "simpleParameter";
     private String              name;
@@ -34,10 +34,10 @@ public class ImpressParameter implements Serializable {
     private boolean             isInternal;
     private boolean             isDeleted;
     private String              oldParameterKey;
-    private Integer             originalParamId;
-    private Integer             ontologyGroupId;
+    private Long                originalParamId;
+    private Long                ontologyGroupId;
     private int                 weight;
-    private Integer             procedureId;
+    private Long                procedureId;
     private ImpressUnits        unit;
     private Collection<Integer> incrementCollection;
     private Collection<Integer> optionCollection;
@@ -46,11 +46,11 @@ public class ImpressParameter implements Serializable {
     public ImpressParameter() {
     }
 
-    public ImpressParameter(Integer parameterId) {
+    public ImpressParameter(Long parameterId) {
         this.parameterId = parameterId;
     }
 
-    public ImpressParameter(Integer parameterId, boolean isVisible, boolean isActive, boolean isDeprecated, int majorVersion, int minorVersion, boolean isAnnotation, boolean isDerived, boolean isImportant, boolean isIncrement, boolean isMedia, boolean isOption, boolean isRequired, boolean qcCheck, String valueType, boolean isInternal, boolean isDeleted, int weight) {
+    public ImpressParameter(Long parameterId, boolean isVisible, boolean isActive, boolean isDeprecated, int majorVersion, int minorVersion, boolean isAnnotation, boolean isDerived, boolean isImportant, boolean isIncrement, boolean isMedia, boolean isOption, boolean isRequired, boolean qcCheck, String valueType, boolean isInternal, boolean isDeleted, int weight) {
         this.parameterId = parameterId;
         this.isVisible = isVisible;
         this.isActive = isActive;
@@ -71,11 +71,11 @@ public class ImpressParameter implements Serializable {
         this.weight = weight;
     }
 
-    public Integer getParameterId() {
+    public Long getParameterId() {
         return parameterId;
     }
 
-    public void setParameterId(Integer parameterId) {
+    public void setParameterId(Long parameterId) {
         this.parameterId = parameterId;
     }
 
@@ -295,11 +295,11 @@ public class ImpressParameter implements Serializable {
         this.oldParameterKey = oldParameterKey;
     }
 
-    public Integer getProcedureId() {
+    public Long getProcedureId() {
         return procedureId;
     }
 
-    public void setProcedureId(Integer procedureId) {
+    public void setProcedureId(Long procedureId) {
         this.procedureId = procedureId;
     }
 
@@ -340,19 +340,19 @@ public class ImpressParameter implements Serializable {
 
 
     
-    public Integer getOriginalParamId() {
+    public Long getOriginalParamId() {
         return originalParamId;
     }
 
-    public void setOriginalParamId(Integer originalParamId) {
+    public void setOriginalParamId(Long originalParamId) {
         this.originalParamId = originalParamId;
     }
 
-    public Integer getOntologyGroupId() {
+    public Long getOntologyGroupId() {
         return ontologyGroupId;
     }
 
-    public void setOntologyGroupId(Integer ontologyGroupId) {
+    public void setOntologyGroupId(Long ontologyGroupId) {
         this.ontologyGroupId = ontologyGroupId;
     }
 
@@ -378,6 +378,4 @@ public class ImpressParameter implements Serializable {
         ImpressParameter other = (ImpressParameter) object;
         return !((this.parameterId == null && other.parameterId != null) || (this.parameterId != null && !this.parameterId.equals(other.parameterId)));
     }
-   
-
 }

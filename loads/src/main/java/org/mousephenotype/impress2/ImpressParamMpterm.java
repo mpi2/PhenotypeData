@@ -4,35 +4,34 @@ import java.io.Serializable;
 
 public class ImpressParamMpterm implements Serializable {
 
-
-    private Integer paramMptermId;
-    private Integer ontologyTermId;
-    private int weight;
+    private Long    paramMptermId;
+    private Long    ontologyTermId;
+    private int     weight;
     private boolean isDeleted;
-    private String optionText;
+    private String  optionText;
     private Integer incrementId;
-    private Integer parameterId;
-    private String sex;
-    private String selectionOutcome;
+    private Long    parameterId;
+    private String  sex;
+    private String  selectionOutcome;
 
     public ImpressParamMpterm() {
     }
 
-    public ImpressParamMpterm(Integer paramMptermId) {
+    public ImpressParamMpterm(Long paramMptermId) {
         this.paramMptermId = paramMptermId;
     }
 
-    public ImpressParamMpterm(Integer paramMptermId, int weight, boolean deleted) {
+    public ImpressParamMpterm(Long paramMptermId, int weight, boolean deleted) {
         this.paramMptermId = paramMptermId;
         this.weight = weight;
         this.isDeleted = deleted;
     }
 
-    public Integer getParamMptermId() {
+    public Long getParamMptermId() {
         return paramMptermId;
     }
 
-    public void setParamMptermId(Integer paramMptermId) {
+    public void setParamMptermId(Long paramMptermId) {
         this.paramMptermId = paramMptermId;
     }
 
@@ -84,19 +83,19 @@ public class ImpressParamMpterm implements Serializable {
         this.selectionOutcome = selectionOutcome;
     }
 
-    public Integer getOntologyTermId() {
+    public Long getOntologyTermId() {
         return ontologyTermId;
     }
 
-    public void setOntologyTermId(Integer ontologyTermId) {
+    public void setOntologyTermId(Long ontologyTermId) {
         this.ontologyTermId = ontologyTermId;
     }
 
-    public Integer getParameterId() {
+    public Long getParameterId() {
         return parameterId;
     }
 
-    public void setParameterId(Integer parameterId) {
+    public void setParameterId(Long parameterId) {
         this.parameterId = parameterId;
     }
 

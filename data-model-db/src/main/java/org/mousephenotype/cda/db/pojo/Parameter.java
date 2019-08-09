@@ -86,7 +86,7 @@ public class Parameter extends PipelineEntry {
 	private String dataAnalysisNotes;
 
 	@Transient
-	private Integer ontologyGroupId;
+	private Long ontologyGroupId;
 
 	/**
 	 * bi-directional
@@ -536,11 +536,11 @@ public class Parameter extends PipelineEntry {
 		return cunit;
 	}
 
-	public Integer getOntologyGroupId() {
+	public Long getOntologyGroupId() {
 		return ontologyGroupId;
 	}
 
-	public void setOntologyGroupId(Integer ontologyGroupId) {
+	public void setOntologyGroupId(Long ontologyGroupId) {
 		this.ontologyGroupId = ontologyGroupId;
 	}
 
