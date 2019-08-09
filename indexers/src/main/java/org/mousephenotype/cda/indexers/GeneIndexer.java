@@ -260,8 +260,6 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 		gene.setEmbryoModalities(embryoModalitiesForGene);
                 	}
                 }
-
-                logger.info("proceduresMissing: {}. procedures found: {}", proceduresMissingCount, proceduresFoundCount);
                 
                 if(dmddImageData.containsKey(gene.getMgiAccessionId())){
                 	//add dmdd image data here
@@ -559,6 +557,8 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 geneCore.addBean(gene, 60000);
                 count ++;
             }
+
+            logger.info("proceduresMissing: {}. procedures found: {}", proceduresMissingCount, proceduresFoundCount);
 
             geneCore.commit();
 
