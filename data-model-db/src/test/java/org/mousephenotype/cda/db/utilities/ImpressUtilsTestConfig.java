@@ -9,7 +9,7 @@
  * specific language governing permissions and limitations under the License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.db.repositories;
+package org.mousephenotype.cda.db.utilities;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -23,19 +23,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
-
-/**
- * TestConfig sets up the in memory database for supporting the database tests.
- * <p>
- * This will also populate the test database with the test data in the sql/test-data.sql file.
- */
-
-@Deprecated
 @Configuration
 @ComponentScan(value = {"org.mousephenotype.cda.db"})
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
 @EnableTransactionManagement
-public class UtilitisTestConfig {
+public class ImpressUtilsTestConfig {
 
 	// UtilitiesTest requires two separate database connections containing the same table (in structure and name).
 	// When using only H2 or only HSQL, separate database connections actually seem to point to the same database;

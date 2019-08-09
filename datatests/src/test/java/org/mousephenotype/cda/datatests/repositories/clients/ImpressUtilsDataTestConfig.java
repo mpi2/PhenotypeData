@@ -31,13 +31,13 @@ import javax.validation.constraints.NotNull;
 @Configuration
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
 @Import(HibernateConfig.class)
-public class RepositoryClientsTestConfig {
+public class ImpressUtilsDataTestConfig {
 
     private OntologyTermRepository ontologyTermRepository;
     private DatasourceRepository   datasourceRepository;
 
     @Inject
-    public RepositoryClientsTestConfig(
+    public ImpressUtilsDataTestConfig(
             @NotNull OntologyTermRepository ontologyTermRepository,
             @NotNull DatasourceRepository datasourceRepository)
     {
