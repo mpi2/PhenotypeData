@@ -14,24 +14,19 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import javax.inject.Inject;
+import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 
-/**
- * TestConfig sets up the in memory database for supporting the database tests.
- * @author jmason
- */
 @Configuration
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
 @Import(HibernateConfig.class)
 public class IndexersTestConfig {
-
-// FIXME FIXME FIXME Clean this file up.
-
-
 
     @Value("${owlpath}")
     protected String owlpath;
@@ -39,54 +34,21 @@ public class IndexersTestConfig {
     @Value("${internal_solr_url}")
     private String internalSolrUrl;
 
+    private ApplicationContext applicationContext;
 
-//    private GenesSecondaryProjectRepository genesSecondaryProjectRepository;
-//    private OntologyTermRepository          ontologyTermRepository;
-//    private ParameterRepository             parameterRepository;
-    private ApplicationContext              applicationContext;
-//
-//
+    @Bean
+    public DataSource h2DataSource() {
+        return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
+                .ignoreFailedDrops(true)
+                .setName("test")
+                .build();
+    }
+
+
     @Inject
-    public IndexersTestConfig(
-//            @NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository,
-//            @NotNull OntologyTermRepository ontologyTermRepository,
-//            @NotNull ParameterRepository parameterRepository,
-            @NotNull ApplicationContext applicationContext)
-    {
-//        this.genesSecondaryProjectRepository = genesSecondaryProjectRepository;
-//        this.ontologyTermRepository = ontologyTermRepository;
-//        this.parameterRepository = parameterRepository;
+    public IndexersTestConfig(@NotNull ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
-//
-//
-//    //////////////
-//    // datasources
-//    //////////////
-//
-//    @Value("${datasource.komp2.jdbc-url}")
-//    private String komp2Url;
-//
-//    @Value("${datasource.komp2.username}")
-//    private String username;
-//
-//    @Value("${datasource.komp2.password}")
-//    private String password;
-//
-//    @Bean
-//    @Primary
-//    public DataSource komp2DataSource() {
-//
-//        DataSource komp2DataSource = SqlUtils.getConfiguredDatasource(komp2Url, username, password);
-//
-//        return komp2DataSource;
-//    }
-//
-//    @Bean
-//    @ConfigurationProperties(prefix = "datasource.uniprot")
-//    public DataSource uniprotDataSource() {
-//        return DataSourceBuilder.create().driverClassName("oracle.jdbc.driver.OracleDriver").build();
-//    }
 
 
     /////////////////////////
@@ -189,58 +151,15 @@ public class IndexersTestConfig {
         return new ImpressService(pipelineCore());
     }
 
-//    @Bean
-//    public MpTermService mpTermService() {
-//        return new MpTermService(ontologyTermRepository, parameterRepository);
-//    }
-//
-//    @Bean
-//    public GenotypePhenotypeService genotypePhenotypeService() {
-//        return new GenotypePhenotypeService(impressService(), genotypePhenotypeCore(), genesSecondaryProjectRepository);
-//    }
-//
-//
-//    /////////////////////////////
-//    // Required for indexer tests
-//    /////////////////////////////
-//
-//    @Bean
-//    public SolrClient solrClient() { return new HttpSolrClient.Builder(internalSolrUrl).build(); }
-//
-//    @Bean
-//    public SolrOperations solrTemplate() { return new SolrTemplate(solrClient()); }
-//
-////    @Bean(name = "sessionFactoryHibernate")
-////    protected LocalSessionFactoryBean sessionFactory() {
-////        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-////        sessionFactory.setDataSource(komp2DataSource());
-////        sessionFactory.setPackagesToScan("org.mousephenotype.cda.db");
-////        return sessionFactory;
-////    }
-////
-////    @Bean(name = "komp2TxManager")
-////    @Primary
-////    protected PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
-////        JpaTransactionManager tm = new JpaTransactionManager();
-////        tm.setEntityManagerFactory(emf);
-////        tm.setDataSource(komp2DataSource());
-////        return tm;
-////    }
+
+    ////////////////
+    // MISCELLANEOUS
+    ////////////////
 
     @Bean
     public IndexerManager indexerManager() {
         return new IndexerManager(applicationContext);
     }
-//
-//
-//    ////////////////
-//    // Miscellaneous
-//    ////////////////
-//
-//    @Bean
-//    public OntologyParserFactory ontologyParserFactory() {
-//        return new OntologyParserFactory(komp2DataSource(), owlpath);
-//    }
 
     @Bean
     public SolrClient solrClient() {

@@ -1,7 +1,10 @@
 package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrRequest;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.db.repositories.GenesSecondaryProjectRepository;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
@@ -18,6 +21,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.inject.Inject;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 
 @Configuration
 @ComponentScan(basePackages = "org.mousephenotype.cda.db")
@@ -154,7 +158,6 @@ public class IndexerConfig {
     //////////////
 
 
-
     @Value("${datasource.uniprot.jdbc-url}")
     String uniprotUrl;
 
@@ -168,5 +171,25 @@ public class IndexerConfig {
     @ConfigurationProperties(prefix = "datasource.uniprot")
     public DataSource uniprotDataSource() {
         return DataSourceBuilder.create().driverClassName("oracle.jdbc.driver.OracleDriver").build();
+    }
+
+
+    ////////////////
+    // MISCELLANEOUS
+    ////////////////
+
+    @Bean
+    public SolrClient solrClient() {
+        return new SolrClient() {
+            @Override
+            public NamedList<Object> request(SolrRequest solrRequest, String s) throws SolrServerException, IOException {
+                return null;
+            }
+
+            @Override
+            public void close() throws IOException {
+
+            }
+        };
     }
 }

@@ -1,11 +1,8 @@
 package org.mousephenotype.cda.db;
 
 import org.hibernate.SessionFactory;
-import org.mousephenotype.cda.db.utilities.SqlUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 import org.springframework.orm.jpa.JpaVendorAdapter;
@@ -33,19 +30,10 @@ import java.util.Properties;
 @Configuration
 public class HibernateConfig {
 
-    @Value("${datasource.komp2.jdbc-url}")
-    String komp2Url;
+    private DataSource dataSource;
 
-    @Value("${datasource.komp2.username}")
-    String komp2Username;
-
-    @Value("${datasource.komp2.password}")
-    String komp2Password;
-
-    @Bean
-    @Primary
-    public DataSource komp2DataSource() {
-        return SqlUtils.getConfiguredDatasource(komp2Url, komp2Username, komp2Password);
+    public HibernateConfig(DataSource komp2DataSource) {
+        this.dataSource = komp2DataSource;
     }
 
 
@@ -67,7 +55,7 @@ public class HibernateConfig {
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-        em.setDataSource(komp2DataSource());
+        em.setDataSource(dataSource);
         em.setPackagesToScan("org.mousephenotype.cda.db.entity", "org.mousephenotype.cda.db.pojo");
 
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
@@ -89,7 +77,7 @@ public class HibernateConfig {
 
 
     private SessionFactory getSessionFactory() {
-        LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
+        LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(dataSource);
         sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
         sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
 

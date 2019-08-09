@@ -30,7 +30,7 @@ public class AlleleRepositoryTest {
     private ApplicationContext context;
 
     @Autowired
-    private DataSource h2DataSource;
+    private DataSource komp2DataSource;
 
     @Autowired
     private AlleleRepository alleleRepository;
@@ -40,7 +40,7 @@ public class AlleleRepositoryTest {
 
         // Load data.
             Resource r = context.getResource("sql/h2/repositories/AlleleRepositoryTest-data.sql");
-            ScriptUtils.executeSqlScript(h2DataSource.getConnection(), r);
+            ScriptUtils.executeSqlScript(komp2DataSource.getConnection(), r);
     }
 
     @Test

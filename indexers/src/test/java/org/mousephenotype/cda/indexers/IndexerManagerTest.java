@@ -30,7 +30,6 @@ import org.mousephenotype.cda.indexers.exceptions.MissingRequiredArgumentExcepti
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -40,14 +39,10 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
 @ContextConfiguration(classes = {IndexersTestConfig.class})
 public class IndexerManagerTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-
-    // Consult IndexerManager.parseCommandLine() javadoc for derived test cases.
 
     @Autowired IndexerManager indexerManager;
 

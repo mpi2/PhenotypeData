@@ -11,14 +11,26 @@
 
 package org.mousephenotype.cda.db.repositories;
 
-import org.mousephenotype.cda.db.HibernateConfigH2;
+import org.mousephenotype.cda.db.HibernateConfig;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+
+import javax.sql.DataSource;
 
 @Configuration
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
-@Import(HibernateConfigH2.class)
+@Import(HibernateConfig.class)
 public class RepositoriesTestConfig {
 
+    @Bean
+    public DataSource komp2DataSource() {
+        return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
+                .ignoreFailedDrops(true)
+                .setName("test")
+                .build();
+    }
 }
