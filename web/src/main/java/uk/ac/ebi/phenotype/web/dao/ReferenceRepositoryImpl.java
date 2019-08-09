@@ -28,7 +28,7 @@ public class ReferenceRepositoryImpl implements ReferenceRepositoryCustom {
     public TreeMap<String, Integer> getPublicationsByYear() {
         AggregationExpression yearOperation = yearOf("firstPublicationDate");
         Aggregation aggregation = Aggregation.newAggregation(
-                match(where("reviewed").is(true).and("falsePositive").is(false)),
+                match(where("status").is("reviewed")),
                 project().and(yearOperation).as("publicationYear"),
                 group("publicationYear").count().as("count")
         );
@@ -79,7 +79,7 @@ public class ReferenceRepositoryImpl implements ReferenceRepositoryCustom {
                 .then(1)
                 .otherwise(0);
         Aggregation aggregation = Aggregation.newAggregation(
-                match(where("reviewed").is(true).and("falsePositive").is(false)),
+                match(where("status").is("reviewed")),
                 project().and(yearOperation).as("publicationYear").and(monthOperation).as("publicationMonth"),
                 project("publicationYear")
                         .and(condQ1Operation).as("q1")
@@ -114,7 +114,7 @@ public class ReferenceRepositoryImpl implements ReferenceRepositoryCustom {
     @Override
     public LinkedHashMap<String, Integer> getPublicationsByAgency() {
         Aggregation aggregation = Aggregation.newAggregation(
-                match(where("reviewed").is(true).and("falsePositive").is(false)),
+                match(where("status").is("reviewed")),
                 project("pmid", "grantsList"),
                 unwind("grantsList"),
                 group("pmid").addToSet("grantsList.agency").as("agencies"),
@@ -122,8 +122,6 @@ public class ReferenceRepositoryImpl implements ReferenceRepositoryCustom {
                 group("agencies").count().as("count"),
                 sort(Sort.Direction.DESC, "count")
         );
-
-        System.out.println(aggregation.toString());
 
         List<YearCount> results = this.mongoTemplate.aggregate(aggregation, Publication.class, YearCount.class).getMappedResults();
         LinkedHashMap<String, Integer> countMap = new LinkedHashMap<>();
