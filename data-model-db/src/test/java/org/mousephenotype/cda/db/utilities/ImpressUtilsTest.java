@@ -20,15 +20,14 @@
  * This test class is intended to run healthchecks against the observation table.
  */
 
-package org.mousephenotype.cda.db.repositories;
+package org.mousephenotype.cda.db.utilities;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.db.utilities.ImpressUtils;
+import org.mousephenotype.cda.db.repositories.ParameterRepository;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.StageUnitType;
 import org.slf4j.LoggerFactory;

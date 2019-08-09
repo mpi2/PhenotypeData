@@ -9,7 +9,7 @@
  * specific language governing permissions and limitations under the License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.db.repositories;
+package org.mousephenotype.cda.db.utilities;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
