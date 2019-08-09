@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class GeneService extends BasicService implements WebStatus{
@@ -839,8 +840,40 @@ public class GeneService extends BasicService implements WebStatus{
 		}
 		return null;
 	}
-	
-	
+
+	/**
+	 * Return a list of gene DTOs cooresponding to the
+	 * @param mgiIds
+	 * @param fields (Optional) list of fields
+	 * @return
+	 * @throws SolrServerException
+	 * @throws IOException
+	 */
+	public List<GeneDTO> getGenesByMgiIds(List<String> mgiIds, String ... fields) throws SolrServerException, IOException {
+
+		if (mgiIds == null) return new ArrayList<>();
+		List<String> quotedMgiIds =  mgiIds.stream()
+				.map(x->String.format("\"%s\"", x))
+				.collect(Collectors.toList());
+
+		SolrQuery query = new SolrQuery()
+				.setQuery(GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(quotedMgiIds, ",") + ")")
+				.setRows(mgiIds.size());
+
+		if (fields != null) {
+			query.setFields(fields);
+		}
+
+		QueryResponse response = solr.query(query, METHOD.POST);
+
+		List<GeneDTO> genes = new ArrayList<>();
+		if (response.getResults().getNumFound() > 0) {
+			genes = response.getBeans(GeneDTO.class);
+		}
+
+		return genes;
+	}
+
 	public List<GeneDTO> getGeneByEnsemblId(List<String> ensembleGeneList) throws SolrServerException, IOException {
 		List<GeneDTO> genes = new ArrayList<>();
 		String ensemble_gene_ids_str = StringUtils.join(ensembleGeneList, ",");  // ["bla1","bla2"]
@@ -850,13 +883,10 @@ public class GeneService extends BasicService implements WebStatus{
 			.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.ENSEMBL_GENE_ID, GeneDTO.MARKER_SYMBOL)
 			.setRows(ensembleGeneList.size());
 		
-		//System.out.println(solrQuery);
 		QueryResponse rsp = solr.query(solrQuery, METHOD.POST);
 		
 		if (rsp.getResults().getNumFound() > 0) {
-			//return rsp.getBeans(GeneDTO.class).get(0);
 			genes = rsp.getBeans(GeneDTO.class);
-			//System.out.println("GOT " + genes.size()+ " genes----");
 		}
 		
 		return genes;
