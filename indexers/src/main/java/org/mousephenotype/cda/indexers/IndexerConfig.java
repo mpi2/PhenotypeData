@@ -1,9 +1,10 @@
-package org.mousephenotype.cda.indexers.configuration;
+package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.mousephenotype.cda.solr.service.ImpressService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -46,7 +47,7 @@ public class IndexerConfig {
 
     // Creation of the IMPC disease core has been replaced by phenodigm core provided by QMUL
     @Bean
-    SolrClient phenodigmCore() {
+    public SolrClient phenodigmCore() {
         // readonly
         return new HttpSolrClient.Builder(internalSolrUrl + "/phenodigm").build();
     }
@@ -56,74 +57,85 @@ public class IndexerConfig {
     // read-write indexers
     //////////////////////
     @Bean
-    SolrClient experimentCore() {
+    public SolrClient experimentCore() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/experiment").build();
     }
 
     @Bean
-    SolrClient genotypePhenotypeCore() {
+    public SolrClient genotypePhenotypeCore() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/genotype-phenotype").build();
     }
 
     @Bean
-    SolrClient statisticalResultCore() {
+    public SolrClient statisticalResultCore() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/statistical-result").build();
     }
 
     @Bean
-    SolrClient alleleCore() {
+    public SolrClient alleleCore() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/allele").build();
     }
 
     @Bean
-    SolrClient sangerImagesCore() {
+    public SolrClient sangerImagesCore() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/images").build();
     }
 
     @Bean
-    SolrClient impcImagesCore() {
+    public SolrClient impcImagesCore() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/impc_images").build();
     }
 
     @Bean
-    SolrClient mpCore() {
+    public SolrClient mpCore() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/mp").build();
     }
 
     @Bean
-    SolrClient anatomyCore() {
+    public SolrClient anatomyCore() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/anatomy").build();
     }
 
     @Bean
-    SolrClient pipelineCore() {
+    public SolrClient pipelineCore() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/pipeline").build();
     }
 
     @Bean
-    SolrClient geneCore() {
+    public SolrClient geneCore() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/gene").build();
     }
 
     @Bean
-    SolrClient allele2Core() {
+    public SolrClient allele2Core() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/allele2").build();
     }
 
     @Bean
-    SolrClient productCore() {
+    public SolrClient productCore() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/product").build();
     }
 
     @Bean
-    SolrClient autosuggestCore() {
+    public SolrClient autosuggestCore() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/autosuggest").build();
     }
 
     @Bean
-    SolrClient mgiPhenotypeCore() {
+    public SolrClient mgiPhenotypeCore() {
         return new HttpSolrClient.Builder(writeSolrBaseUrl + "/mgi-phenotype").build();
     }
+
+
+    ///////////
+    // SERVICES
+    ///////////
+
+    @Bean
+    public ImpressService impressService() {
+        return new ImpressService(pipelineCore());
+    }
+
 
 
     //////////////
@@ -140,11 +152,6 @@ public class IndexerConfig {
 
     @Value("${datasource.uniprot.password}")
     String uniprotPassword;
-
-//    @Bean
-//    public DataSource uniprotDataSource() {
-//        return SqlUtils.getConfiguredDatasource(uniprotUrl, uniprotUsername, uniprotPassword);
-//    }
 
     @Bean
     @ConfigurationProperties(prefix = "datasource.uniprot")
