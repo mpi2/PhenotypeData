@@ -127,6 +127,9 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
             List<AlleleDTO> alleles = IndexerMap.getAlleles(alleleCore);
             geneCore.deleteByQuery("*:*");
 
+            int proceduresFoundCount = 0;
+            int proceduresMissingCount = 0;
+
             for (AlleleDTO allele : alleles) {
                 //System.out.println("gene="+allele.getMarkerSymbol());
                 GeneDTO gene = new GeneDTO();
@@ -225,35 +228,20 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 			for ( Long procedureStableKey : strain.getProcedureStableKeys() ) {
                                 Procedure procedure = procedureRepository.getByStableKey(procedureStableKey);
 
+                                if (procedure == null) {
+                                    logger.warn("Procedure lookup for center::colonyId::mgiAccessionId::procedureStableKey {} {}::{}::{} failed. Procedure skipped.",
+                                                strain.getCentre(), strain.getColonyId(), strain.getMgiGeneAccessionId(), procedureStableKey);
+                                    proceduresMissingCount++;
+
+                                    continue;
+                                }
+
+                                String procedureStableId = procedure.getStableId();
+
                 				if ( gene.getProcedureStableId() == null ) {
 
                                     List<String> procedureStableIds = new ArrayList<>();
                                     List<String> procedureNames     = new ArrayList<>();
-
-
-
-
-                                    String procedureStableId = null;
-                                    try {
-                                        procedureStableId = procedure.getStableId();
-                                    } catch (Exception e) {
-                                        if (procedure == null) {
-                                            logger.error("procedure with procedureStableKey {} was not found", procedureStableKey);
-                                        } else if (procedure.getStableId() == null) {
-                                            logger.error("procedure {} has null procedureStableId", procedure.getId());
-                                        }
-                                    }
-
-
-
-
-
-
-                                    if ((procedureStableId == null) || (procedureStableId.trim().isEmpty())) {
-                                        logger.warn("Procedure lookup for center::colonyId::mgiAccessionId {}::{}::{}, procedureStableKey {} failed. Procedure skipped.",
-                                                    strain.getCentre(), strain.getColonyId(), strain.getMgiGeneAccessionId(), procedureStableKey);
-                                        continue;
-                                    }
 
                 					procedureStableIds.add(procedureStableId);
                 					gene.setProcedureStableId(procedureStableIds);
@@ -264,13 +252,16 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 					gene.getProcedureStableId().add(procedure.getStableId());
 	                				gene.getProcedureName().add(procedure.getName());
                 				}
+
+                				proceduresFoundCount++;
                 			}
                 		}
 
                 		gene.setEmbryoModalities(embryoModalitiesForGene);
                 	}
-
                 }
+
+                logger.info("proceduresMissing: {}. procedures found: {}", proceduresMissingCount, proceduresFoundCount);
                 
                 if(dmddImageData.containsKey(gene.getMgiAccessionId())){
                 	//add dmdd image data here
