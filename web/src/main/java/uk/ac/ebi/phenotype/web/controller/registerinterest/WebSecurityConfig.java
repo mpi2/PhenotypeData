@@ -29,6 +29,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -217,7 +218,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             }
 
             if (host != null) {
-                response.setHeader("Access-Control-Allow-Origin", host);
+                response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, host);
             }
 
             chain.doFilter(req, res);
