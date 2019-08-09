@@ -1,11 +1,10 @@
 package org.mousephenotype.cda.db;
 
 import org.hibernate.SessionFactory;
-import org.mousephenotype.cda.db.utilities.SqlUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 import org.springframework.orm.jpa.JpaVendorAdapter;
@@ -31,21 +30,14 @@ import java.util.Properties;
  * License.
  ******************************************************************************/
 @Configuration
-public class HibernateConfig {
-
-    @Value("${datasource.komp2.jdbc-url}")
-    String komp2Url;
-
-    @Value("${datasource.komp2.username}")
-    String komp2Username;
-
-    @Value("${datasource.komp2.password}")
-    String komp2Password;
+public class HibernateConfigH2 {
 
     @Bean
-    @Primary
-    public DataSource komp2DataSource() {
-        return SqlUtils.getConfiguredDatasource(komp2Url, komp2Username, komp2Password);
+    public DataSource h2DataSource() {
+        return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
+                .ignoreFailedDrops(true)
+                .setName("test")
+                .build();
     }
 
 
@@ -67,7 +59,7 @@ public class HibernateConfig {
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-        em.setDataSource(komp2DataSource());
+        em.setDataSource(h2DataSource());
         em.setPackagesToScan("org.mousephenotype.cda.db.entity", "org.mousephenotype.cda.db.pojo");
 
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
@@ -89,7 +81,7 @@ public class HibernateConfig {
 
 
     private SessionFactory getSessionFactory() {
-        LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
+        LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(h2DataSource());
         sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
         sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
 

@@ -25,38 +25,27 @@ package org.mousephenotype.cda.db.utilities;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.db.repositories.ParameterRepository;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
-@EnableJpaRepositories(basePackages = "org.mousephenotype.cda.db.repositories")
-@ContextConfiguration(classes = {ImpressUtilsTestConfig.class})
+@ContextConfiguration(classes = {UtilitiesTestConfig.class})
 public class ImpressUtilsTest {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private ParameterRepository parameterRepository;
-
-
-    @NotNull
-    @Autowired
     ImpressUtils impressUtils;
 
-    @NotNull
     @Autowired
     NamedParameterJdbcTemplate jdbc1;
 
-    @NotNull
     @Autowired
     NamedParameterJdbcTemplate jdbc2;
 

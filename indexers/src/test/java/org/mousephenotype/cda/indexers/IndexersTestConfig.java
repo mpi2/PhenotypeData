@@ -1,6 +1,10 @@
 package org.mousephenotype.cda.indexers;
 
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrRequest;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.db.HibernateConfig;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +17,7 @@ import org.springframework.data.solr.repository.config.EnableSolrRepositories;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 
 /**
  * TestConfig sets up the in memory database for supporting the database tests.
@@ -236,4 +241,19 @@ public class IndexersTestConfig {
 //    public OntologyParserFactory ontologyParserFactory() {
 //        return new OntologyParserFactory(komp2DataSource(), owlpath);
 //    }
+
+    @Bean
+    public SolrClient solrClient() {
+        return new SolrClient() {
+            @Override
+            public NamedList<Object> request(SolrRequest solrRequest, String s) throws SolrServerException, IOException {
+                return null;
+            }
+
+            @Override
+            public void close() throws IOException {
+
+            }
+        };
+    }
 }

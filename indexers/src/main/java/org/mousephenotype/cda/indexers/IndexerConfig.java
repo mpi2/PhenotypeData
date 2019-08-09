@@ -2,8 +2,9 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.mousephenotype.cda.db.repositories.GenesSecondaryProjectRepository;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
-import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -11,12 +12,12 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 
 @Configuration
 @ComponentScan(basePackages = "org.mousephenotype.cda.db")
@@ -30,12 +31,17 @@ public class IndexerConfig {
     @Value("${internal_solr_url}")
     private String internalSolrUrl;
 
-    private DataSource             komp2DataSource;
-    private OntologyTermRepository ontologyTermRepository;
-    private SolrClient             pipelineCore;
+    private GenesSecondaryProjectRepository genesSecondaryProjectRepository;
+    private DataSource                      komp2DataSource;
+    private OntologyTermRepository          ontologyTermRepository;
+    private SolrClient                      pipelineCore;
 
     @Inject
-    public IndexerConfig(DataSource komp2DataSource, OntologyTermRepository ontologyTermRepository) {
+    public IndexerConfig(@NotNull DataSource komp2DataSource,
+                         @NotNull OntologyTermRepository ontologyTermRepository,
+                         @NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository)
+    {
+        this.genesSecondaryProjectRepository = genesSecondaryProjectRepository;
         this.komp2DataSource = komp2DataSource;
         this.ontologyTermRepository = ontologyTermRepository;
     }
@@ -130,6 +136,11 @@ public class IndexerConfig {
     ///////////
     // SERVICES
     ///////////
+
+    @Bean
+    public GenotypePhenotypeService genotypePhenotypeService() {
+        return new GenotypePhenotypeService(impressService(), genotypePhenotypeCore(), genesSecondaryProjectRepository);
+    }
 
     @Bean
     public ImpressService impressService() {

@@ -27,9 +27,9 @@ import javax.sql.DataSource;
 @ComponentScan(value = {"org.mousephenotype.cda.db"})
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
 @EnableTransactionManagement
-public class ImpressUtilsTestConfig {
+public class UtilitiesTestConfig {
 
-	// UtilitiesTest requires two separate database connections containing the same table (in structure and name).
+	// ImpressUtilsTest requires two separate database connections containing the same table (in structure and name).
 	// When using only H2 or only HSQL, separate database connections actually seem to point to the same database;
 	// thus the testQueryDiffTwoDiffs() test fails because it is expecting the result count to be different and it is not.
 	// Using two separate database vendors insures the databases are different.
@@ -55,7 +55,7 @@ public class ImpressUtilsTestConfig {
 		return new EmbeddedDatabaseBuilder().setType(dcc1Type)
 			.ignoreFailedDrops(true)
 			.setName("dcc1")
-			.addScript("sql/dcc1-test-data.sql")
+			.addScript("sql/h2/utilities/dcc1-test-data.sql")
 			.build();
 	}
 
@@ -72,7 +72,7 @@ public class ImpressUtilsTestConfig {
 		return new EmbeddedDatabaseBuilder().setType(dcc2Type)
 			.ignoreFailedDrops(true)
 			.setName("dcc2")
-			.addScript("sql/dcc2-test-data.sql")
+			.addScript("sql/h2/utilities/dcc2-test-data.sql")
 			.build();
 	}
 

@@ -58,8 +58,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-//import org.mousephenotype.cda.solr.service.PreQcService;
-
 /**
  * @author Matt Pearce
  * @author ilinca
