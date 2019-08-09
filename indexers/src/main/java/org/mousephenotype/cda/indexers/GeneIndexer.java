@@ -586,7 +586,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
           }catch(Exception e){
         	  e.printStackTrace();
           }
-      System.out.println("idg gene list size is "+idgGenes.size());
+
 		return idgGenes;
 	}
 
