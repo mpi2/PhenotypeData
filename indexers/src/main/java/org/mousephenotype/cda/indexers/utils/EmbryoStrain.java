@@ -23,7 +23,6 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EmbryoStrain {
 
-
 	private String       analysisViewUrl;
 	private String       centre;
 	private String       colonyId;

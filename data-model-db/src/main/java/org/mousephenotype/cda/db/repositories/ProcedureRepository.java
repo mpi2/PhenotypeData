@@ -16,12 +16,10 @@
 
 package org.mousephenotype.cda.db.repositories;
 
-import org.mousephenotype.cda.db.pojo.Pipeline;
 import org.mousephenotype.cda.db.pojo.Procedure;
 import org.springframework.data.repository.CrudRepository;
 
 public interface ProcedureRepository extends CrudRepository<Procedure, Long> {
 
-    Procedure getByStableId(String stableId);
     Procedure getByStableKey(Long stableKey);
 }

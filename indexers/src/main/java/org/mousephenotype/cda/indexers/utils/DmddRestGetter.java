@@ -44,7 +44,7 @@ public class DmddRestGetter {
             DmddDataUnit dataForGene=new DmddDataUnit(jsonObject.getString("mgi_id"),jsonObject.getString("url"));
             imagedData.add(dataForGene);
         }
-        System.out.println("dmdd image data size is "+imagedData.size());
+
         dmddRestData.setImaged(imagedData);
         JSONArray earlyLethalsArray = genes.getJSONArray("early_lethals");
         List<DmddDataUnit> earlyLethalData=new ArrayList<>();

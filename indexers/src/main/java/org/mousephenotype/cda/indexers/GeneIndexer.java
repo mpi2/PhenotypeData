@@ -222,16 +222,23 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 				gene.setEmbryoAnalysisUrl(strain.getAnalysisViewUrl());
                 				gene.setEmbryoAnalysisName("volumetric analysis");
                 			}
-                			for ( Long procedureStableKey : strain.getProcedureStableKeys() ){
+                			for ( Long procedureStableKey : strain.getProcedureStableKeys() ) {
                                 Procedure procedure = procedureRepository.getByStableKey(procedureStableKey);
 
-                				if ( gene.getProcedureStableId() == null ){
+                				if ( gene.getProcedureStableId() == null ) {
 
-                					List<String> procedureStableIds = new ArrayList<>();
-                					List<String> procedureNames = new ArrayList<>();
-                					procedureStableIds.add(procedure.getStableId());
+                                    List<String> procedureStableIds = new ArrayList<>();
+                                    List<String> procedureNames     = new ArrayList<>();
+
+                                    String procedureStableId = procedure.getStableId();
+                                    if ((procedureStableId == null) || (procedureStableId.trim().isEmpty())) {
+                                        logger.warn("Procedure lookup for center::colonyId::mgiAccessionId {}::{}::{}, procedureStableKey {} failed. Procedure skipped.",
+                                                    strain.getCentre(), strain.getColonyId(), strain.getMgiGeneAccessionId(), procedureStableKey);
+                                        continue;
+                                    }
+
+                					procedureStableIds.add(procedureStableId);
                 					gene.setProcedureStableId(procedureStableIds);
-
                 					procedureNames.add(procedure.getName());
                 					gene.setProcedureName(procedureNames);
                 				}
@@ -241,6 +248,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 				}
                 			}
                 		}
+
                 		gene.setEmbryoModalities(embryoModalitiesForGene);
                 	}
 

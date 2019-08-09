@@ -1,13 +1,11 @@
 package org.mousephenotype.cda.indexers.utils;
 
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -51,23 +49,19 @@ public class EmbryoRestGetter {
             	embryoStrain.setAnalysisViewUrl(jsonObject.getString("analysis_view_url"));
             }
 
-
-            List<Long> procedureStableKeys = new ArrayList<>();
-            List<Long> parameterStableKeys = new ArrayList<>();
-            List<String>  modalities          = new ArrayList<>();
+            List<Long>   procedureStableKeys = new ArrayList<>();
+            List<Long>   parameterStableKeys = new ArrayList<>();
+            List<String> modalities          = new ArrayList<>();
 
             JSONArray jProcParam = jsonObject.getJSONArray("procedures_parameters");
             for (int j = 0; j < jProcParam.length(); j++) {
 
                 JSONObject jo = (JSONObject) jProcParam.get(j);
 
-                // Harwell's supplied procedure_id and parameter_id fields are cda procedure_stable_key and parameter_stable_key.
-                Long procedureStableKey = CommonUtils.tryParseLong(jo.getString("procedure_id"));
-                Long parameterStableKey = CommonUtils.tryParseLong(jo.getString("parameter_id"));
-                if ((procedureStableKey == null) || (parameterStableKey == null)) {
-                    continue;
-                }
-                String modality             = jo.getString("modality");
+                // Harwell's supplied procedure_id and parameter_id fields are the String representations of integer keys.
+                Long   procedureStableKey = Long.parseLong(jo.getString("procedure_id"));
+                Long   parameterStableKey = Long.parseLong(jo.getString("parameter_id"));
+                String modality           = jo.getString("modality");
                 procedureStableKeys.add(procedureStableKey);
                 parameterStableKeys.add(parameterStableKey);
 
