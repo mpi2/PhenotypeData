@@ -230,7 +230,25 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                                     List<String> procedureStableIds = new ArrayList<>();
                                     List<String> procedureNames     = new ArrayList<>();
 
-                                    String procedureStableId = procedure.getStableId();
+
+
+
+                                    String procedureStableId = null;
+                                    try {
+                                        procedureStableId = procedure.getStableId();
+                                    } catch (Exception e) {
+                                        if (procedure == null) {
+                                            logger.error("procedure with procedureStableKey {} was not found", procedureStableKey);
+                                        } else if (procedure.getStableId() == null) {
+                                            logger.error("procedure {} has null procedureStableId", procedure.getId());
+                                        }
+                                    }
+
+
+
+
+
+
                                     if ((procedureStableId == null) || (procedureStableId.trim().isEmpty())) {
                                         logger.warn("Procedure lookup for center::colonyId::mgiAccessionId {}::{}::{}, procedureStableKey {} failed. Procedure skipped.",
                                                     strain.getCentre(), strain.getColonyId(), strain.getMgiGeneAccessionId(), procedureStableKey);
