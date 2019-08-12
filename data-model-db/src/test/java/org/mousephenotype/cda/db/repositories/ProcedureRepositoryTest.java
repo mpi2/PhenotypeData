@@ -54,7 +54,7 @@ public class ProcedureRepositoryTest {
         }
     }
 
-    @Ignore
+
     @Test
     public void getByStableKey() throws Exception {
 
@@ -87,6 +87,18 @@ public class ProcedureRepositoryTest {
         expectedProcedure.setDatasource(datasource);
 
         Procedure procedure = procedureRepository.getByStableKey(173L);
-        assertEquals(expectedProcedure, procedure);
+
+        assertEquals(expectedProcedure.getDatasource(), procedure.getDatasource());
+        assertEquals(expectedProcedure.getId(), procedure.getId());
+        assertEquals(expectedProcedure.getLevel(), procedure.getLevel());
+        assertEquals(expectedProcedure.isMandatory(), procedure.isMandatory());
+        assertEquals(expectedProcedure.getScheduleKey(), procedure.getScheduleKey());
+        assertEquals(expectedProcedure.getStage(), procedure.getStage());
+        assertEquals(expectedProcedure.getStageLabel(), procedure.getStageLabel());
+        assertEquals(expectedProcedure.getStableId(), procedure.getStableId());
+        assertEquals(expectedProcedure.getStableKey(), procedure.getStableKey());
+        assertEquals(expectedProcedure.getName(), procedure.getName());
+        assertEquals(expectedProcedure.getMajorVersion(), procedure.getMajorVersion());
+        assertEquals(expectedProcedure.getMinorVersion(), procedure.getMinorVersion());
     }
 }

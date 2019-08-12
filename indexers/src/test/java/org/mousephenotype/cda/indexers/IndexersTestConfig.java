@@ -157,11 +157,6 @@ public class IndexersTestConfig {
     ////////////////
 
     @Bean
-    public IndexerManager indexerManager() {
-        return new IndexerManager(applicationContext);
-    }
-
-    @Bean
     public SolrClient solrClient() {
         return new SolrClient() {
             @Override
