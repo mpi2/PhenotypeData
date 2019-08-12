@@ -208,11 +208,11 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 gene.setPfamaGoCats(allele.getPfamaGoCats());
                 gene.setPfamaJsons(allele.getPfamaJsons());
 
-                if(embryoRestData!=null){
+                if (embryoRestData != null) {
 
                 	List<EmbryoStrain> embryoStrainsForGene = embryoRestData.get(gene.getMgiAccessionId());
                 	//for the moment lets just set an embryo data available flag!
-                	if(embryoStrainsForGene!=null && embryoStrainsForGene.size()>0){
+                	if ((embryoStrainsForGene != null) && (embryoStrainsForGene.size() > 0)) {
                 		gene.setEmbryoDataAvailable(true);
                 		List<String> embryoModalitiesForGene=new ArrayList<>();
 
@@ -502,7 +502,6 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                         }
                     }
                 }
-
 
                 /*
                  * Unique all the sets
