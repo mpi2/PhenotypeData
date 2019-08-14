@@ -16,37 +16,13 @@
 
 package org.mousephenotype.cda.datatests.repositories.clients;
 
-import org.mousephenotype.cda.db.HibernateConfig;
-import org.mousephenotype.cda.db.repositories.DatasourceRepository;
-import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
-import org.mousephenotype.cda.db.utilities.ImpressUtils;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 
 @Configuration
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
-@Import(HibernateConfig.class)
+@ComponentScan("org.mousephenotype.cda.db")
 public class ImpressUtilsDataTestConfig {
 
-    private OntologyTermRepository ontologyTermRepository;
-    private DatasourceRepository   datasourceRepository;
-
-    @Inject
-    public ImpressUtilsDataTestConfig(
-            @NotNull OntologyTermRepository ontologyTermRepository,
-            @NotNull DatasourceRepository datasourceRepository)
-    {
-        this.ontologyTermRepository = ontologyTermRepository;
-        this.datasourceRepository = datasourceRepository;
-    }
-
-    @Bean
-    public ImpressUtils impressUtils() {
-        return new ImpressUtils(ontologyTermRepository, datasourceRepository);
-    }
 }

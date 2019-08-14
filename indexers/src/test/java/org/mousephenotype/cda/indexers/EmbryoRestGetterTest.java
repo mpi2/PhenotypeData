@@ -16,7 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ContextConfiguration(classes = {IndexersTestConfig.class})
+@ContextConfiguration(classes = {IndexersTestConfigKomp2.class})
 public class EmbryoRestGetterTest {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());

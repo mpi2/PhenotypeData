@@ -6,6 +6,9 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
+import org.mousephenotype.cda.db.repositories.ParameterRepository;
+import org.mousephenotype.cda.db.statistics.MpTermService;
+import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,8 +17,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -25,7 +26,7 @@ import java.sql.Connection;
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
 @ComponentScan("org.mousephenotype.cda.db")
-public class IndexersTestConfig {
+public class StatisticalResultsIndexerTestConfig {
 
     @Value("${owlpath}")
     protected String owlpath;
@@ -33,18 +34,22 @@ public class IndexersTestConfig {
     @Value("${internal_solr_url}")
     private String internalSolrUrl;
 
+    @Autowired
+    public DataSource komp2DataSource;
 
     @Autowired
     public OntologyTermRepository ontologyTermRepository;
 
+    @Autowired
+    public ParameterRepository parameterRepository;
 
-    @Bean
-    public DataSource h2DataSource() {
-        return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
-                .ignoreFailedDrops(true)
-                .setName("test")
-                .build();
-    }
+    @Autowired
+    public MpTermService mpTermService;
+
+//    @Bean
+//    public StatisticalResultsIndexer statisticalResultsIndexer() {
+//        return new StatisticalResultsIndexer(komp2DataSource, ontologyTermRepository, mpTermService, parameterRepository, statisticalResultCore());
+//    }
 
 
     /////////////////////////
@@ -147,6 +152,10 @@ public class IndexersTestConfig {
         return new ImpressService(pipelineCore());
     }
 
+    @Bean
+    public OntologyParserFactory ontologyParserFactory() {
+        return new OntologyParserFactory(komp2DataSource, owlpath);
+    }
 
     ////////////////
     // MISCELLANEOUS
@@ -154,13 +163,7 @@ public class IndexersTestConfig {
 
     @Bean
     public Connection connection() throws Exception {
-        return h2DataSource().getConnection();
-    }
-
-
-    @Bean
-    public ObservationIndexer observationIndexer() {
-        return new ObservationIndexer(h2DataSource(), ontologyTermRepository, experimentCore());
+        return komp2DataSource.getConnection();
     }
 
     @Bean

@@ -1,26 +1,25 @@
 package org.mousephenotype.cda.indexers;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.solr.client.solrj.SolrClient;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.WeightMap;
-import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.solr.service.OntologyBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.inject.Inject;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,38 +31,21 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * These tests take forever to run and consume more memory than is available on developer's machines. Ignore them.
+ */
+@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ContextConfiguration(classes = {IndexersTestConfig.class})
+@ContextConfiguration(classes = {ObservationIndexerTestConfig.class})
+@ComponentScan("org.mousephenotype.cda.db")
 public class ObservationIndexerTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private Connection         connection;
-    private ObservationIndexer observationIndexer;
-
-    private SolrClient             experimentCore;
-    private DataSource             komp2DataSource;
-    private OntologyTermRepository ontologyTermRepository;
-
-    @Inject
-    public ObservationIndexerTest(
-            SolrClient experimentCore,
-            DataSource komp2DataSource,
-            OntologyTermRepository ontologyTermRepository) throws SQLException
-    {
-        this.experimentCore = experimentCore;
-        this.komp2DataSource = komp2DataSource;
-        this.ontologyTermRepository = ontologyTermRepository;
-
-        connection = komp2DataSource.getConnection();
-    }
-
-
-    @Before
-    public void setUp() {
-	    observationIndexer = new ObservationIndexer(komp2DataSource, ontologyTermRepository, experimentCore);
-    }
+    @Autowired @NotNull private Connection         connection;
+    @Autowired @NotNull private DataSource         komp2DataSource;
+    @Autowired @NotNull private ObservationIndexer observationIndexer;
 
     @Test
     public void testGetOntologyParameterSubTerms() throws SQLException {

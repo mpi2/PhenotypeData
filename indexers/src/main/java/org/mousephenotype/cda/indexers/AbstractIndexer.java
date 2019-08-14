@@ -85,7 +85,23 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     }
 
 
-	CommonUtils commonUtils = new CommonUtils();
+    public DataSource getKomp2DataSource() {
+        return komp2DataSource;
+    }
+
+    public void setKomp2DataSource(DataSource komp2DataSource) {
+        this.komp2DataSource = komp2DataSource;
+    }
+
+    public OntologyTermRepository getOntologyTermRepository() {
+        return ontologyTermRepository;
+    }
+
+    public void setOntologyTermRepository(OntologyTermRepository ontologyTermRepository) {
+        this.ontologyTermRepository = ontologyTermRepository;
+    }
+
+    CommonUtils commonUtils = new CommonUtils();
 
 	// This is used to track the number of documents that were requested to be added by the core.addBeans() call.
     // It is used for later validation by querying the core after the build.

@@ -41,7 +41,7 @@ import java.util.List;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ContextConfiguration(classes = {IndexersTestConfig.class})
+@ContextConfiguration(classes = {IndexersTestConfigKomp2.class})
 public class WireAllIndexersTest implements ApplicationContextAware {
 
     private ApplicationContext applicationContext;

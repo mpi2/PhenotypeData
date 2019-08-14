@@ -21,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ContextConfiguration(classes = {IndexersTestConfig.class})
+@ContextConfiguration(classes = {IndexersTestConfigKomp2.class})
 public class PhisServiceTest {
 
 	@Autowired

@@ -18,12 +18,13 @@
  * limitations under the License.
  */
 
-package org.mousephenotype.cda.indexers;
+package org.mousephenotype.cda.indexers.manager;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.indexers.IndexerManager;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.exceptions.InvalidCoreNameException;
 import org.mousephenotype.cda.indexers.exceptions.MissingRequiredArgumentException;
@@ -39,12 +40,13 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
 
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = {IndexersTestConfig.class})
+@ContextConfiguration(classes = {IndexerManagerTestConfig.class})
 public class IndexerManagerTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired IndexerManager indexerManager;
+    @Autowired
+    IndexerManager indexerManager;
 
     /***********************************************************************************/
     /*    THE FOLLOWING TESTS GENERATE EXPECTED EXCEPTIONS AND THUS DO NOT BUILD       */

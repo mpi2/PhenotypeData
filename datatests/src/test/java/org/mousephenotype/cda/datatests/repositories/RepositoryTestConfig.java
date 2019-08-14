@@ -16,16 +16,40 @@
 
 package org.mousephenotype.cda.datatests.repositories;
 
-import org.mousephenotype.cda.db.HibernateConfig;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrRequest;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.common.util.NamedList;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
+
+import java.io.IOException;
 
 @Configuration
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
-@Import(HibernateConfig.class)
+@ComponentScan("org.mousephenotype.cda.db")
 public class RepositoryTestConfig {
 
+    ////////////////
+    // MISCELLANEOUS
+    ////////////////
+
+    @Bean
+    public SolrClient solrClient() {
+        return new SolrClient() {
+            @Override
+            public NamedList<Object> request(SolrRequest solrRequest, String s) throws SolrServerException, IOException {
+                return null;
+            }
+
+            @Override
+            public void close() throws IOException {
+
+            }
+        };
+    }
 }

@@ -1,31 +1,34 @@
-package org.mousephenotype.cda.indexers;
+package org.mousephenotype.cda.indexers.manager;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.util.NamedList;
-import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
+import org.mousephenotype.cda.db.HibernateConfig;
+import org.mousephenotype.cda.indexers.IndexerManager;
 import org.mousephenotype.cda.solr.service.ImpressService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.sql.Connection;
 
 @Configuration
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
-@ComponentScan("org.mousephenotype.cda.db")
-public class IndexersTestConfig {
+@Import(HibernateConfig.class)
+public class IndexerManagerTestConfig {
 
     @Value("${owlpath}")
     protected String owlpath;
@@ -33,10 +36,7 @@ public class IndexersTestConfig {
     @Value("${internal_solr_url}")
     private String internalSolrUrl;
 
-
-    @Autowired
-    public OntologyTermRepository ontologyTermRepository;
-
+    private ApplicationContext applicationContext;
 
     @Bean
     public DataSource h2DataSource() {
@@ -44,6 +44,12 @@ public class IndexersTestConfig {
                 .ignoreFailedDrops(true)
                 .setName("test")
                 .build();
+    }
+
+
+    @Inject
+    public IndexerManagerTestConfig(@NotNull ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
 
@@ -152,15 +158,10 @@ public class IndexersTestConfig {
     // MISCELLANEOUS
     ////////////////
 
+    @Lazy
     @Bean
-    public Connection connection() throws Exception {
-        return h2DataSource().getConnection();
-    }
-
-
-    @Bean
-    public ObservationIndexer observationIndexer() {
-        return new ObservationIndexer(h2DataSource(), ontologyTermRepository, experimentCore());
+    public IndexerManager indexerManager() {
+        return new IndexerManager(applicationContext);
     }
 
     @Bean

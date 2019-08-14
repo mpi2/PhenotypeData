@@ -57,33 +57,33 @@ public class IndexerManager  implements CommandLineRunner {
     //static final String PHENODIGM_CORE = "phenodigm";
 
     // These are built only for a new data release.
-    static final String PIPELINE_CORE = "pipeline";
-    static final String OBSERVATION_CORE = "experiment";                 // For historic reasons, the core's actual name is 'experiment'.
-    static final String GENOTYPE_PHENOTYPE_CORE = "genotype-phenotype";
-    static final String STATSTICAL_RESULT_CORE = "statistical-result";
-	static final String MGI_PHENOTYPE_CORE = "mgi-phenotype";
-    static final String ANATOMY_CORE = "anatomy";
+    public static final String PIPELINE_CORE = "pipeline";
+    public static final String OBSERVATION_CORE = "experiment";                 // For historic reasons, the core's actual name is 'experiment'.
+    public static final String GENOTYPE_PHENOTYPE_CORE = "genotype-phenotype";
+    public static final String STATSTICAL_RESULT_CORE = "statistical-result";
+	public static final String MGI_PHENOTYPE_CORE = "mgi-phenotype";
+    public static final String ANATOMY_CORE = "anatomy";
 
     // These are built daily.
-    static final String ALLELE2_CORE = "allele2";
-    static final String PRODUCT_CORE = "product";
-    static final String ALLELE_CORE = "allele";
-    static final String IMAGES_CORE = "images";
-    static final String IMPC_IMAGES_CORE = "impc_images";
-    static final String MP_CORE = "mp";
-    static final String GENE_CORE = "gene";
-    static final String AUTOSUGGEST_CORE = "autosuggest";
+    public static final String ALLELE2_CORE = "allele2";
+    public static final String PRODUCT_CORE = "product";
+    public static final String ALLELE_CORE = "allele";
+    public static final String IMAGES_CORE = "images";
+    public static final String IMPC_IMAGES_CORE = "impc_images";
+    public static final String MP_CORE = "mp";
+    public static final String GENE_CORE = "gene";
+    public static final String AUTOSUGGEST_CORE = "autosuggest";
 
     // main return values.
-    static final int STATUS_OK                  = 0;
-    static final int STATUS_WARN                = 1;
-    static final int STATUS_NO_DEPS             = 2;
-    static final int STATUS_NO_ARGUMENT         = 3;
-    static final int STATUS_UNRECOGNIZED_OPTION = 4;
-    static final int STATUS_INVALID_CORE_NAME   = 5;
-    static final int STATUS_VALIDATION_ERROR    = 6;
+    public static final int STATUS_OK                  = 0;
+    public static final int STATUS_WARN                = 1;
+    public static final int STATUS_NO_DEPS             = 2;
+    public static final int STATUS_NO_ARGUMENT         = 3;
+    public static final int STATUS_UNRECOGNIZED_OPTION = 4;
+    public static final int STATUS_INVALID_CORE_NAME   = 5;
+    public static final int STATUS_VALIDATION_ERROR    = 6;
 
-    static String getStatusCodeName(int statusCode) {
+    public static String getStatusCodeName(int statusCode) {
         switch (statusCode) {
             case STATUS_OK:                     return "STATUS_OK";
             case STATUS_WARN:                   return "STATUS_WARN";
@@ -102,7 +102,7 @@ public class IndexerManager  implements CommandLineRunner {
     private Boolean daily;
     private Boolean nodeps;
 
-    static final String[] allCoresArray = new String[] {      // In dependency order.
+    public static final String[] allCoresArray = new String[] {      // In dependency order.
           // In dependency order. These are built only for a new data release.
           PIPELINE_CORE
         , OBSERVATION_CORE
@@ -123,7 +123,7 @@ public class IndexerManager  implements CommandLineRunner {
     };
     private final List<String> allCoresList = Arrays.asList(allCoresArray);
 
-    static final String[] dailyCoresArray = new String[] {
+    public static final String[] dailyCoresArray = new String[] {
           // In dependency order. These are built daily.
           ALLELE2_CORE
         , PRODUCT_CORE

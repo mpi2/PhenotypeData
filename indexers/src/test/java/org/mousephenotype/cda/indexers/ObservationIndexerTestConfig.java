@@ -14,8 +14,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -25,7 +23,7 @@ import java.sql.Connection;
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
 @ComponentScan("org.mousephenotype.cda.db")
-public class IndexersTestConfig {
+public class ObservationIndexerTestConfig {
 
     @Value("${owlpath}")
     protected String owlpath;
@@ -33,18 +31,11 @@ public class IndexersTestConfig {
     @Value("${internal_solr_url}")
     private String internalSolrUrl;
 
+    @Autowired
+    public DataSource komp2DataSource;
 
     @Autowired
     public OntologyTermRepository ontologyTermRepository;
-
-
-    @Bean
-    public DataSource h2DataSource() {
-        return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
-                .ignoreFailedDrops(true)
-                .setName("test")
-                .build();
-    }
 
 
     /////////////////////////
@@ -154,14 +145,14 @@ public class IndexersTestConfig {
 
     @Bean
     public Connection connection() throws Exception {
-        return h2DataSource().getConnection();
+        return komp2DataSource.getConnection();
     }
 
 
-    @Bean
-    public ObservationIndexer observationIndexer() {
-        return new ObservationIndexer(h2DataSource(), ontologyTermRepository, experimentCore());
-    }
+//    @Bean
+//    public ObservationIndexer observationIndexer() {
+//        return new ObservationIndexer(komp2DataSource, ontologyTermRepository, experimentCore());
+//    }
 
     @Bean
     public SolrClient solrClient() {
