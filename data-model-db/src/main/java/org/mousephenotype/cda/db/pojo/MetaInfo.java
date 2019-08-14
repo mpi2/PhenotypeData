@@ -21,10 +21,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
+@Table(name = "meta_info")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -34,7 +37,11 @@ public class MetaInfo {
     @Id
     private Long id;
 
+    @Column(name = "property_key")
     private String propertyKey;
+
+    @Column(name = "property_value")
     private String propertyValue;
+
     private String description;
 }

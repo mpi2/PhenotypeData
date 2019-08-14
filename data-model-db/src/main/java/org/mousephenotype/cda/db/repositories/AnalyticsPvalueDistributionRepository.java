@@ -28,6 +28,5 @@ public interface AnalyticsPvalueDistributionRepository extends CrudRepository<An
     @Query(value = getAllStatisticalMethodsQuery, nativeQuery = true)
     List<AnalyticsPvalueDistribution> getAllStatisticalMethods();
 
-
     List<AnalyticsPvalueDistribution> getAllByDatatypeAndStatisticalMethodOrderByPvalueBinAsc(String datatype, String statisticalMethod);
 }

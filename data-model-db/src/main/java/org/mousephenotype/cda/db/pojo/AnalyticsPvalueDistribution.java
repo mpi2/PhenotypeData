@@ -21,10 +21,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
+@Table(name = "analytics_pvalue_distribution")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -34,8 +37,16 @@ public class AnalyticsPvalueDistribution {
     @Id
     private Long    id;
     private String  datatype;
+
+    @Column(name = "statistical_method")
     private String  statisticalMethod;
+
+    @Column(name = "pvalue_bin")
     private Double  pvalueBin;
+
+    @Column(name = "interval_scale")
     private Double  intervalScale;
+
+    @Column(name = "pvalue_count")
     private Integer pvalueCount;
 }

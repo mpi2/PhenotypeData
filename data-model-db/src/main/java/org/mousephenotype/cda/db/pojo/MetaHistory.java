@@ -21,10 +21,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
+@Table(name = "meta_history")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -33,7 +36,13 @@ public class MetaHistory {
 
     @Id
     private Long   id;
+
+    @Column(name = "property_key")
     private String propertyKey;
+
+    @Column(name = "property_value")
     private String propertyValue;
+
+    @Column(name = "data_release_version")
     private String dataReleaseVersion;
 }
