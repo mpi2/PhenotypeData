@@ -22,4 +22,6 @@ import org.springframework.data.repository.CrudRepository;
 public interface ProcedureRepository extends CrudRepository<Procedure, Long> {
 
     Procedure getByStableKey(Long stableKey);
+
+    Procedure getByStableId(String stableId);
 }

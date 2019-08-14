@@ -98,4 +98,51 @@ public class ProcedureRepositoryTest {
         assertEquals(expectedProcedure.getMajorVersion(), procedure.getMajorVersion());
         assertEquals(expectedProcedure.getMinorVersion(), procedure.getMinorVersion());
     }
+
+    @Test
+    public void getByStableId() throws Exception {
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.S");
+
+        Datasource datasource = new Datasource();
+        datasource.setId(6L);
+        datasource.setName("IMPReSS");
+        datasource.setShortName(datasource.getName());
+        datasource.setVersion("unknown");
+        datasource.setReleaseDate(format.parse("2012-01-26 00:00:00.0"));
+
+        Procedure expectedProcedure = new Procedure();
+        expectedProcedure.setId(2L);
+        expectedProcedure.setLevel("housing");
+        expectedProcedure.setMandatory(false);
+        expectedProcedure.setParameterCollection(null);
+        expectedProcedure.setMetaDataSet(null);
+        expectedProcedure.setParameters(null);
+        expectedProcedure.setPipelines(null);
+        expectedProcedure.setScheduleKey(3L);
+        expectedProcedure.setStage("Adult");
+        expectedProcedure.setStageLabel("Unrestricted");
+        expectedProcedure.setStableId("IMPC_HOU_001");
+        expectedProcedure.setStableKey(173L);
+        expectedProcedure.setName("Housing and Husbandry");
+        expectedProcedure.setDescription("");
+        expectedProcedure.setMajorVersion(1);
+        expectedProcedure.setMinorVersion(0);
+        expectedProcedure.setDatasource(datasource);
+
+        Procedure procedure = procedureRepository.getByStableId("IMPC_HOU_001");
+
+        assertEquals(expectedProcedure.getDatasource(), procedure.getDatasource());
+        assertEquals(expectedProcedure.getId(), procedure.getId());
+        assertEquals(expectedProcedure.getLevel(), procedure.getLevel());
+        assertEquals(expectedProcedure.isMandatory(), procedure.isMandatory());
+        assertEquals(expectedProcedure.getScheduleKey(), procedure.getScheduleKey());
+        assertEquals(expectedProcedure.getStage(), procedure.getStage());
+        assertEquals(expectedProcedure.getStageLabel(), procedure.getStageLabel());
+        assertEquals(expectedProcedure.getStableId(), procedure.getStableId());
+        assertEquals(expectedProcedure.getStableKey(), procedure.getStableKey());
+        assertEquals(expectedProcedure.getName(), procedure.getName());
+        assertEquals(expectedProcedure.getMajorVersion(), procedure.getMajorVersion());
+        assertEquals(expectedProcedure.getMinorVersion(), procedure.getMinorVersion());
+    }
 }
