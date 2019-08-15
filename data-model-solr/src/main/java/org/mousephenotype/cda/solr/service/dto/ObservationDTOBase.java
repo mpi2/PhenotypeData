@@ -34,6 +34,8 @@ public class ObservationDTOBase {
 	public final static String PHENOTYPING_CENTER_ID = "phenotyping_center_id";
 	public final static String PRODUCTION_CENTER = "production_center";
 	public final static String PRODUCTION_CENTER_ID = "production_center_id";
+	public final static String SPECIMEN_PROJECT_NAME = "specimen_project_name";
+	public final static String SPECIMEN_PROJECT_ID = "specimen_project_id";
 	public final static String LITTER_ID = "litter_id";
 	public final static String GENE_ACCESSION_ID = "gene_accession_id";
 	public final static String GENE_SYMBOL = "gene_symbol";
@@ -185,6 +187,12 @@ public class ObservationDTOBase {
 
     @Field(PHENOTYPING_CENTER)
     protected String phenotypingCenter;
+
+	@Field(SPECIMEN_PROJECT_ID)
+	protected Long specimenProjectId;
+
+	@Field(SPECIMEN_PROJECT_NAME)
+	protected String specimenProjectName;
 
 	@Field(PRODUCTION_CENTER_ID)
 	protected Long productionCenterId;
@@ -1129,7 +1137,24 @@ public class ObservationDTOBase {
         this.phenotypingCenter = phenotypingCenter;
     }
 
-    /**
+
+	public Long getSpecimenProjectId() {
+		return specimenProjectId;
+	}
+
+	public void setSpecimenProjectId(Long specimenProjectId) {
+		this.specimenProjectId = specimenProjectId;
+	}
+
+	public String getSpecimenProjectName() {
+		return specimenProjectName;
+	}
+
+	public void setSpecimenProjectName(String specimenProjectName) {
+		this.specimenProjectName = specimenProjectName;
+	}
+
+	/**
      * @return the colonyId
      */
     public String getColonyId() {
