@@ -28,7 +28,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
 
 @Configuration
 @EnableAutoConfiguration
@@ -36,14 +35,14 @@ public class RegisterInterestConfig {
 
     // Database properties
 
-    @Value("${datasource.ri.password}")
-    private String dbPassword;
+    @Value("${datasource.ri.jdbc-url}")
+    private String riDbUrl;
 
     @Value("${datasource.ri.username}")
     private String dbUsername;
 
-    @Value("${datasource.ri.url}")
-    private String riDbUrl;
+    @Value("${datasource.ri.password}")
+    private String dbPassword;
 
     @Bean
     public NamedParameterJdbcTemplate jdbc() {

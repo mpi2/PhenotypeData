@@ -82,7 +82,7 @@ public class CoreConfig {
         return new SendService(riSqlUtils(), smtpHost, smtpPort, smtpFrom, smtpReplyto);
     }
 
-    @Value("${datasource.ri.url}")
+    @Value("${datasource.ri.jdbc-url}")
     String riUrl;
 
     @Value("${datasource.ri.username}")

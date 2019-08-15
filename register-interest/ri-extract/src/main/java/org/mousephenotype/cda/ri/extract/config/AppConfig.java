@@ -121,7 +121,7 @@ public class AppConfig {
         return new RiSqlUtils(jdbc());
     }
 
-    @Value("${datasource.ri.url}")
+    @Value("${datasource.ri.jdbc-url}")
     String riUrl;
 
     @Value("${datasource.ri.username}")
