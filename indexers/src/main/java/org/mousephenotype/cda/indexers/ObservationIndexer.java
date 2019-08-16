@@ -199,6 +199,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		int count = 0;
 		final int MAX_MISSING_BIOLOGICAL_DATA_ERROR_COUNT_DISPLAYED = 100;
 		int missingBiologicalDataErrorCount = 0;
+
 		experimentCore.deleteByQuery("*:*");
 
 		String query = "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, "
@@ -224,9 +225,25 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		try (PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,  java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
 			p.setFetchSize(Integer.MIN_VALUE);
+
+			logger.debug("  QUERY START");		// 2019-08-16 16:57:05.782  INFO 32731 --- [           main] o.m.cda.indexers.ObservationIndexer      :   QUERY START
 			ResultSet r = p.executeQuery();
+			logger.debug("  QUERY END");		// 2019-08-16 16:57:05.791  INFO 32731 --- [           main] o.m.cda.indexers.ObservationIndexer      :   QUERY END
+
+			long       lastTimestamp       = new Date().getTime();
+			long       startTimestamp      = new Date().getTime();
+			final long INTERVAL_IN_SECONDS = 60 * 20;
+
+			logger.info("  BEGIN processing experiments. Logging interval is {} seconds.", INTERVAL_IN_SECONDS);
 
 			while (r.next()) {
+
+				long now = new Date().getTime();
+				if (now - lastTimestamp > INTERVAL_IN_SECONDS * 1000L) {
+					long totalTimeInSeconds = (now - startTimestamp) / 1000L;
+					logger.info("  Processed {} experiments in {} seconds ({} experiments per second).", count, INTERVAL_IN_SECONDS, count / totalTimeInSeconds);
+					lastTimestamp = now;
+				}
 
 				ObservationDTOWrite o = new ObservationDTOWrite();
 				o.setId(r.getString("id"));
@@ -556,11 +573,11 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					}
 				}
 
-				// 60 seconds between commits
 				documentCount++;
 
 				try {
 
+					// 60 seconds between commits
 					experimentCore.addBean(o, 60000);
 
 				} catch (Exception e) {
@@ -581,6 +598,8 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					logger.info(" Added " + count + " beans");
 				}
 			}
+
+			logger.info("  FINISHED processing experiments.");
 
 			// Final commit to save the rest of the docs
 			experimentCore.commit();
