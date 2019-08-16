@@ -401,7 +401,7 @@ public class CdaSqlUtils {
     public synchronized Map<String, Long> getCdaProject_idsByDccProject() {
         Map<String, Long> map = new ConcurrentHashMapAllowNull<>(ConcurrentHashMapAllowNull.CASE_INSENSITIVE_KEYS);
 
-        Map<String, Project> projects = getProjects();
+        Map<String, Project> projects = getProjectsByName();
 
         Iterator<Map.Entry<String, String>> entrySetIt = LoadUtils.mappedExternalProjectNames.entrySet().iterator();
         while (entrySetIt.hasNext()) {
@@ -702,14 +702,15 @@ public class CdaSqlUtils {
      * @param sampleGroup
      * @param phenotypingCenterId
      * @param productionCenterId (May be null)
+     * @param projectId the projectId
      * @return a map with the number of rows inserted ("count") and the biologicalSampleId ("biologicalSampleId")
      * @throws DataLoadException
      */
-    public synchronized Map<String, Long> insertBiologicalSample(String externalId, long dbId, OntologyTerm sampleType, String sampleGroup, long phenotypingCenterId, long productionCenterId) throws DataLoadException {
+    public synchronized Map<String, Long> insertBiologicalSample(String externalId, long dbId, OntologyTerm sampleType, String sampleGroup, long phenotypingCenterId, long productionCenterId, Long projectId) throws DataLoadException {
         Map<String, Long> results = new HashMap<>();
 
-        final String insert = "INSERT INTO biological_sample (external_id, db_id, sample_type_acc, sample_type_db_id, sample_group, organisation_id, production_center_id) " +
-                                   "VALUES (:external_id, :db_id, :sample_type_acc, :sample_type_db_id, :sample_group, :organisation_id, :production_center_id)";
+        final String insert = "INSERT INTO biological_sample (external_id, db_id, sample_type_acc, sample_type_db_id, sample_group, organisation_id, production_center_id, project_id) " +
+                                   "VALUES (:external_id, :db_id, :sample_type_acc, :sample_type_db_id, :sample_group, :organisation_id, :production_center_id, :project_id)";
 
         // Insert biological sample. Ignore any duplicates.
         Long count = 0L;
@@ -723,6 +724,7 @@ public class CdaSqlUtils {
             parameterMap.put("sample_group", sampleGroup);
             parameterMap.put("organisation_id", phenotypingCenterId);
             parameterMap.put("production_center_id", productionCenterId);
+            parameterMap.put("project_id", projectId);
             KeyHolder keyholder = new GeneratedKeyHolder();
             SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
 
@@ -1595,7 +1597,7 @@ public class CdaSqlUtils {
         return map;
     }
 
-    public Map<String, Project> getProjects() {
+    public Map<String, Project> getProjectsByName() {
         Map<String, Project> projects = new ConcurrentHashMapAllowNull<>();
 
         List<Project> projectList = jdbcCda.query("SELECT * FROM project", new ProjectRowMapper());
@@ -1610,7 +1612,7 @@ public class CdaSqlUtils {
     // SimpleParameter version. Returns the newly-inserted primary key if successful; 0 otherwise.
     public long insertObservation(
             long dbId,
-            long biologicalSamplePk,
+            Long biologicalSamplePk,
             String parameterStableId,
             long parameterId,
             String sequenceId,
@@ -3163,6 +3165,9 @@ public class CdaSqlUtils {
             Organisation productionCenter = new Organisation();
             productionCenter.setId(rs.getLong("production_center_id"));
             biologicalSample.setProductionCenter(productionCenter);
+            Project project = new Project();
+            project.setId(rs.getLong("project_id"));
+            biologicalSample.setProject(project);
             // litter_id was moved to LiveSample.
 
             return biologicalSample;

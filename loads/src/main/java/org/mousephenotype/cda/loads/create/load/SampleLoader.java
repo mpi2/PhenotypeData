@@ -80,6 +80,7 @@ public class SampleLoader implements CommandLineRunner {
     private static Set<String> missingCenters              = new ConcurrentSkipListSet<>();
     private static Set<String> missingColonyIds            = new ConcurrentSkipListSet<>();
     private static Set<String> missingDatasourceShortNames = new ConcurrentSkipListSet<>();
+    private static Set<String> missingProjects             = new ConcurrentSkipListSet<>();
     private static Set<String> unexpectedStage             = new ConcurrentSkipListSet<>();
 
     private final  Logger               logger  = LoggerFactory.getLogger(this.getClass());
@@ -266,6 +267,11 @@ public class SampleLoader implements CommandLineRunner {
             logger.warn("Missing centers: ");
             missingCenters.stream().sorted().forEach(System.out::println);
         }
+
+        if ( ! missingProjects.isEmpty()) {
+            logger.warn("Missing projects: ");
+            missingProjects.stream().sorted().forEach(System.out::println);
+        }
     }
 
 
@@ -302,7 +308,7 @@ public class SampleLoader implements CommandLineRunner {
         Long                 dbId;
         Long                 phenotypingCenterPk;
         Long                 productionCenterPk;
-
+        Long                 projectPk;
 
             /*
              * Some dcc europhenome colonies were incorrectly associated with EuroPhenome. Imits has the authoritative mapping
@@ -389,7 +395,13 @@ public class SampleLoader implements CommandLineRunner {
                         && (specimen.getStrainID() != null)
                         && ( ! specimen.getStrainID().trim().equals("null"))
                         && ( ! specimen.getStrainID().trim().isEmpty())) {
-                    backgroundStrainMismatches.add(colony.getBackgroundStrain() + "::" + specimen.getStrainID());
+                    backgroundStrainMismatches.add(specimen.getSpecimenID()+"::" + specimen.getStrainID() + "::" + colony.getBackgroundStrain());
+                }
+
+                // If the background strain of the mutant specimen has not been provided in the XML file
+                // use the background strain of the colony (from iMits)
+                if ( !specimen.isIsBaseline() && specimen.getStrainID() == null && colony.getBackgroundStrain() != null) {
+                    specimen.setStrainID(colony.getBackgroundStrain());
                 }
             }
 
@@ -447,6 +459,10 @@ public class SampleLoader implements CommandLineRunner {
         }
 
         dbId = cdaDb_idMap.get(specimenExtended.getDatasourceShortName());
+        if (dbId == null) {
+            missingDatasourceShortNames.add(specimenExtended.getDatasourceShortName());
+            return null;
+        }
 
         if (phenotypingCenterPk == null) {
             missingCenters.add("Missing phenotyping center '" + specimen.getPhenotypingCentre().value() + "'");
@@ -456,17 +472,18 @@ public class SampleLoader implements CommandLineRunner {
             missingCenters.add("Missing production center '" + specimen.getProductionCentre().value() + "'");
             return null;
         }
-        if (dbId == null) {
-            missingDatasourceShortNames.add(specimenExtended.getDatasourceShortName());
+
+        projectPk = cdaProject_idMap.get(specimen.getProject());
+        if (projectPk == null) {
+            missingProjects.add("Missing project '" + specimen.getProject() + "'");
             return null;
         }
 
-
         if (isControl) {
-            counts = insertSampleControlSpecimen(specimenExtended, dbId, phenotypingCenterPk, productionCenterPk);
+            counts = insertSampleControlSpecimen(specimenExtended, dbId, phenotypingCenterPk, productionCenterPk, projectPk);
             written.put("controlSample", written.get("controlSample") + 1);
         } else {
-            counts = insertSampleExperimentalSpecimen(specimenExtended, dbId, phenotypingCenterPk, productionCenterPk);
+            counts = insertSampleExperimentalSpecimen(specimenExtended, dbId, phenotypingCenterPk, productionCenterPk, projectPk);
             written.put("experimentalSample", written.get("experimentalSample") + 1);
         }
 
@@ -481,7 +498,8 @@ public class SampleLoader implements CommandLineRunner {
     private Map<String, Integer> insertSampleExperimentalSpecimen(SpecimenExtended specimenExtended,
                                                                   Long dbId,
                                                                   Long phenotypingCenterPk,
-                                                                  Long productionCenterPk) throws DataLoadException {
+                                                                  Long productionCenterPk,
+                                                                  Long projectPk) throws DataLoadException {
         Specimen specimen = specimenExtended.getSpecimen();
 
         Map<String, Integer> counts = new HashMap<>();
@@ -536,7 +554,7 @@ public class SampleLoader implements CommandLineRunner {
         // NOTE: For biological_sample and live_sample, avoid using the hibernate DTOs, as they add a lot of overhead and confusion to an otherwise simple schema.schema
 
         // biological_sample
-        Map<String, Long> results = cdaSqlUtils.insertBiologicalSample(externalId, dbId, sampleType, sampleGroup, phenotypingCenterPk, productionCenterPk);
+        Map<String, Long> results = cdaSqlUtils.insertBiologicalSample(externalId, dbId, sampleType, sampleGroup, phenotypingCenterPk, productionCenterPk, projectPk);
         counts.put("biologicalSample", counts.get("biologicalSample") + results.get("count").intValue());
         Long biologicalSamplePk = results.get("biologicalSamplePk");
 
@@ -556,7 +574,8 @@ public class SampleLoader implements CommandLineRunner {
     private Map<String, Integer> insertSampleControlSpecimen(SpecimenExtended specimenExtended,
                                                              Long dbId,
                                                              Long phenotypingCenterPk,
-                                                             Long productionCenterPk) throws DataLoadException {
+                                                             Long productionCenterPk,
+                                                             Long projectPk) throws DataLoadException {
 
         Specimen specimen = specimenExtended.getSpecimen();
 
@@ -638,7 +657,7 @@ public class SampleLoader implements CommandLineRunner {
         // NOTE: For biological_sample, and live_sample, avoid using the hibernate DTOs, as they add a lot of overhead and confusion to an otherwise simple schema.
 
         // biological_sample
-        Map<String, Long> results = cdaSqlUtils.insertBiologicalSample(externalId, dbId, sampleType, sampleGroup, phenotypingCenterPk, productionCenterPk);
+        Map<String, Long> results = cdaSqlUtils.insertBiologicalSample(externalId, dbId, sampleType, sampleGroup, phenotypingCenterPk, productionCenterPk, projectPk);
         counts.put("biologicalSample", counts.get("biologicalSample") + results.get("count").intValue());
         biologicalSamplePk = results.get("biologicalSamplePk");
 
