@@ -91,16 +91,16 @@ public class StatisticsService {
     }
 
 	
-	public ResponseEntity<PagedResources<Statistics>> getStatsDataForGeneAccesssion(String geneAccession) {
-		return statsClient.getStatsDataForGeneAccession(geneAccession);
-		
-	}
-	
-
-	public ResponseEntity<PagedResources<Statistics>> getStatsDataForGeneSymbol(String geneSybmol) {
-		return statsClient.getStatsDataForGeneSymbol(geneSybmol);
-		
-	}
+//	public ResponseEntity<PagedResources<Statistics>> getStatsDataForGeneAccesssion(String geneAccession) {
+//		return statsClient.getStatsDataForGeneAccession(geneAccession);
+//		
+//	}
+//	
+//
+//	public ResponseEntity<PagedResources<Statistics>> getStatsDataForGeneSymbol(String geneSybmol) {
+//		return statsClient.getStatsDataForGeneSymbol(geneSybmol);
+//		
+//	}
 
 	
 	
