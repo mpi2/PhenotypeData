@@ -322,11 +322,16 @@ public class ChartsController {
 				//get experiment object from the new rest service as a temporary measure we can convert to an experiment object and then we don't have to rewrite the chart code?? and easy to test if experiment objects are the same??
 				System.out.println("Get data from new rest service");
 				long startTime = System.currentTimeMillis();
-		
-				experiment=statsService.getSpecificExperimentDTOFromRest(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession);
-				//do stuff for stats summary table under chart
-				//System.out.println("stats experiment="+experiment);
-				//model.addAttribute("statsExperiment", experiment);
+
+				try {
+					if (false) { // New stats service is not implemented in production yet!
+						experiment = statsService.getSpecificExperimentDTOFromRest(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession);
+					}
+				} catch (Exception e) {
+					// Any exception with new service should fail gracefully to the old method
+					log.debug("Error using statsService.getSpecificExperimentDTOFromRest", e);
+				}
+				
 				long endTime=System.currentTimeMillis();
 				long timeTaken=endTime-startTime;
 				System.out.println("time taken to get experiment="+timeTaken);
