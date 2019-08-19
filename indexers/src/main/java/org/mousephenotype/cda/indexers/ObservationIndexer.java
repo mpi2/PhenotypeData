@@ -586,7 +586,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 				count++;
 
-				if (count % 200000 == 0) {
+				if (count % 2000000 == 0) {
                     logCurrentProgress(count, startTimestamp);
 				}
 			}
