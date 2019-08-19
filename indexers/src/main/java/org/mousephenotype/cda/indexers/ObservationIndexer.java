@@ -131,13 +131,13 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 	@Override
 	public RunStatus run() throws IndexerException, SQLException {
-		weightMap = new WeightMap(komp2DataSource);
+//		weightMap = new WeightMap(komp2DataSource);
 		long count = 0;
 		RunStatus runStatus = new RunStatus();
 		long start = System.currentTimeMillis();
 
 		try (Connection connection = komp2DataSource.getConnection()) {
-
+/*
 			ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
 			emapaParser = ontologyParserFactory.getEmapaParser();
 			maParser = ontologyParserFactory.getMaParser();
@@ -181,12 +181,12 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 			logger.debug("  populating anatomy map");
 			populateAnatomyMap(connection);
 			logger.debug("  map size: " + anatomyMap.size());
-
+*/
 			logger.info("  maps populated");
 
 			count = populateObservationSolrCore(connection, runStatus);
 
-		} catch (SolrServerException | SQLException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e) {
+		} catch (SolrServerException | SQLException | IOException /*        | OWLOntologyCreationException | OWLOntologyStorageException*/         e) {
 			e.printStackTrace();
 			throw new IndexerException(e);
 		}
@@ -224,7 +224,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				+ "INNER JOIN experiment e on eo.experiment_id=e.id " + "WHERE o.missing=0";
 
 		try (PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,  java.sql.ResultSet.CONCUR_READ_ONLY)) {
-
+if (1 == 1) return 0L;
 			p.setFetchSize(Integer.MIN_VALUE);
 
 			logger.debug("  QUERY START");		// 2019-08-16 16:57:05.782  INFO 32731 --- [           main] o.m.cda.indexers.ObservationIndexer      :   QUERY START
