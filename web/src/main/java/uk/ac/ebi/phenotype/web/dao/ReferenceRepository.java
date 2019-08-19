@@ -16,36 +16,36 @@ import java.util.List;
 @Repository
 public interface ReferenceRepository extends MongoRepository<Publication, ObjectId>, ReferenceRepositoryCustom  {
 
-    Page<Publication> findAllByReviewedIsTrueAndFalsePositiveIsFalse(Pageable pageable);
+    Page<Publication> findAllByStatusIs(Pageable pageable, String status);
 
-    int countAllByReviewedIsTrueAndFalsePositiveIsFalse();
+    int countAllByStatusIs(String status);
 
-    @Query("{$and: [{$or: [{title: {$regex : ?0 }}, {abstractText: {$regex : ?0 }}, {authorString: {$regex : ?0 }}]}, {reviewed: true, falsePositive: false}]}")
-    Page<Publication> findAllByReviewedIsTrueAndFalsePositiveIsFalseContains(String filter, Pageable pageable);
+    @Query("{$and: [{$or: [{title: {$regex : ?0 }}, {abstractText: {$regex : ?0 }}, {authorString: {$regex : ?0 }}]}, {status: 'reviewed'}]}")
+    Page<Publication> findReviewedContains(String filter, Pageable pageable);
 
-    @CountQuery("{$and: [{$or: [{title: {$regex : ?0 }}, {abstractText: {$regex : ?0 }}, {authorString: {$regex : ?0 }}]}, {reviewed: true, falsePositive: false}]}")
-    int countAllByReviewedIsTrueAndFalsePositiveIsFalseContains(String filter);
+    @CountQuery("{$and: [{$or: [{title: {$regex : ?0 }}, {abstractText: {$regex : ?0 }}, {authorString: {$regex : ?0 }}]}, {status: 'reviewed'}]}")
+    int countReviewedContains(String filter);
 
 
-    Page<Publication> findAllByReviewedIsTrueAndFalsePositiveIsFalseAndConsortiumPaperIsTrue(Pageable pageable);
+    Page<Publication> findAllByStatusIsAndConsortiumPaperIsTrue(String reviewed, Pageable pageable);
 
-    int countAllByReviewedIsTrueAndFalsePositiveIsFalseAndConsortiumPaperIsTrue();
+    int countAllByStatusIsAndConsortiumPaperIsTrue(String status);
 
-    @Query("{$and: [{$or: [{title: {$regex : ?0 }}, {abstractText: {$regex : ?0 }}, {authorString: {$regex : ?0 }}]}, {reviewed: true, falsePositive: false, consortiumPaper: true}]}")
-    Page<Publication> findAllByReviewedIsTrueAndFalsePositiveIsFalseAndConsortiumPaperIsTrueContains(String filter, Pageable pageable);
+    @Query("{$and: [{$or: [{title: {$regex : ?0 }}, {abstractText: {$regex : ?0 }}, {authorString: {$regex : ?0 }}]}, {status: 'reviewed', consortiumPaper: true}]}")
+    Page<Publication> findReviewedConsortiumPaperIsTrueContains(String filter, Pageable pageable);
 
-    @CountQuery("{$and: [{$or: [{title: {$regex : ?0 }}, {abstractText: {$regex : ?0 }}, {authorString: {$regex : ?0 }}]}, {reviewed: true, falsePositive: false, consortiumPaper: true}]}")
-    int countAllByReviewedIsTrueAndFalsePositiveIsFalseAndConsortiumPaperIsTrueContains(String filter);
+    @CountQuery("{$and: [{$or: [{title: {$regex : ?0 }}, {abstractText: {$regex : ?0 }}, {authorString: {$regex : ?0 }}]}, {status: 'reviewed', consortiumPaper: true}]}")
+    int countReviewedAndConsortiumPaperIsTrueContains(String filter);
 
-    Page<Publication> findDistinctByReviewedIsTrueAndFalsePositiveIsFalseAndGrantsList_AgencyIs(String agency, Pageable pageable);
+    Page<Publication> findDistinctByStatusEqualsAndGrantsList_AgencyIs(String status, String agency, Pageable pageable);
 
-    @CountQuery("{ grantsList.agency: ?0, reviewed: true, falsePositive: false}")
+    @CountQuery("{ grantsList.agency: ?0, status: 'reviewed'}")
     int countDistinctByGrantsList_AgencyIs(String agency);
 
-    @Query("{$and: [{$or: [{title: {$regex : ?1 }}, {abstractText: {$regex : ?1 }}, {authorString: {$regex : ?1 }}]}, {reviewed: true, falsePositive: false, grantsList.agency: ?0}]}")
+    @Query("{$and: [{$or: [{title: {$regex : ?1 }}, {abstractText: {$regex : ?1 }}, {authorString: {$regex : ?1 }}]}, {status: 'reviewed', grantsList.agency: ?0}]}")
     Page<Publication> findByAgencyFiltered(String agency, String filter, Pageable pageable);
 
-    @CountQuery("{$and: [{$or: [{title: {$regex : ?1 }}, {abstractText: {$regex : ?1 }}, {authorString: {$regex : ?1 }}]}, {reviewed: true, falsePositive: false, grantsList.agency: ?0}]}")
+    @CountQuery("{$and: [{$or: [{title: {$regex : ?1 }}, {abstractText: {$regex : ?1 }}, {authorString: {$regex : ?1 }}]}, {status: 'reviewed', grantsList.agency: ?0}]}")
     int countByAgencyFiltered(String agency, String filter);
 
     @Query("{meshHeadingList: {'$regex' : ?0, '$options' : 'i'}}")
@@ -54,10 +54,10 @@ public interface ReferenceRepository extends MongoRepository<Publication, Object
     @CountQuery("{meshHeadingList: {'$regex' : ?0, '$options' : 'i'}}")
     int countDistinctByMeshHeadingListContains(String mesh);
 
-    @Query("{$and: [{$or: [{title: {$regex : ?1 }}, {abstractText: {$regex : ?1 }}, {authorString: {$regex : ?1 }}]}, {reviewed: true, falsePositive: false, meshHeadingList: {'$regex' : ?0, '$options' : 'i'}}]}")
+    @Query("{$and: [{$or: [{title: {$regex : ?1 }}, {abstractText: {$regex : ?1 }}, {authorString: {$regex : ?1 }}]}, {status: 'reviewed', meshHeadingList: {'$regex' : ?0, '$options' : 'i'}}]}")
     Page<Publication> findByMeshtermFiltered(String meshTerm, String filter, Pageable pageable);
 
-    @CountQuery("{$and: [{$or: [{title: {$regex : ?1 }}, {abstractText: {$regex : ?1 }}, {authorString: {$regex : ?1 }}]}, {reviewed: true, falsePositive: false, meshHeadingList: {'$regex' : ?0, '$options' : 'i'}}]}")
+    @CountQuery("{$and: [{$or: [{title: {$regex : ?1 }}, {abstractText: {$regex : ?1 }}, {authorString: {$regex : ?1 }}]}, {status: 'reviewed', meshHeadingList: {'$regex' : ?0, '$options' : 'i'}}]}")
     int countByMeshtermFiltered(String meshTerm, String filter);
 
 }

@@ -19,6 +19,7 @@ public class Publication {
 
     private ObjectId id;
 
+    private String status;
     private String title;
     private String pmid;
     private String pmcid;
@@ -33,9 +34,7 @@ public class Publication {
     private ArrayList<FullTextUrl> fullTextUrlList;
     private ArrayList<AlleleRef> alleles;
     private String datasource;
-    private boolean reviewed;
     private boolean consortiumPaper;
-    private boolean falsePositive;
     private ArrayList<Citation> citations;
     private ArrayList<String> cites;
     private String keyword;

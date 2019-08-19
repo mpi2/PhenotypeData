@@ -59,36 +59,33 @@
                 <div class="pre-content">
                     <div class="row no-gutters">
                         <div class="col-12 px-5 pb-5">
-                            <p>
-                                Visualize multiple strain across several continuous parameters used for multiple <a
-                                    href="${cmsBaseUrl}/impress">system phenotyping</a>.
-                                The parameter measurement values are corrected to account for batch effects to represent
-                                the true genotype effect thus allowing a
-                                side by side comparison/visualisation. Only continuous parameters can be visualized
-                                using this methodology. Results are represented with a graph and a table.
+                            <p>The parallel coordinates viewer allows to visualize multiple mouse lines for multiple
+                                parameters for selected procedures. Only continuous parameters can be visualized using
+                                this methodology.</p>
 
-                                More information about the <a href="${cmsBaseUrl}/help/faqs/data-visualization/parallel-coordinates-viewer/">KO
-                                effect comparator</a> and <a href="${cmsBaseUrl}/help/statistical-analysis/introduction/">statistics</a>.
-                            </p>
-                            <h3>How to use the tool?</h3>
-                            <p>
-                                Select one or several procedure(s) (link to impress) using the procedure filter tab.
-                                Additional optional filtering include phenotyping center or mouse gene list of interest
-                                selection. If no genes are selected, the tool will show all genes in IMPC for the
-                                selected procedure(s) and/or center selected.
-                            </p>
-                            <p>
-                                The graph is interactive and allows filtering on each axis (parameter) by selecting the
-                                region of interest. Several regions of interests can be selected one by one.
-                            </p>
-                            <p>
-                                Clicking on a chosen line on the graph or on a gene name from the table will highlight
+                            <p>The values displayed are genotype effects. The measurement values are corrected to
+                                account for batch effects to represent the true genotype effect, thus allowing a
+                                side-by-side comparison.</p>
+
+                            <h3>How to use this tool?</h3>
+
+                            <p>Select one or several procedure(s) using the procedure filter tab. Additional optional
+                                filtering include phenotyping center or mouse gene list of interest selection. If no
+                                genes are selected, the tool will show all genes in IMPC for the selected procedure(s)
+                                and/or center selected.</p>
+
+                            <p>The graph is interactive and allows filtering on each axis (parameter) by selecting the
+                                region of interest. Several regions of interests can be selected one by one.</p>
+
+                            <p>Clicking on a chosen line on the graph or on a gene name from the table will highlight
                                 the corresponding gene. For a selected gene, if any significant phenotype is associated
-                                with a parameter, the parameter colour will change to orange. To remove all filters,
-                                click on the clear filter button. Export button allows to download the data in a table
-                                format.
-                            </p>
-                            <br/>
+                                with a parameter, the parameter name will change to bold. To remove all filters, simply
+                                reload the page.</p>
+
+                            <p><b>More information can be found in the <a
+                                    href="${cmsBaseUrl}/help/faqs/data-visualization/parallel-coordinates-viewer/">Help
+                                pages</a>.</b></p>
+
                             <form class="shadow-sm p-3 mb-5 bg-light rounded" id="target">
                                 <div class="row align-middle">
                                     <div class="col-3">

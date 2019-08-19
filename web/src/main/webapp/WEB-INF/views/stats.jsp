@@ -81,13 +81,6 @@
             </div>
         </c:if>
 
-        <c:if test="${noData}">
-            <div class="alert alert-error">
-                <strong>We don't appear to have any data for this query please try the europhenome graph link
-                    instead</strong>
-            </div>
-        </c:if>
-
         <c:forEach var="graphUrl" items="${allGraphUrlSet}" varStatus="graphUrlLoop">
 
             <div class="chart" id="chart${graphUrlLoop.count}" graphUrl="${baseUrl}/chart?${graphUrl}" id="divChart_${graphUrlLoop.count}">
@@ -101,7 +94,6 @@
                     </div>
                 </div>
             </div>
-
 
         </c:forEach>
 

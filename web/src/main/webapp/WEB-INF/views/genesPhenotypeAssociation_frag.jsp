@@ -74,6 +74,20 @@
                 </div>
                 <div class="row no-gutters mb-2 mb-sm-0">
                     <div class="col align-middle text-sm-right pr-1">
+                        <div class="align-middle font-weight-bold pr-2">View</div>
+                    </div>
+                    <div class="col-sm-10 align-middle text-sm-left">
+                        <c:if test="${gene.embryoDataAvailable}">
+                            <a id="embryoViewerBtn" href="${cmsBaseUrl}/embryoviewer?mgi=${acc}" class="page-nav-link" style="font-size: initial; display: inline;">3D Imaging</a>
+                        </c:if>
+                        <c:if test="${not gene.embryoDataAvailable}">
+                            N/A
+                        </c:if>
+
+                    </div>
+                </div>
+                <div class="row no-gutters mb-2 mb-sm-0">
+                    <div class="col align-middle text-sm-right pr-1">
                         <div class="align-middle font-weight-bold pr-2">Other links</div>
                     </div>
                     <div class="col-sm-10 align-middle text-sm-left">
