@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -164,9 +165,8 @@ public class ProductIndexer  extends AbstractIndexer implements CommandLineRunne
         return runStatus;
     }
 
-    public static void main(String[] args) throws IndexerException {
-        SpringApplication.run(ProductIndexer.class, args);
+    public static void main(String[] args) {
+        ConfigurableApplicationContext context = SpringApplication.run(ProductIndexer.class, args);
+        context.close();
     }
-
-
 }

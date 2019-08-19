@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -727,6 +728,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(GeneIndexer.class, args);
+        ConfigurableApplicationContext context = SpringApplication.run(GeneIndexer.class, args);
+        context.close();
     }
 }

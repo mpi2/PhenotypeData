@@ -29,6 +29,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import javax.inject.Inject;
@@ -556,8 +557,9 @@ public class IndexerManager  implements CommandLineRunner {
         return options;
     }
 
-    public static void main(String[] args) throws Exception {
-        SpringApplication.run(IndexerManager.class, args);
+    public static void main(String[] args) {
+        ConfigurableApplicationContext context = SpringApplication.run(IndexerManager.class, args);
+        context.close();
     }
 
     public int mainReturnsStatus(String[] args) throws Exception {

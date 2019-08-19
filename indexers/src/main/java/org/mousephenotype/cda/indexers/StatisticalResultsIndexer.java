@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -1956,7 +1957,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     }
 
 
-    public static void main(String[] args) throws IndexerException {
-        SpringApplication.run(StatisticalResultsIndexer.class, args);
+    public static void main(String[] args) {
+        ConfigurableApplicationContext context = SpringApplication.run(StatisticalResultsIndexer.class, args);
+        context.close();
     }
 }

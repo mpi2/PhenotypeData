@@ -44,6 +44,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -122,8 +123,9 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		return super.validateBuild(experimentCore);
 	}
 
-	public static void main(String[] args) throws IndexerException {
-		SpringApplication.run(ObservationIndexer.class, args);
+	public static void main(String[] args) {
+        ConfigurableApplicationContext context = SpringApplication.run(ObservationIndexer.class, args);
+        context.close();
 	}
 
 
@@ -182,10 +184,9 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 			logger.info("  maps populated");
 
-
 			count = populateObservationSolrCore(connection, runStatus);
 
-		} catch (SolrServerException | SQLException | IOException |OWLOntologyCreationException | OWLOntologyStorageException e) {
+		} catch (SolrServerException | SQLException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e) {
 			e.printStackTrace();
 			throw new IndexerException(e);
 		}
@@ -196,7 +197,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 	public long populateObservationSolrCore(Connection connection, RunStatus runStatus) throws IOException, SolrServerException {
 
-		int count = 0;
+		long count = 0L;
 		final int MAX_MISSING_BIOLOGICAL_DATA_ERROR_COUNT_DISPLAYED = 100;
 		int missingBiologicalDataErrorCount = 0;
 
@@ -230,22 +231,13 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 			ResultSet r = p.executeQuery();
 			logger.debug("  QUERY END");		// 2019-08-16 16:57:05.791  INFO 32731 --- [           main] o.m.cda.indexers.ObservationIndexer      :   QUERY END
 
-			long       lastTimestamp       = new Date().getTime();
 			long       startTimestamp      = new Date().getTime();
-			final long INTERVAL_IN_SECONDS = 60 * 20;
 
-			logger.info("  BEGIN processing experiments. Logging interval is {} seconds.", INTERVAL_IN_SECONDS);
+			logger.info("  BEGIN processing experiments");
 
 			while (r.next()) {
 
-				long now = new Date().getTime();
-				if (now - lastTimestamp > INTERVAL_IN_SECONDS * 1000L) {
-					long totalTimeInSeconds = (now - startTimestamp) / 1000L;
-					logger.info("  Processed {} experiments in {} seconds ({} experiments per second).", count, INTERVAL_IN_SECONDS, count / totalTimeInSeconds);
-					lastTimestamp = now;
-				}
-
-				ObservationDTOWrite o = new ObservationDTOWrite();
+                ObservationDTOWrite o = new ObservationDTOWrite();
 				o.setId(r.getString("id"));
 				o.setParameterId(r.getLong("parameter_id"));
 				o.setExperimentId(r.getLong("experiment_id"));
@@ -575,34 +567,34 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 				documentCount++;
 
-				try {
-
-					// 60 seconds between commits
-					experimentCore.addBean(o, 60000);
-
-				} catch (Exception e) {
-
-					logger.error("Failed to add experimentId: {}, dateOfBirth: {},  dateOfExperiment: {}, weightDate: {}. Reason: {}\nquery: {}",
-								 o.getExperimentId(),
-								 o.getDateOfBirthAsZonedDateTime() == null ? "null" : o.getDateOfBirthAsZonedDateTime().toString(),
-								 o.getDateOfExperimentAsZonedDateTime() == null ? "null" : o.getDateOfExperimentAsZonedDateTime().toString(),
-								 o.getWeightDateAsZonedDateTime() == null ? "null" : o.getWeightDateAsZonedDateTime().toString(),
-                                 e.getLocalizedMessage(),
-                                 query);
-					continue;
-				}
+//				try {
+//
+//					// 60 seconds between commits
+//					experimentCore.addBean(o, 60000);
+//
+//				} catch (Exception e) {
+//
+//					logger.error("Failed to add experimentId: {}, dateOfBirth: {},  dateOfExperiment: {}, weightDate: {}. Reason: {}\nquery: {}",
+//								 o.getExperimentId(),
+//								 o.getDateOfBirthAsZonedDateTime() == null ? "null" : o.getDateOfBirthAsZonedDateTime().toString(),
+//								 o.getDateOfExperimentAsZonedDateTime() == null ? "null" : o.getDateOfExperimentAsZonedDateTime().toString(),
+//								 o.getWeightDateAsZonedDateTime() == null ? "null" : o.getWeightDateAsZonedDateTime().toString(),
+//                                 e.getLocalizedMessage(),
+//                                 query);
+//					continue;
+//				}
 
 				count++;
 
-				if (count % 2000000 == 0) {
-					logger.info(" Added " + count + " beans");
+				if (count % 200000 == 0) {
+                    logCurrentProgress(count, startTimestamp);
 				}
 			}
 
 			logger.info("  FINISHED processing experiments.");
 
 			// Final commit to save the rest of the docs
-			experimentCore.commit();
+//			experimentCore.commit();
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -617,7 +609,15 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	}
 
 
-	private void addAnatomyInfo(OntologyTermDTO term, ObservationDTOWrite doc) {
+    private void logCurrentProgress(long count, long startTimestamp) {
+        long now                = new Date().getTime();
+        long totalTimeInMinutes = (now - startTimestamp) / 60000L;
+        if (totalTimeInMinutes > 0) {
+            logger.info("  Added {} experiments ({} experiments per minute).", count, count / totalTimeInMinutes);
+        }
+    }
+
+    private void addAnatomyInfo(OntologyTermDTO term, ObservationDTOWrite doc) {
 
 		if (term != null) {
 			doc.getAnatomyId().add(term.getAccessionId());
