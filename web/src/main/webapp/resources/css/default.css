@@ -6119,7 +6119,8 @@ h4 {
     z-index: -1;
     position: relative; }
 .header__logo {
-    width: 190px; }
+    width: 170px;
+     }
 .header__logo-link {
     padding-bottom: 16px;
     padding-top: 16px; }
