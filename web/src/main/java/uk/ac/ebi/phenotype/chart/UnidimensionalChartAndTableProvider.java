@@ -16,7 +16,7 @@
 package uk.ac.ebi.phenotype.chart;
 
 import org.apache.commons.lang3.text.WordUtils;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.mousephenotype.cda.db.pojo.Parameter;

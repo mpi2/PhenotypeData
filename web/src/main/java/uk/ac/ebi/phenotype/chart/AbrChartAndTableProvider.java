@@ -16,7 +16,7 @@
 package uk.ac.ebi.phenotype.chart;
 
 import org.apache.commons.collections.map.LinkedMap;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -303,9 +303,9 @@ public class AbrChartAndTableProvider {
 
 	public UnidimensionalStatsObject getMeans(SexType sex, ZygosityType zyg, ExperimentDTO exp){
 
-		DescriptiveStatistics stats = new DescriptiveStatistics();
-		UnidimensionalStatsObject res = new UnidimensionalStatsObject();
-		Set<ObservationDTO> dataPoints = null;
+		DescriptiveStatistics     stats      = new DescriptiveStatistics();
+		UnidimensionalStatsObject res        = new UnidimensionalStatsObject();
+		Set<ObservationDTO>       dataPoints = null;
 
 		if (zyg == null){
 			dataPoints = exp.getControls(sex);

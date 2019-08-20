@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
