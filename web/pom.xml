@@ -4,7 +4,7 @@
 
     <groupId>uk.ac.ebi.phenotype</groupId>
     <artifactId>PhenotypeArchive</artifactId>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
     <name>EBI Phenotype Archive</name>
     <description>EBI Phenotype Archive Project</description>
 
@@ -216,7 +216,7 @@
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-jasper</artifactId>
-        </dependency>
+    </dependency>
 
 
         <!-- OTHER DEPENDENCIES -->
@@ -299,21 +299,21 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-<!--                <configuration>-->
-<!--                    <mainClass>uk.ac.ebi.PhenotypeArchive</mainClass>-->
-<!--                </configuration>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>repackage</id>-->
-<!--                        <goals>-->
-<!--                            <goal>repackage</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <classifier>exec</classifier>-->
-<!--                            <attach>false</attach>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                </executions>-->
+                <configuration>
+                    <mainClass>uk.ac.ebi.PhenotypeArchive</mainClass>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>repackage</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>exec</classifier>
+                            <attach>false</attach>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- Ensures we are compiling at 1.8 level -->

@@ -230,8 +230,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             this.createNewSession = createNewSession;
         }
     }
-    
-    
+
+
     @Component
     public class PdxFinderURLFilter implements Filter {
 
@@ -256,8 +256,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         }
 
     }
-    
-    
+
+
     public class PdxFinderXSSFilter extends HttpServletRequestWrapper {
 
         private Pattern[] patterns = new Pattern[]{

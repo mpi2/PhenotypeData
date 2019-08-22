@@ -15,9 +15,8 @@ import org.springframework.http.CacheControl;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-import org.springframework.web.servlet.view.InternalResourceViewResolver;
-import org.springframework.web.servlet.view.JstlView;
+import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import uk.ac.ebi.phenotype.util.SolrUtilsWeb;
 import uk.ac.ebi.phenotype.web.util.DeploymentInterceptor;
 
@@ -38,7 +37,7 @@ import java.util.concurrent.TimeUnit;
         "uk.ac.ebi.phenotype.web.controller"},
         excludeFilters = @ComponentScan.Filter(value = org.mousephenotype.cda.annotations.ComponentScanNonParticipant.class, type = FilterType.ANNOTATION))
 @EnableScheduling
-public class PhenotypeArchiveConfig {
+public class PhenotypeArchiveConfig implements WebMvcConfigurer {
 
     private static final Logger logger = LoggerFactory.getLogger(PhenotypeArchiveConfig.class);
 
@@ -92,56 +91,32 @@ public class PhenotypeArchiveConfig {
         return map;
     }
 
-    @Bean
-    public InternalResourceViewResolver viewResolver() {
-        InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
-        viewResolver.setViewClass(JstlView.class);
-        viewResolver.setPrefix("/WEB-INF/views/");
-        viewResolver.setSuffix(".jsp");
-        return viewResolver;
+    @Autowired
+    DeploymentInterceptor deploymentInterceptor;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(deploymentInterceptor);
     }
 
-//    @Bean
-//    OpenSessionInViewInterceptor getOpenSessionInViewInterceptor(SessionFactory session){
-//        OpenSessionInViewInterceptor openSessionInViewInterceptor = new OpenSessionInViewInterceptor();
-//        openSessionInViewInterceptor.setSessionFactory(session);
-//        return openSessionInViewInterceptor;
-//    }
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
-    @Bean
-    public WebMvcConfigurerAdapter adapter() {
+        logger.info("Adding WebMvc resources");
+        registry.addResourceHandler("/css/**").addResourceLocations("/resources/css/").setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS));
+        registry.addResourceHandler("/js/**").addResourceLocations("/resources/js/").setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS));
+        registry.addResourceHandler("/img/**").addResourceLocations("/resources/img/").setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS));
+        registry.addResourceHandler("/documentation/**").addResourceLocations("/resources/documentation/").setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS));
+        registry.addResourceHandler("/dalliance/**").addResourceLocations("/resources/dalliance/");
+        registry.addResourceHandler("/release_notes/**").addResourceLocations("/resources/release_notes/").setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS));
+        registry.addResourceHandler("/image_compara/**").addResourceLocations("/resources/image_compara/");
+        registry.addResourceHandler("/dist/**").addResourceLocations("/resources/js/anatomogram/dist/");
+        registry.addResourceHandler("/fonts/**").addResourceLocations("/resources/fonts/").setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS));
+    }
 
-        return new WebMvcConfigurerAdapter() {
-
-            @Autowired
-            DeploymentInterceptor deploymentInterceptor;
-
-
-            @Override
-            public void addInterceptors(InterceptorRegistry registry) {
-                registry.addInterceptor(deploymentInterceptor);
-                super.addInterceptors(registry);
-            }
-
-            @Override
-            public void addResourceHandlers(ResourceHandlerRegistry registry) {
-
-                logger.info("Adding WebMvc resources");
-                registry.addResourceHandler("/css/**").addResourceLocations("/resources/css/").setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS));
-                registry.addResourceHandler("/js/**").addResourceLocations("/resources/js/").setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS));
-                registry.addResourceHandler("/img/**").addResourceLocations("/resources/img/").setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS));
-                registry.addResourceHandler("/documentation/**").addResourceLocations("/resources/documentation/").setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS));
-                registry.addResourceHandler("/dalliance/**").addResourceLocations("/resources/dalliance/");
-                registry.addResourceHandler("/release_notes/**").addResourceLocations("/resources/release_notes/").setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS));
-                registry.addResourceHandler("/image_compara/**").addResourceLocations("/resources/image_compara/");
-                registry.addResourceHandler("/dist/**").addResourceLocations("/resources/js/anatomogram/dist/");
-                registry.addResourceHandler("/fonts/**").addResourceLocations("/resources/fonts/").setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS));
-
-                super.addResourceHandlers(registry);
-
-            }
-
-        };
+    @Override
+    public void configureViewResolvers(ViewResolverRegistry registry) {
+        registry.jsp("/WEB-INF/views/", ".jsp");
     }
 
     @Bean

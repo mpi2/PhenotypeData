@@ -2,6 +2,7 @@ package org.mousephenotype.cda.datatests.repositories.solr;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.service.GrossPathService;
@@ -29,7 +30,7 @@ public class GrosspathServiceTest {
    @Autowired
     private GrossPathService grossPathService;
 
-
+@Ignore
 	@Test
     public void getTableDataTest() throws IOException, SolrServerException {
 
