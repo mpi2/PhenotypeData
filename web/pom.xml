@@ -292,7 +292,7 @@
     </dependencyManagement>
 
     <build>
-        <finalName>phenotype-archive</finalName>
+        <finalName>phenotype-data-web</finalName>
 
         <plugins>
 
