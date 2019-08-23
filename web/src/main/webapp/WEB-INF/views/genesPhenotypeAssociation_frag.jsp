@@ -78,7 +78,7 @@
                     </div>
                     <div class="col-sm-10 align-middle text-sm-left">
                         <c:if test="${gene.embryoDataAvailable}">
-                            <a id="embryoViewerBtn" href="${cmsBaseUrl}/embryoviewer?mgi=${acc}" class="page-nav-link" style="font-size: initial; display: inline;">3D Imaging</a>
+                            <a id="embryoViewerBtn" href="${cmsBaseUrl}/embryoviewer/?mgi=${acc}" class="page-nav-link" style="font-size: initial; display: inline;">3D Imaging</a>
                         </c:if>
                         <c:if test="${not gene.embryoDataAvailable}">
                             N/A
