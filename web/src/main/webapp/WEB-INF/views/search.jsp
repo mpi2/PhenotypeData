@@ -83,8 +83,8 @@
                             <p>Number of results: <span id="numResults">${numberOfResults}</span></p>
                             </c:if>
                             <c:if test="${numberOfResults == 0}">
-                                <div class="alert alert-warning">
-                                    <h4>No results found for search term "${term}".</h4>
+                                <div>
+                                    <p>No results found for search term "${term}".</p>
                                     <c:if test="${fn:length(phenotypeSuggestions) > 0 || fn:length(geneSuggestions) > 0}">
                                         <hr />
                                         Perhaps you were searching for:
@@ -92,17 +92,18 @@
                                             <c:forEach var="i" items="${phenotypeSuggestions}">
                                                 <li>
                                                     <a href="${baseUrl}/search?term=${i}&type=${type}" aria-controls="suggestion" data-dt-idx="0" tabindex="0" class="">${i}</a>
-
                                                 </li>
                                             </c:forEach>
                                             <c:forEach var="i" items="${geneSuggestions}">
                                                 <li>
                                                     <a href="${baseUrl}/search?term=${i}&type=${type}" aria-controls="suggestion" data-dt-idx="0" tabindex="0" class="">${i}</a>
-
                                                 </li>
                                             </c:forEach>
                                         </ul>
                                     </c:if>
+                                    <p class="my-3">
+                                        <a class="btn btn-success" href="${cmsBaseUrl}/?s=${term}">Search static content for the term <b>${term}</b></a>
+                                    </p>
                                 </div>
                             </c:if>
 
