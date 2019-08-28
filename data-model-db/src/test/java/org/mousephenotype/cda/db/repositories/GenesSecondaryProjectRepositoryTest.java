@@ -60,12 +60,12 @@ public class GenesSecondaryProjectRepositoryTest {
     @Test
     public void getAllBySecondaryProjectIdAndGroupLabel() {
         Set<GenesSecondaryProject> genes = genesSecondaryProjectRepository.getAllBySecondaryProjectIdAndGroupLabel("idg", "Kinases");
-        assertEquals(genes.size(), 359);
-        Map<String, GenesSecondaryProject> genesMap = new HashMap<>(400);
+        assertEquals(genes.size(), 127);
+        Map<String, GenesSecondaryProject> genesMap = new HashMap<>(200);
         for (GenesSecondaryProject gene : genes) {
             genesMap.put(gene.getMgiGeneAccessionId(), gene);
         }
-        assertTrue(genesMap.size() == 359);
+        assertTrue(genesMap.size() == 127);
 
         GenesSecondaryProject expectedGene = new GenesSecondaryProject("MGI:2443413", "idg", "Kinases");
         GenesSecondaryProject actualGene = genesMap.get("MGI:2443413");

@@ -23,7 +23,6 @@ import org.springframework.data.repository.CrudRepository;
 public interface GenomicFeatureRepository extends CrudRepository<GenomicFeature, Long> {
 
     GenomicFeature getById_Accession(String idAccession);
-    GenomicFeature getById_AccessionAndAndId_DatabaseId(String accession, Long databaseId);
 
     String getById_AccessionAndExternalDbShortNameQuery = "SELECT * FROM genomic_feature gf JOIN external_db edb ON edb.id = gf.db_id WHERE gf.acc = ?1 AND edb.short_name = ?2";
     @Query( value = getById_AccessionAndExternalDbShortNameQuery, nativeQuery = true)
