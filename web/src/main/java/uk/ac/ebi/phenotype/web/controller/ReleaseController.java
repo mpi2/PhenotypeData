@@ -18,9 +18,9 @@ package uk.ac.ebi.phenotype.web.controller;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONObject;
 import org.mousephenotype.cda.db.pojo.AggregateCountXY;
-import org.mousephenotype.cda.db.pojo.AnalyticsPvalueDistribution;
 import org.mousephenotype.cda.db.pojo.MetaHistory;
 import org.mousephenotype.cda.db.pojo.MetaInfo;
+import org.mousephenotype.cda.db.pojo.UniqueDatatypeAndStatisticalMethod;
 import org.mousephenotype.cda.db.repositories.AnalyticsPvalueDistributionRepository;
 import org.mousephenotype.cda.db.repositories.AnalyticsSignificantCallsProceduresRepository;
 import org.mousephenotype.cda.db.repositories.MetaHistoryRepository;
@@ -232,13 +232,13 @@ public class ReleaseController {
 				"callProcedureChart", "checkAllPhenCalls", "uncheckAllPhenCalls");
 
 		Map<String, List<String>> statisticalMethods =
-				analyticsPvalueDistributionRepository.getAllStatisticalMethods()
+				analyticsPvalueDistributionRepository.getAllStatisticalMethods(UniqueDatatypeAndStatisticalMethod.class)
 						.stream()
 						.collect(
 								Collectors.groupingBy(
-										AnalyticsPvalueDistribution::getDatatype,
+										UniqueDatatypeAndStatisticalMethod::getDatatype,
 										Collectors.mapping(
-												AnalyticsPvalueDistribution::getStatisticalMethod,
+												UniqueDatatypeAndStatisticalMethod::getStatisticalMethod,
 												Collectors.toList())));
 
 		/**

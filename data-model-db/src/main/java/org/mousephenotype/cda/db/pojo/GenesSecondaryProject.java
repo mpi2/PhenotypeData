@@ -21,7 +21,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 
 @Entity
@@ -41,13 +44,6 @@ public class GenesSecondaryProject {
 
 	@Column(name = "group_label")
 	private String groupLabel;
-
-	@OneToOne
-	@JoinColumns({
-			@JoinColumn(name = "gf_acc"),
-			@JoinColumn(name = "gf_db_id"),
-	})
-	private GenomicFeature gene;
 
 	public GenesSecondaryProject(String mgiGeneAccessionId) {
 		this.mgiGeneAccessionId = mgiGeneAccessionId;

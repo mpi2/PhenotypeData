@@ -16,32 +16,18 @@
 
 package org.mousephenotype.cda.loads.derived;
 
-import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
-import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
 
 @Configuration
-@EnableTransactionManagement
-@SpringBootApplication(exclude = {MongoAutoConfiguration.class, MongoDataAutoConfiguration.class})
-@ComponentScan(basePackages = {"org.mousephenotype.cda.db.dao"}, excludeFilters = {
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {
-                MongoAutoConfiguration.class,
-                MongoDataAutoConfiguration.class})}
-)
+@EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
 public class GenerateDerivedParametersTestConfig {
 
-     // komp2 database
     @Bean(name = "komp2DataSource")
     public DataSource komp2DataSource() {
         return new EmbeddedDatabaseBuilder()
@@ -49,33 +35,5 @@ public class GenerateDerivedParametersTestConfig {
                 .ignoreFailedDrops(true)
                 .setName("komp2")
                 .build();
-    }
-
-//    @Bean(name = "komp2TxManager")
-//    protected PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
-//        JpaTransactionManager tm = new JpaTransactionManager();
-//        tm.setEntityManagerFactory(emf);
-//        tm.setDataSource(komp2DataSource());
-//        return tm;
-//    }
-//
-//    @Bean(name = "sessionFactoryHibernate")
-//    public SessionFactory sessionFactory() {
-//
-//        LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
-//        sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
-//        sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
-//
-//        return sessionBuilder.buildSessionFactory();
-//    }
-
-    @Bean
-    public CdaSqlUtils cdaSqlUtils() {
-        return new CdaSqlUtils(jdbcCda());
-    }
-
-    @Bean
-    public NamedParameterJdbcTemplate jdbcCda() {
-        return new NamedParameterJdbcTemplate(komp2DataSource());
     }
 }

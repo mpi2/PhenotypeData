@@ -3,7 +3,6 @@ package org.mousephenotype.cda.loads.derived;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.db.dao.*;
 import org.mousephenotype.cda.db.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
@@ -11,9 +10,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.inject.Inject;
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
 import java.sql.*;
 
 
@@ -23,50 +20,19 @@ import java.sql.*;
 @Rollback
 public class GenerateDerivedParametersTest {
 
-    private BiologicalModelRepository biologicalModelRepository;
-    private DatasourceRepository      datasourceRepository;
-    private ExperimentRepository      experimentRepository;
+    @Autowired private BiologicalModelRepository biologicalModelRepository;
+    @Autowired private DatasourceRepository      datasourceRepository;
+    @Autowired private ExperimentRepository      experimentRepository;
+    @Autowired private DataSource                komp2DataSource;
+    @Autowired private LiveSampleRepository      liveSampleRepository;
+    @Autowired private ObservationRepository     observationRepository;
+    @Autowired private OrganisationRepository    organisationRepository;
+    @Autowired private ParameterRepository       parameterRepository;
+    @Autowired private PipelineRepository        pipelineRepository;
+    @Autowired private ProcedureRepository       procedureRepository;
+    @Autowired private ProjectRepository         projectRepository;
+
     private GenerateDerivedParameters generateDerivedParameters;
-    private DataSource                komp2DataSource;
-    private LiveSampleRepository      liveSampleRepository;
-    private ObservationRepository     observationRepository;
-    private OrganisationRepository    organisationRepository;
-    private ParameterRepository       parameterRepository;
-    private PipelineRepository        pipelineRepository;
-    private ProcedureRepository       procedureRepository;
-    private ProjectRepository         projectRepository;
-
-
-    @Inject
-    public GenerateDerivedParametersTest(
-            @NotNull BiologicalModelRepository biologicalModelRepository,
-            @NotNull DatasourceRepository      datasourceRepository,
-            @NotNull ExperimentRepository      experimentRepository,
-            @NotNull GenerateDerivedParameters generateDerivedParameters,
-            @NotNull DataSource                komp2DataSource,
-            @NotNull LiveSampleRepository      liveSampleRepository,
-            @NotNull ObservationRepository     observationRepository,
-            @NotNull OrganisationRepository    organisationRepository,
-            @NotNull ParameterRepository       parameterRepository,
-            @NotNull PipelineRepository        pipelineRepository,
-            @NotNull ProcedureRepository       procedureRepository,
-            @NotNull ProjectRepository         projectRepository)
-    {
-        this.biologicalModelRepository = biologicalModelRepository;
-        this.datasourceRepository = datasourceRepository;
-        this.experimentRepository = experimentRepository;
-        this.generateDerivedParameters = generateDerivedParameters;
-        this.komp2DataSource = komp2DataSource;
-        this.liveSampleRepository = liveSampleRepository;
-        this.observationRepository = observationRepository;
-        this.parameterRepository = parameterRepository;
-        this.procedureRepository = procedureRepository;
-        this.organisationRepository = organisationRepository;
-        this.pipelineRepository = pipelineRepository;
-        this.projectRepository = projectRepository;
-    }
-
-
 
     @Before
     public void setup() {

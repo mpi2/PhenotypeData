@@ -36,6 +36,7 @@ public class AnalyticsPvalueDistribution {
 
     @Id
     private Long    id;
+
     private String  datatype;
 
     @Column(name = "statistical_method")

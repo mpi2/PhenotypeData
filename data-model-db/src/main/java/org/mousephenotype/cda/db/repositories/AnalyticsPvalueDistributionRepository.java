@@ -24,9 +24,11 @@ import java.util.List;
 
 public interface AnalyticsPvalueDistributionRepository extends CrudRepository<AnalyticsPvalueDistribution, Long> {
 
-    String getAllStatisticalMethodsQuery = "SELECT DISTINCT datatype, statistical_method, null AS pvalue_bin, null AS interval_scale, null AS pvalue_count FROM analytics_pvalue_distribution";
-    @Query(value = getAllStatisticalMethodsQuery, nativeQuery = true)
-    List<AnalyticsPvalueDistribution> getAllStatisticalMethods();
+    final String getAllStatisticalMethodsQuery =
+            "SELECT new org.mousephenotype.cda.db.pojo.UniqueDatatypeAndStatisticalMethod(datatype, statisticalMethod) "
+          + "FROM AnalyticsPvalueDistribution GROUP BY datatype, statisticalMethod";
+    @Query(value = getAllStatisticalMethodsQuery, nativeQuery = false)
+    <T> List<T> getAllStatisticalMethods(Class<T> type);
 
     List<AnalyticsPvalueDistribution> getAllByDatatypeAndStatisticalMethodOrderByPvalueBinAsc(String datatype, String statisticalMethod);
 }

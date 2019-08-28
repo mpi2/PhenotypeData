@@ -1232,7 +1232,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 		r.setColonyId(result.getColonyId());
 		//       if(result.getControlBiologicalModelId()!= null) r.setControlBiologicalModel(biologicalModelDAO.getBiologicalModelById(result.getControlBiologicalModelId()));
 		r.setControlSelectionStrategy(result.getControlSelectionMethod());
-		if(result.getResourceId()!= null) r.setDatasource(datasourceRepository.getById(result.getResourceId()));
+		if(result.getResourceId()!= null) r.setDatasource(datasourceRepository.findById(result.getResourceId()).get());
 		r.setDependentVariable(result.getDependentVariable());
 		if(result.getEffectSize()!= null) r.setEffectSize(new Double(result.getEffectSize()));
 		if(result.getMutantBiologicalModelId()!= null) r.setExperimentalBiologicalModel(biologicalModelRepository.findById(result.getMutantBiologicalModelId()).get());

@@ -22,5 +22,4 @@ import org.springframework.data.repository.CrudRepository;
 public interface DatasourceRepository extends CrudRepository<Datasource, Long> {
 
     Datasource getByShortName(String shortName);
-    Datasource getById(Long id);
 }

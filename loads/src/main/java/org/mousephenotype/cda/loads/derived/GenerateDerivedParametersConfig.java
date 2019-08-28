@@ -29,7 +29,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
-@ComponentScan(basePackages = {"org.mousephenotype.cda.loads.derived", "org.mousephenotype.cda.db.dao"})
+@ComponentScan(basePackages = {"org.mousephenotype.cda.loads.derived"})
 public class GenerateDerivedParametersConfig {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -43,36 +43,6 @@ public class GenerateDerivedParametersConfig {
     @Value("${datasource.komp2_derived.password}")
     String komp2Password;
 
-//    @Bean
-//    @Primary
-//    @PersistenceContext(name = "komp2Context")
-//    public LocalContainerEntityManagerFactoryBean emf(EntityManagerFactoryBuilder builder) {
-//        return builder
-//                .dataSource(komp2DataSource())
-//                .packages("org.mousephenotype.cda.db")
-//                .persistenceUnit("komp2")
-//                .build();
-//    }
-//
-//    @Bean(name = "sessionFactoryHibernate")
-//    public LocalSessionFactoryBean sessionFactoryHibernate() {
-//        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-//        sessionFactory.setDataSource(komp2DataSource());
-//        sessionFactory.setPackagesToScan("org.mousephenotype.cda.db");
-//        return sessionFactory;
-//    }
-//
-//
-//    @Bean(name = "sessionFactoryHibernate")
-//    @Primary
-//    public SessionFactory getSessionFactory() {
-//
-//        LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
-//        sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
-//        sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
-//
-//        return sessionBuilder.buildSessionFactory();
-//    }
 
     @Bean(name = "komp2DataSource")
     @Primary

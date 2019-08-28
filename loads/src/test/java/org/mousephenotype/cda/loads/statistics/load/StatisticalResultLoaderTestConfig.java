@@ -24,7 +24,7 @@ import javax.validation.constraints.NotNull;
 @EnableJpaRepositories(basePackages = "org.mousephenotype.cda.db.repositories")
 @EnableTransactionManagement
 @EnableAutoConfiguration
-@ComponentScan(basePackages = "org.mousephenotype.cda.db.dao", excludeFilters = {
+@ComponentScan(excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {
                 StatisticalResultLoaderConfig.class,
                 TestConfigThreeI.class})}
