@@ -137,6 +137,7 @@ public class ExperimentsController {
 		model.addAttribute("phenotypeFilters", mpTerms);
 		model.addAttribute("phenotypes", phenotypeTopLevels);
 		model.addAttribute("chart", chart);
+		model.addAttribute("chartData", chart.equals(null));
 		model.addAttribute("rows", rows);
 		model.addAttribute("experimentRows", experimentRows);
 		model.addAttribute("allelePageDTO", allelePageDTO);

@@ -34,13 +34,7 @@
         <p class="alert alert-warning w-100 mt-2">Statistical analisys has not been perform on any of the selected systems. Check the table view to see the raw data.</p>
         <script type="text/javascript">
             $(function () {
-                $('#phChartTableToggle').button('toggle');
-                $('#phChart').hide();
-                $('#phTable').show();
-                if(firstDTLoad) {
-                    $("#strainPvalues").bootstrapTable();
-                    firstDTLoad = false;
-                }
+                var noChartData = true;
             })
         </script>
     </c:if>
@@ -157,7 +151,7 @@
 <script type="text/javascript">
     var firstDTLoad = true;
     $(document).ready(function () {
-        if("${param.currentView}" === 'table') {
+        if("${param.currentView}" === 'table' || ${chart == null}) {
             console.log("${param.currentView}");
             $('#phChartTableToggle').button('toggle');
             $('#phChart').hide();
