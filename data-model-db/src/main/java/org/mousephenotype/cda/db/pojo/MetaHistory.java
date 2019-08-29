@@ -25,6 +25,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Objects;
 
 @Entity
 @Table(name = "meta_history")
@@ -45,4 +46,20 @@ public class MetaHistory {
 
     @Column(name = "data_release_version")
     private String dataReleaseVersion;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MetaHistory that = (MetaHistory) o;
+        return id.equals(that.id) &&
+                propertyKey.equals(that.propertyKey) &&
+                propertyValue.equals(that.propertyValue) &&
+                dataReleaseVersion.equals(that.dataReleaseVersion);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, propertyKey, propertyValue, dataReleaseVersion);
+    }
 }

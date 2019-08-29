@@ -27,7 +27,7 @@ public interface AnalyticsPvalueDistributionRepository extends CrudRepository<An
     final String getAllStatisticalMethodsQuery =
             "SELECT new org.mousephenotype.cda.db.pojo.UniqueDatatypeAndStatisticalMethod(datatype, statisticalMethod) "
           + "FROM AnalyticsPvalueDistribution GROUP BY datatype, statisticalMethod";
-    @Query(value = getAllStatisticalMethodsQuery, nativeQuery = false)
+    @Query(value = getAllStatisticalMethodsQuery)
     <T> List<T> getAllStatisticalMethods(Class<T> type);
 
     List<AnalyticsPvalueDistribution> getAllByDatatypeAndStatisticalMethodOrderByPvalueBinAsc(String datatype, String statisticalMethod);

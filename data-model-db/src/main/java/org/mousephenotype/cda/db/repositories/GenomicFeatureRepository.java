@@ -19,12 +19,13 @@ package org.mousephenotype.cda.db.repositories;
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
 public interface GenomicFeatureRepository extends CrudRepository<GenomicFeature, Long> {
 
     GenomicFeature getById_Accession(String idAccession);
 
-    String getById_AccessionAndExternalDbShortNameQuery = "SELECT * FROM genomic_feature gf JOIN external_db edb ON edb.id = gf.db_id WHERE gf.acc = ?1 AND edb.short_name = ?2";
+    String getById_AccessionAndExternalDbShortNameQuery = "SELECT * FROM genomic_feature gf JOIN external_db edb ON edb.id = gf.db_id WHERE gf.acc = :genomicFeatureAcc AND edb.short_name = :shortName";
     @Query( value = getById_AccessionAndExternalDbShortNameQuery, nativeQuery = true)
-    GenomicFeature getById_AccessionAndExternalDbShortName(String idAccession, String externalDbShortName);
+    GenomicFeature getById_AccessionAndExternalDbShortName(@Param("genomicFeatureAcc") String idAccession, @Param("shortName") String externalDbShortName);
 }

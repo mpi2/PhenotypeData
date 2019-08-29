@@ -19,23 +19,26 @@ package org.mousephenotype.cda.db.repositories;
 import org.mousephenotype.cda.db.pojo.MetaHistory;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
 public interface MetaHistoryRepository extends CrudRepository<MetaHistory, Long> {
 
-    // This query is MYSQL-specific.
-    String getAllDataReleaseVersionQuery = "SELECT DISTINCT data_release_version, null AS property_key, null AS property_value FROM meta_history ORDER BY CAST(data_release_version as unsigned) ASC";
-    @Query(value = getAllDataReleaseVersionQuery, nativeQuery = true)
-    List<MetaHistory> getAllDataReleaseVersionsCastAsc();
+    String getAllDataReleaseVersionQuery =
+            "SELECT DISTINCT new java.lang.String(dataReleaseVersion) FROM MetaHistory ORDER BY CAST(dataReleaseVersion as float) DESC";
+    @Query(value = getAllDataReleaseVersionQuery)
+    <T> List<T> getAllDataReleaseVersionsCastDesc();
 
-    // This query is MYSQL-specific.
-    String getAllDataReleaseVersionsExcludingOneCastAscQuery = "SELECT DISTINCT data_release_version FROM meta_history WHERE data_release_version <> '1.0' ORDER BY CAST(data_release_version as unsigned) ASC";
-    @Query(value = getAllDataReleaseVersionsExcludingOneCastAscQuery, nativeQuery = true)
-    List<MetaHistory> getAllDataReleaseVersionsExcludingOneCastAsc(String dataReleaseVersionToExclude);
 
-    // This query is MYSQL-specific
-    String getAllByPropertyKeyQueryCastAsc = "SELECT * FROM meta_history WHERE property_key = 'phenotyped_genes' ORDER BY CAST(data_release_version AS unsigned) ASC";
-    @Query(value = getAllByPropertyKeyQueryCastAsc, nativeQuery = true)
-    List<MetaHistory> getAllByPropertyKeyCastAsc(String propertyKey);
+    String getAllDataReleaseVersionsExcludingOneCastDescQuery =
+            "SELECT DISTINCT new java.lang.String(dataReleaseVersion) FROM MetaHistory WHERE dataReleaseVersion <> :dataReleaseVersionToExclude ORDER BY CAST(dataReleaseVersion as float) DESC";
+    @Query(value = getAllDataReleaseVersionsExcludingOneCastDescQuery)
+    <T> List<T> getAllDataReleaseVersionsExcludingOneCastDesc(@Param("dataReleaseVersionToExclude") String dataReleaseVersionToExclude);
+
+
+    String getAllByPropertyKeyQueryCastAsc =
+            "FROM MetaHistory WHERE propertyKey = :propertyKey ORDER BY CAST(dataReleaseVersion as float) ASC";
+    @Query(value = getAllByPropertyKeyQueryCastAsc)
+    List<MetaHistory> getAllByPropertyKeyCastAsc(@Param("propertyKey") String propertyKey);
 }

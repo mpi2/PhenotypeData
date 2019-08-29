@@ -18,7 +18,6 @@ package uk.ac.ebi.phenotype.web.controller;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONObject;
 import org.mousephenotype.cda.db.pojo.AggregateCountXY;
-import org.mousephenotype.cda.db.pojo.MetaHistory;
 import org.mousephenotype.cda.db.pojo.MetaInfo;
 import org.mousephenotype.cda.db.pojo.UniqueDatatypeAndStatisticalMethod;
 import org.mousephenotype.cda.db.repositories.AnalyticsPvalueDistributionRepository;
@@ -259,10 +258,7 @@ public class ReleaseController {
 		/**
 		 * Get Historical trends release by release
 		 */
-		List<String> allDataReleaseVersions = metaHisoryRepository.getAllDataReleaseVersionsCastAsc()
-				.stream()
-				.map(MetaHistory::getDataReleaseVersion)
-				.collect(Collectors.toList());
+		List<String> allDataReleaseVersions = metaHisoryRepository.getAllDataReleaseVersionsCastDesc();
 
 		String[] trendsVariables = new String[] { "statistically_significant_calls", "phenotyped_genes",
 				"phenotyped_lines" };
@@ -335,20 +331,8 @@ public class ReleaseController {
 		/**
 		 * Get all former releases: releases but the current one
 		 */
-		List<String> releases = metaHisoryRepository.getAllDataReleaseVersionsExcludingOneCastAsc("data_release_version")
-					 .stream()
-				.map(MetaHistory::getDataReleaseVersion)
-				.collect(Collectors.toList());
+		List<String> releases = metaHisoryRepository.getAllDataReleaseVersionsExcludingOneCastDesc("data_release_version");
 
-		// Sort the releases allele2Service Doubles, in descending order (so the most recent previous shows at the top)
-		releases = releases
-				.stream()
-				.map(Double::valueOf)
-				.sorted(Comparator
-						.comparingDouble(Double::valueOf))
-				.map(d -> d.toString())
-				.sorted(Comparator.reverseOrder())
-				.collect(Collectors.toList());
 		model.addAttribute("metaInfo", metaInfo);
 		model.addAttribute("releases", releases);
 		model.addAttribute("phenotypingCenters", phenotypingCenters);

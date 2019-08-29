@@ -16,13 +16,9 @@
 
 package org.mousephenotype.cda.db.repositories;
 
-import org.mousephenotype.cda.db.pojo.BiologicalModel;
 import org.mousephenotype.cda.db.pojo.LiveSample;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.List;
-
 public interface LiveSampleRepository extends CrudRepository<LiveSample, Long> {
-
 
 }
