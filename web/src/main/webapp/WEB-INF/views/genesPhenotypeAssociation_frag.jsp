@@ -48,7 +48,7 @@
         $('#alldata-tab').trigger('click');
         $('#phenotypesTab').scrollTop();
         $.ajax({
-            url: '/data/experimentsFrag?geneAccession=' + '${gene.mgiAccessionId}' + '&' + val.join('&'),
+            url: '/data/experimentsFrag?geneAccession=' + '${gene.mgiAccessionId}' + '&' + val.join('&') + '&currentView=' + currentView,
             type: 'GET',
             success: function (data) {
                 $('#all-chart').html(data);
@@ -270,7 +270,7 @@
                 <div id="all_data" class="with-label text-center">
 
                     <c:if test="${bodyWeight}">
-                        <a id="bodyWeightBtn" class="btn btn-outline-primary mt-2"
+                        <a id="bodyWeightBtn" class="btn btn-primary mt-4"
                            href="${baseUrl}/charts?accession=${acc}&parameter_stable_id=IMPC_BWT_008_001&&chart_type=TIME_SERIES_LINE"
                            title="Body Weight Curves" style="display: inline-block; max-width: 300px; width: 80%;">View body weight measurements</a>
                     </c:if>
@@ -460,6 +460,7 @@
 <c:if test='${rowsForPhenotypeTable.size() > 0}'>
     <script>
         var first = true;
+        var currentView = 'chart';
         $("#alldata-tab").on('click', function () {
             if (first) {
                 $('#all-chart').html("     <div class=\"pre-content\">\n" +
@@ -470,7 +471,7 @@
                     "                        </div>\n" +
                     "                    </div>");
                 $.ajax({
-                    url: '/data/experimentsFrag?geneAccession=' + '${gene.mgiAccessionId}',
+                    url: '/data/experimentsFrag?geneAccession=' + '${gene.mgiAccessionId}&currentView=chart',
                     type: 'GET',
                     success: function (data) {
                         $('#all-chart').html(data);

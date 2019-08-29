@@ -7,17 +7,17 @@
 
 <div class="row justify-content-end mt-3 mr-2">
     <div class="btn-group btn-group-toggle" data-toggle="buttons">
-        <label class="btn btn-outline-primary btn-sm active">
-            <input type="radio" name="optionsPh" id="phChartToggle" autocomplete="off" value="phChart"> Chart
+        <label class="btn btn-outline-primary btn-sm active" id="phChartToggle">
+            <input type="radio" name="optionsPh"  autocomplete="off" value="phChart"> Chart
         </label>
-        <label class="btn btn-outline-primary btn-sm">
-            <input type="radio" name="optionsPh" id="phChartTableToggle" value="phTable" autocomplete="off" checked>
+        <label class="btn btn-outline-primary btn-sm" id="phChartTableToggle">
+            <input type="radio" name="optionsPh"  value="phTable" autocomplete="off">
             Table
         </label>
     </div>
 </div>
 
-<div id="phChart">
+<div id="phChart" style="display: none">
     <c:if test="${chart != null}">
         <!--p>Hints: Use the dropdown filters to filter both the chart and the table. Hover over points in chart to see the parameter name and information. Click on a point to view the chart for that data point. Click and drag on the chart to zoom to that area.
         </p-->
@@ -29,6 +29,20 @@
         <div class="clear both"></div>
 
         <script type="text/javascript" async>${chart}</script>
+    </c:if>
+    <c:if test="${chart == null}">
+        <p class="alert alert-warning w-100 mt-2">Statistical analisys has not been perform on any of the selected systems. Check the table view to see the raw data.</p>
+        <script type="text/javascript">
+            $(function () {
+                $('#phChartTableToggle').button('toggle');
+                $('#phChart').hide();
+                $('#phTable').show();
+                if(firstDTLoad) {
+                    $("#strainPvalues").bootstrapTable();
+                    firstDTLoad = false;
+                }
+            })
+        </script>
     </c:if>
 </div>
 <!-- Associations table -->
@@ -59,7 +73,7 @@
 
 </script>
 
-<div id="phTable">
+<div id="phTable" style="display: none">
     <table id="strainPvalues" data-toggle="table"   data-cookie="true"
            data-cookie-id-table="strainPvaluesTable${gene.markerSymbol}" data-pagination="true" data-mobile-responsive="true" data-sortable="true" style="margin-top: 10px;" data-custom-sort="sortString" data-search="true">
         <thead>
@@ -143,13 +157,29 @@
 <script type="text/javascript">
     var firstDTLoad = true;
     $(document).ready(function () {
-        $('div#phTable').hide();
+        if("${param.currentView}" === 'table') {
+            console.log("${param.currentView}");
+            $('#phChartTableToggle').button('toggle');
+            $('#phChart').hide();
+            $('#phTable').show();
+            if(firstDTLoad) {
+                $("#strainPvalues").bootstrapTable();
+                firstDTLoad = false;
+            }
+        } else {
+            $('#phTable').hide();
+            $('#phChart').show();
+        }
+
+
         $('input[name=optionsPh]').change(function () {
             var value = $('input[name=optionsPh]:checked').val();
             if (value === 'phChart') {
                 $('#phTable').hide();
                 $('#phChart').show();
+                currentView = 'chart';
             } else {
+                currentView = 'table';
                 $('#phChart').hide();
                 $('#phTable').show();
                 if(firstDTLoad) {
