@@ -471,7 +471,7 @@
                     "                        </div>\n" +
                     "                    </div>");
                 $.ajax({
-                    url: '/data/experimentsFrag?geneAccession=' + '${gene.mgiAccessionId}&currentView=chart',
+                    url: baseUrl + '/experimentsFrag?geneAccession=' + '${gene.mgiAccessionId}',
                     type: 'GET',
                     success: function (data) {
                         $('#all-chart').html(data);
