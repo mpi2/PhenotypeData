@@ -10,6 +10,53 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>
+
+
+<script>
+    function removeOption(value) {
+        $("select option[value='" + value + "']").prop("selected", false);
+        $('#systemSelector').selectpicker('render');
+        filterAllData();
+    }
+    function filterAllData() {
+        var val = [];
+        var legend = '';
+        $('#systemSelector').val().forEach(function (value) {
+            var mpTerm = value.split('|')[0];
+            var name = value.split('|')[1];
+            var significance = value.split('|')[2];
+            var icon = value.split('|')[3];
+            val.push(mpTerm);
+            var color = significance === 'significant' ? 'badge-primary' : 'badge-info';
+            legend += '<span class="badge badge-pill filter-badge ' + color + ' mr-1"><i class="badge-icon ' + icon + '"></i> ' + name + ' <i class="close-badge fas fa-times" onclick="removeOption(\'' + value +'\')"></i></span>';
+        });
+        legend = legend === '' ? ' all phenotypes' : legend;
+        $('#phDataTitle').html(legend);
+        $('#all-chart').html("     <div class=\"pre-content\">\n" +
+            "                        <div class=\"row no-gutters\">\n" +
+            "                            <div class=\"col-12 my-5\">\n" +
+            "                                <p class=\"h4 text-center text-justify\"><i class=\"fas fa-atom fa-spin\"></i> A moment please while we gather the data . . . .</p>\n" +
+            "                            </div>\n" +
+            "                        </div>\n" +
+            "                    </div>");
+        $('#alldata-tab').trigger('click');
+        $('#phenotypesTab').scrollTop();
+        $.ajax({
+            url: '/data/experimentsFrag?geneAccession=' + '${gene.mgiAccessionId}' + '&' + val.join('&'),
+            type: 'GET',
+            success: function (data) {
+                $('#all-chart').html(data);
+            }
+        });
+    }
+</script>
+
 <div class="container-fluid">
     <div class="row flex-xl-nowrap">
         <div class="col-lg-8">
@@ -78,7 +125,8 @@
                     </div>
                     <div class="col-sm-10 align-middle text-sm-left">
                         <c:if test="${gene.embryoDataAvailable}">
-                            <a id="embryoViewerBtn" href="${cmsBaseUrl}/embryoviewer/?mgi=${acc}" class="page-nav-link" style="font-size: initial; display: inline;">3D Imaging</a>
+                            <a id="embryoViewerBtn" href="${cmsBaseUrl}/embryoviewer/?mgi=${acc}" class="page-nav-link"
+                               style="font-size: initial; display: inline;">3D Imaging</a>
                         </c:if>
                         <c:if test="${not gene.embryoDataAvailable}">
                             N/A
@@ -168,10 +216,10 @@
                     </c:if>
                     <c:if test='${rowsForHistopathTable.size() > 0}'>
                         <a href="#histopath" class="col">
-                                <i class="fal fa-microscope mb-1 text-dark page-nav-link-icon"
-                                   data-toggle="tooltip"
-                                   data-placement="top"></i>
-                                <span class="page-nav-link">Histopathology (${rowsForHistopathTable.size()})</span>
+                            <i class="fal fa-microscope mb-1 text-dark page-nav-link-icon"
+                               data-toggle="tooltip"
+                               data-placement="top"></i>
+                            <span class="page-nav-link">Histopathology (${rowsForHistopathTable.size()})</span>
                         </a>
                     </c:if>
                     <c:if test='${orderRows.size() > 0}'>
@@ -224,8 +272,7 @@
                     <c:if test="${bodyWeight}">
                         <a id="bodyWeightBtn" class="btn btn-outline-primary mt-2"
                            href="${baseUrl}/charts?accession=${acc}&parameter_stable_id=IMPC_BWT_008_001&&chart_type=TIME_SERIES_LINE"
-                           title="Body Weight Curves" style="display: inline-block; max-width: 300px; width: 80%;">Body
-                            weight</a>
+                           title="Body Weight Curves" style="display: inline-block; max-width: 300px; width: 80%;">View body weight measurements</a>
                     </c:if>
                 </div>
             </c:if>
@@ -361,9 +408,31 @@
                 <div class="tab-pane fade show active" id="alldata" role="tabpanel"
                      aria-labelledby="alldata-tab">
                     </c:if>
-                    <p class="mt-3">
-                        Filtered by: <span id="phDataTitle"> all phenotypes</span>
-                    </p>
+                    <div class="mt-3 selector-container">
+                        Select physiological systems to view:
+                        <select class="selectpicker" multiple data-selected-text-format="count"
+                                onchange="filterAllData()" id="systemSelector">
+                            <optgroup label="Significant">
+                                <c:forEach var="i" begin="0" end="20">
+                                    <c:if test="${not empty significantTopLevelMpGroups.get(phenotypeGroups[i])}">
+                                    <option title="1 item selected" value="${significantTopLevelMpGroups.get(phenotypeGroups[i])}|${fn:replace(phenotypeGroups[i], 'phenotype', '')}|significant|${phenotypeGroupIcons[i]}"
+                                            data-icon="${phenotypeGroupIcons[i]}">${fn:replace(phenotypeGroups[i], 'phenotype', '')}</option>
+                                    </c:if>
+                                </c:forEach>
+                            </optgroup>
+                            <optgroup label="Non significant">
+                                <c:forEach var="i" begin="0" end="20">
+                                    <c:if test="${not empty notsignificantTopLevelMpGroups.get(phenotypeGroups[i])}">
+                                        <option title="1 item selected" value="${notsignificantTopLevelMpGroups.get(phenotypeGroups[i])}|${fn:replace(phenotypeGroups[i], 'phenotype', '')}|nonsignificant|${phenotypeGroupIcons[i]}"
+                                                data-icon="${phenotypeGroupIcons[i]}">${fn:replace(phenotypeGroups[i], 'phenotype', '')}</option>
+                                    </c:if>
+                                </c:forEach>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="filters-container">
+                        Viewing: <span id="phDataTitle"> all phenotypes</span>
+                    </div>
                     <div id="all-chart">
                         <c:if test='${rowsForPhenotypeTable.size() <= 0}'>
                             <jsp:include page="/experimentsFrag" flush="true">

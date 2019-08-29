@@ -41,20 +41,37 @@
     if (resTemp.length > 1) {
         resTemp[0].remove();
     }
+
+    function sortString(sortName, sortOrder, data) {
+        var order = sortOrder === 'desc' ? -1 : 1;
+        data.sort(function (a, b) {
+            var aa = sortName === 6 ? parseFloat(a['_' + sortName + '_data']['value']) || 0.0: a['_' + sortName + '_data']['value'];
+            var bb = sortName === 6 ? parseFloat(b['_' + sortName + '_data']['value']) || 0.0: b['_' + sortName + '_data']['value'];
+            if (aa < bb) {
+                return order * -1
+            }
+            if (aa > bb) {
+                return order
+            }
+            return 0
+        })
+    }
+
 </script>
 
 <div id="phTable">
-    <table id="strainPvalues" class="table dt-responsive clickableRows" style="width:100%;">
+    <table id="strainPvalues" data-toggle="table"   data-cookie="true"
+           data-cookie-id-table="strainPvaluesTable${gene.markerSymbol}" data-pagination="true" data-mobile-responsive="true" data-sortable="true" style="margin-top: 10px;" data-custom-sort="sortString" data-search="true">
         <thead>
         <tr>
-            <th class="headerSort">Allele</th>
-            <th class="headerSort">Center</th>
-            <th class="headerSort">Procedure / Parameter</th>
-            <th class="headerSort">Zygosity</th>
-            <th class="headerSort">Mutants</th>
-            <th class="headerSort">Statistical<br/>Method</th>
-            <th class="headerSort">P Value</th>
-            <th class="headerSort">Status</th>
+            <th data-sortable="true">Allele</th>
+            <th data-sortable="true">Center</th>
+            <th data-sortable="true">Procedure / Parameter</th>
+            <th data-sortable="true">Zygosity</th>
+            <th data-sortable="true">Mutants</th>
+            <th data-sortable="true">Statistical<br/>Method</th>
+            <th data-sortable="true">P Value</th>
+            <th data-sortable="true">Status</th>
         </tr>
         </thead>
 
@@ -63,13 +80,37 @@
                    varStatus="status">
             <c:set var="stableIdExperimentsRow" value="${experimentRows[stableId]}"/>
             <c:forEach var="row" items="${stableIdExperimentsRow}">
-                <tr>
-                    <td><t:formatAllele>${row.getAllele().getSymbol()}</t:formatAllele></td>
-                    <td>${row.getPhenotypingCenter()}</td>
-                    <td>${row.getProcedure().getName()} / ${row.getParameter().getName()}</td>
-                    <td>${row.getZygosity().getShortName()}</td>
-                    <td>${row.getFemaleMutantCount()}f:${row.getMaleMutantCount()}m</td>
-                    <td>${row.getStatisticalMethod()}</td>
+                <tr title="${!row.getEvidenceLink().getDisplay() ? 'No supporting data supplied.' : ''}" data-toggle="tooltip" data-link="${row.getEvidenceLink().url}" class="${row.getEvidenceLink().getDisplay() ? 'clickableRow' : 'unClickableRow'}">
+                    <td data-value="${row.getAllele().getSymbol()}">
+                        <a href="${row.getEvidenceLink().url}">
+                        <t:formatAllele>${row.getAllele().getSymbol()}</t:formatAllele>
+                        </a>
+                    </td>
+                    <td data-value="${row.getPhenotypingCenter()}">
+                        <a href="${row.getEvidenceLink().url}">
+                            ${row.getPhenotypingCenter()}
+                        </a>
+                    </td>
+                    <td data-value="${row.getProcedure().getName()}">
+                        <a href="${row.getEvidenceLink().url}">
+                            ${row.getProcedure().getName()} / ${row.getParameter().getName()}
+                        </a>
+                    </td>
+                    <td data-value="${row.getZygosity().getShortName()}">
+                        <a href="${row.getEvidenceLink().url}">
+                            ${row.getZygosity().getShortName()}
+                        </a>
+                    </td>
+                    <td data-value="${row.getFemaleMutantCount()}f:${row.getMaleMutantCount()}m">
+                        <a href="${row.getEvidenceLink().url}">
+                            ${row.getFemaleMutantCount()}f:${row.getMaleMutantCount()}m
+                        </a>
+                    </td>
+                    <td data-value="${row.getStatisticalMethod()}">
+                        <a href="${row.getEvidenceLink().url}">
+                            ${row.getStatisticalMethod()}
+                        </a>
+                    </td>
                     <c:choose>
                         <c:when
                                 test="${ ! empty row && row.getStatus() == 'SUCCESS'}">
@@ -77,27 +118,21 @@
                             <c:set var="Rcolor" value="${palette[0][paletteIndex]}"/>
                             <c:set var="Gcolor" value="${palette[1][paletteIndex]}"/>
                             <c:set var="Bcolor" value="${palette[2][paletteIndex]}"/>
-                            <td style="background-color:rgb(${Rcolor},${Gcolor},${Bcolor})">
-                                <t:formatScientific> ${row.getpValue()}</t:formatScientific>
+                            <td style="background-color:rgb(${Rcolor},${Gcolor},${Bcolor})" data-value="${row.getpValue()}">
+                                <a href="${row.getEvidenceLink().url}">
+                                    <t:formatScientific>${row.getpValue()}</t:formatScientific>
+                                </a>
                             </td>
                         </c:when>
                         <c:otherwise>
-                            <td data-sort="${row.getpValue()}"><t:formatScientific>${row.getpValue()}</t:formatScientific></td>
+                            <td data-value="${row.getpValue()}">
+                                <a href="${row.getEvidenceLink().url}">
+                                <t:formatScientific>${row.getpValue()}</t:formatScientific>
+                                </a>
+                            </td>
                         </c:otherwise>
                     </c:choose>
-                    <td>${row.status}</td>
-
-                    <c:if test="${row.getEvidenceLink().getDisplay()}">
-                        <td data-sort="${row.getEvidenceLink().getUrl()}">
-                        </td>
-
-                    </c:if>
-                    <c:if test="${!row.getEvidenceLink().getDisplay()}">
-                        <td data-sort="none">
-
-                        </td>
-                    </c:if>
-
+                    <td data-value="${row.status}">${row.status}</td>
                 </tr>
             </c:forEach>
         </c:forEach>
@@ -118,33 +153,7 @@
                 $('#phChart').hide();
                 $('#phTable').show();
                 if(firstDTLoad) {
-                    var oTable = $('#strainPvalues').dataTable({
-                        "bFilter": false,
-                        "bLengthChange": false,
-                        'columnDefs': [
-                            {
-                                "targets": [8],
-                                "visible": false
-                            },
-                            {
-                                "targets": [0],
-                                "max-width": "100px"
-                            }
-                        ],
-                        'rowCallback': function (row, data, index) {
-                            $(row).on('click', function () {
-                                var url = data[8]['@data-sort'];
-                                if (url !== "none") {
-                                    window.location.href = decodeURIComponent(url);
-                                } else {
-                                    console.log(row);
-                                    row.removeClass('clickableRows');
-                                    row.addClass('unClickableRows');
-                                    row.addClass('text-muted');
-                                }
-                            });
-                        }
-                    });
+                    $("#strainPvalues").bootstrapTable();
                     firstDTLoad = false;
                 }
 
