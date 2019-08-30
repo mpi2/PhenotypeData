@@ -15,29 +15,6 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import static org.springframework.web.bind.annotation.ValueConstants.DEFAULT_NONE;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -48,20 +25,6 @@ import org.mousephenotype.cda.enumerations.EmbryoViability;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-
-import org.mousephenotype.cda.solr.service.ExperimentService;
-import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.ImageService;
-import org.mousephenotype.cda.solr.service.ImpressService;
-import org.mousephenotype.cda.solr.service.StatisticalResultService;
-import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
-import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.mousephenotype.cda.solr.service.dto.ImageDTO;
-import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
-import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
-import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
-
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
@@ -71,7 +34,6 @@ import org.mousephenotype.cda.web.ChartType;
 import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -79,24 +41,24 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import uk.ac.ebi.phenotype.chart.AbrChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.CategoricalChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.CategoricalResultAndCharts;
-import uk.ac.ebi.phenotype.chart.ChartColors;
-import uk.ac.ebi.phenotype.chart.ChartData;
-import uk.ac.ebi.phenotype.chart.Constants;
-import uk.ac.ebi.phenotype.chart.GraphUtils;
-import uk.ac.ebi.phenotype.chart.ScatterChartAndData;
-import uk.ac.ebi.phenotype.chart.ScatterChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.TimeSeriesChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
-import uk.ac.ebi.phenotype.chart.UnidimensionalDataSet;
-import uk.ac.ebi.phenotype.chart.UnidimensionalStatsObject;
-import uk.ac.ebi.phenotype.chart.ViabilityChartAndDataProvider;
+import uk.ac.ebi.phenotype.chart.*;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
 import uk.ac.ebi.phenotype.web.dao.StatisticsService;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.springframework.web.bind.annotation.ValueConstants.DEFAULT_NONE;
 
 
 
@@ -130,10 +92,12 @@ public class ChartsController {
     
 	 private StatisticsService statsService;
 
+	 private AbstractGenotypePhenotypeService gpService;
+
  
 
     @Inject
-    public ChartsController(CategoricalChartAndTableProvider categoricalChartAndTableProvider, TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider, UnidimensionalChartAndTableProvider continousChartAndTableProvider, ScatterChartAndTableProvider scatterChartAndTableProvider, AbrChartAndTableProvider abrChartAndTableProvider, ViabilityChartAndDataProvider viabilityChartAndDataProvider, ExperimentService experimentService, StatisticalResultService srService, GeneService geneService, ImpressService is, ImageService imageService) {
+    public ChartsController(CategoricalChartAndTableProvider categoricalChartAndTableProvider, TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider, UnidimensionalChartAndTableProvider continousChartAndTableProvider, ScatterChartAndTableProvider scatterChartAndTableProvider, AbrChartAndTableProvider abrChartAndTableProvider, ViabilityChartAndDataProvider viabilityChartAndDataProvider, ExperimentService experimentService, StatisticalResultService srService, GeneService geneService, ImpressService is, ImageService imageService, PostQcService gpService) {
         this.categoricalChartAndTableProvider = categoricalChartAndTableProvider;
         this.timeSeriesChartAndTableProvider = timeSeriesChartAndTableProvider;
         this.continousChartAndTableProvider = continousChartAndTableProvider;
@@ -145,6 +109,7 @@ public class ChartsController {
         this.geneService = geneService;
         this.is = is;
         this.imageService=imageService;
+        this.gpService = gpService;
        
     }
 
@@ -599,6 +564,20 @@ public class ChartsController {
 			
 			final int totalSamples = Stream.of(numberFemaleMutantMice, numberMaleMutantMice, numberFemaleControlMice, numberMaleControlMice).filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
 			model.addAttribute("numberMice", totalSamples);
+
+			if (experiment != null) {
+				List<GenotypePhenotypeDTO> gpList = gpService.getGenotypePhenotypeFor(
+						gene.getMgiAccessionId(),
+						experiment.getParameterStableId(),
+						experiment.getStrain(),
+						experiment.getAlleleAccession(),
+						experiment.getZygosities(),
+						experiment.getOrganisation(),
+						experiment.getSexes());
+				List<String> phenotypeTerms = gpList.stream().map(GenotypePhenotypeDTO::getMpTermName).distinct().collect(Collectors.toList());
+				model.addAttribute("phenotypes", phenotypeTerms);
+			}
+
 			return "chart";
 	}
 

@@ -104,24 +104,30 @@
                 <div class="col-md-6">
                     <table class="table table-striped">
                         <tr>
-                            <th style="font-weight: bolder;">Testing protocol</th>
-                            <td><a href="${procedureUrl}" style="font-weight: bolder;">${parameter.procedureNames[0]}</a></td>
+                            <td>Associated Phenotype</td>
+                            <c:if test="${phenotypes != null && phenotypes.size() >= 1}"><td><c:forEach var="phenotype" items="${phenotypes}"><a class="font-weight-bold" href="${parameterUrl}">${phenotype}</a><br/></c:forEach></td></c:if>
+                            <c:if test="${phenotypes == null || phenotypes.size() < 1}"><td class="font-weight-bold">No significant association</td></c:if>
+
                         </tr>
                         <tr>
-                            <th>Measured value</th>
-                            <td><a href="${parameterUrl}">${parameter.name}</a></td>
+                            <td>Testing protocol</td>
+                            <td><a class="font-weight-bold" href="${procedureUrl}">${parameter.procedureNames[0]}</a></td>
                         </tr>
                         <tr>
-                            <th>Testing environment</th>
-                            <td><a class="w-100" data-toggle="modal" data-target="#conditions" href="#">Lab conditions and equipment</a></td>
+                            <td>Measured value</td>
+                            <td><a class="font-weight-bold" href="${parameterUrl}">${parameter.name}</a></td>
                         </tr>
                         <tr>
-                            <th>Background Strain</th>
-                            <td><t:formatAllele>${geneticBackgroundString}</t:formatAllele></td>
+                            <td>Testing environment</td>
+                            <td><a class="font-weight-bold w-100" data-toggle="modal" data-target="#conditions" href="#">Lab conditions and equipment</a></td>
                         </tr>
                         <tr>
-                            <th>Phenotyping center</th>
-                            <td>${phenotypingCenter}</td>
+                            <td>Background Strain</td>
+                            <td class="font-weight-bold"><t:formatAllele>${geneticBackgroundString}</t:formatAllele></td>
+                        </tr>
+                        <tr>
+                            <td>Phenotyping center</td>
+                            <td class="font-weight-bold">${phenotypingCenter}</td>
                         </tr>
                     </table>
 
@@ -130,7 +136,7 @@
             </div>
         </c:if>
 
-<c:if test="${statsServiceResult}">
+<c:if test="${statsServiceResult && ! isLive}">
 	<p class="alert alert-success w-100">
 	Result is from New Statistical Result Service!!! How quick was this???
 	</p>
@@ -172,12 +178,7 @@ Mouseover the charts for more information. Click and drag to zoom the chart. Cli
                     </div>
                 </div>
             </div>
-            
-           
-            <br/>
-             <br/>
-              <br/>
-               <br/>
+
             
 
 <script>
