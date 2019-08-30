@@ -19,14 +19,10 @@
                     var base_url = '${baseUrl}';
                     var geneId = '${gene.mgiAccessionId}';
                 </script>
-        <script type='text/javascript' src="${baseUrl}/js/general/dropDownExperimentPage.js?v=${version}"
-                async></script>
-        <%--script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script--%>
+        <script type='text/javascript' src="${baseUrl}/js/general/dropDownExperimentPage.js?v=${version}" async></script>
+
         <script src="https://code.highcharts.com/highcharts.js"></script>
         <script src="https://code.highcharts.com/modules/exporting.js"></script>
-
-        <%--script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script--%>
-        <%--script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script--%>
 
         <script src="${baseUrl}/js/general/enu.js"></script>
             <script src="${baseUrl}/js/general/dropdownfilters.js" async></script>
@@ -39,7 +35,7 @@
 
         <%-- Phenodigm2 requirements --%>
         <script src="//d3js.org/d3.v4.min.js"></script>
-            <script type="text/javascript">var impc = {baseUrl: "${baseUrl}"}</script>        
+            <script type="text/javascript">var impc = {baseUrl: "${baseUrl}"}</script>
             <script type="text/javascript" src="${baseUrl}/js/vendor/underscore/underscore-1.8.3.min.js"></script>
             <script type="text/javascript" src="${baseUrl}/js/phenodigm2/phenodigm2.js?v=${version}"></script>
             <link rel="stylesheet" type="text/css" href="${baseUrl}/css/phenodigm2.css" async>
@@ -112,82 +108,6 @@
                     }
                 });
 
-
-                /*$('#heatmap_link').click(function () {
-                    console.log('heatmap link clicked');
-
-                    /* //load the css
-                     var cssId = 'myCss';  // you could encode the css path itself to generate id..
-                     if (!document.getElementById(cssId))
-                     {
-                     var head  = document.getElementsByTagName('head')[0];
-                     var link  = document.createElement('link');
-                     link.id   = cssId;
-                     link.rel  = 'stylesheet';
-                     link.type = 'text/css';
-                     link.href = '
-
-                    cmsBaseUrl/heatmap/css/heatmap.1.3.1.css';
-                         link.media = 'all';
-                         head.appendChild(link);
-                         }
-
-                    if ($('#heatmap_toggle_div').length) {//check if this div exists first as this will ony exist if phenotypeStarted and we don't want to do this if not.
-                        $('#heatmap_toggle_div').toggleClass('hidden');//toggle the div whether the heatmap has been generated or not.
-                        $('#phenotypeTableDiv').toggleClass('hidden');
-                        if (!heatmap_generated) {
-
-                            /*var script = document.createElement('script');
-                            //script.src = "
-
-
-                ${cmsBaseUrl}/heatmap/js/heatmap.1.3.1.js";
-                            script.src = "
-
-
-                ${baseUrl}/js/vendor/dcc/heatmap.js";
-                            script.onload = function () {
-
-                                //do stuff with the script
-                                new dcc.PhenoHeatMap({
-                                    'container': 'phenodcc-heatmap',
-                                    'mgiid': '
-
-
-                ${gene.mgiAccessionId}',
-                                    'mode': 'ontological',
-                                    'ncol': 5,
-                                    'title': '
-
-
-                ${gene.markerSymbol}',
-                                    'url': {
-                                        'jssrc': '
-
-
-                ${fn:replace(cmsBaseUrl, "https:", "")}/heatmap/js/',
-                                        'json': '
-
-
-                ${fn:replace(cmsBaseUrl, "https:", "")}/heatmap/rest/',
-                                        'viz': dcc.heatmapUrlGenerator
-                                    }
-                                });
-                                heatmap_generated = 1;
-
-                            };
-
-
-                            document.head.appendChild(script);
-
-
-                        }//end of if heatmap generated
-
-                    }
-
-
-                });
-
                 // registerInterest();*/
 
             });
@@ -258,19 +178,6 @@
 
             <link rel="stylesheet" type="text/css" href="${baseUrl}/css/genes.css"/>				
 
-            <c:if test="${phenotypeStarted}">
-                <!--[if !IE]><!-->
-                <link rel="stylesheet" type="text/css"
-                      href="${cmsBaseUrl}/heatmap/css/heatmap.1.3.1.css"/>
-                <!--<![endif]-->
-                <!--[if IE 8]>
-                <link rel="stylesheet" type="text/css" href="${cmsBaseUrl}/heatmap/css/heatmapIE8.1.3.1.css">
-                <![endif]-->
-                <!--[if gte IE 9]>
-                <link rel="stylesheet" type="text/css" href="${cmsBaseUrl}/heatmap/css/heatmap.1.3.1.css">
-                <![endif]-->
-            </c:if>
-
         </jsp:attribute>
 
     <jsp:body>
@@ -282,24 +189,6 @@
                 </div>
             </div>
         </div>
-
-        <!--div class="container single single--no-side">
-        <div class="row">
-        <div class="col-12 white-bg">
-        <div class="page-content pt-5 pb-5">
-        <%--jsp:include page="genesGene_frag.jsp"/--%>
-        </div>
-        </div>
-        </div>
-        </div-->
-
-        <!--div class="container">
-        <div class="row">
-        <div class="col-12 no-gutters">
-        <h3>Phenotypes for ${gene.markerSymbol}</h3>
-        </div>
-        </div>
-        </div-->
 
         <div class="container single single--no-side">
             <div class="row row-over-shadow">
