@@ -14,11 +14,38 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.db.repositories;
+package org.mousephenotype.cda.db.pojo;
 
-import org.mousephenotype.cda.db.pojo.AnalyticsSignificantCallsProcedures;
-import org.springframework.data.repository.CrudRepository;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public interface AnalyticsSignificantCallsProceduresRepository extends CrudRepository<AnalyticsSignificantCallsProcedures, Long> {
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
+@Entity
+@Table(name = "analytics_significant_calls_procedures")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class AnalyticsSignificantCallsProcedures {
+
+    @Id
+    private Long    id;
+
+    @Column(name = "significant_calls")
+    private long significantCalls;
+
+    @Column(name = "phenotyping_center")
+    private String  phenotypingCenter;
+
+    @Column(name = "procedure_stable_id")
+    private String  procedureStableId;
+
+    @Column(name = "procedure_name")
+    private String procedureName;
 }

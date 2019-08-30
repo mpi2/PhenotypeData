@@ -1,8 +1,5 @@
 package org.mousephenotype.cda.db.pojo;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
 /*******************************************************************************
  * Copyright 2015 EMBL - European Bioinformatics Institute
  *
@@ -19,19 +16,15 @@ import javax.persistence.Id;
  * License.
  *******************************************************************************/
 
-@Entity
 public class AggregateCountXY {
 
-	@Id
-	private Long id;
-
-	private Integer aggregateCount = 0;
-	private String xValue = null;
-	private String xName = null;
-	private String xAttribute = null;
-	private String yValue = null;
-	private String yName = null;
-	private String yAttribute = null;
+	private int aggregateCount;
+	private String xValue;
+	private String xName;
+	private String xAttribute;
+	private String yValue;
+	private String yName;
+	private String yAttribute;
 
 	/**
 	 * @param aggregateCount
@@ -150,7 +143,4 @@ public class AggregateCountXY {
 	public void setyAttribute(String yAttribute) {
 		this.yAttribute = yAttribute;
 	}
-
-
-
 }

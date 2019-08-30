@@ -221,10 +221,7 @@ public class ReleaseController {
 		 */
 		AnalyticsChartProvider chartsProvider = new AnalyticsChartProvider();
 
-		List<AggregateCountXY> callBeans =
-				StreamSupport
-						.stream(analyticsSignificantCallsProceduresRepository.findAll().spliterator(), false)
-						.collect(Collectors.toList());
+		List<AggregateCountXY> callBeans = getAllProcedurePhenotypeCalls();
 
 		String callProcedureChart = chartsProvider.generateAggregateCountByProcedureChart(callBeans,
 				"Phenotype calls per procedure", "Center by center", "Number of phenotype calls", "calls",
@@ -262,7 +259,7 @@ public class ReleaseController {
 
 		String[] trendsVariables = new String[] { "statistically_significant_calls", "phenotyped_genes",
 				"phenotyped_lines" };
-		Map<String, List<AggregateCountXY>> trendsMap = new HashMap<String, List<AggregateCountXY>>();
+		Map<String, List<AggregateCountXY>> trendsMap = new HashMap<>();
 		for (int i = 0; i < trendsVariables.length; i++) {
 			trendsMap.put(trendsVariables[i], getHistoricalData(trendsVariables[i]));
 		}
@@ -271,7 +268,7 @@ public class ReleaseController {
 				"Genes/Mutant Lines/MP Calls", "Release by Release", "Genes/Mutant Lines", "Phenotype Calls", true,
 				"trendsChart", null, null);
 
-		Map<String, List<AggregateCountXY>> datapointsTrendsMap = new HashMap<String, List<AggregateCountXY>>();
+		Map<String, List<AggregateCountXY>> datapointsTrendsMap = new HashMap<>();
 		String[]                            status              = new String[] { "QC_passed", "QC_failed", "issues" };
 
 		for (int i = 0; i < dataTypes.length; i++) {
@@ -424,5 +421,20 @@ public class ReleaseController {
 		res.put("fertile", fertileColonies.size());
 
 		return res;
+	}
+
+	private List<AggregateCountXY> getAllProcedurePhenotypeCalls() {
+
+		return
+				StreamSupport
+						.stream(analyticsSignificantCallsProceduresRepository.findAll().spliterator(), false)
+						.map(ascp -> {
+							AggregateCountXY x = new AggregateCountXY(
+									ascp.getId().intValue(),
+									ascp.getProcedureStableId(), "procedure", ascp.getPhenotypingCenter(),
+									Long.toString(ascp.getSignificantCalls()), "nb of calls", null);
+							return x;
+						})
+						.collect(Collectors.toList());
 	}
 }
