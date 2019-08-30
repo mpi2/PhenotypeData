@@ -514,16 +514,12 @@
 
 <c:if test='${rowsForPhenotypeTable.size() > 0}'>
     <script>
-        $(document).ready(function () {
-                $('.selectpicker').selectpicker('deselectAll');
-            }
-        );
         var firstChart = true;
         var firstTable = true;
         var currentView = 'chart';
         $("#alldatachart-tab").on('click', function () {
             if (firstChart) {
-
+                $('#systemSelectorChart').selectpicker('deselectAll');
                 $('#all-chart').html("     <div class=\"pre-content\">\n" +
                     "                        <div class=\"row no-gutters\">\n" +
                     "                            <div class=\"col-12 my-5\">\n" +
@@ -543,6 +539,7 @@
         });
         $("#alldatatable-tab").on('click', function () {
             if (firstTable) {
+                $('#systemSelectorTable').selectpicker('deselectAll');
                 $('#all-table').html("     <div class=\"pre-content\">\n" +
                     "                        <div class=\"row no-gutters\">\n" +
                     "                            <div class=\"col-12 my-5\">\n" +
@@ -551,7 +548,7 @@
                     "                        </div>\n" +
                     "                    </div>");
                 $.ajax({
-                    url: '/data/experimentsTableFrag?geneAccession=' + '${gene.mgiAccessionId}',
+                    url: baseUrl + '/experimentsTableFrag?geneAccession=' + '${gene.mgiAccessionId}',
                     type: 'GET',
                     success: function (data) {
                         $('#all-table').html(data);
