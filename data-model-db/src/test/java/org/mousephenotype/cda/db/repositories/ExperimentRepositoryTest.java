@@ -111,27 +111,14 @@ public class ExperimentRepositoryTest {
         return biologicalModel;
     }
 
-    private Datasource getDatasource(int id) throws Exception {
-        Datasource       datasource = new Datasource();
+    private Datasource getDatasource(Integer id) throws Exception {
+        Datasource datasource = new Datasource();
 
-        switch (id) {
-            case 22:
-                datasource.setId(22L);
-                datasource.setName("International Mouse Phenotyping Consortium");
-                datasource.setShortName("IMPC");
-                datasource.setVersion("2010-11-15");
-                datasource.setReleaseDate(getDate("yyyy-MM-dd", "2010-11-15"));
-                break;
-
-            case 6:
-                datasource.setId(6L);
-                datasource.setName("IMPReSS");
-                datasource.setShortName("IMPReSS");
-                datasource.setVersion("unknown");
-                datasource.setReleaseDate(getDate("yyyy-MM-dd", "2012-01-26"));
-                break;
-
-        }
+        datasource.setId(id.longValue());
+        datasource.setName("International Mouse Phenotyping Consortium");
+        datasource.setShortName("IMPC");
+        datasource.setVersion("2010-11-15");
+        datasource.setReleaseDate(getDate("yyyy-MM-dd", "2010-11-15"));
 
         return datasource;
     }
@@ -146,13 +133,6 @@ public class ExperimentRepositoryTest {
     private Pipeline getPipeline(Integer id) throws ParseException {
         Pipeline pipeline = new Pipeline();
         pipeline.setId(id.longValue());
-//        pipeline.setStableId("HRWL_001");
-//        pipeline.setDatasource(getDatasource(6));
-//        pipeline.setName("Harwell");
-//        pipeline.setDescription("Harwell extra parameters");
-//        pipeline.setMajorVersion(1);
-//        pipeline.setMinorVersion(0);
-//        pipeline.setStableKey(8L);
         return pipeline;
     }
 
