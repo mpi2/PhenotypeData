@@ -514,11 +514,16 @@
 
 <c:if test='${rowsForPhenotypeTable.size() > 0}'>
     <script>
+        $(document).ready(function () {
+                $('.selectpicker').selectpicker('deselectAll');
+            }
+        );
         var firstChart = true;
         var firstTable = true;
         var currentView = 'chart';
         $("#alldatachart-tab").on('click', function () {
             if (firstChart) {
+
                 $('#all-chart').html("     <div class=\"pre-content\">\n" +
                     "                        <div class=\"row no-gutters\">\n" +
                     "                            <div class=\"col-12 my-5\">\n" +
