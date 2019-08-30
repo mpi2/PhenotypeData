@@ -26,7 +26,6 @@ import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
@@ -69,7 +68,7 @@ public class ExperimentsController {
 	 * Runs when the request missing an accession ID. This redirects to the
 	 * search page which defaults to showing all genes in the list
 	 */
-	@RequestMapping("/experimentsFrag")
+	@RequestMapping("/experimentsTableFrag")
 	public String getAlleles(
 			@RequestParam(required = true, value = "geneAccession") String geneAccession,
 			@RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol,
@@ -93,14 +92,39 @@ public class ExperimentsController {
 		for ( List<ExperimentsDataTableRow> list : experimentRows.values()){
 			rows += list.size();
 		}
-		String chart = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
-
-		model.addAttribute("chart", chart);
 		model.addAttribute("rows", rows);		
 		model.addAttribute("experimentRows", experimentRows);
 		model.addAttribute("allelePageDTO", allelePageDTO);
+		return "experimentsTableFrag";
+	}
 
-		return "experimentsFrag";
+
+	/**
+	 * Runs when the request missing an accession ID. This redirects to the
+	 * search page which defaults to showing all genes in the list
+	 */
+	@RequestMapping("/experimentsChartFrag")
+	public String getAllelesChart(
+			@RequestParam(required = true, value = "geneAccession") String geneAccession,
+			@RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol,
+			@RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter,
+			@RequestParam(required = false, value = "pipelineName") List<String> pipelineName,
+			@RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId,
+			@RequestParam(required = false, value = "procedureName") List<String> procedureName,
+			@RequestParam(required = false, value = "mpTermId") List<String> mpTermId,
+			@RequestParam(required = false, value = "resource") ArrayList<String> resource,
+			Model model,
+			HttpServletRequest request)
+			throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
+
+		AllelePageDTO allelePageDTO = srService.getAllelesInfo(geneAccession, null, null, null, null, null, null, null);
+		Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
+		String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
+		experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
+		Map<String, Object> chartData = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
+		model.addAttribute("chart", chartData.get("chart"));
+		model.addAttribute("count", chartData.get("count"));
+		return "experimentsChartFrag";
 	}
 	
 	@RequestMapping("/experiments")
@@ -128,7 +152,7 @@ public class ExperimentsController {
 			rows += list.size();
 		}
 
-		String chart = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
+		Map<String, Object> chart = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
 		//top level mp names often are not in same order as ids so this mehod if used for getting name from id is wrong. SR indexer needs fixing.
 		Map<String, String> phenotypeTopLevels = srService.getTopLevelMPTerms(geneAccession, null);
 		List<MpDTO> mpTerms = new ArrayList<>();
@@ -136,8 +160,8 @@ public class ExperimentsController {
 		mpTerms.addAll(mpService.getPhenotypes(mpTermIds));		
 		model.addAttribute("phenotypeFilters", mpTerms);
 		model.addAttribute("phenotypes", phenotypeTopLevels);
-		model.addAttribute("chart", chart);
-		model.addAttribute("chartData", chart.equals(null));
+		model.addAttribute("chart", chart.get("chart"));
+		model.addAttribute("chartData", chart.get("chart").equals(null));
 		model.addAttribute("rows", rows);
 		model.addAttribute("experimentRows", experimentRows);
 		model.addAttribute("allelePageDTO", allelePageDTO);

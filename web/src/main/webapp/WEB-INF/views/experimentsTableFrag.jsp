@@ -1,0 +1,130 @@
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
+
+
+<script>
+    var resTemp = document.getElementsByClassName("resultCount");
+    if (resTemp.length > 1) {
+        resTemp[0].remove();
+    }
+
+    function sortString(sortName, sortOrder, data) {
+        var order = sortOrder === 'desc' ? -1 : 1;
+        data.sort(function (a, b) {
+            var aa = sortName === 6 ? parseFloat(a['_' + sortName + '_data']['value']) || 0.0: a['_' + sortName + '_data']['value'];
+            var bb = sortName === 6 ? parseFloat(b['_' + sortName + '_data']['value']) || 0.0: b['_' + sortName + '_data']['value'];
+            if (aa < bb) {
+                return order * -1
+            }
+            if (aa > bb) {
+                return order
+            }
+            return 0
+        })
+    }
+
+</script>
+
+<div id="phTable">
+
+    <table id="strainPvalues" data-toggle="table"   data-cookie="true"
+           data-cookie-id-table="strainPvaluesTable${gene.markerSymbol}" data-pagination="true" data-mobile-responsive="true" data-sortable="true" style="margin-top: 10px;" data-custom-sort="sortString" data-search="true">
+        <thead>
+        <tr>
+            <th data-sortable="true">Allele</th>
+            <th data-sortable="true">Center</th>
+            <th data-sortable="true">Procedure / Parameter</th>
+            <th data-sortable="true">Zygosity</th>
+            <th data-sortable="true">Mutants</th>
+            <th data-sortable="true">Statistical<br/>Method</th>
+            <th data-sortable="true">P Value</th>
+            <th data-sortable="true">Status</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <c:forEach var="stableId" items="${experimentRows.keySet()}"
+                   varStatus="status">
+            <c:set var="stableIdExperimentsRow" value="${experimentRows[stableId]}"/>
+            <c:forEach var="row" items="${stableIdExperimentsRow}">
+                <tr title="${!row.getEvidenceLink().getDisplay() ? 'No supporting data supplied.' : ''}" data-toggle="tooltip" data-link="${row.getEvidenceLink().url}" class="${row.getEvidenceLink().getDisplay() ? 'clickableRow' : 'unClickableRow'}">
+                    <td data-value="${row.getAllele().getSymbol()}">
+                        <a href="${row.getEvidenceLink().url}">
+                        <t:formatAllele>${row.getAllele().getSymbol()}</t:formatAllele>
+                        </a>
+                    </td>
+                    <td data-value="${row.getPhenotypingCenter()}">
+                        <a href="${row.getEvidenceLink().url}">
+                            ${row.getPhenotypingCenter()}
+                        </a>
+                    </td>
+                    <td data-value="${row.getProcedure().getName()}">
+                        <a href="${row.getEvidenceLink().url}">
+                            ${row.getProcedure().getName()} / ${row.getParameter().getName()}
+                        </a>
+                    </td>
+                    <td data-value="${row.getZygosity().getShortName()}">
+                        <a href="${row.getEvidenceLink().url}">
+                            ${row.getZygosity().getShortName()}
+                        </a>
+                    </td>
+                    <c:if test="${row.getFemaleMutantCount() != null && row.getMaleMutantCount() != null}">
+                        <td data-value="${row.getFemaleMutantCount()}f:${row.getMaleMutantCount()}m">
+                            <a href="${row.getEvidenceLink().url}">
+                                    ${row.getFemaleMutantCount()}f:${row.getMaleMutantCount()}m
+                            </a>
+                        </td>
+                    </c:if>
+                    <c:if test="${row.getFemaleMutantCount() == null || row.getMaleMutantCount() == null}">
+                        <td data-value="${row.getFemaleMutantCount()}f:${row.getMaleMutantCount()}m">
+                            <a href="${row.getEvidenceLink().url}">
+
+                            </a>
+                        </td>
+                    </c:if>
+
+                    <td data-value="${row.getStatisticalMethod()}">
+                        <a href="${row.getEvidenceLink().url}">
+                            ${row.getStatisticalMethod()}
+                        </a>
+                    </td>
+                    <c:choose>
+                        <c:when
+                                test="${ ! empty row && row.getStatus() == 'SUCCESS'}">
+                            <c:set var="paletteIndex" value="${row.colorIndex}"/>
+                            <c:set var="Rcolor" value="${palette[0][paletteIndex]}"/>
+                            <c:set var="Gcolor" value="${palette[1][paletteIndex]}"/>
+                            <c:set var="Bcolor" value="${palette[2][paletteIndex]}"/>
+                            <td style="background-color:rgb(${Rcolor},${Gcolor},${Bcolor})" data-value="${row.getpValue()}">
+                                <a href="${row.getEvidenceLink().url}">
+                                    <t:formatScientific>${row.getpValue()}</t:formatScientific>
+                                </a>
+                            </td>
+                        </c:when>
+                        <c:otherwise>
+                            <td data-value="${row.getpValue()}">
+                                <a href="${row.getEvidenceLink().url}">
+                                <t:formatScientific>${row.getpValue()}</t:formatScientific>
+                                </a>
+                            </td>
+                        </c:otherwise>
+                    </c:choose>
+                    <td data-value="${row.status}">${row.status}</td>
+                </tr>
+            </c:forEach>
+        </c:forEach>
+        </tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+    var firstDTLoad = true;
+    $(document).ready(function () {
+        $('#allDataTableCount').html(${rows});
+        if(firstDTLoad) {
+            $("#strainPvalues").bootstrapTable();
+            firstDTLoad = false;
+        }
+    });
+</script>
