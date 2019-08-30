@@ -532,7 +532,7 @@
                     "                        </div>\n" +
                     "                    </div>");
                 $.ajax({
-                    url: baseUrl + '/experimentsFrag?geneAccession=' + '${gene.mgiAccessionId}',
+                    url: baseUrl + '/experimentsChartFrag?geneAccession=' + '${gene.mgiAccessionId}',
                     type: 'GET',
                     success: function (data) {
                         $('#all-chart').html(data);
