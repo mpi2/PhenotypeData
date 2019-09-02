@@ -327,7 +327,7 @@
                        role="tab" aria-controls="alldatachart-tab"
                        aria-selected="${rowsForPhenotypeTable.size() <= 0 ? 'true' : 'false'}"><i
                             class="fal fa-chart-scatter"></i>&nbsp;
-                        Measurements chart (<span id="allDataChartCount">${measurementsChartNumber}</span>)</a>
+                        Measurements chart (<span id="allDataChartCount">${measurementsChartNumber}</span>/${measurementsChartNumber})</a>
                 </c:if>
                 <c:if test='${measurementsChartNumber <= 0}'>
                     <a class="nav-link active" id="alldatachart-tab" data-toggle="tab" href="#alldatachart"
@@ -343,7 +343,7 @@
                        role="tab" aria-controls="alldatatable-tab"
                        aria-selected="${rowsForPhenotypeTable.size() <= 0 ? 'true' : 'false'}"><i
                             class="fal fa-ruler-combined"></i>&nbsp;
-                        All measurements table (<span id="allDataTableCount">${allMeasurementsNumber}</span>)</a>
+                        All measurements table (<span id="allDataTableCount">${allMeasurementsNumber}</span>/${allMeasurementsNumber})</a>
                 </c:if>
                 <c:if test='${allMeasurementsNumber <= 0}'>
                     <a class="nav-link active" id="alldatatable-tab" data-toggle="tab" href="#alldatatable"
@@ -454,7 +454,7 @@
                                     </c:if>
                                 </c:forEach>
                             </optgroup>
-                            <optgroup label="Non significant">
+                            <optgroup label="Not significant">
                                 <c:forEach var="i" begin="0" end="20">
                                     <c:if test="${not empty notsignificantTopLevelMpGroups.get(phenotypeGroups[i])}">
                                         <option title="1 item selected" value="${notsignificantTopLevelMpGroups.get(phenotypeGroups[i])}|${fn:replace(phenotypeGroups[i], 'phenotype', '')}|nonsignificant|${phenotypeGroupIcons[i]}"
@@ -490,7 +490,7 @@
                                             </c:if>
                                         </c:forEach>
                                     </optgroup>
-                                    <optgroup label="Non significant">
+                                    <optgroup label="Not significant">
                                         <c:forEach var="i" begin="0" end="20">
                                             <c:if test="${not empty notsignificantTopLevelMpGroups.get(phenotypeGroups[i])}">
                                                 <option title="1 item selected" value="${notsignificantTopLevelMpGroups.get(phenotypeGroups[i])}|${fn:replace(phenotypeGroups[i], 'phenotype', '')}|nonsignificant|${phenotypeGroupIcons[i]}"
