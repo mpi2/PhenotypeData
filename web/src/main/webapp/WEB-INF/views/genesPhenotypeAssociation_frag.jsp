@@ -48,7 +48,7 @@
             "                    </div>");
         $('#phenotypesTab').scrollTop();
         $.ajax({
-            url: '/data/experiments' + filterName + 'Frag?geneAccession=' + '${gene.mgiAccessionId}' + '&' + val.join('&'),
+            url: baseUrl + '/experiments' + filterName + 'Frag?geneAccession=' + '${gene.mgiAccessionId}' + '&' + val.join('&'),
             type: 'GET',
             success: function (data) {
                 $(content_id).html(data);
