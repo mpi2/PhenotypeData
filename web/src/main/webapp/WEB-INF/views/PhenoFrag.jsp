@@ -46,8 +46,7 @@
     }
 </script>
 
-<table id="significantPhenotypesTable" data-toggle="table"   data-cookie="true"
-       data-cookie-id-table="significantPhenotypesTable${gene.markerSymbol}" data-pagination="true" data-mobile-responsive="true" data-sortable="true" data-custom-sort="sortString" data-search="true">
+<table id="significantPhenotypesTable" data-toggle="table"  data-pagination="true" data-mobile-responsive="true" data-sortable="true" data-custom-sort="sortString" data-search="true">
     <thead>
     <tr>
         <th data-sortable="true" >Phenotype</th>
@@ -112,3 +111,10 @@
     </tbody>
 </table>
 
+<script>
+    $(document).ready(function () {
+        $("#significantPhenotypesTable").on('search.bs.table', function () {
+            $('#significantCount').html($("#significantPhenotypesTable").bootstrapTable('getData').length);
+        });
+    });
+</script>

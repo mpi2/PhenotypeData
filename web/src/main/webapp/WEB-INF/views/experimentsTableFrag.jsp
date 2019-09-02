@@ -28,8 +28,7 @@
 
 <div id="phTable">
 
-    <table id="strainPvalues" data-toggle="table"   data-cookie="true"
-           data-cookie-id-table="strainPvaluesTable${gene.markerSymbol}" data-pagination="true" data-mobile-responsive="true" data-sortable="true" style="margin-top: 10px;" data-custom-sort="sortString" data-search="true">
+    <table id="strainPvalues" data-toggle="table"  data-pagination="true" data-mobile-responsive="true" data-sortable="true" style="margin-top: 10px;" data-custom-sort="sortString" data-search="true">
         <thead>
         <tr>
             <th data-sortable="true">Allele</th>
@@ -123,7 +122,11 @@
     $(document).ready(function () {
         $('#allDataTableCount').html(${rows});
         if(firstDTLoad) {
-            $("#strainPvalues").bootstrapTable();
+            $("#strainPvalues").bootstrapTable({
+                onSearch: function (event) {
+                    $('#allDataTableCount').html($("#strainPvalues").bootstrapTable('getData').length);
+                }
+            });
             firstDTLoad = false;
         }
     });

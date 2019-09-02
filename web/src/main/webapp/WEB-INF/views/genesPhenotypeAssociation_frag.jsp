@@ -311,7 +311,7 @@
                     <a class="nav-link active" id="significant-tab" data-toggle="tab" href="#significant"
                        role="tab" aria-controls="significant-tab" aria-selected="true"><i
                             class="fal fa-file-medical-alt"></i>&nbsp; Significant phenotypes
-                        (${rowsForPhenotypeTable.size()})</a>
+                        (<span id="significantCount">${rowsForPhenotypeTable.size()}</span>/${rowsForPhenotypeTable.size()})</a>
                 </c:if>
                 <c:if test='${rowsForPhenotypeTable.size() <= 0}'>
                     <a class="nav-link" id="significant-tab" data-toggle="tab" href="#significant"
