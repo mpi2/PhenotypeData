@@ -17,48 +17,8 @@
 package org.mousephenotype.cda.db.repositories;
 
 import org.mousephenotype.cda.db.pojo.Observation;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-
-import java.util.List;
 
 public interface ObservationRepository extends CrudRepository<Observation, Long> {
 
-        String missingEmptyOntologyTermsQuery =
-                "SELECT DISTINCT\n"
-            + "  o.parameter_status\n"
-            + ", ot.acc\n"
-            + ", e.organisation_id\n"
-            + ", o.observation_type\n"
-            + "FROM observation o\n"
-            + "LEFT OUTER JOIN ontology_term ot ON ot.acc = o.parameter_status AND ot.db_id = 22\n"
-            + "JOIN experiment_observation eo ON eo.observation_id = o.id\n"
-            + "JOIN experiment e ON e.id = eo.experiment_id\n"
-            + "WHERE (TRIM(IFNULL(parameter_status, '')) != '')\n"
-            + "  AND ot.acc IS NULL\n"
-            + "ORDER BY o.parameter_status, e.organisation_id, o.observation_type\n";
-    @Query(value = missingOntologyTermsQuery, nativeQuery = true)
-    List<String> getMissingOntologyTerms();
-
-
-    String missingOntologyTermsQuery =
-              "SELECT DISTINCT\n"
-            + "  o.parameter_status\n"
-            + ", ot.acc\n"
-            + ", e.organisation_id\n"
-            + ", o.observation_type\n"
-            + "FROM observation o\n"
-            + "LEFT OUTER JOIN ontology_term ot ON ot.acc = o.parameter_status AND ot.db_id = 22\n"
-            + "JOIN experiment_observation eo ON eo.observation_id = o.id\n"
-            + "JOIN experiment e ON e.id = eo.experiment_id\n"
-            + "WHERE (TRIM(IFNULL(parameter_status, '')) != '')\n"
-            + "  AND ot.acc IS NULL\n"
-            + "ORDER BY o.parameter_status, e.organisation_id, o.observation_type\n";
-
-    /**
-     * Fetch list of observation.parameter_status that is not in IMPC ontology_term.acc.
-     * @return list of missing ontology_term.acc used by observation.parameter_status
-     */
-    @Query(value = missingOntologyTermsQuery, nativeQuery = true)
-    List<String> getParameterStatusForMissingOntologyTerms();
 }
