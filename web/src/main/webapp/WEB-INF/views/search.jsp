@@ -127,7 +127,7 @@
                                             <div class="col-12 col-md-6">
                                                 <p><b>Status:</b><br/>
                                                     <c:if test="${gene.latestEsCellStatus != ''}">${gene.latestEsCellStatus}<br></c:if>
-                                                    <c:if test="${gene.latestMouseStatus} != ''">${gene.latestMouseStatus}<br></c:if>
+                                                    <c:if test="${gene.latestMouseStatus != ''}">${gene.latestMouseStatus}<br></c:if>
                                                     <c:if test="${gene.latestPhenotypeStatus != ''}">${gene.latestPhenotypeStatus}</c:if>
                                                 </p>
 
