@@ -7607,3 +7607,9 @@ ul#menu-footer-access li {
     background-color: #e5e9ec;
     padding: 5px 15px;
 }
+
+button[name="clearSearch"] > i::before{
+    content: "\f00d";
+}
+
+

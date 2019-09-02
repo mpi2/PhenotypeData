@@ -46,7 +46,8 @@
     }
 </script>
 
-<table id="significantPhenotypesTable" data-toggle="table"  data-pagination="true" data-mobile-responsive="true" data-sortable="true" data-custom-sort="sortString" data-search="true">
+<table id="significantPhenotypesTable" data-toggle="table"  data-pagination="true" data-mobile-responsive="true"
+       data-sortable="true" data-custom-sort="sortString" data-search="true" data-show-search-clear-button="true">
     <thead>
     <tr>
         <th data-sortable="true" >Phenotype</th>

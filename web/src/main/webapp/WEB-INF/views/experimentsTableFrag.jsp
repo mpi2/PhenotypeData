@@ -28,7 +28,7 @@
 
 <div id="phTable">
 
-    <table id="strainPvalues" data-toggle="table"  data-pagination="true" data-mobile-responsive="true" data-sortable="true" style="margin-top: 10px;" data-custom-sort="sortString" data-search="true">
+    <table id="strainPvalues" data-toggle="table"  data-pagination="true" data-mobile-responsive="true" data-sortable="true" style="margin-top: 10px;" data-custom-sort="sortString" data-show-search-clear-button="true" data-search="true">
         <thead>
         <tr>
             <th data-sortable="true">Allele</th>
