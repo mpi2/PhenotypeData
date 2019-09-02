@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {RepositoriesTestConfig.class})
 public class ExperimentRepositoryTest {
+
     @Autowired
     private ApplicationContext context;
 
@@ -51,10 +52,16 @@ public class ExperimentRepositoryTest {
     @Test
     public void save() throws Exception {
 
-        Experiment expected = createExperiment(419040);
-        experimentRepository.save(expected);
-        Experiment actual = experimentRepository.findById(419040L).get();
+        Experiment expected = createExperiment();
+
+        assertEquals(0L, experimentRepository.count());
+
+        Experiment actual = experimentRepository.save(expected);
         assertNotNull(actual);
+
+        assertEquals(1L, experimentRepository.count());
+
+        assertNotNull(actual.getId());
         assertEquals(expected.getId(), actual.getId());
         assertEquals(expected.getDatasource(), actual.getDatasource());
         assertEquals(expected.getExternalId(), actual.getExternalId());
@@ -72,14 +79,13 @@ public class ExperimentRepositoryTest {
         assertEquals(expected.getMetadataGroup(), actual.getMetadataGroup());
         assertEquals(expected.getProcedureStatus(), actual.getProcedureStatus());
         assertEquals(expected.getProcedureStatusMessage(), actual.getProcedureStatusMessage());
-
     }
 
-    private Experiment createExperiment(Integer id) throws Exception {
+    private Experiment createExperiment() throws Exception {
 
         Experiment experiment = new Experiment();
-        experiment.setId(id.longValue());
-        experiment.setDatasource(getDatasource(22));
+
+        experiment.setDatasource(getDatasource());
         experiment.setExternalId("4429264");
         experiment.setSequenceId("4429264");
         experiment.setDateOfExperiment(getDate("yyyy-MM-dd", "2017-05-25"));
@@ -111,10 +117,10 @@ public class ExperimentRepositoryTest {
         return biologicalModel;
     }
 
-    private Datasource getDatasource(Integer id) throws Exception {
+    private Datasource getDatasource() throws Exception {
         Datasource datasource = new Datasource();
 
-        datasource.setId(id.longValue());
+        datasource.setId(22L);
         datasource.setName("International Mouse Phenotyping Consortium");
         datasource.setShortName("IMPC");
         datasource.setVersion("2010-11-15");

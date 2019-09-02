@@ -16,9 +16,3 @@ INSERT INTO biological_model
 VALUES
     (39787, 22, 'Gnb4<em1(IMPC)H>/Gnb4<em1(IMPC)H>', 'involves: C57BL/6NTac', 'homozygote')
 ;
-
-INSERT INTO experiment
-    (id, db_id, external_id, sequence_id, date_of_experiment, organisation_id, project_id, pipeline_id, pipeline_stable_id, procedure_id, procedure_stable_id, biological_model_id, colony_id, metadata_combined, metadata_group, procedure_status, procedure_status_message)
-VALUES
-    (419040, 22, '4429264', '4429264', '2017-05-25 00:00:00', 7, 16, 2, 'HRWL_001', 1, 'IMPC_BWT_001', 39787, NULL, '', 'd41d8cd98f00b204e9800998ecf8427e', 'IMPC_PSC_015', 'Weight record deleted for unknown reason')
-;
