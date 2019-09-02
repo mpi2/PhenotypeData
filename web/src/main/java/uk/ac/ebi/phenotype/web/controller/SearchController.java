@@ -118,7 +118,7 @@ public class SearchController {
 
         // Map gene status from "Phenotype Complete" to "Phenotype data available"
         genes.forEach(gene -> {
-            if (gene.getLatestPhenotypeStatus().equalsIgnoreCase("Phenotyping Complete")) {
+            if (gene.getLatestPhenotypeStatus() != null && gene.getLatestPhenotypeStatus().equalsIgnoreCase("Phenotyping Complete")) {
                 gene.setLatestPhenotypeStatus("Phenotype data available");
             }
         });
