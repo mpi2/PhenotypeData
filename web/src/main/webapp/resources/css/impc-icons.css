@@ -54,7 +54,11 @@
   /* Uncomment for 3D effect */
   /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
- 
+
+.impc-sperm {
+    margin-right: -10px;
+}
+
 .impc-nose:before { content: '\e801'; } /* '' */
 .impc-embryo:before { content: '\e800'; font-size: 100%;} /* '' */
 .impc-sperm:before { content: '\e803'; font-size: 140%;} /* '' */
