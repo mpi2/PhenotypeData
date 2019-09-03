@@ -1,5 +1,5 @@
 
 .impc-nose:before { content: '\e801'; } /* '' */
-.impc-embryo:before { content: '\e802'; } /* '' */
+.impc-embryo:before { content: '\e800'; } /* '' */
 .impc-sperm:before { content: '\e803'; } /* '' */
 .impc-trachea:before { content: '\e804'; } /* '' */
