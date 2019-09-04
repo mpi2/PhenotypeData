@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.mousephenotype.cda.db.pojo.Datasource;
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.repositories.GenomicFeatureRepository;
@@ -218,7 +219,7 @@ public class ImagesController {
 
 		if (!mpId.equals("")) {
 			//  Mammalian Phenotype
-			OntologyTerm mpTerm = ontologyTermRepository.getById_AccessionAndExternalDbShortName(mpId, "MP");
+			OntologyTerm mpTerm = ontologyTermRepository.getByAccAndShortName(mpId, Datasource.MP);
 			String value = mpTerm.getName();
 			String mpBc = "<a href='" + baseUrl + "/phenotypes/" + mpId + "'>" + value + "</a>";
 			breadcrumbs.add("phenotype: \"" + mpBc + "\"");
@@ -226,7 +227,7 @@ public class ImagesController {
 
 		if (!maId.equals("")) {
 			// Mouse Adult Gross Anatomy
-			OntologyTerm maTerm = ontologyTermRepository.getById_AccessionAndExternalDbShortName(maId, "MA");
+			OntologyTerm maTerm = ontologyTermRepository.getByAccAndShortName(maId, Datasource.MA);
 			String value = maTerm.getName();
 			String mpBc = "<a href='" + baseUrl + "/phenotypes/" + maId + "'>" + value + "</a>";
 			breadcrumbs.add("anatomy: \"" + mpBc + "\"");
@@ -306,12 +307,12 @@ public class ImagesController {
 		if (!mpId.equals("")) {
 			queryTerms = mpId;
 			q = "annotationTermId:" + mpId.replace("MP:", "MP\\:");
-			queryTerms = ontologyTermRepository.getById_AccessionAndExternalDbShortName(mpId, "MP").getName();
+			queryTerms = ontologyTermRepository.getByAccAndShortName(mpId, Datasource.MP).getName();
 		}
 
 		if (!maId.equals("")) {
 			q = "annotationTermId:" + maId.replace("MA:", "MA\\:");
-			queryTerms = ontologyTermRepository.getById_AccessionAndExternalDbShortName(maId, "MA").getName();
+			queryTerms = ontologyTermRepository.getByAccAndShortName(maId, Datasource.MA).getName();
 		}
 
 		if (mpId.equals("") && geneId.equals("") && maId.equals("")) {

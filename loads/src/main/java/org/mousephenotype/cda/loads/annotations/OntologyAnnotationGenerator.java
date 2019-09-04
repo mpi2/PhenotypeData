@@ -1,5 +1,6 @@
 package org.mousephenotype.cda.loads.annotations;
 
+import org.mousephenotype.cda.db.pojo.Datasource;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
@@ -364,10 +365,10 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 
         for (ResultDTO res : getThreeIResults(connection)) {
 
-            Parameter parameter = parameterRepository.getById(res.getParameterId());
+            Parameter parameter = parameterRepository.findById(res.getParameterId()).get();
 
             // Get the MP term directly from the stats result object for 3I calls
-            OntologyTerm term = ontologyTermRepository.getById_Accession(res.getMpTerm());
+            OntologyTerm term = ontologyTermRepository.getByAccAndShortName(res.getMpTerm(), Datasource.MP);
 
             if (term == null) {
                 String msg = "No term could be found to associate for parameter: " + parameter.getStableId() + " (" + res.getParameterId() + ")";
@@ -567,7 +568,7 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 
         for (ResultDTO res : getUnidimensionalResults(connection)) {
 
-            Parameter parameter = parameterRepository.getById(res.getParameterId());
+            Parameter parameter = parameterRepository.findById(res.getParameterId()).get();
 
             // Get the MP term (by sex if no term found based on genotype result
             // effect size)
@@ -786,7 +787,7 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 
                 // Effect is significant, find out which term to associate
 
-                Parameter parameter = parameterRepository.getById(res.getParameterId());
+                Parameter parameter = parameterRepository.findById(res.getParameterId()).get();
 
                 // Get the abnormal term
 
@@ -917,7 +918,7 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 
 		for (ResultDTO res : getRRPlusResults(connection)) {
 
-			Parameter parameter = parameterRepository.getById(res.getParameterId());
+			Parameter parameter = parameterRepository.findById(res.getParameterId()).get();
 
 			// Get the MP term (by sex if no term found based on genotype result
 			// effect size)

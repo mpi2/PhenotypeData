@@ -148,4 +148,32 @@ public class Datasource {
 	public int hashCode() {
 		return Objects.hash(id, name, shortName, version, releaseDate);
 	}
+
+	// external_db.short_name definitions
+	public static final String NCBI_M38 = "NCBI m38";
+	public static final String GENOME_FEATURE_TYPE = "Genome Feature Type";
+	public static final String MGI = "MGI";
+	public static final String X_Y = "X/Y";
+	public static final String MP = "MP";
+	public static final String IMPRESS = "IMPReSS";
+	public static final String PATO = "PATO";
+	public static final String MA = "MA";
+	public static final String CHEBI = "CHEBI";
+	public static final String ENVO = "EnvO";
+	public static final String GO = "GO";
+	public static final String EUROPHENOME = "EuroPhenome";
+	public static final String ECO = "ECO";
+	public static final String EMAP = "EMAP";
+	public static final String EFO = "EFO";
+	public static final String IMSR = "IMSR";
+	public static final String VEGA = "VEGA";
+	public static final String ENSEMBL = "Ensembl";
+	public static final String ENTREZ_GENE = "EntrezGene";
+	public static final String MGP = "MGP";
+	public static final String CCDS = "cCDS";
+	public static final String IMPC = "IMPC";
+	public static final String THREE_I = "3I";
+	public static final String MPATH = "MPATH";
+	public static final String MMUSDV = "MMUSDV";
+	public static final String EMAPA = "EMAPA";
 }

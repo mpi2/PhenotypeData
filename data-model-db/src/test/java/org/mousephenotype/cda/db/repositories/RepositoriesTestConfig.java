@@ -28,7 +28,8 @@ public class RepositoriesTestConfig {
 
     @Bean
     public DataSource komp2DataSource() {
-        return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
+        return new EmbeddedDatabaseBuilder()
+                .setType(EmbeddedDatabaseType.H2)
                 .ignoreFailedDrops(true)
                 .setName("test")
                 .build();

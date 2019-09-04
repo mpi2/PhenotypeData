@@ -22,7 +22,6 @@ import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.repositories.DatasourceRepository;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.enumerations.ObservationType;
-import org.mousephenotype.cda.enumerations.StageUnitType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -181,70 +180,6 @@ public class ImpressUtils {
 
 		return observationType;
 	}
-
-
-	/**
-	 * Always return EFO term for "embryo stage" for now
-	 * Future enhancement (once EFO gets a term for "embryonic day 9.5") would be
-	 * to return the actual term associated with the stage parameter
-	 *
-	 * @param stage the stage from impress
-	 * @param stageUnit the stage unit applicable to stage
-	 * @return the term associated with the correct stage
-	 */
-	public OntologyTerm getStageTerm(String stage, StageUnitType stageUnit) {
-
-		String termName = null;
-		OntologyTerm term;
-
-		// Fail fast if the stage is not a "number"
-		try {
-			Float.parseFloat(stage);
-		} catch (NumberFormatException e) {
-			return null;
-		}
-
-		initializeEfoDbId();
-
-		switch (stageUnit) {
-
-			case DPC:
-
-				// Mouse gestation is 20 days, so plus 3 to be safe, else reject
-				if(Float.parseFloat(stage)>24) {
-					return null;
-				}
-
-				termName = String.format("embryonic day %s", stage);
-
-				if( ! expectedDpc.contains(stage)) {
-					logger.warn("Unexpected value for embryonic DCP stage: "+stage);
-				}
-				break;
-
-			case THEILER:
-
-				// Only allow a stage term that makes sense
-				if ( ! stage.contains(".") && Float.parseFloat(stage)>0 && Float.parseFloat(stage)<=28) {
-					termName = String.format("TS%s,embryo", stage);
-				} else {
-					termName = null;
-				}
-				break;
-
-			default:
-				return null;
-		}
-
-		term = ontologyTermRepository.getByName(termName);
-		if (term==null && termName!=null) {
-			// Term not found -- create it
-			term = createOntologyTerm(termName);
-		}
-
-		return term;
-	}
-
 
 	/**
 	 * Create an EFO OntologyTerm for the passed in termName

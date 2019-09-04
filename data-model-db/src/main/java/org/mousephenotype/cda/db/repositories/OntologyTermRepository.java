@@ -16,22 +16,15 @@
 
 package org.mousephenotype.cda.db.repositories;
 
+import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
-public interface OntologyTermRepository extends CrudRepository<OntologyTerm, Long> {
+public interface OntologyTermRepository extends CrudRepository<OntologyTerm, DatasourceEntityId> {
 
-    OntologyTerm getById_Accession(String accession);
-    OntologyTerm getById_AccessionAndId_DatabaseId(String accession, Long databaseId);
-    OntologyTerm getByName(String name);
-
-    String getById_AccessionAndExternalDbShortNameQuery =
-            "SELECT ot.*\n" +
-                    "FROM ontology_term ot\n" +
-                    "JOIN external_db edb ON edb.id = ot.db_id\n" +
-                    "WHERE ot.acc = ?1 AND edb.short_name = ?2";
-
-    @Query(value = getById_AccessionAndExternalDbShortNameQuery, nativeQuery = true)
-    OntologyTerm getById_AccessionAndExternalDbShortName(String idAccession, String externalDbShortName);
+    String query = "SELECT ot FROM OntologyTerm ot WHERE ot.id.accession = :acc AND ot.id.databaseId = (SELECT ds.id FROM Datasource ds WHERE ds.shortName = :shortName)";
+    @Query(query)
+    OntologyTerm getByAccAndShortName(@Param("acc") String acc, @Param("shortName") String shortName);
 }

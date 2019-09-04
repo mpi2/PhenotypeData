@@ -2,10 +2,7 @@ package org.mousephenotype.cda.db.statistics;
 
 import org.apache.commons.collections4.keyvalue.MultiKey;
 import org.apache.commons.collections4.map.MultiKeyMap;
-import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.db.pojo.ParameterOntologyAnnotation;
-import org.mousephenotype.cda.db.pojo.PhenotypeAnnotationType;
+import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.db.repositories.ParameterRepository;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -67,7 +64,7 @@ public class MpTermService {
             statement.setString(2, associationType.name());
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                categoryToTerm.put(resultSet.getString("name"), ontologyTermRepository.getById_Accession(resultSet.getString("ontology_acc")));
+                categoryToTerm.put(resultSet.getString("name"), ontologyTermRepository.getByAccAndShortName(resultSet.getString("ontology_acc"), Datasource.MP));
             }
         }
 
@@ -137,7 +134,7 @@ public class MpTermService {
 
                         } else {
 
-                            OntologyTerm term = ontologyTermRepository.getById_Accession(resultSet.getString("ontology_acc"));
+                            OntologyTerm term = ontologyTermRepository.getByAccAndShortName(resultSet.getString("ontology_acc"), Datasource.MP);
                             // Parameters without options get stored with an empty string placeholder
                             multiKeyMap.put(a.getType(), "", sex, term);
                         }
@@ -496,6 +493,7 @@ public class MpTermService {
     }
 
 	public OntologyTerm getMPTerm(String ontologyTermId) throws SQLException {
-		return ontologyTermRepository.getById_Accession(ontologyTermId);
+
+        return ontologyTermRepository.getByAccAndShortName(ontologyTermId, Datasource.MP);
 	}
 }

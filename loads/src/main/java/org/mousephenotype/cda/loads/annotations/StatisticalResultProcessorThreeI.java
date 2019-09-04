@@ -66,7 +66,7 @@ public class StatisticalResultProcessorThreeI {
 
             while (resultSet.next()) {
 
-                Parameter parameter = parameterRepository.getById(resultSet.getLong("parameter_id"));
+                Parameter parameter = parameterRepository.findById(resultSet.getLong("parameter_id")).get();
 
                 GenotypePhenotypeAssociationDTO association = new GenotypePhenotypeAssociationDTO();
                 association.setGf_acc(resultSet.getString("gf_acc"));

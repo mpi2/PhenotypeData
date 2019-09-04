@@ -269,9 +269,9 @@ public class OntologyAnnotationGeneratorTest {
 
         for (ResultDTO result : lineResults) {
 
-            Parameter p = parameterRepository.getById(result.getParameterId());
+            Parameter p = parameterRepository.findById(result.getParameterId()).get();
 
-                    parameterRepository.getById(result.getParameterId());
+                    parameterRepository.findById(result.getParameterId()).get();
 
             if (p.getStableId().contains("FER")) {
 
@@ -330,7 +330,7 @@ public class OntologyAnnotationGeneratorTest {
         assert(lineResults.size()>100);
         for (ResultDTO result : lineResults) {
 
-            assert(embLineParams.contains(parameterRepository.getById(result.getParameterId())));
+            assert(embLineParams.contains(parameterRepository.findById(result.getParameterId()).get()));
         }
     }
 
@@ -351,7 +351,7 @@ public class OntologyAnnotationGeneratorTest {
                 continue;
             }
 
-            logger.info("Found parameter {} for {} (id: {}). Looking for {}", parameterRepository.getById(result.getParameterId()), result.getGeneAcc(), result.getParameterId(), parameterId);
+            logger.info("Found parameter {} for {} (id: {}). Looking for {}", parameterRepository.findById(result.getParameterId()).get(), result.getGeneAcc(), result.getParameterId(), parameterId);
             if (result.getParameterId().equals(parameterId)) {
                 foundCenpjMGPParameter = Boolean.TRUE;
 
@@ -360,7 +360,7 @@ public class OntologyAnnotationGeneratorTest {
 
                     // Effect is significant, find out which term to associate
 
-                    Parameter parameter = parameterRepository.getById(result.getParameterId());
+                    Parameter parameter = parameterRepository.findById(result.getParameterId()).get();
 
                     // Check the female specific term
                     if (result.getFemalePvalue() != null && result.getFemalePvalue() <= SIGNIFICANCE_THRESHOLD) {
@@ -406,7 +406,7 @@ public class OntologyAnnotationGeneratorTest {
                 continue;
             }
 
-            logger.info("Found parameter {} for {} (id: {}). Looking for {}", parameterRepository.getById(result.getParameterId()), result.getGeneAcc(), result.getParameterId(), parameterId);
+            logger.info("Found parameter {} for {} (id: {}). Looking for {}", parameterRepository.findById(result.getParameterId()).get(), result.getGeneAcc(), result.getParameterId(), parameterId);
             if (result.getParameterId().equals(parameterId)) {
                 foundParameter = Boolean.TRUE;
 
@@ -414,7 +414,7 @@ public class OntologyAnnotationGeneratorTest {
 
                     // Effect is significant, find out which term to associate
 
-                    Parameter parameter = parameterRepository.getById(result.getParameterId());
+                    Parameter parameter = parameterRepository.findById(result.getParameterId()).get();
                     OntologyTerm term=null;
 
                     // Check the female specific term
@@ -471,7 +471,7 @@ public class OntologyAnnotationGeneratorTest {
                 continue;
             }
 
-            logger.info("Found parameter {} for {} (id: {}). Looking for {}", parameterRepository.getById(result.getParameterId()), result.getGeneAcc(), result.getParameterId(), parameterId);
+            logger.info("Found parameter {} for {} (id: {}). Looking for {}", parameterRepository.findById(result.getParameterId()).get(), result.getGeneAcc(), result.getParameterId(), parameterId);
             if (result.getParameterId().equals(parameterId)) {
                 foundParameter = Boolean.TRUE;
 
@@ -480,7 +480,7 @@ public class OntologyAnnotationGeneratorTest {
 
                     // Effect is significant, find out which term to associate
 
-                    Parameter parameter = parameterRepository.getById(result.getParameterId());
+                    Parameter parameter = parameterRepository.findById(result.getParameterId()).get();
 
                     // Check the female specific term
                     if (result.getFemalePvalue() != null && result.getFemalePvalue() <= SIGNIFICANCE_THRESHOLD) {

@@ -20,6 +20,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.PivotField;
+import org.mousephenotype.cda.db.pojo.Datasource;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
@@ -294,11 +295,12 @@ public abstract class AbstractIndexer implements CommandLineRunner {
             // EFO:0002570 -> embryonic day 18.5
             // MmusDv:0000092 -> postpartum stage
             //
-
             if (stages == null || stages.size() == 0) {
-                Arrays.asList(POSTPARTUM_STAGE, EMBRYONIC_DAY_9_5, EMBRYONIC_DAY_12_5, EMBRYONIC_DAY_14_5, EMBRYONIC_DAY_18_5).forEach(x -> {
-                    OntologyTerm t = ontologyTermRepository.getById_Accession(x);
-                    stages.put(x, new BasicBean(t.getId().getAccession(), t.getName()));
+                Arrays.asList(POSTPARTUM_STAGE, EMBRYONIC_DAY_9_5, EMBRYONIC_DAY_12_5, EMBRYONIC_DAY_14_5, EMBRYONIC_DAY_18_5)
+                        .forEach(ontologTermAccessionId -> {
+                            String shortName = (ontologTermAccessionId.startsWith(Datasource.EFO) ? Datasource.EFO : Datasource.MMUSDV);
+                    OntologyTerm t = ontologyTermRepository.getByAccAndShortName(ontologTermAccessionId, shortName);
+                    stages.put(ontologTermAccessionId, new BasicBean(t.getId().getAccession(), t.getName()));
                 });
             }
 
