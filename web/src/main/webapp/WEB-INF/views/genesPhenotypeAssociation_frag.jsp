@@ -181,14 +181,14 @@
 
                             <a href="#phenotypesTab" class="col" onclick="$('#alldatatable-tab').trigger('click')">
                                 <i class="fal fa-ruler-combined mb-1 text-dark page-nav-link-icon"></i>
-                                <span class="page-nav-link">All measurements table (${allMeasurementsNumber})</span>
+                                <span class="page-nav-link">All data table (${allMeasurementsNumber})</span>
                             </a>
                         </c:if>
                         <c:if test='${allMeasurementsNumber <= 0}'>
 
                         <span class="col">
                             <i class="fal fa-ruler-combined mb-1 text-muted page-nav-link-icon"></i>
-                            <span class="page-nav-link-muted text-muted">All measurements table (0)</span>
+                            <span class="page-nav-link-muted text-muted">All data table (0)</span>
                         </span>
                         </c:if>
 
@@ -343,13 +343,13 @@
                        role="tab" aria-controls="alldatatable-tab"
                        aria-selected="${rowsForPhenotypeTable.size() <= 0 ? 'true' : 'false'}"><i
                             class="fal fa-ruler-combined"></i>&nbsp;
-                        All measurements table (<span id="allDataTableCount">${allMeasurementsNumber}</span>/${allMeasurementsNumber})</a>
+                        All data table (<span id="allDataTableCount">${allMeasurementsNumber}</span>/${allMeasurementsNumber})</a>
                 </c:if>
                 <c:if test='${allMeasurementsNumber <= 0}'>
                     <a class="nav-link active" id="alldatatable-tab" data-toggle="tab" href="#alldatatable"
                        role="tab" aria-controls="alldatatable-tab" aria-selected="false"><i
                             class="fal fa-ruler-combined"></i>&nbsp;
-                        All measurements table (0)</a>
+                        All data table (0)</a>
                 </c:if>
             </li>
         </ul>

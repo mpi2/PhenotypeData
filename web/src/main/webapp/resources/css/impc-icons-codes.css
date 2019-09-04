@@ -1,4 +1,5 @@
 
-.icon-reproductive:before { content: '\f100'; } /* '' */
-.icon-nose:before { content: '\f101'; } /* '' */
-.icon-glands:before { content: '\f102'; } /* '' */
+.impc-nose:before { content: '\e801'; } /* '' */
+.impc-embryo:before { content: '\e800'; } /* '' */
+.impc-sperm:before { content: '\e803'; } /* '' */
+.impc-trachea:before { content: '\e804'; } /* '' */

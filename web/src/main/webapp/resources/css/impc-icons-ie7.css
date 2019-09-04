@@ -1,4 +1,4 @@
-[class^="icon-"], [class*=" icon-"] {
+[class^="impc-"], [class*=" impc-"] {
   font-family: 'impc-icons';
   font-style: normal;
   font-weight: normal;
@@ -10,6 +10,7 @@
   /* font-size: 120%; */
 }
  
-.icon-reproductive { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xf100;&nbsp;'); }
-.icon-nose { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xf101;&nbsp;'); }
-.icon-glands { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xf102;&nbsp;'); }
+.impc-nose { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe801;&nbsp;'); }
+.impc-embryo { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe800;&nbsp;'); }
+.impc-sperm { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe803;&nbsp;'); }
+.impc-trachea { *zoom: expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '&#xe804;&nbsp;'); }
