@@ -15,6 +15,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.sql.DataSource;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
@@ -55,36 +56,15 @@ public class ProcedureRepositoryTest {
     @Test
     public void getByStableKey() throws Exception {
 
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.S");
-
-        Datasource datasource = new Datasource();
-        datasource.setId(6L);
-        datasource.setName("IMPReSS");
-        datasource.setShortName(datasource.getName());
-        datasource.setVersion("unknown");
-        datasource.setReleaseDate(format.parse("2012-01-26 00:00:00.0"));
-
-        Procedure expectedProcedure = new Procedure();
-        expectedProcedure.setId(2L);
-        expectedProcedure.setLevel("housing");
-        expectedProcedure.setMandatory(false);
-        expectedProcedure.setParameterCollection(null);
-        expectedProcedure.setMetaDataSet(null);
-        expectedProcedure.setParameters(null);
-        expectedProcedure.setPipelines(null);
-        expectedProcedure.setScheduleKey(3L);
-        expectedProcedure.setStage("Adult");
-        expectedProcedure.setStageLabel("Unrestricted");
-        expectedProcedure.setStableId("IMPC_HOU_001");
-        expectedProcedure.setStableKey(173L);
-        expectedProcedure.setName("Housing and Husbandry");
-        expectedProcedure.setDescription("");
-        expectedProcedure.setMajorVersion(1);
-        expectedProcedure.setMinorVersion(0);
-        expectedProcedure.setDatasource(datasource);
+        Procedure expectedProcedure = getExpected();
 
         Procedure procedure = procedureRepository.getByStableKey(173L);
 
+        compareFields(expectedProcedure, procedure);
+    }
+
+
+    private void compareFields(Procedure expectedProcedure, Procedure procedure) {
         assertEquals(expectedProcedure.getDatasource(), procedure.getDatasource());
         assertEquals(expectedProcedure.getId(), procedure.getId());
         assertEquals(expectedProcedure.getLevel(), procedure.getLevel());
@@ -99,18 +79,7 @@ public class ProcedureRepositoryTest {
         assertEquals(expectedProcedure.getMinorVersion(), procedure.getMinorVersion());
     }
 
-    @Test
-    public void getByStableId() throws Exception {
-
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.S");
-
-        Datasource datasource = new Datasource();
-        datasource.setId(6L);
-        datasource.setName("IMPReSS");
-        datasource.setShortName(datasource.getName());
-        datasource.setVersion("unknown");
-        datasource.setReleaseDate(format.parse("2012-01-26 00:00:00.0"));
-
+    private Procedure getExpected() throws Exception {
         Procedure expectedProcedure = new Procedure();
         expectedProcedure.setId(2L);
         expectedProcedure.setLevel("housing");
@@ -128,21 +97,28 @@ public class ProcedureRepositoryTest {
         expectedProcedure.setDescription("");
         expectedProcedure.setMajorVersion(1);
         expectedProcedure.setMinorVersion(0);
-        expectedProcedure.setDatasource(datasource);
+        expectedProcedure.setDatasource(getDatasource());
+        return expectedProcedure;
+    }
 
-        Procedure procedure = procedureRepository.getByStableId("IMPC_HOU_001");
+    @Test
+    public void getByStableId() throws Exception {
 
-        assertEquals(expectedProcedure.getDatasource(), procedure.getDatasource());
-        assertEquals(expectedProcedure.getId(), procedure.getId());
-        assertEquals(expectedProcedure.getLevel(), procedure.getLevel());
-        assertEquals(expectedProcedure.isMandatory(), procedure.isMandatory());
-        assertEquals(expectedProcedure.getScheduleKey(), procedure.getScheduleKey());
-        assertEquals(expectedProcedure.getStage(), procedure.getStage());
-        assertEquals(expectedProcedure.getStageLabel(), procedure.getStageLabel());
-        assertEquals(expectedProcedure.getStableId(), procedure.getStableId());
-        assertEquals(expectedProcedure.getStableKey(), procedure.getStableKey());
-        assertEquals(expectedProcedure.getName(), procedure.getName());
-        assertEquals(expectedProcedure.getMajorVersion(), procedure.getMajorVersion());
-        assertEquals(expectedProcedure.getMinorVersion(), procedure.getMinorVersion());
+        Procedure expected = getExpected();
+        Procedure actual = procedureRepository.getByStableId("IMPC_HOU_001");
+
+        compareFields(expected, actual);
+    }
+
+    private Datasource getDatasource() throws ParseException {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.S");
+
+        Datasource datasource = new Datasource();
+        datasource.setId(6L);
+        datasource.setName("IMPReSS");
+        datasource.setShortName(datasource.getName());
+        datasource.setVersion("unknown");
+        datasource.setReleaseDate(format.parse("2012-01-26 00:00:00.0"));
+        return datasource;
     }
 }

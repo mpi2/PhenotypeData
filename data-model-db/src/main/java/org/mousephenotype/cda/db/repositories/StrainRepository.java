@@ -16,10 +16,11 @@
 
 package org.mousephenotype.cda.db.repositories;
 
+import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
 import org.mousephenotype.cda.db.pojo.Strain;
 import org.springframework.data.repository.CrudRepository;
 
-public interface StrainRepository extends CrudRepository<Strain, Long> {
+public interface StrainRepository extends CrudRepository<Strain, DatasourceEntityId> {
 
     Strain getStrainByName(String name);
 }
