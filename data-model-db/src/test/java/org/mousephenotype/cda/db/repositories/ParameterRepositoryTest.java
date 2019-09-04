@@ -57,11 +57,23 @@ public class ParameterRepositoryTest {
     @Test
     public void findById() throws Exception {
 
-        Parameter expected = createParameter();
         Parameter actual = parameterRepository.findById(8L).get();
-
         assertNotNull(actual);
 
+        compareFields(getExpected(), actual);
+    }
+
+
+    @Test
+    public void getByStableId() throws Exception {
+
+        Parameter actual = parameterRepository.getByStableId("IMPC_BWT_008_001");
+        assertNotNull(actual);
+
+        compareFields(getExpected(), actual);
+    }
+
+    private void compareFields(Parameter expected, Parameter actual) {
         assertEquals(expected.getId(), actual.getId());
         assertEquals(expected.getStableId(), actual.getStableId());
         assertEquals(expected.getDatasource(), actual.getDatasource());
@@ -86,12 +98,7 @@ public class ParameterRepositoryTest {
         assertEquals(expected.getStableKey(), actual.getStableKey());
     }
 
-    @Test
-    public void getByStableId() throws Exception {
-    }
-
-
-    private Parameter createParameter() throws Exception {
+    private Parameter getExpected() throws Exception {
         Parameter parameter = new Parameter();
         parameter.setId(8L);
         parameter.setStableId("IMPC_BWT_008_001");
