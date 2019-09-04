@@ -7612,4 +7612,6 @@ button[name="clearSearch"] > i::before{
     content: "\f00d";
 }
 
-
+.tile > .impc-sperm {
+    margin-right: -10px;
+}

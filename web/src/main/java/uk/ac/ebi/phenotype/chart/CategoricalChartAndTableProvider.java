@@ -15,19 +15,6 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.apache.commons.lang.WordUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,6 +36,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.Map.Entry;
 
 @Service
 public class CategoricalChartAndTableProvider {
@@ -162,7 +155,7 @@ public class CategoricalChartAndTableProvider {
 					CategoricalResult tempStatsResult = null;
 					for (StatisticalResult result : statsResults) {
 						//System.out.println("is matching?="+result.getZygosityType()+" zType="+zType +" result sex="+result.getSexType()+" loopsexType="+sexType +" sexType="+SexType.both);
-						if(result.getSexType().equals(SexType.both)){
+						if(result.getSexType() != null && result.getSexType().equals(SexType.both)){
 							//System.out.println("both pValue detected");
 							CategoricalResult veryTempStatsResult = (CategoricalResult) result;
 							categoricalResultAndCharts.setCombinedPValue(veryTempStatsResult.getpValue());
