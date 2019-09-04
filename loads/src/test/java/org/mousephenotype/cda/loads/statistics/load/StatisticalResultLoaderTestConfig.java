@@ -5,7 +5,7 @@ import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.db.repositories.ParameterRepository;
 import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.mousephenotype.cda.loads.statistics.load.threei.TestConfigThreeI;
+import org.mousephenotype.cda.loads.statistics.load.threei.ThreeITestConfig;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -27,7 +27,7 @@ import javax.validation.constraints.NotNull;
 @ComponentScan(excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {
                 StatisticalResultLoaderConfig.class,
-                TestConfigThreeI.class})}
+                ThreeITestConfig.class})}
 )
 public class StatisticalResultLoaderTestConfig {
 
@@ -52,24 +52,6 @@ public class StatisticalResultLoaderTestConfig {
                 .setName("cda_test")
                 .build();
     }
-
-//    @Bean(name = "komp2TxManager")
-//    protected PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
-//        JpaTransactionManager tm = new JpaTransactionManager();
-//        tm.setEntityManagerFactory(emf);
-//        tm.setDataSource(cdaDataSource());
-//        return tm;
-//    }
-//
-//    @Bean(name = "sessionFactoryHibernate")
-//    public SessionFactory sessionFactory() {
-//
-//        LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(cdaDataSource());
-//        sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
-//        sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
-//
-//        return sessionBuilder.buildSessionFactory();
-//    }
 
     @Bean
     public MpTermService mpTermService() {
