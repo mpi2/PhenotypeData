@@ -18,10 +18,7 @@ package org.mousephenotype.cda.solr.service.dto;
 import org.apache.solr.client.solrj.beans.Field;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class ObservationDTOBase {
 
@@ -858,99 +855,6 @@ public class ObservationDTOBase {
 				'}';
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		ObservationDTOBase that = (ObservationDTOBase) o;
-		return Objects.equals(id, that.id) &&
-				Objects.equals(dataSourceId, that.dataSourceId) &&
-				Objects.equals(dataSourceName, that.dataSourceName) &&
-				Objects.equals(projectId, that.projectId) &&
-				Objects.equals(projectName, that.projectName) &&
-				Objects.equals(pipelineName, that.pipelineName) &&
-				Objects.equals(pipelineStableId, that.pipelineStableId) &&
-				Objects.equals(procedureStableId, that.procedureStableId) &&
-				Objects.equals(procedureGroup, that.procedureGroup) &&
-				Objects.equals(parameterStableId, that.parameterStableId) &&
-				Objects.equals(dataType, that.dataType) &&
-				Objects.equals(pipelineId, that.pipelineId) &&
-				Objects.equals(procedureId, that.procedureId) &&
-				Objects.equals(parameterId, that.parameterId) &&
-				Objects.equals(strainAccessionId, that.strainAccessionId) &&
-				Objects.equals(strainName, that.strainName) &&
-				Objects.equals(geneticBackground, that.geneticBackground) &&
-				Objects.equals(allelicComposition, that.allelicComposition) &&
-				Objects.equals(experimentSourceId, that.experimentSourceId) &&
-				Objects.equals(geneSymbol, that.geneSymbol) &&
-				Objects.equals(geneAccession, that.geneAccession) &&
-				Objects.equals(experimentId, that.experimentId) &&
-				Objects.equals(phenotypingCenterId, that.phenotypingCenterId) &&
-				Objects.equals(phenotypingCenter, that.phenotypingCenter) &&
-				Objects.equals(specimenProjectId, that.specimenProjectId) &&
-				Objects.equals(specimenProjectName, that.specimenProjectName) &&
-				Objects.equals(productionCenterId, that.productionCenterId) &&
-				Objects.equals(productionCenter, that.productionCenter) &&
-				Objects.equals(litterId, that.litterId) &&
-				Objects.equals(observationType, that.observationType) &&
-				Objects.equals(colonyId, that.colonyId) &&
-				Objects.equals(biologicalSampleId, that.biologicalSampleId) &&
-				Objects.equals(biologicalModelId, that.biologicalModelId) &&
-				Objects.equals(zygosity, that.zygosity) &&
-				Objects.equals(sex, that.sex) &&
-				Objects.equals(group, that.group) &&
-				Objects.equals(category, that.category) &&
-				Objects.equals(dataPoint, that.dataPoint) &&
-				Objects.equals(orderIndex, that.orderIndex) &&
-				Objects.equals(dimension, that.dimension) &&
-				Objects.equals(timePoint, that.timePoint) &&
-				Objects.equals(discretePoint, that.discretePoint) &&
-				Objects.equals(externalSampleId, that.externalSampleId) &&
-				Objects.equals(parameterName, that.parameterName) &&
-				Objects.equals(procedureName, that.procedureName) &&
-				Objects.equals(metadataGroup, that.metadataGroup) &&
-				Objects.equals(metadata, that.metadata) &&
-				Objects.equals(alleleAccession, that.alleleAccession) &&
-				Objects.equals(alleleSymbol, that.alleleSymbol) &&
-				Objects.equals(downloadFilePath, that.downloadFilePath) &&
-				Objects.equals(fileType, that.fileType) &&
-				Objects.equals(parameterAssociationStableId, that.parameterAssociationStableId) &&
-				Objects.equals(parameterAssociationSequenceId, that.parameterAssociationSequenceId) &&
-				Objects.equals(parameterAssociationDimId, that.parameterAssociationDimId) &&
-				Objects.equals(parameterAssociationName, that.parameterAssociationName) &&
-				Objects.equals(parameterAssociationValue, that.parameterAssociationValue) &&
-				Objects.equals(weightParameterStableId, that.weightParameterStableId) &&
-				Objects.equals(weightDaysOld, that.weightDaysOld) &&
-				Objects.equals(weight, that.weight) &&
-				Objects.equals(developmentalStageAcc, that.developmentalStageAcc) &&
-				Objects.equals(developmentalStageName, that.developmentalStageName) &&
-				Objects.equals(textValue, that.textValue) &&
-				Objects.equals(subTermName, that.subTermName) &&
-				Objects.equals(subTermId, that.subTermId) &&
-				Objects.equals(subTermDescription, that.subTermDescription) &&
-				Objects.equals(sequenceId, that.sequenceId) &&
-				Objects.equals(anatomyId, that.anatomyId) &&
-				Objects.equals(anatomyTerm, that.anatomyTerm) &&
-				Objects.equals(anatomyIdTerm, that.anatomyIdTerm) &&
-				Objects.equals(anatomyTermSynonym, that.anatomyTermSynonym) &&
-				Objects.equals(intermediateAnatomyId, that.intermediateAnatomyId) &&
-				Objects.equals(intermediateAnatomyTerm, that.intermediateAnatomyTerm) &&
-				Objects.equals(intermediateAnatomyTermSynonym, that.intermediateAnatomyTermSynonym) &&
-				Objects.equals(topLevelAnatomyId, that.topLevelAnatomyId) &&
-				Objects.equals(topLevelAnatomyTerm, that.topLevelAnatomyTerm) &&
-				Objects.equals(topLevelAnatomyTermSynonym, that.topLevelAnatomyTermSynonym) &&
-				Objects.equals(selectedTopLevelAnatomyId, that.selectedTopLevelAnatomyId) &&
-				Objects.equals(selectedTopLevelAnatomyTerm, that.selectedTopLevelAnatomyTerm) &&
-				Objects.equals(selectedTopLevelAnatomyTermSynonym, that.selectedTopLevelAnatomyTermSynonym) &&
-				Objects.equals(ageInDays, that.ageInDays) &&
-				Objects.equals(ageInWeeks, that.ageInWeeks);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id, dataSourceId, dataSourceName, projectId, projectName, pipelineName, pipelineStableId, procedureStableId, procedureGroup, parameterStableId, dataType, pipelineId, procedureId, parameterId, strainAccessionId, strainName, geneticBackground, allelicComposition, experimentSourceId, geneSymbol, geneAccession, experimentId, phenotypingCenterId, phenotypingCenter, specimenProjectId, specimenProjectName, productionCenterId, productionCenter, litterId, observationType, colonyId, biologicalSampleId, biologicalModelId, zygosity, sex, group, category, dataPoint, orderIndex, dimension, timePoint, discretePoint, externalSampleId, parameterName, procedureName, metadataGroup, metadata, alleleAccession, alleleSymbol, downloadFilePath, fileType, parameterAssociationStableId, parameterAssociationSequenceId, parameterAssociationDimId, parameterAssociationName, parameterAssociationValue, weightParameterStableId, weightDaysOld, weight, developmentalStageAcc, developmentalStageName, textValue, subTermName, subTermId, subTermDescription, sequenceId, anatomyId, anatomyTerm, anatomyIdTerm, anatomyTermSynonym, intermediateAnatomyId, intermediateAnatomyTerm, intermediateAnatomyTermSynonym, topLevelAnatomyId, topLevelAnatomyTerm, topLevelAnatomyTermSynonym, selectedTopLevelAnatomyId, selectedTopLevelAnatomyTerm, selectedTopLevelAnatomyTermSynonym, ageInDays, ageInWeeks);
-	}
-
 	/**
      * @return the id
      */
@@ -1268,7 +1172,7 @@ public class ObservationDTOBase {
     /**
      * @return the biologicalSampleId
      */
-    public Integer getBiologicalSampleId() {
+    public Long getBiologicalSampleId() {
         return biologicalSampleId;
     }
 
@@ -1276,14 +1180,14 @@ public class ObservationDTOBase {
      * @param biologicalSampleId
      *            the biologicalSampleId to set
      */
-    public void setBiologicalSampleId(Integer biologicalSampleId) {
+    public void setBiologicalSampleId(Long biologicalSampleId) {
         this.biologicalSampleId = biologicalSampleId;
     }
 
     /**
      * @return the biologicalModelId
      */
-    public Integer getBiologicalModelId() {
+    public Long getBiologicalModelId() {
         return biologicalModelId;
     }
 
@@ -1291,7 +1195,7 @@ public class ObservationDTOBase {
      * @param biologicalModelId
      *            the biologicalModelId to set
      */
-    public void setBiologicalModelId(Integer biologicalModelId) {
+    public void setBiologicalModelId(Long biologicalModelId) {
         this.biologicalModelId = biologicalModelId;
     }
 
@@ -1508,11 +1412,11 @@ public class ObservationDTOBase {
         this.alleleAccession = alleleAccession;
     }
 
-    public Integer getDataSourceId() {
+    public Long getDataSourceId() {
         return dataSourceId;
     }
 
-    public void setDataSourceId(Integer dataSourceId) {
+    public void setDataSourceId(Long dataSourceId) {
         this.dataSourceId = dataSourceId;
     }
 
@@ -1524,7 +1428,7 @@ public class ObservationDTOBase {
         this.dataSourceName = dataSourceName;
     }
 
-    public Integer getProjectId() {
+    public Long getProjectId() {
         return projectId;
     }
 
@@ -1532,7 +1436,7 @@ public class ObservationDTOBase {
         return projectName;
     }
 
-    public void setProjectId(Integer projectId) {
+    public void setProjectId(Long projectId) {
         this.projectId = projectId;
     }
 
@@ -1690,5 +1594,98 @@ public class ObservationDTOBase {
 			to.addAll(what);
 		}
 		return to;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		ObservationDTOBase that = (ObservationDTOBase) o;
+		return Objects.equals(id, that.id) &&
+				Objects.equals(dataSourceId, that.dataSourceId) &&
+				Objects.equals(dataSourceName, that.dataSourceName) &&
+				Objects.equals(projectId, that.projectId) &&
+				Objects.equals(projectName, that.projectName) &&
+				Objects.equals(pipelineName, that.pipelineName) &&
+				Objects.equals(pipelineStableId, that.pipelineStableId) &&
+				Objects.equals(procedureStableId, that.procedureStableId) &&
+				Objects.equals(procedureGroup, that.procedureGroup) &&
+				Objects.equals(parameterStableId, that.parameterStableId) &&
+				Objects.equals(dataType, that.dataType) &&
+				Objects.equals(pipelineId, that.pipelineId) &&
+				Objects.equals(procedureId, that.procedureId) &&
+				Objects.equals(parameterId, that.parameterId) &&
+				Objects.equals(strainAccessionId, that.strainAccessionId) &&
+				Objects.equals(strainName, that.strainName) &&
+				Objects.equals(geneticBackground, that.geneticBackground) &&
+				Objects.equals(allelicComposition, that.allelicComposition) &&
+				Objects.equals(experimentSourceId, that.experimentSourceId) &&
+				Objects.equals(geneSymbol, that.geneSymbol) &&
+				Objects.equals(geneAccession, that.geneAccession) &&
+				Objects.equals(experimentId, that.experimentId) &&
+				Objects.equals(phenotypingCenterId, that.phenotypingCenterId) &&
+				Objects.equals(phenotypingCenter, that.phenotypingCenter) &&
+				Objects.equals(specimenProjectId, that.specimenProjectId) &&
+				Objects.equals(specimenProjectName, that.specimenProjectName) &&
+				Objects.equals(productionCenterId, that.productionCenterId) &&
+				Objects.equals(productionCenter, that.productionCenter) &&
+				Objects.equals(litterId, that.litterId) &&
+				Objects.equals(observationType, that.observationType) &&
+				Objects.equals(colonyId, that.colonyId) &&
+				Objects.equals(biologicalSampleId, that.biologicalSampleId) &&
+				Objects.equals(biologicalModelId, that.biologicalModelId) &&
+				Objects.equals(zygosity, that.zygosity) &&
+				Objects.equals(sex, that.sex) &&
+				Objects.equals(group, that.group) &&
+				Objects.equals(category, that.category) &&
+				Objects.equals(dataPoint, that.dataPoint) &&
+				Objects.equals(orderIndex, that.orderIndex) &&
+				Objects.equals(dimension, that.dimension) &&
+				Objects.equals(timePoint, that.timePoint) &&
+				Objects.equals(discretePoint, that.discretePoint) &&
+				Objects.equals(externalSampleId, that.externalSampleId) &&
+				Objects.equals(parameterName, that.parameterName) &&
+				Objects.equals(procedureName, that.procedureName) &&
+				Objects.equals(metadataGroup, that.metadataGroup) &&
+				Objects.equals(metadata, that.metadata) &&
+				Objects.equals(alleleAccession, that.alleleAccession) &&
+				Objects.equals(alleleSymbol, that.alleleSymbol) &&
+				Objects.equals(downloadFilePath, that.downloadFilePath) &&
+				Objects.equals(fileType, that.fileType) &&
+				Objects.equals(parameterAssociationStableId, that.parameterAssociationStableId) &&
+				Objects.equals(parameterAssociationSequenceId, that.parameterAssociationSequenceId) &&
+				Objects.equals(parameterAssociationDimId, that.parameterAssociationDimId) &&
+				Objects.equals(parameterAssociationName, that.parameterAssociationName) &&
+				Objects.equals(parameterAssociationValue, that.parameterAssociationValue) &&
+				Objects.equals(weightParameterStableId, that.weightParameterStableId) &&
+				Objects.equals(weightDaysOld, that.weightDaysOld) &&
+				Objects.equals(weight, that.weight) &&
+				Objects.equals(developmentalStageAcc, that.developmentalStageAcc) &&
+				Objects.equals(developmentalStageName, that.developmentalStageName) &&
+				Objects.equals(textValue, that.textValue) &&
+				Objects.equals(subTermName, that.subTermName) &&
+				Objects.equals(subTermId, that.subTermId) &&
+				Objects.equals(subTermDescription, that.subTermDescription) &&
+				Objects.equals(sequenceId, that.sequenceId) &&
+				Objects.equals(anatomyId, that.anatomyId) &&
+				Objects.equals(anatomyTerm, that.anatomyTerm) &&
+				Objects.equals(anatomyIdTerm, that.anatomyIdTerm) &&
+				Objects.equals(anatomyTermSynonym, that.anatomyTermSynonym) &&
+				Objects.equals(intermediateAnatomyId, that.intermediateAnatomyId) &&
+				Objects.equals(intermediateAnatomyTerm, that.intermediateAnatomyTerm) &&
+				Objects.equals(intermediateAnatomyTermSynonym, that.intermediateAnatomyTermSynonym) &&
+				Objects.equals(topLevelAnatomyId, that.topLevelAnatomyId) &&
+				Objects.equals(topLevelAnatomyTerm, that.topLevelAnatomyTerm) &&
+				Objects.equals(topLevelAnatomyTermSynonym, that.topLevelAnatomyTermSynonym) &&
+				Objects.equals(selectedTopLevelAnatomyId, that.selectedTopLevelAnatomyId) &&
+				Objects.equals(selectedTopLevelAnatomyTerm, that.selectedTopLevelAnatomyTerm) &&
+				Objects.equals(selectedTopLevelAnatomyTermSynonym, that.selectedTopLevelAnatomyTermSynonym) &&
+				Objects.equals(ageInDays, that.ageInDays) &&
+				Objects.equals(ageInWeeks, that.ageInWeeks);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, dataSourceId, dataSourceName, projectId, projectName, pipelineName, pipelineStableId, procedureStableId, procedureGroup, parameterStableId, dataType, pipelineId, procedureId, parameterId, strainAccessionId, strainName, geneticBackground, allelicComposition, experimentSourceId, geneSymbol, geneAccession, experimentId, phenotypingCenterId, phenotypingCenter, specimenProjectId, specimenProjectName, productionCenterId, productionCenter, litterId, observationType, colonyId, biologicalSampleId, biologicalModelId, zygosity, sex, group, category, dataPoint, orderIndex, dimension, timePoint, discretePoint, externalSampleId, parameterName, procedureName, metadataGroup, metadata, alleleAccession, alleleSymbol, downloadFilePath, fileType, parameterAssociationStableId, parameterAssociationSequenceId, parameterAssociationDimId, parameterAssociationName, parameterAssociationValue, weightParameterStableId, weightDaysOld, weight, developmentalStageAcc, developmentalStageName, textValue, subTermName, subTermId, subTermDescription, sequenceId, anatomyId, anatomyTerm, anatomyIdTerm, anatomyTermSynonym, intermediateAnatomyId, intermediateAnatomyTerm, intermediateAnatomyTermSynonym, topLevelAnatomyId, topLevelAnatomyTerm, topLevelAnatomyTermSynonym, selectedTopLevelAnatomyId, selectedTopLevelAnatomyTerm, selectedTopLevelAnatomyTermSynonym, ageInDays, ageInWeeks);
 	}
 }

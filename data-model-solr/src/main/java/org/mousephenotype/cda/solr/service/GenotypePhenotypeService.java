@@ -752,51 +752,6 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         return parameter;
     }
 
-
-    /*
-     * End of method for PipelineSolrImpl
-     */
-
-    public List<GenotypePhenotypeDTO> getGenotypePhenotypeFor(String markerAccession, String parameterStableId, String strainAccession, String alleleAccession, Set<ZygosityType> zygosity, String phenotypingCenter, Set<SexType> sex)
-            throws SolrServerException, IOException {
-
-        SolrQuery query = new SolrQuery()
-                .setQuery("*:*")
-                .setRows(Integer.MAX_VALUE);
-
-        if (markerAccession != null) {
-            query.addFilterQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + markerAccession + "\"");
-        }
-
-        if (alleleAccession != null) {
-            query.addFilterQuery(GenotypePhenotypeDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"");
-        }
-
-        if (strainAccession != null) {
-            query.addFilterQuery(GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + strainAccession + "\"");
-        }
-
-        if (parameterStableId != null) {
-            query.addFilterQuery(GenotypePhenotypeDTO.PARAMETER_STABLE_ID + ":\"" + parameterStableId + "\"");
-        }
-
-        if (sex != null) {
-            String sexes = sex.stream().map(SexType::getName).collect(Collectors.joining(" OR "));
-            query.addFilterQuery(GenotypePhenotypeDTO.SEX + ":(" + sexes + ")");
-        }
-
-        if (zygosity != null) {
-            String zygosities = zygosity.stream().map(ZygosityType::getName).collect(Collectors.joining(" OR "));
-            query.addFilterQuery(GenotypePhenotypeDTO.ZYGOSITY + ":(" + zygosities + ")");
-        }
-
-        if (phenotypingCenter != null) {
-            query.addFilterQuery(GenotypePhenotypeDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"");
-        }
-
-        return solr.query(query).getBeans(GenotypePhenotypeDTO.class);
-    }
-
     /*
      * Methods used by PhenotypeCallSummarySolrImpl
      */

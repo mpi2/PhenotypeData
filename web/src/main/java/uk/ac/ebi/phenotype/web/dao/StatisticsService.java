@@ -1,40 +1,33 @@
 package uk.ac.ebi.phenotype.web.dao;
 
+import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import uk.ac.ebi.phenotype.stats.model.Statistics;
+
+import javax.inject.Inject;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-
-import javax.inject.Inject;
-
-import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
-import org.springframework.hateoas.PagedResources;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-
-import uk.ac.ebi.phenotype.stats.model.Statistics;
-
-//import temp.Statistics;
-
-
 
 /**
  * Service should be able to connect to a direct file Dao or a rest Dao
  * @author jwarren
  *
  */
+
+@Service
 public class StatisticsService {
 	
-	StatsClient statsClient;
-	
-	//need to import the jar somehow or have the stats repo as a module in the PA???
-	//@Inject
-	public StatisticsService(String statsUrl) {
-		this.statsClient=new StatsClient(statsUrl);
+	private StatsClient statsClient;
+
+
+	@Inject
+	public StatisticsService( StatsClient statsClient) {
+		this.statsClient = statsClient;
 	}
 	
 	

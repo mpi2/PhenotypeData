@@ -3,6 +3,7 @@ package uk.ac.ebi.phenotype.web.dao;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import uk.ac.ebi.phenotype.stats.model.Statistics;
 
 import java.util.List;
 

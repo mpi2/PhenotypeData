@@ -37,13 +37,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 import uk.ac.ebi.phenotype.chart.*;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
+import uk.ac.ebi.phenotype.web.dao.StatisticsService;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -62,18 +61,19 @@ import static org.springframework.web.bind.annotation.ValueConstants.DEFAULT_NON
 @Controller
 public class ChartsController {
 
-	private final Logger log = LoggerFactory.getLogger(this.getClass());
-	private final CategoricalChartAndTableProvider categoricalChartAndTableProvider;
-	private final TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider;
+	private final Logger                              log = LoggerFactory.getLogger(this.getClass());
+	private final CategoricalChartAndTableProvider    categoricalChartAndTableProvider;
+	private final TimeSeriesChartAndTableProvider     timeSeriesChartAndTableProvider;
 	private final UnidimensionalChartAndTableProvider continousChartAndTableProvider;
-	private final ScatterChartAndTableProvider scatterChartAndTableProvider;
-	private final AbrChartAndTableProvider abrChartAndTableProvider;
-	private final ViabilityChartAndDataProvider viabilityChartAndDataProvider;
-	private final ExperimentService experimentService;
-	private final StatisticalResultService srService;
-	private final GeneService geneService;
-	private final ImpressService is;
-	private final ImageService imageService;
+	private final ScatterChartAndTableProvider        scatterChartAndTableProvider;
+	private final AbrChartAndTableProvider            abrChartAndTableProvider;
+	private final ViabilityChartAndDataProvider       viabilityChartAndDataProvider;
+	private final ExperimentService                   experimentService;
+	private final StatisticalResultService            srService;
+	private final GeneService                         geneService;
+	private final ImageService                        imageService;
+	private final ImpressService                      impressService;
+	private final GenotypePhenotypeService            gpService;
     
     @Resource(name = "globalConfiguration")
     private Map<String, String> config;
@@ -81,6 +81,8 @@ public class ChartsController {
 
     @Value("${solr_url}")
     public String SOLR_URL;
+
+    private StatisticsService statsService;
 
     @Inject
     public ChartsController(
@@ -93,8 +95,9 @@ public class ChartsController {
 			ExperimentService experimentService,
 			StatisticalResultService srService,
 			GeneService geneService,
-			ImpressService is,
-			ImageService imageService
+			ImpressService impressService,
+			ImageService imageService,
+			GenotypePhenotypeService gpService
 	) {
         this.categoricalChartAndTableProvider = categoricalChartAndTableProvider;
         this.timeSeriesChartAndTableProvider = timeSeriesChartAndTableProvider;
@@ -105,8 +108,9 @@ public class ChartsController {
         this.experimentService = experimentService;
         this.srService = srService;
         this.geneService = geneService;
-        this.is = is;
+        this.impressService = impressService;
         this.imageService=imageService;
+        this.gpService = gpService;
     }
 
     /**
@@ -222,7 +226,7 @@ public class ChartsController {
         // TODO need to check we don't have more than one accession and one
         // parameter throw and exception if we do
         // get the parameter object from the stable id
-        ParameterDTO parameter = is.getParameterByStableId(parameterStableId);
+        ParameterDTO parameter = impressService.getParameterByStableId(parameterStableId);
         model.addAttribute("parameter", parameter);
 
         //3i procedures with at least some headline images associated
@@ -253,9 +257,9 @@ public class ChartsController {
 
 			if (pipelineStableId != null &&  ! pipelineStableId.equals("")) {
 			    log.debug("pipe stable id=" + pipelineStableId);
-			    pipeline = is.getPipeline(pipelineStableId);
+			    pipeline = impressService.getPipeline(pipelineStableId);
 			    model.addAttribute("pipeline", pipeline);
-			    model.addAttribute("pipelineUrl", is.getPipelineUrlByStableId(pipeline.getStableId()));
+			    model.addAttribute("pipelineUrl", impressService.getPipelineUrlByStableId(pipeline.getStableId()));
 			}
 
 			model.addAttribute("phenotypingCenter", phenotypingCenter);
@@ -301,25 +305,25 @@ public class ChartsController {
 
 			ProcedureDTO proc=null;
 			if(experiment!=null) {
-				proc = is.getProcedureByStableId(experiment.getProcedureStableId());
+				proc = impressService.getProcedureByStableId(experiment.getProcedureStableId());
 
 			    String procedureUrl="";
 			    String parameterUrl="";
 			    if (proc != null) {
 					//procedureDescription = String.format("<a href=\"%s\">%s</a>", is.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()),  "Procedure: "+ proc.getName());
-			    	procedureUrl=is.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString());
+			    	procedureUrl = impressService.getProcedureUrlByKey(proc.getStableKey().toString());
 			    	model.addAttribute("procedureUrl", procedureUrl);
 			    }
 				if (parameter.getStableKey() != null) {
 					//title = String.format("<a href=\"%s\">%s</a>", is.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey()),  "Parameter: "+ parameter.getName());
-					parameterUrl=is.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey());
+					parameterUrl= impressService.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(), parameter.getStableKey());
 					model.addAttribute("parameterUrl", parameterUrl);
 				}
 			    model.addAttribute("alleleSymbol",experiment.getAlleleSymobl());
 			    setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
 			    if (pipeline == null) {
 			        // if we don't already have the pipeline from the url params get it via the experiment returned
-			        pipeline = is.getPipeline(experiment.getPipelineStableId());
+			        pipeline = impressService.getPipeline(experiment.getPipelineStableId());
 			    }
 
 			    if (experiment.getMetadataGroup() != null){
@@ -390,7 +394,7 @@ public class ChartsController {
 			        }
 
 			    } catch (SQLException e) {
-			        log.error(ExceptionUtils.getFullStackTrace(e));
+			        log.error(ExceptionUtils.getStackTrace(e));
 			        statsError = true;
 			    }
 			}  else {
@@ -636,7 +640,7 @@ public class ChartsController {
             throws SolrServerException, IOException, GenomicFeatureNotFoundException, ParameterNotFoundException, URISyntaxException {
 
         Long time = System.currentTimeMillis();
-        GraphUtils graphUtils = new GraphUtils(experimentService, srService, is);
+        GraphUtils graphUtils = new GraphUtils(experimentService, srService, impressService);
         List<String> geneIds = getParamsAsList(accessionsParams);
         List<String> paramIds = getParamsAsList(parameterIds);
         List<String> genderList = getParamsAsList(gender);
@@ -691,7 +695,7 @@ public class ChartsController {
 
             for (String parameterId : paramIds) {
 
-                ParameterDTO parameter = is.getParameterByStableId(parameterId);
+                ParameterDTO parameter = impressService.getParameterByStableId(parameterId);
                 if(parameter==null) {
                 	System.err.println("no parameter returned skipping for parameterId="+parameterId);
                 	continue;

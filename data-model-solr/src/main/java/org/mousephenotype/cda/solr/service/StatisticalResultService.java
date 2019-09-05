@@ -1699,7 +1699,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 		query.add("group", "true");
 		query.add("group.ngroups", "true");
 		query.add("group.field", StatisticalResultDTO.PARAMETER_NAME);
-		QueryResponse result = solr.query(query);
+		QueryResponse result = statisticalResultCore.query(query);
 		return result.getGroupResponse().getValues().get(0).getNGroups();
 	}
 

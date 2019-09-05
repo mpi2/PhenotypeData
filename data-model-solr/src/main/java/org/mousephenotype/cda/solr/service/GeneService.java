@@ -868,7 +868,7 @@ public class GeneService extends BasicService implements WebStatus{
 			query.setFields(fields);
 		}
 
-		QueryResponse response = solr.query(query, METHOD.POST);
+		QueryResponse response = geneCore.query(query, METHOD.POST);
 
 		List<GeneDTO> genes = new ArrayList<>();
 		if (response.getResults().getNumFound() > 0) {

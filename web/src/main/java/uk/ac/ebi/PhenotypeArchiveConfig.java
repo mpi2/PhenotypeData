@@ -18,6 +18,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import uk.ac.ebi.phenotype.util.SolrUtilsWeb;
+import uk.ac.ebi.phenotype.web.dao.StatsClient;
 import uk.ac.ebi.phenotype.web.util.DeploymentInterceptor;
 
 import java.util.HashMap;
@@ -48,9 +49,8 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
     @Value("${solr_url}")
     private String solrUrl;
 
-    // FIXME - Is this needed post-springBoot_2.1.7_DATA_REPOSITORIES? (remove commented-out usage in getGlobalConfig() below if not needed.)
-//    @Value("${statistics_url}")
-//    private String statisticsUrl;
+    @Value("${statistics_url}")
+    private String statisticsUrl;
 
     @Value("${base_url}")
     private String baseUrl;
@@ -91,7 +91,6 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
         map.put("googleAnalytics", googleAnalytics);
         map.put("liveSite", liveSite);
         map.put("paBaseUrl", paBaseUrl);
-//        map.put("statisticsUrl", statisticsUrl);
         return map;
     }
 
@@ -131,5 +130,10 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
     @Bean
     public SolrIndex solrIndexWeb() {
         return new SolrIndex();
+    }
+
+    @Bean
+    public StatsClient statsClient() {
+        return new StatsClient(statisticsUrl);
     }
 }
