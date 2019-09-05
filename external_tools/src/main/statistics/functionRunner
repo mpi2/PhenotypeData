@@ -1,10 +1,9 @@
 #!/bin/bash
 
-#PROFILE
-
 FILEPATH=REPLACE_DIR/functions
 source ${FILEPATH}/phenstat.profile
 export PATH=~/tex/2017/bin/x86_64-linux/:$PATH
+export R_LIBS_USER=$HOME/apps/R:$R_LIBS_USER
 
 # 
 # Run the process with weight modelled in

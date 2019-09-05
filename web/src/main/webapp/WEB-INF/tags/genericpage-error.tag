@@ -25,11 +25,12 @@
 
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title><jsp:invoke fragment="title" /> | International Mouse Phenotyping Consortium</title>
     <link rel="profile" href="http://gmpg.org/xfn/11">
-    <link rel="pingback" href="https://mousephenotypetest.org/xmlrpc.php">
-   <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-TXfwrfuHVznxCssTxWoPZjhcss/hp38gEOH8UPZG/JcXonvBQ6SlsIF49wUzsGno" crossorigin="anonymous">
+    <link rel="pingback" href="${cmsBaseUrl}/xmlrpc.php">
+    <link rel="stylesheet" href="${baseUrl}/css/vendor/fapro/css/all.min.css" />
     <link rel="apple-touch-icon-precomposed" sizes="57x57" href="${baseUrl}/img/apple-touch-icon-57x57.png" />
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${baseUrl}/img/apple-touch-icon-114x114.png" />
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${baseUrl}/img/apple-touch-icon-72x72.png" />
@@ -108,13 +109,44 @@
 
 </script>
 
+        <%--
+        Include google tracking code on live site
+        --%>
+    <c:if test="${liveSite}">
+        <script>
+            (function (i, s, o, g, r, a, m) {
+                i['GoogleAnalyticsObject'] = r;
+                i[r] = i[r] || function () {
+                    (i[r].q = i[r].q || []).push(arguments)
+                }, i[r].l = 1 * new Date();
+                a = s.createElement(o),
+                    m = s.getElementsByTagName(o)[0];
+                a.async = 1;
+                a.src = g;
+                m.parentNode.insertBefore(a, m)
+            })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+            ga('create', 'UA-23433997-1', 'auto');
+            ga('send', 'pageview');
+        </script>
+    </c:if>
+
     <jsp:invoke fragment="header" />
 
 </head>
 
-<body>
-<jsp:invoke fragment="bodyTag"/>
+
+<c:choose>
+    <c:when test="${not empty bodyTag}">
+        <jsp:invoke fragment="bodyTag"/>
+    </c:when>
+    <c:otherwise>
+        <body>
+    </c:otherwise>
+</c:choose>
+
     <t:menu />
+
 </c:if>
 
 <main id="main" class="main" role="main">

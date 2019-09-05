@@ -13,7 +13,7 @@ public class FileChartController {
 
 	 @Resource(name = "globalConfiguration")
 	    private Map<String, String> config;
-	 
+
 	//private FileUnidimensionalChartAndTableProvider fileProvider;
 	 @Autowired
 	private StatisticsService statsProvider;

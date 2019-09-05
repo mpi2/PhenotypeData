@@ -6,8 +6,7 @@
     <title>IMPC | International Mouse Phenotyping Consortium </title>
     <link rel="profile" href="http://gmpg.org/xfn/11">
     <link rel="pingback" href="https://mousephenotypedev.org/xmlrpc.php">
-    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-TXfwrfuHVznxCssTxWoPZjhcss/hp38gEOH8UPZG/JcXonvBQ6SlsIF49wUzsGno"
-        crossorigin="anonymous">
+    <link rel="stylesheet" href="${baseUrl}/css/vendor/fapro/css/all.min.css" />
     <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/images/apple-touch-icon-57x57.png" />
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114.png" />
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/images/apple-touch-icon-72x72.png" />
@@ -542,7 +541,7 @@
             <div class="row">
 
                 <div class="col-12 col-md-6">
-                    <p><strong>© 2018 IMPC International Mouse Phenotyping Consortium.</strong></p>
+                    <p><strong>ï¿½ 2018 IMPC International Mouse Phenotyping Consortium.</strong></p>
                     <p><strong>All Rights Reserved.<br />
                             <a href="#">Accesibility &amp; Cookies</a></strong><br />
                         <a href="#"><strong>Terms of use</strong></a></p>

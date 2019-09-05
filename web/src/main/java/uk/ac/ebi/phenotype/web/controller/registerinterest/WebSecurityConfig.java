@@ -26,6 +26,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -57,7 +60,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by mrelac on 12/06/2017.
@@ -69,74 +76,156 @@ import java.util.regex.Pattern;
 @ComponentScan("uk.ac.ebi.phenotype.web.controller.registerinterest")
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private DataSource riDataSource;
-    private final int MAX_INACTIVE_INTERVAL_IN_HOURS = 26;
+    private       DataSource    riDataSource;
+    private       CaptchaFilter captchaFilter;
+    private final int           MAX_INACTIVE_INTERVAL_IN_HOURS = 26;
 
     @NotNull
     @Value("${paBaseUrl}")
     private String paBaseUrl;
 
+    private static final List<String> ALLOWED_CORS_ACCESS_URLS = Arrays.asList(
+            "www.mousephenotype.org",
+            "web.mousephenotype.org",
+            "beta.mousephenotype.org",
+            "dev.mousephenotype.org",
+            "staging.mousephenotype.org",
+            "test.mousephenotype.org",
+            "www.immunophenotype.org",
+            "www.ebi.ac.uk",
+            "wwwdev.ebi.ac.uk"
+    );
+
     // Must use qualifier to get ri database; otherwise, komp2 is served up.
     @Inject
-    public WebSecurityConfig(@Qualifier("riDataSource") DataSource riDataSource) {
+    public WebSecurityConfig(@Qualifier("riDataSource") DataSource riDataSource, CaptchaFilter captchaFilter) {
         this.riDataSource = riDataSource;
+        this.captchaFilter = captchaFilter;
     }
 
-    @Autowired
-    private CaptchaFilter captchaFilter;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-    	AllowFromStrategy strategy = httpServletRequest -> "www.immunophenotype.org, mousephenotypedev.org, www.ebi.ac.uk, wwwdev.ebi.ac.uk, www.mousephenotype.org, beta.mousephenotype.org, dev.mousephenotype.org, staging.mousephenotype.org, test.mousephenotype.org";
-
+        AllowFromStrategy strategy = httpServletRequest -> String.join(", ", ALLOWED_CORS_ACCESS_URLS);
 
         http
-            .addFilterAfter(captchaFilter, CsrfFilter.class)
+                .addFilterAfter(captchaFilter, CsrfFilter.class)
 
-            .headers()
+                .headers()
+
+                .cacheControl().disable()
+                .frameOptions().disable()
+
                 // in spring-security-core 4.2.8 , the addHeaderWriter line commented out below is broken: specifying X-Frame-Options:ALLOW-FROM also incorrectly adds DENY to the same header so it reads ALLOW-FROM DENY.
                 // see https://github.com/spring-projects/spring-security/issues/123
 //                .addHeaderWriter(new XFrameOptionsHeaderWriter(new WhiteListedAllowFromStrategy(Arrays.asList("www.immunophenotype.org", "wwwdev.ebi.ac.uk"))))
-                .frameOptions().disable()
                 .addHeaderWriter(new XFrameOptionsHeaderWriter(strategy))
 
-            .and()
+                .and()
 
-            .authorizeRequests()
+                .authorizeRequests()
 
-                    .antMatchers(HttpMethod.GET, "/authenticated/**").access("hasRole('USER') or hasRole('ADMIN')")
-                    .antMatchers(HttpMethod.GET, "/summary").access("hasRole('USER') or hasRole('ADMIN')")
-                    .antMatchers(HttpMethod.GET, "/registration/**").access("hasRole('USER') or hasRole('ADMIN')")
-                    .antMatchers(HttpMethod.GET, "/unregistration/**").access("hasRole('USER') or hasRole('ADMIN')")
-                    .antMatchers(HttpMethod.GET, "/account").access("hasRole('USER') or hasRole('ADMIN')")
-                    .antMatchers(HttpMethod.POST, "/account").access("hasRole('USER') or hasRole('ADMIN')")
-                    .antMatchers(HttpMethod.GET,"/**")
-                        .permitAll()
+                .antMatchers(HttpMethod.GET, "/authenticated/**").access("hasRole('USER') or hasRole('ADMIN')")
+                .antMatchers(HttpMethod.GET, "/summary").access("hasRole('USER') or hasRole('ADMIN')")
+                .antMatchers(HttpMethod.GET, "/registration/**").access("hasRole('USER') or hasRole('ADMIN')")
+                .antMatchers(HttpMethod.GET, "/unregistration/**").access("hasRole('USER') or hasRole('ADMIN')")
+                .antMatchers(HttpMethod.GET, "/account").access("hasRole('USER') or hasRole('ADMIN')")
+                .antMatchers(HttpMethod.POST, "/account").access("hasRole('USER') or hasRole('ADMIN')")
+                .antMatchers(HttpMethod.GET,"/**")
+                .permitAll()
 
-            .and()
+                .and()
                 .exceptionHandling()
-                    .accessDeniedPage("/Access_Denied")
+                .accessDeniedPage("/Access_Denied")
 
 
-            .and()
+                .and()
                 .formLogin()
-                    .loginPage("/rilogin")
-                    .failureUrl("/rilogin?error")
+                .loginPage("/rilogin")
+                .failureUrl("/rilogin?error")
 
-                    //.successHandler(new RiSavedRequestAwareAuthenticationSuccessHandler())
-                    .usernameParameter("ssoId")
-                    .passwordParameter("password")
+                //.successHandler(new RiSavedRequestAwareAuthenticationSuccessHandler())
+                .usernameParameter("ssoId")
+                .passwordParameter("password")
 
-            // Ignore all csrf that isn't part of the login process.
-            .and()
+                // Ignore all csrf that isn't part of the login process.
+                .and()
                 .csrf()
-                    .ignoringAntMatchers("/dataTable_bq")
-                    .ignoringAntMatchers("/querybroker")
-                    .ignoringAntMatchers("/bqExport")
-                    .ignoringAntMatchers("/batchQuery")
-                    .ignoringAntMatchers("/alleleRefLogin")
-        ;
+                .ignoringAntMatchers("/dataTable_bq")
+                .ignoringAntMatchers("/dataTableAlleleRefPost")    // FIXME Remove if this endpoint is now gone.
+                .ignoringAntMatchers("/fetchAlleleRefPmidData")    // FIXME Remove if this endpoint is now gone.
+                .ignoringAntMatchers("/querybroker")
+                .ignoringAntMatchers("/bqExport")
+                .ignoringAntMatchers("/batchQuery")
+                .ignoringAntMatchers("/alleleRefLogin")
+                .ignoringAntMatchers("/addpmid")                  // FIXME Remove if this endpoint is now gone.
+                .ignoringAntMatchers("/addpmidAllele")            // FIXME Remove if this endpoint is now gone.
+                .ignoringAntMatchers("/gwaslookup");              // FIXME Remove if this endpoint is now gone.
+    }
+
+    /**
+     * Register a filter with spring that adds the CORS header Access-Control-Allow-Origin for domains which
+     * are allowed to do cross origin AJAX requests to the portal.  This list is maintained in the class constant
+     * list @link{WebSecurityConfig.ALLOWED_CORS_ACCESS_URLS}.  If any of the domains in the list match, the header
+     * is included in the response.
+     *
+     * If the request has been proxied to the portal (e.g., by a loadbalancer), the true requesting hostname should
+     * be presented as the first entry in the list of hosts provided in the X-Forwarded-Host header of the request,
+     * otherwise use the Host header.
+     *
+     * See the following for more information:
+     * https://en.wikipedia.org/wiki/X-Forwarded-For
+     * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host
+     *
+     */
+    @Component
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public class CorsFilter implements Filter {
+
+        static final String X_FORWARDED_HOST = "x-forwarded-host";
+        private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
+
+        public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+            HttpServletResponse response = (HttpServletResponse) res;
+            HttpServletRequest request = (HttpServletRequest) req;
+            String requestHostname = request.getHeader("Host");
+
+            logger.debug("Dumping headers for request:\n" +
+                Collections.list(request.getHeaderNames()).stream()
+                    .map(k -> String.format("  Header '%s' = %s", k, request.getHeader(k)))
+                    .collect(Collectors.joining("\n")));
+
+            // If this request has ben proxied, match the original Host value (defined to be the first in the list
+            // of x-forwarded-for header).  The implementation of the getHeader method matches by equalsIgnoreCase,
+            // allowing the lowercase comparison.
+
+            String host = null;
+
+            if (request.getHeader(X_FORWARDED_HOST) != null) {
+                List<String> hosts = Arrays
+                        .stream(request.getHeader(X_FORWARDED_HOST).split(","))
+                        .map(String::trim)
+                        .collect(Collectors.toList());
+
+                if (hosts.stream().anyMatch(ALLOWED_CORS_ACCESS_URLS::contains)) {
+                    host = hosts.get(0);
+                }
+
+            } else if (ALLOWED_CORS_ACCESS_URLS.stream().anyMatch(requestHostname::contains)) {
+                host = ALLOWED_CORS_ACCESS_URLS.stream().filter(requestHostname::contains).findFirst().orElse("*");
+            }
+
+            if (host != null) {
+                response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, host);
+            }
+
+            chain.doFilter(req, res);
+        }
+
+        public void init(FilterConfig filterConfig) { }
+        public void destroy() { }
+
     }
 
     @Autowired
@@ -144,14 +233,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         auth
                 .userDetailsService(userDetailsService())
-                    .passwordEncoder(bcryptPasswordEncoder())
+                .passwordEncoder(bcryptPasswordEncoder())
 
                 .and()
-                    .jdbcAuthentication()
-                    .dataSource(riDataSource)
-                    .rolePrefix("ROLE_")
-                    .usersByUsernameQuery("SELECT address AS username, password, 'true' AS enabled FROM contact WHERE address = ?")
-                    .authoritiesByUsernameQuery("SELECT c.address AS username, cr.role FROM contact c JOIN contact_role cr ON cr.contact_pk = c.pk WHERE c.address = ?")
+                .jdbcAuthentication()
+                .dataSource(riDataSource)
+                .rolePrefix("ROLE_")
+                .usersByUsernameQuery("SELECT address AS username, password, 'true' AS enabled FROM contact WHERE address = ?")
+                .authoritiesByUsernameQuery("SELECT c.address AS username, cr.role FROM contact c JOIN contact_role cr ON cr.contact_pk = c.pk WHERE c.address = ?")
         ;
     }
 
@@ -169,24 +258,24 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         }
 
         public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
-            System.out.println("============RiSavedRequest: Authentication Success!");
+            logger.info("============RiSavedRequest: Authentication Success!");
 
             // Set the session maximum inactive interval. The interval parameter is in seconds.
             request.getSession().setMaxInactiveInterval(MAX_INACTIVE_INTERVAL_IN_HOURS * 3600);
 
             SavedRequest savedRequest = this.requestCache.getRequest(request, response);
             if (savedRequest == null) {
-            	System.out.println("==============RiSavedRequest: savedRequest is null.");
+                logger.info("==============RiSavedRequest: savedRequest is null.");
                 super.onAuthenticationSuccess(request, response, authentication);
             } else {
                 String targetUrlParameter = this.getTargetUrlParameter();
                 if (!this.isAlwaysUseDefaultTargetUrl() && (targetUrlParameter == null || !StringUtils.hasText(request.getParameter(targetUrlParameter)))) {
                     this.clearAuthenticationAttributes(request);
                     String targetUrl = savedRequest.getRedirectUrl();
-                    System.out.println("==================Redirecting to DefaultSavedRequest Url: " + targetUrl);
+                    logger.info("==================Redirecting to DefaultSavedRequest Url: " + targetUrl);
                     this.getRedirectStrategy().sendRedirect(request, response, targetUrl);
                 } else {
-                	System.out.println("====================RiSavedRequest: removing request.");
+                    logger.info("====================RiSavedRequest: removing request.");
                     this.requestCache.removeRequest(request, response);
                     super.onAuthenticationSuccess(request, response, authentication);
                 }
@@ -211,14 +300,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         }
 
         public void onInvalidSessionDetected(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        	System.out.println("============================Invalid session detected");
+            logger.info("============================Invalid session detected");
             String referer = request.getHeader("referer");
             if ((referer != null) && ( ! referer.startsWith(paBaseUrl))) {
                 referer = null;                         // Don't use referer if it doesn't start with known, safe url.
             }
 
             String target = (referer == null ? this.destinationUrl : referer);
-            System.out.println("===========================Starting new session (if required) and redirecting to '" + target + "'");
+            logger.info("===========================Starting new session (if required) and redirecting to '" + target + "'");
             if (this.createNewSession) {
                 request.getSession();
             }
@@ -231,9 +320,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         }
     }
 
-
+    /**
+     * Add component to handle cross site filter attacks
+     */
     @Component
-    public class PdxFinderURLFilter implements Filter {
+    public class URLFilter implements Filter {
 
         @Override
         public void destroy() {}
@@ -246,19 +337,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             HttpServletRequest request = (HttpServletRequest) servletRequest;
             HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-            filterchain.doFilter(new PdxFinderXSSFilter((HttpServletRequest) request), response);
+            filterchain.doFilter(new XSSFilter(request), response);
 
         }
 
         @Override
-        public void init(FilterConfig filterconfig) throws ServletException {
+        public void init(FilterConfig filterconfig) {
 
         }
 
     }
 
-
-    public class PdxFinderXSSFilter extends HttpServletRequestWrapper {
+    /**
+     * Filter to detect and filter out XSS payloads from input strings
+     */
+    public class XSSFilter extends HttpServletRequestWrapper {
 
         private Pattern[] patterns = new Pattern[]{
                 // Script fragments
@@ -283,7 +376,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 Pattern.compile("onload(.*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL)
         };
 
-        public PdxFinderXSSFilter(HttpServletRequest servletRequest) {
+        XSSFilter(HttpServletRequest servletRequest) {
             super(servletRequest);
         }
 
@@ -318,11 +411,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         }
 
         private String stripXSS(String value) {
-        	//System.out.println("in strip XSS method");
             if (value != null) {
                 // ToDO :  Integrate OWASP ESAPI or AntiSamy library to avoid encoded attacks
                 // value = ESAPI.encoder().canonicalize(value);
-            	//System.out.println("replacing value in strip XSS method");
                 // Avoid null characters
                 value = value.replaceAll("\0", "");
 

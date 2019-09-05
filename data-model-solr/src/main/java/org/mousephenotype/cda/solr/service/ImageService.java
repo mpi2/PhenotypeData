@@ -486,7 +486,7 @@ public class ImageService extends BasicService implements WebStatus {
 		return response;
 	}
 	
-	
+
 	public QueryResponse getHeadlineImages(String mgiAccession, String parameterStableId, int numberOfImagesToRetrieve, SexType sex,
 			String parameterAssociationValue, String parameterAssociationStableId) throws SolrServerException, IOException {
 
@@ -521,7 +521,7 @@ public class ImageService extends BasicService implements WebStatus {
 		QueryResponse response = impcImagesCore.query(solrQuery);
 		return response;
 	}
-	
+
 
 	/**
 	 *

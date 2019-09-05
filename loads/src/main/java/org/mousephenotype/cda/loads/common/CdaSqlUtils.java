@@ -425,8 +425,8 @@ public class CdaSqlUtils {
         List<Map<String, Object>> results = jdbcCda.queryForList("SELECT id, stable_id FROM phenotype_pipeline", new HashMap<>());
 
         for (Map<String, Object> result : results) {
-            String  stableId = result.get("stable_id").toString();
-            Long id       = Long.valueOf(result.get("id").toString());
+            String stableId = result.get("stable_id").toString();
+            Long   id       = Long.valueOf(result.get("id").toString());
             map.put(stableId, id);
         }
 
@@ -443,8 +443,8 @@ public class CdaSqlUtils {
         List<Map<String, Object>> results = jdbcCda.queryForList("SELECT id, stable_id FROM phenotype_procedure", new HashMap<>());
 
         for (Map<String, Object> result : results) {
-            String  stableId = result.get("stable_id").toString();
-            Long id       = Long.valueOf(result.get("id").toString());
+            String stableId = result.get("stable_id").toString();
+            Long   id       = Long.valueOf(result.get("id").toString());
             map.put(stableId, id);
         }
 
@@ -461,8 +461,8 @@ public class CdaSqlUtils {
         List<Map<String, Object>> results = jdbcCda.queryForList("SELECT id, stable_id FROM phenotype_parameter", new HashMap<>());
 
         for (Map<String, Object> result : results) {
-            String  stableId = result.get("stable_id").toString();
-            Long id       = Long.valueOf(result.get("id").toString());
+            String stableId = result.get("stable_id").toString();
+            Long   id       = Long.valueOf(result.get("id").toString());
             map.put(stableId, id);
         }
 

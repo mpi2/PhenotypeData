@@ -1,8 +1,6 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
-
-
 <c:choose>
 
 
@@ -41,15 +39,6 @@
         </div>
 
         <c:if test="${ ! chartOnly}">
-
-            <!-- <div class="container mt-3" id="section-associations"> -->
-                <%-- <div class="row">
-                    <div class="col-md-12 no-gutters">
-                        <h3>Allele -<t:formatAllele>${symbol}</t:formatAllele></h3>
-                    </div>
-                </div> --%>
-            <!-- </div> -->
-
 
             <div class="container single single--no-side">
 
@@ -90,19 +79,24 @@
                     </div>
                     <div class="card-body">
                         <p>
-        <c:if test="${embryoViabilityDTO==null}">
+        <c:if test="${embryoViabilityDTO==null && viabilityDTO==null}">
                             A <b>${parameter.procedureNames[0]}</b> phenotypic assay was performed on <b>${numberMice}
                             mice</b>. The charts show the results of measuring <b>${parameter.name}</b> in <b>${numberFemaleMutantMice}
                             female</b>, <b>${numberMaleMutantMice} male</b> mutants compared to
                             <b>${numberFemaleControlMice} female</b>, <b>${numberMaleControlMice} male</b> controls.  The
-            mutants <b>${zygosity}</b> the <b><t:formatAllele>${alleleSymbol}</t:formatAllele></b> allele.
+            mutants are <b>${zygosity}</b> for the <b><t:formatAllele>${alleleSymbol}</t:formatAllele></b> allele.
         </c:if>
 
-        <c:if test="${embryoViabilityDTO!=null}">
+        <c:if test="${embryoViabilityDTO!=null || viabilityDTO!=null}">
             A <b>${parameter.procedureNames[0]}</b> phenotypic assay was performed on a mutant strain carrying the <b><t:formatAllele>${alleleSymbol}</t:formatAllele></b> allele. The
             charts below show the proportion of wild type, heterozygous, and homozygous offspring.
         </c:if>
                         </p>
+
+                        <c:if test="${numberMice > 500}">
+                            <small>* The high throughput nature of the IMPC means that large control sample sizes may accumulate over a long period of time.  See the <a href="${cmsBaseUrl}/about-impc/animal-welfare">animal welfare guidelines</a> for more information.</small>
+                        </c:if>
+
                     </div>
                 </div>
             </div>
@@ -110,24 +104,30 @@
                 <div class="col-md-6">
                     <table class="table table-striped">
                         <tr>
-                            <th style="font-weight: bolder;">Testing protocol</th>
-                            <td><a href="${procedureUrl}" style="font-weight: bolder;">${parameter.procedureNames[0]}</a></td>
+                            <td>Associated Phenotype</td>
+                            <c:if test="${phenotypes != null && phenotypes.size() >= 1}"><td><c:forEach var="phenotype" items="${phenotypes}"><a class="font-weight-bold" href="${parameterUrl}">${phenotype}</a><br/></c:forEach></td></c:if>
+                            <c:if test="${phenotypes == null || phenotypes.size() < 1}"><td class="font-weight-bold">No significant association</td></c:if>
+
                         </tr>
                         <tr>
-                            <th>Measured value</th>
-                            <td><a href="${parameterUrl}">${parameter.name}</a></td>
+                            <td>Testing protocol</td>
+                            <td><a class="font-weight-bold" href="${procedureUrl}">${parameter.procedureNames[0]}</a></td>
                         </tr>
                         <tr>
-                            <th>Testing environment</th>
-                            <td><a class="w-100" data-toggle="modal" data-target="#conditions" href="#">Lab conditions and equipment</a></td>
+                            <td>Measured value</td>
+                            <td><a class="font-weight-bold" href="${parameterUrl}">${parameter.name}</a></td>
                         </tr>
                         <tr>
-                            <th>Background Strain</th>
-                            <td><t:formatAllele>${geneticBackgroundString}</t:formatAllele></td>
+                            <td>Testing environment</td>
+                            <td><a class="font-weight-bold w-100" data-toggle="modal" data-target="#conditions" href="#">Lab conditions and equipment</a></td>
                         </tr>
                         <tr>
-                            <th>Phenotyping center</th>
-                            <td>${phenotypingCenter}</td>
+                            <td>Background Strain</td>
+                            <td class="font-weight-bold"><t:formatAllele>${geneticBackgroundString}</t:formatAllele></td>
+                        </tr>
+                        <tr>
+                            <td>Phenotyping center</td>
+                            <td class="font-weight-bold">${phenotypingCenter}</td>
                         </tr>
                     </table>
 
@@ -136,7 +136,13 @@
             </div>
         </c:if>
 
-        <p class="alert alert-info w-100">Mouseover the charts for more information. Click and drag to zoom the chart. Click on the legends to disable/enable data.</p>
+<c:if test="${statsServiceResult && ! isLive}">
+	<p class="alert alert-success w-100">
+	Result is from New Statistical Result Service!!! How quick was this???
+	</p>
+</c:if>
+        <p class="alert alert-info w-100">
+Mouseover the charts for more information. Click and drag to zoom the chart. Click on the legends to disable/enable data.</p>
 
         <c:choose>
             <c:when test="${param['chart_type'] eq 'UNIDIMENSIONAL_SCATTER_PLOT'}">
@@ -172,6 +178,8 @@
                     </div>
                 </div>
             </div>
+
+            
 
 <script>
     $(function () {

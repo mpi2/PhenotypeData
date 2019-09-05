@@ -6119,7 +6119,8 @@ h4 {
     z-index: -1;
     position: relative; }
 .header__logo {
-    width: 230px; }
+    width: 170px;
+     }
 .header__logo-link {
     padding-bottom: 16px;
     padding-top: 16px; }
@@ -6606,10 +6607,10 @@ ul#menu-top-nav li.current-menu-item a {
 
 .single-header {
     position: relative;
-    height: 180px; }
+    height: 240px; }
 @media (min-width: 768px) {
     .single-header {
-        height: 296px; } }
+        height: 296px !important; } }
 .single-header h1 {
     margin-top: 40px; }
 @media (min-width: 768px) {
@@ -7396,14 +7397,25 @@ hr {
     z-index: 3; }
 
 .btn-icon {
+
+}
+
+.tile {
+    display: inline-block;
+    font-weight: 400;
+    text-transform: none;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    user-select: none;
+    border: 1px solid transparent;
     background-color: #fff;
     font-size: 1.8em;
     padding: 0 0;
+    border-radius: 0.25rem;
 }
 
-.non-tested {
-    border-color: #6c757d !important;
-    border: 1px solid transparent;
+.non-tested-tile {
     color: #6c757d;
     cursor: default !important;
 }
@@ -7419,17 +7431,28 @@ hr {
     border-style: solid;
 }
 
-.clickableRows > tbody > tr:hover {
-    background-color: #ed7b2538;
+.clickableRow:hover {
+    background-color: #ed7b2538 !important;
     cursor: pointer;
 }
 
-.clickableRows > tbody > tr > td:focus {
+.clickableRow > td:focus {
     outline-style: none;
 }
 
 
-.unClickableRows:hover {
+.clickableRow > td {
+    padding: 0 !important;
+}
+
+
+.clickableRow > td a {
+    display: block;
+    padding: 0.75rem;
+    text-decoration: none;
+}
+
+.unClickableRow:hover {
     background-color: #ecececf5 !important;
     cursor: inherit !important;
 }
@@ -7450,6 +7473,10 @@ hr {
     background-color: #ececec;
 }
 
+.detail-view:hover {
+    background-color: white !important;
+}
+
 ul#menu-footer-access {
     padding: 0;
     margin: 0; }
@@ -7457,3 +7484,134 @@ ul#menu-footer-access li {
     display: inline;
     font-size: 80%;
     margin-left: 10px; }
+
+.pheno-row {
+    display: contents;
+}
+
+
+.row-shadow {
+    box-shadow: none;
+}
+
+@media (min-width: 575px) {
+    .pheno-row {
+        display: flex;
+    }
+}
+
+@media (min-width: 375px) {
+    .page-nav-link-icon {
+        font-size: 2.3em; }
+    .portal-search__tabs a {
+        width: 170px !important;
+
+    }
+}
+@media (max-width: 375px) {
+
+    .single-header{
+        height: 240px !important;
+    }
+}
+@media (min-width: 768px) {
+    .page-nav-link-icon {
+        font-size: 2.3em; }
+    .row-shadow {
+        box-shadow: 0px 25px 50px 0px rgba(0, 0, 0, 0.5);
+        z-index: 1;
+        position: relative;
+    }
+}
+@media (min-width: 992px) {
+    .page-nav-link-icon {
+        font-size: 2.3em; }
+
+}
+@media (min-width: 1200px) {
+    .page-nav-link-icon {
+        font-size: 2.5em; }
+}
+
+.header .navbar-toggler.collapsed .top-bar {
+    -webkit-transform: rotate(0);
+    transform: rotate(0);
+    background-color: black;
+}
+
+
+.header .navbar-toggler.collapsed .middle-bar {
+    -webkit-transform: rotate(0);
+    transform: rotate(0);
+    background-color: black;
+    opacity: 1;
+}
+
+.header .navbar-toggler.collapsed .bottom-bar {
+    -webkit-transform: rotate(0);
+    transform: rotate(0);
+    background-color: black;
+}
+
+.header .navbar-toggler .icon-bar {
+    width: 22px;
+    height: 2px;
+    background-color: #ed7b25;
+    display: block;
+    -webkit-transition: all 0.2s;
+    transition: all 0.2s;
+    margin-top: 4px;
+}
+
+.header .navbar-toggler .bottom-bar {
+    -webkit-transform: translate(3px) rotate(-45deg);
+    transform: translate(3px) rotate(-45deg);
+    -webkit-transform-origin: 10% 90%;
+    transform-origin: 10% 90%;
+}
+
+.header .navbar-toggler .top-bar {
+    -webkit-transform: translate(3px) rotate(45deg);
+    transform: translate(3px) rotate(45deg);
+    -webkit-transform-origin: 10% 10%;
+    transform-origin: 10% 10%;
+}
+
+.header .navbar-toggler .middle-bar {
+    opacity: 0;
+}
+
+
+.navbar-toggler {
+    right: 20px;
+    top: 0px;
+}
+
+.close-badge {
+    font-size: 85%;
+    cursor: pointer;
+}
+
+.filter-badge {
+    font-size: smaller;
+    font-weight: 400;
+}
+
+.selector-container {
+    background-color: #b9c1c7;
+    padding: 5px 15px;
+}
+
+
+.filters-container {
+    background-color: #e5e9ec;
+    padding: 5px 15px;
+}
+
+button[name="clearSearch"] > i::before{
+    content: "\f00d";
+}
+
+.tile > .impc-sperm {
+    margin-right: -10px;
+}

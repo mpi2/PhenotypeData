@@ -153,7 +153,7 @@ public class CategoricalChartAndTableProvider {
 					CategoricalResult tempStatsResult = null;
 					for (StatisticalResult result : statsResults) {
 						//System.out.println("is matching?="+result.getZygosityType()+" zType="+zType +" result sex="+result.getSexType()+" loopsexType="+sexType +" sexType="+SexType.both);
-						if(result.getSexType().equals(SexType.both)){
+						if(result.getSexType() != null && result.getSexType().equals(SexType.both)){
 							//System.out.println("both pValue detected");
 							CategoricalResult veryTempStatsResult = (CategoricalResult) result;
 							categoricalResultAndCharts.setCombinedPValue(veryTempStatsResult.getpValue());

@@ -389,6 +389,74 @@ public class OntologyAnnotationGeneratorTest {
         assert(foundCenpjMGPParameter);
     }
 
+    @Test
+    public void testSignificantCategoricalResultVps4aLensOpacity() throws  Exception {
+
+        Integer parameterId = pDAO.getParameterByStableId("IMPC_EYE_017_001").getId();
+        List<ResultDTO> categoriocalResults = mpGenerator.getCategoricalResults(connection);
+        ResultDTO toSave = null;
+
+        assert(categoriocalResults.size()>100);
+
+        Boolean foundParameter = Boolean.FALSE;
+
+        for (ResultDTO result : categoriocalResults) {
+
+            if ( ! result.getGeneAcc().equals("MGI:1890520")) {
+                continue;
+            }
+
+            toSave = result;
+
+            logger.info("Found parameter {} for {} (id: {}). Looking for {}", pDAO.getParameterById(result.getParameterId()), result.getGeneAcc(), result.getParameterId(), parameterId);
+            if (result.getParameterId().equals(parameterId)) {
+                foundParameter = Boolean.TRUE;
+
+                // process this result to see if we get a term
+                if (result.getNullTestPvalue() < 0.0001) {
+
+                    // Effect is significant, find out which term to associate
+
+                    Parameter parameter = pDAO.getParameterById(result.getParameterId());
+
+                    // Check the female specific term
+                    if (result.getFemalePvalue() != null && result.getFemalePvalue() <= SIGNIFICANCE_THRESHOLD) {
+
+                        result.setSex(SexType.female);
+                        OntologyTerm term = mpTermService.getMPTerm(parameter.getStableId(), result, SexType.female, connection, SIGNIFICANCE_THRESHOLD, true);
+
+                        logger.info("  Got term {} ", term);
+                        assert (term != null);
+                    }
+
+                    // Check the male specific term
+                    if (result.getMalePvalue() != null && result.getMalePvalue() <= SIGNIFICANCE_THRESHOLD) {
+
+                        result.setSex(SexType.male);
+                        OntologyTerm term = mpTermService.getMPTerm(parameter.getStableId(), result, SexType.male, connection, SIGNIFICANCE_THRESHOLD, true);
+
+                        logger.info("  Got term {} ", term);
+                        assert (term != null);
+                    }
+                }
+                break;
+            }
+
+        }
+
+        assert(foundParameter);
+
+        // Don't actually save the result to the database
+        mpGenerator.SAVE_RESULTS = Boolean.FALSE;
+
+        // Ensure the result exists
+        assertNotNull (toSave);
+
+        // Attempt to "save" the result
+        mpGenerator.initializeSexSpecificMap(connection);
+        mpGenerator.saveCategoricalResult(connection, phenotypePipelineDAO, toSave);
+
+    }
 
     @Test
     public void testCategoricalResultBmp4EyelidClosure() throws SQLException {

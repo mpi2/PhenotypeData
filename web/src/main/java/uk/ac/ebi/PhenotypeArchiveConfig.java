@@ -48,6 +48,10 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
     @Value("${solr_url}")
     private String solrUrl;
 
+    // FIXME - Is this needed post-springBoot_2.1.7_DATA_REPOSITORIES? (remove commented-out usage in getGlobalConfig() below if not needed.)
+//    @Value("${statistics_url}")
+//    private String statisticsUrl;
+
     @Value("${base_url}")
     private String baseUrl;
 
@@ -71,7 +75,6 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
 
     @Value("${paBaseUrl}")
     private String paBaseUrl;
-    
 
 
     @Bean(name = "globalConfiguration")
@@ -88,6 +91,7 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
         map.put("googleAnalytics", googleAnalytics);
         map.put("liveSite", liveSite);
         map.put("paBaseUrl", paBaseUrl);
+//        map.put("statisticsUrl", statisticsUrl);
         return map;
     }
 

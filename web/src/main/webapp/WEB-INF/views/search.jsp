@@ -10,7 +10,7 @@
             name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 
     <jsp:attribute name="header">
-        <link href="https://www.mousephenotypetest.org/wp-content/themes/impc/css/styles.css?ver=40ab77c511c0b72810d6828792c28c78"
+        <link href="${cmsBaseUrl}/wp-content/themes/impc/css/styles.css?ver=40ab77c511c0b72810d6828792c28c78"
               rel="stylesheet" type="text/css"/>
 		<script type="application/ld+json">
             {
@@ -21,7 +21,7 @@
                 "description": "The International Mouse Phenotyping Consortium (IMPC) is systematically generating mouse knockouts for every protein-coding gene in the mouse genome (approx. 20,000 genes) and carries out high-throughput phenotyping of each line in order to determine gene function by determining the biological systems affected in the absence of the gene. This dataset contains all the genotype-to-phenotype associations, protocols, parameters and measurements currently generated using this approach.",
                 "url": "http://www.mousephenotype.org",
                 "keywords": "gene, phenotype, mouse, mammalian, human disease",
-                "identifier": "DR8.0",
+                "identifier": "DR${releaseVersion}",
                 "creator": {
                     "@type": "Organization",
                     "name": "International Mouse Phenotyping Consortium"
@@ -30,7 +30,7 @@
                     "@type": "Organization",
                     "name": "International Mouse Phenotyping Consortium"
                 },
-                "version": "8.0",
+                "version": "${releaseVersion}",
                 "dateCreated": "2014",
                 "dateModified": "2018",
                 "citation": "Dickinson et al. 2016. High-throughput discovery of novel developmental phenotypes. Nature 537, 508–514. PMID: 27626380. doi:10.1038/nature19356",
@@ -41,13 +41,13 @@
                         "@type": "DataDownload",
                         "name": "MySQL database dump",
                         "fileFormat": "application/octet-stream",
-                        "contentURL": "http://ftp.ebi.ac.uk/pub/databases/impc/release-8.0/"
+                        "contentURL": "http://ftp.ebi.ac.uk/pub/databases/impc/release-${releaseVersion}/"
                     },
                     {
                         "@type": "DataDownload",
                         "name": "Binary Solr Schemas",
                         "fileFormat": "application/octet-stream",
-                        "contentURL": "http://ftp.ebi.ac.uk/pub/databases/impc/release-8.0/"
+                        "contentURL": "http://ftp.ebi.ac.uk/pub/databases/impc/release-${releaseVersion}/"
                     }
                 ]
             }
@@ -83,8 +83,8 @@
                             <p>Number of results: <span id="numResults">${numberOfResults}</span></p>
                             </c:if>
                             <c:if test="${numberOfResults == 0}">
-                                <div class="alert alert-warning">
-                                    <h4>No results found for search term "${term}".</h4>
+                                <div>
+                                    <p>No results found for search term "${term}".</p>
                                     <c:if test="${fn:length(phenotypeSuggestions) > 0 || fn:length(geneSuggestions) > 0}">
                                         <hr />
                                         Perhaps you were searching for:
@@ -92,17 +92,18 @@
                                             <c:forEach var="i" items="${phenotypeSuggestions}">
                                                 <li>
                                                     <a href="${baseUrl}/search?term=${i}&type=${type}" aria-controls="suggestion" data-dt-idx="0" tabindex="0" class="">${i}</a>
-
                                                 </li>
                                             </c:forEach>
                                             <c:forEach var="i" items="${geneSuggestions}">
                                                 <li>
                                                     <a href="${baseUrl}/search?term=${i}&type=${type}" aria-controls="suggestion" data-dt-idx="0" tabindex="0" class="">${i}</a>
-
                                                 </li>
                                             </c:forEach>
                                         </ul>
                                     </c:if>
+                                    <p class="my-3">
+                                        <a class="btn btn-success" href="${cmsBaseUrl}/?s=${term}">Search static content for the term <b>${term}</b></a>
+                                    </p>
                                 </div>
                             </c:if>
 
@@ -115,7 +116,7 @@
                                             <div class="col-12 col-md-6">
                                                 <p><b>Name: </b>${gene.markerName}<br>
                                                     <b>Human orthologs: </b>
-                                                    <c:forEach var="orth" items="${gene.humanGeneSymbol}">${orth}</c:forEach><br>
+                                                    <c:forEach var="orth" items="${gene.humanGeneSymbol}" varStatus="loop">${orth}<c:if test="${!loop.last}">, </c:if></c:forEach><br>
                                                     <b>Synonyms: </b>
                                                     <c:forEach var="syn" items="${gene.markerSynonym}" varStatus="loop">
                                                         ${syn}<c:if test="${!loop.last}">,</c:if>
@@ -124,10 +125,12 @@
                                             </div>
 
                                             <div class="col-12 col-md-6">
-                                                <p>
-                                                    <b>ES Cell Status: </b>${gene.latestEsCellStatus}<br>
-                                                    <b>Mouse Status: </b>${gene.latestMouseStatus}<br>
-                                                    <b>Phenotype Status: </b>${gene.latestPhenotypeStatus}</p>
+                                                <p><b>Status:</b><br/>
+                                                    <c:if test="${fn:trim(gene.latestEsCellStatus) != ''}">${gene.latestEsCellStatus}<br></c:if>
+                                                    <c:if test="${fn:trim(gene.latestMouseStatus) != ''}">${gene.latestMouseStatus}<br></c:if>
+                                                    <c:if test="${fn:trim(gene.latestPhenotypeStatus) != ''}">${gene.latestPhenotypeStatus}</c:if>
+                                                </p>
+
                                             </div>
                                         </div>
                                     </div>
@@ -238,5 +241,7 @@
     </jsp:body>
 
 </t:genericpage>
+
+
 
 

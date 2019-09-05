@@ -1,129 +1,90 @@
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
 <t:genericpage>
 
     <jsp:attribute name="title">Allele details </jsp:attribute>
-    <jsp:attribute name="breadcrumb">&nbsp;&raquo; 
-    
-    <c:choose>
-    <c:when  test="${param.creLine}">
-    	</c:when>
-	<c:otherwise>
-	<a href="${baseUrl}/search#q=*:*&fq=*:*&facet=gene">Genes</a> &raquo; <a href = "${baseUrl}/genes/${acc}">${acc}</a> &raquo; <a id = "alleles_link" href ="${baseUrl}/alleles/${acc}" >Alleles</a> &raquo; ${allele_name}
-	
-	</c:otherwise>
-	</c:choose>
-	</jsp:attribute>
-	<jsp:attribute name="bodyTag"><body  class="gene-node no-sidebars small-header"></jsp:attribute>
-	<jsp:attribute name="addToFooter">    
+    <jsp:attribute name="header"/>
+    <jsp:attribute name="breadcrumb" />
+    <jsp:attribute name="bodyTag"><body class="gene-node no-sidebars small-header"></jsp:attribute>
+    <jsp:attribute name="addToFooter"/>
 
-	<!--  end of floating menu for genes page -->
+    <jsp:body>
 
-	<c:if test="${phenotypeStarted}">
-	<script type="text/javascript" src="${cmsBaseUrl}/heatmap/js/heatmap.1.3.1.js"></script>
-	<!--[if IE 8]>
-        <script type="text/javascript">
-        dcc.ie8 = true;
-        </script>
-	<![endif]-->
-    <!--[if !IE]><!-->
-    <script>
-        dcc.heatmapUrlGenerator = function(genotype_id, type) {
-            return '${cmsBaseUrl}/phenoview?gid=' + genotype_id + '&qeid=' + type;
-        };
-    </script>
-    
-    <!--<![endif]-->
-    <!--[if lt IE 9]>
-    <script>
-        dcc.heatmapUrlGenerator = function(genotype_id, type) {
-           return '${cmsBaseUrl}/phenotypedata?g=' + genotype_id + '&t=' + type + '&w=all';
-        };
-    </script>
-    <![endif]-->
-    <!--[if gte IE 9]>
-    <script>
-        dcc.heatmapUrlGenerator = function(genotype_id, type) {
-           return '${cmsBaseUrl}/phenoview?gid=' + genotype_id + '&qeid=' + type;
-        };
-    </script>
-    <![endif]-->
-
-    </c:if>
-
-    <script>
-        $('.status').each(function() {
-            $(this).qtip({
-                style: {classes: 'qtipimpc flat'},
-                position: {my: 'top center', at: 'bottom center'},
-                content: {text: $(this).attr('oldtitle')}
-            });
-        });
-    </script>
-    
-	</jsp:attribute>
+        <c:set var="selectUrl" value='${baseUrl}/genes/${acc}#order'/>
+        <c:if test="${creLine}">
+            <c:set var="selectUrl" value="${baseUrl}/order/creline?acc=${acc}"/>
+        </c:if>
 
 
-	<jsp:attribute name="header">
+        <div class="container data-heading">
+            <div class="row row-shadow">
+                <div class="col-12 no-gutters">
+                    <h2>Allele ${title}</h2>
+                </div>
+            </div>
+        </div>
 
 
-		<!-- CSS Local Imports -->
-		<!-- link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css"/-->
+        <div id="allele-page">
+            <div class="container">
+                <div>
+                    <div class="breadcrumbs m-0">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p><a href="/">Home</a> <span><span class="fal fa-angle-right"></span></span>
+                                    <a href="${baseUrl}/search">Genes</a> <span
+                                            class="fal fa-angle-right"></span>
+                                    <a href="${baseUrl}/genes/${acc}">${summary['marker_symbol']}</a> <span
+                                            class="fal fa-angle-right"></span>
+                                        ${title}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-		<!-- JavaScript Local Imports -->
-		<script src="${baseUrl}/js/general/enu.js"></script>
-		<script src="${baseUrl}/js/general/dropdownfilters.js"></script>
-                
-                <!-- fix allele.js so it contains only local images -->
-                
-		<script type="text/javascript" src="${baseUrl}/js/general/allele.js"></script>
-                <link rel="stylesheet" type="text/css" href="${baseUrl}/css/widetooltip.css"/>
-                <link rel="stylesheet" type="text/css" href="${baseUrl}/css/alleles.css"/>
+                <div class="pre-content">
+                    <div class="row no-gutters">
+                        <div class="col-12 px-0">
 
+                            <div class="row">
+                                <div class="col-12 px-5">
+                                    <jsp:include page="alleles_summary_frag.jsp"/>
+                                </div>
+                            </div>
 
-		<script type="text/javascript">var gene_id = '${acc}';</script>
-                <script type="text/javascript">var bare = '${bare}';</script>
-		<style>
-		#svgHolder div div {z-index:100;}
-		</style>
+                            <div class="row">
+                                <div class="col-12 px-5">
+                                    <jsp:include page="alleles_mice_frag.jsp"/>
+                                </div>
+                            </div>
 
-		<c:if test="${phenotypeStarted}">
-	    <!--[if !IE]><!-->
-	    <link rel="stylesheet" type="text/css" href="${cmsBaseUrl}/heatmap/css/heatmap.1.3.1.css"/>
-	    <!--<![endif]-->
-	    <!--[if IE 8]>
-	    <link rel="stylesheet" type="text/css" href="${cmsBaseUrl}/heatmap/css/heatmapIE8.1.3.1.css">
-	    <![endif]-->
-	    <!--[if gte IE 9]>
-	    <link rel="stylesheet" type="text/css" href="${cmsBaseUrl}/heatmap/css/heatmap.1.3.1.css">
-	    <![endif]-->
-		</c:if>
+                            <div class="row">
+                                <div class="col-12 px-5">
+                                    <jsp:include page="alleles_es_cells_frag.jsp"/>
+                                </div>
+                            </div>
 
-  </jsp:attribute>
+                            <div class="row">
+                                <div class="col-12 px-5">
+                                    <jsp:include page="alleles_targeting_vectors_frag.jsp"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 px-5 my-5">
 
-	<jsp:body>
-	<c:set var="selectUrl" value='${baseUrl}/search/allele2?kw="${acc}"'/>
-	<c:if test="${creLine}">
-	<!-- http://localhost:8080/phenotype-archive/order/creline?acc=MGI:95771 -->
-		<c:set var="selectUrl" value="${baseUrl}/order/creline?acc=${acc}"/>
-	</c:if>
-	
-<h1 class="title" id="top">${title}
+                                    <a class="btn btn-success" href="${fn:escapeXml(selectUrl)}">See all <c:if
+                                            test="${creLine}">Cre </c:if>Alleles for ${summary['marker_symbol']}</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    	<span style="font-size: 40%;">See <a href="${fn:escapeXml(selectUrl)}">&nbsp; all <c:if test="${creLine}">Cre </c:if>Alleles</a> for ${summary['marker_symbol']}</span>
-   
-</h1>
-
-<jsp:include page="alleles_summary_frag.jsp" />
-
-<jsp:include page="alleles_mice_frag.jsp" />
-
-<jsp:include page="alleles_es_cells_frag.jsp" />
-
-<jsp:include page="alleles_targeting_vectors_frag.jsp" />
-
-</jsp:body>
+    </jsp:body>
 
 </t:genericpage>

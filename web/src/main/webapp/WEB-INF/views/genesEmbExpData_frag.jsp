@@ -33,7 +33,7 @@
 
 <div class="row justify-content-center" id="embryo1">
 
-  <div class="container">
+  <div class="container p-0 p-md-2">
       <div class="mb-2 row justify-content-center">
           <span title="Expression" class="${yesColor} mr-3"><i class="${expressionIcon}"></i>&nbsp;Expression</span>
           <span title="No Expression" class="${noColor} mr-3"> <i class="${noExpressionIcon}"></i>&nbsp;No Expression</span>
@@ -45,7 +45,7 @@
       <!-- <h2 class="title" id="section-impc_expression">Expression Overview<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
       -->
 
-      <script>
+<%--      <script>
           $(document).ready(function () {
               $('#embryoExpressionTable').DataTable({
                   responsive: true,
@@ -53,14 +53,14 @@
                   "bLengthChange": false
               });
           });
-      </script>
+      </script>--%>
       <div class="row justify-content-center">
           <div class="col-md-12">
-              <table id="embryoExpressionTable" class="table dt-responsive" style="width:100%">
+              <table id="embryoExpressionTable" data-toggle="table" data-pagination="true" data-mobile-responsive="true" data-sortable="true">
                   <thead>
-                  <th>Anatomy</th>
+                  <th data-sortable="true">Anatomy</th>
                   <th
-                          title="Number of heterozygous mutant specimens with data for the specified anatomy">
+                          title="Number of heterozygous mutant specimens with data for the specified anatomy" data-sortable="true">
                       #HET Specimens
                   </th>
                   <th
@@ -70,7 +70,7 @@
                   <th title="">Mutant Expr</th>
                   <%-- <th>Mutant specimens</th> --%>
                   <th
-                          title="An clickable image icon will show if images are available for mutant specimens">
+                          title="An clickable image icon will show if images are available for mutant specimens" data-sortable="true">
                       Images
                   </th>
                   </thead>
@@ -219,4 +219,6 @@
         </c:otherwise>
     </c:choose>
 </div>
+
+
 

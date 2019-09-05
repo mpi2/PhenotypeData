@@ -140,7 +140,7 @@ public class GenesController {
 
     private static final List<String> genesWithVignettes = Arrays.asList("MGI:1913761", "MGI:97491", "MGI:1922814", "MGI:3039593", "MGI:1915138", "MGI:1915138", "MGI:1195985", "MGI:102806", "MGI:1195985", "MGI:1915138", "MGI:1337104", "MGI:3039593", "MGI:1922814", "MGI:97491", "MGI:1928849", "MGI:2151064", "MGI:104606", "MGI:103226", "MGI:1920939", "MGI:95698", "MGI:1915091", "MGI:1924285", "MGI:1914797", "MGI:1351614", "MGI:2147810");
     private static final List<String> phenotypeGroups = Arrays.asList("mortality/aging", "embryo phenotype", "reproductive system phenotype", "growth/size/body region phenotype", "homeostasis/metabolism phenotype or adipose tissue phenotype", "behavior/neurological phenotype or nervous system phenotype", "cardiovascular system phenotype", "respiratory system phenotype", "digestive/alimentary phenotype or liver/biliary system phenotype", "renal/urinary system phenotype", "limbs/digits/tail phenotype", "skeleton phenotype", "immune system phenotype or hematopoietic system phenotype", "muscle phenotype", "integument phenotype or pigmentation phenotype", "craniofacial phenotype", "hearing/vestibular/ear phenotype", "taste/olfaction phenotype", "endocrine/exocrine gland phenotype", "vision/eye phenotype");
-    private static final List<String> phenotypeGroupIcons = Arrays.asList("fas fa-skull-crossbones", "icon-embryo", "icon-reproductive", "fas fa-balance-scale-right", "fas fa-bolt", "fas fa-brain", "fas fa-heart", "fas fa-lungs", "fas fa-stomach", "fas fa-kidneys", "fas fa-hand-paper", "fas fa-bone", "fas fa-tint", "fas fa-dumbbell", "fas fa-diagnoses", "fas fa-meh", "fas fa-ear", "icon-nose", "icon-glands", "fas fa-eye");
+    private static final List<String> phenotypeGroupIcons = Arrays.asList("fas fa-skull-crossbones", "impc-embryo", "impc-sperm", "fas fa-balance-scale-right", "fas fa-bolt", "fas fa-brain", "fas fa-heart", "fas fa-lungs", "fas fa-stomach", "fas fa-kidneys", "fas fa-hand-paper", "fas fa-bone", "fas fa-tint", "fas fa-dumbbell", "fas fa-diagnoses", "fas fa-meh", "fas fa-ear", "impc-nose", "impc-trachea", "fas fa-eye");
 
 
     /**
@@ -395,6 +395,7 @@ public class GenesController {
         model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
         model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
         model.addAttribute("allMeasurementsNumber", statisticalResultService.getPvaluesByAlleleAndPhenotypingCenterAndPipelineCount(acc, null, null, null, null, null, null, null, null));
+        model.addAttribute("measurementsChartNumber", statisticalResultService.getParameterCountByGene(acc));
         model.addAttribute("phenotypeGroups", phenotypeGroups);
         model.addAttribute("phenotypeGroupIcons", phenotypeGroupIcons);
         if (genesWithVignettes.contains(acc)) {
@@ -686,7 +687,11 @@ public class GenesController {
         }
 
         List<GenePageTableRow> l = phenotypes.values().stream().map(x -> ((GenePageTableRow) x)).collect(Collectors.toList());
+        List<GenePageTableRow> histopath = l.stream().filter(phenotype -> phenotype.getEvidenceLink().getUrl().contains("histopathsum")).collect(Collectors.toList());
+        l = l.stream().filter(phenotype -> !phenotype.getEvidenceLink().getUrl().contains("histopathsum")).collect(Collectors.toList());
+
         model.addAttribute("rowsForPhenotypeTable", l);
+        model.addAttribute("rowsForHistopathTable", histopath);
         return l;
     }
 

@@ -116,6 +116,13 @@ public class SearchController {
             model.addAttribute("geneSuggestions", suggestions);
         }
 
+        // Map gene status from "Phenotype Complete" to "Phenotype data available"
+        genes.forEach(gene -> {
+            if (gene.getLatestPhenotypeStatus() != null && gene.getLatestPhenotypeStatus().equalsIgnoreCase("Phenotyping Complete")) {
+                gene.setLatestPhenotypeStatus("Phenotype data available");
+            }
+        });
+
         model.addAttribute("genes", genes);
         model.addAttribute("numberOfResults", Long.toString(response.getResults().getNumFound()));
 

@@ -30,7 +30,6 @@
             $(document).ready(function () {
                 'use strict';
 
-                // get alleleref in dataTable
                 var tableHeader = "<thead><th></th></thead>";
                 var tableCols = 1;
                 var isAlleleRef = true;
@@ -64,37 +63,6 @@
 
                 $.fn.fetchAlleleRefDataTable2(oConf2);
                 $.fn.fetchAllelePaperDataPointsIncrement();
-
-              /*  // find out which tab to open from hash tag
-                var matches = window.location.hash.match(/(\d)$/);
-                var tabIndex = matches == null ? 0 : matches[0];
-
-                var tabs = $( "#tabs" ).tabs({
-                    active: 0,
-                    activate: function(event, ui) {
-                        if (ui.newTab.index() == 0) {
-                            $('div#agencyBox').hide();
-                        }
-                        else if (ui.newTab.index() == 1){
-                            // get paper stats as highcharts
-                            // need to load highcharts after a tab is activated to ensure the width of charts
-                            // will stay inside the parent container
-                            $('div#agencyBox').show();
-                            var chartWeek = "chartWeek";
-                            var chartMonth = "chartMonth";
-                            $.fn.fetchAllelePaperDataPointsIncrement();//chartYearIncrease, chartMonthIncrease, chartQuarter, chartGrantQuarter);
-                        }
-                        else if (ui.newTab.index() == 2){
-                            $('div#agencyBox').hide();  // container for agency funded papers
-                            var oConf2 = oConf;
-                            oConf2.consortium = true;
-                            oConf2.id = "consortiumPapers";
-
-                            $.fn.fetchAlleleRefDataTable2(oConf2);
-                        }
-                    }
-                });
-                tabs.tabs({active: tabIndex});*/
             });
 
         </script>

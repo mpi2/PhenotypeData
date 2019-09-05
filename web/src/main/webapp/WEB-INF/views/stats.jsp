@@ -16,28 +16,49 @@
 
     <jsp:attribute name="addToFooter">
             <script>
-                //ajax chart caller code
+
+                var getData = function (i, id, url) {
+                    $.ajax({
+                        url: url,
+                        cache: true,
+                        tryCount: 0,
+                        retryLimit: 3,
+                        success: function (html) {
+                            $('body').dequeue();
+                            $('#' + id).append(html);
+                            $('#spinner' + (i + 1)).remove();
+                        },
+                        error: function (jqXHR, textStatus) {
+                            $('body').dequeue();
+                            if (textStatus === 'timeout') {
+                                console.log(textStatus);
+                                this.tryCount++;
+                                if (this.tryCount <= this.retryLimit) {
+                                    $.ajax(this);
+                                    return;
+                                }
+                                return;
+                            }
+                            if (jqXHR.status === 500) {
+                                console.log('There was an error');
+                            } else {
+                                console.log('There was an error');
+                            }
+                        }
+                    });
+                };
+
+                // Enqueue all the charts to be displayed on this page.
+                // the getData() function will render the charts one-by-one
+                // in order to not overwhelm the server if there are many
+                // charts on one page.
                 $(document).ready(function () {
                     $('.chart').each(function (i, obj) {
-                        var graphUrl = $(this).attr('graphUrl');
                         var id = $(this).attr('id');
-                        var chartUrl = graphUrl + '&experimentNumber=' + id;
-                        $.ajax({
-                            url: chartUrl,
-                            cache: false
-                        })
-                            .done(function (html) {
-                                $('#' + id).append(html);
-                                $('#spinner' + (i + 1)).remove();
-
-                                //if this element not found in the html then no graph present so remove placeholder section
-                                if (html.search('section-associations') === -1) {
-                                    console.log('element found');
-                                    //$( '#'+ id ).html( '' );
-                                    console.log('id=' + $('#chart' + id).html(''));
-                                }
-
-                            });
+                        var url = $(this).attr('graphUrl') + '&experimentNumber=' + id;
+                        $('body').queue(function() {
+                            getData(i, id, url);
+                        });
                     });
                 });
             </script>
@@ -60,13 +81,6 @@
             </div>
         </c:if>
 
-        <c:if test="${noData}">
-            <div class="alert alert-error">
-                <strong>We don't appear to have any data for this query please try the europhenome graph link
-                    instead</strong>
-            </div>
-        </c:if>
-
         <c:forEach var="graphUrl" items="${allGraphUrlSet}" varStatus="graphUrlLoop">
 
             <div class="chart" id="chart${graphUrlLoop.count}" graphUrl="${baseUrl}/chart?${graphUrl}" id="divChart_${graphUrlLoop.count}">
@@ -80,7 +94,6 @@
                     </div>
                 </div>
             </div>
-
 
         </c:forEach>
 
@@ -247,3 +260,4 @@
     </jsp:body>
 
 </t:genericpage>
+

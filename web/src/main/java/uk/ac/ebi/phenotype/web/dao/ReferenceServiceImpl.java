@@ -25,51 +25,51 @@ public class ReferenceServiceImpl implements ReferenceService {
     public List<Publication> getAllReviewed(String filter, int start, int length, String orderBy, String sortOrder) {
         PageRequest pageRequest = getPageRequest(start,length, orderBy, sortOrder);
         if(filter == null || filter.isEmpty()) {
-            return referenceRepository.findAllByReviewedIsTrueAndFalsePositiveIsFalse(pageRequest).getContent();
+            return referenceRepository.findAllByStatusIs(pageRequest, "reviewed").getContent();
         } else {
             filter = ".*" + filter + ".*";
-            return referenceRepository.findAllByReviewedIsTrueAndFalsePositiveIsFalseContains(filter, pageRequest).getContent();
+            return referenceRepository.findReviewedContains(filter, pageRequest).getContent();
         }
     }
 
     @Override
     public int countReviewed() {
-        return referenceRepository.countAllByReviewedIsTrueAndFalsePositiveIsFalse();
+        return referenceRepository.countAllByStatusIs("reviewed");
     }
 
     @Override
     public int countFiltered(String filter) {
         filter = ".*" + filter + ".*";
-        return referenceRepository.countAllByReviewedIsTrueAndFalsePositiveIsFalseContains(filter);
+        return referenceRepository.countReviewedContains(filter);
     }
 
     @Override
     public List<Publication> getAllConsortium(String filter, int start, int length, String orderBy, String sortOrder) {
         PageRequest pageRequest = getPageRequest(start,length, orderBy, sortOrder);
         if(filter == null || filter.isEmpty()) {
-            return referenceRepository.findAllByReviewedIsTrueAndFalsePositiveIsFalseAndConsortiumPaperIsTrue(pageRequest).getContent();
+            return referenceRepository.findAllByStatusIsAndConsortiumPaperIsTrue("reviewed", pageRequest).getContent();
         } else {
             filter = ".*" + filter + ".*";
-            return referenceRepository.findAllByReviewedIsTrueAndFalsePositiveIsFalseAndConsortiumPaperIsTrueContains(filter, pageRequest).getContent();
+            return referenceRepository.findReviewedConsortiumPaperIsTrueContains(filter, pageRequest).getContent();
         }
     }
 
     @Override
     public int countConsortium() {
-        return referenceRepository.countAllByReviewedIsTrueAndFalsePositiveIsFalseAndConsortiumPaperIsTrue();
+        return referenceRepository.countAllByStatusIsAndConsortiumPaperIsTrue("reviewed");
     }
 
     @Override
     public int countConsortiumFiltered(String filter) {
         filter = ".*" + filter + ".*";
-        return referenceRepository.countAllByReviewedIsTrueAndFalsePositiveIsFalseAndConsortiumPaperIsTrueContains(filter);
+        return referenceRepository.countReviewedAndConsortiumPaperIsTrueContains(filter);
     }
 
     @Override
     public List<Publication> getAllAgency(String agency, String filter, int start, int length, String orderBy, String sortOrder) {
         PageRequest pageRequest = getPageRequest(start,length, orderBy, sortOrder);
         if(filter == null || filter.isEmpty()) {
-            return referenceRepository.findDistinctByReviewedIsTrueAndFalsePositiveIsFalseAndGrantsList_AgencyIs(agency, pageRequest).getContent();
+            return referenceRepository.findDistinctByStatusEqualsAndGrantsList_AgencyIs("reviewed", agency, pageRequest).getContent();
         } else {
             filter = ".*" + filter + ".*";
             return referenceRepository.findByAgencyFiltered(agency, filter, pageRequest).getContent();

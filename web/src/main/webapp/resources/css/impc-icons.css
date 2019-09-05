@@ -1,11 +1,11 @@
 @font-face {
   font-family: 'impc-icons';
-  src: url('../fonts/impc-icons.eot?39411283');
-  src: url('../fonts/impc-icons.eot?39411283#iefix') format('embedded-opentype'),
-       url('../fonts/impc-icons.woff2?39411283') format('woff2'),
-       url('../fonts/impc-icons.woff?39411283') format('woff'),
-       url('../fonts/impc-icons.ttf?39411283') format('truetype'),
-       url('../fonts/impc-icons.svg?39411283#impc-icons') format('svg');
+  src: url('../fonts/impc-icons.eot?59495093');
+  src: url('../fonts/impc-icons.eot?59495093#iefix') format('embedded-opentype'),
+       url('../fonts/impc-icons.woff2?59495093') format('woff2'),
+       url('../fonts/impc-icons.woff?59495093') format('woff'),
+       url('../fonts/impc-icons.ttf?59495093') format('truetype'),
+       url('../fonts/impc-icons.svg?59495093#impc-icons') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -15,12 +15,12 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'impc-icons';
-    src: url('../font/impc-icons.svg?39411283#impc-icons') format('svg');
+    src: url('../font/impc-icons.svg?59495093#impc-icons') format('svg');
   }
 }
 */
  
- [class^="icon-"]:before, [class*=" icon-"]:before {
+ [class^="impc-"]:before, [class*=" impc-"]:before {
   font-family: "impc-icons";
   font-style: normal;
   font-weight: normal;
@@ -45,7 +45,7 @@
   margin-left: .2em;
  
   /* you can be more comfortable with increased icons size */
-  /* font-size: 120%; */
+
  
   /* Font smoothing. That was taken from TWBS */
   -webkit-font-smoothing: antialiased;
@@ -54,8 +54,8 @@
   /* Uncomment for 3D effect */
   /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
- 
-.icon-reproductive:before { content: '\f100'; } /* '' */
-.icon-nose:before { content: '\f101'; } /* '' */
-.icon-glands:before { content: '\f102'; } /* '' */
-.icon-embryo:before { content: '\e803'; } /* '' */
+
+.impc-nose:before { content: '\e801'; } /* '' */
+.impc-embryo:before { content: '\e800'; font-size: 100%;} /* '' */
+.impc-sperm:before { content: '\e803'; font-size: 140%;} /* '' */
+.impc-trachea:before { content: '\e804'; } /* '' */

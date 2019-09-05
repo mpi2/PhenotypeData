@@ -839,7 +839,7 @@
             "processing": true,
             "paging": true,
             "serverSide": true,  // do not want sorting to be processed from server, false by default
-            "sDom": "<'col-6'i><'col-3'f><'col-3 export'>t<'col-6'i><'col-6'p>",
+            "sDom": "<'row'<'col-6'i>><'row'<'col-3'f><'col-3 export'>>t<'col-6'i><'col-6'p>",
             "bLengthChange": false,
             "bFilter": true,
             "searchHighlight": true,

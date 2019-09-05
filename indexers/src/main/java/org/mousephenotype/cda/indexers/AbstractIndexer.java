@@ -59,6 +59,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     public static String EMBRYONIC_DAY_9_5  = "EFO:0007641";    // -> embryonic day 9.5
     public static String EMBRYONIC_DAY_12_5 = "EFO:0002563";    // -> embryonic day 12.5
     public static String EMBRYONIC_DAY_14_5 = "EFO:0002565";    // -> embryonic day 14.5
+    public static String EMBRYONIC_DAY_15_5 = "EFO:0002566";    // -> embryonic day 15.5
     public static String EMBRYONIC_DAY_18_5 = "EFO:0002570";    // -> embryonic day 18.5
     public static String POSTPARTUM_STAGE   = "MmusDv:0000092"; // -> postpartum stage
     public static String POSTNATAL_STAGE    = "EFO:0002948";
@@ -287,16 +288,17 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
             // Populate the stages map from stage name -> ontology term if it is empty
 
-            // Current ontology terms used as of 2016-11-28 :
+            // Current ontology terms used as of 2019-06-25 :
             //
             // EFO:0007641 -> embryonic day 9.5
             // EFO:0002563 -> embryonic day 12.5
             // EFO:0002565 -> embryonic day 14.5
+            // EFO:0002565 -> embryonic day 15.5
             // EFO:0002570 -> embryonic day 18.5
             // MmusDv:0000092 -> postpartum stage
             //
             if (stages == null || stages.size() == 0) {
-                Arrays.asList(POSTPARTUM_STAGE, EMBRYONIC_DAY_9_5, EMBRYONIC_DAY_12_5, EMBRYONIC_DAY_14_5, EMBRYONIC_DAY_18_5)
+                    Arrays.asList(POSTPARTUM_STAGE, EMBRYONIC_DAY_9_5, EMBRYONIC_DAY_12_5, EMBRYONIC_DAY_14_5, EMBRYONIC_DAY_15_5, , EMBRYONIC_DAY_18_5)
                         .forEach(ontologTermAccessionId -> {
                             String shortName = (ontologTermAccessionId.startsWith(Datasource.EFO) ? Datasource.EFO : Datasource.MMUSDV);
                     OntologyTerm t = ontologyTermRepository.getByAccAndShortName(ontologTermAccessionId, shortName);
@@ -374,7 +376,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
                 stage = stages.get(EMBRYONIC_DAY_12_5);
                 break;
             case "IMPC_EVO":
-                stage = stages.get(EMBRYONIC_DAY_14_5);
+                stage = stages.get(EMBRYONIC_DAY_15_5);
                 break;
             case "IMPC_EVP":
                 stage = stages.get(EMBRYONIC_DAY_18_5);

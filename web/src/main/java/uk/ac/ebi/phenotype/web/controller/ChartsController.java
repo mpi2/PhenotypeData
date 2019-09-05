@@ -140,7 +140,7 @@ public class ChartsController {
      * @throws URISyntaxException
      * @throws SolrServerException, IOException
      */
-    
+
     @RequestMapping("/charts")
     public String charts(@RequestParam(required = false, value = "accession") String[] accessionsParams,
                          @RequestParam(required = false, value = "parameter_stable_id") String[] parameterIds,
@@ -153,6 +153,8 @@ public class ChartsController {
                          @RequestParam(required = false, value = "chart_type") ChartType chartType,
                          @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds,
                          @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession,
+                         @RequestParam(required = false, value = "pageTitle") String pageTitle,
+                         @RequestParam(required = false, value = "pageLinkBack") String pageLinkBack,
                          HttpServletRequest request, HttpServletResponse response,
                          Model model) {
         try {
@@ -166,9 +168,9 @@ public class ChartsController {
                 }
             }
             response.addHeader("Access-Control-Allow-Origin", "*");//allow javascript requests from other domain - note spring way of doing this does not work!!!! as usual!!!
-//            response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
-//            response.setHeader("Access-Control-Max-Age", "3600");
-//            response.setHeader("Access-Control-Allow-Headers", "x-requested-with");
+
+            model.addAttribute("pageTitle", pageTitle);
+
             return createCharts(accessionsParams, pipelineStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, chartType, alleleAccession);
         } catch (Exception e){
             e.printStackTrace();
@@ -176,29 +178,9 @@ public class ChartsController {
         return "";
     }
 
-    /**
-     * Will only ever return one chart!
-     *
-     * @param accession
-     * @param strain
-     * @param metadataGroup
-     * @param parameterStableId
-     * @param gender
-     * @param zygosity
-     * @param phenotypingCenter
-     * @param strategies
-     * @param model
-     * @return
-     * @throws GenomicFeatureNotFoundException
-     * @throws ParameterNotFoundException
-     * @throws IOException
-     * @throws URISyntaxException
-     * @throws SolrServerException, IOException
-     */
-    
-    
+
     @RequestMapping("/chart")
-    public String chart(@RequestParam(required = true, value = "experimentNumber") String experimentNumber,
+    public String chart(@RequestParam(required = true, value = "experimentNumber", defaultValue = "1") String experimentNumber,
                         @RequestParam(required = false, value = "accession") String[] accession,
                         @RequestParam(required = false, value = "strain_accession_id") String strain,
                         @RequestParam(required = false, value = "allele_accession_id") String alleleAccession,
@@ -214,76 +196,60 @@ public class ChartsController {
                         @RequestParam(required = false, value = "standAlone") boolean standAlone,
                         @RequestParam(required = false, value = "fromFile") boolean fromFile,
                         Model model)
-			            throws ParameterNotFoundException, IOException, URISyntaxException, SolrServerException, SpecificExperimentException {
+            throws IOException, URISyntaxException, SolrServerException, SpecificExperimentException, ParameterNotFoundException {
 
-			if(parameterStableId!=null && !parameterStableId.equals("")){
-				boolean isDerivedBodyWeight=TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId);
-				model.addAttribute("isDerivedBodyWeight", isDerivedBodyWeight);
-			}
+        if (StringUtils.isEmpty(parameterStableId)) {
+            System.out.println("throwing parameter not found exception");
+            throw new ParameterNotFoundException("Parameter " + parameterStableId + " can't be found.", parameterStableId);
+        }
 
-			UnidimensionalDataSet unidimensionalChartDataSet = null;
-			ChartData seriesParameterChartData = null;
-			CategoricalResultAndCharts categoricalResultAndChart = null;
+        if (!parameterStableId.equals("")) {
+            boolean isDerivedBodyWeight = TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId);
+            model.addAttribute("isDerivedBodyWeight", isDerivedBodyWeight);
+        }
 
-			boolean statsError = false;
+        UnidimensionalDataSet unidimensionalChartDataSet = null;
+        ChartData seriesParameterChartData = null;
+        CategoricalResultAndCharts categoricalResultAndChart = null;
 
-			if (parameterStableId.startsWith("IMPC_FER_")) {
-			    String url = config.get("baseUrl") + "/genes/" + accession[0];
-			    return "redirect:" + url;
-			}
+        boolean statsError = false;
 
+        if (parameterStableId.startsWith("IMPC_FER_")) {
+            String url = config.get("baseUrl") + "/genes/" + accession[0];
+            return "redirect:" + url;
+        }
 
-			// TODO need to check we don't have more than one accession and one
-			// parameter throw and exception if we do
-			// get the parameter object from the stable id
-			ParameterDTO parameter = is.getParameterByStableId(parameterStableId);
-			model.addAttribute("parameter", parameter);
+        // TODO need to check we don't have more than one accession and one
+        // parameter throw and exception if we do
+        // get the parameter object from the stable id
+        ParameterDTO parameter = is.getParameterByStableId(parameterStableId);
+        model.addAttribute("parameter", parameter);
 
+        //3i procedures with at least some headline images associated
+        if (parameter.getStableId().startsWith("MGP_BMI") || parameter.getStableId().startsWith("MGP_MLN") || parameter.getStableId().startsWith("MGP_IMM")) {
+            addFlowCytometryImages(accession, model, parameter);
+        }
 
-			if (parameter == null) {
-				System.out.println("throwing parameter not found exception");
-			    throw new ParameterNotFoundException("Parameter " + parameterStableId + " can't be found.", parameterStableId);
-			}
+        String metadata = null;
+        List<String> metadataList = null;
 
-			//3i procedures with at least some headline images associated
-			if(parameter.getStableId().startsWith("MGP_BMI") || parameter.getStableId().startsWith("MGP_MLN") ||parameter.getStableId().startsWith("MGP_IMM") ) {
+        String xUnits = parameter.getUnitX();
+        ObservationType observationTypeForParam = parameter.getObservationType();
+        List<String> genderList = getParamsAsList(gender);
 
-				System.out.println("flow cytomerty for 3i detected get headline images");
-				//lets get the 3i headline images
-				//example query http://ves-hx-d8.ebi.ac.uk:8986/solr/impc_images/select?q=parameter_stable_id:MGP_IMM_233_001
-				//or maybe we need to filter by parameter association first based no the initial parameter
-				//spleen Immunophenotyping e.g. Sik3 has many
-				//chart example= http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:2446296&parameter_stable_id=MGP_IMM_086_001
-				//bone marrow chart example=http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1353467&parameter_stable_id=MGP_BMI_018_001
-				//http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1353467&parameter_stable_id=MGP_BMI_018_001
-				//http://ves-hx-d8.ebi.ac.uk:8986/solr/impc_images/select?q=parameter_stable_id:MGP_IMM_233_001&fq=parameter_association_stable_id:MGP_IMM_086_001&fq=gene_symbol:Sik3
-				//http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1915276&parameter_stable_id=MGP_MLN_114_001
-				//accession[0]
-				QueryResponse imagesResponse = imageService.getHeadlineImages(accession[0], null,1000, null, null, parameter.getStableId());
-				System.out.println("number of images found="+imagesResponse.getResults().getNumFound());
-				model.addAttribute("headlineImages",imagesResponse.getBeans(ImageDTO.class));
-			}
+        // Use the first phenotyping center passed in (ignore the others?)
+        // should only now be one center at this stage for one graph/experiment
+        // TODO put length check and exception here
+        // List<String> phenotypingCenters = getParamsAsList(phenotypingCenter);
 
-			String metadata = null;
-			List<String> metadataList = null;
+        String metaDataGroupString = null;
+        if (metadataGroup != null && !metadataGroup.equals(DEFAULT_NONE)) {
+            metaDataGroupString = metadataGroup;
+        }
 
-			String xUnits = parameter.getUnitX();
-			ObservationType observationTypeForParam = parameter.getObservationType();
-			List<String> genderList = getParamsAsList(gender);
+        List<String> zyList = getParamsAsList(zygosity);
 
-			// Use the first phenotyping center passed in (ignore the others?)
-			// should only now be one center at this stage for one graph/experiment
-			// TODO put length check and exception here
-			// List<String> phenotypingCenters = getParamsAsList(phenotypingCenter);
-
-			String metaDataGroupString = null;
-			if (metadataGroup != null && ! metadataGroup.equals(DEFAULT_NONE)) {
-			    metaDataGroupString = metadataGroup;
-			}
-
-			List<String> zyList = getParamsAsList(zygosity);
-
-			ImpressBaseDTO pipeline = null;
+        ImpressBaseDTO pipeline = null;
 
 			if (pipelineStableId != null &&  ! pipelineStableId.equals("")) {
 			    log.debug("pipe stable id=" + pipelineStableId);
@@ -298,20 +264,41 @@ public class ChartsController {
 
 			GeneDTO gene = geneService.getGeneById(accession[0]);
 			model.addAttribute("gene", gene);
-			//boolean testNew=true;//change to look at old chart with current code
-//			if(parameterStableId.equalsIgnoreCase("IMPC_HEM_038_001")&& testNew) {
-//				//get experiment object from the new rest service as a temporary measure we can convert to an experiment object and then we don't have to rewrite the chart code?? and easy to test if experiment objects are the same??
-//				System.out.println("Get data from new rest service");
-//				List<Statistics>stats=statsService.findAll();
-//				assert(stats.size()==1);
-//				experiment = StatisticsServiceUtilities.convertToExperiment(parameterStableId, stats);
-//				System.out.println("stats from repository size="+stats.size());
-//			}
-//			else {
-			experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
-			System.out.println("experiment from solr="+experiment);
-			//}
-			//error getting procedure for this page?? http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1915276&parameter_stable_id=MGP_MLN_057_001
+			boolean testBoth=false;//change to look at old chart with current code
+			boolean statsServiceResult=true;
+
+				//get experiment object from the new rest service as a temporary measure we can convert to an experiment object and then we don't have to rewrite the chart code?? and easy to test if experiment objects are the same??
+				System.out.println("Get data from new rest service");
+				long startTime = System.currentTimeMillis();
+
+				try {
+					if (false) { // New stats service is not implemented in production yet!
+						experiment = statsService.getSpecificExperimentDTOFromRest(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession);
+					}
+				} catch (Exception e) {
+					// Any exception with new service should fail gracefully to the old method
+					log.debug("Error using statsService.getSpecificExperimentDTOFromRest", e);
+				}
+
+				long endTime=System.currentTimeMillis();
+				long timeTaken=endTime-startTime;
+				System.out.println("time taken to get experiment="+timeTaken);
+//
+				if(experiment==null || testBoth) {
+					System.err.println("no experiment found using stats service falling back to solr");
+					long startTimeSolr = System.currentTimeMillis();
+
+					experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
+					statsServiceResult=false;
+					//model.addAttribute("solrExperiment", experiment);
+					//System.out.println("solr experiment="+experiment);
+					long endTimeSolr=System.currentTimeMillis();
+					long timeTakenSolr=endTimeSolr-startTimeSolr;
+					System.out.println("solr time taken to get experiment="+timeTakenSolr);
+				}
+
+				model.addAttribute("statsServiceResult", statsServiceResult);//tell the interface where we got the data from  - temp measure for testing
+
 			ProcedureDTO proc=null;
 			if(experiment!=null) {
 				proc = is.getProcedureByStableId(experiment.getProcedureStableId());
@@ -320,7 +307,7 @@ public class ChartsController {
 			    String parameterUrl="";
 			    if (proc != null) {
 					//procedureDescription = String.format("<a href=\"%s\">%s</a>", is.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()),  "Procedure: "+ proc.getName());
-			    	procedureUrl=is.getProcedureUrlByKey(((Long)proc.getStableKey()).toString());
+			    	procedureUrl=is.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString());
 			    	model.addAttribute("procedureUrl", procedureUrl);
 			    }
 				if (parameter.getStableKey() != null) {
@@ -399,11 +386,11 @@ public class ChartsController {
 			                    break;
 			            }
 			        }else{
-			            log.error("chart type is ull");
+			            log.error("chart type is null");
 			        }
 
 			    } catch (SQLException e) {
-			        log.error(ExceptionUtils.getStackTrace(e));
+			        log.error(ExceptionUtils.getFullStackTrace(e));
 			        statsError = true;
 			    }
 			}  else {
@@ -560,7 +547,79 @@ public class ChartsController {
 
 			final int totalSamples = Stream.of(numberFemaleMutantMice, numberMaleMutantMice, numberFemaleControlMice, numberMaleControlMice).filter(Objects::nonNull).mapToInt(Integer::intValue).sum();
 			model.addAttribute("numberMice", totalSamples);
+
+			if (experiment != null) {
+				List<GenotypePhenotypeDTO> gpList = gpService.getGenotypePhenotypeFor(
+						gene.getMgiAccessionId(),
+						experiment.getParameterStableId(),
+						experiment.getStrain(),
+						experiment.getAlleleAccession(),
+						experiment.getZygosities(),
+						experiment.getOrganisation(),
+						experiment.getSexes());
+
+				// If we are displaying a chart for IPGTT, check all possible derived terms associated to IPG procedure
+                // and add any significant results to the MP terms that are associated to this data
+				if (parameterStableId.equalsIgnoreCase("IMPC_IPG_002_001")) {
+				    for (String param : TimeSeriesConstants.IMPC_IPG_002_001) {
+                        List<GenotypePhenotypeDTO> addGpList = gpService.getGenotypePhenotypeFor(
+                                gene.getMgiAccessionId(),
+                                param,
+                                experiment.getStrain(),
+                                experiment.getAlleleAccession(),
+                                experiment.getZygosities(),
+                                experiment.getOrganisation(),
+                                experiment.getSexes());
+                        gpList.addAll(addGpList);
+                    }
+				                    }
+				List<String> phenotypeTerms = gpList.stream().map(GenotypePhenotypeDTO::getMpTermName).distinct().collect(Collectors.toList());
+				model.addAttribute("phenotypes", phenotypeTerms);
+			}
+
 			return "chart";
+	}
+
+
+	private void addFlowCytometryImages(String[] accession, Model model, ParameterDTO parameter)
+			throws SolrServerException, IOException {
+		System.out.println("flow cytomerty for 3i detected get headline images");
+		//lets get the 3i headline images
+		//example query http://ves-hx-d8.ebi.ac.uk:8986/solr/impc_images/select?q=parameter_stable_id:MGP_IMM_233_001
+		//or maybe we need to filter by parameter association first based no the initial parameter
+		//spleen Immunophenotyping e.g. Sik3 has many
+		//chart example= http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:2446296&parameter_stable_id=MGP_IMM_086_001
+		//bone marrow chart example=http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1353467&parameter_stable_id=MGP_BMI_018_001
+		//http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1353467&parameter_stable_id=MGP_BMI_018_001
+		//http://ves-hx-d8.ebi.ac.uk:8986/solr/impc_images/select?q=parameter_stable_id:MGP_IMM_233_001&fq=parameter_association_stable_id:MGP_IMM_086_001&fq=gene_symbol:Sik3
+		//http://localhost:8090/phenotype-archive/charts?phenotyping_center=WTSI&accession=MGI:1915276&parameter_stable_id=MGP_MLN_114_001
+		//accession[0]
+		QueryResponse imagesResponse = imageService.getHeadlineImages(accession[0], null,1000, null, null, parameter.getStableId());
+		log.debug("number of images found="+imagesResponse.getResults().getNumFound());
+		List<ImageDTO> wtAndMutantImages = imagesResponse.getBeans(ImageDTO.class);
+		List<ImageDTO> controlImages=new ArrayList<>();
+		List<ImageDTO> mutantImages=new ArrayList<>();
+		for(ImageDTO image: wtAndMutantImages) {
+			if(image.isControl())
+			{
+                log.debug("control found");
+				controlImages.add(image);
+			}
+			if(image.isMutant()) {
+                log.debug("mutant found");
+				mutantImages.add(image);
+			}
+		}
+
+
+		int imageCountMax=controlImages.size();
+		if(mutantImages.size()>imageCountMax) {
+			imageCountMax=mutantImages.size();
+		}
+				model.addAttribute("controlImages", controlImages);
+				model.addAttribute("mutantImages", mutantImages);
+        log.debug("imageCountMax="+imageCountMax);
+				model.addAttribute("imageCountMax",imageCountMax);
 	}
     
 
@@ -577,7 +636,7 @@ public class ChartsController {
             throws SolrServerException, IOException, GenomicFeatureNotFoundException, ParameterNotFoundException, URISyntaxException {
 
         Long time = System.currentTimeMillis();
-        GraphUtils graphUtils = new GraphUtils(experimentService, srService);
+        GraphUtils graphUtils = new GraphUtils(experimentService, srService, is);
         List<String> geneIds = getParamsAsList(accessionsParams);
         List<String> paramIds = getParamsAsList(parameterIds);
         List<String> genderList = getParamsAsList(gender);
@@ -655,63 +714,6 @@ public class ChartsController {
         return "stats";
     }
 
-    /**
-     * Exception handler for gene not found
-     *
-     * @param exception of proper type to indicate gene not found
-     * @return model and view for error page
-     */
-    @ExceptionHandler(GenomicFeatureNotFoundException.class)
-    public ModelAndView handleGenomicFeatureNotFoundException(GenomicFeatureNotFoundException exception) {
-
-        log.error(ExceptionUtils.getStackTrace(exception));
-
-        ModelAndView mv = new ModelAndView("identifierError");
-        mv.addObject("errorMessage", exception.getMessage());
-        mv.addObject("acc", exception.getAcc());
-        mv.addObject("type", "MGI gene");
-        mv.addObject("exampleURI", "/charts?accession=MGI:104874");
-
-        return mv;
-    }
-
-    /**
-     * Exception handler for parameter not found
-     *
-     * @param exception of proper type to indicate parameter not found
-     * @return model and view for error page
-     */
-    @ExceptionHandler(ParameterNotFoundException.class)
-    public ModelAndView handleParameterNotFoundException(ParameterNotFoundException exception) {
-
-	    log.error(ExceptionUtils.getStackTrace(exception));
-
-        ModelAndView mv = new ModelAndView("identifierError");
-        mv.addObject("errorMessage", exception.getMessage());
-        mv.addObject("acc", exception.getAcc());
-        mv.addObject("type", "Parameter");
-        mv.addObject("exampleURI", "/charts?accession=MGI:98373&parameterId=M-G-P_014_001_001&gender=male&zygosity=homozygote&phenotypingCenter=WTSI");
-
-        return mv;
-    }
-
-    /**
-     * Exception handler for experiment not found
-     *
-     * @param exception of proper type to indicate experiment not found
-     * @return model and view for error page
-     */
-    @ExceptionHandler(SpecificExperimentException.class)
-    public ModelAndView handleSpecificExperimentException(SpecificExperimentException exception) {
-
-	    log.error(ExceptionUtils.getStackTrace(exception));
-
-        ModelAndView mv = new ModelAndView("Specific Experiment Not Found Error");
-        mv.addObject("errorMessage", exception.getMessage());
-        mv.addObject("type", "Experiment");
-
-        return mv;
-    }
 
     /**
      * Convenience method that just changes an array [] to a more modern LIst (I
@@ -731,7 +733,6 @@ public class ChartsController {
 
     @RequestMapping("/colors")
     public String colors(Model model) {
-    	System.out.println("calling colors page");
     	model.addAttribute("maleColors", ChartColors.maleRgb);
     	model.addAttribute("femaleColors", ChartColors.femaleRgb);
     	model.addAttribute("highDifferenceColors",ChartColors.highDifferenceColors);

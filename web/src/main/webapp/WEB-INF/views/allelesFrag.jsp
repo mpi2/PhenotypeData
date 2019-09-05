@@ -18,7 +18,7 @@
     </div>
 
     <div class="row">
-        <div class="container justify-content-center">
+        <div class="col-12 justify-content-center">
             <ul class="nav nav-tabs" id="order-${alleleId}-Tab" role="tablist" style="margin-top: 0px">
                 <li class="nav-item">
                     <a class="nav-link ${miceActive}" id="order-${alleleId}-mice-tab" data-toggle="tab"
@@ -197,41 +197,43 @@
                 <div class="tab-pane fade ${vectorActive == 'active'? 'show active': ''}" id="order-${alleleId}-vectors" role="tabpanel"
                      aria-labelledby="order-${alleleId}-vectors-tab">
                     <div class="container justify-content-center pt-3">
-                        <table id="targeting_vector_table">
-                            <thead>
-                            <tr>
+                        <div class="row">
+                            <div class="col-12">
+                                <table id="targeting_vector_table">
+                                    <thead>
+                                    <tr>
 
-                                <th style="text-align: center;">Targeting Vector</th>
-                                <th style="text-align: center;">Cassette</th>
-                                <th style="text-align: center;">Backbone</th>
-                                <th style="text-align: center;">IKMC Project</th>
-                                <th style="text-align: center;">Order</th>
-                                <th style="text-align: center;">Genbank File</th>
-                                <th style="text-align: center;">Vector Map</th>
-                                <th style="text-align: center;">Design Oligos</th>
+                                        <th style="text-align: center;">Targeting Vector</th>
+                                        <th style="text-align: center;">Cassette</th>
+                                        <th style="text-align: center;">Backbone</th>
+                                        <th style="text-align: center;">IKMC Project</th>
+                                        <th style="text-align: center;">Order</th>
+                                        <th style="text-align: center;">Genbank File</th>
+                                        <th style="text-align: center;">Vector Map</th>
+                                        <th style="text-align: center;">Design Oligos</th>
 
-                            </tr>
-                            </thead>
+                                    </tr>
+                                    </thead>
 
-                            <tbody>
+                                    <tbody>
 
-                            <c:forEach var="targeting_vector" items="${targeting_vectors}" varStatus="targeting_vectorsx">
-                                <tr>
+                                    <c:forEach var="targeting_vector" items="${targeting_vectors}" varStatus="targeting_vectorsx">
+                                        <tr>
 
 
 
-                                    <td style="text-align: center;">${targeting_vector['targeting_vector']}</td>
-                                    <td style="text-align: center;">${targeting_vector['cassette']}</td>
-                                    <td style="text-align: center;">${targeting_vector['backbone']}</td>
-                                    <td style="text-align: center;">${targeting_vector['ikmc_project_id']}</td>
-                                    <td>
-                                        <c:forEach var="order" items="${targeting_vector['orders']}" varStatus="ordersx">
-                                            <a class="btn btn-outline-primary" href="${order['url']}"> <i
-                                                    class="fa fa-shopping-cart"></i>&nbsp; Order from ${order['name']}</a>
-                                        </c:forEach>
-                                    </td>
+                                            <td style="text-align: center;">${targeting_vector['targeting_vector']}</td>
+                                            <td style="text-align: center;">${targeting_vector['cassette']}</td>
+                                            <td style="text-align: center;">${targeting_vector['backbone']}</td>
+                                            <td style="text-align: center;">${targeting_vector['ikmc_project_id']}</td>
+                                            <td>
+                                                <c:forEach var="order" items="${targeting_vector['orders']}" varStatus="ordersx">
+                                                    <a class="btn btn-outline-primary" href="${order['url']}"> <i
+                                                            class="fa fa-shopping-cart"></i>&nbsp; Order from ${order['name']}</a>
+                                                </c:forEach>
+                                            </td>
 
-                                    <td style="text-align: center;">
+                                            <td style="text-align: center;">
             <span>
                 <c:if test="${not empty targeting_vector['genbank_file']}">
                     <a href="${targeting_vector['genbank_file']}" target="_blank">
@@ -239,9 +241,9 @@
                     </a>
                 </c:if>
             </span>
-                                    </td>
+                                            </td>
 
-                                    <td style="text-align: center;">
+                                            <td style="text-align: center;">
             <span>
                 <c:if test="${not empty targeting_vector['allele_image']}">
                     <a href="${targeting_vector['allele_image']}" target="_blank">
@@ -249,21 +251,24 @@
                     </a>
                 </c:if>
             </span>
-                                    </td>
+                                            </td>
 
-                                    <td style="text-align: center;">
+                                            <td style="text-align: center;">
             <span>
                 <c:if test="${not empty targeting_vector['design_oligos_url']}">
                     <a href="${targeting_vector['design_oligos_url']}" target="_blank"><i
                             class="fa fa-external-link-square fa-lg"></i></a>
                 </c:if>
             </span>
-                                    </td>
-                                </tr>
-                            </c:forEach>
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
 
-                            </tbody>
-                        </table>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
                     </div>
 
                 </div>
@@ -282,4 +287,5 @@
 
     </div>
 
+</div>
 </div>

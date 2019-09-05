@@ -18,7 +18,7 @@
 <c:set var="noColor" scope="page" value="text-info"/>
 <c:set var="amColor" scope="page" value="text-warning"/>
 <c:set var="noAvaColor" scope="page" value="text-danger"/>
-<div class="container">
+<div class="container p-0 p-md-2">
     <div class="row justify-content-center">
         <span title="Expression" class="${yesColor} mr-3"><i class="${expressionIcon}"></i>&nbsp;Expression</span>
         <span title="No Expression" class="${noColor} mr-3"> <i class="${noExpressionIcon}"></i>&nbsp;No Expression</span>
@@ -32,7 +32,7 @@
     </div-->
 
 
-    <script>
+<%--    <script>
         $(document).ready(function () {
             $('#expressionTable').DataTable({
                 responsive: true,
@@ -40,31 +40,31 @@
                 "bLengthChange": false
             });
         });
-    </script>
+    </script>--%>
 
     <!-- <h2 class="title" id="section-impc_expression">Expression Overview<i class="fa fa-question-circle pull-right" title="Brief info about this panel"></i></h2>
     -->
     <div class="row justify-content-center">
         <div class="col-sm-12">
-            <table id="expressionTable" class="table dt-responsive" style="width:100%">
+            <table id="expressionTable" data-toggle="table" data-pagination="true" data-mobile-responsive="true" data-sortable="true">
                 <thead>
-                <th>Anatomy</th>
+                <th data-sortable="true">Anatomy</th>
                 <th
-                        title="Number of heterozygous mutant specimens with data for the specified anatomy">
+                        title="Number of heterozygous mutant specimens with data for the specified anatomy" data-sortable="true">
                     #HET Specimens
                 </th>
                 <th
-                        title="If there are images for homozygous specimens this value will be 'Yes'">
+                        title="If there are images for homozygous specimens this value will be 'Yes'" data-sortable="true">
                     HOM Images?
                 </th>
-                <th class="wtExp"
+                <th
                     title="Status of expression for Wild Type specimens from any colony with data for this anatomy">
                     WT Expr
                 </th>
                 <th title="">Mutant Expr</th>
                 <%-- <th>Mutant specimens</th> --%>
                 <th
-                        title="An clickable image icon will show if images are available for mutant specimens">
+                        title="An clickable image icon will show if images are available for mutant specimens" data-sortable="true">
                     Images
                 </th>
                 </thead>
@@ -86,7 +86,7 @@
 																<c:if
                                                                         test="${!mutantImagesAnatomyToRow[mapEntry.key].homImages}">No</c:if></span>
                         </td>
-                        <td class="wtExp">
+                        <td>
                             <c:choose>
                                 <c:when
                                         test="${wtAnatomyToRow[mapEntry.key].expression}">
@@ -141,9 +141,16 @@
                                 </c:otherwise>
                             </c:choose>
                         </td>
+
+                            <%-- <td>
+                            <c:forEach var="specimen" items="${mapEntry.value.specimen}">
+                            <i title="zygosity= ${specimen.value.zyg}">${specimen.key}</i>
+                            </c:forEach></td> --%>
+
                         <td>
                             <c:if
                                     test="${mutantImagesAnatomyToRow[mapEntry.key].wholemountImagesAvailable}">
+                                <!-- imageComparator?acc=MGI:1859162&anatomy_term=respiratory%20system&parameter_stable_id=IMPC_ALZ_075_001 -->
                                 <a
                                         href='${baseUrl}/imageComparator?acc=${acc}&anatomy_id=${mapEntry.value.abnormalAnatomyId}&parameter_stable_id=IMPC_ALZ_076_001' class="mr-1" style="font-size: small"><i
                                         title="Wholemount Images available (click on this icon to view images)"
@@ -174,3 +181,5 @@
     </div>
 
 </div>
+
+

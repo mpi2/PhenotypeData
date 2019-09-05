@@ -46,8 +46,6 @@ import java.util.Map;
 public class AllelesController {
 
     private final Logger log = LoggerFactory.getLogger(AllelesController.class);
-    // TODO: get rid!
-    private static final String VERSIONDATE = "Mon Oct 20 2014";
 
     @Autowired
     SolrIndex2 solrIndex2;
@@ -150,6 +148,8 @@ public class AllelesController {
 
         if (bare) model.addAttribute("bare", bare);
         model.addAttribute("qcData", constructs);
+        model.addAttribute("type", type);
+        model.addAttribute("name", name);
 
         String simple = request.getParameter("simple");
         boolean s = simple != null && simple.equals("true");
@@ -344,6 +344,7 @@ public class AllelesController {
         model.addAttribute("other_available_alleles_with_mice", constructs.get("other_alleles_with_mice"));
         model.addAttribute("other_available_alleles_with_es_cells", constructs.get("other_alleles_with_es_cells"));
         model.addAttribute("title", constructs.get("title"));
+
 
         if (model.containsAttribute("show_header")) {
             return "alleles_noheader";

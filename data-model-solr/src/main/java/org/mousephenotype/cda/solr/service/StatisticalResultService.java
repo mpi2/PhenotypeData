@@ -279,6 +279,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
 		q.addField(StatisticalResultDTO.MARKER_SYMBOL);
 		q.addField(StatisticalResultDTO.MARKER_ACCESSION_ID);
+		q.addFilterQuery(StatisticalResultDTO.P_VALUE + ":[* TO *]");
 		q.setFacet(true);
 		q.setFacetLimit(-1);
 		q.setFacetMinCount(1);
@@ -1691,6 +1692,15 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 		List<StatisticalResultDTO> result = statisticalResultCore.query(q).getBeans(StatisticalResultDTO.class);
 
 		return result;
+	}
+
+	public Integer getParameterCountByGene(String acc) throws IOException, SolrServerException {
+		SolrQuery query = new SolrQuery("p_value:[* TO *] AND marker_accession_id:\"" + acc + "\"");
+		query.add("group", "true");
+		query.add("group.ngroups", "true");
+		query.add("group.field", StatisticalResultDTO.PARAMETER_NAME);
+		QueryResponse result = solr.query(query);
+		return result.getGroupResponse().getValues().get(0).getNGroups();
 	}
 
 	class OverviewRatio {

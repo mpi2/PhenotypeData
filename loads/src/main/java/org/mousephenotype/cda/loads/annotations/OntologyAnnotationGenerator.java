@@ -775,6 +775,14 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 
     private void processCategoricalParameters(Connection connection) throws SQLException {
 
+
+        for (ResultDTO res : getCategoricalResults(connection)) {
+            saveCategoricalResult(connection, phenotypePipelineDAO, res);
+        }
+    }
+
+    protected void saveCategoricalResult(Connection connection, PhenotypePipelineDAO phenotypePipelineDAO, ResultDTO res) throws SQLException {
+
         PreparedStatement insertStatResultPhenotypeCallSummaryStatement = insertCategoricalStatResultPhenotypeCallSummaryStatement;
 
         for (ResultDTO res : getCategoricalResults(connection)) {
@@ -812,15 +820,15 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
                 insertStatResultPhenotypeCallSummaryStatement.setLong(1, res.getResultId());
                 try {
 
-                    if (
-                            (res.getFemalePvalue() == null && res.getMalePvalue() == null && res.getNullTestPvalue() <= SIGNIFICANCE_THRESHOLD) &&
-                                    ! sexSpecificParameters.contains(res.getParameterStableId())
-                            ) {
-
+                    if (((res.getFemalePvalue() == null || res.getFemalePvalue() >= SIGNIFICANCE_THRESHOLD) &&
+                         (res.getMalePvalue() == null || res.getMalePvalue() >= SIGNIFICANCE_THRESHOLD) &&
+                         res.getNullTestPvalue() <= SIGNIFICANCE_THRESHOLD) &&
+                         ! sexSpecificParameters.contains(res.getParameterStableId()))
+                    {
                         OntologyTerm term = mpTermService.getMPTerm(parameter.getStableId(), res, null, connection, SIGNIFICANCE_THRESHOLD, true);
                         if (term == null) {
                             String msg = "No term could be found to associate for category " + res.getCategoryA() + " for parameter: " + parameter.getStableId() + " (" + res.getParameterId() + ")";
-                            if (!alreadyReported.contains(msg)) {
+                            if (! alreadyReported.contains(msg)) {
                                 alreadyReported.add(msg);
                                 logger.warn(msg);
                             }
@@ -1893,5 +1901,4 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
     public static void main(String[] args) {
         SpringApplication.run(OntologyAnnotationGenerator.class, args);
     }
-
 }

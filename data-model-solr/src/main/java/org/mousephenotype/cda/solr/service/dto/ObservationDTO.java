@@ -66,7 +66,7 @@ public class ObservationDTO extends ObservationDTOBase {
                 colonyId,
                 getDateOfExperimentString(),
                 getDateOfBirthString(),
-                getAgeInWeeks().toString(),
+                getAgeInWeeks() != null ? getAgeInWeeks().toString() : "-",
                 developmentalStageName,
                 zygosity,
                 sex,
@@ -166,7 +166,7 @@ public class ObservationDTO extends ObservationDTOBase {
     }
 
     public String getDateOfBirthString() {
-        return new SimpleDateFormat(EXPORT_DATE_PATTERN).format(dateOfBirth);
+        return dateOfBirth != null ? new SimpleDateFormat(EXPORT_DATE_PATTERN).format(dateOfBirth) : "-";
 
     }
 

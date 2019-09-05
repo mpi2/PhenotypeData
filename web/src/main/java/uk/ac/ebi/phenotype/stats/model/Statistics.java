@@ -1,8 +1,10 @@
-package uk.ac.ebi.phenotype.web.dao;
+package uk.ac.ebi.phenotype.stats.model;
 
 import javax.annotation.Resource;
 
 import org.springframework.data.annotation.Id;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Resource
 public class Statistics  {
@@ -42,6 +44,7 @@ public class Statistics  {
 	
 	private String geneAccession;
 	
+	@JsonProperty("allele_accession_id")
 	private String alleleAccession;
 	
 	private String metaDataGroup;
@@ -66,9 +69,9 @@ public class Statistics  {
 	
 	private String colonyId;
 	
-	private int impressParameterKey;
+	private Integer impressParameterKey;
 	
-	private int impressProtocolKey;
+	private Integer impressProtocolKey;
 	
 	public String getColonyId() {
 		return colonyId;
@@ -78,7 +81,7 @@ public class Statistics  {
 		this.colonyId = colonyId;
 	}
 
-	public int getImpressParameterKey() {
+	public Integer getImpressParameterKey() {
 		return impressParameterKey;
 	}
 
@@ -86,7 +89,7 @@ public class Statistics  {
 		this.impressParameterKey = impressParameterKey;
 	}
 
-	public int getImpressProtocolKey() {
+	public Integer getImpressProtocolKey() {
 		return impressProtocolKey;
 	}
 
@@ -173,6 +176,8 @@ public class Statistics  {
 	}
 
 	private String headerInfo;
+
+
 	public String getHeaderInfo() {
 		return headerInfo;
 	}
@@ -196,6 +201,16 @@ public class Statistics  {
 				+ ", zygosity=" + zygosity + ", colonyId=" + colonyId + ", impressParameterKey=" + impressParameterKey
 				+ ", impressProtocolKey=" + impressProtocolKey + ", result=" + result + ", headerInfo=" + headerInfo
 				+ "]";
+	}
+
+	private String procedureName;
+	public String getProcedureName() {
+		return procedureName;
+	}
+	
+	public void setProcedureName(String procedureName) {
+		this.procedureName=procedureName;
+		
 	}
 
 	
