@@ -21,6 +21,5 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface ParameterRepository extends CrudRepository<Parameter, Long> {
 
-    Parameter getById(Long id);
     Parameter getByStableId(String stableId);
 }

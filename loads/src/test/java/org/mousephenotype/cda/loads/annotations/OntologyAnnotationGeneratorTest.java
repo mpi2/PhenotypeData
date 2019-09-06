@@ -44,8 +44,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mousephenotype.cda.loads.annotations.OntologyAnnotationGenerator.SIGNIFICANCE_THRESHOLD;
 
 @RunWith(SpringRunner.class)
@@ -240,7 +239,7 @@ public class OntologyAnnotationGeneratorTest {
 //            System.out.println(result);
 //        }
     }
-@Ignore
+    @Ignore
     @Test
     public void testProcessRRPlusParameters() throws SQLException {
 
@@ -261,7 +260,7 @@ public class OntologyAnnotationGeneratorTest {
     }
 
 
-@Ignore
+    @Ignore
     @Test
     public void testInfertilityAssociations() throws SQLException {
 
@@ -271,7 +270,7 @@ public class OntologyAnnotationGeneratorTest {
 
             Parameter p = parameterRepository.findById(result.getParameterId()).get();
 
-                    parameterRepository.findById(result.getParameterId()).get();
+            parameterRepository.findById(result.getParameterId()).get();
 
             if (p.getStableId().contains("FER")) {
 
@@ -392,15 +391,14 @@ public class OntologyAnnotationGeneratorTest {
     @Test
     public void testSignificantCategoricalResultVps4aLensOpacity() throws  Exception {
 
-        Integer parameterId = pDAO.getParameterByStableId("IMPC_EYE_017_001").getId();
-        List<ResultDTO> categoriocalResults = mpGenerator.getCategoricalResults(connection);
+        Long parameterId = parameterRepository.getByStableId("IMPC_EYE_017_001").getId();
+        List<ResultDTO> categoricalResults = mpGenerator.getCategoricalResults(connection);
         ResultDTO toSave = null;
 
-        assert(categoriocalResults.size()>100);
-
+        assert(categoricalResults.size()>100);
         Boolean foundParameter = Boolean.FALSE;
 
-        for (ResultDTO result : categoriocalResults) {
+        for (ResultDTO result : categoricalResults) {
 
             if ( ! result.getGeneAcc().equals("MGI:1890520")) {
                 continue;
@@ -408,7 +406,7 @@ public class OntologyAnnotationGeneratorTest {
 
             toSave = result;
 
-            logger.info("Found parameter {} for {} (id: {}). Looking for {}", pDAO.getParameterById(result.getParameterId()), result.getGeneAcc(), result.getParameterId(), parameterId);
+            logger.info("Found parameter {} for {} (id: {}). Looking for {}", parameterRepository.findById(result.getParameterId()).get(), result.getGeneAcc(), result.getParameterId(), parameterId);
             if (result.getParameterId().equals(parameterId)) {
                 foundParameter = Boolean.TRUE;
 
@@ -417,7 +415,7 @@ public class OntologyAnnotationGeneratorTest {
 
                     // Effect is significant, find out which term to associate
 
-                    Parameter parameter = pDAO.getParameterById(result.getParameterId());
+                    Parameter parameter = parameterRepository.findById(result.getParameterId()).get();
 
                     // Check the female specific term
                     if (result.getFemalePvalue() != null && result.getFemalePvalue() <= SIGNIFICANCE_THRESHOLD) {
@@ -441,7 +439,6 @@ public class OntologyAnnotationGeneratorTest {
                 }
                 break;
             }
-
         }
 
         assert(foundParameter);
@@ -454,8 +451,7 @@ public class OntologyAnnotationGeneratorTest {
 
         // Attempt to "save" the result
         mpGenerator.initializeSexSpecificMap(connection);
-        mpGenerator.saveCategoricalResult(connection, phenotypePipelineDAO, toSave);
-
+        mpGenerator.saveCategoricalResult(connection, toSave);
     }
 
     @Test
@@ -522,11 +518,11 @@ public class OntologyAnnotationGeneratorTest {
     }
 
 
-@Ignore
+    @Ignore
     @Test
     public void testSexuallyDimorphicCategoricalResult() throws SQLException {
 
-    Long parameterId = parameterRepository.getByStableId("IMPC_EYE_092_001").getId();
+        Long parameterId = parameterRepository.getByStableId("IMPC_EYE_092_001").getId();
         List<ResultDTO> categoriocalResults = mpGenerator.getCategoricalResults(connection);
 
         assert(categoriocalResults.size()>100);

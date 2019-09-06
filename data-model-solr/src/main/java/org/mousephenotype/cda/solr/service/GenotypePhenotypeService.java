@@ -29,7 +29,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
-import org.mousephenotype.cda.db.pojo.AggregateCountXY;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.db.repositories.GenesSecondaryProjectRepository;
 import org.mousephenotype.cda.enumerations.ObservationType;
@@ -910,6 +909,47 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
     	        return results;
     	    }
 
+    public List<GenotypePhenotypeDTO> getGenotypePhenotypeFor(String markerAccession, String parameterStableId, String strainAccession, String alleleAccession, Set<ZygosityType> zygosity, String phenotypingCenter, Set<SexType> sex)
+            throws SolrServerException, IOException {
+
+        SolrQuery query = new SolrQuery()
+                .setQuery("*:*")
+                .setRows(Integer.MAX_VALUE);
+
+        if (markerAccession != null) {
+            query.addFilterQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + markerAccession + "\"");
+        }
+
+        if (alleleAccession != null) {
+            query.addFilterQuery(GenotypePhenotypeDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"");
+        }
+
+        if (strainAccession != null) {
+            query.addFilterQuery(GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + strainAccession + "\"");
+        }
+
+        if (parameterStableId != null) {
+            query.addFilterQuery(GenotypePhenotypeDTO.PARAMETER_STABLE_ID + ":\"" + parameterStableId + "\"");
+        }
+
+        if (sex != null) {
+            String sexes = sex.stream().map(SexType::getName).collect(Collectors.joining(" OR "));
+            query.addFilterQuery(GenotypePhenotypeDTO.SEX + ":(" + sexes + ")");
+        }
+
+        if (zygosity != null) {
+            String zygosities = zygosity.stream().map(ZygosityType::getName).collect(Collectors.joining(" OR "));
+            query.addFilterQuery(GenotypePhenotypeDTO.ZYGOSITY + ":(" + zygosities + ")");
+        }
+
+        if (phenotypingCenter != null) {
+            query.addFilterQuery(GenotypePhenotypeDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"");
+        }
+
+        return genotypePhenotypeCore.query(query).getBeans(GenotypePhenotypeDTO.class);
+    }
+
+
     private List<? extends StatisticalResult> createStatsResultFromSolr(String url, ObservationType observationType)
         throws IOException, URISyntaxException, JSONException {
 
@@ -917,7 +957,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         // of stats result object to create default to unidimensional for now
         List<StatisticalResult> results = new ArrayList<>();
 
-        JSONObject resultsj = null;
+        JSONObject resultsj;
         resultsj = JSONRestUtil.getResults(url);
         JSONArray docs = resultsj.getJSONObject("response").getJSONArray("docs");
 

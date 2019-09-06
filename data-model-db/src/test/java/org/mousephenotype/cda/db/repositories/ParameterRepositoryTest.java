@@ -73,6 +73,7 @@ public class ParameterRepositoryTest {
         compareFields(getExpected(), actual);
     }
 
+
     private void compareFields(Parameter expected, Parameter actual) {
         assertEquals(expected.getId(), actual.getId());
         assertEquals(expected.getStableId(), actual.getStableId());

@@ -153,14 +153,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf()
                 .ignoringAntMatchers("/dataTable_bq")
-                .ignoringAntMatchers("/dataTableAlleleRefPost")    // FIXME Remove if this endpoint is now gone.
-                .ignoringAntMatchers("/fetchAlleleRefPmidData")    // FIXME Remove if this endpoint is now gone.
                 .ignoringAntMatchers("/querybroker")
                 .ignoringAntMatchers("/bqExport")
                 .ignoringAntMatchers("/batchQuery")
                 .ignoringAntMatchers("/alleleRefLogin")
-                .ignoringAntMatchers("/addpmid")                  // FIXME Remove if this endpoint is now gone.
-                .ignoringAntMatchers("/addpmidAllele")            // FIXME Remove if this endpoint is now gone.
                 .ignoringAntMatchers("/gwaslookup");              // FIXME Remove if this endpoint is now gone.
     }
 

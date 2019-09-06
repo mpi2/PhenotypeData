@@ -1,36 +1,42 @@
 package uk.ac.ebi.phenotype.web.dao;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-
 import uk.ac.ebi.phenotype.service.RestConfiguration;
 import uk.ac.ebi.phenotype.stats.model.Statistics;
 
+import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+@Service
+@ComponentScan
 public class StatsClient {
-	
-	private  String statisticsUrl;//"http://localhost:8080/
+
+	@Value("${statistics_url}")
+	private String statisticsUrl;
+
+//	private  String statisticsUrl;//"http://localhost:8080/
     private String repositoryPath="stats";//added to statsiticsUrl to get the repository
     private String apiPath="api/stats?";//added to statistics url to reach the controller for our specific API
     //private static final String SINGLE_STATS_URL = "http://localhost:8080/statisticses/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession={geneAccession}&alleleAccession={alleleAccession}&parameterStableId={parameterStableId}&pipelineStableId={pipelineStableId}&zygosity={zygosity}&phenotypingCenter={phenotypingCenter}&metaDataGroup={metaDataGroup}"; 
     
     RestTemplate template;
     
-
-    public StatsClient(String statisticsUrl) {
+	@Inject
+    public StatsClient() {
     	RestConfiguration restConfiguration=new RestConfiguration();
 		RestTemplateBuilder builder=new RestTemplateBuilder();
 		template = restConfiguration.restTemplate(builder);
-    	this.statisticsUrl=statisticsUrl;
     }
     
     public ResponseEntity<List<Statistics>> getUniqueStatsResult(String geneAccession, String alleleAccession, String parameterStableId,
@@ -116,11 +122,7 @@ public class StatsClient {
   			e.printStackTrace();
   		}
           return statsResponse;
-  	
       }
-
-
-   
 
     public ResponseEntity<PagedResources<Statistics>> getStats(int offset, int limit) {
     	

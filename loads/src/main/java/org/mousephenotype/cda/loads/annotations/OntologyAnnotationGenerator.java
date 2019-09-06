@@ -27,7 +27,7 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(OntologyAnnotationGenerator.class);
 
-    private static final Boolean SAVE_RESULTS = Boolean.TRUE;
+    public static Boolean SAVE_RESULTS = Boolean.TRUE;
 
     // Concurrent hash map is threadsafe
     private static final Set<String> alreadyReported       = Collections.newSetFromMap(new ConcurrentHashMap<>());
@@ -775,75 +775,103 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 
     private void processCategoricalParameters(Connection connection) throws SQLException {
 
-
         for (ResultDTO res : getCategoricalResults(connection)) {
-            saveCategoricalResult(connection, phenotypePipelineDAO, res);
+            saveCategoricalResult(connection, res);
         }
     }
 
-    protected void saveCategoricalResult(Connection connection, PhenotypePipelineDAO phenotypePipelineDAO, ResultDTO res) throws SQLException {
+    protected void saveCategoricalResult(Connection connection, ResultDTO res) throws SQLException {
 
         PreparedStatement insertStatResultPhenotypeCallSummaryStatement = insertCategoricalStatResultPhenotypeCallSummaryStatement;
 
-        for (ResultDTO res : getCategoricalResults(connection)) {
+        // Only save the phenotype call if significant
+        if (res.getNullTestPvalue() <= SIGNIFICANCE_THRESHOLD ||
+                res.getMalePvalue()!=null && res.getMalePvalue()<=SIGNIFICANCE_THRESHOLD ||
+                res.getFemalePvalue()!=null && res.getFemalePvalue()<=SIGNIFICANCE_THRESHOLD
+        ) {
 
-            // Only save the phenotype call if significant
-            if (res.getNullTestPvalue() <= SIGNIFICANCE_THRESHOLD ||
-                    res.getMalePvalue()!=null && res.getMalePvalue()<=SIGNIFICANCE_THRESHOLD ||
-                    res.getFemalePvalue()!=null && res.getFemalePvalue()<=SIGNIFICANCE_THRESHOLD
-                    ) {
+            // Effect is significant, find out which term to associate
 
-                // Effect is significant, find out which term to associate
+            Parameter parameter = parameterRepository.findById(res.getParameterId()).get();
 
-                Parameter parameter = parameterRepository.findById(res.getParameterId()).get();
+            // Get the abnormal term
 
-                // Get the abnormal term
+            insertPhenotypeCallSummaryStatement.setLong(1, res.getDataSourceId());
+            insertPhenotypeCallSummaryStatement.setLong(2, res.getProjectId());
+            insertPhenotypeCallSummaryStatement.setString(3, res.getGeneAcc());
+            insertPhenotypeCallSummaryStatement.setLong(4, res.getGeneDbId());
+            insertPhenotypeCallSummaryStatement.setString(5, res.getStrainAcc());
+            insertPhenotypeCallSummaryStatement.setLong(6, res.getStrainDbId());
+            insertPhenotypeCallSummaryStatement.setString(7, res.getAlleleAcc());
+            insertPhenotypeCallSummaryStatement.setLong(8, res.getAlleleDbId());
+            insertPhenotypeCallSummaryStatement.setString(9, res.getSex().name());
+            insertPhenotypeCallSummaryStatement.setString(10, res.getZygosity().name());
+            insertPhenotypeCallSummaryStatement.setLong(11, res.getParameterId());
+            insertPhenotypeCallSummaryStatement.setLong(12, res.getProcedureId());
+            insertPhenotypeCallSummaryStatement.setLong(13, res.getPipelineId());
+            insertPhenotypeCallSummaryStatement.setLong(18, res.getCenterId());
+            insertPhenotypeCallSummaryStatement.setString(19, res.getColonyId());
 
-                insertPhenotypeCallSummaryStatement.setLong(1, res.getDataSourceId());
-                insertPhenotypeCallSummaryStatement.setLong(2, res.getProjectId());
-                insertPhenotypeCallSummaryStatement.setString(3, res.getGeneAcc());
-                insertPhenotypeCallSummaryStatement.setLong(4, res.getGeneDbId());
-                insertPhenotypeCallSummaryStatement.setString(5, res.getStrainAcc());
-                insertPhenotypeCallSummaryStatement.setLong(6, res.getStrainDbId());
-                insertPhenotypeCallSummaryStatement.setString(7, res.getAlleleAcc());
-                insertPhenotypeCallSummaryStatement.setLong(8, res.getAlleleDbId());
-                insertPhenotypeCallSummaryStatement.setString(9, res.getSex().name());
-                insertPhenotypeCallSummaryStatement.setString(10, res.getZygosity().name());
-                insertPhenotypeCallSummaryStatement.setLong(11, res.getParameterId());
-                insertPhenotypeCallSummaryStatement.setLong(12, res.getProcedureId());
-                insertPhenotypeCallSummaryStatement.setLong(13, res.getPipelineId());
-                insertPhenotypeCallSummaryStatement.setLong(18, res.getCenterId());
-                insertPhenotypeCallSummaryStatement.setString(19, res.getColonyId());
+            // Set the id of the stats result which is producing the phenotype call
+            insertStatResultPhenotypeCallSummaryStatement.setLong(1, res.getResultId());
+            try {
+
+                if (
+                        ((res.getFemalePvalue() == null || res.getFemalePvalue() >= SIGNIFICANCE_THRESHOLD) &&
+                                (res.getMalePvalue() == null || res.getMalePvalue() >= SIGNIFICANCE_THRESHOLD) &&
+                                res.getNullTestPvalue() <= SIGNIFICANCE_THRESHOLD) &&
+                                ! sexSpecificParameters.contains(res.getParameterStableId())
+                ) {
+                    OntologyTerm term = mpTermService.getMPTerm(parameter.getStableId(), res, null, connection, SIGNIFICANCE_THRESHOLD, true);
+                    if (term == null) {
+                        String msg = "No term could be found to associate for category " + res.getCategoryA() + " for parameter: " + parameter.getStableId() + " (" + res.getParameterId() + ")";
+                        if (!alreadyReported.contains(msg)) {
+                            alreadyReported.add(msg);
+                            logger.warn(msg);
+                        }
+                        return;
+                    }
+
+                    logger.debug("Assigning term " + term.getId().getAccession() + " for parameter: " + parameter.getStableId() + " (" + res.getParameterId() + ")");
 
 
-                // Set the id of the stats result which is producing the phenotype call
-                insertStatResultPhenotypeCallSummaryStatement.setLong(1, res.getResultId());
-                try {
+                    // Individually, not significant, but combined is
+                    insertPhenotypeCallSummaryStatement.setString(9, SexType.both.getName());
+                    insertPhenotypeCallSummaryStatement.setString(14, term.getId().getAccession());
+                    insertPhenotypeCallSummaryStatement.setLong(15, term.getId().getDatabaseId());
+                    insertPhenotypeCallSummaryStatement.setDouble(16, res.getNullTestPvalue());
+                    insertPhenotypeCallSummaryStatement.setDouble(17, res.getGenotypeEffectSize());
+                    if (SAVE_RESULTS) insertPhenotypeCallSummaryStatement.executeUpdate();
 
-                    if (((res.getFemalePvalue() == null || res.getFemalePvalue() >= SIGNIFICANCE_THRESHOLD) &&
-                         (res.getMalePvalue() == null || res.getMalePvalue() >= SIGNIFICANCE_THRESHOLD) &&
-                         res.getNullTestPvalue() <= SIGNIFICANCE_THRESHOLD) &&
-                         ! sexSpecificParameters.contains(res.getParameterStableId()))
-                    {
-                        OntologyTerm term = mpTermService.getMPTerm(parameter.getStableId(), res, null, connection, SIGNIFICANCE_THRESHOLD, true);
+                    ResultSet rs = insertPhenotypeCallSummaryStatement.getGeneratedKeys();
+                    while (rs.next()) {
+                        insertStatResultPhenotypeCallSummaryStatement.setLong(2, rs.getLong(1));
+                        if (SAVE_RESULTS) insertStatResultPhenotypeCallSummaryStatement.executeUpdate();
+                    }
+
+                } else {
+
+                    // If female p_value is significant, add a female phenotype call
+                    if (res.getFemalePvalue() != null && res.getFemalePvalue() <= SIGNIFICANCE_THRESHOLD) {
+
+                        res.setSex(SexType.female);
+                        OntologyTerm term = mpTermService.getMPTerm(parameter.getStableId(), res, SexType.female, connection, SIGNIFICANCE_THRESHOLD, true);
                         if (term == null) {
                             String msg = "No term could be found to associate for category " + res.getCategoryA() + " for parameter: " + parameter.getStableId() + " (" + res.getParameterId() + ")";
-                            if (! alreadyReported.contains(msg)) {
+                            if (!alreadyReported.contains(msg)) {
                                 alreadyReported.add(msg);
                                 logger.warn(msg);
                             }
-                            continue;
+                            return;
                         }
 
-                        logger.debug("Assigning term " + term.getId().getAccession() + " for parameter: " + parameter.getStableId() + " (" + res.getParameterId() + ")");
+                        logger.debug("Assigning female specific term " + term.getId().getAccession() + " for parameter: " + parameter.getStableId() + " (" + res.getParameterId() + ")");
 
-
-                        // Individually, not significant, but combined is
-                        insertPhenotypeCallSummaryStatement.setString(9, SexType.both.getName());
+                        insertPhenotypeCallSummaryStatement.setString(9, SexType.female.getName());
                         insertPhenotypeCallSummaryStatement.setString(14, term.getId().getAccession());
                         insertPhenotypeCallSummaryStatement.setLong(15, term.getId().getDatabaseId());
-                        insertPhenotypeCallSummaryStatement.setDouble(16, res.getNullTestPvalue());
-                        insertPhenotypeCallSummaryStatement.setDouble(17, res.getGenotypeEffectSize());
+                        insertPhenotypeCallSummaryStatement.setDouble(16, res.getFemalePvalue());
+                        insertPhenotypeCallSummaryStatement.setDouble(17, res.getFemaleEffectSize());
                         if (SAVE_RESULTS) insertPhenotypeCallSummaryStatement.executeUpdate();
 
                         ResultSet rs = insertPhenotypeCallSummaryStatement.getGeneratedKeys();
@@ -851,71 +879,40 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
                             insertStatResultPhenotypeCallSummaryStatement.setLong(2, rs.getLong(1));
                             if (SAVE_RESULTS) insertStatResultPhenotypeCallSummaryStatement.executeUpdate();
                         }
-                    } else {
+                    }
 
-                        // If female p_value is significant, add a female phenotype call
-                        if (res.getFemalePvalue() != null && res.getFemalePvalue() <= SIGNIFICANCE_THRESHOLD) {
+                    // If male p_value is significant, add a female phenotype call
+                    if (res.getMalePvalue() != null && res.getMalePvalue() <= SIGNIFICANCE_THRESHOLD) {
 
-                            res.setSex(SexType.female);
-                            OntologyTerm term = mpTermService.getMPTerm(parameter.getStableId(), res, SexType.female, connection, SIGNIFICANCE_THRESHOLD, true);
-                            if (term == null) {
-                                String msg = "No term could be found to associate for category " + res.getCategoryA() + " for parameter: " + parameter.getStableId() + " (" + res.getParameterId() + ")";
-                                if (!alreadyReported.contains(msg)) {
-                                    alreadyReported.add(msg);
-                                    logger.warn(msg);
-                                }
-                                continue;
+                        res.setSex(SexType.male);
+                        OntologyTerm term = mpTermService.getMPTerm(parameter.getStableId(), res, SexType.male, connection, SIGNIFICANCE_THRESHOLD, true);
+                        if (term == null) {
+                            String msg = "No term could be found to associate for category " + res.getCategoryA() + " for parameter: " + parameter.getStableId() + " (" + res.getParameterId() + ")";
+                            if (!alreadyReported.contains(msg)) {
+                                alreadyReported.add(msg);
+                                logger.warn(msg);
                             }
-
-                            logger.debug("Assigning female specific term " + term.getId().getAccession() + " for parameter: " + parameter.getStableId() + " (" + res.getParameterId() + ")");
-
-                            insertPhenotypeCallSummaryStatement.setString(9, SexType.female.getName());
-                            insertPhenotypeCallSummaryStatement.setString(14, term.getId().getAccession());
-                            insertPhenotypeCallSummaryStatement.setLong(15, term.getId().getDatabaseId());
-                            insertPhenotypeCallSummaryStatement.setDouble(16, res.getFemalePvalue());
-                            insertPhenotypeCallSummaryStatement.setDouble(17, res.getFemaleEffectSize());
-                            if (SAVE_RESULTS) insertPhenotypeCallSummaryStatement.executeUpdate();
-
-                            ResultSet rs = insertPhenotypeCallSummaryStatement.getGeneratedKeys();
-                            while (rs.next()) {
-                                insertStatResultPhenotypeCallSummaryStatement.setLong(2, rs.getLong(1));
-                                if (SAVE_RESULTS) insertStatResultPhenotypeCallSummaryStatement.executeUpdate();
-                            }
+                            return;
                         }
 
-                        // If male p_value is significant, add a female phenotype call
-                        if (res.getMalePvalue() != null && res.getMalePvalue() <= SIGNIFICANCE_THRESHOLD) {
+                        logger.debug("Assigning female specific term " + term.getId().getAccession() + " for parameter: " + parameter.getStableId() + " (" + res.getParameterId() + ")");
 
-                            res.setSex(SexType.male);
-                            OntologyTerm term = mpTermService.getMPTerm(parameter.getStableId(), res, SexType.male, connection, SIGNIFICANCE_THRESHOLD, true);
-                            if (term == null) {
-                                String msg = "No term could be found to associate for category " + res.getCategoryA() + " for parameter: " + parameter.getStableId() + " (" + res.getParameterId() + ")";
-                                if (!alreadyReported.contains(msg)) {
-                                    alreadyReported.add(msg);
-                                    logger.warn(msg);
-                                }
-                                continue;
-                            }
+                        insertPhenotypeCallSummaryStatement.setString(9, SexType.male.getName());
+                        insertPhenotypeCallSummaryStatement.setString(14, term.getId().getAccession());
+                        insertPhenotypeCallSummaryStatement.setLong(15, term.getId().getDatabaseId());
+                        insertPhenotypeCallSummaryStatement.setDouble(16, res.getMalePvalue());
+                        insertPhenotypeCallSummaryStatement.setDouble(17, res.getMaleEffectSize());
+                        if (SAVE_RESULTS) insertPhenotypeCallSummaryStatement.executeUpdate();
 
-                            logger.debug("Assigning female specific term " + term.getId().getAccession() + " for parameter: " + parameter.getStableId() + " (" + res.getParameterId() + ")");
-
-                            insertPhenotypeCallSummaryStatement.setString(9, SexType.male.getName());
-                            insertPhenotypeCallSummaryStatement.setString(14, term.getId().getAccession());
-                            insertPhenotypeCallSummaryStatement.setLong(15, term.getId().getDatabaseId());
-                            insertPhenotypeCallSummaryStatement.setDouble(16, res.getMalePvalue());
-                            insertPhenotypeCallSummaryStatement.setDouble(17, res.getMaleEffectSize());
-                            if (SAVE_RESULTS) insertPhenotypeCallSummaryStatement.executeUpdate();
-
-                            ResultSet rs = insertPhenotypeCallSummaryStatement.getGeneratedKeys();
-                            while (rs.next()) {
-                                insertStatResultPhenotypeCallSummaryStatement.setLong(2, rs.getLong(1));
-                                if (SAVE_RESULTS) insertStatResultPhenotypeCallSummaryStatement.executeUpdate();
-                            }
+                        ResultSet rs = insertPhenotypeCallSummaryStatement.getGeneratedKeys();
+                        while (rs.next()) {
+                            insertStatResultPhenotypeCallSummaryStatement.setLong(2, rs.getLong(1));
+                            if (SAVE_RESULTS) insertStatResultPhenotypeCallSummaryStatement.executeUpdate();
                         }
                     }
-                } catch (Exception e) {
-                    logger.warn("Error processing result " + res, e);
                 }
+            } catch (Exception e) {
+                logger.warn("Error processing result " + res, e);
             }
         }
     }
@@ -1039,11 +1036,7 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 			insertPhenotypeCallSummaryStatement.setString(19, res.getColonyId());
 
 			if (SAVE_RESULTS) insertPhenotypeCallSummaryStatement.executeUpdate();
-
 		}
-
-
-
 	}
 
 	/**
@@ -1873,7 +1866,7 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 
 
 
-    private void initializeSexSpecificMap(Connection connection) throws SQLException {
+    public void initializeSexSpecificMap(Connection connection) throws SQLException {
 
         // Don't re-initialize
         if (sexSpecificParameters != null) {

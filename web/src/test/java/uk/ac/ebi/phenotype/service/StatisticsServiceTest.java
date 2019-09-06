@@ -20,73 +20,31 @@
  * This test class is intended to run healthchecks against the observation table.
  */
 
-package uk.ac.ebi.phenotype.api;
+package uk.ac.ebi.phenotype.service;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
-import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
-
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.ebi.phenotype.web.dao.StatisticsService;
 
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
-@ContextConfiguration(loader=AnnotationConfigContextLoader.class)
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = {ServiceTestConfig.class})
 public class StatisticsServiceTest {
 
-	// Spring Configuration class
-	// Only wire up the observation service for this test suite
-	@Configuration
-	@ComponentScan(
-		basePackages = {"org.mousephenotype.cda.solr.service"},
-		useDefaultFilters = false,
-		includeFilters = { @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {GeneService.class})
-		})
-	static class ContextConfiguration {
 
-		@NotNull
-		@Value("${base_url}")
-		private String baseUrl;
+	@Autowired
+	StatisticsService statisticsService;
 
-		@NotNull
-		@Value("${solr.host}")
-		private String solrBaseUrl;
-
-		@Bean(name = "geneCore")
-		HttpSolrClient getSolrCore() {
-			return new HttpSolrClient(solrBaseUrl + "/gene");
-		}
-
-		@Bean
-		public static PropertySourcesPlaceholderConfigurer propertyConfigurer() {
-			return new PropertySourcesPlaceholderConfigurer();
-		}
-
-	}
-
-	String statisticsUrl="http://ves-ebi-d1.ebi.ac.uk:8091/";
-	StatisticsService statsService=new StatisticsService(statisticsUrl);
 
 	@Test
 	public void testGetSpecificExperimentFromRest() throws SolrServerException, IOException {
@@ -105,7 +63,7 @@ public class StatisticsServiceTest {
 		
 		List<String> zyList=new ArrayList<>();
 		zyList.add(zygosity);
-		ExperimentDTO experiment = statsService.getSpecificExperimentDTOFromRest(parameter_stable_id, pipeline_stable_id, geneAccession, genderList, zyList, phenotyping_center, strain_accession_id, metadata_group, allele_accession_id);
+		ExperimentDTO experiment = statisticsService.getSpecificExperimentDTOFromRest(parameter_stable_id, pipeline_stable_id, geneAccession, genderList, zyList, phenotyping_center, strain_accession_id, metadata_group, allele_accession_id);
 		
 		System.out.println("Gene symbol is: " + experiment.getGeneMarker());
 		assertTrue(experiment.getGeneMarker()!=null);
@@ -130,7 +88,7 @@ public class StatisticsServiceTest {
 		
 		List<String> zyList=new ArrayList<>();
 		zyList.add(zygosity);
-		ExperimentDTO experiment = statsService.getSpecificExperimentDTOFromRest(parameter_stable_id, pipeline_stable_id, geneAccession, genderList, zyList, phenotyping_center, strain_accession_id, metadata_group, allele_accession_id);
+		ExperimentDTO experiment = statisticsService.getSpecificExperimentDTOFromRest(parameter_stable_id, pipeline_stable_id, geneAccession, genderList, zyList, phenotyping_center, strain_accession_id, metadata_group, allele_accession_id);
 		assertTrue(experiment==null);		
 	}
 	
@@ -153,7 +111,7 @@ public class StatisticsServiceTest {
 		
 		List<String> zyList=new ArrayList<>();
 		zyList.add(zygosity);
-		ExperimentDTO experiment = statsService.getSpecificExperimentDTOFromRest(parameter_stable_id, pipeline_stable_id, geneAccession, genderList, zyList, phenotyping_center, strain_accession_id, metadata_group, allele_accession_id);
+		ExperimentDTO experiment = statisticsService.getSpecificExperimentDTOFromRest(parameter_stable_id, pipeline_stable_id, geneAccession, genderList, zyList, phenotyping_center, strain_accession_id, metadata_group, allele_accession_id);
 		assertTrue(experiment!=null);		
 	}
 }

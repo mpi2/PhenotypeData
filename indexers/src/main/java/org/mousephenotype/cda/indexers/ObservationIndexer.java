@@ -71,16 +71,16 @@ import java.util.*;
 @EnableAutoConfiguration
 public class ObservationIndexer extends AbstractIndexer implements CommandLineRunner {
 
-	@Value("${experimenterIdMap}")
-	String experimenterIdMap;
+    @Value("${experimenterIdMap}")
+    String experimenterIdMap;
 
 
 	private final Logger logger = LoggerFactory.getLogger(ObservationIndexer.class);
 
 	private final List<String> MALE_FERTILITY_PARAMETERS   = Arrays.asList("IMPC_FER_001_001", "IMPC_FER_006_001",
-																	   "IMPC_FER_007_001", "IMPC_FER_008_001", "IMPC_FER_009_001");
+                                                                             "IMPC_FER_007_001", "IMPC_FER_008_001", "IMPC_FER_009_001");
 	private final List<String> FEMALE_FERTILITY_PARAMETERS = Arrays.asList("IMPC_FER_019_001", "IMPC_FER_010_001",
-																				 "IMPC_FER_011_001", "IMPC_FER_012_001", "IMPC_FER_013_001");
+                                                                               "IMPC_FER_011_001", "IMPC_FER_012_001", "IMPC_FER_013_001");
 
 
 	private Map<Long, String>                         anatomyMap              = new HashMap<>();
@@ -117,90 +117,90 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	{
 		super(komp2DataSource, ontologyTermRepository);
 		this.experimentCore = experimentCore;
-	}
+    }
 
-	@Override
-	public RunStatus validateBuild() throws IndexerException {
+    @Override
+    public RunStatus validateBuild() throws IndexerException {
 		return super.validateBuild(experimentCore);
-	}
+    }
 
 	public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(ObservationIndexer.class, args);
         context.close();
-	}
+    }
 
 
-	@Override
+    @Override
 	public RunStatus run() throws IndexerException, SQLException {
-		weightMap = new WeightMap(komp2DataSource);
-		long count = 0;
-		RunStatus runStatus = new RunStatus();
-		long start = System.currentTimeMillis();
+        weightMap = new WeightMap(komp2DataSource);
+        long count = 0;
+        RunStatus runStatus = new RunStatus();
+        long start = System.currentTimeMillis();
 
 		try (Connection connection = komp2DataSource.getConnection()) {
 
-			ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
-			emapaParser = ontologyParserFactory.getEmapaParser();
-			maParser = ontologyParserFactory.getMaParser();
-			logger.info("  populating supporting maps");
-			pipelineMap = IndexerMap.getImpressPipelines(connection);
-			procedureMap = IndexerMap.getImpressProcedures(connection);
-			parameterMap = IndexerMap.getImpressParameters(connection);
-			logger.debug(" IMPReSS maps\n  Pipeline: {}, Procedure: {}, Parameter: {} " + pipelineMap.size(), procedureMap.size(), parameterMap.size());
+            ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
+            emapaParser = ontologyParserFactory.getEmapaParser();
+            maParser = ontologyParserFactory.getMaParser();
+            logger.info("  populating supporting maps");
+            pipelineMap = IndexerMap.getImpressPipelines(connection);
+            procedureMap = IndexerMap.getImpressProcedures(connection);
+            parameterMap = IndexerMap.getImpressParameters(connection);
+            logger.debug(" IMPReSS maps\n  Pipeline: {}, Procedure: {}, Parameter: {} " + pipelineMap.size(), procedureMap.size(), parameterMap.size());
 
-			logger.debug("  populating ontology entity map");
-			ontologyEntityMap = IndexerMap.getOntologyParameterSubTerms(connection);
-			logger.debug(" ontology entity map size: " + ontologyEntityMap.size());
+            logger.debug("  populating ontology entity map");
+            ontologyEntityMap = IndexerMap.getOntologyParameterSubTerms(connection);
+            logger.debug(" ontology entity map size: " + ontologyEntityMap.size());
 
-			logger.debug("  populating datasource map");
+            logger.debug("  populating datasource map");
 			populateDatasourceDataMap(connection);
 
-			logger.debug("  populating experimenter map");
+            logger.debug("  populating experimenter map");
 			populateExperimenterDataMap(connection);
-			logger.debug("  map size: " + experimenterData.size());
+            logger.debug("  map size: " + experimenterData.size());
 
-			logger.debug("  populating categorynames map");
+            logger.debug("  populating categorynames map");
 			populateCategoryNamesDataMap(connection);
-			logger.debug("  map size: " + translateCategoryNames.size());
+            logger.debug("  map size: " + translateCategoryNames.size());
 
-			logger.debug("  populating biological data map");
+            logger.debug("  populating biological data map");
 			populateBiologicalDataMap(connection);
-			logger.debug("  map size: " + biologicalData.size());
+            logger.debug("  map size: " + biologicalData.size());
 
-			logger.debug("  populating line data map");
+            logger.debug("  populating line data map");
 			populateLineBiologicalDataMap(connection);
-			logger.debug("  map size: " + lineBiologicalData.size());
+            logger.debug("  map size: " + lineBiologicalData.size());
 
-			logger.debug("  populating parameter association map");
+            logger.debug("  populating parameter association map");
 			populateParameterAssociationMap(connection);
-			logger.debug("  map size: " + parameterAssociationMap.size());
+            logger.debug("  map size: " + parameterAssociationMap.size());
 
-			logger.debug("  populating emap to emapa map");
-			populateEmap2EmapaMap();
-			logger.debug(" map size: "+ emap2emapaIdMap.size());
+            logger.debug("  populating emap to emapa map");
+            populateEmap2EmapaMap();
+            logger.debug(" map size: " + emap2emapaIdMap.size());
 
-			logger.debug("  populating anatomy map");
+            logger.debug("  populating anatomy map");
 			populateAnatomyMap(connection);
-			logger.debug("  map size: " + anatomyMap.size());
+            logger.debug("  map size: " + anatomyMap.size());
 
-			logger.info("  maps populated");
+            logger.info("  maps populated");
 
 			count = populateObservationSolrCore(connection, runStatus);
 
-		} catch (SolrServerException | SQLException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e) {
-			e.printStackTrace();
-			throw new IndexerException(e);
-		}
+        } catch (SolrServerException | SQLException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e) {
+            e.printStackTrace();
+            throw new IndexerException(e);
+        }
 
-		logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
-		return runStatus;
-	}
+        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+        return runStatus;
+    }
 
 	public long populateObservationSolrCore(Connection connection, RunStatus runStatus) throws IOException, SolrServerException {
 
 		long count = 0L;
-		final int MAX_MISSING_BIOLOGICAL_DATA_ERROR_COUNT_DISPLAYED = 100;
-		int missingBiologicalDataErrorCount = 0;
+        final int MAX_MISSING_BIOLOGICAL_DATA_ERROR_COUNT_DISPLAYED = 100;
+        int missingBiologicalDataErrorCount = 0;
 
 		experimentCore.deleteByQuery("*:*");
 
@@ -214,16 +214,16 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
         observationQueries.add("SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, o.biological_sample_id, o.sequence_id as sequence_id ,e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, onto.term AS ontology_id, onto.term_value AS ontology_term FROM observation o INNER JOIN ontology_entity onto ON o.id=onto.ontology_observation_id INNER JOIN experiment_observation eo ON eo.observation_id=o.id INNER JOIN experiment e on eo.experiment_id=e.id WHERE o.missing=0");
 
         for (String query : observationQueries) {
+
             try (PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
                 p.setFetchSize(Integer.MIN_VALUE);
-                ResultSet r = p.executeQuery();
 
                 logger.debug("  QUERY START");		// 2019-08-16 16:57:05.782  INFO 32731 --- [           main] o.m.cda.indexers.ObservationIndexer      :   QUERY START
                 ResultSet r = p.executeQuery();
                 logger.debug("  QUERY END");		// 2019-08-16 16:57:05.791  INFO 32731 --- [           main] o.m.cda.indexers.ObservationIndexer      :   QUERY END
 
-                long       startTimestamp      = new Date().getTime();
+                long startTimestamp = new Date().getTime();
 
                 logger.info("  BEGIN processing experiments");
 
@@ -384,10 +384,9 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
                         addBiologicalInformation(o, b);
 
-                        o.setColonyId(b.colonyId);
                         o.setZygosity(b.zygosity);
                         o.setDateOfBirth(b.dateOfBirth);
-                        if(b.dateOfBirth!=null && dateOfExperiment !=null ){
+                        if (b.dateOfBirth != null && dateOfExperiment != null) {
 
                             Instant dob = b.dateOfBirth.toInstant();
                             Instant expDate = dateOfExperiment.toInstant();
@@ -500,9 +499,9 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
                         case ontological:
 
-                            if (ontologyEntityMap.containsKey(Long.parseInt(o.getId()))) {
+                            if (ontologyEntityMap.containsKey(Long.parseLong(o.getId()))) {
 
-                                List<OntologyBean> subOntBeans = ontologyEntityMap.get(Long.parseInt(o.getId()));
+                                List<OntologyBean> subOntBeans = ontologyEntityMap.get(Long.parseLong(o.getId()));
                                 for (OntologyBean bean : subOntBeans) {
                                     o.addSubTermId(bean.getId());
                                     o.addSubTermName(bean.getName());
@@ -567,22 +566,22 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
                     documentCount++;
 
-				try {
+                    try {
 
-					// 60 seconds between commits
-					experimentCore.addBean(o, 60000);
+                        // 60 seconds between commits
+                        experimentCore.addBean(o, 60000);
 
-				} catch (Exception e) {
+                    } catch (Exception e) {
 
-					logger.error("Failed to add experimentId: {}, dateOfBirth: {},  dateOfExperiment: {}, weightDate: {}. Reason: {}\nquery: {}",
-								 o.getExperimentId(),
-								 o.getDateOfBirthAsZonedDateTime() == null ? "null" : o.getDateOfBirthAsZonedDateTime().toString(),
-								 o.getDateOfExperimentAsZonedDateTime() == null ? "null" : o.getDateOfExperimentAsZonedDateTime().toString(),
-								 o.getWeightDateAsZonedDateTime() == null ? "null" : o.getWeightDateAsZonedDateTime().toString(),
-                                 e.getLocalizedMessage(),
-                                 query);
-					continue;
-				}
+                        logger.error("Failed to add experimentId: {}, dateOfBirth: {},  dateOfExperiment: {}, weightDate: {}. Reason: {}\nquery: {}",
+                                     o.getExperimentId(),
+                                     o.getDateOfBirthAsZonedDateTime() == null ? "null" : o.getDateOfBirthAsZonedDateTime().toString(),
+                                     o.getDateOfExperimentAsZonedDateTime() == null ? "null" : o.getDateOfExperimentAsZonedDateTime().toString(),
+                                     o.getWeightDateAsZonedDateTime() == null ? "null" : o.getWeightDateAsZonedDateTime().toString(),
+                                     e.getLocalizedMessage(),
+                                     query);
+                        continue;
+                    }
 
                     count++;
 
@@ -600,13 +599,14 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
                 e.printStackTrace();
                 System.out.println(" Big error :" + e.getMessage());
             }
-
-            if (missingBiologicalDataErrorCount > 0) {
-                logger.error("'Cannot find biological data for specimen id...' occurred " + missingBiologicalDataErrorCount + " times.");
-            }
-
-            return count;
         }
+
+        if (missingBiologicalDataErrorCount > 0) {
+            logger.error("'Cannot find biological data for specimen id...' occurred " + missingBiologicalDataErrorCount + " times.");
+        }
+
+        return count;
+    }
 
     private void addBiologicalInformation(ObservationDTOWrite o, BiologicalDataBean b) {
         o.setBiologicalModelId(b.biologicalModelId);
@@ -634,39 +634,38 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
     private void addAnatomyInfo(OntologyTermDTO term, ObservationDTOWrite doc) {
 
-		if (term != null) {
-			doc.getAnatomyId().add(term.getAccessionId());
-			doc.getAnatomyTerm().add(term.getName());
-			doc.getAnatomyTermSynonym().addAll(term.getSynonyms());
-			if (term.getTopLevelIds() != null) {
-				doc.setSelectedTopLevelAnatomyId(new ArrayList<>(term.getTopLevelIds()));
-				doc.setSelectedTopLevelAnatomyTerm(new ArrayList<>(term.getTopLevelNames()));
-			}
-			if (term.getIntermediateIds() != null) {
-				doc.setIntermediateAnatomyId(new ArrayList<>(term.getIntermediateIds()));
-				doc.setIntermediateAnatomyTerm(new ArrayList<>(term.getIntermediateNames()));
-			}
-		}
-	}
+        if (term != null) {
+            doc.getAnatomyId().add(term.getAccessionId());
+            doc.getAnatomyTerm().add(term.getName());
+            doc.getAnatomyTermSynonym().addAll(term.getSynonyms());
+            if (term.getTopLevelIds() != null) {
+                doc.setSelectedTopLevelAnatomyId(new ArrayList<>(term.getTopLevelIds()));
+                doc.setSelectedTopLevelAnatomyTerm(new ArrayList<>(term.getTopLevelNames()));
+            }
+            if (term.getIntermediateIds() != null) {
+                doc.setIntermediateAnatomyId(new ArrayList<>(term.getIntermediateIds()));
+                doc.setIntermediateAnatomyTerm(new ArrayList<>(term.getIntermediateNames()));
+            }
+        }
+    }
 
-	public static boolean isInteger(String s) {
-		try {
-			Integer.parseInt(s);
-		} catch (NullPointerException | NumberFormatException e) {
-			e.printStackTrace();
-			return false;
-		}
-		// only got here if we didn't return false
-		return true;
-	}
+    public static boolean isInteger(String s) {
+        try {
+            Integer.parseInt(s);
+        } catch (NullPointerException | NumberFormatException e) {
+            e.printStackTrace();
+            return false;
+        }
+        // only got here if we didn't return false
+        return true;
+    }
 
-	/**
-	 * Add all the relevant data required quickly looking up biological data
-	 * associated to a biological sample
-	 *
-	 * @throws SQLException
-	 *             when a database exception occurs
-	 */
+    /**
+     * Add all the relevant data required quickly looking up biological data
+     * associated to a biological sample
+     *
+     * @throws SQLException when a database exception occurs
+     */
 	void populateBiologicalDataMap(Connection connection) throws SQLException {
 
         String query = "SELECT CAST(bs.id AS CHAR) as biological_sample_id, bs.organisation_id as phenotyping_center_id, "
@@ -691,66 +690,65 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
         try (PreparedStatement p = connection.prepareStatement(query)) {
 
-			ResultSet resultSet = p.executeQuery();
+            ResultSet resultSet = p.executeQuery();
 
             while (resultSet.next()) {
                 BiologicalDataBean b = new BiologicalDataBean();
 
-				b.alleleAccession = resultSet.getString("allele_accession");
-				b.alleleSymbol = resultSet.getString("allele_symbol");
-				b.biologicalModelId = resultSet.getInt("biological_model_id");
-				b.biologicalSampleId = resultSet.getInt("biological_sample_id");
-				b.colonyId = resultSet.getString("colony_id");
+                b.alleleAccession = resultSet.getString("allele_accession");
+                b.alleleSymbol = resultSet.getString("allele_symbol");
+                b.biologicalModelId = resultSet.getLong("biological_model_id");
+                b.biologicalSampleId = resultSet.getLong("biological_sample_id");
+                b.colonyId = resultSet.getString("colony_id");
 
 				String rawDOB = null;
 
-				try {
+                try {
 					rawDOB = resultSet.getString("date_of_birth");
 
 					DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT_OPTIONAL_MILLISECONDS);
 					b.dateOfBirth = ZonedDateTime.parse(rawDOB, formatter.withZone(ZoneId.of("UTC")));
 
-				} catch (NullPointerException e) {
+                } catch (NullPointerException e) {
 
-					b.dateOfBirth = null;
-					logger.debug("  No date of birth set for specimen external ID: {}",
-								 resultSet.getString("external_sample_id"));
+                    b.dateOfBirth = null;
+                    logger.debug("  No date of birth set for specimen external ID: {}",
+                                 resultSet.getString("external_sample_id"));
 
 				} catch (DateTimeParseException e) {
 
 					DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT_OPTIONAL_MILLISECONDS);
 					b.dateOfBirth = ZonedDateTime.parse(rawDOB, formatter.withZone(ZoneId.of("UTC")));
-				}
+                }
 
-				b.externalSampleId = resultSet.getString("external_sample_id");
-				b.geneAcc = resultSet.getString("acc");
-				b.geneSymbol = resultSet.getString("symbol");
+                b.externalSampleId = resultSet.getString("external_sample_id");
+                b.geneAcc = resultSet.getString("acc");
+                b.geneSymbol = resultSet.getString("symbol");
 				b.phenotypingCenterId = resultSet.getLong("phenotyping_center_id");
-				b.phenotypingCenterName = resultSet.getString("phenotyping_center_name");
-				b.sampleGroup = resultSet.getString("sample_group");
-				b.sex = resultSet.getString("sex");
-				b.strainAcc = resultSet.getString("strain_acc");
-				b.strainName = resultSet.getString("strain_name");
-				b.geneticBackground = resultSet.getString("genetic_background");
-				b.allelicComposition = resultSet.getString("allelic_composition");
-				b.zygosity = resultSet.getString("zygosity");
+                b.phenotypingCenterName = resultSet.getString("phenotyping_center_name");
+                b.sampleGroup = resultSet.getString("sample_group");
+                b.sex = resultSet.getString("sex");
+                b.strainAcc = resultSet.getString("strain_acc");
+                b.strainName = resultSet.getString("strain_name");
+                b.geneticBackground = resultSet.getString("genetic_background");
+                b.allelicComposition = resultSet.getString("allelic_composition");
+                b.zygosity = resultSet.getString("zygosity");
 				b.productionCenterId = resultSet.getLong("production_center_id");
-				b.productionCenterName = resultSet.getString("production_center_name");
-				b.litterId = resultSet.getString("litter_id");
+                b.productionCenterName = resultSet.getString("production_center_name");
+                b.litterId = resultSet.getString("litter_id");
 
 
-				biologicalData.put(resultSet.getString("biological_sample_id"), b);
-			}
-		}
-	}
+                biologicalData.put(resultSet.getString("biological_sample_id"), b);
+            }
+        }
+    }
 
-	/**
-	 * Add all the relevant data required quickly looking up biological data
-	 * associated to a biological model (really an experiment)
-	 *
-	 * @throws SQLException
-	 *             when a database exception occurs
-	 */
+    /**
+     * Add all the relevant data required quickly looking up biological data
+     * associated to a biological model (really an experiment)
+     *
+     * @throws SQLException when a database exception occurs
+     */
 	void populateLineBiologicalDataMap(Connection connection) throws SQLException {
 
         String query = "SELECT e.id as experiment_id, e.colony_id, e.biological_model_id, "
@@ -774,229 +772,227 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
                 BiologicalDataBean b = new BiologicalDataBean();
 
-				b.colonyId = resultSet.getString("colony_id");
+                b.colonyId = resultSet.getString("colony_id");
 				b.phenotypingCenterId = resultSet.getLong("phenotyping_center_id");
-				b.phenotypingCenterName = resultSet.getString("phenotyping_center_name");
-				b.strainAcc = resultSet.getString("strain_acc");
-				b.strainName = resultSet.getString("strain_name");
-				b.geneticBackground = resultSet.getString("genetic_background");
-				b.allelicComposition = resultSet.getString("allelic_composition");
-				b.alleleAccession = resultSet.getString("allele_accession");
-				b.alleleSymbol = resultSet.getString("allele_symbol");
+                b.phenotypingCenterName = resultSet.getString("phenotyping_center_name");
+                b.strainAcc = resultSet.getString("strain_acc");
+                b.strainName = resultSet.getString("strain_name");
+                b.geneticBackground = resultSet.getString("genetic_background");
+                b.allelicComposition = resultSet.getString("allelic_composition");
+                b.alleleAccession = resultSet.getString("allele_accession");
+                b.alleleSymbol = resultSet.getString("allele_symbol");
 				b.biologicalModelId = resultSet.getLong("biological_model_id");
-				b.geneAcc = resultSet.getString("acc");
-				b.geneSymbol = resultSet.getString("symbol");
+                b.geneAcc = resultSet.getString("acc");
+                b.geneSymbol = resultSet.getString("symbol");
 
-				if (b.alleleAccession == null && b.colonyId != null) {
-					// Override the biological model with one that has the
-					// correct gene/allele/strain
-					String query2 = "SELECT DISTINCT bm.id as biological_model_id, "
-							+ " (select distinct allele_acc from biological_model_allele bma WHERE bma.biological_model_id=bm.id) as allele_accession, "
-							+ " (select distinct a.symbol from biological_model_allele bma INNER JOIN allele a on (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id) WHERE bma.biological_model_id=bm.id) as allele_symbol, "
-							+ " (select distinct gf_acc from biological_model_genomic_feature bmgf WHERE bmgf.biological_model_id=bm.id) as acc, "
-							+ " (select distinct gf.symbol from biological_model_genomic_feature bmgf INNER JOIN genomic_feature gf on gf.acc=bmgf.gf_acc WHERE bmgf.biological_model_id=bm.id)  as symbol, "
-							+ " strain.acc as strain_acc, strain.name as strain_name, bm.genetic_background, bm.allelic_composition "
-							+ " FROM live_sample ls "
-							+ " INNER JOIN biological_model_sample bms ON bms.biological_sample_id=ls.id "
-							+ " INNER JOIN biological_model bm ON bm.id=bms.biological_model_id "
-							+ " INNER JOIN biological_model_strain bm_strain ON bm_strain.biological_model_id=bm.id "
-							+ " INNER JOIN strain strain ON strain.acc=bm_strain.strain_acc "
-							+ " WHERE bm.allelic_composition !='' AND ls.colony_id = ? LIMIT 1 ";
-					try (PreparedStatement p2 = connection.prepareStatement(query2)) {
-						p2.setString(1, resultSet.getString("colony_id"));
-						ResultSet resultSet2 = p2.executeQuery();
-						resultSet2.next();
-						b.strainAcc = resultSet2.getString("strain_acc");
-						b.strainName = resultSet2.getString("strain_name");
-						b.geneticBackground = resultSet2.getString("genetic_background");
-						b.allelicComposition = resultSet.getString("allelic_composition");
-						b.alleleAccession = resultSet2.getString("allele_accession");
-						b.alleleSymbol = resultSet2.getString("allele_symbol");
+                if (b.alleleAccession == null && b.colonyId != null) {
+                    // Override the biological model with one that has the
+                    // correct gene/allele/strain
+                    String query2 = "SELECT DISTINCT bm.id as biological_model_id, "
+                            + " (select distinct allele_acc from biological_model_allele bma WHERE bma.biological_model_id=bm.id) as allele_accession, "
+                            + " (select distinct a.symbol from biological_model_allele bma INNER JOIN allele a on (a.acc=bma.allele_acc AND a.db_id=bma.allele_db_id) WHERE bma.biological_model_id=bm.id) as allele_symbol, "
+                            + " (select distinct gf_acc from biological_model_genomic_feature bmgf WHERE bmgf.biological_model_id=bm.id) as acc, "
+                            + " (select distinct gf.symbol from biological_model_genomic_feature bmgf INNER JOIN genomic_feature gf on gf.acc=bmgf.gf_acc WHERE bmgf.biological_model_id=bm.id)  as symbol, "
+                            + " strain.acc as strain_acc, strain.name as strain_name, bm.genetic_background, bm.allelic_composition "
+                            + " FROM live_sample ls "
+                            + " INNER JOIN biological_model_sample bms ON bms.biological_sample_id=ls.id "
+                            + " INNER JOIN biological_model bm ON bm.id=bms.biological_model_id "
+                            + " INNER JOIN biological_model_strain bm_strain ON bm_strain.biological_model_id=bm.id "
+                            + " INNER JOIN strain strain ON strain.acc=bm_strain.strain_acc "
+                            + " WHERE bm.allelic_composition !='' AND ls.colony_id = ? LIMIT 1 ";
+                    try (PreparedStatement p2 = connection.prepareStatement(query2)) {
+                        p2.setString(1, resultSet.getString("colony_id"));
+                        ResultSet resultSet2 = p2.executeQuery();
+                        resultSet2.next();
+                        b.strainAcc = resultSet2.getString("strain_acc");
+                        b.strainName = resultSet2.getString("strain_name");
+                        b.geneticBackground = resultSet2.getString("genetic_background");
+                        b.allelicComposition = resultSet.getString("allelic_composition");
+                        b.alleleAccession = resultSet2.getString("allele_accession");
+                        b.alleleSymbol = resultSet2.getString("allele_symbol");
 						b.biologicalModelId = resultSet2.getLong("biological_model_id");
-						b.geneAcc = resultSet2.getString("acc");
-						b.geneSymbol = resultSet2.getString("symbol");
-					}
-				}
+                        b.geneAcc = resultSet2.getString("acc");
+                        b.geneSymbol = resultSet2.getString("symbol");
+                    }
+                }
 
                 lineBiologicalData.put(resultSet.getString("experiment_id"), b);
             }
         }
     }
 
-	/**
-	 * Add all the relevant data required for translating the category names in
-	 * the cases where the category names are numerals, but the actual name is
-	 * in the description field
-	 *
-	 * @throws SQLException
-	 *             when a database exception occurs
-	 */
+    /**
+     * Add all the relevant data required for translating the category names in
+     * the cases where the category names are numerals, but the actual name is
+     * in the description field
+     *
+     * @throws SQLException when a database exception occurs
+     */
 	void populateCategoryNamesDataMap(Connection connection) throws SQLException {
 
-		String query = "SELECT pp.stable_id, ppo.name, ppo.description FROM phenotype_parameter pp "
-				+ "INNER JOIN phenotype_parameter_lnk_option pplo ON pp.id=pplo.parameter_id "
-				+ "INNER JOIN phenotype_parameter_option ppo ON ppo.id=pplo.option_id "
-				+ "WHERE ppo.name NOT REGEXP '^[a-zA-Z]' AND ppo.description!='' ";
+        String query = "SELECT pp.stable_id, ppo.name, ppo.description FROM phenotype_parameter pp "
+                + "INNER JOIN phenotype_parameter_lnk_option pplo ON pp.id=pplo.parameter_id "
+                + "INNER JOIN phenotype_parameter_option ppo ON ppo.id=pplo.option_id "
+                + "WHERE ppo.name NOT REGEXP '^[a-zA-Z]' AND ppo.description!='' ";
 
-		try (PreparedStatement p = connection.prepareStatement(query)) {
+        try (PreparedStatement p = connection.prepareStatement(query)) {
 
-			ResultSet resultSet = p.executeQuery();
+            ResultSet resultSet = p.executeQuery();
 
-			while (resultSet.next()) {
+            while (resultSet.next()) {
 
-				String stableId = resultSet.getString("stable_id");
-				logger.debug("  parameter_stable_id for numeric category: {}", stableId);
+                String stableId = resultSet.getString("stable_id");
+                logger.debug("  parameter_stable_id for numeric category: {}", stableId);
 
-				if (!translateCategoryNames.containsKey(stableId)) {
-					translateCategoryNames.put(stableId, new HashMap<>());
-				}
+                if (!translateCategoryNames.containsKey(stableId)) {
+                    translateCategoryNames.put(stableId, new HashMap<>());
+                }
 
-				String name = resultSet.getString("name");
-				String description = resultSet.getString("description");
-				if (name.matches("[0-9]+")) {
+                String name = resultSet.getString("name");
+                String description = resultSet.getString("description");
+                if (name.matches("[0-9]+")) {
 
-					translateCategoryNames.get(stableId).put(name, description);
+                    translateCategoryNames.get(stableId).put(name, description);
 
-					// also add .0 onto string as sometimes this is what our numerical
-					// categories look like in the database!!!!
-					name += ".0";
-					translateCategoryNames.get(stableId).put(name, description);
-				} else {
-					logger.debug("  Not translating non alphabetical category for parameter: " + stableId + ", name: "
-							+ name + ", desc:" + description);
-				}
+                    // also add .0 onto string as sometimes this is what our numerical
+                    // categories look like in the database!!!!
+                    name += ".0";
+                    translateCategoryNames.get(stableId).put(name, description);
+                } else {
+                    logger.debug("  Not translating non alphabetical category for parameter: " + stableId + ", name: "
+                                         + name + ", desc:" + description);
+                }
 
-			}
-		}
-	}
+            }
+        }
+    }
 
 	void populateParameterAssociationMap(Connection connection) throws SQLException {
 
 		Map<String, String> stableIdToNameMap = this.getAllParameters(connection);
-		String query = "SELECT id, observation_id, parameter_id, sequence_id, dim_id, parameter_association_value FROM parameter_association  where parameter_association_value is not  null";
+        String query = "SELECT id, observation_id, parameter_id, sequence_id, dim_id, parameter_association_value FROM parameter_association  where parameter_association_value is not  null";
 
-		try (PreparedStatement p = connection.prepareStatement(query)) {
+        try (PreparedStatement p = connection.prepareStatement(query)) {
 
-			ResultSet resultSet = p.executeQuery();
+            ResultSet resultSet = p.executeQuery();
 
-			while (resultSet.next()) {
+            while (resultSet.next()) {
 
 				Long observationId = resultSet.getLong("observation_id");
 
-				ParameterAssociationBean pb = new ParameterAssociationBean();
+                ParameterAssociationBean pb = new ParameterAssociationBean();
 				pb.observationId = observationId;
-				pb.parameterStableId = resultSet.getString("parameter_id");
-				pb.parameterAssociationValue = resultSet.getString("parameter_association_value");
-				if (stableIdToNameMap.get(pb.parameterStableId) != null) {
-					pb.parameterAssociationName = stableIdToNameMap.get(pb.parameterStableId);
-				}
-				pb.sequenceId = resultSet.getString("sequence_id");
-				pb.dimId = resultSet.getString("dim_id");
+                pb.parameterStableId = resultSet.getString("parameter_id");
+                pb.parameterAssociationValue = resultSet.getString("parameter_association_value");
+                if (stableIdToNameMap.get(pb.parameterStableId) != null) {
+                    pb.parameterAssociationName = stableIdToNameMap.get(pb.parameterStableId);
+                }
+                pb.sequenceId = resultSet.getString("sequence_id");
+                pb.dimId = resultSet.getString("dim_id");
 
 				if (!parameterAssociationMap.containsKey(observationId)) {
 					parameterAssociationMap.put(observationId, new ArrayList<>());
-				}
+                }
 
 				parameterAssociationMap.get(observationId).add(pb);
-			}
-		}
-	}
+            }
+        }
+    }
 
-	/**
-	 * Return all parameter stable ids and names
-	 *
-	 * @throws SQLException
-	 *             When a database error occurrs
-	 */
+    /**
+     * Return all parameter stable ids and names
+     *
+     * @throws SQLException When a database error occurrs
+     */
 	Map<String, String> getAllParameters(Connection connection) throws SQLException {
-		Map<String, String> parameters = new HashMap<>();
+        Map<String, String> parameters = new HashMap<>();
 
-		String query = "SELECT stable_id, name FROM phenotype_parameter";
+        String query = "SELECT stable_id, name FROM phenotype_parameter";
 
 		try (PreparedStatement statement = connection.prepareStatement(query)) {
-			ResultSet resultSet = statement.executeQuery();
-			while (resultSet.next()) {
-				parameters.put(resultSet.getString("stable_id"), resultSet.getString("name"));
-			}
-		}
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                parameters.put(resultSet.getString("stable_id"), resultSet.getString("name"));
+            }
+        }
 
-		return parameters;
-	}
+        return parameters;
+    }
 
 	void populateExperimenterDataMap(Connection connection) throws SQLException, IOException {
 
-		Map<String, String> nameMap = new HashMap<>();
-		List<String> lines = Files.readAllLines(Paths.get(experimenterIdMap));
-		for (String line : lines) {
-			String [] fields = line.split("\t");
-			nameMap.put(fields[0], fields[1]);
-		}
+        Map<String, String> nameMap = new HashMap<>();
+        List<String> lines = Files.readAllLines(Paths.get(experimenterIdMap));
+        for (String line : lines) {
+            String[] fields = line.split("\t");
+            nameMap.put(fields[0], fields[1]);
+        }
 
-		String query = "SELECT DISTINCT experiment_id, value, parameter_id, p.name " +
-			"FROM procedure_meta_data m " +
-			"INNER JOIN phenotype_parameter p ON p.stable_id=m.parameter_id " +
-			"WHERE name LIKE '%experimenter%' AND value IS NOT NULL ";
+        String query = "SELECT DISTINCT experiment_id, value, parameter_id, p.name " +
+                "FROM procedure_meta_data m " +
+                "INNER JOIN phenotype_parameter p ON p.stable_id=m.parameter_id " +
+                "WHERE name LIKE '%experimenter%' AND value IS NOT NULL ";
 
-		try (PreparedStatement p = connection.prepareStatement(query)) {
-			ResultSet resultSet = p.executeQuery();
-			while (resultSet.next()) {
+        try (PreparedStatement p = connection.prepareStatement(query)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
 
 				if ( ! experimenterData.containsKey(resultSet.getLong("experiment_id"))) {
 					experimenterData.put(resultSet.getLong("experiment_id"), new ArrayList<>());
-				}
+                }
 
-				String ids = resultSet.getString("value");
-				String parameterName = resultSet.getString("name");
+                String ids = resultSet.getString("value");
+                String parameterName = resultSet.getString("name");
 
-				for (String id : ids.split(",")) {
+                for (String id : ids.split(",")) {
 
-					String loadId = id;
+                    String loadId = id;
 
-					//Translate the experimenter ID if needed
-					if (nameMap.containsKey(id)) {
-						loadId = nameMap.get(id);
-					}
+                    //Translate the experimenter ID if needed
+                    if (nameMap.containsKey(id)) {
+                        loadId = nameMap.get(id);
+                    }
 
-					//Hash the ID
-					loadId = DigestUtils.md5Hex(loadId).substring(0,5).toUpperCase();
+                    //Hash the ID
+                    loadId = DigestUtils.md5Hex(loadId).substring(0, 5).toUpperCase();
 
 					experimenterData.get(resultSet.getLong("experiment_id")).add(parameterName + " = " + loadId);
-				}
-			}
-		}
-	}
+                }
+            }
+        }
+    }
 
 	void populateDatasourceDataMap(Connection connection) throws SQLException {
 
-		List<String> queries = new ArrayList<>();
-		queries.add("SELECT id, short_name as name, 'DATASOURCE' as datasource_type FROM external_db");
-		queries.add("SELECT id, name, 'PROJECT' as datasource_type FROM project");
+        List<String> queries = new ArrayList<>();
+        queries.add("SELECT id, short_name as name, 'DATASOURCE' as datasource_type FROM external_db");
+        queries.add("SELECT id, name, 'PROJECT' as datasource_type FROM project");
 
-		for (String query : queries) {
+        for (String query : queries) {
 
-			try (PreparedStatement p = connection.prepareStatement(query)) {
+            try (PreparedStatement p = connection.prepareStatement(query)) {
 
-				ResultSet resultSet = p.executeQuery();
+                ResultSet resultSet = p.executeQuery();
 
-				while (resultSet.next()) {
+                while (resultSet.next()) {
 
-					DatasourceBean b = new DatasourceBean();
+                    DatasourceBean b = new DatasourceBean();
 
 					b.id = resultSet.getLong("id");
-					b.name = resultSet.getString("name");
+                    b.name = resultSet.getString("name");
 
-					switch (resultSet.getString("datasource_type")) {
-					case "DATASOURCE":
+                    switch (resultSet.getString("datasource_type")) {
+                        case "DATASOURCE":
 						datasourceMap.put(resultSet.getLong("id"), b);
-						break;
-					case "PROJECT":
+                            break;
+                        case "PROJECT":
 						projectMap.put(resultSet.getLong("id"), b);
-						break;
-					}
-				}
-			}
-		}
-	}
+                            break;
+                    }
+                }
+            }
+        }
+    }
 
 
     /**
@@ -1008,11 +1004,11 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
         emap2emapaIdMap = ontologyParserFactory.getEmapToEmapaMap();
     }
 
-	/**
-	 * Return map of specimen ID => weight for
-	 *
-	 * @throws SQLException When a database error occurrs
-	 */
+    /**
+     * Return map of specimen ID => weight for
+     *
+     * @throws SQLException When a database error occurrs
+     */
 	void populateAnatomyMap(Connection connection) throws SQLException {
 
         String query = "SELECT DISTINCT p.id, p.stable_id, o.ontology_acc " +
@@ -1022,90 +1018,89 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
                 "WHERE p.stable_id like '%_ALZ_%' OR p.stable_id like '%_ELZ_%' ";
 
 		try (PreparedStatement statement = connection.prepareStatement(query)) {
-			ResultSet resultSet = statement.executeQuery();
-			while (resultSet.next()) {
-				String ontoAcc = resultSet.getString("ontology_acc");
-				if (ontoAcc != null) {
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                String ontoAcc = resultSet.getString("ontology_acc");
+                if (ontoAcc != null) {
 					anatomyMap.put(resultSet.getLong("id"),
-							ontoAcc.startsWith("EMAP:") ? emap2emapaIdMap.get(ontoAcc) : ontoAcc);
-				}
-				else {
-					logger.warn(" Parameter {} missing ontology association.", resultSet.getString("stable_id"));
-				}
-			}
-		}
+                                   ontoAcc.startsWith("EMAP:") ? emap2emapaIdMap.get(ontoAcc) : ontoAcc);
+                } else {
+                    logger.warn(" Parameter {} missing ontology association.", resultSet.getString("stable_id"));
+                }
+            }
+        }
 
-	}
+    }
 
-	Map<String, Map<String, String>> getTranslateCategoryNames() {
-		return translateCategoryNames;
-	}
+    Map<String, Map<String, String>> getTranslateCategoryNames() {
+        return translateCategoryNames;
+    }
 
-	Map<String, BiologicalDataBean> getLineBiologicalData() {
-		return lineBiologicalData;
-	}
+    Map<String, BiologicalDataBean> getLineBiologicalData() {
+        return lineBiologicalData;
+    }
 
-	Map<String, BiologicalDataBean> getBiologicalData() {
-		return biologicalData;
-	}
+    Map<String, BiologicalDataBean> getBiologicalData() {
+        return biologicalData;
+    }
 
 	Map<Long, DatasourceBean> getDatasourceMap() {
-		return datasourceMap;
-	}
+        return datasourceMap;
+    }
 
 	Map<Long, DatasourceBean> getProjectMap() {
-		return projectMap;
-	}
+        return projectMap;
+    }
 
-	/**
-	 * Internal class to act as Map value DTO for biological data
-	 */
-	class BiologicalDataBean {
+    /**
+     * Internal class to act as Map value DTO for biological data
+     */
+    class BiologicalDataBean {
 
-		public String        alleleAccession;
-		public String        alleleSymbol;
+        public String alleleAccession;
+        public String alleleSymbol;
 		public Long          biologicalModelId;
 		public Long          biologicalSampleId;
-		public String        colonyId;
-		public ZonedDateTime dateOfBirth;
-		public String        externalSampleId;
-		public String        geneAcc;
-		public String        geneSymbol;
-		public String        phenotypingCenterName;
+        public String colonyId;
+        public ZonedDateTime dateOfBirth;
+        public String externalSampleId;
+        public String geneAcc;
+        public String geneSymbol;
+        public String phenotypingCenterName;
 		public Long          phenotypingCenterId;
-		public String        sampleGroup;
-		public String        sex;
-		public String        strainAcc;
-		public String        strainName;
-		public String        geneticBackground;
-		public String        allelicComposition;
-		public String        zygosity;
-		public String        productionCenterName;
+        public String sampleGroup;
+        public String sex;
+        public String strainAcc;
+        public String strainName;
+        public String geneticBackground;
+        public String allelicComposition;
+        public String zygosity;
+        public String productionCenterName;
 		public Long          productionCenterId;
-		public String        litterId;
-	}
+        public String litterId;
+    }
 
 
-	/**
-	 * Internal class to act as Map value DTO for datasource data
-	 */
-	class DatasourceBean {
+    /**
+     * Internal class to act as Map value DTO for datasource data
+     */
+    class DatasourceBean {
 
 		public Long   id;
-		public String name;
-	}
+        public String name;
+    }
 
-	/**
-	 * Internal class to act as Map value DTO for datasource data
-	 */
-	class ParameterAssociationBean {
+    /**
+     * Internal class to act as Map value DTO for datasource data
+     */
+    class ParameterAssociationBean {
 
-		public String parameterAssociationName;
-		public String parameterAssociationValue;
+        public String parameterAssociationName;
+        public String parameterAssociationValue;
 		public Long   id;
 		public Long   observationId;
-		public String parameterStableId;
-		public String sequenceId;
-		public String dimId;
-	}
+        public String parameterStableId;
+        public String sequenceId;
+        public String dimId;
+    }
 }

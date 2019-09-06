@@ -111,7 +111,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 		return retVal;
 	}
 
-	public Set<String> getChartPivots(String baseUrl, String acc, ParameterDTO parameter, List<String> pipelineStableIds, List<String> zyList, List<String> phenotypingCentersList,
+	public Set<String> getChartPivots(String baseUrl, String acc, String parameterStableId, List<String> pipelineStableIds, List<String> zyList, List<String> phenotypingCentersList,
 						  List<String> strainsParams, List<String> metaDataGroup, List<String> alleleAccession) throws IOException, SolrServerException, URISyntaxException {
 
 		SolrQuery query = new SolrQuery();
@@ -119,8 +119,8 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 		if (acc != null){
 			query.addFilterQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + acc + "\"");
 		}
-		if (parameter != null){
-			query.addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + parameter.getStableId() );
+		if ((parameterStableId != null) && ( ! parameterStableId.trim().isEmpty())) {
+			query.addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + parameterStableId);
 		}
 		if (pipelineStableIds != null & pipelineStableIds.size() > 0){
 			query.addFilterQuery(pipelineStableIds.stream().collect(Collectors.joining(" OR ",  StatisticalResultDTO.PIPELINE_STABLE_ID + ":(", ")")));

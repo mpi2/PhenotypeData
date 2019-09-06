@@ -298,7 +298,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
             // MmusDv:0000092 -> postpartum stage
             //
             if (stages == null || stages.size() == 0) {
-                    Arrays.asList(POSTPARTUM_STAGE, EMBRYONIC_DAY_9_5, EMBRYONIC_DAY_12_5, EMBRYONIC_DAY_14_5, EMBRYONIC_DAY_15_5, , EMBRYONIC_DAY_18_5)
+                    Arrays.asList(POSTPARTUM_STAGE, EMBRYONIC_DAY_9_5, EMBRYONIC_DAY_12_5, EMBRYONIC_DAY_14_5, EMBRYONIC_DAY_15_5, EMBRYONIC_DAY_18_5)
                         .forEach(ontologTermAccessionId -> {
                             String shortName = (ontologTermAccessionId.startsWith(Datasource.EFO) ? Datasource.EFO : Datasource.MMUSDV);
                     OntologyTerm t = ontologyTermRepository.getByAccAndShortName(ontologTermAccessionId, shortName);
