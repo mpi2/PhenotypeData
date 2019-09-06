@@ -156,8 +156,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .ignoringAntMatchers("/querybroker")
                 .ignoringAntMatchers("/bqExport")
                 .ignoringAntMatchers("/batchQuery")
-                .ignoringAntMatchers("/alleleRefLogin")
-                .ignoringAntMatchers("/gwaslookup");              // FIXME Remove if this endpoint is now gone.
+                .ignoringAntMatchers("/alleleRefLogin");
     }
 
     /**
