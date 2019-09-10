@@ -335,7 +335,6 @@
                        aria-selected="${rowsForPhenotypeTable.size() <= 0 ? 'true' : 'false'}"><i
                             class="fal fa-ruler-combined"></i>&nbsp;
                         All data table (<span id="allDataTableCount">${allMeasurementsNumber}</span>/${allMeasurementsNumber})</a>
-                </c:if>
                 <c:if test='${allMeasurementsNumber <= 0}'>
                     <a class="nav-link active" id="alldatatable-tab" data-toggle="tab" href="#alldatatable"
                        role="tab" aria-controls="alldatatable-tab" aria-selected="false"><i
