@@ -302,7 +302,7 @@
     <!-- Empty anchor for links, used for disease paper. Don't remove. -->
 
 
-    <c:if test='${notsignificantTopLevelMpGroups.size() > 0 || rowsForPhenotypeTable.size() > 0}'>
+    <c:if test='${notsignificantTopLevelMpGroups.size() > 0 || rowsForPhenotypeTable.size() > 0 || allMeasurementsNumber > 0}'>
 
 
         <ul class="nav nav-tabs" id="phenotypesTab" role="tablist">
@@ -321,24 +321,15 @@
 
             </li>
             <li class="nav-item">
-                <c:if test='${measurementsChartNumber > 0}'>
-                    <a class="nav-link${rowsForPhenotypeTable.size() <= 0 ? ' active' : ''}" id="alldatachart-tab"
+                    <a class="nav-link${(rowsForPhenotypeTable.size() <= 0 && measurementsChartNumber > 0) ? ' active' : ''}" id="alldatachart-tab"
                        data-toggle="tab" href="#alldatachart"
                        role="tab" aria-controls="alldatachart-tab"
                        aria-selected="${rowsForPhenotypeTable.size() <= 0 ? 'true' : 'false'}"><i
                             class="fal fa-chart-scatter"></i>&nbsp;
                         Measurements chart (<span id="allDataChartCount">${measurementsChartNumber}</span>/${measurementsChartNumber})</a>
-                </c:if>
-                <c:if test='${measurementsChartNumber <= 0}'>
-                    <a class="nav-link active" id="alldatachart-tab" data-toggle="tab" href="#alldatachart"
-                       role="tab" aria-controls="alldatachart-tab" aria-selected="false"><i
-                            class="fal fa-chart-scatter"></i>&nbsp;
-                        Measurements chart (0)</a>
-                </c:if>
             </li>
             <li class="nav-item">
-                <c:if test='${allMeasurementsNumber > 0}'>
-                    <a class="nav-link${rowsForPhenotypeTable.size() <= 0 ? ' active' : ''}" id="alldatatable-tab"
+                    <a class="nav-link${(rowsForPhenotypeTable.size() <= 0 && measurementsChartNumber <= 0)? ' active' : ''}" id="alldatatable-tab"
                        data-toggle="tab" href="#alldatatable"
                        role="tab" aria-controls="alldatatable-tab"
                        aria-selected="${rowsForPhenotypeTable.size() <= 0 ? 'true' : 'false'}"><i
@@ -434,14 +425,18 @@
                     </div><!-- end of div for mini section line -->
                 </div>
             </c:if>
-            <c:if test='${rowsForPhenotypeTable.size() > 0}'>
-            <div class="tab-pane fade show" id="alldatachart" role="tabpanel"
-                 aria-labelledby="alldatachart-tab">
-                </c:if>
-                <c:if test='${rowsForPhenotypeTable.size() <= 0}'>
-                <div class="tab-pane fade show active" id="alldatachart" role="tabpanel"
+            <c:if test='${measurementsChartNumber <= 0}'>
+                <div class="tab-pane fade" id="alldatachart" role="tabpanel"
                      aria-labelledby="alldatachart-tab">
-                    </c:if>
+                        <div class="alert alert-warning mt-3" role="alert">
+                            No results to display
+                        </div>
+                </div>
+            </c:if>
+
+                <c:if test='${measurementsChartNumber > 0}'>
+                <div class="tab-pane fade show ${(rowsForPhenotypeTable.size() <= 0 && measurementsChartNumber > 0)? ' active' : ''}" id="alldatachart" role="tabpanel"
+                     aria-labelledby="alldatachart-tab">
                     <div class="mt-3 selector-container">
                         Select physiological systems to view:
                         <select class="selectpicker" multiple data-selected-text-format="count"
@@ -470,15 +465,22 @@
                     <div id="all-chart">
                     </div>
                 </div>
-                    <c:if test='${rowsForPhenotypeTable.size() > 0}'>
-                    <div class="tab-pane fade show" id="alldatatable" role="tabpanel"
-                         aria-labelledby="alldatatable-tab">
-                        </c:if>
-                        <c:if test='${rowsForPhenotypeTable.size() <= 0}'>
-                        <div class="tab-pane fade show active" id="alldatatable" role="tabpanel"
+                </c:if>
+                    <c:if test='${allMeasurementsNumber <= 0}'>
+                        <div class="tab-pane fade" id="alldatatable" role="tabpanel"
                              aria-labelledby="alldatatable-tab">
-                            </c:if>
-                            <div class="mt-3 selector-container">
+                            <div class="alert alert-warning mt-3" role="alert">
+                                No measurements to display
+                            </div>
+                        </div>
+                    </c:if>
+                        <c:if test='${allMeasurementsNumber > 0}'>
+                        <div class="tab-pane fade show ${(rowsForPhenotypeTable.size() <= 0 && measurementsChartNumber <= 0)? ' active' : ''}" id="alldatatable" role="tabpanel"
+                             aria-labelledby="alldatatable-tab">
+
+                            <c:if test='${(significantTopLevelMpGroups.size() > 0 || notsignificantTopLevelMpGroups.size() > 0)}'>
+
+                                <div class="mt-3 selector-container">
                                 Select physiological systems to view:
                                 <select class="selectpicker" multiple data-selected-text-format="count"
                                         onchange="filterAllData('Table')" id="systemSelectorTable">
@@ -503,61 +505,82 @@
                             <div class="filters-container">
                                 Viewing: <span id="phTableDataTitle"> all phenotypes</span>
                             </div>
+                                </c:if>
                             <div id="all-table">
                             </div>
                         </div>
+                        </c:if>
 
-            </div>
+
+                    </div>
         </div>
     </c:if>
 </div>
 
-<c:if test='${rowsForPhenotypeTable.size() > 0}'>
-    <script>
-        var firstChart = true;
-        var firstTable = true;
-        var currentView = 'chart';
-        $("#alldatachart-tab").on('click', function () {
-            if (firstChart) {
-                $('#systemSelectorChart').selectpicker('deselectAll');
-                $('#all-chart').html("     <div class=\"pre-content\">\n" +
-                    "                        <div class=\"row no-gutters\">\n" +
-                    "                            <div class=\"col-12 my-5\">\n" +
-                    "                                <p class=\"h4 text-center text-justify\"><i class=\"fas fa-atom fa-spin\"></i> A moment please while we gather the data . . . .</p>\n" +
-                    "                            </div>\n" +
-                    "                        </div>\n" +
-                    "                    </div>");
-                $.ajax({
-                    url: baseUrl + '/experimentsChartFrag?geneAccession=' + '${gene.mgiAccessionId}',
-                    type: 'GET',
-                    success: function (data) {
-                        $('#all-chart').html(data);
-                        firstChart = false;
-                    }
-                });
-            }
-        });
-        $("#alldatatable-tab").on('click', function () {
-            if (firstTable) {
-                $('#systemSelectorTable').selectpicker('deselectAll');
-                $('#all-table').html("     <div class=\"pre-content\">\n" +
-                    "                        <div class=\"row no-gutters\">\n" +
-                    "                            <div class=\"col-12 my-5\">\n" +
-                    "                                <p class=\"h4 text-center text-justify\"><i class=\"fas fa-atom fa-spin\"></i> A moment please while we gather the data . . . .</p>\n" +
-                    "                            </div>\n" +
-                    "                        </div>\n" +
-                    "                    </div>");
-                $.ajax({
-                    url: baseUrl + '/experimentsTableFrag?geneAccession=' + '${gene.mgiAccessionId}',
-                    type: 'GET',
-                    success: function (data) {
-                        $('#all-table').html(data);
-                        firstTable = false;
-                    }
-                });
-            }
-        });
-    </script>
-</c:if>
+<script>
+
+    var firstChart = true;
+    var firstTable = true;
+    var currentView = 'chart';
+
+    function chartClick() {
+        if (firstChart) {
+            $('#systemSelectorChart').selectpicker('deselectAll');
+            $('#all-chart').html("     <div class=\"pre-content\">\n" +
+                "                        <div class=\"row no-gutters\">\n" +
+                "                            <div class=\"col-12 my-5\">\n" +
+                "                                <p class=\"h4 text-center text-justify\"><i class=\"fas fa-atom fa-spin\"></i> A moment please while we gather the data . . . .</p>\n" +
+                "                            </div>\n" +
+                "                        </div>\n" +
+                "                    </div>");
+            $.ajax({
+                url: baseUrl + '/experimentsChartFrag?geneAccession=' + '${gene.mgiAccessionId}',
+                type: 'GET',
+                success: function (data) {
+                    $('#all-chart').html(data);
+                    firstChart = false;
+                }
+            });
+        }
+    }
+
+    function tableClick() {
+        if (firstTable) {
+            $('#systemSelectorTable').selectpicker('deselectAll');
+            $('#all-table').html("     <div class=\"pre-content\">\n" +
+                "                        <div class=\"row no-gutters\">\n" +
+                "                            <div class=\"col-12 my-5\">\n" +
+                "                                <p class=\"h4 text-center text-justify\"><i class=\"fas fa-atom fa-spin\"></i> A moment please while we gather the data . . . .</p>\n" +
+                "                            </div>\n" +
+                "                        </div>\n" +
+                "                    </div>");
+            $.ajax({
+                url: baseUrl + '/experimentsTableFrag?geneAccession=' + '${gene.mgiAccessionId}',
+                type: 'GET',
+                success: function (data) {
+                    $('#all-table').html(data);
+                    firstTable = false;
+                }
+            });
+        }
+    }
+
+
+    <c:if test='${measurementsChartNumber > 0}'>
+        $("#alldatachart-tab").on('click', chartClick);
+    </c:if>
+    <c:if test='${allMeasurementsNumber > 0}'>
+        $("#alldatatable-tab").on('click', tableClick);
+    </c:if>
+
+    <c:if test='${rowsForPhenotypeTable.size() <= 0 && measurementsChartNumber > 0}'>
+        $(document).ready(chartClick);
+    </c:if>
+    <c:if test='${rowsForPhenotypeTable.size() <= 0 && measurementsChartNumber <= 0 && allMeasurementsNumber > 0}'>
+    $(document).ready(tableClick);
+    </c:if>
+
+
+</script>
 
 

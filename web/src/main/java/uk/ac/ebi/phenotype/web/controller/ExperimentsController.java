@@ -82,7 +82,6 @@ public class ExperimentsController {
 			HttpServletRequest request)
 	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
 
-		AllelePageDTO allelePageDTO = srService.getAllelesInfo(geneAccession, null, null, null, null, null, null, null);
 		Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
 		int rows = 0;
 		String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
@@ -94,7 +93,6 @@ public class ExperimentsController {
 		}
 		model.addAttribute("rows", rows);		
 		model.addAttribute("experimentRows", experimentRows);
-		model.addAttribute("allelePageDTO", allelePageDTO);
 		return "experimentsTableFrag";
 	}
 

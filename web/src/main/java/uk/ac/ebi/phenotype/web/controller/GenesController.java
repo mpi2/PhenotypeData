@@ -277,6 +277,10 @@ public class GenesController {
                 }
             }
 
+            if (mpGroupsSignificant.containsKey("NA") && (mpGroupsSignificant.get("NA") == null || mpGroupsSignificant.get("NA").equalsIgnoreCase("null"))) {
+                mpGroupsSignificant.remove("NA");
+            }
+
             // add number of top level terms
             for (ZygosityType zyg : phenotypeSummaryObjects.keySet()) {
                 numberOfTopLevelMpTermsWithStatisticalResult += phenotypeSummaryObjects.get(zyg).getTotalPhenotypesNumber();
