@@ -356,7 +356,7 @@ public class StatisticalDatasetGeneratorEpi extends BasicService implements Comm
 
                     StringBuilder sb = new StringBuilder();
                     for (List<String> line : lines) {
-                        sb.append(line.stream().collect(Collectors.joining("\t")));
+                        sb.append(String.join("\t", line));
                         sb.append("\n");
                     }
 
@@ -414,7 +414,7 @@ public class StatisticalDatasetGeneratorEpi extends BasicService implements Comm
                 .setFacet(true)
                 .setFacetLimit(-1)
                 .setFacetMinCount(1)
-                .addFacetPivotField(PIVOT.stream().collect(Collectors.joining(",")));
+                .addFacetPivotField(String.join(",", PIVOT));
 
         if (parameters!=null) {
             query.addFilterQuery("parameter_stable_id:(" + StringUtils.join(parameters, " OR ") + ")");
@@ -529,30 +529,32 @@ public class StatisticalDatasetGeneratorEpi extends BasicService implements Comm
                 final String procedureStableId = x.getProcedureStableId();
                 final String procedureGroup = procedureStableId.substring(0, procedureStableId.lastIndexOf("_"));
 
-                if ( ! parameters.containsKey(procedureGroup)) {
-                    // Use an ordered set (TreeSet) to keep the parameters sorted low to high
-                    parameters.put(procedureGroup, new TreeSet<>());
-                }
+                if ( ! procedureGroup.startsWith("ESLIM") && ! procedureGroup.startsWith("M-G-P") && ! procedureGroup.startsWith("GMC")) {
 
-                parameters.get(procedureGroup).add(x.getParameterStableId());
+                    if (!parameters.containsKey(procedureGroup)) {
+                        // Use an ordered set (TreeSet) to keep the parameters sorted low to high
+                        parameters.put(procedureGroup, new TreeSet<>());
+                    }
 
-                // Add another column to the EYE procedures to store the mapped categories (or slit lamp for legacy procedures)
-                // as agreed at the 20170824 Dev call
-                if (
-                        (
-                                x.getParameterStableId().toUpperCase().contains("IMPC_EYE") ||
-                                procedureGroup.toUpperCase().contains("M-G-P_013") ||
-                                procedureGroup.toUpperCase().contains("M-G-P_014") ||
-                                procedureGroup.toUpperCase().contains("ESLIM_013") ||
-                                procedureGroup.toUpperCase().contains("ESLIM_014")
-                        ) &&
-                        x.isHasOptions()
+                    parameters.get(procedureGroup).add(x.getParameterStableId());
+
+                    // Add another column to the EYE procedures to store the mapped categories (or slit lamp for legacy procedures)
+                    // as agreed at the 20170824 Dev call
+                    if (
+                            (
+                                    x.getParameterStableId().toUpperCase().contains("IMPC_EYE") ||
+                                            procedureGroup.toUpperCase().contains("M-G-P_013") ||
+                                            procedureGroup.toUpperCase().contains("M-G-P_014") ||
+                                            procedureGroup.toUpperCase().contains("ESLIM_013") ||
+                                            procedureGroup.toUpperCase().contains("ESLIM_014")
+                            ) &&
+                                    x.isHasOptions()
                     ) {
-                    String mappedParameter = x.getParameterStableId() + "_MAPPED";
-                    parameters.get(procedureGroup).add(mappedParameter);
+                        String mappedParameter = x.getParameterStableId() + "_MAPPED";
+                        parameters.get(procedureGroup).add(mappedParameter);
 
+                    }
                 }
-
 
             });
 
