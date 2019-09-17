@@ -14,30 +14,29 @@
  * License.
  ******************************************************************************/
 
-package uk.ac.ebi.phenotype.service;
+package org.mousephenotype.cda.db;
 
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import uk.ac.ebi.phenotype.web.dao.StatisticsService;
-import uk.ac.ebi.phenotype.web.dao.StatsClient;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+
+import javax.sql.DataSource;
 
 @Configuration
-@EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
-@ComponentScan("org.mousephenotype.cda.db")
-public class ServiceTestConfig {
-
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+@Profile("test")
+public class H2DataSource {
 
     @Bean
-    public StatsClient statsClient() {
-        return new StatsClient();
-    }
+    @Primary
+    public DataSource komp2DataSource() {
 
-    @Bean
-    public StatisticsService statisticsService() {
-        return new StatisticsService(statsClient());
+        return new EmbeddedDatabaseBuilder()
+                .setType(EmbeddedDatabaseType.H2)
+                .ignoreFailedDrops(true)
+                .setName("test")
+                .build();
     }
 }

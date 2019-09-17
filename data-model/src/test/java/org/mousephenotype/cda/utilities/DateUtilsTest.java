@@ -46,7 +46,7 @@ public class DateUtilsTest {
 
         for (String testDateTimeValue : testDateTimeValues) {
 
-            System.out.println("Testing Date format: " + testDateTimeValue);
+            logger.debug("Testing Date format: " + testDateTimeValue);
             Date actualDateTime = DateUtils.parseIncrementValue(logger, testDateTimeValue);
 
             ZonedDateTime actualZonedDateTime = ZonedDateTime.from(actualDateTime.toInstant().atZone(ZoneId.of("UTC")));

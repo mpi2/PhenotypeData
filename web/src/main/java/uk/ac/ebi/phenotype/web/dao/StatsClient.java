@@ -1,5 +1,7 @@
 package uk.ac.ebi.phenotype.web.dao;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.ComponentScan;
@@ -22,6 +24,8 @@ import java.util.Map;
 @ComponentScan
 public class StatsClient {
 
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 	@Value("${statistics_url}")
 	private String statisticsUrl;
 
@@ -43,7 +47,7 @@ public class StatsClient {
    		 String pipelineStableId,  String zygosity,  String phenotypingCenter,  String metaDataGroup){
     	//http://localhost:8080/stats/search/findByGeneAccessionAndAlleleAccessionAndParameterStableIdAndPipelineStableIdAndZygosityAndPhenotypingCenterAndMetaDataGroup?geneAccession=MGI:2443170&alleleAccession=MGI:2159965&parameterStableId=IMPC_HEM_038_001&pipelineStableId=IMPC_001&zygosity=homozygote&phenotypingCenter=MARC&metaDataGroup=08aa37a898ab923b9ffdbd01c0077040
     ResponseEntity<List<Statistics>> statsResponse=null;
-    System.out.println("SINGLE_STATS_URL="+statisticsUrl+apiPath+"accession="+geneAccession+"&parameter_stable_id="+parameterStableId+"&pipeline_stable_id="+pipelineStableId+"&zygosity="+zygosity+"&phenotyping_center="+phenotypingCenter+"&metadata_group="+metaDataGroup);
+    logger.debug("SINGLE_STATS_URL="+statisticsUrl+apiPath+"accession="+geneAccession+"&parameter_stable_id="+parameterStableId+"&pipeline_stable_id="+pipelineStableId+"&zygosity="+zygosity+"&phenotyping_center="+phenotypingCenter+"&metadata_group="+metaDataGroup);
     	//String SINGLE_STATS_URL = statisticsUrl+"api/singleStatistic?accession={geneAccession}&allele_accession_id={alleleAccession}&parameter_stable_id={parameterStableId}&pipeline_stable_id={pipelineStableId}&zygosity={zygosity}&phenotyping_center={phenotypingCenter}&metadata_group={metaDataGroup}";
     String SINGLE_STATS_URL = statisticsUrl+"api/stats?accession={geneAccession}&allele_accession_id={alleleAccession}&parameter_stable_id={parameterStableId}&pipeline_stable_id={pipelineStableId}&zygosity={zygosity}&phenotyping_center={phenotypingCenter}&metadata_group={metaDataGroup}";
     

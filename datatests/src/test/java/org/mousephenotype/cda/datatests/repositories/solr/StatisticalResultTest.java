@@ -79,7 +79,7 @@ public class StatisticalResultTest {
 	public void verifyAllGpEntriesAppearInSrCore(){
 
 		List<GenotypePhenotypeDTO> list = genotypePhenotypeRepository.findByProcedureStableId("IMPC_ABR_001");
-		list.stream().limit(NUM_TO_TEST).forEach(x -> logger.info("Marker {}, Phenotype {}, Sex {}", x.getMarkerAccessionId(), x.getMpTermName(), x.getSex()) );
+		list.stream().limit(NUM_TO_TEST).forEach(x -> logger.debug("Marker {}, Phenotype {}, Sex {}", x.getMarkerAccessionId(), x.getMpTermName(), x.getSex()) );
 		assertTrue(list.size()>0);
 
 		// Check random assortment of parameters
@@ -99,7 +99,7 @@ public class StatisticalResultTest {
 			// Randomize the list so we check a different NUM_TO_TEST for each test run
 			Collections.shuffle(list);
 
-			list.stream().limit(NUM_TO_TEST).forEach(x -> logger.info("Marker {}, Phenotype {}, Sex {}", x.getMarkerAccessionId(), x.getMpTermName(), x.getSex()));
+			list.stream().limit(NUM_TO_TEST).forEach(x -> logger.debug("Marker {}, Phenotype {}, Sex {}", x.getMarkerAccessionId(), x.getMpTermName(), x.getSex()));
 			assertTrue(list.size() > 0);
 
 			list.stream().limit(NUM_TO_TEST).forEach(x -> {

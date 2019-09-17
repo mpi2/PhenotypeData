@@ -2,6 +2,7 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,12 +15,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,18 +34,41 @@ import java.util.stream.Collectors;
 /**
  * These tests take forever to run and consume more memory than is available on developer's machines. Ignore them.
  */
-@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ContextConfiguration(classes = {ObservationIndexerTestConfig.class})
-@ComponentScan("org.mousephenotype.cda.db")
 public class ObservationIndexerTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired @NotNull private Connection         connection;
-    @Autowired @NotNull private DataSource         komp2DataSource;
-    @Autowired @NotNull private ObservationIndexer observationIndexer;
+    @Autowired
+    private Connection connection;
+
+    @Autowired
+    private ApplicationContext context;
+
+    @Autowired
+    private DataSource komp2DataSource;
+
+    @Autowired
+    private ObservationIndexer observationIndexer;
+
+    @Before
+    public void setUp() throws Exception {
+
+        List<String> resources = Arrays.asList(
+                "sql/h2/schema.sql",
+                "sql/h2/ImpressSchema.sql",
+                "sql/h2/H2ReplaceDateDiff.sql",
+                "sql/h2/indexers/ObservationIndexerTest-data.sql"
+        );
+
+//        for (String resource : resources) {
+//            Resource r = context.getResource(resource);
+//            ScriptUtils.executeSqlScript(komp2DataSource.getConnection(), r);
+//        }
+    }
+
 
     @Test
     public void testGetOntologyParameterSubTerms() throws SQLException {
@@ -97,9 +120,9 @@ public class ObservationIndexerTest {
     }
 
 
-    // Ignore this test as it takes too long to run.
+//     Ignore this test as it takes too long to run.
     @Test
-    @Ignore
+//    @Ignore
     public void testPopulateLineBiologicalDataMap() throws Exception {
         observationIndexer.initialise();
 
@@ -174,73 +197,73 @@ public class ObservationIndexerTest {
 
     }
 
-    @Test
-    public void testDatasourceDataMaps() throws Exception {
-        observationIndexer.initialise();
+//    @Test
+//    public void testDatasourceDataMaps() throws Exception {
+//        observationIndexer.initialise();
+//
+//        observationIndexer.populateDatasourceDataMap(connection);
+//        Map<Long, ObservationIndexer.DatasourceBean> bioDataMap;
+//
+//        // Project
+//        bioDataMap = observationIndexer.getProjectMap();
+//        Assert.assertTrue(bioDataMap.size() > 5);
+//        logger.info("Size of project data map {}", bioDataMap.size());
+//
+//        //Datasource
+//        bioDataMap = observationIndexer.getDatasourceMap();
+//        Assert.assertTrue(bioDataMap.size() > 10);
+//        logger.info("Size of datasource data map {}", bioDataMap.size());
+//
+//    }
 
-        observationIndexer.populateDatasourceDataMap(connection);
-        Map<Long, ObservationIndexer.DatasourceBean> bioDataMap;
-
-        // Project
-        bioDataMap = observationIndexer.getProjectMap();
-        Assert.assertTrue(bioDataMap.size() > 5);
-        logger.info("Size of project data map {}", bioDataMap.size());
-
-        //Datasource
-        bioDataMap = observationIndexer.getDatasourceMap();
-        Assert.assertTrue(bioDataMap.size() > 10);
-        logger.info("Size of datasource data map {}", bioDataMap.size());
-
-    }
-
-    @Test
-    public void testpopulateCategoryNamesDataMap() throws Exception {
-        observationIndexer.initialise();
-
-        observationIndexer.populateCategoryNamesDataMap(connection);
-        Map<String, Map<String, String>> bioDataMap = observationIndexer.getTranslateCategoryNames();
-
-        Assert.assertTrue(bioDataMap.size() > 5);
-        logger.info("Size of translated category map {}", bioDataMap.size());
-
-        Assert.assertTrue(bioDataMap.containsKey("M-G-P_008_001_020"));
-        logger.info("Translated map contains key for M-G-P_008_001_020");
-
-	    if (bioDataMap.get("M-G-P_008_001_020") != null && bioDataMap.get("M-G-P_008_001_020").get("0") != null) {
-		    Assert.assertTrue(bioDataMap.get("M-G-P_008_001_020").get("0").equals("Present"));
-		    logger.info("M-G-P_008_001_020 correctly mapped '0' to 'Present'");
-	    } else {
-		    logger.warn("M-G-P_008_001_020 not found in bioDataMap");
-	    }
-
-        Assert.assertTrue(bioDataMap.get("M-G-P_008_001_020").get("1").equals("Absent"));
-        logger.info("M-G-P_008_001_020 correctly mapped '1' to 'Absent'");
-
-        Assert.assertTrue(bioDataMap.get("ESLIM_008_001_014").get("0").equals("No response"));
-        logger.info("ESLIM_008_001_014 correctly mapped '0' to 'No response'");
-
-        Assert.assertTrue(bioDataMap.get("ESLIM_008_001_014").get("1").equals("Response to touch"));
-        logger.info("ESLIM_008_001_014 correctly mapped '1' to 'Response to touch'");
-
-        Assert.assertTrue(bioDataMap.get("ESLIM_008_001_014").get("2").equals("Flees prior to touch"));
-        logger.info("ESLIM_008_001_014 correctly mapped '2' to 'Flees prior to touch'");
-
-        Assert.assertTrue(bioDataMap.get("M-G-P_008_001_007").get("0").equals("Extended Freeze(over 5 seconds)"));
-        logger.info("ESLIM_008_001_014 correctly mapped '0' to 'Extended Freeze(over 5 seconds)'");
-
-        Assert.assertTrue(bioDataMap.get("M-G-P_008_001_007").get("1").equals("Brief freeze followed by movement"));
-        logger.info("ESLIM_008_001_014 correctly mapped '1' to 'Brief freeze followed by movement'");
-
-        Assert.assertTrue(bioDataMap.get("M-G-P_008_001_007").get("2").equals("Immediate movement"));
-        logger.info("ESLIM_008_001_014 correctly mapped '2' to 'Immediate movement'");
-
-	    Assert.assertTrue(bioDataMap.get("M-G-P_008_001_005").get("1").equals("Eyes Closed"));
-	    logger.info("M-G-P_008_001_005 correctly mapped '1' to 'Eyes Closed'");
-
-	    Assert.assertTrue(bioDataMap.get("M-G-P_008_001_005").get("0").equals("Eyes Open"));
-	    logger.info("M-G-P_008_001_005 correctly mapped '0' to 'Eyes Open'");
-
-    }
+//    @Test
+//    public void testpopulateCategoryNamesDataMap() throws Exception {
+//        observationIndexer.initialise();
+//
+//        observationIndexer.populateCategoryNamesDataMap(connection);
+//        Map<String, Map<String, String>> bioDataMap = observationIndexer.getTranslateCategoryNames();
+//
+//        Assert.assertTrue(bioDataMap.size() > 5);
+//        logger.info("Size of translated category map {}", bioDataMap.size());
+//
+//        Assert.assertTrue(bioDataMap.containsKey("M-G-P_008_001_020"));
+//        logger.info("Translated map contains key for M-G-P_008_001_020");
+//
+//	    if (bioDataMap.get("M-G-P_008_001_020") != null && bioDataMap.get("M-G-P_008_001_020").get("0") != null) {
+//		    Assert.assertTrue(bioDataMap.get("M-G-P_008_001_020").get("0").equals("Present"));
+//		    logger.info("M-G-P_008_001_020 correctly mapped '0' to 'Present'");
+//	    } else {
+//		    logger.warn("M-G-P_008_001_020 not found in bioDataMap");
+//	    }
+//
+//        Assert.assertTrue(bioDataMap.get("M-G-P_008_001_020").get("1").equals("Absent"));
+//        logger.info("M-G-P_008_001_020 correctly mapped '1' to 'Absent'");
+//
+//        Assert.assertTrue(bioDataMap.get("ESLIM_008_001_014").get("0").equals("No response"));
+//        logger.info("ESLIM_008_001_014 correctly mapped '0' to 'No response'");
+//
+//        Assert.assertTrue(bioDataMap.get("ESLIM_008_001_014").get("1").equals("Response to touch"));
+//        logger.info("ESLIM_008_001_014 correctly mapped '1' to 'Response to touch'");
+//
+//        Assert.assertTrue(bioDataMap.get("ESLIM_008_001_014").get("2").equals("Flees prior to touch"));
+//        logger.info("ESLIM_008_001_014 correctly mapped '2' to 'Flees prior to touch'");
+//
+//        Assert.assertTrue(bioDataMap.get("M-G-P_008_001_007").get("0").equals("Extended Freeze(over 5 seconds)"));
+//        logger.info("ESLIM_008_001_014 correctly mapped '0' to 'Extended Freeze(over 5 seconds)'");
+//
+//        Assert.assertTrue(bioDataMap.get("M-G-P_008_001_007").get("1").equals("Brief freeze followed by movement"));
+//        logger.info("ESLIM_008_001_014 correctly mapped '1' to 'Brief freeze followed by movement'");
+//
+//        Assert.assertTrue(bioDataMap.get("M-G-P_008_001_007").get("2").equals("Immediate movement"));
+//        logger.info("ESLIM_008_001_014 correctly mapped '2' to 'Immediate movement'");
+//
+//	    Assert.assertTrue(bioDataMap.get("M-G-P_008_001_005").get("1").equals("Eyes Closed"));
+//	    logger.info("M-G-P_008_001_005 correctly mapped '1' to 'Eyes Closed'");
+//
+//	    Assert.assertTrue(bioDataMap.get("M-G-P_008_001_005").get("0").equals("Eyes Open"));
+//	    logger.info("M-G-P_008_001_005 correctly mapped '0' to 'Eyes Open'");
+//
+//    }
 
 	@Test
 	public void testDate() throws ParseException {
@@ -254,7 +277,10 @@ public class ObservationIndexerTest {
 		System.out.println(d2);
 
 		System.out.println(TimeZone.getDefault().getDisplayName());
-
-
 	}
+
+	@Test
+    public void specimenProjectIsLoaded() {
+
+    }
 }

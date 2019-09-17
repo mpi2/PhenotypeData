@@ -36,18 +36,13 @@ public class IndexerConfig {
     private String internalSolrUrl;
 
     private GenesSecondaryProjectRepository genesSecondaryProjectRepository;
-    private DataSource                      komp2DataSource;
-    private OntologyTermRepository          ontologyTermRepository;
-    private SolrClient                      pipelineCore;
+
 
     @Inject
-    public IndexerConfig(@NotNull DataSource komp2DataSource,
-                         @NotNull OntologyTermRepository ontologyTermRepository,
+    public IndexerConfig(@NotNull OntologyTermRepository ontologyTermRepository,
                          @NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository)
     {
         this.genesSecondaryProjectRepository = genesSecondaryProjectRepository;
-        this.komp2DataSource = komp2DataSource;
-        this.ontologyTermRepository = ontologyTermRepository;
     }
 
 

@@ -21,10 +21,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 
 import javax.sql.DataSource;
 
 @Configuration
+@Profile("!test")
 public class PrimaryDataSource {
 
     @Value("${datasource.komp2.jdbc-url}")
@@ -36,9 +38,14 @@ public class PrimaryDataSource {
     @Value("${datasource.komp2.password}")
     String komp2Password;
 
+    @Value("${spring.profiles.active}")
+    private String activeProfile;
+
+
     @Bean
     @Primary
     public DataSource komp2DataSource() {
+
         return SqlUtils.getConfiguredDatasource(komp2Url, komp2Username, komp2Password);
     }
 }

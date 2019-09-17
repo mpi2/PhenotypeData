@@ -21,9 +21,5 @@ public class PharosServiceTest {
         assertTrue (pharosDTO != null);
         assertTrue(pharosDTO.getIdgfam().equalsIgnoreCase("kinase"));
         assertTrue (pharosDTO.getTdl().equalsIgnoreCase("Tclin") );
-
-        System.out.println(pharosDTO);
     }
-
-
 }

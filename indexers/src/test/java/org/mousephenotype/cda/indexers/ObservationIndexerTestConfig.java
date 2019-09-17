@@ -12,12 +12,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
@@ -33,6 +38,39 @@ public class ObservationIndexerTestConfig {
 
     @Autowired
     public DataSource komp2DataSource;
+
+    private String[] resources = {
+            "sql/h2/schema.sql",
+            "sql/h2/ImpressSchema.sql",
+            "sql/h2/H2ReplaceDateDiff.sql",
+            "sql/h2/indexers/ObservationIndexerTest-data.sql"
+    };
+//
+//    @Bean
+//    public DataSource testDataSource() {
+//        DataSource ds = new EmbeddedDatabaseBuilder()
+//                .setType(EmbeddedDatabaseType.H2)
+//                .ignoreFailedDrops(true)
+//                .setName("test")
+//                .addScripts(resources)
+//                .build();
+//
+//        System.out.println(ds);
+//
+//        return ds;
+//    }
+
+
+    /*
+    dataSource:
+        url = jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false
+        username = "sa"
+        password = ""
+        catalog = null
+        schema = null
+        connectionProperties = null
+
+     */
 
     @Autowired
     public OntologyTermRepository ontologyTermRepository;
@@ -148,11 +186,11 @@ public class ObservationIndexerTestConfig {
         return komp2DataSource.getConnection();
     }
 
-
-//    @Bean
-//    public ObservationIndexer observationIndexer() {
-//        return new ObservationIndexer(komp2DataSource, ontologyTermRepository, experimentCore());
-//    }
+// FIXME FIXME FIXME REFACTOR THESE TESTS. Activating this bean invokes WeightMap population which takes over 8 minutes to complete according to the comment.
+    @Bean
+    public ObservationIndexer observationIndexer() {
+        return new ObservationIndexer(komp2DataSource, ontologyTermRepository, experimentCore());
+    }
 
     @Bean
     public SolrClient solrClient() {

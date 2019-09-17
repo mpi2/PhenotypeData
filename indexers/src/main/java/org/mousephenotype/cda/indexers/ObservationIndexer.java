@@ -217,7 +217,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
             try (PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
-                p.setFetchSize(Integer.MIN_VALUE);
+                p.setFetchSize(500000);
 
                 logger.debug("  QUERY START");		// 2019-08-16 16:57:05.782  INFO 32731 --- [           main] o.m.cda.indexers.ObservationIndexer      :   QUERY START
                 ResultSet r = p.executeQuery();
@@ -226,8 +226,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
                 long startTimestamp = new Date().getTime();
 
                 logger.info("  BEGIN processing experiments");
-
-                p.setFetchSize(Integer.MIN_VALUE);
 
                 while (r.next()) {
 
@@ -292,8 +290,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
                             } else if (anatomyTermId.startsWith("EMAPA:")) {
                                 addAnatomyInfo(emapaParser.getOntologyTerm(anatomyTermId), o);
                             }
-
-
                         }
                     }
 
@@ -670,6 +666,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
         String query = "SELECT CAST(bs.id AS CHAR) as biological_sample_id, bs.organisation_id as phenotyping_center_id, "
                 + "org.name as phenotyping_center_name, bs.sample_group, bs.external_id as external_sample_id, "
+                + "bs.project_id, project.name AS project_name, "
                 + "ls.date_of_birth, ls.colony_id, ls.sex as sex, ls.zygosity, ls.developmental_stage_acc, ot.name AS developmental_stage_name, ot.acc as developmental_stage_acc,"
                 + "bms.biological_model_id, "
                 + "strain.acc as strain_acc, strain.name as strain_name, bm.genetic_background, bm.allelic_composition, "
@@ -686,7 +683,8 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
                 + "INNER JOIN strain strain ON strain.acc=bmstrain.strain_acc "
                 + "INNER JOIN biological_model bm ON bm.id = bms.biological_model_id "
                 + "INNER JOIN ontology_term ot ON ot.acc=ls.developmental_stage_acc "
-                + "INNER JOIN organisation prod_org ON bs.organisation_id=prod_org.id ";
+                + "INNER JOIN organisation prod_org ON bs.organisation_id=prod_org.id "
+                + "INNER JOIN project ON project.id = bs.project_id";
 
         try (PreparedStatement p = connection.prepareStatement(query)) {
 
@@ -736,7 +734,8 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 				b.productionCenterId = resultSet.getLong("production_center_id");
                 b.productionCenterName = resultSet.getString("production_center_name");
                 b.litterId = resultSet.getString("litter_id");
-
+                b.projectId = resultSet.getLong("project_id");
+                b.projectName = resultSet.getString("project_name");
 
                 biologicalData.put(resultSet.getString("biological_sample_id"), b);
             }
@@ -1057,27 +1056,29 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
      */
     class BiologicalDataBean {
 
-        public String alleleAccession;
-        public String alleleSymbol;
-		public Long          biologicalModelId;
-		public Long          biologicalSampleId;
-        public String colonyId;
+        public String        alleleAccession;
+        public String        alleleSymbol;
+        public Long          biologicalModelId;
+        public Long          biologicalSampleId;
+        public String        colonyId;
         public ZonedDateTime dateOfBirth;
-        public String externalSampleId;
-        public String geneAcc;
-        public String geneSymbol;
-        public String phenotypingCenterName;
-		public Long          phenotypingCenterId;
-        public String sampleGroup;
-        public String sex;
-        public String strainAcc;
-        public String strainName;
-        public String geneticBackground;
-        public String allelicComposition;
-        public String zygosity;
-        public String productionCenterName;
-		public Long          productionCenterId;
-        public String litterId;
+        public String        externalSampleId;
+        public String        geneAcc;
+        public String        geneSymbol;
+        public String        phenotypingCenterName;
+        public Long          phenotypingCenterId;
+        public String        sampleGroup;
+        public String        sex;
+        public String        strainAcc;
+        public String        strainName;
+        public String        geneticBackground;
+        public String        allelicComposition;
+        public String        zygosity;
+        public String        productionCenterName;
+        public Long          productionCenterId;
+        public String        litterId;
+        public Long          projectId;
+        public String        projectName;
     }
 
 

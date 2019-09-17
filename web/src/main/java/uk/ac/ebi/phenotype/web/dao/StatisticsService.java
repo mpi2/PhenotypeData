@@ -1,6 +1,8 @@
 package uk.ac.ebi.phenotype.web.dao;
 
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.phenotype.stats.model.Statistics;
@@ -21,6 +23,8 @@ import java.util.TimeZone;
 
 @Service
 public class StatisticsService {
+
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private StatsClient statsClient;
 
@@ -33,37 +37,30 @@ public class StatisticsService {
 	
 	public ResponseEntity<List<Statistics>> getUniqueStatsResult(String geneAccession, String alleleAccession, String parameterStableId,
 			 String pipelineStableId,  String zygosity,  String phenotypingCenter,  String metaDataGroup){
-		System.out.println("statsClient url="+statsClient.getStatsUrl());
+		logger.debug("statsClient url="+statsClient.getStatsUrl());
 		ResponseEntity<List<Statistics>> stats=statsClient.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId,
 		 pipelineStableId,  zygosity,  phenotypingCenter,  metaDataGroup);
 		return stats;
 	
 		}
-	
 
-	
-	public ExperimentDTO getSpecificExperimentDTOFromRest(String parameterStableId, String pipelineStableId, String geneAccession, List<String> genderList, List<String> zyList, String phenotypingCenter, String strain, String metaDataGroup, String alleleAccession)
-	{
-		String zygosity=null;
-		ExperimentDTO exp=null;
-	
-		ResponseEntity<List<Statistics>> response = this.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId, pipelineStableId, zyList.get(0), phenotypingCenter, metaDataGroup);
-		//if(response.getStatusCode()==HttpStatus.OK) {
-			List<Statistics> stats = response.getBody();
-			System.out.println("stats size="+stats.size());
-			if(stats.size()>0) {
-				exp = StatisticsServiceUtilities.convertToExperiment(parameterStableId, stats.get(0));
-			}
-			if(stats.size()>1) {
-				System.err.println("more than one stats result returned from Stats Service");
-			}
-				
-		//}
-		
-		
-		//System.out.println("experiment from file="+exp);
-		return exp;
-}
+
+    public ExperimentDTO getSpecificExperimentDTOFromRest(String parameterStableId, String pipelineStableId, String geneAccession, List<String> genderList, List<String> zyList, String phenotypingCenter, String strain, String metaDataGroup, String alleleAccession) {
+        ExperimentDTO exp = null;
+
+        ResponseEntity<List<Statistics>> response = this.getUniqueStatsResult(geneAccession, alleleAccession, parameterStableId, pipelineStableId, zyList.get(0), phenotypingCenter, metaDataGroup);
+
+        List<Statistics> stats = response.getBody();
+        logger.debug("stats size=" + stats.size());
+        if (stats.size() > 0) {
+            exp = StatisticsServiceUtilities.convertToExperiment(parameterStableId, stats.get(0));
+        }
+        if (stats.size() > 1) {
+            logger.error("more than one stats result returned from Stats Service");
+        }
+
+        return exp;
+    }
 	
 
 	

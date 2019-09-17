@@ -11,6 +11,7 @@ import org.mousephenotype.cda.enumerations.Expression;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 @SpringBootTest(classes = {RepositorySolrTestConfig.class})
 public class ImageServiceTest {
 
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private ImageService imageService;
@@ -39,7 +40,7 @@ public class ImageServiceTest {
 
         SolrQuery query = ImageService.allImageRecordSolrQuery();
 
-        logger.info("Query is: " + query.toString());
+        logger.debug("Query is: " + query.toString());
 
         assertTrue(query.toString().contains("3i"));
         assertTrue(query.toString().contains("mousephenotype.org"));
@@ -61,7 +62,7 @@ public class ImageServiceTest {
         expectedSize = 18;              // 26-Oct-2017 (mrelac) As of this date there were 18 colonies found.
         actualSize = mpToColonies.size();
         message = testName + ": Expected at least " + expectedSize + " mpToColonies but found " + actualSize;
-        logger.info(testName + ": mpToColonies actualSize = " + actualSize);
+        logger.debug(testName + ": mpToColonies actualSize = " + actualSize);
 
         if (actualSize < expectedSize) {
             logger.error(message);
@@ -91,7 +92,7 @@ public class ImageServiceTest {
         expectedSize = 13;          // 26-Oct-2017 (mrelac) As of this date there were 13 images found.
         actualSize   = response.getResults().size();
         message      = testName + ": Expected at least " + expectedSize + " images but found " + actualSize;
-        logger.info(testName + ": images actualSize = " + actualSize);
+        logger.debug(testName + ": images actualSize = " + actualSize);
 
         if (actualSize < expectedSize) {
             logger.error(message);
@@ -117,9 +118,9 @@ public class ImageServiceTest {
         expectedSize = 6;                        // 26-Oct-2017 (mrelac) As of this date there were 8 phenotype associated images found.
         actualSize   = (response != null ? response.size() : 0);
         message      = testName + ": Expected at least " + expectedSize + " associated images but found " + actualSize;
-        logger.info(testName + ": associated images actualSize = " + actualSize);
+        logger.debug(testName + ": associated images actualSize = " + actualSize);
 
-        assertTrue(actualSize >= expectedSize);
+        assertTrue(message, actualSize >= expectedSize);
     }
 
     // FIXME FIXME FIXME This test takes a long time to run and runs out of memory when run on local laptops.
@@ -207,7 +208,7 @@ public class ImageServiceTest {
         message      = testName + ": Expected at least " + expectedSize + " control images but found " + actualSize;
         logger.info(testName + ": control images actualSize = " + actualSize);
 
-        assertTrue(actualSize >= expectedSize);
+        assertTrue(message, actualSize >= expectedSize);
 
         mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex, organ);
 
