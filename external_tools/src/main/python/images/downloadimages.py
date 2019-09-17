@@ -113,39 +113,39 @@ def createDestinationFilePath(rootDestinationDir, phenotyping_center, pipeline_s
     return directory
 
 def processFile(observation_id,  rootDestinationDir, phenotyping_center,pipeline_stable_id, procedure, parameter, downloadFilePath):
-        global totalNumberOfImagesWeHave
-        global responseFailed
-        global numberOfImageDownloadAttemps
-        directory = createDestinationFilePath(rootDestinationDir, phenotyping_center, pipeline_stable_id, procedure,parameter, downloadFilePath)
-        dstfilename=directory+"/"+str(downloadFilePath.split('/')[-1])
-        if dstfilename in uniqueUris:
-            print '---------------------!!!!!!!!!!error the filePath is not unique and has been specified before:'+dstfilename
-        uniqueUris.add(dstfilename)
-        fullResolutionFilePath=dstfilename.split(splitString,1)[1]
-        #print 'saving file to '+dstfilename
-        if os.path.isfile(dstfilename):
-            #print("file already here")
+    global totalNumberOfImagesWeHave
+    global responseFailed
+    global numberOfImageDownloadAttemps
+    directory = createDestinationFilePath(rootDestinationDir, phenotyping_center, pipeline_stable_id, procedure,parameter, downloadFilePath)
+    dstfilename=directory+"/"+str(downloadFilePath.split('/')[-1])
+    if dstfilename in uniqueUris:
+        print '---------------------!!!!!!!!!!error the filePath is not unique and has been specified before:'+dstfilename
+    uniqueUris.add(dstfilename)
+    fullResolutionFilePath=dstfilename.split(splitString,1)[1]
+    #print 'saving file to '+dstfilename
+    if os.path.isfile(dstfilename):
+        #print("file already here")
+        totalNumberOfImagesWeHave+=1
+    else:
+        numberOfImageDownloadAttemps+=1
+        print 'saving file to '+dstfilename
+        response=requests.get(downloadFilePath, stream=True)
+        #print response.status_code
+        if response.status_code != 200:
+            print "Error status code is not 200="+str(response.status_code)+"downloadFilePath:"+downloadFilePath
+            responseFailed+=1
+        if response.status_code == 200:
             totalNumberOfImagesWeHave+=1
-        else:
-                numberOfImageDownloadAttemps+=1
-                print 'saving file to '+dstfilename
-                response=requests.get(downloadFilePath, stream=True)
-                #print response.status_code
-                if response.status_code != 200:
-                    print "Error status code is not 200="+str(response.status_code)+"downloadFilePath:"+downloadFilePath
-                    responseFailed+=1
-                if response.status_code == 200:
-                    totalNumberOfImagesWeHave+=1
-                    #check directory exists before trying to write file and if not then make it
-                    if not os.path.exists(directory):
-                        os.makedirs(directory)
+            #check directory exists before trying to write file and if not then make it
+            if not os.path.exists(directory):
+                os.makedirs(directory)
 
-                    with open(dstfilename, 'wb') as f:
-                        for chunk in response.iter_content(1024):
-                            f.write(chunk)
+            with open(dstfilename, 'wb') as f:
+                for chunk in response.iter_content(1024):
+                    f.write(chunk)
    
-        if totalNumberOfImagesWeHave%10000==0 :
-            print "totalNumber of images we have="+str(totalNumberOfImagesWeHave)
+    if totalNumberOfImagesWeHave%10000==0 :
+        print "totalNumber of images we have="+str(totalNumberOfImagesWeHave)
 
 
 
