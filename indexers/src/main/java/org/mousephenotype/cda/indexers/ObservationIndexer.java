@@ -87,8 +87,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	private Map<String, BiologicalDataBean>           biologicalData          = new HashMap<>();
 	private Map<Long, DatasourceBean>                 datasourceMap           = new HashMap<>();
 	private Map<String, String>                       emap2emapaIdMap         = new HashMap<>();
-	private Map<Long, List<String>>                   experimenterData        = new HashMap<>();
-	private Map<String, BiologicalDataBean>           lineBiologicalData      = new HashMap<>();
 	private Map<Long, List<OntologyBean>>             ontologyEntityMap;
 	private Map<Long, List<ParameterAssociationBean>> parameterAssociationMap = new HashMap<>();
 	private Map<Long, ParameterDTO>                   parameterMap            = new HashMap<>();
@@ -96,7 +94,14 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	private Map<Long, ImpressBaseDTO>                 procedureMap            = new HashMap<>();
 	private Map<Long, DatasourceBean>                 projectMap              = new HashMap<>();
 	private Map<String, Map<String, String>>          translateCategoryNames  = new HashMap<>();
-	private WeightMap                                 weightMap;                                   // NOTE: Loading weightMap takes upwards of 8 minutes; therefore, it is not spring-managed. Load it manually and only when needed.
+
+
+    // For debugging, set this variable TRUE to skip loading the slow-loading maps below. For normal indexing operation, set it to FALSE.
+    private final Boolean SKIP_SLOW_LOADING_MAPS = Boolean.FALSE;
+    // Slow-loading maps. These maps take a long time to load.
+	private Map<Long, List<String>>                   experimenterData        = new HashMap<>();
+	private Map<String, BiologicalDataBean>           lineBiologicalData      = new HashMap<>();
+	private WeightMap                                 weightMap;                                   // NOTE: weightMap takes upwards of 8 minutes to load.
 
 	private OntologyParser        emapaParser;
 	private OntologyParser        maParser;
@@ -104,6 +109,10 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
 	private SolrClient experimentCore;
 
+    private long startTimestamp;
+    private long lastTimestamp;
+
+    private final long DISPLAY_INTERVAL_IN_SECONDS = 60;
 
 	protected ObservationIndexer() {
 
@@ -132,7 +141,9 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
     @Override
 	public RunStatus run() throws IndexerException, SQLException {
-        weightMap = new WeightMap(komp2DataSource);
+	    if ( ! SKIP_SLOW_LOADING_MAPS) {
+            weightMap = new WeightMap(komp2DataSource);
+        }
         long count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
@@ -146,42 +157,46 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
             pipelineMap = IndexerMap.getImpressPipelines(connection);
             procedureMap = IndexerMap.getImpressProcedures(connection);
             parameterMap = IndexerMap.getImpressParameters(connection);
-            logger.debug(" IMPReSS maps\n  Pipeline: {}, Procedure: {}, Parameter: {} " + pipelineMap.size(), procedureMap.size(), parameterMap.size());
+            logger.info("  IMPReSS maps:  Pipeline: {}, Procedure: {}, Parameter: {} ", pipelineMap.size(), procedureMap.size(), parameterMap.size());
 
-            logger.debug("  populating ontology entity map");
+            logger.info("  populating ontology entity map");
             ontologyEntityMap = IndexerMap.getOntologyParameterSubTerms(connection);
-            logger.debug(" ontology entity map size: " + ontologyEntityMap.size());
+            logger.info("  ontology entity map size: " + ontologyEntityMap.size());
 
-            logger.debug("  populating datasource map");
+            logger.info("  populating datasource map");
 			populateDatasourceDataMap(connection);
 
-            logger.debug("  populating experimenter map");
-			populateExperimenterDataMap(connection);
-            logger.debug("  map size: " + experimenterData.size());
+			if ( ! SKIP_SLOW_LOADING_MAPS) {
+                logger.info("  populating experimenter map");
+                populateExperimenterDataMap(connection);
+                logger.info("  map size: " + experimenterData.size());
+            }
 
-            logger.debug("  populating categorynames map");
+            logger.info("  populating categorynames map");
 			populateCategoryNamesDataMap(connection);
-            logger.debug("  map size: " + translateCategoryNames.size());
+            logger.info("  map size: " + translateCategoryNames.size());
 
-            logger.debug("  populating biological data map");
+            logger.info("  populating biological data map");
 			populateBiologicalDataMap(connection);
-            logger.debug("  map size: " + biologicalData.size());
+            logger.info("  map size: " + biologicalData.size());
 
-            logger.debug("  populating line data map");
-			populateLineBiologicalDataMap(connection);
-            logger.debug("  map size: " + lineBiologicalData.size());
+            if ( ! SKIP_SLOW_LOADING_MAPS) {
+                logger.info("  populating line data map");
+                populateLineBiologicalDataMap(connection);
+                logger.info("  map size: " + lineBiologicalData.size());
+            }
 
-            logger.debug("  populating parameter association map");
+            logger.info("  populating parameter association map");
 			populateParameterAssociationMap(connection);
-            logger.debug("  map size: " + parameterAssociationMap.size());
+            logger.info("  map size: " + parameterAssociationMap.size());
 
-            logger.debug("  populating emap to emapa map");
+            logger.info("  populating emap to emapa map");
             populateEmap2EmapaMap();
-            logger.debug(" map size: " + emap2emapaIdMap.size());
+            logger.info("  map size: " + emap2emapaIdMap.size());
 
-            logger.debug("  populating anatomy map");
+            logger.info("  populating anatomy map");
 			populateAnatomyMap(connection);
-            logger.debug("  map size: " + anatomyMap.size());
+            logger.info("  map size: " + anatomyMap.size());
 
             logger.info("  maps populated");
 
@@ -213,17 +228,20 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
         observationQueries.add("SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, o.biological_sample_id, o.sequence_id as sequence_id ,e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, iro.file_type, iro.download_file_path FROM observation o INNER JOIN image_record_observation iro ON o.id=iro.id INNER JOIN experiment_observation eo ON eo.observation_id=o.id INNER JOIN experiment e on eo.experiment_id=e.id WHERE o.missing=0");
         observationQueries.add("SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, o.biological_sample_id, o.sequence_id as sequence_id ,e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, onto.term AS ontology_id, onto.term_value AS ontology_term FROM observation o INNER JOIN ontology_entity onto ON o.id=onto.ontology_observation_id INNER JOIN experiment_observation eo ON eo.observation_id=o.id INNER JOIN experiment e on eo.experiment_id=e.id WHERE o.missing=0");
 
+
+        int  queryNumber    = observationQueries.size();
+        startTimestamp = System.currentTimeMillis();
+        lastTimestamp  = startTimestamp;
+
         for (String query : observationQueries) {
 
             try (PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
-                p.setFetchSize(500000);
+                p.setFetchSize(Integer.MIN_VALUE);
 
                 logger.debug("  QUERY START");		// 2019-08-16 16:57:05.782  INFO 32731 --- [           main] o.m.cda.indexers.ObservationIndexer      :   QUERY START
                 ResultSet r = p.executeQuery();
                 logger.debug("  QUERY END");		// 2019-08-16 16:57:05.791  INFO 32731 --- [           main] o.m.cda.indexers.ObservationIndexer      :   QUERY END
-
-                long startTimestamp = new Date().getTime();
 
                 logger.info("  BEGIN processing experiments");
 
@@ -310,50 +328,54 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
                         o.setMetadata(new ArrayList<>(Arrays.asList(metadataCombined.split("::"))));
                     }
 
-                    // Add experimenter ID(s) to the metadata
-                    if (experimenterData.containsKey(o.getExperimentId())) {
-                        if (o.getMetadata() == null) {
-                            o.setMetadata(new ArrayList<>(experimenterData.get(o.getExperimentId())));
-                        } else {
-                            o.getMetadata().addAll(experimenterData.get(o.getExperimentId()));
+                    if ( ! SKIP_SLOW_LOADING_MAPS) {
+                        // Add experimenter ID(s) to the metadata
+                        if (experimenterData.containsKey(o.getExperimentId())) {
+                            if (o.getMetadata() == null) {
+                                o.setMetadata(new ArrayList<>(experimenterData.get(o.getExperimentId())));
+                            } else {
+                                o.getMetadata().addAll(experimenterData.get(o.getExperimentId()));
+                            }
                         }
                     }
 
                     // Add the Biological data
                     String bioSampleId = r.getString("biological_sample_id");
                     if (r.wasNull()) {
+
                         // Line level data
-
-                        BiologicalDataBean b = lineBiologicalData.get(r.getString("experiment_id"));
-                        if (b == null) {
-                            runStatus.addError(
-                                    " Cannot find biological data for line level experiment " + r.getString("experiment_id"));
-                            continue;
-                        }
-
-                        addBiologicalInformation(o, b);
-
-                        // Viability applies to both sexes
-                        if (o.getParameterStableId().contains("_VIA_")) {
-                            o.setSex(SexType.both.getName());
-                        } else {
-                            // Fertility applies to the sex tested, separate
-                            // parameters per male//female
-                            if (MALE_FERTILITY_PARAMETERS.contains(o.getParameterStableId())) {
-                                o.setSex(SexType.male.getName());
-                            } else if (FEMALE_FERTILITY_PARAMETERS.contains(o.getParameterStableId())) {
-                                o.setSex(SexType.female.getName());
+                        if ( ! SKIP_SLOW_LOADING_MAPS) {
+                            BiologicalDataBean b = lineBiologicalData.get(r.getString("experiment_id"));
+                            if (b == null) {
+                                runStatus.addError(
+                                        " Cannot find biological data for line level experiment " + r.getString("experiment_id"));
+                                continue;
                             }
-                            if (o.getSex() == null) {
+
+                            addBiologicalInformation(o, b);
+
+                            // Viability applies to both sexes
+                            if (o.getParameterStableId().contains("_VIA_")) {
                                 o.setSex(SexType.both.getName());
+                            } else {
+                                // Fertility applies to the sex tested, separate
+                                // parameters per male//female
+                                if (MALE_FERTILITY_PARAMETERS.contains(o.getParameterStableId())) {
+                                    o.setSex(SexType.male.getName());
+                                } else if (FEMALE_FERTILITY_PARAMETERS.contains(o.getParameterStableId())) {
+                                    o.setSex(SexType.female.getName());
+                                }
+                                if (o.getSex() == null) {
+                                    o.setSex(SexType.both.getName());
+                                }
                             }
-                        }
 
-                        if (b.zygosity != null) {
-                            o.setZygosity(b.zygosity);
-                        } else {
-                            // Default to hom
-                            o.setZygosity(ZygosityType.homozygote.getName());
+                            if (b.zygosity != null) {
+                                o.setZygosity(b.zygosity);
+                            } else {
+                                // Default to hom
+                                o.setZygosity(ZygosityType.homozygote.getName());
+                            }
                         }
 
                         // All line level parameters are sample group "experimental"
@@ -545,18 +567,20 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
                     // Add weight parameters only if this observation isn't itself a
                     // weight parameter
-                    if (!WeightMap.isWeightParameter(o.getParameterStableId())) {
-                        WeightMap.BodyWeight b = weightMap.getNearestWeight(o.getBiologicalSampleId(), o.getParameterStableId(), dateOfExperiment);
+                    if ( ! SKIP_SLOW_LOADING_MAPS) {
+                        if (!WeightMap.isWeightParameter(o.getParameterStableId())) {
+                            WeightMap.BodyWeight b = weightMap.getNearestWeight(o.getBiologicalSampleId(), o.getParameterStableId(), dateOfExperiment);
 
-                        if (o.getProcedureGroup().contains("_IPG")) {
-                            b = weightMap.getNearestIpgttWeight(o.getBiologicalSampleId());
-                        }
+                            if (o.getProcedureGroup().contains("_IPG")) {
+                                b = weightMap.getNearestIpgttWeight(o.getBiologicalSampleId());
+                            }
 
-                        if (b != null) {
-                            o.setWeight(b.getWeight());
-                            o.setWeightDate(b.getDate());
-                            o.setWeightDaysOld(b.getDaysOld());
-                            o.setWeightParameterStableId(b.getParameterStableId());
+                            if (b != null) {
+                                o.setWeight(b.getWeight());
+                                o.setWeightDate(b.getDate());
+                                o.setWeightDaysOld(b.getDaysOld());
+                                o.setWeightParameterStableId(b.getParameterStableId());
+                            }
                         }
                     }
 
@@ -564,8 +588,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
                     try {
 
-                        // 60 seconds between commits
-                        experimentCore.addBean(o, 60000);
+                        experimentCore.addBean(o, 600000);
 
                     } catch (Exception e) {
 
@@ -581,20 +604,21 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
                     count++;
 
-                    if (count % 2000000 == 0) {
-                        logCurrentProgress(count, startTimestamp);
-                    }
+                    checkAndLogProgress(count);
                 }
 
-                logger.info("  FINISHED processing experiments.");
-
-                // Final commit to save the rest of the docs
-			    experimentCore.commit();
+                logger.info("FINISHED QUERY {}", queryNumber);
+                queryNumber++;
 
             } catch (Exception e) {
                 e.printStackTrace();
                 System.out.println(" Big error :" + e.getMessage());
             }
+
+            logger.info("  FINISHED processing experiments.");
+
+            // Final commit to save the rest of the docs
+            experimentCore.commit();
         }
 
         if (missingBiologicalDataErrorCount > 0) {
@@ -602,6 +626,14 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
         }
 
         return count;
+    }
+
+    private void checkAndLogProgress(long count) {
+        long currentTimestamp = System.currentTimeMillis();
+        if (currentTimestamp - lastTimestamp >= (DISPLAY_INTERVAL_IN_SECONDS * 1000)) {
+            logCurrentProgress(count, startTimestamp);
+            lastTimestamp = currentTimestamp;
+        }
     }
 
     private void addBiologicalInformation(ObservationDTOWrite o, BiologicalDataBean b) {
@@ -815,7 +847,9 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
                     }
                 }
 
-                lineBiologicalData.put(resultSet.getString("experiment_id"), b);
+                if ( ! SKIP_SLOW_LOADING_MAPS) {
+                    lineBiologicalData.put(resultSet.getString("experiment_id"), b);
+                }
             }
         }
     }
@@ -861,7 +895,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
                     logger.debug("  Not translating non alphabetical category for parameter: " + stableId + ", name: "
                                          + name + ", desc:" + description);
                 }
-
             }
         }
     }
