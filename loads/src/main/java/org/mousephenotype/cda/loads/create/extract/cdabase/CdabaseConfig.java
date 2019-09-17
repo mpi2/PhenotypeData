@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.create.extract.cdabase.config;
+package org.mousephenotype.cda.loads.create.extract.cdabase;
 
 import org.mousephenotype.cda.db.pojo.Allele;
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
@@ -25,7 +25,6 @@ import org.mousephenotype.cda.loads.common.config.DataSourceCdabaseConfig;
 import org.mousephenotype.cda.loads.create.extract.cdabase.steps.*;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.utilities.UrlUtils;
-import org.mousephenotype.impress.wsdlclients.*;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +38,6 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
@@ -77,11 +75,6 @@ public class CdabaseConfig extends DataSourceCdabaseConfig {
     @NotNull
     @Value("${cdabase.workspace}")
     protected String cdabaseWorkspace;
-
-    @NotNull
-    @Value("${impress.service.url}")
-    protected String impressServiceUrl;
-
 
     @Inject
     @Lazy
@@ -390,105 +383,6 @@ public class CdabaseConfig extends DataSourceCdabaseConfig {
     @Bean
     public StrainWriter strainWriter() {
        return new StrainWriter();
-    }
-
-
-    // Impress Web Service beans
-
-    String defaultUrl = "http://www.mousephenotype.org/impress/soap/server";
-    @Bean
-    public Jaxb2Marshaller marshaller() {
-        Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
-        // this package must match the package in the <generatePackage> specified in
-        // pom.xml
-        marshaller.setContextPath("org.mousephenotype.impress");
-        return marshaller;
-    }
-
-    @Bean
-    public ParameterMPTermsClient parameterMpTermsClient(Jaxb2Marshaller marshaller) {
-        ParameterMPTermsClient client = new ParameterMPTermsClient();
-        client.setDefaultUri(defaultUrl);
-        client.setMarshaller(marshaller);
-        client.setUnmarshaller(marshaller);
-        return client;
-    }
-
-    @Bean
-    public ParameterIncrementsClient parameterIncrementsClient(Jaxb2Marshaller marshaller) {
-        ParameterIncrementsClient client = new ParameterIncrementsClient();
-        client.setDefaultUri(defaultUrl);
-        client.setMarshaller(marshaller);
-        client.setUnmarshaller(marshaller);
-        return client;
-    }
-
-    @Bean
-    public ParameterOntologyOptionsClient parameterOntologyOptionsClient(Jaxb2Marshaller marshaller) {
-        ParameterOntologyOptionsClient client = new ParameterOntologyOptionsClient();
-        client.setDefaultUri(defaultUrl);
-        client.setMarshaller(marshaller);
-        client.setUnmarshaller(marshaller);
-        return client;
-    }
-
-    @Bean
-    public ParameterOptionsClient parameterOptionsClient(Jaxb2Marshaller marshaller) {
-        ParameterOptionsClient client = new ParameterOptionsClient();
-        client.setDefaultUri(defaultUrl);
-        client.setMarshaller(marshaller);
-        client.setUnmarshaller(marshaller);
-        return client;
-    }
-
-    @Bean
-    public ParametersClient parametersClient(Jaxb2Marshaller marshaller) {
-        ParametersClient client = new ParametersClient();
-        client.setDefaultUri(defaultUrl);
-        client.setMarshaller(marshaller);
-        client.setUnmarshaller(marshaller);
-        return client;
-    }
-
-    @Bean
-    public PipelineClient pipelineClient(Jaxb2Marshaller marshaller) {
-        PipelineClient client = new PipelineClient();
-        client.setDefaultUri(defaultUrl);
-        client.setMarshaller(marshaller);
-        client.setUnmarshaller(marshaller);
-        return client;
-    }
-
-    @Bean
-    public PipelineKeysClient pipelineKeysClient(Jaxb2Marshaller marshaller) {
-        PipelineKeysClient client = new PipelineKeysClient();
-        client.setDefaultUri(defaultUrl);
-        client.setMarshaller(marshaller);
-        client.setUnmarshaller(marshaller);
-        return client;
-    }
-
-    @Bean
-    public ProcedureClient procedureClient(Jaxb2Marshaller marshaller) {
-        ProcedureClient client = new ProcedureClient();
-        client.setDefaultUri(defaultUrl);
-        client.setMarshaller(marshaller);
-        client.setUnmarshaller(marshaller);
-        return client;
-    }
-
-    @Bean
-    public ProcedureKeysClient procedureKeysClient(Jaxb2Marshaller marshaller) {
-        ProcedureKeysClient client = new ProcedureKeysClient();
-        client.setDefaultUri(defaultUrl);
-        client.setMarshaller(marshaller);
-        client.setUnmarshaller(marshaller);
-        return client;
-    }
-
-    @Bean
-    public String impressServiceUrl() {
-        return impressServiceUrl;
     }
 
     // NOTE: Using @Lazy here and in the @Autowire to postpone creation of this bean (so that @PostConstruct can be used)

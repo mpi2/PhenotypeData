@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.loads.create.extract.cdabase;
+package org.mousephenotype.cda.loads.create.extract.impressbase;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
