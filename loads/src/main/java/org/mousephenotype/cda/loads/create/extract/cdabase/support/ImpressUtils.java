@@ -24,10 +24,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.validation.constraints.NotNull;
+import javax.inject.Inject;
 import java.util.*;
 
 @Component
@@ -42,10 +43,13 @@ public class ImpressUtils {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @NotNull
-    @Value("${impress.service.url}")
-    protected String impressServiceUrl;
+    private String impressServiceUrl;
 
+    @Inject
+    public ImpressUtils(@Value("${impress.service.url}") String impressServiceUrl) {
+        Assert.notNull(impressServiceUrl, "impress Service URL cannot be null");
+        this.impressServiceUrl = impressServiceUrl;
+    }
 
     // PIPELINE
 
