@@ -387,8 +387,9 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
     }
 
     private void addSpecimenProject(ResultSet r, ObservationDTOWrite o) throws SQLException {
-        o.setSpecimenProjectId(r.getLong("specimen_project_id"));
-        o.setSpecimenProjectName(projectMap.get(o.getSpecimenProjectId()).name);
+	    Long l = r.getLong("specimen_project_id");
+        o.setSpecimenProjectId((l != null) && (l > 0L) ? l : null);
+        o.setSpecimenProjectName((l != null) && (l > 0L) ? projectMap.get(l).name : null);
     }
 
     private void addDatasource(ResultSet r, ObservationDTOWrite o) throws SQLException {
@@ -445,17 +446,10 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
     }
 
     private boolean addBiologicalDataForSamples(ResultSet r, ObservationDTOWrite o) throws Exception {
-        // Specimen level data
-
         String             bioSampleId = r.getString("biological_sample_id");
         BiologicalDataBean b           = biologicalData.get(bioSampleId);
 
         if (b == null) {
-//
-//            if (missingBiologicalDataErrorCount++ < MAX_MISSING_BIOLOGICAL_DATA_ERROR_COUNT_DISPLAYED) {
-//                runStatus.addError(" Cannot find biological data for specimen id: " + bioSampleId + ", experiment id: " + r.getString("experiment_id"));
-//            }
-
             return true;
         }
 
@@ -492,7 +486,6 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
     }
 
     private boolean addBiologicalDataForLines(RunStatus runStatus, ResultSet r, ObservationDTOWrite o) throws SQLException {
-        // Line level data
         if ( ! SKIP_SLOW_LOADING_MAPS) {
             BiologicalDataBean b = lineBiologicalData.get(r.getString("experiment_id"));
             if (b == null) {
