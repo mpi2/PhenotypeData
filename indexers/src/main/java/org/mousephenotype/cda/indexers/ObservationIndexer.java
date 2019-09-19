@@ -236,9 +236,10 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
         int  queryNumber = 0;
         for (String query : observationQueries) {
 
-            executeQueryAndWriteObservations(connection, query, runStatus);
+            logger.info("STARTING QUERY {}", queryNumber);
+            long documentCountForQuery = executeQueryAndWriteObservations(connection, query, runStatus);
 
-            logger.info("FINISHED QUERY {}", queryNumber);
+            logger.info("FINISHED QUERY {}. Wrote {} documents.", queryNumber, documentCountForQuery);
             queryNumber++;
         }
 
@@ -251,7 +252,9 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
         return documentCount;
     }
 
-    private void executeQueryAndWriteObservations(Connection connection, String query, RunStatus runStatus) {
+    private long executeQueryAndWriteObservations(Connection connection, String query, RunStatus runStatus) {
+
+	    long documentCountForQuery = 0L;
         try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 
             p.setFetchSize(Integer.MIN_VALUE);
@@ -260,7 +263,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
             ResultSet r = p.executeQuery();
             logger.debug("  QUERY END");		// 2019-08-16 16:57:05.791  INFO 32731 --- [           main] o.m.cda.indexers.ObservationIndexer      :   QUERY END
 
-            writeObservations(query, r, runStatus);
+            documentCountForQuery = writeObservations(query, r, runStatus);
             checkAndLogProgress();
             experimentCore.commit();
 
@@ -268,9 +271,13 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
             e.printStackTrace();
             System.out.println(" Big error :" + e.getMessage());
         }
+
+        return documentCountForQuery;
     }
 
-    private void writeObservations(String query, ResultSet r, RunStatus runStatus) throws Exception {
+    private long writeObservations(String query, ResultSet r, RunStatus runStatus) throws Exception {
+
+	    long documentCountForQuery = 0L;
         while (r.next()) {
 
             ObservationDTOWrite o = new ObservationDTOWrite();
@@ -314,7 +321,10 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
             checkAndLogProgress();
             documentCount++;
+            documentCountForQuery++;
         }
+
+        return documentCountForQuery;
     }
 
     private void addSequenceIdIfApplicable(ResultSet r, ObservationDTOWrite o) throws SQLException {
