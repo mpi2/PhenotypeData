@@ -782,7 +782,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
                 + "INNER JOIN biological_model bm ON bm.id = bms.biological_model_id "
                 + "INNER JOIN ontology_term ot ON ot.acc=ls.developmental_stage_acc "
                 + "INNER JOIN organisation prod_org ON bs.organisation_id=prod_org.id "
-                + "INNER JOIN project ON project.id = bs.project_id";
+                + "LEFT OUTER JOIN project ON project.id = bs.project_id";
 
         try (PreparedStatement p = connection.prepareStatement(query)) {
 

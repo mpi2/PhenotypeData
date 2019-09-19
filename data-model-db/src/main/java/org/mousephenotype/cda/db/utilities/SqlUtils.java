@@ -407,43 +407,6 @@ public class SqlUtils {
         return newRow;
     }
 
-    // FIXME DELETE THIS WHEN POOLING IS SORTED.
-//    public static DataSource getConfiguredDatasource(String url, String username, String password) {
-//        org.apache.tomcat.jdbc.pool.DataSource ds = new org.apache.tomcat.jdbc.pool.DataSource();
-//        ds.setUrl(url);
-//        ds.setUsername(username);
-//        ds.setPassword(password);
-//        ds.setDriverClassName("com.mysql.jdbc.Driver");
-//        ds.setInitialSize(INITIAL_POOL_CONNECTIONS);
-//        ds.setMaxActive(100);
-//        ds.setMinIdle(INITIAL_POOL_CONNECTIONS);
-//        ds.setMaxIdle(INITIAL_POOL_CONNECTIONS);
-//        ds.setTestOnBorrow(true);
-//        ds.setValidationQuery("SELECT 1");
-//        ds.setValidationInterval(5000);
-//        ds.setMaxAge(30000);
-//        ds.setMaxWait(35000);
-//        ds.setTestWhileIdle(true);
-//        ds.setTimeBetweenEvictionRunsMillis(5000);
-//        ds.setMinEvictableIdleTimeMillis(5000);
-//        ds.setValidationInterval(30000);
-//        ds.setRemoveAbandoned(true);
-//        ds.setRemoveAbandonedTimeout(10000); // 10 seconds before abandoning a query
-//
-//        try {
-//            logger.info("Using database {} with initial pool size {}. URL: {}", ds.getConnection().getCatalog(), ds.getInitialSize(), url);
-//
-//        } catch (Exception e) {
-//
-//            System.err.println(e.getLocalizedMessage());
-//            e.printStackTrace();
-//        }
-//
-//        return ds;
-//    }
-
-
-
     /**
      * From https://github.com/brettwooldridge/HikariCP#configuration-knobs-baby
      * maxLifetime:
@@ -463,7 +426,6 @@ public class SqlUtils {
         ds.setJdbcUrl(url);
         ds.setUsername(username);
         ds.setPassword(password);
-
         ds.setConnectionInitSql("SELECT 1");
         ds.setMinimumIdle(INITIAL_POOL_CONNECTIONS);
         ds.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
