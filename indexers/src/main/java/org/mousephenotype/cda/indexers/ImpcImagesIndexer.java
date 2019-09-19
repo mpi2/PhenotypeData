@@ -147,7 +147,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			logger.info("  Building parameter to abnormal mp map");
 			parameterStableIdToMpTermIdMap = this.populateParameterStableIdToMpIdMap();
 			logger.info("  Parameter to abnormal mp map size="+parameterStableIdToMpTermIdMap.size());
-			//System.out.println("parameterStableIdToMpTermIdMap"+parameterStableIdToMpTermIdMap);
+			//logger.debug("parameterStableIdToMpTermIdMap"+parameterStableIdToMpTermIdMap);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -192,7 +192,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			}
 
 			imageList.addAll(secondaryProjectImages);
-			System.out.println("primary imageList size is "+imagePrimaryList.size());
+			logger.debug("primary imageList size is "+imagePrimaryList.size());
 			imageList.addAll(imagePrimaryList);
 		
 			
@@ -389,7 +389,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 
 		if (term.getTopLevelIds() != null){
-// System.out.println("adding top level ids="+term.getTopLevelIds());
+// logger.debug("adding top level ids="+term.getTopLevelIds());
 			imageDTO.addSelectedTopLevelAnatomyId(term.getTopLevelIds(), true);
 			imageDTO.addSelectedTopLevelAnatomyTerm(term.getTopLevelNames(), true);
 			imageDTO.addSelectedTopLevelAnatomySynonyms(term.getTopLevelSynonyms(), true);
@@ -632,7 +632,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 				paramToMa.put(parameterStableId, maAcc);
 			}
 		}
-		System.out.println(" paramToMa size = " + paramToMa.size());
+		logger.debug(" paramToMa size = " + paramToMa.size());
 		return paramToMa;
 	}
 
@@ -645,7 +645,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			while (resultSet.next()) {
 				String parameterStableId = resultSet.getString("stable_id");
 				String mpAcc = resultSet.getString("ontology_acc");
-				//System.out.println("parameterStableId="+parameterStableId+" mpAcc="+mpAcc);
+				//logger.debug("parameterStableId="+parameterStableId+" mpAcc="+mpAcc);
 				paramToMp.put(parameterStableId, mpAcc);
 			}
 		}
