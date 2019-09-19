@@ -64,6 +64,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Populate the experiment core
@@ -204,18 +205,18 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
             logger.info("  maps populated");
 
-			count = populateObservationSolrCore(connection, runStatus);
+			count = populateObservationSolrCore(runStatus);
 
         } catch (SolrServerException | SQLException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e) {
             e.printStackTrace();
             throw new IndexerException(e);
         }
 
-        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+		logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
         return runStatus;
     }
 
-	public long populateObservationSolrCore(Connection connection, RunStatus runStatus) throws IOException, SolrServerException {
+	public long populateObservationSolrCore(RunStatus runStatus) throws IOException, SolrServerException, IndexerException {
 
 		experimentCore.deleteByQuery("*:*");
 
@@ -234,14 +235,37 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
         logger.info("  BEGIN processing experiments");
 
         int  queryNumber = 0;
-        for (String query : observationQueries) {
 
-            logger.info("STARTING QUERY {}", queryNumber);
-            long documentCountForQuery = executeQueryAndWriteObservations(connection, query, runStatus);
 
-            logger.info("FINISHED QUERY {}. Wrote {} documents.", queryNumber, documentCountForQuery);
-            queryNumber++;
-        }
+        observationQueries
+                .parallelStream()
+                .map( query -> {
+
+                          try (Connection connection2 = komp2DataSource.getConnection()) {
+
+                              logger.info("STARTING QUERY");
+                              long documentCountForQuery = executeQueryAndWriteObservations(connection2, query, runStatus);
+                              logger.info("FINISHED QUERY. Wrote {} documents.", documentCountForQuery);
+                          } catch (Exception e) {
+                              e.printStackTrace();
+//                              throw new IndexerException(e);
+                          }
+
+                    return 0;
+                      }).collect(Collectors.toList());
+
+
+
+
+
+//        for (String query : observationQueries) {
+//
+//            logger.info("STARTING QUERY {}", queryNumber);
+//            long documentCountForQuery = executeQueryAndWriteObservations(connection, query, runStatus);
+//
+//            logger.info("FINISHED QUERY {}. Wrote {} documents.", queryNumber, documentCountForQuery);
+//            queryNumber++;
+//        }
 
         logger.info("  FINISHED processing experiments.");
 
