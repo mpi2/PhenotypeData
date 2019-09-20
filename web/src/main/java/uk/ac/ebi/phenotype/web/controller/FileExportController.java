@@ -18,49 +18,45 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.db.dao.*;
 import org.mousephenotype.cda.db.pojo.Allele;
-import org.mousephenotype.cda.db.pojo.ReferenceDTO;
 import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
-import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
-import org.mousephenotype.cda.solr.service.dto.*;
+import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
+import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import uk.ac.ebi.phenotype.service.*;
+import org.springframework.web.bind.annotation.*;
+import uk.ac.ebi.phenotype.service.BatchQueryForm;
 import uk.ac.ebi.phenotype.service.search.SearchUrlService;
 import uk.ac.ebi.phenotype.service.search.SearchUrlServiceFactory;
 import uk.ac.ebi.phenotype.util.SearchSettings;
+import uk.ac.ebi.phenotype.web.dao.ReferenceService;
+import uk.ac.ebi.phenotype.web.dto.AlleleRef;
+import uk.ac.ebi.phenotype.web.dto.FullTextUrl;
+import uk.ac.ebi.phenotype.web.dto.Grant;
+import uk.ac.ebi.phenotype.web.dto.Publication;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
@@ -119,9 +115,11 @@ public class FileExportController {
 	@Autowired
 	private SearchUrlServiceFactory urlFactory;
 
+	@Autowired
+	private ReferenceService referenceService;
 
-	private String hostname = null;
-	private String baseUrl = null;
+	private static String HOSTNAME = null;
+	private static String BASE_URL = null;
 
 
 	/**
@@ -152,8 +150,11 @@ public class FileExportController {
 			@RequestParam(value = "sex", required = false) String[] sexesParameter,
 			@RequestParam(value = "zygosity", required = false) String[] zygositiesParameter,
 			@RequestParam(value = "strain", required = false) String strainParameter,
+			HttpServletRequest request,
 			HttpServletResponse response)
 			throws SolrServerException, IOException, URISyntaxException, SQLException {
+
+		initializeStaticRequestConstants(request);
 
 		if (alleleAccession!=null) {
 			alleleAccessionId = alleleAccession;
@@ -171,19 +172,6 @@ public class FileExportController {
 				strainAccession = s.getId().getAccession();
 			}
 		}
-
-//		List<ExperimentDTO> experiments = experimentService.getExperimentDTO(parameterStableId, pipelineStableId,
-//				geneAcc, sex, phenotypingCenter, zygosities, strainAccession, null, Boolean.FALSE, alleleAcc);
-
-//		List<String> rows = new ArrayList<>();
-//		rows.add(StringUtils.join(new String[] { "Experiment", "Center", "Pipeline", "Procedure", "Parameter", "Strain",
-//						"Colony", "Gene", "Allele", "MetadataGroup", "Zygosity", "Sex", "AssayDate", "Value", "Metadata", "Weight" },
-//				","));
-
-//		Integer i = 1;
-
-
-
 
 		String[] alleleArray = {alleleAcc};
 		String[] geneArray = {geneAcc};
@@ -307,7 +295,8 @@ public class FileExportController {
 			@RequestParam(value = "consortium", required = false) Boolean consortium,
 			HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
 
-		hostName = request.getAttribute("mappedHostname").toString();//.replace("https:", "http:");
+		initializeStaticRequestConstants(request);
+
 
 		Boolean legacyOnly = false;
 		String solrFilters = "q=" + query + "&fq=" + fqStr;
@@ -384,6 +373,16 @@ public class FileExportController {
 		String filters = null;
 		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName, filters);
 
+	}
+
+	private void initializeStaticRequestConstants(HttpServletRequest request) {
+		if (HOSTNAME == null) {
+			HOSTNAME = request.getAttribute("mappedHostname").toString();
+		}
+
+		if (BASE_URL == null) {
+			BASE_URL = request.getAttribute("baseUrl").toString();
+		}
 	}
 
 	/**
@@ -1364,69 +1363,63 @@ public class FileExportController {
 	private List<String> composeAlleleRefExportRows(int iDisplayLength, int iDisplayStart, String sSearch, String dumpMode, Boolean consortium, String filter, String id) throws SQLException {
 		List<String> rowData = new ArrayList<>();
 
-		// don't want abstract and cited_by for now, unless users want to see them
-		List<String> cols = Arrays.asList(referenceDAO.heading.split("\\t"));
+		List<Publication> publications;
+
+		if (consortium) {
+			publications = referenceService.getAllConsortium(filter, 0, Integer.MAX_VALUE, "firstPublicationDate", "ASC");
+		} else {
+			publications = referenceService.getAllReviewed(filter, 0, Integer.MAX_VALUE, "firstPublicationDate", "ASC");
+		}
+
+		// don't want abstract, allene name, and cited_by for now, unless users want to see them
 		List<String> cols2 = new ArrayList<>();
-		for (String col : cols){
-			if (!(col.equals("abstract") || col.equals("cited_by")) ){
+		for (String col : referenceDAO.heading.split("\\t")){
+			if (!(col.equals("abstract") || col.equals("cited_by") || col.equals("MGI allele name")) ){
 				cols2.add(col);
 			}
 		}
 		rowData.add(StringUtils.join(cols2,"\t"));
 
 		System.out.println("export2");
-		String orderByStr = "date_of_publication DESC";
 
-		List<ReferenceDTO> references = null;
-		if ( id.equals("agency")) {
-			boolean agencyOnly = true;
-			System.out.println("kw: " + sSearch + " - filter " + filter);;
-			//references = referenceDAO.getReferenceRows(agencyOnly, sSearch, filter); // for agency papers
-			references = referenceDAO.getReferenceRowsAgencyPaper(sSearch, filter, orderByStr);
-		}
-		else if (id.equals("biosystem")){
-			references = referenceDAO.getReferenceRowsForBiologicalSystemPapers(sSearch, filter, orderByStr);
-		}
-		else {
-			System.out.println("fetching non-agency papers ....");
-			//references = referenceDAO.getReferenceRows(sSearch, consortium);
-
-			references = referenceDAO.getReferenceRows(sSearch, filter, orderByStr, consortium);
-		}
-
-		for (ReferenceDTO reference : references) {
+		for (Publication reference : publications) {
 			List<String> row = new ArrayList<>();
-			row.add(StringUtils.join(reference.getAlleleSymbols(), "|")); //1
-			row.add(StringUtils.join(reference.getAlleleAccessionIds(), "|")); //2
-			row.add(StringUtils.join(reference.getImpcGeneLinks(), "|")); //3
-			row.add(StringUtils.join(reference.getMgiAlleleNames(), "|")); //4
+			row.add(StringUtils.join(reference.getAlleles().stream().map(AlleleRef::getAlleleSymbol).collect(Collectors.toList()), "|")); //1
+			row.add(StringUtils.join(reference.getAlleles().stream().map(AlleleRef::getAcc).collect(Collectors.toList()), "|")); //2
+			row.add(StringUtils.join(getImpcUrls(reference.getAlleles()), "|")); //3
+
+			// Allele name is not easily accessible from the new Publication object,
+			// Suppress it for now
+//			row.add(StringUtils.join(reference.getAlleles().stream().map(AlleleRef::getAlleleName).collect(Collectors.toList()), "|")); //4
+			//
+
 			row.add(reference.getTitle()); //5
-			row.add(reference.getJournal()); //6
-			row.add(Integer.toString(reference.getPmid())); //7
-			row.add(reference.getDateOfPublication());  //8
+			row.add(reference.getJournalInfo().getJournal().getTitle()); //6
+			row.add(reference.getPmid()); //7
+			row.add(reference.getFirstPublicationDate().toString());  //8
 
-			if (reference.getGrantIds() != null) {
-				row.add(StringUtils.join(reference.getGrantIds(), "|")); //9
+			if (reference.getGrantsList() != null) {
+				row.add(StringUtils.join(reference.getGrantsList().stream().map(Grant::getGrantId).collect(Collectors.toList()), "|")); //9
 			}
 			else {
 				row.add("");
 			}
 
-			if (reference.getGrantAgencies() != null) {
-				row.add(StringUtils.join(reference.getGrantAgencies(), "|")); //9
+			if (reference.getGrantsList() != null) {
+				row.add(StringUtils.join(reference.getGrantsList().stream().map(Grant::getAgency).collect(Collectors.toList()), "|")); //9
 			}
 			else {
 				row.add("");
 			}
 
-			row.add(StringUtils.join(reference.getPaperUrls(), "|")); //11
-			if (reference.getMeshTerms() == null || reference.getMeshTerms().size() == 0 ){
+			row.add(StringUtils.join(reference.getFullTextUrlList().stream().map(FullTextUrl::getUrl).collect(Collectors.toList()), "|")); //11
+			if (reference.getMeshHeadingList() == null || reference.getMeshHeadingList().size() == 0 ){
 				row.add("not available"); //11
 			}
 			else {
-				row.add(StringUtils.join(reference.getMeshTerms(), "|")); //12
+				row.add(StringUtils.join(reference.getMeshHeadingList(), "|")); //12
 			}
-			row.add(reference.getConsortiumPaper()); //13
+			row.add(String.valueOf(reference.isConsortiumPaper())); //13
 
 			rowData.add(StringUtils.join(row, "\t"));
 		}
@@ -1435,6 +1428,17 @@ public class FileExportController {
 		return rowData;
 	}
 
+	List<String> getImpcUrls(List<AlleleRef> alleles) {
+		List<String> urls = new ArrayList<>();
+
+		String URL_TEMPLATE = HOSTNAME + BASE_URL + "/genes/%s";
+
+		alleles.forEach(allele -> {
+			urls.add(String.format(URL_TEMPLATE, allele.getGacc()));
+		});
+
+		return urls;
+	}
 
 	private List<String> composeGene2GoAnnotationDataRows(JSONObject json, HttpServletRequest request,
 														  boolean hasgoterm, boolean gocollapse) {
@@ -1554,6 +1558,8 @@ public class FileExportController {
 			@RequestParam(value = "currentTraitName", required = false) String currentTraitName, HttpSession session,
 			HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
 
+		initializeStaticRequestConstants(request);
+
 		List<String> dataRows = fetchImpc2GwasMappingData(request, mgiGeneSymbol, gridFields, currentTraitName);
 		String fileName = "impc_to_Gwas_mapping_dataset";
 
@@ -1615,6 +1621,8 @@ public class FileExportController {
 			@RequestParam(value = "gridFields", required = true) String gridFields,
 
 			HttpSession session, HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
+
+		initializeStaticRequestConstants(request);
 
 		List<String> queryIds = new ArrayList<String>(Arrays.asList(idlist.split(",")));
 		List<QueryResponse> solrResponses = new ArrayList<>();
