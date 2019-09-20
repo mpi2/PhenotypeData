@@ -1180,7 +1180,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
         long now                = new Date().getTime();
         long totalTimeInMinutes = (now - startTimestamp) / 60000L;
         if (totalTimeInMinutes > 0) {
-            logger.info("  Query {}: Added {} experiments ({} experiments per minute).", queryName, count, count / totalTimeInMinutes);
+            logger.info("  Query '{}': Added {} experiments ({} experiments per minute).", queryName, count, count / totalTimeInMinutes);
         }
     }
 
