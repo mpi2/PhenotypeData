@@ -648,12 +648,6 @@ public class FileExportController {
 						}
 
 					} else {
-						/*
-						 * if ( fld.equals("annotationTermId") ){
-						 * data.add(Constants.NO_INFORMATION_AVAILABLE); data.add(Constants.NO_INFORMATION_AVAILABLE);
-						 * data.add(Constants.NO_INFORMATION_AVAILABLE); } else if (
-						 * fld.equals("symbol_gene") ){
-						 */
 						if (fld.equals("gene_symbol")) {
 							data.add(Constants.NO_INFORMATION_AVAILABLE);
 							data.add(Constants.NO_INFORMATION_AVAILABLE);
