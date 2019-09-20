@@ -15,13 +15,13 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.mousephenotype.cda.db.pojo.BiologicalModel;
 import org.mousephenotype.cda.db.pojo.CategoricalResult;
 import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class to hold all data, charts and tables pertaining to a Categorical Result Stats set so for male and female data combined
@@ -36,13 +36,13 @@ public class CategoricalResultAndCharts {
 	private List<CategoricalResult> statsResults;
 	private String organisation="placeHolder";
 	
-	private double combinedPValue;//male and female controls and experimental data combined to get an overall p value
+	private Double combinedPValue;//male and female controls and experimental data combined to get an overall p value
 
-	public double getCombinedPValue() {
+	public Double getCombinedPValue() {
 		return combinedPValue;
 	}
 
-	public void setCombinedPValue(double combinedPValue) {
+	public void setCombinedPValue(Double combinedPValue) {
 		this.combinedPValue = combinedPValue;
 	}
 

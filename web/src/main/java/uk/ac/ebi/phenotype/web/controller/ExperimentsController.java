@@ -50,164 +50,164 @@ import java.util.Map;
 public class ExperimentsController {
 
 
-	@Autowired
-	SolrIndex solrIndex;
+    @Autowired
+    SolrIndex solrIndex;
 
-	@Autowired
-	private StatisticalResultService srService;
+    @Autowired
+    private StatisticalResultService srService;
 
-	@Autowired
-	private MpService mpService;
-	
-	@Autowired
-	private ObservationService observationService;
+    @Autowired
+    private MpService mpService;
 
-	private PhenomeChartProvider phenomeChartProvider = new PhenomeChartProvider();
+    @Autowired
+    private ObservationService observationService;
 
-	/**
-	 * Runs when the request missing an accession ID. This redirects to the
-	 * search page which defaults to showing all genes in the list
-	 */
-	@RequestMapping("/experimentsTableFrag")
-	public String getAlleles(
-			@RequestParam(required = true, value = "geneAccession") String geneAccession,
-			@RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol,
-			@RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter,
-			@RequestParam(required = false, value = "pipelineName") List<String> pipelineName,
-			@RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId,
-			@RequestParam(required = false, value = "procedureName") List<String> procedureName,
-			@RequestParam(required = false, value = "mpTermId") List<String> mpTermId,
-			@RequestParam(required = false, value = "resource") ArrayList<String> resource,
-			Model model,
-			HttpServletRequest request)
-	throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
+    private PhenomeChartProvider phenomeChartProvider = new PhenomeChartProvider();
 
-		Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
-		int rows = 0;
-		String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
-		
-		experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
+    /**
+     * Runs when the request missing an accession ID. This redirects to the
+     * search page which defaults to showing all genes in the list
+     */
+    @RequestMapping("/experimentsTableFrag")
+    public String getAlleles(
+            @RequestParam(required = true, value = "geneAccession") String geneAccession,
+            @RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol,
+            @RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter,
+            @RequestParam(required = false, value = "pipelineName") List<String> pipelineName,
+            @RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId,
+            @RequestParam(required = false, value = "procedureName") List<String> procedureName,
+            @RequestParam(required = false, value = "mpTermId") List<String> mpTermId,
+            @RequestParam(required = false, value = "resource") ArrayList<String> resource,
+            Model model,
+            HttpServletRequest request)
+            throws IOException, SolrServerException {
 
-		for ( List<ExperimentsDataTableRow> list : experimentRows.values()){
-			rows += list.size();
-		}
-		model.addAttribute("rows", rows);		
-		model.addAttribute("experimentRows", experimentRows);
-		return "experimentsTableFrag";
-	}
+        Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
+        int rows = 0;
+        String graphBaseUrl = request.getAttribute("baseUrl").toString();
+
+        experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
+
+        for (List<ExperimentsDataTableRow> list : experimentRows.values()) {
+            rows += list.size();
+        }
+        model.addAttribute("rows", rows);
+        model.addAttribute("experimentRows", experimentRows);
+        return "experimentsTableFrag";
+    }
 
 
-	/**
-	 * Runs when the request missing an accession ID. This redirects to the
-	 * search page which defaults to showing all genes in the list
-	 */
-	@RequestMapping("/experimentsChartFrag")
-	public String getAllelesChart(
-			@RequestParam(required = true, value = "geneAccession") String geneAccession,
-			@RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol,
-			@RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter,
-			@RequestParam(required = false, value = "pipelineName") List<String> pipelineName,
-			@RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId,
-			@RequestParam(required = false, value = "procedureName") List<String> procedureName,
-			@RequestParam(required = false, value = "mpTermId") List<String> mpTermId,
-			@RequestParam(required = false, value = "resource") ArrayList<String> resource,
-			Model model,
-			HttpServletRequest request)
-			throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
+    /**
+     * Runs when the request missing an accession ID. This redirects to the
+     * search page which defaults to showing all genes in the list
+     */
+    @RequestMapping("/experimentsChartFrag")
+    public String getAllelesChart(
+            @RequestParam(required = true, value = "geneAccession") String geneAccession,
+            @RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol,
+            @RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter,
+            @RequestParam(required = false, value = "pipelineName") List<String> pipelineName,
+            @RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId,
+            @RequestParam(required = false, value = "procedureName") List<String> procedureName,
+            @RequestParam(required = false, value = "mpTermId") List<String> mpTermId,
+            @RequestParam(required = false, value = "resource") ArrayList<String> resource,
+            Model model,
+            HttpServletRequest request)
+            throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
 
-		AllelePageDTO allelePageDTO = srService.getAllelesInfo(geneAccession, null, null, null, null, null, null, null);
-		Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
-		String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
-		experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
-		Map<String, Object> chartData = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
-		model.addAttribute("chart", chartData.get("chart"));
-		model.addAttribute("count", chartData.get("count"));
-		return "experimentsChartFrag";
-	}
-	
-	@RequestMapping("/experiments")
-	public String getBasicInfo(
-			@RequestParam(value = "geneAccession") String geneAccession,
-			@RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol,
-			@RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter,
-			@RequestParam(required = false, value = "pipelineName") List<String> pipelineName,
-			@RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId,
-			@RequestParam(required = false, value = "procedureName") List<String> procedureName,
-			@RequestParam(required = false, value = "mpTermId") List<String> mpTermIds,
-			@RequestParam(required = false, value = "resource") ArrayList<String> resource,
-			Model model,
-			HttpServletRequest request)
-	throws SolrServerException, IOException , URISyntaxException {
-		
-		AllelePageDTO allelePageDTO = srService.getAllelesInfo(geneAccession, null, null, null, null, null, null, null);
-		Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
-		int rows = 0;
-		String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
-		
-		experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName,
-					procedureStableId, resource, mpTermIds, graphBaseUrl));
-		for ( List<ExperimentsDataTableRow> list : experimentRows.values()){
-			rows += list.size();
-		}
+        AllelePageDTO allelePageDTO = srService.getAllelesInfo(geneAccession, null, null, null, null, null, null, null);
+        Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
+        String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
+        experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
+        Map<String, Object> chartData = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
+        model.addAttribute("chart", chartData.get("chart"));
+        model.addAttribute("count", chartData.get("count"));
+        return "experimentsChartFrag";
+    }
 
-		Map<String, Object> chart = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
-		//top level mp names often are not in same order as ids so this mehod if used for getting name from id is wrong. SR indexer needs fixing.
-		Map<String, String> phenotypeTopLevels = srService.getTopLevelMPTerms(geneAccession, null);
-		List<MpDTO> mpTerms = new ArrayList<>();
-		
-		mpTerms.addAll(mpService.getPhenotypes(mpTermIds));		
-		model.addAttribute("phenotypeFilters", mpTerms);
-		model.addAttribute("phenotypes", phenotypeTopLevels);
-		model.addAttribute("chart", chart.get("chart"));
-		model.addAttribute("chartData", chart.get("chart").equals(null));
-		model.addAttribute("rows", rows);
-		model.addAttribute("experimentRows", experimentRows);
-		model.addAttribute("allelePageDTO", allelePageDTO);
+    @RequestMapping("/experiments")
+    public String getBasicInfo(
+            @RequestParam(value = "geneAccession") String geneAccession,
+            @RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol,
+            @RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter,
+            @RequestParam(required = false, value = "pipelineName") List<String> pipelineName,
+            @RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId,
+            @RequestParam(required = false, value = "procedureName") List<String> procedureName,
+            @RequestParam(required = false, value = "mpTermId") List<String> mpTermIds,
+            @RequestParam(required = false, value = "resource") ArrayList<String> resource,
+            Model model,
+            HttpServletRequest request)
+            throws SolrServerException, IOException, URISyntaxException {
 
-		return "experiments";
-	}
-	
-	
-	/**
-	 * @author ilinca
-	 * @since 2016/05/05
-	 */
-	@RequestMapping("/experiments/export")
-	public void downloadBasicInfo(
-			@RequestParam(value = "fileType") String fileType,
-			@RequestParam(value = "fileName") String fileName,
-			@RequestParam(value = "geneAccession") String geneAccession,
-			@RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol,
-			@RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter,
-			@RequestParam(required = false, value = "pipelineName") List<String> pipelineName,
-			@RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId,
-			@RequestParam(required = false, value = "procedureName") List<String> procedureName,
-			@RequestParam(required = false, value = "mpTermId") List<String> mpTermId,
-			@RequestParam(required = false, value = "resource") ArrayList<String> resource,
-			HttpServletRequest request,
-			HttpServletResponse response)
-	throws Exception {
+        AllelePageDTO allelePageDTO = srService.getAllelesInfo(geneAccession, null, null, null, null, null, null, null);
+        Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
+        int rows = 0;
+        String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 
-		List<ExperimentsDataTableRow> experimentList = new ArrayList<>();
-		String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
+        experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName,
+                procedureStableId, resource, mpTermIds, graphBaseUrl));
+        for (List<ExperimentsDataTableRow> list : experimentRows.values()) {
+            rows += list.size();
+        }
 
-		for (List<ExperimentsDataTableRow> list : srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl).values()){
-			experimentList.addAll(list);
-		}
+        Map<String, Object> chart = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
+        //top level mp names often are not in same order as ids so this mehod if used for getting name from id is wrong. SR indexer needs fixing.
+        Map<String, String> phenotypeTopLevels = srService.getTopLevelMPTerms(geneAccession, null);
+        List<MpDTO> mpTerms = new ArrayList<>();
 
-		List<String> dataRows = new ArrayList<>();
-		dataRows.add(ExperimentsDataTableRow.getTabbedHeader());
-		for (ExperimentsDataTableRow row : experimentList) {
-			dataRows.add(row.toTabbedString());
-		}
-		
-		String filters = null;
-		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName, filters);
+        mpTerms.addAll(mpService.getPhenotypes(mpTermIds));
+        model.addAttribute("phenotypeFilters", mpTerms);
+        model.addAttribute("phenotypes", phenotypeTopLevels);
+        model.addAttribute("chart", chart.get("chart"));
+        model.addAttribute("chartData", chart.get("chart").equals(null));
+        model.addAttribute("rows", rows);
+        model.addAttribute("experimentRows", experimentRows);
+        model.addAttribute("allelePageDTO", allelePageDTO);
 
-	}
-	
+        return "experiments";
+    }
 
-	public ModelAndView handleGeneralException(Exception exception) {
+
+    /**
+     * @author ilinca
+     * @since 2016/05/05
+     */
+    @RequestMapping("/experiments/export")
+    public void downloadBasicInfo(
+            @RequestParam(value = "fileType") String fileType,
+            @RequestParam(value = "fileName") String fileName,
+            @RequestParam(value = "geneAccession") String geneAccession,
+            @RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol,
+            @RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter,
+            @RequestParam(required = false, value = "pipelineName") List<String> pipelineName,
+            @RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId,
+            @RequestParam(required = false, value = "procedureName") List<String> procedureName,
+            @RequestParam(required = false, value = "mpTermId") List<String> mpTermId,
+            @RequestParam(required = false, value = "resource") ArrayList<String> resource,
+            HttpServletRequest request,
+            HttpServletResponse response)
+            throws Exception {
+
+        List<ExperimentsDataTableRow> experimentList = new ArrayList<>();
+        String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
+
+        for (List<ExperimentsDataTableRow> list : srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl).values()) {
+            experimentList.addAll(list);
+        }
+
+        List<String> dataRows = new ArrayList<>();
+        dataRows.add(ExperimentsDataTableRow.getTabbedHeader());
+        for (ExperimentsDataTableRow row : experimentList) {
+            dataRows.add(row.toTabbedString());
+        }
+
+        String filters = null;
+        FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName, filters);
+
+    }
+
+
+    public ModelAndView handleGeneralException(Exception exception) {
         ModelAndView mv = new ModelAndView("uncaughtException");
         exception.printStackTrace();
         return mv;
