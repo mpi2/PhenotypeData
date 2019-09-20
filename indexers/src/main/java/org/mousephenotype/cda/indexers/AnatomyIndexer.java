@@ -133,7 +133,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
                     }
                 }
 
-                documentCount++;
+                expectedDocumentCount++;
                 anatomyCore.addBean(anatomyTerm, 60000);
 
             }
@@ -149,7 +149,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
                 addBasicFields(emapa, emapaDTO);
 
-                documentCount++;
+                expectedDocumentCount++;
                 anatomyCore.addBean(emapa, 60000);
 
             }
@@ -162,7 +162,7 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
             throw new IndexerException(e);
         }
 
-        logger.info(" Added {} total beans in {}", documentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info(" Added {} total beans in {}", expectedDocumentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
         return runStatus;
     }
 

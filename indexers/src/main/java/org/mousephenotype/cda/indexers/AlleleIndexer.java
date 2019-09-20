@@ -180,7 +180,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
 
                 // Now index the alleles
-                documentCount += alleles.size();
+                expectedDocumentCount += alleles.size();
                 indexAlleles(alleles);
 
                 count += BATCH_SIZE;

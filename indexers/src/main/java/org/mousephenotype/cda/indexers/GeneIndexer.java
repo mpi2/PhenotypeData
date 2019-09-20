@@ -553,7 +553,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 gene.setInferredSelectedTopLevelMaTerm(new ArrayList<>(new HashSet<>(gene.getInferredSelectedTopLevelMaTerm())));
                 gene.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<>(new HashSet<>(gene.getInferredSelectedTopLevelMaTermSynonym())));
 
-                documentCount++;
+                expectedDocumentCount++;
                 geneCore.addBean(gene, 60000);
                 count ++;
             }

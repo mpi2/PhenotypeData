@@ -190,9 +190,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             throw new IndexerException(e);
         }
 
-        documentCount = populateStatisticalResultsSolrCore();
+        expectedDocumentCount = populateStatisticalResultsSolrCore();
 
-        logger.info((SAVE?"":"Would have") + " Added {} total beans in {}", documentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info((SAVE?"":"Would have") + " Added {} total beans in {}", expectedDocumentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
         return runStatus;
     }
 

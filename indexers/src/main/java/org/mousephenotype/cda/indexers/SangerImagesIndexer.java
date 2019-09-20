@@ -413,7 +413,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 
 				}
 
-				documentCount++;
+				expectedDocumentCount++;
 				sangerImagesCore.addBean(o, 10000);
 
 				count += 1;

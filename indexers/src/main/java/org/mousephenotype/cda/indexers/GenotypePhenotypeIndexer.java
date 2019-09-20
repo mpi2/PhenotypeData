@@ -356,7 +356,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     runStatus.addError(" Found unknown ontology term: " + r.getString("ontology_term_id"));
                 }
 
-                documentCount++;
+                expectedDocumentCount++;
                 genotypePhenotypeCore.addBean(doc, 30000);
 
                 count++;

@@ -119,7 +119,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 		RunStatus        runStatus    = new RunStatus();
 		long             start        = System.currentTimeMillis();
 
-		documentCount = 0;
+		expectedDocumentCount = 0;
 
 		try (Connection connection = komp2DataSource.getConnection()) {
 
@@ -264,7 +264,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 							}
 						}
 						pipelineCore.addBean(doc);
-						documentCount++;
+						expectedDocumentCount++;
 					}
 				}
 			}
@@ -297,7 +297,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
             runStatus.addWarning("Missing mp term COUNT: " + missingMpIds.size());
         }
 
-        logger.info(" Added {} total beans in {}", documentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info(" Added {} total beans in {}", expectedDocumentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
 		return runStatus;
 	}
 

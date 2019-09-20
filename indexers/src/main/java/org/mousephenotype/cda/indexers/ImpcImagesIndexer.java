@@ -280,7 +280,7 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 				addOntologyTerms(imageDTO, parameterStableIdToMpTermIdMap, runStatus);
 
 				impcImagesCore.addBean(imageDTO, 30000);
-				documentCount++;
+				expectedDocumentCount++;
 			}
 
 			impcImagesCore.commit();
@@ -290,8 +290,8 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			throw new IndexerException(e);
 		}
 
-		logger.info(" Added {} total beans in {}", documentCount,
-				commonUtils.msToHms(System.currentTimeMillis() - start));
+		logger.info(" Added {} total beans in {}", expectedDocumentCount,
+					commonUtils.msToHms(System.currentTimeMillis() - start));
 
 		return runStatus;
 	}

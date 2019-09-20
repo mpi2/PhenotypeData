@@ -107,7 +107,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
 	// This is used to track the number of documents that were requested to be added by the core.addBeans() call.
     // It is used for later validation by querying the core after the build.
-    protected int documentCount = 0;
+    protected long expectedDocumentCount = 0L;
 
 	@Override
 	public void run(String... strings) throws Exception {
@@ -183,15 +183,15 @@ public abstract class AbstractIndexer implements CommandLineRunner {
      * @throws IndexerException
      */
     protected RunStatus validateBuild(SolrClient solrClient) throws IndexerException {
-        Long actualSolrDocumentCount = getDocumentCount(solrClient);
+        Long actualDocumentCount = getDocumentCount(solrClient);
         RunStatus runStatus = new RunStatus();
 
-        if (actualSolrDocumentCount <= MINIMUM_DOCUMENT_COUNT) {
-            runStatus.addError("Expected at least " + MINIMUM_DOCUMENT_COUNT + " documents. Actual count: " + actualSolrDocumentCount + ".");
+        if (actualDocumentCount <= MINIMUM_DOCUMENT_COUNT) {
+            runStatus.addWarning("SOLR DOCUMENT COUNT VALIDATION: Expected at least " + MINIMUM_DOCUMENT_COUNT + ". Actual:" + actualDocumentCount);
         }
 
-        if (actualSolrDocumentCount != documentCount) {
-            runStatus.addWarning("SOLR reports " + actualSolrDocumentCount + ". Actual count: " + documentCount);
+        if (actualDocumentCount != expectedDocumentCount) {
+            runStatus.addWarning("SOLR DOCUMENT COUNT VALIDATION: Expected " + expectedDocumentCount + ". Actual:" + actualDocumentCount);
         }
 
         return runStatus;
@@ -208,7 +208,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
         if (columns.containsKey(field)) {
             String el = array[columns.get(field)];
-            if(el.isEmpty()){
+            if(el.isEmpty()) {
                 return null;
             } else if (el.equals("\"\"")){
                 return "";

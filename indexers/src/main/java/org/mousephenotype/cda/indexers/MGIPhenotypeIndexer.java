@@ -202,7 +202,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
                 doc.setLifeStageAcc(developmentalStageAcc);
                 doc.setLifeStageName(developmentalStageName);
 
-                documentCount++;
+                expectedDocumentCount++;
                 mgiPhenotypeCore.addBean(doc, 30000);
                 count ++;
 

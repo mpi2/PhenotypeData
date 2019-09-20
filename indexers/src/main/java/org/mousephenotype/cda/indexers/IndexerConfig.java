@@ -3,6 +3,7 @@ package org.mousephenotype.cda.indexers;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.db.repositories.GenesSecondaryProjectRepository;
@@ -37,6 +38,9 @@ public class IndexerConfig {
 
     private GenesSecondaryProjectRepository genesSecondaryProjectRepository;
 
+    public static final int QUEUE_SIZE = 10000;
+    public static final int THREAD_COUNT = 3;
+
 
     @Inject
     public IndexerConfig(@NotNull OntologyTermRepository ontologyTermRepository,
@@ -63,72 +67,100 @@ public class IndexerConfig {
     //////////////////////
     @Bean
     public SolrClient experimentCore() {
-        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/experiment").build();
+        return new ConcurrentUpdateSolrClient.Builder(writeSolrBaseUrl + "/experiment")
+                .withQueueSize(QUEUE_SIZE)
+                .withThreadCount(THREAD_COUNT).build();
     }
 
     @Bean
     public SolrClient genotypePhenotypeCore() {
-        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/genotype-phenotype").build();
+        return new ConcurrentUpdateSolrClient.Builder(writeSolrBaseUrl + "/genotype-phenotype")
+                .withQueueSize(QUEUE_SIZE)
+                .withThreadCount(THREAD_COUNT).build();
     }
 
     @Bean
     public SolrClient statisticalResultCore() {
-        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/statistical-result").build();
+        return new ConcurrentUpdateSolrClient.Builder(writeSolrBaseUrl + "/statistical-result")
+                .withQueueSize(QUEUE_SIZE)
+                .withThreadCount(THREAD_COUNT).build();
     }
 
     @Bean
     public SolrClient alleleCore() {
-        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/allele").build();
+        return new ConcurrentUpdateSolrClient.Builder(writeSolrBaseUrl + "/allele")
+                .withQueueSize(QUEUE_SIZE)
+                .withThreadCount(THREAD_COUNT).build();
     }
 
     @Bean
     public SolrClient sangerImagesCore() {
-        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/images").build();
+        return new ConcurrentUpdateSolrClient.Builder(writeSolrBaseUrl + "/images")
+                .withQueueSize(QUEUE_SIZE)
+                .withThreadCount(THREAD_COUNT).build();
     }
 
     @Bean
     public SolrClient impcImagesCore() {
-        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/impc_images").build();
+        return new ConcurrentUpdateSolrClient.Builder(writeSolrBaseUrl + "/impc_images")
+                .withQueueSize(QUEUE_SIZE)
+                .withThreadCount(THREAD_COUNT).build();
     }
 
     @Bean
     public SolrClient mpCore() {
-        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/mp").build();
+        return new ConcurrentUpdateSolrClient.Builder(writeSolrBaseUrl + "/mp")
+                .withQueueSize(QUEUE_SIZE)
+                .withThreadCount(THREAD_COUNT).build();
     }
 
     @Bean
     public SolrClient anatomyCore() {
-        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/anatomy").build();
+        return new ConcurrentUpdateSolrClient.Builder(writeSolrBaseUrl + "/anatomy")
+                .withQueueSize(QUEUE_SIZE)
+                .withThreadCount(THREAD_COUNT).build();
     }
 
     @Bean
     public SolrClient pipelineCore() {
-        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/pipeline").build();
+        return new ConcurrentUpdateSolrClient.Builder(writeSolrBaseUrl + "/pipeline")
+                .withQueueSize(QUEUE_SIZE)
+                .withThreadCount(THREAD_COUNT).build();
     }
 
     @Bean
     public SolrClient geneCore() {
-        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/gene").build();
+        return new ConcurrentUpdateSolrClient.Builder(writeSolrBaseUrl + "/gene")
+                .withQueueSize(QUEUE_SIZE)
+                .withThreadCount(THREAD_COUNT).build();
     }
 
     @Bean
     public SolrClient allele2Core() {
-        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/allele2").build();
+        return new ConcurrentUpdateSolrClient.Builder(writeSolrBaseUrl + "/allele2")
+                .withQueueSize(QUEUE_SIZE)
+                .withThreadCount(THREAD_COUNT).build();
     }
 
     @Bean
     public SolrClient productCore() {
-        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/product").build();
+        return new ConcurrentUpdateSolrClient.Builder(writeSolrBaseUrl + "/product")
+                .withQueueSize(QUEUE_SIZE)
+                .withThreadCount(THREAD_COUNT).build();
     }
 
     @Bean
     public SolrClient autosuggestCore() {
-        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/autosuggest").build();
+        return new ConcurrentUpdateSolrClient.Builder(writeSolrBaseUrl + "/autosuggest")
+                .withQueueSize(QUEUE_SIZE)
+                .withThreadCount(THREAD_COUNT).build();
     }
 
     @Bean
     public SolrClient mgiPhenotypeCore() {
-        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/mgi-phenotype").build();
+        return new ConcurrentUpdateSolrClient.Builder(writeSolrBaseUrl + "/mgi-phenotype")
+                .withQueueSize(QUEUE_SIZE)
+                .withThreadCount(THREAD_COUNT).build();
     }
 
 
