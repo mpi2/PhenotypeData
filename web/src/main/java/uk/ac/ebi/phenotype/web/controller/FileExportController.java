@@ -1366,9 +1366,9 @@ public class FileExportController {
 		List<Publication> publications;
 
 		if (consortium) {
-			publications = referenceService.getAllConsortium(filter, 0, Integer.MAX_VALUE, "firstPublicationDate", "ASC");
+			publications = referenceService.getAllConsortium(filter, 0, Integer.MAX_VALUE, "firstPublicationDate", "DESC");
 		} else {
-			publications = referenceService.getAllReviewed(filter, 0, Integer.MAX_VALUE, "firstPublicationDate", "ASC");
+			publications = referenceService.getAllReviewed(filter, 0, Integer.MAX_VALUE, "firstPublicationDate", "DESC");
 		}
 
 		// don't want abstract, allene name, and cited_by for now, unless users want to see them
