@@ -16,8 +16,9 @@
 
 package org.mousephenotype.cda.utilities;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
@@ -28,14 +29,14 @@ import java.util.Set;
  * 
  */
 public class RunStatus {
-    private final Set<String> errorMessages;
-    private final Set<String>  warningMessages;
-    public        int          successCount;
+    private final Set<String>   errorMessages;
+    private final Set<String>   warningMessages;
+    public        AtomicInteger successCount;
 
     public RunStatus() {
-        errorMessages = new HashSet<>();
-        warningMessages = new HashSet<>();
-        successCount = 0;
+        errorMessages = ConcurrentHashMap.newKeySet();
+        warningMessages = ConcurrentHashMap.newKeySet();
+        successCount = new AtomicInteger(0);
     }
 
     public Set<String> getErrorMessages() {
@@ -49,7 +50,7 @@ public class RunStatus {
     public void add(RunStatus runStatus) {
         errorMessages.addAll(runStatus.errorMessages);
         warningMessages.addAll(runStatus.warningMessages);
-        successCount += runStatus.successCount;
+        successCount.getAndAdd(runStatus.successCount.get());
     }
 
     public void addError(String errorMessage) {
@@ -110,8 +111,4 @@ public class RunStatus {
 
         return sb.toString();
     }
-    
-    
-    // GETTERS AND SETTERS
-    
 }
