@@ -114,7 +114,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
     private final long    DISPLAY_INTERVAL_IN_SECONDS                       = 300;
     private final int     MAX_MISSING_BIOLOGICAL_DATA_ERROR_COUNT_DISPLAYED = 100;
-    private final Boolean USE_PARALLEL_STREAM                               = Boolean.TRUE;
+    private final Boolean USE_PARALLEL_STREAM                               = Boolean.FALSE;
     private       int     missingBiologicalDataErrorCount                   = 0;
 
     private long       startTimestamp;
