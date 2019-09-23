@@ -278,10 +278,9 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
                 long documentCountForQuery = 0L;
                 try (Connection connection = komp2DataSource.getConnection()) {
 
-                    logger.info("STARTING QUERY {}", query.name);
+                    logger.info("  STARTING QUERY {}", query.name);
                     documentCountForQuery = executeQueryAndWriteObservations(connection, query, runStatus);
-
-                    logger.info("FINISHED QUERY {}. Wrote {} documents.", query.name, documentCountForQuery);
+                    logger.info("  FINISHED QUERY {}. Wrote {} documents.", query.name, documentCountForQuery);
 
                 } catch (Exception e) {
 
@@ -1180,7 +1179,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
         long now                = new Date().getTime();
         long totalTimeInMinutes = (now - startTimestamp) / 60000L;
         if (totalTimeInMinutes > 0) {
-            logger.info("  Query '{}': Added {} experiments ({} experiments per minute).", queryName, count, count / totalTimeInMinutes);
+            logger.info("   Query '{}': Added {} experiments ({} experiments per minute).", queryName, count, count / totalTimeInMinutes);
         }
     }
 
