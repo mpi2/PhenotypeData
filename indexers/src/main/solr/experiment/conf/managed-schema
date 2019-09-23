@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<schema name="gene core" version="1.6">
+<schema name="experiment core" version="1.6">
   <uniqueKey>id</uniqueKey>
   <!-- int fieldType added for the unique key -->
   <!--

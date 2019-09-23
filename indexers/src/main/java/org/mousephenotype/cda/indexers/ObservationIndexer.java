@@ -379,7 +379,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
         }
 
         checkAndLogProgress(query.name);
-        expectedDocumentCount.incrementAndGet();
+        expectedDocumentCount.getAndIncrement();
         return false;
     }
 
