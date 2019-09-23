@@ -117,45 +117,45 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 				e.printStackTrace();
 			}
 
-            logger.info("Start Executing populateDcfMap " + LocalDateTime.now().format(YMD_HMS));
+            logger.debug("Start Executing populateDcfMap " + LocalDateTime.now().format(YMD_HMS));
             populateDcfMap(connection);
-            logger.info(" Done executing populateDcfMap " + LocalDateTime.now().format(YMD_HMS));
+            logger.debug(" Done executing populateDcfMap " + LocalDateTime.now().format(YMD_HMS));
 
-            logger.info("Start Executing populateMouseMv " + LocalDateTime.now().format(YMD_HMS));
+            logger.debug("Start Executing populateMouseMv " + LocalDateTime.now().format(YMD_HMS));
             populateMouseMv(connection);
-            logger.info(" Done executing populateMouseMv " + LocalDateTime.now().format(YMD_HMS));
+            logger.debug(" Done executing populateMouseMv " + LocalDateTime.now().format(YMD_HMS));
 
-            logger.info("Start Executing populateAlleleMpi " + LocalDateTime.now().format(YMD_HMS));
+            logger.debug("Start Executing populateAlleleMpi " + LocalDateTime.now().format(YMD_HMS));
             populateAlleleMpi(connection);
-            logger.info(" Done executing populateAlleleMpi " + LocalDateTime.now().format(YMD_HMS));
+            logger.debug(" Done executing populateAlleleMpi " + LocalDateTime.now().format(YMD_HMS));
 
-            logger.info("Start Executing populateSynonyms " + LocalDateTime.now().format(YMD_HMS));
+            logger.debug("Start Executing populateSynonyms " + LocalDateTime.now().format(YMD_HMS));
             populateSynonyms(connection);
-            logger.info(" Done executing populateSynonyms " + LocalDateTime.now().format(YMD_HMS));
+            logger.debug(" Done executing populateSynonyms " + LocalDateTime.now().format(YMD_HMS));
 
-            logger.info("Start Executing populateGenomicFeature2 " + LocalDateTime.now().format(YMD_HMS));
+            logger.debug("Start Executing populateGenomicFeature2 " + LocalDateTime.now().format(YMD_HMS));
             populateGenomicFeature2(connection);
-            logger.info(" Done executing populateGenomicFeature2 " + LocalDateTime.now().format(YMD_HMS));
+            logger.debug(" Done executing populateGenomicFeature2 " + LocalDateTime.now().format(YMD_HMS));
 
-            logger.info("Start Executing populateExperiments " + LocalDateTime.now().format(YMD_HMS));
+            logger.debug("Start Executing populateExperiments " + LocalDateTime.now().format(YMD_HMS));
             populateExperiments(connection);
-            logger.info(" Done executing populateExperiments " + LocalDateTime.now().format(YMD_HMS));
+            logger.debug(" Done executing populateExperiments " + LocalDateTime.now().format(YMD_HMS));
 
-            logger.info("Start Executing populateTAGS " + LocalDateTime.now().format(YMD_HMS));
+            logger.debug("Start Executing populateTAGS " + LocalDateTime.now().format(YMD_HMS));
             populateTAGS(connection);
-            logger.info(" Done executing populateTAGS " + LocalDateTime.now().format(YMD_HMS));
+            logger.debug(" Done executing populateTAGS " + LocalDateTime.now().format(YMD_HMS));
 
-            logger.info("Start Executing populateAnnotations " + LocalDateTime.now().format(YMD_HMS));
+            logger.debug("Start Executing populateAnnotations " + LocalDateTime.now().format(YMD_HMS));
             populateAnnotations(connection);
-            logger.info(" Done executing populateAnnotations " + LocalDateTime.now().format(YMD_HMS));
+            logger.debug(" Done executing populateAnnotations " + LocalDateTime.now().format(YMD_HMS));
 
-            logger.info("Start Executing populateSubType " + LocalDateTime.now().format(YMD_HMS));
+            logger.debug("Start Executing populateSubType " + LocalDateTime.now().format(YMD_HMS));
             populateSubType(connection);
-            logger.info(" Done executing populateSubType " + LocalDateTime.now().format(YMD_HMS));
+            logger.debug(" Done executing populateSubType " + LocalDateTime.now().format(YMD_HMS));
 
-            logger.info("Start Executing populateAlleles " + LocalDateTime.now().format(YMD_HMS));
+            logger.debug("Start Executing populateAlleles " + LocalDateTime.now().format(YMD_HMS));
             populateAlleles();
-            logger.info(" Done executing populateAlleles " + LocalDateTime.now().format(YMD_HMS));
+            logger.debug(" Done executing populateAlleles " + LocalDateTime.now().format(YMD_HMS));
 
 
             logger.info("Populating images core " + LocalDateTime.now().format(YMD_HMS));

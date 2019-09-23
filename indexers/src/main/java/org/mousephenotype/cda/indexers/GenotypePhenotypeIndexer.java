@@ -313,7 +313,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     OntologyTermDTO mpDto = mpParser.getOntologyTerm(mpId);
 
                     if (mpDto == null) {
-                        logger.warn("Skipping missing mp term '" + mpId + "'");
+                        logger.warn(" Skipping missing mp term '" + mpId + "'");
                         continue;
                     }
 
