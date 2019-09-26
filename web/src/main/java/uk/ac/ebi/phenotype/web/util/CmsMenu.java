@@ -29,7 +29,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import java.net.URL;
 import java.util.ArrayList;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
@@ -62,7 +61,7 @@ public class CmsMenu extends HttpProxy {
 	 */
 	@Cacheable(sync = true, value = "menu")
 	public List<MenuItem> getCmsMenu(String cmsBaseUrl) {
-		
+
 		String content = publicMenu;
 		Random randomGenerator = new Random();
 
@@ -87,11 +86,12 @@ public class CmsMenu extends HttpProxy {
 
 		} catch (Exception e) {
 			// If we can't get the menu, default to the logged out menu
-			log.error("Cannot retrieve menu from CMS. Using default menu.", e);
-			content = DEFAULT_MENU;
+			log.error("Cannot retrieve menu from CMS. Using default menu.", e.getLocalizedMessage());
+			publicMenu = DEFAULT_MENU;
+			content = publicMenu;
 		}
 
-		content = content.replaceAll("https://www.mousephenotypetest.org", cmsBaseUrl);
+		content = content.replaceAll("https:\\\\/\\\\/www.mousephenotype.org", cmsBaseUrl);
 
 		try {
 			final JSONArray jsonMenu = new JSONArray(content);

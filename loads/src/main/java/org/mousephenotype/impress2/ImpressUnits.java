@@ -5,7 +5,7 @@ import java.util.Collection;
 
 public class ImpressUnits implements Serializable {
 
-    private Integer id;
+    private Long   id;
     private String unit;
 
     private Collection<Integer> parameterCollection;
@@ -13,15 +13,15 @@ public class ImpressUnits implements Serializable {
     public ImpressUnits() {
     }
 
-    public ImpressUnits(Integer id) {
+    public ImpressUnits(Long id) {
         this.id = id;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

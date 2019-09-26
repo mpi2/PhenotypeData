@@ -34,7 +34,7 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	private ImagesSolrDao wtsiImageService;
 
 	@Autowired
-	private PostQcService postqcService;
+	private GenotypePhenotypeService genotypePhenotypeService;
 
 	@Autowired
 	private MpService mpService;
@@ -92,7 +92,7 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	        }
 
 	        // Get gene-MP associations
-	        List<GenotypePhenotypeDTO> mpCalls = postqcService.getAllGenotypePhenotypes(null); // Duplicate gene-mp paris.
+	        List<GenotypePhenotypeDTO> mpCalls = genotypePhenotypeService.getAllGenotypePhenotypes(null); // Duplicate gene-mp paris.
 
 	        // Get MP-MA mappings
 	        Map<String, List<String>> mpAnatomyMap = new HashMap<>();

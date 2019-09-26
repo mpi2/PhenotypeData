@@ -6,38 +6,38 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 
 public class ResultDTO {
-    protected Integer resultId;
-    protected Integer dataSourceId;
-    protected Integer projectId;
-    protected Integer centerId;
-    protected String centerName;
-    protected SexType sex;
-    protected String colonyId;
+    protected Long         resultId;
+    protected Long         dataSourceId;
+    protected Long         projectId;
+    protected Long         centerId;
+    protected String       centerName;
+    protected SexType      sex;
+    protected String       colonyId;
     protected ZygosityType zygosity;
-    protected Double nullTestPvalue;
-    protected Double genotypeEffectPvalue;
-    protected Double genotypeEffectSize;
-    protected Double femalePvalue;
-    protected Double femaleEffectSize;
-    protected Double malePvalue;
-    protected Double maleEffectSize;
-    protected Integer femaleControls;
-    protected Integer femaleMutants;
-    protected Integer maleControls;
-    protected Integer maleMutants;
-    protected Integer procedureId;
-    protected Integer pipelineId;
-    protected Integer parameterId;
-    protected String geneAcc;
-    protected Integer geneDbId;
-    protected String alleleAcc;
-    protected Integer alleleDbId;
-    protected String strainAcc;
-    protected Integer strainDbId;
-    protected String categoryA;
-    protected String categoryB;
-    protected String mpTerm;
-    protected Integer ontologyDbId;
+    protected Double       nullTestPvalue;
+    protected Double       genotypeEffectPvalue;
+    protected Double       genotypeEffectSize;
+    protected Double       femalePvalue;
+    protected Double       femaleEffectSize;
+    protected Double       malePvalue;
+    protected Double       maleEffectSize;
+    protected Integer      femaleControls;
+    protected Integer      femaleMutants;
+    protected Integer      maleControls;
+    protected Integer      maleMutants;
+    protected Long         procedureId;
+    protected Long         pipelineId;
+    protected Long         parameterId;
+    protected String       geneAcc;
+    protected Long         geneDbId;
+    protected String       alleleAcc;
+    protected Long         alleleDbId;
+    protected String       strainAcc;
+    protected Long         strainDbId;
+    protected String       categoryA;
+    protected String       categoryB;
+    protected String       mpTerm;
+    protected Long         ontologyDbId;
 
     protected String backgroundStrainName;
     protected String pipelineStableId;
@@ -112,11 +112,11 @@ public class ResultDTO {
         this.parameterName = parameterName;
     }
 
-    public Integer getOntologyDbId() {
+    public Long getOntologyDbId() {
         return ontologyDbId;
     }
 
-    public void setOntologyDbId(Integer ontologyDbId) {
+    public void setOntologyDbId(Long ontologyDbId) {
         this.ontologyDbId = ontologyDbId;
     }
 
@@ -240,35 +240,35 @@ public class ResultDTO {
         this.nullTestPvalue = r.getpValue();
     }
 
-    public Integer getResultId() {
+    public Long getResultId() {
         return resultId;
     }
 
-    public void setResultId(Integer resultId) {
+    public void setResultId(Long resultId) {
         this.resultId = resultId;
     }
 
-    public Integer getDataSourceId() {
+    public Long getDataSourceId() {
         return dataSourceId;
     }
 
-    public void setDataSourceId(Integer dataSourceId) {
+    public void setDataSourceId(Long dataSourceId) {
         this.dataSourceId = dataSourceId;
     }
 
-    public Integer getProjectId() {
+    public Long getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(Integer projectId) {
+    public void setProjectId(Long projectId) {
         this.projectId = projectId;
     }
 
-    public Integer getCenterId() {
+    public Long getCenterId() {
         return centerId;
     }
 
-    public void setCenterId(Integer centerId) {
+    public void setCenterId(Long centerId) {
         this.centerId = centerId;
     }
 
@@ -384,27 +384,27 @@ public class ResultDTO {
         this.maleMutants = maleMutants;
     }
 
-    public Integer getProcedureId() {
+    public Long getProcedureId() {
         return procedureId;
     }
 
-    public void setProcedureId(Integer procedureId) {
+    public void setProcedureId(Long procedureId) {
         this.procedureId = procedureId;
     }
 
-    public Integer getPipelineId() {
+    public Long getPipelineId() {
         return pipelineId;
     }
 
-    public void setPipelineId(Integer pipelineId) {
+    public void setPipelineId(Long pipelineId) {
         this.pipelineId = pipelineId;
     }
 
-    public Integer getParameterId() {
+    public Long getParameterId() {
         return parameterId;
     }
 
-    public void setParameterId(Integer parameterId) {
+    public void setParameterId(Long parameterId) {
         this.parameterId = parameterId;
     }
 
@@ -416,11 +416,11 @@ public class ResultDTO {
         this.geneAcc = geneAcc;
     }
 
-    public Integer getGeneDbId() {
+    public Long getGeneDbId() {
         return geneDbId;
     }
 
-    public void setGeneDbId(Integer geneDbId) {
+    public void setGeneDbId(Long geneDbId) {
         this.geneDbId = geneDbId;
     }
 
@@ -432,11 +432,11 @@ public class ResultDTO {
         this.alleleAcc = alleleAcc;
     }
 
-    public Integer getAlleleDbId() {
+    public Long getAlleleDbId() {
         return alleleDbId;
     }
 
-    public void setAlleleDbId(Integer alleleDbId) {
+    public void setAlleleDbId(Long alleleDbId) {
         this.alleleDbId = alleleDbId;
     }
 
@@ -448,11 +448,11 @@ public class ResultDTO {
         this.strainAcc = strainAcc;
     }
 
-    public Integer getStrainDbId() {
+    public Long getStrainDbId() {
         return strainDbId;
     }
 
-    public void setStrainDbId(Integer strainDbId) {
+    public void setStrainDbId(Long strainDbId) {
         this.strainDbId = strainDbId;
     }
 

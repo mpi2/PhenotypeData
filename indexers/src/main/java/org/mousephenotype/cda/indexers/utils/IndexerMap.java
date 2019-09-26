@@ -50,19 +50,19 @@ import java.util.Map;
  */
 
 public class IndexerMap {
-	
-    private static Map<String, List<Map<String, String>>> mpToHpTermsMap = null;
-    private static Map<String, List<SangerImageDTO>> sangerImagesMap = null;
-    private static Map<String, List<AlleleDTO>> allelesMap = null;
-    private static List<AlleleDTO> alleles = null;
-    private static Map<Integer, ImpressBaseDTO> pipelineMap = null;
-    private static Map<Integer, ImpressBaseDTO> procedureMap = null;
-    private static Map<Integer, ParameterDTO> parameterMap = null;
-    private static Map<Integer, OrganisationBean> organisationMap = null;
-    private static Map<String, Map<String,List<String>>> maUberonEfoMap = null;
-    private static DmddRestData dmddRestData;
-    
+
     private static final Logger logger = LoggerFactory.getLogger(IndexerMap.class);
+
+    private static Map<String, List<Map<String, String>>> mpToHpTermsMap  = null;
+    private static Map<String, List<SangerImageDTO>>      sangerImagesMap = null;
+    private static Map<String, List<AlleleDTO>>           allelesMap      = null;
+    private static List<AlleleDTO>                        alleles         = null;
+    private static Map<Long, ImpressBaseDTO>              pipelineMap     = null;
+    private static Map<Long, ImpressBaseDTO>              procedureMap    = null;
+    private static Map<Long, ParameterDTO>                parameterMap    = null;
+    private static Map<Long, OrganisationBean>            organisationMap = null;
+    private static Map<String, Map<String, List<String>>> maUberonEfoMap  = null;
+    private static DmddRestData                           dmddRestData;
     
 
     // PUBLIC METHODS
@@ -79,7 +79,7 @@ public class IndexerMap {
 		List<EmbryoStrain> strains = restData.getStrains();
 		Map<String,List<EmbryoStrain>> mgiToEmbryoMap=new HashMap<>();
 		for(EmbryoStrain strain: strains){
-			String mgi=strain.getMgi();
+			String mgi=strain.getMgiGeneAccessionId();
 			if(!mgiToEmbryoMap.containsKey(mgi)){
 				mgiToEmbryoMap.put(mgi,new ArrayList<>());
 			}
@@ -221,7 +221,7 @@ public class IndexerMap {
      * @throws SQLException when a database exception occurs
      * @return a cached list of all impress pipeline terms, indexed by internal database id.
      */
-    public static Map<Integer, ImpressBaseDTO> getImpressPipelines(Connection connection) throws SQLException {
+    public static Map<Long, ImpressBaseDTO> getImpressPipelines(Connection connection) throws SQLException {
         if (pipelineMap == null) {
             pipelineMap = OntologyUtils.populateImpressPipeline(connection);
         }
@@ -236,7 +236,7 @@ public class IndexerMap {
      * @throws SQLException when a database exception occurs
      * @return a cached list of all impress procedure terms, indexed by internal database id.
      */
-    public static Map<Integer, ImpressBaseDTO> getImpressProcedures(Connection connection) throws SQLException {
+    public static Map<Long, ImpressBaseDTO> getImpressProcedures(Connection connection) throws SQLException {
         if (procedureMap == null) {
             procedureMap = OntologyUtils.populateImpressProcedure(connection);
         }
@@ -251,7 +251,7 @@ public class IndexerMap {
      * @throws SQLException when a database exception occurs
      * @return a cached list of all impress parameter terms, indexed by internal database id.
      */
-    public static Map<Integer, ParameterDTO> getImpressParameters(Connection connection) throws SQLException {
+    public static Map<Long, ParameterDTO> getImpressParameters(Connection connection) throws SQLException {
         if (parameterMap == null) {
             parameterMap = OntologyUtils.populateImpressParameter(connection);
         }
@@ -266,7 +266,7 @@ public class IndexerMap {
      * @throws SQLException when a database exception occurs
      * @return a cached list of all impress parameter terms, indexed by internal database id.
      */
-    public static Map<Integer, OrganisationBean> getOrganisationMap(Connection connection) throws SQLException {
+    public static Map<Long, OrganisationBean> getOrganisationMap(Connection connection) throws SQLException {
         if (organisationMap == null) {
             organisationMap = OntologyUtils.populateOrganisationMap(connection);
         }
@@ -302,7 +302,7 @@ public class IndexerMap {
 
                 Synonym b = new Synonym();
                 b.setAccessionId(rs.getString("acc"));
-                b.setDbId(rs.getInt("db_id"));
+                b.setDbId(rs.getLong("db_id"));
                 b.setSymbol(rs.getString("symbol"));
 
                 map.put(b.getSymbol(), b);
@@ -318,9 +318,9 @@ public class IndexerMap {
 	 * @return
 	 * @throws SQLException 
 	 */
-    public static Map<Integer, List<OntologyBean>> getOntologyParameterSubTerms(Connection connection) throws SQLException {
+    public static Map<Long, List<OntologyBean>> getOntologyParameterSubTerms(Connection connection) throws SQLException {
 
-        Map<Integer, List<OntologyBean>> map = new HashMap<>();
+        Map<Long, List<OntologyBean>> map = new HashMap<>();
 
         String query = "SELECT ontology_observation_id, acc, name, description, term_value FROM ontology_entity, ontology_term WHERE ontology_entity.term = ontology_term.acc";
         try (PreparedStatement p = connection.prepareStatement(query)) {
@@ -328,7 +328,7 @@ public class IndexerMap {
             ResultSet resultSet = p.executeQuery();
             while (resultSet.next()) {
 
-                Integer ontObsId = resultSet.getInt("ontology_observation_id");
+                Long ontObsId = resultSet.getLong("ontology_observation_id");
 
                 OntologyBean b = new OntologyBean();
                 b.setId(resultSet.getString("acc"));

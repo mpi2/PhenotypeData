@@ -1,49 +1,58 @@
 package uk.ac.ebi.phenotype.service;
 
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.hateoas.PagedResources;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
-
-import uk.ac.ebi.phenotype.stats.model.Statistics;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
+import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.ebi.phenotype.web.dao.StatsClient;
 
+import javax.sql.DataSource;
+import java.util.Arrays;
+import java.util.List;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(loader=AnnotationConfigContextLoader.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
+import static org.junit.Assert.assertNotNull;
+
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = {ServiceTestConfig.class})
 public class StatsClientTest {
-	
-	StatsClient statsClient;
-	private static String statisticsUrl="http://localhost:8080/";
-	//private static String statisticsUrl="http://ves-ebi-d1.ebi.ac.uk:8091/";
-	@Configuration
-	static class ContextConfiguration {
-		@Bean
-		public static PropertySourcesPlaceholderConfigurer propertyConfigurer() {
-			return new PropertySourcesPlaceholderConfigurer();
-		}
-	}
+
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	@Autowired
+	private ApplicationContext context;
+
+	@Autowired
+	private DataSource komp2DataSource;
+
+	@Autowired
+	private StatsClient statsClient;
 
 	@Before
 	public void setUp() throws Exception {
 
-		
-		statsClient=new StatsClient(statisticsUrl);
+		List<String> resources = Arrays.asList(
+//				"sql/h2/schema.sql"
+		);
+
+		for (String resource : resources) {
+			Resource r = context.getResource(resource);
+			ScriptUtils.executeSqlScript(komp2DataSource.getConnection(), r);
+		}
 	}
+
+	@Test
+	public void testStatsClientIsNotNull() {
+		assertNotNull(statsClient);
+	}
+
 
 //	@Test
 //	public void testGetTestStatsData() {

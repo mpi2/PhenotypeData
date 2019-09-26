@@ -27,7 +27,7 @@
     <logger name="org.mousephenotype.interest"                                  level="INFO" />
 
     <!-- uncomment this line to see ImageService solr queries -->
-    <logger name="org.mousephenotype.cda.solr.service.ImageService"             level="INFO" />
+    <!--<logger name="org.mousephenotype.cda.solr.service.ImageService"             level="INFO" />-->
 
     <!-- OTHER -->
     <logger name="org.springframework.boot.autoconfigure.logging.AutoConfigurationReportLoggingInitializer" level="ERROR" />
@@ -68,5 +68,6 @@
     <!-- UtilitiesTest has sometimes throws a warning that it cannot shut down the H2 or the HSQL database(s). They can be safely ignored. -->
     <logger name="org.springframework.jdbc.datasource.embedded.H2EmbeddedDatabaseConfigurer"                                     level="ERROR" />
     <logger name="org.springframework.jdbc.datasource.embedded.HsqlEmbeddedDatabaseConfigurer"                                   level="ERROR" />
+    <logger name="org.springframework.batch.core.configuration.annotation.DefaultBatchConfigurer"                                level="ERROR" />
 
 </configuration>

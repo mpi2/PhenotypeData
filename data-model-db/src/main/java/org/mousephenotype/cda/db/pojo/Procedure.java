@@ -27,9 +27,9 @@ package org.mousephenotype.cda.db.pojo;
  * @see PipelineEntry
  * @see Pipeline
  */
+
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,7 +39,7 @@ import java.util.Set;
 public class Procedure extends PipelineEntry implements Comparable, Serializable {
 
     @Transient
-    private Set<Integer> parameterCollection;
+    private Set<Long> parameterCollection;
 
     @Column(name = "is_mandatory")
     boolean isMandatory;
@@ -87,7 +87,7 @@ public class Procedure extends PipelineEntry implements Comparable, Serializable
     private String level;
 
     @Column(name = "schedule_key")
-    private Integer scheduleKey;
+    private Long scheduleKey;
 
     public Procedure() {
         super();
@@ -217,19 +217,19 @@ public class Procedure extends PipelineEntry implements Comparable, Serializable
         return this.getName().compareTo(p.getName());
     }
 
-    public Set<Integer> getParameterCollection() {
+    public Set<Long> getParameterCollection() {
         return parameterCollection;
     }
 
-    public void setParameterCollection(Set<Integer> parameterCollection) {
+    public void setParameterCollection(Set<Long> parameterCollection) {
         this.parameterCollection = parameterCollection;
     }
 
-    public Integer getScheduleKey() {
+    public Long getScheduleKey() {
         return scheduleKey;
     }
 
-    public void setScheduleKey(Integer scheduleKey) {
+    public void setScheduleKey(Long scheduleKey) {
         this.scheduleKey = scheduleKey;
     }
 }

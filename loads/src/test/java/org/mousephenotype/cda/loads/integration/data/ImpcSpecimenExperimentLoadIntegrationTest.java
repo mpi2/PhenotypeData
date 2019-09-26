@@ -447,11 +447,11 @@ public class ImpcSpecimenExperimentLoadIntegrationTest {
         logger.debug("Weight Map is :" + weightMap.get());
 
         // Get the specimen ID for checking weight
-        Integer testDbId = null;
+        Long testDbId = null;
         try (Connection c = cdaDataSource.getConnection(); PreparedStatement s = c.prepareStatement("SELECT * FROM biological_sample where external_id = 'C10837'")) {
             ResultSet rs = s.executeQuery();
             while (rs.next()) {
-                testDbId = rs.getInt("id");
+                testDbId = rs.getLong("id");
             }
         }
 

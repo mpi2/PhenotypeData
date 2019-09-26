@@ -111,7 +111,7 @@ $(document).ready(function(){
     
   $("#overlap").click(function() {
 	  console.log('calling overlap');
-	  window.open(baseUrl+'/overlap?acc='+acc+'&id1='+id+'&id2='+id2, 'Overlap');
+	  window.open(baseUrl+'/overlap?alleleAccessionId='+acc+'&id1='+id+'&id2='+id2, 'Overlap');
 	  //need to change the classes for the two images to overlap them and add the js to move the top one around.
 	  //change mutant_box to the resizable class
 //	  $('#mutant_box').toggleClass('half_box_right resizable');

@@ -4,25 +4,25 @@ import java.io.Serializable;
 
 public class ImpressOption implements Serializable {
 
-    private Integer optionId;
-    private int phoWeight;
+    private Long    optionId;
+    private int     phoWeight;
     private Integer parentId;
-    private String name;
+    private String  name;
     private boolean isDefault;
     private boolean isActive = true;
-    private int poWeight;
-    private String description;
+    private int     poWeight;
+    private String  description;
     private boolean isDeleted;
-    private Integer parameterId;
+    private Long    parameterId;
 
     public ImpressOption() {
     }
 
-    public ImpressOption(Integer id) {
+    public ImpressOption(Long id) {
         this.optionId = id;
     }
 
-    public ImpressOption(Integer id, int phoWeight, boolean isDefault, boolean isActive, int poWeight, boolean deleted) {
+    public ImpressOption(Long id, int phoWeight, boolean isDefault, boolean isActive, int poWeight, boolean deleted) {
         this.optionId = id;
         this.phoWeight = phoWeight;
         this.isDefault = isDefault;
@@ -31,11 +31,11 @@ public class ImpressOption implements Serializable {
         this.isDeleted = deleted;
     }
 
-    public Integer getOptionId() {
+    public Long getOptionId() {
         return optionId;
     }
 
-    public void setOptionId(Integer optionId) {
+    public void setOptionId(Long optionId) {
         this.optionId = optionId;
     }
 
@@ -103,11 +103,11 @@ public class ImpressOption implements Serializable {
         isDeleted = deleted;
     }
 
-    public Integer getParameterId() {
+    public Long getParameterId() {
         return parameterId;
     }
 
-    public void setParameterId(Integer parameterId) {
+    public void setParameterId(Long parameterId) {
         this.parameterId = parameterId;
     }
 

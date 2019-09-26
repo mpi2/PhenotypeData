@@ -20,7 +20,7 @@ import org.mousephenotype.cda.ri.core.entities.GeneSent;
 import org.mousephenotype.cda.ri.core.entities.Summary;
 import org.mousephenotype.cda.ri.core.entities.SummaryHtmlTable;
 import org.mousephenotype.cda.ri.core.entities.SummaryWithDecoration;
-import org.mousephenotype.cda.ri.core.utils.SqlUtils;
+import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -36,11 +36,11 @@ public class GenerateService {
     public static final String MOUSEINFORMATICS_EMAIL = "mouse-helpdesk@ebi.ac.uk";
 
 
-    private String   paBaseUrl;
-    private SqlUtils sqlUtils;
+    private String     paBaseUrl;
+    private RiSqlUtils sqlUtils;
 
     @Inject
-    public GenerateService(String paBaseUrl, SqlUtils sqlUtils) {
+    public GenerateService(String paBaseUrl, RiSqlUtils sqlUtils) {
         this.paBaseUrl = paBaseUrl;
         this.sqlUtils = sqlUtils;
     }

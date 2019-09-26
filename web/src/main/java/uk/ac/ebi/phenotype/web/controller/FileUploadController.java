@@ -15,18 +15,10 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.solr.generic.util.UploadedFile;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -34,7 +26,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import net.sf.json.JSONObject;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 @Controller
 //@RequestMapping("/cont")
@@ -47,7 +46,7 @@ public class FileUploadController {
 	}
 
 	@RequestMapping(value = "/batchQuery", method = RequestMethod.POST)
-	public @ResponseBody String upload(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException {
+	public @ResponseBody String upload(MultipartHttpServletRequest request, HttpServletResponse response) throws IOException, JSONException {
 
 		String dataType = request.getParameter("dataType");
 		System.out.println("datatype: " + dataType);

@@ -37,7 +37,7 @@ public class Synonym {
 	private String accessionId;
 
 	@Transient
-	private int dbId;
+	private Long dbId;
 
 	public Synonym() {
 
@@ -65,11 +65,11 @@ public class Synonym {
 		this.accessionId = accessionId;
 	}
 
-	public int getDbId() {
+	public Long getDbId() {
 		return dbId;
 	}
 
-	public void setDbId(int dbId) {
+	public void setDbId(Long dbId) {
 		this.dbId = dbId;
 	}
 

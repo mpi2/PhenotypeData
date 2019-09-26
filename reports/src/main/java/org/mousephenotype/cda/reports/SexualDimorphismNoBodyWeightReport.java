@@ -19,16 +19,14 @@ package org.mousephenotype.cda.reports;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.reports.support.ReportException;
-import org.mousephenotype.cda.reports.support.SexualDimorphismDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotNull;
 import java.beans.Introspector;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,10 +46,9 @@ public class SexualDimorphismNoBodyWeightReport extends AbstractReport {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    SexualDimorphismDAO sexualDimorphismDAO;
+//    @NotNull @Autowired
+//    SexualDimorphismDAO sexualDimorphismDAO;
 
-    @NotNull
     @Value("${cms_base_url}")
     protected String cmsBaseUrl;
 
@@ -75,9 +72,9 @@ public class SexualDimorphismNoBodyWeightReport extends AbstractReport {
 
         long start = System.currentTimeMillis();
 
-        List<String[]> result;
+        List<String[]> result = new ArrayList<>();
         try {
-            result = sexualDimorphismDAO.sexualDimorphismReportNoBodyWeight(cmsBaseUrl);
+//            result = sexualDimorphismDAO.sexualDimorphismReportNoBodyWeight(cmsBaseUrl);
         } catch (Exception e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }

@@ -15,11 +15,13 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrClient;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.beans.SecondaryProjectBean;
-import org.mousephenotype.cda.solr.service.*;
+import org.mousephenotype.cda.db.pojo.GenesSecondaryProject;
+import org.mousephenotype.cda.solr.service.AlleleService;
+import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
+import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
@@ -41,7 +43,7 @@ import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.chart.PieChartCreator;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
-import uk.ac.ebi.phenotype.web.dao.SecondaryProjectService;
+import uk.ac.ebi.phenotype.web.dao.GenesSecondaryProjectService;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.annotation.Resource;
@@ -53,6 +55,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Controller
@@ -67,8 +70,7 @@ public class SecondaryProjectController {
     AlleleService as;
 
     @Autowired
-    @Qualifier("postqcService")
-    PostQcService genotypePhenotypeService;
+    GenotypePhenotypeService genotypePhenotypeService;
 
     @Autowired
     GeneService geneService;
@@ -81,11 +83,11 @@ public class SecondaryProjectController {
 
     @Autowired
     @Qualifier("idg")
-    SecondaryProjectService idg;
+    GenesSecondaryProjectService idg;
 
     @Autowired
     @Qualifier("threeI")
-    SecondaryProjectService threeI;
+    GenesSecondaryProjectService threeI;
 
     private PhenomeChartProvider phenomeChartProvider = new PhenomeChartProvider();
 
@@ -119,11 +121,14 @@ public class SecondaryProjectController {
             throws SolrServerException, IOException , URISyntaxException {
 
        
-        if (id.equalsIgnoreCase(SecondaryProjectService.SecondaryProjectIds.IDG.name())) {
+        if (id.equalsIgnoreCase(GenesSecondaryProjectService.SecondaryProjectIds.IDG.name())) {
             try {
-                Set<SecondaryProjectBean> secondaryProjects = idg.getAccessionsBySecondaryProjectId(id);
-                Set<String> accessions = SecondaryProjectBean.getAccessionsFromBeans(secondaryProjects);
-                // model.addAttribute("genotypeStatusChart", chartProvider.getStatusColumnChart(geneService.getStatusCount(accessions, GeneDTO.LATEST_ES_CELL_STATUS), "Genotype Status Chart", "genotypeStatusChart"));
+                Set<GenesSecondaryProject> secondaryProjects = idg.getAccessionsBySecondaryProjectId(id);
+                Set<String> accessions = accessions = secondaryProjects
+                        .stream()
+                        .map(GenesSecondaryProject::getMgiGeneAccessionId)
+                        .collect(Collectors.toSet());
+
                 HashMap<String, Long> geneStatus = geneService.getStatusCount(accessions, GeneDTO.LATEST_ES_CELL_STATUS);
                 HashMap<String, Long> mouseStatus = geneService.getStatusCount(accessions, GeneDTO.LATEST_MOUSE_STATUS);
                 HashMap<String, Long> phenoStatus = geneService.getStatusCount(accessions, GeneDTO.LATEST_PHENOTYPE_STATUS);
@@ -151,7 +156,7 @@ public class SecondaryProjectController {
                 e.printStackTrace();
             }
             return "idg";
-        } else if (id.equalsIgnoreCase(SecondaryProjectService.SecondaryProjectIds.threeI.name()) || id.equalsIgnoreCase("3I")) {
+        } else if (id.equalsIgnoreCase(GenesSecondaryProjectService.SecondaryProjectIds.threeI.name()) || id.equalsIgnoreCase("3I")) {
             return "threeI";
         }
 
@@ -167,7 +172,7 @@ public class SecondaryProjectController {
 			GenomicFeatureNotFoundException, IOException, SQLException, SolrServerException {
 
 		System.out.println("export called for secondary project " + project);
-		if (project.equalsIgnoreCase(SecondaryProjectService.SecondaryProjectIds.IDG.name())) {
+		if (project.equalsIgnoreCase(GenesSecondaryProjectService.SecondaryProjectIds.IDG.name())) {
 
 			List<GeneRowForHeatMap> geneRows = idg.getGeneRowsForHeatMap(request);
 
@@ -199,6 +204,4 @@ public class SecondaryProjectController {
             FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName, filters);
 		}
 	}
-	
-
 }

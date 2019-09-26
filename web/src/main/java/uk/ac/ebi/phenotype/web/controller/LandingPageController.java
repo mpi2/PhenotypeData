@@ -1,54 +1,31 @@
 package uk.ac.ebi.phenotype.web.controller;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONException;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
-import org.hibernate.exception.DataException;
-import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.CountTableRow;
-import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
-import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
-import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-
-import net.minidev.json.parser.JSONParser;
-
-// import com.google.common.io.Files;
-
-import uk.ac.ebi.phenotype.bean.LandingPageDTO;
 import uk.ac.ebi.phenotype.chart.AnalyticsChartProvider;
 import uk.ac.ebi.phenotype.chart.CmgColumnChart;
 import uk.ac.ebi.phenotype.chart.ScatterChartAndTableProvider;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
-import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
-
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -56,16 +33,6 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-
 
 /**
  * Created by ilinca on 24/10/2016.
@@ -78,36 +45,31 @@ public class LandingPageController {
     @Value("${impc_media_base_url}")
     private String impcMediaBaseUrl;
 
-    private ObservationService os;
-    private PostQcService gpService;
-    private StatisticalResultService srService;
-    private GeneService geneService;
-    private ImageService imageService;
-    private PhenodigmService phenodigmService;
-    private MpService mpService;
-    private ImpressService is;
+	private GeneService              geneService;
+	private GenotypePhenotypeService genotypePhenotypeService;
+	private ImageService             imageService;
+	private ImpressService           impressService;
+	private MpService                mpService;
+    private ObservationService       observationService;
+    private StatisticalResultService statisticalResultService;
 
     @Inject
-    public LandingPageController(ObservationService os, PostQcService gpService, StatisticalResultService srService, GeneService geneService, ImageService imageService, PhenodigmService phenodigmService, MpService mpService, ImpressService is) {
-
-        Assert.notNull(os, "Observationservice cannot be null");
-        Assert.notNull(gpService, "Genotype phenotype service cannot be null");
-        Assert.notNull(srService, "Statistical result service cannot be null");
-        Assert.notNull(geneService, "Gene service cannot be null");
-        Assert.notNull(imageService, "Image service cannot be null");
-        Assert.notNull(phenodigmService, "Phenodigm service cannot be null");
-        Assert.notNull(mpService, "MP service cannot be null");
-        Assert.notNull(is, "Impress service cannot be null");
-
-        this.os = os;
-        this.gpService = gpService;
-        this.srService = srService;
+    public LandingPageController(
+			@NotNull GeneService geneService,
+			@NotNull GenotypePhenotypeService genotypePhenotypeService,
+			@NotNull ImageService imageService,
+			@NotNull ImpressService impressService,
+			@NotNull MpService mpService,
+    		@NotNull ObservationService observationService,
+			@NotNull StatisticalResultService statisticalResultService)
+	{
         this.geneService = geneService;
+		this.genotypePhenotypeService = genotypePhenotypeService;
         this.imageService = imageService;
-        this.phenodigmService = phenodigmService;
-        this.mpService = mpService;
-        this.is = is;
-
+        this.impressService = impressService;
+		this.mpService = mpService;
+		this.observationService = observationService;
+		this.statisticalResultService = statisticalResultService;
     }
 
 
@@ -168,10 +130,10 @@ public class LandingPageController {
 
         AnalyticsChartProvider chartsProvider = new AnalyticsChartProvider();
         List<String> resources = Arrays.asList( "IMPC" );
-        Map<String, Set<String>> viabilityRes = os.getViabilityCategories(resources, true);
+        Map<String, Set<String>> viabilityRes = observationService.getViabilityCategories(resources, true);
 
-        Map<String, Long> viabilityMap = os.getViabilityCategories(viabilityRes);
-        List<CountTableRow> viabilityTable = os.consolidateZygosities(viabilityRes);
+        Map<String, Long> viabilityMap = observationService.getViabilityCategories(viabilityRes);
+        List<CountTableRow> viabilityTable = observationService.consolidateZygosities(viabilityRes);
 
         model.addAttribute("viabilityChart", chartsProvider.getSlicedPieChart(new HashMap<String, Long>(), viabilityMap, "", "viabilityChart"));
         model.addAttribute("viabilityTable", viabilityTable);
@@ -199,9 +161,9 @@ public class LandingPageController {
         String baseUrl = request.getAttribute("baseUrl").toString();
         List<String> resources = new ArrayList<>();
         resources.add("IMPC");
-        List<String> anatomyIds = new ArrayList<>(); // corresponding anatomical system, used for images
-        MpDTO mpDTO = null;
-        ArrayList<JSONObject> cmg_genes = null;
+        List<String>          anatomyIds = new ArrayList<>(); // corresponding anatomical system, used for images
+        MpDTO                 mpDTO      = null;
+        ArrayList<JSONObject> cmg_genes  = null;
 
         if (page.equalsIgnoreCase("hearing")) { // Need to decide if we want deafness only or top level hearing/vestibular phen
             mpDTO = mpService.getPhenotype("MP:0005377");
@@ -261,7 +223,7 @@ public class LandingPageController {
 	        }
 
 	        List<ImpressDTO> procedures = new ArrayList<>();
-	        procedures.addAll(is.getProceduresByMpTerm(mpDTO.getMpId(), true));
+	        procedures.addAll(impressService.getProceduresByMpTerm(mpDTO.getMpId(), true));
 
 	        // Per Terry 2017-08-31
 	        // On the hearing landing page, filter out all procedures except Shirpa and ABR
@@ -294,11 +256,11 @@ public class LandingPageController {
         		
         		model.addAttribute("paramToNumber", paramToNumber);
         		model.addAttribute("impcImageGroups", groups);
-        		model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getScatterChart("phenotypeChart", gpService.getTopLevelPhenotypeIntersection(mpDTO.getMpId(), filterOnMarkerAccession), "Gene pleiotropy",
-                    description, "Number of phenotype associations to " + pageTitle, "Number of associations to other phenotypes",
-                    "Other phenotype calls: ", pageTitle + " phenotype calls: ", "Gene"));
-	        model.addAttribute("genePercentage", ControllerUtils.getPercentages(mpDTO.getMpId(), srService, gpService));
-	        model.addAttribute("phenotypes", gpService.getAssociationsCount(mpDTO.getMpId(), resources));
+        		model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getScatterChart("phenotypeChart", genotypePhenotypeService.getTopLevelPhenotypeIntersection(mpDTO.getMpId(), filterOnMarkerAccession), "Gene pleiotropy",
+																								  description, "Number of phenotype associations to " + pageTitle, "Number of associations to other phenotypes",
+																								  "Other phenotype calls: ", pageTitle + " phenotype calls: ", "Gene"));
+	        model.addAttribute("genePercentage", ControllerUtils.getPercentages(mpDTO.getMpId(), statisticalResultService, genotypePhenotypeService));
+	        model.addAttribute("phenotypes", genotypePhenotypeService.getAssociationsCount(mpDTO.getMpId(), resources));
 	        model.addAttribute("mpId", mpDTO.getMpId());
 	        model.addAttribute("mpDTO", mpDTO);
 	
@@ -343,7 +305,7 @@ public class LandingPageController {
     		// reads from /src/main/resources/20171206-CMG-best-phenodigm.json and compose the page
     		BufferedReader in = new BufferedReader(new FileReader(new ClassPathResource(phenotypeOverlapScoreFile).getFile()));
     		if (in != null) {
-    			String json = in.lines().collect(Collectors.joining(" "));
+    			String    json = in.lines().collect(Collectors.joining(" "));
     			JSONArray info = null;
     			try {
     				info = new JSONArray(json);

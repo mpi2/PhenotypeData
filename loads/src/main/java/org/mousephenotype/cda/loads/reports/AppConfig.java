@@ -5,22 +5,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
 
 @Configuration
-@PropertySource({
-        "file:${user.home}/configfiles/${profile}/datarelease.properties"
-})
 public class AppConfig {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
     
 
     // CDABASE
-    @Value("${datasource.cdabase.compare.previous.url}")
+    @Value("${datasource.cdabase.compare.previous.jdbc-url}")
     String cdabasePreviousUrl;
 
     @Value("${datasource.cdabase.compare.previous.username}")
@@ -29,7 +25,7 @@ public class AppConfig {
     @Value("${datasource.cdabase.compare.previous.password}")
     String cdabasePreviousPassword;
 
-    @Value("${datasource.cdabase.compare.current.url}")
+    @Value("${datasource.cdabase.compare.current.jdbc-url}")
     String cdabaseCurrentUrl;
 
     @Value("${datasource.cdabase.compare.current.username}")
@@ -40,7 +36,7 @@ public class AppConfig {
 
 
     // CDA
-    @Value("${datasource.cda.compare.previous.url}")
+    @Value("${datasource.cda.compare.previous.jdbc-url}")
     String cdaPreviousUrl;
 
     @Value("${datasource.cda.compare.previous.username}")
@@ -49,7 +45,7 @@ public class AppConfig {
     @Value("${datasource.cda.compare.previous.password}")
     String cdaPreviousPassword;
 
-    @Value("${datasource.cda.compare.current.url}")
+    @Value("${datasource.cda.compare.current.jdbc-url}")
     String cdaCurrentUrl;
 
     @Value("${datasource.cda.compare.current.username}")
@@ -60,7 +56,7 @@ public class AppConfig {
 
 
     // DCC
-    @Value("${datasource.dcc.compare.previous.url}")
+    @Value("${datasource.dcc.compare.previous.jdbc-url}")
     String dccPreviousUrl;
 
     @Value("${datasource.dcc.compare.previous.username}")
@@ -69,7 +65,7 @@ public class AppConfig {
     @Value("${datasource.dcc.compare.previous.password}")
     String dccPreviousPassword;
 
-    @Value("${datasource.dcc.compare.current.url}")
+    @Value("${datasource.dcc.compare.current.jdbc-url}")
     String dccCurrentUrl;
 
     @Value("${datasource.dcc.compare.current.username}")

@@ -3,11 +3,11 @@ package org.mousephenotype.cda.indexers;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.config.TestConfigIndexers;
 import org.mousephenotype.cda.indexers.utils.PhisService;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -19,9 +19,9 @@ import java.util.Set;
 
 import static org.junit.Assert.assertTrue;
 
-//import org.springframework.web.client.RestTemplate;
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes=TestConfigIndexers.class)
+@SpringBootTest
+@ContextConfiguration(classes = {IndexersTestConfigKomp2.class})
 public class PhisServiceTest {
 
 	@Autowired
@@ -34,10 +34,9 @@ public class PhisServiceTest {
 		try {
 			Map<String, Set<String>> primaryGenesProcedures = new HashMap<>();
 			List<ImageDTO> imageDtos = phisService.getPhenoImageShareImageDTOs(primaryGenesProcedures, impressService);
-			assertTrue(imageDtos.size()>162);
+			assertTrue(imageDtos.size() > 162);
 		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
 		}
-
     }
 }

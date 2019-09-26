@@ -3,10 +3,11 @@ package org.mousephenotype.cda.loads.derived;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.stat.inference.BinomialTest;
-import org.mousephenotype.cda.db.dao.*;
 import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.repositories.*;
+import org.mousephenotype.cda.db.utilities.ObservationUtils;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -17,10 +18,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
-import org.springframework.util.Assert;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -31,75 +30,77 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @SpringBootApplication
 @Import(value = {GenerateDerivedParametersConfig.class})
 public class GenerateDerivedParameters implements CommandLineRunner {
 
-    private static final Logger logger = LoggerFactory.getLogger(GenerateDerivedParameters.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private ExecutorService executor;
+    private ExecutorService       executor;
     private List<Future<Integer>> tasks = new ArrayList<>();
 
-    private Map<Integer, LiveSample> animals = new ConcurrentHashMapAllowNull<>();
-    private Map<Integer, Datasource> datasourcesById = new ConcurrentHashMapAllowNull<>();
-    private Map<Integer, Project> projects = new ConcurrentHashMapAllowNull<>();
-    private Map<String, Pipeline> pipelines = new ConcurrentHashMapAllowNull<>();
-    private Map<String, Organisation> organisations = new ConcurrentHashMapAllowNull<>();
+    private Map<Long, LiveSample>     animals         = new ConcurrentHashMapAllowNull<>();
+    private Map<Long, Datasource>     datasourcesById = new ConcurrentHashMapAllowNull<>();
+    private Map<Long, Project>        projects        = new ConcurrentHashMapAllowNull<>();
+    private Map<String, Pipeline>     pipelines       = new ConcurrentHashMapAllowNull<>();
+    private Map<String, Organisation> organisations   = new ConcurrentHashMapAllowNull<>();
 
-    private DataSource komp2DataSource;
-    private BiologicalModelDAO biologicalModelDAO;
-    private DatasourceDAO datasourceDAO;
-    private OrganisationDAO organisationDAO;
-    private PhenotypePipelineDAO phenotypePipelineDAO;
-    private ObservationDAO observationDAO;
-    private ProjectDAO projectDAO;
 
-    public static void main(String[] args) {
-        SpringApplication.run(GenerateDerivedParameters.class, args);
-    }
+    private BiologicalModelRepository biologicalModelRepository;
+    private DatasourceRepository      datasourceRepository;
+    private ExperimentRepository      experimentRepository;
+    private DataSource                komp2DataSource;
+    private LiveSampleRepository      liveSampleRepository;
+    private ObservationRepository     observationRepository;
+    private OrganisationRepository    organisationRepository;
+    private ParameterRepository       parameterRepository;
+    private PipelineRepository        pipelineRepository;
+    private ProcedureRepository       procedureRepository;
+    private ProjectRepository         projectRepository;
+
 
     @Inject
     public GenerateDerivedParameters(
-            @Named("komp2DataSource") DataSource komp2DataSource,
-            BiologicalModelDAO biologicalModelDAO,
-            DatasourceDAO datasourceDAO,
-            OrganisationDAO organisationDAO,
-            PhenotypePipelineDAO phenotypePipelineDAO,
-            ObservationDAO observationDAO,
-            ProjectDAO projectDAO
-    ) {
-
-        Assert.notNull(komp2DataSource, "komp2DataSource cannot be null");
-
-        Assert.notNull(biologicalModelDAO, "biologicalModelDAO cannot be null");
-        Assert.notNull(datasourceDAO, "datasourceDAO cannot be null");
-        Assert.notNull(organisationDAO, "organisationDAO cannot be null");
-        Assert.notNull(phenotypePipelineDAO, "phenotypePipelineDAO cannot be null");
-        Assert.notNull(observationDAO, "observationDAO cannot be null");
-        Assert.notNull(projectDAO, "projectDAO can not be null");
-
+            BiologicalModelRepository biologicalModelRepository,
+            DatasourceRepository datasourceRepository,
+            ExperimentRepository experimentRepository,
+            DataSource komp2DataSource,
+            LiveSampleRepository liveSampleRepository,
+            ObservationRepository observationRepository,
+            OrganisationRepository organisationRepository,
+            ParameterRepository parameterRepository,
+            PipelineRepository pipelineRepository,
+            ProcedureRepository procedureRepository,
+            ProjectRepository projectRepository)
+    {
+        this.biologicalModelRepository = biologicalModelRepository;
+        this.datasourceRepository = datasourceRepository;
+        this.experimentRepository = experimentRepository;
         this.komp2DataSource = komp2DataSource;
-        this.phenotypePipelineDAO=phenotypePipelineDAO;
-        this.biologicalModelDAO = biologicalModelDAO;
-        this.datasourceDAO = datasourceDAO;
-        this.organisationDAO = organisationDAO;
-        this.phenotypePipelineDAO = phenotypePipelineDAO;
-        this.observationDAO = observationDAO;
-        this.projectDAO = projectDAO;
+        this.liveSampleRepository = liveSampleRepository;
+        this.observationRepository = observationRepository;
+        this.organisationRepository = organisationRepository;
+        this.parameterRepository = parameterRepository;
+        this.pipelineRepository = pipelineRepository;
+        this.procedureRepository = procedureRepository;
+        this.projectRepository = projectRepository;
     }
+
 
     @Override
     public void run(String... args) throws Exception {
 
         executor = Executors.newFixedThreadPool(16);
 
-        loadAllOrganisations();
-        loadAllDatasources();
-        loadAllProjects();
-		loadAllAnimals();
-        loadAllPipelinesByStableIds();
+        organisations = loadAllOrganisationsById();
+        datasourcesById = loadAllDatasourcesById();
+        projects = loadAllProjectsById();
+		animals = loadAllAnimalsById();
+        pipelines = loadAllPipelinesByStableId();
 
 
         OptionParser parser = new OptionParser();
@@ -619,8 +620,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         int i = 0;
         String parameterToCreate = "IMPC_ACS_037_001";
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
-
+        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         String IMPC_ACS_006_001 = "IMPC_ACS_006_001";
         String IMPC_ACS_007_001 = "IMPC_ACS_007_001";
         String IMPC_ACS_008_001 = "IMPC_ACS_008_001";
@@ -660,7 +660,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 currentExperiment.setMetadataCombined(dto.getMetadataCombined());
                 currentExperiment.setMetadataGroup(dto.getMetadataGroup());
 
-                observationDAO.saveExperiment(currentExperiment);
+                experimentRepository.save(currentExperiment);
 
                 // compute data point
                 // When 3 values are provided, the formula is: 100 * ((S - ((PP1_S + PP2_S + PP3_S) / 3)) / S)
@@ -680,8 +680,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 Float S = parameterMap.get(IMPC_ACS_006_001).get(id).getDataPoint();
                 Float dataPoint = 100 * ((S - mean) / S);
 
-                Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
-                observationDAO.saveObservation(observation);
+                Observation observation = ObservationUtils.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
+                observationRepository.save(observation);
             }
 
         }
@@ -710,7 +710,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         String nominatorParam = "ESLIM_003_001_004";
         String denominatorParam = "ESLIM_003_001_003";
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getByStableId(parameterToCreate);
 
         Map<String, ObservationDTO> nominators = getIncrementalDataMapByParameter(nominatorParam);
         Map<String, ObservationDTO> denominators = getIncrementalDataMapByParameter(denominatorParam);
@@ -783,11 +783,11 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 denom /= denominators.get(id).getIncrementValues().size();
 
                 if (denom > 0){
-                    observationDAO.saveExperiment(currentExperiment);
+                    experimentRepository.save(currentExperiment);
                     Double dataPoint = nom/denom;
                     //createTimeSeriesObservationWithOriginalDate
-                    Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
-                    observationDAO.saveObservation(observation);
+                    Observation observation = ObservationUtils.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
+                    observationRepository.save(observation);
                 }
             }
         }
@@ -806,7 +806,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         Map<String, ObservationDTO> resultAt_t0 = getResultsAtIncrement(paramToUse, 0);
         Map<String, ObservationDTO> resultAt_t15 = getResultsAtIncrement(paramToUse, 15);
-        Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getByStableId(parameterToCreate);
 
         Set <String> commonIds = resultAt_t0.keySet();
         commonIds.retainAll(resultAt_t15.keySet());
@@ -818,11 +818,11 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             Datasource datasource = datasourcesById.get(dto.getExternalDbId());
             Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
 
-            observationDAO.saveExperiment(currentExperiment);
+            experimentRepository.save(currentExperiment);
 
-            Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, "" + (resultAt_t15.get(id).getDataPoint() - dto.getDataPoint()), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
+            Observation observation = ObservationUtils.createSimpleObservation(ObservationType.unidimensional, "" + (resultAt_t15.get(id).getDataPoint() - dto.getDataPoint()), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
 
-            observationDAO.saveObservation(observation);
+            observationRepository.save(observation);
         }
         logger.info("Added " + i + " observations for " + parameterToCreate);
         System.out.println("Added " + i + " observations for " + parameterToCreate);
@@ -853,7 +853,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 //		probabilityMap.put("HomXHet", 0.5);
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getByStableId(parameterToCreate);
 
         int i = 0;
 
@@ -876,18 +876,18 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
             Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
             currentExperiment.setColonyId(colony.colonyId);
-            currentExperiment.setModel(biologicalModelDAO.getBiologicalModelById(colony.biologicalModelId));
+            currentExperiment.setModel(biologicalModelRepository.findById(colony.biologicalModelId).orElse(null));
 
             if(currentExperiment.getModel()==null) {
                 logger.warn("Skipping loading IMPC_VIA_032_001 for colony {} missing biological model", colony.colonyId);
                 continue;
             }
 
-            observationDAO.saveExperiment(currentExperiment);
+            experimentRepository.save(currentExperiment);
 
             // create derived parameter record
-            Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, pValue.toString(), param, null, datasource, currentExperiment, null);
-            observationDAO.saveObservation(observation);
+            Observation observation = ObservationUtils.createSimpleObservation(ObservationType.unidimensional, pValue.toString(), param, null, datasource, currentExperiment, null);
+            observationRepository.save(observation);
 
         }
 
@@ -915,7 +915,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         allIds.addAll(IMPC_EYE_021_001.keySet());
         allIds.addAll(IMPC_EYE_022_001.keySet());
 
-        Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
 
         deleteObservationsForParameterId(parameterToCreate);
@@ -935,10 +935,10 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 Datasource datasource = datasourcesById.get(dto.getExternalDbId());
 
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
-                observationDAO.saveExperiment(currentExperiment);
+                experimentRepository.save(currentExperiment);
 
-                Observation observation = observationDAO.createSimpleObservation(ObservationType.categorical, dto.getCategory(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
-                observationDAO.saveObservation(observation);
+                Observation observation = ObservationUtils.createSimpleObservation(ObservationType.categorical, dto.getCategory(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
+                observationRepository.save(observation);
             } else {
                 logger.info("Not processing data {} for id {}", dto.getCategory(), id);
             }
@@ -991,18 +991,18 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         deleteObservationsForParameterId(parameterToCreate);
         List<ObservationDTO> res = new ArrayList<> (getResultsAtIncrement(parameterToCopyFrom, increment).values());
-        Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         for (ObservationDTO dto: res){
             // then depending on the type, create the relevant information
             Datasource datasource = datasourcesById.get(dto.getExternalDbId());
             Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
 
-            observationDAO.saveExperiment(currentExperiment);
+            experimentRepository.save(currentExperiment);
 
-            Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, dto.getDataPoint().toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
+            Observation observation = ObservationUtils.createSimpleObservation(ObservationType.unidimensional, dto.getDataPoint().toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
 
-            observationDAO.saveObservation(observation);
+            observationRepository.save(observation);
         }
         logger.info("Added " + i + " observations for " + parameterToCreate);
         System.out.println("Added " + i + " observations for " + parameterToCreate);
@@ -1014,7 +1014,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         deleteObservationsForParameterId(parameterToCreate);
         List<ObservationDTO> res = getResultsByParameter(parameterToCopy);
-        Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         for (ObservationDTO dto: res){
             // then depending on the type, create the relevant information
@@ -1028,11 +1028,11 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
             Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, proc, true);
 
-            observationDAO.saveExperiment(currentExperiment);
+            experimentRepository.save(currentExperiment);
 
-            Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, dto.getDataPoint().toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
+            Observation observation = ObservationUtils.createSimpleObservation(ObservationType.unidimensional, dto.getDataPoint().toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
 
-            observationDAO.saveObservation(observation);
+            observationRepository.save(observation);
         }
         logger.info("Added " + i + " observations for " + parameterToCreate);
         System.out.println("Added " + i + " observations for " + parameterToCreate);
@@ -1045,7 +1045,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(minuend);
@@ -1075,12 +1075,12 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                     currentExperiment.setMetadataGroup(dto.getMetadataGroup());
 
 
-                    observationDAO.saveExperiment(currentExperiment);
+                    experimentRepository.save(currentExperiment);
 
                     Float dataPoint = (dto.getDataPoint() - parameterMap.get(subtrahend).get(id).getDataPoint()) / parameterMap.get(divisorParameter).get(id).getDataPoint() * 100;
-                    Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
+                    Observation observation = ObservationUtils.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
 
-                    observationDAO.saveObservation(observation);
+                    observationRepository.save(observation);
                 }
             } catch (Exception e) {
 
@@ -1103,7 +1103,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(numeratorParameter);
@@ -1128,12 +1128,12 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 currentExperiment.setMetadataCombined(dto.getMetadataCombined());
                 currentExperiment.setMetadataGroup(dto.getMetadataGroup());
 
-                observationDAO.saveExperiment(currentExperiment);
+                experimentRepository.save(currentExperiment);
 
                 Float dataPoint = dto.getDataPoint()/parameterMap.get(divisorParameter).get(id).getDataPoint()*100;
-                Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
+                Observation observation = ObservationUtils.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
 
-                observationDAO.saveObservation(observation);
+                observationRepository.save(observation);
             }
         }
         logger.info("Added " + i + " observations for " + parameterToCreate);
@@ -1157,7 +1157,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         deleteObservationsForParameterId(parameterToCreate);
 
         Long time = System.currentTimeMillis();
-        Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
 
         System.out.println("getting parameters took " + (System.currentTimeMillis() - time));
@@ -1196,19 +1196,19 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 currentExperiment.setMetadataGroup(dto.getMetadataGroup());
 
                 currentExperiment.setColonyId(dto.getColony());
-                currentExperiment.setModel(biologicalModelDAO.getBiologicalModelById(dto.getBiologicalModelId()));
+                currentExperiment.setModel(biologicalModelRepository.findById(dto.getBiologicalModelId()).orElse(null));
 
                 if(currentExperiment.getModel()==null) {
                     logger.warn("Skipping loading {} for colony {} missing biological model", parameterToCreate, id);
                     continue;
                 }
 
-                observationDAO.saveExperiment(currentExperiment);
+                experimentRepository.save(currentExperiment);
 
                 Float dataPoint = dto.getDataPoint()/lineLevelParameterMap.get(denominator).get(id).getDataPoint();
-                Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
+                Observation observation = ObservationUtils.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
 
-                observationDAO.saveObservation(observation);
+                observationRepository.save(observation);
 
             }
         }
@@ -1222,7 +1222,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(firstParam);
@@ -1249,12 +1249,12 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 currentExperiment.setMetadataCombined(dto.getMetadataCombined());
                 currentExperiment.setMetadataGroup(dto.getMetadataGroup());
 
-                observationDAO.saveExperiment(currentExperiment);
+                experimentRepository.save(currentExperiment);
 
                 Float dataPoint = dto.getDataPoint()*parameterMap.get(secondParam).get(id).getDataPoint();
-                Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
+                Observation observation = ObservationUtils.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
 
-                observationDAO.saveObservation(observation);
+                observationRepository.save(observation);
 
             }
         }
@@ -1267,7 +1267,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(numeratorParameter);
@@ -1289,12 +1289,12 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 currentExperiment.setMetadataCombined(dto.getMetadataCombined());
                 currentExperiment.setMetadataGroup(dto.getMetadataGroup());
 
-                observationDAO.saveExperiment(currentExperiment);
+                experimentRepository.save(currentExperiment);
 
                 Float dataPoint = multiplicator * dto.getDataPoint() / parameterMap.get(divisorParameter).get(id).getDataPoint();
-                Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
+                Observation observation = ObservationUtils.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
 
-                observationDAO.saveObservation(observation);
+                observationRepository.save(observation);
 
             }
         }
@@ -1307,7 +1307,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(numeratorParameter);
@@ -1339,13 +1339,13 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 currentExperiment.setMetadataGroup(dto.getMetadataGroup());
 
 
-                observationDAO.saveExperiment(currentExperiment);
+                experimentRepository.save(currentExperiment);
 
                 Float multiplicatorDataPoint = parameterMap.get(multiplicator).get(id).getDataPoint();
                 Float dataPoint = multiplicatorDataPoint * dto.getDataPoint() / parameterMap.get(divisorParameter).get(id).getDataPoint();
-                Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
+                Observation observation = ObservationUtils.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
 
-                observationDAO.saveObservation(observation);
+                observationRepository.save(observation);
 
             }
         }
@@ -1358,7 +1358,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(numeratorParameter);
@@ -1395,12 +1395,12 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                     currentExperiment.setMetadataCombined(dto.getMetadataCombined());
                     currentExperiment.setMetadataGroup(dto.getMetadataGroup());
 
-                    observationDAO.saveExperiment(currentExperiment);
+                    experimentRepository.save(currentExperiment);
 
                     Float dataPoint = dto.getDataPoint() / parameterMap.get(divisorParameter).get(id).getDataPoint();
-                    Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
-
-                    observationDAO.saveObservation(observation);
+                    Observation observation = ObservationUtils.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
+                    observationRepository.save(observation);
+                    
                 } catch (Exception e) {
 
                     Map<String, ObservationDTO> m1 = parameterMap.get(numeratorParameter);
@@ -1429,7 +1429,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         String parameterToCreate = "ESLIM_011_001_705";
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add("ESLIM_011_001_006");
@@ -1463,7 +1463,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 currentExperiment.setMetadataCombined(dto.getMetadataCombined());
                 currentExperiment.setMetadataGroup(dto.getMetadataGroup());
 
-                observationDAO.saveExperiment(currentExperiment);
+                experimentRepository.save(currentExperiment);
 
                 // (ESLIM_011_001_007 + ESLIM_011_001_008 + ESLIM_011_001_009 + ESLIM_011_001_010 ) / 4
                 Float dataPoint = (parameterMap.get("ESLIM_011_001_007").get(id).getDataPoint() +
@@ -1475,9 +1475,9 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 dataPoint = parameterMap.get("ESLIM_011_001_006").get(id).getDataPoint() - dataPoint;
                 // 100 x ( (ESLIM_011_001_006 - ( (ESLIM_011_001_007 + ESLIM_011_001_008 + ESLIM_011_001_009 + ESLIM_011_001_010 ) / 4 ) ) / ESLIM_011_001_006 )
                 dataPoint = 100 * dataPoint / parameterMap.get("ESLIM_011_001_006").get(id).getDataPoint();
-                Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
+                Observation observation = ObservationUtils.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
 
-                observationDAO.saveObservation(observation);
+                observationRepository.save(observation);
             }
         }
         logger.info("Added " + i + " observations for " + parameterToCreate);
@@ -1492,7 +1492,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         int i = 0;
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         Map<String, ObservationDTO> increments = getIncrementalDataMapByParameter(parameterId);
         Set<String> animalIds =  increments.keySet();
         for (String id: animalIds){
@@ -1503,13 +1503,13 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 if (dataPoint > 0){
                     Datasource datasource = datasourcesById.get(dto.getExternalDbId());
                     Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
-                    observationDAO.saveExperiment(currentExperiment);
+                    experimentRepository.save(currentExperiment);
 
                     //createTimeSeriesObservationWithOriginalDate
-                    Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(),
+                    Observation observation = ObservationUtils.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(),
                             param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
 
-                    observationDAO.saveObservation(observation);
+                    observationRepository.save(observation);
                 }
             }
         }
@@ -1548,7 +1548,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         ArrayList<String> listOfParameters = new ArrayList<>();
         listOfParameters.add(numerator);
@@ -1596,11 +1596,11 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
                 if (div != 0){
 
-                    observationDAO.saveExperiment(currentExperiment);
+                    experimentRepository.save(currentExperiment);
                     Double dataPoint = num / div;
                     //	createTimeSeriesObservationWithOriginalDate
-                    Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
-                    observationDAO.saveObservation(observation);
+                    Observation observation = ObservationUtils.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
+                    observationRepository.save(observation);
                 }
 
             }catch (Exception e) {
@@ -1624,7 +1624,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
 
         Map<String, ObservationDTO> increments = getIncrementalDataMapByParameter(parameterId);
@@ -1636,7 +1636,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 Datasource datasource = datasourcesById.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
 
-                observationDAO.saveExperiment(currentExperiment);
+                experimentRepository.save(currentExperiment);
 
                 // sum_of_increments(ESLIM_010_001_001)/number_of_increments(ESLIM_010_001_001)
                 ArrayList<Double> incrementValues = dto.getIncrementValues();
@@ -1646,9 +1646,9 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 }
                 dataPoint = dataPoint/(incrementValues.size());
                 //createTimeSeriesObservationWithOriginalDate
-                Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
+                Observation observation = ObservationUtils.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
 
-                observationDAO.saveObservation(observation);
+                observationRepository.save(observation);
             }
         }
         logger.info("Added " + i + " observations for " + parameterToCreate);
@@ -1660,7 +1660,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     private int copyDifferenceOfIncrements(String parameterToCreate, String parameterId, Double incrementForMinued, Double incrementForSubtrahend) throws SQLException {
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         Map<String, ObservationDTO> increments = getIncrementalDataMapByParameter(parameterId);
         for (String id:  increments.keySet()){
@@ -1672,10 +1672,10 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             if (minuedPosition >= 0 && subtrahendPosition>= 0) {
                 Datasource datasource = datasourcesById.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" + parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
-                observationDAO.saveExperiment(currentExperiment);
+                experimentRepository.save(currentExperiment);
                 Double dataPoint = dto.getIncrementValues().get(minuedPosition) - dto.getIncrementValues().get(subtrahendPosition);
-                Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
-                observationDAO.saveObservation(observation);
+                Observation observation = ObservationUtils.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
+                observationRepository.save(observation);
 
             }
         }
@@ -1689,7 +1689,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         Map<String, ObservationDTO> increments = getIncrementalDataMapByParameter(parameterId);
         Set<String> animalIds =  increments.keySet();
@@ -1700,7 +1700,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
             Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
 
-            observationDAO.saveExperiment(currentExperiment);
+            experimentRepository.save(currentExperiment);
 
             // sum_of_increments(ESLIM_010_001_001)/number_of_increments(ESLIM_010_001_001)
             ArrayList<Double> incrementValues = dto.getIncrementValues();
@@ -1709,9 +1709,9 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 dataPoint += incrementValue;
             }
             //createTimeSeriesObservationWithOriginalDate
-            Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
+            Observation observation = ObservationUtils.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
 
-            observationDAO.saveObservation(observation);
+            observationRepository.save(observation);
         }
 
         logger.info("Added " + i + " observations for " + parameterToCreate);
@@ -1726,14 +1726,14 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         // EUMODIC bodyweight procedure is always ESLIM_022_001
         //
         if (param.getStableId().contains("ESLIM_022")) {
-            return phenotypePipelineDAO.getProcedureByStableId("ESLIM_022_001");
+            return procedureRepository.getByStableId("ESLIM_022_001");
         }
 
         //
         // IMPC bodyweight procedure is always IMPC_BWT_001
         //
         if (param.getStableId().contains("IMPC_BWT")) {
-            return phenotypePipelineDAO.getProcedureByStableId("IMPC_BWT_001");
+            return procedureRepository.getByStableId("IMPC_BWT_001");
         }
 
         for (Procedure p : param.getProcedures()) {
@@ -1752,7 +1752,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         Map<String, ObservationDTO> increments = getIncrementalDataMapByParameter(parameterId);
         Map<String, ObservationDTO> denominators = getResultsMapByParameter(denominator);
@@ -1777,7 +1777,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 currentExperiment.setMetadataCombined(dto.getMetadataCombined());
                 currentExperiment.setMetadataGroup(dto.getMetadataGroup());
 
-                observationDAO.saveExperiment(currentExperiment);
+                experimentRepository.save(currentExperiment);
 
                 // sum_of_increments(ESLIM_010_001_001)/number_of_increments(ESLIM_010_001_001)
                 ArrayList<Double> incrementValues = dto.getIncrementValues();
@@ -1788,9 +1788,9 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 dataPoint = dataPoint/(incrementValues.size());
                 dataPoint = dataPoint/denominators.get(id).getDataPoint();
                 //createTimeSeriesObservationWithOriginalDate
-                Observation observation = observationDAO.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
+                Observation observation = ObservationUtils.createSimpleObservation(ObservationType.unidimensional, dataPoint.toString(), param, animals.get(dto.getAnimalId()), datasource, currentExperiment, null);
 
-                observationDAO.saveObservation(observation);
+                observationRepository.save(observation);
             }
         }
 
@@ -1809,7 +1809,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         Map<String, ObservationDTO> res = new HashMap<> (); // <animalid, obsDTO>
         Map<String, String> metadataGroups = new HashMap<>();
         Map<String, String> metadata = new HashMap<>();
-        Parameter param = phenotypePipelineDAO.getParameterByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getByStableId(parameterToCreate);
 
         Map<String, Map<String, ObservationDTO>> parameterMap = new HashMap<>();
         Set<String> animalIds =  getTimeSeriesResultsUnionByParameter(paramsOfInterest, parameterMap);
@@ -1841,10 +1841,10 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), false);
             currentExperiment.setMetadataCombined(metadata.get(id));
             currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroups.get(id)));
-            observationDAO.saveExperiment(currentExperiment);
+            experimentRepository.save(currentExperiment);
 
             for (int k = 0 ; k < dto.getDiscreteValues().size(); k++){
-                Observation observation = observationDAO.createTimeSeriesObservationWithOriginalDate(ObservationType.time_series,
+                Observation observation = ObservationUtils.createTimeSeriesObservationWithOriginalDate(ObservationType.time_series,
                         dto.getIncrementValues().get(k).toString(), // dataPoint
                         dto.getDiscreteValues().get(k).toString(), // discretePoint
                         dto.getDateOfExperiment().toString(), // timePoint
@@ -1854,7 +1854,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                         datasource,
                         currentExperiment, null) ;
                 i++;
-                observationDAO.saveObservation(observation);
+                observationRepository.save(observation);
             }
         }
 
@@ -1866,14 +1866,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     private double getAgeInWeeks(Date current, Date birth){
         long weeks = (current.getTime() - birth.getTime()) / (24 * 60 * 60 * 1000 * 7);
         return  (double) weeks;
-    }
-
-    // load all animals in a map to make things faster
-    private void loadAllAnimals() {
-        List<LiveSample> animalList = biologicalModelDAO.getAllLiveSamples();
-        for (LiveSample animal: animalList) {
-            animals.put(animal.getId(), animal);
-        }
     }
 
 
@@ -1915,8 +1907,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             while (resultSet.next()) {
                 ColonyDTO dto = new ColonyDTO();
                 dto.colonyId = resultSet.getString("colony_id");
-                dto.experimentId = resultSet.getInt("experiment_id");
-                dto.biologicalModelId = resultSet.getInt("biological_model_id");
+                dto.experimentId = resultSet.getLong("experiment_id");
+                dto.biologicalModelId = resultSet.getLong("biological_model_id");
                 res.add(dto);
             }
         }
@@ -1925,7 +1917,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     }
 
 
-    private Float getIMPC_VIA_032_001(String colonyId, Integer experimentId)
+    private Float getIMPC_VIA_032_001(String colonyId, Long experimentId)
             throws SQLException {
 
         Double pValue = 1.0;
@@ -1957,7 +1949,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         logger.trace("Executing query: {} (eid: {}, cid: {})", IMPC_VIA_003_001_query, experimentId, colonyId);
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(IMPC_VIA_003_001_query)) {
 
-            statement.setInt(1, experimentId);
+            statement.setLong(1, experimentId);
             statement.setString(2, colonyId);
 
             ResultSet resultSet = statement.executeQuery();
@@ -1971,7 +1963,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         logger.trace("Executing query: {} (eid: {}, cid: {})", IMPC_VIA_006_001_query, experimentId, colonyId);
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(IMPC_VIA_006_001_query)) {
 
-            statement.setInt(1, experimentId);
+            statement.setLong(1, experimentId);
             statement.setString(2, colonyId);
 
             ResultSet resultSet = statement.executeQuery();
@@ -1984,7 +1976,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         logger.trace("Executing query: {} (eid: {}, cid: {})", IMPC_VIA_031_001_query, experimentId, colonyId);
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(IMPC_VIA_031_001_query)) {
 
-            statement.setInt(1, experimentId);
+            statement.setLong(1, experimentId);
             statement.setString(2, colonyId);
 
             ResultSet resultSet = statement.executeQuery();
@@ -2043,7 +2035,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     }
 
 
-    private ObservationDTO getObservationDTOForColony(String colonyId, Integer experimentId)
+    private ObservationDTO getObservationDTOForColony(String colonyId, Long experimentId)
             throws SQLException {
 
         String query = "SELECT e.db_id, e.project_id, org.name, e.metadata_group, e.metadata_combined, e.pipeline_id, e.pipeline_stable_id, e.procedure_id, e.procedure_stable_id " +
@@ -2055,7 +2047,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
 
-            statement.setInt(1, experimentId);
+            statement.setLong(1, experimentId);
             statement.setString(2, colonyId);
 
             ResultSet resultSet = statement.executeQuery();
@@ -2097,7 +2089,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             while (resultSet.next()) {
                 ObservationDTO obsDTO = fillLineLevelObsDTO(resultSet);
                 obsDTO.setDataPoint(resultSet.getFloat("data_point"));
-                obsDTO.setBiologicalModelId(resultSet.getInt("biological_model_id"));
+                obsDTO.setBiologicalModelId(resultSet.getLong("biological_model_id"));
                 obsDTO.setColony(resultSet.getString("colony_id"));
                 res.put(resultSet.getString("colony_id") + "#" + obsDTO.getPipelineId(), obsDTO);
             }
@@ -2159,7 +2151,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         ObservationDTO obsDTO = new ObservationDTO();
 
         obsDTO.setExternalDbId(resultSet.getInt("db_id"));
-        obsDTO.setProjectId(resultSet.getInt("project_id"));
+        obsDTO.setProjectId(resultSet.getLong("project_id"));
         obsDTO.setProductionCenter(resultSet.getString("name"));
         obsDTO.setMetadataGroup(resultSet.getString("metadata_group"));
         obsDTO.setMetadataCombined(resultSet.getString("metadata_combined"));
@@ -2666,8 +2658,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         ObservationDTO obsDTO = new ObservationDTO();
         obsDTO.setExternalDbId(resultSet.getInt("db_id"));
-        obsDTO.setProjectId(resultSet.getInt("project_id"));
-        obsDTO.setAnimalId(resultSet.getInt("id"));
+        obsDTO.setProjectId(resultSet.getLong("project_id"));
+        obsDTO.setAnimalId(resultSet.getLong("id"));
         obsDTO.setColony(resultSet.getString("colony_id"));
         obsDTO.setSex(SexType.valueOf(resultSet.getString("sex")));
         if (resultSet.getString("zygosity") == null)
@@ -2695,8 +2687,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         ObservationDTO obsDTO = new ObservationDTO();
         obsDTO.setExternalDbId(resultSet.getInt("db_id"));
-        obsDTO.setProjectId(resultSet.getInt("project_id"));
-        obsDTO.setAnimalId(resultSet.getInt("id"));
+        obsDTO.setProjectId(resultSet.getLong("project_id"));
+        obsDTO.setAnimalId(resultSet.getLong("id"));
         obsDTO.setColony(resultSet.getString("colony_id"));
         obsDTO.setSex(SexType.valueOf(resultSet.getString("sex")));
         if (resultSet.getString("zygosity") == null)
@@ -2721,31 +2713,31 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
     public class ObservationDTO {
 
-        private Integer animalId;
-        private Integer biologicalModelId; //line level params only
-        private String colony;
-        private Float dataPoint;
-        private Date dateOfExperiment;
-        private Date dateOfBirth;
-        private ArrayList<Double> discreteValues = new ArrayList<>(); // discrete_point
+        private Long              animalId;
+        private Long              biologicalModelId; //line level params only
+        private String            colony;
+        private Float             dataPoint;
+        private Date              dateOfExperiment;
+        private Date              dateOfBirth;
+        private ArrayList<Double> discreteValues  = new ArrayList<>(); // discrete_point
         private ArrayList<Double> incrementValues = new ArrayList<>(); // data_point
-        private Integer externalDbId;
-        private String metadataCombined;
-        private String metadataGroup;
-        private String pipelineStableId;
-        private String pipelineId;
-        private String procedureId;
-        private String procedureStableId;
-        private String productionCenter;
-        private Integer projectId;
-        private String strain;
-        private SexType sex;
-        private ZygosityType zygosity;
-        private String category;
+        private Integer           externalDbId;
+        private String            metadataCombined;
+        private String            metadataGroup;
+        private String            pipelineStableId;
+        private String            pipelineId;
+        private String            procedureId;
+        private String            procedureStableId;
+        private String            productionCenter;
+        private Long              projectId;
+        private String            strain;
+        private SexType           sex;
+        private ZygosityType      zygosity;
+        private String            category;
 
-        Integer getBiologicalModelId() { return biologicalModelId; }
+        Long getBiologicalModelId() { return biologicalModelId; }
 
-        void setBiologicalModelId(Integer biologicalModelId) { this.biologicalModelId = biologicalModelId; }
+        void setBiologicalModelId(Long biologicalModelId) { this.biologicalModelId = biologicalModelId; }
 
         String getProcedureId() {
             return procedureId;
@@ -2790,10 +2782,10 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         void setMetadataGroup(String metadataGroup) {
             this.metadataGroup = metadataGroup;
         }
-        Integer getProjectId() {
+        Long getProjectId() {
             return projectId;
         }
-        void setProjectId(Integer projectId) {
+        void setProjectId(Long projectId) {
             this.projectId = projectId;
         }
         Integer getExternalDbId() {
@@ -2833,10 +2825,10 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         void setDataPoint(Float dataPoint) {
             this.dataPoint = dataPoint;
         }
-        Integer getAnimalId() {
+        Long getAnimalId() {
             return animalId;
         }
-        void setAnimalId(Integer animalId) {
+        void setAnimalId(Long animalId) {
             this.animalId = animalId;
         }
         Date getDateOfExperiment() {
@@ -2901,8 +2893,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
     private class ColonyDTO {
         String colonyId;
-        Integer experimentId;
-        Integer biologicalModelId;
+        Long experimentId;
+        Long biologicalModelId;
 
 
         @Override
@@ -2916,60 +2908,45 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     }
 
 
-    /**
-     * Pre-load the organisations by short name using UPPER CASE
-     */
-    protected void loadAllOrganisations() {
+    // Load all animals by id
+    protected Map<Long, LiveSample> loadAllAnimalsById() {
 
-        List<Organisation> organisationList = organisationDAO.getAllOrganisations();
-        for (Organisation o: organisationList) {
-            organisations.put(o.getName().toUpperCase(), o);
-        }
-
+        return StreamSupport
+                .stream(liveSampleRepository.findAll().spliterator(), false)
+                .collect(Collectors.toMap(LiveSample::getId, Function.identity()));
     }
 
+    // Load all datasources by id
+    protected Map<Long, Datasource> loadAllDatasourcesById() {
 
-    /**
-     * Pre-load the pipeline information for quick look-up
-     */
-    protected void loadAllPipelinesByStableIds() {
-
-        List<Pipeline> pipelineList = phenotypePipelineDAO.getAllPhenotypePipelines();
-
-        for (Pipeline p: pipelineList) {
-            pipelines.put(p.getStableId(), p);
-        }
+        return StreamSupport
+                .stream(datasourceRepository.findAll().spliterator(), false)
+                .collect(Collectors.toMap(Datasource::getId, Function.identity()));
     }
 
-    // load all datasourcesById in a map to make things faster
-    protected void loadAllDatasources() {
-        List<Datasource> dsList = datasourceDAO.getAllDatasources();
-        for (Datasource ds: dsList) {
-            datasourcesById.put(ds.getId(), ds);
-        }
+   // Load all organisations by UPPERCASED short name
+    protected Map<String, Organisation> loadAllOrganisationsById() {
+
+        return StreamSupport
+                .stream(organisationRepository.findAll().spliterator(), false)
+                .collect(Collectors.toMap( org -> org.getName().toUpperCase(), Function.identity()));
     }
 
-    // load all projects in a map to make things faster
-    protected void loadAllProjects() {
-        List<Project> projectList = projectDAO.getAllProjects();
-        for (Project project: projectList) {
-            projects.put(project.getId(), project);
-        }
+    // Load all pipelines by stable id
+    protected Map<String, Pipeline> loadAllPipelinesByStableId() {
+
+        return StreamSupport
+                .stream(pipelineRepository.findAll().spliterator(), false)
+                .collect(Collectors.toMap(Pipeline::getStableId, Function.identity()));
     }
 
+    // Load all projectsById
+    protected Map<Long, Project> loadAllProjectsById() {
 
-
-
-
-
-
-
-
-
-
-
-
-
+        return StreamSupport
+                .stream(projectRepository.findAll().spliterator(), false)
+                .collect(Collectors.toMap(Project::getId, Function.identity()));
+    }
 
 
     /* ************************************************************************************** */
@@ -3232,4 +3209,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 //
 //    }
 
+
+    public static void main(String[] args) {
+        SpringApplication.run(GenerateDerivedParameters.class, args);
+    }
 }

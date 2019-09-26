@@ -28,6 +28,7 @@
     <dependencies>
 
         <!-- JAXB dependency is needed for Uniprot parsing on gene summary -->
+        <!-- FIXME FIXME FIXME This is going away when uniprot is removed. -->
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
@@ -35,20 +36,41 @@
         </dependency>
 
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-tomcat</artifactId>
-            <scope>provided</scope>
-        </dependency>
+        <!-- CDA/REGISTER INTEREST DEPENDENCIES -->
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>org.mousephenotype.cda</groupId>
             <artifactId>data-model-db</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mousephenotype.cda</groupId>
+            <artifactId>data-model-solr</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mousephenotype.cda</groupId>
+            <artifactId>ri-core</artifactId>
+        </dependency>
+
+
+        <!-- SPRING BOOT DEPENDENCIES -->
+
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
 
         <dependency>
@@ -58,7 +80,8 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-actuator-docs</artifactId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
@@ -68,18 +91,147 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+
+        <!-- SPRING DEPENDENCIES -->
+
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <exclusions>
+                <!-- Exclude Commons Logging in favor of SLF4j -->
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
-            <groupId>org.mousephenotype.cda</groupId>
-            <artifactId>data-model-solr</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
         </dependency>
-        
+
         <dependency>
-            <groupId>org.mousephenotype.cda</groupId>
-            <artifactId>data-model-stats</artifactId>
-            <version>1.0.0</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <type>jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+        </dependency>
+
+
+        <!-- This dependency (and a bootstrap.properties) is all that's required to pull configuration values
+             from the configService. -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+        </dependency>
+
+
+        <!-- APACHE DEPENDENCIES -->
+
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.3.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-discovery</groupId>
+            <artifactId>commons-discovery</artifactId>
+            <version>0.4</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>3.1</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>3.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.james</groupId>
+            <artifactId>apache-mime4j</artifactId>
+            <version>0.5</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-jasper</artifactId>
+    </dependency>
+
+
+        <!-- OTHER DEPENDENCIES -->
+
+
+        <dependency>
+            <groupId>com.google.code</groupId>
+            <artifactId>sitemapgen4j</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>4.0</version>
         </dependency>
 
         <dependency>
@@ -88,20 +240,28 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-jasper</artifactId>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>2.2.4-1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.xml</groupId>
+            <artifactId>jaxrpc-api</artifactId>
+            <version>1.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
         </dependency>
 
         <dependency>
             <groupId>net.sf.opencsv</groupId>
             <artifactId>opencsv</artifactId>
             <version>2.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-math3</artifactId>
-            <version>3.0</version>
         </dependency>
 
         <dependency>
@@ -118,237 +278,27 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-math</artifactId>
-            <version>2.0</version>
-        </dependency>
-
-
-        <!-- For processing MS Excel files -->
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <version>3.8</version>
-            <exclusions>
-                <!-- Exclude xml-apis as it's provided by tomcat -->
-                <exclusion>
-                    <groupId>xml-apis</groupId>
-                    <artifactId>xml-apis</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-
-        <!-- servlet API is provided by the container -->
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.0.1</version>
-            <scope>provided</scope>
-        </dependency>
-
-
-        <!-- JSON Dependencies -->
-        <dependency>
-            <groupId>net.sf.json-lib</groupId>
-            <artifactId>json-lib</artifactId>
-            <version>2.2.3</version>
-            <classifier>jdk15</classifier>
-        </dependency>
-
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-jaxrs</artifactId>
-            <version>1.9.3</version>
-            <scope>compile</scope>
-        </dependency>
-		
-		<dependency>
-		  	<groupId>com.fasterxml.jackson.dataformat</groupId>
-		  	<artifactId>jackson-dataformat-csv</artifactId>
-		  	<version>2.8.8</version>
-		</dependency>
-		
-        <!-- Spring Dependencies -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <exclusions>
-                <!-- Exclude Commons Logging in favor of SLF4j -->
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-orm</artifactId>
-            <type>jar</type>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-            <type>jar</type>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context-support</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <type>jar</type>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-aop</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-
-        <!-- Apache Commons Upload -->
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-            <version>1.3.3</version>
-        </dependency>
-
-        <!-- Expose Actuator Metrics for Prometheus -->
-        <dependency>
-            <groupId>com.moelholm</groupId>
-            <artifactId>prometheus-spring-boot-starter</artifactId>
-            <version>1.0.1</version>
-        </dependency>
-
-        <!-- Apache Commons Upload -->
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.5</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-net</groupId>
-            <artifactId>commons-net</artifactId>
-            <version>3.1</version>
-            <type>jar</type>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.james</groupId>
-            <artifactId>apache-mime4j</artifactId>
-            <version>0.5</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-discovery</groupId>
-            <artifactId>commons-discovery</artifactId>
-            <version>0.4</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.xml</groupId>
-            <artifactId>jaxrpc-api</artifactId>
-            <version>1.1</version>
-        </dependency>
-
-        <!-- View Dependencies -->
-        <!--<dependency>-->
-            <!--<groupId>jstl</groupId>-->
-            <!--<artifactId>jstl</artifactId>-->
-            <!--<version>1.2</version>-->
-            <!--<scope>compile</scope>-->
-        <!--</dependency>-->
-
-        <dependency>
-            <groupId>com.google.code</groupId>
-            <artifactId>sitemapgen4j</artifactId>
-            <version>1.0.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.retry</groupId>
-            <artifactId>spring-retry</artifactId>
-        </dependency>
-        <dependency>
-        	<groupId>junit</groupId>
-        	<artifactId>junit</artifactId>
-        	<version>4.12</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mousephenotype.cda</groupId>
-            <artifactId>indexers</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-mongodb</artifactId>
-        </dependency>
-
-        <!-- Register Interest core dependency -->
-        <dependency>
-            <groupId>org.mousephenotype.cda</groupId>
-            <artifactId>ri-core</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
-        <!-- springframework.boot-->
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-            <scope>compile</scope>
-        </dependency>
-
-        <!-- <dependency>
-        	<groupId>uk.ac.ebi.phenotype</groupId>
-        	<artifactId>stats-rest-service</artifactId>
-        	<version>0.0.1</version>
-        </dependency> -->
     </dependencies>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>Finchley.SR2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <build>
-        <finalName>phenotype-archive</finalName>
+        <finalName>phenotype-data-web</finalName>
 
         <plugins>
 
@@ -357,13 +307,17 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <mainClass>uk.ac.ebi.PhenotypeArchive</mainClass>
-                    <!-- <mainClass> uk.ac.ebi.phenotype.web.dao.StatisticsDataLoader</mainClass> -->
                 </configuration>
                 <executions>
                     <execution>
+                        <id>repackage</id>
                         <goals>
                             <goal>repackage</goal>
                         </goals>
+                        <configuration>
+                            <classifier>exec</classifier>
+                            <attach>false</attach>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -378,6 +332,23 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+
+                <configuration>
+                    <!-- Exclude slow-running tests by default here. To run all tests: mvn -Dtest=** test -->
+                    <excludes>
+                        <exclude>**/ObservationHealthcheck.java</exclude>
+                    </excludes>
+
+                    <!-- Don't fail if there are no runnable tests -->
+                    <failIfNoTests>false</failIfNoTests>
+                </configuration>
+
+            </plugin>
+
         </plugins>
     </build>
 

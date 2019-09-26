@@ -17,7 +17,7 @@
 package org.mousephenotype.cda.loads.create.extract.impressbase;
 
 import org.mousephenotype.cda.loads.common.config.DataSourceCdabaseConfig;
-import org.mousephenotype.cda.loads.create.extract.cdabase.support.ImpressUtils;
+import org.mousephenotype.cda.loads.create.extract.cdabase.support.ImpressLoadUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
@@ -48,8 +48,7 @@ public class ImpressbaseConfig extends DataSourceCdabaseConfig {
     String impressServiceUrl;
 
     @Bean
-    ImpressUtils impressUtils () {
-        return new ImpressUtils(impressServiceUrl);
+    ImpressLoadUtils impressLoadUtils () {
+        return new ImpressLoadUtils();
     }
-
 }

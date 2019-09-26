@@ -19,8 +19,7 @@ package org.mousephenotype.cda.reports;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocument;
+import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.ObservationService;
@@ -132,15 +131,15 @@ public class ViabilityReport extends AbstractReport {
             csvWriter.writeRow(Arrays.asList(new String[] {  "Phenotype", "# Genes*", "Gene Symbols"  }));
             csvWriter.writeRows(summaryGrid);
 
-            csvWriter.writeNext(EMPTY_ROW);
+            csvWriter.writeNext(Constants.EMPTY_ROW);
 
             // Write conflicting section.
             csvWriter.writeRow(Arrays.asList(new String[] { "* includes conflicting data. Conflicting data are genes that appear in more than one viability category." }));
             csvWriter.writeRow(conflictingRow);
 
-            csvWriter.writeNext(EMPTY_ROW);
-            csvWriter.writeNext(EMPTY_ROW);
-            csvWriter.writeNext(EMPTY_ROW);
+            csvWriter.writeNext(Constants.EMPTY_ROW);
+            csvWriter.writeNext(Constants.EMPTY_ROW);
+            csvWriter.writeNext(Constants.EMPTY_ROW);
 
             // Build and write detail section.
             csvWriter.writeRow(Arrays.asList(new String[] { "List of genes that result in a lethal, subviable or viable phenotype. A gene may appear more than once if there are results for different colonies or for different alleles." }));

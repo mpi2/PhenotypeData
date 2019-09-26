@@ -16,9 +16,10 @@
 
 package org.mousephenotype.cda.solr.web.dto;
 
-import net.sf.json.JSONObject;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -121,7 +122,7 @@ public class ParallelCoordinatesDTO {
 		return complete;
 	}
 
-	public JSONObject getJson(){
+	public JSONObject getJson() throws JSONException {
 
 		JSONObject obj = new JSONObject();
 		obj.accumulate("name", this.geneSymbol);
@@ -141,12 +142,12 @@ public class ParallelCoordinatesDTO {
 		String unit;
 		String parameterStableId;
 		String parameterName;
-		Integer parameterStableKey;
+		Long parameterStableKey;
 		Double genotypeEffect;
 		Boolean significant;
 
 		public MaxGenotypeEffectBean(String unit, String parameterStableId,
-									 String parameterName, Integer parameterStableKey, Double mean, Boolean significant){
+									 String parameterName, Long parameterStableKey, Double mean, Boolean significant){
 			this.unit = unit;
 			this.parameterName = parameterName;
 			this.parameterStableId = parameterStableId;
@@ -175,10 +176,10 @@ public class ParallelCoordinatesDTO {
 		public void setParameterName(String parameterName) {
 			this.parameterName = parameterName;
 		}
-		public Integer getParameterStableKey() {
+		public Long getParameterStableKey() {
 			return parameterStableKey;
 		}
-		public void setParameterStableKey(Integer parameterStableKey) {
+		public void setParameterStableKey(Long parameterStableKey) {
 			this.parameterStableKey = parameterStableKey;
 		}
 		public void setGenotypeEffect(Double genotypeEffect) {

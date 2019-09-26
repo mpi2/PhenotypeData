@@ -16,7 +16,6 @@
 
 package org.mousephenotype.cda.selenium.support;
 
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.selenium.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.DataReaderTsv;
@@ -52,7 +51,6 @@ public class GraphPage {
     protected final WebDriver driver;
     protected final List<GraphSection> graphSections = new ArrayList();
     protected final String graphUrl;
-    protected final PhenotypePipelineDAO phenotypePipelineDAO;
     protected final TestUtils testUtils = new TestUtils();
     protected final WebDriverWait wait;
 
@@ -61,15 +59,13 @@ public class GraphPage {
      *
      * @param driver               <code>WebDriver</code> instance
      * @param wait                 <code>WebDriverWait</code> instance
-     * @param phenotypePipelineDAO <code>PhenotypePipelineDAO</code> instance
      * @param graphUrl             url of graph page to load
      * @param baseUrl              the base url pointing to the downloads
      * @throws TestException
      */
-    public GraphPage(WebDriver driver, WebDriverWait wait, PhenotypePipelineDAO phenotypePipelineDAO, String graphUrl, String baseUrl) throws TestException {
+    public GraphPage(WebDriver driver, WebDriverWait wait, String graphUrl, String baseUrl) throws TestException {
         this.driver = driver;
         this.wait = wait;
-        this.phenotypePipelineDAO = phenotypePipelineDAO;
         this.graphUrl = graphUrl;
         this.baseUrl = baseUrl;
 
@@ -139,7 +135,7 @@ public class GraphPage {
 
         // If the page is a chart, load the GraphSections.
         for (WebElement chartElement : chartElements) {
-            GraphSection graphSection = GraphSectionFactory.createGraphSection(driver, wait, phenotypePipelineDAO, graphUrl, chartElement);
+            GraphSection graphSection = GraphSectionFactory.createGraphSection(driver, wait, graphUrl, chartElement);
             graphSections.add(graphSection);
         }
 

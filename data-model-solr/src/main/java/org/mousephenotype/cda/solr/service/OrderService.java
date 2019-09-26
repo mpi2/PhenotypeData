@@ -10,10 +10,9 @@ import org.mousephenotype.cda.solr.service.dto.ProductDTO;
 import org.mousephenotype.cda.solr.web.dto.OrderTableRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,19 +20,25 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class OrderService { 
+public class OrderService {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger    = LoggerFactory.getLogger(this.getClass());
+	public static String selectCre = "/selectCre";
 
-	@Autowired
-	@Qualifier("allele2Core")
 	private SolrClient allele2Core;
-
-	@Autowired
-	@Qualifier("productCore")
 	private SolrClient productCore;
 
-	public static String selectCre = "/selectCre";
+
+	@Inject
+	public OrderService(SolrClient allele2Core, SolrClient productCore) {
+		this.allele2Core = allele2Core;
+		this.productCore = productCore;
+	}
+
+	public OrderService() {
+
+	}
+
 
 	public List<OrderTableRow> getOrderTableRows(String acc, Integer rows, boolean creLine) throws SolrServerException, IOException {
 		List<OrderTableRow> orderTableRows = new ArrayList<>();
@@ -59,16 +64,14 @@ public class OrderService {
 			row.setTissuesAvailable(allele.getTissuesAvailable());
 			row.setTissueTypes(allele.getTissueTypes());
 			row.setTissueEnquiryLinks(allele.getTissueEnquiryLinks());
-			
-			
-			orderTableRows.add(row);
 
+			orderTableRows.add(row);
 		}
 
 		return orderTableRows;
 	}
 
-	protected List<Allele2DTO> getAllele2DTOs(String geneAcc, Integer rows, boolean creLine) throws SolrServerException, IOException {
+	public List<Allele2DTO> getAllele2DTOs(String geneAcc, Integer rows, boolean creLine) throws SolrServerException, IOException {
 		
 		String q = "*:*";// default if no gene specified
 		if (geneAcc != null) {
@@ -131,7 +134,7 @@ public class OrderService {
 		return this.getProducts(null, alleleName, null, false);
 	}
 
-	protected Map<String, List<ProductDTO>> getProductsForGene(String geneAcc) throws SolrServerException, IOException {
+	public Map<String, List<ProductDTO>> getProductsForGene(String geneAcc) throws SolrServerException, IOException {
 		return this.getProducts(geneAcc, null, null, false);
 	}
 
@@ -312,7 +315,7 @@ public class OrderService {
 	                   }
 	               }
 			}
+
 			return creStatus;
 	 }
-
 }

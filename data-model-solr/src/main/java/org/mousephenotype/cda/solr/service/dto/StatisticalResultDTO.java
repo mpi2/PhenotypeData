@@ -192,7 +192,7 @@ public class StatisticalResultDTO {
     private String docId;
 
     @Field(DB_ID)
-    private Integer dbId;
+    private Long dbId;
 
     @Field(ANATOMY_TERM_ID)
     List<String> anatomyTermId;
@@ -294,7 +294,7 @@ public class StatisticalResultDTO {
     private String resourceFullname;
 
     @Field(RESOURCE_ID)
-    private Integer resourceId;
+    private Long resourceId;
 
     @Field(PROJECT_NAME)
     private String projectName;
@@ -306,37 +306,37 @@ public class StatisticalResultDTO {
     private String pipelineStableId;
 
     @Field(PIPELINE_STABLE_KEY)
-    private Integer pipelineStableKey;
+    private Long pipelineStableKey;
 
     @Field(PIPELINE_NAME)
     private String pipelineName;
 
     @Field(PIPELINE_ID)
-    private Integer pipelineId;
+    private Long pipelineId;
 
     @Field(PROCEDURE_STABLE_ID)
     private String procedureStableId;
 
     @Field(PROCEDURE_STABLE_KEY)
-    private Integer procedureStableKey;
+    private Long procedureStableKey;
 
     @Field(PROCEDURE_NAME)
     private String procedureName;
 
     @Field(PROCEDURE_ID)
-    private Integer procedureId;
+    private Long procedureId;
 
     @Field(PARAMETER_STABLE_ID)
     private String parameterStableId;
 
     @Field(PARAMETER_STABLE_KEY)
-    private Integer parameterStableKey;
+    private Long parameterStableKey;
 
     @Field(PARAMETER_NAME)
     private String parameterName;
 
     @Field(PARAMETER_ID)
-    private Integer parameterId;
+    private Long parameterId;
 
     @Field(COLONY_ID)
     private String colonyId;
@@ -381,10 +381,10 @@ public class StatisticalResultDTO {
     private String metadataGroup;
 
     @Field(CONTROL_BIOLOGICAL_MODEL_ID)
-    private Integer controlBiologicalModelId;
+    private Long controlBiologicalModelId;
 
     @Field(MUTANT_BIOLOGICAL_MODEL_ID)
-    private Integer mutantBiologicalModelId;
+    private Long mutantBiologicalModelId;
 
     @Field(MALE_CONTROL_COUNT)
     private Integer maleControlCount;
@@ -570,16 +570,16 @@ public class StatisticalResultDTO {
     private String classificationTag;
 
     @Field(EXTERNAL_DB_ID)
-    private Integer externalDbId;
+    private Long externalDbId;
 
     @Field(ORGANISATION_ID)
-    private Integer organisationId;
+    private Long organisationId;
 
     @Field(PHENOTYPING_CENTER_ID)
-    private Integer phenotypingCenterId;
+    private Long phenotypingCenterId;
 
     @Field(PROJECT_ID)
-    private Integer projectId;
+    private Long projectId;
     
     @Field(PRODUCTION_CENTER)
     private String productionCenter;
@@ -599,13 +599,13 @@ public class StatisticalResultDTO {
     }
 
 
-    public Integer getDbId() {
+    public Long getDbId() {
 
         return dbId;
     }
 
 
-    public void setDbId(Integer dbId) {
+    public void setDbId(Long dbId) {
 
         this.dbId = dbId;
     }
@@ -1039,13 +1039,13 @@ public class StatisticalResultDTO {
     }
 
 
-    public Integer getResourceId() {
+    public Long getResourceId() {
 
         return resourceId;
     }
 
 
-    public void setResourceId(Integer resourceId) {
+    public void setResourceId(Long resourceId) {
 
         this.resourceId = resourceId;
     }
@@ -1087,13 +1087,13 @@ public class StatisticalResultDTO {
     }
 
 
-    public Integer getPipelineStableKey() {
+    public Long getPipelineStableKey() {
 
         return pipelineStableKey;
     }
 
 
-    public void setPipelineStableKey(Integer pipelineStableKey) {
+    public void setPipelineStableKey(Long pipelineStableKey) {
 
         this.pipelineStableKey = pipelineStableKey;
     }
@@ -1111,13 +1111,13 @@ public class StatisticalResultDTO {
     }
 
 
-    public Integer getPipelineId() {
+    public Long getPipelineId() {
 
         return pipelineId;
     }
 
 
-    public void setPipelineId(Integer pipelineId) {
+    public void setPipelineId(Long pipelineId) {
 
         this.pipelineId = pipelineId;
     }
@@ -1135,13 +1135,13 @@ public class StatisticalResultDTO {
     }
 
 
-    public Integer getProcedureStableKey() {
+    public Long getProcedureStableKey() {
 
         return procedureStableKey;
     }
 
 
-    public void setProcedureStableKey(Integer procedureStableKey) {
+    public void setProcedureStableKey(Long procedureStableKey) {
 
         this.procedureStableKey = procedureStableKey;
     }
@@ -1159,13 +1159,13 @@ public class StatisticalResultDTO {
     }
 
 
-    public Integer getProcedureId() {
+    public Long getProcedureId() {
 
         return procedureId;
     }
 
 
-    public void setProcedureId(Integer procedureId) {
+    public void setProcedureId(Long procedureId) {
 
         this.procedureId = procedureId;
     }
@@ -1183,13 +1183,13 @@ public class StatisticalResultDTO {
     }
 
 
-    public Integer getParameterStableKey() {
+    public Long getParameterStableKey() {
 
         return parameterStableKey;
     }
 
 
-    public void setParameterStableKey(Integer parameterStableKey) {
+    public void setParameterStableKey(Long parameterStableKey) {
 
         this.parameterStableKey = parameterStableKey;
     }
@@ -1207,13 +1207,13 @@ public class StatisticalResultDTO {
     }
 
 
-    public Integer getParameterId() {
+    public Long getParameterId() {
 
         return parameterId;
     }
 
 
-    public void setParameterId(Integer parameterId) {
+    public void setParameterId(Long parameterId) {
 
         this.parameterId = parameterId;
     }
@@ -1383,25 +1383,25 @@ public class StatisticalResultDTO {
     }
 
 
-    public Integer getControlBiologicalModelId() {
+    public Long getControlBiologicalModelId() {
 
         return controlBiologicalModelId;
     }
 
 
-    public void setControlBiologicalModelId(Integer controlBiologicalModelId) {
+    public void setControlBiologicalModelId(Long controlBiologicalModelId) {
 
         this.controlBiologicalModelId = controlBiologicalModelId;
     }
 
 
-    public Integer getMutantBiologicalModelId() {
+    public Long getMutantBiologicalModelId() {
 
         return mutantBiologicalModelId;
     }
 
 
-    public void setMutantBiologicalModelId(Integer mutantBiologicalModelId) {
+    public void setMutantBiologicalModelId(Long mutantBiologicalModelId) {
 
         this.mutantBiologicalModelId = mutantBiologicalModelId;
     }
@@ -2076,35 +2076,35 @@ public class StatisticalResultDTO {
         this.classificationTag = classificationTag;
     }
 
-    public Integer getExternalDbId() {
+    public Long getExternalDbId() {
         return externalDbId;
     }
 
-    public void setExternalDbId(Integer externalDbId) {
+    public void setExternalDbId(Long externalDbId) {
         this.externalDbId = externalDbId;
     }
 
-    public Integer getOrganisationId() {
+    public Long getOrganisationId() {
         return organisationId;
     }
 
-    public void setOrganisationId(Integer organisationId) {
+    public void setOrganisationId(Long organisationId) {
         this.organisationId = organisationId;
     }
 
-    public Integer getPhenotypingCenterId() {
+    public Long getPhenotypingCenterId() {
         return phenotypingCenterId;
     }
 
-    public void setPhenotypingCenterId(Integer phenotypingCenterId) {
+    public void setPhenotypingCenterId(Long phenotypingCenterId) {
         this.phenotypingCenterId = phenotypingCenterId;
     }
 
-    public Integer getProjectId() {
+    public Long getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(Integer projectId) {
+    public void setProjectId(Long projectId) {
         this.projectId = projectId;
     }
 

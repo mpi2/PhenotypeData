@@ -21,19 +21,18 @@ import joptsimple.OptionDescriptor;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.indexers.configuration.IndexerConfig;
 import org.mousephenotype.cda.indexers.exceptions.*;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.text.DecimalFormat;
+import javax.inject.Inject;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -45,7 +44,11 @@ import java.util.*;
  *
  * @author mrelac
  */
-public class IndexerManager  {
+@SpringBootApplication
+public class IndexerManager  implements CommandLineRunner {
+
+    private ApplicationContext applicationContext;
+
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(IndexerManager.class);
     protected CommonUtils commonUtils = new CommonUtils();
 
@@ -55,33 +58,33 @@ public class IndexerManager  {
     //static final String PHENODIGM_CORE = "phenodigm";
 
     // These are built only for a new data release.
-    static final String PIPELINE_CORE = "pipeline";
-    static final String OBSERVATION_CORE = "experiment";                 // For historic reasons, the core's actual name is 'experiment'.
-    static final String GENOTYPE_PHENOTYPE_CORE = "genotype-phenotype";
-    static final String STATSTICAL_RESULT_CORE = "statistical-result";
-	static final String MGI_PHENOTYPE_CORE = "mgi-phenotype";
-    static final String ANATOMY_CORE = "anatomy";
+    public static final String PIPELINE_CORE = "pipeline";
+    public static final String OBSERVATION_CORE = "experiment";                 // For historic reasons, the core's actual name is 'experiment'.
+    public static final String GENOTYPE_PHENOTYPE_CORE = "genotype-phenotype";
+    public static final String STATSTICAL_RESULT_CORE = "statistical-result";
+	public static final String MGI_PHENOTYPE_CORE = "mgi-phenotype";
+    public static final String ANATOMY_CORE = "anatomy";
 
     // These are built daily.
-    static final String ALLELE2_CORE = "allele2";
-    static final String PRODUCT_CORE = "product";
-    static final String ALLELE_CORE = "allele";
-    static final String IMAGES_CORE = "images";
-    static final String IMPC_IMAGES_CORE = "impc_images";
-    static final String MP_CORE = "mp";
-    static final String GENE_CORE = "gene";
-    static final String AUTOSUGGEST_CORE = "autosuggest";
+    public static final String ALLELE2_CORE = "allele2";
+    public static final String PRODUCT_CORE = "product";
+    public static final String ALLELE_CORE = "allele";
+    public static final String IMAGES_CORE = "images";
+    public static final String IMPC_IMAGES_CORE = "impc_images";
+    public static final String MP_CORE = "mp";
+    public static final String GENE_CORE = "gene";
+    public static final String AUTOSUGGEST_CORE = "autosuggest";
 
     // main return values.
-    static final int STATUS_OK                  = 0;
-    static final int STATUS_WARN                = 1;
-    static final int STATUS_NO_DEPS             = 2;
-    static final int STATUS_NO_ARGUMENT         = 3;
-    static final int STATUS_UNRECOGNIZED_OPTION = 4;
-    static final int STATUS_INVALID_CORE_NAME   = 5;
-    static final int STATUS_VALIDATION_ERROR    = 6;
+    public static final int STATUS_OK                  = 0;
+    public static final int STATUS_WARN                = 1;
+    public static final int STATUS_NO_DEPS             = 2;
+    public static final int STATUS_NO_ARGUMENT         = 3;
+    public static final int STATUS_UNRECOGNIZED_OPTION = 4;
+    public static final int STATUS_INVALID_CORE_NAME   = 5;
+    public static final int STATUS_VALIDATION_ERROR    = 6;
 
-    static String getStatusCodeName(int statusCode) {
+    public static String getStatusCodeName(int statusCode) {
         switch (statusCode) {
             case STATUS_OK:                     return "STATUS_OK";
             case STATUS_WARN:                   return "STATUS_WARN";
@@ -100,7 +103,7 @@ public class IndexerManager  {
     private Boolean daily;
     private Boolean nodeps;
 
-    static final String[] allCoresArray = new String[] {      // In dependency order.
+    public static final String[] allCoresArray = new String[] {      // In dependency order.
           // In dependency order. These are built only for a new data release.
           PIPELINE_CORE
         , OBSERVATION_CORE
@@ -121,7 +124,7 @@ public class IndexerManager  {
     };
     private final List<String> allCoresList = Arrays.asList(allCoresArray);
 
-    static final String[] dailyCoresArray = new String[] {
+    public static final String[] dailyCoresArray = new String[] {
           // In dependency order. These are built daily.
           ALLELE2_CORE
         , PRODUCT_CORE
@@ -157,7 +160,13 @@ public class IndexerManager  {
     private static final String DAILY_ARG = "daily";
     private static final String NO_DEPS_ARG = "nodeps";
 
-	private class IndexerItem {
+
+    @Inject
+    public IndexerManager(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
+    private class IndexerItem {
         public final String name;
         public final Class indexerClass;
 
@@ -178,12 +187,9 @@ public class IndexerManager  {
     }
 
 	private IndexerItem[] indexerItems;
-	private ApplicationContext applicationContext;
-
 
 
 	// GETTERS
-
 
     public Boolean getAll() {
         return all;
@@ -204,14 +210,12 @@ public class IndexerManager  {
 
     // PUBLIC/PROTECTED METHODS
 
-
     public void initialise(String[] args) throws IndexerException {
         logger.debug("IndexerManager called with args = " + StringUtils.join(args, ", "));
 
         try {
             OptionSet options = parseCommandLine(args);
             if (options != null) {
-                applicationContext = loadApplicationContext();
                 loadIndexers();
             } else {
                 throw new IndexerException("Failed to parse command-line options.");
@@ -235,8 +239,10 @@ public class IndexerManager  {
         }
     }
 
+    @Override
+    public void run(String... args) throws Exception {
+        initialise(args);
 
-	public void run() throws IndexerException, IOException, SolrServerException, SQLException, URISyntaxException {
         System.out.println("run indexer...");
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         ExecutionStatsList executionStatsList = new ExecutionStatsList();
@@ -251,12 +257,8 @@ public class IndexerManager  {
             logger.info("[START] {} at {}", indexerItem.name.toUpperCase(), dateFormatter.format(new Date()));
             try {
 
-
-	            AbstractIndexer idx = (AbstractIndexer) indexerItem.indexerClass.newInstance();
-	            applicationContext.getAutowireCapableBeanFactory().autowireBean(idx);
-	            applicationContext.getAutowireCapableBeanFactory().initializeBean(idx, "IndexBean"+idx.getClass().toGenericString());
-	            runStatus = idx.run();
-
+                AbstractIndexer indexer = (AbstractIndexer) applicationContext.getAutowireCapableBeanFactory().createBean(indexerItem.indexerClass.newInstance().getClass());
+                runStatus = indexer.run();
 
                 if (runStatus.hasErrors()) {
                     for (String errorMessage : runStatus.getErrorMessages()) {
@@ -271,7 +273,7 @@ public class IndexerManager  {
                         }
                     }
 
-	                runStatus = idx.validateBuild();
+	                runStatus = indexer.validateBuild();
                     if (runStatus.hasErrors()) {
                         for (String errorMessage : runStatus.getErrorMessages()) {
                         	logger.error(errorMessage);
@@ -555,19 +557,16 @@ public class IndexerManager  {
         return options;
     }
 
-    public static void main(String[] args) throws IndexerException, IOException, SolrServerException, SQLException, URISyntaxException {
-        int retVal = mainReturnsStatus(args);
-        if (retVal != STATUS_OK) {
-            throw new IndexerException("Build failed: " + getStatusCodeName(retVal));
-        }
+    public static void main(String[] args) {
+        ConfigurableApplicationContext context = SpringApplication.run(IndexerManager.class, args);
+        context.close();
     }
 
-    public static int mainReturnsStatus(String[] args) throws IOException, SolrServerException, SQLException, URISyntaxException {
+    public int mainReturnsStatus(String[] args) throws Exception {
         try {
 
-            IndexerManager manager = new IndexerManager();
-            manager.initialise(args);
-            manager.run();
+            initialise(args);
+            run(args);
 
         } catch (IndexerException ie) {
             logExceptions(ie);

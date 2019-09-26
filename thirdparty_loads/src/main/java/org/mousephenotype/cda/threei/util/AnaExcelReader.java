@@ -17,31 +17,29 @@
 package org.mousephenotype.cda.threei.util;
 
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.ListIterator;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class AnaExcelReader {
 
-    private FileInputStream excelFile;
-    private Workbook workbook;
-    private Sheet datatypeSheet;
-    private Iterator<Row> rowIterator;
+    private FileInputStream   inputStream;
+    private Workbook          workbook;
+    private Sheet             datatypeSheet;
+    private Iterator<Row>     rowIterator;
     private ArrayList<String> columnHeadings;
-    private String[] lastRowRead;
-    private int numberOfRowsRead;
-    private int numberOfMiceProcessed;
+    private String[]          lastRowRead;
+    private int               numberOfRowsRead;
+    private int               numberOfMiceProcessed;
 
     public AnaExcelReader(String inFilename) {
         try {
-            this.excelFile = new FileInputStream(new File(inFilename));
-            this.workbook = new XSSFWorkbook(excelFile);
+            this.inputStream = new FileInputStream(new File(inFilename));
+            this.workbook = WorkbookFactory.create(inputStream);
             this.datatypeSheet = workbook.getSheetAt(0);
             this.rowIterator = datatypeSheet.iterator();
 

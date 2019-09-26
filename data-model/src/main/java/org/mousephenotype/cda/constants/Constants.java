@@ -12,6 +12,8 @@ import java.util.Set;
  */
 public class Constants {
 
+    // Brackets denote optional components Single quotes denote literal characters.
+    public static final String DATETIME_FORMAT_OPTIONAL_MILLISECONDS = "yyyy-MM-dd['T'][' ']HH:mm:ss[.SSS]['Z']";
 
     // Only include images in the resource that have the following paths
     public static final Set<String> INCLUDE_IMAGE_PATHS = new HashSet<>(Arrays.asList("mousephenotype.org", "file:///nfs/komp2/web/images/3i"));
@@ -39,4 +41,13 @@ public class Constants {
             "'GMC_922_001_002'", "'GMC_923_001_001'", "'GMC_921_001_002'",
             "'GMC_902_001_003'", "'GMC_912_001_018'", "'GMC_917_001_001'",
             "'GMC_920_001_001'", "'GMC_909_001_002'", "'GMC_914_001_001'");
+
+
+    // Displayable messages
+    public static final String[] EMPTY_ROW                = new String[]{""};
+    public static final String   NO_INFORMATION_AVAILABLE = "No information available";
+    public static final String   IMAGE_COMING_SOON        = "Image coming soon<br>";
+
+    // PDF thumbnail icon (so PDFs show a PDF icon.
+    public static final String PDF_THUMBNAIL_RELATIVE_URL = "img/filetype_pdf.img";
 }

@@ -39,8 +39,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.env.Environment;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.validation.constraints.NotNull;
@@ -55,8 +53,13 @@ import java.util.Date;
  * Selenium test for release page tests.
  */
 
+
+// FIXME FIXME FIXME
+@Ignore
+
+
+
 @RunWith(SpringRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
 @SpringBootTest(classes = TestConfig.class)
 public class ReleasePageTest {
 
@@ -75,18 +78,15 @@ public class ReleasePageTest {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
-    @Autowired
-    private DesiredCapabilities desiredCapabilities;
-
-    @Autowired
-    private Environment env;
-
-    @NotNull
-    @Value("${base_url}")
-    private String baseUrl;
+    @Value("${paBaseUrl}")
+    private String paBaseUrl;
 
     @Value("${seleniumUrl}")
     private String seleniumUrl;
+
+
+    @NotNull @Autowired
+    private DesiredCapabilities desiredCapabilities;
 
 
     @Before
@@ -124,7 +124,7 @@ public class ReleasePageTest {
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
-        String target = baseUrl + "/release.json";
+        String target = paBaseUrl + "/release.json";
         driver.get(target);
 
         String bodyText = driver.findElement(By.xpath("//body")).getText();

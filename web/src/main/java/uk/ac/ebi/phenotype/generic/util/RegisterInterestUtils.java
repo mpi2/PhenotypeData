@@ -18,7 +18,7 @@ package uk.ac.ebi.phenotype.generic.util;
 
 import org.mousephenotype.cda.ri.core.entities.Gene;
 import org.mousephenotype.cda.ri.core.entities.Summary;
-import org.mousephenotype.cda.ri.core.utils.SqlUtils;
+import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,11 +39,11 @@ public class RegisterInterestUtils {
     @Value("${paBaseUrl}")
     private String paBaseUrl;
 
-    private SqlUtils sqlUtils;
+    private RiSqlUtils riSqlUtils;
 
     @Inject
-    public RegisterInterestUtils(SqlUtils sqlUtils) {
-        this.sqlUtils = sqlUtils;
+    public RegisterInterestUtils(RiSqlUtils riSqlUtils) {
+        this.riSqlUtils = riSqlUtils;
     }
 
 
@@ -54,7 +54,7 @@ public class RegisterInterestUtils {
     @Secured("ROLE_USER")
     public List<String> getGeneAccessionIds() {
 
-        Summary summary = sqlUtils.getSummary(SecurityUtils.getPrincipal());
+        Summary summary = riSqlUtils.getSummary(SecurityUtils.getPrincipal());
 
         List<Gene> genes = summary.getGenes();
 

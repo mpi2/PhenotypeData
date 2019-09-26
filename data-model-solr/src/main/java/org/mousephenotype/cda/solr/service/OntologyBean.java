@@ -1,6 +1,8 @@
 package org.mousephenotype.cda.solr.service;
 
-import net.sf.json.JSONObject;
+
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 public class OntologyBean{
 
@@ -28,8 +30,6 @@ public class OntologyBean{
 
 	}
 
-
-
 	public String getId() {
 		return id;
 	}
@@ -42,16 +42,7 @@ public class OntologyBean{
 	public void setName(String maName) {
 		this.name = maName;
 	}
-	
-	//used for Text next to PATO terms in the xml
-//	String termTextValue;
-//	public String getTermTextValue() {
-//		return termTextValue;
-//	}
-//	public void setTermTextValue(String termTextValue) {
-//		this.termTextValue = termTextValue;
-//	}
-	
+
 	public String getDescription() {
 		return description;
 	}
@@ -59,7 +50,7 @@ public class OntologyBean{
 		this.description = description;
 	}
 	
-	public JSONObject toJson(){
-		return new JSONObject().element("name", name).element("id", id);
+	public JSONObject toJson() throws JSONException {
+		return new JSONObject().put("name", name).put("id", id);
 	}
 }

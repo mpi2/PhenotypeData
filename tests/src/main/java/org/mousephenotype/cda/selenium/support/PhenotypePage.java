@@ -16,7 +16,6 @@
 
 package org.mousephenotype.cda.selenium.support;
 
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.utilities.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -43,7 +42,6 @@ public class PhenotypePage {
     private final WebDriver driver;
     private final WebDriverWait wait;
     private final String target;
-    private final PhenotypePipelineDAO phenotypePipelineDAO;
     private final String baseUrl;
     private final PhenotypeTable phenotypeTable;
     protected final TestUtils testUtils = new TestUtils();
@@ -61,15 +59,13 @@ public class PhenotypePage {
      * @param driver A valid <code>WebDriver</code> instance
      * @param wait A valid <code>WebDriverWait</code> instance
      * @param target This page's target url
-     * @param phenotypePipelineDAO a <code>PhenotypePipelineDAO</code> instance
      * @param baseUrl A fully-qualified hostname and path, such as
      *   http://ves-ebi-d0:8080/mi/impc/dev/phenotype-arcihve
      */
-    public PhenotypePage(WebDriver driver, WebDriverWait wait, String target, PhenotypePipelineDAO phenotypePipelineDAO, String baseUrl) {
+    public PhenotypePage(WebDriver driver, WebDriverWait wait, String target, String baseUrl) {
         this.driver = driver;
         this.wait = wait;
         this.target = target;
-        this.phenotypePipelineDAO = phenotypePipelineDAO;
         this.baseUrl = baseUrl;
         this.phenotypeTable = new PhenotypeTable(driver, wait, target);
 

@@ -3,7 +3,7 @@ package org.mousephenotype.cda.loads.statistics.load.threei;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.pojo.PhenotypedColony;
 import org.mousephenotype.cda.db.statistics.*;
 import org.mousephenotype.cda.enumerations.*;
@@ -11,7 +11,8 @@ import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.common.config.DataSourceCdaConfig;
 import org.mousephenotype.cda.loads.common.config.DataSourceCdabaseConfig;
 import org.mousephenotype.cda.loads.common.config.DataSourceDccConfig;
-import org.mousephenotype.cda.loads.statistics.load.*;
+import org.mousephenotype.cda.loads.statistics.load.StatisticalResultFailed;
+import org.mousephenotype.cda.loads.statistics.load.StatisticalResultLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -481,11 +482,11 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
                 return null;
             }
 
-            NameIdDTO center = organisationMap.get(data.getCenter());
-            NameIdDTO pipeline = pipelineMap.get(data.getPipeline());
+            NameIdDTO center = nameIdDtoByOrganisationName.get(data.getCenter());
+            NameIdDTO pipeline = nameIdDtoByPipelineStableId.get(data.getPipeline());
 
-            NameIdDTO procedure = procedureMap.get(data.getProcedure()); // Procedure group e.g. IMPC_CAL
-            NameIdDTO parameter = parameterMap.get(data.getDependentVariable());
+            NameIdDTO procedure = nameIdDtoByProcedureStableId.get(data.getProcedure()); // Procedure group e.g. IMPC_CAL
+            NameIdDTO parameter = nameIdDtoByParameterStableId.get(data.getDependentVariable());
 
             // result contains a "statistical result" that has the
             // ability to produce a PreparedStatement ready for database insertion
@@ -592,8 +593,8 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
             result.setMetadataGroup(data.getMetadataGroup());
             result.setStatisticalMethod(data.getStatisticalMethod().isEmpty() ? "-" : data.getStatisticalMethod());
 
-            result.setDataSourceId(datasourceMap.get(data.getDataSourceName()));
-            result.setProjectId(projectMap.get(data.getProjectName()));
+            result.setDataSourceId(datasourceDbIdByDatasourceShortName.get(data.getDataSourceName()));
+            result.setProjectId(projectIdByProjectName.get(data.getProjectName()));
 
             result.setOrganisationId(center.getDbId());
             result.setOrganisationName(center.getName());
@@ -619,7 +620,7 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
             result.setControlSelectionMethod(strategy);
 
             //TODO: Wire the biomodels to the SR
-            Integer bioModelId = bioModelMap.get(data.getColonyId()).get(ZygosityType.valueOf(data.getZygosity()));
+            Long bioModelId = bioModelMap.get(data.getColonyId()).get(ZygosityType.valueOf(data.getZygosity()));
             result.setExperimentalId(bioModelId);
 
             result.setControlId(null);
@@ -765,7 +766,7 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
     }
 
     protected void populateBioModelMap() throws SQLException {
-        Map<String, Map<ZygosityType, Integer>> map = bioModelMap;
+        Map<String, Map<ZygosityType, Long>> map = bioModelMap;
 
         String query = "SELECT DISTINCT colony_name AS colony_id, bm.zygosity, bm.id as biological_model_id, strain.name " +
                 "FROM phenotyped_colony pc " +
@@ -783,10 +784,10 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
 
                 String colonyId = r.getString("colony_id");
                 ZygosityType zyg = ZygosityType.valueOf(r.getString("zygosity"));
-                Integer modelId = r.getInt("biological_model_id");
+                Long modelId = r.getLong("biological_model_id");
                 String strain = r.getString("name");
 
-                bioModelStrainMap.put(modelId, strain);
+                strainNameByBiologicalModelId.put(modelId, strain);
 
                 map.putIfAbsent(colonyId, new HashMap<>());
                 map.get(colonyId).put(zyg, modelId);
@@ -795,7 +796,4 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
 
         logger.info(" Mapped {} biological model entries", map.size());
     }
-
-
-
 }

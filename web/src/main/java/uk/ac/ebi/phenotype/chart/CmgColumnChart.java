@@ -1,9 +1,10 @@
 package uk.ac.ebi.phenotype.chart;
 
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
+
 import java.util.ArrayList;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class CmgColumnChart {
 	public static String getColumnChart(ArrayList<JSONObject> info_genes, String typeGenes, String chartId, String title, String subtitle) throws JSONException {

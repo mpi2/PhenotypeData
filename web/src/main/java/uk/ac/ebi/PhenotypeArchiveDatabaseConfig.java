@@ -1,108 +1,34 @@
+/**
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ /**
+ * Copyright © 2019 EMBL - European Bioinformatics Institute
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * This test class is intended to run healthchecks against the observation table.
+ */
+
 package uk.ac.ebi;
 
-import java.util.Properties;
-
-import javax.persistence.PersistenceContext;
-import javax.sql.DataSource;
-
-import org.mousephenotype.cda.db.utilities.SqlUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
-import org.springframework.orm.jpa.JpaVendorAdapter;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
-/**
- * Created by jmason on 20/03/2017.
- * 
- * pdsimplify: This class uses an old phenodigm data source 
- */
 @Configuration
 @EnableAutoConfiguration
-@PropertySource("file:${user.home}/configfiles/${profile:dev}/application.properties")
+@ComponentScan("org.mousephenotype.cda.db")
 public class PhenotypeArchiveDatabaseConfig {
-
-
-    @Value("${datasource.komp2.url}")
-    String komp2Url;
-
-    @Value("${datasource.komp2.username}")
-    String komp2Username;
-
-    @Value("${datasource.komp2.password}")
-    String komp2Password;
-
-    @Value("${datasource.admintools.url}")
-    String admintools2Url;
-
-    @Value("${datasource.admintools.username}")
-    String admintools2Username;
-
-    @Value("${datasource.admintools.password}")
-    String admintoolsPassword;
-
-
-    @Bean
-    @Primary
-    public DataSource komp2DataSource() {
-        return SqlUtils.getConfiguredDatasource(komp2Url, komp2Username, komp2Password);
-    }
-
-    @Bean
-    public DataSource admintoolsDataSource() {
-        return SqlUtils.getConfiguredDatasource(admintools2Url, admintools2Username, admintoolsPassword);
-    }
- 
-    
-    @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-        LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
-        emf.setDataSource(komp2DataSource());
-        emf.setPackagesToScan("org.mousephenotype.cda.db.pojo", "org.mousephenotype.cda.db.entity");
-
-        JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-        emf.setJpaVendorAdapter(vendorAdapter);
-        emf.setJpaProperties(buildHibernateProperties());
-
-        return emf;
-    }
-
-    private Properties buildHibernateProperties() {
-        Properties hibernateProperties = new Properties();
-
-        hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-        hibernateProperties.setProperty("hibernate.show_sql", "false");
-        hibernateProperties.setProperty("hibernate.use_sql_comments", "false");
-        hibernateProperties.setProperty("hibernate.format_sql", "false");
-        hibernateProperties.setProperty("hibernate.generate_statistics", "false");
-        hibernateProperties.setProperty("hibernate.current_session_context_class", "thread");
-
-        return hibernateProperties;
-    }
-
-    @Bean
-    @Primary
-    @PersistenceContext(name = "komp2Context")
-    public LocalContainerEntityManagerFactoryBean emf(EntityManagerFactoryBuilder builder) {
-        return builder
-                .dataSource(komp2DataSource())
-                .packages("org.mousephenotype.cda.db")
-                .persistenceUnit("komp2")
-                .build();
-    }
-
-    @Bean(name = "sessionFactoryHibernate")
-    public LocalSessionFactoryBean sessionFactoryHibernate() {
-        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-        sessionFactory.setDataSource(komp2DataSource());
-        sessionFactory.setPackagesToScan("org.mousephenotype.cda.db");
-        return sessionFactory;
-    }
 
 }

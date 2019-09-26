@@ -63,7 +63,7 @@ public class HttpProxy {
 
 		// Convert spaces to the URL encoded form
 		URL escapedUrl = new URL(url.toExternalForm().replace(" ", "%20"));
-		log.debug("PARSING Solr URL: " + escapedUrl);
+		log.debug("PARSING URL: " + escapedUrl);
 
 		String content = "";
 
@@ -158,7 +158,7 @@ public class HttpProxy {
 		try {
 			inStream = new InputStreamReader(urlConn.getInputStream());
 		} catch (Exception e) {
-			throw new IOException("solr url not found");
+			throw new IOException("url " + url.toString() + " not found");
 		}
 
 		content = IOUtils.toString(inStream).trim();

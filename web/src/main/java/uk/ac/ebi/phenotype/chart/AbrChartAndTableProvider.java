@@ -16,10 +16,8 @@
 package uk.ac.ebi.phenotype.chart;
 
 import org.apache.commons.collections.map.LinkedMap;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.ExperimentService;
@@ -27,6 +25,8 @@ import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -107,7 +107,7 @@ public class AbrChartAndTableProvider {
 					if (procedureUrl == null){
 						ProcedureDTO proc = impressService.getProcedureByStableId(experiment.getProcedureStableId()) ;
 						if (proc != null) {
-							procedureUrl = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), proc.getName());
+							procedureUrl = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Long)proc.getStableKey()).toString()), proc.getName());
 						}
 					}
 					for (SexType sex : sexes){
@@ -303,9 +303,9 @@ public class AbrChartAndTableProvider {
 
 	public UnidimensionalStatsObject getMeans(SexType sex, ZygosityType zyg, ExperimentDTO exp){
 
-		DescriptiveStatistics stats = new DescriptiveStatistics();
-		UnidimensionalStatsObject res = new UnidimensionalStatsObject();
-		Set<ObservationDTO> dataPoints = null;
+		DescriptiveStatistics     stats      = new DescriptiveStatistics();
+		UnidimensionalStatsObject res        = new UnidimensionalStatsObject();
+		Set<ObservationDTO>       dataPoints = null;
 
 		if (zyg == null){
 			dataPoints = exp.getControls(sex);

@@ -26,26 +26,24 @@ import uk.ac.ebi.phenotype.web.controller.GenesController;
 
 public class ParameterNotFoundException extends Exception {
 
-	String parameter = null;
+	String acc;
 	
-	public ParameterNotFoundException(String msg, String parameter) {
+	public ParameterNotFoundException(String msg, String acc) {
 		super(msg);
-		this.parameter = parameter;
+		this.acc = acc;
 	}
 
 	/**
 	 * @return the acc
 	 */
 	public String getAcc() {
-		return parameter;
+		return acc;
 	}
 
 	/**
 	 * @param acc the acc to set
 	 */
-	public void setAcc(String parameter) {
-		this.parameter = parameter;
+	public void setAcc(String acc) {
+		this.acc = acc;
 	}
-	
-	
 }

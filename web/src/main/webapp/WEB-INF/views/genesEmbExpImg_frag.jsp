@@ -14,7 +14,6 @@
 <div class="tz-gallery small">
     <div class="container">
         <div class="row">
-            <%--  <a href="${baseUrl}/impcImages/embryolaczimages/${acc}">All Images</a> --%>
             <c:forEach var="entry" items="${wholemountExpressionImagesEmbryoBean.filteredTopLevelAnatomyTerms}"
                        varStatus="status">
 

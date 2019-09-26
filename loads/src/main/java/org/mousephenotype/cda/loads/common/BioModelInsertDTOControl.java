@@ -34,7 +34,7 @@ public class BioModelInsertDTOControl extends BioModelInsertDTO {
      * @param zygosity required
      * @param strain (required)
      */
-    public BioModelInsertDTOControl(int dbId, int biologicalSamplePk, String allelicComposition, String geneticBackground, String zygosity, AccDbId strain) {
+    public BioModelInsertDTOControl(Long dbId, Long biologicalSamplePk, String allelicComposition, String geneticBackground, String zygosity, AccDbId strain) {
         super(dbId, biologicalSamplePk, allelicComposition, geneticBackground, zygosity);
         this.strains.add(strain);
     }

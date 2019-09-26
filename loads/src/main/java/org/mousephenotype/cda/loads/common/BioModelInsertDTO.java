@@ -33,14 +33,14 @@
 package org.mousephenotype.cda.loads.common;
 
 public abstract class BioModelInsertDTO {
-    protected Integer dbId;
+    protected Long   dbId;
     protected String allelicComposition;
-    protected Integer biologicalSamplePk;
+    protected Long   biologicalSamplePk;
     protected String geneticBackground;
     protected String zygosity;
 
 
-    public BioModelInsertDTO(Integer dbId, Integer biologicalSamplePk, String allelicComposition, String geneticBackground, String zygosity) {
+    public BioModelInsertDTO(Long dbId, Long biologicalSamplePk, String allelicComposition, String geneticBackground, String zygosity) {
         this.dbId = dbId;
         this.biologicalSamplePk = biologicalSamplePk;
         this.allelicComposition = allelicComposition;
@@ -48,11 +48,11 @@ public abstract class BioModelInsertDTO {
         this.zygosity = zygosity;
     }
 
-    public Integer getDbId() {
+    public Long getDbId() {
         return dbId;
     }
 
-    public void setDbId(Integer dbId) {
+    public void setDbId(Long dbId) {
         this.dbId = dbId;
     }
 
@@ -64,11 +64,11 @@ public abstract class BioModelInsertDTO {
         this.allelicComposition = allelicComposition;
     }
 
-    public Integer getBiologicalSamplePk() {
+    public Long getBiologicalSamplePk() {
         return biologicalSamplePk;
     }
 
-    public void setBiologicalSamplePk(Integer biologicalSamplePk) {
+    public void setBiologicalSamplePk(Long biologicalSamplePk) {
         this.biologicalSamplePk = biologicalSamplePk;
     }
 
@@ -91,7 +91,7 @@ public abstract class BioModelInsertDTO {
     public String getCompositeKey() {
         return getCompositeKey(dbId, allelicComposition,  geneticBackground, zygosity);
     }
-    public static String getCompositeKey(int dbId, String allelicComposition, String geneticBackground, String zygosity) {
+    public static String getCompositeKey(long dbId, String allelicComposition, String geneticBackground, String zygosity) {
         return dbId + "_" + allelicComposition + "_" + geneticBackground + "_" + (zygosity == null ? "" : zygosity);
     }
 

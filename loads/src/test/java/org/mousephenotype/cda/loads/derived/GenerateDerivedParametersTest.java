@@ -3,10 +3,10 @@ package org.mousephenotype.cda.loads.derived;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.db.dao.*;
+import org.mousephenotype.cda.db.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -15,35 +15,43 @@ import java.sql.*;
 
 
 @RunWith(SpringRunner.class)
-@Import(GenerateDerivedParametersTestConfig.class)
+@ContextConfiguration(classes = GenerateDerivedParametersTestConfig.class)
 @Sql(scripts = {"/sql/h2/cda/schema.sql", "/sql/h2/impress/impressSchema.sql", "/sql/h2/GenerateDerivedParameterTestData.sql"})
 @Rollback
 public class GenerateDerivedParametersTest {
 
-    @Autowired DataSource komp2DataSource;
-    @Autowired BiologicalModelDAO biologicalModelDAO;
-    @Autowired DatasourceDAO datasourceDAO;
-    @Autowired OrganisationDAO organisationDAO;
-    @Autowired PhenotypePipelineDAO phenotypePipelineDAO;
-    @Autowired ObservationDAO observationDAO;
-    @Autowired ProjectDAO projectDAO;
+    @Autowired private BiologicalModelRepository biologicalModelRepository;
+    @Autowired private DatasourceRepository      datasourceRepository;
+    @Autowired private ExperimentRepository      experimentRepository;
+    @Autowired private DataSource                komp2DataSource;
+    @Autowired private LiveSampleRepository      liveSampleRepository;
+    @Autowired private ObservationRepository     observationRepository;
+    @Autowired private OrganisationRepository    organisationRepository;
+    @Autowired private ParameterRepository       parameterRepository;
+    @Autowired private PipelineRepository        pipelineRepository;
+    @Autowired private ProcedureRepository       procedureRepository;
+    @Autowired private ProjectRepository         projectRepository;
 
-    GenerateDerivedParameters generateDerivedParameters;
+    private GenerateDerivedParameters generateDerivedParameters;
 
     @Before
     public void setup() {
-        generateDerivedParameters = new GenerateDerivedParameters(komp2DataSource,
-                biologicalModelDAO,
-                datasourceDAO,
-                organisationDAO,
-                phenotypePipelineDAO,
-                observationDAO,
-                projectDAO
-        );
-        generateDerivedParameters.loadAllDatasources();
-        generateDerivedParameters.loadAllOrganisations();
-        generateDerivedParameters.loadAllPipelinesByStableIds();
-        generateDerivedParameters.loadAllProjects();
+        generateDerivedParameters = new GenerateDerivedParameters(
+                biologicalModelRepository,
+                datasourceRepository,
+                experimentRepository,
+                komp2DataSource,
+                liveSampleRepository,
+                observationRepository,
+                organisationRepository,
+                parameterRepository,
+                pipelineRepository,
+                procedureRepository,
+                projectRepository);
+        generateDerivedParameters.loadAllDatasourcesById();
+        generateDerivedParameters.loadAllOrganisationsById();
+        generateDerivedParameters.loadAllPipelinesByStableId();
+        generateDerivedParameters.loadAllProjectsById();
     }
 
     @Test
@@ -76,11 +84,9 @@ public class GenerateDerivedParametersTest {
                 System.out.println("");
 
             }
-
         }
 
         assert resultCount == 2;
-
     }
 
 
@@ -92,6 +98,4 @@ public class GenerateDerivedParametersTest {
             System.out.print(rsmd.getColumnName(i) + ": " + columnValue );
         }
     }
-
-
 }

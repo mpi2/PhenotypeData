@@ -22,12 +22,6 @@ import org.mousephenotype.cda.loads.create.extract.dcc.DccExperimentExtractor;
 import org.mousephenotype.cda.loads.create.extract.dcc.DccSpecimenExtractor;
 import org.mousephenotype.cda.loads.create.load.ExperimentLoader;
 import org.mousephenotype.cda.loads.create.load.SampleLoader;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
-import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -41,13 +35,6 @@ import javax.sql.DataSource;
  * Created by mrelac on 02/05/2017.
  */
 @Configuration
-@EnableAutoConfiguration(exclude = {
-        JndiConnectionFactoryAutoConfiguration.class,
-        DataSourceAutoConfiguration.class,
-        HibernateJpaAutoConfiguration.class,
-        JpaRepositoriesAutoConfiguration.class,
-        DataSourceTransactionManagerAutoConfiguration.class
-})
 public class TestConfig {
 
 

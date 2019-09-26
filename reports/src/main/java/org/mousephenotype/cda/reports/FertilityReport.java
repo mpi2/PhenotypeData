@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
+import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -134,14 +135,14 @@ public class FertilityReport extends AbstractReport {
             csvWriter.writeRow(buildList("Males fertile", malesFertile));
             csvWriter.writeRow(buildList("Males infertile", malesInfertile));
 
-            csvWriter.writeNext(EMPTY_ROW);
+            csvWriter.writeNext(Constants.EMPTY_ROW);
 
              // Write conflicting section.
             csvWriter.writeRow(buildList("Conflicting females", conflictingFemales));
             csvWriter.writeRow(buildList("Conflicting males", conflictingMales));
             csvWriter.writeRow(Arrays.asList(new String[] { "* includes conflicting data. Conflicting data are genes that appear in more than one fertility category." } ));
 
-            csvWriter.writeNext(EMPTY_ROW);
+            csvWriter.writeNext(Constants.EMPTY_ROW);
 
             // Write detail section.
             csvWriter.writeRow(Arrays.asList(new String[] { "Gene Symbol", "Gene Accession Id", "Allele Symbol", "Allele Accession Id", "Phenotyping Centre", "Colony Id", "Sex", "Zygosity", "Phenotype", "Comment" } ));//            allTable.add(header);

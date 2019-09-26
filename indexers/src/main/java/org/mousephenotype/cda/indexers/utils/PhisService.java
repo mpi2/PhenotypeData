@@ -9,7 +9,6 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.indexers.beans.PChannelDTO;
 import org.mousephenotype.cda.indexers.beans.PImageDTO;
-import org.mousephenotype.cda.solr.service.ImageService;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
@@ -27,11 +26,11 @@ import java.util.Set;
 @Component
 public class PhisService {
 
-	private final Logger logger = LoggerFactory.getLogger(ImageService.class);
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	ImpressService impressService;
 
-	HttpSolrClient phisSolr = new HttpSolrClient("http://ves-ebi-d2.ebi.ac.uk:8140/mi/phis/v1.0.4/images/");
-    HttpSolrClient phisChannelSolr = new HttpSolrClient("http://ves-ebi-d2.ebi.ac.uk:8140/mi/phis/v1.0.4/channels/");
+	HttpSolrClient phisSolr = new HttpSolrClient.Builder("http://ves-ebi-d2.ebi.ac.uk:8140/mi/phis/v1.0.4/images/").build();
+    HttpSolrClient phisChannelSolr = new HttpSolrClient.Builder("http://ves-ebi-d2.ebi.ac.uk:8140/mi/phis/v1.0.4/channels/").build();
 
 	public List<ImageDTO> getPhenoImageShareImageDTOs(Map<String, Set<String>> primaryGenesProcedures, ImpressService impressService) throws SolrServerException, IOException {
 
@@ -216,7 +215,7 @@ public class PhisService {
 			}
 
 			if(pImage.getExperimentGroup() != null){
-				image.setExperimentId(Integer.parseInt(pImage.getExperimentGroup()));
+				image.setExperimentId(Long.parseLong(pImage.getExperimentGroup()));
 			}
 
 			if(pImage.getZygosity() != null && pImage.getZygosity().size() >= 1){

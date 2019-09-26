@@ -79,7 +79,7 @@ public class Strain {
 
 	public void addSynonym(Synonym synonym) {
 		if (synonyms == null) {
-			synonyms = new LinkedList<Synonym>();
+			synonyms = new LinkedList<>();
 		}
 		this.synonyms.add(synonym);
 	}

@@ -8,10 +8,11 @@ import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.web.ErrorController;
+import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+
 import javax.inject.Inject;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
@@ -21,7 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller("error")
-public class ErrorHandlerController implements ErrorController  {
+public class ErrorHandlerController implements ErrorController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

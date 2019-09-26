@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -52,14 +53,22 @@ public class PhenotypeCenterProcedureCompletenessAllService extends BasicService
 	private       PhenotypeCenterAllService phenotypeCenterAllService;
 	private       SolrClient                statisticalResultCore;
 
+
+	@Inject
 	public PhenotypeCenterProcedureCompletenessAllService(
 			PhenotypeCenterAllService phenotypeCenterAllService,
 			@Qualifier("statisticalResultCore")
 			SolrClient statisticalResultCore)
 	{
+	    super();
 		this.phenotypeCenterAllService = phenotypeCenterAllService;
 		this.statisticalResultCore = statisticalResultCore;
 	}
+
+	public PhenotypeCenterProcedureCompletenessAllService() {
+	    super();
+    }
+
 
     private Map<String, String>      procedureNamesById;
     private Map<String, String>      parameterNamesById;

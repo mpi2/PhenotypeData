@@ -5,27 +5,35 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.web.WebStatus;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 @Service
 public class AutoSuggestService implements WebStatus {
 
-	@Autowired @Qualifier("autosuggestCore")
-	private SolrClient solr;
-	
+	private SolrClient autosuggestCore;
+
+	@Inject
+	public AutoSuggestService(SolrClient autosuggestCore) {
+		this.autosuggestCore = autosuggestCore;
+	}
+
+	public AutoSuggestService() {
+
+	}
+
+
 	public long getWebStatus() throws SolrServerException, IOException {
 
 		SolrQuery query = new SolrQuery();
 
 		query.setQuery("*:*").setRows(0);
 
-		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(genotypePhenotypeCore) + "/select?" + query);
 
-		QueryResponse response = solr.query(query);
+		QueryResponse response = autosuggestCore.query(query);
 		return response.getResults().getNumFound();
 	}
 	

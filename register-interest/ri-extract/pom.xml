@@ -5,21 +5,18 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.mousephenotype.cda</groupId>
     <artifactId>ri-extract</artifactId>
-    <version>1.0.0</version>
 
     <packaging>jar</packaging>
 
     <parent>
         <groupId>org.mousephenotype.cda</groupId>
-        <artifactId>register-interest</artifactId>
+        <artifactId>parent</artifactId>
         <version>1.0.0</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
     <dependencies>
-
 
         <!-- Spring -->
 
@@ -51,37 +48,39 @@
         <dependency>
             <groupId>org.mousephenotype.cda</groupId>
             <artifactId>ri-core</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
-
-        <!-- Other -->
-
-        <dependency>
-            <groupId>commons-dbcp</groupId>
-            <artifactId>commons-dbcp</artifactId>
         </dependency>
 
     </dependencies>
 
     <build>
         <plugins>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <mainClass>org.springframework.boot.loader.PropertiesLauncher</mainClass>
-                </configuration>
                 <executions>
                     <execution>
+                        <id>repackage</id>
                         <goals>
                             <goal>repackage</goal>
                         </goals>
                         <configuration>
                             <classifier>exec</classifier>
+                            <attach>false</attach>
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+
+                <configuration>
+                    <!-- Don't fail if there are no runnable tests -->
+                    <failIfNoTests>false</failIfNoTests>
+                </configuration>
+
             </plugin>
 
         </plugins>

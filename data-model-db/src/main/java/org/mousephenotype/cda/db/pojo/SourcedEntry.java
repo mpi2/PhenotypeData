@@ -13,6 +13,7 @@
  * language governing permissions and limitations under the
  * License.
  *******************************************************************************/
+
 package org.mousephenotype.cda.db.pojo;
 
 /**
@@ -35,7 +36,7 @@ public class SourcedEntry {
 	@Id
 	@GeneratedValue(strategy= GenerationType.IDENTITY)
 	@Column(name = "id")
-	private Integer id;
+	private Long id;
 
 	@OneToOne
 	@JoinColumn(name = "db_id")
@@ -44,14 +45,14 @@ public class SourcedEntry {
 	/**
 	 * @return the id
 	 */
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
 
 	/**
 	 * @param id the id to set
 	 */
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

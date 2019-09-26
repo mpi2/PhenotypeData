@@ -28,21 +28,19 @@ package org.mousephenotype.cda.db.pojo;
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 
-
 @Embeddable
 public class DatasourceEntityId implements Serializable {
 	private String accession;
-	private int databaseId;
+	private long databaseId;
 
 	public DatasourceEntityId() {
 		super();
 	}
 
-	public DatasourceEntityId(String accession, int databaseId){
+	public DatasourceEntityId(String accession, long databaseId){
 		this.accession = accession;
 		this.databaseId = databaseId;
 	}
-
 
 
 	/**
@@ -66,7 +64,7 @@ public class DatasourceEntityId implements Serializable {
 	/**
 	 * @return the databaseId
 	 */
-	public int getDatabaseId() {
+	public long getDatabaseId() {
 		return databaseId;
 	}
 
@@ -75,7 +73,7 @@ public class DatasourceEntityId implements Serializable {
 	/**
 	 * @param databaseId the databaseId to set
 	 */
-	public void setDatabaseId(int databaseId) {
+	public void setDatabaseId(long databaseId) {
 		this.databaseId = databaseId;
 	}
 
@@ -92,7 +90,7 @@ public class DatasourceEntityId implements Serializable {
 	@Override
 	public int hashCode() {
 		int hsCode;
-		hsCode = Integer.valueOf(databaseId).hashCode();
+		hsCode = Long.valueOf(databaseId).hashCode();
 		hsCode = 19 * hsCode+ accession.hashCode();
 		return hsCode;
 	}
@@ -102,7 +100,4 @@ public class DatasourceEntityId implements Serializable {
 		return "DatasourceEntityId [accession=" + accession + ", databaseId="
 				+ databaseId + "]";
 	}
-
-
-
 }

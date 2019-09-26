@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.selenium.support;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.selenium.exception.TestException;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.web.DownloadType;

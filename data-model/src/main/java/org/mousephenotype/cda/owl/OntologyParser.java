@@ -1,7 +1,8 @@
 package org.mousephenotype.cda.owl;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
 import org.semanticweb.elk.owlapi.ElkReasonerFactory;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
@@ -9,12 +10,15 @@ import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.search.EntitySearcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+
 
 public class OntologyParser {
 
@@ -168,6 +172,8 @@ public class OntologyParser {
                 termMap.put(term.getAccessionId(), term);
                 classMap.put(term.getAccessionId(), cls);
 
+                // Turn off annoying INFO messages.
+                LogManager.getLogger("org.semanticweb.elk").setLevel(Level.WARN);
             }
         }
     }
@@ -208,14 +214,14 @@ public class OntologyParser {
      * [!] This is not computed by default. If you want the trees, call this method on the parser first.
      * @throws JSONException 
      */
-    public void fillJsonTreePath(String rootId, String pathToPage,  Map<String, Integer>  countsMap, List<String> treeBrowserTopLevels, Boolean withPartOf) throws JSONException{
+    public void fillJsonTreePath(String rootId, String pathToPage,  Map<String, Integer>  countsMap, List<String> treeBrowserTopLevels, Boolean withPartOf) throws JSONException {
 
         OWLClass root = classMap.get(rootId);
         // fill lists with nodes on path
         fillJsonTreePath(root, new ArrayList<>(), withPartOf, rootId);
         // use node list to generate JSON documents
         for ( String id : getTermsInSlim()) {
-            OntologyTermDTO term = getOntologyTerm(id);
+            OntologyTermDTO  term       = getOntologyTerm(id);
             List<JSONObject> searchTree = TreeJsHelper.createTreeJson(term, pathToPage, this, countsMap, treeBrowserTopLevels);
             term.setSeachJson(searchTree.toString());
             String scrollNodeId = TreeJsHelper.getScrollTo(searchTree);

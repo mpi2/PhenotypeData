@@ -15,12 +15,12 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.json.JSONArray;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 //to hold a highchart section of data with properties together so we can inject it into highcharts via Java JSON objects

@@ -1,12 +1,11 @@
 package org.mousephenotype.cda.indexers.utils;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -20,39 +19,32 @@ import java.util.stream.Stream;
  * @author jwarren
  *
  */
-//@Service
 public class DmddRestGetter {
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 	private String dmddFileName;
 
-public static void main(String [] args) throws JSONException {
-	
-	DmddRestGetter getter=new DmddRestGetter("/Users/jwarren/Documents/DMDD.txt");
-	getter.readEmbryoViewerFile();
-	DmddRestData data = getter.getEmbryoRestData();
-}
-	@Inject
+
 	public DmddRestGetter(String dmddFileName) {
 	    this.dmddFileName = dmddFileName;
     }
 
 	public DmddRestData getEmbryoRestData() throws JSONException {
 
-        
-        String             content       = readEmbryoViewerFile();
-        JSONObject         json          = new JSONObject(content);
-        DmddRestData dmddRestData=new DmddRestData();
-        List<DmddDataUnit> imagedData=new ArrayList<>();
-        JSONObject genes = json.getJSONObject("dmdd_genes");
-        JSONArray imagedArray = genes.getJSONArray("imaged");
+        String             content      = readEmbryoViewerFile();
+        JSONObject         json         = new JSONObject(content);
+        DmddRestData       dmddRestData =new DmddRestData();
+        List<DmddDataUnit> imagedData   =new ArrayList<>();
+        JSONObject         genes        = json.getJSONObject("dmdd_genes");
+        JSONArray          imagedArray  = genes.getJSONArray("imaged");
         for (int i = 0; i < imagedArray.length(); i++) {
             JSONObject jsonObject = imagedArray.getJSONObject(i);
             //System.out.println(jsonObject);
             DmddDataUnit dataForGene=new DmddDataUnit(jsonObject.getString("mgi_id"),jsonObject.getString("url"));
             imagedData.add(dataForGene);
         }
-        System.out.println("dmdd image data size is "+imagedData.size());
+
         dmddRestData.setImaged(imagedData);
         JSONArray earlyLethalsArray = genes.getJSONArray("early_lethals");
         List<DmddDataUnit> earlyLethalData=new ArrayList<>();

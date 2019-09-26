@@ -12,37 +12,14 @@
     </parent>
 
     <artifactId>register-interest</artifactId>
-    <version>1.0.0</version>
     <packaging>pom</packaging>
 
     <name>register-interest</name>
     <description>IMPC PhenotypeArchive register interest implementation</description>
 
     <modules>
-        <module>ri-extract</module>
         <module>ri-core</module>
+        <module>ri-extract</module>
     </modules>
-
-    <!--<build>-->
-        <!--<plugins>-->
-            <!--<plugin>-->
-                <!--<groupId>org.springframework.boot</groupId>-->
-                <!--<artifactId>spring-boot-maven-plugin</artifactId>-->
-                <!--<configuration>-->
-                    <!--<mainClass>org.springframework.boot.loader.PropertiesLauncher</mainClass>-->
-                <!--</configuration>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<goals>-->
-                            <!--<goal>repackage</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<classifier>exec</classifier>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
-        <!--</plugins>-->
-    <!--</build>-->
 
 </project>

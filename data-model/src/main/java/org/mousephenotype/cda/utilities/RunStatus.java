@@ -28,8 +28,8 @@ import java.util.Set;
  * 
  */
 public class RunStatus {
-    private final Set<String> errorMessages;
-    private final Set<String>  warningMessages;
+    private final Set<String>   errorMessages;
+    private final Set<String>   warningMessages;
     public        int          successCount;
 
     public RunStatus() {
@@ -110,8 +110,4 @@ public class RunStatus {
 
         return sb.toString();
     }
-    
-    
-    // GETTERS AND SETTERS
-    
 }

@@ -27,9 +27,9 @@ package org.mousephenotype.cda.db.pojo;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.*;
 
-import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.*;
 
 
@@ -79,7 +79,7 @@ public class OntologyTerm {
 		super();
 	}
 
-	public OntologyTerm(String accessionId, int dbId) {
+	public OntologyTerm(String accessionId, Long dbId) {
 		this.id = new DatasourceEntityId();
 		this.id.setAccession(accessionId);
 		this.id.setDatabaseId(dbId);

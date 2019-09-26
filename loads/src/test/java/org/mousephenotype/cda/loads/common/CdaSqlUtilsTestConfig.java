@@ -22,12 +22,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import org.springframework.orm.jpa.JpaVendorAdapter;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 import javax.sql.DataSource;
-import java.util.Properties;
 
 /**
  * Created by mrelac on 27/09/16.
@@ -55,34 +51,15 @@ public class CdaSqlUtilsTestConfig {
 	}
 
 
-	@Bean
-	public LocalContainerEntityManagerFactoryBean entityManagerFactoryDcc1() {
-		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-		em.setDataSource(cdaBaseDataSourceH2());
-		em.setPackagesToScan("org.mousephenotype.cda.db.entity", "org.mousephenotype.cda.db.pojo");
-
-		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-		em.setJpaVendorAdapter(vendorAdapter);
-//		em.setJpaProperties(buildHibernatePropertiesDcc1());
-
-		return em;
-	}
-
-//	protected Properties buildHibernatePropertiesDcc1() {
-//		Properties hibernateProperties = new Properties();
+//	@Bean
+//	public LocalContainerEntityManagerFactoryBean entityManagerFactoryDcc1() {
+//		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
+//		em.setDataSource(cdaBaseDataSourceH2());
+//		em.setPackagesToScan("org.mousephenotype.cda.db.entity", "org.mousephenotype.cda.db.pojo");
 //
-//		hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
-//		hibernateProperties.put("hibernate.hbm2ddl.import_files", "sql/CdaSqlUtilsTest.sql");
-//		hibernateProperties.setProperty("hibernate.show_sql", "true");
-//		hibernateProperties.setProperty("hibernate.use_sql_comments", "true");
-//		hibernateProperties.setProperty("hibernate.format_sql", "true");
-//		hibernateProperties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
-//		hibernateProperties.setProperty("hibernate.generate_statistics", "false");
-//		hibernateProperties.setProperty("hibernate.current_session_context_class", "thread");
+//		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+//		em.setJpaVendorAdapter(vendorAdapter);
 //
-//		// This lets you split the ddl over multiple lines. H2 interprets newline as a statement terminator.
-//		hibernateProperties.setProperty("hibernate.hbm2ddl.import_files_sql_extractor", "org.hibernate.tool.hbm2ddl.MultipleLinesSqlCommandExtractor");
-//
-//		return hibernateProperties;
+//		return em;
 //	}
 }

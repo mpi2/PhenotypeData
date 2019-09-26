@@ -15,11 +15,10 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.mousephenotype.cda.db.beans.AggregateCountXYBean;
-import org.mousephenotype.cda.enumerations.SignificantType;
+import org.mousephenotype.cda.db.pojo.AggregateCountXY;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -283,7 +282,7 @@ public class AnalyticsChartProvider {
 	}
 
 	public String generateAggregateCountByProcedureChart(
-			List<AggregateCountXYBean> data,
+			List<AggregateCountXY> data,
 			String title,
 			String subTitle,
 			String yAxisLegend,
@@ -292,21 +291,21 @@ public class AnalyticsChartProvider {
 			) throws IOException,
 			URISyntaxException {
 
-		JSONArray series=new JSONArray();
-		JSONArray categories = new JSONArray();
-		List<String> categoriesList = new ArrayList<String>();
-		Map<String, List<AggregateCountXYBean>> centerMap = new HashMap<String, List<AggregateCountXYBean>>();
+		JSONArray                           series         =new JSONArray();
+		JSONArray                           categories     = new JSONArray();
+		List<String>                        categoriesList = new ArrayList<String>();
+		Map<String, List<AggregateCountXY>> centerMap      = new HashMap<String, List<AggregateCountXY>>();
 		try {
 			// List categories first
 			// List centers
-			for (AggregateCountXYBean bean: data) {
+			for (AggregateCountXY bean: data) {
 				if (!categoriesList.contains(bean.getxValue())) {
 					categoriesList.add(bean.getxValue());
 					categories.put(bean.getxValue());
 				}
-				List<AggregateCountXYBean> beans = null;
+				List<AggregateCountXY> beans = null;
 				if (!centerMap.containsKey(bean.getyValue())) {
-					beans = new ArrayList<AggregateCountXYBean>();
+					beans = new ArrayList<AggregateCountXY>();
 					centerMap.put(bean.getyValue(), beans);
 				} else {
 					beans = centerMap.get(bean.getyValue());
@@ -316,16 +315,16 @@ public class AnalyticsChartProvider {
 			
 			// build by center specific list
 			for (String center: centerMap.keySet()) {
-				List<AggregateCountXYBean> beans = centerMap.get(center);
-				JSONObject containerJsonObject=new JSONObject();
-				JSONArray dataArray=new JSONArray();
+				List<AggregateCountXY> beans               = centerMap.get(center);
+				JSONObject             containerJsonObject =new JSONObject();
+				JSONArray              dataArray           =new JSONArray();
 				// previous_countLines checks if a procedure has more than one id
 				int previous_countLines = 0;
 				// so always the same order for categories
 				for (String procedure: categoriesList) {
 					int countLines = 0;
 					// Retrieve procedure (not the fastest way)
-					for (AggregateCountXYBean bean: beans) {
+					for (AggregateCountXY bean: beans) {
 						if (bean.getxValue().equals(procedure)) {
 							// countLines = bean.getAggregateCount() + previous_countLines;
 							if (previous_countLines != 0) {
@@ -356,7 +355,7 @@ public class AnalyticsChartProvider {
 	 * @return
 	 */
 	public String generateHistoryTrendsChart(
-			Map<String, List<AggregateCountXYBean>> trendsMap,
+			Map<String, List<AggregateCountXY>> trendsMap,
 			List<String> releases,
 			String title,
 			String subtitle,
@@ -382,13 +381,13 @@ public class AnalyticsChartProvider {
 			// We use all keys provided
 			for (String trendProperty : keys) {
 				// new series
-				List<AggregateCountXYBean> beans = trendsMap.get(trendProperty);
-				JSONObject containerJsonObject=new JSONObject();
-				JSONArray dataArray=new JSONArray();
+				List<AggregateCountXY> beans               = trendsMap.get(trendProperty);
+				JSONObject             containerJsonObject =new JSONObject();
+				JSONArray              dataArray           =new JSONArray();
 				// this is not performant but we need to plot the missing values
 				for (String release: releases) {
 					boolean found = false;
-					for (AggregateCountXYBean bean: beans) {
+					for (AggregateCountXY bean: beans) {
 						if (bean.getyValue().equals(release)) {
 							dataArray.put(bean.getAggregateCount());
 							found = true;

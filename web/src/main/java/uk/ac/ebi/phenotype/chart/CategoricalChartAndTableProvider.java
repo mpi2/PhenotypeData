@@ -15,10 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import org.apache.commons.lang.WordUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.apache.commons.lang3.text.WordUtils;
 import org.mousephenotype.cda.db.pojo.CategoricalResult;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.pojo.StatisticalResult;
@@ -34,6 +31,9 @@ import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
@@ -59,9 +59,7 @@ public class CategoricalChartAndTableProvider {
 	 * @param experiment
 	 * @param parameter
 	 * @param acc
-	 * @param gender
-	 * @param parameterId
-	 * @param charts
+	 * @param numberString
 	 * @return
 	 * @throws SQLException
 	 * @throws IOException
@@ -226,10 +224,10 @@ public class CategoricalChartAndTableProvider {
 	throws SQLException {
 
 		// to not 0 index as using loop count in jsp
-		JSONArray seriesArray = new JSONArray();
+		JSONArray seriesArray          = new JSONArray();
 		JSONArray xAxisCategoriesArray = new JSONArray();
-		String title = parameter.getName();
-		String subtitle = procedureName ; // parameter.getStableId();
+		String    title                = parameter.getName();
+		String    subtitle             = procedureName ; // parameter.getStableId();
 
 		// get a list of unique categories
 		HashMap<String, List<Long>> categories = new LinkedHashMap<String, List<Long>>();
@@ -339,9 +337,9 @@ public class CategoricalChartAndTableProvider {
 		try {
 			Iterator<Entry<String, List<Long>>> it = categories.entrySet().iterator();
 			while (it.hasNext()) {
-				Map.Entry<String, List<Long>> pairs = (Map.Entry<String, List<Long>>) it.next();
-				List<Long> data = (List<Long>) pairs.getValue();
-				JSONObject dataset1 = new JSONObject();// e.g. normal
+				Map.Entry<String, List<Long>> pairs    = (Map.Entry<String, List<Long>>) it.next();
+				List<Long>                    data     = (List<Long>) pairs.getValue();
+				JSONObject                    dataset1 = new JSONObject();// e.g. normal
 				dataset1.put("name", pairs.getKey());
 				JSONArray dataset = new JSONArray();
 
@@ -364,7 +362,7 @@ public class CategoricalChartAndTableProvider {
 		ProcedureDTO proc = impressService.getProcedureByStableId(experiment.getProcedureStableId()) ;
 		String procedureDescription = "";
 		if (proc != null) {
-			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()), "Procedure: "+proc.getName());
+			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Long)proc.getStableKey()).toString()), "Procedure: "+proc.getName());
 		}
 		if (parameter.getStableKey() != null) {
 			title = String.format("<a href=\"%s\">%s</a>", impressService.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey()),  "Parameter: "+ parameter.getName());

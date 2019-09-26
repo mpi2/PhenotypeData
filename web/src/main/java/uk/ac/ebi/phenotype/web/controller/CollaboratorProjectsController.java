@@ -15,15 +15,13 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import org.apache.commons.lang.StringUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -74,7 +72,7 @@ public class CollaboratorProjectsController {
 		// reads from /sre/main/resources/collaborators.json and compose the page
 		BufferedReader in = new BufferedReader(new FileReader(new ClassPathResource("collaborators.json").getFile()));
 		if (in != null) {
-			String json = in.lines().collect(Collectors.joining(" "));
+			String    json  = in.lines().collect(Collectors.joining(" "));
 			JSONArray tools = null;
 			try {
 				tools = new JSONArray(json);

@@ -19,7 +19,7 @@ package org.mousephenotype.cda.loads.reports;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
-import org.mousephenotype.cda.loads.create.extract.cdabase.support.ImpressUtils;
+import org.mousephenotype.cda.loads.create.extract.cdabase.support.ImpressLoadUtils;
 import org.mousephenotype.cda.loads.reports.support.LoadValidateCountsQuery;
 import org.mousephenotype.cda.loads.reports.support.LoadsQueryDelta;
 import org.mousephenotype.cda.reports.AbstractReport;
@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
@@ -276,10 +277,6 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
 
     private List<ValidationQuery> contentQueries = Arrays.asList(new ValidationQuery[] {
 
-//            new ValidationQuery("procedureStageLabel", procedureStageLabel),                      // Omit this test. The komp2 values for stage label don't match impress v1!
-//            new ValidationQuery("parameterDatatype", parameterDatatype),                          // Omit this test. Spot-checking revealed V1 has blank datatype, V2 has non-blank datatype.
-//            new ValidationQuery("parameterFormula", parameterFormula),                            // Omit this test, as the new impress V2 formulas are similar to, but slightly different from the impress V1 formulas.
-
             new ValidationQuery("pipeline", pipeline),
             new ValidationQuery("procedure", procedure),
             new ValidationQuery("procedureLevel", procedureLevel),
@@ -313,7 +310,7 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
         SpringApplication app = new SpringApplication(ValidateExtractImpressReport.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setLogStartupInfo(false);
-        app.setWebEnvironment(false);
+        app.setWebApplicationType(WebApplicationType.NONE);
         app.run(args);
     }
 
@@ -357,13 +354,13 @@ public class ValidateExtractImpressReport extends AbstractReport implements Comm
                     if ((query.name.startsWith("parameter"))) {
                         q += excludedParameters;
                     }
-                    diffs = sqlUtils.queryDiff(jdbcCdabasePrevious, jdbcCdabaseCurrent, q, useLenient);
+                    diffs = sqlUtils.queryDiff(jdbcCdabasePrevious, jdbcCdabaseCurrent, q, parser.useLenient());
                     int numErrorsToShow = Math.min(ivNumErrorsToShow, diffs.size());
                     if (diffs.size() == 0) {
-                        logger.info("SUCCESS:\t{}: {}", query.name, ImpressUtils.newlineToSpace(query.query));
+                        logger.info("SUCCESS:\t{}: {}", query.name, ImpressLoadUtils.newlineToSpace(query.query));
                     } else {
                         // Subtract 1 from numErrorsToShow and diffs.size() to account for heading row.
-                        logger.warn("FAIL:\t{}: Displaying first {} diff rows of {}. query: {}", query.name, numErrorsToShow - 1, diffs.size() - 1, ImpressUtils.newlineToSpace(query.query));
+                        logger.warn("FAIL:\t{}: Displaying first {} diff rows of {}. query: {}", query.name, numErrorsToShow - 1, diffs.size() - 1, ImpressLoadUtils.newlineToSpace(query.query));
                     }
                     for (int i = 0; i < numErrorsToShow; i++) {
                         String[]      diff = diffs.get(i);

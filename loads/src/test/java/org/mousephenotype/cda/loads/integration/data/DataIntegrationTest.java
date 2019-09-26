@@ -474,7 +474,7 @@ public class DataIntegrationTest {
         Assert.assertEquals(map.size(), 1);
 
         BiologicalSample actualBiologicalSample = map.entrySet().iterator().next().getValue();
-        Project          project                = cdaSqlUtils.getProjectsById().get(actualBiologicalSample.getProject().getId());
+        Project project = cdaSqlUtils.getProjectsByName().get(actualBiologicalSample.getProject().getName());
 
         Assert.assertEquals(EXPECTED_PROJECT_NAME, project.getName());
     }

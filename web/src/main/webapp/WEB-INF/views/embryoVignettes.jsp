@@ -105,11 +105,11 @@
                                     Images </a></li>
                                 <li>Embryo Gross Morphology: NA</li>
                                 <li>3-D Imaging: <a
-                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203&h=382&s=on&c=off&a=off&o=vertical&zoom=4&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=69&wy=117&wz=177&wl=0&wu=200&mn=klhdc2-tm1b-ic/19.3c_5577193&mx=89&my=120&mz=176&ml=0&mu=213&wov=none&mov=none">Adrenal
+                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}&pid=203&h=382&s=on&c=off&a=off&o=vertical&zoom=4&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=69&wy=117&wz=177&wl=0&wu=200&mn=klhdc2-tm1b-ic/19.3c_5577193&mx=89&my=120&mz=176&ml=0&mu=213&wov=none&mov=none">Adrenal
                                     gland</a>,
-                                    <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203&h=489&s=on&c=off&a=off&o=vertical&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=80&wy=117&wz=177&wl=0&wu=150&mn=klhdc2-tm1b-ic/21.1f_5578050&mx=80&my=106&mz=154&ml=0&mu=180">Intestines</a>,
-                                    <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203&h=372&s=on&c=on&a=on&o=horizontal&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=91&wy=116&wz=163&wl=0&wu=255&mn=klhdc2-tm1b-ic/21.1f_5578050&mx=82&my=117&mz=144&ml=0&mu=255&wov=none&mov=none">VSD</a>,
-                                    <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=204">E18.5</a>
+                                    <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}&pid=203&h=489&s=on&c=off&a=off&o=vertical&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=80&wy=117&wz=177&wl=0&wu=150&mn=klhdc2-tm1b-ic/21.1f_5578050&mx=80&my=106&mz=154&ml=0&mu=180">Intestines</a>,
+                                    <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}&pid=203&h=372&s=on&c=on&a=on&o=horizontal&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=91&wy=116&wz=163&wl=0&wu=255&mn=klhdc2-tm1b-ic/21.1f_5578050&mx=82&my=117&mz=144&ml=0&mu=255&wov=none&mov=none">VSD</a>,
+                                    <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}&pid=204">E18.5</a>
                                 </li>
                                 <li>Adult and Embryo Phenotype Data: <a
                                         href="${baseUrl}/genes/${geneId}#section-associations">Table</a></li>
@@ -117,7 +117,7 @@
 
                         </div>
                         <div class="col-4">
-                            <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgi=MGI:1916804"><img class="w-100" alt="E18.5  Klhdc2 null embryo" src="${baseUrl}/img/vignettes/Kldhc2.png">E18.5 Klhdc2 null embryo</a>
+                            <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=MGI:1916804"><img class="w-100" alt="E18.5  Klhdc2 null embryo" src="${baseUrl}/img/vignettes/Kldhc2.png">E18.5 Klhdc2 null embryo</a>
                         </div>
                     </div>
                 </div>
@@ -165,7 +165,7 @@
                                         href="${baseUrl}/imageComparator?acc=MGI:102806&parameter_stable_id=IMPC_GEO_050_001">Images</a>
                                 </li>
                                 <li>
-                                    3-D Imaging: <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
+                                    3-D Imaging: <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}">Image</a>
                                 </li>
                                 <li>
                                     Adult and Embryo Phenotype Data: <a
@@ -237,7 +237,7 @@
                                 </li>
                                 <li>
                                     3-D Imaging: <a
-                                        href="${cmsBaseUrl}/embryoviewer/?mgi=MGI:1195985&v=2d&pid=203&h=561&s=off&c=off&a=on&o=vertical&zoom=0&sb=600&wn=Average&wx=92&wy=62&wz=175&wl=23&wu=255&mn=AAPN_K1026-1-e15.5&mx=92&my=68&mz=139&ml=20&mu=179&wov=jacobian&mov=none">Image</a>
+                                        href="${cmsBaseUrl}/embryoviewer/?mgiGeneAccessionId=MGI:1195985&v=2d&pid=203&h=561&s=off&c=off&a=on&o=vertical&zoom=0&sb=600&wn=Average&wx=92&wy=62&wz=175&wl=23&wu=255&mn=AAPN_K1026-1-e15.5&mx=92&my=68&mz=139&ml=20&mu=179&wov=jacobian&mov=none">Image</a>
                                 </li>
                                 <li>
                                     Adult and Embryo Phenotype Data: <a
@@ -314,7 +314,7 @@
                                                                 class="various">Images</a>
                                 </li>
                                 <li>
-                                    3-D Imaging: <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
+                                    3-D Imaging: <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}">Image</a>
                                 </li>
                                 <li>
                                     Adult and Embryo Phenotype Data: <a
@@ -385,7 +385,7 @@
                                     Embryo Histopathology: <a id="eyaEmbHisTrigger" href="#eyaEmbHis" class="various">Images</a>
                                 </li>
                                 <li>
-                                    3-D Imaging: <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
+                                    3-D Imaging: <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}">Image</a>
                                 </li>
                                 <li>
                                     Adult and Embryo Phenotype Data: <a
@@ -569,7 +569,7 @@
                                 </li>
                                 <li>
                                     3-D imaging: <a
-                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
+                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}">Image</a>
                                 </li>
 
                                 <li>
@@ -655,7 +655,7 @@
                                 </li>
                                 <li>
                                     3-D Imaging: <a
-                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Image</a>
+                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}">Image</a>
                                 </li>
                                 <li>
                                     Adult and Embryo Phenotype Data: <a
@@ -728,7 +728,7 @@
                                 </li>
                                 <li>
                                     3-D Imaging: <a
-                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgi=MGI:1928849&pid=204">E18.5</a>
+                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=MGI:1928849&pid=204">E18.5</a>
                                 </li>
                                 <li>
                                     Adult and Embryo Phenotype Data: <a
@@ -796,7 +796,7 @@
                                 </li>
                                 <li>
                                     3-D Imaging: <a
-                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgi=MGI:2151064&pid=203">Images</a>
+                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=MGI:2151064&pid=203">Images</a>
                                 </li>
                                 <li>
                                     Adult and Embryo Phenotype Data: <a
@@ -985,7 +985,7 @@
                                 </li>
                                 <li>
                                     3-D Imaging: <a
-                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=203">Images</a>
+                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}&pid=203">Images</a>
                                 </li>
                                 <li>
                                     Adult and Embryo Phenotype Data: <a
@@ -1047,7 +1047,7 @@
                                 </li>
                                 <li>
                                     3-D Imaging: <a
-                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}&pid=202&h=311&s=on&c=on&a=on&o=horizontal&zoom=0&sb=600&wn=FGF8-TM1B-IC/15.3i_5864455&wx=63&wy=54&wz=153&wl=0&wu=255&mn=GFPT1-PL-TM1B-IC/18.2e_5761935&mx=63&my=54&mz=153&ml=0&mu=255">Images</a>
+                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}&pid=202&h=311&s=on&c=on&a=on&o=horizontal&zoom=0&sb=600&wn=FGF8-TM1B-IC/15.3i_5864455&wx=63&wy=54&wz=153&wl=0&wu=255&mn=GFPT1-PL-TM1B-IC/18.2e_5761935&mx=63&my=54&mz=153&ml=0&mu=255">Images</a>
                                 </li>
                                 <li>
                                     Adult and Embryo Phenotype Data: <a
@@ -1307,7 +1307,7 @@
 
                                 <li>
                                     3-D Imaging: <a
-                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgi=MGI:1351614">Images</a>
+                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=MGI:1351614">Images</a>
                                 </li>
                                 <li>
                                     Adult het phenotype data: <a
@@ -1368,7 +1368,7 @@
                                 </li>
 
                                 <li>
-                                    3-D Imaging: <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgi=${geneId}">Images</a>
+                                    3-D Imaging: <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}">Images</a>
                                 </li>
                                 <li>
                                     Adult het phenotype data: <a

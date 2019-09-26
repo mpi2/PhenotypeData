@@ -15,33 +15,12 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
-import org.mousephenotype.cda.constants.OverviewChartsConstants;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.impress.Utilities;
-import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
-import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.PostQcService;
-import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
-import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
-import org.mousephenotype.cda.solr.web.dto.StackedBarsData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -50,19 +29,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import uk.ac.ebi.phenotype.chart.CategoricalChartAndTableProvider;
 import uk.ac.ebi.phenotype.chart.ChartColors;
-import uk.ac.ebi.phenotype.chart.ChartData;
 import uk.ac.ebi.phenotype.chart.ChartUtils;
-import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Controller
 public class BaselineChartsController {
-
-	@Autowired
-	private PhenotypePipelineDAO pipelineDao;
 
 	@Autowired
 	ObservationService os;
@@ -83,10 +62,10 @@ public class BaselineChartsController {
 		RedirectAttributes attributes) throws SolrServerException, IOException , URISyntaxException, SQLException{
 		System.out.println("calling baselineCharts");
 
-		//Map<String, List<Float>> centerToPointsMapForParameter= os.getCenterToPointsMapForParameter(parameterStableId);
+		//Map<String, List<Float>> centerToPointsMapForParameter= observationService.getCenterToPointsMapForParameter(parameterStableId);
 		List<FieldStatsInfo> baselinesForParameter = os.getStatisticsForParameterFromCenter(parameterStableId, null);
 		String baseLineChart=this.generateBaselineChartBoxStyle(parameterStableId,baselinesForParameter);
-		//List<FieldStatsInfo> baselinesForParameter = os.getStatisticsForParameterFromCenter(parameterStableId, null);
+		//List<FieldStatsInfo> baselinesForParameter = observationService.getStatisticsForParameterFromCenter(parameterStableId, null);
 		//String baselineBarChart=this.generateBaselineChartBarStyle(parameterStableId, baselinesForParameter);
 		model.addAttribute("baselineChart", baseLineChart);
 		return "baselineChart";

@@ -19,9 +19,10 @@ package org.mousephenotype.cda.threei.util;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
@@ -32,8 +33,9 @@ import static junit.framework.TestCase.assertTrue;
  * Unit test for AnaExcelReader.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(locations = {"file:${user.home}/configfiles/${profile:dev}/test.properties"})
 public class AnaExcelReaderTest {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     private final int N_ROWS_TO_PROCESS = 20;
@@ -81,7 +83,7 @@ public class AnaExcelReaderTest {
             nRows++;
         }
         
-        System.out.println("Number of rows read = " + nRows);
+        logger.debug("Number of rows read = " + nRows);
         assertTrue( N_ROWS_TO_PROCESS == nRows );
     }
     */
@@ -94,7 +96,7 @@ public class AnaExcelReaderTest {
         }
 
         int nRows = reader.getNumberOfRowsRead();
-        System.out.println("Number of rows read (according to reader) = " + nRows);
+        logger.debug("Number of rows read (according to reader) = " + nRows);
         assertTrue(N_ROWS_TO_PROCESS == nRows);
     }
 
@@ -108,13 +110,12 @@ public class AnaExcelReaderTest {
         }
         int nMiceProcessed = reader.getNumberOfMiceProcessed();
 
-        System.out.println("Number of mice processed = " + nMiceProcessed);
+        logger.debug("Number of mice processed = " + nMiceProcessed);
         assertTrue(N_MICE_TO_PROCESS == nMiceProcessed);
 
         for (int j = 0; j < N_MICE_TO_PROCESS; j++) {
-            System.out.println("Number of rows processed = " + nRowsPerMouse[j] + ". Expected number of rows = " + N_ROWS_PER_MOUSE[j]);
+            logger.debug("Number of rows processed = " + nRowsPerMouse[j] + ". Expected number of rows = " + N_ROWS_PER_MOUSE[j]);
             assertTrue(N_ROWS_PER_MOUSE[j] == nRowsPerMouse[j]);
         }
     }
-
 }

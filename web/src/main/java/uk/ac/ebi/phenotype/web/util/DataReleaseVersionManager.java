@@ -15,9 +15,11 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.util;
 
-import org.mousephenotype.cda.db.dao.AnalyticsDAO;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mousephenotype.cda.db.repositories.MetaInfoRepository;
 import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 
 
 /**
@@ -26,8 +28,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class DataReleaseVersionManager {
 
-	@Autowired
-	private AnalyticsDAO analyticsDAO;
+	private MetaInfoRepository metaInfoRepository;
+
+	@Inject
+	public DataReleaseVersionManager(@NotNull MetaInfoRepository metaInfoRepository) {
+		this.metaInfoRepository = metaInfoRepository;
+	}
 
 	private String releaseVersion="";
 
@@ -36,7 +42,9 @@ public class DataReleaseVersionManager {
 	public String getReleaseVersion() {
 		// 0.1% of the time or on first request, refresh the version number
 		if (releaseVersion.equals("") || Math.random()<0.001) {
-			releaseVersion = analyticsDAO.getCurrentRelease();
+			releaseVersion =
+					metaInfoRepository.findByPropertyKey("data_release_version")
+							.getPropertyValue();
 		}
 
 		return releaseVersion;

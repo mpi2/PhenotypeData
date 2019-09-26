@@ -7,21 +7,16 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.PhenodigmDTO;
-import org.mousephenotype.cda.utilities.HttpProxy;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.Set;
 
 /*
  * pdsimplify: This class references deprecated PhenodigmDTO
@@ -29,12 +24,16 @@ import java.util.stream.Collectors;
 @Service
 public class PhenodigmService implements WebStatus {
 
-	private final Logger logger = LoggerFactory.getLogger(PhenodigmService.class);
+	private final Logger logger               = LoggerFactory.getLogger(this.getClass());
 	private final Double MIN_RAW_SCORE_CUTOFF = 1.97;
 
-	@Autowired
-	@Qualifier("phenodigmCore")
-	private SolrClient solr;
+	private SolrClient phenodigmCore;
+
+
+	@Inject
+	public PhenodigmService(SolrClient phenodigmCore) {
+		this.phenodigmCore = phenodigmCore;
+	}
 
 
 	// Disease sources. When modifying these, please modify getAllDiseases() accordingly.
@@ -77,7 +76,7 @@ public class PhenodigmService implements WebStatus {
 		solrQuery.setQuery("disease_source:\"" + diseaseSource + "\"");
 		solrQuery.setFields("disease_id");
 		solrQuery.setRows(1000000);
-		QueryResponse rsp = solr.query(solrQuery);
+		QueryResponse rsp = phenodigmCore.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
 		HashSet<String> allDiseases = new HashSet<String>();
 		for (SolrDocument doc : res) {
@@ -106,7 +105,7 @@ public class PhenodigmService implements WebStatus {
 					.set("group.ngroups", true)
 					.set("group.field", PhenodigmDTO.MODEL_ID);
 
-			nGroups = solr.query(q).getGroupResponse().getValues().get(0).getNGroups();
+			nGroups = phenodigmCore.query(q).getGroupResponse().getValues().get(0).getNGroups();
 			
 		} catch (IOException | SolrServerException | HttpSolrClient.RemoteSolrException e) {
 			logger.error("\n\nERROR getDiseaseAssociationCount: Could not get disease association count\n\n", e);
@@ -123,9 +122,9 @@ public class PhenodigmService implements WebStatus {
 
 		query.setQuery("*:*").setRows(0);
 
-		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(phenodigmCore) + "/select?" + query);
 
-		QueryResponse response = solr.query(query);
+		QueryResponse response = phenodigmCore.query(query);
 		return response.getResults().getNumFound();
 	}
 
@@ -147,7 +146,7 @@ public class PhenodigmService implements WebStatus {
 //
 //		HttpProxy proxy = new HttpProxy();
 //
-//		return proxy.getContent(new URL(SolrUtils.getBaseURL(solr) + "/select?" + query));
+//		return proxy.getContent(new URL(SolrUtils.getBaseURL(phenodigmCore) + "/select?" + query));
 //
 //	}
 
@@ -164,7 +163,7 @@ public class PhenodigmService implements WebStatus {
 //		query.setFields(PhenodigmDTO.MARKER_SYMBOL, PhenodigmDTO.IMPC_PREDICTED, PhenodigmDTO.MGI_PREDICTED, PhenodigmDTO.HUMAN_CURATED);
 //
 //
-//		QueryResponse rsp = solr.query(query);
+//		QueryResponse rsp = phenodigmCore.query(query);
 //		List<PhenodigmDTO> dtos = rsp.getBeans(PhenodigmDTO.class);
 //		for (PhenodigmDTO dto : dtos) {
 //			if (dto.getMgiPredicted()) {

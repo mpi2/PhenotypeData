@@ -466,7 +466,7 @@
 
         <field name="_version_" type="plong" indexed="true" stored="true"/>
         <field name="doc_id" type="string" indexed="true" stored="true" multiValued="false" required="true"/>
-        <field name="db_id" type="pint" indexed="true" stored="true" multiValued="false" required="true"/>
+        <field name="db_id" type="plong" indexed="true" stored="true" multiValued="false" required="true"/>
         <field name="data_type" type="string" indexed="true" stored="true" multiValued="false"/>
 
 		<!--  Anatomy terms mapped from MP -->
@@ -506,24 +506,24 @@
         <!-- Information about the data being processed -->
         <field name="resource_name" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="resource_fullname" type="string" indexed="true" stored="true" multiValued="false"/>
-        <field name="resource_id" type="pint" indexed="true" stored="true" multiValued="false"/>
+        <field name="resource_id" type="plong" indexed="true" stored="true" multiValued="false"/>
         <field name="project_name" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="phenotyping_center" type="string" indexed="true" stored="true" multiValued="false"/>
 
         <field name="pipeline_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
-        <field name="pipeline_stable_key" type="pint" indexed="false" stored="true" required="false" multiValued="false"/>
+        <field name="pipeline_stable_key" type="plong" indexed="false" stored="true" required="false" multiValued="false"/>
         <field name="pipeline_name" type="string" indexed="true" stored="true" multiValued="false"/>
-        <field name="pipeline_id" type="pint" indexed="true" stored="true" multiValued="false"/>
+        <field name="pipeline_id" type="plong" indexed="true" stored="true" multiValued="false"/>
 
         <field name="procedure_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
-        <field name="procedure_stable_key" type="pint" indexed="false" stored="true" required="false" multiValued="false"/>
+        <field name="procedure_stable_key" type="plong" indexed="false" stored="true" required="false" multiValued="false"/>
         <field name="procedure_name" type="string" indexed="true" stored="true" multiValued="false"/>
-        <field name="procedure_id" type="pint" indexed="true" stored="true" multiValued="false"/>
+        <field name="procedure_id" type="plong" indexed="true" stored="true" multiValued="false"/>
 
         <field name="parameter_stable_id" type="string" indexed="true" stored="true" required="false" multiValued="false"/>
-        <field name="parameter_stable_key" type="pint" indexed="false" stored="true" required="false" multiValued="false"/>
+        <field name="parameter_stable_key" type="plong" indexed="false" stored="true" required="false" multiValued="false"/>
         <field name="parameter_name" type="string" indexed="true" stored="true" multiValued="false"/>
-        <field name="parameter_id" type="pint" indexed="true" stored="true" multiValued="false"/>
+        <field name="parameter_id" type="plong" indexed="true" stored="true" multiValued="false"/>
 
         <field name="colony_id" type="string" indexed="true" stored="true" multiValued="false"/>
         <field name="marker_symbol" type="string" indexed="true" stored="true" multiValued="false"/>
@@ -544,15 +544,15 @@
         <field name="production_center" type="string" indexed="true" stored="true" multiValued="false"/>
 
 
-        <field name="external_db_id" type="pint" indexed="true" stored="true" multiValued="false"/>
-        <field name="id" type="pint" indexed="true" stored="true" multiValued="false"/>
-        <field name="organisation_id" type="pint" indexed="true" stored="true" multiValued="false"/>
-        <field name="phenotyping_center_id" type="pint" indexed="true" stored="true" multiValued="false"/>
-        <field name="project_id" type="pint" indexed="true" stored="true" multiValued="false"/>
+        <field name="external_db_id" type="plong" indexed="true" stored="true" multiValued="false"/>
+        <field name="id" type="plong" indexed="true" stored="true" multiValued="false"/>
+        <field name="organisation_id" type="plong" indexed="true" stored="true" multiValued="false"/>
+        <field name="phenotyping_center_id" type="plong" indexed="true" stored="true" multiValued="false"/>
+        <field name="project_id" type="plong" indexed="true" stored="true" multiValued="false"/>
 
         <!-- Information about the raw data -->
-        <field name="control_biological_model_id" type="pint" indexed="true" stored="true" multiValued="false"/>
-        <field name="mutant_biological_model_id" type="pint" indexed="true" stored="true" multiValued="false"/>
+        <field name="control_biological_model_id" type="plong" indexed="true" stored="true" multiValued="false"/>
+        <field name="mutant_biological_model_id" type="plong" indexed="true" stored="true" multiValued="false"/>
         <field name="male_control_count" type="pint" indexed="true" stored="true" multiValued="false"/>
         <field name="male_mutant_count" type="pint" indexed="true" stored="true" multiValued="false"/>
         <field name="female_control_count" type="pint" indexed="true" stored="true" multiValued="false"/>

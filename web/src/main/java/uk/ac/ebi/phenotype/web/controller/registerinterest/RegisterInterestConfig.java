@@ -16,39 +16,33 @@
 
 package uk.ac.ebi.phenotype.web.controller.registerinterest;
 
+import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.ri.core.services.CoreService;
 import org.mousephenotype.cda.ri.core.services.GenerateService;
 import org.mousephenotype.cda.ri.core.services.SendService;
-import org.mousephenotype.cda.ri.core.utils.SqlUtils;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
 
 @Configuration
-@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
 @EnableAutoConfiguration
 public class RegisterInterestConfig {
 
     // Database properties
 
-    @NotNull
-    @Value("${datasource.ri.password}")
-    private String dbPassword;
+    @Value("${datasource.ri.jdbc-url}")
+    private String riDbUrl;
 
-    @NotNull
     @Value("${datasource.ri.username}")
     private String dbUsername;
 
-    @NotNull
-    @Value("${datasource.ri.url}")
-    private String riDbUrl;
+    @Value("${datasource.ri.password}")
+    private String dbPassword;
 
     @Bean
     public NamedParameterJdbcTemplate jdbc() {
@@ -56,43 +50,35 @@ public class RegisterInterestConfig {
     }
 
     @Bean
-    public SqlUtils sqlUtils() {
-        return new SqlUtils(jdbc());
+    public RiSqlUtils riSqlUtils() {
+        return new RiSqlUtils(jdbc());
     }
 
     @Bean
-    @Qualifier("riDataSource")
     public DataSource riDataSource() {
         return SqlUtils.getConfiguredDatasource(riDbUrl, dbUsername, dbPassword);
     }
 
 
     // e-mail server properties
-    @NotNull
     @Value("${mail.smtp.from}")
     private String smtpFrom;
 
-    @NotNull
     @Value("${mail.smtp.host}")
     private String smtpHost;
 
-    @NotNull
     @Value("${mail.smtp.port}")
     private Integer smtpPort;
 
-    @NotNull
     @Value("${mail.smtp.replyto}")
     private String smtpReplyto;
 
-    @NotNull
     @Value("${paBaseUrl}")
     String paBaseUrl;
 
-    @NotNull
     @Value("${cms_base_url}")
     private String cmsBaseUrl;
 
-    @NotNull
     @Value("${recaptcha.public}")
     private String recaptchaPublic;
 
@@ -135,6 +121,6 @@ public class RegisterInterestConfig {
 
     @Bean
     public CoreService coreService() {
-        return new CoreService(new GenerateService(paBaseUrl, sqlUtils()), new SendService(sqlUtils(), smtpHost, smtpPort, smtpFrom, smtpReplyto));
+        return new CoreService(new GenerateService(paBaseUrl, riSqlUtils()), new SendService(riSqlUtils(), smtpHost, smtpPort, smtpFrom, smtpReplyto));
     }
 }

@@ -15,7 +15,7 @@
  ****************************************************************************** */
 package uk.ac.ebi.phenotype.service.search;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 

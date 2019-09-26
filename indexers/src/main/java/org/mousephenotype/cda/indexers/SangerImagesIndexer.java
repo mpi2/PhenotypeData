@@ -16,6 +16,7 @@
 package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrClient;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.indexers.utils.SangerProcedureMapper;
@@ -30,13 +31,14 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.ConfigurableApplicationContext;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -51,42 +53,50 @@ import java.util.*;
 @EnableAutoConfiguration
 public class SangerImagesIndexer extends AbstractIndexer implements CommandLineRunner {
 
-	private final Logger logger = LoggerFactory.getLogger(SangerImagesIndexer.class);
-    private final DateTimeFormatter ymdhms = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired @Qualifier("komp2DataSource") DataSource komp2DataSource;
-    @Autowired @Qualifier("alleleCore") SolrClient alleleCore;
-    @Autowired @Qualifier("sangerImagesCore") SolrClient sangerImagesCore;
+    private final DateTimeFormatter YMD_HMS = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
-    private Connection komp2DbConnection;
 	private OntologyParser maParser;
 	private OntologyParser mpParser;
 	private OntologyParser mpHpParser;
 
-	private Map<Integer, DcfBean> dcfMap = new HashMap<>();
-	private Map<Integer, MouseBean> mouseMvMap = new HashMap<>();
-	private Map<String, AlleleBean> alleleMpiMap = new HashMap<>();
-	private Map<String, List<String>> synonyms = new HashMap<>();
-	private Map<String, GenomicFeatureBean> featuresMap = new HashMap<>();
-	private Map<Integer, ExperimentDict> expMap = new HashMap<>();
-	private Map<Integer, List<Tag>> tags = new HashMap<>();
-	private Map<Integer, List<Annotation>> annotationsMap = new HashMap<>();
-	private Map<String, String> subtypeMap = new HashMap<>();
-	private Map<String, List<AlleleDTO>> alleles;
+	private Map<String, List<AlleleDTO>>    alleles;
+	private Map<String, AlleleBean>         alleleMpiMap   = new HashMap<>();
+	private Map<Integer, List<Annotation>>  annotationsMap = new HashMap<>();
+	private Map<Integer, DcfBean>           dcfMap         = new HashMap<>();
+	private Map<Integer, ExperimentDict>    expMap         = new HashMap<>();
+	private Map<String, GenomicFeatureBean> featuresMap    = new HashMap<>();
+	private Map<Integer, MouseBean>         mouseMvMap     = new HashMap<>();
+	private Map<String, String>             subtypeMap     = new HashMap<>();
+	private Map<String, List<String>>       synonyms       = new HashMap<>();
+	private Map<Integer, List<Tag>>         tags           = new HashMap<>();
 
-	public SangerImagesIndexer() { }
+
+	private SolrClient alleleCore;
+	private SolrClient sangerImagesCore;
+
+	protected SangerImagesIndexer() {
+
+	}
+
+	@Inject
+	public SangerImagesIndexer(
+			@NotNull DataSource komp2DataSource,
+			@NotNull OntologyTermRepository ontologyTermRepository,
+			@NotNull SolrClient alleleCore,
+			@NotNull SolrClient sangerImagesCore)
+	{
+		super(komp2DataSource, ontologyTermRepository);
+		this.alleleCore = alleleCore;
+		this.sangerImagesCore = sangerImagesCore;
+	}
+
 
 	@Override
 	public RunStatus validateBuild() throws IndexerException {
 		return super.validateBuild(sangerImagesCore);
 	}
-
-
-	public static void main(String[] args) {
-		SpringApplication.run(SangerImagesIndexer.class, args);
-	}
-
-
 
 	@Override
 	public RunStatus run() throws IndexerException {
@@ -94,63 +104,63 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
         RunStatus runStatus = new RunStatus();
 		long start = System.currentTimeMillis();
 
-		try {
-
-			komp2DbConnection = komp2DataSource.getConnection();
+		try (Connection connection = komp2DataSource.getConnection()) {
 
 			try {
 				OntologyParserFactory ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
 				mpParser = ontologyParserFactory.getMpParser();
 				maParser = ontologyParserFactory.getMaParser();
 				mpHpParser = ontologyParserFactory.getMpHpParser();
+
 			} catch (OWLOntologyCreationException | OWLOntologyStorageException e) {
+
 				e.printStackTrace();
 			}
 
-            logger.info("Start Executing populateDcfMap " + LocalDateTime.now().format(ymdhms));
-            populateDcfMap();
-            logger.info(" Done executing populateDcfMap " + LocalDateTime.now().format(ymdhms));
+            logger.debug("Start Executing populateDcfMap " + LocalDateTime.now().format(YMD_HMS));
+            populateDcfMap(connection);
+            logger.debug(" Done executing populateDcfMap " + LocalDateTime.now().format(YMD_HMS));
 
-            logger.info("Start Executing populateMouseMv " + LocalDateTime.now().format(ymdhms));
-            populateMouseMv();
-            logger.info(" Done executing populateMouseMv " + LocalDateTime.now().format(ymdhms));
+            logger.debug("Start Executing populateMouseMv " + LocalDateTime.now().format(YMD_HMS));
+            populateMouseMv(connection);
+            logger.debug(" Done executing populateMouseMv " + LocalDateTime.now().format(YMD_HMS));
 
-            logger.info("Start Executing populateAlleleMpi " + LocalDateTime.now().format(ymdhms));
-            populateAlleleMpi();
-            logger.info(" Done executing populateAlleleMpi " + LocalDateTime.now().format(ymdhms));
+            logger.debug("Start Executing populateAlleleMpi " + LocalDateTime.now().format(YMD_HMS));
+            populateAlleleMpi(connection);
+            logger.debug(" Done executing populateAlleleMpi " + LocalDateTime.now().format(YMD_HMS));
 
-            logger.info("Start Executing populateSynonyms " + LocalDateTime.now().format(ymdhms));
-            populateSynonyms();
-            logger.info(" Done executing populateSynonyms " + LocalDateTime.now().format(ymdhms));
+            logger.debug("Start Executing populateSynonyms " + LocalDateTime.now().format(YMD_HMS));
+            populateSynonyms(connection);
+            logger.debug(" Done executing populateSynonyms " + LocalDateTime.now().format(YMD_HMS));
 
-            logger.info("Start Executing populateGenomicFeature2 " + LocalDateTime.now().format(ymdhms));
-            populateGenomicFeature2();
-            logger.info(" Done executing populateGenomicFeature2 " + LocalDateTime.now().format(ymdhms));
+            logger.debug("Start Executing populateGenomicFeature2 " + LocalDateTime.now().format(YMD_HMS));
+            populateGenomicFeature2(connection);
+            logger.debug(" Done executing populateGenomicFeature2 " + LocalDateTime.now().format(YMD_HMS));
 
-            logger.info("Start Executing populateExperiments " + LocalDateTime.now().format(ymdhms));
-            populateExperiments();
-            logger.info(" Done executing populateExperiments " + LocalDateTime.now().format(ymdhms));
+            logger.debug("Start Executing populateExperiments " + LocalDateTime.now().format(YMD_HMS));
+            populateExperiments(connection);
+            logger.debug(" Done executing populateExperiments " + LocalDateTime.now().format(YMD_HMS));
 
-            logger.info("Start Executing populateTAGS " + LocalDateTime.now().format(ymdhms));
-            populateTAGS();
-            logger.info(" Done executing populateTAGS " + LocalDateTime.now().format(ymdhms));
+            logger.debug("Start Executing populateTAGS " + LocalDateTime.now().format(YMD_HMS));
+            populateTAGS(connection);
+            logger.debug(" Done executing populateTAGS " + LocalDateTime.now().format(YMD_HMS));
 
-            logger.info("Start Executing populateAnnotations " + LocalDateTime.now().format(ymdhms));
-            populateAnnotations();
-            logger.info(" Done executing populateAnnotations " + LocalDateTime.now().format(ymdhms));
+            logger.debug("Start Executing populateAnnotations " + LocalDateTime.now().format(YMD_HMS));
+            populateAnnotations(connection);
+            logger.debug(" Done executing populateAnnotations " + LocalDateTime.now().format(YMD_HMS));
 
-            logger.info("Start Executing populateSubType " + LocalDateTime.now().format(ymdhms));
-            populateSubType();
-            logger.info(" Done executing populateSubType " + LocalDateTime.now().format(ymdhms));
+            logger.debug("Start Executing populateSubType " + LocalDateTime.now().format(YMD_HMS));
+            populateSubType(connection);
+            logger.debug(" Done executing populateSubType " + LocalDateTime.now().format(YMD_HMS));
 
-            logger.info("Start Executing populateAlleles " + LocalDateTime.now().format(ymdhms));
+            logger.debug("Start Executing populateAlleles " + LocalDateTime.now().format(YMD_HMS));
             populateAlleles();
-            logger.info(" Done executing populateAlleles " + LocalDateTime.now().format(ymdhms));
+            logger.debug(" Done executing populateAlleles " + LocalDateTime.now().format(YMD_HMS));
 
 
-            logger.info("Populating images core " + LocalDateTime.now().format(ymdhms));
-            count = populateSangerImagesCore(runStatus);
-            logger.info("Done Populating images core " + LocalDateTime.now().format(ymdhms));
+            logger.info("Populating images core " + LocalDateTime.now().format(YMD_HMS));
+            count = populateSangerImagesCore(connection, runStatus);
+            logger.info("Done Populating images core " + LocalDateTime.now().format(YMD_HMS));
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -161,7 +171,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 		return runStatus;
 	}
 
-	private int populateSangerImagesCore(RunStatus runStatus) throws IndexerException {
+	private int populateSangerImagesCore(Connection connection, RunStatus runStatus) throws IndexerException {
 
 		int count = 0;
         Set<String> noTopLevelSet = new HashSet<>();
@@ -170,7 +180,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 
         String query = "SELECT 'images' as dataType, IMA_IMAGE_RECORD.ID, FOREIGN_TABLE_NAME, FOREIGN_KEY_ID, ORIGINAL_FILE_NAME, CREATOR_ID, CREATED_DATE, EDITED_BY, EDIT_DATE, CHECK_NUMBER, FULL_RESOLUTION_FILE_PATH, SMALL_THUMBNAIL_FILE_PATH, LARGE_THUMBNAIL_FILE_PATH, SUBCONTEXT_ID, QC_STATUS_ID, PUBLISHED_STATUS_ID, o.name as institute, IMA_EXPERIMENT_DICT.ID as experiment_dict_id FROM IMA_IMAGE_RECORD, IMA_SUBCONTEXT, IMA_EXPERIMENT_DICT, organisation o  WHERE IMA_IMAGE_RECORD.organisation=o.id AND IMA_IMAGE_RECORD.subcontext_id=IMA_SUBCONTEXT.id AND IMA_SUBCONTEXT.experiment_dict_id=IMA_EXPERIMENT_DICT.id AND IMA_EXPERIMENT_DICT.name!='Mouse Necropsy' ";// and
 
-		try (PreparedStatement p = komp2DbConnection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,
+		try (PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,
 				java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
 			sangerImagesCore.deleteByQuery("*:*");
@@ -403,7 +413,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 
 				}
 
-				documentCount++;
+				expectedDocumentCount++;
 				sangerImagesCore.addBean(o, 10000);
 
 				count += 1;
@@ -438,13 +448,13 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 	 * @throws SQLException
 	 *             when a database exception occurs
 	 */
-	private void populateDcfMap() throws SQLException {
+	private void populateDcfMap(Connection connection) throws SQLException {
 
 		List<String> queries = new ArrayList<>();
 		queries.add("SELECT ir.id as id, DCF_ID, NAME, PROCEDURE_ID, EXPERIMENT_ID, MOUSE_ID FROM `IMA_DCF_IMAGE_VW` dcf, IMA_IMAGE_RECORD ir, PHN_STD_OPERATING_PROCEDURE stdOp WHERE dcf.id=ir.id and dcf.dcf_id=stdOp.id");
 		for (String query : queries) {
 
-			try (PreparedStatement p = komp2DbConnection.prepareStatement(query)) {
+			try (PreparedStatement p = connection.prepareStatement(query)) {
 
 				ResultSet resultSet = p.executeQuery();
 
@@ -466,11 +476,11 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 	/**
 	 * Populate the mouse view map from the sanger database tables
 	 */
-	private void populateMouseMv() {
+	private void populateMouseMv(Connection connection) {
 
 		String query = "select MOUSE_ID, AGE_IN_WEEKS, ALLELE, GENOTYPE, GENDER, COLONY_ID from IMPC_MOUSE_ALLELE_MV";
 
-		try (PreparedStatement p = komp2DbConnection.prepareStatement(query)) {
+		try (PreparedStatement p = connection.prepareStatement(query)) {
 			ResultSet resultSet = p.executeQuery();
 			while (resultSet.next()) {
 
@@ -488,11 +498,11 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 		}
 	}
 
-	private void populateAlleleMpi() {
+	private void populateAlleleMpi(Connection connection) {
 
 		String query = "select * from `allele`";
 
-		try (PreparedStatement p = komp2DbConnection.prepareStatement(query)) {
+		try (PreparedStatement p = connection.prepareStatement(query)) {
 
 			ResultSet resultSet = p.executeQuery();
 
@@ -511,11 +521,11 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 	/**
 	 * Populate the genomic Feature map
 	 */
-	private void populateGenomicFeature2() {
+	private void populateGenomicFeature2(Connection connection) {
 
 		String query = "SELECT * FROM genomic_feature";
 
-		try (PreparedStatement p = komp2DbConnection.prepareStatement(query)) {
+		try (PreparedStatement p = connection.prepareStatement(query)) {
 			ResultSet resultSet = p.executeQuery();
 
 			while (resultSet.next()) {
@@ -536,11 +546,11 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 	/**
 	 * Populate the experiment map from the Sanger tables
 	 */
-	private void populateExperiments() {
+	private void populateExperiments(Connection connection) {
 
 		String query = "select IMA_IMAGE_RECORD.ID, IMA_EXPERIMENT_DICT.NAME, IMA_EXPERIMENT_DICT.DESCRIPTION, concat(IMA_EXPERIMENT_DICT.NAME,'_exp') as expName_exp FROM IMA_EXPERIMENT_DICT, IMA_SUBCONTEXT, IMA_IMAGE_RECORD where IMA_SUBCONTEXT.ID=IMA_IMAGE_RECORD.SUBCONTEXT_ID and IMA_EXPERIMENT_DICT.ID=IMA_SUBCONTEXT.EXPERIMENT_DICT_ID";
 
-		try (PreparedStatement p = komp2DbConnection.prepareStatement(query)) {
+		try (PreparedStatement p = connection.prepareStatement(query)) {
 			ResultSet resultSet = p.executeQuery();
 			while (resultSet.next()) {
 				ExperimentDict exp = new ExperimentDict();
@@ -563,11 +573,11 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 	/**
 	 * Populate map with synonyms
 	 */
-	private void populateSynonyms() {
+	private void populateSynonyms(Connection connection) {
 
 		String query = "SELECT * FROM synonym";
 
-		try (PreparedStatement p = komp2DbConnection.prepareStatement(query)) {
+		try (PreparedStatement p = connection.prepareStatement(query)) {
 			ResultSet resultSet = p.executeQuery();
 			while (resultSet.next()) {
 				String accession = resultSet.getString("acc");
@@ -579,11 +589,11 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 		}
 	}
 
-	private void populateTAGS() {
+	private void populateTAGS(Connection connection) {
 
 		String query = "select * from IMA_IMAGE_TAG";
 
-		try (PreparedStatement p = komp2DbConnection.prepareStatement(query)) {
+		try (PreparedStatement p = connection.prepareStatement(query)) {
 
 			ResultSet resultSet = p.executeQuery();
 			while (resultSet.next()) {
@@ -606,11 +616,11 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 	/**
 	 * Populate the annotations map from the Sanger database tables
 	 */
-	private void populateAnnotations() {
+	private void populateAnnotations(Connection connection) {
 
 		String query = "select * from ANN_ANNOTATION  where FOREIGN_TABLE_NAME= 'IMA_IMAGE_TAG'";
 
-		try (PreparedStatement p = komp2DbConnection.prepareStatement(query)) {
+		try (PreparedStatement p = connection.prepareStatement(query)) {
 			ResultSet resultSet = p.executeQuery();
 			while (resultSet.next()) {
 				int id = resultSet.getInt("FOREIGN_KEY_ID");
@@ -640,8 +650,6 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		logger.debug(" Sanger image annotations map size = " + annotationsMap.size());
-
 	}
 
 	protected class Annotation {
@@ -659,14 +667,13 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 		int tagId;
 		String tagValue;
 		String tagName;
-
 	}
 
-	private void populateSubType() {
+	private void populateSubType(Connection connection) {
 
 		String query = "select  * from ontology_term";
 
-		try (PreparedStatement p = komp2DbConnection.prepareStatement(query)) {
+		try (PreparedStatement p = connection.prepareStatement(query)) {
 			ResultSet resultSet = p.executeQuery();
 
 			while (resultSet.next()) {
@@ -681,7 +688,6 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	protected class AlleleBean {
@@ -696,9 +702,9 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 	 */
 	protected class DcfBean {
 
-		String dcfId;
-		String dcfExpId;
-		String sangerProcedureName;
+		String  dcfId;
+		String  dcfExpId;
+		String  sangerProcedureName;
 		Integer sangerProcedureId;
 
 		@Override
@@ -712,22 +718,18 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 	protected class MouseBean {
 
 		Integer colonyId;
-		String sex;
-		String genotype;
+		String  sex;
+		String  genotype;
 		Integer mouseId;
-		String ageInWeeks;
-		String genotypeString;
+		String  ageInWeeks;
+		String  genotypeString;
 
 		@Override
 		public String toString() {
 
 			return "mouseId=" + mouseId + " " + ageInWeeks + " " + genotypeString;
 		}
-
 	}
-
-
-
 
 	// need allele core mappings for status etc
 	private void populateAlleles() throws IndexerException {
@@ -783,4 +785,8 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 		}
 	}
 
+	public static void main(String[] args) {
+		ConfigurableApplicationContext context = SpringApplication.run(SangerImagesIndexer.class, args);
+		context.close();
+	}
 }

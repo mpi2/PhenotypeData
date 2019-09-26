@@ -15,23 +15,26 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import org.apache.commons.lang.StringUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Controller
 public class PresentationsController {
@@ -114,8 +117,8 @@ public class PresentationsController {
 
 			for (int i = 0; i < sections.length(); i++) {
 
-				JSONObject thisSecObj = sections.getJSONObject(i);
-				Iterator<String> keys = thisSecObj.keys();
+				JSONObject       thisSecObj = sections.getJSONObject(i);
+				Iterator<String> keys       = thisSecObj.keys();
 				if( keys.hasNext() ){
 					String secName = (String)keys.next();
 					JSONArray valsetList = thisSecObj.getJSONArray(secName);

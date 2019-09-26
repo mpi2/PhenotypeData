@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,12 +36,17 @@ public class PhenotypeCenterProcedureCompletenessService {
 	private ImpressService impressService;
 	private PhenotypeCenterService phenotypeCenterService;
 
+	@Inject
 	public PhenotypeCenterProcedureCompletenessService(
 			PhenotypeCenterService phenotypeCenterService,
 			ImpressService impressService)
 	{
 		this.phenotypeCenterService = phenotypeCenterService;
 		this.impressService = impressService;
+	}
+
+	public PhenotypeCenterProcedureCompletenessService() {
+
 	}
 
 

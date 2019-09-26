@@ -16,23 +16,13 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,7 +32,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import net.sf.json.JSONArray;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.*;
 
 
 @Controller
@@ -59,7 +53,7 @@ public class GoTermController {
 			//@RequestParam(value = "subfacet", required = false) String subfacet,
 			HttpServletRequest request,
 			HttpServletResponse response,
-			Model model) throws IOException, URISyntaxException  {
+			Model model) throws IOException, URISyntaxException, JSONException {
 
 		Map<String, Map<String, Map<String, JSONArray>>> stats = solrIndex.getGO2ImpcGeneAnnotationStats();
 		return new ResponseEntity<String>(createTable(stats), createResponseHeaders(), HttpStatus.CREATED);
@@ -71,7 +65,7 @@ public class GoTermController {
 		return responseHeaders;
 	}
 
-	public String createTable(Map<String, Map<String, Map<String, JSONArray>>> stats){
+	public String createTable(Map<String, Map<String, Map<String, JSONArray>>> stats) throws JSONException {
 
 		StringBuilder builder = new StringBuilder();
 		String legend = "F = molecular function<br>P = biological process<br><div class='FP'>F or P</div><div class='F'>F</div><div class='P'>P</div>";
@@ -117,8 +111,8 @@ public class GoTermController {
     		        JSONArray evids = (JSONArray) pairs2.getValue();
     		        itd.remove(); // avoids a ConcurrentModificationException
 
-    				for ( int i = 0; i<evids.size(); i=i+2 ){
-    					int hasGoRowSpan= evids.size() / 2;
+    				for ( int i = 0; i<evids.length(); i=i+2 ){
+    					int hasGoRowSpan= evids.length() / 2;
     				    int noGoRowSpan = hasGoRowSpan + 1;
 
     				    String currCell = "";

@@ -36,7 +36,7 @@ public class Project implements Serializable {
 
 	@Id
 	@Column(name = "id")
-	private Integer id;
+	private Long id;
 
 	@Column(name = "name")
 	private String name;
@@ -52,7 +52,7 @@ public class Project implements Serializable {
 	 joinColumns = { @JoinColumn(name = "project_id")},
 	 inverseJoinColumns={@JoinColumn(name="organisation_id")}
 	  )
-	private Set<Organisation> participants = new HashSet<Organisation>();
+	private Set<Organisation> participants = new HashSet<>();
 
 	/**
 	 * @return the participants
@@ -68,14 +68,14 @@ public class Project implements Serializable {
 	/**
 	 * @return the id
 	 */
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
 
 	/**
 	 * @param id the id to set
 	 */
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

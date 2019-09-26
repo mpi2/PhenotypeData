@@ -16,27 +16,28 @@
 
 package org.mousephenotype.cda.indexers;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.mousephenotype.cda.db.dao.GwasDAO;
-import org.mousephenotype.cda.db.dao.GwasDTO;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.indexers.beans.AutosuggestBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.ConfigurableApplicationContext;
 
+import javax.inject.Inject;
+import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
@@ -44,50 +45,50 @@ import java.util.*;
 /**  
  * pdsimplify: This class references deprecated PhenodigmDTO
  */
+// Autocomplete is no longer a requirement in the newly skinned BZ PA app. Refactor this class if autocomplete becomes a requirement again.
+@Deprecated
 @EnableAutoConfiguration
 public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRunner {
 
-	private final Logger logger = LoggerFactory.getLogger(AutosuggestIndexer.class);
+    private final Logger logger              = LoggerFactory.getLogger(this.getClass());
+    private final int    MP_CORE_MAX_RESULTS = 350000;
 
-
-    @Autowired
-    @Qualifier("autosuggestCore")
-    private SolrClient autosuggestCore;
-
-    @Autowired
-    @Qualifier("allele2Core")
     private SolrClient allele2Core;
-
-    @Autowired
-    @Qualifier("geneCore")
-    private SolrClient geneCore;
-
-    @Autowired
-    @Qualifier("mpCore")
-    private SolrClient mpCore;
-
-    @Autowired
-    @Qualifier("anatomyCore")
     private SolrClient anatomyCore;
-
-    @Autowired
-    @Qualifier("pipelineCore")
+    private SolrClient autosuggestCore;
+    private SolrClient geneCore;
+    private SolrClient mpCore;
+    private SolrClient phenodigmCore;
     private SolrClient pipelineCore;
 
-	@Autowired
-	@Qualifier("phenodigmCore")
-	private SolrClient phenodigmCore;
 
-	@Autowired
-   	private GwasDAO gwasDao;
+    protected AutosuggestIndexer() {
+
+    }
+
+    @Inject
+    public AutosuggestIndexer(
+            @NotNull DataSource komp2DataSource,
+            @NotNull OntologyTermRepository ontologyTermRepository,
+            @NotNull SolrClient allele2Core,
+            @NotNull SolrClient anatomyCore,
+            @NotNull SolrClient autosuggestCore,
+            @NotNull SolrClient geneCore,
+            @NotNull SolrClient mpCore,
+            @NotNull SolrClient phenodigmCore,
+            @NotNull SolrClient pipelineCore) {
+        super(komp2DataSource, ontologyTermRepository);
+        this.allele2Core = allele2Core;
+        this.anatomyCore = anatomyCore;
+        this.autosuggestCore = autosuggestCore;
+        this.geneCore = geneCore;
+        this.mpCore = mpCore;
+        this.phenodigmCore = phenodigmCore;
+        this.pipelineCore = pipelineCore;
+    }
 
 
-    public static final long MIN_EXPECTED_ROWS = 218000;
-    //public static final int PHENODIGM_CORE_MAX_RESULTS = 350000;
-    public static final int MP_CORE_MAX_RESULTS = 350000;
-
-
-    // Sets used to insure uniqueness when loading core components.
+// Sets used to insure uniqueness when loading core components.
 
     // gene
     Set<String> mgiAccessionIdSet = new HashSet();
@@ -166,7 +167,6 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
     }
 
 
-
     @Override
     public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
         RunStatus runStatus = new RunStatus();
@@ -193,7 +193,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             throw new IndexerException(e);
         }
 
-        logger.info(" Added {} total beans in {}", documentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info(" Added {} total beans in {}", expectedDocumentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
         return runStatus;
     }
 
@@ -282,7 +282,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             }
 
             if ( ! beans.isEmpty()) {
-                documentCount += beans.size();
+                expectedDocumentCount += beans.size();
                 autosuggestCore.addBeans(beans, 60000);
             }
 
@@ -321,7 +321,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             beans.add(a);
         }
         if ( ! beans.isEmpty()) {
-            documentCount += beans.size();
+            expectedDocumentCount += beans.size();
             autosuggestCore.addBeans(beans, 60000);
         }
     }
@@ -607,7 +607,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             }
 
             if ( ! beans.isEmpty()) {
-                documentCount += beans.size();
+                expectedDocumentCount += beans.size();
                 autosuggestCore.addBeans(beans, 60000);
             }
 
@@ -666,7 +666,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             }
 
             if ( ! beans.isEmpty()) {
-                documentCount += beans.size();
+                expectedDocumentCount += beans.size();
                 autosuggestCore.addBeans(beans, 60000);
             }
 
@@ -908,7 +908,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             }
 
             if ( ! beans.isEmpty()) {
-                documentCount += beans.size();
+                expectedDocumentCount += beans.size();
                 autosuggestCore.addBeans(beans, 60000);
             }
         }
@@ -1019,7 +1019,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             }
 
             if ( ! beans.isEmpty()) {
-                documentCount += beans.size();
+                expectedDocumentCount += beans.size();
                 autosuggestCore.addBeans(beans, 60000);
             }
 
@@ -1096,247 +1096,14 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
             }
 
             if ( ! beans.isEmpty()) {
-                documentCount += beans.size();
+                expectedDocumentCount += beans.size();
                 autosuggestCore.addBeans(beans, 60000);
             }
         }
     }
 
-//    private void populateHpAutosuggestTerms() throws SolrServerException, IOException {
-//        // using old phenodigm - need to update this when new phenodigm has hp-mp apping
-//
-//        List<String> hpFields = Arrays.asList(HpDTO.MP_ID, HpDTO.MP_TERM, HpDTO.HP_ID, HpDTO.HP_TERM, HpDTO.HP_SYNONYM);
-//
-//        SolrQuery query = new SolrQuery()
-//                .setQuery("*:*")
-//                .setFields(StringUtils.join(hpFields, ","))
-//                .addFilterQuery("type:hp_mp")
-//                .setRows(PHENODIGM_CORE_MAX_RESULTS);
-//
-//        List<HpDTO> hps = phenodigmCore.query(query).getBeans(HpDTO.class);
-//        for (HpDTO hp : hps) {
-//
-//            Set<AutosuggestBean> beans = new HashSet<>();
-//            for (String field : hpFields) {
-//
-//                AutosuggestBean a = new AutosuggestBean();
-//                String docType = "hp";
-//                a.setDocType(docType);
-//
-//                switch (field) {
-//                    case HpDTO.HP_ID:
-//                        mapKey = hp.getHpId();
-//                        if (hpIdSet.add(mapKey)) {
-//                            a.setHpId(hp.getHpId());
-//                            a.setHpmpId(hp.getMpId());
-//                            a.setHpmpTerm(hp.getMpTerm());
-//                            beans.add(a);
-//                        }
-//                        break;
-//                    case HpDTO.HP_TERM:
-//                        mapKey = hp.getHpTerm();
-//                        if (hpTermSet.add(mapKey)) {
-//                            a.setHpTerm(hp.getHpTerm());
-//                            a.setHpmpId(hp.getMpId());
-//                            a.setHpmpTerm(hp.getMpTerm());
-//                            beans.add(a);
-//                        }
-//                        break;
-//                    case HpDTO.HP_SYNONYM:
-//                        if (hp.getHpSynonym() != null) {
-//                            for (String s : hp.getHpSynonym()) {
-//                                mapKey = s;
-//                                if (hpTermSynonymSet.add(mapKey)) {
-//                                    AutosuggestBean asyn = new AutosuggestBean();
-//                                    asyn.setDocType(docType);
-//                                    asyn.setHpTermSynonym(s);
-//                                    asyn.setHpmpId(hp.getMpId());
-//                                    asyn.setHpmpTerm(hp.getMpTerm());
-//                                    beans.add(asyn);
-//                                }
-//                            }
-//                        }
-//                        break;
-//                }
-//            }
-//
-//            if ( ! beans.isEmpty()) {
-//                documentCount += beans.size();
-//                autosuggestCore.addBeans(beans, 60000);
-//            }
-//        }
-//    }
-
-    private void populateGwasAutosuggestTerms() throws SolrServerException, IOException, SQLException {
-
-        List<String> gwasFields = Arrays.asList(
-        		GwasDTO.MGI_GENE_ID,
-        		GwasDTO.MGI_GENE_SYMBOL,
-        		GwasDTO.MP_TERM_ID,
-        		GwasDTO.MP_TERM_NAME,
-        		GwasDTO.DISEASE_TRAIT,
-        		GwasDTO.SNP_ID,
-        		GwasDTO.REPORTED_GENE,
-        		GwasDTO.MAPPED_GENE,
-        		GwasDTO.UPSTREAM_GENE,
-        		GwasDTO.DOWNSTREAM_GENE
-                );
-
-        List<GwasDTO> gwasMappings = gwasDao.getGwasMappingRows();
-
-        for (GwasDTO gw : gwasMappings) {
-
-        	Set<AutosuggestBean> beans = new HashSet<>();
-            for (String field : gwasFields) {
-
-                AutosuggestBean a = new AutosuggestBean();
-                a.setDocType("gwas");
-
-                switch (field) {
-                	case GwasDTO.MGI_GENE_ID:
-                		mapKey = gw.getMgiGeneId();
-                		if (gwasMgiGeneIdSet.add(mapKey)) {
-	                        a.setGwasMgiGeneId(mapKey);
-	                        beans.add(a);
-	                    }
-	                    break;
-                    case GwasDTO.MGI_GENE_SYMBOL:
-                        mapKey = gw.getMgiGeneSymbol();
-                        if (gwasMgiGeneSymbolSet.add(mapKey)) {
-                            a.setGwasMgiGeneSymbol(mapKey);
-                            beans.add(a);
-                        }
-                        break;
-                    case GwasDTO.MP_TERM_ID:
-                    	mapKey = gw.getMpTermId();
-                        if (gwasMpIdSet.add(mapKey)) {
-                            a.setGwasMpTermId(mapKey);
-                            beans.add(a);
-                        }
-                        break;
-                    case GwasDTO.MP_TERM_NAME:
-                    	mapKey = gw.getMpTermName();
-                        if (gwasMpTermSet.add(mapKey)) {
-                            a.setGwasMpTermName(mapKey);
-                            beans.add(a);
-                        }
-                        break;
-                    case GwasDTO.DISEASE_TRAIT:
-                        mapKey = gw.getDiseaseTrait();
-                        if (gwasTraitSet.add(mapKey)) {
-                            a.setGwasDiseaseTrait(mapKey);
-                            beans.add(a);
-                        }
-                        break;
-                    case GwasDTO.SNP_ID:
-                    	mapKey = gw.getSnpId();
-                        if (gwasSnipIdSet.add(mapKey)) {
-                            a.setGwasSnpId(mapKey);
-                            beans.add(a);
-                        }
-                        break;
-                    case GwasDTO.REPORTED_GENE:
-                        if ( !gw.getReportedGene().isEmpty()) {
-                        	mapKey = gw.getReportedGene();
-                            if (gwasReportedGeneSymbolSet.add(mapKey)) {
-                            	a.setGwasReportedGene(mapKey);
-                                beans.add(a);
-                            }
-                        }
-                        break;
-
-                    case GwasDTO.MAPPED_GENE:
-                    	if ( !gw.getMappedGene().isEmpty()) {
-	                    	mapKey = gw.getMappedGene();
-	                        if (gwasMappedGeneSymbolSet.add(mapKey)) {
-	                        	a.setGwasMappedGene(mapKey);
-	                            beans.add(a);
-	                        }
-                    	}
-                    	break;
-
-                    case GwasDTO.DOWNSTREAM_GENE:
-                    	if ( !gw.getDownstreamGene().isEmpty()) {
-	                    	mapKey = gw.getDownstreamGene();
-	                        if (gwasDownstreamGeneSymbolSet.add(mapKey)) {
-	                        	a.setGwasDownstreamGene(mapKey);
-	                            beans.add(a);
-	                        }
-                    	}
-                    	break;
-                    case GwasDTO.UPSTREAM_GENE:
-                    	if ( !gw.getUpstreamGene().isEmpty()) {
-	                    	mapKey = gw.getUpstreamGene();
-	                        if (gwasUpstreamGeneSymbolSet.add(mapKey)) {
-	                        	a.setGwasUpstreamGene(mapKey);
- 	                            beans.add(a);
-	                        }
-                    	}
-                    	break;
-                }
-            }
-
-            if ( ! beans.isEmpty()) {
-                documentCount += beans.size();
-                autosuggestCore.addBeans(beans, 60000);
-            }
-        }
-    }
-
-//    private void populateHpAutosuggestTerms() throws SolrServerException, IOException {
-//
-//        List<String> hpFields = Arrays.asList(HpDTO.MP_ID, HpDTO.MP_TERM, HpDTO.HP_ID, HpDTO.HP_TERM, HpDTO.HP_SYNONYM);
-//
-//        SolrQuery query = new SolrQuery()
-//            .setQuery("*:*")
-//            .setFields(StringUtils.join(hpFields, ","))
-//            .addFilterQuery("type:hp_mp")
-//            .setRows(PHENODIGM_CORE_MAX_RESULTS);
-//
-//        QueryResponse r = phenodigmCore.query(query);
-//        List<HpDTO> hps = phenodigmCore.query(query).getBeans(HpDTO.class);
-//
-//        for (HpDTO hp : hps) {
-//
-//            Set<AutosuggestBean> beans = new HashSet<>();
-//
-//            if (hp.getHpSynonym() != null) {
-//                for (String s : hp.getHpSynonym()) {
-//                    mapKey = s;
-//
-//                    if (hpTermSynonymSet.add(mapKey)) {
-//                        AutosuggestBean asyn = new AutosuggestBean();
-//                        asyn.setDocType("hp");
-//                        asyn.setHpId(hp.getHpId());
-//                        asyn.setHpTerm(hp.getHpTerm());
-//                        asyn.setHpSynonym(s);
-//                        asyn.setHpmpId(hp.getMpId());
-//                        asyn.setHpmpTerm(hp.getMpTerm());
-//
-//                        beans.add(asyn);
-//                    }
-//                }
-//            }
-//            else {
-//                if (hpIdSet.add(mapKey)) {
-//                    AutosuggestBean a = new AutosuggestBean();
-//                    a.setDocType("hp");
-//                    a.setHpId(hp.getHpId());
-//                    a.setHpTerm(hp.getHpTerm());
-//                    a.setHpmpId(hp.getMpId());
-//                    a.setHpmpTerm(hp.getMpTerm());
-//                    beans.add(a);
-//                }
-//            }
-//
-//            if ( ! beans.isEmpty()) {
-//                documentCount += beans.size();
-//                autosuggestCore.addBeans(beans, 60000);
-//            }
-//        }
-//    }
-
-    public static void main(String[] args) throws IndexerException, SQLException {
-        SpringApplication.run(AutosuggestIndexer.class, args);
+    public static void main(String[] args) {
+        ConfigurableApplicationContext context = SpringApplication.run(AutosuggestIndexer.class, args);
+        context.close();
     }
 }

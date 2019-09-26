@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.beans.Field;
 import org.mousephenotype.cda.enumerations.ObservationType;
 
@@ -229,7 +229,7 @@ public class ObservationDTO extends ObservationDTOBase {
      * @return the dateOfExperiment
      */
     public Date getDateOfExperiment() {
-	    //        return dateOfExperiment;
+
     	if(dateOfExperiment==null){
     		return null;
     	}
@@ -252,7 +252,7 @@ public class ObservationDTO extends ObservationDTOBase {
      * @return the dateOfBirth
      */
     public Date getDateOfBirth() {
-//        return dateOfBirth;
+
     	if(dateOfBirth==null){
     		return null;
     	}
@@ -281,8 +281,6 @@ public class ObservationDTO extends ObservationDTOBase {
 		    zdt = weightDate.toInstant().atZone(ZoneId.of(TimeZone.getDefault().getID()));
 	    }
 	    return Date.from(zdt.toLocalDateTime().toInstant(ZoneOffset.ofHours(0)));
-
-//        return weightDate;
     }
 
 
@@ -290,6 +288,4 @@ public class ObservationDTO extends ObservationDTOBase {
 
         this.weightDate = weightDate;
     }
-
-
 }

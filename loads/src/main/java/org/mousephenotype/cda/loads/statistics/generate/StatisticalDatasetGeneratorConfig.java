@@ -21,31 +21,25 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 
 import javax.validation.constraints.NotNull;
 
 @Configuration
-@PropertySource(value="file:${user.home}/configfiles/${profile:dev}/datarelease.properties")
 public class StatisticalDatasetGeneratorConfig {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @NotNull
-    @Value("${solr.host}")
-    private String solrBaseUrl;
+    @Value("${internal_solr_url}")
+    private String internalSolrUrl;
 
     @Bean(name = "experimentCore")
     HttpSolrClient getExperimentCore() {
-        return new HttpSolrClient(solrBaseUrl + "/experiment");
+        return new HttpSolrClient.Builder(internalSolrUrl + "/experiment").build();
     }
 
     //Pipeline
     @Bean(name = "pipelineCore")
     HttpSolrClient getPipelineCore() {
-        return new HttpSolrClient(solrBaseUrl + "/pipeline");
+        return new HttpSolrClient.Builder(internalSolrUrl + "/pipeline").build();
     }
-
-
-
 }

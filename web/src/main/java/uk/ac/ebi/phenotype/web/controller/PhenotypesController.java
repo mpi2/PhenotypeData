@@ -16,9 +16,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.common.SolrDocumentList;
@@ -37,7 +35,9 @@ import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -73,21 +73,18 @@ public class PhenotypesController {
     
     @Autowired
     private ImagesSolrDao imagesSummaryHelper;
-
-    @Autowired
-    SolrIndex solrIndex;
     
     @Autowired
-    StatisticalResultService srService;
+    StatisticalResultService statisticalResultService;
+
     @Autowired
-	@Qualifier("postqcService")
-    PostQcService gpService;
+    GenotypePhenotypeService genotypePhenotypeService;
 
     @Autowired
     MpService mpService;
 
     @Autowired
-    ObservationService os;
+    ObservationService observationService;
 
     @Autowired
     ImpressService impressService;
@@ -135,7 +132,7 @@ public class PhenotypesController {
      */
     @RequestMapping(value = "/phenotypes/{phenotypeId}", method = RequestMethod.GET)
     public String loadMpPage(   @PathVariable String phenotypeId,  Model model, HttpServletRequest request, RedirectAttributes attributes)
-    throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
+    throws IOException, URISyntaxException, SolrServerException, JSONException {
     	
     	// Check whether the MP term exists
     	MpDTO mpTerm = mpService.getPhenotype(phenotypeId);
@@ -169,7 +166,7 @@ public class PhenotypesController {
 
 	    model.addAttribute("parametersAssociated", getParameters(phenotypeId));
 
-	    model.addAttribute("genePercentage", ControllerUtils.getPercentages(phenotypeId, srService, gpService));
+	    model.addAttribute("genePercentage", ControllerUtils.getPercentages(phenotypeId, statisticalResultService, genotypePhenotypeService));
 
         // Stuff for parent-child display
         model.addAttribute("hasChildren", mpService.getChildren(phenotypeId).size() > 0 ? true : false);
@@ -299,7 +296,7 @@ public class PhenotypesController {
             Model model,
             HttpServletRequest request,
             RedirectAttributes attributes) 
-    throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
+    throws URISyntaxException, JSONException, IOException, SolrServerException {
         
         // Associations table and filters
         PhenotypeFacetResult phenoResult = phenotypeSummaryHelper.getPhenotypeCallByMPAccessionAndFilter(acc,  procedureName, markerSymbol, mpTermName);
@@ -309,7 +306,6 @@ public class PhenotypesController {
         return "geneVariantsWithPhenotypeTable";
     }
 
-    
     /**
      * @author ilinca
      * @since 2016/05/05
@@ -329,7 +325,7 @@ public class PhenotypesController {
             HttpServletRequest request,
 			HttpServletResponse response,
             RedirectAttributes attributes) 
-    throws IOException, URISyntaxException, SolrServerException {
+    throws IOException, URISyntaxException, SolrServerException, JSONException {
             
         PhenotypeFacetResult phenoResult = phenotypeSummaryHelper.getPhenotypeCallByMPAccessionAndFilter(acc, procedureName, markerSymbol, mpTermName);
         List<PhenotypeCallSummaryDTO> phenotypeList = phenoResult.getPhenotypeCallSummaries();
@@ -381,44 +377,36 @@ public class PhenotypesController {
      */
     @RequestMapping(value="/mpTree/json/{mpId}", method=RequestMethod.GET)	
     public @ResponseBody String getParentChildren( @PathVariable String mpId, @RequestParam(value = "type", required = true) String type, Model model) 
-    throws SolrServerException, IOException , URISyntaxException {
+    throws SolrServerException, IOException , JSONException {
     	
     	if (type.equals("parents")){
     	
 	    	JSONObject data = new JSONObject();
-	    	data.element("id", mpId);
+	    	data.put("id", mpId);
 	    	JSONArray nodes = new JSONArray();
 	    
 	    	for (OntologyBean term : mpService.getParents(mpId)){
-	    		nodes.add(term.toJson());
+	    		nodes.put(term.toJson());
 	    	}
 
-	    	data.element("children", nodes);
+	    	data.put("children", nodes);
 			return data.toString();
 			
     	} else if (type.equals("children")){
     		
     		JSONObject data = new JSONObject();
-        	data.element("id", mpId);
+        	data.put("id", mpId);
         	JSONArray nodes = new JSONArray();
 
         	for (OntologyBean term : mpService.getChildren(mpId)){
-	    		nodes.add(term.toJson());
+	    		nodes.put(term.toJson());
 	    	}
         	
-        	data.element("children", nodes);
+        	data.put("children", nodes);
     		return data.toString();
     	}
     	return "";
     }
-        
-    
-    public JSONObject getJsonObj(String name, String type){
-    	return new JSONObject().element("name", name).element(type, true);
-    }
-    
-    
-
 
     /**
      *
@@ -430,7 +418,7 @@ public class PhenotypesController {
     public List<ParameterDTO> getParameters(String mpId) 
     throws SolrServerException, IOException {
     
-    	List<String> parameters = srService.getParametersForPhenotype(mpId);
+    	List<String> parameters = statisticalResultService.getParametersForPhenotype(mpId);
     	List<ParameterDTO> res =  new ArrayList<>();
     	
     	for (String parameterStableId : parameters){

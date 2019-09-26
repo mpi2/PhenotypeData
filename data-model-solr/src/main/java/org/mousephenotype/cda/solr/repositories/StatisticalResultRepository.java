@@ -13,6 +13,4 @@ public interface StatisticalResultRepository extends SolrCrudRepository<Statisti
 	List<StatisticalResultDTO> findByParameterStableId(String stableId);
 	List<StatisticalResultDTO> findByMarkerAccessionIdAndParameterStableIdAndProcedureStableIdAndPhenotypeSexInAndMpTermIdOptionsIn(String markerAccessionId, String parameterStableId, String procedureStableId, String Sex, String mpTermId);
 	List<StatisticalResultDTO> findByMarkerAccessionIdAndParameterStableIdAndProcedureStableIdAndMpTermId(String markerAccessionId, String parameterStableId, String procedureStableId, String mpTermId);
-
-
 }

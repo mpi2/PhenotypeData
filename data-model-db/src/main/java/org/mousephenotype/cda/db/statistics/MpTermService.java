@@ -2,19 +2,16 @@ package org.mousephenotype.cda.db.statistics;
 
 import org.apache.commons.collections4.keyvalue.MultiKey;
 import org.apache.commons.collections4.map.MultiKeyMap;
-import org.mousephenotype.cda.db.dao.OntologyTermDAO;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.pojo.OntologyTerm;
-import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.db.pojo.ParameterOntologyAnnotation;
-import org.mousephenotype.cda.db.pojo.PhenotypeAnnotationType;
+import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
+import org.mousephenotype.cda.db.repositories.ParameterRepository;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -36,18 +33,19 @@ public class MpTermService {
     // 0.05 threshold per West, Welch and Galecki (see PhenStat documentation)
     private static final float BASE_SIGNIFICANCE_THRESHOLD = 0.05f;
 
-    private OntologyTermDAO ontologyTermDAO;
-    private PhenotypePipelineDAO ppDAO;
+    private OntologyTermRepository ontologyTermRepository;
+    private ParameterRepository parameterRepository;
 
 	@Inject
-    public MpTermService(OntologyTermDAO ontologyTermDAO, PhenotypePipelineDAO ppDAO) {
-		Assert.notNull(ontologyTermDAO, "OntologyTermDAO must not be null");
-		Assert.notNull(ppDAO, "PhenotypePipelineDAO must not be null");
-        this.ontologyTermDAO = ontologyTermDAO;
-        this.ppDAO = ppDAO;
+    public MpTermService(
+            @NotNull OntologyTermRepository ontologyTermRepository,
+            @NotNull ParameterRepository parameterRepository)
+    {
+		this.ontologyTermRepository = ontologyTermRepository;
+		this.parameterRepository = parameterRepository;
     }
 
-    public Map<String, OntologyTerm> getAllOptionsForParameter(Connection connection, OntologyTermDAO ontologyTermDAO, Parameter parameter, PhenotypeAnnotationType associationType) throws SQLException {
+    public Map<String, OntologyTerm> getAllOptionsForParameter(Connection connection, OntologyTermRepository ontologyTermRepository, Parameter parameter, PhenotypeAnnotationType associationType) throws SQLException {
 
         Map<String, OntologyTerm> categoryToTerm = new HashMap<>();
 
@@ -62,11 +60,11 @@ public class MpTermService {
             + "AND event_type=?";
 
         try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setInt(1, parameter.getId());
+            statement.setLong(1, parameter.getId());
             statement.setString(2, associationType.name());
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                categoryToTerm.put(resultSet.getString("name"), ontologyTermDAO.getOntologyTermByAccession(resultSet.getString("ontology_acc")));
+                categoryToTerm.put(resultSet.getString("name"), ontologyTermRepository.getByAccAndShortName(resultSet.getString("ontology_acc"), Datasource.MP));
             }
         }
 
@@ -90,13 +88,13 @@ public class MpTermService {
      * @param parameterStableId the parameter stable ID in question
      * @return map of the associated directions to their MP terms
      */
-    public MultiKeyMap getAnnotationTypeMap(String parameterStableId, Connection connection, OntologyTermDAO ontologyTermDAO) throws SQLException {
+    public MultiKeyMap getAnnotationTypeMap(String parameterStableId, Connection connection, OntologyTermRepository ontologyTermRepository, ParameterRepository parameterRepository) throws SQLException {
 
         if (parameterCache.containsKey(parameterStableId)) {
             return parameterCache.get(parameterStableId);
         }
 
-        Parameter parameter = ppDAO.getParameterByStableId(parameterStableId);
+        Parameter parameter = parameterRepository.getByStableId(parameterStableId);
         MultiKeyMap multiKeyMap = new MultiKeyMap();
 
         synchronized (this) {
@@ -129,23 +127,19 @@ public class MpTermService {
 
                         if (a.getOption() != null) {
 
-                            Map<String, OntologyTerm> categoryToTerm = getAllOptionsForParameter(connection, ontologyTermDAO, parameter, a.getType());
+                            Map<String, OntologyTerm> categoryToTerm = getAllOptionsForParameter(connection, ontologyTermRepository, parameter, a.getType());
                             for (String category : categoryToTerm.keySet()) {
                                 multiKeyMap.put(a.getType(), category, sex, categoryToTerm.get(category));
                             }
 
                         } else {
 
-                            OntologyTerm term = ontologyTermDAO.getOntologyTermByAccession(resultSet.getString("ontology_acc"));
+                            OntologyTerm term = ontologyTermRepository.getByAccAndShortName(resultSet.getString("ontology_acc"), Datasource.MP);
                             // Parameters without options get stored with an empty string placeholder
                             multiKeyMap.put(a.getType(), "", sex, term);
-
                         }
-
                     }
                 }
-
-
             }
 
             parameterCache.put(parameterStableId, multiKeyMap);
@@ -168,7 +162,7 @@ public class MpTermService {
 		    initializeSexSpecificMap(connection);
 	    }
 
-        MultiKeyMap annotations = getAnnotationTypeMap(parameterStableId, connection, ontologyTermDAO);
+        MultiKeyMap annotations = getAnnotationTypeMap(parameterStableId, connection, ontologyTermRepository, parameterRepository);
 	    logger.debug("Annotation type map for {} is {}", parameterStableId, annotations);
 
 	    // Categorical result
@@ -469,7 +463,7 @@ public class MpTermService {
      */
     public OntologyTerm getAbnormalMPTerm(String parameterStableId, ResultDTO res, Connection connection, float SIGNIFICANCE_THRESHOLD) throws SQLException {
 
-        MultiKeyMap annotations = getAnnotationTypeMap(parameterStableId, connection, ontologyTermDAO);
+        MultiKeyMap annotations = getAnnotationTypeMap(parameterStableId, connection, ontologyTermRepository, parameterRepository);
 
         if (res.getCategoryA() != null) {
 
@@ -499,7 +493,7 @@ public class MpTermService {
     }
 
 	public OntologyTerm getMPTerm(String ontologyTermId) throws SQLException {
-		return ontologyTermDAO.getOntologyTermByAccession(ontologyTermId);
-	}
 
+        return ontologyTermRepository.getByAccAndShortName(ontologyTermId, Datasource.MP);
+	}
 }

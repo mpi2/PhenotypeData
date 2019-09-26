@@ -39,7 +39,7 @@ public class BiologicalSample implements Serializable {
 
 	public BiologicalSample(
 		  String stableId
-		, int dbId
+		, long dbId
 		, String group
 		, OntologyTerm sampleType
 		, Organisation phenotypingCenter
@@ -68,7 +68,7 @@ public class BiologicalSample implements Serializable {
 	@Id
 	@GeneratedValue(strategy= GenerationType.IDENTITY)
 	@Column(name = "id")
-	private Integer id;
+	private Long id;
 
 	@Column(name = "external_id")
 	private String stableId;
@@ -131,14 +131,14 @@ public class BiologicalSample implements Serializable {
 	/**
 	 * @return the id
 	 */
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
 
 	/**
 	 * @param id the id to set
 	 */
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

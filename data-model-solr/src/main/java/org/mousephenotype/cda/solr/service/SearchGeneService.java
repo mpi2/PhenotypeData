@@ -5,13 +5,11 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.omg.PortableInterceptor.DISCARDING;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotNull;
+import javax.inject.Inject;
 import java.io.IOException;
 
 /**
@@ -25,7 +23,18 @@ public class SearchGeneService {
 
     @Autowired
     @Qualifier("geneCore")
-    private SolrClient solr;
+    private SolrClient geneCore;
+
+
+    @Inject
+    public SearchGeneService(SolrClient geneCore) {
+        this.geneCore = geneCore;
+    }
+
+    public SearchGeneService() {
+
+    }
+
 
     /**
      * Return all genes from the gene core filtered by keyword
@@ -54,7 +63,7 @@ public class SearchGeneService {
         query.setStart(start);
         query.setRows(rows);
 
-        return solr.query(query);
+        return geneCore.query(query);
     }
 
 
@@ -69,7 +78,6 @@ public class SearchGeneService {
         query.setSort("score", SolrQuery.ORDER.desc);
         query.add("defType", "edismax");
 
-        return solr.query(query);
+        return geneCore.query(query);
     }
-
 }
