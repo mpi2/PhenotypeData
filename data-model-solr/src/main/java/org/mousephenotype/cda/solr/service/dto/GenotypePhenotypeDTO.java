@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@SolrDocument(solrCoreName = "genotype-phenotype")
+@SolrDocument(collection = "genotype-phenotype")
 public class GenotypePhenotypeDTO {
 
     public static final String ID = "doc_id";

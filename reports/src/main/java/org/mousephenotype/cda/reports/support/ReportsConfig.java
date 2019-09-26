@@ -41,6 +41,7 @@ public class ReportsConfig {
 	private GenesSecondaryProjectRepository genesSecondaryProjectRepository;
 	private ImpressService                  impressService;
 	private OrganisationRepository          organisationRepository;
+	private ParameterRepository				parameterRepository;
 	private PipelineRepository              pipelineRepository;
 
 	@Inject
@@ -50,13 +51,14 @@ public class ReportsConfig {
 			@NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository,
 			@NotNull ImpressService impressService,
 			@NotNull OrganisationRepository organisationRepository,
-			@NotNull PipelineRepository pipelineRepository)
+			@NotNull ParameterRepository parameterRepository, @NotNull PipelineRepository pipelineRepository)
 	{
 		this.biologicalModelRepository = biologicalModelRepository;
 		this.datasourceRepository = datasourceRepository;
 		this.genesSecondaryProjectRepository = genesSecondaryProjectRepository;
 		this.impressService = impressService;
 		this.organisationRepository = organisationRepository;
+		this.parameterRepository = parameterRepository;
 		this.pipelineRepository = pipelineRepository;
 	}
 	
@@ -350,6 +352,7 @@ public class ReportsConfig {
 				biologicalModelRepository,
 				datasourceRepository,
 				organisationRepository,
+				parameterRepository,
 				pipelineRepository,
 				statisticalResultCore());
 	}
