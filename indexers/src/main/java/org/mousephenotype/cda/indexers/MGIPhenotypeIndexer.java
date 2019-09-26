@@ -158,7 +158,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
                 // MP association
                 if ( r.getString("ontology_term_id").startsWith("MP:") ) {
                     // some hard-coded stuff
-                    doc.setOntologyDbId(5);
+                    doc.setOntologyDbId(5L);
 
                     String mpId = r.getString("ontology_term_id");
                     doc.setMpTermId(mpId);
@@ -177,7 +177,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
                 // MPATH association
                 else if ( r.getString("ontology_term_id").startsWith("MPATH:") ){
                     // some hard-coded stuff
-                    doc.setOntologyDbId(24);
+                    doc.setOntologyDbId(24L);
 
                     doc.setMpathTermId(r.getString("ontology_term_id"));
                     doc.setMpathTermName(r.getString("ontology_term_name"));
@@ -186,7 +186,7 @@ public class MGIPhenotypeIndexer extends AbstractIndexer implements CommandLineR
                 // EMAP association
                 else if ( r.getString("ontology_term_id").startsWith("EMAP:") ){
                     // some hard-coded stuff
-                    doc.setOntologyDbId(14);
+                    doc.setOntologyDbId(14L);
 
                     doc.setMpathTermId(r.getString("ontology_term_id"));
                     doc.setMpathTermName(r.getString("ontology_term_name"));
