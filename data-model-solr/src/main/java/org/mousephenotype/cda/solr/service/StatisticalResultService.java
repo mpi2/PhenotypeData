@@ -80,6 +80,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 			@NotNull BiologicalModelRepository biologicalModelRepository,
 			@NotNull DatasourceRepository datasourceRepository,
 			@NotNull OrganisationRepository organisationRepository,
+			@NotNull ParameterRepository parameterRepository,
 			@NotNull PipelineRepository pipelineRepository,
 			@NotNull SolrClient statisticalResultCore)
 	{
@@ -87,6 +88,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 		this.biologicalModelRepository = biologicalModelRepository;
 		this.datasourceRepository = datasourceRepository;
 		this.organisationRepository = organisationRepository;
+		this.parameterRepository= parameterRepository;
 		this.pipelineRepository = pipelineRepository;
 		this.statisticalResultCore = statisticalResultCore;
 	}
