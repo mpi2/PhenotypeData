@@ -86,7 +86,7 @@ public class GenotypePhenotypeDTO {
     String id;
 
     @Field(ONTOLOGY_DB_ID)
-    Integer ontologyDbId;
+    Long ontologyDbId;
 
     @Field(ASSERTION_TYPE)
     String assertionType;
@@ -248,11 +248,11 @@ public class GenotypePhenotypeDTO {
         this.id = id;
     }
 
-    public Integer getOntologyDbId() {
+    public Long getOntologyDbId() {
         return ontologyDbId;
     }
 
-    public void setOntologyDbId(Integer ontologyDbId) {
+    public void setOntologyDbId(Long ontologyDbId) {
         this.ontologyDbId = ontologyDbId;
     }
 

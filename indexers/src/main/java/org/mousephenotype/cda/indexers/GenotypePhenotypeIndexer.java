@@ -261,7 +261,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 // MP association
                 if (r.getString("ontology_term_id").startsWith("MP:")) {
                     // some hard-coded stuff
-                    doc.setOntologyDbId(5);
+                    doc.setOntologyDbId(5L);
 
                     if (doc.getP_value() != null) {
                         doc.setAssertionType("automatic");
@@ -335,7 +335,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 // MPATH association
                 else if (r.getString("ontology_term_id").startsWith("MPATH:")) {
                     // some hard-coded stuff
-                    doc.setOntologyDbId(24);
+                    doc.setOntologyDbId(24L);
                     doc.setAssertionType("manual");
                     doc.setAssertionTypeId("ECO:0000218");
 
@@ -346,7 +346,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 // EMAP association
                 else if (r.getString("ontology_term_id").startsWith("EMAP:")) {
                     // some hard-coded stuff
-                    doc.setOntologyDbId(14);
+                    doc.setOntologyDbId(14L);
                     doc.setAssertionType("manual");
                     doc.setAssertionTypeId("ECO:0000218");
 
