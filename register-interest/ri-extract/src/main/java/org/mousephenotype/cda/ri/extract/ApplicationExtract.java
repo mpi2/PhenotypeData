@@ -56,7 +56,7 @@ import java.util.concurrent.Executors;
  * iMits data.
  */
 @EnableBatchProcessing
-@ComponentScan({"org.mousephenotype.ri.extract"})
+@ComponentScan({"org.mousephenotype.cda.ri.extract"})
 public class ApplicationExtract implements CommandLineRunner {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
