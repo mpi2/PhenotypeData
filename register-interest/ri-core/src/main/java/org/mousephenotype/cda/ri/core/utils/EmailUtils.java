@@ -72,7 +72,7 @@ public class EmailUtils {
             InternetAddress[] replyToArray = new InternetAddress[] { new InternetAddress(smtpReplyto) };
             message.setReplyTo(replyToArray);
             message.setRecipients(Message.RecipientType.TO,
-                                  InternetAddress.parse(emailAddress));
+                                  InternetAddress.parse(emailAddress, false));
             message.setSubject(subject);
             if (inHtml) {
                 message.setContent(body, "text/html; charset=utf-8");
