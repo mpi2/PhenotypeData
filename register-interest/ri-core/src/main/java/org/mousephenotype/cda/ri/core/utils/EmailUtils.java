@@ -17,6 +17,8 @@
 package org.mousephenotype.cda.ri.core.utils;
 
 import org.mousephenotype.cda.ri.core.exceptions.InterestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -36,6 +38,8 @@ import java.util.Properties;
  * Created by mrelac on 02/07/2015.
  */
 public class EmailUtils {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * Assembles an e-mail in preparation for sending.
@@ -78,6 +82,7 @@ public class EmailUtils {
 
         } catch (MessagingException e) {
 
+            logger.error("InternetAddress parsing error for address '{}'", emailAddress);
             throw new RuntimeException(e);
         }
 
