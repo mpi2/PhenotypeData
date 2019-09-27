@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 
-@ComponentScan
+@ComponentScan({"org.mousephenotype.cda.ri.core"})
 public class ApplicationSend implements CommandLineRunner {
 
     private final Logger       logger        = LoggerFactory.getLogger(this.getClass());
@@ -52,9 +52,9 @@ public class ApplicationSend implements CommandLineRunner {
 
     private final String[] OPT_HELP = {"h", "help"};
 
-    private boolean help    = false;
+    private boolean help         = false;
     private boolean noDecoration = false;
-    private boolean send = false;
+    private boolean send         = false;
 
     public static void main(String[] args) {
 

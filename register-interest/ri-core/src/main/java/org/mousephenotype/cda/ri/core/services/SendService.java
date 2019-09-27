@@ -21,14 +21,12 @@ import org.mousephenotype.cda.ri.core.utils.EmailUtils;
 import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Transport;
-import javax.validation.constraints.NotNull;
 
 @Service
 public class SendService {
@@ -41,20 +39,10 @@ public class SendService {
     private RiSqlUtils riSqlUtils;
     private EmailUtils emailUtils = new EmailUtils();
 
-    @NotNull
-    @Value("${mail.smtp.host}")
+
     private String smtpHost;
-
-    @NotNull
-    @Value("${mail.smtp.port}")
     private Integer smtpPort;
-
-    @NotNull
-    @Value("${mail.smtp.from}")
     private String smtpFrom;
-
-    @NotNull
-    @Value("${mail.smtp.replyto}")
     private String smtpReplyto;
 
 
