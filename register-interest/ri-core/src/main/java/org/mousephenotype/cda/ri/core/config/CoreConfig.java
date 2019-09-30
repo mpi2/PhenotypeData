@@ -21,6 +21,7 @@ import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
@@ -29,6 +30,7 @@ import javax.sql.DataSource;
  * Created by mrelac on 02/05/2017.
  */
 @Configuration
+@Profile("!test")
 public class CoreConfig {
 
     @Value("${paBaseUrl}")

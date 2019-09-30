@@ -389,15 +389,17 @@ public class RegisterInterestController {
             body = generateResetPasswordEmail(tokenLink, accountExists);
         }
 
-        Message message = emailUtils.assembleEmail(smtpHost, smtpPort, smtpFrom, smtpReplyto, subject, body, emailAddress, true);
-
-        // Insert request to reset_credentials table
-        ResetCredentials resetCredentials = new ResetCredentials(emailAddress, token, new Date());
-        riSqlUtils.updateResetCredentials(resetCredentials);
-
-        // Send e-mail
         try {
+            Message message = emailUtils.assembleEmail(smtpHost, smtpPort, smtpFrom, smtpReplyto, subject, body, emailAddress, true);
+            if (message == null) {
+                throw new InterestException("Skipping email '" + emailAddress + "'.");
+            }
 
+            // Insert request to reset_credentials table
+            ResetCredentials resetCredentials = new ResetCredentials(emailAddress, token, new Date());
+            riSqlUtils.updateResetCredentials(resetCredentials);
+
+            // Send e-mail
             emailUtils.sendEmail(message);
 
         } catch (InterestException e) {

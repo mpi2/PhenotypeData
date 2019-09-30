@@ -69,6 +69,10 @@ public class SendService {
 
         try {
 
+            if (message == null) {
+                return;
+            }
+
             Transport.send(message);
             riSqlUtils.updateGeneSent(summary);
 
@@ -88,6 +92,11 @@ public class SendService {
         String recipient = null;
 
         try {
+
+            if (message == null) {
+                return;
+            }
+
             recipient = message.getRecipients(Message.RecipientType.TO)[0].toString();
             Transport.send(message);
 

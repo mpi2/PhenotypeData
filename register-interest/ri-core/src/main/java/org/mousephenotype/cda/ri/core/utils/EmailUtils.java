@@ -53,7 +53,7 @@ public class EmailUtils {
      * @param inHtml
      * @return {@link Message} the assembled email message, ready for sending
      */
-    public Message assembleEmail(
+    public Message assembleEmail (
 
             String smtpHost, Integer smtpPort, String smtpFrom, String smtpReplyto,
             String subject, String body, String emailAddress, boolean inHtml) {
@@ -72,7 +72,7 @@ public class EmailUtils {
             InternetAddress[] replyToArray = new InternetAddress[] { new InternetAddress(smtpReplyto) };
             message.setReplyTo(replyToArray);
             message.setRecipients(Message.RecipientType.TO,
-                                  InternetAddress.parseHeader(emailAddress, false));
+                                  InternetAddress.parse(emailAddress, false));
             message.setSubject(subject);
             if (inHtml) {
                 message.setContent(body, "text/html; charset=utf-8");
@@ -80,10 +80,14 @@ public class EmailUtils {
                 message.setText(body);
             }
 
+        } catch (AddressException e) {
+            logger.error("AddressException. Pos = {}. Ref = {}. Message = {}.",e.getPos(), e.getRef(), e.getLocalizedMessage());
+            return null;
+
         } catch (MessagingException e) {
 
             logger.error("InternetAddress parsing error for address '{}'", emailAddress);
-            throw new RuntimeException(e);
+            return null;
         }
 
         return message;

@@ -16,9 +16,10 @@
 
 package org.mousephenotype.cda.ri;
 
-import org.mousephenotype.cda.ri.core.services.GenerateService;
 import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
@@ -30,9 +31,11 @@ import javax.sql.DataSource;
  * Created by mrelac on 16/08/2018
  */
 @Configuration
+@ComponentScan(basePackages = { "org.mousephenotype.cda.ri.core" })
 public class BaseTestConfig {
 
     public static final String PA_BASE_URL = "https://dev.mousephenotype.org/data";
+
     @Bean
     public DataSource riDataSource() {
         return new EmbeddedDatabaseBuilder()
@@ -53,7 +56,40 @@ public class BaseTestConfig {
     }
 
     @Bean
-    protected GenerateService generateService() {
-        return new GenerateService(PA_BASE_URL, riSqlUtils());
+    public String paBaseUrl() {
+        return PA_BASE_URL;
+    }
+
+
+    @Value("${mail.smtp.host}")
+    private String smtpHost;
+
+    @Value("${mail.smtp.port}")
+    private Integer smtpPort;
+
+    @Value("${mail.smtp.from}")
+    private String smtpFrom;
+
+    @Value("${mail.smtp.replyto}")
+    private String smtpReplyto;
+
+    @Bean
+    public String smtpHost() {
+        return smtpHost;
+    }
+
+    @Bean
+    public Integer smtpPort()
+    {
+        return smtpPort;
+    }
+
+    @Bean
+    public String smtpFrom() {
+        return smtpFrom;
+    }
+
+    @Bean String smtpReplyto() {
+        return smtpReplyto;
     }
 }
