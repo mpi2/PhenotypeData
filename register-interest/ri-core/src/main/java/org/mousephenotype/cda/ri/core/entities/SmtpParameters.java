@@ -64,7 +64,7 @@ public class SmtpParameters {
 
     @Override
     public String toString() {
-        return "MailServerParameters{" +
+        return "SmtpParameters{" +
                 "smtpHost='" + smtpHost + '\'' +
                 ", smtpPort=" + smtpPort +
                 ", smtpFrom='" + smtpFrom + '\'' +
