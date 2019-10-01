@@ -17,14 +17,12 @@
 package org.mousephenotype.cda.ri.core.config;
 
 import org.mousephenotype.cda.db.utilities.SqlUtils;
-import org.mousephenotype.cda.ri.core.services.CoreService;
-import org.mousephenotype.cda.ri.core.services.GenerateService;
-import org.mousephenotype.cda.ri.core.services.SendService;
+import org.mousephenotype.cda.ri.core.entities.SmtpParameters;
 import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
@@ -33,7 +31,7 @@ import javax.sql.DataSource;
  * Created by mrelac on 02/05/2017.
  */
 @Configuration
-@EnableAutoConfiguration
+@Profile("!test")
 public class CoreConfig {
 
     @Value("${paBaseUrl}")
@@ -68,19 +66,10 @@ public class CoreConfig {
     }
 
     @Bean
-    public CoreService coreService() {
-        return new CoreService(generateService(), sendService());
+    public Integer smtpPort() {
+        return smtpPort;
     }
 
-    @Bean
-    public GenerateService generateService() {
-        return new GenerateService(paBaseUrl, riSqlUtils());
-    }
-
-    @Bean
-    public SendService sendService() {
-        return new SendService(riSqlUtils(), smtpHost, smtpPort, smtpFrom, smtpReplyto);
-    }
 
     @Value("${datasource.ri.jdbc-url}")
     String riUrl;
@@ -94,5 +83,10 @@ public class CoreConfig {
     @Bean
     public DataSource riDataSource() {
         return SqlUtils.getConfiguredDatasource(riUrl, username, password);
+    }
+
+    @Bean
+    public SmtpParameters mailServerParameters() {
+        return new SmtpParameters(smtpHost, smtpPort, smtpFrom, smtpReplyto);
     }
 }

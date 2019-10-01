@@ -19,13 +19,14 @@ package org.mousephenotype.cda.ri.core;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
+import org.mousephenotype.cda.ri.core.entities.SmtpParameters;
 import org.mousephenotype.cda.ri.core.services.CoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ComponentScan;
 
 import javax.inject.Inject;
@@ -33,11 +34,12 @@ import java.io.IOException;
 import java.util.Arrays;
 
 
-@ComponentScan
+@ComponentScan({"org.mousephenotype.cda.ri.core"})
 public class ApplicationSend implements CommandLineRunner {
 
-    private final Logger       logger        = LoggerFactory.getLogger(this.getClass());
-    private       CoreService  coreService;
+    private final Logger         logger = LoggerFactory.getLogger(this.getClass());
+    private       CoreService    coreService;
+    private       SmtpParameters smtpParameters;
 
     private final String[] OPT_NO_DECORATION = {"n", "noDecoration"};
     private final String[] OPT_SEND = {"s", "send"};
@@ -52,21 +54,23 @@ public class ApplicationSend implements CommandLineRunner {
 
     private final String[] OPT_HELP = {"h", "help"};
 
-    private boolean help    = false;
+    private boolean help         = false;
     private boolean noDecoration = false;
-    private boolean send = false;
+    private boolean send         = false;
 
     public static void main(String[] args) {
-        SpringApplication app = new SpringApplication(ApplicationSend.class);
-        app.setBannerMode(Banner.Mode.OFF);
-        app.setLogStartupInfo(false);
-        app.setWebApplicationType(WebApplicationType.NONE);
-        app.run(args);
+
+        new SpringApplicationBuilder(ApplicationSend.class)
+                .web(WebApplicationType.NONE)
+                .bannerMode(Banner.Mode.OFF)
+                .logStartupInfo(false)
+                .run(args);
     }
 
     @Inject
-    public ApplicationSend(CoreService coreService) {
+    public ApplicationSend(CoreService coreService, SmtpParameters smtpParameters) {
         this.coreService = coreService;
+        this.smtpParameters = smtpParameters;
     }
 
 
@@ -81,7 +85,7 @@ public class ApplicationSend implements CommandLineRunner {
 
         initialise(args);
 
-        coreService.generateAndSend(noDecoration, send);
+        coreService.generateAndSend(noDecoration, send, smtpParameters);
     }
 
 

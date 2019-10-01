@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
@@ -12,12 +13,15 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = GenerateDerivedParametersTestConfig.class)
 @Sql(scripts = {"/sql/h2/cda/schema.sql", "/sql/h2/impress/impressSchema.sql", "/sql/h2/GenerateDerivedParameterTestData.sql"})
 @Rollback
+@SpringBootTest
 public class GenerateDerivedParametersTest {
 
     @Autowired private BiologicalModelRepository biologicalModelRepository;
@@ -48,11 +52,13 @@ public class GenerateDerivedParametersTest {
                 pipelineRepository,
                 procedureRepository,
                 projectRepository);
-        generateDerivedParameters.loadAllDatasourcesById();
-        generateDerivedParameters.loadAllOrganisationsById();
-        generateDerivedParameters.loadAllPipelinesByStableId();
-        generateDerivedParameters.loadAllProjectsById();
+
+        generateDerivedParameters.setPipelines(generateDerivedParameters.loadAllPipelinesByStableId());
+        generateDerivedParameters.setDatasources(generateDerivedParameters.loadAllDatasourcesById());
+        generateDerivedParameters.setOrganisations(generateDerivedParameters.loadAllOrganisationsById());
+        generateDerivedParameters.setProjects(generateDerivedParameters.loadAllProjectsById());
     }
+
 
     @Test
     public void IMPC_ACS_037_001Test() throws SQLException {
@@ -89,11 +95,46 @@ public class GenerateDerivedParametersTest {
         assert resultCount == 2;
     }
 
+    @Test
+    public void IMPC_BWT_008_001Test() throws SQLException {
+
+        List<String> params = new ArrayList<>();
+        params.add("IMPC_GRS_003_001");
+        params.add("IMPC_CAL_001_001");
+        params.add("IMPC_DXA_001_001");
+        params.add("IMPC_HWT_007_001");
+        params.add("IMPC_PAT_049_001");
+        params.add("IMPC_BWT_001_001");
+        params.add("IMPC_ABR_001_001");
+        params.add("IMPC_CHL_001_001");
+        params.add("TCP_CHL_001_001");
+        params.add("HMGU_ROT_004_001");
+        generateDerivedParameters.plotParametersAsTimeSeries("IMPC_BWT_008_001", params);
+
+        String statsQuery = "SELECT * FROM observation o INNER JOIN time_series_observation tso ON tso.id=o.id WHERE parameter_stable_id = 'IMPC_BWT_008_001' ";
+
+        Integer resultCount = 0;
+        try (Connection connection = komp2DataSource.getConnection(); PreparedStatement p = connection.prepareStatement(statsQuery)) {
+            ResultSet resultSet = p.executeQuery();
+
+            while (resultSet.next()) {
+
+                resultCount++;
+
+                printResultSet(resultSet);
+                System.out.println();
+
+            }
+        }
+
+        assert resultCount == 5;
+
+    }
 
     private void printResultSet(ResultSet resultSet) throws SQLException {
         ResultSetMetaData rsmd = resultSet.getMetaData();
         for (int i = 1; i <= rsmd.getColumnCount(); i++) {
-            if (i > 1 && i<rsmd.getColumnCount()) System.out.print(",  ");
+            if (i > 1 && i<=rsmd.getColumnCount()) System.out.print(",  ");
             String columnValue = resultSet.getString(i);
             System.out.print(rsmd.getColumnName(i) + ": " + columnValue );
         }

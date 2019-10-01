@@ -16,7 +16,10 @@
 
 package org.mousephenotype.cda.ri.core.utils;
 
+import org.mousephenotype.cda.ri.core.entities.SmtpParameters;
 import org.mousephenotype.cda.ri.core.exceptions.InterestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -37,38 +40,34 @@ import java.util.Properties;
  */
 public class EmailUtils {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     /**
      * Assembles an e-mail in preparation for sending.
-     * @param smtpHost
-     * @param smtpPort
-     * @param smtpFrom
-     * @param smtpReplyto
      * @param subject
      * @param body
      * @param emailAddress
      * @param inHtml
+     * @param smtpParameters
      * @return {@link Message} the assembled email message, ready for sending
      */
-    public Message assembleEmail(
-
-            String smtpHost, Integer smtpPort, String smtpFrom, String smtpReplyto,
-            String subject, String body, String emailAddress, boolean inHtml) {
+    public Message assembleEmail (String subject, String body, String emailAddress, boolean inHtml, SmtpParameters smtpParameters) {
 
         Properties smtpProperties = new Properties();
 
-        smtpProperties.put("mail.smtp.host", smtpHost);
-        smtpProperties.put("mail.smtp.port", smtpPort);
+        smtpProperties.put("mail.smtp.host", smtpParameters.getSmtpHost());
+        smtpProperties.put("mail.smtp.port", smtpParameters.getSmtpPort());
 
         Session session = Session.getInstance(smtpProperties);
         Message message = new MimeMessage(session);
 
         try {
 
-            message.setFrom(new InternetAddress(smtpFrom));
-            InternetAddress[] replyToArray = new InternetAddress[] { new InternetAddress(smtpReplyto) };
+            message.setFrom(new InternetAddress(smtpParameters.getSmtpFrom()));
+            InternetAddress[] replyToArray = new InternetAddress[] { new InternetAddress(smtpParameters.getSmtpReplyto()) };
             message.setReplyTo(replyToArray);
             message.setRecipients(Message.RecipientType.TO,
-                                  InternetAddress.parse(emailAddress));
+                                  InternetAddress.parse(emailAddress, false));
             message.setSubject(subject);
             if (inHtml) {
                 message.setContent(body, "text/html; charset=utf-8");
@@ -76,9 +75,14 @@ public class EmailUtils {
                 message.setText(body);
             }
 
+        } catch (AddressException e) {
+            logger.error("AddressException. Pos = {}. Ref = {}. Message = {}.",e.getPos(), e.getRef(), e.getLocalizedMessage());
+            return null;
+
         } catch (MessagingException e) {
 
-            throw new RuntimeException(e);
+            logger.error("InternetAddress parsing error for address '{}'", emailAddress);
+            return null;
         }
 
         return message;

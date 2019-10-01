@@ -25,7 +25,7 @@
                     <div class="menu-top-nav-container">
                         <ul id="menu-top-nav" class="menu">
                             <li class="menu-item"><a href="${cmsBaseUrl}/help/">Help</a></li>
-                            <li class="menu-item"><a href="https://www.mousephenotype.org/forum">Forum</a></li>
+                            <li class="menu-item"><a href="https://cloud.mousephenotype.org">Forum</a></li>
                             <li class="menu-item"><a href="${cmsBaseUrl}/contact-us/">Contact us</a></li>
                         </ul>
                     </div>
@@ -126,7 +126,7 @@
                 <h3 class="mt-2"><a class="object-id-11" href="${cmsBaseUrl}/help/">Help</a></h3>
                 <div class="mobile-nav__sub-pages"></div>
 
-                <h3 class="mt-2"><a class="object-id-107" href="${cmsBaseUrl}/blog/2018/12/03/forum-2/">Forum</a></h3>
+                <h3 class="mt-2"><a class="object-id-107" href="https://cloud.mousephenotype.org">Forum</a></h3>
                 <div class="mobile-nav__sub-pages"></div>
 
                 <h3 class="mt-2"><a class="object-id-12" href="${cmsBaseUrl}/contact-us/">Contact us</a></h3>

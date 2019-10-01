@@ -80,7 +80,7 @@ public class Observation extends SourcedEntry {
 	/**
 	 * bi-directional
 	 */
-	@ManyToOne( cascade = {CascadeType.PERSIST, CascadeType.MERGE} )
+	@ManyToOne
     @JoinTable(name="experiment_observation",
         joinColumns = @JoinColumn(name="observation_id"),
         inverseJoinColumns = @JoinColumn(name="experiment_id")

@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.solr;
+package org.mousephenotype.cda.datatests.repositories.solr;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.junit.Test;
@@ -32,7 +32,7 @@ import java.util.Date;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TestConfigSolr.class)
+@SpringBootTest(classes = {RepositorySolrTestConfig.class})
 public class SolrBeanTests {
 
     @Autowired

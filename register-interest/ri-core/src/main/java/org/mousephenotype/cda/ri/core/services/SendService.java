@@ -16,19 +16,18 @@
 
 package org.mousephenotype.cda.ri.core.services;
 
+import org.mousephenotype.cda.ri.core.entities.SmtpParameters;
 import org.mousephenotype.cda.ri.core.entities.Summary;
 import org.mousephenotype.cda.ri.core.utils.EmailUtils;
 import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Transport;
-import javax.validation.constraints.NotNull;
 
 @Service
 public class SendService {
@@ -41,45 +40,25 @@ public class SendService {
     private RiSqlUtils riSqlUtils;
     private EmailUtils emailUtils = new EmailUtils();
 
-    @NotNull
-    @Value("${mail.smtp.host}")
-    private String smtpHost;
-
-    @NotNull
-    @Value("${mail.smtp.port}")
-    private Integer smtpPort;
-
-    @NotNull
-    @Value("${mail.smtp.from}")
-    private String smtpFrom;
-
-    @NotNull
-    @Value("${mail.smtp.replyto}")
-    private String smtpReplyto;
-
 
     @Inject
     public SendService(
-            RiSqlUtils riSqlUtils,
-            String smtpHost,
-            Integer smtpPort,
-            String smtpFrom,
-            String smtpReplyto
+            RiSqlUtils riSqlUtils
     ) {
         this.riSqlUtils = riSqlUtils;
-        this.smtpHost = smtpHost;
-        this.smtpPort = smtpPort;
-        this.smtpFrom = smtpFrom;
-        this.smtpReplyto = smtpReplyto;
     }
 
 
-    public void sendSummary(Summary summary, String subject, String content, boolean inHtml) {
+    public void sendSummary(Summary summary, String subject, String content, boolean inHtml, SmtpParameters smtpParameters) {
         Message message;
 
-        message = emailUtils.assembleEmail(smtpHost, smtpPort, smtpFrom, smtpReplyto, subject, content, summary.getEmailAddress(), inHtml);
+        message = emailUtils.assembleEmail(subject, content, summary.getEmailAddress(), inHtml, smtpParameters);
 
         try {
+
+            if (message == null) {
+                return;
+            }
 
             Transport.send(message);
             riSqlUtils.updateGeneSent(summary);
@@ -93,13 +72,18 @@ public class SendService {
     }
 
 
-    public void sendWelcome(String emailAddress, String subject, String welcomeText, boolean inHtml) {
+    public void sendWelcome(String emailAddress, String subject, String welcomeText, boolean inHtml, SmtpParameters smtpParameters) {
 
 
-        Message message = emailUtils.assembleEmail(smtpHost, smtpPort, smtpFrom, smtpReplyto, subject, welcomeText, emailAddress, inHtml);
+        Message message = emailUtils.assembleEmail(subject, welcomeText, emailAddress, inHtml, smtpParameters);
         String recipient = null;
 
         try {
+
+            if (message == null) {
+                return;
+            }
+
             recipient = message.getRecipients(Message.RecipientType.TO)[0].toString();
             Transport.send(message);
 

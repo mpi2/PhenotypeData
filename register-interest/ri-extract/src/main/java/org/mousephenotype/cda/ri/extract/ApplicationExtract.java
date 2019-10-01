@@ -32,8 +32,8 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.SimpleCommandLinePropertySource;
@@ -56,7 +56,7 @@ import java.util.concurrent.Executors;
  * iMits data.
  */
 @EnableBatchProcessing
-@ComponentScan({"org.mousephenotype.ri.extract"})
+@ComponentScan({"org.mousephenotype.cda.ri.extract"})
 public class ApplicationExtract implements CommandLineRunner {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -72,11 +72,12 @@ public class ApplicationExtract implements CommandLineRunner {
 
 
     public static void main(String[] args) throws Exception {
-        SpringApplication app = new SpringApplication(ApplicationExtract.class);
-        app.setBannerMode(Banner.Mode.OFF);
-        app.setLogStartupInfo(false);
-        app.setWebApplicationType(WebApplicationType.NONE);
-        app.run(args);
+
+        new SpringApplicationBuilder(ApplicationExtract.class)
+                .web(WebApplicationType.NONE)
+                .bannerMode(Banner.Mode.OFF)
+                .logStartupInfo(false)
+                .run(args);
     }
 
 
