@@ -21,6 +21,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 import javax.sql.DataSource;
 
@@ -36,4 +39,24 @@ public class GenerateDerivedParametersTestConfig {
                 .setName("komp2")
                 .build();
     }
+
+    // HIBERNATE
+
+    @Bean
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource komp2DataSource) {
+        LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
+        em.setDataSource(komp2DataSource);
+        em.setPackagesToScan("org.mousephenotype.cda.db.entity", "org.mousephenotype.cda.db.pojo");
+
+        em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+
+        return em;
+    }
+
+    @Bean
+    public JpaTransactionManager transactionManager() {
+        JpaTransactionManager txManager = new JpaTransactionManager();
+        return txManager;
+    }
+
 }
