@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.ri;
 
+import org.mousephenotype.cda.ri.core.entities.SmtpParameters;
 import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -74,22 +75,7 @@ public class BaseTestConfig {
     private String smtpReplyto;
 
     @Bean
-    public String smtpHost() {
-        return smtpHost;
-    }
-
-    @Bean
-    public Integer smtpPort()
-    {
-        return smtpPort;
-    }
-
-    @Bean
-    public String smtpFrom() {
-        return smtpFrom;
-    }
-
-    @Bean String smtpReplyto() {
-        return smtpReplyto;
+    public SmtpParameters smtpParameters() {
+        return new SmtpParameters(smtpHost, smtpPort, smtpFrom, smtpReplyto);
     }
 }

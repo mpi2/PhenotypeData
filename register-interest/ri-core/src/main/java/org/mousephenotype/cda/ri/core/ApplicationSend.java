@@ -19,6 +19,7 @@ package org.mousephenotype.cda.ri.core;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
+import org.mousephenotype.cda.ri.core.entities.SmtpParameters;
 import org.mousephenotype.cda.ri.core.services.CoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +37,9 @@ import java.util.Arrays;
 @ComponentScan({"org.mousephenotype.cda.ri.core"})
 public class ApplicationSend implements CommandLineRunner {
 
-    private final Logger       logger        = LoggerFactory.getLogger(this.getClass());
-    private       CoreService  coreService;
+    private final Logger         logger = LoggerFactory.getLogger(this.getClass());
+    private       CoreService    coreService;
+    private       SmtpParameters smtpParameters;
 
     private final String[] OPT_NO_DECORATION = {"n", "noDecoration"};
     private final String[] OPT_SEND = {"s", "send"};
@@ -66,8 +68,9 @@ public class ApplicationSend implements CommandLineRunner {
     }
 
     @Inject
-    public ApplicationSend(CoreService coreService) {
+    public ApplicationSend(CoreService coreService, SmtpParameters smtpParameters) {
         this.coreService = coreService;
+        this.smtpParameters = smtpParameters;
     }
 
 
@@ -82,7 +85,7 @@ public class ApplicationSend implements CommandLineRunner {
 
         initialise(args);
 
-        coreService.generateAndSend(noDecoration, send);
+        coreService.generateAndSend(noDecoration, send, smtpParameters);
     }
 
 

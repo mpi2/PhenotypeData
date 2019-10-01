@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.ri.core.config;
 
 import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.mousephenotype.cda.ri.core.entities.SmtpParameters;
 import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -82,5 +83,10 @@ public class CoreConfig {
     @Bean
     public DataSource riDataSource() {
         return SqlUtils.getConfiguredDatasource(riUrl, username, password);
+    }
+
+    @Bean
+    public SmtpParameters mailServerParameters() {
+        return new SmtpParameters(smtpHost, smtpPort, smtpFrom, smtpReplyto);
     }
 }

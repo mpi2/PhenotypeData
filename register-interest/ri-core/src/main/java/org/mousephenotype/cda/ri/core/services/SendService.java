@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.ri.core.services;
 
+import org.mousephenotype.cda.ri.core.entities.SmtpParameters;
 import org.mousephenotype.cda.ri.core.entities.Summary;
 import org.mousephenotype.cda.ri.core.utils.EmailUtils;
 import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
@@ -40,32 +41,18 @@ public class SendService {
     private EmailUtils emailUtils = new EmailUtils();
 
 
-    private String smtpHost;
-    private Integer smtpPort;
-    private String smtpFrom;
-    private String smtpReplyto;
-
-
     @Inject
     public SendService(
-            RiSqlUtils riSqlUtils,
-            String smtpHost,
-            Integer smtpPort,
-            String smtpFrom,
-            String smtpReplyto
+            RiSqlUtils riSqlUtils
     ) {
         this.riSqlUtils = riSqlUtils;
-        this.smtpHost = smtpHost;
-        this.smtpPort = smtpPort;
-        this.smtpFrom = smtpFrom;
-        this.smtpReplyto = smtpReplyto;
     }
 
 
-    public void sendSummary(Summary summary, String subject, String content, boolean inHtml) {
+    public void sendSummary(Summary summary, String subject, String content, boolean inHtml, SmtpParameters smtpParameters) {
         Message message;
 
-        message = emailUtils.assembleEmail(smtpHost, smtpPort, smtpFrom, smtpReplyto, subject, content, summary.getEmailAddress(), inHtml);
+        message = emailUtils.assembleEmail(subject, content, summary.getEmailAddress(), inHtml, smtpParameters);
 
         try {
 
@@ -85,10 +72,10 @@ public class SendService {
     }
 
 
-    public void sendWelcome(String emailAddress, String subject, String welcomeText, boolean inHtml) {
+    public void sendWelcome(String emailAddress, String subject, String welcomeText, boolean inHtml, SmtpParameters smtpParameters) {
 
 
-        Message message = emailUtils.assembleEmail(smtpHost, smtpPort, smtpFrom, smtpReplyto, subject, welcomeText, emailAddress, inHtml);
+        Message message = emailUtils.assembleEmail(subject, welcomeText, emailAddress, inHtml, smtpParameters);
         String recipient = null;
 
         try {

@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.ri.BaseTest;
 import org.mousephenotype.cda.ri.core.entities.Gene;
+import org.mousephenotype.cda.ri.core.entities.SmtpParameters;
 import org.mousephenotype.cda.ri.core.entities.Summary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -18,6 +19,9 @@ public class SendServiceTest extends BaseTest {
 
     @Autowired
     private SendService sendService;
+
+    @Autowired
+    private SmtpParameters smtpParameters;
 
 
     private Gene gene;
@@ -33,7 +37,7 @@ public class SendServiceTest extends BaseTest {
         gene.setMgiAccessionId("mgiAccessionId");
 
         summary = new Summary();
-        summary.setEmailAddress("mrelac@ebi.ac.uk");
+        summary.setEmailAddress("xxx@ebi.ac.uk");
         summary.setGenes(Arrays.asList(gene));
     }
 
@@ -44,7 +48,7 @@ public class SendServiceTest extends BaseTest {
     public void testSendMechanism() {
 
         try {
-            sendService.sendSummary(summary, "test subject", "test content", false);
+            sendService.sendSummary(summary, "test subject", "test content", false, smtpParameters);
         } catch (Exception e) {
             System.out.println(e);
             e.printStackTrace();

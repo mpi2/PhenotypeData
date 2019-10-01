@@ -17,6 +17,7 @@
 package uk.ac.ebi.phenotype.web.controller.registerinterest;
 
 import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.mousephenotype.cda.ri.core.entities.SmtpParameters;
 import org.mousephenotype.cda.ri.core.services.CoreService;
 import org.mousephenotype.cda.ri.core.services.GenerateService;
 import org.mousephenotype.cda.ri.core.services.SendService;
@@ -89,18 +90,8 @@ public class RegisterInterestConfig {
     }
 
     @Bean
-    public String smtpHost() {
-        return smtpHost;
-    }
-
-    @Bean
-    public int smtpPort() {
-        return smtpPort;
-    }
-
-    @Bean
-    public String smtpReplyto() {
-        return smtpReplyto;
+    public SmtpParameters mailServerParameters() {
+        return new SmtpParameters(smtpHost, smtpPort, smtpFrom, smtpReplyto);
     }
 
     @Bean
@@ -121,6 +112,6 @@ public class RegisterInterestConfig {
 
     @Bean
     public CoreService coreService() {
-        return new CoreService(new GenerateService(paBaseUrl, riSqlUtils()), new SendService(riSqlUtils(), smtpHost, smtpPort, smtpFrom, smtpReplyto));
+        return new CoreService(new GenerateService(paBaseUrl, riSqlUtils()), new SendService(riSqlUtils()));
     }
 }
