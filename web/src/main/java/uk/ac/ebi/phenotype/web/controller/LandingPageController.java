@@ -2,10 +2,13 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
+import org.apache.solr.client.solrj.response.PivotField;
+import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.CountTableRow;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -52,6 +55,7 @@ public class LandingPageController {
 	private MpService                mpService;
     private ObservationService       observationService;
     private StatisticalResultService statisticalResultService;
+    private HistopathService histopathService;
 
     @Inject
     public LandingPageController(
@@ -61,7 +65,8 @@ public class LandingPageController {
 			@NotNull ImpressService impressService,
 			@NotNull MpService mpService,
     		@NotNull ObservationService observationService,
-			@NotNull StatisticalResultService statisticalResultService)
+			@NotNull StatisticalResultService statisticalResultService,
+			@NotNull HistopathService histopathService)
 	{
         this.geneService = geneService;
 		this.genotypePhenotypeService = genotypePhenotypeService;
@@ -70,7 +75,23 @@ public class LandingPageController {
 		this.mpService = mpService;
 		this.observationService = observationService;
 		this.statisticalResultService = statisticalResultService;
+		this.histopathService=histopathService;
     }
+
+
+	/**
+	 *
+	 * @param model
+	 * @return
+	 * @throws SolrServerException
+	 * @throws IOException
+	 */
+	@RequestMapping("/histopath")
+	public String histopath(Model model) throws SolrServerException, IOException {
+		NamedList<List<PivotField>> observationsForHistopath = histopathService.getObservationsForHistopath();
+		System.out.println("size of all observations for histopath="+observationsForHistopath.size());
+		return "histopathLandingPage";
+	}
 
 
 //	@RequestMapping("/biological-system")

@@ -1,6 +1,8 @@
 package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.PivotField;
+import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
@@ -181,10 +183,14 @@ public class HistopathService {
 
 	public List<ObservationDTO> getObservationsForHistopathForGene(String acc) throws SolrServerException, IOException {
 		List<ObservationDTO> observations = observationService.getObservationsByProcedureNameAndGene("Histopathology",
-				acc, ObservationDTO.PARAMETER_NAME, ObservationDTO.PARAMETER_STABLE_ID, ObservationDTO.OBSERVATION_TYPE,
-				ObservationDTO.CATEGORY, ObservationDTO.VALUE, ObservationDTO.DOWNLOAD_FILE_PATH,
-				ObservationDTO.PARAMETER_ASSOCIATION_SEQUENCE_ID, ObservationDTO.SEQUENCE_ID);
+				acc
+		);
 		return observations;
+	}
+
+	public NamedList<List<PivotField>> getObservationsForHistopath() throws SolrServerException, IOException {
+		NamedList<List<PivotField>> pivots = observationService.getHistopathLandingPageData();
+		return pivots;
 	}
 
 	public List<ObservationDTO> screenOutObservationsThatAreNormal(List<ObservationDTO> observations) {

@@ -69,6 +69,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
     protected SolrClient experimentCore;
 
+    private static int ROWLIMIT=100000;
 
     @Inject
     public ObservationService(HttpSolrClient experimentCore) {
@@ -1977,19 +1978,40 @@ public class ObservationService extends BasicService implements WebStatus {
 	}
 
 
-	public List<ObservationDTO> getObservationsByProcedureNameAndGene(String procedureName,  String geneAccession, String ...fields) throws SolrServerException, IOException  {
+	public List<ObservationDTO> getObservationsByProcedureNameAndGene(String procedureName, String geneAccession) throws SolrServerException, IOException  {
 		SolrQuery q = new SolrQuery()
                 .setQuery("*:*")
-                .setRows(10000)
+                .setRows(ROWLIMIT)
                 .setSort(ObservationDTO.ID, SolrQuery.ORDER.asc)
-                //.setFields(fields)
-                .addFilterQuery(ObservationDTO.PROCEDURE_NAME +":\""+ procedureName+"\"")
-				.addFilterQuery(ObservationDTO.GENE_ACCESSION_ID +":\""+geneAccession+"\"");
+                .addFilterQuery(ObservationDTO.PROCEDURE_NAME +":\""+ procedureName+"\"");
+                if(geneAccession!=null) {
+				q.addFilterQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + geneAccession + "\"");
+                }
 
 		logger.info("solr query in getObservationByProcedureNameAndGene="+q);
         return experimentCore.query(q).getBeans(ObservationDTO.class);
 
 	}
+
+    public NamedList<List<PivotField>> getHistopathLandingPageData() throws SolrServerException, IOException  {
+
+	    //http://ves-hx-d1.ebi.ac.uk:8986/solr/experiment/select?q=*:*&rows=0&sort=id+asc&fq=parameter_stable_id:*HIS*&facet=true&facet.pivot=gene_symbol,category&facet.limit=-1
+        SolrQuery q = new SolrQuery()
+                .setQuery("*:*")
+                .setRows(0)//we don't care about the observations themselfs so don't return them only which anatomy has significant Histopath data on which genes.
+                .setSort(ObservationDTO.ID, SolrQuery.ORDER.asc)
+                //.setFields(fields)
+                .addFilterQuery("parameter_stable_id:*HIS*");
+                //.addFilterQuery("category:Significant");//otherwise query takes too long
+        q.setFacet(true);
+        String pivotFacet = ObservationDTO.GENE_SYMBOL + "," +ObservationDTO.PARAMETER_NAME+","+
+                ObservationDTO.CATEGORY;
+
+        q.add("facet.pivot", pivotFacet );
+        q.setFacetLimit(-1);
+       System.out.println("solr query in getObservationByProcedureNameAndGene="+q);
+        return experimentCore.query(q).getFacetPivot();
+    }
 	
 	/**
 	 * Get stats for the baseline graphs on the phenotype pages for each parameter/center

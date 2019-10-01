@@ -184,4 +184,5 @@ public class HistopathController {
 		model.addAttribute("parameterNames", parameterNames);
 		return "histopathSummary";
 	}
+
 }

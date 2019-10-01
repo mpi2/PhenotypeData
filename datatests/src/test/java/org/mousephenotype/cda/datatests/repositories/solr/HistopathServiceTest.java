@@ -3,6 +3,8 @@ package org.mousephenotype.cda.datatests.repositories.solr;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.response.PivotField;
+import org.apache.solr.common.util.NamedList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.service.GrossPathService;
@@ -51,5 +53,23 @@ public class HistopathServiceTest {
         assertTrue("Expected at least " + EXPECTED_UNIQUE_SAMPLE_SEQUENCE_AND_NAME_COUNT + " rows but found "
                                   + uniqueSampleSequeneAndAnatomyName.size(),
                           uniqueSampleSequeneAndAnatomyName.size() >= EXPECTED_UNIQUE_SAMPLE_SEQUENCE_AND_NAME_COUNT);
+    }
+
+    @Test
+    public void getLandingPageDataTest() throws IOException, SolrServerException {
+        ObservationService observationService = new ObservationService(experimentCore);
+        HistopathService   histopathService   = new HistopathService(observationService);
+
+
+        NamedList<List<PivotField>> pivots = observationService.getHistopathLandingPageData();
+        for( Map.Entry<String, List<PivotField>> pivot : pivots){
+            if (pivot!= null){
+
+                    System.out.println("pivot="+pivot);
+
+
+            }
+        }
+
     }
 }
