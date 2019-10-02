@@ -108,7 +108,7 @@ public class PhenotypeCenterService {
 		List<PhenotypeCenterServiceBean> strains=new ArrayList<>();
 		SolrQuery query = new SolrQuery()
 			.setQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + center + "\" AND " + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
-			.setFields(ObservationDTO.GENE_ACCESSION_ID,ObservationDTO.ALLELE_SYMBOL, ObservationDTO.GENE_SYMBOL)
+			.setFields(ObservationDTO.GENE_ACCESSION_ID,ObservationDTO.ALLELE_SYMBOL, ObservationDTO.GENE_SYMBOL, ObservationDTO.ZYGOSITY)
 			.setRows(1000000);
 		query.set("group", true);
 		query.set("group.field", ObservationDTO.COLONY_ID);
@@ -129,6 +129,7 @@ public class PhenotypeCenterService {
 				strain.setAllele((String)doc.get(ObservationDTO.ALLELE_SYMBOL));
 				strain.setGeneSymbol((String)doc.get(ObservationDTO.GENE_SYMBOL));
 				strain.setMgiAccession((String)doc.get(ObservationDTO.GENE_ACCESSION_ID));
+				strain.setZygosity((String)doc.get(ObservationDTO.ZYGOSITY));
 				strains.add(strain);
 			}
 		}
