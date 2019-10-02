@@ -60,7 +60,10 @@ public enum DbIdType {
         return this.toString();
     }
     
-    public int intValue() {
+    public Integer intValue() {
         return value;
+    }
+    public Long longValue() {
+        return intValue().longValue();
     }
 }

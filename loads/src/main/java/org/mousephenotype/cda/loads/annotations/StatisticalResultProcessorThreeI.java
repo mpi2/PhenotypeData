@@ -1,14 +1,15 @@
 package org.mousephenotype.cda.loads.annotations;
 
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.db.repositories.ParameterRepository;
 import org.mousephenotype.cda.db.statistics.ResultDTO;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,8 +22,6 @@ public class StatisticalResultProcessorThreeI {
 
     private static final Logger logger = LoggerFactory.getLogger(StatisticalResultProcessorThreeI.class);
 
-    private DataSource komp2DataSource;
-    private PhenotypePipelineDAO phenotypePipelineDAO;
     private Float pValue = 0.0001f;
 
     private String query = "SELECT s.id as result_id, s.mp_acc, s.external_db_id, s.colony_id, s.project_id,"
@@ -42,6 +41,20 @@ public class StatisticalResultProcessorThreeI {
             + " AND EXISTS (SELECT * from phenotype_parameter_lnk_ontology_annotation pont WHERE parameter_id = s.parameter_id)" // Filter in results that can generate MP terms
             + " AND s.null_test_significance <= ? ";
 
+
+    private DataSource          komp2DataSource;
+    private ParameterRepository parameterRepository;
+
+
+    public StatisticalResultProcessorThreeI(
+            @NotNull ParameterRepository parameterRepository,
+            @NotNull DataSource komp2DataSource)
+    {
+        this.parameterRepository = parameterRepository;
+        this.komp2DataSource = komp2DataSource;
+    }
+
+
     Set<GenotypePhenotypeAssociationDTO> getPhenotypeAssociations() throws SQLException {
         Set<GenotypePhenotypeAssociationDTO> associations = new HashSet<>();
 
@@ -53,7 +66,7 @@ public class StatisticalResultProcessorThreeI {
 
             while (resultSet.next()) {
 
-                Parameter parameter = phenotypePipelineDAO.getParameterById(resultSet.getInt("parameter_id"));
+                Parameter parameter = parameterRepository.findById(resultSet.getLong("parameter_id")).get();
 
                 GenotypePhenotypeAssociationDTO association = new GenotypePhenotypeAssociationDTO();
                 association.setGf_acc(resultSet.getString("gf_acc"));
@@ -63,26 +76,25 @@ public class StatisticalResultProcessorThreeI {
                 association.setColony_id(resultSet.getString("colony_id"));
                 association.setExternal_db_id(resultSet.getInt("external_db_id"));
 
-
                 ResultDTO result = new ResultDTO();
 
-                result.setResultId(resultSet.getInt("result_id"));
-                result.setDataSourceId(resultSet.getInt("external_db_id"));
+                result.setResultId(resultSet.getLong("result_id"));
+                result.setDataSourceId(resultSet.getLong("external_db_id"));
                 result.setColonyId(resultSet.getString("colony_id"));
                 result.setMpTerm(resultSet.getString("mp_acc"));
-                result.setProjectId(resultSet.getInt("project_id"));
-                result.setCenterId(resultSet.getInt("center_id"));
-                result.setPipelineId(resultSet.getInt("pipeline_id"));
-                result.setProcedureId(resultSet.getInt("procedure_id"));
-                result.setParameterId(resultSet.getInt("parameter_id"));
+                result.setProjectId(resultSet.getLong("project_id"));
+                result.setCenterId(resultSet.getLong("center_id"));
+                result.setPipelineId(resultSet.getLong("pipeline_id"));
+                result.setProcedureId(resultSet.getLong("procedure_id"));
+                result.setParameterId(resultSet.getLong("parameter_id"));
                 result.setParameterStableId(resultSet.getString("parameter_stable_id"));
                 result.setZygosity(ZygosityType.valueOf(resultSet.getString("zygosity")));
                 result.setStrainAcc(resultSet.getString("strain_acc"));
-                result.setStrainDbId(resultSet.getInt("strain_db_id"));
+                result.setStrainDbId(resultSet.getLong("strain_db_id"));
                 result.setGeneAcc(resultSet.getString("gf_acc"));
-                result.setGeneDbId(resultSet.getInt("gf_db_id"));
+                result.setGeneDbId(resultSet.getLong("gf_db_id"));
                 result.setAlleleAcc(resultSet.getString("allele_acc"));
-                result.setAlleleDbId(resultSet.getInt("allele_db_id"));
+                result.setAlleleDbId(resultSet.getLong("allele_db_id"));
                 result.setMaleControls(resultSet.getInt("male_controls"));
                 result.setMaleMutants(resultSet.getInt("male_mutants"));
                 result.setFemaleControls(resultSet.getInt("female_controls"));
@@ -132,8 +144,6 @@ public class StatisticalResultProcessorThreeI {
 
         logger.info("  Found " + associations.size() + " Three I results");
 
-
         return associations;
     }
-
 }

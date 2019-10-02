@@ -15,13 +15,13 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,6 +50,7 @@ public class AllelesController {
     @Autowired
     SolrIndex2 solrIndex2;
 
+
     @RequestMapping("/alleles/{acc}")
     public String alleles1(
             @PathVariable String acc,
@@ -60,7 +61,6 @@ public class AllelesController {
             Model model,
             HttpServletRequest request,
             RedirectAttributes attributes) throws Exception {
-System.out.println("controller here");
         log.info("#### alleles1...");
         String redirectUrl="redirect:/search/allele2?kw=*";
         //redirect this url to the new search page for products to support old links that will still use the bare parameter to specify creline products rather than default ones of IMPC
@@ -286,7 +286,6 @@ System.out.println("controller here");
         return "mutagenesis";
     }
 
-
     private String allelesCommon(
             String acc,
             String allele_name,
@@ -383,7 +382,7 @@ System.out.println("controller here");
         JSONObject jsonObject;
 
         try {
-            jsonObject = (JSONObject) JSONSerializer.toJSON(content);
+            jsonObject = new JSONObject(content);
         } catch (Exception ex) {
             log.error("#### getPcrDetails: " + ex);
             return null;
@@ -400,7 +399,6 @@ System.out.println("controller here");
             return null;
         }
 
-//        String url = "http://www.i-dcc.org/imits/targ_rep/alleles/" + id + "/loa_primers.json";
           String url = "http://deskpro101887.internal.sanger.ac.uk:3000/targ_rep/alleles/" + id + "/loa_primers.json";
 
         log.info("#### getLoaPcrDetails URL: " + url);
@@ -420,7 +418,7 @@ System.out.println("controller here");
         JSONObject jsonObject;
 
         try {
-            jsonObject = (JSONObject) JSONSerializer.toJSON(content);
+            jsonObject = new JSONObject(content);
         } catch (Exception ex) {
             log.error("#### getLoaPcrDetails: " + ex);
             return null;
@@ -480,7 +478,7 @@ System.out.println("controller here");
     }
 
 
-    private Map<String, Integer> getMutagenesisStats(JSONArray transcripts) {
+    private Map<String, Integer> getMutagenesisStats(JSONArray transcripts) throws JSONException {
 
         if (transcripts == null) {
             return null;
@@ -494,7 +492,8 @@ System.out.println("controller here");
         map.put("mut_coding_transcripts", 0);
         map.put("mut_nmd_rescue_transcripts", 0);
 
-        for (Object o : transcripts) {
+        for (int i = 0; i < transcripts.length(); i++) {
+            Object o = transcripts.get(i);
             JSONObject o2 = (JSONObject) o;
             map.put("wt_transcripts", map.get("wt_transcripts") + 1);
             if (o2.has("biotype") && o2.getString("biotype").equals("protein_coding")) {
@@ -590,7 +589,7 @@ System.out.println("controller here");
     private JSONArray getMutagenesisDetails(
             String acc,
             String allele_name,
-            String projectId) throws MalformedURLException, IOException, URISyntaxException {
+            String projectId) throws JSONException {
 
         if (projectId == null) {
             log.info("#### getMutagenesisDetails: no project id!");
@@ -614,7 +613,7 @@ System.out.println("controller here");
 
         log.debug("#### content: " + content);
 
-        JSONArray json = (JSONArray) JSONSerializer.toJSON(content);
+        JSONArray json = new JSONArray(content);
 
         log.info("#### before: " + json);
 
@@ -624,7 +623,8 @@ System.out.println("controller here");
         mapper.put("C", "CDS");
         mapper.put("U", "UTR");
 
-        for (Object json1 : json) {
+        for (int i = 0; i < json.length(); i++) {
+            Object json1 =json.get(i);
             JSONObject o = (JSONObject) json1;
             log.info("#### o: " + o);
             if (o.has("floxed_transcript_translation")) {
@@ -633,7 +633,9 @@ System.out.println("controller here");
             }
             if (o.has("exons")) {
                 JSONArray exons = o.getJSONArray("exons");
-                for (Object exon : exons) {
+
+                for (int j = 0; j < exons.length(); j++) {
+                    Object exon = exons.get(j);
                     JSONObject o2 = (JSONObject) exon;
                     if (o2.has("structure")) {
                         String structure = o2.getString("structure");
@@ -647,11 +649,12 @@ System.out.println("controller here");
                     }
                     if (o2.has("domains")) {
                         JSONArray domains = o2.getJSONArray("domains");
-                        for (Object domain : domains) {
+                        for (int k = 0; k < domains.length(); k++) {
+                            Object domain = domains.get(k);
                             JSONObject o3 = (JSONObject) domain;
                             JSONArray amino_acids = o3.getJSONArray("amino_acids");
-                            String amino_acid_1 = amino_acids.size() > 1 ? amino_acids.getString(0) : "";
-                            String amino_acid_2 = amino_acids.size() > 1 ? amino_acids.getString(1) : "";
+                            String amino_acid_1 = amino_acids.length() > 1 ? amino_acids.getString(0) : "";
+                            String amino_acid_2 = amino_acids.length() > 1 ? amino_acids.getString(1) : "";
                             String s = o3.getString("description") + " (" + amino_acid_1 + "/" + amino_acid_2 + " aa)";
                             o3.put("domains_ex", s);
                         }
@@ -664,8 +667,4 @@ System.out.println("controller here");
 
         return json;
     }
-
-
-
-
 }

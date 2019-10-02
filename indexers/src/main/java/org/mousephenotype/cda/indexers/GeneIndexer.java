@@ -18,11 +18,12 @@ package org.mousephenotype.cda.indexers;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.dao.DatasourceDAO;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.Datasource;
 import org.mousephenotype.cda.db.pojo.Procedure;
 import org.mousephenotype.cda.db.pojo.Xref;
+import org.mousephenotype.cda.db.repositories.DatasourceRepository;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
+import org.mousephenotype.cda.db.repositories.ProcedureRepository;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.DmddDataUnit;
 import org.mousephenotype.cda.indexers.utils.EmbryoStrain;
@@ -35,14 +36,13 @@ import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.ConfigurableApplicationContext;
 
-import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -58,62 +58,58 @@ import java.util.*;
 @EnableAutoConfiguration
 public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 
-	private final Logger logger = LoggerFactory.getLogger(GeneIndexer.class);
-
-    @NotNull
-    @Value("${embryoViewerFilename}")
-    private String embryoViewerFilename;
-
-    @NotNull
     @Value("${dmddDataFilename}")
     private String dmddDataFilename;
 
-    @Autowired
-    @Qualifier("komp2DataSource")
-    DataSource komp2DataSource;
+    @Value("${embryoViewerFilename}")
+    private String embryoViewerFilename;
 
-    @Autowired
-    @Qualifier("alleleCore")
-    SolrClient alleleCore;
+	private final Logger logger = LoggerFactory.getLogger(GeneIndexer.class);
 
-    @Autowired
-    @Qualifier("geneCore")
-    SolrClient geneCore;
 
-    @Autowired
-    @Qualifier("mpCore")
-    SolrClient mpCore;
+    private SolrClient           alleleCore;
+    private DatasourceRepository datasourceRepository;
+    private SolrClient           geneCore;
+    private SolrClient           mpCore;
+    private ProcedureRepository  procedureRepository;
 
-    @Autowired
-    DatasourceDAO datasourceDAO;
 
-    @Autowired
-    PhenotypePipelineDAO phenotypePipelineDAO;
-
-    private Connection komp2DbConnection;
-
-    private Map<String, List<Map<String, String>>> phenotypeSummaryGeneAccessionsToPipelineInfo = new HashMap<>();
+    private Map<String, List<DmddDataUnit>>        dmddImageData;
+    private Map<String, List<DmddDataUnit>>        dmddLethalData;
+    private Map<String, List<EmbryoStrain>>        embryoRestData                               = null;
     private Map<String, Map<String, String>>       genomicFeatureCoordinates                    = new HashMap<>();
     private Map<String, List<Xref>>                genomicFeatureXrefs                          = new HashMap<>();
-    private Map<String, List<MpDTO>>               mgiAccessionToMP                             = new HashMap<>();
-    private Map<String, List<EmbryoStrain>>        embryoRestData                               = null;
+    private Set<String>                            idgGenes                                     = new HashSet<>();
     private IndexerMap                             indexerMap                                   = new IndexerMap();
-    private Set<String> idgGenes=new HashSet<>();
+    private Map<String, List<MpDTO>>               mgiAccessionToMP                             = new HashMap<>();
+    private Map<String, List<Map<String, String>>> phenotypeSummaryGeneAccessionsToPipelineInfo = new HashMap<>();
 
-	private Map<String, List<DmddDataUnit>> dmddImageData;
-	private Map<String, List<DmddDataUnit>> dmddLethalData;
+    protected GeneIndexer() {
 
-    @PostConstruct
-    public void init() throws SQLException {
-        komp2DbConnection = komp2DataSource.getConnection();
     }
 
+    @Inject
+    public GeneIndexer(
+            @NotNull DataSource komp2DataSource,
+            @NotNull OntologyTermRepository ontologyTermRepository,
+            @NotNull SolrClient alleleCore,
+            @NotNull DatasourceRepository datasourceRepository,
+            @NotNull SolrClient geneCore,
+            @NotNull SolrClient mpCore,
+            @NotNull ProcedureRepository procedureRepository)
+    {
+        super(komp2DataSource, ontologyTermRepository);
+        this.alleleCore = alleleCore;
+        this.datasourceRepository = datasourceRepository;
+        this.geneCore = geneCore;
+        this.mpCore = mpCore;
+        this.procedureRepository = procedureRepository;
+    }
 
     @Override
     public RunStatus validateBuild() throws IndexerException {
         return super.validateBuild(geneCore);
     }
-
 
     @Override
     public RunStatus run() throws IndexerException {
@@ -121,16 +117,19 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
 
-    	Datasource ensembl = datasourceDAO.getDatasourceByShortName("Ensembl");
-		Datasource vega = datasourceDAO.getDatasourceByShortName("VEGA");
-		Datasource ncbi = datasourceDAO.getDatasourceByShortName("EntrezGene");
-		Datasource ccds = datasourceDAO.getDatasourceByShortName("cCDS");
+        Datasource ensembl = datasourceRepository.getByShortName("Ensembl");
+        Datasource vega    = datasourceRepository.getByShortName("VEGA");
+        Datasource ncbi    = datasourceRepository.getByShortName("EntrezGene");
+        Datasource ccds    = datasourceRepository.getByShortName("cCDS");
 
-        try {
-            initialiseSupportingBeans();
+        try (Connection connection = komp2DataSource.getConnection()) {
+            initialiseSupportingBeans(connection);
 
             List<AlleleDTO> alleles = IndexerMap.getAlleles(alleleCore);
             geneCore.deleteByQuery("*:*");
+
+            int proceduresFoundCount = 0;
+            int proceduresMissingCount = 0;
 
             for (AlleleDTO allele : alleles) {
                 //System.out.println("gene="+allele.getMarkerSymbol());
@@ -210,54 +209,56 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 gene.setPfamaGoCats(allele.getPfamaGoCats());
                 gene.setPfamaJsons(allele.getPfamaJsons());
 
-                if(embryoRestData!=null){
+                if (embryoRestData != null) {
 
                 	List<EmbryoStrain> embryoStrainsForGene = embryoRestData.get(gene.getMgiAccessionId());
                 	//for the moment lets just set an embryo data available flag!
-                	if(embryoStrainsForGene!=null && embryoStrainsForGene.size()>0){
+                	if ((embryoStrainsForGene != null) && (embryoStrainsForGene.size() > 0)) {
                 		gene.setEmbryoDataAvailable(true);
                 		List<String> embryoModalitiesForGene=new ArrayList<>();
 
-                		try {
+                		for( EmbryoStrain strain : embryoStrainsForGene){
 
-                            for (EmbryoStrain strain : embryoStrainsForGene) {
+                			if(strain.getModalities()!=null && strain.getModalities().size()>0){
+                				embryoModalitiesForGene.addAll(strain.getModalities());
+                			}
+                			if(strain.getAnalysisViewUrl()!=null){
+                				gene.setEmbryoAnalysisUrl(strain.getAnalysisViewUrl());
+                				gene.setEmbryoAnalysisName("volumetric analysis");
+                			}
+                			for ( Long procedureStableKey : strain.getProcedureStableKeys() ) {
+                                Procedure procedure = procedureRepository.getByStableKey(procedureStableKey);
 
-                                if (strain.getModalities() != null && strain.getModalities().size() > 0) {
-                                    embryoModalitiesForGene.addAll(strain.getModalities());
+                                if (procedure == null) {
+                                    logger.warn("Procedure lookup for center::colonyId::mgiAccessionId::procedureStableKey {} {}::{}::{} failed. Procedure skipped.",
+                                                strain.getCentre(), strain.getColonyId(), strain.getMgiGeneAccessionId(), procedureStableKey);
+                                    proceduresMissingCount++;
+
+                                    continue;
                                 }
-                                if (strain.getAnalysisViewUrl() != null) {
-                                    gene.setEmbryoAnalysisUrl(strain.getAnalysisViewUrl());
-                                    gene.setEmbryoAnalysisName("volumetric analysis");
-                                }
-                                for (String procedureStableKey : strain.getProcedureStableKeys()) {
-                                    Procedure procedure = phenotypePipelineDAO.getProcedureByStableKey(procedureStableKey);
 
-                                    if (gene.getProcedureStableId() == null) {
+                                String procedureStableId = procedure.getStableId();
 
-                                        List<String> procedureStableIds = new ArrayList<>();
-                                        List<String> procedureNames = new ArrayList<>();
+                				if ( gene.getProcedureStableId() == null ) {
 
-                                        // Sometimes there is no stableId, which causes an NPE to be thrown. Log the info.
-                                        try {
-                                            procedureStableIds.add(procedure.getStableId());
-                                        } catch (NullPointerException e) {
-                                            logger.error("Procedure lookup for center::colonyId::mgiAccessionId {}::{}::{}, procedureStableKey {} failed.", strain.getCentre(), strain.getColonyId(), strain.getMgi(), procedureStableKey);
-                                        }
-                                        gene.setProcedureStableId(procedureStableIds);
+                                    List<String> procedureStableIds = new ArrayList<>();
+                                    List<String> procedureNames     = new ArrayList<>();
 
-                                        procedureNames.add(procedure.getName());
-                                        gene.setProcedureName(procedureNames);
-                                    } else {
-                                        gene.getProcedureStableId().add(procedure.getStableId());
-                                        gene.getProcedureName().add(procedure.getName());
-                                    }
-                                }
-                            }
-                        } catch (Exception e) {
-                		    logger.info("Could not get embryo modalities for gene {}", gene.getMarkerSymbol());
-                        }
+                					procedureStableIds.add(procedureStableId);
+                					gene.setProcedureStableId(procedureStableIds);
+                					procedureNames.add(procedure.getName());
+                					gene.setProcedureName(procedureNames);
+                				}
+                				else {
+                					gene.getProcedureStableId().add(procedure.getStableId());
+	                				gene.getProcedureName().add(procedure.getName());
+                				}
+
+                				proceduresFoundCount++;
+                			}
+                		}
+
                 		gene.setEmbryoModalities(embryoModalitiesForGene);
-
                 	}
                 }
                 
@@ -277,14 +278,11 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 if(genomicFeatureCoordinates!=null && genomicFeatureXrefs!=null){
                 	if(genomicFeatureCoordinates.containsKey(allele.getMgiAccessionId())){
                 		Map<String, String> coordsMap = genomicFeatureCoordinates.get(allele.getMgiAccessionId());
-                		//System.out.println("coords map found:"+coordsMap);
                 		gene.setSeqRegionId(coordsMap.get(GeneDTO.SEQ_REGION_ID));
                 		gene.setSeqRegionStart(Integer.valueOf(coordsMap.get(GeneDTO.SEQ_REGION_START)));
                 		gene.setSeqRegionEnd(Integer.valueOf(coordsMap.get(GeneDTO.SEQ_REGION_END)));
 
                         gene.setChrName(allele.getChrName());
-//                        gene.setChrStart(allele.getChrStart());
-//                        gene.setChrEnd(allele.getChrEnd());
 
                         List<String> ensemblIds = new ArrayList<>();
         				List<String> vegaIds = new ArrayList<>();
@@ -317,7 +315,6 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 	}
                 }
 
-
                 //
                 // Override the genomic location with values from the allele core (if available)
                 //
@@ -333,8 +330,6 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                     gene.setSeqRegionEnd(allele.getChrEnd());
                 }
 
-
-                //gene.setMpId(allele.getM)
                 // Populate pipeline and procedure info if we have a phenotypeCallSummary entry for this allele/gene
                 if (phenotypeSummaryGeneAccessionsToPipelineInfo.containsKey(allele.getMgiAccessionId())) {
                     List<Map<String, String>> rows = phenotypeSummaryGeneAccessionsToPipelineInfo.get(allele.getMgiAccessionId());
@@ -509,7 +504,6 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                     }
                 }
 
-
                 /*
                  * Unique all the sets
                  */
@@ -559,14 +553,16 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 gene.setInferredSelectedTopLevelMaTerm(new ArrayList<>(new HashSet<>(gene.getInferredSelectedTopLevelMaTerm())));
                 gene.setInferredSelectedTopLevelMaTermSynonym(new ArrayList<>(new HashSet<>(gene.getInferredSelectedTopLevelMaTermSynonym())));
 
-                documentCount++;
+                expectedDocumentCount++;
                 geneCore.addBean(gene, 60000);
                 count ++;
             }
 
+            logger.info("proceduresMissing: {}. procedures found: {}", proceduresMissingCount, proceduresFoundCount);
+
             geneCore.commit();
 
-        } catch (IOException | SolrServerException e) {
+        } catch (SQLException | IOException | SolrServerException e) {
             e.printStackTrace();
             throw new IndexerException(e);
         }
@@ -580,27 +576,24 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 	// PRIVATE METHODS
 
 
-
-    private void initialiseSupportingBeans() throws IndexerException {
-        phenotypeSummaryGeneAccessionsToPipelineInfo = populatePhenotypeCallSummaryGeneAccessions();
+    private void initialiseSupportingBeans(Connection connection) throws IndexerException {
+        phenotypeSummaryGeneAccessionsToPipelineInfo = populatePhenotypeCallSummaryGeneAccessions(connection);
         mgiAccessionToMP = populateMgiAccessionToMp();
         logger.info(" mgiAccessionToMP size=" + mgiAccessionToMP.size());
         embryoRestData = indexerMap.populateEmbryoData(embryoViewerFilename);
-        genomicFeatureCoordinates=this.populateGeneGenomicCoords();
-        genomicFeatureXrefs=this.populateXrefs();
-        idgGenes=this.populateIdgGeneList();
+        genomicFeatureCoordinates=this.populateGeneGenomicCoords(connection);
+        genomicFeatureXrefs=this.populateXrefs(connection);
+        idgGenes=this.populateIdgGeneList(connection);
         dmddImageData=indexerMap.populateDmddImagedData(dmddDataFilename);
         dmddLethalData = indexerMap.populateDmddLethalData(dmddDataFilename);
-        
     }
 
-
-	private Set<String> populateIdgGeneList() {
+	private Set<String> populateIdgGeneList(Connection connection) {
 
 		Set<String> idgGenes=new HashSet<>();
 		String queryString = "SELECT * FROM genes_secondary_project where secondary_project_id='idg'";
 
-      try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
+      try (PreparedStatement p = connection.prepareStatement(queryString)) {
           ResultSet resultSet = p.executeQuery();
 
           while (resultSet.next()) {
@@ -610,10 +603,9 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
           }catch(Exception e){
         	  e.printStackTrace();
           }
-      System.out.println("idg gene list size is "+idgGenes.size());
+
 		return idgGenes;
 	}
-
 
 	private Map<String, List<MpDTO>> populateMgiAccessionToMp() throws IndexerException {
 
@@ -628,9 +620,8 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
         return map;
     }
 
-    private Map<String, List<Map<String, String>>> populatePhenotypeCallSummaryGeneAccessions() {
+    private Map<String, List<Map<String, String>>> populatePhenotypeCallSummaryGeneAccessions(Connection connection) {
     	Map<String, List<Map<String, String>>> localPhenotypeSummaryGeneAccessionsToPipelineInfo = new HashMap<>();
-//        logger.debug(" Populating PCS pipeline info");
         String queryString = "select pcs.*, param.name, param.stable_id, proc.stable_id, proc.name, pipe.stable_id, pipe.name"
                 + " from phenotype_call_summary pcs"
                 + " inner join ontology_term term on term.acc=mp_acc"
@@ -639,7 +630,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 + " inner join phenotype_procedure proc on proc.id=pcs.procedure_id"
                 + " inner join phenotype_pipeline pipe on pipe.id=pcs.pipeline_id";
 
-        try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
+        try (PreparedStatement p = connection.prepareStatement(queryString)) {
             ResultSet resultSet = p.executeQuery();
 
             while (resultSet.next()) {
@@ -673,14 +664,12 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 
     }
 
-
-    private Map<String, List<Xref>> populateXrefs() {
+    private Map<String, List<Xref>> populateXrefs(Connection connection) {
 
         Map<String, List<Xref>> localGenomicFeatureXrefs = new HashMap<>();
-//        logger.debug(" Populating xref info");
         String queryString = "select acc, xref_acc, xref_db_id from xref";
 
-        try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
+        try (PreparedStatement p = connection.prepareStatement(queryString)) {
             ResultSet resultSet = p.executeQuery();
 
             while (resultSet.next()) {
@@ -691,7 +680,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 }
 
                 String xrefAcc = resultSet.getString("xref_acc");
-                int xrefDbId = resultSet.getInt("xref_db_id");
+                long xrefDbId = resultSet.getLong("xref_db_id");
 
                 Xref xref = new Xref();
                 xref.setXrefAccession(xrefAcc);
@@ -707,12 +696,12 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
         return localGenomicFeatureXrefs;
 
     }
-    private Map<String, Map<String, String>> populateGeneGenomicCoords() {
+
+    private Map<String, Map<String, String>> populateGeneGenomicCoords(Connection connection) {
     	Map<String, Map<String, String>> localGenomicFeatureCoordinates = new HashMap<>();
-//        logger.debug(" Populating Gene Genomic location info");
         String queryString = "select  gf.acc, gf.seq_region_id, gf.seq_region_start, gf.seq_region_end, gf.subtype_db_id, gf.db_id from genomic_feature gf";
 
-        try (PreparedStatement p = komp2DbConnection.prepareStatement(queryString)) {
+        try (PreparedStatement p = connection.prepareStatement(queryString)) {
             ResultSet resultSet = p.executeQuery();
 
             while (resultSet.next()) {
@@ -738,8 +727,8 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
 
     }
 
-
     public static void main(String[] args) {
-        SpringApplication.run(GeneIndexer.class, args);
+        ConfigurableApplicationContext context = SpringApplication.run(GeneIndexer.class, args);
+        context.close();
     }
 }

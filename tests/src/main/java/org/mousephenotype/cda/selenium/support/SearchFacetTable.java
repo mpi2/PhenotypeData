@@ -57,7 +57,6 @@ public abstract class SearchFacetTable {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-    public static final String NO_INFO_AVAILABLE    = "No information available";
     public static final String NO_ES_CELLS_PRODUCED = "No ES Cell produced";
 
     public static final String SHOW_ANNOTATION_VIEW = "Show Annotation View";

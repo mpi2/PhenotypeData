@@ -1,10 +1,10 @@
 package org.mousephenotype.cda.loads.annotations;
 
-import com.thoughtworks.xstream.InitializationException;
-import org.mousephenotype.cda.db.dao.OntologyTermDAO;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.pojo.Datasource;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
+import org.mousephenotype.cda.db.repositories.ParameterRepository;
 import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.db.statistics.ResultDTO;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -14,10 +14,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.Import;
-import org.springframework.util.Assert;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,21 +30,21 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
     public static Boolean SAVE_RESULTS = Boolean.TRUE;
 
     // Concurrent hash map is threadsafe
-    private static final Set<String> alreadyReported = Collections.newSetFromMap(new ConcurrentHashMap<>());
-    private Set<String> sexSpecificParameters = null;
-    public Set<Integer> skipProcedures = new HashSet<>();
+    private static final Set<String> alreadyReported       = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private              Set<String> sexSpecificParameters = null;
+    public               Set<Long>   skipProcedures        = new HashSet<>();
 
     // Default significance threshold
     public static float SIGNIFICANCE_THRESHOLD = 0.0001f;
 
     // 0.05 threshold per West, Welch and Galecki (see PhenStat documentation)
     private static float BASE_SIGNIFICANCE_THRESHOLD = 0.05f;
-	public static Float RRPLUS_SIGNIFICANCE = 0.0001f;
+    public static  Float RRPLUS_SIGNIFICANCE         = 0.0001f;
 
-    private PhenotypePipelineDAO phenotypePipelineDAO;
-    private DataSource komp2DataSource;
-	private OntologyTermDAO ontologyTermDAO;
-	private MpTermService mpTermService;
+    private DataSource             komp2DataSource;
+    private MpTermService          mpTermService;
+    private OntologyTermRepository ontologyTermRepository;
+    private ParameterRepository    parameterRepository;
 
 
     private static PreparedStatement insertPhenotypeCallSummaryStatement;
@@ -53,16 +53,16 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 	private static PreparedStatement insertRRPlusStatResultPhenotypeCallSummaryStatement;
 
 	@Inject
-	public OntologyAnnotationGenerator(MpTermService mpTermService, OntologyTermDAO ontologyTermDAO, DataSource komp2DataSource, PhenotypePipelineDAO phenotypePipelineDAO) {
-        Assert.notNull(mpTermService, "mpTermService cannot be null");
-        Assert.notNull(ontologyTermDAO, "ontologyTermDAO cannot be null");
-        Assert.notNull(komp2DataSource, "komp2DataSource cannot be null");
-        Assert.notNull(phenotypePipelineDAO, "phenotypePipelineDAO cannot be null");
-
-        this.mpTermService = mpTermService;
-        this.ontologyTermDAO = ontologyTermDAO;
+	public OntologyAnnotationGenerator(
+            @NotNull DataSource komp2DataSource,
+	        @NotNull MpTermService mpTermService,
+            @NotNull OntologyTermRepository ontologyTermRepository,
+            @NotNull ParameterRepository parameterRepository)
+    {
         this.komp2DataSource = komp2DataSource;
-        this.phenotypePipelineDAO = phenotypePipelineDAO;
+        this.mpTermService = mpTermService;
+        this.ontologyTermRepository = ontologyTermRepository;
+        this.parameterRepository = parameterRepository;
 
         try (Connection connection = komp2DataSource.getConnection()) {
             insertPhenotypeCallSummaryStatement = connection.prepareStatement("INSERT INTO phenotype_call_summary(external_db_id, project_id, gf_acc, gf_db_id, strain_acc, strain_db_id, allele_acc, allele_db_id, sex, zygosity, parameter_id, procedure_id, pipeline_id, mp_acc, mp_db_id, p_value, effect_size, organisation_id, colony_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
@@ -71,10 +71,8 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
             insertRRPlusStatResultPhenotypeCallSummaryStatement = connection.prepareStatement("INSERT INTO stat_result_phenotype_call_summary(rrplus_result_id, phenotype_call_summary_id) VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new InitializationException("Cannot initialize prepared statements -- SQL Exception occured", e);
+            throw new RuntimeException("Cannot initialize prepared statements -- SQL Exception occured", e);
         }
-
-
     }
 
     /**
@@ -114,7 +112,7 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 		generateSkipProceduresSet(connection);
 
         logger.info("processThreeIStatsResults");
-        processThreeIStatsResults(connection, phenotypePipelineDAO, ontologyTermDAO, mpTermService);
+        processThreeIStatsResults(connection, mpTermService);
         logger.info("Done processThreeIStatsResults");
 
         logger.info("processLineParameters");
@@ -126,15 +124,15 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
         logger.info("Done processLineOntologyParameters");
 
         logger.info("processUnidimensionalParameters");
-		processUnidimensionalParameters(connection, phenotypePipelineDAO);
+		processUnidimensionalParameters(connection);
         logger.info("Done processUnidimensionalParameters");
 
         logger.info("processCategoricalParameters");
-		processCategoricalParameters(connection, phenotypePipelineDAO);
+		processCategoricalParameters(connection);
         logger.info("Done processCategoricalParameters");
 
         logger.info("processRRPlusParameters");
-		processRRPlusParameters(connection, phenotypePipelineDAO);
+		processRRPlusParameters(connection);
         logger.info("Done processRRPlusParameters");
 
         logger.info("processEmbryonicParameters");
@@ -176,10 +174,9 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 				ResultSet resultSet = statement.executeQuery();
 
 				while (resultSet.next()) {
-					skipProcedures.add(resultSet.getInt("id"));
+					skipProcedures.add(resultSet.getLong("id"));
 				}
 			}
-
 		}
 	}
 
@@ -208,24 +205,24 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
             //counter++;
             // Get the MPATH term
 
-            insertPhenotypeCallSummaryStatement.setInt(1, res.getDataSourceId());
-            insertPhenotypeCallSummaryStatement.setInt(2, res.getProjectId());
+            insertPhenotypeCallSummaryStatement.setLong(1, res.getDataSourceId());
+            insertPhenotypeCallSummaryStatement.setLong(2, res.getProjectId());
             insertPhenotypeCallSummaryStatement.setString(3, res.getGeneAcc());
-            insertPhenotypeCallSummaryStatement.setInt(4, res.getGeneDbId());
+            insertPhenotypeCallSummaryStatement.setLong(4, res.getGeneDbId());
             insertPhenotypeCallSummaryStatement.setString(5, res.getStrainAcc());
-            insertPhenotypeCallSummaryStatement.setInt(6, res.getStrainDbId());
+            insertPhenotypeCallSummaryStatement.setLong(6, res.getStrainDbId());
             insertPhenotypeCallSummaryStatement.setString(7, res.getAlleleAcc());
-            insertPhenotypeCallSummaryStatement.setInt(8, res.getAlleleDbId());
+            insertPhenotypeCallSummaryStatement.setLong(8, res.getAlleleDbId());
 
             insertPhenotypeCallSummaryStatement.setString(10, res.getZygosity().getName());
 
-            insertPhenotypeCallSummaryStatement.setInt(11, res.getParameterId());
-            insertPhenotypeCallSummaryStatement.setInt(12, res.getProcedureId());
-            insertPhenotypeCallSummaryStatement.setInt(13, res.getPipelineId());
+            insertPhenotypeCallSummaryStatement.setLong(11, res.getParameterId());
+            insertPhenotypeCallSummaryStatement.setLong(12, res.getProcedureId());
+            insertPhenotypeCallSummaryStatement.setLong(13, res.getPipelineId());
             insertPhenotypeCallSummaryStatement.setString(14, res.getMpTerm()); // is actually MPATH acc here
-            insertPhenotypeCallSummaryStatement.setInt(15, 24); // hard-coded MPATH db id
+            insertPhenotypeCallSummaryStatement.setLong(15, 24); // hard-coded MPATH db id
 
-            insertPhenotypeCallSummaryStatement.setInt(18, res.getCenterId());
+            insertPhenotypeCallSummaryStatement.setLong(18, res.getCenterId());
             insertPhenotypeCallSummaryStatement.setString(19, res.getColonyId());
 
             insertPhenotypeCallSummaryStatement.setString(9, res.getSex().toString());
@@ -241,24 +238,24 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 
             // Get the EMAP term
 
-            insertPhenotypeCallSummaryStatement.setInt(1, res.getDataSourceId());
-            insertPhenotypeCallSummaryStatement.setInt(2, res.getProjectId());
+            insertPhenotypeCallSummaryStatement.setLong(1, res.getDataSourceId());
+            insertPhenotypeCallSummaryStatement.setLong(2, res.getProjectId());
             insertPhenotypeCallSummaryStatement.setString(3, res.getGeneAcc());
-            insertPhenotypeCallSummaryStatement.setInt(4, res.getGeneDbId());
+            insertPhenotypeCallSummaryStatement.setLong(4, res.getGeneDbId());
             insertPhenotypeCallSummaryStatement.setString(5, res.getStrainAcc());
-            insertPhenotypeCallSummaryStatement.setInt(6, res.getStrainDbId());
+            insertPhenotypeCallSummaryStatement.setLong(6, res.getStrainDbId());
             insertPhenotypeCallSummaryStatement.setString(7, res.getAlleleAcc());
-            insertPhenotypeCallSummaryStatement.setInt(8, res.getAlleleDbId());
+            insertPhenotypeCallSummaryStatement.setLong(8, res.getAlleleDbId());
 
             insertPhenotypeCallSummaryStatement.setString(10, res.getZygosity().getName());
 
-            insertPhenotypeCallSummaryStatement.setInt(11, res.getParameterId());
-            insertPhenotypeCallSummaryStatement.setInt(12, res.getProcedureId());
-            insertPhenotypeCallSummaryStatement.setInt(13, res.getPipelineId());
+            insertPhenotypeCallSummaryStatement.setLong(11, res.getParameterId());
+            insertPhenotypeCallSummaryStatement.setLong(12, res.getProcedureId());
+            insertPhenotypeCallSummaryStatement.setLong(13, res.getPipelineId());
             insertPhenotypeCallSummaryStatement.setString(14, res.getMpTerm()); // is actually EMAP acc here
-            insertPhenotypeCallSummaryStatement.setInt(15, 14); // hard-coded EMAP db id
+            insertPhenotypeCallSummaryStatement.setLong(15, 14); // hard-coded EMAP db id
 
-            insertPhenotypeCallSummaryStatement.setInt(18, res.getCenterId());
+            insertPhenotypeCallSummaryStatement.setLong(18, res.getCenterId());
             insertPhenotypeCallSummaryStatement.setString(19, res.getColonyId());
 
             insertPhenotypeCallSummaryStatement.setString(9, res.getSex().toString());
@@ -274,24 +271,24 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 
 		    // Get the Gross Pathology abnormal MP term
 
-		    insertPhenotypeCallSummaryStatement.setInt(1, res.getDataSourceId());
-		    insertPhenotypeCallSummaryStatement.setInt(2, res.getProjectId());
+		    insertPhenotypeCallSummaryStatement.setLong(1, res.getDataSourceId());
+		    insertPhenotypeCallSummaryStatement.setLong(2, res.getProjectId());
 		    insertPhenotypeCallSummaryStatement.setString(3, res.getGeneAcc());
-		    insertPhenotypeCallSummaryStatement.setInt(4, res.getGeneDbId());
+		    insertPhenotypeCallSummaryStatement.setLong(4, res.getGeneDbId());
 		    insertPhenotypeCallSummaryStatement.setString(5, res.getStrainAcc());
-		    insertPhenotypeCallSummaryStatement.setInt(6, res.getStrainDbId());
+		    insertPhenotypeCallSummaryStatement.setLong(6, res.getStrainDbId());
 		    insertPhenotypeCallSummaryStatement.setString(7, res.getAlleleAcc());
-		    insertPhenotypeCallSummaryStatement.setInt(8, res.getAlleleDbId());
+		    insertPhenotypeCallSummaryStatement.setLong(8, res.getAlleleDbId());
 
 		    insertPhenotypeCallSummaryStatement.setString(10, res.getZygosity().getName());
 
-		    insertPhenotypeCallSummaryStatement.setInt(11, res.getParameterId());
-		    insertPhenotypeCallSummaryStatement.setInt(12, res.getProcedureId());
-		    insertPhenotypeCallSummaryStatement.setInt(13, res.getPipelineId());
+		    insertPhenotypeCallSummaryStatement.setLong(11, res.getParameterId());
+		    insertPhenotypeCallSummaryStatement.setLong(12, res.getProcedureId());
+		    insertPhenotypeCallSummaryStatement.setLong(13, res.getPipelineId());
 		    insertPhenotypeCallSummaryStatement.setString(14, res.getMpTerm()); // is actually MP acc here
-		    insertPhenotypeCallSummaryStatement.setInt(15, 5); // hard-coded MP db id
+		    insertPhenotypeCallSummaryStatement.setLong(15, 5); // hard-coded MP db id
 
-		    insertPhenotypeCallSummaryStatement.setInt(18, res.getCenterId());
+		    insertPhenotypeCallSummaryStatement.setLong(18, res.getCenterId());
 		    insertPhenotypeCallSummaryStatement.setString(19, res.getColonyId());
 
 		    insertPhenotypeCallSummaryStatement.setString(9, res.getSex().toString());
@@ -318,14 +315,14 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
                 continue;
             }
 
-			insertPhenotypeCallSummaryStatement.setInt(1, res.getDataSourceId());
-			insertPhenotypeCallSummaryStatement.setInt(2, res.getProjectId());
+			insertPhenotypeCallSummaryStatement.setLong(1, res.getDataSourceId());
+			insertPhenotypeCallSummaryStatement.setLong(2, res.getProjectId());
 			insertPhenotypeCallSummaryStatement.setString(3, res.getGeneAcc());
-			insertPhenotypeCallSummaryStatement.setInt(4, res.getGeneDbId());
+			insertPhenotypeCallSummaryStatement.setLong(4, res.getGeneDbId());
 			insertPhenotypeCallSummaryStatement.setString(5, res.getStrainAcc());
-			insertPhenotypeCallSummaryStatement.setInt(6, res.getStrainDbId());
+			insertPhenotypeCallSummaryStatement.setLong(6, res.getStrainDbId());
 			insertPhenotypeCallSummaryStatement.setString(7, res.getAlleleAcc());
-			insertPhenotypeCallSummaryStatement.setInt(8, res.getAlleleDbId());
+			insertPhenotypeCallSummaryStatement.setLong(8, res.getAlleleDbId());
 
 			if(res.getZygosity() != null) {
                 logger.debug("For colony ID {}, Viability parameter USING zygosity {}", res.getColonyId(), res.getZygosity());
@@ -335,13 +332,13 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 				insertPhenotypeCallSummaryStatement.setString(10, ZygosityType.homozygote.getName());
 			}
 
-            insertPhenotypeCallSummaryStatement.setInt(11, res.getParameterId());
-			insertPhenotypeCallSummaryStatement.setInt(12, res.getProcedureId());
-			insertPhenotypeCallSummaryStatement.setInt(13, res.getPipelineId());
+            insertPhenotypeCallSummaryStatement.setLong(11, res.getParameterId());
+			insertPhenotypeCallSummaryStatement.setLong(12, res.getProcedureId());
+			insertPhenotypeCallSummaryStatement.setLong(13, res.getPipelineId());
 			insertPhenotypeCallSummaryStatement.setString(14, term.getId().getAccession());
-			insertPhenotypeCallSummaryStatement.setInt(15, term.getId().getDatabaseId());
+			insertPhenotypeCallSummaryStatement.setLong(15, term.getId().getDatabaseId());
 
-			insertPhenotypeCallSummaryStatement.setInt(18, res.getCenterId());
+			insertPhenotypeCallSummaryStatement.setLong(18, res.getCenterId());
 			insertPhenotypeCallSummaryStatement.setString(19, res.getColonyId());
 
 
@@ -362,18 +359,16 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 		} // end for (ResultDTO res : getLineResults(connection)) {
 	}
 
-
-
-    public void processThreeIStatsResults(Connection connection, PhenotypePipelineDAO phenotypePipelineDAO, OntologyTermDAO ontologyTermDAO, MpTermService mpTermService) throws SQLException {
+    private void processThreeIStatsResults(Connection connection, MpTermService mpTermService) throws SQLException {
 
         PreparedStatement insertStatResultPhenotypeCallSummaryStatement = insertUnidimensionalStatResultPhenotypeCallSummaryStatement;
 
         for (ResultDTO res : getThreeIResults(connection)) {
 
-            Parameter parameter = phenotypePipelineDAO.getParameterById(res.getParameterId());
+            Parameter parameter = parameterRepository.findById(res.getParameterId()).get();
 
             // Get the MP term directly from the stats result object for 3I calls
-            OntologyTerm term = ontologyTermDAO.getOntologyTermByAccession(res.getMpTerm());
+            OntologyTerm term = ontologyTermRepository.getByAccAndShortName(res.getMpTerm(), Datasource.MP);
 
             if (term == null) {
                 String msg = "No term could be found to associate for parameter: " + parameter.getStableId() + " (" + res.getParameterId() + ")";
@@ -384,20 +379,20 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
                 continue;
             }
 
-            insertPhenotypeCallSummaryStatement.setInt(1, res.getDataSourceId());
-            insertPhenotypeCallSummaryStatement.setInt(2, res.getProjectId());
+            insertPhenotypeCallSummaryStatement.setLong(1, res.getDataSourceId());
+            insertPhenotypeCallSummaryStatement.setLong(2, res.getProjectId());
             insertPhenotypeCallSummaryStatement.setString(3, res.getGeneAcc());
-            insertPhenotypeCallSummaryStatement.setInt(4, res.getGeneDbId());
+            insertPhenotypeCallSummaryStatement.setLong(4, res.getGeneDbId());
             insertPhenotypeCallSummaryStatement.setString(5, res.getStrainAcc());
-            insertPhenotypeCallSummaryStatement.setInt(6, res.getStrainDbId());
+            insertPhenotypeCallSummaryStatement.setLong(6, res.getStrainDbId());
             insertPhenotypeCallSummaryStatement.setString(7, res.getAlleleAcc());
-            insertPhenotypeCallSummaryStatement.setInt(8, res.getAlleleDbId());
+            insertPhenotypeCallSummaryStatement.setLong(8, res.getAlleleDbId());
             insertPhenotypeCallSummaryStatement.setString(10, res.getZygosity().name());
-            insertPhenotypeCallSummaryStatement.setInt(11, res.getParameterId());
-            insertPhenotypeCallSummaryStatement.setInt(12, res.getProcedureId());
-            insertPhenotypeCallSummaryStatement.setInt(13, res.getPipelineId());
+            insertPhenotypeCallSummaryStatement.setLong(11, res.getParameterId());
+            insertPhenotypeCallSummaryStatement.setLong(12, res.getProcedureId());
+            insertPhenotypeCallSummaryStatement.setLong(13, res.getPipelineId());
             insertPhenotypeCallSummaryStatement.setString(14, term.getId().getAccession());
-            insertPhenotypeCallSummaryStatement.setInt(15, term.getId().getDatabaseId());
+            insertPhenotypeCallSummaryStatement.setLong(15, term.getId().getDatabaseId());
 
             if (res.getNullTestPvalue() != null) {
                 // This is a PhenStat result
@@ -407,7 +402,7 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
                 insertPhenotypeCallSummaryStatement.setNull(16, Types.DOUBLE);
             }
 
-            insertPhenotypeCallSummaryStatement.setInt(18, res.getCenterId());
+            insertPhenotypeCallSummaryStatement.setLong(18, res.getCenterId());
             insertPhenotypeCallSummaryStatement.setString(19, res.getColonyId());
 
             if (res.getGenotypeEffectPvalue() == null) {
@@ -524,7 +519,6 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
                     }
                 }
 
-
             } else {
 
                 // Sexes differ (either in direction or not enough data for one
@@ -562,23 +556,19 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 
                     ResultSet rs = insertPhenotypeCallSummaryStatement.getGeneratedKeys();
                     saveOntologyResultAssociation(insertStatResultPhenotypeCallSummaryStatement, res, rs);
-
                 }
             }
         }
     }
 
 
-
-
-
-    public void processUnidimensionalParameters(Connection connection, PhenotypePipelineDAO phenotypePipelineDAO) throws SQLException {
+    private void processUnidimensionalParameters(Connection connection) throws SQLException {
 
         PreparedStatement insertStatResultPhenotypeCallSummaryStatement = insertUnidimensionalStatResultPhenotypeCallSummaryStatement;
 
         for (ResultDTO res : getUnidimensionalResults(connection)) {
 
-            Parameter parameter = phenotypePipelineDAO.getParameterById(res.getParameterId());
+            Parameter parameter = parameterRepository.findById(res.getParameterId()).get();
 
             // Get the MP term (by sex if no term found based on genotype result
             // effect size)
@@ -599,20 +589,20 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
                 continue;
             }
 
-            insertPhenotypeCallSummaryStatement.setInt(1, res.getDataSourceId());
-            insertPhenotypeCallSummaryStatement.setInt(2, res.getProjectId());
+            insertPhenotypeCallSummaryStatement.setLong(1, res.getDataSourceId());
+            insertPhenotypeCallSummaryStatement.setLong(2, res.getProjectId());
             insertPhenotypeCallSummaryStatement.setString(3, res.getGeneAcc());
-            insertPhenotypeCallSummaryStatement.setInt(4, res.getGeneDbId());
+            insertPhenotypeCallSummaryStatement.setLong(4, res.getGeneDbId());
             insertPhenotypeCallSummaryStatement.setString(5, res.getStrainAcc());
-            insertPhenotypeCallSummaryStatement.setInt(6, res.getStrainDbId());
+            insertPhenotypeCallSummaryStatement.setLong(6, res.getStrainDbId());
             insertPhenotypeCallSummaryStatement.setString(7, res.getAlleleAcc());
-            insertPhenotypeCallSummaryStatement.setInt(8, res.getAlleleDbId());
+            insertPhenotypeCallSummaryStatement.setLong(8, res.getAlleleDbId());
             insertPhenotypeCallSummaryStatement.setString(10, res.getZygosity().name());
-            insertPhenotypeCallSummaryStatement.setInt(11, res.getParameterId());
-            insertPhenotypeCallSummaryStatement.setInt(12, res.getProcedureId());
-            insertPhenotypeCallSummaryStatement.setInt(13, res.getPipelineId());
+            insertPhenotypeCallSummaryStatement.setLong(11, res.getParameterId());
+            insertPhenotypeCallSummaryStatement.setLong(12, res.getProcedureId());
+            insertPhenotypeCallSummaryStatement.setLong(13, res.getPipelineId());
             insertPhenotypeCallSummaryStatement.setString(14, term.getId().getAccession());
-            insertPhenotypeCallSummaryStatement.setInt(15, term.getId().getDatabaseId());
+            insertPhenotypeCallSummaryStatement.setLong(15, term.getId().getDatabaseId());
 
             if (res.getNullTestPvalue() != null) {
                 // This is a PhenStat result
@@ -622,7 +612,7 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
                 insertPhenotypeCallSummaryStatement.setNull(16, Types.DOUBLE);
             }
 
-            insertPhenotypeCallSummaryStatement.setInt(18, res.getCenterId());
+            insertPhenotypeCallSummaryStatement.setLong(18, res.getCenterId());
             insertPhenotypeCallSummaryStatement.setString(19, res.getColonyId());
 
             if (res.getGenotypeEffectPvalue() == null) {
@@ -783,15 +773,14 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
         }
     }
 
-    public void processCategoricalParameters(Connection connection, PhenotypePipelineDAO phenotypePipelineDAO) throws SQLException {
-
+    private void processCategoricalParameters(Connection connection) throws SQLException {
 
         for (ResultDTO res : getCategoricalResults(connection)) {
-            saveCategoricalResult(connection, phenotypePipelineDAO, res);
+            saveCategoricalResult(connection, res);
         }
     }
 
-    protected void saveCategoricalResult(Connection connection, PhenotypePipelineDAO phenotypePipelineDAO, ResultDTO res) throws SQLException {
+    protected void saveCategoricalResult(Connection connection, ResultDTO res) throws SQLException {
 
         PreparedStatement insertStatResultPhenotypeCallSummaryStatement = insertCategoricalStatResultPhenotypeCallSummaryStatement;
 
@@ -799,44 +788,40 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
         if (res.getNullTestPvalue() <= SIGNIFICANCE_THRESHOLD ||
                 res.getMalePvalue()!=null && res.getMalePvalue()<=SIGNIFICANCE_THRESHOLD ||
                 res.getFemalePvalue()!=null && res.getFemalePvalue()<=SIGNIFICANCE_THRESHOLD
-                ) {
+        ) {
 
             // Effect is significant, find out which term to associate
 
-            Parameter parameter = phenotypePipelineDAO.getParameterById(res.getParameterId());
+            Parameter parameter = parameterRepository.findById(res.getParameterId()).get();
 
             // Get the abnormal term
 
-            insertPhenotypeCallSummaryStatement.setInt(1, res.getDataSourceId());
-            insertPhenotypeCallSummaryStatement.setInt(2, res.getProjectId());
+            insertPhenotypeCallSummaryStatement.setLong(1, res.getDataSourceId());
+            insertPhenotypeCallSummaryStatement.setLong(2, res.getProjectId());
             insertPhenotypeCallSummaryStatement.setString(3, res.getGeneAcc());
-            insertPhenotypeCallSummaryStatement.setInt(4, res.getGeneDbId());
+            insertPhenotypeCallSummaryStatement.setLong(4, res.getGeneDbId());
             insertPhenotypeCallSummaryStatement.setString(5, res.getStrainAcc());
-            insertPhenotypeCallSummaryStatement.setInt(6, res.getStrainDbId());
+            insertPhenotypeCallSummaryStatement.setLong(6, res.getStrainDbId());
             insertPhenotypeCallSummaryStatement.setString(7, res.getAlleleAcc());
-            insertPhenotypeCallSummaryStatement.setInt(8, res.getAlleleDbId());
+            insertPhenotypeCallSummaryStatement.setLong(8, res.getAlleleDbId());
             insertPhenotypeCallSummaryStatement.setString(9, res.getSex().name());
             insertPhenotypeCallSummaryStatement.setString(10, res.getZygosity().name());
-            insertPhenotypeCallSummaryStatement.setInt(11, res.getParameterId());
-            insertPhenotypeCallSummaryStatement.setInt(12, res.getProcedureId());
-            insertPhenotypeCallSummaryStatement.setInt(13, res.getPipelineId());
-
-            insertPhenotypeCallSummaryStatement.setInt(18, res.getCenterId());
+            insertPhenotypeCallSummaryStatement.setLong(11, res.getParameterId());
+            insertPhenotypeCallSummaryStatement.setLong(12, res.getProcedureId());
+            insertPhenotypeCallSummaryStatement.setLong(13, res.getPipelineId());
+            insertPhenotypeCallSummaryStatement.setLong(18, res.getCenterId());
             insertPhenotypeCallSummaryStatement.setString(19, res.getColonyId());
 
-
             // Set the id of the stats result which is producing the phenotype call
-            insertStatResultPhenotypeCallSummaryStatement.setInt(1, res.getResultId());
+            insertStatResultPhenotypeCallSummaryStatement.setLong(1, res.getResultId());
             try {
-
 
                 if (
                         ((res.getFemalePvalue() == null || res.getFemalePvalue() >= SIGNIFICANCE_THRESHOLD) &&
                                 (res.getMalePvalue() == null || res.getMalePvalue() >= SIGNIFICANCE_THRESHOLD) &&
                                 res.getNullTestPvalue() <= SIGNIFICANCE_THRESHOLD) &&
                                 ! sexSpecificParameters.contains(res.getParameterStableId())
-                        ) {
-
+                ) {
                     OntologyTerm term = mpTermService.getMPTerm(parameter.getStableId(), res, null, connection, SIGNIFICANCE_THRESHOLD, true);
                     if (term == null) {
                         String msg = "No term could be found to associate for category " + res.getCategoryA() + " for parameter: " + parameter.getStableId() + " (" + res.getParameterId() + ")";
@@ -853,16 +838,17 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
                     // Individually, not significant, but combined is
                     insertPhenotypeCallSummaryStatement.setString(9, SexType.both.getName());
                     insertPhenotypeCallSummaryStatement.setString(14, term.getId().getAccession());
-                    insertPhenotypeCallSummaryStatement.setInt(15, term.getId().getDatabaseId());
+                    insertPhenotypeCallSummaryStatement.setLong(15, term.getId().getDatabaseId());
                     insertPhenotypeCallSummaryStatement.setDouble(16, res.getNullTestPvalue());
                     insertPhenotypeCallSummaryStatement.setDouble(17, res.getGenotypeEffectSize());
                     if (SAVE_RESULTS) insertPhenotypeCallSummaryStatement.executeUpdate();
 
                     ResultSet rs = insertPhenotypeCallSummaryStatement.getGeneratedKeys();
                     while (rs.next()) {
-                        insertStatResultPhenotypeCallSummaryStatement.setInt(2, rs.getInt(1));
+                        insertStatResultPhenotypeCallSummaryStatement.setLong(2, rs.getLong(1));
                         if (SAVE_RESULTS) insertStatResultPhenotypeCallSummaryStatement.executeUpdate();
                     }
+
                 } else {
 
                     // If female p_value is significant, add a female phenotype call
@@ -883,14 +869,14 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 
                         insertPhenotypeCallSummaryStatement.setString(9, SexType.female.getName());
                         insertPhenotypeCallSummaryStatement.setString(14, term.getId().getAccession());
-                        insertPhenotypeCallSummaryStatement.setInt(15, term.getId().getDatabaseId());
+                        insertPhenotypeCallSummaryStatement.setLong(15, term.getId().getDatabaseId());
                         insertPhenotypeCallSummaryStatement.setDouble(16, res.getFemalePvalue());
                         insertPhenotypeCallSummaryStatement.setDouble(17, res.getFemaleEffectSize());
                         if (SAVE_RESULTS) insertPhenotypeCallSummaryStatement.executeUpdate();
 
                         ResultSet rs = insertPhenotypeCallSummaryStatement.getGeneratedKeys();
                         while (rs.next()) {
-                            insertStatResultPhenotypeCallSummaryStatement.setInt(2, rs.getInt(1));
+                            insertStatResultPhenotypeCallSummaryStatement.setLong(2, rs.getLong(1));
                             if (SAVE_RESULTS) insertStatResultPhenotypeCallSummaryStatement.executeUpdate();
                         }
                     }
@@ -913,14 +899,14 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 
                         insertPhenotypeCallSummaryStatement.setString(9, SexType.male.getName());
                         insertPhenotypeCallSummaryStatement.setString(14, term.getId().getAccession());
-                        insertPhenotypeCallSummaryStatement.setInt(15, term.getId().getDatabaseId());
+                        insertPhenotypeCallSummaryStatement.setLong(15, term.getId().getDatabaseId());
                         insertPhenotypeCallSummaryStatement.setDouble(16, res.getMalePvalue());
                         insertPhenotypeCallSummaryStatement.setDouble(17, res.getMaleEffectSize());
                         if (SAVE_RESULTS) insertPhenotypeCallSummaryStatement.executeUpdate();
 
                         ResultSet rs = insertPhenotypeCallSummaryStatement.getGeneratedKeys();
                         while (rs.next()) {
-                            insertStatResultPhenotypeCallSummaryStatement.setInt(2, rs.getInt(1));
+                            insertStatResultPhenotypeCallSummaryStatement.setLong(2, rs.getLong(1));
                             if (SAVE_RESULTS) insertStatResultPhenotypeCallSummaryStatement.executeUpdate();
                         }
                     }
@@ -928,17 +914,16 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
             } catch (Exception e) {
                 logger.warn("Error processing result " + res, e);
             }
-
         }
     }
 
-    public void processRRPlusParameters(Connection connection, PhenotypePipelineDAO phenotypePipelineDAO) throws SQLException {
+	public void processRRPlusParameters(Connection connection) throws SQLException {
 
 		PreparedStatement insertStatResultPhenotypeCallSummaryStatement = insertRRPlusStatResultPhenotypeCallSummaryStatement;
 
 		for (ResultDTO res : getRRPlusResults(connection)) {
 
-			Parameter parameter = phenotypePipelineDAO.getParameterById(res.getParameterId());
+			Parameter parameter = parameterRepository.findById(res.getParameterId()).get();
 
 			// Get the MP term (by sex if no term found based on genotype result
 			// effect size)
@@ -955,24 +940,24 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 
 			logger.debug("Adding term {} to RR+ result for parameter {} for gene {} for sex {}", term.getId().getAccession(), parameter.getStableId(), res.getGeneAcc(), res.getSex());
 
-			insertPhenotypeCallSummaryStatement.setInt(1, res.getDataSourceId());
-			insertPhenotypeCallSummaryStatement.setInt(2, res.getProjectId());
+			insertPhenotypeCallSummaryStatement.setLong(1, res.getDataSourceId());
+			insertPhenotypeCallSummaryStatement.setLong(2, res.getProjectId());
 			insertPhenotypeCallSummaryStatement.setString(3, res.getGeneAcc());
-			insertPhenotypeCallSummaryStatement.setInt(4, res.getGeneDbId());
+			insertPhenotypeCallSummaryStatement.setLong(4, res.getGeneDbId());
 			insertPhenotypeCallSummaryStatement.setString(5, res.getStrainAcc());
-			insertPhenotypeCallSummaryStatement.setInt(6, res.getStrainDbId());
+			insertPhenotypeCallSummaryStatement.setLong(6, res.getStrainDbId());
 			insertPhenotypeCallSummaryStatement.setString(7, res.getAlleleAcc());
-			insertPhenotypeCallSummaryStatement.setInt(8, res.getAlleleDbId());
+			insertPhenotypeCallSummaryStatement.setLong(8, res.getAlleleDbId());
 			insertPhenotypeCallSummaryStatement.setString(9, res.getSex().name());
 			insertPhenotypeCallSummaryStatement.setString(10, res.getZygosity().name());
-			insertPhenotypeCallSummaryStatement.setInt(11, res.getParameterId());
-			insertPhenotypeCallSummaryStatement.setInt(12, res.getProcedureId());
-			insertPhenotypeCallSummaryStatement.setInt(13, res.getPipelineId());
+			insertPhenotypeCallSummaryStatement.setLong(11, res.getParameterId());
+			insertPhenotypeCallSummaryStatement.setLong(12, res.getProcedureId());
+			insertPhenotypeCallSummaryStatement.setLong(13, res.getPipelineId());
 			insertPhenotypeCallSummaryStatement.setString(14, term.getId().getAccession());
-			insertPhenotypeCallSummaryStatement.setInt(15, term.getId().getDatabaseId());
+			insertPhenotypeCallSummaryStatement.setLong(15, term.getId().getDatabaseId());
 			insertPhenotypeCallSummaryStatement.setDouble(16, res.getGenotypeEffectPvalue());
 			insertPhenotypeCallSummaryStatement.setDouble(17, res.getGenotypeEffectSize());
-			insertPhenotypeCallSummaryStatement.setInt(18, res.getCenterId());
+			insertPhenotypeCallSummaryStatement.setLong(18, res.getCenterId());
 			insertPhenotypeCallSummaryStatement.setString(19, res.getColonyId());
 
 			if (SAVE_RESULTS) insertPhenotypeCallSummaryStatement.executeUpdate();
@@ -984,8 +969,8 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 
     private void saveOntologyResultAssociation(PreparedStatement insertStatResultPhenotypeCallSummaryStatement, ResultDTO res, ResultSet rs) throws SQLException {
         while (rs.next()) {
-            insertStatResultPhenotypeCallSummaryStatement.setInt(1, res.getResultId());
-            insertStatResultPhenotypeCallSummaryStatement.setInt(2, rs.getInt(1));
+            insertStatResultPhenotypeCallSummaryStatement.setLong(1, res.getResultId());
+            insertStatResultPhenotypeCallSummaryStatement.setLong(2, rs.getLong(1));
             if (SAVE_RESULTS) insertStatResultPhenotypeCallSummaryStatement.executeUpdate();
         }
     }
@@ -995,27 +980,27 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 
 		for (ResultDTO res : getEmbryonicResults(connection)) {
 
-			insertPhenotypeCallSummaryStatement.setInt(1, res.getDataSourceId());
-			insertPhenotypeCallSummaryStatement.setInt(2, res.getProjectId());
+			insertPhenotypeCallSummaryStatement.setLong(1, res.getDataSourceId());
+			insertPhenotypeCallSummaryStatement.setLong(2, res.getProjectId());
 			insertPhenotypeCallSummaryStatement.setString(3, res.getGeneAcc());
-			insertPhenotypeCallSummaryStatement.setInt(4, res.getGeneDbId());
+			insertPhenotypeCallSummaryStatement.setLong(4, res.getGeneDbId());
 			insertPhenotypeCallSummaryStatement.setString(5, res.getStrainAcc());
-			insertPhenotypeCallSummaryStatement.setInt(6, res.getStrainDbId());
+			insertPhenotypeCallSummaryStatement.setLong(6, res.getStrainDbId());
 			insertPhenotypeCallSummaryStatement.setString(7, res.getAlleleAcc());
-			insertPhenotypeCallSummaryStatement.setInt(8, res.getAlleleDbId());
+			insertPhenotypeCallSummaryStatement.setLong(8, res.getAlleleDbId());
 			insertPhenotypeCallSummaryStatement.setString(9, res.getSex().getName());
 			insertPhenotypeCallSummaryStatement.setString(10, res.getZygosity().name());
-			insertPhenotypeCallSummaryStatement.setInt(11, res.getParameterId());
-			insertPhenotypeCallSummaryStatement.setInt(12, res.getProcedureId());
-			insertPhenotypeCallSummaryStatement.setInt(13, res.getPipelineId());
+			insertPhenotypeCallSummaryStatement.setLong(11, res.getParameterId());
+			insertPhenotypeCallSummaryStatement.setLong(12, res.getProcedureId());
+			insertPhenotypeCallSummaryStatement.setLong(13, res.getPipelineId());
 			insertPhenotypeCallSummaryStatement.setString(14, res.getMpTerm());
-			insertPhenotypeCallSummaryStatement.setInt(15, res.getOntologyDbId());
+			insertPhenotypeCallSummaryStatement.setLong(15, res.getOntologyDbId());
 
 			// This is NOT a statistical result
 			insertPhenotypeCallSummaryStatement.setNull(16, Types.DOUBLE);
 			insertPhenotypeCallSummaryStatement.setNull(17, Types.DOUBLE);
 
-			insertPhenotypeCallSummaryStatement.setInt(18, res.getCenterId());
+			insertPhenotypeCallSummaryStatement.setLong(18, res.getCenterId());
 			insertPhenotypeCallSummaryStatement.setString(19, res.getColonyId());
 
 			if (SAVE_RESULTS) insertPhenotypeCallSummaryStatement.executeUpdate();
@@ -1027,35 +1012,31 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 
 		for (ResultDTO res : getEmbryonicLineResults(connection)) {
 
-			insertPhenotypeCallSummaryStatement.setInt(1, res.getDataSourceId());
-			insertPhenotypeCallSummaryStatement.setInt(2, res.getProjectId());
+			insertPhenotypeCallSummaryStatement.setLong(1, res.getDataSourceId());
+			insertPhenotypeCallSummaryStatement.setLong(2, res.getProjectId());
 			insertPhenotypeCallSummaryStatement.setString(3, res.getGeneAcc());
-			insertPhenotypeCallSummaryStatement.setInt(4, res.getGeneDbId());
+			insertPhenotypeCallSummaryStatement.setLong(4, res.getGeneDbId());
 			insertPhenotypeCallSummaryStatement.setString(5, res.getStrainAcc());
-			insertPhenotypeCallSummaryStatement.setInt(6, res.getStrainDbId());
+			insertPhenotypeCallSummaryStatement.setLong(6, res.getStrainDbId());
 			insertPhenotypeCallSummaryStatement.setString(7, res.getAlleleAcc());
-			insertPhenotypeCallSummaryStatement.setInt(8, res.getAlleleDbId());
+			insertPhenotypeCallSummaryStatement.setLong(8, res.getAlleleDbId());
 			insertPhenotypeCallSummaryStatement.setString(9, res.getSex().getName());
 			insertPhenotypeCallSummaryStatement.setString(10, res.getZygosity().name());
-			insertPhenotypeCallSummaryStatement.setInt(11, res.getParameterId());
-			insertPhenotypeCallSummaryStatement.setInt(12, res.getProcedureId());
-			insertPhenotypeCallSummaryStatement.setInt(13, res.getPipelineId());
+			insertPhenotypeCallSummaryStatement.setLong(11, res.getParameterId());
+			insertPhenotypeCallSummaryStatement.setLong(12, res.getProcedureId());
+			insertPhenotypeCallSummaryStatement.setLong(13, res.getPipelineId());
 			insertPhenotypeCallSummaryStatement.setString(14, res.getMpTerm());
-			insertPhenotypeCallSummaryStatement.setInt(15, res.getOntologyDbId());
+			insertPhenotypeCallSummaryStatement.setLong(15, res.getOntologyDbId());
 
 			// This is NOT a statistical result
 			insertPhenotypeCallSummaryStatement.setNull(16, Types.DOUBLE);
 			insertPhenotypeCallSummaryStatement.setNull(17, Types.DOUBLE);
 
-			insertPhenotypeCallSummaryStatement.setInt(18, res.getCenterId());
+			insertPhenotypeCallSummaryStatement.setLong(18, res.getCenterId());
 			insertPhenotypeCallSummaryStatement.setString(19, res.getColonyId());
 
 			if (SAVE_RESULTS) insertPhenotypeCallSummaryStatement.executeUpdate();
-
 		}
-
-
-
 	}
 
 	/**
@@ -1156,19 +1137,19 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 
 	            ResultDTO result = new ResultDTO();
 
-                result.setDataSourceId(resultSet.getInt("db_id"));
+                result.setDataSourceId(resultSet.getLong("db_id"));
                 result.setColonyId(resultSet.getString("colony_id"));
-                result.setProjectId(resultSet.getInt("project_id"));
-                result.setCenterId(resultSet.getInt("center_id"));
-                result.setPipelineId(resultSet.getInt("pipeline_id"));
-                result.setProcedureId(resultSet.getInt("procedure_id"));
-                result.setParameterId(resultSet.getInt("parameter_id"));
+                result.setProjectId(resultSet.getLong("project_id"));
+                result.setCenterId(resultSet.getLong("center_id"));
+                result.setPipelineId(resultSet.getLong("pipeline_id"));
+                result.setProcedureId(resultSet.getLong("procedure_id"));
+                result.setParameterId(resultSet.getLong("parameter_id"));
                 result.setGeneAcc(resultSet.getString("gf_acc"));
-                result.setGeneDbId(resultSet.getInt("gf_db_id"));
+                result.setGeneDbId(resultSet.getLong("gf_db_id"));
                 result.setAlleleAcc(resultSet.getString("allele_acc"));
-                result.setAlleleDbId(resultSet.getInt("allele_db_id"));
+                result.setAlleleDbId(resultSet.getLong("allele_db_id"));
                 result.setStrainAcc(resultSet.getString("strain_acc"));
-                result.setStrainDbId(resultSet.getInt("strain_db_id"));
+                result.setStrainDbId(resultSet.getLong("strain_db_id"));
                 result.setMpTerm(resultSet.getString("ontology_acc"));
                 result.setZygosity(ZygosityType.valueOf(resultSet.getString("zygosity")));
                 result.setSex(SexType.valueOf(resultSet.getString("sex")));
@@ -1223,20 +1204,20 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 
 				ResultDTO result = new ResultDTO();
 
-				result.setResultId(resultSet.getInt("result_id"));
-				result.setDataSourceId(resultSet.getInt("db_id"));
+				result.setResultId(resultSet.getLong("result_id"));
+				result.setDataSourceId(resultSet.getLong("db_id"));
 				result.setColonyId(resultSet.getString("colony_id"));
-				result.setProjectId(resultSet.getInt("project_id"));
-				result.setCenterId(resultSet.getInt("center_id"));
-				result.setPipelineId(resultSet.getInt("pipeline_id"));
-				result.setProcedureId(resultSet.getInt("procedure_id"));
-				result.setParameterId(resultSet.getInt("parameter_id"));
+				result.setProjectId(resultSet.getLong("project_id"));
+				result.setCenterId(resultSet.getLong("center_id"));
+				result.setPipelineId(resultSet.getLong("pipeline_id"));
+				result.setProcedureId(resultSet.getLong("procedure_id"));
+				result.setParameterId(resultSet.getLong("parameter_id"));
 				result.setGeneAcc(resultSet.getString("gf_acc"));
-				result.setGeneDbId(resultSet.getInt("gf_db_id"));
+				result.setGeneDbId(resultSet.getLong("gf_db_id"));
 				result.setAlleleAcc(resultSet.getString("allele_acc"));
-				result.setAlleleDbId(resultSet.getInt("allele_db_id"));
+				result.setAlleleDbId(resultSet.getLong("allele_db_id"));
 				result.setStrainAcc(resultSet.getString("strain_acc"));
-				result.setStrainDbId(resultSet.getInt("strain_db_id"));
+				result.setStrainDbId(resultSet.getLong("strain_db_id"));
 				result.setMpTerm(resultSet.getString("ontology_acc"));
                 result.setZygosity(ZygosityType.valueOf(resultSet.getString("zygosity")));
 
@@ -1337,23 +1318,23 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
             while (resultSet.next()) {
                 ResultDTO result = new ResultDTO();
 
-                result.setResultId(resultSet.getInt("result_id"));
-                result.setDataSourceId(resultSet.getInt("external_db_id"));
+                result.setResultId(resultSet.getLong("result_id"));
+                result.setDataSourceId(resultSet.getLong("external_db_id"));
                 result.setColonyId(resultSet.getString("colony_id"));
                 result.setMpTerm(resultSet.getString("mp_acc"));
-                result.setProjectId(resultSet.getInt("project_id"));
-                result.setCenterId(resultSet.getInt("center_id"));
-                result.setPipelineId(resultSet.getInt("pipeline_id"));
-                result.setProcedureId(resultSet.getInt("procedure_id"));
-                result.setParameterId(resultSet.getInt("parameter_id"));
+                result.setProjectId(resultSet.getLong("project_id"));
+                result.setCenterId(resultSet.getLong("center_id"));
+                result.setPipelineId(resultSet.getLong("pipeline_id"));
+                result.setProcedureId(resultSet.getLong("procedure_id"));
+                result.setParameterId(resultSet.getLong("parameter_id"));
                 result.setParameterStableId(resultSet.getString("parameter_stable_id"));
                 result.setZygosity(ZygosityType.valueOf(resultSet.getString("zygosity")));
                 result.setStrainAcc(resultSet.getString("strain_acc"));
-                result.setStrainDbId(resultSet.getInt("strain_db_id"));
+                result.setStrainDbId(resultSet.getLong("strain_db_id"));
                 result.setGeneAcc(resultSet.getString("gf_acc"));
-                result.setGeneDbId(resultSet.getInt("gf_db_id"));
+                result.setGeneDbId(resultSet.getLong("gf_db_id"));
                 result.setAlleleAcc(resultSet.getString("allele_acc"));
-                result.setAlleleDbId(resultSet.getInt("allele_db_id"));
+                result.setAlleleDbId(resultSet.getLong("allele_db_id"));
                 result.setMaleControls(resultSet.getInt("male_controls"));
                 result.setMaleMutants(resultSet.getInt("male_mutants"));
                 result.setFemaleControls(resultSet.getInt("female_controls"));
@@ -1444,22 +1425,22 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
             while (resultSet.next()) {
                 ResultDTO result = new ResultDTO();
 
-                result.setResultId(resultSet.getInt("result_id"));
-                result.setDataSourceId(resultSet.getInt("external_db_id"));
+                result.setResultId(resultSet.getLong("result_id"));
+                result.setDataSourceId(resultSet.getLong("external_db_id"));
                 result.setColonyId(resultSet.getString("colony_id"));
-                result.setProjectId(resultSet.getInt("project_id"));
-                result.setCenterId(resultSet.getInt("center_id"));
-                result.setPipelineId(resultSet.getInt("pipeline_id"));
-                result.setProcedureId(resultSet.getInt("procedure_id"));
-                result.setParameterId(resultSet.getInt("parameter_id"));
+                result.setProjectId(resultSet.getLong("project_id"));
+                result.setCenterId(resultSet.getLong("center_id"));
+                result.setPipelineId(resultSet.getLong("pipeline_id"));
+                result.setProcedureId(resultSet.getLong("procedure_id"));
+                result.setParameterId(resultSet.getLong("parameter_id"));
                 result.setParameterStableId(resultSet.getString("parameter_stable_id"));
                 result.setZygosity(ZygosityType.valueOf(resultSet.getString("zygosity")));
                 result.setStrainAcc(resultSet.getString("strain_acc"));
-                result.setStrainDbId(resultSet.getInt("strain_db_id"));
+                result.setStrainDbId(resultSet.getLong("strain_db_id"));
                 result.setGeneAcc(resultSet.getString("gf_acc"));
-                result.setGeneDbId(resultSet.getInt("gf_db_id"));
+                result.setGeneDbId(resultSet.getLong("gf_db_id"));
                 result.setAlleleAcc(resultSet.getString("allele_acc"));
-                result.setAlleleDbId(resultSet.getInt("allele_db_id"));
+                result.setAlleleDbId(resultSet.getLong("allele_db_id"));
                 result.setMaleControls(resultSet.getInt("male_controls"));
                 result.setMaleMutants(resultSet.getInt("male_mutants"));
                 result.setFemaleControls(resultSet.getInt("female_controls"));
@@ -1546,22 +1527,22 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
             while (resultSet.next()) {
                 ResultDTO result = new ResultDTO();
 
-                result.setResultId(resultSet.getInt("result_id"));
-                result.setDataSourceId(resultSet.getInt("external_db_id"));
+                result.setResultId(resultSet.getLong("result_id"));
+                result.setDataSourceId(resultSet.getLong("external_db_id"));
                 result.setColonyId(resultSet.getString("colony_id"));
-                result.setProjectId(resultSet.getInt("project_id"));
-                result.setCenterId(resultSet.getInt("center_id"));
-                result.setPipelineId(resultSet.getInt("pipeline_id"));
-                result.setProcedureId(resultSet.getInt("procedure_id"));
-                result.setParameterId(resultSet.getInt("parameter_id"));
+                result.setProjectId(resultSet.getLong("project_id"));
+                result.setCenterId(resultSet.getLong("center_id"));
+                result.setPipelineId(resultSet.getLong("pipeline_id"));
+                result.setProcedureId(resultSet.getLong("procedure_id"));
+                result.setParameterId(resultSet.getLong("parameter_id"));
                 result.setParameterStableId(resultSet.getString("parameter_stable_id"));
                 result.setZygosity(ZygosityType.valueOf(resultSet.getString("zygosity")));
                 result.setStrainAcc(resultSet.getString("strain_acc"));
-                result.setStrainDbId(resultSet.getInt("strain_db_id"));
+                result.setStrainDbId(resultSet.getLong("strain_db_id"));
                 result.setGeneAcc(resultSet.getString("gf_acc"));
-                result.setGeneDbId(resultSet.getInt("gf_db_id"));
+                result.setGeneDbId(resultSet.getLong("gf_db_id"));
                 result.setAlleleAcc(resultSet.getString("allele_acc"));
-                result.setAlleleDbId(resultSet.getInt("allele_db_id"));
+                result.setAlleleDbId(resultSet.getLong("allele_db_id"));
                 result.setSex(SexType.valueOf(resultSet.getString("sex")));
 
                 result.setNullTestPvalue(resultSet.getDouble("p_value"));
@@ -1652,7 +1633,7 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 				Boolean perSexResults = Boolean.FALSE;
 
 				// Skip parameters we are not interested in
-				if (skipProcedures.contains(resultSet.getInt("procedure_id"))) {
+				if (skipProcedures.contains(resultSet.getLong("procedure_id"))) {
 					continue;
 				}
 
@@ -1663,21 +1644,21 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 
 						ResultDTO result = new ResultDTO();
 
-						result.setResultId(resultSet.getInt("result_id"));
-						result.setDataSourceId(resultSet.getInt("external_db_id"));
+						result.setResultId(resultSet.getLong("result_id"));
+						result.setDataSourceId(resultSet.getLong("external_db_id"));
 						result.setColonyId(resultSet.getString("colony_id"));
-						result.setProjectId(resultSet.getInt("project_id"));
-						result.setCenterId(resultSet.getInt("center_id"));
-						result.setPipelineId(resultSet.getInt("pipeline_id"));
-						result.setProcedureId(resultSet.getInt("procedure_id"));
-						result.setParameterId(resultSet.getInt("parameter_id"));
+						result.setProjectId(resultSet.getLong("project_id"));
+						result.setCenterId(resultSet.getLong("center_id"));
+						result.setPipelineId(resultSet.getLong("pipeline_id"));
+						result.setProcedureId(resultSet.getLong("procedure_id"));
+						result.setParameterId(resultSet.getLong("parameter_id"));
 						result.setZygosity(ZygosityType.valueOf(resultSet.getString("zygosity")));
 						result.setStrainAcc(resultSet.getString("strain_acc"));
-						result.setStrainDbId(resultSet.getInt("strain_db_id"));
+						result.setStrainDbId(resultSet.getLong("strain_db_id"));
 						result.setGeneAcc(resultSet.getString("gf_acc"));
-						result.setGeneDbId(resultSet.getInt("gf_db_id"));
+						result.setGeneDbId(resultSet.getLong("gf_db_id"));
 						result.setAlleleAcc(resultSet.getString("allele_acc"));
-						result.setAlleleDbId(resultSet.getInt("allele_db_id"));
+						result.setAlleleDbId(resultSet.getLong("allele_db_id"));
 						result.setMaleControls(resultSet.getInt("male_controls"));
 						result.setMaleMutants(resultSet.getInt("male_mutants"));
 						result.setFemaleControls(resultSet.getInt("female_controls"));
@@ -1769,11 +1750,11 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 			while (resultSet.next()) {
 
 				// Skip parameters we are not interested in
-				if (skipProcedures.contains(resultSet.getInt("procedure_id"))) {
+				if (skipProcedures.contains(resultSet.getLong("procedure_id"))) {
 					continue;
 				}
 
-				if ((resultSet.getString("parameter_stable_id").startsWith("IMPC_GEP_004") || resultSet.getString("parameter_stable_id").startsWith("IMPC_GEP_005")) && resultSet.getInt("center_id")==6) {
+				if ((resultSet.getString("parameter_stable_id").startsWith("IMPC_GEP_004") || resultSet.getString("parameter_stable_id").startsWith("IMPC_GEP_005")) && resultSet.getLong("center_id")==6) {
 					// Skipping JAX parameters Spontaneous movement IMPC_GEP_004_002 and Responsive to tactile stimuli IMPC_GEP_005_002 for now
 					continue;
 				}
@@ -1781,23 +1762,23 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 
 				ResultDTO result = new ResultDTO();
 
-				result.setDataSourceId(resultSet.getInt("db_id"));
+				result.setDataSourceId(resultSet.getLong("db_id"));
 				result.setColonyId(resultSet.getString("colony_id"));
 				result.setSex(SexType.valueOf(resultSet.getString("sex")));
-				result.setProjectId(resultSet.getInt("project_id"));
-				result.setCenterId(resultSet.getInt("center_id"));
-				result.setPipelineId(resultSet.getInt("pipeline_id"));
-				result.setProcedureId(resultSet.getInt("procedure_id"));
-				result.setParameterId(resultSet.getInt("parameter_id"));
+				result.setProjectId(resultSet.getLong("project_id"));
+				result.setCenterId(resultSet.getLong("center_id"));
+				result.setPipelineId(resultSet.getLong("pipeline_id"));
+				result.setProcedureId(resultSet.getLong("procedure_id"));
+				result.setParameterId(resultSet.getLong("parameter_id"));
 				result.setZygosity(ZygosityType.valueOf(resultSet.getString("zygosity")));
 				result.setStrainAcc(resultSet.getString("strain_acc"));
-				result.setStrainDbId(resultSet.getInt("strain_db_id"));
+				result.setStrainDbId(resultSet.getLong("strain_db_id"));
 				result.setGeneAcc(resultSet.getString("gf_acc"));
-				result.setGeneDbId(resultSet.getInt("gf_db_id"));
+				result.setGeneDbId(resultSet.getLong("gf_db_id"));
 				result.setAlleleAcc(resultSet.getString("allele_acc"));
-				result.setAlleleDbId(resultSet.getInt("allele_db_id"));
+				result.setAlleleDbId(resultSet.getLong("allele_db_id"));
 				result.setMpTerm(resultSet.getString("ontology_acc"));
-				result.setOntologyDbId(resultSet.getInt("ontology_db_id"));
+				result.setOntologyDbId(resultSet.getLong("ontology_db_id"));
 
 				statResults.add(result);
 
@@ -1848,30 +1829,30 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 			while (resultSet.next()) {
 
 				// Skip parameters we are not interested in
-				if (skipProcedures.contains(resultSet.getInt("procedure_id"))) {
+				if (skipProcedures.contains(resultSet.getLong("procedure_id"))) {
 					continue;
 				}
 
 				ResultDTO result = new ResultDTO();
 
-				result.setResultId(resultSet.getInt("result_id"));
-				result.setDataSourceId(resultSet.getInt("db_id"));
+				result.setResultId(resultSet.getLong("result_id"));
+				result.setDataSourceId(resultSet.getLong("db_id"));
 				result.setColonyId(resultSet.getString("colony_id"));
 				result.setSex(SexType.both);
-				result.setProjectId(resultSet.getInt("project_id"));
-				result.setCenterId(resultSet.getInt("center_id"));
-				result.setPipelineId(resultSet.getInt("pipeline_id"));
-				result.setProcedureId(resultSet.getInt("procedure_id"));
-				result.setParameterId(resultSet.getInt("parameter_id"));
+				result.setProjectId(resultSet.getLong("project_id"));
+				result.setCenterId(resultSet.getLong("center_id"));
+				result.setPipelineId(resultSet.getLong("pipeline_id"));
+				result.setProcedureId(resultSet.getLong("procedure_id"));
+				result.setParameterId(resultSet.getLong("parameter_id"));
 				result.setZygosity(ZygosityType.valueOf(resultSet.getString("zygosity")));
 				result.setStrainAcc(resultSet.getString("strain_acc"));
-				result.setStrainDbId(resultSet.getInt("strain_db_id"));
+				result.setStrainDbId(resultSet.getLong("strain_db_id"));
 				result.setGeneAcc(resultSet.getString("gf_acc"));
-				result.setGeneDbId(resultSet.getInt("gf_db_id"));
+				result.setGeneDbId(resultSet.getLong("gf_db_id"));
 				result.setAlleleAcc(resultSet.getString("allele_acc"));
-				result.setAlleleDbId(resultSet.getInt("allele_db_id"));
+				result.setAlleleDbId(resultSet.getLong("allele_db_id"));
 				result.setMpTerm(resultSet.getString("ontology_acc"));
-				result.setOntologyDbId(resultSet.getInt("ontology_db_id"));
+				result.setOntologyDbId(resultSet.getLong("ontology_db_id"));
 
 				statResults.add(result);
 
@@ -1885,7 +1866,7 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 
 
 
-    protected void initializeSexSpecificMap(Connection connection) throws SQLException {
+    public void initializeSexSpecificMap(Connection connection) throws SQLException {
 
         // Don't re-initialize
         if (sexSpecificParameters != null) {
@@ -1913,5 +1894,4 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
     public static void main(String[] args) {
         SpringApplication.run(OntologyAnnotationGenerator.class, args);
     }
-
 }

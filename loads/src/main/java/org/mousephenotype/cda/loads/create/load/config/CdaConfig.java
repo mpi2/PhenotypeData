@@ -47,7 +47,7 @@ import javax.sql.DataSource;
 })
 public class CdaConfig extends DataSourceCdaConfig {
 
-    @Value("${datasource.dcc.url}")
+    @Value("${datasource.dcc.jdbc-url}")
     private String dccUrl;
 
     @Value("${datasource.dcc.username}")

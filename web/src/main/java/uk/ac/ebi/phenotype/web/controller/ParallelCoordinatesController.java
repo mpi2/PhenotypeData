@@ -16,8 +16,7 @@
 
 package uk.ac.ebi.phenotype.web.controller;
 
-import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.ObservationService;
@@ -27,6 +26,8 @@ import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.solr.web.dto.ParallelCoordinatesDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -141,7 +142,7 @@ public class ParallelCoordinatesController {
 
 	@RequestMapping(value = "/parallel/cache", method = RequestMethod.GET)
 	public ResponseEntity<JSONObject> clearCache(
-			@RequestParam(value = "clearCache", required = false) Boolean clearCache) {
+			@RequestParam(value = "clearCache", required = false) Boolean clearCache) throws JSONException {
 
 		JSONObject jsonResponse = new JSONObject();
 
@@ -239,10 +240,6 @@ public class ParallelCoordinatesController {
 
 		}
 
-		
 		return res.toString();
 	}
-
-
-
 }

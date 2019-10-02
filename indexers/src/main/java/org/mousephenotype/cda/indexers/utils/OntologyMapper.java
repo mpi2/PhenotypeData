@@ -15,8 +15,7 @@ package org.mousephenotype.cda.indexers.utils;
  * License.
  *******************************************************************************/
 
-
-        import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.search.EntitySearcher;
 
@@ -45,35 +44,6 @@ public class OntologyMapper {
     public enum OntologyMapperPredefinedTypes {
         MA_MP
     }
-/*
-    public OntologyMapper(OntologyMapperPredefinedTypes type){
-
-        switch (type){
-            case MA_MP:
-
-                ONTOLOGY_IRI = System.getProperty("user.home") + "/phis_ontologies/mp-ext-merged.owl";
-                overProperties = new ArrayList<String>();
-                overProperties.add("http://purl.obolibrary.org/obo/BFO_0000052");
-                overProperties.add("http://purl.obolibrary.org/obo/BFO_0000070");
-                overProperties.add("http://purl.obolibrary.org/obo/mp/mp-logical-definitions#inheres_in_part_of");
-                baseUrl = "http://purl.obolibrary.org/obo";
-                try{
-                    anatomyGraph = readOntology(System.getProperty("user.home") + "/phis_ontologies/ma.owl");
-                }catch(Exception e){
-                    e.printStackTrace();
-                    logger.error(e.getMessage());
-                }
-        }
-        try{
-            graph = readOntology(ONTOLOGY_IRI);
-        }catch(Exception e){
-            e.printStackTrace();
-            logger.error(e.getMessage());
-        }
-
-    }
-
-*/
 
     public static void main(String[] args)
             throws OWLOntologyStorageException, OWLOntologyCreationException, IOException {
@@ -148,10 +118,8 @@ public class OntologyMapper {
         manager.removeOntology(ontology);
     }
 
-
     private static String getIdentifierShortForm(OWLClass cls){
         String id = cls.getIRI().toString();
         return id.split("/|#")[id.split("/|#").length-1];
     }
-
 }

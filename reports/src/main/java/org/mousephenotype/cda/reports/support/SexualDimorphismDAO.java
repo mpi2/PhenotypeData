@@ -15,14 +15,10 @@
  *******************************************************************************/
 package org.mousephenotype.cda.reports.support;
 
-import org.mousephenotype.cda.db.dao.HibernateDAO;
-
-import java.util.List;
-
-public interface SexualDimorphismDAO extends HibernateDAO {
+public interface SexualDimorphismDAO /*extends HibernateDAO*/ {
 	
-	List<String[]> sexualDimorphismReportNoBodyWeight(String baseUrl) ;
-	
-	List<String[]> sexualDimorphismReportWithBodyWeight(String baseUrl);
+//	List<String[]> sexualDimorphismReportNoBodyWeight(String baseUrl) ;
+//
+//	List<String[]> sexualDimorphismReportWithBodyWeight(String baseUrl);
 	
 }

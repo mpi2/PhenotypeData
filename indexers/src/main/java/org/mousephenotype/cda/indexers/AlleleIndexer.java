@@ -15,13 +15,13 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import net.sf.json.JSONSerializer;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.indexers.beans.DiseaseBean;
 import org.mousephenotype.cda.indexers.beans.SangerAlleleBean;
 import org.mousephenotype.cda.indexers.beans.SangerGeneBean;
@@ -30,13 +30,14 @@ import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.ConfigurableApplicationContext;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.File;
@@ -47,121 +48,64 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-/**
- * Index the allele core from the sanger allele2 core
- *
- * @author Matt
- * @author jmason
- *
- */
 @EnableAutoConfiguration
 public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner {
 
-	private final Logger logger = LoggerFactory.getLogger(AlleleIndexer.class);
-
-
-    @Autowired
-    @Qualifier("allele2Core")
-    private SolrClient allele2Core;
-
-    @NotNull
     @Value("${human2mouseFilename}")
     private String human2mouseFilename;
 
 
-    public static final int PHENODIGM_BATCH_SIZE = 50000;
-    private static Connection connection;
-    private static final int BATCH_SIZE = 2500;
-    private int assignedEvidCodeRank = 1; // default
+    private final int BATCH_SIZE           = 2500;
+    private final int PHENODIGM_BATCH_SIZE = 50000;
 
-    // Fetch all phenotyping completed genes with MP calls from genotype-phenotype core
-    private static Set<String> gpGenesLookup = new HashSet<>();
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    // Fetch all phenotyping started genes with MP calls from preqc core
-    //private static Set<String> preqcGenesLookup = new HashSet<>();
+    private Map<String, List<DiseaseBean>>      diseaseBeanByMgiGeneAccessionId       = new HashMap<>();
+    private Map<String, List<String>>           ensembleGeneIdByMgiGeneAccessionId    = new HashMap<>();
+    private Map<String, Set<String>>            humanSymbolLookupByMgiGeneAccessionId = new HashMap<>();
+    private Map<String, Integer>                legacyProjectByMgiGeneAccessionId     = new HashMap<>();
+    private Map<String, List<SangerAlleleBean>> sangerAlleleBeanByMgiGeneAccessionId  = new HashMap<>();
+    private Map<String, UniprotCanonical>       uniprotCanonicalByMgiGeneAccessionId  = new HashMap<>();
 
-    // Map gene MGI ID to sanger allele bean
-    private static Map<String, List<SangerAlleleBean>> statusLookup = new HashMap<>();
-
-    // Map gene MGI ID to human symbols
-    private static Map<String, Set<String>> humanSymbolLookup = new HashMap<>();
-
-    // Map gene MGI ID to disease bean
-    private static Map<String, List<DiseaseBean>> diseaseLookup = new HashMap<>();
-
-    // Set of MGI IDs that have legacy projects
-    private static Map<String, Integer> legacyProjectLookup = new HashMap<>();
-
-    private static final Map<String, String> ES_CELL_STATUS_MAPPINGS = new HashMap<>();
-
-    // Set of MGI IDs that have GO annotation(s)
-    private static Map<String, Set<GoAnnotations>> goTermLookup = new HashMap<>();
-
-    // Set of MGI IDs to GO - uniprotAcc mapping
-    //private static Map<String, Set<String>> gene2GoUniprotLookup = new HashMap<>();
-
-    // Map MGI accession id to longest Uniprot accession
-    private static Map<String, UniprotCanonical> mgi2UniprotLookup = new HashMap<>();
-
-    // Uniprot to pfamA mapping
-	private static Map<String, Set<PfamAnnotations>> uniprotAccPfamAnnotLookup = new HashMap<>();
-	//private static Map<String, Set<String>> uniprotAccPfamJsonLookup = new HashMap<>();
-
-	// MGI gene id to Ensembl gene id mapping
-	private static Map<String, List<String>> mgiGeneId2EnsemblGeneId = new HashMap<>();
-
-	static {
-        ES_CELL_STATUS_MAPPINGS.put("No ES Cell Production", "Not Assigned for ES Cell Production");
-        ES_CELL_STATUS_MAPPINGS.put("ES Cell Production in Progress", "Assigned for ES Cell Production");
-        ES_CELL_STATUS_MAPPINGS.put("ES Cell Targeting Confirmed", "ES Cells Produced");
-    }
-
-    private static final Map<String, String> MOUSE_STATUS_MAPPINGS = new HashMap<>();
-
+    private static final Map<String, String> CDA_STATUS_NAME_BY_IMITS_STATUS_NAME = new HashMap<>();
     static {
-        MOUSE_STATUS_MAPPINGS.put("Chimeras obtained", "Assigned for Mouse Production and Phenotyping");
-        MOUSE_STATUS_MAPPINGS.put("Micro-injection in progress", "Assigned for Mouse Production and Phenotyping");
-        MOUSE_STATUS_MAPPINGS.put("Cre Excision Started", "Mice Produced");
-        MOUSE_STATUS_MAPPINGS.put("Rederivation Complete", "Mice Produced");
-        MOUSE_STATUS_MAPPINGS.put("Rederivation Started", "Mice Produced");
-        MOUSE_STATUS_MAPPINGS.put("Genotype confirmed", "Mice Produced");
-        MOUSE_STATUS_MAPPINGS.put("Cre Excision Complete", "Mice Produced");
-        MOUSE_STATUS_MAPPINGS.put("Phenotype Attempt Registered", "Mice Produced");
+        CDA_STATUS_NAME_BY_IMITS_STATUS_NAME.put("Chimeras obtained", "Assigned for Mouse Production and Phenotyping");
+        CDA_STATUS_NAME_BY_IMITS_STATUS_NAME.put("Cre Excision Complete", "Mice Produced");
+        CDA_STATUS_NAME_BY_IMITS_STATUS_NAME.put("Cre Excision Started", "Mice Produced");
+        CDA_STATUS_NAME_BY_IMITS_STATUS_NAME.put("ES Cell Production in Progress", "Assigned for ES Cell Production");
+        CDA_STATUS_NAME_BY_IMITS_STATUS_NAME.put("ES Cell Targeting Confirmed", "ES Cells Produced");
+        CDA_STATUS_NAME_BY_IMITS_STATUS_NAME.put("Genotype confirmed", "Mice Produced");
+        CDA_STATUS_NAME_BY_IMITS_STATUS_NAME.put("Micro-injection in progress", "Assigned for Mouse Production and Phenotyping");
+        CDA_STATUS_NAME_BY_IMITS_STATUS_NAME.put("No ES Cell Production", "Not Assigned for ES Cell Production");
+        CDA_STATUS_NAME_BY_IMITS_STATUS_NAME.put("Phenotype Attempt Registered", "Mice Produced");
+        CDA_STATUS_NAME_BY_IMITS_STATUS_NAME.put("Rederivation Complete", "Mice Produced");
+        CDA_STATUS_NAME_BY_IMITS_STATUS_NAME.put("Rederivation Started", "Mice Produced");
     }
 
-    @NotNull
-    @Autowired
-    @Qualifier("komp2DataSource")
-    DataSource komp2DataSource;
 
-    @NotNull
-    @Autowired
-    @Qualifier("goaproDataSource")
-    DataSource goaproDataSource;
-
-    @NotNull
-    @Autowired
-    @Qualifier("uniprotDataSource")
-    DataSource uniprotDataSource;
-
-    @NotNull
-    @Autowired
-    @Qualifier("pfamDataSource")
-    DataSource pfamDataSource;
-
-    @NotNull
-	@Autowired
-	@Qualifier("phenodigmCore")
-	private SolrClient phenodigmCore;
-
-    @NotNull
-	@Autowired
-    @Qualifier("alleleCore")
     private SolrClient alleleCore;
+    private SolrClient allele2Core;
+    private SolrClient phenodigmCore;
+    private DataSource uniprotDataSource;
 
+    protected AlleleIndexer() {
 
-    public AlleleIndexer() {
+    }
 
+    @Inject
+    public AlleleIndexer(
+            @NotNull DataSource komp2DataSource,
+            @NotNull OntologyTermRepository ontologyTermRepository,
+            @NotNull SolrClient alleleCore,
+            @NotNull SolrClient allele2Core,
+            @NotNull SolrClient phenodigmCore,
+            @NotNull @Named("uniprotDataSource") DataSource uniprotDataSource)
+    {
+        super(komp2DataSource, ontologyTermRepository);
+        this.alleleCore = alleleCore;
+        this.allele2Core = allele2Core;
+        this.phenodigmCore = phenodigmCore;
+        this.uniprotDataSource = uniprotDataSource;
     }
 
     @Override
@@ -170,19 +114,14 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
     }
 
 
-
     @Override
-    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
+    public RunStatus run() throws IndexerException {
         int count = 0;
         long rows = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
 
-        try {
-            connection = komp2DataSource.getConnection();
-
-            //SolrQuery query = new SolrQuery("mgi_accession_id:MGI* OR mgi_accession_id:CGI*");
-            //query.addFilterQuery("feature_type:* AND -feature_type:Pseudogene AND -feature_type:\"heritable+phenotypic+marker\" AND type:gene");
+        try (Connection connection = komp2DataSource.getConnection()) {
 
             // this query would only pick up lines that imits have phenotype / production status info about
             SolrQuery query = new SolrQuery("latest_project_status:*");
@@ -191,32 +130,23 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
             query.setRows(BATCH_SIZE);
 
             populateStatusLookup();
-            logger.info(" Added {} total status lookup beans", statusLookup.size());
+            logger.info(" Added {} total status lookup beans", sangerAlleleBeanByMgiGeneAccessionId.size());
 
             populateHumanSymbolLookup();
-            logger.info(" Added {} total human symbol lookup beans", humanSymbolLookup.size());
+            logger.info(" Added {} total human symbol lookup beans", humanSymbolLookupByMgiGeneAccessionId.size());
 
             populateDiseaseLookup();
-            logger.info(" Added {} total disease lookup beans", diseaseLookup.size());
+            logger.info(" Added {} total disease lookup beans", diseaseBeanByMgiGeneAccessionId.size());
 
-            populateLegacyLookup(runStatus);
-            logger.info(" Added {} total legacy project lookup beans", legacyProjectLookup.size());
+            populateLegacyLookup(connection, runStatus);
+            logger.info(" Added {} total legacy project lookup beans", legacyProjectByMgiGeneAccessionId.size());
 
-            populateMgiGeneId2EnsemblGeneId();
-            logger.info(" Added {} total Ensembl id to MGI gene id lookup beans", mgiGeneId2EnsemblGeneId.size());
-
-            // GoTerm from GO at EBI: MGI gene id to GO term mapping
-            populateGoTermLookup();
-            logger.info(" Added {} total GO term lookup beans", goTermLookup.size());
+            populateMgiGeneId2EnsemblGeneId(connection);
+            logger.info(" Added {} total Ensembl id to MGI gene id lookup beans", ensembleGeneIdByMgiGeneAccessionId.size());
 
             // MGI gene id to Uniprot accession mapping
-            populateMgi2UniprotLookup();
-            logger.info(" Added {} MGI to UNIPROT lookup beans", mgi2UniprotLookup.size());
-
-            // Uniprot to pfamA mapping
-            //populateUniprot2pfamA();
-            //logger.info(" Populated uniprot to pfamA lookup, {} records", uniprotAccPfamAnnotLookup.size());
-//            logger.info(" Populated uniprot to pfamA lookup is skipped for now");
+            populateMgi2UniprotLookup(connection);
+            logger.info(" Added {} MGI to UNIPROT lookup beans", uniprotCanonicalByMgiGeneAccessionId.size());
 
             alleleCore.deleteByQuery("*:*");
             alleleCore.commit();
@@ -231,7 +161,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
                 Map<String, AlleleDTO> alleles = convertSangerGeneBeans(sangerGenes);
 
                 // Look up the marker synonyms
-                lookupMarkerSynonyms(alleles, runStatus);
+                lookupMarkerSynonyms(connection, alleles, runStatus);
 
                 // Look up ensembl id to MGI gene id mapping
                 lookupMgiGeneId2EnsemblGeneId(alleles);
@@ -245,19 +175,12 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
                 // Look up the disease data
                 lookupDiseaseData(alleles);
 
-                // Look up the GO Term data
-                lookupGoData(alleles);
-
                 // Look up gene to Uniprot mapping
                 lookupUniprotAcc(alleles);
 
-                // Look up uniprot to pfamA mapping
-                // NOTE: this MUST be done after lookupUniprotAcc()
-                //lookupUniprotAcc2pfamA(alleles);
-
 
                 // Now index the alleles
-                documentCount += alleles.size();
+                expectedDocumentCount += alleles.size();
                 indexAlleles(alleles);
 
                 count += BATCH_SIZE;
@@ -265,15 +188,16 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
             alleleCore.commit();
 
-        } catch (SQLException | SolrServerException | IOException | ClassNotFoundException e) {
+        } catch (SQLException | IOException| SolrServerException  e) {
+            e.printStackTrace();
             throw new IndexerException(e);
         }
 
-        logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+        logger.info(" Added {} total beans in {}", expectedDocumentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
         return runStatus;
     }
 
-    Map<String, List<String>> populateMgiGeneId2EnsemblGeneId() {
+    Map<String, List<String>> populateMgiGeneId2EnsemblGeneId(Connection connection) {
 
     	String query = "SELECT acc, xref_acc FROM xref WHERE db_id=3 AND xref_db_id=18 AND xref_acc like 'ENS%'";
 
@@ -284,323 +208,20 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
             	String mgiGeneId = resultSet.getString("acc");
             	String ensemblGeneId = resultSet.getString("xref_acc");
 
-            	if ( ! mgiGeneId2EnsemblGeneId.containsKey(mgiGeneId) ){
-            		mgiGeneId2EnsemblGeneId.put(mgiGeneId, new ArrayList<>());
+            	if ( ! ensembleGeneIdByMgiGeneAccessionId.containsKey(mgiGeneId) ){
+            		ensembleGeneIdByMgiGeneAccessionId.put(mgiGeneId, new ArrayList<>());
             	}
-            	mgiGeneId2EnsemblGeneId.get(mgiGeneId).add(ensemblGeneId);
+            	ensembleGeneIdByMgiGeneAccessionId.get(mgiGeneId).add(ensemblGeneId);
             }
     	} catch (Exception e) {
             e.printStackTrace();
         }
 
-    	return mgiGeneId2EnsemblGeneId;
+    	return ensembleGeneIdByMgiGeneAccessionId;
     }
 
-    public class GoAnnotations {
 
-        String goTermId;
-        String goTermName;
-        public String goTermDef;    // not populated for now
-        String goTermEvid;
-        String goTermDomain;
-		String mgiSymbol;
-		String goUniprot;  // GOId_UniprotAcc
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + getOuterType().hashCode();
-			result = prime * result + ((goTermDomain == null) ? 0 : goTermDomain.hashCode());
-			result = prime * result + ((goTermEvid == null) ? 0 : goTermEvid.hashCode());
-			result = prime * result + ((goTermId == null) ? 0 : goTermId.hashCode());
-			result = prime * result + ((goTermName == null) ? 0 : goTermName.hashCode());
-			result = prime * result + ((goUniprot == null) ? 0 : goUniprot.hashCode());
-			return result;
-		}
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			GoAnnotations other = (GoAnnotations) obj;
-			if (!getOuterType().equals(other.getOuterType()))
-				return false;
-			if (goTermDomain == null) {
-				if (other.goTermDomain != null)
-					return false;
-			} else if (!goTermDomain.equals(other.goTermDomain))
-				return false;
-			if (goTermEvid == null) {
-				if (other.goTermEvid != null)
-					return false;
-			} else if (!goTermEvid.equals(other.goTermEvid))
-				return false;
-			if (goTermId == null) {
-				if (other.goTermId != null)
-					return false;
-			} else if (!goTermId.equals(other.goTermId))
-				return false;
-			if (goTermName == null) {
-				if (other.goTermName != null)
-					return false;
-			} else if (!goTermName.equals(other.goTermName))
-				return false;
-			if (goUniprot == null) {
-				if (other.goUniprot != null)
-					return false;
-			} else if (!goUniprot.equals(other.goUniprot))
-				return false;
-			return true;
-		}
-		private AlleleIndexer getOuterType() {
-			return AlleleIndexer.this;
-		}
-
-
-
-    }
-
-    public class PfamAnnotations {
-
-		public String scdbId;
-		public String scdbLink;
-		public String clanId;
-		public String clanAcc;
-		public String clanDesc;
-		public String uniprotAcc;
-		public String uniprotId;
-		public String pfamAacc;
-		public String pfamAId;
-		public String pfamAgoId;
-		public String pfamAgoTerm;
-		public String pfamAgoCat;
-		public String pfamAjson;
-
-	   @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            PfamAnnotations that = (PfamAnnotations) o;
-
-            if (scdbId != null ?  ! scdbId.equals(that.scdbId) : that.scdbId != null) {
-                return false;
-            }
-            if (scdbLink != null ?  ! scdbLink.equals(that.scdbLink) : that.scdbLink != null) {
-                return false;
-            }
-            if (clanId != null ?  ! clanId.equals(that.clanId) : that.clanId != null) {
-                return false;
-            }
-            if (clanAcc != null ?  ! clanAcc.equals(that.clanAcc) : that.clanAcc != null) {
-                return false;
-            }
-            if (clanDesc != null ?  ! clanDesc.equals(that.clanDesc) : that.clanDesc != null) {
-                return false;
-            }
-            if (pfamAacc != null ?  ! pfamAacc.equals(that.pfamAacc) : that.pfamAacc != null) {
-                return false;
-            }
-            if (pfamAId != null ?  ! pfamAId.equals(that.pfamAId) : that.pfamAId != null) {
-                return false;
-            }
-            /*if (pfamAgoId != null ?  ! pfamAgoId.equals(that.pfamAgoId) : that.pfamAgoId != null) {
-                return false;
-            }
-            if (pfamAgoTerm != null ?  ! pfamAgoTerm.equals(that.pfamAgoTerm) : that.pfamAgoTerm != null) {
-                return false;
-            }
-            if (pfamAgoCat != null ?  ! pfamAgoCat.equals(that.pfamAgoCat) : that.pfamAgoCat != null) {
-                return false;
-            }*/
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = scdbId != null ? scdbId.hashCode() : 0;
-            result = 31 * result + (scdbLink != null ? scdbLink.hashCode() : 0);
-            result = 31 * result + (clanId != null ? clanId.hashCode() : 0);
-            result = 31 * result + (clanAcc != null ? clanAcc.hashCode() : 0);
-            result = 31 * result + (clanDesc != null ? clanDesc.hashCode() : 0);
-            result = 31 * result + (pfamAacc != null ? pfamAacc.hashCode() : 0);
-            result = 31 * result + (pfamAId != null ? pfamAId.hashCode() : 0);
-
-            return result;
-        }
-
-        // these getters/setters are needed as JSONSerializer.toJSON() works on JavaBeans
-		public String getScdbId() {
-			return scdbId;
-		}
-
-		public void setScdbId(String scdbId) {
-			this.scdbId = scdbId;
-		}
-
-		public String getScdbLink() {
-			return scdbLink;
-		}
-
-		public void setScdbLink(String scdbLink) {
-			this.scdbLink = scdbLink;
-		}
-
-		public String getClanId() {
-			return clanId;
-		}
-
-		public void setClanId(String clanId) {
-			this.clanId = clanId;
-		}
-
-		public String getClanAcc() {
-			return clanAcc;
-		}
-
-		public void setClanAcc(String clanAcc) {
-			this.clanAcc = clanAcc;
-		}
-
-		public String getClanDesc() {
-			return clanDesc;
-		}
-
-		public void setClanDesc(String clanDesc) {
-			this.clanDesc = clanDesc;
-		}
-
-		public String getUniprotAcc() {
-			return uniprotAcc;
-		}
-
-		public void setUniprotAcc(String uniprotAcc) {
-			this.uniprotAcc = uniprotAcc;
-		}
-
-		public String getUniprotId() {
-			return uniprotId;
-		}
-
-		public void setUniprotId(String uniprotId) {
-			this.uniprotId = uniprotId;
-		}
-
-		public String getPfamAacc() {
-			return pfamAacc;
-		}
-
-		public void setPfamAacc(String pfamAacc) {
-			this.pfamAacc = pfamAacc;
-		}
-
-		public String getPfamAId() {
-			return pfamAId;
-		}
-
-		public void setPfamAId(String pfamAId) {
-			this.pfamAId = pfamAId;
-		}
-
-		public String getPfamAgoId() {
-			return pfamAgoId;
-		}
-
-		public void setPfamAgoId(String pfamAgoId) {
-			this.pfamAgoId = pfamAgoId;
-		}
-
-		public String getPfamAgoTerm() {
-			return pfamAgoTerm;
-		}
-
-		public void setPfamAgoTerm(String pfamAgoTerm) {
-			this.pfamAgoTerm = pfamAgoTerm;
-		}
-
-		public String getPfamAgoCat() {
-			return pfamAgoCat;
-		}
-
-		public void setPfamAgoCat(String pfamAgoCat) {
-			this.pfamAgoCat = pfamAgoCat;
-		}
-
-		public String getPfamAjson() {
-			return pfamAjson;
-		}
-
-		public void setPfamAjson(String pfamAjson) {
-			this.pfamAjson = pfamAjson;
-		}
-
-	}
-
-    private void populateGoTermLookup() throws IOException, SQLException, ClassNotFoundException {
-
-	    String queryString = "select distinct m.accession, m.gene_name, a.go_id, t.name as go_name, t.category as go_domain, evi.go_evidence "
-				+ "from go.annotations a "
-				+ "join "
-				+ "go.cv_sources s on (s.code = a.source) "
-				+ "join "
-				+ "go.eco2evidence evi on (evi.eco_id = a.eco_id) "
-				+ "join "
-				+ "go.terms t on (t.go_id = a.go_id) "
-				+ "join "
-				+ "go.uniprot_protein_metadata m on (m.accession = a.canonical_id) "
-				+ "where "
-				+ "s.is_public = 'Y' "
-				+ "and m.tax_id = 10090 "
-				+ "and m.gene_name is not null "
-				+ "and t.category in ('F', 'P') ";
-
-	    Connection conn = goaproDataSource.getConnection();
-
-	    try (PreparedStatement p = conn.prepareStatement(queryString)) {
-            ResultSet resultSet = p.executeQuery();
-
-            while (resultSet.next()) {
-
-            	GoAnnotations ga = new GoAnnotations();
-
-    			ga.mgiSymbol  = resultSet.getString("gene_name");
-    			ga.goTermId   = resultSet.getString("go_id");
-    			ga.goUniprot = ga.goTermId + "__" + resultSet.getString("accession"); //GOId__UniprotAcc
-
-    			//String goUniprot  = ga.goTermId + "__" + resultSet.getString("accession"); //GOId__UniprotAcc
-
-//    			if ( !gene2GoUniprotLookup.containsKey(ga.mgiSymbol) ){
-//    				gene2GoUniprotLookup.put(ga.mgiSymbol, new HashSet<String>());
-//    			}
-//    			gene2GoUniprotLookup.get(ga.mgiSymbol).add(goUniprot);
-//
-    			ga.goTermName = resultSet.getString("go_name");
-    			ga.goTermEvid = resultSet.getString("go_evidence");
-    			ga.goTermDomain = resultSet.getString("go_domain").toString().equals("F") ? "molecular_function" : "biological_process";
-
-
-            	if ( ! goTermLookup.containsKey(ga.mgiSymbol)) {
-            		goTermLookup.put(ga.mgiSymbol, new HashSet<GoAnnotations>());
-            	}
-
-    			goTermLookup.get(ga.mgiSymbol).add(ga);
-            }
-        }
-
-	    catch (Exception e) {
-            e.printStackTrace();
-        }
-	}
-
-    private void populateMgi2UniprotLookup() throws IOException, SQLException, ClassNotFoundException{
+    private void populateMgi2UniprotLookup(Connection connection) throws SQLException {
 
         //-- w/o haplotypes
         String queryString = "WITH human AS " +
@@ -655,10 +276,10 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
                 String geneLabel = resultSet.getString("symbol");
 
-                if ( ! mgi2UniprotLookup.containsKey(geneLabel) ) {
-                    mgi2UniprotLookup.put(geneLabel, new UniprotCanonical());
+                if ( ! uniprotCanonicalByMgiGeneAccessionId.containsKey(geneLabel) ) {
+                    uniprotCanonicalByMgiGeneAccessionId.put(geneLabel, new UniprotCanonical());
                 }
-                uc = mgi2UniprotLookup.get(geneLabel);
+                uc = uniprotCanonicalByMgiGeneAccessionId.get(geneLabel);
 
                 uc.setHumanCanonicalProteinAcc(resultSet.getString("h_acc"));
                 uc.setMouseCanonicalProteinAcc(resultSet.getString("m_acc"));
@@ -668,8 +289,8 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 	    catch(Exception e) {
             e.printStackTrace();
 	    }
-
 	}
+
 
     class UniprotCanonical {
 
@@ -694,80 +315,10 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
         }
 
     }
-    private void populateUniprot2pfamA() throws IOException, SQLException, ClassNotFoundException{
 
-    	// do batch lookup of uniprot accs on pfam db (pfamA)
 
-    	Connection connPfam = pfamDataSource.getConnection();
+    private void populateLegacyLookup(Connection connection, RunStatus runStatus) {
 
-    	String pfamQry = "SELECT lk.db_id, "
-       			+ "lk.db_link, "
-       			+ "c.clan_id, "
-       			+ "c.clan_acc, "
-       			+ "c.clan_description, "
-       			+ "pfamseq_id, "
-       			+ "pfamseq_acc, "
-       			+ "pfamA_acc, "
-       			+ "pfamA_id, "
-       			+ "g.go_id, "
-       			+ "g.term as go_name, "
-       			+ "g.category as go_category "
-       			+ "FROM pfamseq s, "
-       			+ " pfamA a, "
-       			+ " pfamA_reg_full_significant f, "
-       			+ " gene_ontology g, "
-       			+ " clans c, "
-       			+ " clan_membership cm, "
-       			+ " clan_database_links lk "
-       			+ "WHERE f.in_full = 1 "
-       			+ "AND lk.auto_clan = c.auto_clan "
-       			+ "AND c.auto_clan = cm.auto_clan "
-       			+ "AND cm.auto_pfamA = a.auto_pfamA "
-       			+ "AND s.auto_pfamseq = f.auto_pfamseq "
-       			+ "AND f.auto_pfamA = a.auto_pfamA "
-       			+ "AND a.auto_pfamA = g.auto_pfamA "
-       			+ "AND s.ncbi_taxid=10090 "  // mouse proteins only
-       			+ "AND a.type = 'family' ";
-
-    	try (PreparedStatement p2 = connPfam.prepareStatement(pfamQry)) {
-    		ResultSet resultSet2 = p2.executeQuery();
-
-    		while (resultSet2.next()) {
-
-	        	PfamAnnotations pa = new PfamAnnotations();
-
-	           	pa.uniprotAcc = resultSet2.getString("pfamseq_acc");
-	           	pa.scdbId = resultSet2.getString("db_id");
-	           	pa.scdbLink = resultSet2.getString("db_link");
-	           	pa.clanId = resultSet2.getString("clan_id");
-	           	pa.clanAcc = resultSet2.getString("clan_acc");
-	           	pa.clanDesc = resultSet2.getString("clan_description");
-	           	pa.pfamAacc = resultSet2.getString("pfamA_acc");
-	           	pa.pfamAId =  resultSet2.getString("pfamA_id");
-	           	pa.pfamAgoId = resultSet2.getString("go_id");
-	           	pa.pfamAgoTerm = resultSet2.getString("go_name");
-	           	pa.pfamAgoCat = resultSet2.getString("go_category");
-
-	           	if ( ! uniprotAccPfamAnnotLookup.containsKey(pa.uniprotAcc)) {
-	           		uniprotAccPfamAnnotLookup.put(pa.uniprotAcc, new HashSet<PfamAnnotations>());
-	           	}
-
-	           	pa.pfamAjson = JSONSerializer.toJSON(pa).toString(); // add the above fields as json string
-	           	uniprotAccPfamAnnotLookup.get(pa.uniprotAcc).add(pa);
-           }
-
-           //System.out.println("Found " + uniprotAccPfamJsonLookup.size() + " mouse proteins annotated in pFam");
-       }
-       catch (Exception e) {
-           e.printStackTrace();
-       }
-	}
-
-    private void populateLegacyLookup(RunStatus runStatus) throws SolrServerException {
-
-    	// old query
-        //String query = "SELECT DISTINCT project_id, gf_acc FROM phenotype_call_summary WHERE p_value < 0.0001 AND (project_id = 1 OR project_id = 8)";
-        // new query
     	String query = "SELECT DISTINCT external_db_id, gf_acc FROM phenotype_call_summary WHERE p_value < 0.0001 AND (external_db_id = 12 OR external_db_id = 20)";
 
         try (PreparedStatement ps = connection.prepareStatement(query)) {
@@ -775,14 +326,12 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-
-                legacyProjectLookup.put(rs.getString("gf_acc"), 1);
-
+                legacyProjectByMgiGeneAccessionId.put(rs.getString("gf_acc"), 1);
             }
         } catch (SQLException e) {
+
             runStatus.addError(" SQL Exception looking up legacy projects: " + e.getMessage());
         }
-
     }
 
     private void populateStatusLookup() throws SolrServerException, IOException {
@@ -794,12 +343,13 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
         QueryResponse response = allele2Core.query(query);
         List<SangerAlleleBean> sangerAlleles = response.getBeans(SangerAlleleBean.class);
         for (SangerAlleleBean allele : sangerAlleles) {
-            if ( ! statusLookup.containsKey(allele.getMgiAccessionId())) {
-                statusLookup.put(allele.getMgiAccessionId(), new ArrayList<SangerAlleleBean>());
+            if ( ! sangerAlleleBeanByMgiGeneAccessionId.containsKey(allele.getMgiAccessionId())) {
+                sangerAlleleBeanByMgiGeneAccessionId.put(allele.getMgiAccessionId(), new ArrayList<SangerAlleleBean>());
             }
-            statusLookup.get(allele.getMgiAccessionId()).add(allele);
+            sangerAlleleBeanByMgiGeneAccessionId.get(allele.getMgiAccessionId()).add(allele);
         }
     }
+
 
     private void populateHumanSymbolLookup() throws IOException {
 
@@ -819,14 +369,12 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
                 continue;
             }
 
-            if ( ! humanSymbolLookup.containsKey(mgiId)) {
-                humanSymbolLookup.put(mgiId, new HashSet<String>());
+            if ( ! humanSymbolLookupByMgiGeneAccessionId.containsKey(mgiId)) {
+                humanSymbolLookupByMgiGeneAccessionId.put(mgiId, new HashSet<String>());
             }
 
-            (humanSymbolLookup.get(mgiId)).add(humanSymbol);
-
+            (humanSymbolLookupByMgiGeneAccessionId.get(mgiId)).add(humanSymbol);
         }
-
     }
 
     private void populateDiseaseLookup() throws SolrServerException, IOException {
@@ -867,10 +415,10 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
             }
             List<DiseaseBean> diseases = response.getBeans(DiseaseBean.class);
             for (DiseaseBean disease : diseases) {
-                if ( ! diseaseLookup.containsKey(disease.getMgiAccessionId())) {
-                    diseaseLookup.put(disease.getMgiAccessionId(), new ArrayList<DiseaseBean>());
+                if ( ! diseaseBeanByMgiGeneAccessionId.containsKey(disease.getMgiAccessionId())) {
+                    diseaseBeanByMgiGeneAccessionId.put(disease.getMgiAccessionId(), new ArrayList<DiseaseBean>());
                 }
-                diseaseLookup.get(disease.getMgiAccessionId()).add(disease);
+                diseaseBeanByMgiGeneAccessionId.get(disease.getMgiAccessionId()).add(disease);
             }
 
             docsRetrieved += PHENODIGM_BATCH_SIZE;
@@ -926,19 +474,17 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
                 dto.setChrEnd(bean.getChrEnd());
             }
 
-
-
-            String latestEsStatus = ES_CELL_STATUS_MAPPINGS.containsKey(bean.getLatestEsCellStatus()) ? ES_CELL_STATUS_MAPPINGS.get(bean.getLatestEsCellStatus()) : bean.getLatestEsCellStatus();
+            String latestEsStatus = CDA_STATUS_NAME_BY_IMITS_STATUS_NAME.containsKey(bean.getLatestEsCellStatus()) ? CDA_STATUS_NAME_BY_IMITS_STATUS_NAME.get(bean.getLatestEsCellStatus()) : bean.getLatestEsCellStatus();
             dto.setLatestProductionStatus(latestEsStatus);
             dto.setLatestEsCellStatus(latestEsStatus);
 
             if (StringUtils.isNotEmpty(bean.getLatestMouseStatus())) {
-                String latestMouseStatus = MOUSE_STATUS_MAPPINGS.containsKey(bean.getLatestMouseStatus()) ? MOUSE_STATUS_MAPPINGS.get(bean.getLatestMouseStatus()) : bean.getLatestMouseStatus();
+                String latestMouseStatus = CDA_STATUS_NAME_BY_IMITS_STATUS_NAME.containsKey(bean.getLatestMouseStatus()) ? CDA_STATUS_NAME_BY_IMITS_STATUS_NAME.get(bean.getLatestMouseStatus()) : bean.getLatestMouseStatus();
                 dto.setLatestProductionStatus(latestMouseStatus);
                 dto.setLatestMouseStatus(latestMouseStatus);
             }
 
-            if (legacyProjectLookup.containsKey(bean.getMgiAccessionId())) {
+            if (legacyProjectByMgiGeneAccessionId.containsKey(bean.getMgiAccessionId())) {
                 dto.setLegacyPhenotypeStatus(1);
             }
 
@@ -951,7 +497,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
         return map;
     }
 
-    private void lookupMarkerSynonyms(Map<String, AlleleDTO> alleles, RunStatus runStatus) {
+    private void lookupMarkerSynonyms(Connection connection, Map<String, AlleleDTO> alleles, RunStatus runStatus) {
         // Build the lookup string
         String lookup = buildIdQuery(alleles.keySet());
 
@@ -960,7 +506,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
                 + "on gf.acc=s.acc "
                 + "where gf.acc IN (" + lookup + ")";
 
-        //System.out.println("QRY: " + query);
         try {
             logger.debug(" Starting marker synonym lookup");
             PreparedStatement ps = connection.prepareStatement(query);
@@ -978,8 +523,11 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
                 allele.getMarkerSynonymLowercase().add(rs.getString("marker_synonym"));
                 allele.setMarkerName(rs.getString("marker_name"));
             }
+
             logger.debug(" Finished marker synonym lookup");
+
         } catch (SQLException sqle) {
+
             runStatus.addError(" SQL Exception looking up marker symbols: " + sqle.getMessage());
         }
     }
@@ -989,10 +537,9 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
         for (String id : alleles.keySet()) {
             AlleleDTO dto = alleles.get(id);
 
-            if (humanSymbolLookup.containsKey(id)) {
-                dto.setHumanGeneSymbol(new ArrayList<>(humanSymbolLookup.get(id)));
+            if (humanSymbolLookupByMgiGeneAccessionId.containsKey(id)) {
+                dto.setHumanGeneSymbol(new ArrayList<>(humanSymbolLookupByMgiGeneAccessionId.get(id)));
             }
-
         }
 
         logger.debug(" Finished human marker symbol lookup");
@@ -1002,8 +549,8 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
     	for (String id : alleles.keySet()) {
             AlleleDTO dto = alleles.get(id);
 
-            if (mgiGeneId2EnsemblGeneId.containsKey(id)) {
-                dto.setEnsemblGeneIds(new ArrayList<>(mgiGeneId2EnsemblGeneId.get(id)));
+            if (ensembleGeneIdByMgiGeneAccessionId.containsKey(id)) {
+                dto.setEnsemblGeneIds(new ArrayList<>(ensembleGeneIdByMgiGeneAccessionId.get(id)));
             }
         }
 
@@ -1021,6 +568,7 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
             lookup.append("'").append(id).append("'");
             i ++;
         }
+
         return lookup.toString();
     }
 
@@ -1029,29 +577,26 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
         for (String id : alleles.keySet()) {
             AlleleDTO dto = alleles.get(id);
 
-            if ( ! statusLookup.containsKey(id)) {
+            if ( ! sangerAlleleBeanByMgiGeneAccessionId.containsKey(id)) {
                 continue;
             }
 
-            for (SangerAlleleBean sab : statusLookup.get(id)) {
+            for (SangerAlleleBean sab : sangerAlleleBeanByMgiGeneAccessionId.get(id)) {
 
                 dto.getAlleleName().add(sab.getAlleleName());
                 dto.getPhenotypeStatus().add(sab.getPhenotypeStatus());
                 dto.getProductionCentre().add(sab.getProductionCentre());
                 dto.getPhenotypingCentre().add(sab.getPhenotypingCentre());
 
-                String esCellStat = ES_CELL_STATUS_MAPPINGS.containsKey(sab.getEsCellStatus()) ? ES_CELL_STATUS_MAPPINGS.get(sab.getEsCellStatus()) : sab.getEsCellStatus();
+                String esCellStat = CDA_STATUS_NAME_BY_IMITS_STATUS_NAME.containsKey(sab.getEsCellStatus()) ? CDA_STATUS_NAME_BY_IMITS_STATUS_NAME.get(sab.getEsCellStatus()) : sab.getEsCellStatus();
                 dto.getEsCellStatus().add(esCellStat);
 
                 if (StringUtils.isNotEmpty(sab.getMouseStatus())) {
-                    String mouseStatus = MOUSE_STATUS_MAPPINGS.containsKey(sab.getMouseStatus()) ? MOUSE_STATUS_MAPPINGS.get(sab.getMouseStatus()) : sab.getMouseStatus();
+                    String mouseStatus = CDA_STATUS_NAME_BY_IMITS_STATUS_NAME.containsKey(sab.getMouseStatus()) ? CDA_STATUS_NAME_BY_IMITS_STATUS_NAME.get(sab.getMouseStatus()) : sab.getMouseStatus();
                     dto.getMouseStatus().add(mouseStatus);
                 } else {
                     dto.getMouseStatus().add("");
                 }
-
-//				dto.setImitsEsCellStatus(sab.getEsCellStatus());
-//				dto.setImitsMouseStatus(sab.getMouseStatus());
             }
         }
 
@@ -1065,11 +610,11 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
             AlleleDTO dto = alleles.get(id);
 
-            if ( ! diseaseLookup.containsKey(id)) {
+            if ( ! diseaseBeanByMgiGeneAccessionId.containsKey(id)) {
                 continue;
             }
 
-            for (DiseaseBean db : diseaseLookup.get(id)) {
+            for (DiseaseBean db : diseaseBeanByMgiGeneAccessionId.get(id)) {
                 dto.getDiseaseId().add(db.getDiseaseId());
                 dto.getDiseaseSource().add(db.getDiseaseSource());
                 dto.getDiseaseTerm().add(db.getDiseaseTerm());
@@ -1088,50 +633,9 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
                 dto.getMgiNovelPredictedInLocus().add(db.isMgiNovelPredictedInLocus());
                 dto.getImpcNovelPredictedInLocus().add(db.isImpcNovelPredictedInLocus());
             }
-
         }
+
         logger.debug(" Finished disease data lookup");
-    }
-
-    private Integer assignCodeRank(int currRank){
-    	// set for highest evidCodeRank
-    	assignedEvidCodeRank = currRank > assignedEvidCodeRank ? currRank : assignedEvidCodeRank;
-    	return assignedEvidCodeRank;
-    }
-
-    private void lookupGoData(Map<String, AlleleDTO> alleles) {
-        logger.debug(" Starting GO data lookup");
-
-        //GO evidence code ranking mapping
-        Map<String,Integer> codeRank = commonUtils.getGoCodeRank();
-
-        for (String id : alleles.keySet()) {
-
-            AlleleDTO dto = alleles.get(id);
-
-            assignedEvidCodeRank = 1; // reset
-
-            // GO is populated based on gene symbol
-            if ( ! goTermLookup.containsKey(dto.getMarkerSymbol())) {
-                continue;
-            }
-
-            for (GoAnnotations ga : goTermLookup.get(dto.getMarkerSymbol())) {
-                if (codeRank.get(ga.goTermEvid) != null) {
-                    // some evidence code is not needed and is not in the map, ignore this
-                    dto.getGoTermIds().add(ga.goTermId);
-                    dto.getGoTermNames().add(ga.goTermName);
-                    dto.getGoUniprot().add(ga.goUniprot);
-                    //dto.getGoTermDefs().add(ga.goTermDef);
-                    dto.getGoTermEvids().add(ga.goTermEvid);
-                    dto.getGoTermDomains().add(ga.goTermDomain);
-                    dto.setEvidCodeRank(assignCodeRank(codeRank.get(ga.goTermEvid)));
-                }
-            }
-            //dto.getGoUniprot().addAll(gene2GoUniprotLookup.get(dto.getMarkerSymbol()));
-
-            dto.setGoCount(dto.getGoTermIds().size());
-        }
     }
 
     private void lookupUniprotAcc(Map<String, AlleleDTO> alleles) {
@@ -1142,74 +646,20 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
              String gSymbol = dto.getMarkerSymbol().toUpperCase();
 
-             if ( mgi2UniprotLookup.containsKey(gSymbol)  ){
-                 dto.setUuniprotHumanCanonicalAcc(mgi2UniprotLookup.get(gSymbol).getHumanCanonicalProteinAcc());
-                 dto.setUuniprotMouseCanonicalAcc(mgi2UniprotLookup.get(gSymbol).getMouseCanonicalProteinAcc());
+             if ( uniprotCanonicalByMgiGeneAccessionId.containsKey(gSymbol)  ){
+                 dto.setUuniprotHumanCanonicalAcc(uniprotCanonicalByMgiGeneAccessionId.get(gSymbol).getHumanCanonicalProteinAcc());
+                 dto.setUuniprotMouseCanonicalAcc(uniprotCanonicalByMgiGeneAccessionId.get(gSymbol).getMouseCanonicalProteinAcc());
              }
 
          }
     }
 
-    private void lookupUniprotAcc2pfamA(Map<String, AlleleDTO> alleles) {
-    	logger.debug(" Starting Uniprot to pfamA lookup");
-
-        for (String id : alleles.keySet()) {
-
-        	AlleleDTO dto = alleles.get(id);
-
-            String uniproAcc = dto.getUuniprotMouseCanonicalAcc();
-
-        	List<String> scdbIds = new ArrayList<>();
-            List<String> scdbLinks = new ArrayList<>();
-            List<String> clanIds = new ArrayList<>();
-            List<String> clanAccs = new ArrayList<>();
-            List<String> clanDescs = new ArrayList<>();
-            List<String> pfamAIds = new ArrayList<>();
-            List<String> pfamAaccs = new ArrayList<>();
-            List<String> pfamAgoIds = new ArrayList<>();
-            List<String> pfamAgoTerms = new ArrayList<>();
-            List<String> pfamAgoCats = new ArrayList<>();
-            List<String> pfamAjsons = new ArrayList<>();
-
-            if ( ! uniprotAccPfamAnnotLookup.containsKey(uniproAcc) ) {
-                continue;
-            }
-
-            for ( PfamAnnotations pa : uniprotAccPfamAnnotLookup.get(uniproAcc) ) {
-                scdbIds.add(pa.scdbId);
-                scdbLinks.add(pa.scdbLink);
-                clanIds.add(pa.clanId);
-                clanAccs.add(pa.clanAcc);
-                clanDescs.add(pa.clanDesc);
-                pfamAIds.add(pa.pfamAId);
-                pfamAaccs.add(pa.pfamAacc);
-                pfamAgoIds.add(pa.pfamAgoId);
-                pfamAgoTerms.add(pa.pfamAgoTerm);
-                pfamAgoCats.add(pa.pfamAgoCat);
-                pfamAjsons.add(pa.pfamAjson);
-            }
-
-            // get unique
-            dto.getScdbIds().addAll(new ArrayList<>(new LinkedHashSet<>(scdbIds)));
-            dto.getScdbLinks().addAll(new ArrayList<>(new LinkedHashSet<>(scdbLinks)));
-            dto.getClanIds().addAll(new ArrayList<>(new LinkedHashSet<>(clanIds)));
-            dto.getClanAccs().addAll(new ArrayList<>(new LinkedHashSet<>(clanAccs)));
-            dto.getClanDescs().addAll(new ArrayList<>(new LinkedHashSet<>(clanDescs)));
-            dto.getPfamaIds().addAll(new ArrayList<>(new LinkedHashSet<>(pfamAIds)));
-            dto.getPfamaAccs().addAll(new ArrayList<>(new LinkedHashSet<>(pfamAaccs)));
-            dto.getPfamaGoIds().addAll(new ArrayList<>(new LinkedHashSet<>(pfamAgoIds)));
-            dto.getPfamaGoTerms().addAll(new ArrayList<>(new LinkedHashSet<>(pfamAgoTerms)));
-            dto.getPfamaGoCats().addAll(new ArrayList<>(new LinkedHashSet<>(pfamAgoCats)));
-            dto.getPfamaJsons().addAll(new ArrayList<>(new LinkedHashSet<>(pfamAjsons)));
-        }
-    }
-
     private void indexAlleles(Map<String, AlleleDTO> alleles) throws SolrServerException, IOException {
-
         alleleCore.addBeans(alleles.values(), 60000);
     }
 
-    public static void main(String[] args) throws IndexerException {
-        SpringApplication.run(AlleleIndexer.class, args);
+    public static void main(String[] args) {
+        ConfigurableApplicationContext context = SpringApplication.run(AlleleIndexer.class, args);
+        context.close();
     }
 }

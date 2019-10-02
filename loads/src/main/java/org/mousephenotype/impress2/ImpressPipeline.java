@@ -21,31 +21,31 @@ import java.util.Collection;
 
 public class ImpressPipeline implements Serializable {
 
-    private Integer pipelineId;
-    private String pipelineKey;
-    private String pipelineType;
-    private String name;
-    private Integer weight;
-    private boolean isVisible;
-    private boolean isActive = true;
-    private boolean isDeprecated;
-    private int majorVersion = 1;
-    private int minorVersion = 0;
-    private String description;
-    private boolean isInternal;
-    private boolean isDeleted;
-    private String centreName;
-    private Short impc;
-    private Collection<Integer> scheduleCollection;
+    private Long             pipelineId;
+    private String           pipelineKey;
+    private String           pipelineType;
+    private String           name;
+    private Integer          weight;
+    private boolean          isVisible;
+    private boolean          isActive     = true;
+    private boolean          isDeprecated;
+    private int              majorVersion = 1;
+    private int              minorVersion = 0;
+    private String           description;
+    private boolean          isInternal;
+    private boolean          isDeleted;
+    private String           centreName;
+    private Short            impc;
+    private Collection<Long> scheduleCollection;
 
     public ImpressPipeline() {
     }
 
-    public ImpressPipeline(Integer pipelineId) {
+    public ImpressPipeline(Long pipelineId) {
         this.pipelineId = pipelineId;
     }
 
-    public ImpressPipeline(Integer pipelineId, String pipelineKey, boolean isVisible, boolean isActive, boolean isDeprecated, int majorVersion, int minorVersion, boolean isInternal, boolean isDeleted, String pipelineType) {
+    public ImpressPipeline(Long pipelineId, String pipelineKey, boolean isVisible, boolean isActive, boolean isDeprecated, int majorVersion, int minorVersion, boolean isInternal, boolean isDeleted, String pipelineType) {
         this.pipelineId = pipelineId;
         this.pipelineKey = pipelineKey;
         this.isVisible = isVisible;
@@ -58,11 +58,11 @@ public class ImpressPipeline implements Serializable {
         this.pipelineType = pipelineType;
     }
 
-    public Integer getPipelineId() {
+    public Long getPipelineId() {
         return pipelineId;
     }
 
-    public void setPipelineId(Integer pipelineId) {
+    public void setPipelineId(Long pipelineId) {
         this.pipelineId = pipelineId;
     }
 
@@ -178,11 +178,11 @@ public class ImpressPipeline implements Serializable {
         this.pipelineType = pipelineType;
     }
 
-    public Collection<Integer> getScheduleCollection() {
+    public Collection<Long> getScheduleCollection() {
         return scheduleCollection;
     }
 
-    public void setScheduleCollection(Collection<Integer> scheduleCollection) {
+    public void setScheduleCollection(Collection<Long> scheduleCollection) {
         this.scheduleCollection = scheduleCollection;
     }
 
@@ -211,7 +211,7 @@ public class ImpressPipeline implements Serializable {
         return getPipelineKey();
     }
 
-    public int getStableKey() {
+    public long getStableKey() {
         return getPipelineId();
     }
 }

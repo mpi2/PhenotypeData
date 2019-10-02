@@ -2,24 +2,25 @@ package org.mousephenotype.cda.indexers;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.ConfigurableApplicationContext;
 
+import javax.inject.Inject;
+import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,23 +31,30 @@ import java.util.Map;
 @EnableAutoConfiguration
 public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunner {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-
-    @NotNull
     @Value("${allele2File}")
     private String pathToAlleleFile;
 
-    @Autowired
-    @Qualifier("allele2Core")
-    private SolrClient allele2Core;
+    private       Integer              alleleDocCount;
+    private       Map<String, Integer> columns = new HashMap<>();
+    private final Logger               logger  = LoggerFactory.getLogger(this.getClass());
+    private       SolrClient           allele2Core;
 
-    Integer alleleDocCount;
-    Map<String, Integer> columns = new HashMap<>();
+    protected Allele2Indexer() {
+
+    }
+
+    @Inject
+    public Allele2Indexer(
+            @NotNull DataSource komp2DataSource,
+            @NotNull OntologyTermRepository ontologyTermRepository,
+            @NotNull SolrClient allele2Core) {
+        super(komp2DataSource, ontologyTermRepository);
+        this.allele2Core = allele2Core;
+    }
+
 
     @Override
-    public RunStatus run() throws IndexerException, IOException, SolrServerException, SQLException {
-
+    public RunStatus run() throws IOException, SolrServerException {
 
         RunStatus runStatus = new RunStatus();
 
@@ -159,8 +167,8 @@ public class Allele2Indexer  extends AbstractIndexer implements CommandLineRunne
     }
 
 
-    public static void main(String[] args) throws IndexerException {
-        SpringApplication.run(Allele2Indexer.class, args);
+    public static void main(String[] args) {
+        ConfigurableApplicationContext context = SpringApplication.run(Allele2Indexer.class, args);
+        context.close();
     }
-
 }

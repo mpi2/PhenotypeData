@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.selenium.support;
 
+import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.selenium.exception.TestException;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.mousephenotype.cda.web.DownloadType;
@@ -353,7 +354,7 @@ public class SearchImageImageView extends SearchFacetTable {
             for (int i = 0; i < emapDetails.size(); i++) {
                 if ( ! retVal.isEmpty()) retVal += "|";
                 try {
-                    retVal += "emap:" + NO_INFO_AVAILABLE;                               // emap doesn't have a term. Reserve a placeholder.
+                    retVal += "emap:" + Constants.NO_INFORMATION_AVAILABLE;                               // emap doesn't have a term. Reserve a placeholder.
                 } catch (Exception e) { }
             }
 
@@ -376,7 +377,7 @@ public class SearchImageImageView extends SearchFacetTable {
             for (int i = 0; i < procedureDetails.size(); i++) {
                 if ( ! retVal.isEmpty()) retVal += "|";
                 try {
-                    retVal += NO_INFO_AVAILABLE;                               // procedure doesn't have an id. Reserve a placeholder.
+                    retVal += Constants.NO_INFORMATION_AVAILABLE;                               // procedure doesn't have an id. Reserve a placeholder.
                 } catch (Exception e) { }
             }
 
@@ -418,7 +419,7 @@ public class SearchImageImageView extends SearchFacetTable {
             for (int i = 0; i < procedureDetails.size(); i++) {
                 if ( ! retVal.isEmpty()) retVal += "|";
                 try {
-                    retVal += NO_INFO_AVAILABLE;                               // procedure doesn't have a link. Reserve a placeholder.
+                    retVal += Constants.NO_INFORMATION_AVAILABLE;                               // procedure doesn't have a link. Reserve a placeholder.
                 } catch (Exception e) { }
             }
 
@@ -439,7 +440,7 @@ public class SearchImageImageView extends SearchFacetTable {
             for (int i = 0; i < emapDetails.size(); i++) {
                 if ( ! retVal.isEmpty()) retVal += "|";
                 try {
-                    retVal += NO_INFO_AVAILABLE;                               // emap doesn't have a link. Reserve a placeholder.
+                    retVal += Constants.NO_INFORMATION_AVAILABLE;                               // emap doesn't have a link. Reserve a placeholder.
                 } catch (Exception e) { }
             }
 

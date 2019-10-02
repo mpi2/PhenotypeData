@@ -19,22 +19,22 @@ package org.mousephenotype.cda.reports;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.dao.AnalyticsDAO;
+import org.mousephenotype.cda.db.repositories.MetaInfoRepository;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.beans.Introspector;
 import java.io.IOException;
-import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -48,22 +48,30 @@ public class ImpcGafReport extends AbstractReport {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    @Qualifier("postqcService")
-    PostQcService genotypePhenotypeService;
 
-    @Autowired
-    ObservationService observationService;
+    private GeneService              geneService;
+    private GenotypePhenotypeService genotypePhenotypeService;
+    private MetaInfoRepository       metaInfoRepository;
+    private ObservationService       observationService;
 
-    @Autowired
-    GeneService geneService;
 
-    @Autowired
-    AnalyticsDAO analyticsDAO;
-
-    public ImpcGafReport() {
+    @Inject
+    public ImpcGafReport(
+            @NotNull GeneService geneService,
+            @NotNull GenotypePhenotypeService genotypePhenotypeService,
+            @NotNull MetaInfoRepository metaInfoRepository,
+            @NotNull ObservationService observationService)
+    {
         super(ReportFormat.tsv);
+        this.geneService = geneService;
+        this.genotypePhenotypeService = genotypePhenotypeService;
+        this.metaInfoRepository = metaInfoRepository;
+        this.observationService = observationService;
     }
+
+    //    public ImpcGafReport() {
+//        super(ReportFormat.tsv);
+//    }
 
     @Override
     public String getDefaultFilename() {
@@ -116,7 +124,7 @@ public class ImpcGafReport extends AbstractReport {
             }
 
             // Write the data.
-            Date releaseDate = commonUtils.tryParseDate(new SimpleDateFormat("dd MMM yyyy"), analyticsDAO.getMetaData().get("data_release_date"));
+            Date releaseDate = tryParseDate(new SimpleDateFormat("dd MMM yyyy"), metaInfoRepository.findByPropertyKey("data_release_date").getPropertyValue());
             String dataReleaseDate = (releaseDate == null ? "" : new SimpleDateFormat("yyyyMMdd").format(releaseDate));
 
             for (GenotypePhenotypeDTO gpDTO : geneToPhenotypes.values()) {
@@ -151,7 +159,7 @@ public class ImpcGafReport extends AbstractReport {
                 csvWriter.writeRow(row);
             }
 
-        } catch (SolrServerException | SQLException | IOException e) {
+        } catch (SolrServerException | IOException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }
 
@@ -162,5 +170,30 @@ public class ImpcGafReport extends AbstractReport {
         }
 
         log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
+    }
+
+
+    /**
+     * Given a <code>SimpleDateFormat</code> instance that may be null or may describe a date input format string, this
+     * method attempts to convert the value to a <code>Date</code>. If successful,
+     * the <code>Date</code> instance is returned; otherwise, <code>null</code> is returned.
+     * NOTE: the [non-null] object is first converted to a string and is trimmed of whitespace.
+     *
+     * @param formatter a <code>SimpleDateFormat</code> instance describing the input string date format
+     * @param value     the <code>String</code> representation, matching <code>formatter></code> to try to convert
+     * @return If <code>value</code> is a valid date as described by <code>formatter</code>; null otherwise
+     */
+    private Date tryParseDate(SimpleDateFormat formatter, String value) {
+        if ((formatter == null) || (value == null)) {
+            return null;
+        }
+
+        Date retVal = null;
+        try {
+            retVal = formatter.parse(value.trim());
+        } catch (ParseException pe) {
+        }
+
+        return retVal;
     }
 }

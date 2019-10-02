@@ -18,14 +18,13 @@ package org.mousephenotype.cda.ri.core.services;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mousephenotype.cda.ri.BaseTest;
 import org.mousephenotype.cda.ri.core.entities.Gene;
 import org.mousephenotype.cda.ri.core.entities.GeneSent;
 import org.mousephenotype.cda.ri.core.entities.Summary;
 import org.mousephenotype.cda.ri.core.entities.SummaryWithDecoration;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -40,7 +39,7 @@ import static junit.framework.TestCase.assertNotNull;
  * Updated by mrelac on 06/12/2018.
  */
 
-@RunWith(SpringRunner.class)
+@SpringBootTest
 public class GenerateServiceTest extends BaseTest {
 
     public static final String user1 = "user1@ebi.ac.uk";

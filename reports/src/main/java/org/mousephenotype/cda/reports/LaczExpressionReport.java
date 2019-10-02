@@ -22,9 +22,11 @@ import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.PropertySource;
+import org.springframework.core.env.SimpleCommandLinePropertySource;
 import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
 import java.beans.Introspector;
 import java.io.IOException;
 import java.util.List;
@@ -37,13 +39,17 @@ import java.util.List;
 @Component
 public class LaczExpressionReport extends AbstractReport {
 
-    protected Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected Logger       logger = LoggerFactory.getLogger(this.getClass());
+    protected String       reportsHostname;
+    protected ImageService imageService;
 
-    @Autowired
-    ImageService imageService;
+    public final String IMAGE_COLLECTION_LINK_BASE_KEY = "image_collection_link_base";
+    public String imageCollectionLinkBase = "https://www.mousephenotype.org/data";
 
-    public LaczExpressionReport() {
+    @Inject
+    public LaczExpressionReport(ImageService imageService) {
         super();
+        this.imageService = imageService;
     }
 
     @Override
@@ -60,9 +66,17 @@ public class LaczExpressionReport extends AbstractReport {
         }
         initialise(args);
 
+
+        PropertySource ps = new SimpleCommandLinePropertySource(args);
+        if (ps.containsProperty(IMAGE_COLLECTION_LINK_BASE_KEY)) {
+            imageCollectionLinkBase = ps.getProperty(IMAGE_COLLECTION_LINK_BASE_KEY).toString();
+
+            throw new ReportException("Required reports_hostname parameter is missing. Format is like http://www.mousephenotype.org.");
+        }
+
         long start = System.currentTimeMillis();
 
-        List<String[]> result = imageService.getLaczExpressionSpreadsheet();
+        List<String[]> result = imageService.getLaczExpressionSpreadsheet(imageCollectionLinkBase);
         csvWriter.writeAll(result);
 
         try {
@@ -72,5 +86,9 @@ public class LaczExpressionReport extends AbstractReport {
         }
 
         log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
+    }
+
+    protected void initialise(String[] args) throws ReportException {
+        super.initialise(args);
     }
 }

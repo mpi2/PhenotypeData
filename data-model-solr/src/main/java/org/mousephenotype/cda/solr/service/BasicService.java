@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import net.sf.json.JSONArray;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.PivotField;
@@ -23,15 +22,19 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.util.NamedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 
 import java.util.*;
-
 
 
 public class BasicService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(BasicService.class);
-    
+
+	public BasicService() {
+
+	}
 	
 	protected static final int MAX_NB_DOCS = 1000000;
 	
@@ -223,12 +226,12 @@ public class BasicService {
 	 * @param jsonArray
 	 * @return List representation of the JSONArray using toString on individual objects
 	 */
-	public List<String> getListFromJson(JSONArray jsonArray){
+	public List<String> getListFromJson(JSONArray jsonArray) throws JSONException {
 		
 		List<String> list = new ArrayList<>();
 		if (jsonArray != null){
-			for (Object obj : jsonArray){
-				list.add(obj.toString());
+			for (int i = 0; i < list.size(); i++) {
+				list.add(jsonArray.get(i).toString());
 			}
 		}
 		
@@ -241,18 +244,17 @@ public class BasicService {
 	 * @param collection
 	 * @return List representation of the collection using toString on individual objects.
 	 */
-	public static List<String> getListFromCollection(Collection<Object> collection){
-		
+	public static List<String> getListFromCollection(Collection<Object> collection) {
+
 		List<String> list = new ArrayList<>();
-		if (collection != null){
-			for (Object obj : collection){
-				if (obj != null){
-                    list.add(obj.toString());
+		if (collection != null) {
+			for (Object obj : collection) {
+				if (obj != null) {
+					list.add(obj.toString());
 				}
 			}
 		}
-		
+
 		return list;
 	}
-    
-   }
+}

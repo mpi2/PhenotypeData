@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.PropertySource;
 
 import java.io.File;
 import java.util.List;
@@ -34,13 +33,9 @@ import java.util.List;
  *
  * Example command used to build the 3.1 reports:
  *  java -Dprofile=reports3.1 -jar /Users/mrelac/workspace/PhenotypeData/reports/target/reports-1.0.0-exec.jar --targetDirectory=/Users/mrelac/reports/3.1
- *
- * NOTE: The ReportsManager is invoked by the data load process; thus datarelease.properties is included in the PropertySource below.
- *
  * Created by mrelac on 23/06/2015.
  */
 
-@PropertySource("file:${user.home}/configfiles/${profile:prod}/application.properties")
 @SpringBootApplication
 public class ReportsManager implements CommandLineRunner {
 
@@ -367,7 +362,7 @@ public class ReportsManager implements CommandLineRunner {
               "[[[[--" + ReportsManagerParser.REPORTS_ARG          + "]=report1],report2], ...]"
             , "   [--" + ReportsManagerParser.TARGET_DIRECTORY_ARG + "=target_directory]"
             , "   [--" + ReportsManagerParser.REPORT_FORMAT_ARG    + "={csv | tsv}]"
-            , "   [--" + ReportsManagerParser.PROPERTIES_FILE_ARG  + "=properties_file]"
+//            , "   [--" + ReportsManagerParser.PROPERTIES_FILE_ARG  + "=properties_file]"
             , "   [--" + ReportsManagerParser.PREFIX_ARG           + "=prefix]"
             , "   [--" + ReportsManagerParser.HELP_ARG             + "]"
         };
@@ -375,7 +370,7 @@ public class ReportsManager implements CommandLineRunner {
               "Default is all reports"
             , "Default is " + ReportsManagerParser.DEFAULT_TARGET_DIRECTORY
             , "Default is " + ReportsManagerParser.DEFAULT_REPORT_FORMAT
-            , "Default is " + ReportsManagerParser.DEFAULT_PROPERTIES_FILE
+//            , "Default is " + ReportsManagerParser.DEFAULT_PROPERTIES_FILE
             , "Default is none"
             , ""
         };

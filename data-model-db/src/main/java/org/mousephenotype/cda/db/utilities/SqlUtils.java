@@ -1,5 +1,6 @@
 package org.mousephenotype.cda.db.utilities;
 
+import com.zaxxer.hikari.HikariDataSource;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +17,8 @@ import java.sql.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
 import java.util.Date;
+import java.util.*;
 
 
 /**
@@ -29,7 +30,11 @@ public class SqlUtils {
     private static final Logger      logger      = LoggerFactory.getLogger(SqlUtils.class);
     private              CommonUtils commonUtils = new CommonUtils();
 
+    // Hikari parameters:
+    //    https://github.com/brettwooldridge/HikariCP#configuration-knobs-baby
     private final static Integer INITIAL_POOL_CONNECTIONS = 1;
+    private final static Integer MAXIMUM_POOL_SIZE        = 100;            // Default is 10. OntologyParserTest times out with 10.
+
 
     /**
      * Overloaded helper methods for preparing SQL statement
@@ -43,6 +48,13 @@ public class SqlUtils {
             s.setNull(index, java.sql.Types.INTEGER);
         } else {
             s.setInt(index, var);
+        }
+    }
+    static public void setSqlParameter(PreparedStatement s, Long var, int index) throws SQLException {
+        if(var==null) {
+            s.setNull(index, Types.INTEGER);
+        } else {
+            s.setLong(index, var);
         }
     }
     static public void setSqlParameter(PreparedStatement s, String var, int index) throws SQLException {
@@ -375,7 +387,8 @@ public class SqlUtils {
                     if (ts != null)  {
                         Date date = new Date(ts.getTime());
                         if (date != null) {
-                            formattedDate = commonUtils.formattedDate(date);
+                            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                            formattedDate = dateFormat.format(date);
                         }
                     }
                     newRow.add(formattedDate);
@@ -394,30 +407,32 @@ public class SqlUtils {
         return newRow;
     }
 
+    /**
+     * From https://github.com/brettwooldridge/HikariCP#configuration-knobs-baby
+     * maxLifetime:
+     * This property controls the maximum lifetime of a connection in the pool. An in-use connection will never be retired,
+     * only when it is closed will it then be removed. On a connection-by-connection basis, minor negative attenuation is
+     * applied to avoid mass-extinction in the pool. We strongly recommend setting this value, and it should be several
+     * seconds shorter than any database or infrastructure imposed connection time limit. A value of 0 indicates no maximum
+     * lifetime (infinite lifetime), subject of course to the idleTimeout setting. Default: 1800000 (30 minutes)
+     * @param url
+     * @param username
+     * @param password
+     * @return
+     */
+
     public static DataSource getConfiguredDatasource(String url, String username, String password) {
-        org.apache.tomcat.jdbc.pool.DataSource ds = new org.apache.tomcat.jdbc.pool.DataSource();
-        ds.setUrl(url);
+        HikariDataSource ds = new HikariDataSource();
+        ds.setJdbcUrl(url);
+        ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
         ds.setUsername(username);
         ds.setPassword(password);
-        ds.setDriverClassName("com.mysql.jdbc.Driver");
-        ds.setInitialSize(INITIAL_POOL_CONNECTIONS);
-        ds.setMaxActive(100);
-        ds.setMinIdle(INITIAL_POOL_CONNECTIONS);
-        ds.setMaxIdle(INITIAL_POOL_CONNECTIONS);
-        ds.setTestOnBorrow(true);
-        ds.setValidationQuery("SELECT 1");
-        ds.setValidationInterval(5000);
-        ds.setMaxAge(30000);
-        ds.setMaxWait(35000);
-        ds.setTestWhileIdle(true);
-        ds.setTimeBetweenEvictionRunsMillis(5000);
-        ds.setMinEvictableIdleTimeMillis(5000);
-        ds.setValidationInterval(30000);
-        ds.setRemoveAbandoned(true);
-        ds.setRemoveAbandonedTimeout(10000); // 10 seconds before abandoning a query
+        ds.setConnectionInitSql("SELECT 1");
+        ds.setMinimumIdle(INITIAL_POOL_CONNECTIONS);
+        ds.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
 
         try {
-            logger.info("Using database {} with initial pool size {}. URL: {}", ds.getConnection().getCatalog(), ds.getInitialSize(), url);
+            logger.info("Using database {} with URL: {}", ds.getConnection().getCatalog(), url);
 
         } catch (Exception e) {
 

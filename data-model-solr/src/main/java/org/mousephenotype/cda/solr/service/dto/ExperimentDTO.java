@@ -26,34 +26,34 @@ import java.util.*;
 
 public class ExperimentDTO {
 
-    private String experimentId;
-    private String metadataGroup;
-    private List<String> metadata;
-    private String parameterStableId;
-    private String procedureStableId;
-    private String procedureName;
-    private String pipelineStableId;
-    private ObservationType observationType;
-    private String organisation;
-    private String strain;
-    private String geneMarker;
-    private Set<ZygosityType> zygosities;
-    private Set<SexType> sexes;
-    private ControlStrategy controlSelectionStrategy;
+    private String                            experimentId;
+    private String                            metadataGroup;
+    private List<String>                      metadata;
+    private String                            parameterStableId;
+    private String                            procedureStableId;
+    private String                            procedureName;
+    private String                            pipelineStableId;
+    private ObservationType                   observationType;
+    private String                            organisation;
+    private String                            strain;
+    private String                            geneMarker;
+    private Set<ZygosityType>                 zygosities;
+    private Set<SexType>                      sexes;
+    private ControlStrategy                   controlSelectionStrategy;
     private List<? extends StatisticalResult> results;
-    private String alleleSymobl;
-    private String geneticBackgtround;
+    private String                            alleleSymobl;
+    private String                            geneticBackgtround;
 
     private Set<ObservationDTO> homozygoteMutants;
     private Set<ObservationDTO> heterozygoteMutants;
     private Set<ObservationDTO> hemizygoteMutants;
 
     private Set<ObservationDTO> controls;
-    private Integer controlBiologicalModelId;
-    private Integer experimentalBiologicalModelId;
+    private Long                controlBiologicalModelId;
+    private Long                experimentalBiologicalModelId;
     private Set<ObservationDTO> maleControls;
     private Set<ObservationDTO> femaleControls;
-    private String alleleAccession;
+    private String              alleleAccession;
 
     private String statisticalResultUrl;
     private String genotypePhenotypeUrl;
@@ -82,10 +82,6 @@ public class ExperimentDTO {
         return rows;
     }
 
-
-
-    
-
     @Override
 	public String toString() {
 		return "ExperimentDTO [experimentId=" + experimentId + ", metadataGroup=" + metadataGroup + ", metadata="
@@ -102,10 +98,6 @@ public class ExperimentDTO {
 				+ ", statisticalResultUrl=" + statisticalResultUrl + ", genotypePhenotypeUrl=" + genotypePhenotypeUrl
 				+ ", DataPhenStatFormatUrl=" + DataPhenStatFormatUrl + "]";
 	}
-
-
-
-
 
 	public Set<String> getCategories() {
         Set<String> categorieSet = new TreeSet<>();
@@ -230,20 +222,20 @@ public class ExperimentDTO {
         this.observationType = observationType;
     }
 
-    public Integer getControlBiologicalModelId() {
+    public Long getControlBiologicalModelId() {
         return controlBiologicalModelId;
     }
 
-    public void setControlBiologicalModelId(Integer controlBiologicalModelId) {
+    public void setControlBiologicalModelId(Long controlBiologicalModelId) {
         this.controlBiologicalModelId = controlBiologicalModelId;
     }
 
-    public Integer getExperimentalBiologicalModelId() {
+    public Long getExperimentalBiologicalModelId() {
         return experimentalBiologicalModelId;
     }
 
     public void setExperimentalBiologicalModelId(
-            Integer experimentalBiologicalModelId) {
+            Long experimentalBiologicalModelId) {
         this.experimentalBiologicalModelId = experimentalBiologicalModelId;
     }
 
@@ -621,5 +613,4 @@ public class ExperimentDTO {
         }
         return true;
     }
-
 }

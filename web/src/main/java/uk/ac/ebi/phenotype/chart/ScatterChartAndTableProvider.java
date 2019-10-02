@@ -15,10 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import org.apache.commons.lang.WordUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.apache.commons.lang3.text.WordUtils;
 import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -30,6 +27,9 @@ import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -133,8 +133,8 @@ public class ScatterChartAndTableProvider {
 		for (SexType sex : experiment.getSexes()) {
 
 			List<DiscreteTimePoint> controlDataPoints = new ArrayList<>();
-			JSONObject controlJsonObject=new JSONObject();
-			JSONArray dataArray=new JSONArray();
+			JSONObject              controlJsonObject =new JSONObject();
+			JSONArray               dataArray         =new JSONArray();
 
 			try {
 				controlJsonObject.put("name", WordUtils.capitalize(sex.name())+" "+"WT");

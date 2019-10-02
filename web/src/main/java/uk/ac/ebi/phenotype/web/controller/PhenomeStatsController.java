@@ -15,41 +15,37 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.Map;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
-import org.mousephenotype.cda.solr.service.PostQcService;
+import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import uk.ac.ebi.phenotype.chart.ColorCodingPalette;
 import uk.ac.ebi.phenotype.chart.Constants;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Map;
 
 
 @Controller
 public class PhenomeStatsController {
 
-	@Autowired
-	@Qualifier("postqcService")
-	PostQcService genotypePhenotypeService;
+	@NotNull @Autowired
+	GenotypePhenotypeService genotypePhenotypeService;
 
-
-	@Autowired
+	@NotNull @Autowired
 	StatisticalResultService srService;
 
 	@Resource(name="globalConfiguration")
@@ -64,9 +60,7 @@ public class PhenomeStatsController {
 		@RequestParam(required = false, value = "phenotyping_center") String phenotypingCenter,
 		Model model,
 		HttpServletRequest request,
-		RedirectAttributes attributes) throws SolrServerException, IOException , URISyntaxException, SQLException{
-
-
+		RedirectAttributes attributes) throws SolrServerException, IOException , URISyntaxException, JSONException {
 
 		PhenotypeFacetResult results = genotypePhenotypeService.getPhenotypeFacetResultByPhenotypingCenterAndPipeline(phenotypingCenter, pipelineStableId);
 

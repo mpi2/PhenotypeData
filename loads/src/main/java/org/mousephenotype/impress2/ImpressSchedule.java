@@ -5,24 +5,24 @@ import java.util.Collection;
 
 public class ImpressSchedule implements Serializable {
 
-    private Integer             scheduleId;
-    private boolean             isActive = true;
-    private boolean             isDeprecated;
-    private String              timeLabel;
-    private String              time;
-    private String              timeUnit;
-    private String              stage;
-    private Integer             pipelineId;
-    private Collection<Integer> procedureCollection;
+    private Long             scheduleId;
+    private boolean          isActive = true;
+    private boolean          isDeprecated;
+    private String           timeLabel;
+    private String           time;
+    private String           timeUnit;
+    private String           stage;
+    private Long             pipelineId;
+    private Collection<Long> procedureCollection;
 
     public ImpressSchedule() {
     }
 
-    public ImpressSchedule(Integer scheduleId) {
+    public ImpressSchedule(Long scheduleId) {
         this.scheduleId = scheduleId;
     }
 
-    public ImpressSchedule(Integer scheduleId, boolean isActive, boolean isDeprecated, String timeLabel, String stage) {
+    public ImpressSchedule(Long scheduleId, boolean isActive, boolean isDeprecated, String timeLabel, String stage) {
         this.scheduleId = scheduleId;
         this.isActive = isActive;
         this.isDeprecated = isDeprecated;
@@ -30,11 +30,11 @@ public class ImpressSchedule implements Serializable {
         this.stage = stage;
     }
 
-    public Integer getScheduleId() {
+    public Long getScheduleId() {
         return scheduleId;
     }
 
-    public void setScheduleId(Integer scheduleId) {
+    public void setScheduleId(Long scheduleId) {
         this.scheduleId = scheduleId;
     }
 
@@ -86,21 +86,21 @@ public class ImpressSchedule implements Serializable {
         this.stage = stage;
     }
 
-    public Integer getPipelineId() {
+    public Long getPipelineId() {
         return pipelineId;
     }
 
-    public void setPipelineId(Integer pipelineId) {
+    public void setPipelineId(Long pipelineId) {
         this.pipelineId = pipelineId;
     }
 
     
 
-    public Collection<Integer> getProcedureCollection() {
+    public Collection<Long> getProcedureCollection() {
         return procedureCollection;
     }
 
-    public void setProcedureCollection(Collection<Integer> procedureCollection) {
+    public void setProcedureCollection(Collection<Long> procedureCollection) {
         this.procedureCollection = procedureCollection;
     }
 

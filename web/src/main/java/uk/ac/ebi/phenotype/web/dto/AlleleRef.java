@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class AlleleRef {
-    private String acc;
-    private String gacc;
+    private String alleleAccessionId;
+    private String geneAccessionId;
     private String geneSymbol;
     private String project;
     private String alleleName;

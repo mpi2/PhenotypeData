@@ -17,44 +17,41 @@
 package org.mousephenotype.cda.selenium;
 
  import org.apache.commons.lang3.StringUtils;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.junit.After;
-import org.junit.Before;
+ import org.apache.solr.client.solrj.SolrServerException;
+ import org.junit.After;
+ import org.junit.Before;
  import org.junit.Ignore;
  import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+ import org.junit.runner.RunWith;
  import org.mousephenotype.cda.selenium.config.TestConfig;
  import org.mousephenotype.cda.selenium.exception.TestException;
-import org.mousephenotype.cda.selenium.support.PhenotypePage;
-import org.mousephenotype.cda.selenium.support.PhenotypeProcedure;
-import org.mousephenotype.cda.selenium.support.TestUtils;
-import org.mousephenotype.cda.solr.service.MpService;
-import org.mousephenotype.cda.solr.service.PostQcService;
-import org.mousephenotype.cda.utilities.CommonUtils;
-import org.mousephenotype.cda.utilities.RunStatus;
-import org.openqa.selenium.*;
-import org.openqa.selenium.remote.DesiredCapabilities;
-import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.env.Environment;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
+ import org.mousephenotype.cda.selenium.support.PhenotypePage;
+ import org.mousephenotype.cda.selenium.support.PhenotypeProcedure;
+ import org.mousephenotype.cda.selenium.support.TestUtils;
+ import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
+ import org.mousephenotype.cda.solr.service.MpService;
+ import org.mousephenotype.cda.utilities.CommonUtils;
+ import org.mousephenotype.cda.utilities.RunStatus;
+ import org.openqa.selenium.*;
+ import org.openqa.selenium.remote.DesiredCapabilities;
+ import org.openqa.selenium.remote.RemoteWebDriver;
+ import org.openqa.selenium.support.ui.ExpectedConditions;
+ import org.openqa.selenium.support.ui.WebDriverWait;
+ import org.slf4j.LoggerFactory;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.beans.factory.annotation.Value;
+ import org.springframework.boot.test.context.SpringBootTest;
+ import org.springframework.core.env.Environment;
+ import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.validation.constraints.NotNull;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+ import javax.validation.constraints.NotNull;
+ import java.io.IOException;
+ import java.net.MalformedURLException;
+ import java.net.URL;
+ import java.util.ArrayList;
+ import java.util.Arrays;
+ import java.util.Date;
+ import java.util.List;
 
  /**
   *
@@ -62,8 +59,14 @@ import java.util.List;
   *
   * Selenium test for phenotype page coverage ensuring each page works as expected.
   */
-@RunWith(SpringRunner.class)
-@TestPropertySource("file:${user.home}/configfiles/${profile:dev}/test.properties")
+
+
+// FIXME FIXME FIXME
+ @Ignore
+
+
+
+ @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TestConfig.class)
 public class PhenotypePageTest {
 
@@ -82,28 +85,24 @@ public class PhenotypePageTest {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
-    @Autowired
-    private DesiredCapabilities desiredCapabilities;
-
-    @Autowired
-    private Environment env;
-
-    @Autowired
-    @Qualifier("postqcService")
-    private PostQcService genotypePhenotypeService;
-
-    @Autowired
-    private MpService mpService;
-
-    @Autowired
-    private PhenotypePipelineDAO phenotypePipelineDAO;
-
-    @NotNull
-    @Value("${base_url}")
-    private String baseUrl;
+    @Value("${paBaseUrl}")
+    private String paBaseUrl;
 
     @Value("${seleniumUrl}")
     private String seleniumUrl;
+
+
+    @NotNull @Autowired
+    private DesiredCapabilities desiredCapabilities;
+
+    @NotNull @Autowired
+    private Environment env;
+
+     @NotNull @Autowired
+     private MpService mpService;
+
+    @NotNull @Autowired
+    private GenotypePhenotypeService genotypePhenotypeService;
 
 
     @Before
@@ -161,7 +160,7 @@ public class PhenotypePageTest {
 
             WebElement phenotypeLink;
 
-            target = baseUrl + "/phenotypes/" + phenotypeId;
+            target = paBaseUrl + "/phenotypes/" + phenotypeId;
             logger.debug("phenotype[" + i + "] URL: " + target);
 
             try {
@@ -278,7 +277,7 @@ public class PhenotypePageTest {
 
         testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
 
-        target = baseUrl + "/phenotypes/" + phenotypeId;
+        target = paBaseUrl + "/phenotypes/" + phenotypeId;
 
         driver.get(target);
         List<WebElement> oopsElement = driver.findElements(By.xpath("//h1"));
@@ -327,12 +326,12 @@ public class PhenotypePageTest {
         Date start = new Date();
         RunStatus masterStatus = new RunStatus();
         String[] targets = new String[] {
-                  baseUrl + "/phenotypes/MP:0000172"                // 0 synonyms, 0 mapped hp terms, 0 procedures
-                , baseUrl + "/phenotypes/MP:0000022"                // 0 synonyms, 1 mapped hp term,  1 procedure
-                , baseUrl + "/phenotypes/MP:0000120"                // 1 synonym,  0 mapped hp terms, 0 procedures
-                , baseUrl + "/phenotypes/MP:0000013"                // 1 synonym,  1 mapped hp term,  2 procedures
-                , baseUrl + "/phenotypes/MP:0000023"                // 4 synonyms, 3 mapped hp terms, 0 procedures
-                , baseUrl + "/phenotypes/MP:0005202"                // 4 synonyms, 1 mapped hp term,  1 procedure
+                paBaseUrl + "/phenotypes/MP:0000172"                // 0 synonyms, 0 mapped hp terms, 0 procedures
+                , paBaseUrl + "/phenotypes/MP:0000022"                // 0 synonyms, 1 mapped hp term,  1 procedure
+                , paBaseUrl + "/phenotypes/MP:0000120"                // 1 synonym,  0 mapped hp terms, 0 procedures
+                , paBaseUrl + "/phenotypes/MP:0000013"                // 1 synonym,  1 mapped hp term,  2 procedures
+                , paBaseUrl + "/phenotypes/MP:0000023"                // 4 synonyms, 3 mapped hp terms, 0 procedures
+                , paBaseUrl + "/phenotypes/MP:0005202"                // 4 synonyms, 1 mapped hp term,  1 procedure
         };
 
         String[] definitions = new String[] {
@@ -417,7 +416,7 @@ public class PhenotypePageTest {
          RunStatus status = new RunStatus();
 
          try {
-             PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypePipelineDAO, baseUrl);
+             PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, paBaseUrl);
 
              // Definition
              String definition = phenotypePage.getDefinition();
@@ -482,10 +481,10 @@ public class PhenotypePageTest {
 
             RunStatus status = new RunStatus();
             WebElement mpLinkElement = null;
-            target = baseUrl + "/phenotypes/" + phenotypeId;
+            target = paBaseUrl + "/phenotypes/" + phenotypeId;
 
             try {
-                PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, phenotypePipelineDAO, baseUrl);
+                PhenotypePage phenotypePage = new PhenotypePage(driver, wait, target, paBaseUrl);
                 if (phenotypePage.hasPhenotypesTable()) {
                     mpLinkElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.inner a").linkText(phenotypeId)));
                     status = phenotypePage.validate();

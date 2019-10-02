@@ -31,6 +31,7 @@ import org.hibernate.annotations.FetchMode;
 import javax.persistence.*;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 
 @Entity
@@ -38,13 +39,13 @@ import java.util.List;
 public class BiologicalModel extends SourcedEntry {
 
 	@Column(name = "id", insertable=false, updatable=false)
-	Integer id;
+	Long id;
 
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -110,6 +111,16 @@ public class BiologicalModel extends SourcedEntry {
             inverseJoinColumns = {@JoinColumn(name = "strain_acc"), @JoinColumn(name = "strain_db_id")}
     )
 	private List<Strain> strains;
+
+	public BiologicalModel() {
+	}
+
+	public BiologicalModel(Long id, String allelicComposition, String geneticBackground, String zygosity) {
+		this.id = id;
+		this.allelicComposition = allelicComposition;
+		this.geneticBackground = geneticBackground;
+		this.zygosity = zygosity;
+	}
 
 	/**
 	 * @return the biologicalSamples
@@ -246,15 +257,29 @@ public class BiologicalModel extends SourcedEntry {
 		this.strains.add(strain);
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
-		return "BiologicalModel [id="+id+ "allelicComposition=" + allelicComposition
-				+ ", geneticBackground=" + geneticBackground
-				+ ", biologicalSamples=" + biologicalSamples
-				+ ", genomicFeatures=" + genomicFeatures + "]";
+		return "BiologicalModel{" +
+				"id=" + id +
+				", allelicComposition='" + allelicComposition + '\'' +
+				", geneticBackground='" + geneticBackground + '\'' +
+				", zygosity='" + zygosity + '\'' +
+				'}';
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		BiologicalModel that = (BiologicalModel) o;
+		return id.equals(that.id) &&
+				allelicComposition.equals(that.allelicComposition) &&
+				geneticBackground.equals(that.geneticBackground) &&
+				Objects.equals(zygosity, that.zygosity);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, allelicComposition, geneticBackground, zygosity);
+	}
 }

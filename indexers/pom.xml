@@ -27,6 +27,12 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 		<!-- A Java library for parsing command line options - brought in from
 			indexers PA -->
 		<dependency>
@@ -56,20 +62,6 @@
 			<groupId>org.mousephenotype.cda</groupId>
 			<artifactId>data-model-db</artifactId>
 		</dependency>
-
-		<!-- needed for single db connections DataSource -->
-		<dependency>
-			<groupId>commons-dbcp</groupId>
-			<artifactId>commons-dbcp</artifactId>
-		</dependency>
-
-		<!-- for RestTemplate if we use that for getting embryo images, currently
-			using httpclient as json structure not standard
-			-->
-		<!--<dependency> <groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId> </dependency> <dependency> <groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId> <version>1.16.2</version> <scope>provided</scope>
-			</dependency> -->
 
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -104,6 +96,13 @@
 			<version>4.0.2</version>
 		</dependency>
 
+		<!-- This dependency (and a bootstrap.properties) is all that's required to pull configuration values
+             from the configService. -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-config</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>javax.annotation</groupId>
 			<artifactId>javax.annotation-api</artifactId>
@@ -114,26 +113,46 @@
     </dependencies>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <mainClass>org.mousephenotype.cda.indexers.IndexerManager</mainClass>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                        <configuration>
-                            <classifier>exec</classifier>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+		<plugins>
 
-        </plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>org.mousephenotype.cda.indexers.IndexerManager</mainClass>
+				</configuration>
+				<executions>
+					<execution>
+						<id>repackage</id>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+						<configuration>
+							<classifier>exec</classifier>
+							<attach>false</attach>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+
+				<configuration>
+					<!-- Exclude slow-running tests by default here. To run all tests: mvn -Dtest=** test -->
+					<excludes>
+						<exclude>**/ObservationIndexerTest.java</exclude>
+						<exclude>**/OntologyParserTest.java</exclude>
+					</excludes>
+
+					<!-- Don't fail if there are no runnable tests -->
+					<failIfNoTests>false</failIfNoTests>
+				</configuration>
+
+			</plugin>
+
+		</plugins>
     </build>
 
 </project>

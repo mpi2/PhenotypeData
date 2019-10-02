@@ -15,8 +15,8 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import org.apache.commons.lang.WordUtils;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.mousephenotype.cda.db.pojo.Parameter;
@@ -36,8 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import uk.ac.ebi.phenotype.web.dao.StatisticsService;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -124,7 +122,7 @@ public class UnidimensionalChartAndTableProvider {
 		ProcedureDTO proc = impressService.getProcedureByStableId(experiment.getProcedureStableId()) ;
 		String procedureDescription = "";
 		if (proc != null) {
-			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()),  "Procedure: "+ proc.getName());
+			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Long)proc.getStableKey()).toString()),  "Procedure: "+ proc.getName());
 		}
 		if (parameter.getStableKey() != null) {
 			title = String.format("<a href=\"%s\">%s</a>", impressService.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey()),  "Parameter: "+ parameter.getName());
@@ -184,11 +182,11 @@ public class UnidimensionalChartAndTableProvider {
 	private String createContinuousBoxPlotChartsString(String experimentNumber, Float yMin, Float yMax,ParameterDTO parameter, String yAxisTitle,
 		List<ChartsSeriesElement> chartsSeriesElementsList, ExperimentDTO experiment) throws JSONException {
 
-		JSONArray categories = new JSONArray();
-		String boxPlotObject = "";
-		String seriesData = "";
-		int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
-		int column = 0;
+		JSONArray categories    = new JSONArray();
+		String    boxPlotObject = "";
+		String    seriesData    = "";
+		int       decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
+		int       column        = 0;
 
 		for (ChartsSeriesElement chartsSeriesElement : chartsSeriesElementsList) {
 			// fist get the raw data for each column (only one column per data

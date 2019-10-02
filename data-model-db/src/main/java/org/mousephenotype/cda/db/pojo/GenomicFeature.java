@@ -113,6 +113,21 @@ public class GenomicFeature {
 		super();
 	}
 
+	public GenomicFeature(DatasourceEntityId id, String symbol, String name, List<Synonym> synonyms, List<Xref> xrefs, OntologyTerm biotype, OntologyTerm subtype, SequenceRegion sequenceRegion, int start, int end, int strand, String cMposition, String status) {
+		this.id = id;
+		this.symbol = symbol;
+		this.name = name;
+		this.synonyms = synonyms;
+		this.xrefs = xrefs;
+		this.biotype = biotype;
+		this.subtype = subtype;
+		this.sequenceRegion = sequenceRegion;
+		this.start = start;
+		this.end = end;
+		this.strand = strand;
+		this.cMposition = cMposition;
+		this.status = status;
+	}
 
 	/**
 	 * @return the id
@@ -426,10 +441,4 @@ public class GenomicFeature {
 			return false;
 		return true;
 	}
-
-
-
-
-
-
 }

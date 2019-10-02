@@ -1,21 +1,20 @@
 package uk.ac.ebi.phenotype.service;
 
-import net.sf.json.JSONObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.StringUtils;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.DiseaseDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
-import static org.apache.commons.lang.StringUtils.join;
-import static org.apache.commons.lang.StringUtils.split;
-import static org.apache.solr.common.StringUtils.*;
+import static org.apache.commons.lang3.StringUtils.join;
+import static org.apache.commons.lang3.StringUtils.split;
 
 /**
  * Created by ckchen on 18/07/2017.
@@ -30,7 +29,7 @@ public class BatchQueryForm {
     private String hostName;
     private String baseUrl;
 
-    public BatchQueryForm(String mode, HttpServletRequest request, SolrDocumentList results, String fllist, String dataType, List<String> queryIds){
+    public BatchQueryForm(String mode, HttpServletRequest request, SolrDocumentList results, String fllist, String dataType, List<String> queryIds) throws JSONException {
 
         Map<String, String> qidMap = new HashMap<>();
         // users query id(s)
@@ -186,7 +185,7 @@ public class BatchQueryForm {
             //System.out.println("checking " + lcQryId);
 
             if (mode.equals("onPage")) {
-                j.getJSONArray("aaData").add(qryIdRow.get(lcQryId));
+                j.getJSONArray("aaData").put(qryIdRow.get(lcQryId));
 
             }
             else {

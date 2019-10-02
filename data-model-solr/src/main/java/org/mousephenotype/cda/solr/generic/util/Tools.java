@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.generic.util;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.URLDecoder;
 import java.util.*;
@@ -342,7 +342,7 @@ public class Tools {
 			// impc images link
             //additionalInfos.add("images_link");
 		}
-		//else if ( corename.equals("phenodigm") ) {
+
 		else if ( corename.equals("hp") ) {
 
 			mainAttrs.add("hp_id");
@@ -577,8 +577,5 @@ public class Tools {
 		}
 
 		return optMatch;
-
-		//optMatch +=
-
 	}
 }

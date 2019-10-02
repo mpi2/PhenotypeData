@@ -29,9 +29,9 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class Xref extends DatasourceEntityId {
 
-	int id;
+	private Long   id;
 	private String xrefAccession;
-	private int xrefDatabaseId;
+	private Long   xrefDatabaseId;
 
 	public Xref() {
 		super();
@@ -40,14 +40,14 @@ public class Xref extends DatasourceEntityId {
 	/**
 	 * @return the id
 	 */
-	public int getId() {
+	public Long getId() {
 		return id;
 	}
 
 	/**
 	 * @param id the id to set
 	 */
-	public void setId(int id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -68,14 +68,14 @@ public class Xref extends DatasourceEntityId {
 	/**
 	 * @return the xrefDatabaseId
 	 */
-	public int getXrefDatabaseId() {
+	public Long getXrefDatabaseId() {
 		return xrefDatabaseId;
 	}
 
 	/**
 	 * @param xrefDatabaseId the xrefDatabaseId to set
 	 */
-	public void setXrefDatabaseId(int xrefDatabaseId) {
+	public void setXrefDatabaseId(Long xrefDatabaseId) {
 		this.xrefDatabaseId = xrefDatabaseId;
 	}
 

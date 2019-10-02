@@ -31,6 +31,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Date;
+import java.util.Objects;
 
 
 @Entity
@@ -39,7 +40,7 @@ public class Datasource {
 
 	@Id
 	@Column(name = "id")
-	private int id;
+	private Long id;
 
 	@Column(name = "name")
 	private String name;
@@ -60,14 +61,14 @@ public class Datasource {
 	/**
 	 * @return the id
 	 */
-	public int getId() {
+	public Long getId() {
 		return id;
 	}
 
 	/**
 	 * @param id the id to set
 	 */
-	public void setId(int id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -132,52 +133,47 @@ public class Datasource {
 	}
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + id;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result
-				+ ((releaseDate == null) ? 0 : releaseDate.hashCode());
-		result = prime * result
-				+ ((shortName == null) ? 0 : shortName.hashCode());
-		result = prime * result + ((version == null) ? 0 : version.hashCode());
-		return result;
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Datasource that = (Datasource) o;
+		return id.equals(that.id) &&
+				Objects.equals(name, that.name) &&
+				Objects.equals(shortName, that.shortName) &&
+				Objects.equals(version, that.version) &&
+				Objects.equals(releaseDate, that.releaseDate);
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Datasource other = (Datasource) obj;
-		if (id != other.id)
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (releaseDate == null) {
-			if (other.releaseDate != null)
-				return false;
-		} else if (!releaseDate.equals(other.releaseDate))
-			return false;
-		if (shortName == null) {
-			if (other.shortName != null)
-				return false;
-		} else if (!shortName.equals(other.shortName))
-			return false;
-		if (version == null) {
-			if (other.version != null)
-				return false;
-		} else if (!version.equals(other.version))
-			return false;
-		return true;
+	public int hashCode() {
+		return Objects.hash(id, name, shortName, version, releaseDate);
 	}
 
-
+	// external_db.short_name definitions
+	public static final String NCBI_M38 = "NCBI m38";
+	public static final String GENOME_FEATURE_TYPE = "Genome Feature Type";
+	public static final String MGI = "MGI";
+	public static final String X_Y = "X/Y";
+	public static final String MP = "MP";
+	public static final String IMPRESS = "IMPReSS";
+	public static final String PATO = "PATO";
+	public static final String MA = "MA";
+	public static final String CHEBI = "CHEBI";
+	public static final String ENVO = "EnvO";
+	public static final String GO = "GO";
+	public static final String EUROPHENOME = "EuroPhenome";
+	public static final String ECO = "ECO";
+	public static final String EMAP = "EMAP";
+	public static final String EFO = "EFO";
+	public static final String IMSR = "IMSR";
+	public static final String VEGA = "VEGA";
+	public static final String ENSEMBL = "Ensembl";
+	public static final String ENTREZ_GENE = "EntrezGene";
+	public static final String MGP = "MGP";
+	public static final String CCDS = "cCDS";
+	public static final String IMPC = "IMPC";
+	public static final String THREE_I = "3I";
+	public static final String MPATH = "MPATH";
+	public static final String MMUSDV = "MMUSDV";
+	public static final String EMAPA = "EMAPA";
 }

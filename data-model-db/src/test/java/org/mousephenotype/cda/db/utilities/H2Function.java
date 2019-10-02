@@ -1,12 +1,13 @@
 package org.mousephenotype.cda.db.utilities;
 
+import org.h2.expression.function.Function;
+
 import java.lang.reflect.Field;
 import java.sql.Date;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Objects;
 
-import org.h2.expression.Function;
 
 /**
  * This class is used in the testing ENV in order to harmonize the functionality of the DATEDIFF

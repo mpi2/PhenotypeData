@@ -21,14 +21,6 @@
 (function($){	
 	var jsonBase = MPI2.searchAndFacetConfig.facetParams;
 	
-	function _updateMainFacetCount(facet, numFound, facetMode){	
-	
-		$('div.flist li#' + facet + ' span.fcount').html(numFound);		
-		
-		var freezeMode = numFound == 0 ? true : false;
-		$.fn.freezeFacet($('li#' + facet + '.fmcat'), freezeMode);	
-	}
-	
 	function _getParams(oUrlParams){
 		
 		var coreQry = {};

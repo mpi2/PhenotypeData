@@ -20,13 +20,14 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.ri.core.entities.Contact;
 import org.mousephenotype.cda.ri.core.entities.ResetCredentials;
+import org.mousephenotype.cda.ri.core.entities.SmtpParameters;
 import org.mousephenotype.cda.ri.core.entities.Summary;
 import org.mousephenotype.cda.ri.core.exceptions.InterestException;
 import org.mousephenotype.cda.ri.core.services.CoreService;
 import org.mousephenotype.cda.ri.core.services.GenerateService;
-import org.mousephenotype.cda.ri.core.utils.DateUtils;
 import org.mousephenotype.cda.ri.core.utils.EmailUtils;
-import org.mousephenotype.cda.ri.core.utils.SqlUtils;
+import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
+import org.mousephenotype.cda.utilities.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.annotation.Secured;
@@ -125,12 +126,9 @@ public class RegisterInterestController {
     private String          cmsBaseUrl;
     private String          paBaseUrl;
     private PasswordEncoder passwordEncoder;
-    private SqlUtils        sqlUtils;
-    private String          smtpFrom;
-    private String          smtpHost;
-    private int             smtpPort;
-    private String          smtpReplyto;
     private String          recaptchaPublic;
+    private RiSqlUtils      riSqlUtils;
+    private SmtpParameters  smtpParameters;
 
 
     private enum ActionType {
@@ -155,24 +153,18 @@ public class RegisterInterestController {
             String paBaseUrl,
             String cmsBaseUrl,
             PasswordEncoder passwordEncoder,
-            SqlUtils sqlUtils,
-            String smtpFrom,
-            String smtpHost,
-            int smtpPort,
-            String smtpReplyto,
+            RiSqlUtils riSqlUtils,
             CoreService coreService,
-            String recaptchaPublic
+            String recaptchaPublic,
+            SmtpParameters smtpParameters
     ) {
         this.paBaseUrl = paBaseUrl;
         this.cmsBaseUrl = cmsBaseUrl;
         this.passwordEncoder = passwordEncoder;
-        this.sqlUtils = sqlUtils;
-        this.smtpFrom = smtpFrom;
-        this.smtpHost = smtpHost;
-        this.smtpPort = smtpPort;
-        this.smtpReplyto = smtpReplyto;
+        this.riSqlUtils = riSqlUtils;
         this.coreService = coreService;
         this.recaptchaPublic = recaptchaPublic;
+        this.smtpParameters = smtpParameters;
     }
 
 
@@ -266,7 +258,7 @@ public class RegisterInterestController {
         if (target == null) {
             target = paBaseUrl + "/summary";
         }
-        sqlUtils.registerGene(SecurityUtils.getPrincipal(), geneAccessionId);
+        riSqlUtils.registerGene(SecurityUtils.getPrincipal(), geneAccessionId);
 
         return "redirect:" + target;
     }
@@ -282,7 +274,7 @@ public class RegisterInterestController {
         if (target == null) {
             target = paBaseUrl + "/summary";
         }
-        sqlUtils.unregisterGene(SecurityUtils.getPrincipal(), geneAccessionId);
+        riSqlUtils.unregisterGene(SecurityUtils.getPrincipal(), geneAccessionId);
 
         return "redirect:" + target;
     }
@@ -292,7 +284,7 @@ public class RegisterInterestController {
     @RequestMapping(value = "/summary", method = RequestMethod.GET)
     public String summary(ModelMap model) {
 
-        Summary summary = sqlUtils.getSummary(SecurityUtils.getPrincipal());
+        Summary summary = riSqlUtils.getSummary(SecurityUtils.getPrincipal());
 
         model.addAttribute("summary", summary);
         model.addAttribute("paBaseUrl", paBaseUrl);
@@ -376,7 +368,7 @@ public class RegisterInterestController {
         // Generate and assemble email
         String token = buildToken(emailAddress);
 
-        Contact    contact       = sqlUtils.getContact(emailAddress);
+        Contact    contact       = riSqlUtils.getContact(emailAddress);
         ActionType actualAction  = (contact == null ? ActionType.NEW_ACCOUNT : ActionType.RESET_PASSWORD);
         boolean    accountExists = (contact != null);
 
@@ -389,15 +381,17 @@ public class RegisterInterestController {
             body = generateResetPasswordEmail(tokenLink, accountExists);
         }
 
-        Message message = emailUtils.assembleEmail(smtpHost, smtpPort, smtpFrom, smtpReplyto, subject, body, emailAddress, true);
-
-        // Insert request to reset_credentials table
-        ResetCredentials resetCredentials = new ResetCredentials(emailAddress, token, new Date());
-        sqlUtils.updateResetCredentials(resetCredentials);
-
-        // Send e-mail
         try {
+            Message message = emailUtils.assembleEmail(subject, body, emailAddress, true, smtpParameters);
+            if (message == null) {
+                throw new InterestException("Skipping email '" + emailAddress + "'.");
+            }
 
+            // Insert request to reset_credentials table
+            ResetCredentials resetCredentials = new ResetCredentials(emailAddress, token, new Date());
+            riSqlUtils.updateResetCredentials(resetCredentials);
+
+            // Send e-mail
             emailUtils.sendEmail(message);
 
         } catch (InterestException e) {
@@ -427,7 +421,7 @@ public class RegisterInterestController {
             @RequestParam("token") String token) {
 
         // Look up email address from reset_credentials table
-        ResetCredentials resetCredentials = sqlUtils.getResetCredentials(token);
+        ResetCredentials resetCredentials = riSqlUtils.getResetCredentials(token);
 
         // If not found, redirect to login page.
         if (resetCredentials == null) {
@@ -484,7 +478,7 @@ public class RegisterInterestController {
         }
 
         // Look up email address from reset_credentials table
-        ResetCredentials resetCredentials = sqlUtils.getResetCredentials(token);
+        ResetCredentials resetCredentials = riSqlUtils.getResetCredentials(token);
 
         // If not found, return to ri_setPasswordPage page.
         if (resetCredentials == null) {
@@ -500,23 +494,23 @@ public class RegisterInterestController {
 
         String emailAddress = resetCredentials.getAddress();
 
-        Contact contact = sqlUtils.getContact(emailAddress);
+        Contact contact = riSqlUtils.getContact(emailAddress);
         try {
 
             // If the contact doesn't exist, create a new account; otherwise, just update the password.
             if (contact == null) {
-                sqlUtils.createAccount(emailAddress, passwordEncoder.encode(newPassword));
-                contact = sqlUtils.getContact(emailAddress);
+                riSqlUtils.createAccount(emailAddress, passwordEncoder.encode(newPassword));
+                contact = riSqlUtils.getContact(emailAddress);
 
                 // Send welcome e-mail.
-                coreService.generateAndSendWelcome(emailAddress);
+                coreService.generateAndSendWelcome(emailAddress, smtpParameters);
 
             } else {
-                sqlUtils.updatePassword(emailAddress, passwordEncoder.encode(newPassword));
+                riSqlUtils.updatePassword(emailAddress, passwordEncoder.encode(newPassword));
             }
 
             // Consume (remove) the reset_credential record.
-            sqlUtils.deleteResetCredentialsByEmailAddress(emailAddress);
+            riSqlUtils.deleteResetCredentialsByEmailAddress(emailAddress);
 
         } catch (InterestException e) {
 
@@ -562,7 +556,7 @@ public class RegisterInterestController {
     ) {
         try {
 
-            sqlUtils.deleteContact(SecurityUtils.getPrincipal());
+            riSqlUtils.deleteContact(SecurityUtils.getPrincipal());
 
         } catch (InterestException e) {
 

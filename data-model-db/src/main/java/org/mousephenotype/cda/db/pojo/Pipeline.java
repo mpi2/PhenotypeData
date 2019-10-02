@@ -35,7 +35,7 @@ import java.util.Set;
 public class Pipeline extends PipelineEntry {
 
     @Transient
-    private List<Integer> scheduleCollection;
+    private List<Long> scheduleCollection;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
@@ -67,11 +67,11 @@ public class Pipeline extends PipelineEntry {
         this.procedures = procedures;
     }
 
-    public List<Integer> getScheduleCollection() {
+    public List<Long> getScheduleCollection() {
         return scheduleCollection;
     }
 
-    public void setScheduleCollection(List<Integer> scheduleCollection) {
+    public void setScheduleCollection(List<Long> scheduleCollection) {
         this.scheduleCollection = scheduleCollection;
     }
 }

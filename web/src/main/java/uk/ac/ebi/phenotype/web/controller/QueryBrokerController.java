@@ -15,15 +15,15 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -76,7 +76,7 @@ public class QueryBrokerController {
 			@RequestParam(value = "q", required = true) String query,
 			HttpServletRequest request,
 			HttpServletResponse response,
-			Model model) throws IOException, URISyntaxException  {
+			Model model) throws IOException, URISyntaxException, JSONException {
 
 		String solrParams = "&rows=0&wt=json&&defType=edismax&qf=auto_suggest&facet.field=docType&facet=on&facet.limit=-1&facet.mincount=1";
 
@@ -87,7 +87,7 @@ public class QueryBrokerController {
 
 		JSONArray docCount = json.getJSONObject("facet_counts").getJSONObject("facet_fields").getJSONArray("docType");
 		Map<String, Integer> dc = new HashMap<>();
-		for( int i=0; i<docCount.size(); i=i+2){
+		for( int i=0; i<docCount.length(); i=i+2){
 			dc.put(docCount.get(i).toString(), (Integer) docCount.get(i+1));
 		}
 
@@ -104,14 +104,9 @@ public class QueryBrokerController {
 		} else if ( dc.containsKey("impc_images") ) {
 			defaultCore = "impc_images";
 		}
-//		else if ( dc.containsKey("images") ) {
-//			defaultCore = "images";
-//		}
 
-		//System.out.println("default core: " + defaultCore);
 		return defaultCore;
 	}
-
 
 	/**
 	 * Examine or clear cached SOLR queries
@@ -120,7 +115,7 @@ public class QueryBrokerController {
 	 */
 	@RequestMapping(value = "/querybroker", method = RequestMethod.GET)
 	public ResponseEntity<JSONObject> clearCache(
-		@RequestParam(value = "clearCache", required = false) Boolean clearCache) {
+		@RequestParam(value = "clearCache", required = false) Boolean clearCache) throws JSONException {
 
 		JSONObject jsonResponse = new JSONObject();
 
@@ -152,9 +147,9 @@ public class QueryBrokerController {
 			@RequestParam(value = "subfacet", required = false) String subfacet,
 			HttpServletRequest request,
 			HttpServletResponse response,
-			Model model) throws IOException, URISyntaxException  {
+			Model model) throws IOException, URISyntaxException, JSONException  {
 
-		JSONObject jParams = (JSONObject) JSONSerializer.toJSON(solrParams);
+		JSONObject jParams =new JSONObject(solrParams);
 
 		JSONObject jsonResponse = createJsonResponse(subfacet, jParams, request);
 
@@ -167,7 +162,7 @@ public class QueryBrokerController {
 		return responseHeaders;
 	}
 
-	public JSONObject createJsonResponse(String subfacet, JSONObject jParams, HttpServletRequest request) throws IOException, URISyntaxException {
+	public JSONObject createJsonResponse(String subfacet, JSONObject jParams, HttpServletRequest request) throws IOException, URISyntaxException, JSONException {
 
 		JSONObject jsonResponse = new JSONObject();
 
@@ -176,11 +171,8 @@ public class QueryBrokerController {
 		while(cores.hasNext()) {
 
 			String core  = (String) cores.next();
-
 			String param = jParams.getString(core);
-
 			String url =  SolrUtils.getBaseURL(solrIndex.getSolrServer(core)) + "/select?" + param;
-			System.out.println("QueryBrokerController: "+url);
 			String key = core+param;
 			Object o = cache.get(key);
 
@@ -188,14 +180,12 @@ public class QueryBrokerController {
 			    // Object not in cache. If null is not a possible value in the cache,
 			    // the call to cache.contains(key) is not needed
 				JSONObject json = solrIndex.getResults(url);
-				//System.out.println("JSON: "+ json);
 				if ( subfacet == null ){
 					// Main facet counts only
 					int numFound = json.getJSONObject("response").getInt("numFound");
 					jsonResponse.put(core, numFound);
 
 					cache.put(key, numFound);
-					//System.out.println("####### Cache for main facet added");
 				}
 				else {
 					JSONObject j = new JSONObject();
@@ -204,15 +194,12 @@ public class QueryBrokerController {
 					jsonResponse.put(core, j);
 
 					cache.put(key, j);
-					//System.out.println("****** Cache for subfacet added");
 				}
 			}
 			else {
 				jsonResponse.put(core, o);
-				//System.out.println("------ Using cache");
 			}
 		}
 		return jsonResponse;
 	}
-
 }

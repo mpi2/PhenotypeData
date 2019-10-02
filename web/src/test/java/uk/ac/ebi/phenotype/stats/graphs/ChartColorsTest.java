@@ -22,17 +22,21 @@
 
 package uk.ac.ebi.phenotype.stats.graphs;
 
-import static org.junit.Assert.assertTrue;
-
-import java.util.List;
-
+import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.ebi.phenotype.chart.ChartColors;
 
+import java.util.List;
+
+import static org.junit.Assert.assertTrue;
+
 public class ChartColorsTest {
+
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Before
 	public void setUp() throws Exception {
@@ -47,7 +51,7 @@ public class ChartColorsTest {
 	public void test() {
 
 		List<String> colorStrings=ChartColors.getFemaleMaleColorsRgba(0.7);
-		System.out.println(colorStrings);
+		logger.debug(StringUtils.join(colorStrings, ", "));
 		assertTrue(colorStrings.size()>3);
 	}
 }

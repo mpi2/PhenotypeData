@@ -94,12 +94,12 @@ public class SampleLoader implements CommandLineRunner {
     private static Map<String, MissingColonyId>  missingColonyMap;
     private static Map<String, OntologyTerm>     ontologyTermMap;
 
-    private int efoDbId;
+    private Long efoDbId;
 
-    private static BioModelManager      bioModelManager;
-    private static Map<String, Integer> cdaDb_idMap;
-    private static Map<String, Integer> cdaProject_idMap;
-    private static Map<String, Integer> cdaOrganisation_idMap;
+    private static BioModelManager   bioModelManager;
+    private static Map<String, Long> cdaDb_idMap;
+    private static Map<String, Long> cdaProject_idMap;
+    private static Map<String, Long> cdaOrganisation_idMap;
 
     private final String MISSING_MUTANT_COLONY_ID_REASON = "MUTANT specimen not found in phenotyped_colony table";
 
@@ -302,14 +302,13 @@ public class SampleLoader implements CommandLineRunner {
     private Void insertSample(SpecimenExtended specimenExtended) throws DataLoadException {
 
         Map<String, Integer> counts;
-
-        Specimen specimen    = specimenExtended.getSpecimen();
-        String   sampleGroup = (specimen.isIsBaseline()) ? "control" : "experimental";
-        boolean  isControl   = (sampleGroup.equals("control"));
-        Integer  dbId;
-        Integer  phenotypingCenterPk;
-        Integer  productionCenterPk;
-        Integer  projectPk;
+        Specimen             specimen    = specimenExtended.getSpecimen();
+        String               sampleGroup = (specimen.isIsBaseline()) ? "control" : "experimental";
+        boolean              isControl   = (sampleGroup.equals("control"));
+        Long                 dbId;
+        Long                 phenotypingCenterPk;
+        Long                 productionCenterPk;
+        Long                 projectPk;
 
             /*
              * Some dcc europhenome colonies were incorrectly associated with EuroPhenome. Imits has the authoritative mapping
@@ -496,10 +495,11 @@ public class SampleLoader implements CommandLineRunner {
     }
 
 
-    private Map<String, Integer> insertSampleExperimentalSpecimen(SpecimenExtended specimenExtended, int dbId,
-                                                                  int phenotypingCenterPk,
-                                                                  int productionCenterPk,
-                                                                  int projectPk) throws DataLoadException {
+    private Map<String, Integer> insertSampleExperimentalSpecimen(SpecimenExtended specimenExtended,
+                                                                  Long dbId,
+                                                                  Long phenotypingCenterPk,
+                                                                  Long productionCenterPk,
+                                                                  Long projectPk) throws DataLoadException {
         Specimen specimen = specimenExtended.getSpecimen();
 
         Map<String, Integer> counts = new HashMap<>();
@@ -554,9 +554,9 @@ public class SampleLoader implements CommandLineRunner {
         // NOTE: For biological_sample and live_sample, avoid using the hibernate DTOs, as they add a lot of overhead and confusion to an otherwise simple schema.schema
 
         // biological_sample
-        Map<String, Integer> results = cdaSqlUtils.insertBiologicalSample(externalId, dbId, sampleType, sampleGroup, phenotypingCenterPk, productionCenterPk, projectPk);
-        counts.put("biologicalSample", counts.get("biologicalSample") + results.get("count"));
-        int biologicalSamplePk = results.get("biologicalSamplePk");
+        Map<String, Long> results = cdaSqlUtils.insertBiologicalSample(externalId, dbId, sampleType, sampleGroup, phenotypingCenterPk, productionCenterPk, projectPk);
+        counts.put("biologicalSample", counts.get("biologicalSample") + results.get("count").intValue());
+        Long biologicalSamplePk = results.get("biologicalSamplePk");
 
         // live_sample
         int liveSampleId = cdaSqlUtils.insertLiveSample(biologicalSamplePk, specimen.getColonyID(), dateOfBirth, developmentalStage, litterId, sex, zygosity);
@@ -572,14 +572,14 @@ public class SampleLoader implements CommandLineRunner {
     }
 
     private Map<String, Integer> insertSampleControlSpecimen(SpecimenExtended specimenExtended,
-                                                             int dbId,
-                                                             int phenotypingCenterPk,
-                                                             int productionCenterPk,
-                                                             int projectPk) throws DataLoadException {
+                                                             Long dbId,
+                                                             Long phenotypingCenterPk,
+                                                             Long productionCenterPk,
+                                                             Long projectPk) throws DataLoadException {
 
         Specimen specimen = specimenExtended.getSpecimen();
 
-        int          biologicalSamplePk;
+        Long         biologicalSamplePk;
         Date         dateOfBirth;
         OntologyTerm developmentalStage;
         String       externalId;
@@ -657,8 +657,8 @@ public class SampleLoader implements CommandLineRunner {
         // NOTE: For biological_sample, and live_sample, avoid using the hibernate DTOs, as they add a lot of overhead and confusion to an otherwise simple schema.
 
         // biological_sample
-        Map<String, Integer> results = cdaSqlUtils.insertBiologicalSample(externalId, dbId, sampleType, sampleGroup, phenotypingCenterPk, productionCenterPk, projectPk);
-        counts.put("biologicalSample", counts.get("biologicalSample") + results.get("count"));
+        Map<String, Long> results = cdaSqlUtils.insertBiologicalSample(externalId, dbId, sampleType, sampleGroup, phenotypingCenterPk, productionCenterPk, projectPk);
+        counts.put("biologicalSample", counts.get("biologicalSample") + results.get("count").intValue());
         biologicalSamplePk = results.get("biologicalSamplePk");
 
         // live_sample

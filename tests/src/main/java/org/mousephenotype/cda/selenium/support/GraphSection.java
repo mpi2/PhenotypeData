@@ -16,7 +16,9 @@
 
 package org.mousephenotype.cda.selenium.support;
 
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
+import org.mousephenotype.cda.db.repositories.DatasourceRepository;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
+import org.mousephenotype.cda.db.repositories.ParameterRepository;
 import org.mousephenotype.cda.selenium.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
@@ -24,6 +26,7 @@ import org.mousephenotype.cda.web.ChartType;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -51,7 +54,6 @@ public abstract class GraphSection {
     protected DownloadSection downloadSection;
     protected final WebDriver driver;
     protected final String graphUrl;
-    protected final PhenotypePipelineDAO phenotypePipelineDAO;
     protected final WebDriverWait wait;
 
     private GraphCatTable catTable = null;
@@ -62,20 +64,29 @@ public abstract class GraphSection {
     private ChartType chartType = null;
     private boolean statisticsFailed = false;
 
+
+    @Autowired
+    DatasourceRepository datasourceRepository;
+
+    @Autowired
+    OntologyTermRepository ontologyTermRepository;
+
+    @Autowired
+    ParameterRepository parameterRepository;
+
+
     /**
      * Creates a new <code>GraphSection</code> instance
      *
      * @param driver <code>WebDriver</code> instance
      * @param wait <code>WebDriverWait</code> instance
-     * @param phenotypePipelineDAO <code>PhenotypePipelineDAO</code> instance
      * @param graphUrl the graph url
      * @param chartElement <code>WebElement</code> pointing to the HTML
      *                     div.chart element
      */
-    public GraphSection(WebDriver driver, WebDriverWait wait, PhenotypePipelineDAO phenotypePipelineDAO, String graphUrl, WebElement chartElement) throws TestException {
+    public GraphSection(WebDriver driver, WebDriverWait wait, String graphUrl, WebElement chartElement) throws TestException {
         this.driver = driver;
         this.wait = wait;
-        this.phenotypePipelineDAO = phenotypePipelineDAO;
         this.graphUrl = graphUrl;
         this.chartElement = chartElement;
         this.chartType = getChartType(chartElement);
@@ -204,7 +215,7 @@ public abstract class GraphSection {
             }
 
             // Scrape this graph's data off the page.
-            this.heading = new GraphHeading(wait, chartElement, phenotypePipelineDAO, graphUrl, chartType);
+            this.heading = new GraphHeading(chartElement, chartType, datasourceRepository, graphUrl, ontologyTermRepository, parameterRepository, wait);
 
             elements = chartElement.findElements(By.xpath("./p/a/i[starts-with(@id, 'toggle_table_buttondivChart_')]"));
             if ( ! elements.isEmpty()) {

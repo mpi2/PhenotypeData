@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
@@ -37,12 +37,12 @@ import java.util.Set;
  */
 public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony, PhenotypedColony> {
 
-    private int                           addedGenesCount = 0;
-    private int                           addedPhenotypedColoniesCount = 0;
-    private Map<String, GenomicFeature>   genes;                                        // Genes mapped by marker accession id
-    private Map<String, Organisation>     organisations;                                // Organisations mapped by name
-    private Map<String, Project>          projects;                                     // Projects mapped by name
-    protected int                         lineNumber = 0;
+    private int                         addedGenesCount = 0;
+    private int                         addedPhenotypedColoniesCount = 0;
+    private Map<String, GenomicFeature> genesByGeneAccessionId;                             // Genes mapped by gene accession id
+    private Map<String, Organisation>   organisationsByName;                                // Organisations mapped by name
+    private Map<String, Project>        projectsByName;                                     // Projects mapped by name
+    protected int                       lineNumber = 0;
 
 
     Set<String> missingOrganisations = ConcurrentHashMapAllowNull.newKeySet();
@@ -59,20 +59,20 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
 
     private final String[] expectedHeadings = new String[] {
             "Marker Symbol"
-            , "MGI Accession ID"
-            , "Colony Name"
-            , "Es Cell Name"
-            , "Colony Background Strain"
-            , "Cohort Production Centre"
-            , "Production Consortium"
-            , "Phenotyping Centre"
-            , "Phenotyping Consortium"
-            , "Allele Symbol"
+          , "MGI Accession ID"
+          , "Colony Name"
+          , "Es Cell Name"
+          , "Colony Background Strain"
+          , "Cohort Production Centre"
+          , "Production Consortium"
+          , "Phenotyping Centre"
+          , "Phenotyping Consortium"
+          , "Allele Symbol"
     };
 
 
-    public PhenotypedColonyProcessor(Map<String, GenomicFeature> genes) throws DataLoadException {
-        this.genes = genes;
+    public PhenotypedColonyProcessor(Map<String, GenomicFeature> genesByGeneAccessionId) throws DataLoadException {
+        this.genesByGeneAccessionId = genesByGeneAccessionId;
         ignoredProjects.add("EUCOMMToolsCre");
     }
 
@@ -85,15 +85,15 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
         if (lineNumber == 1) {
             String[] actualHeadings = new String[] {
                     newPhenotypedColony.getGene().getSymbol()
-                    , newPhenotypedColony.getGene().getId().getAccession()
-                    , newPhenotypedColony.getColonyName()
-                    , newPhenotypedColony.getEs_cell_name()
-                    , newPhenotypedColony.getBackgroundStrain()
-                    , newPhenotypedColony.getProductionCentre().getName()
-                    , newPhenotypedColony.getProductionConsortium().getName()
-                    , newPhenotypedColony.getPhenotypingCentre().getName()
-                    , newPhenotypedColony.getPhenotypingConsortium().getName()
-                    , newPhenotypedColony.getAlleleSymbol()
+                  , newPhenotypedColony.getGene().getId().getAccession()
+                  , newPhenotypedColony.getColonyName()
+                  , newPhenotypedColony.getEs_cell_name()
+                  , newPhenotypedColony.getBackgroundStrain()
+                  , newPhenotypedColony.getProductionCentre().getName()
+                  , newPhenotypedColony.getProductionConsortium().getName()
+                  , newPhenotypedColony.getPhenotypingCentre().getName()
+                  , newPhenotypedColony.getPhenotypingConsortium().getName()
+                  , newPhenotypedColony.getAlleleSymbol()
             };
 
             for (int i = 0; i < expectedHeadings.length; i++) {
@@ -102,19 +102,19 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
                 }
             }
 
-            organisations = cdaSqlUtils.getOrganisations();
-            projects = cdaSqlUtils.getProjectsByName();
+            organisationsByName = cdaSqlUtils.getOrganisations();
+            projectsByName = cdaSqlUtils.getProjectsByName();
 
             return null;
         }
 
         // Populate the necessary collections.
-        if ((genes == null) || (genes.isEmpty())) {
-            genes = cdaSqlUtils.getGenesByAcc();
+        if ((genesByGeneAccessionId == null) || (genesByGeneAccessionId.isEmpty())) {
+            genesByGeneAccessionId = cdaSqlUtils.getGenesByAcc();
         }
 
         // Look up the gene. Insert it if it doesn't yet exist.
-        GenomicFeature gene = genes.get(newPhenotypedColony.getGene().getId().getAccession());
+        GenomicFeature gene = genesByGeneAccessionId.get(newPhenotypedColony.getGene().getId().getAccession());
         if (gene == null) {
             String markerAccessionId = newPhenotypedColony.getGene().getId().getAccession();
             String markerSymbol = newPhenotypedColony.getGene().getSymbol();
@@ -132,7 +132,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
             Map<String, Integer> counts = cdaSqlUtils.insertGene(gene);
             if (counts.get("genes") > 0) {
                 addedGenesCount += counts.get("genes");
-                genes.put(gene.getId().getAccession(), gene);
+                genesByGeneAccessionId.put(gene.getId().getAccession(), gene);
                 logger.debug("markerAccessionId {} not in database. Inserted gene with marker symbol {}", markerAccessionId, markerSymbol);
             }
         }
@@ -142,13 +142,13 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
         // Every colony should have an allele symbol rovided by iMits
         // Validate that the allele symbol is not null or empty string
         //
-        if (StringUtils.isEmpty(newPhenotypedColony.getAlleleSymbol()) ) {
+        if ( StringUtils.isEmpty(newPhenotypedColony.getAlleleSymbol()) ) {
             logger.warn("Allele symbol is null or empty for colony {}. Skipping record", newPhenotypedColony.getColonyName());
             return null;
         }
 
         String mappedProject = loadUtils.translateTerm(newPhenotypedColony.getProductionConsortium().getName());
-        Project productionConsortium = projects.get(mappedProject);
+        Project productionConsortium = projectsByName.get(mappedProject);
         if (productionConsortium == null) {
             if ( ! ignoredProjects.contains(mappedProject)) {
                 missingProjects.add("Skipped unknown productionConsortium::translated " + newPhenotypedColony.getProductionConsortium().getName() + "::" + mappedProject);
@@ -159,7 +159,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
         }
 
         String mappedPhenotypingCentre = loadUtils.translateTerm(newPhenotypedColony.getPhenotypingCentre().getName());
-        Organisation phenotypingCentre = organisations.get(mappedPhenotypingCentre);
+        Organisation phenotypingCentre = organisationsByName.get(mappedPhenotypingCentre);
         if (phenotypingCentre == null) {
             missingOrganisations.add("Skipped unknown phenotypingCentre::translated " + newPhenotypedColony.getPhenotypingCentre().getName() + "::" + mappedPhenotypingCentre);
             return null;
@@ -168,7 +168,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
         }
 
         String mappedPhenotypingConsortium = loadUtils.translateTerm(newPhenotypedColony.getPhenotypingConsortium().getName());
-        Project phenotypingConsortium = projects.get(mappedPhenotypingConsortium);
+        Project phenotypingConsortium = projectsByName.get(mappedPhenotypingConsortium);
         if (phenotypingConsortium == null) {
             if ( ! ignoredProjects.contains(mappedProject)) {
                 missingProjects.add("Skipped unknown phenotypingConsortium::translated " + newPhenotypedColony.getPhenotypingConsortium().getName() + "::" + mappedPhenotypingConsortium);
@@ -179,7 +179,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
         }
 
         String mappedProductionCentre = loadUtils.translateTerm(newPhenotypedColony.getProductionCentre().getName());
-        Organisation productionCentre = organisations.get(mappedProductionCentre);
+        Organisation productionCentre = organisationsByName.get(mappedProductionCentre);
         if (productionCentre == null) {
             missingOrganisations.add("Skipped unknown productionCentre::translated " + newPhenotypedColony.getProductionCentre().getName() + "::" + mappedProductionCentre);
             return null;

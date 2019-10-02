@@ -1,6 +1,6 @@
 package org.mousephenotype.cda.db.utilities;
 
-import org.h2.expression.Function;
+import org.h2.expression.function.Function;
 
 import java.lang.reflect.Field;
 import java.sql.Date;

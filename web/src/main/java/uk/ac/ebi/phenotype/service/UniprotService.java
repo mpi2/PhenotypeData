@@ -1,22 +1,16 @@
 package uk.ac.ebi.phenotype.service;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.springframework.stereotype.Component;
+import uk.ac.ebi.uniprot.jaxb.*;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-
-import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.springframework.stereotype.Component;
-
-import uk.ac.ebi.uniprot.jaxb.CommentType;
-import uk.ac.ebi.uniprot.jaxb.DbReferenceType;
-import uk.ac.ebi.uniprot.jaxb.Entry;
-import uk.ac.ebi.uniprot.jaxb.PropertyType;
-import uk.ac.ebi.uniprot.jaxb.Uniprot;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 /**
  * @since /10/2015

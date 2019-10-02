@@ -20,10 +20,11 @@ package org.mousephenotype.cda.loads.common;
  * 2017-10=05 (mrelac) This class wraps an accession id and a db id, used by gene, allele, strains, phenotype objects.
  */
 public class AccDbId {
-    private String acc;
-    private Integer dbId;
 
-    public AccDbId(String acc, Integer dbId) {
+    private String acc;
+    private Long   dbId;
+
+    public AccDbId(String acc, Long dbId) {
         this.acc = acc;
         this.dbId = dbId;
     }
@@ -36,11 +37,11 @@ public class AccDbId {
         this.acc = acc;
     }
 
-    public Integer getDbId() {
+    public Long getDbId() {
         return dbId;
     }
 
-    public void setDbId(Integer dbId) {
+    public void setDbId(Long dbId) {
         this.dbId = dbId;
     }
 

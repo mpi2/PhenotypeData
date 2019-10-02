@@ -16,21 +16,19 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.hibernate.Hibernate;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.impress.Utilities;
+import org.mousephenotype.cda.db.utilities.ImpressUtils;
 import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
 import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.repositories.ParameterRepository;
 import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.PostQcService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
 import org.mousephenotype.cda.solr.web.dto.StackedBarsData;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -40,6 +38,7 @@ import uk.ac.ebi.phenotype.chart.ChartData;
 import uk.ac.ebi.phenotype.chart.TimeSeriesChartAndTableProvider;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -54,25 +53,26 @@ import java.util.stream.Collectors;
 @Controller
 public class OverviewChartsController {
 
-	@Autowired
-	private PhenotypePipelineDAO pipelineDao;
 
-	@Autowired
-	ObservationService os;
+	private GenotypePhenotypeService genotypePhenotypeService;
+	private ImpressUtils             impressUtils;
+	private ObservationService       observationService;
+	private ParameterRepository      parameterRepository;
+	private StatisticalResultService statisticalResultService;
 
-	@Autowired
-	PostQcService gpService;
-
-
-	@Autowired
-	StatisticalResultService srs;
-
-	@Autowired
-	Utilities impressUtilities;
-
-
-	public OverviewChartsController(){
-
+	@Inject
+	public OverviewChartsController(
+            GenotypePhenotypeService genotypePhenotypeService,
+            ImpressUtils impressUtils,
+            ObservationService observationService,
+            ParameterRepository parameterRepository,
+            StatisticalResultService statisticalResultService)
+	{
+		this.genotypePhenotypeService = genotypePhenotypeService;
+		this.impressUtils = impressUtils;
+		this.observationService = observationService;
+		this.parameterRepository = parameterRepository;
+		this.statisticalResultService = statisticalResultService;
 	}
 
 
@@ -102,7 +102,7 @@ public class OverviewChartsController {
 
 		try {
 			try {
-				return gpService.getPleiotropyMatrix(phenotypeName, idg, idgClass).toString();
+				return genotypePhenotypeService.getPleiotropyMatrix(phenotypeName, idg, idgClass).toString();
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -124,7 +124,7 @@ public class OverviewChartsController {
 			RedirectAttributes attributes) {
 
 		try {
-			return gpService.getPleiotropyDownload(phenotypeName, idg, idgClass);
+			return genotypePhenotypeService.getPleiotropyDownload(phenotypeName, idg, idgClass);
 		} catch (IOException | SolrServerException | SQLException e) {
 			e.printStackTrace();
 		}
@@ -161,7 +161,7 @@ public class OverviewChartsController {
 		CategoricalChartAndTableProvider cctp = new CategoricalChartAndTableProvider();
 		TimeSeriesChartAndTableProvider tstp = new TimeSeriesChartAndTableProvider();
 		UnidimensionalChartAndTableProvider uctp = new UnidimensionalChartAndTableProvider();
-		Parameter p = pipelineDao.getParameterByStableId(parameter);
+		Parameter p = parameterRepository.getByStableId(parameter);
 		ChartData chartRes = null;
 		List<String> genes = null;
 		String[] centerToFilter = center;
@@ -172,18 +172,18 @@ public class OverviewChartsController {
 
 		if (p != null){
 
-			genes = gpService.getGenesAssocByParamAndMp(parameter, mpId);
+			genes = genotypePhenotypeService.getGenesAssocByParamAndMp(parameter, mpId);
 
 			if (centerToFilter == null) { // first time we load the page.
 				// We need to know centers for the controls, otherwise we show all controls
-				Set <String> tempCenters = os.getCenters(p, genes, OverviewChartsConstants.B6N_STRAINS, "experimental");
+				Set <String> tempCenters = observationService.getCenters(p, genes, OverviewChartsConstants.B6N_STRAINS, "experimental");
 				centerToFilter = tempCenters.toArray(new String[0]);
 			}
 
-			if( impressUtilities.checkType(p).equals(ObservationType.categorical) ){
-				CategoricalSet controlSet = os.getCategories(p, null , "control", OverviewChartsConstants.B6N_STRAINS, centerToFilter, sex);
+			if( impressUtils.checkType(p).equals(ObservationType.categorical) ){
+				CategoricalSet controlSet = observationService.getCategories(p, null , "control", OverviewChartsConstants.B6N_STRAINS, centerToFilter, sex);
 				controlSet.setName("Control");
-				CategoricalSet mutantSet = os.getCategories(p, null, "experimental", OverviewChartsConstants.B6N_STRAINS, centerToFilter, sex);
+				CategoricalSet mutantSet = observationService.getCategories(p, null, "experimental", OverviewChartsConstants.B6N_STRAINS, centerToFilter, sex);
 				mutantSet.setName("Mutant");
 				List<ChartData> chart = cctp.doCategoricalDataOverview(controlSet, mutantSet, model, p, procedureName);
 				if (chart.size() > 0){
@@ -191,29 +191,28 @@ public class OverviewChartsController {
 				}
 			}
 
-			else if ( impressUtilities.checkType(p).equals(ObservationType.time_series) ){
+			else if ( impressUtils.checkType(p).equals(ObservationType.time_series) ){
 				Map<String, List<DiscreteTimePoint>> data = new HashMap<String, List<DiscreteTimePoint>>();
-				data.put("Control", os.getTimeSeriesControlData(parameter, OverviewChartsConstants.B6N_STRAINS, centerToFilter, sex));
-				data.putAll(os.getTimeSeriesMutantData(parameter, genes, OverviewChartsConstants.B6N_STRAINS, centerToFilter, sex));
+				data.put("Control", observationService.getTimeSeriesControlData(parameter, OverviewChartsConstants.B6N_STRAINS, centerToFilter, sex));
+				data.putAll(observationService.getTimeSeriesMutantData(parameter, genes, OverviewChartsConstants.B6N_STRAINS, centerToFilter, sex));
 				ChartData chart = tstp.doTimeSeriesOverviewData(data, p);
 				chart.setId(parameter);
 				chartRes = chart;
 			}
 
-			else if ( impressUtilities.checkType(p).equals(ObservationType.unidimensional) ){
-				StackedBarsData data = srs.getUnidimensionalData(p, genes, OverviewChartsConstants.B6N_STRAINS, "experimental", centerToFilter, sex);
+			else if ( impressUtils.checkType(p).equals(ObservationType.unidimensional) ){
+				StackedBarsData data = statisticalResultService.getUnidimensionalData(p, genes, OverviewChartsConstants.B6N_STRAINS, "experimental", centerToFilter, sex);
 				chartRes = uctp.getStackedHistogram(data, p, procedureName);
 			}
 
 			if (chartRes != null && center == null && sex == null){ // we don't do a filtering
 				// we want to offer all filter values, not to eliminate males if we filtered on males
 				// plus we don't want to do another SolR call each time to get the same data
-				Set<String> centerFitlers =	os.getCenters(p, genes, OverviewChartsConstants.B6N_STRAINS, "experimental");
+				Set<String> centerFitlers =	observationService.getCenters(p, genes, OverviewChartsConstants.B6N_STRAINS, "experimental");
 				model.addAttribute("centerFilters", centerFitlers);
 			}
 		}
 
 		return chartRes;
 	}
-
 }

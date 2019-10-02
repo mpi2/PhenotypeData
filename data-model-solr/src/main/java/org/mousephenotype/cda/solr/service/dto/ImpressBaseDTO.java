@@ -22,9 +22,9 @@ import java.util.Comparator;
  * @author tudose
  */
 public class ImpressBaseDTO {
-	
-	private Integer id;
-	private Integer stableKey;
+
+	private Long   id;
+	private Long   stableKey;
 	private String stableId;
 	private String name;
 
@@ -33,7 +33,7 @@ public class ImpressBaseDTO {
 		
 	}
 	
-	public ImpressBaseDTO(Integer id, Integer stableKey, String stableId, String name){
+	public ImpressBaseDTO(Long id, Long stableKey, String stableId, String name){
 	
 		this.id = id;
 		this.stableId = stableId;
@@ -42,13 +42,13 @@ public class ImpressBaseDTO {
 	
 	}
 	
-	public Integer getId() {
+	public Long getId() {
 
 		return id;
 	}
 
 
-	public void setId(Integer id) {
+	public void setId(Long id) {
 
 		this.id = id;
 	}
@@ -57,13 +57,13 @@ public class ImpressBaseDTO {
 	 * This is the procedure stable key
 	 * @return
 	 */
-	public Integer getStableKey() {
+	public Long getStableKey() {
 
 		return stableKey;
 	}
 
 
-	public void setStableKey(Integer stableKey) {
+	public void setStableKey(Long stableKey) {
 
 		this.stableKey = stableKey;
 	}

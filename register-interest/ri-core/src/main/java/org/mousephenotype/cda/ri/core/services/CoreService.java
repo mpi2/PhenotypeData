@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.ri.core.services;
 
 import org.mousephenotype.cda.ri.core.entities.GeneSent;
+import org.mousephenotype.cda.ri.core.entities.SmtpParameters;
 import org.mousephenotype.cda.ri.core.entities.Summary;
 import org.mousephenotype.cda.ri.core.entities.SummaryWithDecoration;
 import org.slf4j.Logger;
@@ -48,20 +49,20 @@ public class CoreService {
         }
     }
 
-    public void generateAndSendWelcome(String emailAddress) {
+    public void generateAndSendWelcome(String emailAddress, SmtpParameters smtpParameters) {
 
         boolean inHtml = true;
         String welcomeText = generateService.getWelcomeContent(inHtml);
-        sendService.sendWelcome(emailAddress, SendService.DEFAULT_WELCOME_SUBJECT, welcomeText, inHtml);
+        sendService.sendWelcome(emailAddress, SendService.DEFAULT_WELCOME_SUBJECT, welcomeText, inHtml, smtpParameters);
     }
 
 
-    public void generateAndSend(boolean noDecoration, boolean send) {
+    public void generateAndSend(boolean noDecoration, boolean send, SmtpParameters smtpParameters) {
 
         int     count    = 0;
         boolean inHtml   = true;
 
-        logger.info("BEGIN generateAndSend noDecoration = {}. send = {}", noDecoration, send);
+        logger.info("BEGIN generateAndSend noDecoration = {}. send = {}. SmtpParameters = {}.", noDecoration, send, smtpParameters);
 
         Map<String, Summary> summaries = generateService.getAllSummariesByEmailAddress();
         for (Summary summary : summaries.values()) {
@@ -80,7 +81,7 @@ public class CoreService {
 
             if (send) {
 
-                sendService.sendSummary(summary, SendService.DEFAULT_SUMMARY_SUBJECT, content, inHtml);
+                sendService.sendSummary(summary, SendService.DEFAULT_SUMMARY_SUBJECT, content, inHtml, smtpParameters);
             }
 
             count++;

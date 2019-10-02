@@ -13,16 +13,16 @@ public abstract class LightweightResult {
     protected Integer maleMutantCount;
     protected Integer femaleControlCount;
     protected Integer maleControlCount;
-    protected Integer dataSourceId;
-    protected Integer projectId;
-    protected Integer organisationId;
-    protected String organisationName;
+    protected Long    dataSourceId;
+    protected Long    projectId;
+    protected Long    organisationId;
+    protected String  organisationName;
 
-    protected Integer pipelineId;
+    protected Long   pipelineId;
     protected String pipelineStableId;
-    protected Integer procedureId;
+    protected Long   procedureId;
     protected String procedureGroup;
-    protected Integer parameterId;
+    protected Long   parameterId;
     protected String parameterStableId;
     protected String alleleAccessionId;
 
@@ -35,24 +35,24 @@ public abstract class LightweightResult {
     protected String colonyId;
     protected String dependentVariable;
 
-    protected String sex;
-    protected String zygosity;
-    protected String strain;
-    protected Integer controlId;
-    protected Integer experimentalId;
-    protected String mpAcc;
-    protected String mpTermName;
+    protected String              sex;
+    protected String              zygosity;
+    protected String              strain;
+    protected Long                controlId;
+    protected Long                experimentalId;
+    protected String              mpAcc;
+    protected String              mpTermName;
     protected BatchClassification workflow;
-    protected Boolean weightAvailable;
-    protected String additionalInformation;
+    protected Boolean             weightAvailable;
+    protected String              additionalInformation;
 
 
-    protected String statisticalMethod;
-    protected String metadataGroup = "";
-    protected String status;
+    protected String          statisticalMethod;
+    protected String          metadataGroup = "";
+    protected String          status;
     protected ControlStrategy controlSelectionMethod;
-    protected String rawOutput;
-    protected Long calculationTimeNanos;
+    protected String          rawOutput;
+    protected Long            calculationTimeNanos;
 
     private StatisticalResult statisticalResult;
 
@@ -112,19 +112,19 @@ public abstract class LightweightResult {
         this.strain = strain;
     }
 
-    public Integer getControlId() {
+    public Long getControlId() {
         return controlId;
     }
 
-    public void setControlId(Integer controlId) {
+    public void setControlId(Long controlId) {
         this.controlId = controlId;
     }
 
-    public Integer getExperimentalId() {
+    public Long getExperimentalId() {
         return experimentalId;
     }
 
-    public void setExperimentalId(Integer experimentalId) {
+    public void setExperimentalId(Long experimentalId) {
         this.experimentalId = experimentalId;
     }
 
@@ -184,27 +184,27 @@ public abstract class LightweightResult {
         this.maleControlCount = maleControlCount;
     }
 
-    public Integer getDataSourceId() {
+    public Long getDataSourceId() {
         return dataSourceId;
     }
 
-    public void setDataSourceId(Integer dataSourceId) {
+    public void setDataSourceId(Long dataSourceId) {
         this.dataSourceId = dataSourceId;
     }
 
-    public Integer getProjectId() {
+    public Long getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(Integer projectId) {
+    public void setProjectId(Long projectId) {
         this.projectId = projectId;
     }
 
-    public Integer getOrganisationId() {
+    public Long getOrganisationId() {
         return organisationId;
     }
 
-    public void setOrganisationId(Integer organisationId) {
+    public void setOrganisationId(Long organisationId) {
         this.organisationId = organisationId;
     }
 
@@ -216,11 +216,11 @@ public abstract class LightweightResult {
         this.organisationName = organisationName;
     }
 
-    public Integer getPipelineId() {
+    public Long getPipelineId() {
         return pipelineId;
     }
 
-    public void setPipelineId(Integer pipelineId) {
+    public void setPipelineId(Long pipelineId) {
         this.pipelineId = pipelineId;
     }
 
@@ -232,11 +232,11 @@ public abstract class LightweightResult {
         this.pipelineStableId = pipelineStableId;
     }
 
-    public Integer getProcedureId() {
+    public Long getProcedureId() {
         return procedureId;
     }
 
-    public void setProcedureId(Integer procedureId) {
+    public void setProcedureId(Long procedureId) {
         this.procedureId = procedureId;
     }
 
@@ -248,11 +248,11 @@ public abstract class LightweightResult {
         this.procedureGroup = procedureGroup;
     }
 
-    public Integer getParameterId() {
+    public Long getParameterId() {
         return parameterId;
     }
 
-    public void setParameterId(Integer parameterId) {
+    public void setParameterId(Long parameterId) {
         this.parameterId = parameterId;
     }
 

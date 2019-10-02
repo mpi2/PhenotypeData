@@ -38,7 +38,7 @@ public class ProcedureDTO extends ImpressBaseDTO{
 	private int                scheduleKey;
 	private List<ParameterDTO> parameters;
 	
-	public ProcedureDTO(Integer id, Integer stableKey, String stableId, String name){
+	public ProcedureDTO(Long id, Long stableKey, String stableId, String name){
 		
 		super(id, stableKey, stableId, name);
 	}

@@ -15,6 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.solr.service.ExperimentService;
@@ -130,13 +131,13 @@ public class GraphUtils {
             throws SolrServerException, IOException {
         log.debug("no charts returned - using old method");
         // each url should be unique and so we use a set
-        Set<String> urls = new LinkedHashSet<String>();
-        Map<String, List<String>> keyList = experimentService.getExperimentKeys(acc, parameter.getStableId(), pipelineStableIds, phenotypingCentersList, strainsParams, metaDataGroup, alleleAccession);
-        List<String> centersList = keyList.get(ObservationDTO.PHENOTYPING_CENTER);
-        List<String> strains = keyList.get(ObservationDTO.STRAIN_ACCESSION_ID);
-        List<String> metaDataGroupStrings = keyList.get(ObservationDTO.METADATA_GROUP);
+        Set<String>               urls                 = new LinkedHashSet<String>();
+        Map<String, List<String>> keyList              = experimentService.getExperimentKeys(acc, parameter.getStableId(), pipelineStableIds, phenotypingCentersList, strainsParams, metaDataGroup, alleleAccession);
+        List<String>              centersList          = keyList.get(ObservationDTO.PHENOTYPING_CENTER);
+        List<String>              strains              = keyList.get(ObservationDTO.STRAIN_ACCESSION_ID);
+        List<String>              metaDataGroupStrings = keyList.get(ObservationDTO.METADATA_GROUP);
 
-        List<String> alleleAccessionStrings = keyList.get(ObservationDTO.ALLELE_ACCESSION_ID);
+        List<String> alleleAccessionStrings  = keyList.get(ObservationDTO.ALLELE_ACCESSION_ID);
         List<String> pipelineStableIdStrings = keyList.get(ObservationDTO.PIPELINE_STABLE_ID);
         // for each parameter we want the unique set of urls to make ajax
         // requests for experiments

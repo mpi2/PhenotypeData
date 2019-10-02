@@ -15,11 +15,11 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.constants.ParameterConstants;
-import org.mousephenotype.cda.db.dao.DatasourceDAO;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
@@ -36,12 +36,13 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.ConfigurableApplicationContext;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -57,55 +58,47 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
 
     private final Logger logger = LoggerFactory.getLogger(GenotypePhenotypeIndexer.class);
 
-    // Do not process parameters from these procecures
-    public final static Set<String> skipProcedures = new HashSet<>(Arrays.asList(
+    private final int         MAX_MISSING_LIFE_STAGE_ERRORS_TO_LOG = 100;
+    private final Set<String> SKIP_PROCEDURES                      = new HashSet<>(Arrays.asList(       // Do not process parameters from these procecures
             "IMPC_ELZ", "IMPC_EOL", "IMPC_EMO", "IMPC_MAA", "IMPC_EMA"
     ));
 
-    private static Connection connection;
+    private SolrClient                genotypePhenotypeCore;
+    private int                       missingLifeStageCount = 0;
+    private Map<Long, ImpressBaseDTO> pipelineMap           = new HashMap<>();
+    private Map<Long, ImpressBaseDTO> procedureMap          = new HashMap<>();
+    private Map<Long, ParameterDTO>   parameterMap          = new HashMap<>();
+    private OntologyParser            mpParser;
+    private OntologyParser            mpMaParser;
+    private OntologyParser            maParser;
+    private OntologyParserFactory     ontologyParserFactory;
 
-    @Autowired
-    @Qualifier("komp2DataSource")
-    DataSource komp2DataSource;
+    protected GenotypePhenotypeIndexer() {
 
-    @Autowired
-    @Qualifier("genotypePhenotypeCore")
-    SolrClient genotypePhenotypeCore;
-
-    @Autowired
-    DatasourceDAO dsDAO;
-
-
-    Map<Integer, ImpressBaseDTO> pipelineMap = new HashMap<>();
-    Map<Integer, ImpressBaseDTO> procedureMap = new HashMap<>();
-    Map<Integer, ParameterDTO> parameterMap = new HashMap<>();
-    Set<String> derivedParameterStableIds = new HashSet<>();
-
-    OntologyParser mpParser;
-    OntologyParser mpMaParser;
-    OntologyParser maParser;
-    OntologyParserFactory ontologyParserFactory;
-
-    public GenotypePhenotypeIndexer() {
     }
+
+    @Inject
+    public GenotypePhenotypeIndexer(
+            @NotNull DataSource komp2DataSource,
+            @NotNull OntologyTermRepository ontologyTermRepository,
+            @NotNull SolrClient genotypePhenotypeCore) {
+        super(komp2DataSource, ontologyTermRepository);
+        this.genotypePhenotypeCore = genotypePhenotypeCore;
+    }
+
 
     @Override
     public RunStatus validateBuild() throws IndexerException {
         return super.validateBuild(genotypePhenotypeCore);
     }
 
-    public static void main(String[] args) throws IndexerException {
-        SpringApplication.run(GenotypePhenotypeIndexer.class, args);
-    }
-
-
     @Override
-    public RunStatus run() throws IndexerException, SQLException, IOException, SolrServerException {
+    public RunStatus run() throws IndexerException {
         int count = 0;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
 
-        try {
+        try (Connection connection = komp2DataSource.getConnection()) {
 
             ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
 
@@ -113,16 +106,11 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             maParser = ontologyParserFactory.getMaParser();
             mpMaParser = ontologyParserFactory.getMpMaParser();
 
-            connection = komp2DataSource.getConnection();
-
             pipelineMap = IndexerMap.getImpressPipelines(connection);
             procedureMap = IndexerMap.getImpressProcedures(connection);
             parameterMap = IndexerMap.getImpressParameters(connection);
 
-            // Override the EFO db_id with the current term from the database
-            EFO_DB_ID = dsDAO.getDatasourceByShortName("EFO").getId();
-
-            count = populateGenotypePhenotypeSolrCore(runStatus);
+            count = populateGenotypePhenotypeSolrCore(connection, runStatus);
 
         } catch (SQLException | IOException | SolrServerException | OWLOntologyCreationException | OWLOntologyStorageException ex) {
         	ex.printStackTrace();
@@ -134,7 +122,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
     }
 
     // Returns document count.
-    public int populateGenotypePhenotypeSolrCore(RunStatus runStatus) throws SQLException, IOException, SolrServerException {
+    public int populateGenotypePhenotypeSolrCore(Connection connection, RunStatus runStatus) throws SQLException, IOException, SolrServerException {
 
         int count = 0;
 
@@ -173,8 +161,6 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 "OR (s.parameter_id IN (SELECT id FROM phenotype_parameter WHERE stable_id like 'IMPC_VIA%' OR stable_id LIKE 'IMPC_FER%')) " +
                 "OR s.p_value IS NULL ";
 
-int missingLifeStageCount = 0;
-final int MAX_MISSING_LIFE_STAGE_ERRORS_TO_LOG = 100;
         try (PreparedStatement p = connection.prepareStatement(query, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
 
             p.setFetchSize(Integer.MIN_VALUE);
@@ -234,7 +220,7 @@ final int MAX_MISSING_LIFE_STAGE_ERRORS_TO_LOG = 100;
 
                 // Procedure prefix is the first two strings of the parameter after splitting on underscore
                 // i.e. IMPC_BWT_001_001 => IMPC_BWT
-                String procedurePrefix = StringUtils.join(Arrays.asList(parameterMap.get(r.getInt("parameter_id")).getStableId().split("_")).subList(0, 2), "_");
+                String procedurePrefix = StringUtils.join(Arrays.asList(parameterMap.get(r.getLong("parameter_id")).getStableId().split("_")).subList(0, 2), "_");
                 if (ParameterConstants.source3iProcedurePrefixes.contains(procedurePrefix)) {
                     doc.setResourceName("3i");
                     doc.setResourceFullname("Infection, Immunity and Immunophenotyping consortium");
@@ -245,25 +231,25 @@ final int MAX_MISSING_LIFE_STAGE_ERRORS_TO_LOG = 100;
 
                 doc.setExternalId(r.getString("external_id"));
 
-                String pipelineStableId = pipelineMap.get(r.getInt("pipeline_id")).getStableId();
-                doc.setPipelineStableKey("" + pipelineMap.get(r.getInt("pipeline_id")).getStableKey());
-                doc.setPipelineName(pipelineMap.get(r.getInt("pipeline_id")).getName());
+                String pipelineStableId = pipelineMap.get(r.getLong("pipeline_id")).getStableId();
+                doc.setPipelineStableKey("" + pipelineMap.get(r.getLong("pipeline_id")).getStableKey());
+                doc.setPipelineName(pipelineMap.get(r.getLong("pipeline_id")).getName());
                 doc.setPipelineStableId(pipelineStableId);
 
-                String procedureStableId = procedureMap.get(r.getInt("procedure_id")).getStableId();
-                doc.setProcedureStableKey("" + procedureMap.get(r.getInt("procedure_id")).getStableKey());
-                doc.setProcedureName(procedureMap.get(r.getInt("procedure_id")).getName());
+                String procedureStableId = procedureMap.get(r.getLong("procedure_id")).getStableId();
+                doc.setProcedureStableKey("" + procedureMap.get(r.getLong("procedure_id")).getStableKey());
+                doc.setProcedureName(procedureMap.get(r.getLong("procedure_id")).getName());
                 doc.setProcedureStableId(procedureStableId);
 
-                if (skipProcedures.contains(procedurePrefix)) {
+                if (SKIP_PROCEDURES.contains(procedurePrefix)) {
                     // Do not store phenotype associations for these parameters
                     // if somehow they make it into the database
                     continue;
                 }
 
-                doc.setParameterStableKey("" + parameterMap.get(r.getInt("parameter_id")).getStableKey());
-                doc.setParameterName(parameterMap.get(r.getInt("parameter_id")).getName());
-                doc.setParameterStableId(parameterMap.get(r.getInt("parameter_id")).getStableId());
+                doc.setParameterStableKey("" + parameterMap.get(r.getLong("parameter_id")).getStableKey());
+                doc.setParameterName(parameterMap.get(r.getLong("parameter_id")).getName());
+                doc.setParameterStableId(parameterMap.get(r.getLong("parameter_id")).getStableId());
 
 
                 BasicBean stage = getDevelopmentalStage(pipelineStableId, procedureStableId, colonyId);
@@ -275,7 +261,7 @@ final int MAX_MISSING_LIFE_STAGE_ERRORS_TO_LOG = 100;
                 // MP association
                 if (r.getString("ontology_term_id").startsWith("MP:")) {
                     // some hard-coded stuff
-                    doc.setOntologyDbId(5);
+                    doc.setOntologyDbId(5L);
 
                     if (doc.getP_value() != null) {
                         doc.setAssertionType("automatic");
@@ -327,7 +313,7 @@ final int MAX_MISSING_LIFE_STAGE_ERRORS_TO_LOG = 100;
                     OntologyTermDTO mpDto = mpParser.getOntologyTerm(mpId);
 
                     if (mpDto == null) {
-                        logger.warn("Skipping missing mp term '" + mpId + "'");
+                        logger.warn(" Skipping missing mp term '" + mpId + "'");
                         continue;
                     }
 
@@ -349,7 +335,7 @@ final int MAX_MISSING_LIFE_STAGE_ERRORS_TO_LOG = 100;
                 // MPATH association
                 else if (r.getString("ontology_term_id").startsWith("MPATH:")) {
                     // some hard-coded stuff
-                    doc.setOntologyDbId(24);
+                    doc.setOntologyDbId(24L);
                     doc.setAssertionType("manual");
                     doc.setAssertionTypeId("ECO:0000218");
 
@@ -360,7 +346,7 @@ final int MAX_MISSING_LIFE_STAGE_ERRORS_TO_LOG = 100;
                 // EMAP association
                 else if (r.getString("ontology_term_id").startsWith("EMAP:")) {
                     // some hard-coded stuff
-                    doc.setOntologyDbId(14);
+                    doc.setOntologyDbId(14L);
                     doc.setAssertionType("manual");
                     doc.setAssertionTypeId("ECO:0000218");
 
@@ -370,7 +356,7 @@ final int MAX_MISSING_LIFE_STAGE_ERRORS_TO_LOG = 100;
                     runStatus.addError(" Found unknown ontology term: " + r.getString("ontology_term_id"));
                 }
 
-                documentCount++;
+                expectedDocumentCount++;
                 genotypePhenotypeCore.addBean(doc, 30000);
 
                 count++;
@@ -432,4 +418,8 @@ final int MAX_MISSING_LIFE_STAGE_ERRORS_TO_LOG = 100;
         }
     }
 
+    public static void main(String[] args) {
+        ConfigurableApplicationContext context = SpringApplication.run(GenotypePhenotypeIndexer.class, args);
+        context.close();
+    }
 }

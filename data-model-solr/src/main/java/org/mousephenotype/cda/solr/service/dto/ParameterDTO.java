@@ -295,9 +295,7 @@ public class ParameterDTO  extends ImpressBaseDTO{
 				'}';
 	}
 
-	public Integer getProcedureStableKey() {
+	public Long getProcedureStableKey() {
 		return super.getStableKey();
-		
 	}
-
 }

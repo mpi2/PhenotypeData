@@ -21,27 +21,13 @@ import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
-import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfiguration;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
-
-@PropertySource(value="file:${user.home}/configfiles/${profile}/datarelease.properties")
+@EnableAutoConfiguration
 @Configuration
-@EnableAutoConfiguration(exclude = {
-        JndiConnectionFactoryAutoConfiguration.class,
-        DataSourceAutoConfiguration.class,
-        HibernateJpaAutoConfiguration.class,
-        JpaRepositoriesAutoConfiguration.class,
-        DataSourceTransactionManagerAutoConfiguration.class
-        })
 /**
  * This configuration class defines the Cdabase {@link DataSource}, {@link NamedParameterJdbcTemplate}, and 
  * {@link CdabaseSqlUtils} for the cdabase database.
@@ -51,7 +37,7 @@ import javax.sql.DataSource;
 public class DataSourceCdabaseConfig {
 
     protected final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
-    @Value("${datasource.cdabase.url}")
+    @Value("${datasource.cdabase.jdbc-url}")
     String cdabaseUrl;
 
     @Value("${datasource.cdabase.username}")

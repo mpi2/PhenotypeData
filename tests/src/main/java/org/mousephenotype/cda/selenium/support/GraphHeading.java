@@ -16,9 +16,11 @@
 
 package org.mousephenotype.cda.selenium.support;
 
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
-import org.mousephenotype.cda.db.impress.Utilities;
+import org.mousephenotype.cda.db.utilities.ImpressUtils;
 import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.repositories.DatasourceRepository;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
+import org.mousephenotype.cda.db.repositories.ParameterRepository;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.selenium.exception.TestException;
 import org.mousephenotype.cda.utilities.CommonUtils;
@@ -30,6 +32,7 @@ import org.openqa.selenium.remote.RemoteWebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,12 +50,12 @@ import java.util.List;
  */
 public class GraphHeading {
 
-    protected final WebElement chartElement;
-    protected final Utilities impressUtils = new Utilities();
-    protected PhenotypePipelineDAO phenotypePipelineDAO;
-    protected final TestUtils testUtils = new TestUtils();
-    protected final CommonUtils commonUtils = new CommonUtils();
-    protected final WebDriverWait wait;
+
+
+
+
+
+
 
     // Heading variables
     protected String title = "";
@@ -65,40 +68,49 @@ public class GraphHeading {
     protected String phenotypingCenter = "";
     protected String pipelineName = "";
     protected String procedureName = "";
-    protected String graphUrl = "";
     protected String mutantKey = "";
     protected String controlKey = "";
     
     protected WebElement pipelineLinkElement;
     protected WebElement sopLinkElement;
-    protected ChartType chartType;
-    
-    // Database parameter variables
-    protected ObservationType observationType;
-    protected Parameter parameterObject;
 
-    /**
-     * Creates a new <code>GraphPage</code> instance
-     * 
-     * @param wait <code>WebDriverWait</code> instance
-     * @param chartElement <code>WebElement</code> pointing to the HTML
-     *                     div.chart element
-     * @param phenotypePipelineDAO the <code>PhenotypePipelineDAO</code> instance
-     * @param graphUrl the url of the graph page (used for error/warning reporting)
-     * @param chartType the chart type. Used to determine which validator to use.
-     * 
-     * @throws TestException
-     */
-    public GraphHeading(WebDriverWait wait, WebElement chartElement, PhenotypePipelineDAO phenotypePipelineDAO, String graphUrl, ChartType chartType) throws TestException {
-        this.wait = wait;
+    protected final CommonUtils     commonUtils = new CommonUtils();
+    protected final ImpressUtils    impressUtils;
+    protected       ObservationType observationType;
+    protected       Parameter       parameterObject;
+    protected final TestUtils       testUtils   = new TestUtils();
+
+
+    protected final WebElement             chartElement;
+    protected final ChartType              chartType;
+    protected final DatasourceRepository   datasourceRepository;
+    protected final String                 graphUrl;
+    protected final OntologyTermRepository ontologyTermRepository;
+    protected final ParameterRepository    parameterRepository;
+    protected final WebDriverWait          wait;
+
+    public GraphHeading(
+            @NotNull WebElement chartElement,
+            @NotNull ChartType chartType,
+            @NotNull DatasourceRepository datasourceRepository,
+            @NotNull String graphUrl,
+            @NotNull OntologyTermRepository ontologyTermRepository,
+            @NotNull ParameterRepository parameterRepository,
+            @NotNull WebDriverWait wait) throws TestException
+    {
         this.chartElement = chartElement;
-        this.phenotypePipelineDAO = phenotypePipelineDAO;
-        this.graphUrl = graphUrl;
         this.chartType = chartType;
-        
+        this.datasourceRepository = datasourceRepository;
+        this.graphUrl = graphUrl;
+        this.ontologyTermRepository = ontologyTermRepository;
+        this.parameterRepository = parameterRepository;
+        this.wait = wait;
+
+        impressUtils = new ImpressUtils(ontologyTermRepository, datasourceRepository);
         parse(chartType);
         setKeys();
     }
+
     
     /**
      * Validates the elements common to all graph headings.
@@ -180,15 +192,11 @@ public class GraphHeading {
         return chartElement;
     }
 
-    public PhenotypePipelineDAO getPhenotypePipelineDAO() {
-        return phenotypePipelineDAO;
-    }
-
     public WebDriverWait getWait() {
         return wait;
     }
 
-    public Utilities getImpressUtils() {
+    public ImpressUtils getImpressUtils() {
         return impressUtils;
     }
 
@@ -468,7 +476,7 @@ public class GraphHeading {
                     element = elements.get(0);
                     parameterName = element.getText();
                     parameterStableId = element.getAttribute("data-parameterstableid");
-                    parameterObject = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
+                    parameterObject = parameterRepository.getByStableId(parameterStableId);
                     elements = chartElement.findElements(By.xpath(".//span[@class='highcharts-subtitle']//a | ./p[@class='chartSubtitle']//a"));
                     if (elements.isEmpty()) {
                         sopLinkElement = null;
@@ -496,7 +504,7 @@ public class GraphHeading {
                     elements = chartElement.findElements(By.xpath(".//*[@class='highcharts-subtitle']"));
                     if ( ! elements.isEmpty()) {
                         parameterStableId = elements.get(0).getText();
-                        parameterObject = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
+                        parameterObject = parameterRepository.getByStableId(parameterStableId);
                     }
                     break;
                     
@@ -552,11 +560,11 @@ public class GraphHeading {
             //                      parse the svg later on and need a reminder of 'How-To'.
 //            parameterName = aList.get(2).getText();                             // Try as offset 2 first.
 //            parameterStableId = aList.get(3).getText();                         // Try as offset 3 first.
-//            parameterObject = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
+//            parameterObject = parameterRepository.getParameterByStableId(parameterStableId);
 //            if (parameterObject == null) {
 //                parameterName = aList.get(1).getText();                         // Try as offset 1.
 //                parameterStableId = aList.get(2).getText();                     // Try as offset 2.
-//                parameterObject = phenotypePipelineDAO.getParameterByStableId(parameterStableId);
+//                parameterObject = parameterRepository.getParameterByStableId(parameterStableId);
 //            }
 
             // For debugging:

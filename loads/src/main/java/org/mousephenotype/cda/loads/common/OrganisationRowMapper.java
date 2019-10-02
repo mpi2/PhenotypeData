@@ -42,7 +42,7 @@ public class OrganisationRowMapper implements RowMapper<Organisation> {
     public Organisation mapRow(ResultSet rs, int rowNum) throws SQLException {
         Organisation organisation = new Organisation();
 
-        organisation.setId(rs.getInt("id"));
+        organisation.setId(rs.getLong("id"));
         organisation.setName(rs.getString("name"));
         organisation.setFullname(rs.getString("fullname"));
         organisation.setCountry(rs.getString("country"));

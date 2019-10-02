@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.random.EmpiricalDistribution;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -28,14 +28,9 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
-import org.mousephenotype.cda.db.dao.BiologicalModelDAO;
-import org.mousephenotype.cda.db.dao.DatasourceDAO;
-import org.mousephenotype.cda.db.dao.OrganisationDAO;
-import org.mousephenotype.cda.db.dao.PhenotypePipelineDAO;
 import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.repositories.*;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -47,11 +42,11 @@ import org.mousephenotype.cda.solr.web.dto.*;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -62,47 +57,40 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Latest version pulled in 2015/07/07
- * @author tudose
- *
- */
 
 @Service
-public class StatisticalResultService extends AbstractGenotypePhenotypeService implements WebStatus {
+public class StatisticalResultService extends GenotypePhenotypeService implements WebStatus {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	BiologicalModelDAO bmDAO;
 
-	@Autowired
-	DatasourceDAO datasourceDAO;
+	protected BiologicalModelRepository biologicalModelRepository;
+	protected DatasourceRepository      datasourceRepository;
+	protected OrganisationRepository    organisationRepository;
+	protected ParameterRepository       parameterRepository;
+	protected PipelineRepository        pipelineRepository;
+	protected SolrClient                statisticalResultCore;
 
-	@Autowired
-	OrganisationDAO organisationDAO;
 
-	@NotNull @Autowired
-	protected PhenotypePipelineDAO pipelineDAO;
-
-	@Autowired
-	@Qualifier("postqcService")
-	AbstractGenotypePhenotypeService gpService;
-
-	@Autowired
-	ImpressService impressService;
-
-	@Autowired @Qualifier("statisticalResultCore")
-	SolrClient solr;
-
-	public StatisticalResultService() {
-		super();
-	}
-
-	@PostConstruct
-	public void postSetup() {
-		// Ensure the superclass attributes are set
-		super.solr = solr;
+	@Inject
+	public StatisticalResultService(
+			@NotNull ImpressService impressService,
+			@NotNull SolrClient genotypePhenotypeCore,
+			@NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository,
+			@NotNull BiologicalModelRepository biologicalModelRepository,
+			@NotNull DatasourceRepository datasourceRepository,
+			@NotNull OrganisationRepository organisationRepository,
+			@NotNull ParameterRepository parameterRepository,
+			@NotNull PipelineRepository pipelineRepository,
+			@NotNull SolrClient statisticalResultCore)
+	{
+		super(impressService, genotypePhenotypeCore, genesSecondaryProjectRepository);
+		this.biologicalModelRepository = biologicalModelRepository;
+		this.datasourceRepository = datasourceRepository;
+		this.organisationRepository = organisationRepository;
+		this.parameterRepository= parameterRepository;
+		this.pipelineRepository = pipelineRepository;
+		this.statisticalResultCore = statisticalResultCore;
 	}
 
 
@@ -126,59 +114,59 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	}
 
 	public Set<String> getChartPivots(String baseUrl, String acc, String parameterStableId, List<String> pipelineStableIds, List<String> zyList, List<String> phenotypingCentersList,
-                                      List<String> strainsParams, List<String> metaDataGroup, List<String> alleleAccession) throws IOException, SolrServerException, URISyntaxException {
+						  List<String> strainsParams, List<String> metaDataGroup, List<String> alleleAccession) throws IOException, SolrServerException, URISyntaxException {
 
-        SolrQuery query = new SolrQuery();
-        query.setQuery("*:*");
-        if (acc != null) {
-            query.addFilterQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + acc + "\"");
-        }
-        if (parameterStableId != null) {
-            query.addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + parameterStableId);
-        }
-        if (pipelineStableIds != null & pipelineStableIds.size() > 0) {
-            query.addFilterQuery(pipelineStableIds.stream().collect(Collectors.joining(" OR ", StatisticalResultDTO.PIPELINE_STABLE_ID + ":(", ")")));
-        }
-        if (zyList != null && zyList.size() > 0) {
-            query.addFilterQuery(zyList.stream().collect(Collectors.joining(" OR ", StatisticalResultDTO.ZYGOSITY + ":(", ")")));
-        }
-        if (phenotypingCentersList != null && phenotypingCentersList.size() > 0) {
-            query.addFilterQuery(phenotypingCentersList.stream().collect(Collectors.joining("\" OR \"", StatisticalResultDTO.PHENOTYPING_CENTER + ":(\"", "\")")));
-        }
-        if (strainsParams != null && strainsParams.size() > 0) {
-            query.addFilterQuery(strainsParams.stream().collect(Collectors.joining("\" OR \"", StatisticalResultDTO.STRAIN_ACCESSION_ID + ":(\"", "\")")));
-        }
-        if (metaDataGroup != null && metaDataGroup.size() > 0) {
-            query.addFilterQuery(metaDataGroup.stream().collect(Collectors.joining("\" OR \"", StatisticalResultDTO.METADATA_GROUP + ":(\"", "\")")));
-        }
-        if (alleleAccession != null && alleleAccession.size() > 0) {
-            query.addFilterQuery(alleleAccession.stream().collect(Collectors.joining("\" OR \"", StatisticalResultDTO.ALLELE_ACCESSION_ID + ":(\"", "\")")));
-        }
-        query.setFacet(true);
+		SolrQuery query = new SolrQuery();
+		query.setQuery("*:*");
+		if (acc != null){
+			query.addFilterQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + acc + "\"");
+		}
+		if ((parameterStableId != null) && ( ! parameterStableId.trim().isEmpty())) {
+			query.addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + parameterStableId);
+		}
+		if (pipelineStableIds != null & pipelineStableIds.size() > 0){
+			query.addFilterQuery(pipelineStableIds.stream().collect(Collectors.joining(" OR ",  StatisticalResultDTO.PIPELINE_STABLE_ID + ":(", ")")));
+		}
+		if (zyList != null && zyList.size() > 0){
+			query.addFilterQuery(zyList.stream().collect(Collectors.joining(" OR ",  StatisticalResultDTO.ZYGOSITY + ":(", ")")));
+		}
+		if (phenotypingCentersList != null && phenotypingCentersList.size() > 0){
+			query.addFilterQuery(phenotypingCentersList.stream().collect(Collectors.joining("\" OR \"",  StatisticalResultDTO.PHENOTYPING_CENTER + ":(\"", "\")")));
+		}
+		if (strainsParams != null && strainsParams.size() > 0){
+			query.addFilterQuery(strainsParams.stream().collect(Collectors.joining("\" OR \"", StatisticalResultDTO.STRAIN_ACCESSION_ID + ":(\"", "\")")));
+		}
+		if (metaDataGroup != null && metaDataGroup.size() > 0){
+			query.addFilterQuery(metaDataGroup.stream().collect(Collectors.joining("\" OR \"",  StatisticalResultDTO.METADATA_GROUP + ":(\"", "\")")));
+		}
+		if (alleleAccession != null && alleleAccession.size() > 0){
+			query.addFilterQuery(alleleAccession.stream().collect(Collectors.joining("\" OR \"", StatisticalResultDTO.ALLELE_ACCESSION_ID + ":(\"", "\")")));
+		}
+		query.setFacet(true);
 
-        // If you add/change order of pivots, make sure you do the same in the for loops below
-        String pivotFacet = StatisticalResultDTO.PIPELINE_STABLE_ID + "," +
-                StatisticalResultDTO.ZYGOSITY + "," +
-                StatisticalResultDTO.PHENOTYPING_CENTER + "," +
-                StatisticalResultDTO.STRAIN_ACCESSION_ID + "," +
-                StatisticalResultDTO.ALLELE_ACCESSION_ID;
+		// If you add/change order of pivots, make sure you do the same in the for loops below
+		String pivotFacet = StatisticalResultDTO.PIPELINE_STABLE_ID + "," +
+				StatisticalResultDTO.ZYGOSITY + "," +
+				StatisticalResultDTO.PHENOTYPING_CENTER + "," +
+				StatisticalResultDTO.STRAIN_ACCESSION_ID + "," +
+				StatisticalResultDTO.ALLELE_ACCESSION_ID;
+		//pivot needs to have metadata_group irrespective of if it's included in filter or not as we want seperate experiments based on the metadata
+			pivotFacet += "," + StatisticalResultDTO.METADATA_GROUP;
 
-        // pivot needs to have metadata_group irrespective of if it's included in filter or not as we want separate
-        // experiments based on the metadata
-        pivotFacet += "," + StatisticalResultDTO.METADATA_GROUP;
+		//}
+		query.add("facet.pivot", pivotFacet );
 
-        query.add("facet.pivot", pivotFacet);
+		query.setFacetLimit(-1);
 
-        query.setFacetLimit(-1);
+		Set<String> resultParametersForCharts = new HashSet<>();
+		System.out.println("SR facet pivot query="+query);
+		NamedList<List<PivotField>> facetPivot = statisticalResultCore.query(query).getFacetPivot();
+		for( PivotField pivot : facetPivot.get(pivotFacet)){
+			getParametersForChartFromPivot(pivot, baseUrl, resultParametersForCharts);
+		}
 
-        Set<String> resultParametersForCharts = new HashSet<>();
-        NamedList<List<PivotField>> facetPivot = solr.query(query).getFacetPivot();
-        for (PivotField pivot : facetPivot.get(pivotFacet)) {
-            getParametersForChartFromPivot(pivot, baseUrl, resultParametersForCharts);
-        }
-
-        return resultParametersForCharts;
-    }
+		return resultParametersForCharts;
+	}
 
 
 	private Set<String> getParametersForChartFromPivot(PivotField pivot, String urlParams, Set<String> set){
@@ -238,7 +226,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 				.add("group.field", StatisticalResultDTO.MARKER_ACCESSION_ID)
 				.add("group.ngroups", "true")
 				.add("wt","json");
-		JSONObject groups = new JSONObject(solr.query(query).getResponse().get("grouped").toString().replaceAll("=",":"));
+		JSONObject groups = new JSONObject(statisticalResultCore.query(query).getResponse().get("grouped").toString().replaceAll("=", ":"));
 
 		return groups.getJSONObject(StatisticalResultDTO.MARKER_ACCESSION_ID).getInt("ngroups");
 
@@ -269,14 +257,14 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		q.setRows(1);
 		q.set("facet.limit", -1);
 
-		logger.info("Solr url for getColoniesNoMPHit " + SolrUtils.getBaseURL(solr) + "/select?" + q);
-		QueryResponse response = solr.query(q);
+		logger.info("Solr url for getColoniesNoMPHit " + SolrUtils.getBaseURL(statisticalResultCore) + "/select?" + q);
+		QueryResponse response = statisticalResultCore.query(q);
 
 		for( Count facet : response.getFacetField(StatisticalResultDTO.COLONY_ID).getValues()){
 			res.put(facet.getName(), facet.getCount());
 		}
-		return res;
 
+		return res;
 	}
 
 
@@ -307,7 +295,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		q.set("facet.pivot.mincount", 1);
 
 		try {
-			QueryResponse res = solr.query(q);
+			QueryResponse res = statisticalResultCore.query(q);
 
 			FacetField phenotypingCenters = res.getFacetField(StatisticalResultDTO.PHENOTYPING_CENTER);
 
@@ -315,12 +303,12 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 				dto.addPhenotypingCenter(facet.getName());
 			}
 
-			FacetField alleles = solr.query(q).getFacetField(StatisticalResultDTO.ALLELE_SYMBOL);
+			FacetField alleles = statisticalResultCore.query(q).getFacetField(StatisticalResultDTO.ALLELE_SYMBOL);
 			for (Count facet : alleles.getValues()){
 				dto.addAlleleSymbol(facet.getName());
 			}
 
-			FacetField pipelines = solr.query(q).getFacetField(StatisticalResultDTO.PIPELINE_NAME);
+			FacetField pipelines = statisticalResultCore.query(q).getFacetField(StatisticalResultDTO.PIPELINE_NAME);
 			for (Count facet : pipelines.getValues()){
 				dto.addPipelineName(facet.getName());
 			}
@@ -373,7 +361,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 			query.addFilterQuery(StatisticalResultDTO.STATUS + ":" + status);
 		}
 
-		QueryResponse response = solr.query(query);
+		QueryResponse response = statisticalResultCore.query(query);
 
 		for (  Count facet: response.getFacetField(StatisticalResultDTO.PHENOTYPING_CENTER).getValues()){
 			res.add(facet.getName());
@@ -429,11 +417,11 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 			}
 
-			QueryResponse response = solr.query(query);
+			QueryResponse response = statisticalResultCore.query(query);
 
 			for ( Group group: response.getGroupResponse().getValues().get(0).getValues()){
 
-				ImpressBaseDTO procedure = new ImpressBaseDTO(Integer.getInteger(group.getResult().get(0).getFirstValue(StatisticalResultDTO.PROCEDURE_ID).toString()),
+				ImpressBaseDTO procedure = new ImpressBaseDTO(Long.getLong(group.getResult().get(0).getFirstValue(StatisticalResultDTO.PROCEDURE_ID).toString()),
 						null,
 						group.getResult().get(0).getFirstValue(StatisticalResultDTO.PROCEDURE_STABLE_ID ).toString(),
 						group.getResult().get(0).getFirstValue(StatisticalResultDTO.PROCEDURE_NAME).toString());
@@ -492,7 +480,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 			query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + StringUtils.join(phenotypingCenters, "\" OR " + StatisticalResultDTO.PHENOTYPING_CENTER + ":\"") + "\"");
 		}
 
-		List<String> parameterStableIds = new ArrayList<>(getFacets(solr.query(query)).get(StatisticalResultDTO.PARAMETER_STABLE_ID).keySet());
+		List<String> parameterStableIds = new ArrayList<>(getFacets(statisticalResultCore.query(query)).get(StatisticalResultDTO.PARAMETER_STABLE_ID).keySet());
 		TreeSet<ParameterDTO> parameterUniqueByStableId = new TreeSet<>(ParameterDTO.getComparatorByName());
 
 		for (ParameterDTO param : impressService.getParameters(procedureStableId, "unidimensional", topLevelMpId)){
@@ -534,7 +522,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 			query.addFilterQuery(StatisticalResultDTO.MARKER_SYMBOL + ":(\"" + genes.stream().collect(Collectors.joining("\" OR \"")) + "\")");
 		}
 
-		List<StatisticalResultDTO> result = solr.query(query, SolrRequest.METHOD.POST).getBeans(StatisticalResultDTO.class);
+		List<StatisticalResultDTO> result = statisticalResultCore.query(query, SolrRequest.METHOD.POST).getBeans(StatisticalResultDTO.class);
 		TreeMap<String, ParallelCoordinatesDTO> row = addMaxGenotypeEffects(result, parameterMap, baseUrl);
 		row = addMeanValues(row, parameters);
 		row = addDefaultValues(row, parameters); // add normal/no effect values after mean so that they're not used in the computation
@@ -671,7 +659,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		query.set("group.field", StatisticalResultDTO.COLONY_ID);
 		query.set("group.limit", 1);
 
-		List<Group> groups = solr.query(query).getGroupResponse().getValues().get(0).getValues();
+		List<Group> groups = statisticalResultCore.query(query).getGroupResponse().getValues().get(0).getValues();
 		double[] meansArray = new double[groups.size()];
 		String[] genesArray = new String[groups.size()];
 		String[] geneSymbolArray = new String[groups.size()];
@@ -854,8 +842,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		q.setRows(1);
 		q.set("facet.limit", -1);
 
-		logger.info("Solr url for getDistributionOfLinesByMPTopLevel " + SolrUtils.getBaseURL(solr) + "/select?" + q);
-		QueryResponse response = solr.query(q);
+		logger.info("Solr url for getDistributionOfLinesByMPTopLevel " + SolrUtils.getBaseURL(statisticalResultCore) + "/select?" + q);
+		QueryResponse response = statisticalResultCore.query(q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
 			if (pivot.getPivot() != null) {
@@ -893,8 +881,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		q.setRows(1);
 		q.set("facet.limit", -1);
 
-		logger.info("Solr url for getDistributionOfGenesByMPTopLevel " + SolrUtils.getBaseURL(solr) + "/select?" + q);
-		QueryResponse response = solr.query(q);
+		logger.info("Solr url for getDistributionOfGenesByMPTopLevel " + SolrUtils.getBaseURL(statisticalResultCore) + "/select?" + q);
+		QueryResponse response = statisticalResultCore.query(q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
 			if (pivot.getPivot() != null) {
@@ -934,7 +922,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		query.addFacetField(StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME);
 
 		try {
-			QueryResponse response = solr.query(query);
+			QueryResponse response = statisticalResultCore.query(query);
 			TreeMap<String, Long> res = new TreeMap<>();
 			res.putAll(getFacets(response).get(StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME));
 			return res;
@@ -995,7 +983,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 		System.out.println("statistical-result query========: "+query);
 
-		response = solr.query(query);
+		response = statisticalResultCore.query(query);
 		List<StatisticalResultDTO> solrResults = response.getBeans(StatisticalResultDTO.class);
 
 		if (statisticalType == ObservationType.unidimensional) {
@@ -1034,7 +1022,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		query.setRows(0);
 
 		try {
-			response = solr.query(query).getFacetPivot();
+			response = statisticalResultCore.query(query).getFacetPivot();
 			for (PivotField genePivot : response.get(StatisticalResultDTO.MARKER_ACCESSION_ID + "," + StatisticalResultDTO.PROCEDURE_STABLE_ID)){
 				if (genePivot.getPivot() != null) {
 					String geneName = genePivot.getValue().toString();
@@ -1058,7 +1046,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		Map<String, List<ExperimentsDataTableRow>> results = new HashMap<>();
 
 		SolrQuery query = buildQuery(geneAccession, procedureName,alleleSymbol, phenotypingCenter, pipelineName, procedureStableIds, resource, mpTermId, null, null, null, null, null, null, null, null);
-		List<StatisticalResultDTO> solrResults = solr.query(query).getBeans(StatisticalResultDTO.class);
+		List<StatisticalResultDTO> solrResults = statisticalResultCore.query(query).getBeans(StatisticalResultDTO.class);
 
 		for (StatisticalResultDTO statResult : solrResults) {
 
@@ -1080,7 +1068,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 		SolrQuery query = buildQuery(geneAccession, procedureName,alleleSymbol, phenotypingCenter, pipelineName, procedureStableIds, resource, mpTermId, null, null, null, null, null, null, null, null);
 		query.setRows(0);
-		long solrResults = solr.query(query).getResults().getNumFound();
+		long solrResults = statisticalResultCore.query(query).getResults().getNumFound();
 
 		return solrResults;
 	}
@@ -1158,7 +1146,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 			solrQuery.addFilterQuery(StatisticalResultDTO.ZYGOSITY + ":" + zygosity.getName());
 		}
 		System.out.println("solrQuery="+solrQuery);
-		List<StatisticalResultDTO> dtos = solr.query(solrQuery).getBeans(StatisticalResultDTO.class);
+		List<StatisticalResultDTO> dtos = statisticalResultCore.query(solrQuery).getBeans(StatisticalResultDTO.class);
 		System.out.println("SRDTOS size for " + zygosity.getName() + "="+dtos.size());
 
 		for (StatisticalResultDTO dto : dtos) {
@@ -1195,7 +1183,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 
 	public PhenotypeFacetResult getPhenotypeFacetResultByPhenotypingCenterAndPipeline(String phenotypingCenter, String pipelineStableId)
-			throws IOException, URISyntaxException, SolrServerException {
+			throws IOException, URISyntaxException, JSONException {
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter);
@@ -1210,8 +1198,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		query.set("wt", "json");
 		query.set("version", "2.2");
 
-		String solrUrl = SolrUtils.getBaseURL(solr) + "/select?" + query;
-		return gpService.createPhenotypeResultFromSolrResponse(solrUrl);
+		String solrUrl = SolrUtils.getBaseURL(statisticalResultCore) + "/select?" + query;
+		return createPhenotypeResultFromSolrResponse(solrUrl);
 	}
 
 
@@ -1228,7 +1216,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 		QueryResponse response;
 		try {
-			response = solr.query(query);
+			response = statisticalResultCore.query(query);
 			for (Count id: response.getFacetField(StatisticalResultDTO.MARKER_ACCESSION_ID).getValues()){
 				res.add(id.getName());
 			}
@@ -1245,12 +1233,12 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		if(result.getBatchSignificant()!=null) r.setBatchSignificance(result.getBatchSignificant());
 		if(result.getBlupsTest()!= null) r.setBlupsTest(new Double(result.getBlupsTest()));
 		r.setColonyId(result.getColonyId());
-		//       if(result.getControlBiologicalModelId()!= null) r.setControlBiologicalModel(bmDAO.getBiologicalModelById(result.getControlBiologicalModelId()));
+		//       if(result.getControlBiologicalModelId()!= null) r.setControlBiologicalModel(biologicalModelDAO.getBiologicalModelById(result.getControlBiologicalModelId()));
 		r.setControlSelectionStrategy(result.getControlSelectionMethod());
-		if(result.getResourceId()!= null) r.setDatasource(datasourceDAO.getDatasourceById(result.getResourceId()));
+		if(result.getResourceId()!= null) r.setDatasource(datasourceRepository.findById(result.getResourceId()).get());
 		r.setDependentVariable(result.getDependentVariable());
 		if(result.getEffectSize()!= null) r.setEffectSize(new Double(result.getEffectSize()));
-		if(result.getMutantBiologicalModelId()!= null) r.setExperimentalBiologicalModel(bmDAO.getBiologicalModelById(result.getMutantBiologicalModelId()));
+		if(result.getMutantBiologicalModelId()!= null) r.setExperimentalBiologicalModel(biologicalModelRepository.findById(result.getMutantBiologicalModelId()).get());
 		if(result.getZygosity()!= null) r.setExperimentalZygosity(ZygosityType.valueOf(result.getZygosity()));
 		r.setFemaleControls(result.getFemaleControlCount());
 		r.setFemaleMutants(result.getFemaleMutantCount());
@@ -1279,9 +1267,9 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		r.setMaleMutants(result.getMaleMutantCount());
 		r.setMetadataGroup(result.getMetadataGroup());
 		if(result.getNullTestPValue()!= null) r.setNullTestSignificance(new Double(result.getNullTestPValue()));
-		if(result.getPhenotypingCenter()!= null) r.setOrganisation(organisationDAO.getOrganisationByName(result.getPhenotypingCenter()));
-		if(result.getParameterStableId()!= null) r.setParameter(pipelineDAO.getParameterByStableId(result.getParameterStableId()));
-		if(result.getPipelineStableId()!= null) r.setPipeline(pipelineDAO.getPhenotypePipelineByStableId(result.getPipelineStableId()));
+		if(result.getPhenotypingCenter()!= null) r.setOrganisation(organisationRepository.getByName(result.getPhenotypingCenter()));
+		if(result.getParameterStableId()!= null) r.setParameter(parameterRepository.getByStableId(result.getParameterStableId()));
+		if(result.getPipelineStableId()!= null) r.setPipeline(pipelineRepository.getByStableId(result.getPipelineStableId()));
 		//    if(result.getProjectName()!= null) r.setProject(projectDAO.getProjectByName(result.getProjectName()));
 		if(result.getpValue()!= null) r.setpValue(new Double(result.getpValue()));
 		r.setRawOutput(result.getRawOutput());
@@ -1323,21 +1311,21 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 		CategoricalResult r = new CategoricalResult();
 		r.setColonyId(result.getColonyId());
-		if(result.getControlBiologicalModelId()!= null) r.setControlBiologicalModel(bmDAO.getBiologicalModelById(result.getControlBiologicalModelId()));
+		if(result.getControlBiologicalModelId()!= null) r.setControlBiologicalModel(biologicalModelRepository.findById(result.getControlBiologicalModelId()).get());
 		r.setControlSelectionStrategy(result.getControlSelectionMethod());
 //        if(result.getResourceId()!= null) r.setDatasource(datasourceDAO.getDatasourceById(result.getResourceId()));
 		r.setDependentVariable(result.getDependentVariable());
 		if(result.getEffectSize()!= null) r.setEffectSize(new Double(result.getEffectSize()));
-		if(result.getMutantBiologicalModelId()!= null) r.setExperimentalBiologicalModel(bmDAO.getBiologicalModelById(result.getMutantBiologicalModelId()));
+		if (result.getMutantBiologicalModelId() != null) r.setExperimentalBiologicalModel(biologicalModelRepository.findById(result.getMutantBiologicalModelId()).get());
 		if(result.getZygosity()!= null) r.setExperimentalZygosity(ZygosityType.valueOf(result.getZygosity()));
 		r.setFemaleControls(result.getFemaleControlCount());
 		r.setFemaleMutants(result.getFemaleMutantCount());
 		r.setMaleControls(result.getMaleControlCount());
 		r.setMaleMutants(result.getMaleMutantCount());
 		r.setMetadataGroup(result.getMetadataGroup());
-		if(result.getPhenotypingCenter()!= null) r.setOrganisation(organisationDAO.getOrganisationByName(result.getPhenotypingCenter()));
-		if(result.getParameterStableId()!= null) r.setParameter(pipelineDAO.getParameterByStableId(result.getParameterStableId()));
-		if(result.getPipelineStableId()!= null) r.setPipeline(pipelineDAO.getPhenotypePipelineByStableId(result.getPipelineStableId()));
+		if(result.getPhenotypingCenter()!= null) r.setOrganisation(organisationRepository.getByName(result.getPhenotypingCenter()));
+		if(result.getParameterStableId()!= null) r.setParameter(parameterRepository.getByStableId(result.getParameterStableId()));
+		if(result.getPipelineStableId()!= null) r.setPipeline(pipelineRepository.getByStableId(result.getPipelineStableId()));
 		//       if(result.getProjectName()!= null) r.setProject(projectDAO.getProjectByName(result.getProjectName()));
 		if(result.getpValue()!= null) r.setpValue(new Double(result.getpValue()));
 		r.setRawOutput(result.getRawOutput());
@@ -1377,7 +1365,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		q.add("group.field", StatisticalResultDTO.MARKER_ACCESSION_ID);
 		q.set("group.limit", Integer.MAX_VALUE);
 
-		GroupCommand groups = solr.query(q, SolrRequest.METHOD.POST).getGroupResponse().getValues().get(0);
+		GroupCommand groups = statisticalResultCore.query(q, SolrRequest.METHOD.POST).getGroupResponse().getValues().get(0);
 
 		for (Group group:  groups.getValues()){
 			// Each group contains data for a different gene
@@ -1420,7 +1408,6 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 	}
 
 
-
 	public List<GeneRowForHeatMap> getSecondaryProjectMapForResource(String resourceName) {
 
 		List<GeneRowForHeatMap> res = new ArrayList<>();
@@ -1444,7 +1431,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 			q.add("group.sort", StatisticalResultDTO.P_VALUE + " asc");
 
 			try {
-				GroupCommand groups = solr.query(q).getGroupResponse().getValues().get(0);
+				GroupCommand groups = statisticalResultCore.query(q).getGroupResponse().getValues().get(0);
 
 				for (Group group:  groups.getValues()){
 					GeneRowForHeatMap row;
@@ -1508,8 +1495,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		q.setRows(1);
 		q.set("facet.limit", -1);
 
-		logger.info("Solr url for getParametersToProcedureMap " + SolrUtils.getBaseURL(solr) + "/select?" + q);
-		QueryResponse response = solr.query(q);
+		logger.info("Solr url for getParametersToProcedureMap " + SolrUtils.getBaseURL(statisticalResultCore) + "/select?" + q);
+		QueryResponse response = statisticalResultCore.query(q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
 			if (pivot.getPivot() != null){
@@ -1537,10 +1524,10 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		q.add("group.rows", "1");
 		q.add("fl", StatisticalResultDTO.PROCEDURE_NAME + "," + StatisticalResultDTO.PROCEDURE_STABLE_ID);
 
-		logger.info("Procedure query " + SolrUtils.getBaseURL(solr) + "/select?" + q);
+		logger.info("Procedure query " + SolrUtils.getBaseURL(statisticalResultCore) + "/select?" + q);
 
 		try {
-			GroupCommand groups = solr.query(q).getGroupResponse().getValues().get(0);
+			GroupCommand groups = statisticalResultCore.query(q).getGroupResponse().getValues().get(0);
 			for (Group group: groups.getValues()){
 				BasicBean bb = new BasicBean();
 				SolrDocument doc = group.getResult().get(0);
@@ -1623,8 +1610,8 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		q.setRows(1);
 		q.set("facet.limit", -1);
 
-		logger.info("Solr url for getParameterToGeneMap " + SolrUtils.getBaseURL(solr) + "/select?" + q);
-		QueryResponse response = solr.query(q);
+		logger.info("Solr url for getParameterToGeneMap " + SolrUtils.getBaseURL(statisticalResultCore) + "/select?" + q);
+		QueryResponse response = statisticalResultCore.query(q);
 
 		for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
 			if (pivot.getPivot() != null) {
@@ -1658,7 +1645,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		
 		System.out.println("Query: " + q);
 
-		QueryResponse results = solr.query(q); 
+		QueryResponse results = statisticalResultCore.query(q);
 		
 		System.out.println("Results: " + results.getGroupResponse().getValues().get(0).getValues().size());
 		
@@ -1681,7 +1668,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 				.setRows(Integer.MAX_VALUE)
 				.setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
 
-		List<StatisticalResultDTO> result = solr.query(q).getBeans(StatisticalResultDTO.class);
+		List<StatisticalResultDTO> result = statisticalResultCore.query(q).getBeans(StatisticalResultDTO.class);
 
 		return result;
 	}
@@ -1704,7 +1691,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 				.setRows(Integer.MAX_VALUE)
 				.setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
 
-		List<StatisticalResultDTO> result = solr.query(q).getBeans(StatisticalResultDTO.class);
+		List<StatisticalResultDTO> result = statisticalResultCore.query(q).getBeans(StatisticalResultDTO.class);
 
 		return result;
 	}
@@ -1714,7 +1701,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		query.add("group", "true");
 		query.add("group.ngroups", "true");
 		query.add("group.field", StatisticalResultDTO.PARAMETER_NAME);
-		QueryResponse result = solr.query(query);
+		QueryResponse result = statisticalResultCore.query(query);
 		return result.getGroupResponse().getValues().get(0).getNGroups();
 	}
 
@@ -1836,7 +1823,7 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 		q.set("facet.limit", -1);
 		q.set("facet.mincount", 1);
 
-		QueryResponse response = solr.query(q);
+		QueryResponse response = statisticalResultCore.query(q);
 
 		for (Count parameter : response.getFacetField(StatisticalResultDTO.PARAMETER_STABLE_ID).getValues()) {
 			res.add(parameter.getName());
@@ -1851,14 +1838,14 @@ public class StatisticalResultService extends AbstractGenotypePhenotypeService i
 
 		query.setQuery("*:*").setRows(0);
 
-		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
+		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(statisticalResultCore) + "/select?" + query);
 
-		QueryResponse response = solr.query(query);
+		QueryResponse response = statisticalResultCore.query(query);
 		return response.getResults().getNumFound();
 	}
+
 	@Override
-	public String getServiceName(){
+	public String getServiceName() {
 		return "statistical result service";
 	}
-	
 }

@@ -1,10 +1,11 @@
 package org.mousephenotype.cda.owl;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +22,7 @@ public class TreeJsHelper {
 
         public TreeJsHelper(){	}
 
-        public static String getScrollTo(List<JSONObject> tree) throws JSONException{
+        public static String getScrollTo(List<JSONObject> tree) throws JSONException {
 
             for (JSONObject topLevel: tree){
                 if (topLevel.has("state") && topLevel.getJSONObject("state").has("opened") && topLevel.getJSONObject("state").getBoolean("opened") == true){

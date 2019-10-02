@@ -1,39 +1,40 @@
 package org.mousephenotype.cda.solr.service;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.FacetField.Count;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.solr.SolrUtils;
-import org.mousephenotype.cda.solr.service.AlleleService.PhenotypingStatusComparator;
-import org.mousephenotype.cda.solr.service.AlleleService.ProductionStatusComparator;
 import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
-// import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
+
 
 @Service
 public class Allele2Service implements WebStatus{
 	
-	private static final Logger logger = LoggerFactory.getLogger(AlleleService.class);
-	
-	@Autowired @Qualifier("allele2Core")
-	private SolrClient solr;
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	private SolrClient allele2Core;
+
+
+	@Inject
+	public Allele2Service(SolrClient allele2Core) {
+		this.allele2Core = allele2Core;
+	}
+
+	public Allele2Service() {
+
+	}
+
 
 	@Override
 	public long getWebStatus() throws SolrServerException, IOException {
@@ -42,9 +43,7 @@ public class Allele2Service implements WebStatus{
 
 		query.setQuery("*:*").setRows(0);
 
-		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
-
-		QueryResponse response = solr.query(query);
+		QueryResponse response = allele2Core.query(query);
 		return response.getResults().getNumFound();
 	}
 
@@ -60,7 +59,7 @@ public class Allele2Service implements WebStatus{
 		}
 		query.setRows(Integer.MAX_VALUE);
 
-		return solr.query(query).getBeans(Allele2DTO.class);
+		return allele2Core.query(query).getBeans(Allele2DTO.class);
 
 	}
 
@@ -131,7 +130,7 @@ public class Allele2Service implements WebStatus{
 		solrQuery.setFacetLimit(-1);
 		try {
 			solrQuery.addFacetField(statusField);
-			solrResponse = solr.query(solrQuery);
+			solrResponse = allele2Core.query(solrQuery);
 			for (Count c : solrResponse.getFacetField(statusField).getValues()) {
 				res.put(c.getName(), c.getCount());
 			}
@@ -151,10 +150,10 @@ public class Allele2Service implements WebStatus{
 		solrQuery.setFacetLimit(-1);
 		solrQuery.addFacetField(field);
 
-		logger.info(this.getClass().getEnclosingMethod() + "   " + SolrUtils.getBaseURL(solr) + "/select?" + solrQuery);
+		logger.info(this.getClass().getEnclosingMethod() + "   " + SolrUtils.getBaseURL(allele2Core) + "/select?" + solrQuery);
 
 		try {
-			solrResponse = solr.query(solrQuery);
+			solrResponse = allele2Core.query(solrQuery);
 			for (Count c : solrResponse.getFacetField(field).getValues()) {
 				res.add(c.getName());
 			}
@@ -182,7 +181,7 @@ public class Allele2Service implements WebStatus{
 		solrQuery.setFacetLimit(-1);
 		try {
 			solrQuery.addFacetField(statusField);
-			solrResponse = solr.query(solrQuery);
+			solrResponse = allele2Core.query(solrQuery);
 			for (Count c : solrResponse.getFacetField(statusField).getValues()) {
 				// We don't want to show everything
 				if ( !(c.getName().equalsIgnoreCase("Cre Excision Started") || c.getName().equalsIgnoreCase("Phenotype Production Aborted") || c.getName().equalsIgnoreCase("Rederivation Complete") || c.getName().equals("")) ) {
@@ -213,7 +212,7 @@ public class Allele2Service implements WebStatus{
 		solrQuery.setFacetLimit(-1);
 		try {
 			solrQuery.addFacetField(statusField);
-			solrResponse = solr.query(solrQuery);
+			solrResponse = allele2Core.query(solrQuery);
 			for (Count c : solrResponse.getFacetField(statusField).getValues()) {
 				// We don't want to show everything
 				if (!(c.getName().equalsIgnoreCase("Founder obtained") || c.getName().equals(""))){
@@ -226,5 +225,4 @@ public class Allele2Service implements WebStatus{
 		
 		return res;
 	}
-	
 }

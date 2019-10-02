@@ -26,16 +26,16 @@ public class BioModelInsertDTOMGI extends BioModelInsertDTO {
     protected Set<AccDbId> phenotypes = new HashSet<>();
 
 
-    public BioModelInsertDTOMGI(int dbId, String allelicComposition, String geneticBackground, String zygosity, AccDbId gene, AccDbId alleleSymbol, AccDbId phenotype) {
-        super(dbId, 0, allelicComposition, geneticBackground, zygosity);
+    public BioModelInsertDTOMGI(long dbId, String allelicComposition, String geneticBackground, String zygosity, AccDbId gene, AccDbId alleleSymbol, AccDbId phenotype) {
+        super(dbId, 0L, allelicComposition, geneticBackground, zygosity);
         this.genes.add(gene);
         this.alleles.add( alleleSymbol);
         this.phenotypes.add(phenotype);
     }
 
 
-    public BioModelInsertDTOMGI(int dbId, String allelicComposition, String geneticBackground, String zygosity) {
-        super(dbId, 0, allelicComposition, geneticBackground, zygosity);
+    public BioModelInsertDTOMGI(long dbId, String allelicComposition, String geneticBackground, String zygosity) {
+        super(dbId, 0L, allelicComposition, geneticBackground, zygosity);
     }
 
     public Set<AccDbId> getGenes() {

@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
@@ -74,12 +73,12 @@ import java.util.stream.Collectors;
  */
 @Configuration
 @EnableWebSecurity
-@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
 @ComponentScan("uk.ac.ebi.phenotype.web.controller.registerinterest")
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private DataSource riDataSource;
-    private CaptchaFilter captchaFilter;
+    private       DataSource    riDataSource;
+    private       CaptchaFilter captchaFilter;
+    private final int           MAX_INACTIVE_INTERVAL_IN_HOURS = 26;
 
     @NotNull
     @Value("${paBaseUrl}")
@@ -154,15 +153,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf()
                 .ignoringAntMatchers("/dataTable_bq")
-                .ignoringAntMatchers("/dataTableAlleleRefPost")
-                .ignoringAntMatchers("/fetchAlleleRefPmidData")
                 .ignoringAntMatchers("/querybroker")
                 .ignoringAntMatchers("/bqExport")
                 .ignoringAntMatchers("/batchQuery")
-                .ignoringAntMatchers("/alleleRefLogin")
-                .ignoringAntMatchers("/addpmid")
-                .ignoringAntMatchers("/addpmidAllele")
-                .ignoringAntMatchers("/gwaslookup");
+                .ignoringAntMatchers("/alleleRefLogin");
     }
 
     /**
@@ -262,7 +256,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             logger.info("============RiSavedRequest: Authentication Success!");
 
             // Set the session maximum inactive interval. The interval parameter is in seconds.
-            int MAX_INACTIVE_INTERVAL_IN_HOURS = 26;
             request.getSession().setMaxInactiveInterval(MAX_INACTIVE_INTERVAL_IN_HOURS * 3600);
 
             SavedRequest savedRequest = this.requestCache.getRequest(request, response);
@@ -322,7 +315,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         }
     }
 
-        /**
+    /**
      * Add component to handle cross site filter attacks
      */
     @Component
@@ -413,11 +406,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         }
 
         private String stripXSS(String value) {
-            //System.out.println("in strip XSS method");
             if (value != null) {
                 // ToDO :  Integrate OWASP ESAPI or AntiSamy library to avoid encoded attacks
                 // value = ESAPI.encoder().canonicalize(value);
-                //System.out.println("replacing value in strip XSS method");
                 // Avoid null characters
                 value = value.replaceAll("\0", "");
 

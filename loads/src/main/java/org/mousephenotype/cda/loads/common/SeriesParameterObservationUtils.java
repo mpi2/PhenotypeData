@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.loads.common;
 
+import org.mousephenotype.cda.utilities.DateUtils;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.ProcedureMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +76,7 @@ public class SeriesParameterObservationUtils {
                 case "IMPC":
 
                     // Calculate the date difference between the measured value and lights out cycle
-                    Date d = parseIncrementValue(input);
+                    Date d = DateUtils.parseIncrementValue(logger, input);
                     Long measuredAt = d.getTime();
                     Long startOfDay = dccExperimentDTO.getDateOfExperiment().getTime();
                     Long lightsOut = dccExperimentDTO.getProcedureId().contains("IMPC_CAL") ? getLightsOut(dccExperimentDTO, procedureMetadataList) : null;
@@ -140,7 +141,7 @@ public class SeriesParameterObservationUtils {
                     String           value  = metadata.getValue();
 
                     if (metadata.getParameterID().equals("IMPC_CAL_010_003")) {
-                        Date d = parseIncrementValue(value);
+                        Date d = DateUtils.parseIncrementValue(logger, value);
                         lightsOut = d.getTime();
                     } else {
                         try {
@@ -179,7 +180,7 @@ public class SeriesParameterObservationUtils {
     public String getParsedIncrementValue(String value) {
         String parsedValue = value;
 
-        Date d = parseIncrementValue(value);
+        Date d = DateUtils.parseIncrementValue(logger, value);
         if (d != null) {
             // Process the date into the expected format
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
@@ -188,10 +189,6 @@ public class SeriesParameterObservationUtils {
 
         return parsedValue;
     }
-
-
-    // PRIVATE METHODS
-
 
     /**
      * Get the decimal number representing the (fractional) number of hours before/after lights out
@@ -224,51 +221,5 @@ public class SeriesParameterObservationUtils {
         Long             measuredAt = format.parse(input).getTime();
 
         return (measuredAt - lightsOut) / 1000.0f / 60.0f / 60.0f;
-    }
-
-    /**
-     * Method to parse various increment value date time formats
-     * Supported formats:
-     * 2012-12-12T12:12:12+00:00
-     * 2012-12-12T12:12:12+0000
-     * 2012-12-12T12:12:12Z
-     * 2012-12-12 12:12:12Z
-     * 2012-12-12T12:12:12
-     * 2012-12-12 12:12:12
-     * <p/>
-     * Unsuccessful parse returns null
-     *
-     * @param value date, or null if parse unsuccessful
-     * @return
-     */
-    public Date parseIncrementValue(String value) {
-        Date                   d                = null;
-        List<SimpleDateFormat> supportedFormats = new ArrayList<>();
-        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX"));
-        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXX"));
-        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX"));
-        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"));
-        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ssZ"));
-        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"));
-        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss'Z'"));
-        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"));
-        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss"));
-        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm"));
-
-        for (SimpleDateFormat format : supportedFormats) {
-            try {
-                logger.debug("Testing format: {}", format.toPattern());
-                d = format.parse(value);
-            } catch (ParseException e) {
-                // Not this format, try the next one
-                continue;
-            }
-            // If the parse is successful, stop processing the rest
-            logger.debug("Parsed datestring {} using format {}: {}", value, format.toPattern(), d.toString());
-
-            break;
-        }
-
-        return d;
     }
 }

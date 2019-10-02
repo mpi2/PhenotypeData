@@ -497,7 +497,7 @@
                                         console.log(oConf);
 
                                         $.ajax({
-                                            'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + encodeURI(JSON.stringify(oConf)),
+                                            'url': baseUrl + '/publicationsDisplay?doAlleleRef=' + encodeURI(JSON.stringify(oConf)),
                                             'async': true,
                                             'jsonp': 'json.wrf',
                                             'success': function (json) {
@@ -516,7 +516,7 @@
                                                     },
                                                     "aaData" : json.aaData,  // array of objects
                                                     "iTotalRecords" : json.iTotalRecords,
-                                                    "sAjaxSource": baseUrl + '/dataTableAlleleRef2',
+                                                    "sAjaxSource": baseUrl + '/publicationsDisplay',
                                                     "fnServerParams": function (aoData) {
                                                         aoData.push(
                                                             {
@@ -612,10 +612,10 @@
                                                     });
 
                                                     if ($(this).attr('id') == 'tsvA'){
-                                                        $(this).attr('href', baseUrl+"/export2?" + fileTypeTsv + "&" + paramStr);
+                                                        $(this).attr('href', baseUrl+"/publicationsExport?" + fileTypeTsv + "&" + paramStr);
                                                     }
                                                     else {
-                                                        $(this).attr('href', baseUrl+"/export2?" + fileTypeXls + "&" + paramStr);
+                                                        $(this).attr('href', baseUrl+"/publicationsExport?" + fileTypeXls + "&" + paramStr);
                                                     }
                                                 });
 
@@ -643,7 +643,7 @@
                                                     }
 
                                                     $.ajax({
-                                                        'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + encodeURI(JSON.stringify(oConf)),
+                                                        'url': baseUrl + '/publicationsDisplay?doAlleleRef=' + encodeURI(JSON.stringify(oConf)),
                                                         'async': true,
                                                         'jsonp': 'json.wrf',
                                                         'success': function (json) {
@@ -827,100 +827,6 @@
 	}
 
 
-    $.fn.fetchAlleleRefDataTable = function(oConf) {
-
-        var baseUrl = oConf.baseUrl;
-        //var aDataTblCols = [0,1,2,3,4,5,6];
-        var oTable = $('table#alleleRef').dataTable({
-            "bSort": true, // true is default
-            "processing": true,
-            "paging": false,
-            //"serverSide": false,  // do not want sorting to be processed from server, false by default
-            "sDom": "<<'#exportSpinner'>l<f><'saveTable'>r>tip",
-            "searchHighlight": true,
-            "iDisplayLength": 10,
-            "oLanguage": {
-                "sSearch": "Filter: "
-            },
-            "columnDefs": [
-                //  { "type": "alt-string", targets: 4 },   //4th col sorted using alt-string
-                {
-                    "targets": [7], // 7th col
-                    "visible": false
-                }
-
-            ],
-            "aaSorting": [[3, "desc"]],  // default sort column: 4th col
-            "aoColumns": [
-                {"bSearchable": true, "sType": "string", "bSortable": true},
-                {"bSearchable": true, "sType": "html", "bSortable": true},
-                {"bSearchable": true, "sType": "string", "bSortable": true},
-                {"bSearchable": true, "sType": "string", "bSortable": true},
-                {"bSearchable": true, "sType": "string", "bSortable": true},
-                {"bSearchable": true, "sType": "html", "bSortable": true},
-                {"bSearchable": true, "sType": "string", "bSortable": false},
-                {"bSearchable": true, "sType": "string", "bSortable": false}
-            ],
-            "fnDrawCallback": function (oSettings) {  // when dataTable is loaded
-
-                // download tool
-
-                oConf.fileName = 'impc_allele_references';
-                oConf.iDisplayStart = 0;
-                oConf.iDisplayLength = 5000;
-                oConf.dataType = "alleleRef";
-
-                var paramStr = "mode=all";
-                $.each(oConf, function (i, val) {
-                    paramStr += "&" + i + "=" + val;
-                });
-                //console.log(paramStr)
-
-                var fileTypeTsv = "fileType=tsv";
-                var fileTypeXls = "fileType=xls";
-
-                var urltsvA = baseUrl+"/export2?" + paramStr + "&" + fileTypeTsv;
-                var urlxlsA = baseUrl+"/export2?" + paramStr + "&" + fileTypeXls;
-
-                var toolBox = '<span>Export table as: &nbsp;&nbsp;&nbsp;'
-                    + '<a id="tsvA" class="fa fa-download gridDump" href="' + urltsvA + '">TSV</a>&nbsp;&nbsp;&nbsp;or&nbsp;&nbsp;&nbsp;'
-                    + '<a id="xlsA" class="fa fa-download gridDump" href="' + urlxlsA + '">XLS</a></span>';
-                //+ '<span>For more information, consider <a href=${baseUrl}/batchQuery>Batch search</a></span>';
-
-                $("div.saveTable").html(toolBox);
-
-                //$.fn.initDataTableDumpControl(oConf);
-
-
-                $('.alleleToggle', this).click(function () {
-                    console.log("toggle");
-                    if (!$(this).hasClass('showMe')) {
-                        $(this).addClass('showMe').text('Show fewer alleles ...');
-                        //console.log($(this).siblings("div.hideMe").html());
-                        $(this).siblings().addClass('showMe');
-                    }
-                    else {
-                        var num = $(this).attr('rel');
-                        $(this).removeClass('showMe').text('Show all ' + num + ' alleles ...');
-                        $(this).siblings().removeClass('showMe');
-                    }
-                });
-
-
-                $('body').removeClass('footerToBottom');
-            },
-            "sAjaxSource": baseUrl + '/dataTableAlleleRef',
-            "fnServerParams": function (aoData) {
-                aoData.push(
-                    {
-                        "name": "doAlleleRef",
-                        "value": JSON.stringify(oConf, null, 2)
-                    }
-                );
-            }
-        });
-    }
-
     $.fn.fetchAlleleRefDataTable2 = function(oConf) {
 
         var baseUrl = oConf.baseUrl;
@@ -979,10 +885,10 @@
                     //alert(991 + " " + id + " - " + oConf.kw + "\n" +oConf.filter );
 
                     if ($(this).attr('id').indexOf('tsvA') >= 0){
-                       $(this).attr('href', baseUrl+"/export2?" + fileTypeTsv + "&" + paramStr);
+                       $(this).attr('href', baseUrl+"/publicationsExport?" + fileTypeTsv + "&" + paramStr);
                     }
                     else {
-                       $(this).attr('href', baseUrl+"/export2?" + fileTypeXls + "&" + paramStr);
+                       $(this).attr('href', baseUrl+"/publicationsExport?" + fileTypeXls + "&" + paramStr);
                     }
                     //alert($(this).attr('href'));
                 });
@@ -1013,7 +919,7 @@
                     }
 
 					$.ajax({
-						'url': baseUrl + '/dataTableAlleleRef2?doAlleleRef=' + encodeURI(JSON.stringify(oConf)),
+						'url': baseUrl + '/publicationsDisplay?doAlleleRef=' + encodeURI(JSON.stringify(oConf)),
 						'async': true,
 						'jsonp': 'json.wrf',
 						'success': function (json) {
@@ -1075,7 +981,7 @@
 
                 $('body').removeClass('footerToBottom');
             },
-            "sAjaxSource": baseUrl + '/dataTableAlleleRef2',
+            "sAjaxSource": baseUrl + '/publicationsDisplay',
             "fnServerParams": function (aoData) {
                 aoData.push(
                     {
@@ -1087,35 +993,6 @@
         });
     }
 
-	function _facetRefresh(json, selectorBase) {
-
-		// refresh main facet sum count
-		var fcount = json.response.numFound;
-		$(selectorBase + ' > span.fcount').text(fcount);
-
-		var freezeMode = fcount == 0 ? true : false;
-		$.fn.freezeFacet($(selectorBase), freezeMode);
-
-		// set all subfacet counts to zero first and then update only those
-		// matching facets
-		$(selectorBase).find('li.fcat span.fcount').each(function() {
-			$(this).text('0');
-		});
-
-	}
-
-	$.fn.freezeFacet = function(obj, freezeMode) {
-
-		if (freezeMode) {
-			obj.css('cursor', 'not-allowed');
-			obj.find('li.fcatsection').css('cursor', 'not-allowed');
-			obj.find('span').addClass('grayout');
-		} else {
-			obj.css('cursor', 'pointer');
-			obj.find('li.fcatsection').css('cursor', 'pointer');
-			obj.find('span').removeClass('grayout');
-		}
-	};
 
 	$.fn.addFacetOpenCollapseLogic = function(foundMatch, selectorBase) {
 		var firstMatch = 0;
@@ -1985,31 +1862,6 @@
 
 		$('div#toolBox').hide();
 
-	}
-
-	function dump_all_allele_ref(conf, form) {
-
-		var url1 = baseUrl + '/dataTableAlleleRefCount';
-
-		$.ajax({
-			url : url1,
-			data : {
-				filterStr : conf.hasOwnProperty('filterStr') ? conf.filterStr
-						: ''
-			},
-			// dataType: 'jsonp',
-			jsonp : 'json.wrf',
-			timeout : 5000,
-			success : function(count) {
-				// prewarn users if dataset is big
-				if (confirmDownloadIfExceedsThreshold(count)) {
-					$(form).appendTo('body').submit().remove();
-				}
-			},
-			error : function(jqXHR, textStatus, errorThrown) {
-				$('div#facetBrowser').html('Error fetching data ...');
-			}
-		});
 	}
 
 	function buildExportUrl(conf, fileType, dumpMode) {

@@ -15,26 +15,25 @@
  *******************************************************************************/
 package org.mousephenotype.cda.indexers;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.PivotField;
-import org.mousephenotype.cda.db.dao.OntologyTermDAO;
+import org.mousephenotype.cda.db.pojo.Datasource;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
+import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.PropertySource;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -50,8 +49,12 @@ import java.util.*;
  */
 
 @SpringBootApplication
-@PropertySource("file:${user.home}/configfiles/${profile}/application.properties")
 public abstract class AbstractIndexer implements CommandLineRunner {
+
+    @Value("${owlpath}")
+    protected String owlpath;
+
+    private final   Logger  logger    = LoggerFactory.getLogger(this.getClass());
 
     public static String EMBRYONIC_DAY_9_5  = "EFO:0007641";    // -> embryonic day 9.5
     public static String EMBRYONIC_DAY_12_5 = "EFO:0002563";    // -> embryonic day 12.5
@@ -59,33 +62,52 @@ public abstract class AbstractIndexer implements CommandLineRunner {
     public static String EMBRYONIC_DAY_15_5 = "EFO:0002566";    // -> embryonic day 15.5
     public static String EMBRYONIC_DAY_18_5 = "EFO:0002570";    // -> embryonic day 18.5
     public static String POSTPARTUM_STAGE   = "MmusDv:0000092"; // -> postpartum stage
-    public static String POSTNATAL_STAGE   = "EFO:0002948";
-    
-    @Autowired
-    OntologyTermDAO ontologyTermDAO;
+    public static String POSTNATAL_STAGE    = "EFO:0002948";
 
-    @Autowired
-    @Qualifier("komp2DataSource")
-    DataSource komp2DataSource;
+    protected final int     MINIMUM_DOCUMENT_COUNT = 80;
 
-    @NotNull
-    @Value("${owlpath}")
-    protected String owlpath;
+    private Map<String, BasicBean> liveStageMap;
+    private Map<String, BasicBean> stages = new HashMap<>();
 
-    protected Integer EFO_DB_ID = 15; // default as of 2016-05-06
 
-    Map<String, BasicBean> liveStageMap;
-    Map<String, BasicBean> stages = new HashMap<>();
+    protected DataSource             komp2DataSource;
+    protected OntologyTermRepository ontologyTermRepository;
 
-	private final Logger logger = LoggerFactory.getLogger(AbstractIndexer.class);
+    protected AbstractIndexer() {
 
-    protected static final int MINIMUM_DOCUMENT_COUNT = 80;
+    }
 
-	CommonUtils commonUtils = new CommonUtils();
+    @Inject
+    public AbstractIndexer(
+            @NotNull DataSource komp2DataSource,
+            @NotNull OntologyTermRepository ontologyTermRepository)
+    {
+        this.komp2DataSource = komp2DataSource;
+        this.ontologyTermRepository = ontologyTermRepository;
+    }
+
+
+    public DataSource getKomp2DataSource() {
+        return komp2DataSource;
+    }
+
+    public void setKomp2DataSource(DataSource komp2DataSource) {
+        this.komp2DataSource = komp2DataSource;
+    }
+
+    public OntologyTermRepository getOntologyTermRepository() {
+        return ontologyTermRepository;
+    }
+
+    public void setOntologyTermRepository(OntologyTermRepository ontologyTermRepository) {
+        this.ontologyTermRepository = ontologyTermRepository;
+    }
+
+    CommonUtils commonUtils = new CommonUtils();
 
 	// This is used to track the number of documents that were requested to be added by the core.addBeans() call.
     // It is used for later validation by querying the core after the build.
-    protected int documentCount = 0;
+    protected long expectedDocumentCount = 0L;
 
 	@Override
 	public void run(String... strings) throws Exception {
@@ -161,15 +183,15 @@ public abstract class AbstractIndexer implements CommandLineRunner {
      * @throws IndexerException
      */
     protected RunStatus validateBuild(SolrClient solrClient) throws IndexerException {
-        Long actualSolrDocumentCount = getDocumentCount(solrClient);
+        Long actualDocumentCount = getDocumentCount(solrClient);
         RunStatus runStatus = new RunStatus();
 
-        if (actualSolrDocumentCount <= MINIMUM_DOCUMENT_COUNT) {
-            runStatus.addError("Expected at least " + MINIMUM_DOCUMENT_COUNT + " documents. Actual count: " + actualSolrDocumentCount + ".");
+        if (actualDocumentCount <= MINIMUM_DOCUMENT_COUNT) {
+            runStatus.addWarning("SOLR DOCUMENT COUNT VALIDATION: Expected at least " + MINIMUM_DOCUMENT_COUNT + ". Actual:" + actualDocumentCount);
         }
 
-        if (actualSolrDocumentCount != documentCount) {
-            runStatus.addWarning("SOLR reports " + actualSolrDocumentCount + ". Actual count: " + documentCount);
+        if (actualDocumentCount != expectedDocumentCount) {
+            runStatus.addWarning("SOLR DOCUMENT COUNT VALIDATION: Expected " + expectedDocumentCount + ". Actual:" + actualDocumentCount);
         }
 
         return runStatus;
@@ -186,7 +208,7 @@ public abstract class AbstractIndexer implements CommandLineRunner {
 
         if (columns.containsKey(field)) {
             String el = array[columns.get(field)];
-            if(el.isEmpty()){
+            if(el.isEmpty()) {
                 return null;
             } else if (el.equals("\"\"")){
                 return "";
@@ -275,11 +297,12 @@ public abstract class AbstractIndexer implements CommandLineRunner {
             // EFO:0002570 -> embryonic day 18.5
             // MmusDv:0000092 -> postpartum stage
             //
-
             if (stages == null || stages.size() == 0) {
-                Arrays.asList(POSTPARTUM_STAGE, EMBRYONIC_DAY_9_5, EMBRYONIC_DAY_12_5, EMBRYONIC_DAY_14_5, EMBRYONIC_DAY_15_5, EMBRYONIC_DAY_18_5).forEach(x -> {
-                    OntologyTerm t = ontologyTermDAO.getOntologyTermByAccession(x);
-                    stages.put(x, new BasicBean(t.getId().getAccession(), t.getName()));
+                    Arrays.asList(POSTPARTUM_STAGE, EMBRYONIC_DAY_9_5, EMBRYONIC_DAY_12_5, EMBRYONIC_DAY_14_5, EMBRYONIC_DAY_15_5, EMBRYONIC_DAY_18_5)
+                        .forEach(ontologTermAccessionId -> {
+                            String shortName = (ontologTermAccessionId.startsWith(Datasource.EFO) ? Datasource.EFO : Datasource.MMUSDV);
+                    OntologyTerm t = ontologyTermRepository.getByAccAndShortName(ontologTermAccessionId, shortName);
+                    stages.put(ontologTermAccessionId, new BasicBean(t.getId().getAccession(), t.getName()));
                 });
             }
 
@@ -370,9 +393,6 @@ public abstract class AbstractIndexer implements CommandLineRunner {
                 }
         }
 
-
         return stage;
     }
-
-
 }

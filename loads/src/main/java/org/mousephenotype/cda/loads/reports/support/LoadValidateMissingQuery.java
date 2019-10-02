@@ -16,8 +16,8 @@
 
 package org.mousephenotype.cda.loads.reports.support;
 
+import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
-import org.mousephenotype.cda.reports.AbstractReport;
 import org.mousephenotype.cda.reports.support.MpCSVWriter;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.utilities.RunStatus;
@@ -97,7 +97,7 @@ public class LoadValidateMissingQuery {
                     logger.warn("{} ROWS MISSING", missing.size());
                     String[] summary = new String[]{Integer.toString(missing.size()) + " " + loadsQuery.getName() + ":"};
                     if (status.hasErrors())
-                        csvWriter.writeNext(AbstractReport.EMPTY_ROW);
+                        csvWriter.writeNext(Constants.EMPTY_ROW);
                     csvWriter.writeNext(summary);
                     csvWriter.writeAll(missing);
                     status.addError("missing rows");

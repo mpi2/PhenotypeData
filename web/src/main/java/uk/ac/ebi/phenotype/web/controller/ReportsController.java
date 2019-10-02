@@ -17,9 +17,9 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.OntologyBean;
-import org.mousephenotype.cda.solr.service.PostQcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -44,7 +44,7 @@ import java.util.*;
 public class ReportsController {
 
 	@Autowired
-	private PostQcService postqcService;
+	private GenotypePhenotypeService genotypePhenotypeService;
 
 	@Autowired
 	private MpService mpService;
@@ -68,7 +68,7 @@ public class ReportsController {
 		int moreGeneralCallEbi = 0;
 		int ignore = 0;
 		int differentMps = 0;
-		List<CallDTO> ebiList = getCalls(postqcService.getTabbedCallSummary());
+		List<CallDTO> ebiList = getCalls(genotypePhenotypeService.getTabbedCallSummary());
 		List<CallDTO> noMatch = new ArrayList<>();
 		List<String> ignoreList = new ArrayList<>();
 		ignoreList.add("IMPC_ALZ");ignoreList.add("IMPC_VIA");ignoreList.add("IMPC_FER");ignoreList.add("IMPC_ELZ");ignoreList.add("IMPC_HIS");ignoreList.add("IMPC_GEM");

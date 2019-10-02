@@ -18,7 +18,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.3.RELEASE</version>
+        <version>2.1.7.RELEASE</version>
         <relativePath />
         <!-- lookup parent from repository -->
     </parent>
@@ -88,6 +88,12 @@
 
             <dependency>
                 <groupId>org.mousephenotype.cda</groupId>
+                <artifactId>datatests</artifactId>
+                <version>${phenotypedata.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mousephenotype.cda</groupId>
                 <artifactId>data-model-solr</artifactId>
                 <version>${phenotypedata.version}</version>
             </dependency>
@@ -116,6 +122,18 @@
                 <version>${phenotypedata.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.mousephenotype.cda</groupId>
+                <artifactId>ri-core</artifactId>
+                <version>${phenotypedata.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mousephenotype.cda</groupId>
+                <artifactId>ri-extract</artifactId>
+                <version>${phenotypedata.version}</version>
+            </dependency>
+
             <!-- https://mvnrepository.com/artifact/net.sf.jopt-simple/jopt-simple -->
             <dependency>
                 <groupId>net.sf.jopt-simple</groupId>
@@ -132,8 +150,38 @@
             <!-- java mail services for register interest e-mailings -->
             <dependency>
                 <groupId>javax.mail</groupId>
-                <artifactId>mail</artifactId>
-                <version>1.4.7</version>
+                <artifactId>javax.mail-api</artifactId>
+                <version>1.6.2</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.mail</groupId>
+                <artifactId>javax.mail</artifactId>
+                <version>1.6.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+                <version>2.1.4.RELEASE</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-config</artifactId>
+                <version>2.1.1.RELEASE</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>Greenwich.RELEASE</version>
+                <type>pom</type>
+            </dependency>
+
+            <dependency>
+                <groupId>org.hibernate.validator</groupId>
+                <artifactId>hibernate-validator</artifactId>
+                <version>6.0.17.Final</version>
             </dependency>
 
         </dependencies>

@@ -19,6 +19,7 @@ package org.mousephenotype.cda.reports;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.ObservationService;
@@ -148,12 +149,12 @@ public class MetabolismDEXAReport extends AbstractReport {
                 log.debug("Multiple values found for simple parameter IMPC_DXA_001_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
-                retVal.add(NO_INFO_AVAILABLE);
+                retVal.add(Constants.NO_INFORMATION_AVAILABLE);
             } else {
                 retVal.add(Float.toString(data.get(0)));
             }
         } else {
-            retVal.add(NO_INFO_AVAILABLE);
+            retVal.add(Constants.NO_INFORMATION_AVAILABLE);
         }
 
         data = mouseInfoMap.get("IMPC_DXA_002_001");
@@ -162,12 +163,12 @@ public class MetabolismDEXAReport extends AbstractReport {
                 log.debug("Multiple values found for simple parameter IMPC_DXA_002_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
-                retVal.add(NO_INFO_AVAILABLE);
+                retVal.add(Constants.NO_INFORMATION_AVAILABLE);
             } else {
                 retVal.add(Float.toString(data.get(0)));
             }
         } else {
-            retVal.add(NO_INFO_AVAILABLE);
+            retVal.add(Constants.NO_INFORMATION_AVAILABLE);
         }
 
         data = mouseInfoMap.get("IMPC_DXA_003_001");
@@ -176,12 +177,12 @@ public class MetabolismDEXAReport extends AbstractReport {
                 log.debug("Multiple values found for simple parameter IMPC_DXA_003_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
-                retVal.add(NO_INFO_AVAILABLE);
+                retVal.add(Constants.NO_INFORMATION_AVAILABLE);
             } else {
                 retVal.add(Float.toString(data.get(0)));
             }
         } else {
-            retVal.add(NO_INFO_AVAILABLE);
+            retVal.add(Constants.NO_INFORMATION_AVAILABLE);
         }
 
         // Metadata
@@ -190,7 +191,7 @@ public class MetabolismDEXAReport extends AbstractReport {
         if (metadataList != null) {
             retVal.add(StringUtils.join(metadataList, "::"));
         } else {
-            retVal.add(NO_INFO_AVAILABLE);
+            retVal.add(Constants.NO_INFORMATION_AVAILABLE);
         }
 
         return retVal;
