@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -43,6 +45,25 @@ public class ImpressLoadUtils {
 
     @Value("${impress.service.url}")
     protected String impressServiceUrl;
+
+    /**
+     * Will perform a request to the supplied URL and unmarshall the response into an object.  In the case where
+     * the endpoint does not respond correctly, this method will retry the request up to 5 times, backing off the
+     * time between retries to allow the service to recover.  Retry delays are in seconds 1.5, 3.0, 6.0, 12.0, 24.0
+     *
+     * @param url the endpoint to access to get the data
+     * @return Object corresponding to the value retrieved from the URL
+     */
+    @Retryable(
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 1500, multiplier = 2),
+            value = RuntimeException.class)
+    private Object getResponseObjectFromImpress(String url) {
+        RestTemplate rt = new RestTemplate();
+        Object o = rt.getForEntity(url, Object.class);
+        return ((ResponseEntity) o).getBody();
+    }
+
 
 
     // PIPELINE
@@ -70,9 +91,7 @@ public class ImpressLoadUtils {
         String url = impressServiceUrl + "/pipeline/list/full";
         try {
 
-            RestTemplate rt   = new RestTemplate();
-            Object       o    = rt.getForEntity(url, Object.class);
-            Object       body = ((ResponseEntity) o).getBody();
+            Object body = getResponseObjectFromImpress(url);
 
             HashMap<String, HashMap<String, Object>> pipelinesMap = (HashMap<String, HashMap<String, Object>>) body;
 
@@ -215,9 +234,8 @@ public class ImpressLoadUtils {
 
         try {
 
-            RestTemplate rt   = new RestTemplate();
-            Object       o    = rt.getForEntity(url, Object.class);
-            Object       body = ((ResponseEntity) o).getBody();
+            Object body = getResponseObjectFromImpress(url);
+            Object o;
 
             HashMap<String, Object> procedureMap = (HashMap<String, Object>) body;
 
@@ -297,9 +315,7 @@ public class ImpressLoadUtils {
         String           url              = impressServiceUrl + "/parameter/" + parameterId;
 
         try {
-            RestTemplate rt   = new RestTemplate();
-            Object       o    = rt.getForEntity(url, Object.class);
-            Object       body = ((ResponseEntity) o).getBody();
+            Object body = getResponseObjectFromImpress(url);
 
             HashMap<String, Object> parameterMap = (HashMap<String, Object>) body;
 
@@ -427,9 +443,8 @@ public class ImpressLoadUtils {
         String url = impressServiceUrl + "/increment/belongingtoparameter/full/" + parameterId;
         try {
 
-            RestTemplate rt   = new RestTemplate();
-            Object       o    = rt.getForEntity(url, Object.class);
-            Object       body = ((ResponseEntity) o).getBody();
+            Object body = getResponseObjectFromImpress(url);
+            Object o;
 
             List<Map<String, Object>> list = (List<Map<String, Object>>) body;
 
@@ -526,9 +541,8 @@ public class ImpressLoadUtils {
 
         try {
 
-            RestTemplate rt   = new RestTemplate();
-            Object       o    = rt.getForEntity(url, Object.class);
-            Object       body = ((ResponseEntity) o).getBody();
+            Object body = getResponseObjectFromImpress(url);
+            Object o;
 
             List<HashMap<String, Object>> impressOptionsList = (List<HashMap<String, Object>>) body;
 
@@ -597,9 +611,7 @@ public class ImpressLoadUtils {
 
         String url = impressServiceUrl + "/unit/list";
 
-        RestTemplate rt   = new RestTemplate();
-        Object       o    = rt.getForEntity(url, Object.class);
-        Object       body = ((ResponseEntity) o).getBody();
+        Object body = getResponseObjectFromImpress(url);
 
         HashMap<String, String> unitsMap = (HashMap<String, String>) body;
         for (Map.Entry<String, String> entry : unitsMap.entrySet()) {
@@ -626,9 +638,7 @@ public class ImpressLoadUtils {
 
         try {
 
-            RestTemplate rt   = new RestTemplate();
-            Object       o    = rt.getForEntity(url, Object.class);
-            Object       body = ((ResponseEntity) o).getBody();
+            Object body = getResponseObjectFromImpress(url);
 
             List<Map<String, Object>> list = (List<Map<String, Object>>) body;
             for (Map<String, Object> ontologyOptionMap : list) {
@@ -659,9 +669,7 @@ public class ImpressLoadUtils {
 
         try {
 
-            RestTemplate rt   = new RestTemplate();
-            Object       o    = rt.getForEntity(url, Object.class);
-            Object       body = ((ResponseEntity) o).getBody();
+            Object body = getResponseObjectFromImpress(url);
 
             Map<String, Map<String, Object>> map = (Map<String, Map<String, Object>>) body;
             for (Map<String, Object> ontologyTermMap : map.values()) {
@@ -695,9 +703,7 @@ public class ImpressLoadUtils {
 
         try {
 
-            RestTemplate rt   = new RestTemplate();
-            Object       o    = rt.getForEntity(url, Object.class);
-            Object       body = ((ResponseEntity) o).getBody();
+            Object body = getResponseObjectFromImpress(url);
             Map<String, String> wsOntologyTermsMap = (Map<String, String>) body;
             for (Map.Entry<String, String> entry : wsOntologyTermsMap.entrySet()) {
                 Long ontologyTermId = Long.parseLong(entry.getKey());
@@ -722,9 +728,7 @@ public class ImpressLoadUtils {
 
         try {
 
-            RestTemplate              rt   = new RestTemplate();
-            Object                    o    = rt.getForEntity(url, Object.class);
-            Object                    body = ((ResponseEntity) o).getBody();
+            Object body = getResponseObjectFromImpress(url);
             List<Map<String, Object>> maps = (List<Map<String, Object>>) body;
 
             for (Map<String, Object> map : maps) {

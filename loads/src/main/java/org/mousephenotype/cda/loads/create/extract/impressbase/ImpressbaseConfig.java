@@ -27,6 +27,7 @@ import org.springframework.boot.autoconfigure.jms.JndiConnectionFactoryAutoConfi
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.retry.annotation.EnableRetry;
 
 import javax.validation.constraints.NotNull;
 
@@ -41,6 +42,7 @@ import javax.validation.constraints.NotNull;
         JpaRepositoriesAutoConfiguration.class,
         DataSourceTransactionManagerAutoConfiguration.class
 })
+@EnableRetry
 public class ImpressbaseConfig extends DataSourceCdabaseConfig {
 
     @NotNull
