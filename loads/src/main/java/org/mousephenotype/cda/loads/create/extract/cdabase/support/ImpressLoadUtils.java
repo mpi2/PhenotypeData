@@ -99,7 +99,7 @@ public class ImpressLoadUtils {
 
                 ImpressPipeline pipeline = new ImpressPipeline();
 
-                pipeline.setPipelineId(new Long((Integer) pipelineMap.get("pipelineId")));
+                pipeline.setPipelineId(convertToLong( pipelineMap.get("pipelineId")));
                 pipeline.setPipelineKey((String) pipelineMap.get("pipelineKey"));
                 pipeline.setPipelineType((String) pipelineMap.get("pipelineType"));
                 pipeline.setName(newlineToSpace((String) pipelineMap.get("name")));
@@ -170,14 +170,14 @@ public class ImpressLoadUtils {
 
             HashMap<String, Object> impressScheduleMap = (HashMap<String, Object>) body;
 
-            impressSchedule.setScheduleId(new Long((Integer) impressScheduleMap.get("scheduleId")));
+            impressSchedule.setScheduleId(convertToLong( impressScheduleMap.get("scheduleId")));
             impressSchedule.setIsActive((Boolean) impressScheduleMap.get("isActive"));
             impressSchedule.setIsDeprecated((Boolean) impressScheduleMap.get("isDeprecated"));
             impressSchedule.setTimeLabel((String) impressScheduleMap.get("timeLabel"));
             impressSchedule.setTime((String) impressScheduleMap.get("time"));
             impressSchedule.setTimeUnit((String) impressScheduleMap.get("timeUnit"));
             impressSchedule.setStage((String) impressScheduleMap.get("stage"));
-            impressSchedule.setPipelineId(new Long((Integer)  impressScheduleMap.get("pipelineId")));
+            impressSchedule.setPipelineId(convertToLong(  impressScheduleMap.get("pipelineId")));
             impressSchedule.setProcedureCollection(((List<Integer>) impressScheduleMap.get("procedureCollection")).stream().mapToLong(Long::new).collect(ArrayList::new, ArrayList::add, ArrayList::addAll));
 
         } catch (Exception e) {
@@ -239,7 +239,7 @@ public class ImpressLoadUtils {
 
             HashMap<String, Object> procedureMap = (HashMap<String, Object>) body;
 
-            impressProcedure.setProcedureId(new Long((Integer)  procedureMap.get("procedureId")));
+            impressProcedure.setProcedureId(convertToLong(  procedureMap.get("procedureId")));
             impressProcedure.setProcedureKey((String) procedureMap.get("procedureKey"));
 
             o = procedureMap.get("minFemales");
@@ -262,7 +262,7 @@ public class ImpressLoadUtils {
             impressProcedure.setDescription(newlineToSpace((String) procedureMap.get("description")));
             impressProcedure.setOldProcedureKey((String) procedureMap.get("oldProcedureKey"));
             impressProcedure.setParameterCollection(((List<Integer>) procedureMap.get("parameterCollection")).stream().mapToLong(Long::new).collect(ArrayList::new, ArrayList::add, ArrayList::addAll));
-            impressProcedure.setScheduleId(new Long((Integer)  procedureMap.get("scheduleId")));
+            impressProcedure.setScheduleId(convertToLong(  procedureMap.get("scheduleId")));
 
         } catch (Exception e) {
 
@@ -319,7 +319,7 @@ public class ImpressLoadUtils {
 
             HashMap<String, Object> parameterMap = (HashMap<String, Object>) body;
 
-            impressParameter.setParameterId(new Long((Integer)  parameterMap.get("parameterId")));
+            impressParameter.setParameterId(convertToLong(  parameterMap.get("parameterId")));
             impressParameter.setParameterKey((String) parameterMap.get("parameterKey"));
             impressParameter.setType((String) parameterMap.get("type"));
             impressParameter.setName(newlineToSpace((String) parameterMap.get("name")));
@@ -352,12 +352,12 @@ public class ImpressLoadUtils {
             impressParameter.setIsInternal((Boolean) parameterMap.get("isInternal"));
             impressParameter.setIsDeleted((Boolean) parameterMap.get("isDeleted"));
             impressParameter.setOldParameterKey((String) parameterMap.get("oldParameterKey"));
-            impressParameter.setOriginalParamId(new Long((Integer)  parameterMap.get("originalParamId")));
-            impressParameter.setOntologyGroupId(new Long((Integer)  parameterMap.get("ontologyGroupId")));
+            impressParameter.setOriginalParamId(convertToLong(parameterMap.get("originalParamId")));
+            impressParameter.setOntologyGroupId(convertToLong(parameterMap.get("ontologyGroupId")));
             impressParameter.setWeight((Integer) parameterMap.get("weight"));
-            impressParameter.setProcedureId(new Long((Integer)  parameterMap.get("procedureId")));
+            impressParameter.setProcedureId(convertToLong(parameterMap.get("procedureId")));
 
-            Long      unitId       = new Long((Integer) parameterMap.get("unit"));
+            Long      unitId       = convertToLong(parameterMap.get("unit"));
             ImpressUnits impressUnits = null;
             if (unitId != null) {
                 impressUnits = new ImpressUnits();
@@ -550,7 +550,7 @@ public class ImpressLoadUtils {
 
                 ImpressOption option = new ImpressOption();
 
-                option.setOptionId(new Long((Integer)  map.get("optionId")));
+                option.setOptionId(convertToLong(  map.get("optionId")));
                 option.setPhoWeight((Integer) map.get("phoweight"));
 
                 o = map.get("parentId");
@@ -568,7 +568,7 @@ public class ImpressLoadUtils {
 
                 option.setIsDeleted((Boolean) map.get("isDeleted"));
 
-                option.setParameterId(new Long((Integer)  map.get("parameterId")));
+                option.setParameterId(convertToLong(  map.get("parameterId")));
 
                 options.add(option);
             }
@@ -784,6 +784,19 @@ public class ImpressLoadUtils {
         return result;
     }
 
+    public Long convertToLong(Object valueToConvert) {
+        Long retVal = null;
+        if (valueToConvert != null) {
+            try {
+                Integer integerValue = (Integer) valueToConvert;
+                retVal = new Long(integerValue);
+            } catch (Exception e) {
+                logger.debug("Bad value for conversion: {}", valueToConvert, e);
+            }
+        }
+        return retVal;
+    }
+
     public String getImpressServiceUrl() {
         return impressServiceUrl;
     }
@@ -795,13 +808,13 @@ public class ImpressLoadUtils {
     private ImpressParamMpterm getTerm(Map<String, Object> map) {
 
         ImpressParamMpterm term = new ImpressParamMpterm();
-        term.setParamMptermId(new Long((Integer)  map.get("paramMptermId")));
-        term.setOntologyTermId(new Long((Integer)  map.get("ontologyTermId")));
+        term.setParamMptermId(convertToLong(  map.get("paramMptermId")));
+        term.setOntologyTermId(convertToLong(  map.get("ontologyTermId")));
         term.setWeight((Integer) map.get("weight"));
         term.setIsDeleted((Boolean) map.get("isDeleted"));
         term.setOptionText((String) map.get("optionText"));
         term.setIncrementId((Integer) map.get("incrementId"));
-        term.setParameterId(new Long((Integer)  map.get("parameterId")));
+        term.setParameterId(convertToLong(  map.get("parameterId")));
         term.setSex((String) map.get("sex"));
         term.setSelectionOutcome((String) map.get("selectionOutcome"));
 
