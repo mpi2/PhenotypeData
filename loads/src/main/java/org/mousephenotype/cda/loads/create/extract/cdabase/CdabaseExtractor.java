@@ -37,8 +37,8 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
@@ -54,10 +54,10 @@ import java.util.concurrent.Executors;
 /**
  * Created by mrelac on 12/04/2016.
  */
-@ComponentScan
+@SpringBootApplication
 public class CdabaseExtractor implements CommandLineRunner {
 
-    private SqlUtils               sqlUtils = new SqlUtils();
+    private SqlUtils               sqlUtils     = new SqlUtils();
     private JobBuilderFactory      jobBuilderFactory;
     private StepBuilderFactory     stepBuilderFactory;
     private JobRepository          jobRepository;
