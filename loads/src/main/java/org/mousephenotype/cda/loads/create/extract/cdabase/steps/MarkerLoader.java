@@ -18,11 +18,11 @@ package org.mousephenotype.cda.loads.create.extract.cdabase.steps;
 
 import org.mousephenotype.cda.db.pojo.GenomicFeature;
 import org.mousephenotype.cda.db.pojo.Xref;
-import org.mousephenotype.cda.loads.create.extract.cdabase.support.XrefFieldSetMapper;
-import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.BlankLineRecordSeparatorPolicy;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.GenesFieldSetMapper;
 import org.mousephenotype.cda.loads.create.extract.cdabase.support.LogStatusStepListener;
+import org.mousephenotype.cda.loads.create.extract.cdabase.support.XrefFieldSetMapper;
+import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobInterruptedException;
@@ -276,6 +276,7 @@ public class MarkerLoader implements InitializingBean, Step {
         return 1;
     }
 
+
     /**
      * Process the step and assign progress and status meta information to the {@link StepExecution} provided. The
      * {@link Step} is responsible for setting the meta information and also saving it if required by the
@@ -289,12 +290,15 @@ public class MarkerLoader implements InitializingBean, Step {
     @Override
     public void execute(StepExecution stepExecution) throws JobInterruptedException {
 
+        DummyWriter dummyWriter = new DummyWriter();
+
         // Don't add the writer here. The MarkerLoaderXrefsStepListener writes all of the data in the map when all reading and processing is done.
         Step loadGenesStep = stepBuilderFactory.get("markerLoaderGenesStep")
                 .listener(new MarkerLoaderGenesStepListener())
                 .chunk(200000)
                 .reader(genesReader)
                 .processor(markerProcessorGenes)
+                .writer(dummyWriter)
                 .build();
 
         Step loadXrefGeneStep = stepBuilderFactory.get("markerLoaderXrefGenesStep")
@@ -303,6 +307,7 @@ public class MarkerLoader implements InitializingBean, Step {
                 .reader(xrefGenesReader)
                 .processor(markerProcessorXrefGenes)
                 // Don't add the writer here. The listener writes all of the data in the map when all reading and processing is done.
+                .writer(dummyWriter)
                 .build();
 
         Step loadXrefEnsemblStep = stepBuilderFactory.get("markerLoaderXrefEnsemblStep")
@@ -310,6 +315,7 @@ public class MarkerLoader implements InitializingBean, Step {
                 .chunk(200000)
                 .reader(xrefEnsemblReader)
                 .processor(markerProcessorXrefEnsembl)
+                .writer(dummyWriter)
                 // Don't add the writer here. The listener writes all of the data in the map when all reading and processing is done.
                 .build();
 
@@ -318,6 +324,7 @@ public class MarkerLoader implements InitializingBean, Step {
                 .chunk(200000)
                 .reader(xrefEntrezGenesReader)
                 .processor(markerProcessorXrefEntrezGene)
+                .writer(dummyWriter)
                 // Don't add the writer here. The listener writes all of the data in the map when all reading and processing is done.
                 .build();
 
@@ -326,6 +333,7 @@ public class MarkerLoader implements InitializingBean, Step {
                 .chunk(200000)
                 .reader(xrefVegaReader)
                 .processor(markerProcessorXrefVega)
+                .writer(dummyWriter)
                 // Don't add the writer here. The listener writes all of the data in the map when all reading and processing is done.
                 .build();
 
