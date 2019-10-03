@@ -20,6 +20,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.common.CommandLineUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.common.SpecimenExtended;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
@@ -104,7 +105,7 @@ public class DccExperimentExtractor implements CommandLineRunner {
             specimenIdPhenotypingCenterMap.put(key, specimen.getHjid());
         }
 
-        OptionParser parser = new OptionParser();
+        OptionParser parser = CommandLineUtils.getOptionParser();
 
         // parameter to indicate experiment table creation
         parser.accepts("create");

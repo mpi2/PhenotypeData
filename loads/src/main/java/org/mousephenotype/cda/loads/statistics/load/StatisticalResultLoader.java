@@ -3,11 +3,12 @@ package org.mousephenotype.cda.loads.statistics.load;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.statistics.*;
 import org.mousephenotype.cda.enumerations.*;
+import org.mousephenotype.cda.loads.common.CommandLineUtils;
 import org.mousephenotype.cda.loads.statistics.generate.StatisticalDatasetGenerator;
 import org.mousephenotype.cda.solr.service.BasicService;
 import org.slf4j.Logger;
@@ -1048,7 +1049,7 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
         logger.info("Starting statistical result loader");
 
         // parameter to indicate the location of the result file(s)
-        OptionParser parser = new OptionParser();
+        OptionParser parser = CommandLineUtils.getOptionParser();
         parser.accepts("location").withRequiredArg().ofType(String.class).isRequired();
         OptionSet options = parser.parse(strings);
         if ( ! options.hasArgument("location") ) {

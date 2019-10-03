@@ -19,6 +19,7 @@ package org.mousephenotype.cda.loads.create.extract.dcc;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.common.CommandLineUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.CentreSpecimen;
@@ -127,9 +128,8 @@ public class DccSpecimenAggregator implements CommandLineRunner {
 
     private void initialize(String[] args) throws DataLoadException {
 
-        OptionParser parser = new OptionParser();
+        OptionParser parser = CommandLineUtils.getOptionParser();
 
-        parser.allowsUnrecognizedOptions();
         /*
          * Accepts a single file containing alternating rows of:
          *   datasourceShortName

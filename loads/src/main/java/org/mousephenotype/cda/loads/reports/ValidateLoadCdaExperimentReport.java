@@ -21,6 +21,7 @@ import joptsimple.OptionSet;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.mousephenotype.cda.loads.common.CommandLineUtils;
 import org.mousephenotype.cda.loads.reports.support.LoadValidateExperimentsQuery;
 import org.mousephenotype.cda.reports.AbstractReport;
 import org.mousephenotype.cda.reports.support.ReportException;
@@ -89,7 +90,7 @@ public class ValidateLoadCdaExperimentReport extends AbstractReport implements C
         super.initialise(args);
 
         // Possible properties for this report: --count, --skipcolumn, --skipparameter
-        OptionParser parser = new OptionParser();
+        OptionParser parser = CommandLineUtils.getOptionParser();
 
         // parameter to indicate the count of experiment ids to generate and validate
         parser.accepts(COUNT_ARG).withRequiredArg().ofType(Integer.class);

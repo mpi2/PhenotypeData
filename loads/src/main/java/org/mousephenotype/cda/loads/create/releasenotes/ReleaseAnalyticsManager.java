@@ -3,6 +3,7 @@ package org.mousephenotype.cda.loads.create.releasenotes;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.loads.common.CommandLineUtils;
 import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.slf4j.Logger;
@@ -229,7 +230,7 @@ public class ReleaseAnalyticsManager implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        OptionParser parser = new OptionParser();
+        OptionParser parser = CommandLineUtils.getOptionParser();
 
         parser.accepts("dr").withOptionalArg();
         parser.accepts("drdate").withOptionalArg();

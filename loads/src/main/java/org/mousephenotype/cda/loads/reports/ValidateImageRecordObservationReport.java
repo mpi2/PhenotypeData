@@ -21,6 +21,7 @@ import joptsimple.OptionSet;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.mousephenotype.cda.loads.common.CommandLineUtils;
 import org.mousephenotype.cda.reports.AbstractReport;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.slf4j.Logger;
@@ -76,12 +77,10 @@ public class ValidateImageRecordObservationReport extends AbstractReport impleme
         super.initialise(args);
 
         // Possible properties for this report: --like --maxrecordstolog
-        OptionParser parser = new OptionParser();
+        OptionParser parser = CommandLineUtils.getOptionParser();
 
         // parameter to indicate the maximum number of records to log
         parser.accepts(MAX_RECORDS_TO_LOG_ARG).withRequiredArg().ofType(Integer.class);
-
-        parser.allowsUnrecognizedOptions();         // Ignore options already processed at a higher level.
 
         OptionSet options = parser.parse(args);
 

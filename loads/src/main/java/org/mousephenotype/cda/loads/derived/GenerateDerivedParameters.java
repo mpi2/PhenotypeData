@@ -11,6 +11,7 @@ import org.mousephenotype.cda.db.utilities.ObservationUtils;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.loads.common.CommandLineUtils;
 import org.mousephenotype.cda.loads.common.ConcurrentHashMapAllowNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,7 +104,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         pipelines = loadAllPipelinesByStableId();
 
 
-        OptionParser parser = new OptionParser();
+        OptionParser parser = CommandLineUtils.getOptionParser();
         parser.accepts( "context" ).withRequiredArg();
         parser.accepts("parameters").withRequiredArg();
         OptionSet options = parser.parse( args );
