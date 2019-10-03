@@ -1996,16 +1996,20 @@ public class ObservationService extends BasicService implements WebStatus {
     public NamedList<List<PivotField>> getHistopathLandingPageData() throws SolrServerException, IOException  {
 
 	    //http://ves-hx-d1.ebi.ac.uk:8986/solr/experiment/select?q=*:*&rows=0&sort=id+asc&fq=parameter_stable_id:*HIS*&facet=true&facet.pivot=gene_symbol,category&facet.limit=-1
+        //we need the significance score only can't filter based on a parameter ids as all different for each anatomy but can do search for "Significance score " in parameter_name string
         SolrQuery q = new SolrQuery()
                 .setQuery("*:*")
                 .setRows(0)//we don't care about the observations themselfs so don't return them only which anatomy has significant Histopath data on which genes.
                 .setSort(ObservationDTO.ID, SolrQuery.ORDER.asc)
                 //.setFields(fields)
-                .addFilterQuery("parameter_stable_id:*HIS*");
+                .addFilterQuery("parameter_stable_id:*HIS*")
+        .addFilterQuery("parameter_name:*Significance*")
+                .addFilterQuery("category:Significant");
                 //.addFilterQuery("category:Significant");//otherwise query takes too long
         q.setFacet(true);
-        String pivotFacet = ObservationDTO.GENE_SYMBOL + "," +ObservationDTO.PARAMETER_NAME+","+
-                ObservationDTO.CATEGORY;
+        String pivotFacet = ObservationDTO.GENE_SYMBOL + "," +ObservationDTO.PARAMETER_NAME;
+                //+","+
+               // don't need this if we are already filtering on Significant ObservationDTO.CATEGORY;
 
         q.add("facet.pivot", pivotFacet );
         q.setFacetLimit(-1);

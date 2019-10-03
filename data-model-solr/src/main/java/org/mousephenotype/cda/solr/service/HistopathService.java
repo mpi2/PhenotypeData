@@ -190,6 +190,23 @@ public class HistopathService {
 
 	public NamedList<List<PivotField>> getObservationsForHistopath() throws SolrServerException, IOException {
 		NamedList<List<PivotField>> pivots = observationService.getHistopathLandingPageData();
+
+		Map<String, Set<String>> map = new HashMap<>();
+		for (Map.Entry<String, List<PivotField>> pivotFacet : pivots) {
+			for(PivotField phenotypePivotFacet : pivotFacet.getValue()) {
+				String geneSYMBOL = phenotypePivotFacet.getValue().toString();
+				//System.out.println("geneSYMBOL="+geneSYMBOL);
+				map.putIfAbsent(geneSYMBOL, new HashSet<>());
+				for(PivotField genePivotFacet : phenotypePivotFacet.getPivot()) {
+					String parameterName = genePivotFacet.getValue().toString();
+					map.get(geneSYMBOL).add(parameterName);
+//                    for(PivotField pivotCategory:genePivotFacet.getPivot()){
+//                        System.out.println("Category-"+pivotCategory.getValue());
+//                    }
+					System.out.println("geneSYMBOL="+geneSYMBOL+"parameterName="+parameterName);
+				}
+			}
+		}
 		return pivots;
 	}
 

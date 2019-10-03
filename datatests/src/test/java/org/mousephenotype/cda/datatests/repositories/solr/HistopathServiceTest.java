@@ -11,6 +11,7 @@ import org.mousephenotype.cda.solr.service.GrossPathService;
 import org.mousephenotype.cda.solr.service.HistopathService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.PhenodigmService;
+import org.mousephenotype.cda.solr.service.dto.CountTableRow;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertTrue;
 
@@ -60,16 +60,8 @@ public class HistopathServiceTest {
         ObservationService observationService = new ObservationService(experimentCore);
         HistopathService   histopathService   = new HistopathService(observationService);
 
-
-        NamedList<List<PivotField>> pivots = observationService.getHistopathLandingPageData();
-        for( Map.Entry<String, List<PivotField>> pivot : pivots){
-            if (pivot!= null){
-
-                    System.out.println("pivot="+pivot);
-
-
-            }
-        }
-
+        Map<String, Set<String>> map = new HashMap<>();
+        histopathService.getObservationsForHistopath();
+        //NamedList<List<PivotField>> pivots = observationService.getHistopathLandingPageData();
     }
 }
