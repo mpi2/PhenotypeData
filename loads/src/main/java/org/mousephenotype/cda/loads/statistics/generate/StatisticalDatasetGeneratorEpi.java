@@ -8,6 +8,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.loads.common.CommandLineUtils;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.BasicService;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
@@ -95,7 +96,7 @@ public class StatisticalDatasetGeneratorEpi extends BasicService implements Comm
 
         List<String> parametersToLoad = null;
 
-        OptionParser parser = new OptionParser();
+        OptionParser parser = CommandLineUtils.getOptionParser();
         parser.accepts("parameters").withRequiredArg();
         OptionSet options = parser.parse( strings );
 

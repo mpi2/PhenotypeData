@@ -437,6 +437,8 @@ public class IndexerManager  implements CommandLineRunner {
      */
     private OptionSet parseCommandLine(String[] args) throws IndexerException {
         OptionParser parser = new OptionParser();
+        parser.allowsUnrecognizedOptions();
+
         OptionSet options = null;
 
         // cores [optional]

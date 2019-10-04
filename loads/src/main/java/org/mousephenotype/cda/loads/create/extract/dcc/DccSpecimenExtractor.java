@@ -19,6 +19,7 @@ package org.mousephenotype.cda.loads.create.extract.dcc;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.common.CommandLineUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
@@ -88,7 +89,7 @@ public class DccSpecimenExtractor implements CommandLineRunner {
 
     private void initialize(String[] args) throws DataLoadException {
 
-        OptionParser parser = new OptionParser();
+        OptionParser parser = CommandLineUtils.getOptionParser();
 
         // parameter to indicate specimen table creation
         parser.accepts("create");

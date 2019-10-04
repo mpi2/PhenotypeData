@@ -19,6 +19,7 @@ package org.mousephenotype.cda.loads.create.extract.cdabase;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.mousephenotype.cda.loads.common.CommandLineUtils;
 import org.mousephenotype.cda.loads.create.extract.cdabase.steps.*;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.slf4j.Logger;
@@ -126,9 +127,7 @@ public class CdabaseExtractor implements CommandLineRunner {
 
     private void initialise(String[] args) throws DataLoadException {
 
-        OptionParser parser = new OptionParser();
-
-        parser.allowsUnrecognizedOptions();
+        OptionParser parser = CommandLineUtils.getOptionParser();
 
         // parameter to indicate that the download step should be skipped.
         parser.accepts("skipDownload");
