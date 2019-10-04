@@ -107,7 +107,7 @@ public class CdabaseExtractor implements CommandLineRunner {
      * the intermediate cda database 'cda_base' and initialises it with ontologies, strains, genes, alleles, synonyms,
      * biological models, and phenotyped colony information read from reports.
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
 
         new SpringApplicationBuilder(CdabaseExtractor.class)
                 .web(WebApplicationType.NONE)

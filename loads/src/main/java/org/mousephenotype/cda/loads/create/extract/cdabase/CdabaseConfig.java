@@ -72,7 +72,6 @@ public class CdabaseConfig extends DataSourceCdabaseConfig {
 
     private Map<DownloadFileEnum, DownloadFilename> downloadFilenameMap = new HashMap<>();
 
-    // FIXME FIXME FIXME Replace this definition with a system-known location like /tmp
     @NotNull
     @Value("${cdabase.workspace}")
     protected String cdabaseWorkspace;
