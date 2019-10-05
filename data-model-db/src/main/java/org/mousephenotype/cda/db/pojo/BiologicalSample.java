@@ -68,36 +68,36 @@ public class BiologicalSample implements Serializable {
 	@Id
 	@GeneratedValue(strategy= GenerationType.IDENTITY)
 	@Column(name = "id")
-	private Long id;
+	protected Long id;
 
 	@Column(name = "external_id")
 	private String stableId;
 
 	@OneToOne
 	@JoinColumn(name = "db_id")
-	private Datasource datasource;
+	protected Datasource datasource;
 
 	@Column(name = "sample_group")
-	private String group;
+	protected String group;
 
 	@OneToOne
 	@JoinColumns({
 	@JoinColumn(name = "sample_type_acc"),
 	@JoinColumn(name = "sample_type_db_id"),
 	})
-	private OntologyTerm type;
+	protected OntologyTerm type;
 
 	@OneToOne
 	@JoinColumn(name = "organisation_id")
-	private Organisation organisation;
+	protected Organisation organisation;
 
 	@OneToOne
 	@JoinColumn(name = "production_center_id")
-	private Organisation productionCenter;
+	protected Organisation productionCenter;
 
 	@OneToOne
 	@JoinColumn(name = "project_id")
-	private Project project;
+	protected Project project;
 
 	//a association table is used to store the link between the 2 entities
 	// will implement this later!
@@ -112,7 +112,7 @@ public class BiologicalSample implements Serializable {
         joinColumns = @JoinColumn(name="biological_sample_id"),
         inverseJoinColumns = @JoinColumn(name="biological_model_id")
     )
-	private BiologicalModel biologicalModel;
+	protected BiologicalModel biologicalModel;
 
 	/**
 	 * @return the biologicalModel
@@ -227,5 +227,20 @@ public class BiologicalSample implements Serializable {
 
 	public void setProject(Project project) {
 		this.project = project;
+	}
+
+	@Override
+	public String toString() {
+		return "BiologicalSample{" +
+				"id=" + id +
+				", stableId='" + stableId + '\'' +
+				", datasource=" + datasource +
+				", group='" + group + '\'' +
+				", type=" + type +
+				", organisation=" + organisation +
+				", productionCenter=" + productionCenter +
+				", project=" + project +
+				", biologicalModel=" + biologicalModel +
+				'}';
 	}
 }

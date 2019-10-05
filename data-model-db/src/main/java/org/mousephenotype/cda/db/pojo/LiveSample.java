@@ -150,4 +150,24 @@ public class LiveSample extends BiologicalSample {
 		this.colonyID = colonyID;
 	}
 
+	@Override
+	public String toString() {
+		return "LiveSample{" +
+				"developmentalStage=" + developmentalStage +
+				", sex='" + sex + '\'' +
+				", zygosity='" + zygosity + '\'' +
+				", colonyID='" + colonyID + '\'' +
+				", dateOfBirth=" + dateOfBirth +
+				", productionCenter=" + productionCenter +
+				", litterId='" + litterId + '\'' +
+				", id=" + id +
+				", datasource=" + datasource +
+				", group='" + group + '\'' +
+				", type=" + type +
+				", organisation=" + organisation +
+				", productionCenter=" + productionCenter +
+				", project=" + project +
+				", biologicalModel=" + biologicalModel +
+				'}';
+	}
 }
