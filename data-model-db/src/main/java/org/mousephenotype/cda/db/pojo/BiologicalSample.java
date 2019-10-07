@@ -26,6 +26,7 @@ package org.mousephenotype.cda.db.pojo;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Objects;
 
 
 @Entity
@@ -243,4 +244,19 @@ public class BiologicalSample implements Serializable {
 				", biologicalModel=" + biologicalModel +
 				'}';
 	}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BiologicalSample that = (BiologicalSample) o;
+        return stableId.equals(that.stableId) &&
+                group.equals(that.group) &&
+                organisation.equals(that.organisation);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(stableId, group, organisation);
+    }
 }
