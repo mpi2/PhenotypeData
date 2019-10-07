@@ -169,7 +169,7 @@ public class Organisation implements Serializable {
 	@Override
 	public String toString() {
 		return "Organisation [id=" + id + ", name=" + name + ", fullname="
-				+ fullname + ", country=" + country + ", projects=" + projects
+				+ fullname + ", country=" + country
 				+ "]";
 	}
 }
