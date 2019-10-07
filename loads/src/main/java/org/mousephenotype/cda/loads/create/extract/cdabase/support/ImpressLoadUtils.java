@@ -55,7 +55,7 @@ public class ImpressLoadUtils {
      * @return Object corresponding to the value retrieved from the URL
      */
     @Retryable(
-            maxAttempts = 5,
+            maxAttempts = 10,
             backoff = @Backoff(delay = 1500, multiplier = 2),
             value = RuntimeException.class)
     private Object getResponseObjectFromImpress(String url) {
