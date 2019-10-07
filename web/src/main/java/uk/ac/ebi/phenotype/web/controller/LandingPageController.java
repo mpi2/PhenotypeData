@@ -8,7 +8,6 @@ import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.CountTableRow;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -86,10 +85,16 @@ public class LandingPageController {
 	 * @throws SolrServerException
 	 * @throws IOException
 	 */
-	@RequestMapping("/histopath")
+	@RequestMapping("/procedure_landing/histopath")
 	public String histopath(Model model) throws SolrServerException, IOException {
-		NamedList<List<PivotField>> observationsForHistopath = histopathService.getObservationsForHistopath();
-		System.out.println("size of all observations for histopath="+observationsForHistopath.size());
+		//To display the heatmap we need data in form of ints [ column , row, value ] but row starts from bottom left hand side
+		HistopathHeatmapData heatmapData = histopathService.getHeatmapData();
+		String [] headers=new String []{"blah", "bug"};
+		JSONArray anatomyArray = null;
+		anatomyArray= new JSONArray(heatmapData.getParameterNames());
+		JSONArray geneSymbolsArray=new JSONArray(heatmapData.getGeneSymbols());
+		model.addAttribute("anatomyHeaders", anatomyArray);
+		model.addAttribute("geneSymbols", geneSymbolsArray);
 		return "histopathLandingPage";
 	}
 

@@ -188,17 +188,24 @@ public class HistopathService {
 		return observations;
 	}
 
-	public NamedList<List<PivotField>> getObservationsForHistopath() throws SolrServerException, IOException {
-		NamedList<List<PivotField>> pivots = observationService.getHistopathLandingPageData();
+	public HistopathHeatmapData getHeatmapData() throws SolrServerException, IOException {
+		NamedList<List<PivotField>> pivots = observationService.getHistopathGeneParameterNameCategoryPivots();
+		HashSet<String> anatomyParamName=new HashSet();//in the histopath case this is anatomy/parameter names
+		//then lest order this set as a list alphabetically into a list to then dictate column numbers
+		HashSet geneSymbols=new HashSet();// for histopath it's gene symbols
 
+		List<List<Integer>> data=new ArrayList<>();
 		Map<String, Set<String>> map = new HashMap<>();
 		for (Map.Entry<String, List<PivotField>> pivotFacet : pivots) {
 			for(PivotField phenotypePivotFacet : pivotFacet.getValue()) {
 				String geneSYMBOL = phenotypePivotFacet.getValue().toString();
 				//System.out.println("geneSYMBOL="+geneSYMBOL);
+				geneSymbols.add(geneSYMBOL);
 				map.putIfAbsent(geneSYMBOL, new HashSet<>());
 				for(PivotField genePivotFacet : phenotypePivotFacet.getPivot()) {
 					String parameterName = genePivotFacet.getValue().toString();
+					anatomyParamName.add(parameterName);//get a unique set
+
 					map.get(geneSYMBOL).add(parameterName);
 //                    for(PivotField pivotCategory:genePivotFacet.getPivot()){
 //                        System.out.println("Category-"+pivotCategory.getValue());
@@ -207,7 +214,15 @@ public class HistopathService {
 				}
 			}
 		}
-		return pivots;
+
+		List<String> anatomyList=new ArrayList<String>(anatomyParamName);
+		Collections.sort(anatomyList);
+		List<String> geneList=new ArrayList(geneSymbols);
+		Collections.sort(geneList);
+
+
+		HistopathHeatmapData heatmapData=new HistopathHeatmapData(anatomyList,geneList,data);
+		return heatmapData;
 	}
 
 	public List<ObservationDTO> screenOutObservationsThatAreNormal(List<ObservationDTO> observations) {

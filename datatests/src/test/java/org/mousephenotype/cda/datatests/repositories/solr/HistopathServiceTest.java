@@ -3,15 +3,9 @@ package org.mousephenotype.cda.datatests.repositories.solr;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.apache.solr.client.solrj.response.PivotField;
-import org.apache.solr.common.util.NamedList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.solr.service.GrossPathService;
-import org.mousephenotype.cda.solr.service.HistopathService;
-import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.PhenodigmService;
-import org.mousephenotype.cda.solr.service.dto.CountTableRow;
+import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +55,10 @@ public class HistopathServiceTest {
         HistopathService   histopathService   = new HistopathService(observationService);
 
         Map<String, Set<String>> map = new HashMap<>();
-        histopathService.getObservationsForHistopath();
+        HistopathHeatmapData heatmapData = histopathService.getHeatmapData();
+        assertTrue(heatmapData.getParameterNames().size()>1);
+        assertTrue( heatmapData.getGeneSymbols().size()>1);
+        assertTrue(heatmapData.getData().size()>1);
         //NamedList<List<PivotField>> pivots = observationService.getHistopathLandingPageData();
     }
 }

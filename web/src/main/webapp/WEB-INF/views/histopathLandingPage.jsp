@@ -3,10 +3,143 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<t:genericpage>
+<t:genericpage-landing>
 
     <jsp:attribute name="title">Histopath Landing Page</jsp:attribute>
+    <jsp:attribute name="header">
+   <script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/heatmap.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+    </jsp:attribute>
 
+    <jsp:attribute name="addToFooter">
+
+        <script>
+            $(document).ready(function () {
+                Highcharts.chart('heatmap-container', {
+
+                    chart: {
+                        type: 'heatmap',
+                        marginTop: 220,
+                        marginBottom: 80,
+                        plotBorderWidth: 1,
+                        height: 1000,
+                        width: 1100,
+                    },
+                    title: {
+                        text: ''
+                    },
+                    colorAxis: {
+
+                        dataClasses: [{
+                            from: 0,
+                            to: 1,
+                            color: '#fff',
+                            name: 'No Data'
+                        }, {
+                            from: 1,
+                            to: 2,
+                            color: '#808080',
+                            name: 'Not enough data'
+                        }, {
+                            from: 2,
+                            to: 3,
+                            color: '#17a2b8',
+                            name: 'Not Significantly Different WT vs KO'
+                        }, {
+                            from: 3,
+                            to: 4,
+                            color: '#ce6211',
+                            name: 'Significantly Different WT vs KO'
+                        }
+                        ],
+                        min: 0,
+                        max: 4,
+                    },
+                    legend: {
+                        align: 'left',
+                        // layout: 'vertical',
+                        margin: 3,
+                        verticalAlign: 'top',
+                        backgroundColor: 'whitesmoke',
+                        itemStyle: {
+                            fontSize: '16px',
+                            // font: '20pt Trebuchet MS, Verdana, sans-serif',
+                            // color: '#A0A0A0'
+                        },
+
+                    },
+
+                    xAxis: {
+                        opposite: true,
+                        categories: ${anatomyHeaders}, //['Alexander', 'Marie', 'Maximilian', 'Sophia', 'Lukas', 'Maria', 'Leon', 'Anna', 'Tim', 'Laura'],
+                        labels: {
+                            // useHTML: true,
+                            rotation: 90
+                        },
+                        reserveSpace: true,
+                    },
+
+                    yAxis:
+                    // [
+                        {
+                            categories: ${geneSymbols},
+                            title: 'gene'
+                        },
+                    // {
+                    //  linkedTo : 0,
+                    //   title: 'construct',
+                    //   lineWidth: 2,
+                    //   categories: this.constructs
+                    // }
+                    // ],
+
+                    tooltip: {
+                        // shadow: false,
+                        useHTML: true,
+                        formatter: function () {
+                            return '<b>' + this.series.xAxis.categories[this.point.x] + '</b><br/>' +
+                                this.series.colorAxis.dataClasses[this.point.dataClass].name + '</b><br>' +
+                                '<b>' + this.series.yAxis.categories[this.point.y] + '</b>';
+                        }
+                    },
+
+                    plotOptions: {
+                        series: {
+                            cursor: 'pointer',
+                            events: {
+                                click: function (e) {
+                                    const gene = e.point.series.yAxis.categories[e.point.y];
+
+                                    const procedure = e.point.series.xAxis.categories[e.point.x];
+
+                                    const text = 'gene: ' + gene +
+                                        ' Procedure: ' + procedure + ' significance=' + e.point.value;
+
+                                    // may have to use routerLink like for menus to link to our new not created yet parameter page
+                                    const routerLink = 'details?' + 'procedure=' + procedure + '&gene=' + gene;
+                                    window.open(routerLink, '_blank');
+                                }
+                            },
+                        },
+                    },
+
+                    series: [{
+                        name: 'Cell types with significant parameters',
+                        borderWidth: 1,
+                        // data: this.data,
+                        data:  [[0, 0, 1], [0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 4, 67], [1, 0, 92], [1, 1, 58], [1, 2, 78], [1, 3, 117], [1, 4, 48], [2, 0, 35], [2, 1, 15], [2, 2, 123], [2, 3, 64], [2, 4, 52], [3, 0, 72], [3, 1, 132], [3, 2, 114], [3, 3, 19], [3, 4, 16], [4, 0, 38], [4, 1, 5], [4, 2, 8], [4, 3, 117], [4, 4, 115], [5, 0, 88], [5, 1, 32], [5, 2, 12], [5, 3, 6], [5, 4, 120], [6, 0, 13], [6, 1, 44], [6, 2, 88], [6, 3, 98], [6, 4, 96], [7, 0, 31], [7, 1, 1], [7, 2, 82], [7, 3, 32], [7, 4, 30], [8, 0, 85], [8, 1, 97], [8, 2, 123], [8, 3, 64], [8, 4, 84], [9, 0, 47], [9, 1, 114], [9, 2, 31], [9, 3, 48], [9, 4, 91]],
+                        dataLabels: {
+                            enabled: false,
+                            color: '#000000'
+                        }
+                    }],
+                });
+
+            });
+        </script>
+
+    </jsp:attribute>
 
     <jsp:body>
         <div class="container single single--no-side">
@@ -65,154 +198,11 @@
                             </div>
                         </div>
 
-                        <table id="histopath" class="table table-sm table-striped dataTable">
-
-                            <thead>
-                            <tr>
-                                <th>Zyg</th>
-                                <th>Sex</th>
-                                <th>Mouse</th>
-                                <th>Tissue</th>
-                                <th>MPATH Process Term</th>
-
-                                <th>Severity Score</th>
-                                <th>Significance Score</th>
-                                <th>MPATH Diagnostic</th>
-                                <th>PATO Descriptor</th>
-                                <th>Free Text</th>
-                                <th>Images</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <c:forEach var="histRow" items="${histopathRows}">
-
-                                <tr>
-
-                                    <td>${histRow.zygosity}</td>
-                                    <td>
-                                        <c:if test="${histRow.sex eq 'female'}">F</c:if>
-                                        <c:if test="${histRow.sex eq 'male'}">M</c:if>
-                                    </td>
-                                    <td>${histRow.sampleId}</td>
-                                    <td id="${histRow.anatomyName}">${histRow.anatomyName}
-                                        <c:if test="${histRow.anatomyId !=null && histRow.anatomyId !=''}">
-                                            [${histRow.anatomyId}]
-                                        </c:if>
-                                    </td>
-
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${fn:length(histRow.mpathProcessOntologyBeans) == 0}">
-
-                                            </c:when>
-                                            <c:otherwise>
-                                                <c:forEach var="parameter"
-                                                           items="${histRow.mpathProcessOntologyBeans }">
-                                                    <c:forEach var="value" items="${parameter.value }">
-                                                        ${value.name }
-                                                        [${value.id }]
-                                                    </c:forEach>
-
-                                                </c:forEach>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </td>
-
-                                    <td>
-                                        <c:forEach var="parameter" items="${histRow.severity }">
-                                            ${parameter.textValue}
-                                        </c:forEach>
-                                    </td>
 
 
-                                    <td>
-
-                                        <c:if test="${fn:length(histRow.significance) ==0 }">
-                                            Not Annotated
-                                        </c:if>
-                                        <c:forEach var="parameter" items="${histRow.significance }">
-                                            <c:choose>
-                                                <c:when test="${parameter.textValue eq 'Significant'}">
-                                                    1
-                                                </c:when>
-                                                <c:otherwise>
-                                                    0
-                                                </c:otherwise>
-                                            </c:choose>
-
-                                        </c:forEach>
-                                    </td>
-
-                                    <c:choose>
-                                        <c:when test="${fn:length(histRow.mpathDiagnosticOntologyBeans) == 0}">
-                                            <td>
-
-                                            </td>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <td>
-                                                <c:forEach var="entry" items="${histRow.mpathDiagnosticOntologyBeans }">
-
-
-                                                    <c:forEach var="bean" items="${entry.value}">
-                                                        ${bean.name}
-                                                        ${bean.id}
-
-                                                    </c:forEach>
-                                                </c:forEach>
-                                            </td>
-                                        </c:otherwise>
-                                    </c:choose>
-
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${fn:length(histRow.patoOntologyBeans) == 0}">
-
-                                            </c:when>
-                                            <c:otherwise>
-
-                                                <c:forEach var="parameter" items="${histRow.patoOntologyBeans }">
-                                                    <c:forEach var="value" items="${parameter.value }">
-                                                        ${value.name }
-                                                    </c:forEach>
-                                                </c:forEach>
-                                            </c:otherwise>
-                                        </c:choose>
-
-                                    </td>
-
-
-                                    <td>
-                                        <c:forEach var="parameter" items="${histRow.freeTextParameters }">
-                                            ${parameter.textValue }
-                                        </c:forEach>
-                                    </td>
-
-
-                                    <td>
-                                        <c:forEach var="image" items="${histRow.imageList }">
-
-                                            <t:hist_img_display img="${image}"
-                                                                impcMediaBaseUrl="${impcMediaBaseUrl}"></t:hist_img_display>
-
-                                        </c:forEach>
-                                    </td>
-
-                                </tr>
-
-                            </c:forEach>
-
-                        </tbody>
-                        </table>
-
-                        <div class="row my-5">
-                            <div class="col-12">
-                                <h2>Associated histopathology images</h2>
-                            </div>
-                            <c:forEach var="image" items="${histopathImagesForGene }">
-                                <t:impcimgdisplay2 img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}" />
-                            </c:forEach>
+                        <div id="heatmap-container">
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -223,13 +213,8 @@
 
         </div>
 
-        <script>
-            $(document).ready(function () {
-                $('#histopath').DataTable(
-                    {"paging": true, lengthChange: false, "searching": false, "order": [[6, "desc"]]});
-            });
-        </script>
     </jsp:body>
 
-</t:genericpage>
+
+    </t:genericpage-landing>
 

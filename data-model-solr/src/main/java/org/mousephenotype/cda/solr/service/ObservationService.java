@@ -1993,7 +1993,7 @@ public class ObservationService extends BasicService implements WebStatus {
 
 	}
 
-    public NamedList<List<PivotField>> getHistopathLandingPageData() throws SolrServerException, IOException  {
+    public NamedList<List<PivotField>> getHistopathGeneParameterNameCategoryPivots() throws SolrServerException, IOException  {
 
 	    //http://ves-hx-d1.ebi.ac.uk:8986/solr/experiment/select?q=*:*&rows=0&sort=id+asc&fq=parameter_stable_id:*HIS*&facet=true&facet.pivot=gene_symbol,category&facet.limit=-1
         //we need the significance score only can't filter based on a parameter ids as all different for each anatomy but can do search for "Significance score " in parameter_name string
