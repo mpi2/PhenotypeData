@@ -8,7 +8,6 @@ import sys
 import os.path
 import sys
 import argparse
-from common import splitString
 from OmeroPropertiesParser import OmeroPropertiesParser
 
 responseFailed=0
@@ -30,8 +29,12 @@ def main(argv):
     parser = argparse.ArgumentParser(
         description='Download images referred to in solr index onto holding area on disk'
     )
-    parser.add_argument('-d', '--rootDestinationDir', dest='rootDestinationDir',
-                        help='Directory for root of destination to store images'    )
+    parser.add_argument('-d1', '--initialDestinationDir', dest='initialDestinationDir',
+                        help='Directory for root of holding destination to store images'
+    )
+    parser.add_argument('-d2', '--finalDestinationDir', dest='finalDestinationDir',
+                        help='Directory for root of final destination to store images'
+    )
     parser.add_argument('-s', '--rootSolrUrl', dest='rootSolrUrl',
                         help='URL to root of solr index'
     )
@@ -85,22 +88,24 @@ def main(argv):
     solrQuery="""experiment/select?q=observation_type:image_record&fq=(download_file_path:*mousephenotype.org*%20AND%20!download_file_path:*.mov%20AND%20!download_file_path:*.bz2)&fl=id,download_file_path,phenotyping_center,pipeline_stable_id,procedure_stable_id,datasource_name,parameter_stable_id&wt=json&indent=on&rows=10"""
 
     #note cant split this url over a few lines as puts in newlines into url which doesn't work
-    rootDestinationDir = args.rootDestinationDir if args.rootDestinationDir<>None else omeroProps['rootdestinationdir'] 
+    rootDestinationDir = args.initialDestinationDir if args.initialDestinationDir<>None else omeroProps['rootdestinationdir'] 
+    finalDestinationDir = args.finalDestinationDir if args.finalDestinationDir<>None else omeroProps['finaldestinationdir'] 
     print "running python image download script for impc images"
 
     print 'rootDestinationDir is "', rootDestinationDir
     solrUrl=rootSolrUrl+solrQuery;
     print 'solrUrl', solrUrl
 
-    notDownloaded = runWithSolrAsDataSource(solrUrl, rootDestinationDir)
-    notDownloadedOutputPath =  args.notDownloadedOutputPath if args.notDownloadedOutputPath <> None else createNotDownloadedOutputPath(rootDestinationDir)
-    
-    with open(notDownloadedOutputPath, 'wt') as fid:
-        fid.writelines(notDownloaded)
+    notDownloaded = runWithSolrAsDataSource(solrUrl, rootDestinationDir, finalDestinationDir)
+    print str(len(notDownloaded)) + " files could not be downloaded"
+    if len(notDownloaded) > 0:
+        notDownloadedOutputPath =  args.notDownloadedOutputPath if args.notDownloadedOutputPath <> None else createNotDownloadedOutputPath(rootDestinationDir)
+        with open(notDownloadedOutputPath, 'wt') as fid:
+            fid.writelines(notDownloaded)
 
-    print str(len(notDownloaded)) + " files could not be downloaded. Written to " + notDownloadedOutputPath
+        print "Written files that could not be downloaded to " + notDownloadedOutputPath
 
-def runWithSolrAsDataSource(solrUrl, rootDestinationDir):
+def runWithSolrAsDataSource(solrUrl, rootDestinationDir, finalDestinationDir):
     """
         Download images using Solr as the datasource.
         Return urls that cannot be downloaded
@@ -127,7 +132,7 @@ def runWithSolrAsDataSource(solrUrl, rootDestinationDir):
         observation_id=doc['id']
         procedure_stable_id=doc['procedure_stable_id']
         parameter_stable_id=doc['parameter_stable_id']
-        downloaded = processFile(observation_id, rootDestinationDir,phenotyping_center,pipeline_stable_id, procedure_stable_id, parameter_stable_id, download_file_path)
+        downloaded = processFile(observation_id, rootDestinationDir, finalDestinationDir, phenotyping_center,pipeline_stable_id, procedure_stable_id, parameter_stable_id, download_file_path)
         if not downloaded:
             notDownloaded.append(download_file_path+'\n')
         
@@ -150,23 +155,31 @@ def createNotDownloadedOutputPath(rootDestinationDir):
     today = datetime.fromtimestamp(time.time())
     return os.path.join(rootDestinationDir, today.strftime("%Y%m%d_%H%M%S_could_not_download.txt"))
 
-def processFile(observation_id,  rootDestinationDir, phenotyping_center,pipeline_stable_id, procedure, parameter, downloadFilePath):
+def processFile(observation_id,  rootDestinationDir, finalDestinationDir, phenotyping_center,pipeline_stable_id, procedure, parameter, downloadFilePath):
     global totalNumberOfImagesWeHave
     global responseFailed
     global numberOfImageDownloadAttemps
-    directory = createDestinationFilePath(rootDestinationDir, phenotyping_center, pipeline_stable_id, procedure,parameter, downloadFilePath)
-    dstfilename=directory+"/"+str(downloadFilePath.split('/')[-1])
-    if dstfilename in uniqueUris:
-        print '---------------------!!!!!!!!!!error the filePath is not unique and has been specified before:'+dstfilename
-    uniqueUris.add(dstfilename)
-    fullResolutionFilePath=dstfilename.split(splitString,1)[1]
+
+    downloadFilename = os.path.split(downloadFilePath)[-1]
+    holding_directory = createDestinationFilePath(rootDestinationDir, phenotyping_center, pipeline_stable_id, procedure,parameter, downloadFilePath)
+    final_directory = createDestinationFilePath(finalDestinationDir, phenotyping_center, pipeline_stable_id, procedure,parameter, downloadFilePath)
+    holding_filename = os.path.join(holding_directory, downloadFilename)
+    clean_filename = os.path.join(final_directory, downloadFilename)
+    print "clean_filename = " + clean_filename
+
+    if holding_filename in uniqueUris:
+        print '---------------------!!!!!!!!!!error the filePath is not unique and has been specified before:'+holding_filename
+    uniqueUris.add(holding_filename)
     #print 'saving file to '+dstfilename
-    if os.path.isfile(dstfilename):
+    if os.path.isfile(clean_filename):
+        print clean_filename + " already exists in 'clean' directory - not downloading"
+        totalNumberOfImagesWeHave+=1
+    elif os.path.isfile(holding_filename):
         #print "file already here"
         totalNumberOfImagesWeHave+=1
     else:
         numberOfImageDownloadAttemps+=1
-        print 'saving file to '+dstfilename
+        print 'saving file to '+holding_filename
         response=requests.get(downloadFilePath, stream=True)
         #print response.status_code
         if response.status_code != 200:
@@ -176,10 +189,10 @@ def processFile(observation_id,  rootDestinationDir, phenotyping_center,pipeline
         if response.status_code == 200:
             totalNumberOfImagesWeHave+=1
             #check directory exists before trying to write file and if not then make it
-            if not os.path.exists(directory):
-                os.makedirs(directory)
+            if not os.path.exists(holding_directory):
+                os.makedirs(holding_directory)
 
-            with open(dstfilename, 'wb') as f:
+            with open(holding_filename, 'wb') as f:
                 for chunk in response.iter_content(1024):
                     f.write(chunk)
    
