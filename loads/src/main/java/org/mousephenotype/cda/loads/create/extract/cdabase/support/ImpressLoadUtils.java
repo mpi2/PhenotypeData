@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -43,6 +45,25 @@ public class ImpressLoadUtils {
 
     @Value("${impress.service.url}")
     protected String impressServiceUrl;
+
+    /**
+     * Will perform a request to the supplied URL and unmarshall the response into an object.  In the case where
+     * the endpoint does not respond correctly, this method will retry the request up to 5 times, backing off the
+     * time between retries to allow the service to recover.  Retry delays are in seconds 1.5, 3.0, 6.0, 12.0, 24.0
+     *
+     * @param url the endpoint to access to get the data
+     * @return Object corresponding to the value retrieved from the URL
+     */
+    @Retryable(
+            maxAttempts = 10,
+            backoff = @Backoff(delay = 1500, multiplier = 2),
+            value = RuntimeException.class)
+    private Object getResponseObjectFromImpress(String url) {
+        RestTemplate rt = new RestTemplate();
+        Object o = rt.getForEntity(url, Object.class);
+        return ((ResponseEntity) o).getBody();
+    }
+
 
 
     // PIPELINE
@@ -70,9 +91,7 @@ public class ImpressLoadUtils {
         String url = impressServiceUrl + "/pipeline/list/full";
         try {
 
-            RestTemplate rt   = new RestTemplate();
-            Object       o    = rt.getForEntity(url, Object.class);
-            Object       body = ((ResponseEntity) o).getBody();
+            Object body = getResponseObjectFromImpress(url);
 
             HashMap<String, HashMap<String, Object>> pipelinesMap = (HashMap<String, HashMap<String, Object>>) body;
 
@@ -80,7 +99,7 @@ public class ImpressLoadUtils {
 
                 ImpressPipeline pipeline = new ImpressPipeline();
 
-                pipeline.setPipelineId((Long) pipelineMap.get("pipelineId"));
+                pipeline.setPipelineId(convertToLong( pipelineMap.get("pipelineId")));
                 pipeline.setPipelineKey((String) pipelineMap.get("pipelineKey"));
                 pipeline.setPipelineType((String) pipelineMap.get("pipelineType"));
                 pipeline.setName(newlineToSpace((String) pipelineMap.get("name")));
@@ -94,7 +113,7 @@ public class ImpressLoadUtils {
                 pipeline.setIsDeleted((Boolean) pipelineMap.get("isDeleted"));
                 pipeline.setCentreName(newlineToSpace((String) pipelineMap.get("centreName")));
                 pipeline.setImpc(((Integer) pipelineMap.get("impc")).shortValue());
-                pipeline.setScheduleCollection((List<Long>) pipelineMap.get("scheduleCollection"));
+                pipeline.setScheduleCollection(((List<Integer>) pipelineMap.get("scheduleCollection")).stream().mapToLong(Long::new).collect(ArrayList::new, ArrayList::add, ArrayList::addAll));
 
                 pipelines.add(pipeline);
             }
@@ -151,15 +170,15 @@ public class ImpressLoadUtils {
 
             HashMap<String, Object> impressScheduleMap = (HashMap<String, Object>) body;
 
-            impressSchedule.setScheduleId((Long) impressScheduleMap.get("scheduleId"));
+            impressSchedule.setScheduleId(convertToLong( impressScheduleMap.get("scheduleId")));
             impressSchedule.setIsActive((Boolean) impressScheduleMap.get("isActive"));
             impressSchedule.setIsDeprecated((Boolean) impressScheduleMap.get("isDeprecated"));
             impressSchedule.setTimeLabel((String) impressScheduleMap.get("timeLabel"));
             impressSchedule.setTime((String) impressScheduleMap.get("time"));
             impressSchedule.setTimeUnit((String) impressScheduleMap.get("timeUnit"));
             impressSchedule.setStage((String) impressScheduleMap.get("stage"));
-            impressSchedule.setPipelineId((Long) impressScheduleMap.get("pipelineId"));
-            impressSchedule.setProcedureCollection((List<Long>) impressScheduleMap.get("procedureCollection"));
+            impressSchedule.setPipelineId(convertToLong(  impressScheduleMap.get("pipelineId")));
+            impressSchedule.setProcedureCollection(((List<Integer>) impressScheduleMap.get("procedureCollection")).stream().mapToLong(Long::new).collect(ArrayList::new, ArrayList::add, ArrayList::addAll));
 
         } catch (Exception e) {
 
@@ -215,13 +234,12 @@ public class ImpressLoadUtils {
 
         try {
 
-            RestTemplate rt   = new RestTemplate();
-            Object       o    = rt.getForEntity(url, Object.class);
-            Object       body = ((ResponseEntity) o).getBody();
+            Object body = getResponseObjectFromImpress(url);
+            Object o;
 
             HashMap<String, Object> procedureMap = (HashMap<String, Object>) body;
 
-            impressProcedure.setProcedureId((Long) procedureMap.get("procedureId"));
+            impressProcedure.setProcedureId(convertToLong(  procedureMap.get("procedureId")));
             impressProcedure.setProcedureKey((String) procedureMap.get("procedureKey"));
 
             o = procedureMap.get("minFemales");
@@ -243,8 +261,8 @@ public class ImpressLoadUtils {
             impressProcedure.setMinorVersion((Integer) procedureMap.get("minorVersion"));
             impressProcedure.setDescription(newlineToSpace((String) procedureMap.get("description")));
             impressProcedure.setOldProcedureKey((String) procedureMap.get("oldProcedureKey"));
-            impressProcedure.setParameterCollection((List<Long>) procedureMap.get("parameterCollection"));
-            impressProcedure.setScheduleId((Long) procedureMap.get("scheduleId"));
+            impressProcedure.setParameterCollection(((List<Integer>) procedureMap.get("parameterCollection")).stream().mapToLong(Long::new).collect(ArrayList::new, ArrayList::add, ArrayList::addAll));
+            impressProcedure.setScheduleId(convertToLong(  procedureMap.get("scheduleId")));
 
         } catch (Exception e) {
 
@@ -297,13 +315,11 @@ public class ImpressLoadUtils {
         String           url              = impressServiceUrl + "/parameter/" + parameterId;
 
         try {
-            RestTemplate rt   = new RestTemplate();
-            Object       o    = rt.getForEntity(url, Object.class);
-            Object       body = ((ResponseEntity) o).getBody();
+            Object body = getResponseObjectFromImpress(url);
 
             HashMap<String, Object> parameterMap = (HashMap<String, Object>) body;
 
-            impressParameter.setParameterId((Long) parameterMap.get("parameterId"));
+            impressParameter.setParameterId(convertToLong(  parameterMap.get("parameterId")));
             impressParameter.setParameterKey((String) parameterMap.get("parameterKey"));
             impressParameter.setType((String) parameterMap.get("type"));
             impressParameter.setName(newlineToSpace((String) parameterMap.get("name")));
@@ -336,12 +352,12 @@ public class ImpressLoadUtils {
             impressParameter.setIsInternal((Boolean) parameterMap.get("isInternal"));
             impressParameter.setIsDeleted((Boolean) parameterMap.get("isDeleted"));
             impressParameter.setOldParameterKey((String) parameterMap.get("oldParameterKey"));
-            impressParameter.setOriginalParamId((Long) parameterMap.get("originalParamId"));
-            impressParameter.setOntologyGroupId((Long) parameterMap.get("ontologyGroupId"));
+            impressParameter.setOriginalParamId(convertToLong(parameterMap.get("originalParamId")));
+            impressParameter.setOntologyGroupId(convertToLong(parameterMap.get("ontologyGroupId")));
             impressParameter.setWeight((Integer) parameterMap.get("weight"));
-            impressParameter.setProcedureId((Long) parameterMap.get("procedureId"));
+            impressParameter.setProcedureId(convertToLong(parameterMap.get("procedureId")));
 
-            Long      unitId       = (Long) parameterMap.get("unit");
+            Long      unitId       = convertToLong(parameterMap.get("unit"));
             ImpressUnits impressUnits = null;
             if (unitId != null) {
                 impressUnits = new ImpressUnits();
@@ -427,9 +443,8 @@ public class ImpressLoadUtils {
         String url = impressServiceUrl + "/increment/belongingtoparameter/full/" + parameterId;
         try {
 
-            RestTemplate rt   = new RestTemplate();
-            Object       o    = rt.getForEntity(url, Object.class);
-            Object       body = ((ResponseEntity) o).getBody();
+            Object body = getResponseObjectFromImpress(url);
+            Object o;
 
             List<Map<String, Object>> list = (List<Map<String, Object>>) body;
 
@@ -526,9 +541,8 @@ public class ImpressLoadUtils {
 
         try {
 
-            RestTemplate rt   = new RestTemplate();
-            Object       o    = rt.getForEntity(url, Object.class);
-            Object       body = ((ResponseEntity) o).getBody();
+            Object body = getResponseObjectFromImpress(url);
+            Object o;
 
             List<HashMap<String, Object>> impressOptionsList = (List<HashMap<String, Object>>) body;
 
@@ -536,7 +550,7 @@ public class ImpressLoadUtils {
 
                 ImpressOption option = new ImpressOption();
 
-                option.setOptionId((Long) map.get("optionId"));
+                option.setOptionId(convertToLong(  map.get("optionId")));
                 option.setPhoWeight((Integer) map.get("phoweight"));
 
                 o = map.get("parentId");
@@ -554,7 +568,7 @@ public class ImpressLoadUtils {
 
                 option.setIsDeleted((Boolean) map.get("isDeleted"));
 
-                option.setParameterId((Long) map.get("parameterId"));
+                option.setParameterId(convertToLong(  map.get("parameterId")));
 
                 options.add(option);
             }
@@ -597,9 +611,7 @@ public class ImpressLoadUtils {
 
         String url = impressServiceUrl + "/unit/list";
 
-        RestTemplate rt   = new RestTemplate();
-        Object       o    = rt.getForEntity(url, Object.class);
-        Object       body = ((ResponseEntity) o).getBody();
+        Object body = getResponseObjectFromImpress(url);
 
         HashMap<String, String> unitsMap = (HashMap<String, String>) body;
         for (Map.Entry<String, String> entry : unitsMap.entrySet()) {
@@ -626,9 +638,7 @@ public class ImpressLoadUtils {
 
         try {
 
-            RestTemplate rt   = new RestTemplate();
-            Object       o    = rt.getForEntity(url, Object.class);
-            Object       body = ((ResponseEntity) o).getBody();
+            Object body = getResponseObjectFromImpress(url);
 
             List<Map<String, Object>> list = (List<Map<String, Object>>) body;
             for (Map<String, Object> ontologyOptionMap : list) {
@@ -659,9 +669,7 @@ public class ImpressLoadUtils {
 
         try {
 
-            RestTemplate rt   = new RestTemplate();
-            Object       o    = rt.getForEntity(url, Object.class);
-            Object       body = ((ResponseEntity) o).getBody();
+            Object body = getResponseObjectFromImpress(url);
 
             Map<String, Map<String, Object>> map = (Map<String, Map<String, Object>>) body;
             for (Map<String, Object> ontologyTermMap : map.values()) {
@@ -695,9 +703,7 @@ public class ImpressLoadUtils {
 
         try {
 
-            RestTemplate rt   = new RestTemplate();
-            Object       o    = rt.getForEntity(url, Object.class);
-            Object       body = ((ResponseEntity) o).getBody();
+            Object body = getResponseObjectFromImpress(url);
             Map<String, String> wsOntologyTermsMap = (Map<String, String>) body;
             for (Map.Entry<String, String> entry : wsOntologyTermsMap.entrySet()) {
                 Long ontologyTermId = Long.parseLong(entry.getKey());
@@ -722,9 +728,7 @@ public class ImpressLoadUtils {
 
         try {
 
-            RestTemplate              rt   = new RestTemplate();
-            Object                    o    = rt.getForEntity(url, Object.class);
-            Object                    body = ((ResponseEntity) o).getBody();
+            Object body = getResponseObjectFromImpress(url);
             List<Map<String, Object>> maps = (List<Map<String, Object>>) body;
 
             for (Map<String, Object> map : maps) {
@@ -780,6 +784,19 @@ public class ImpressLoadUtils {
         return result;
     }
 
+    public Long convertToLong(Object valueToConvert) {
+        Long retVal = null;
+        if (valueToConvert != null) {
+            try {
+                Integer integerValue = (Integer) valueToConvert;
+                retVal = new Long(integerValue);
+            } catch (Exception e) {
+                logger.debug("Bad value for conversion: {}", valueToConvert, e);
+            }
+        }
+        return retVal;
+    }
+
     public String getImpressServiceUrl() {
         return impressServiceUrl;
     }
@@ -791,13 +808,13 @@ public class ImpressLoadUtils {
     private ImpressParamMpterm getTerm(Map<String, Object> map) {
 
         ImpressParamMpterm term = new ImpressParamMpterm();
-        term.setParamMptermId((Long) map.get("paramMptermId"));
-        term.setOntologyTermId((Long) map.get("ontologyTermId"));
+        term.setParamMptermId(convertToLong(  map.get("paramMptermId")));
+        term.setOntologyTermId(convertToLong(  map.get("ontologyTermId")));
         term.setWeight((Integer) map.get("weight"));
         term.setIsDeleted((Boolean) map.get("isDeleted"));
         term.setOptionText((String) map.get("optionText"));
         term.setIncrementId((Integer) map.get("incrementId"));
-        term.setParameterId((Long) map.get("parameterId"));
+        term.setParameterId(convertToLong(  map.get("parameterId")));
         term.setSex((String) map.get("sex"));
         term.setSelectionOutcome((String) map.get("selectionOutcome"));
 

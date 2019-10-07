@@ -19,6 +19,7 @@ package org.mousephenotype.cda.loads.create.extract.dcc;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.common.CommandLineUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
@@ -28,7 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
@@ -70,10 +72,12 @@ public class DccSpecimenExtractor implements CommandLineRunner {
 
 
     public static void main(String[] args) {
-        SpringApplication app = new SpringApplication(DccSpecimenExtractor.class);
-        app.setBannerMode(Banner.Mode.OFF);
-        app.setLogStartupInfo(false);
-        app.run(args);
+
+        new SpringApplicationBuilder(DccSpecimenExtractor.class)
+                .web(WebApplicationType.NONE)
+                .bannerMode(Banner.Mode.OFF)
+                .logStartupInfo(false)
+                .run(args);
     }
 
     @Override
@@ -85,7 +89,7 @@ public class DccSpecimenExtractor implements CommandLineRunner {
 
     private void initialize(String[] args) throws DataLoadException {
 
-        OptionParser parser = new OptionParser();
+        OptionParser parser = CommandLineUtils.getOptionParser();
 
         // parameter to indicate specimen table creation
         parser.accepts("create");

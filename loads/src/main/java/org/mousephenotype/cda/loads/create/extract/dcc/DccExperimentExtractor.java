@@ -20,6 +20,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
+import org.mousephenotype.cda.loads.common.CommandLineUtils;
 import org.mousephenotype.cda.loads.common.DccSqlUtils;
 import org.mousephenotype.cda.loads.common.SpecimenExtended;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
@@ -30,7 +31,8 @@ import org.mousephenotype.dcc.utils.xml.XMLUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
@@ -83,10 +85,12 @@ public class DccExperimentExtractor implements CommandLineRunner {
 
 
     public static void main(String[] args) {
-        SpringApplication app = new SpringApplication(DccExperimentExtractor.class);
-        app.setBannerMode(Banner.Mode.OFF);
-        app.setLogStartupInfo(false);
-        app.run(args);
+
+        new SpringApplicationBuilder(DccExperimentExtractor.class)
+                .web(WebApplicationType.NONE)
+                .bannerMode(Banner.Mode.OFF)
+                .logStartupInfo(false)
+                .run(args);
     }
 
     @Override
@@ -104,7 +108,7 @@ public class DccExperimentExtractor implements CommandLineRunner {
             specimenIdPhenotypingCenterMap.put(key, specimen.getHjid());
         }
 
-        OptionParser parser = new OptionParser();
+        OptionParser parser = CommandLineUtils.getOptionParser();
 
         // parameter to indicate experiment table creation
         parser.accepts("create");

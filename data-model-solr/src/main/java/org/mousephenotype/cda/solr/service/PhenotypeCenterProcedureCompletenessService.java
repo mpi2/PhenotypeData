@@ -62,6 +62,7 @@ public class PhenotypeCenterProcedureCompletenessService {
         String[] temp = new String[1];
         List<String> header = new ArrayList<>();
         header.add("Colony Id");
+        header.add("Zygosity");
         header.add("Gene Symbol");
         header.add("MGI Gene Id");
         header.add("Allele Symbol");
@@ -84,6 +85,7 @@ public class PhenotypeCenterProcedureCompletenessService {
 				List<String> procedures = phenotypeCenterService.getDoneProcedureIdsPerStrainAndCenter(center, strain.getColonyId());
 				List<String> row = new ArrayList<>();
 				row.add(strain.getColonyId());
+				row.add(strain.getZygosity());
 				row.add(strain.getGeneSymbol());
 				row.add(strain.getMgiAccession());
 				row.add(strain.getAllele());

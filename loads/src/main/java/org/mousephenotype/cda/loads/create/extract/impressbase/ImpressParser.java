@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Lazy;
@@ -129,9 +131,10 @@ public class ImpressParser implements CommandLineRunner {
      * tables using the impress 2 rest web service.
      */
     public static void main(String[] args) throws Exception {
-        SpringApplication app = new SpringApplication(ImpressParser.class);
-        app.setBannerMode(Banner.Mode.OFF);
-        app.setLogStartupInfo(false);
+        SpringApplication app = new SpringApplicationBuilder(ImpressParser.class)
+                .bannerMode(Banner.Mode.OFF)
+                .web(WebApplicationType.NONE)
+                .logStartupInfo(false).build();
         app.run(args);
     }
 
