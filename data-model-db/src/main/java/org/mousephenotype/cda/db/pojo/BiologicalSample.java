@@ -71,7 +71,7 @@ public class BiologicalSample implements Serializable {
 	protected Long id;
 
 	@Column(name = "external_id")
-	private String stableId;
+	protected String stableId;
 
 	@OneToOne
 	@JoinColumn(name = "db_id")

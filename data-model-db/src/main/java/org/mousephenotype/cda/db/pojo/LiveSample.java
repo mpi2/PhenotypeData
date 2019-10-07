@@ -158,7 +158,6 @@ public class LiveSample extends BiologicalSample {
 				", zygosity='" + zygosity + '\'' +
 				", colonyID='" + colonyID + '\'' +
 				", dateOfBirth=" + dateOfBirth +
-				", productionCenter=" + productionCenter +
 				", litterId='" + litterId + '\'' +
 				", id=" + id +
 				", datasource=" + datasource +
