@@ -153,13 +153,14 @@ public class LiveSample extends BiologicalSample {
 	@Override
 	public String toString() {
 		return "LiveSample{" +
-				"developmentalStage=" + developmentalStage +
+				"id=" + id +
+				", stableId='" + stableId + '\'' +
+				", developmentalStage=" + developmentalStage +
 				", sex='" + sex + '\'' +
 				", zygosity='" + zygosity + '\'' +
 				", colonyID='" + colonyID + '\'' +
 				", dateOfBirth=" + dateOfBirth +
 				", litterId='" + litterId + '\'' +
-				", id=" + id +
 				", datasource=" + datasource +
 				", group='" + group + '\'' +
 				", type=" + type +
