@@ -36,13 +36,13 @@ public class GenerateDerivedParametersConfig {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("${datasource.komp2_derived.jdbc-url}")
+    @Value("${datasource.cda_derived.jdbc-url}")
     String komp2Url;
 
-    @Value("${datasource.komp2_derived.username}")
+    @Value("${datasource.cda_derived.username}")
     String komp2Username;
 
-    @Value("${datasource.komp2_derived.password}")
+    @Value("${datasource.cda_derived.password}")
     String komp2Password;
 
 
