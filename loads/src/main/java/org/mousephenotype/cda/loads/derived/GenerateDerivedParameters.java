@@ -3022,6 +3022,10 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     public void setOrganisations(Map<String, Organisation> organisations) {
         this.organisations = organisations;
     }
+
+    public void setAllAnimals(Map<Long, LiveSample> animals) {
+        this.animals = animals;
+    }
     /* ************************************************************************************** */
     /* NOT USED METHODS BELOW */
     /* ************************************************************************************** */
