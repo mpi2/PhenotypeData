@@ -27,7 +27,7 @@ public class BioModelInsertDTOMGI extends BioModelInsertDTO {
 
 
     public BioModelInsertDTOMGI(long dbId, String allelicComposition, String geneticBackground, String zygosity, AccDbId gene, AccDbId alleleSymbol, AccDbId phenotype) {
-        super(dbId, 0L, allelicComposition, geneticBackground, zygosity);
+        super(dbId, null, allelicComposition, geneticBackground, zygosity);
         this.genes.add(gene);
         this.alleles.add( alleleSymbol);
         this.phenotypes.add(phenotype);
@@ -35,7 +35,7 @@ public class BioModelInsertDTOMGI extends BioModelInsertDTO {
 
 
     public BioModelInsertDTOMGI(long dbId, String allelicComposition, String geneticBackground, String zygosity) {
-        super(dbId, 0L, allelicComposition, geneticBackground, zygosity);
+        super(dbId, null, allelicComposition, geneticBackground, zygosity);
     }
 
     public Set<AccDbId> getGenes() {
