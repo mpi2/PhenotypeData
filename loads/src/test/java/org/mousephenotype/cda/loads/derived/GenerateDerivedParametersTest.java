@@ -3,6 +3,7 @@ package org.mousephenotype.cda.loads.derived;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.db.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,7 +14,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -57,6 +57,7 @@ public class GenerateDerivedParametersTest {
         generateDerivedParameters.setDatasources(generateDerivedParameters.loadAllDatasourcesById());
         generateDerivedParameters.setOrganisations(generateDerivedParameters.loadAllOrganisationsById());
         generateDerivedParameters.setProjects(generateDerivedParameters.loadAllProjectsById());
+        generateDerivedParameters.setAllAnimals(generateDerivedParameters.loadAllAnimalsById());
     }
 
 
@@ -82,7 +83,7 @@ public class GenerateDerivedParametersTest {
                 } else  if (bioSampleId == 2) {
                     // This is the 3 parameter version, so the result should be
                     // 100 * ((S - ((PP1_S + PP2_S + PP3_S) / 3)) / S)
-                    Float expectedValue = 100.0f * ((60.f - ((7.0f + 8 + 9 ) / 3)) / 6);
+                    Float expectedValue = 100.0f * ((6.0f - ((7.0f + 8 + 10 ) / 3)) / 6);
                     assert expectedValue == resultSet.getFloat("data_point");
                 }
 
@@ -98,17 +99,10 @@ public class GenerateDerivedParametersTest {
     @Test
     public void IMPC_BWT_008_001Test() throws SQLException {
 
-        List<String> params = new ArrayList<>();
-        params.add("IMPC_GRS_003_001");
-        params.add("IMPC_CAL_001_001");
-        params.add("IMPC_DXA_001_001");
-        params.add("IMPC_HWT_007_001");
-        params.add("IMPC_PAT_049_001");
-        params.add("IMPC_BWT_001_001");
-        params.add("IMPC_ABR_001_001");
-        params.add("IMPC_CHL_001_001");
-        params.add("TCP_CHL_001_001");
-        params.add("HMGU_ROT_004_001");
+        List<String> params = Constants.weightParameters;
+//        List<String> params = new ArrayList<>();
+//        params.add("IMPC_CAL_001_001");
+//        params.add("IMPC_BWT_001_001");
         generateDerivedParameters.plotParametersAsTimeSeries("IMPC_BWT_008_001", params);
 
         String statsQuery = "SELECT * FROM observation o INNER JOIN time_series_observation tso ON tso.id=o.id WHERE parameter_stable_id = 'IMPC_BWT_008_001' ";
@@ -129,6 +123,11 @@ public class GenerateDerivedParametersTest {
 
         assert resultCount == 5;
 
+    }
+
+    @Test
+    public void allAnimalsTest() {
+        System.out.println(generateDerivedParameters.loadAllAnimalsById());
     }
 
     private void printResultSet(ResultSet resultSet) throws SQLException {
