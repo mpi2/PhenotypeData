@@ -24,6 +24,7 @@ package org.mousephenotype.cda.db.pojo;
  * @see BiologicalModel
  */
 
+import javax.annotation.Nullable;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
@@ -108,10 +109,15 @@ public class BiologicalSample implements Serializable {
 	/**
 	 * bi-directional
 	 */
+
+	// nullable = false' causes hibernate to do an INNER JOIN on biological_sample_id
+	// rather than an OUTER JOIN (OUTER is the default)
+	// https://stackoverflow.com/questions/15181632/why-should-i-specify-column-nullable-false
 	@ManyToOne( cascade = {CascadeType.PERSIST, CascadeType.MERGE} )
     @JoinTable(name="biological_model_sample",
         joinColumns = @JoinColumn(name="biological_sample_id"),
-        inverseJoinColumns = @JoinColumn(name="biological_model_id")
+        inverseJoinColumns = @JoinColumn(name="biological_model_id",
+		nullable = false)
     )
 	protected BiologicalModel biologicalModel;
 
