@@ -3,7 +3,6 @@ package org.mousephenotype.cda.loads.derived;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.db.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,6 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -99,10 +99,10 @@ public class GenerateDerivedParametersTest {
     @Test
     public void IMPC_BWT_008_001Test() throws SQLException {
 
-        List<String> params = Constants.weightParameters;
-//        List<String> params = new ArrayList<>();
-//        params.add("IMPC_CAL_001_001");
-//        params.add("IMPC_BWT_001_001");
+//        List<String> params = Constants.weightParameters;
+        List<String> params = new ArrayList<>();
+        params.add("IMPC_CAL_001_001");
+        params.add("IMPC_BWT_001_001");
         generateDerivedParameters.plotParametersAsTimeSeries("IMPC_BWT_008_001", params);
 
         String statsQuery = "SELECT * FROM observation o INNER JOIN time_series_observation tso ON tso.id=o.id WHERE parameter_stable_id = 'IMPC_BWT_008_001' ";
