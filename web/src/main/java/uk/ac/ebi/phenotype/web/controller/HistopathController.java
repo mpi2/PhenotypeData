@@ -153,10 +153,24 @@ public class HistopathController {
 		return sampleIds;
 	}
 
+	/**
+	 *
+	 * @param acc - can now be acc but if no : then treated as symbol and look for gene with gene symbol
+	 * @param model
+	 * @return
+	 * @throws SolrServerException
+	 * @throws IOException
+	 */
 	@RequestMapping("/histopathsum/{acc}")
 	public String histopathSummary(@PathVariable String acc, Model model) throws SolrServerException, IOException {
 		// exmple Lpin2 MGI:1891341
-		GeneDTO gene = geneService.getGeneById(acc);
+		GeneDTO gene = null;
+		if(acc.contains(":")){
+			gene = geneService.getGeneById(acc);
+		}else{
+			gene = geneService.getGeneByGeneSymbolWithLimitedFields(acc);
+		}
+
 		model.addAttribute("gene", gene);
 
 		List<ObservationDTO> allObservations = histopathService.getObservationsForHistopathForGene(acc);

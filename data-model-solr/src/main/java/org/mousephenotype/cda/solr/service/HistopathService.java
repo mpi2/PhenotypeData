@@ -218,7 +218,7 @@ public class HistopathService {
 							String newValue=pivotCategory.getValue().toString();
 							if(geneToParameterToCategory.get(geneSYMBOL).containsKey(parameterName)){
 								String oldValue=geneToParameterToCategory.get(geneSYMBOL).get(parameterName);
-								System.err.println("error we already have this combination lets get the most significant one of the two??"+geneSYMBOL+" "+ parameterName +" "+geneToParameterToCategory.get(geneSYMBOL).get(parameterName)+" vs "+pivotCategory.getValue().toString());
+								//System.err.println("error we already have this combination lets get the most significant one of the two??"+geneSYMBOL+" "+ parameterName +" "+geneToParameterToCategory.get(geneSYMBOL).get(parameterName)+" vs "+pivotCategory.getValue().toString());
 								if(this.getIntValueForString(oldValue) > this.getIntValueForString(newValue)){
 									//old value is higher so don't replace it
 								}else{

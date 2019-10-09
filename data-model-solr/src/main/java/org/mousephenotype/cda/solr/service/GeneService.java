@@ -915,7 +915,7 @@ public class GeneService extends BasicService implements WebStatus{
 	}
 		
 	
-	public GeneDTO getGeneByGeneSymbol(String symbol) throws SolrServerException, IOException {
+	public GeneDTO getGeneByGeneSymbolWithLimitedFields(String symbol) throws SolrServerException, IOException {
 		SolrQuery solrQuery = new SolrQuery()
 			.setQuery(GeneDTO.MARKER_SYMBOL_LOWERCASE + ":\"" + symbol + "\"")
 			.setRows(1)
@@ -927,7 +927,19 @@ public class GeneService extends BasicService implements WebStatus{
 		}
 		return null;
 	}
-	
+
+
+	public GeneDTO getGeneByGeneSymbol(String symbol) throws SolrServerException, IOException {
+		SolrQuery solrQuery = new SolrQuery()
+				.setQuery(GeneDTO.MARKER_SYMBOL_LOWERCASE + ":\"" + symbol + "\"")
+				.setRows(1);
+
+		QueryResponse rsp = geneCore.query(solrQuery);
+		if (rsp.getResults().getNumFound() > 0) {
+			return rsp.getBeans(GeneDTO.class).get(0);
+		}
+		return null;
+	}
 		
 	
 	/**
