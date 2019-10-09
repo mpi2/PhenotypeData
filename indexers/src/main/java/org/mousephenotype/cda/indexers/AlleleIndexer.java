@@ -39,7 +39,6 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.File;
@@ -67,7 +66,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
     private Map<String, Set<String>>            humanSymbolLookupByMgiGeneAccessionId = new HashMap<>();
     private Map<String, Integer>                legacyProjectByMgiGeneAccessionId     = new HashMap<>();
     private Map<String, List<SangerAlleleBean>> sangerAlleleBeanByMgiGeneAccessionId  = new HashMap<>();
-    private Map<String, UniprotCanonical>       uniprotCanonicalByMgiGeneAccessionId  = new HashMap<>();
 
     private static final Map<String, String> CDA_STATUS_NAME_BY_IMITS_STATUS_NAME = new HashMap<>();
     static {
@@ -88,7 +86,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
     private SolrClient alleleCore;
     private SolrClient allele2Core;
     private SolrClient phenodigmCore;
-    private DataSource uniprotDataSource;
 
     protected AlleleIndexer() {
 
@@ -100,14 +97,12 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
             @NotNull OntologyTermRepository ontologyTermRepository,
             @NotNull SolrClient alleleCore,
             @NotNull SolrClient allele2Core,
-            @NotNull SolrClient phenodigmCore,
-            @NotNull @Named("uniprotDataSource") DataSource uniprotDataSource)
+            @NotNull SolrClient phenodigmCore)
     {
         super(komp2DataSource, ontologyTermRepository);
         this.alleleCore = alleleCore;
         this.allele2Core = allele2Core;
         this.phenodigmCore = phenodigmCore;
-        this.uniprotDataSource = uniprotDataSource;
     }
 
     @Override
@@ -146,10 +141,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
             populateMgiGeneId2EnsemblGeneId(connection);
             logger.info(" Added {} total Ensembl id to MGI gene id lookup beans", ensembleGeneIdByMgiGeneAccessionId.size());
 
-            // MGI gene id to Uniprot accession mapping
-            populateMgi2UniprotLookup(connection);
-            logger.info(" Added {} MGI to UNIPROT lookup beans", uniprotCanonicalByMgiGeneAccessionId.size());
-
             alleleCore.deleteByQuery("*:*");
             alleleCore.commit();
 
@@ -176,10 +167,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
                 // Look up the disease data
                 lookupDiseaseData(alleles);
-
-                // Look up gene to Uniprot mapping
-                lookupUniprotAcc(alleles);
-
 
                 // Now index the alleles
                 expectedDocumentCount += alleles.size();
@@ -221,103 +208,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
 
     	return ensembleGeneIdByMgiGeneAccessionId;
     }
-
-
-    private void populateMgi2UniprotLookup(Connection connection) throws SQLException {
-
-        //-- w/o haplotypes
-        String queryString = "WITH human AS " +
-                "(SELECT gce.accession, gce.entry_type, gce.name mod_id, upper(eg.gene_name) gene_name, gce.LENGTH, eg.ENSG_ID " +
-                "FROM sptr.GENE_CENTRIC_ENTRY gce, ENSEMBL_GENE eg " +
-                "WHERE gce.RELEASE IN " +
-                "   (SELECT max(release) release " +
-                "   FROM sptr.GENE_CENTRIC_ENTRY " +
-                "   WHERE tax_id = 9606 AND IS_CANONICAL = 1) " +
-                "   AND gce.TAX_ID = 9606 " +
-                "   AND gce.ACCESSION IN " +
-                "       (SELECT ACCESSION " +
-                "       FROM sptr.GENE_CENTRIC_ENTRY " +
-                "       WHERE RELEASE IN " +
-                "           (SELECT max(release) release FROM sptr.GENE_CENTRIC_ENTRY WHERE tax_id = 9606 AND IS_CANONICAL = 1) " +
-                "       AND tax_id = 9606 " +
-                "       AND IS_CANONICAL = 1) " +
-                "       AND gce.GENE_NAME_TYPE = 1 " +
-                "       AND gce.name = eg.mod_id " +
-                "       AND gce.tax_id = eg.tax_id), " +
-                "mouse AS " +
-                "(SELECT gce.accession, gce.entry_type, gce.name mod_id, upper(eg.gene_name) gene_name, gce.LENGTH, eg.ENSG_ID " +
-                "FROM sptr.GENE_CENTRIC_ENTRY gce, ENSEMBL_GENE eg " +
-                "WHERE gce.RELEASE IN " +
-                "   (SELECT max(release) release " +
-                "   FROM sptr.GENE_CENTRIC_ENTRY " +
-                "   WHERE tax_id = 9606 " +
-                "   AND IS_CANONICAL = 1) " +
-                "   AND gce.TAX_ID = 10090 " +
-                "   AND gce.ACCESSION IN " +
-                "       (SELECT ACCESSION FROM sptr.GENE_CENTRIC_ENTRY " +
-                "       WHERE RELEASE IN " +
-                "           (SELECT max(release) release FROM sptr.GENE_CENTRIC_ENTRY where tax_id = 9606 and IS_CANONICAL = 1) " +
-                "   AND tax_id = 10090 " +
-                "   AND IS_CANONICAL = 1) " +
-                "   AND gce.GENE_NAME_TYPE = 1 " +
-                "   AND gce.name = eg.mod_id AND gce.tax_id = eg.tax_id) " +
-                "SELECT DISTINCT h.accession h_acc, m.accession m_acc, h.gene_name symbol " +
-                "FROM human h, mouse m " +
-                "WHERE h.gene_name = m.gene_name " +
-                "ORDER BY h.gene_name";
-
-        Connection connUniprot = uniprotDataSource.getConnection();
-
-	    // take all isoforms of gene product mapped to uniprot (swissprot or trembl)
-	    try (PreparedStatement p = connUniprot.prepareStatement(queryString)) {
-            ResultSet resultSet = p.executeQuery();
-
-            UniprotCanonical uc = new UniprotCanonical();
-
-            while (resultSet.next()) {
-
-                String geneLabel = resultSet.getString("symbol");
-
-                if ( ! uniprotCanonicalByMgiGeneAccessionId.containsKey(geneLabel) ) {
-                    uniprotCanonicalByMgiGeneAccessionId.put(geneLabel, new UniprotCanonical());
-                }
-                uc = uniprotCanonicalByMgiGeneAccessionId.get(geneLabel);
-
-                uc.setHumanCanonicalProteinAcc(resultSet.getString("h_acc"));
-                uc.setMouseCanonicalProteinAcc(resultSet.getString("m_acc"));
-
-            }
-	    }
-	    catch(Exception e) {
-            e.printStackTrace();
-	    }
-	}
-
-
-    class UniprotCanonical {
-
-        String human_canonical_protein_acc;
-        String mouse_canonical_protein_acc;
-
-
-        public String getHumanCanonicalProteinAcc() {
-            return human_canonical_protein_acc;
-        }
-
-        public void setHumanCanonicalProteinAcc(String human_canonical_protein_acc) {
-            this.human_canonical_protein_acc = human_canonical_protein_acc;
-        }
-
-        public String getMouseCanonicalProteinAcc() {
-            return mouse_canonical_protein_acc;
-        }
-
-        public void setMouseCanonicalProteinAcc(String mouse_canonical_protein_acc) {
-            this.mouse_canonical_protein_acc = mouse_canonical_protein_acc;
-        }
-
-    }
-
 
     private void populateLegacyLookup(Connection connection, RunStatus runStatus) {
 
@@ -638,22 +528,6 @@ public class AlleleIndexer extends AbstractIndexer implements CommandLineRunner 
         }
 
         logger.debug(" Finished disease data lookup");
-    }
-
-    private void lookupUniprotAcc(Map<String, AlleleDTO> alleles) {
-    	 logger.debug(" Starting Uniprot Acc lookup");
-         for (String id : alleles.keySet()) {
-
-             AlleleDTO dto = alleles.get(id);
-
-             String gSymbol = dto.getMarkerSymbol().toUpperCase();
-
-             if ( uniprotCanonicalByMgiGeneAccessionId.containsKey(gSymbol)  ){
-                 dto.setUuniprotHumanCanonicalAcc(uniprotCanonicalByMgiGeneAccessionId.get(gSymbol).getHumanCanonicalProteinAcc());
-                 dto.setUuniprotMouseCanonicalAcc(uniprotCanonicalByMgiGeneAccessionId.get(gSymbol).getMouseCanonicalProteinAcc());
-             }
-
-         }
     }
 
     private void indexAlleles(Map<String, AlleleDTO> alleles) throws SolrServerException, IOException {

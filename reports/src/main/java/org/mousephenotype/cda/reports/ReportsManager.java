@@ -106,12 +106,6 @@ public class ReportsManager implements CommandLineRunner {
     @Autowired
     private ZygosityReport zygosityReport;
 
-    @Autowired
-    private ExpressionMpOverlapReport laczMpReport;
-
-    @Autowired
-    private IDRReport idrReport;
-
 
     private ReportsManagerParser parser = new ReportsManagerParser();
     private static final Logger log = LoggerFactory.getLogger(ReportsManager.class);

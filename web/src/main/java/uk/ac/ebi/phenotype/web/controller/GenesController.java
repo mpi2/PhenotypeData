@@ -23,7 +23,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.bean.ExpressionImagesBean;
-import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
@@ -31,12 +30,10 @@ import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.*;
-import org.mousephenotype.cda.utilities.DataReaderTsv;
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -57,10 +54,7 @@ import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryType;
-import uk.ac.ebi.phenotype.service.PharosDTO;
 import uk.ac.ebi.phenotype.service.PharosService;
-import uk.ac.ebi.phenotype.service.UniprotDTO;
-import uk.ac.ebi.phenotype.service.UniprotService;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.annotation.PostConstruct;
@@ -69,9 +63,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
@@ -95,7 +87,6 @@ public class GenesController {
     private final GeneService              geneService;
     private final StatisticalResultService statisticalResultService;
     private final GenotypePhenotypeService genotypePhenotypeService;
-    private final UniprotService           uniprotService;
     private final OrderService             orderService;
     private final ImpressService           impressService;
     private final WebDao                   phenoDigm2Dao;
@@ -109,7 +100,7 @@ public class GenesController {
     private PharosService pharosService;
 
     @Inject
-    public GenesController(PhenotypeCallSummarySolr phenotypeCallSummaryService, PhenotypeSummaryDAO phenSummary, ImagesSolrDao imagesSolrDao, ObservationService observationService, SolrIndex solrIndex, SolrIndex2 solrIndex2, WebDao phenoDigm2Dao, ImageService imageService, ExpressionService expressionService, RegisterInterestUtils riUtils, GeneService geneService, ImpressService impressService, GenotypePhenotypeService genotypePhenotypeService, UniprotService uniprotService, OrderService orderService, StatisticalResultService statisticalResultService) {
+    public GenesController(PhenotypeCallSummarySolr phenotypeCallSummaryService, PhenotypeSummaryDAO phenSummary, ImagesSolrDao imagesSolrDao, ObservationService observationService, SolrIndex solrIndex, SolrIndex2 solrIndex2, WebDao phenoDigm2Dao, ImageService imageService, ExpressionService expressionService, RegisterInterestUtils riUtils, GeneService geneService, ImpressService impressService, GenotypePhenotypeService genotypePhenotypeService, OrderService orderService, StatisticalResultService statisticalResultService) {
         this.phenotypeCallSummaryService = phenotypeCallSummaryService;
         this.phenSummary = phenSummary;
         this.imagesSolrDao = imagesSolrDao;
@@ -123,7 +114,6 @@ public class GenesController {
         this.geneService = geneService;
         this.impressService = impressService;
         this.genotypePhenotypeService = genotypePhenotypeService;
-        this.uniprotService = uniprotService;
         this.orderService = orderService;
         this.statisticalResultService = statisticalResultService;
     }
@@ -458,105 +448,6 @@ public class GenesController {
         processPhenotypes(acc, model, topLevelMpTermName, resourceFullname, request);
 
         return "PhenoFrag";
-    }
-
-    /**
-     * @author tudose
-     * @throws Exception
-     * @since 2015/10/02
-     */
-    @RequestMapping("/genes/summary")
-    public String geneSummary(@RequestParam(value = "acc", required = true) String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
-            throws Exception {
-
-        GeneDTO gene = geneService.getGeneById(acc);
-
-        UniprotDTO uniprotData = uniprotService.getUniprotData(gene);
-
-        Map<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
-        Map<String, String> mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
-        Map<String, String> mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
-        for (String str : mpGroupsSignificant.keySet()) {
-            if (mpGroupsNotSignificant.keySet().contains(str)) {
-                mpGroupsNotSignificant.remove(str);
-            }
-        }
-        Set<String> viabilityCalls = observationService.getViabilityForGene(acc);
-        Set<String> allelesWithData = genotypePhenotypeService.getAllGenotypePhenotypesForGene(acc);
-        Map<String, String> alleleCassette = (allelesWithData.size() > 0 && allelesWithData != null) ? solrIndex2.getAlleleImage(allelesWithData) : null;
-        String genePageUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
-        Map<String, String> prod = geneService.getProductionStatus(acc, genePageUrl);
-        String prodStatusIcons = (prod.get("productionIcons").equalsIgnoreCase("")) ? "" : prod.get("productionIcons");
-        List<ImageSummary> imageSummary = imageService.getImageSummary(acc);
-
-        if (gene.getUniprotHumanCanonicalAcc() != null) {
-            JSONObject pfamJson = JSONRestUtil.getResultsArray("http://pfam.xfam.org/protein/" + gene.getUniprotHumanCanonicalAcc() + "/graphic").getJSONObject(0);
-            model.addAttribute("pfamJson", pfamJson);
-        }
-
-        PharosDTO pharos = pharosService.getPharosInfo(gene.getHumanGeneSymbol().get(0));
-
-        Map<String, Double> stringDBTable = readStringDbTable(gene.getMarkerSymbol());
-        // Adds "orthologousDiseaseAssociations", "phenotypicDiseaseAssociations" to the model
-        /** pdsimplify: replaced processDisease by processDisease2
-         * The genesSummary jsp should be updated to use phenodigm2 objects **/
-        processDisease(acc, model);
-        model.addAttribute("stringDbTable", stringDBTable);
-        model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
-        model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
-        model.addAttribute("viabilityCalls", viabilityCalls);
-        model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
-
-        model.addAttribute("gene", gene);
-        model.addAttribute("alleleCassette", alleleCassette);
-        model.addAttribute("imageSummary", imageSummary);
-        model.addAttribute("prodStatusIcons", prodStatusIcons);
-        model.addAttribute("uniprotData", uniprotData);
-        model.addAttribute("pharos", pharos);
-        return "geneSummary";
-    }
-
-    @RequestMapping("/pFam/{acc}")
-    public String pFamGraphic(@PathVariable String acc, Model model, HttpServletRequest request, RedirectAttributes attributes)
-            throws Exception {
-
-        GeneDTO gene = geneService.getGeneById(acc);
-        if (gene.getUniprotHumanCanonicalAcc() != null) {
-            JSONObject pfamJson = JSONRestUtil.getResultsArray("http://pfam.xfam.org/protein/" + gene.getUniprotHumanCanonicalAcc() + "/graphic").getJSONObject(0);
-            model.addAttribute("pfamJson", pfamJson);
-        }
-        return "pfamDomain";
-    }
-
-    private Map<String, Double> readStringDbTable(String geneSymbol) throws MalformedURLException, IOException, URISyntaxException {
-
-        Map<String, Double> map = new java.util.HashMap<>();
-
-        try {
-            String stringDbUrl = "http://string-db.org/api/tsv-no-header/resolve?identifier=" + geneSymbol + "&format=only-ids&species=10090";
-            String id = proxy.getContent(new URL(stringDbUrl), true);
-            stringDbUrl = "http://string-db.org/api/psi-mi-tab/interactionsList?identifiers=" + id + "&limit=20";
-
-            // Parse interactor gene symbol and score. Example return format : 
-            // string:10090.ENSMUSP00000022100	string:10090.ENSMUSP00000003268	Slc6a3	Sh3gl1	-	-	-	-	-	taxid:10090	taxid:10090	-	-	-	score:0.654|tscore:0.654
-            // Interactions http://string-db.org/api/psi-mi-tab/interactionsList?identifiers=10090.ENSMUSP00000087479&limit=20
-            DataReaderTsv tsvReader = new DataReaderTsv(new URL(stringDbUrl));
-            String[][] data = tsvReader.getData();
-
-            for (int i = 0; i < data.length; i++) {
-                if (data[i][2].equalsIgnoreCase(geneSymbol)) {// direct interaction
-                    map.put(data[i][3], Double.valueOf(data[i][14].replaceAll("score:", "").split("\\|")[0]));
-                } else if (data[i][3].equalsIgnoreCase(geneSymbol)) {// direct interaction presented in reverse order
-                    map.put(data[i][2], Double.valueOf(data[i][14].replaceAll("score:", "").split("\\|")[0]));
-                }
-            }
-
-        } catch (Exception e) {
-            LOGGER.error("STRING db could not be accessed.");
-            e.printStackTrace();
-        }
-
-        return map;
     }
 
     private Map<String, Map<String, Integer>> sortPhenFacets(Map<String, Map<String, Integer>> phenFacets) {
