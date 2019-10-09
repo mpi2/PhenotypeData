@@ -142,8 +142,6 @@ public class GeneDTO {
 	public static final String GO_UNIPROT = "go_uniprot";
 	public static final String EVID_CODE_RANK = "evidCodeRank";
 
-	public static final String UNIPROT_HUMAN_CANONICAL = "uniprot_human_canonical";
-	public static final String UNIPROT_MOUSE_CANONICAL = "uniprot_mouse_canonical";
 
 	public static final String PFAMA_JSON = "pfama_json";
 	public static final String SCDB_ID = "scdb_id"; // structural classification db id
@@ -682,12 +680,6 @@ public class GeneDTO {
 
 	@Field(EVID_CODE_RANK)
 	private Integer evidCodeRank;
-
-	@Field(UNIPROT_HUMAN_CANONICAL)
-	private String uniprotHumanCanonical;
-
-	@Field(UNIPROT_MOUSE_CANONICAL)
-	private String uniprotMouseCanonical;
 
 	@Field(PFAMA_JSON)
 	private List<String> pfama_jsons = new ArrayList<>();
@@ -1967,37 +1959,6 @@ public class GeneDTO {
 
 
 	/**
-	 * @return the uniprot_human_canonical
-	 */
-	public String getUniprotHumanCanonicalAcc() {
-		return uniprotHumanCanonical;
-	}
-
-	/**
-	 * @param uniprotHumanCanonical
-	 *            the uniprotHumanCanonical to set
-	 */
-	public void setUuniprotHumanCanonicalAcc(String uniprotHumanCanonical) {
-		this.uniprotHumanCanonical = uniprotHumanCanonical;
-	}
-
-	/**
-	 * @return the uniprot_mouse_canonical
-	 */
-	public String getUuniprotMouseCanonicalAcc() {
-		return uniprotMouseCanonical;
-	}
-
-	/**
-	 * @param uniprotMouseCanonical
-	 *            the uniprotMouseCanonical to set
-	 */
-	public void setUuniprotMouseCanonicalAcc(String uniprotMouseCanonical) {
-		this.uniprotMouseCanonical = uniprotMouseCanonical;
-	}
-
-
-	/**
 	 * @return the scdb_ids
 	 */
 	public List<String> getScdbIds() {
@@ -2363,10 +2324,6 @@ public class GeneDTO {
 		if (go_uniprot != null ? !go_uniprot.equals(geneDTO.go_uniprot) : geneDTO.go_uniprot != null) return false;
 		if (evidCodeRank != null ? !evidCodeRank.equals(geneDTO.evidCodeRank) : geneDTO.evidCodeRank != null)
 			return false;
-		if (uniprotHumanCanonical != null ? !uniprotHumanCanonical.equals(geneDTO.uniprotHumanCanonical) : geneDTO.uniprotHumanCanonical != null)
-			return false;
-		if (uniprotMouseCanonical != null ? !uniprotMouseCanonical.equals(geneDTO.uniprotMouseCanonical) : geneDTO.uniprotMouseCanonical != null)
-			return false;
 		if (pfama_jsons != null ? !pfama_jsons.equals(geneDTO.pfama_jsons) : geneDTO.pfama_jsons != null) return false;
 		if (scdb_ids != null ? !scdb_ids.equals(geneDTO.scdb_ids) : geneDTO.scdb_ids != null) return false;
 		if (scdb_links != null ? !scdb_links.equals(geneDTO.scdb_links) : geneDTO.scdb_links != null) return false;
@@ -2502,8 +2459,6 @@ public class GeneDTO {
 		result = 31 * result + (goCount != null ? goCount.hashCode() : 0);
 		result = 31 * result + (go_uniprot != null ? go_uniprot.hashCode() : 0);
 		result = 31 * result + (evidCodeRank != null ? evidCodeRank.hashCode() : 0);
-		result = 31 * result + (uniprotHumanCanonical != null ? uniprotHumanCanonical.hashCode() : 0);
-		result = 31 * result + (uniprotMouseCanonical != null ? uniprotMouseCanonical.hashCode() : 0);
 		result = 31 * result + (pfama_jsons != null ? pfama_jsons.hashCode() : 0);
 		result = 31 * result + (scdb_ids != null ? scdb_ids.hashCode() : 0);
 		result = 31 * result + (scdb_links != null ? scdb_links.hashCode() : 0);
@@ -2641,8 +2596,6 @@ public class GeneDTO {
 				", goCount=" + goCount +
 				", go_uniprot=" + go_uniprot +
 				", evidCodeRank=" + evidCodeRank +
-				", uniprotHumanCanonical='" + uniprotHumanCanonical + '\'' +
-				", uniprotMouseCanonical='" + uniprotMouseCanonical + '\'' +
 				", pfama_jsons=" + pfama_jsons +
 				", scdb_ids=" + scdb_ids +
 				", scdb_links=" + scdb_links +

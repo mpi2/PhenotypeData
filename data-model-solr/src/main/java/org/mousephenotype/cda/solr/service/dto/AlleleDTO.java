@@ -80,9 +80,6 @@ public class AlleleDTO {
 	public static final String GO_UNIPROT = "go_uniprot";
 	public static final String EVID_CODE_RANK = "evidCodeRank";
 
-	public static final String UNIPROT_HUMAN_CANONICAL = "uniprot_human_canonical";
-	public static final String UNIPROT_MOUSE_CANONICAL = "uniprot_mouse_canonical";
-
 	public static final String PFAMA_JSON = "pfama_json";
 	public static final String SCDB_ID = "scdb_id"; // structural classification db id
 	public static final String SCDB_LINK = "scdb_link";
@@ -266,12 +263,6 @@ public class AlleleDTO {
 
 	@Field(EVID_CODE_RANK)
 	private Integer evidCodeRank;
-
-	@Field(UNIPROT_HUMAN_CANONICAL)
-	private String uniprotHumanCanonical;
-
-	@Field(UNIPROT_MOUSE_CANONICAL)
-	private String uniprotMouseCanonical;
 
 	@Field(PFAMA_JSON)
 	private List<String> pfama_jsons = new ArrayList<>();
@@ -953,36 +944,6 @@ public class AlleleDTO {
 		this.evidCodeRank = evidCodeRank;
 	}
 
-	/**
-	 * @return the uniprot_human_canonical
-	 */
-	public String getUuniprotHumanCanonicalAcc() {
-		return uniprotHumanCanonical;
-	}
-
-	/**
-	 * @param uniprotHumanCanonical
-	 *            the uniprotHumanCanonical to set
-	 */
-	public void setUuniprotHumanCanonicalAcc(String uniprotHumanCanonical) {
-		this.uniprotHumanCanonical = uniprotHumanCanonical;
-	}
-
-	/**
-	 * @return the uniprot_mouse_canonical
-	 */
-	public String getUuniprotMouseCanonicalAcc() {
-		return uniprotMouseCanonical;
-	}
-
-	/**
-	 * @param uniprotMouseCanonical
-	 *            the uniprotMouseCanonical to set
-	 */
-	public void setUuniprotMouseCanonicalAcc(String uniprotMouseCanonical) {
-		this.uniprotMouseCanonical = uniprotMouseCanonical;
-	}
-
 
 	/**
 	 * @return the scdb_ids
@@ -1498,8 +1459,6 @@ public class AlleleDTO {
 				", goCount=" + goCount +
 				", go_uniprot=" + go_uniprot +
 				", evidCodeRank=" + evidCodeRank +
-				", uniprotHumanCanonical='" + uniprotHumanCanonical + '\'' +
-				", uniprotMouseCanonical='" + uniprotMouseCanonical + '\'' +
 				", pfama_jsons=" + pfama_jsons +
 				", scdb_ids=" + scdb_ids +
 				", scdb_links=" + scdb_links +
