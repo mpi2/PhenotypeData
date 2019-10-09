@@ -209,7 +209,7 @@ ImpcImagesTest {
         List<String> geneIds = new ArrayList<>();
 
         for (String gene : genes) {
-            GeneDTO geneDto = geneService.getGeneByGeneSymbol(gene);
+            GeneDTO geneDto = geneService.getGeneByGeneSymbolWithLimitedFields(gene);
             logger.debug("geneDto=" + geneDto.getMgiAccessionId());
             geneIds.add(geneDto.getMgiAccessionId());
         }
