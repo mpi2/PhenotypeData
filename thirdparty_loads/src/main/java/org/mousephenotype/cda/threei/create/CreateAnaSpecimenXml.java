@@ -18,19 +18,26 @@ package org.mousephenotype.cda.threei.create;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import org.mousephenotype.cda.loads.common.CommandLineUtils;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.*;
-import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.*;
+import org.mousephenotype.cda.threei.util.AnaExcelReader;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.CentreILARcode;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.Gender;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.common.Zygosity;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.CentreSpecimen;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.CentreSpecimenSet;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.Mouse;
+import org.mousephenotype.dcc.exportlibrary.datastructure.core.specimen.Specimen;
 import org.mousephenotype.dcc.utils.xml.XMLUtils;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 
+import java.util.ArrayList;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 //import org.mousephenotype.cda.loads.create.extract.dcc.TestSpecimen;
-import org.mousephenotype.cda.threei.util.AnaExcelReader;
-
-import java.util.*;
 
 /**
  * Created by kolab on 04/10/2017 - based on DccSpecimenExtractor.
@@ -60,7 +67,7 @@ public class CreateAnaSpecimenXml extends CreateAnaXmls implements CommandLineRu
 
     private void initialize(String[] args) throws DataLoadException {
 
-        OptionParser parser = new OptionParser();
+        OptionParser parser = CommandLineUtils.getOptionParser();
 
         // parameter to indicate the name of the file to process
         parser.accepts("infilename").withRequiredArg().ofType(String.class);
