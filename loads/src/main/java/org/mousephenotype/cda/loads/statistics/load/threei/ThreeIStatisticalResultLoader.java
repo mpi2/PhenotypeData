@@ -15,8 +15,11 @@ import org.mousephenotype.cda.loads.statistics.load.StatisticalResultFailed;
 import org.mousephenotype.cda.loads.statistics.load.StatisticalResultLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.core.io.Resource;
@@ -761,8 +764,15 @@ public class ThreeIStatisticalResultLoader extends StatisticalResultLoader imple
 
     }
 
-    public static void main(String[] args) throws Exception {
-        SpringApplication.run(ThreeIStatisticalResultLoader.class, args);
+    public static void main(String[] args) {
+
+        ConfigurableApplicationContext context = new SpringApplicationBuilder(ThreeIStatisticalResultLoader.class)
+                .web(WebApplicationType.NONE)
+                .bannerMode(Banner.Mode.OFF)
+                .logStartupInfo(false)
+                .run(args);
+
+        context.close();
     }
 
     protected void populateBioModelMap() throws SQLException {

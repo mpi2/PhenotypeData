@@ -42,9 +42,12 @@ import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import javax.inject.Inject;
@@ -141,7 +144,13 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
     }
 
 	public static void main(String[] args) {
-        ConfigurableApplicationContext context = SpringApplication.run(ObservationIndexer.class, args);
+
+        ConfigurableApplicationContext context = new SpringApplicationBuilder(ObservationIndexer.class)
+                .web(WebApplicationType.NONE)
+                .bannerMode(Banner.Mode.OFF)
+                .logStartupInfo(false)
+                .run(args);
+
         context.close();
     }
 

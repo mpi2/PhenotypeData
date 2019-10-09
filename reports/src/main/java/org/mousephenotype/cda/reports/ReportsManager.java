@@ -21,9 +21,12 @@ import org.mousephenotype.cda.reports.support.ReportsManagerParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import java.io.File;
 import java.util.List;
@@ -191,7 +194,13 @@ public class ReportsManager implements CommandLineRunner {
 
     public static void main(String args[]) {
 
-        SpringApplication.run(ReportsManager.class, args);
+        ConfigurableApplicationContext context = new SpringApplicationBuilder(ReportsManager.class)
+                .web(WebApplicationType.NONE)
+                .bannerMode(Banner.Mode.OFF)
+                .logStartupInfo(false)
+                .run(args);
+
+        context.close();
     }
 
     @Override
