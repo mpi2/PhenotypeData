@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -45,8 +46,12 @@ public class IndexerConfig {
     @Inject
     public IndexerConfig(@NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository)
     {
-        logger.info("Configured indexes with build path {}, internal path {}", writeSolrBaseUrl, internalSolrUrl);
         this.genesSecondaryProjectRepository = genesSecondaryProjectRepository;
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+        logger.info("Configured indexes with build path {}, internal path {}", writeSolrBaseUrl, internalSolrUrl);
     }
 
 
