@@ -163,6 +163,8 @@ public class BiologicalModelLoader implements InitializingBean, Step {
     @Override
     public void execute(StepExecution stepExecution) throws JobInterruptedException {
 
+        DummyWriter dummyWriter = new DummyWriter();
+
         // NOTE: PROCESS THE ENTIRE FILE BEFORE WRITING, AS THE FILE IS AN AGGREGATE.
 
         Step loadBioModelStep = stepBuilderFactory.get("loadBioModelStep")
@@ -171,6 +173,7 @@ public class BiologicalModelLoader implements InitializingBean, Step {
                 .reader(bioModelReader)
                 .processor(bioModelProcessor)
                 // Don't add a writer here, as this processing simply populates the bioModels map.
+                .writer(dummyWriter)
                 .build();
 
         // Synchronous flows.

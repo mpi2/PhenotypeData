@@ -25,9 +25,12 @@ import org.mousephenotype.cda.indexers.exceptions.*;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -437,6 +440,8 @@ public class IndexerManager  implements CommandLineRunner {
      */
     private OptionSet parseCommandLine(String[] args) throws IndexerException {
         OptionParser parser = new OptionParser();
+        parser.allowsUnrecognizedOptions();
+
         OptionSet options = null;
 
         // cores [optional]
@@ -558,7 +563,13 @@ public class IndexerManager  implements CommandLineRunner {
     }
 
     public static void main(String[] args) {
-        ConfigurableApplicationContext context = SpringApplication.run(IndexerManager.class, args);
+
+        ConfigurableApplicationContext context = new SpringApplicationBuilder(IndexerManager.class)
+                .web(WebApplicationType.NONE)
+                .bannerMode(Banner.Mode.OFF)
+                .logStartupInfo(false)
+                .run(args);
+
         context.close();
     }
 

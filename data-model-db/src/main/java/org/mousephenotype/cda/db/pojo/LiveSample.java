@@ -27,6 +27,7 @@ package org.mousephenotype.cda.db.pojo;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Objects;
 
 
 @Entity
@@ -150,4 +151,42 @@ public class LiveSample extends BiologicalSample {
 		this.colonyID = colonyID;
 	}
 
+	@Override
+	public String toString() {
+		return "LiveSample{" +
+				"id=" + id +
+				", stableId='" + stableId + '\'' +
+				", developmentalStage=" + developmentalStage +
+				", sex='" + sex + '\'' +
+				", zygosity='" + zygosity + '\'' +
+				", colonyID='" + colonyID + '\'' +
+				", dateOfBirth=" + dateOfBirth +
+				", litterId='" + litterId + '\'' +
+				", datasource=" + datasource +
+				", group='" + group + '\'' +
+				", type=" + type +
+				", organisation=" + organisation +
+				", productionCenter=" + productionCenter +
+				", project=" + project +
+				", biologicalModel=" + biologicalModel +
+				'}';
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		if (!super.equals(o)) return false;
+		LiveSample that = (LiveSample) o;
+		return sex.equals(that.sex) &&
+				zygosity.equals(that.zygosity) &&
+				colonyID.equals(that.colonyID) &&
+				Objects.equals(dateOfBirth, that.dateOfBirth) &&
+				litterId.equals(that.litterId);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(super.hashCode(), sex, zygosity, colonyID, dateOfBirth, litterId);
+	}
 }

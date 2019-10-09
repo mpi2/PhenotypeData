@@ -8,14 +8,18 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.loads.common.CommandLineUtils;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.BasicService;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Import;
 import org.springframework.util.Assert;
 
@@ -95,7 +99,7 @@ public class StatisticalDatasetGeneratorEpi extends BasicService implements Comm
 
         List<String> parametersToLoad = null;
 
-        OptionParser parser = new OptionParser();
+        OptionParser parser = CommandLineUtils.getOptionParser();
         parser.accepts("parameters").withRequiredArg();
         OptionSet options = parser.parse( strings );
 
@@ -562,7 +566,14 @@ public class StatisticalDatasetGeneratorEpi extends BasicService implements Comm
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(StatisticalDatasetGeneratorEpi.class, args);
+
+        ConfigurableApplicationContext context = new SpringApplicationBuilder(StatisticalDatasetGeneratorEpi.class)
+                .web(WebApplicationType.NONE)
+                .bannerMode(Banner.Mode.OFF)
+                .logStartupInfo(false)
+                .run(args);
+
+        context.close();
     }
 
 

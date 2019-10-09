@@ -19,6 +19,7 @@ package org.mousephenotype.cda.loads.create.extract.cdabase;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.mousephenotype.cda.loads.common.CommandLineUtils;
 import org.mousephenotype.cda.loads.create.extract.cdabase.steps.*;
 import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.slf4j.Logger;
@@ -36,8 +37,8 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
@@ -53,10 +54,10 @@ import java.util.concurrent.Executors;
 /**
  * Created by mrelac on 12/04/2016.
  */
-@ComponentScan
+@SpringBootApplication
 public class CdabaseExtractor implements CommandLineRunner {
 
-    private SqlUtils               sqlUtils = new SqlUtils();
+    private SqlUtils               sqlUtils     = new SqlUtils();
     private JobBuilderFactory      jobBuilderFactory;
     private StepBuilderFactory     stepBuilderFactory;
     private JobRepository          jobRepository;
@@ -107,7 +108,7 @@ public class CdabaseExtractor implements CommandLineRunner {
      * the intermediate cda database 'cda_base' and initialises it with ontologies, strains, genes, alleles, synonyms,
      * biological models, and phenotyped colony information read from reports.
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
 
         new SpringApplicationBuilder(CdabaseExtractor.class)
                 .web(WebApplicationType.NONE)
@@ -126,9 +127,7 @@ public class CdabaseExtractor implements CommandLineRunner {
 
     private void initialise(String[] args) throws DataLoadException {
 
-        OptionParser parser = new OptionParser();
-
-        parser.allowsUnrecognizedOptions();
+        OptionParser parser = CommandLineUtils.getOptionParser();
 
         // parameter to indicate that the download step should be skipped.
         parser.accepts("skipDownload");

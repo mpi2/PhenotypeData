@@ -11,12 +11,14 @@ import org.mousephenotype.cda.db.utilities.ObservationUtils;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.loads.common.CommandLineUtils;
 import org.mousephenotype.cda.loads.common.ConcurrentHashMapAllowNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Import;
 
 import javax.inject.Inject;
@@ -103,7 +105,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         pipelines = loadAllPipelinesByStableId();
 
 
-        OptionParser parser = new OptionParser();
+        OptionParser parser = CommandLineUtils.getOptionParser();
         parser.accepts( "context" ).withRequiredArg();
         parser.accepts("parameters").withRequiredArg();
         OptionSet options = parser.parse( args );
@@ -3020,6 +3022,10 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     public void setOrganisations(Map<String, Organisation> organisations) {
         this.organisations = organisations;
     }
+
+    public void setAllAnimals(Map<Long, LiveSample> animals) {
+        this.animals = animals;
+    }
     /* ************************************************************************************** */
     /* NOT USED METHODS BELOW */
     /* ************************************************************************************** */
@@ -3282,6 +3288,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
 
     public static void main(String[] args) {
-        SpringApplication.run(GenerateDerivedParameters.class, args);
+        new SpringApplicationBuilder(GenerateDerivedParameters.class)
+                .web(WebApplicationType.NONE)
+                .run(args);
     }
 }

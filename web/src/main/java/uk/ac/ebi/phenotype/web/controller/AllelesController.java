@@ -338,6 +338,7 @@ public class AllelesController {
         model.addAttribute("mice", constructs.get("mice"));
         model.addAttribute("es_cells", constructs.get("es_cells"));
         model.addAttribute("targeting_vectors", constructs.get("targeting_vectors"));
+        model.addAttribute("tissue_enquiry_types", constructs.get("tissue_enquiry_types"));
         model.addAttribute("tissue_enquiry_links", constructs.get("tissue_enquiry_links"));
         model.addAttribute("tissue_distribution_centres", constructs.get("tissue_distribution_centres"));
         model.addAttribute("summary", constructs.get("summary"));

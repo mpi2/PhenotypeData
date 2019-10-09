@@ -24,8 +24,10 @@ package org.mousephenotype.cda.db.pojo;
  * @see BiologicalModel
  */
 
+import javax.annotation.Nullable;
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Objects;
 
 
 @Entity
@@ -68,36 +70,36 @@ public class BiologicalSample implements Serializable {
 	@Id
 	@GeneratedValue(strategy= GenerationType.IDENTITY)
 	@Column(name = "id")
-	private Long id;
+	protected Long id;
 
 	@Column(name = "external_id")
-	private String stableId;
+	protected String stableId;
 
 	@OneToOne
 	@JoinColumn(name = "db_id")
-	private Datasource datasource;
+	protected Datasource datasource;
 
 	@Column(name = "sample_group")
-	private String group;
+	protected String group;
 
 	@OneToOne
 	@JoinColumns({
 	@JoinColumn(name = "sample_type_acc"),
 	@JoinColumn(name = "sample_type_db_id"),
 	})
-	private OntologyTerm type;
+	protected OntologyTerm type;
 
 	@OneToOne
 	@JoinColumn(name = "organisation_id")
-	private Organisation organisation;
+	protected Organisation organisation;
 
 	@OneToOne
 	@JoinColumn(name = "production_center_id")
-	private Organisation productionCenter;
+	protected Organisation productionCenter;
 
 	@OneToOne
 	@JoinColumn(name = "project_id")
-	private Project project;
+	protected Project project;
 
 	//a association table is used to store the link between the 2 entities
 	// will implement this later!
@@ -107,12 +109,17 @@ public class BiologicalSample implements Serializable {
 	/**
 	 * bi-directional
 	 */
+
+	// nullable = false' causes hibernate to do an INNER JOIN on biological_sample_id
+	// rather than an OUTER JOIN (OUTER is the default)
+	// https://stackoverflow.com/questions/15181632/why-should-i-specify-column-nullable-false
 	@ManyToOne( cascade = {CascadeType.PERSIST, CascadeType.MERGE} )
     @JoinTable(name="biological_model_sample",
         joinColumns = @JoinColumn(name="biological_sample_id"),
-        inverseJoinColumns = @JoinColumn(name="biological_model_id")
+        inverseJoinColumns = @JoinColumn(name="biological_model_id",
+		nullable = false)
     )
-	private BiologicalModel biologicalModel;
+	protected BiologicalModel biologicalModel;
 
 	/**
 	 * @return the biologicalModel
@@ -228,4 +235,34 @@ public class BiologicalSample implements Serializable {
 	public void setProject(Project project) {
 		this.project = project;
 	}
+
+	@Override
+	public String toString() {
+		return "BiologicalSample{" +
+				"id=" + id +
+				", stableId='" + stableId + '\'' +
+				", datasource=" + datasource +
+				", group='" + group + '\'' +
+				", type=" + type +
+				", organisation=" + organisation +
+				", productionCenter=" + productionCenter +
+				", project=" + project +
+				", biologicalModel=" + biologicalModel +
+				'}';
+	}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BiologicalSample that = (BiologicalSample) o;
+        return stableId.equals(that.stableId) &&
+                group.equals(that.group) &&
+                organisation.equals(that.organisation);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(stableId, group, organisation);
+    }
 }

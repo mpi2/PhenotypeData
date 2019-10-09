@@ -31,6 +31,7 @@ public class PhenotypeCenterServiceBean {
     String allele;
     String geneSymbol;
     String colonyId;
+    String zygosity;
 
 
     @Inject
@@ -86,5 +87,21 @@ public class PhenotypeCenterServiceBean {
     public void setColonyId(String colonyId) {
 
         this.colonyId = colonyId;
+    }
+
+    public String getCenter() {
+        return center;
+    }
+
+    public void setCenter(String center) {
+        this.center = center;
+    }
+
+    public String getZygosity() {
+        return zygosity;
+    }
+
+    public void setZygosity(String zygosity) {
+        this.zygosity = zygosity;
     }
 }

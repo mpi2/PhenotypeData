@@ -19,6 +19,7 @@ package org.mousephenotype.cda.loads.derived;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -29,18 +30,19 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
+@EntityScan("org.mousephenotype.cda.db.pojo")
 @ComponentScan(basePackages = {"org.mousephenotype.cda.loads.derived"})
 public class GenerateDerivedParametersConfig {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("${datasource.komp2_derived.jdbc-url}")
+    @Value("${datasource.cda_derived.jdbc-url}")
     String komp2Url;
 
-    @Value("${datasource.komp2_derived.username}")
+    @Value("${datasource.cda_derived.username}")
     String komp2Username;
 
-    @Value("${datasource.komp2_derived.password}")
+    @Value("${datasource.cda_derived.password}")
     String komp2Password;
 
 

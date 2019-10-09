@@ -31,7 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.Assert;
@@ -139,10 +140,12 @@ public class ExperimentLoader implements CommandLineRunner {
 
 
     public static void main(String[] args) {
-        SpringApplication app = new SpringApplication(ExperimentLoader.class);
-        app.setBannerMode(Banner.Mode.OFF);
-        app.setLogStartupInfo(false);
-        app.run(args);
+
+        new SpringApplicationBuilder(ExperimentLoader.class)
+                .web(WebApplicationType.NONE)
+                .bannerMode(Banner.Mode.OFF)
+                .logStartupInfo(false)
+                .run(args);
     }
 
 
