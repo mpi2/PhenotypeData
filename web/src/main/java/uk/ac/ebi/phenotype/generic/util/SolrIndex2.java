@@ -401,14 +401,23 @@ public class SolrIndex2 {
         marker_symbol = gene.get("marker_symbol");
         title = getTitle(marker_symbol, allele_name);
 
-        ArrayList<String> tissueEnquiryLinks =  new ArrayList<>();
-        ArrayList<String> tissueEnquiryCenters = new ArrayList<>();
+        List<String> tissueEnquiryTypes =  new ArrayList<>();
+        List<String> tissueEnquiryLinks =  new ArrayList<>();
+        List<String> tissueEnquiryCenters = new ArrayList<>();
 
         if (alleleObject.getBoolean("tissues_available")) {
-            tissueEnquiryLinks =  new ArrayList<>(Arrays.asList(alleleObject.getJSONArray("tissue_enquiry_links").join(",").split(",")));
-            tissueEnquiryCenters = new ArrayList<>(Arrays.asList(alleleObject.getJSONArray("tissue_distribution_centres").join(",").split(",")));
+            if(alleleObject.has("tissue_types")) {
+                tissueEnquiryTypes = new ArrayList<>(Arrays.asList(alleleObject.getJSONArray("tissue_types").join(",").replaceAll("\"", "").split(",")));
+            }
+            if(alleleObject.has("tissue_enquiry_links")) {
+                tissueEnquiryLinks =  new ArrayList<>(Arrays.asList(alleleObject.getJSONArray("tissue_enquiry_links").join(",").replaceAll("\"", "").split(",")));
+            }
+            if(alleleObject.has("tissue_distribution_centres")) {
+                tissueEnquiryCenters = new ArrayList<>(Arrays.asList(alleleObject.getJSONArray("tissue_distribution_centres").join(",").replaceAll("\"", "").split(",")));
+            }
         }
 
+        mapper.put("tissue_enquiry_types", tissueEnquiryTypes);
         mapper.put("tissue_enquiry_links", tissueEnquiryLinks);
         mapper.put("tissue_distribution_centres", tissueEnquiryCenters);
 
@@ -741,27 +750,44 @@ public class SolrIndex2 {
         allele.put("allele_description" , alleleDoc.get("allele_description"));
         allele.put("genbank_file" , alleleDoc.get("genbank_file"));
         allele.put("allele_image" , alleleDoc.get("allele_image"));
-        allele.put("tissue_enquiry_links", alleleDoc.get("tissue_enquiry_links"));
+        if (alleleDoc.has("tissue_enquiry_links")) {
+            allele.put("tissue_enquiry_links", alleleDoc.get("tissue_enquiry_links"));
+        }
         allele.put("allele_simple_image" , alleleDoc.get("allele_simple_image"));
-        allele.put("cassette" , alleleDoc.get("cassette"));
-        allele.put("design_id" , alleleDoc.get("design_id"));
-        allele.put("es_cell_status" , alleleDoc.get("es_cell_status"));
-        allele.put("targeting_vector_status" , "No Targeting Vector Production");
-        allele.put("mouse_status" , alleleDoc.get("mouse_status"));
-        allele.put("phenotyping_status" , alleleDoc.get("phenotyping_status"));
-        allele.put("ikmc_project" , "");
+        if (alleleDoc.has("cassette")) {
+            allele.put("cassette", alleleDoc.get("cassette"));
+        }
+        if (alleleDoc.has("design_id")) {
+            allele.put("design_id", alleleDoc.get("design_id"));
+        }
+        if(alleleDoc.has("es_cell_status")) {
+            allele.put("es_cell_status", alleleDoc.get("es_cell_status"));
+        }
+
+        allele.put("targeting_vector_status", "No Targeting Vector Production");
+
+        if(alleleDoc.has("mouse_status")) {
+            allele.put("mouse_status", alleleDoc.get("mouse_status"));
+        }
+
+        if (alleleDoc.has("phenotyping_status")) {
+            allele.put("phenotyping_status", alleleDoc.get("phenotyping_status"));
+        }
 
         if (alleleDoc.has("es_cell_status") && ! alleleDoc.get("es_cell_status").equals("No ES Cell Production") && ! alleleDoc.get("es_cell_status").equals("")) {
             allele.put("targeting_vector_status" , "Targeting Vector Confirmed");
         }
 
+        allele.put("ikmc_project" , "");
         if (alleleDoc.has("ikmc_project")){
           allele.put("ikmc_project" , alleleDoc.getJSONArray("ikmc_project").get(0));
         }
+
         allele.put("pipeline" , "");
         if (alleleDoc.has("pipeline")){
           allele.put("pipeline" , alleleDoc.getJSONArray("pipeline").get(0));
         }
+
         if (alleleDoc.has("links")){
           allele.put("mutagenesis_url" , getKeyValuePairFromArray("mutagenesis_url", alleleDoc.getJSONArray("links")));
           allele.put("southern_tools" , getKeyValuePairFromArray("southern_tools", alleleDoc.getJSONArray("links")));

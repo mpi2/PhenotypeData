@@ -176,11 +176,40 @@
 
         </script>
 
-            <link rel="stylesheet" type="text/css" href="${baseUrl}/css/genes.css"/>				
+        <link rel="stylesheet" type="text/css" href="${baseUrl}/css/genes.css"/>
 
-        </jsp:attribute>
+        <c:if test="${liveSite || param.checklive != null}">
+            <!-- Google Tag Manager -->
+            <script>
+                (function (w, d, s, l, i) {
+                    w[l] = w[l] || [];
+                    w[l].push({
+                        'gtm.start':
+                            new Date().getTime(), event: 'gtm.js'
+                    });
+                    var f = d.getElementsByTagName(s)[0],
+                        j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
+                    j.async = true;
+                    j.src =
+                        'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+                    f.parentNode.insertBefore(j, f);
+                })(window, document, 'script', 'dataLayer', 'GTM-NZPSPWR');
+            </script>
+            <!-- End Google Tag Manager -->
+        </c:if>
+
+    </jsp:attribute>
 
     <jsp:body>
+
+        <c:if test="${liveSite || param.checklive != null}">
+        <!-- Google Tag Manager (noscript) -->
+            <noscript>
+                <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NZPSPWR" height="0" width="0" style="display:none;visibility:hidden"></iframe>
+            </noscript>
+            <!-- End Google Tag Manager (noscript) -->
+        </c:if>
+
         <div class="container data-heading">
             <div class="row row-shadow">
                 <div class="col-12 no-gutters">
