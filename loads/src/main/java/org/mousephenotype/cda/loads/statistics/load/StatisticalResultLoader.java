@@ -13,9 +13,12 @@ import org.mousephenotype.cda.loads.statistics.generate.StatisticalDatasetGenera
 import org.mousephenotype.cda.solr.service.BasicService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Import;
 import org.springframework.util.Assert;
 
@@ -1105,8 +1108,15 @@ public class StatisticalResultLoader extends BasicService implements CommandLine
 
     }
 
-    public static void main(String[] args) throws Exception {
-        SpringApplication.run(StatisticalResultLoader.class, args);
+    public static void main(String[] args) {
+
+        ConfigurableApplicationContext context = new SpringApplicationBuilder(StatisticalResultLoader.class)
+                .web(WebApplicationType.NONE)
+                .bannerMode(Banner.Mode.OFF)
+                .logStartupInfo(false)
+                .run(args);
+
+        context.close();
     }
 
 

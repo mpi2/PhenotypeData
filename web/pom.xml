@@ -27,15 +27,6 @@
 
     <dependencies>
 
-        <!-- JAXB dependency is needed for Uniprot parsing on gene summary -->
-        <!-- FIXME FIXME FIXME This is going away when uniprot is removed. -->
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.1</version>
-        </dependency>
-
-
         <!-- CDA/REGISTER INTEREST DEPENDENCIES -->
 
 

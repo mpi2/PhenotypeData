@@ -22,7 +22,6 @@
 
 package uk.ac.ebi;
 
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
@@ -43,6 +42,8 @@ public class PhenotypeArchive extends SpringBootServletInitializer {
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(PhenotypeArchive.class, args);
+
+        new SpringApplicationBuilder(PhenotypeArchive.class)
+                .run(args);
     }
 }

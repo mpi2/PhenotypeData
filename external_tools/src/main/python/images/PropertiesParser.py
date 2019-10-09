@@ -21,7 +21,7 @@ class PropertiesParser(object):
     def __init__(self):
         self.secheadname = 'fakeSectionHead'
         self.sechead = '[' + self.secheadname + ']\n'
-        self.logger = logging.getLogger(__name__)
+        #self.logger = logging.getLogger(__name__)
 
     def readline(self):
         if self.sechead:
@@ -45,6 +45,7 @@ class PropertiesParser(object):
             self.sechead = '[' + self.secheadname + ']\n'
             return cp.items(self.secheadname)
         except Exception as e:
-            self.logger.error("Problem parsing " + filepath + ". Error message: " + str(e))
+            #self.logger.error("Problem parsing " + filepath + ". Error message: " + str(e))
+            print "Problem parsing " + filepath + ". Error message: " + str(e)
             return {}
             

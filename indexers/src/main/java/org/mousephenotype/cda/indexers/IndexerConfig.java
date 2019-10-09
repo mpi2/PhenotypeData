@@ -11,8 +11,6 @@ import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +18,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.inject.Inject;
-import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 
@@ -176,28 +173,6 @@ public class IndexerConfig {
     @Bean
     public ImpressService impressService() {
         return new ImpressService(pipelineCore());
-    }
-
-
-
-    //////////////
-    // datasources
-    //////////////
-
-
-    @Value("${datasource.uniprot.jdbc-url}")
-    String uniprotUrl;
-
-    @Value("${datasource.uniprot.username}")
-    String uniprotUsername;
-
-    @Value("${datasource.uniprot.password}")
-    String uniprotPassword;
-
-    @Bean
-    @ConfigurationProperties(prefix = "datasource.uniprot")
-    public DataSource uniprotDataSource() {
-        return DataSourceBuilder.create().driverClassName("oracle.jdbc.driver.OracleDriver").build();
     }
 
 
