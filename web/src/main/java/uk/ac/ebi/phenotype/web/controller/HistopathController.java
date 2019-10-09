@@ -173,7 +173,7 @@ public class HistopathController {
 
 		model.addAttribute("gene", gene);
 
-		List<ObservationDTO> allObservations = histopathService.getObservationsForHistopathForGene(acc);
+		List<ObservationDTO> allObservations = histopathService.getObservationsForHistopathForGene(gene.getMgiAccessionId());
 		List<ObservationDTO> extSampleIdToObservations = histopathService
 				.screenOutObservationsThatAreNormal(allObservations);
 		Map<String, List<ObservationDTO>> uniqueSampleSequeneAndAnatomyName = histopathService
