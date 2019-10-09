@@ -76,7 +76,9 @@ def main(argv):
 
         global url_map
         with open(map_urls_path, 'rt') as fid:
-            url_map = {l.split()[0]:l.split()[1] for l in fid.readlines()}
+            # Line below does not work in python 2.6
+            #url_map = {l.split()[0]:l.split()[1] for l in fid.readlines()}
+            url_map = dict((l.split()[0],l.split()[1]) for l in fid.readlines())
         
 
     # Get values from property file and use as defaults that can be overridden
