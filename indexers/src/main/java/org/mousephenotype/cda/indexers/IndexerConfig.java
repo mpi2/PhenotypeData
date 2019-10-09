@@ -7,9 +7,10 @@ import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.db.repositories.GenesSecondaryProjectRepository;
-import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.ImpressService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -27,6 +28,8 @@ import java.io.IOException;
 @EnableTransactionManagement
 public class IndexerConfig {
 
+    private static final Logger logger = LoggerFactory.getLogger(IndexerConfig.class);
+
     @Value("${buildIndexesSolrUrl}")
     private String writeSolrBaseUrl;
 
@@ -40,9 +43,9 @@ public class IndexerConfig {
 
 
     @Inject
-    public IndexerConfig(@NotNull OntologyTermRepository ontologyTermRepository,
-                         @NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository)
+    public IndexerConfig(@NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository)
     {
+        logger.info("Configured indexes with build path {}, internal path {}", writeSolrBaseUrl, internalSolrUrl);
         this.genesSecondaryProjectRepository = genesSecondaryProjectRepository;
     }
 
