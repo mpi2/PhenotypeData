@@ -85,7 +85,7 @@ public class LandingPageController {
 	 * @throws SolrServerException
 	 * @throws IOException
 	 */
-	@RequestMapping("/procedure_landing/histopath")
+	@RequestMapping("/histopath")
 	public String histopath(Model model) throws SolrServerException, IOException {
 		//To display the heatmap we need data in form of ints [ column , row, value ] but row starts from bottom left hand side
 		HistopathHeatmapData heatmapData = histopathService.getHeatmapData();
@@ -95,6 +95,7 @@ public class LandingPageController {
 		JSONArray geneSymbolsArray=new JSONArray(heatmapData.getGeneSymbols());
 		model.addAttribute("anatomyHeaders", anatomyArray);
 		model.addAttribute("geneSymbols", geneSymbolsArray);
+		model.addAttribute("data", heatmapData.getData());
 		return "histopathLandingPage";
 	}
 

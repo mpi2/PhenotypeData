@@ -58,7 +58,7 @@ public class HistopathServiceTest {
         HistopathHeatmapData heatmapData = histopathService.getHeatmapData();
         assertTrue(heatmapData.getParameterNames().size()>1);
         assertTrue( heatmapData.getGeneSymbols().size()>1);
-        assertTrue(heatmapData.getData().size()>1);
+        assertTrue(heatmapData.getData().length()>1);
         //NamedList<List<PivotField>> pivots = observationService.getHistopathLandingPageData();
     }
 }

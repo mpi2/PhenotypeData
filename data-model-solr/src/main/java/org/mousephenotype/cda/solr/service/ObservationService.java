@@ -2003,17 +2003,15 @@ public class ObservationService extends BasicService implements WebStatus {
                 .setSort(ObservationDTO.ID, SolrQuery.ORDER.asc)
                 //.setFields(fields)
                 .addFilterQuery("parameter_stable_id:*HIS*")
-        .addFilterQuery("parameter_name:*Significance*")
-                .addFilterQuery("category:Significant");
+        .addFilterQuery("parameter_name:*Significance*");//.addFilterQuery("gene_symbol:Prkab1");
+                //.addFilterQuery("category:Significant");
                 //.addFilterQuery("category:Significant");//otherwise query takes too long
         q.setFacet(true);
-        String pivotFacet = ObservationDTO.GENE_SYMBOL + "," +ObservationDTO.PARAMETER_NAME;
-                //+","+
-               // don't need this if we are already filtering on Significant ObservationDTO.CATEGORY;
+        String pivotFacet = ObservationDTO.GENE_SYMBOL + "," +ObservationDTO.PARAMETER_NAME + "," + ObservationDTO.CATEGORY;
 
         q.add("facet.pivot", pivotFacet );
         q.setFacetLimit(-1);
-       System.out.println("solr query in getObservationByProcedureNameAndGene="+q);
+        System.out.println("solr query in getObservationByProcedureNameAndGene="+q);
         return experimentCore.query(q).getFacetPivot();
     }
 	
