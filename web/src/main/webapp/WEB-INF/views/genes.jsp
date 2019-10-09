@@ -178,7 +178,7 @@
 
         <link rel="stylesheet" type="text/css" href="${baseUrl}/css/genes.css"/>
 
-        <c:if test="${liveSite}">
+        <c:if test="${liveSite || param.checklive != null}">
             <!-- Google Tag Manager -->
             <script>
                 (function (w, d, s, l, i) {
@@ -202,7 +202,7 @@
 
     <jsp:body>
 
-        <c:if test="${liveSite}">
+        <c:if test="${liveSite || param.checklive != null}">
         <!-- Google Tag Manager (noscript) -->
             <noscript>
                 <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NZPSPWR" height="0" width="0" style="display:none;visibility:hidden"></iframe>
