@@ -86,6 +86,8 @@ public class ExperimentsController {
         int rows = 0;
         String graphBaseUrl = request.getAttribute("baseUrl").toString();
 
+        //TODO: Change to request all the data from the expirement core and overlay the s-r core results onto this
+        // set
         experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
 
         for (List<ExperimentsDataTableRow> list : experimentRows.values()) {
