@@ -15,12 +15,6 @@ numberOfImageDownloadAttemps=0
 totalNumberOfImagesWeHave=0
 numFoundInSolr=0
 
-
-### REMOVE ###
-fname = "/home/kola/code/embl_projects/PhenotypeData/external_tools/src/main/resources/harwell_old_url_to_new_url_map.txt"
-with open(fname,'rt') as fid:                                          
-    url_map = {l.split()[0]:l.split()[1] for l in fid.readlines()}
-
 uniqueUris=set()
 
 def main(argv):
@@ -61,8 +55,30 @@ def main(argv):
                              '/home/kola/application.properties. ' + \
                              'Overrides value of --profile argument.'
     )
+    parser.add_argument('-m', '--map-urls', dest='mapUrls', 
+                        action='store_true', default=False,
+                        help='Flag to indicate whether to map urls'
+    )
+    parser.add_argument('-mp', '--map-urls-path', dest='mapUrlsPath',
+                        help='Path to mapping file for old -> new urls. This option can only be used if -m flag is invoked'
+    )
+
     args = parser.parse_args()
-    
+    # Ensure if mapping urls path supplied the mapping url flag is set
+    if args.mapUrlsPath is not None and not args.mapUrls:
+        print "A mapUrlsPath is supplied but the mapping url flag is not set. Please re-run including the '-m' flag for mapping urls or excluding -mp if no mapping is required"
+        return
+    elif args.mapUrls:
+        if args.mapUrlsPath is None:
+            map_urls_path = os.path.join(os.path.dirname(__file__),'../../resources/harwell_old_url_to_new_url_map.txt')
+        else:
+            map_urls_path = args.mapUrlsPath
+
+        global url_map
+        with open(map_urls_path, 'rt') as fid:
+            url_map = {l.split()[0]:l.split()[1] for l in fid.readlines()}
+        
+
     # Get values from property file and use as defaults that can be overridden
     # by command line parameters
     if args.profilePath is not None:
@@ -96,7 +112,7 @@ def main(argv):
     solrUrl=rootSolrUrl+solrQuery;
     print 'solrUrl', solrUrl
 
-    notDownloaded = runWithSolrAsDataSource(solrUrl, rootDestinationDir, finalDestinationDir)
+    notDownloaded = runWithSolrAsDataSource(solrUrl, rootDestinationDir, finalDestinationDir, args.mapUrls)
     print str(len(notDownloaded)) + " files could not be downloaded"
     if len(notDownloaded) > 0:
         notDownloadedOutputPath =  args.notDownloadedOutputPath if args.notDownloadedOutputPath <> None else createNotDownloadedOutputPath(rootDestinationDir)
@@ -105,14 +121,11 @@ def main(argv):
 
         print "Written files that could not be downloaded to " + notDownloadedOutputPath
 
-def runWithSolrAsDataSource(solrUrl, rootDestinationDir, finalDestinationDir):
+def runWithSolrAsDataSource(solrUrl, rootDestinationDir, finalDestinationDir, map_urls):
     """
         Download images using Solr as the datasource.
         Return urls that cannot be downloaded
     """
-
-    ### REMOVE ###
-    global url_map
 
     notDownloaded = []
     v = json.loads(requests.get(solrUrl).text)
@@ -121,10 +134,12 @@ def runWithSolrAsDataSource(solrUrl, rootDestinationDir, finalDestinationDir):
     for doc in docs:
         download_file_path=doc['download_file_path']
         download_file_path=download_file_path.lower()
-        ### REMOVE ###
-        to_replace = os.path.split(download_file_path)[0] + "/"
-        to_replace = to_replace.replace('http://images.mousephenotype.org','')
-        download_file_path =  download_file_path.replace(to_replace, url_map[to_replace])
+        # replace old urls if necessary
+        if map_urls:
+            old_url = os.path.split(download_file_path)[0] + "/"
+            old_url = old_url.replace('http://images.mousephenotype.org','')
+            new_url = url_map[old_url]
+            download_file_path =  download_file_path.replace(old_url, new_url)
         datasource_id=doc['datasource_name']
         phenotyping_center=doc['phenotyping_center']
         #experiment=doc['experiment']
