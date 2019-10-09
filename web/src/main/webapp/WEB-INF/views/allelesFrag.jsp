@@ -276,9 +276,9 @@
                      aria-labelledby="order-${alleleId}-tissues-tab">
                     <div class="container justify-content-center pt-3">
                         <c:forEach var="tissueLink" items="${tissue_enquiry_links}" varStatus="ordersx">
-                            <div class="row">
-                                <a class="btn btn-outline-primary" href="${tissueLink}" target="_blank"> <i
-                                        class="fa fa-envelope"></i>&nbsp;Make a tissue enquiry to ${tissue_distribution_centres.get(ordersx.index)} </a>&nbsp;
+                            <div class="row m-2">
+                                <a class="tissue-order btn btn-outline-primary" href="${tissueLink}" target="_blank">
+                                    <i class="fa fa-envelope"></i>&nbsp;Make a ${tissue_enquiry_types.get(ordersx.index)} enquiry to ${tissue_distribution_centres.get(ordersx.index)} </a>&nbsp;
                             </div>
                         </c:forEach>
                     </div>
