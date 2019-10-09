@@ -3,7 +3,7 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<t:genericpage-landing>
+<t:genericpage>
 
     <jsp:attribute name="title">Histopath Landing Page</jsp:attribute>
     <jsp:attribute name="header">
@@ -29,6 +29,9 @@
                     title: {
                         text: ''
                     },
+                    credits: {
+                        enabled: false
+                    },
                     colorAxis: {
 
                         dataClasses: [{
@@ -45,12 +48,12 @@
                             from: 2,
                             to: 3,
                             color: '#17a2b8',
-                            name: 'Not Significantly Different WT vs KO'
+                            name: 'Not Significant'
                         }, {
                             from: 3,
                             to: 4,
                             color: '#ce6211',
-                            name: 'Significantly Different WT vs KO'
+                            name: 'Significant'
                         }
                         ],
                         min: 0,
@@ -160,38 +163,17 @@
                 <div class="col-md-12 white-bg">
                     <div class="page-content">
 
-                        <h2>Histopathology for ${gene.markerSymbol}</h2>
-                        <p>Gene name: ${gene.markerName}</p>
-
                         <div class="card">
-                            <div class="card-header">Score Definitions</div>
+                            <div class="card-header">Histopathology for every gene tested</div>
                             <div class="card-body">
-                                <p class="my-0"><b>Severity Score:</b></p>
-                                <ul class="my-0">
-                                    <li>0 = Normal,</li>
-                                    <li>1 = Mild (observation barely perceptible and not believed to have clinical
-                                        significance),
-                                    </li>
-                                    <li>2 = Moderate (observation visible but involves minor proportion of tissue and
-                                        clinical consequences of observation are most likely subclinical),
-                                    </li>
-                                    <li>3 = Marked (observation clearly visible involves a significant proportion of
-                                        tissue and is likely to have some clinical manifestations generally expected to
-                                        be minor),
-                                    </li>
-                                    <li>4 = Severe (observation clearly visible involves a major proportion of tissue
-                                        and clinical manifestations are likely associated with significant tissue
-                                        dysfunction or damage)
-                                    </li>
-                                </ul>
 
                                 <p class="my-0"><b>Significance Score:</b></p>
                                 <ul class="my-0">
-                                    <li>0 = Not significant (histopathology finding that is interpreted by the
+                                    <li><b>Not significant</b> (histopathology finding that is interpreted by the
                                         histopathologist to be within normal limits of background strain-related
                                         findings or an incidental finding not related to genotype)
                                     </li>
-                                    <li>1 = Significant (histopathology finding that is interpreted by the
+                                    <li><b>Significant</b> (histopathology finding that is interpreted by the
                                         histopathologist to not be a background strain-related finding or an incidental
                                         finding)
                                     </li>
@@ -217,5 +199,5 @@
     </jsp:body>
 
 
-    </t:genericpage-landing>
+    </t:genericpage>
 

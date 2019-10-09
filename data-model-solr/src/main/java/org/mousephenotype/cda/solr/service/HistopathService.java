@@ -208,7 +208,8 @@ public class HistopathService {
 				geneSymbols.add(geneSYMBOL);
 				map.putIfAbsent(geneSYMBOL, new HashSet<>());
 				for(PivotField genePivotFacet : phenotypePivotFacet.getPivot()) {
-					String parameterName = genePivotFacet.getValue().toString();
+					String []withAnatomyAndSignificance=genePivotFacet.getValue().toString().split(" - ");
+					String parameterName = withAnatomyAndSignificance[0].trim();
 					anatomyParamName.add(parameterName);//get a unique set
 
 					map.get(geneSYMBOL).add(parameterName);
@@ -228,8 +229,6 @@ public class HistopathService {
 								geneToParameterToCategory.get(geneSYMBOL).put(parameterName, pivotCategory.getValue().toString());
 							}
 							if(!uniqueCategories.contains(pivotCategory.getValue())){
-								//TODO map to single set of categories uniqueCategories=[Significant, Not applicable, Not significant, not significant, Significant
-								//, significant ]
 								uniqueCategories.add(pivotCategory.getValue());
 							}
 						}
@@ -242,25 +241,22 @@ public class HistopathService {
 		List<String> anatomyList=new ArrayList<String>(anatomyParamName);
 		Collections.sort(anatomyList);
 		List<String> geneList=new ArrayList(geneSymbols);
-		Collections.sort(geneList);
+		Collections.sort(geneList, Collections.reverseOrder());//so we get alphabetical order starting at top of heatmap
 		System.out.println("uniqueCategories="+uniqueCategories);
 		//generate the data array here from the data structures we have just created as we need to know all column headers before we do this
 		JSONArray allCells=new JSONArray();
 		int row=0;
 		for(String geneSymbol: geneList){
-
 			int column=0;
 			for(String parameterName:anatomyList){
 				String value=null;
 				if(geneToParameterToCategory.get(geneSymbol).containsKey(parameterName)){
 					value=geneToParameterToCategory.get(geneSymbol).get(parameterName);
 				}else{
-					value="No value found";
+					value="No value found";//we need an empty cell value even if nothing in original data
 				}
 				int significance=this.getIntValueForString(value);
 				geneToParameterToCategory.get(geneSymbol).get(parameterName);
-
-
 				JSONArray cell=new JSONArray();
 				cell.put(column);
 				cell.put(row);
