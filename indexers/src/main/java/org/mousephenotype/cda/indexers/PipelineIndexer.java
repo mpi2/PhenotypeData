@@ -566,9 +566,13 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 				proc.setStage(resultSet.getString("stage"));
 				proc.setStageLabel(resultSet.getString("stage_label"));
 				proc.setScheduleKey(resultSet.getInt("schedule_key"));
-				for (String parameterId : procIdToParams.get(proc.getStableId())){
-					proc.addParameter(paramIdToParameter.get(parameterId));
+
+				if (procIdToParams.get(proc.getStableId()) != null) {
+					for (String parameterId : procIdToParams.get(proc.getStableId())) {
+						proc.addParameter(paramIdToParameter.get(parameterId));
+					}
 				}
+
 				procedureIdToProcedureMap.put(resultSet.getString("stable_id"), proc);
 			}
 
