@@ -79,8 +79,7 @@ public class BioModelManager {
 
 
     public synchronized Long insertMutantIfMissing(SpecimenExtended specimenExtended, String zygosity,
-                                                  Long dbId, Long biologicalSamplePk,
-                                                  Long phenotypingCenterPk) throws DataLoadException
+                                                  Long dbId, Long biologicalSamplePk) throws DataLoadException
     {
 
         Specimen specimen = specimenExtended.getSpecimen();
@@ -88,7 +87,7 @@ public class BioModelManager {
         BioModelKey key = createMutantKey(specimenExtended.getDatasourceShortName(), specimen.getColonyID(), zygosity);
         Long biologicalModelPk = getBiologicalModelPk(key);
         if (biologicalModelPk == null) {
-            biologicalModelPk = insert(dbId, biologicalSamplePk, phenotypingCenterPk, specimenExtended);
+            biologicalModelPk = insert(dbId, biologicalSamplePk, specimenExtended);
         } else {
             // Insert the relationship between biological_model and biological_sample
             cdaSqlUtils.insertBiologicalModelSample(biologicalModelPk, biologicalSamplePk);
@@ -97,8 +96,7 @@ public class BioModelManager {
         return biologicalModelPk;
     }
 
-    public synchronized Long insertControlIfMissing(SpecimenExtended specimenExtended, Long dbId, Long biologicalSamplePk,
-                                    Long phenotypingCenterPk) throws DataLoadException
+    public synchronized Long insertControlIfMissing(SpecimenExtended specimenExtended, Long dbId, Long biologicalSamplePk) throws DataLoadException
     {
 
         Specimen specimen = specimenExtended.getSpecimen();
@@ -106,7 +104,7 @@ public class BioModelManager {
         BioModelKey key               = createControlKey(specimenExtended.getDatasourceShortName(), specimen.getStrainID());
         Long     biologicalModelPk = getBiologicalModelPk(key);
         if (biologicalModelPk == null) {
-            biologicalModelPk = insert(dbId, biologicalSamplePk, phenotypingCenterPk, specimenExtended);
+            biologicalModelPk = insert(dbId, biologicalSamplePk, specimenExtended);
         } else {
             // Insert the relationship between biological_model and biological_sample
             cdaSqlUtils.insertBiologicalModelSample(biologicalModelPk, biologicalSamplePk);
@@ -238,12 +236,11 @@ public class BioModelManager {
      *
      * @param dbId             the dbId of the specimen whose biological model is to be inserted
      * @param biologicalSamplePk the biologicalSample primary key
-     * @param phenotypingCenterPk the phenotyping center primary key
      * @param specimenExtended the specimen whose biological model is to be inserted
      * @return the biological_model primary key of the newly inserted record.
      * @throws DataLoadException
      */
-    private Long insert(Long dbId, Long biologicalSamplePk, Long phenotypingCenterPk, SpecimenExtended specimenExtended) throws DataLoadException {
+    private Long insert(Long dbId, Long biologicalSamplePk, SpecimenExtended specimenExtended) throws DataLoadException {
 
         Long   biologicalModelPk;
         String datasourceShortName = specimenExtended.getDatasourceShortName();
@@ -314,11 +311,14 @@ public class BioModelManager {
 
         String geneticBackground = strain.getGeneticBackground();
         BioModelInsertDTOMutant mutantDto = new BioModelInsertDTOMutant(dbId, biologicalSamplePk, allelicComposition, geneticBackground, zygosity, geneAcc, alleleAcc, strainAcc);
-        biologicalModelPk = cdaSqlUtils.insertBiologicalModelImpc(mutantDto);
 
         BioModelKey mutantKey = createMutantKey(datasourceShortName, colony.getColonyName(), zygosity);
+        Long existingModelPk = bioModelPkMap.get(mutantKey);
+        biologicalModelPk = cdaSqlUtils.insertBiologicalModelImpc(mutantDto, existingModelPk);
 
-        bioModelPkMap.put(mutantKey, biologicalModelPk);
+        if(existingModelPk == null) {
+            bioModelPkMap.put(mutantKey, biologicalModelPk);
+        }
 
         return biologicalModelPk;
     }
@@ -334,10 +334,15 @@ public class BioModelManager {
 
         String geneticBackground = strain.getGeneticBackground();
         BioModelInsertDTOControl controlDto = new BioModelInsertDTOControl(dbId, biologicalSamplePk, allelicComposition, geneticBackground, zygosity, strainAcc);
-        biologicalModelPk = cdaSqlUtils.insertBiologicalModelImpc(controlDto);
 
         BioModelKey controlKey = createControlKey(datasourceShortName, strainName);
-        bioModelPkMap.put(controlKey, biologicalModelPk);
+        Long existingModelPk = bioModelPkMap.get(controlKey);
+
+        biologicalModelPk = cdaSqlUtils.insertBiologicalModelImpc(controlDto, existingModelPk);
+
+        if(existingModelPk == null) {
+            bioModelPkMap.put(controlKey, biologicalModelPk);
+        }
 
         return biologicalModelPk;
     }

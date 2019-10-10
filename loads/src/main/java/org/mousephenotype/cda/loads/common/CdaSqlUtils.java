@@ -254,7 +254,7 @@ public class CdaSqlUtils {
     public synchronized Map<BioSampleKey, BiologicalSample> getBiologicalSamplesMapBySampleKey() {
 
         Map<BioSampleKey, BiologicalSample> bioSamplesMap = new HashMap<>();
-        String query = "SELECT edb.short_name, bs.* FROM biological_sample bs JOIN external_db edb ON edb.id = bs.db_id";
+        String query = "SELECT p.name as project_name, edb.short_name, bs.* FROM biological_sample bs JOIN external_db edb ON edb.id = bs.db_id INNER JOIN project p ON bs.project_id = p.id";
 
         List<BiologicalSample> samples = jdbcCda.query(query, new BiologicalSampleRowMapper());
         for (BiologicalSample sample : samples) {
@@ -612,29 +612,37 @@ public class CdaSqlUtils {
     }
 
     @Transactional
-    public long insertBiologicalModelImpc(BioModelInsertDTOMutant mutant) throws DataLoadException {
+    public long insertBiologicalModelImpc(BioModelInsertDTOMutant mutant, Long biologicalModelKey) throws DataLoadException {
 
-        Long biologicalModelId = insertBiologicalModel(mutant.getDbId(), mutant.getAllelicComposition(), mutant.getGeneticBackground(), mutant.getZygosity());
-        insertBiologicalModelGenes(biologicalModelId, mutant.getGenes());
-        insertBiologicalModelAlleles(biologicalModelId, mutant.getAlleles());
-        insertBiologicalModelStrains(biologicalModelId, mutant.getStrains());
+        Long bmid = biologicalModelKey;
+        if (bmid == null) {
+            bmid = insertBiologicalModel(mutant.getDbId(), mutant.getAllelicComposition(), mutant.getGeneticBackground(), mutant.getZygosity());
+            insertBiologicalModelGenes(bmid, mutant.getGenes());
+            insertBiologicalModelAlleles(bmid, mutant.getAlleles());
+            insertBiologicalModelStrains(bmid, mutant.getStrains());
+
+        }
         if (mutant.biologicalSamplePk != null) {
-            insertBiologicalModelSample(biologicalModelId, mutant.biologicalSamplePk);
+            insertBiologicalModelSample(bmid, mutant.biologicalSamplePk);
         }
 
-        return biologicalModelId;
+        return bmid;
     }
 
     @Transactional
-    public long insertBiologicalModelImpc(BioModelInsertDTOControl control) throws DataLoadException {
+    public long insertBiologicalModelImpc(BioModelInsertDTOControl control, Long biologicalModelKey) throws DataLoadException {
 
-        Long biologicalModelId = insertBiologicalModel(control.getDbId(), control.getAllelicComposition(), control.getGeneticBackground(), control.getZygosity());
-        insertBiologicalModelStrains(biologicalModelId, control.getStrains());
-        if (control.biologicalSamplePk != null) {
-            insertBiologicalModelSample(biologicalModelId, control.biologicalSamplePk);
+        Long bmid = biologicalModelKey;
+        if (bmid == null) {
+            bmid = insertBiologicalModel(control.getDbId(), control.getAllelicComposition(), control.getGeneticBackground(), control.getZygosity());
+            insertBiologicalModelStrains(bmid, control.getStrains());
         }
 
-        return biologicalModelId;
+        if (control.biologicalSamplePk != null) {
+            insertBiologicalModelSample(bmid, control.biologicalSamplePk);
+        }
+
+        return bmid;
     }
 
     /*
@@ -780,7 +788,6 @@ public class CdaSqlUtils {
             parameterMap.put("external_id", external_id);
             parameterMap.put("sequence_id", sequence_id);
             parameterMap.put("date_of_experiment", date_of_experiment);
-            parameterMap.put("external_id", external_id);
             parameterMap.put("organisation_id", organisation_id);
             parameterMap.put("project_id", project_id);
             parameterMap.put("pipeline_id", pipeline_id);
@@ -3167,6 +3174,7 @@ public class CdaSqlUtils {
             biologicalSample.setProductionCenter(productionCenter);
             Project project = new Project();
             project.setId(rs.getLong("project_id"));
+            project.setName(rs.getString("project_name"));
             biologicalSample.setProject(project);
             // litter_id was moved to LiveSample.
 

@@ -28,6 +28,8 @@ INSERT INTO ontology_term (acc, db_id, name, is_obsolete, replacement_acc) VALUE
   ('EFO:0005857', 15, 'mouse embryo stage', 0, null),
   ('MA:0002405',   8, 'postnatal mouse',    0, null);
 
+INSERT INTO strain VALUES ('MGI:5446362', 3, 'CV:00000005', 3, 'B6Brd;B6Dnk;B6N-Tyr<c-Brd>');
+INSERT INTO strain VALUES ('IMPC-CURATE-C44BE', 22, 'CV:00000051', 3, 'C57BL/6Brd-Tyr<c-Brd>;C57BL/6N;C57BL/6NTac');
 
 INSERT INTO `phenotype_parameter` VALUES (506,'IMPC_FER_001_001',6,'Gross Findings Male','gross_findings',1,4,' ','TEXT','simpleParameter',NULL,1,0,0,0,1,0,1,0,0,'',2365);
 INSERT INTO `phenotype_parameter` VALUES (507,'IMPC_FER_019_001',6,'Gross Findings Female','',1,3,' ','TEXT','simpleParameter',NULL,1,0,0,0,1,0,1,0,0,'',2680);
