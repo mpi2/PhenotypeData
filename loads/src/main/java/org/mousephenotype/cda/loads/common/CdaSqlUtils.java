@@ -1680,7 +1680,7 @@ public class CdaSqlUtils {
 
                 detailParameterMap.put("text", rawValue);
 
-                detailInsert = "INSERT INTO text_observation (id, text) VALUES (:observationPk, :text)";
+                detailInsert = "INSERT INTO text_observation (id, text_value) VALUES (:observationPk, :text)";
                 break;
 
             case categorical:
