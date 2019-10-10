@@ -139,8 +139,11 @@ def runWithSolrAsDataSource(solrUrl, rootDestinationDir, finalDestinationDir, ma
         if map_urls:
             old_url = os.path.split(download_file_path)[0] + "/"
             old_url = old_url.replace('http://images.mousephenotype.org','')
-            new_url = url_map[old_url]
-            download_file_path =  download_file_path.replace(old_url, new_url)
+            try:
+                new_url = url_map[old_url]
+                download_file_path =  download_file_path.replace(old_url, new_url)
+            except KeyError:
+                print "Key '" + old_url + "' not in map - not replacing for " + download_file_path
         datasource_id=doc['datasource_name']
         phenotyping_center=doc['phenotyping_center']
         #experiment=doc['experiment']
