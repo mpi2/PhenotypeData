@@ -16,6 +16,8 @@
 
 package org.mousephenotype.cda.loads.common;
 
+import java.util.Objects;
+
 /**
  * 2017-10-09 (mrelac)
  *
@@ -58,18 +60,25 @@ public class BioModelKey {
         this.geneAccessionId = (geneAccessionId == null ? "" : geneAccessionId);
         this.alleleAccessionId = (alleleAccessionId == null ? "" : alleleAccessionId);
         this.zygosity = zygosity;
+
+
     }
 
     @Override
     public boolean equals(Object o) {
-
-        return (o.toString().equals(this.toString()));
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BioModelKey that = (BioModelKey) o;
+        return Objects.equals(datasourceShortName, that.datasourceShortName) &&
+                Objects.equals(strainAccessionId, that.strainAccessionId) &&
+                Objects.equals(zygosity, that.zygosity) &&
+                Objects.equals(geneAccessionId, that.geneAccessionId) &&
+                Objects.equals(alleleAccessionId, that.alleleAccessionId);
     }
 
     @Override
     public int hashCode() {
-        int result = this.toString().hashCode();
-        return result;
+        return Objects.hash(datasourceShortName, strainAccessionId, zygosity, geneAccessionId, alleleAccessionId);
     }
 
     @Override
