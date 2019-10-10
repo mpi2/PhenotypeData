@@ -136,6 +136,11 @@
                         dataLabels: {
                             enabled: false,
                             color: '#000000'
+                        },
+                        events: {
+                            legendItemClick: function() {
+                                return false;
+                            }
                         }
                     }],
                 });
