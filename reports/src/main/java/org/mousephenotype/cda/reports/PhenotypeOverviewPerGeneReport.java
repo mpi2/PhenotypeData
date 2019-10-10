@@ -125,7 +125,7 @@ public class PhenotypeOverviewPerGeneReport extends AbstractReport {
                 if (geneSymbolToId.containsKey(geneSymbol)) {
                     mgiGeneId = geneSymbolToId.get(geneSymbol);
                 } else {
-                    GeneDTO geneDTO = geneService.getGeneByGeneSymbol(geneSymbol);
+                    GeneDTO geneDTO = geneService.getGeneByGeneSymbolWithLimitedFields(geneSymbol);
                     if (geneDTO != null) {
                         mgiGeneId = geneDTO.getMgiAccessionId();
                     }
