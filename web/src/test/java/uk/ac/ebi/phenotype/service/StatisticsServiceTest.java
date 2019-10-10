@@ -73,7 +73,8 @@ public class StatisticsServiceTest {
 		
 		
 	}
-	
+
+	@Ignore
 	@Test
 	public void testZygositySpecificExperimentFromRest() throws SolrServerException, IOException {
 		//charts?accession=MGI:1915747&parameter_stable_id=IMPC_HEM_038_001

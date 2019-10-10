@@ -16,13 +16,17 @@
 
 package uk.ac.ebi.phenotype.service;
 
+import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import uk.ac.ebi.phenotype.web.dao.StatisticsService;
 import uk.ac.ebi.phenotype.web.dao.StatsClient;
+
+import javax.sql.DataSource;
 
 @Configuration
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
@@ -31,6 +35,27 @@ public class ServiceTestConfig {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
+
+    //////////////
+    // DATASOURCES
+    //////////////
+
+    @Value("${datasource.komp2.jdbc-url}")
+    private String komp2Url;
+
+    @Value("${datasource.komp2.username}")
+    private String username;
+
+    @Value("${datasource.komp2.password}")
+    private String password;
+
+    @Bean
+    public DataSource komp2DataSource() {
+
+        DataSource komp2DataSource = SqlUtils.getConfiguredDatasource(komp2Url, username, password);
+
+        return komp2DataSource;
+    }
     @Bean
     public StatsClient statsClient() {
         return new StatsClient();
