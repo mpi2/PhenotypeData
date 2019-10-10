@@ -2,6 +2,8 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
+import org.apache.solr.client.solrj.response.PivotField;
+import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.CountTableRow;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
@@ -52,6 +54,7 @@ public class LandingPageController {
 	private MpService                mpService;
     private ObservationService       observationService;
     private StatisticalResultService statisticalResultService;
+    private HistopathService histopathService;
 
     @Inject
     public LandingPageController(
@@ -61,7 +64,8 @@ public class LandingPageController {
 			@NotNull ImpressService impressService,
 			@NotNull MpService mpService,
     		@NotNull ObservationService observationService,
-			@NotNull StatisticalResultService statisticalResultService)
+			@NotNull StatisticalResultService statisticalResultService,
+			@NotNull HistopathService histopathService)
 	{
         this.geneService = geneService;
 		this.genotypePhenotypeService = genotypePhenotypeService;
@@ -70,7 +74,30 @@ public class LandingPageController {
 		this.mpService = mpService;
 		this.observationService = observationService;
 		this.statisticalResultService = statisticalResultService;
+		this.histopathService=histopathService;
     }
+
+
+	/**
+	 *
+	 * @param model
+	 * @return
+	 * @throws SolrServerException
+	 * @throws IOException
+	 */
+	@RequestMapping("/histopath")
+	public String histopath(Model model) throws SolrServerException, IOException {
+		//To display the heatmap we need data in form of ints [ column , row, value ] but row starts from bottom left hand side
+		HistopathHeatmapData heatmapData = histopathService.getHeatmapData();
+		String [] headers=new String []{"blah", "bug"};
+		JSONArray anatomyArray = null;
+		anatomyArray= new JSONArray(heatmapData.getParameterNames());
+		JSONArray geneSymbolsArray=new JSONArray(heatmapData.getGeneSymbols());
+		model.addAttribute("anatomyHeaders", anatomyArray);
+		model.addAttribute("geneSymbols", geneSymbolsArray);
+		model.addAttribute("data", heatmapData.getData());
+		return "histopathLandingPage";
+	}
 
 
 //	@RequestMapping("/biological-system")

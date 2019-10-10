@@ -333,9 +333,8 @@ public class GrossPathService {
 
 	public List<ObservationDTO> getObservationsForGrossPathForGene(String acc) throws SolrServerException, IOException {
 		List<ObservationDTO> observations = observationService.getObservationsByProcedureNameAndGene("Gross Pathology and Tissue Collection",
-				acc, ObservationDTO.PARAMETER_NAME, ObservationDTO.PARAMETER_STABLE_ID, ObservationDTO.OBSERVATION_TYPE,
-				ObservationDTO.CATEGORY, ObservationDTO.VALUE, ObservationDTO.DOWNLOAD_FILE_PATH,
-				ObservationDTO.PARAMETER_ASSOCIATION_SEQUENCE_ID, ObservationDTO.SEQUENCE_ID);
+				acc
+        );
 		return observations;
 	}
 	

@@ -194,10 +194,6 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 gene.setGoCount(allele.getGoCount());
                 gene.setGoUniprot(allele.getGoUniprot());
 
-                // mouse and human uniprot canonicals
-                gene.setUuniprotMouseCanonicalAcc(allele.getUuniprotMouseCanonicalAcc());
-                gene.setUuniprotHumanCanonicalAcc(allele.getUuniprotHumanCanonicalAcc());
-
                 // pfam stuff
                 gene.setScdbIds(allele.getScdbIds());
                 gene.setScdbLinks(allele.getScdbLinks());

@@ -68,7 +68,7 @@
 
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-    <script type='text/javascript' src="${baseUrl}/js/general/toggle.js?v=${version}" async></script>
+<%--    <script type='text/javascript' src="${baseUrl}/js/general/toggle.js?v=${version}" async></script>--%>
     <script type="text/javascript" src="${baseUrl}/js/head.min.js?v=${version}" async></script>
     <script type='text/javascript' src='${baseUrl}/js/buffaloZoo.js' async></script>
     <script type="text/javascript" src="${baseUrl}/js/default.js?v=${version}" async></script>

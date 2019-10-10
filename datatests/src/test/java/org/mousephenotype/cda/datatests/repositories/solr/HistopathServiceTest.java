@@ -5,10 +5,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.solr.service.GrossPathService;
-import org.mousephenotype.cda.solr.service.HistopathService;
-import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.PhenodigmService;
+import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertTrue;
 
@@ -51,5 +47,18 @@ public class HistopathServiceTest {
         assertTrue("Expected at least " + EXPECTED_UNIQUE_SAMPLE_SEQUENCE_AND_NAME_COUNT + " rows but found "
                                   + uniqueSampleSequeneAndAnatomyName.size(),
                           uniqueSampleSequeneAndAnatomyName.size() >= EXPECTED_UNIQUE_SAMPLE_SEQUENCE_AND_NAME_COUNT);
+    }
+
+    @Test
+    public void getLandingPageDataTest() throws IOException, SolrServerException {
+        ObservationService observationService = new ObservationService(experimentCore);
+        HistopathService   histopathService   = new HistopathService(observationService);
+
+        Map<String, Set<String>> map = new HashMap<>();
+        HistopathHeatmapData heatmapData = histopathService.getHeatmapData();
+        assertTrue(heatmapData.getParameterNames().size()>1);
+        assertTrue( heatmapData.getGeneSymbols().size()>1);
+        assertTrue(heatmapData.getData().length()>1);
+        //NamedList<List<PivotField>> pivots = observationService.getHistopathLandingPageData();
     }
 }

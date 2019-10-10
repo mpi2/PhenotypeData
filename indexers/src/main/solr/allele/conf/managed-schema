@@ -592,10 +592,7 @@
 	-->
 	<field name="evidCodeRank" type="pint" indexed="true" stored="true" multiValued="false"/>
 	
-	<!-- pfam and uniprot stuff-->
-
-	<field name="uniprot_human_canonical" type="string" indexed="true" stored="true" multiValued="false"/>
-	<field name="uniprot_mouse_canonical" type="string" indexed="true" stored="true" multiValued="false"/>
+	<!-- pfam stuff-->
 
 	<field name="pfama_json" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="scdb_id" type="string" indexed="true" stored="true" multiValued="true"/>

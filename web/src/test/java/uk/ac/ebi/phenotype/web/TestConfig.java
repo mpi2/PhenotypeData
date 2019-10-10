@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import uk.ac.ebi.phenotype.service.UniprotService;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
@@ -37,38 +36,38 @@ import java.util.Map;
 @EnableAutoConfiguration
 public class TestConfig {
 
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Value("${base_url}")
 	private String baseUrl;
 
-    @Value("${cms_base_url}")
-    private String cmsBaseUrl;
+	@Value("${cms_base_url}")
+	private String cmsBaseUrl;
 
-    @Value("${internal_solr_url}")
-    private String internalSolrUrl;
+	@Value("${internal_solr_url}")
+	private String internalSolrUrl;
 
-    @PostConstruct
-    public void initialise() {
-        logger.info("dataSource.komp2.jdbc-url: " + komp2DataSource());
-        logger.info("baseUrl:              		" + baseUrl);
-        logger.info("internalSolrUrl:      		" + internalSolrUrl);
-    }
+	@PostConstruct
+	public void initialise() {
+		logger.info("dataSource.komp2.jdbc-url: " + komp2DataSource());
+		logger.info("baseUrl:              		" + baseUrl);
+		logger.info("internalSolrUrl:      		" + internalSolrUrl);
+	}
 
 
-    @Bean (name="globalConfiguration")
-    public Map<String, String> globalConfiguration(){
+	@Bean(name = "globalConfiguration")
+	public Map<String, String> globalConfiguration() {
 
-    	Map <String, String> gc = new HashMap<>();
-    	gc.put("baseUrl", "${baseUrl}");
-    	gc.put("cmsBaseUrl", "${cmsBaseUrl}");
-    	gc.put("solrUrl", "${solrUrl}");
-    	gc.put("internalSolrUrl", "${internalSolrUrl}");
-    	gc.put("mediaBaseUrl", "${mediaBaseUrl}");
-    	gc.put("impcMediaBaseUrl", "${impcMediaBaseUrl}");
-    	gc.put("pdfThumbnailUrl", "${pdfThumbnailUrl}");
-    	gc.put("googleAnalytics", "${googleAnalytics}");
-    	gc.put("liveSite", "${liveSite}");
+		Map<String, String> gc = new HashMap<>();
+		gc.put("baseUrl", "${baseUrl}");
+		gc.put("cmsBaseUrl", "${cmsBaseUrl}");
+		gc.put("solrUrl", "${solrUrl}");
+		gc.put("internalSolrUrl", "${internalSolrUrl}");
+		gc.put("mediaBaseUrl", "${mediaBaseUrl}");
+		gc.put("impcMediaBaseUrl", "${impcMediaBaseUrl}");
+		gc.put("pdfThumbnailUrl", "${pdfThumbnailUrl}");
+		gc.put("googleAnalytics", "${googleAnalytics}");
+		gc.put("liveSite", "${liveSite}");
 
 		return gc;
 	}
@@ -95,28 +94,5 @@ public class TestConfig {
 		return komp2DataSource;
 	}
 
-
-	////////////
-	// HIBERNATE
-	////////////
-
-//	@Bean(name = "sessionFactoryHibernate")
-//	public SessionFactory sessionFactory() {
-//
-//		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
-//		sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
-//		sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
-//
-//		return sessionBuilder.buildSessionFactory();
-//	}
-
-
-	///////////
-	// SERVICES
-	///////////
-
-	@Bean
-	public UniprotService uniprotService() {
-		return new UniprotService();
-	}
 }
+

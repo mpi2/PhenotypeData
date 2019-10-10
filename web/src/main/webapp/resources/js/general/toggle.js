@@ -33,7 +33,6 @@ jQuery(document).ready(	function() {
 	}
 	
 	    var type = GetURLParameter('type');
-	    console.log('type='+type);
 	    if(type==='gene'){
 	    	console.log('gene is default so do nothing');
 	    	$('#geneSearchTab').addClass('active');

@@ -7,20 +7,19 @@ import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.db.repositories.GenesSecondaryProjectRepository;
-import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.ImpressService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 
@@ -29,6 +28,8 @@ import java.io.IOException;
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
 @EnableTransactionManagement
 public class IndexerConfig {
+
+    private static final Logger logger = LoggerFactory.getLogger(IndexerConfig.class);
 
     @Value("${buildIndexesSolrUrl}")
     private String writeSolrBaseUrl;
@@ -43,10 +44,14 @@ public class IndexerConfig {
 
 
     @Inject
-    public IndexerConfig(@NotNull OntologyTermRepository ontologyTermRepository,
-                         @NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository)
+    public IndexerConfig(@NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository)
     {
         this.genesSecondaryProjectRepository = genesSecondaryProjectRepository;
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+        logger.info("Configured indexes with build path {}, internal path {}", writeSolrBaseUrl, internalSolrUrl);
     }
 
 
@@ -176,28 +181,6 @@ public class IndexerConfig {
     @Bean
     public ImpressService impressService() {
         return new ImpressService(pipelineCore());
-    }
-
-
-
-    //////////////
-    // datasources
-    //////////////
-
-
-    @Value("${datasource.uniprot.jdbc-url}")
-    String uniprotUrl;
-
-    @Value("${datasource.uniprot.username}")
-    String uniprotUsername;
-
-    @Value("${datasource.uniprot.password}")
-    String uniprotPassword;
-
-    @Bean
-    @ConfigurationProperties(prefix = "datasource.uniprot")
-    public DataSource uniprotDataSource() {
-        return DataSourceBuilder.create().driverClassName("oracle.jdbc.driver.OracleDriver").build();
     }
 
 

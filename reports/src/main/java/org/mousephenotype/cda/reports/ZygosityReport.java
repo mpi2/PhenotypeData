@@ -145,7 +145,7 @@ public class ZygosityReport extends AbstractReport {
 
                 Set<String> mpsSet = new HashSet<>();
                 for (String gene : mps.get(k)) {
-                    GeneDTO geneDTO = geneService.getGeneByGeneSymbol(gene);
+                    GeneDTO geneDTO = geneService.getGeneByGeneSymbolWithLimitedFields(gene);
 
                     if ((geneDTO != null) && (geneDTO.getMgiAccessionId() != null) && ( ! geneDTO.getMgiAccessionId().isEmpty())) {
                         mpsSet.add(gene + "(" + geneDTO.getMgiAccessionId() + ")");
@@ -199,7 +199,7 @@ public class ZygosityReport extends AbstractReport {
 
             for (String geneSymbol : geneSymbols) {
 
-                GeneDTO gene = geneService.getGeneByGeneSymbol(geneSymbol);
+                GeneDTO gene = geneService.getGeneByGeneSymbolWithLimitedFields(geneSymbol);
 
                 for (String center : centers) {
 
