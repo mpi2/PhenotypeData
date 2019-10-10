@@ -649,7 +649,7 @@ CREATE TABLE text_observation (
 	text_value                 TEXT,
 
 	PRIMARY KEY(id),
-	KEY text_idx(text(255))
+	KEY text_idx(text_value(255))
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
