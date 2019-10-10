@@ -588,7 +588,7 @@ CREATE TABLE observation (
 DROP TABLE IF EXISTS text_observation;
 CREATE TABLE text_observation (
 	id                         INT(10) NOT NULL,
-	text                       TEXT,
+	text_value                 TEXT,
 
 	PRIMARY KEY(id)
 

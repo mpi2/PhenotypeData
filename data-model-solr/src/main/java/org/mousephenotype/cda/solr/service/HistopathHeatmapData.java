@@ -1,6 +1,7 @@
 package org.mousephenotype.cda.solr.service;
 
-import org.json.JSONArray;
+
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 
 import java.util.List;
 

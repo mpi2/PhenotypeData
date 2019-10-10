@@ -43,10 +43,8 @@ import org.springframework.util.Assert;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Created by mrelac on 03/05/16.
@@ -75,6 +73,9 @@ public class CdabaseConfig extends DataSourceCdabaseConfig {
     @NotNull
     @Value("${cdabase.workspace}")
     protected String cdabaseWorkspace;
+
+    @Value("${loadFromCsvOntologies:false}")
+    protected boolean loadFromCsvOntologies;
 
     @Inject
     @Lazy
@@ -149,47 +150,71 @@ public class CdabaseConfig extends DataSourceCdabaseConfig {
     @PostConstruct
     public void initialise() {
 
-        filenames = new DownloadFilename[] {
-          // imsr
-              new DownloadFilename(DownloadFileEnum.IMSR_report, "http://www.findmice.org/report.txt?query=&states=Any&_states=1&types=Any&_types=1&repositories=Any&_repositories=1&_mutations=on&results=500000&startIndex=0&sort=score&dir=", cdabaseWorkspace + "/IMSR_report.txt", DbIdType.IMSR.intValue())
-
-          // mgi reports
-            , new DownloadFilename(DownloadFileEnum.ES_CellLine,            "http://www.informatics.jax.org/downloads/reports/ES_CellLine.rpt", cdabaseWorkspace + "/ES_CellLine.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.EUCOMM_Allele,          "http://www.informatics.jax.org/downloads/reports/EUCOMM_Allele.rpt", cdabaseWorkspace + "/EUCOMM_Allele.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.HMD_HumanPhenotype,     "http://www.informatics.jax.org/downloads/reports/HMD_HumanPhenotype.rpt", cdabaseWorkspace + "/HMD_HumanPhenotype.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.KOMP_Allele,            "http://www.informatics.jax.org/downloads/reports/KOMP_Allele.rpt", cdabaseWorkspace + "/KOMP_Allele.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_EntrezGene,         "http://www.informatics.jax.org/downloads/reports/MGI_EntrezGene.rpt", cdabaseWorkspace + "/MGI_EntrezGene.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.HGNC_homologene,        "http://www.informatics.jax.org/downloads/reports/HGNC_homologene.rpt", cdabaseWorkspace + "/HGNC_homologene.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_Gene_Model_Coord,   "http://www.informatics.jax.org/downloads/reports/MGI_Gene_Model_Coord.rpt", cdabaseWorkspace + "/MGI_Gene_Model_Coord.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_GenePheno,          "http://www.informatics.jax.org/downloads/reports/MGI_GenePheno.rpt", cdabaseWorkspace + "/MGI_GenePheno.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_PhenoGenoMP,        "http://www.informatics.jax.org/downloads/reports/MGI_PhenoGenoMP.rpt", cdabaseWorkspace + "/MGI_PhenoGenoMP.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_PhenotypicAllele,   "http://www.informatics.jax.org/downloads/reports/MGI_PhenotypicAllele.rpt", cdabaseWorkspace + "/MGI_PhenotypicAllele.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_QTLAllele,          "http://www.informatics.jax.org/downloads/reports/MGI_QTLAllele.rpt", cdabaseWorkspace + "/MGI_QTLAllele.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MGI_Strain,             "http://www.informatics.jax.org/downloads/reports/MGI_Strain.rpt", cdabaseWorkspace + "/MGI_Strain.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MRK_ENSEMBL,            "http://www.informatics.jax.org/downloads/reports/MRK_ENSEMBL.rpt", cdabaseWorkspace + "/MRK_ENSEMBL.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MRK_List1,              "http://www.informatics.jax.org/downloads/reports/MRK_List1.rpt", cdabaseWorkspace + "/MRK_List1.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MRK_Reference,          "http://www.informatics.jax.org/downloads/reports/MRK_Reference.rpt", cdabaseWorkspace + "/MRK_Reference.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MRK_Sequence,           "http://www.informatics.jax.org/downloads/reports/MRK_Sequence.rpt", cdabaseWorkspace + "/MRK_Sequence.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MRK_SwissProt,          "http://www.informatics.jax.org/downloads/reports/MRK_SwissProt.rpt", cdabaseWorkspace + "/MRK_SwissProt.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.MRK_VEGA,               "http://www.informatics.jax.org/downloads/reports/MRK_VEGA.rpt", cdabaseWorkspace + "/MRK_VEGA.rpt", DbIdType.MGI.intValue())
-            , new DownloadFilename(DownloadFileEnum.NorCOMM_Allele,         "http://www.informatics.jax.org/downloads/reports/NorCOMM_Allele.rpt", cdabaseWorkspace + "/NorCOMM_Allele.rpt", DbIdType.MGI.intValue())
-
-          // iMits phenotyped colony report (public URL - preferable to use this one)
-            , new DownloadFilename(DownloadFileEnum.EBI_PhenotypedColony, "http://i-dcc.org/imits/v2/reports/mp2_load_phenotyping_colonies_report.tsv", cdabaseWorkspace + "/EBI_PhenotypedColonies.tsv", DbIdType.IMPC.intValue())
-          // iMits phenotyped colony report (internal URL)
-//            , new DownloadFilename(DownloadFileEnum.EBI_PhenotypedColony, "http://ves-ebi-d6:8089/imits/v2/reports/mp2_load_phenotyping_colonies_report.tsv", cdabaseWorkspace + "/EBI_PhenotypedColonies.tsv", DbIdType.IMPC.intValue())
-
-          // OWL ontologies
-            , new DownloadOntologyFilename(DownloadFileEnum.eco,    "http://purl.obolibrary.org/obo/eco.owl", cdabaseWorkspace + "/eco.owl", DbIdType.ECO.intValue(), DbIdType.ECO.getName())
-            , new DownloadOntologyFilename(DownloadFileEnum.efo,    "http://www.ebi.ac.uk/efo/efo.owl", cdabaseWorkspace + "/efo.owl", DbIdType.EFO.intValue(), DbIdType.EFO.getName())
-            , new DownloadOntologyFilename(DownloadFileEnum.emap,   "http://purl.obolibrary.org/obo/emap.owl", cdabaseWorkspace + "/emap.owl", DbIdType.EMAP.intValue(), DbIdType.EMAP.getName())
-            , new DownloadOntologyFilename(DownloadFileEnum.emapa,  "http://purl.obolibrary.org/obo/emapa.owl", cdabaseWorkspace + "/emapa.owl", DbIdType.EMAPA.intValue(), DbIdType.EMAPA.getName())
-            , new DownloadOntologyFilename(DownloadFileEnum.ma,     "http://purl.obolibrary.org/obo/ma.owl", cdabaseWorkspace + "/ma.owl", DbIdType.MA.intValue(), DbIdType.MA.getName())
-            , new DownloadOntologyFilename(DownloadFileEnum.MmusDv, "http://purl.obolibrary.org/obo/mmusdv.owl", cdabaseWorkspace + "/MmusDv.owl", DbIdType.MmusDv.intValue(), DbIdType.MmusDv.getName())
-            , new DownloadOntologyFilename(DownloadFileEnum.mp,     "http://purl.obolibrary.org/obo/mp.owl", cdabaseWorkspace + "/mp.owl", DbIdType.MP.intValue(), DbIdType.MP.getName())
-            , new DownloadOntologyFilename(DownloadFileEnum.mpath,  "http://purl.obolibrary.org/obo/mpath.owl", cdabaseWorkspace + "/mpath.owl", DbIdType.MPATH.intValue(), DbIdType.MPATH.getName())
-            , new DownloadOntologyFilename(DownloadFileEnum.pato,   "http://purl.obolibrary.org/obo/pato.owl", cdabaseWorkspace + "/pato.owl", DbIdType.PATO.intValue(), DbIdType.PATO.getName())
+        DownloadFilename[] imsr = new DownloadFilename[] {
+                new DownloadFilename(DownloadFileEnum.IMSR_report, "http://www.findmice.org/report.txt?query=&states=Any&_states=1&types=Any&_types=1&repositories=Any&_repositories=1&_mutations=on&results=500000&startIndex=0&sort=score&dir=", cdabaseWorkspace + "/IMSR_report.txt", DbIdType.IMSR.intValue())
         };
+
+        DownloadFilename[] mgi = new DownloadFilename[] {
+                  new DownloadFilename(DownloadFileEnum.ES_CellLine,            "http://www.informatics.jax.org/downloads/reports/ES_CellLine.rpt", cdabaseWorkspace + "/ES_CellLine.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.EUCOMM_Allele,          "http://www.informatics.jax.org/downloads/reports/EUCOMM_Allele.rpt", cdabaseWorkspace + "/EUCOMM_Allele.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.HMD_HumanPhenotype,     "http://www.informatics.jax.org/downloads/reports/HMD_HumanPhenotype.rpt", cdabaseWorkspace + "/HMD_HumanPhenotype.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.KOMP_Allele,            "http://www.informatics.jax.org/downloads/reports/KOMP_Allele.rpt", cdabaseWorkspace + "/KOMP_Allele.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MGI_EntrezGene,         "http://www.informatics.jax.org/downloads/reports/MGI_EntrezGene.rpt", cdabaseWorkspace + "/MGI_EntrezGene.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.HGNC_homologene,        "http://www.informatics.jax.org/downloads/reports/HGNC_homologene.rpt", cdabaseWorkspace + "/HGNC_homologene.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MGI_Gene_Model_Coord,   "http://www.informatics.jax.org/downloads/reports/MGI_Gene_Model_Coord.rpt", cdabaseWorkspace + "/MGI_Gene_Model_Coord.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MGI_GenePheno,          "http://www.informatics.jax.org/downloads/reports/MGI_GenePheno.rpt", cdabaseWorkspace + "/MGI_GenePheno.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MGI_PhenoGenoMP,        "http://www.informatics.jax.org/downloads/reports/MGI_PhenoGenoMP.rpt", cdabaseWorkspace + "/MGI_PhenoGenoMP.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MGI_PhenotypicAllele,   "http://www.informatics.jax.org/downloads/reports/MGI_PhenotypicAllele.rpt", cdabaseWorkspace + "/MGI_PhenotypicAllele.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MGI_QTLAllele,          "http://www.informatics.jax.org/downloads/reports/MGI_QTLAllele.rpt", cdabaseWorkspace + "/MGI_QTLAllele.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MGI_Strain,             "http://www.informatics.jax.org/downloads/reports/MGI_Strain.rpt", cdabaseWorkspace + "/MGI_Strain.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MRK_ENSEMBL,            "http://www.informatics.jax.org/downloads/reports/MRK_ENSEMBL.rpt", cdabaseWorkspace + "/MRK_ENSEMBL.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MRK_List1,              "http://www.informatics.jax.org/downloads/reports/MRK_List1.rpt", cdabaseWorkspace + "/MRK_List1.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MRK_Reference,          "http://www.informatics.jax.org/downloads/reports/MRK_Reference.rpt", cdabaseWorkspace + "/MRK_Reference.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MRK_Sequence,           "http://www.informatics.jax.org/downloads/reports/MRK_Sequence.rpt", cdabaseWorkspace + "/MRK_Sequence.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MRK_SwissProt,          "http://www.informatics.jax.org/downloads/reports/MRK_SwissProt.rpt", cdabaseWorkspace + "/MRK_SwissProt.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.MRK_VEGA,               "http://www.informatics.jax.org/downloads/reports/MRK_VEGA.rpt", cdabaseWorkspace + "/MRK_VEGA.rpt", DbIdType.MGI.intValue())
+                , new DownloadFilename(DownloadFileEnum.NorCOMM_Allele,         "http://www.informatics.jax.org/downloads/reports/NorCOMM_Allele.rpt", cdabaseWorkspace + "/NorCOMM_Allele.rpt", DbIdType.MGI.intValue())
+        };
+
+        DownloadFilename[] imits = new DownloadFilename[] {
+                new DownloadFilename(DownloadFileEnum.EBI_PhenotypedColony, "http://i-dcc.org/imits/v2/reports/mp2_load_phenotyping_colonies_report.tsv", cdabaseWorkspace + "/EBI_PhenotypedColonies.tsv", DbIdType.IMPC.intValue())
+        };
+
+        DownloadFilename[] ontologyOwl = new DownloadFilename[] {
+                  new DownloadOntologyFilename(DownloadFileEnum.eco,    "http://purl.obolibrary.org/obo/eco.owl", cdabaseWorkspace + "/eco.owl", DbIdType.ECO.intValue(), DbIdType.ECO.getName())
+                , new DownloadOntologyFilename(DownloadFileEnum.efo,    "http://www.ebi.ac.uk/efo/efo.owl", cdabaseWorkspace + "/efo.owl", DbIdType.EFO.intValue(), DbIdType.EFO.getName())
+                , new DownloadOntologyFilename(DownloadFileEnum.emap,   "http://purl.obolibrary.org/obo/emap.owl", cdabaseWorkspace + "/emap.owl", DbIdType.EMAP.intValue(), DbIdType.EMAP.getName())
+                , new DownloadOntologyFilename(DownloadFileEnum.emapa,  "http://purl.obolibrary.org/obo/emapa.owl", cdabaseWorkspace + "/emapa.owl", DbIdType.EMAPA.intValue(), DbIdType.EMAPA.getName())
+                , new DownloadOntologyFilename(DownloadFileEnum.ma,     "http://purl.obolibrary.org/obo/ma.owl", cdabaseWorkspace + "/ma.owl", DbIdType.MA.intValue(), DbIdType.MA.getName())
+                , new DownloadOntologyFilename(DownloadFileEnum.MmusDv, "http://purl.obolibrary.org/obo/mmusdv.owl", cdabaseWorkspace + "/MmusDv.owl", DbIdType.MmusDv.intValue(), DbIdType.MmusDv.getName())
+                , new DownloadOntologyFilename(DownloadFileEnum.mp,     "http://purl.obolibrary.org/obo/mp.owl", cdabaseWorkspace + "/mp.owl", DbIdType.MP.intValue(), DbIdType.MP.getName())
+                , new DownloadOntologyFilename(DownloadFileEnum.mpath,  "http://purl.obolibrary.org/obo/mpath.owl", cdabaseWorkspace + "/mpath.owl", DbIdType.MPATH.intValue(), DbIdType.MPATH.getName())
+                , new DownloadOntologyFilename(DownloadFileEnum.pato,   "http://purl.obolibrary.org/obo/pato.owl", cdabaseWorkspace + "/pato.owl", DbIdType.PATO.intValue(), DbIdType.PATO.getName())
+        };
+
+        DownloadFilename[] ontologyCsv = new DownloadFilename[] {
+                  new DownloadFilename(DownloadFileEnum.eco,    "http://???/eco.csv",    cdabaseWorkspace + "/eco.csv",    DbIdType.ECO.intValue())
+                , new DownloadFilename(DownloadFileEnum.efo,    "http://???/efo.csv",    cdabaseWorkspace + "/efo.csv",    DbIdType.EFO.intValue())
+                , new DownloadFilename(DownloadFileEnum.emap,   "http://???/emap.csv",   cdabaseWorkspace + "/emap.csv",   DbIdType.EMAP.intValue())
+                , new DownloadFilename(DownloadFileEnum.emapa,  "http://???/emapa.csv",  cdabaseWorkspace + "/emapa.csv",  DbIdType.EMAPA.intValue())
+                , new DownloadFilename(DownloadFileEnum.ma,     "http://???/ma.csv",     cdabaseWorkspace + "/ma.csv",     DbIdType.MA.intValue())
+                , new DownloadFilename(DownloadFileEnum.MmusDv, "http://???/mmusdv.csv", cdabaseWorkspace + "/mmusdv.csv", DbIdType.MmusDv.intValue())
+                , new DownloadFilename(DownloadFileEnum.mp,     "http://???/mp.csv",     cdabaseWorkspace + "/mp.csv",     DbIdType.MP.intValue())
+                , new DownloadFilename(DownloadFileEnum.mpath,  "http://???/mpath.csv",  cdabaseWorkspace + "/mpath.csv",  DbIdType.MPATH.intValue())
+                , new DownloadFilename(DownloadFileEnum.pato,   "http://???/pato.csv",   cdabaseWorkspace + "/pato.csv",   DbIdType.PATO.intValue())
+//                , new DownloadFilename(DownloadFileEnum.pato,   "http://???/uberon.csv", cdabaseWorkspace + "/uberon.csv", DbIdType.UBERON.intValue())
+        };
+
+        DownloadFilename[] ontology = (loadFromCsvOntologies ? ontologyCsv : ontologyOwl);
+        DownloadFilename[][] downloadables = {imsr, mgi, imits, ontology};
+
+        filenames = new DownloadFilename[0];
+        for (DownloadFilename[] downloadable : downloadables) {
+            filenames = Stream.concat(
+                    Arrays.stream(filenames),
+                    Arrays.stream(downloadable))
+                    .toArray(DownloadFilename[]::new);
+        }
 
         for (DownloadFilename downloadFilename : filenames) {
 

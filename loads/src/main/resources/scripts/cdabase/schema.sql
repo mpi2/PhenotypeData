@@ -646,7 +646,7 @@ CREATE TABLE observation (
 DROP TABLE IF EXISTS text_observation;
 CREATE TABLE text_observation (
 	id                         INT(10) UNSIGNED NOT NULL,
-	text                       TEXT,
+	text_value                 TEXT,
 
 	PRIMARY KEY(id),
 	KEY text_idx(text(255))

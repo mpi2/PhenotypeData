@@ -1,5 +1,4 @@
 package org.mousephenotype.cda.solr.service;
-import org.json.JSONArray;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.common.util.NamedList;
@@ -12,6 +11,7 @@ import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow.ParameterValueB
 import org.mousephenotype.cda.solr.web.dto.HistopathSumPageTableRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
