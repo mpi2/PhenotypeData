@@ -765,8 +765,8 @@ CREATE TABLE multidimensional_observation (
 
 /**
  * time_series_observation
- * A time series is a sequence of observations which are ordered in time
- * (or space).
+ * A time series is a sequence of FLOAT observations which are ordered in time
+ * (or space, or frequency).
  */
 DROP TABLE IF EXISTS time_series_observation;
 CREATE TABLE time_series_observation (
@@ -780,6 +780,20 @@ CREATE TABLE time_series_observation (
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
+/**
+ * text_series_observation
+ * A text series is a sequence of TEXT observations which are segregated by some increment.
+ */
+DROP TABLE IF EXISTS text_series_observation;
+CREATE TABLE text_series_observation (
+    id         INT(10) UNSIGNED NOT NULL,
+    text_value TEXT NOT NULL,
+    increment  TEXT NOT NULL,
+
+    PRIMARY KEY(id),
+    KEY text_point_idx(text_value, increment)
+
+) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
 /**
  * datetime_observation
