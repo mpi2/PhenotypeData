@@ -791,7 +791,7 @@ CREATE TABLE text_series_observation (
     increment  TEXT NOT NULL,
 
     PRIMARY KEY(id),
-    KEY text_point_idx(text_value, increment)
+    KEY text_point_idx(text_value(100), increment(100))
 
 ) COLLATE=utf8_general_ci ENGINE=MyISAM;
 
