@@ -751,7 +751,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                     // Lookup and cache the impress object corresponding to the parameter in question
                     if (!impressAbnormals.containsKey(doc.getParameterStableId())) {
 
-                        Parameter parameter = parameterRepository.getByStableId(doc.getParameterStableId());
+                        Parameter parameter = parameterRepository.getFirstByStableId(doc.getParameterStableId());
 
                         List<String> abnormalMpIds = parameter.getAnnotations()
                                 .stream()
