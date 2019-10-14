@@ -2,7 +2,6 @@ package org.mousephenotype.cda.loads.statistics.load;
 
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.db.repositories.ParameterRepository;
-import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -18,7 +17,8 @@ import javax.inject.Inject;
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 
-@Configuration@EnableAutoConfiguration
+@Configuration
+@EnableAutoConfiguration
 @ComponentScan("org.mousephenotype.cda.db")
 @EnableJpaRepositories(basePackages = "org.mousephenotype.cda.db.repositories")
 public class StatisticalResultLoaderConfig {
@@ -43,11 +43,6 @@ public class StatisticalResultLoaderConfig {
     @Bean(name="threeIFile")
     public Resource threeIFile() {
         return new ClassPathResource("data/flow_results_EBIexport_180119.csv");
-    }
-
-    @Bean
-    public MpTermService mpTermService() {
-        return new MpTermService(ontologyTermRepository, parameterRepository);
     }
 
     @Bean

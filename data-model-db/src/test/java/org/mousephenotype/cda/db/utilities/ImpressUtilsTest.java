@@ -25,14 +25,25 @@ package org.mousephenotype.cda.db.utilities;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.repositories.ParameterRepository;
+import org.mousephenotype.cda.enumerations.ObservationType;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.Assert.assertSame;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {UtilitiesTestConfig.class})
@@ -41,7 +52,16 @@ public class ImpressUtilsTest {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
+    private ApplicationContext context;
+
+    @Autowired
+    DataSource komp2DataSource;
+
+    @Autowired
     ImpressUtils impressUtils;
+
+    @Autowired
+    ParameterRepository parameterRepository;
 
     @Autowired
     NamedParameterJdbcTemplate jdbc1;
@@ -95,5 +115,27 @@ public class ImpressUtilsTest {
         for (int i = 0; i < expectedResults.size(); i++) {
             Assert.assertArrayEquals(expectedResults.get(i), actualResults.get(i));
         }
+    }
+
+    @Test
+    public void testParameterCorrectType() throws SQLException {
+        List<String> resources = Arrays.asList("classpath:sql/h2/schema.sql",
+                "classpath:sql/h2/impressSchema.sql",
+                "classpath:sql/h2/utilities/test-data.sql");
+
+        for (String resource : resources) {
+            Resource r = context.getResource(resource);
+            ScriptUtils.executeSqlScript(komp2DataSource.getConnection(), r);
+        }
+
+        // Tabulation (text series) parameter
+        Parameter p = parameterRepository.getByStableId("TCP_VFR_001_001");
+        assertSame(ImpressUtils.checkType(p, "oxoox"), ObservationType.text_series);
+
+        // Time series parameter
+        p = parameterRepository.getByStableId("ESLIM_003_001_006");
+        assertSame(ImpressUtils.checkType(p, "1.5"), ObservationType.time_series);
+
+
     }
 }

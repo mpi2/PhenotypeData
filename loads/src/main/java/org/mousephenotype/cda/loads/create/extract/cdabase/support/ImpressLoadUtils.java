@@ -165,8 +165,7 @@ public class ImpressLoadUtils {
         RestTemplate rt   = new RestTemplate();
 
         try {
-            Object o    = rt.getForEntity(url, Object.class);
-            Object body = ((ResponseEntity) o).getBody();
+            Object body = getResponseObjectFromImpress(url);
 
             HashMap<String, Object> impressScheduleMap = (HashMap<String, Object>) body;
 
@@ -728,37 +727,36 @@ public class ImpressLoadUtils {
 
         try {
 
-            Object body = getResponseObjectFromImpress(url);
-            List<Map<String, Object>> maps = (List<Map<String, Object>>) body;
+            terms = getTerms(url, updatedOntologyTermsByStableKey);
 
-            for (Map<String, Object> map : maps) {
-
-                ImpressParamMpterm paramMpTerm = getTerm(map);
-                String ontologyTermAccessionId = updatedOntologyTermsByStableKey.get(paramMpTerm.getOntologyTermId()).getId().getAccession();
-
-                List<ImpressParamMpterm> accumulatedParamMpTerms = terms.get(ontologyTermAccessionId);
-                if (accumulatedParamMpTerms == null) {
-                    accumulatedParamMpTerms = new ArrayList<>();
-                    terms.put(ontologyTermAccessionId, accumulatedParamMpTerms);
-                }
-
-                accumulatedParamMpTerms.add(paramMpTerm);
-            }
-
-        } catch (HttpClientErrorException e) {
-
-            // If there are no outcomes, an HttpClientErrorException will be thrown with HttpStatus 404.
-            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                return terms;
-            }
-         } catch (Exception e) {
-
+        } catch (Exception e) {
             String message = pipelineId + "::" + scheduleId + "::" + procedureId + "::" + parameter.getStableKey() + "::" +
                     parameter.getStableId() + ": URL: " + url;
             exceptions.add(message);
-            return terms;
         }
 
+        return terms;
+    }
+
+    @Retryable(
+            maxAttempts = 4,
+            backoff = @Backoff(delay = 2000, multiplier = 2),
+            value = RuntimeException.class)
+    private Map<String, List<ImpressParamMpterm>> getTerms(String url, Map<Long, OntologyTerm> updatedOntologyTermsByStableKey) {
+        Map<String, List<ImpressParamMpterm>> terms = new HashMap<>();
+        Object body = getResponseObjectFromImpress(url);
+        List<Map<String, Object>> maps = (List<Map<String, Object>>) body;
+
+        for (Map<String, Object> map : maps) {
+            ImpressParamMpterm paramMpTerm = getTerm(map);
+            String ontologyTermAccessionId = updatedOntologyTermsByStableKey.get(paramMpTerm.getOntologyTermId()).getId().getAccession();
+
+            if ( ! terms.containsKey(ontologyTermAccessionId)) {
+                terms.put(ontologyTermAccessionId, new ArrayList<>());
+            }
+
+            terms.get(ontologyTermAccessionId).add(paramMpTerm);
+        }
         return terms;
     }
 

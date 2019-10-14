@@ -397,8 +397,19 @@ public class SampleLoader implements CommandLineRunner {
                         && ( ! colony.getBackgroundStrain().equalsIgnoreCase(specimen.getStrainID()))
                         && (specimen.getStrainID() != null)
                         && ( ! specimen.getStrainID().trim().equals("null"))
-                        && ( ! specimen.getStrainID().trim().isEmpty())) {
-                    backgroundStrainMismatches.add(specimen.getSpecimenID()+"::" + specimen.getStrainID() + "::" + colony.getBackgroundStrain());
+                        && ( ! specimen.getStrainID().trim().isEmpty())
+                ) {
+
+                    // If we haven't matched the strain yet, translate both strains to something that can be
+                    // compared directly and try again
+                    Strain specimenStrain = strainsByNameOrMgiAccessionIdMap.get(specimen.getStrainID().trim());
+                    Strain colonyStrain = strainsByNameOrMgiAccessionIdMap.get(colony.getBackgroundStrain());
+
+                    if ( specimenStrain==null ||
+                            colonyStrain==null ||
+                            (! specimenStrain.getName().equalsIgnoreCase(colonyStrain.getName()))) {
+                        backgroundStrainMismatches.add(colony.getColonyName()+"::" + specimen.getStrainID() + "::" + colony.getBackgroundStrain());
+                    }
                 }
 
                 // If the background strain of the mutant specimen has not been provided in the XML file
@@ -568,7 +579,7 @@ public class SampleLoader implements CommandLineRunner {
         }
 
         // biological model and friends
-        bioModelManager.insertMutantIfMissing(specimenExtended, zygosity, dbId, biologicalSamplePk, phenotypingCenterPk);
+        bioModelManager.insertMutantIfMissing(specimenExtended, zygosity, dbId, biologicalSamplePk);
         counts.put("biologicalModel", counts.get("biologicalModel") + 1);
 
         return counts;
@@ -671,7 +682,7 @@ public class SampleLoader implements CommandLineRunner {
         }
 
         // biological model and friends
-        bioModelManager.insertControlIfMissing(specimenExtended, dbId, biologicalSamplePk, phenotypingCenterPk);
+        bioModelManager.insertControlIfMissing(specimenExtended, dbId, biologicalSamplePk);
 
         return counts;
     }
