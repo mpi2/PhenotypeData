@@ -33,6 +33,11 @@
                         enabled: false
                     },
                     colorAxis: {
+                        events: {
+                            legendItemClick: function() {
+                                return false;
+                            }
+                        },
 
                         dataClasses: [{
                             from: 0,
@@ -111,13 +116,22 @@
                         series: {
                             cursor: 'pointer',
                             events: {
+
+                                    legendItemClick: function () {
+                                        var visibility = this.visible ? 'visible' : 'hidden';
+                                        if (!confirm('The series is currently ' +
+                                            visibility + '. Do you want to change that?')) {
+                                            return false;
+                                        }
+                                    },
+
                                 click: function (e) {
                                     const gene = e.point.series.yAxis.categories[e.point.y];
 
-                                    const procedure = e.point.series.xAxis.categories[e.point.x];
+                                    const anatomy = e.point.series.xAxis.categories[e.point.x];
 
                                     const text = 'gene: ' + gene +
-                                        ' Procedure: ' + procedure + ' significance=' + e.point.value;
+                                        ' Procedure: ' + anatomy + ' significance=' + e.point.value;
 
                                     // may have to use routerLink like for menus to link to our new not created yet parameter page
                                     //const routerLink = 'details?' + 'procedure=' + procedure + '&gene=' + gene;
@@ -137,11 +151,6 @@
                             enabled: false,
                             color: '#000000'
                         },
-                        events: {
-                            legendItemClick: function() {
-                                return false;
-                            }
-                        }
                     }],
                 });
 

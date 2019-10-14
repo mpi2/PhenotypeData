@@ -3,10 +3,21 @@ package org.mousephenotype.cda.solr.service;
 
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HistopathHeatmapData {
     private List<String> parameterNames;
+
+    public List<List<String>> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<List<String>> rows) {
+        this.rows = rows;
+    }
+
+    List<List<String>>rows= new ArrayList<>();
 
     public List<String> getParameterNames() {
         return parameterNames;
