@@ -1315,95 +1315,183 @@ public class ExperimentLoader implements CommandLineRunner {
             // Get the parameter data type.
             String          incrementValue  = seriesParameterValue.getIncrementValue();
             String          simpleValue     = seriesParameterValue.getValue();
-            long            observationPk   = 0;
+            Long            observationPk   = null;
             ObservationType observationType = cdaSqlUtils.computeObservationType(parameterStableId, simpleValue);
-            long            parameterPk     = cdaParameter_idMap.get(parameterStableId);
+            Long            parameterPk     = cdaParameter_idMap.get(parameterStableId);
             String          sequenceId      = null;
             int             populationId    = 0;
-            int             valueMissing    = missing;
 
-            // time_series_observation variables
-            Float dataPoint     = null;
-            Date  timePoint     = dccExperiment.getDateOfExperiment();                                                  // timePoint for all cases. Default is dateOfExperiment.
-            Float discretePoint = null;
-
-            if (valueMissing == 0) {
-                if ((simpleValue != null) && ( ! simpleValue.equals("null")) && ( ! simpleValue.trim().isEmpty())) {
-                    try {
-                        dataPoint = Float.parseFloat(simpleValue);                                                      // dataPoint for all cases.
-                        valueMissing = 0;
-                    } catch (NumberFormatException e) {
-                        valueMissing = 1;
-                    }
-                } else {
-                    valueMissing = 1;
-                }
+            switch (observationType) {
+                case time_series:
+                    observationPk = insertTimeSeries(dccExperiment, simpleValue, incrementValue, dccMetadataList,
+                            dbId, biologicalSamplePk, parameterStableId, parameterPk,
+                            sequenceId, populationId, observationType, missing,
+                            parameterStatus, parameterStatusMessage,
+                            seriesParameter);
+                    break;
+                case text_series:
+                    observationPk = insertTextSeries(dccExperiment, simpleValue, incrementValue, dccMetadataList,
+                            dbId, biologicalSamplePk, parameterStableId, parameterPk,
+                            sequenceId, populationId, observationType, missing,
+                            parameterStatus, parameterStatusMessage,
+                            seriesParameter);
+                    break;
+                default:
+                    observationPk = null;
+                    break;
             }
 
-            // Test increment value to see if it represents a date.
-            if (incrementValue.contains("-") && (incrementValue.contains(" ") || incrementValue.contains("T"))) {
+            if (observationPk != null) {
+                // Insert experiment_observation
+                cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
+            }
+        }
+    }
 
-                // Time series (increment is a datetime or time) - e.g. IMPC_CAL_003_001
-                SeriesParameterObservationUtils utils = new SeriesParameterObservationUtils();
+    private Long insertTimeSeries(
+            DccExperimentDTO dccExperiment,
+            String simpleValue,
+            String incrementValue,
+            List<ProcedureMetadata> dccMetadataList,
+            long dbId,
+            Long biologicalSamplePk,
+            String parameterStableId,
+            long parameterPk,
+            String sequenceId,
+            int populationId,
+            ObservationType observationType,
+            int valueMissing,
+            String parameterStatus,
+            String parameterStatusMessage,
+            SeriesParameter seriesParameter) {
 
-                discretePoint = utils.convertTimepoint(incrementValue, dccExperiment, dccMetadataList);                 // discretePoint if increment value represents a date.
+        Long observationPk = null;
 
-                // Parse value into correct format
-                String parsedIncrementValue = utils.getParsedIncrementValue(incrementValue);
-                if (parsedIncrementValue.contains("-")) {
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        // dataPoint for all cases.
+        Float dataPoint     = null;
 
-                    try {
-                        timePoint = simpleDateFormat.parse(parsedIncrementValue);                                       // timePoint (overridden if increment value represents a date.
-                        SimpleDateFormat ymdFormat = new SimpleDateFormat("yyyy-MM-dd");
+        // timePoint for all cases. Default is dateOfExperiment.
+        Date  timePoint     = dccExperiment.getDateOfExperiment();
 
-                        Date maxDate = new Date();
-                        Date minDate = ymdFormat.parse("1975-01-01");
-                        String message = "Invalid timepoint date '" + ymdFormat.format(timePoint) + "'" +
-                                " for datasource " + dccExperiment.getDatasourceShortName() +
-                                ", center " + dccExperiment.getPhenotypingCenter() +
-                                ", experimentId '" + dccExperiment.getExperimentId() + "'";
+        // discrete point for all cases. Default shows elapsed time / sequence
+        Float discretePoint = null;
 
-
-                        if ( ! commonUtils.isDateValid(timePoint, minDate, maxDate)) {
-                            valueMissing = 1;
-                            badDates.add(message);
-                        }
-
-                    } catch (ParseException e) { }
-                }
-
-            } else {
-
-                // Not time series (increment is not a timestamp) - e.g. IMPC_GRS_004_001
-
+        if (valueMissing == 0) {
+            if ((simpleValue != null) && ( ! simpleValue.equals("null")) && ( ! simpleValue.trim().isEmpty())) {
                 try {
-                    discretePoint = Float.parseFloat(incrementValue);                                                   // discretePoint if increment value does not represent a date.
+                    dataPoint = Float.parseFloat(simpleValue);
+                    valueMissing = 0;
                 } catch (NumberFormatException e) {
                     valueMissing = 1;
                 }
+            } else {
+                valueMissing = 1;
             }
+        }
+
+        // Test increment value to see if it represents a date.
+        if (incrementValue.contains("-") && (incrementValue.contains(" ") || incrementValue.contains("T"))) {
+
+            // Time series (increment is a datetime or time) - e.g. IMPC_CAL_003_001
+            SeriesParameterObservationUtils utils = new SeriesParameterObservationUtils();
+
+            // discretePoint if increment value represents a date.
+            discretePoint = utils.convertTimepoint(incrementValue, dccExperiment, dccMetadataList);
+
+            // Parse value into correct format
+            String parsedIncrementValue = utils.getParsedIncrementValue(incrementValue);
+            if (parsedIncrementValue.contains("-")) {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+                try {
+                    // timePoint (overridden if increment value represents a date.
+                    timePoint = simpleDateFormat.parse(parsedIncrementValue);
+                    SimpleDateFormat ymdFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+                    Date maxDate = new Date();
+                    Date minDate = ymdFormat.parse("1975-01-01");
+                    String message = "Invalid timepoint date '" + ymdFormat.format(timePoint) + "'" +
+                            " for datasource " + dccExperiment.getDatasourceShortName() +
+                            ", center " + dccExperiment.getPhenotypingCenter() +
+                            ", experimentId '" + dccExperiment.getExperimentId() + "'";
+
+
+                    if ( ! commonUtils.isDateValid(timePoint, minDate, maxDate)) {
+                        valueMissing = 1;
+                        badDates.add(message);
+                    }
+
+                } catch (ParseException e) { }
+            }
+
+        } else {
+
+            // Not time series (increment is not a timestamp) - e.g. IMPC_GRS_004_001
 
             try {
-                observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
-                                                              sequenceId, populationId, observationType, valueMissing,
-                                                              parameterStatus, parameterStatusMessage,
-                                                              seriesParameter, dataPoint, timePoint, discretePoint);
-            } catch (Exception e) {
-                logger.warn("Insert of series parameter observation for phenotyping center {} failed. Skipping... " +
-                                    " biologicalSamplePk {}. parameterStableId {}." +
-                                    " parameterPk {}. observationType {}. missing {}. parameterStatus {}. parameterStatusMessage {}." +
-                                    " dataPoint {}. timePoint {}. discretePoint {}. Reason: {}",
-                            dccExperiment.getPhenotypingCenter(), biologicalSamplePk, parameterStableId, parameterPk,
-                            observationType, valueMissing, parameterStatus, parameterStatusMessage, dataPoint, timePoint,
-                            discretePoint, e.getLocalizedMessage());
-                return;
+                // discretePoint if increment value does not represent a date.
+                discretePoint = Float.parseFloat(incrementValue);
+            } catch (NumberFormatException e) {
+                valueMissing = 1;
             }
-
-            // Insert experiment_observation
-            cdaSqlUtils.insertExperiment_observation(experimentPk, observationPk);
         }
+
+        try {
+            observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
+                    sequenceId, populationId, observationType, valueMissing,
+                    parameterStatus, parameterStatusMessage,
+                    seriesParameter, dataPoint, timePoint, discretePoint);
+        } catch (Exception e) {
+            logger.warn("Insert of series parameter observation for phenotyping center {} failed. Skipping... " +
+                            " biologicalSamplePk {}. parameterStableId {}." +
+                            " parameterPk {}. observationType {}. missing {}. parameterStatus {}. parameterStatusMessage {}." +
+                            " dataPoint {}. timePoint {}. discretePoint {}. Reason: {}",
+                    dccExperiment.getPhenotypingCenter(), biologicalSamplePk, parameterStableId, parameterPk,
+                    observationType, valueMissing, parameterStatus, parameterStatusMessage, dataPoint, timePoint,
+                    discretePoint, e.getLocalizedMessage());
+        }
+
+        return observationPk;
     }
+
+    // text series parameter
+    private Long insertTextSeries(
+            DccExperimentDTO dccExperiment,
+            String simpleValue,
+            String incrementValue,
+            List<ProcedureMetadata> dccMetadataList,
+            long dbId,
+            Long biologicalSamplePk,
+            String parameterStableId,
+            long parameterPk,
+            String sequenceId,
+            int populationId,
+            ObservationType observationType,
+            int valueMissing,
+            String parameterStatus,
+            String parameterStatusMessage,
+            SeriesParameter seriesParameter) {
+
+        Long observationPk = null;
+
+        try {
+            observationPk = cdaSqlUtils.insertObservation(dbId, biologicalSamplePk, parameterStableId, parameterPk,
+                    sequenceId, populationId, observationType, valueMissing,
+                    parameterStatus, parameterStatusMessage,
+                    seriesParameter, simpleValue, incrementValue);
+        } catch (Exception e) {
+            logger.warn("Insert of series parameter observation for phenotyping center {} failed. Skipping... " +
+                            " biologicalSamplePk {}. parameterStableId {}." +
+                            " parameterPk {}. observationType {}. missing {}. parameterStatus {}. parameterStatusMessage {}." +
+                            " textValue {}. increment {}. Reason: {}",
+                    dccExperiment.getPhenotypingCenter(), biologicalSamplePk, parameterStableId, parameterPk,
+                    observationType, valueMissing, parameterStatus, parameterStatusMessage, simpleValue, incrementValue,
+                    e.getLocalizedMessage());
+        }
+
+        return observationPk;
+    }
+
 
     private void insertOntologyParameters(DccExperimentDTO dccExperiment, OntologyParameter ontologyParameter,
                                           long experimentPk, long dbId, Long biologicalSamplePk, int missing) throws DataLoadException

@@ -31,6 +31,7 @@ public enum ObservationType {
 	unidimensional,
 	multidimensional,
 	time_series,
+	text_series,
 	metadata,
 	text
 }

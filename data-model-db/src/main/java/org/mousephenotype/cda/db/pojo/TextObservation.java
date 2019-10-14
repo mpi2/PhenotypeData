@@ -34,7 +34,7 @@ import javax.persistence.Table;
 @Table(name = "text_observation")
 public class TextObservation extends Observation {
 
-	@Column(name = "text")
+	@Column(name = "text_value")
 	private String text;
 
 	/**

@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.db.pojo.Procedure;
 import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.utilities.ImpressUtils;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.enumerations.DbIdType;
 import org.mousephenotype.cda.enumerations.ObservationType;
@@ -254,7 +255,7 @@ public class CdaSqlUtils {
     public synchronized Map<BioSampleKey, BiologicalSample> getBiologicalSamplesMapBySampleKey() {
 
         Map<BioSampleKey, BiologicalSample> bioSamplesMap = new HashMap<>();
-        String query = "SELECT edb.short_name, bs.* FROM biological_sample bs JOIN external_db edb ON edb.id = bs.db_id";
+        String query = "SELECT p.name as project_name, edb.short_name, bs.* FROM biological_sample bs JOIN external_db edb ON edb.id = bs.db_id INNER JOIN project p ON bs.project_id = p.id";
 
         List<BiologicalSample> samples = jdbcCda.query(query, new BiologicalSampleRowMapper());
         for (BiologicalSample sample : samples) {
@@ -612,29 +613,37 @@ public class CdaSqlUtils {
     }
 
     @Transactional
-    public long insertBiologicalModelImpc(BioModelInsertDTOMutant mutant) throws DataLoadException {
+    public long insertBiologicalModelImpc(BioModelInsertDTOMutant mutant, Long biologicalModelKey) throws DataLoadException {
 
-        Long biologicalModelId = insertBiologicalModel(mutant.getDbId(), mutant.getAllelicComposition(), mutant.getGeneticBackground(), mutant.getZygosity());
-        insertBiologicalModelGenes(biologicalModelId, mutant.getGenes());
-        insertBiologicalModelAlleles(biologicalModelId, mutant.getAlleles());
-        insertBiologicalModelStrains(biologicalModelId, mutant.getStrains());
+        Long bmid = biologicalModelKey;
+        if (bmid == null) {
+            bmid = insertBiologicalModel(mutant.getDbId(), mutant.getAllelicComposition(), mutant.getGeneticBackground(), mutant.getZygosity());
+            insertBiologicalModelGenes(bmid, mutant.getGenes());
+            insertBiologicalModelAlleles(bmid, mutant.getAlleles());
+            insertBiologicalModelStrains(bmid, mutant.getStrains());
+
+        }
         if (mutant.biologicalSamplePk != null) {
-            insertBiologicalModelSample(biologicalModelId, mutant.biologicalSamplePk);
+            insertBiologicalModelSample(bmid, mutant.biologicalSamplePk);
         }
 
-        return biologicalModelId;
+        return bmid;
     }
 
     @Transactional
-    public long insertBiologicalModelImpc(BioModelInsertDTOControl control) throws DataLoadException {
+    public long insertBiologicalModelImpc(BioModelInsertDTOControl control, Long biologicalModelKey) throws DataLoadException {
 
-        Long biologicalModelId = insertBiologicalModel(control.getDbId(), control.getAllelicComposition(), control.getGeneticBackground(), control.getZygosity());
-        insertBiologicalModelStrains(biologicalModelId, control.getStrains());
-        if (control.biologicalSamplePk != null) {
-            insertBiologicalModelSample(biologicalModelId, control.biologicalSamplePk);
+        Long bmid = biologicalModelKey;
+        if (bmid == null) {
+            bmid = insertBiologicalModel(control.getDbId(), control.getAllelicComposition(), control.getGeneticBackground(), control.getZygosity());
+            insertBiologicalModelStrains(bmid, control.getStrains());
         }
 
-        return biologicalModelId;
+        if (control.biologicalSamplePk != null) {
+            insertBiologicalModelSample(bmid, control.biologicalSamplePk);
+        }
+
+        return bmid;
     }
 
     /*
@@ -780,7 +789,6 @@ public class CdaSqlUtils {
             parameterMap.put("external_id", external_id);
             parameterMap.put("sequence_id", sequence_id);
             parameterMap.put("date_of_experiment", date_of_experiment);
-            parameterMap.put("external_id", external_id);
             parameterMap.put("organisation_id", organisation_id);
             parameterMap.put("project_id", project_id);
             parameterMap.put("pipeline_id", pipeline_id);
@@ -1042,124 +1050,8 @@ public class CdaSqlUtils {
      * <i>categorical</i>.
      */
     public synchronized ObservationType computeObservationType(String parameterId, String value) {
-
         Parameter parameter = getParameterByStableId(parameterId);
-
-        Map<String, String> MAPPING = new HashMap<>();
-        MAPPING.put("M-G-P_022_001_001_001", "FLOAT");
-        MAPPING.put("M-G-P_022_001_001", "FLOAT");
-        MAPPING.put("ESLIM_006_001_035", "FLOAT");
-        MAPPING = Collections.unmodifiableMap(MAPPING);
-
-        ObservationType observationType = null;
-
-        Float valueToInsert = 0.0f;
-
-        String datatype = parameter.getDatatype();
-        if (MAPPING.containsKey(parameter.getStableId())) {
-            datatype = MAPPING.get(parameter.getStableId());
-        }
-
-        if (parameter.isMetaDataFlag()) {
-
-            observationType = ObservationType.metadata;
-
-        } else {
-
-            if (parameter.isOptionsFlag()) {
-
-                observationType = ObservationType.categorical;
-
-            } else {
-
-                if (datatype.equals("TEXT")) {
-
-                    observationType = ObservationType.text;
-
-                } else if (datatype.equals("DATETIME")) {
-
-                    observationType = ObservationType.datetime;
-
-                } else if (datatype.equals("BOOL")) {
-
-                    observationType = ObservationType.categorical;
-
-                } else if (datatype.equals("FLOAT") || datatype.equals("INT")) {
-
-                    if (parameter.isIncrementFlag()) {
-
-                        observationType = ObservationType.time_series;
-
-                    } else {
-
-                        observationType = ObservationType.unidimensional;
-
-                    }
-
-                    try {
-                        if (value != null) {
-                            valueToInsert = Float.valueOf(value);
-                        }
-                    } catch (NumberFormatException ex) {
-                        logger.debug("Invalid float value: " + value);
-                    }
-
-                } else if (datatype.equals("IMAGE") || (datatype.equals("") && parameter.getName().contains("images"))) {
-
-                    observationType = ObservationType.image_record;
-
-                } else if (datatype.equals("") && !parameter.isOptionsFlag() && !parameter.getName().contains("images")) {
-
-                    // is that a number or a category?
-                    try {
-                        // check whether it's null
-                        if (value != null && !value.equals("null") && !value.trim().isEmpty()) {
-                            valueToInsert = Float.valueOf(value);
-                        }
-                        if (parameter.isIncrementFlag()) {
-                            observationType = ObservationType.time_series;
-                        } else {
-                            observationType = ObservationType.unidimensional;
-                        }
-
-                    } catch (NumberFormatException ex) {
-                        observationType = ObservationType.categorical;
-                    }
-                }
-            }
-        }
-
-        return observationType;
-    }
-
-    public String[] computeParameterUnits(String parameterId) {
-
-        Parameter parameter = getParameterByStableId(parameterId);
-        String[] units = null;
-
-        if (parameter.isIncrementFlag()) {
-            units = new String[2];
-            Iterator i$ = parameter.getIncrement().iterator();
-
-            label22: {
-                ParameterIncrement increment;
-                do {
-                    if( ! i$.hasNext()) {
-                        break label22;
-                    }
-
-                    increment = (ParameterIncrement)i$.next();
-                } while(increment.getValue().length() <= 0 && parameter.getIncrement().size() != 1);
-
-                units[0] = increment.getUnit();
-            }
-
-            units[1] = parameter.getUnit();
-        } else {
-            units = new String[] { parameter.getUnit() };
-        }
-
-        return units;
+        return ImpressUtils.checkType(parameter, value);
     }
 
     private Map<String, Parameter> parametersByStableIdMap;
@@ -1673,7 +1565,7 @@ public class CdaSqlUtils {
 
                 detailParameterMap.put("text", rawValue);
 
-                detailInsert = "INSERT INTO text_observation (id, text) VALUES (:observationPk, :text)";
+                detailInsert = "INSERT INTO text_observation (id, text_value) VALUES (:observationPk, :text)";
                 break;
 
             case categorical:
@@ -2223,6 +2115,73 @@ public class CdaSqlUtils {
             } catch (Exception e) {
                 logger.error("INSERT to time_series_observation table failed for parameterStableId {}, observationType {}, observationPk {}, dataPoint {}, timePoint {}, discretePoint {}. Reason:\n\t{}",
                              parameterStableId, observationType.toString(), observationPk, dataPoint, timePoint, discretePoint, e.getLocalizedMessage());
+            }
+            if (count == 0) {
+                logger.warn("Insert failed for parameterSource {}. Marking it as missing ...", parameterSource);
+                updateObservationMissingFlag(observationPk, true);
+            }
+        }
+
+        return observationPk;
+    }
+
+
+    // SeriesParameter version. Returns the newly-inserted primary key if successful; 0 otherwise.
+    public long insertObservation(
+            long dbId,
+            long biologicalSamplePk,
+            String parameterStableId,
+            long parameterPk,
+            String sequenceId,
+            int populationId,
+            ObservationType observationType,
+            int missing,
+            String parameterStatus,
+            String parameterStatusMessage,
+            SeriesParameter seriesParameter,
+            String textValue,
+            String increment
+    ) throws DataLoadException {
+
+        KeyHolder keyholder = new GeneratedKeyHolder();
+        long      observationPk;
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("dbId", dbId);
+        parameterMap.put("biologicalSampleId", biologicalSamplePk);
+        parameterMap.put("observationType", observationType.name());
+        parameterMap.put("parameterId", parameterPk);
+        parameterMap.put("parameterStableId", parameterStableId);
+        parameterMap.put("sequenceId", sequenceId);
+        parameterMap.put("populationId", populationId);
+        parameterMap.put("missing", missing);
+        parameterMap.put("parameterStatus", parameterStatus);
+        parameterMap.put("parameterStatusMessage", parameterStatusMessage);
+
+        SqlParameterSource parameterSource = new MapSqlParameterSource(parameterMap);
+
+        int count = jdbcCda.update(OBSERVATION_INSERT, parameterSource, keyholder);
+        if (count > 0) {
+            observationPk = keyholder.getKey().intValue();
+        } else {
+            logger.warn("Insert SeriesParameter to observation table failed for parameterSource {}", parameterSource);
+            return 0;
+        }
+
+        if (missing == 0) {
+            final String insert = "INSERT INTO text_series_observation (id, text_value, increment)" +
+                    "VALUES (:observationPk, :textValue, :increment)";
+
+            parameterMap.clear();
+            parameterMap.put("observationPk", observationPk);
+            parameterMap.put("textValue", textValue);
+            parameterMap.put("increment", increment);
+
+            try {
+                count = jdbcCda.update(insert, parameterMap);
+            } catch (Exception e) {
+                logger.error("INSERT to text_series_observation table failed for parameterStableId {}, observationType {}, observationPk {}, textValue {}, increment {}. Reason:\n\t{}",
+                        parameterStableId, observationType.toString(), observationPk, textValue, increment, e.getLocalizedMessage());
             }
             if (count == 0) {
                 logger.warn("Insert failed for parameterSource {}. Marking it as missing ...", parameterSource);
@@ -3167,6 +3126,7 @@ public class CdaSqlUtils {
             biologicalSample.setProductionCenter(productionCenter);
             Project project = new Project();
             project.setId(rs.getLong("project_id"));
+            project.setName(rs.getString("project_name"));
             biologicalSample.setProject(project);
             // litter_id was moved to LiveSample.
 

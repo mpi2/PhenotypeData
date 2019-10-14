@@ -375,6 +375,17 @@ public class DataIntegrationTest {
 
         dccSpecimenExtractor.run(extractSpecimenArgs);
 
+        // Verify that the DCC has a specimen
+
+        String dccq = "SELECT * FROM specimen s";
+
+        try (Connection connection = dccDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(dccq)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                String sp = resultSet.getString("specimenId");
+            }
+        }
+
         sampleLoader.run(loadArgs);
 
         String[] extractExperimentArgs = new String[]{

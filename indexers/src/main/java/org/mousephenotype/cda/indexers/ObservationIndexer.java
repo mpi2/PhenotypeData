@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -710,6 +709,20 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
                 break;
 
+            case text_series:
+
+                String text_series_value = r.getString("text_value");
+                if (!r.wasNull()) {
+                    o.setTextValue(text_series_value);
+                }
+
+                String text_series_increment = r.getString("increment");
+                if (!r.wasNull()) {
+                    o.setDimension(text_series_increment);
+                }
+
+                break;
+
             default:
                 logger.warn("Unknown observation type {}", r.getString("observation_type"));
                 break;
@@ -825,7 +838,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
                 + "INNER JOIN live_sample ls ON bs.id=ls.id "
                 + "INNER JOIN biological_model_sample bms ON bs.id=bms.biological_sample_id "
                 + "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bms.biological_model_id "
-                + "INNER JOIN strain strain ON strain.acc=bmstrain.strain_acc "
+                + "INNER JOIN strain ON strain.acc=bmstrain.strain_acc "
                 + "INNER JOIN biological_model bm ON bm.id = bms.biological_model_id "
                 + "INNER JOIN ontology_term ot ON ot.acc=ls.developmental_stage_acc "
                 + "INNER JOIN organisation prod_org ON bs.organisation_id=prod_org.id "
