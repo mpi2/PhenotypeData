@@ -352,8 +352,7 @@ public class HistopathService {
 
 
 
-		HistopathHeatmapData heatmapData=new HistopathHeatmapData(anatomyList,geneList,allCells);
-		heatmapData.setRows(rows);
+		HistopathHeatmapData heatmapData=new HistopathHeatmapData(anatomyList,geneList,rows);
 		return heatmapData;
 	}
 

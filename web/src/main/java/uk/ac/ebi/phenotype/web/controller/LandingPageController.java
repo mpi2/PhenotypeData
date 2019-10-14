@@ -109,14 +109,14 @@ public class LandingPageController {
 	@RequestMapping("/histopathdt")
 	public String histopathdt(Model model) throws SolrServerException, IOException {
 		//To display the heatmap we need data in form of ints [ column , row, value ] but row starts from bottom left hand side
-		HistopathHeatmapData heatmapData = histopathService.getHeatmapData();
-		String [] headers=new String []{"blah", "bug"};
-		JSONArray anatomyArray = null;
-		anatomyArray= new JSONArray(heatmapData.getParameterNames());
-		JSONArray geneSymbolsArray=new JSONArray(heatmapData.getGeneSymbols());
-		model.addAttribute("anatomyHeaders", anatomyArray);
-		model.addAttribute("geneSymbols", geneSymbolsArray);
-		model.addAttribute("data", heatmapData.getData());
+		HistopathHeatmapData heatmapData = histopathService.getHeatmapDatadt();
+		//String [] headers=new String []{"blah", "bug"};
+		//JSONArray anatomyArray = null;
+		//anatomyArray= new JSONArray(heatmapData.getParameterNames());
+		//JSONArray geneSymbolsArray=new JSONArray(heatmapData.getGeneSymbols());
+		model.addAttribute("anatomyHeaders", heatmapData.getParameterNames());
+		model.addAttribute("geneSymbols", heatmapData.getGeneSymbols());
+		model.addAttribute("rows", heatmapData.getRows());
 		return "histopathLandingPagedt";
 	}
 

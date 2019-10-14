@@ -52,4 +52,10 @@ public class HistopathHeatmapData {
         this.data=data;
     }
 
+    public HistopathHeatmapData(List<String> parameterNames, List<String> geneSymbols, List<List<String>> rows){
+        this.parameterNames=parameterNames;
+        this.geneSymbols=geneSymbols;
+        this.rows=rows;
+    }
+
 }
