@@ -26,10 +26,10 @@ import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,29 +46,12 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private long numberFound;
+	public SolrClient sangerImagesCore;
 
-	@Autowired
-	@Qualifier("sangerImagesCore")
-	public SolrClient server;
-
-//	public ImagesSolrJ(String solrBaseUrl) throws MalformedURLException {
-//
-//		// Use system proxy if set
-//		if (System.getProperty("http.proxyHost") != null && System.getProperty("http.proxyPort") != null) {
-//
-//			String PROXY_HOST = System.getProperty("http.proxyHost");
-//			Integer PROXY_PORT = Integer.parseInt(System.getProperty("http.proxyPort"));
-//			HttpHost proxy = new HttpHost(PROXY_HOST, PROXY_PORT, "http");
-//			DefaultHttpClient client = new DefaultHttpClient();
-//			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-//			server = new HttpSolrClient(solrBaseUrl, client);
-//
-//			log.debug("Proxy Settings: " + System.getProperty("http.proxyHost") + " on port: " + System.getProperty("http.proxyPort"));
-//		} else {
-//			server = new HttpSolrClient(solrBaseUrl);
-//		}
-//	}
-
+	@Inject
+	public ImagesSolrJ(@Qualifier("sangerImagesCore") SolrClient sangerImagesCore) {
+		this.sangerImagesCore = sangerImagesCore;
+	}
 
 	public long getNumberFound() {
 		return numberFound;
@@ -113,7 +96,7 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 		solrQuery.setFields("id");
 
 		QueryResponse rsp = null;
-		rsp = server.query(solrQuery);
+		rsp = sangerImagesCore.query(solrQuery);
 
 		return rsp.getResults();
 	}
@@ -132,7 +115,7 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 			solrQuery.addFilterQuery(filterQuery);
 		}
 	
-		return server.query(solrQuery);
+		return sangerImagesCore.query(solrQuery);
 
 	}
 
@@ -183,7 +166,7 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 			solrQuery.addFilterQuery(filterQuery);
 		}
 
-		return server.query(solrQuery);
+		return sangerImagesCore.query(solrQuery);
 	}
 
 
@@ -249,7 +232,7 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 		query.addField("ma_id");
 		query.addField("accession");
 		query.setRows(Integer.MAX_VALUE);
-		return server.query(query).getResults();
+		return sangerImagesCore.query(query).getResults();
 	}
 	
 
@@ -275,7 +258,7 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 		solrQuery.setFields(ImageDTO.FULL_RESOLUTION_FILE_PATH, "smallThumbnailFilePath", "largeThumbnailFilePath",
 				"institute", "gender", "genotype", "maTerm", "annotationTermName", "genotypeString");
 		
-		return server.query(solrQuery);
+		return sangerImagesCore.query(solrQuery);
 	}
 
 
@@ -323,7 +306,7 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 
 		log.debug("Query is: "+solrQuery.toString());
 
-		return server.query(solrQuery);
+		return sangerImagesCore.query(solrQuery);
 	}
 
 	public static String processQuery(String id) {
@@ -351,7 +334,7 @@ public class ImagesSolrJ implements ImagesSolrDao,  WebStatus{
 
 		//System.out.println("SOLR URL WAS " + SolrUtils.getBaseURL(solr) + "/select?" + query);
 
-		QueryResponse response = server.query(query);
+		QueryResponse response = sangerImagesCore.query(query);
 		return response.getResults().getNumFound();
 	}
 

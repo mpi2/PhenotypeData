@@ -30,6 +30,7 @@ import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.web.WebStatus;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -55,7 +56,7 @@ public class ImpressService extends BasicService implements WebStatus {
 
 
 	@Inject
-	public ImpressService(SolrClient pipelineCore) {
+	public ImpressService(@Qualifier("pipelineCore") SolrClient pipelineCore) {
 		super();
 		this.pipelineCore = pipelineCore;
 	}

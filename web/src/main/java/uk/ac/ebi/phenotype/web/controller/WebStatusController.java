@@ -61,9 +61,6 @@ public class WebStatusController {
     private GeneService geneService;
 
     @Autowired
-    AutoSuggestService autoSuggestService;
-
-    @Autowired
     PhenodigmService phenodigmService;
 
     List<WebStatus> webStatusObjects;
@@ -98,7 +95,6 @@ public class WebStatusController {
         webStatusObjects.add(anatomyService);
         webStatusObjects.add(pipelineService);
         webStatusObjects.add(geneService);
-        webStatusObjects.add(autoSuggestService);
         webStatusObjects.add(phenodigmService);
 
         nonEssentialWebStatusObjects = new ArrayList<>();

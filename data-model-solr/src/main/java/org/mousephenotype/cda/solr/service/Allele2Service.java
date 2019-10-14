@@ -11,9 +11,11 @@ import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.*;
 
@@ -27,7 +29,7 @@ public class Allele2Service implements WebStatus{
 
 
 	@Inject
-	public Allele2Service(SolrClient allele2Core) {
+	public Allele2Service(@NotNull @Qualifier("allele2Core") SolrClient allele2Core) {
 		this.allele2Core = allele2Core;
 	}
 

@@ -11,8 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Import;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -27,17 +29,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by ilinca on 12/10/2016.
- * <p>
  * Populate meta_info table and associated tables to a new datarelease. Must be run at the end of the release process, after the solr cores are built as well.
  * This is a replacement for the one in AdminTools.
  */
+@SpringBootApplication
+@Import(value = {ReleaseAnalyticsManagerConfig.class})
 public class ReleaseAnalyticsManager implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(ReleaseAnalyticsManager.class);
 
-
-    // Which DB to USE
     private Connection connection;
 
     //
@@ -47,7 +47,6 @@ public class ReleaseAnalyticsManager implements CommandLineRunner {
     private static String DATA_RELEASE_DATE = "02 August 2016";
     private static String PHENSTAT_VERSION = "2.7.1";
     private static String DATA_RELEASE_DESCRIPTION = "Major data release " + DATA_RELEASE_VERSION + ", released on " + DATA_RELEASE_DATE + ", analysed using PhenStat version " + PHENSTAT_VERSION;
-
 
     // Patterns for regular expressions
     public static final String ALLELE_NOMENCLATURE = "^[^<]+<([^\\(]+)\\(([^\\)]+)\\)([^>]+)>";

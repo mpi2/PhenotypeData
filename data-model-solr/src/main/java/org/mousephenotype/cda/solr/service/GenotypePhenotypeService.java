@@ -46,9 +46,11 @@ import org.mousephenotype.cda.utilities.HttpProxy;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -64,6 +66,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+@Service
 public class GenotypePhenotypeService extends BasicService implements WebStatus {
 
     private final       Logger logger            = LoggerFactory.getLogger(this.getClass());
@@ -77,7 +80,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
     @Inject
     public GenotypePhenotypeService(
             @NotNull ImpressService impressService,
-            @NotNull SolrClient genotypePhenotypeCore,
+            @NotNull @Qualifier("genotypePhenotypeCore") SolrClient genotypePhenotypeCore,
             @NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository)
     {
         super();

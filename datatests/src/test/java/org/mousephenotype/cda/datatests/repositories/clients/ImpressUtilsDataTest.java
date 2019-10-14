@@ -54,7 +54,7 @@ public class ImpressUtilsDataTest {
     public void testCheckTypeParameterString() {
         Parameter       p     = parameterRepository.getByStableId("ESLIM_003_001_006");
         String          value = "2.092";
-        ObservationType oType = impressUtils.checkType(p, value);
+        ObservationType oType = ImpressUtils.checkType(p, value);
 
         logger.debug("oType = {}", oType.toString());
         assert(oType.equals(ObservationType.time_series));
