@@ -9,15 +9,15 @@ import java.util.List;
 public class HistopathHeatmapData {
     private List<String> parameterNames;
 
-    public List<List<String>> getRows() {
+    public List<List<Integer>> getRows() {
         return rows;
     }
 
-    public void setRows(List<List<String>> rows) {
+    public void setRows(List<List<Integer>> rows) {
         this.rows = rows;
     }
 
-    List<List<String>>rows= new ArrayList<>();
+    List<List<Integer>>rows= new ArrayList<>();
 
     public List<String> getParameterNames() {
         return parameterNames;
@@ -52,7 +52,7 @@ public class HistopathHeatmapData {
         this.data=data;
     }
 
-    public HistopathHeatmapData(List<String> parameterNames, List<String> geneSymbols, List<List<String>> rows){
+    public HistopathHeatmapData(List<String> parameterNames, List<String> geneSymbols, List<List<Integer>> rows){
         this.parameterNames=parameterNames;
         this.geneSymbols=geneSymbols;
         this.rows=rows;

@@ -15,10 +15,36 @@
     <jsp:attribute name="addToFooter">
 
         <script>
-            $(document).ready(function() {
-                $('#heatmap').DataTable();
-            } );
+            // $(document).ready(function() {
+            //     $('#heatmap').DataTable();
+            // } );
 
+            $(document).ready( function () {
+                $('#heatmap').DataTable({
+                    'createdRow': function(row, data, index){
+
+
+                            $(row).find('td:eq(1)').css('background-color', 'Orange');
+
+                        for(var i=1; i<data.length; i++) {
+                            if (data[i] == 0) {
+                                $(row).find('td:eq('+i+')').css('background-color', '#fff');
+
+                            }else
+                            if (data[i] == 1) {
+                                $(row).find('td:eq('+i+')').css('background-color', '#808080');
+                                console.log('found 1');
+                            }else
+                            if (data[i] == 2) {
+                                $(row).find('td:eq('+i+')').css('background-color', '#17a2b8');
+                            }else
+                            if (data[i] == 4) {
+                                $(row).find('td:eq('+i+')').css('background-color', '#ce6211');
+                            }
+                        }
+                    }
+                });
+                });
         </script>
 
     </jsp:attribute>
@@ -62,12 +88,12 @@
 
 
 
-                            <table id="heatmap" class="display" style="width:100%">
+                            <table id="heatmap" class="display cell-border compact" style="font-size: 10px">
                                 <thead>
                                 <tr>
-                                    <th>Gene</th>
+                                    <th><div class="rotate90">Gene</div></th>
                                     <c:forEach items="${anatomyHeaders}" var="parameter">
-                                        <th>${parameter}</th>
+                                        <th><div class="rotate90">${parameter}</div></th>
                                     </c:forEach>
 
                                 </tr>
@@ -84,8 +110,9 @@
                                 </tbody>
                                 <tfoot>
                                 <tr>
+                                    <th><div class="rotate90">Gene</div></th>
                                     <c:forEach var="parameter" items="${anatomyHeaders}">
-                                        <th>${parameter}</th>
+                                        <th><div class="rotate90">${parameter}</div></th>
                                     </c:forEach>
                                 </tr>
                                 </tfoot>

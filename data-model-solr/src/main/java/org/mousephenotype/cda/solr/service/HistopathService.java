@@ -330,10 +330,10 @@ public class HistopathService {
 		System.out.println("uniqueCategories="+uniqueCategories);
 		//generate the data array here from the data structures we have just created as we need to know all column headers before we do this
 		JSONArray allCells=new JSONArray();
-		List<List<String>> rows=new ArrayList<>();
+		List<List<Integer>> rows=new ArrayList<>();
 
 		for(String geneSymbol: geneList){
-			List<String> row=new ArrayList<>();
+			List<Integer> row=new ArrayList<>();
 			int column=0;
 			for(String parameterName:anatomyList){
 				String value=null;
@@ -344,7 +344,7 @@ public class HistopathService {
 				}
 				int significance=this.getIntValueForString(value);
 				geneToParameterToCategory.get(geneSymbol).get(parameterName);
-				row.add(value);
+				row.add(significance);
 				column++;
 			}
 			rows.add(row);
