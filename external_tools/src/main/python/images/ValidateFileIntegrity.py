@@ -30,6 +30,8 @@ if __name__ == "__main__":
                         help='path to save logfile')
     parser.add_argument('-f', '--filelist-path', dest='filelist_path',
                         help='path to file containing files to check')
+    parser.add_argument('-o', '--output-path', dest='outputPath',
+                        help='path to save list of corrupt images. If not supplied no list is saved but the paths to the corrupt images could be extracted from the log file')
     args = parser.parse_args()
     
     # Configure logger - if logging output file not specified create in this
@@ -95,11 +97,23 @@ if __name__ == "__main__":
     logger.info("Number of files from NFS = " + str(len(nfs_file_list)))
 
     n_invalid = 0
+    corrupt_files = []
     for f in nfs_file_list:
         try:
             im = plt.imread(f)
         except Exception as e:
             logger.error("Could not open " + f + ". Error was: " + str(e))
             n_invalid += 1
+            corrupt_files.append(f+'\n')
 
     logger.info("Number of invalid files: " + str(n_invalid))
+    
+    if n_invalid > 0 and args.outputPath is not None:
+        try:
+            with open(args.outputPath, 'wt') as fid:
+                fid.writelines(corrupt_files)
+
+            logger.info("Written paths of corrupt images to " + args.outputPath)
+        except Exception as e:
+            logger.error("Problem writing paths of corrupt images to " + args.outputPath + ". Error was: " + str(e))
+
