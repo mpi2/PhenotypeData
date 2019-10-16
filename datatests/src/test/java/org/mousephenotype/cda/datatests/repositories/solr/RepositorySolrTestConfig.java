@@ -222,8 +222,8 @@ public class RepositorySolrTestConfig {
     ////////////////
 
     @Bean
-    public ImagesSolrJ imagesSolrJ() {
-        return new ImagesSolrJ();
+    public ImagesSolrJ imagesSolrJ(SolrClient sangerImagesCore) {
+        return new ImagesSolrJ(sangerImagesCore);
     }
 
 

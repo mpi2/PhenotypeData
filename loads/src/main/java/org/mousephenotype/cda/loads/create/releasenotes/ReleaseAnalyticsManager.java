@@ -11,8 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Import;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
@@ -27,17 +29,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by ilinca on 12/10/2016.
- * <p>
  * Populate meta_info table and associated tables to a new datarelease. Must be run at the end of the release process, after the solr cores are built as well.
  * This is a replacement for the one in AdminTools.
  */
+@SpringBootApplication
+@Import(value = {ReleaseAnalyticsManagerConfig.class})
 public class ReleaseAnalyticsManager implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(ReleaseAnalyticsManager.class);
 
-
-    // Which DB to USE
     private Connection connection;
 
     //
@@ -47,7 +47,6 @@ public class ReleaseAnalyticsManager implements CommandLineRunner {
     private static String DATA_RELEASE_DATE = "02 August 2016";
     private static String PHENSTAT_VERSION = "2.7.1";
     private static String DATA_RELEASE_DESCRIPTION = "Major data release " + DATA_RELEASE_VERSION + ", released on " + DATA_RELEASE_DATE + ", analysed using PhenStat version " + PHENSTAT_VERSION;
-
 
     // Patterns for regular expressions
     public static final String ALLELE_NOMENCLATURE = "^[^<]+<([^\\(]+)\\(([^\\)]+)\\)([^>]+)>";
@@ -105,7 +104,7 @@ public class ReleaseAnalyticsManager implements CommandLineRunner {
             "drop table if exists analytics_significant_calls_procedures;",
             "create table analytics_significant_calls_procedures select count(pcs.p_value) as significant_calls, o.name as phenotyping_center, pp.stable_id as procedure_stable_id, pp.name as procedure_name from phenotype_call_summary pcs join phenotype_procedure pp on pp.id = pcs.procedure_id join organisation o on o.id = pcs.organisation_id where pcs.external_db_id = 22 and p_value <= 0.0001 group by o.name, pp.stable_id order by o.name asc;",
             "drop table if exists analytics_pvalue_distribution;",
-            "create table analytics_pvalue_distribution (id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, datatype varchar(50) NOT NULL, statistical_method varchar(200) NOT NULL, pvalue_bin float NOT NULL, interval_scale float NOT NULL, pvalue_count int(10) not null) COLLATE=utf8_general_ci ENGINE=MyISAM;",
+            "create table analytics_pvalue_distribution (id INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, datatype varchar(50) NOT NULL, statistical_method varchar(200) NOT NULL, pvalue_bin float NOT NULL, interval_scale float NOT NULL, pvalue_count int(10) not null, PRIMARY KEY(id)) COLLATE=utf8_general_ci ENGINE=MyISAM;",
             "truncate table analytics_mp_calls;",
             "ALTER TABLE analytics_mp_calls AUTO_INCREMENT = 1;",
             "ALTER TABLE analytics_significant_calls_procedures\n" +

@@ -270,15 +270,9 @@ public class ReportsConfig {
 	///////
 
 	@Bean
-	public ImagesSolrDao imagesSolrDao() {
-    	return new ImagesSolrJ();
+	public ImagesSolrDao imagesSolrDao( HttpSolrClient sangerImagesCore) {
+    	return new ImagesSolrJ(sangerImagesCore);
 	}
-
-//	@Bean
-//	public SexualDimorphismDAO sexualDimorphismDAO() {
-//		return new SexualDimorphismDAOImpl();
-//	}
-
 
 
 	///////////

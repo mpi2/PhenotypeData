@@ -44,10 +44,6 @@ public class SolrIndex {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-
-	@NotNull @Autowired
-	SolrClient autosuggestCore;
-
 	@NotNull @Autowired
 	SolrClient mpCore;
 
@@ -74,7 +70,6 @@ public class SolrIndex {
 	public SolrClient getSolrServer(String corename){
 
 		switch (corename){
-			case "autosuggest" : return autosuggestCore;
 			case "gene" : return geneCore;
 			case "mp" : return mpCore;
 			case "disease" : return phenodigmCore;  // search URL still uses disease in the controller path but queries against the phenodigm core
