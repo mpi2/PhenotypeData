@@ -13,15 +13,27 @@
     </jsp:attribute>
 
     <jsp:attribute name="addToFooter">
+<style type="text/css" media="all">
+        table{
+  margin: 0 auto;
+  width: 100%;
+  clear: both;
+  border-collapse: collapse;
+  table-layout: fixed; // ***********add this
+  word-wrap:break-word; // ***********and this
+}
+</style>
 
         <script>
 
             $(document).ready( function () {
                 var table = $('#heatmap').DataTable({
+                    // "columnDefs": [
+                    //     { "width": "2%", "targets": 0 }
+                    // ], only use if scroll set to false
+                    "scrollX": true,
                     'createdRow': function(row, data, index){
-
-
-                            $(row).find('td:eq(1)').css('background-color', 'Orange');
+                        $(row).find('td:eq(1)').css('background-color', 'Orange');
 
                         for(var i=1; i<data.length; i++) {
                             if (data[i] == 0) {
@@ -48,6 +60,7 @@
                     var win = window.open(url, '_blank');
                     win.focus();
                 } );
+
 
                 });
         </script>
