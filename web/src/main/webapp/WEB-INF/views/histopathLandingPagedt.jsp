@@ -15,12 +15,9 @@
     <jsp:attribute name="addToFooter">
 
         <script>
-            // $(document).ready(function() {
-            //     $('#heatmap').DataTable();
-            // } );
 
             $(document).ready( function () {
-                $('#heatmap').DataTable({
+                var table = $('#heatmap').DataTable({
                     'createdRow': function(row, data, index){
 
 
@@ -28,22 +25,30 @@
 
                         for(var i=1; i<data.length; i++) {
                             if (data[i] == 0) {
-                                $(row).find('td:eq('+i+')').css('background-color', '#fff');
+                                $(row).find('td:eq('+i+')').css('background-color', '#fff').css('color', 'rgba(0, 0, 0, 0.0)').css("pointer-events", "none");
 
                             }else
                             if (data[i] == 1) {
-                                $(row).find('td:eq('+i+')').css('background-color', '#808080');
+                                $(row).find('td:eq('+i+')').css('background-color', '#808080').css('color', 'rgba(0, 0, 0, 0.0)').css("pointer-events", "none");;
                                 console.log('found 1');
                             }else
                             if (data[i] == 2) {
-                                $(row).find('td:eq('+i+')').css('background-color', '#17a2b8');
+                                $(row).find('td:eq('+i+')').css('background-color', '#17a2b8').css('color', 'rgba(0, 0, 0, 0.0)').css('cursor','pointer');
                             }else
                             if (data[i] == 4) {
-                                $(row).find('td:eq('+i+')').css('background-color', '#ce6211');
+                                $(row).find('td:eq('+i+')').css('background-color', '#ce6211').css('color', 'rgba(0, 0, 0, 0.0)').css('cursor','pointer');
                             }
                         }
-                    }
+                    },
                 });
+
+                $('#heatmap tbody').on('click', 'tr', function () {
+                    var data = table.row( this ).data();
+                    var url='${baseUrl}/histopath/'+data[0];
+                    var win = window.open(url, '_blank');
+                    win.focus();
+                } );
+
                 });
         </script>
 
