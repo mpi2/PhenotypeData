@@ -31,18 +31,8 @@ input_files = args.inputFiles
 split_string = "" if args.splitString is None else args.splitString
 replacement_string = "" if args.replacementString is None else args.replacementString
 
-
-
 with open(input_files,'rt') as f:
     fnames = [fname.strip('\n') for fname in f.readlines()]
     for fname in fnames:
-        fname = fname.replace(' ','\ ')
         fname2 = fname.replace(split_string, replacement_string)
-        if os.path.exists(fname2):
-            continue
-        out_dir = os.path.dirname(fname2)
-        if not os.path.isdir(out_dir):
-            os.makedirs(out_dir)
-        command = "mv " + fname + " " + fname2
-        print(command)
-        os.system(command)
+        os.rename(fname, fname2)
