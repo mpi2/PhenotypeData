@@ -2,159 +2,71 @@
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
-
 <t:genericpage>
 
     <jsp:attribute name="title">Histopath Landing Page</jsp:attribute>
     <jsp:attribute name="header">
-   <script src="https://code.highcharts.com/highcharts.js"></script>
-<script src="https://code.highcharts.com/modules/heatmap.js"></script>
-<script src="https://code.highcharts.com/modules/exporting.js"></script>
+   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.css"/>
+
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.js"></script>
+
+
     </jsp:attribute>
 
     <jsp:attribute name="addToFooter">
+<style type="text/css" media="all">
+
+        table{
+  margin: 0 auto;
+  width: 100%;
+  clear: both;
+  border-collapse: collapse;
+  table-layout: fixed; // ***********add this
+  word-wrap:break-word; // ***********and this
+}
+
+</style>
 
         <script>
-            $(document).ready(function () {
-                Highcharts.chart('heatmap-container', {
 
-                    chart: {
-                        type: 'heatmap',
-                        marginTop: 220,
-                        marginBottom: 80,
-                        plotBorderWidth: 1,
-                        height: 11000,
-                        width: 1100,
-                    },
-                    title: {
-                        text: ''
-                    },
-                    credits: {
-                        enabled: false
-                    },
-                    colorAxis: {
-                        events: {
-                            legendItemClick: function() {
-                                return false;
+            $(document).ready( function () {
+                var table = $('#heatmap').DataTable({
+                    // "columnDefs": [
+                    //     { "width": "2%", "targets": 0 }
+                    // ], only use if scroll set to false
+                    "scrollX": true,
+                    'createdRow': function(row, data, index){
+                        $(row).find('td:eq(1)').css('background-color', 'Orange');
+
+                        for(var i=1; i<data.length; i++) {
+                            if (data[i] == 0) {
+                                $(row).find('td:eq('+i+')').css('background-color', '#fff').css('color', 'rgba(0, 0, 0, 0.0)').css("pointer-events", "none");
+                            }else
+                            if (data[i] == 1) {
+                                $(row).find('td:eq('+i+')').css('background-color', '#808080').css('color', 'rgba(0, 0, 0, 0.0)').css("pointer-events", "none");;
+                            }else
+                            if (data[i] == 2) {
+                                $(row).find('td:eq('+i+')').css('background-color', '#17a2b8').css('color', 'rgba(0, 0, 0, 0.0)').css('cursor','pointer');
+                            }else
+                            if (data[i] == 4) {
+                                $(row).find('td:eq('+i+')').css('background-color', '#ce6211').css('color', 'rgba(0, 0, 0, 0.0)').css('cursor','pointer');
                             }
-                        },
-
-                        dataClasses: [{
-                            from: 0,
-                            to: 1,
-                            color: '#fff',
-                            name: 'No Data'
-                        }, {
-                            from: 1,
-                            to: 2,
-                            color: '#808080',
-                            name: 'Not Applicable'
-                        }, {
-                            from: 2,
-                            to: 3,
-                            color: '#17a2b8',
-                            name: 'Not Significant'
-                        }, {
-                            from: 3,
-                            to: 4,
-                            color: '#ce6211',
-                            name: 'Significant'
-                        }
-                        ],
-                        min: 0,
-                        max: 4,
-                    },
-                    legend: {
-                        align: 'left',
-                        // layout: 'vertical',
-                        margin: 3,
-                        verticalAlign: 'top',
-                        backgroundColor: 'whitesmoke',
-                        itemStyle: {
-                            fontSize: '16px',
-                            // font: '20pt Trebuchet MS, Verdana, sans-serif',
-                            // color: '#A0A0A0'
-                        },
-
-                    },
-
-                    xAxis: {
-                        opposite: true,
-                        categories: ${anatomyHeaders}, //['Alexander', 'Marie', 'Maximilian', 'Sophia', 'Lukas', 'Maria', 'Leon', 'Anna', 'Tim', 'Laura'],
-                        labels: {
-                            // useHTML: true,
-                            rotation: 90
-                        },
-                        reserveSpace: true,
-                    },
-
-                    yAxis:
-                    // [
-                        {
-                            categories: ${geneSymbols},
-                            title: 'gene'
-                        },
-                    // {
-                    //  linkedTo : 0,
-                    //   title: 'construct',
-                    //   lineWidth: 2,
-                    //   categories: this.constructs
-                    // }
-                    // ],
-
-                    tooltip: {
-                        // shadow: false,
-                        useHTML: true,
-                        formatter: function () {
-                            return '<b>' + this.series.xAxis.categories[this.point.x] + '</b><br/>' +
-                                this.series.colorAxis.dataClasses[this.point.dataClass].name + '</b><br>' +
-                                '<b>' + this.series.yAxis.categories[this.point.y] + '</b>';
                         }
                     },
-
-                    plotOptions: {
-                        series: {
-                            cursor: 'pointer',
-                            events: {
-
-                                    legendItemClick: function () {
-                                        var visibility = this.visible ? 'visible' : 'hidden';
-                                        if (!confirm('The series is currently ' +
-                                            visibility + '. Do you want to change that?')) {
-                                            return false;
-                                        }
-                                    },
-
-                                click: function (e) {
-                                    const gene = e.point.series.yAxis.categories[e.point.y];
-
-                                    const anatomy = e.point.series.xAxis.categories[e.point.x];
-
-                                    const text = 'gene: ' + gene +
-                                        ' Procedure: ' + anatomy + ' significance=' + e.point.value;
-
-                                    // may have to use routerLink like for menus to link to our new not created yet parameter page
-                                    //const routerLink = 'details?' + 'procedure=' + procedure + '&gene=' + gene;
-                                    const routerLink = 'histopathsum/' + gene;
-                                    window.open(routerLink, '_blank');
-                                }
-                            },
-                        },
-                    },
-
-                    series: [{
-                        name: 'Cell types with significant parameters',
-                        borderWidth: 1,
-                        // data: this.data,
-                        data:  ${data},
-                        dataLabels: {
-                            enabled: false,
-                            color: '#000000'
-                        },
-                    }],
                 });
 
-            });
+                $('#heatmap tbody').on('click', 'tr', function () {
+                    var data = table.row( this ).data();
+                    var url='${baseUrl}/histopath/'+data[0];
+                    var win = window.open(url, '_blank');
+                    win.focus();
+                } );
+
+
+
+                });
+
+
         </script>
 
     </jsp:attribute>
@@ -180,25 +92,61 @@
                         <div class="card">
                             <div class="card-header">Histopathology for every gene tested</div>
                             <div class="card-body">
-
                                 <p class="my-0"><b>Significance Score:</b></p>
-                                <ul class="my-0">
-                                    <li><b>Not significant</b> (histopathology finding that is interpreted by the
+                                <c:set var="noData" scope="page" value="fa fa-circle"/>
+                                <c:set var="notApplicable" scope="page" value="fa fa-circle"/>
+                                <c:set var="notSignificant" scope="page" value="fa fa-circle"/>
+                                <c:set var="significant" scope="page" value="fa fa-circle"/>
+                                <c:set var="noDataColour" scope="page" value="#fff"/>
+                                <c:set var="notApplicableColour" scope="page" value="#808080"/>
+                                <c:set var="notSignificantColour" scope="page" value="#17a2b8"/>
+                                <c:set var="significantColour" scope="page" value="#ce6211"/>
+                                <div style="background-color: whitesmoke">
+                                    <div title="No Data"  class="mr-3"><i class="${noData}" style="color: white"></i>&nbsp;&nbsp;No Data</div>
+                                    <div title="Not Applicable" style="color: ${notApplicableColour}" class="mr-3"> <i class="${notApplicable}"></i>&nbsp;&nbsp;Not Applicable</div>
+                                    <div title="Not Signficant" style="color: ${notSignificantColour}" class="mr-3"><i class="${notSignificant}"></i>&nbsp;&nbsp;<b>Not Significant</b> (histopathology finding that is interpreted by the
                                         histopathologist to be within normal limits of background strain-related
-                                        findings or an incidental finding not related to genotype)
-                                    </li>
-                                    <li><b>Significant</b> (histopathology finding that is interpreted by the
+                                        findings or an incidental finding not related to genotype)</div>
+                                    <div title="Significant" style="color: ${significantColour}" class="mr-3"><i class="${significant}"></i>&nbsp;&nbsp;<b>Significant</b> (histopathology finding that is interpreted by the
                                         histopathologist to not be a background strain-related finding or an incidental
-                                        finding)
-                                    </li>
-                                </ul>
+                                        finding)</div>
+                                </div>
                             </div>
                         </div>
 
 
 
-                        <div id="heatmap-container">
-                        </div>
+                            <table id="heatmap" class="display cell-border compact" style="font-size: 10px">
+                                <thead>
+                                <tr>
+                                    <th><div class="rotate90">Gene</div></th>
+                                    <c:forEach items="${anatomyHeaders}" var="parameter">
+                                        <th><div class="rotate90">${parameter}</div></th>
+                                    </c:forEach>
+
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <c:forEach var="arow" items="${rows}" varStatus="status">
+                                    <tr>
+                                        <td>${geneSymbols[status.index]}</td>
+                                            <c:forEach var="acolumn" items="${arow}">
+                                                <td>${acolumn}</td>
+                                            </c:forEach>
+                                    </tr>
+                                </c:forEach>
+                                </tbody>
+                                <tfoot>
+                                <tr>
+                                    <th><div class="rotate90">Gene</div></th>
+                                    <c:forEach var="parameter" items="${anatomyHeaders}">
+                                        <th><div class="rotate90">${parameter}</div></th>
+                                    </c:forEach>
+                                </tr>
+                                </tfoot>
+                            </table>
+
+
 
                     </div>
                 </div>
