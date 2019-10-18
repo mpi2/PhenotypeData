@@ -10,10 +10,12 @@
 
 <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.js"></script>
 
+
     </jsp:attribute>
 
     <jsp:attribute name="addToFooter">
 <style type="text/css" media="all">
+
         table{
   margin: 0 auto;
   width: 100%;
@@ -22,6 +24,7 @@
   table-layout: fixed; // ***********add this
   word-wrap:break-word; // ***********and this
 }
+
 </style>
 
         <script>
@@ -38,11 +41,9 @@
                         for(var i=1; i<data.length; i++) {
                             if (data[i] == 0) {
                                 $(row).find('td:eq('+i+')').css('background-color', '#fff').css('color', 'rgba(0, 0, 0, 0.0)').css("pointer-events", "none");
-
                             }else
                             if (data[i] == 1) {
                                 $(row).find('td:eq('+i+')').css('background-color', '#808080').css('color', 'rgba(0, 0, 0, 0.0)').css("pointer-events", "none");;
-                                console.log('found 1');
                             }else
                             if (data[i] == 2) {
                                 $(row).find('td:eq('+i+')').css('background-color', '#17a2b8').css('color', 'rgba(0, 0, 0, 0.0)').css('cursor','pointer');
@@ -62,7 +63,10 @@
                 } );
 
 
+
                 });
+
+
         </script>
 
     </jsp:attribute>
@@ -104,8 +108,20 @@
                         </div>
 
 
-
-
+                        <c:set var="noData" scope="page" value="fa fa-circle-o"/>
+                        <c:set var="notApplicable" scope="page" value="fa fa-circle"/>
+                        <c:set var="notSignificant" scope="page" value="fa fa-circle"/>
+                        <c:set var="significant" scope="page" value="fa fa-circle"/>
+                        <c:set var="noDataColour" scope="page" value="#fff"/>
+                        <c:set var="notApplicableColour" scope="page" value="#808080"/>
+                        <c:set var="notSignificantColour" scope="page" value="#17a2b8"/>
+                        <c:set var="significantColour" scope="page" value="#ce6211"/>
+                        <div class="row justify-content-center">
+                            <span title="No Data"  class="mr-3"><i class="${noData}"></i>&nbsp;&nbsp;No Data</span>
+                            <span title="Not Applicable" style="color: ${notApplicableColour}" class="mr-3"> <i class="${notApplicable}"></i>&nbsp;&nbsp;Not Applicable</span>
+                            <span title="Not Signficant" style="color: ${notSignificantColour}" class="mr-3"><i class="${notSignificant}"></i>&nbsp;&nbsp;Not Significant</span>
+                            <span title="Significant" style="color: ${significantColour}" class="mr-3"><i class="${significant}"></i>&nbsp;&nbsp;Significant</span>
+                        </div>
                             <table id="heatmap" class="display cell-border compact" style="font-size: 10px">
                                 <thead>
                                 <tr>
