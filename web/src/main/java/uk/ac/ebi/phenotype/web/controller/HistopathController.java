@@ -44,13 +44,18 @@ public class HistopathController {
 	@Autowired
 	AnatomyService anatomyService;
 
-	@RequestMapping("/histopath/{acc}")
-	public String histopath(@PathVariable String acc, Model model) throws SolrServerException, IOException {
+	@RequestMapping("/histopath/{accOrSymbol}")
+	public String histopath(@PathVariable String accOrSymbol, Model model) throws SolrServerException, IOException {
 		// exmple Lpin2 MGI:1891341
-		GeneDTO gene = geneService.getGeneById(acc);
+		GeneDTO gene = null;
+		if(accOrSymbol.contains(":")){
+			gene = geneService.getGeneById(accOrSymbol);
+		}else{
+			gene = geneService.getGeneByGeneSymbolWithLimitedFields(accOrSymbol);
+		}
 		model.addAttribute("gene", gene);
 
-		List<ObservationDTO> allObservations = histopathService.getObservationsForHistopathForGene(acc);
+		List<ObservationDTO> allObservations = histopathService.getObservationsForHistopathForGene(gene.getMgiAccessionId());
 		Map<String, String> sampleIds = getSimpleIds(allObservations);
 //		List<ObservationDTO> abnormalObservationsOnly = histopathService
 //				.screenOutObservationsThatAreNormal(allObservations);
@@ -155,20 +160,20 @@ public class HistopathController {
 
 	/**
 	 *
-	 * @param acc - can now be acc but if no : then treated as symbol and look for gene with gene symbol
+	 * @param accOrSymbol - can now be acc but if no : then treated as symbol and look for gene with gene symbol
 	 * @param model
 	 * @return
 	 * @throws SolrServerException
 	 * @throws IOException
 	 */
-	@RequestMapping("/histopathsum/{acc}")
-	public String histopathSummary(@PathVariable String acc, Model model) throws SolrServerException, IOException {
+	@RequestMapping("/histopathsum/{accOrSymbol}")
+	public String histopathSummary(@PathVariable String accOrSymbol, Model model) throws SolrServerException, IOException {
 		// exmple Lpin2 MGI:1891341
 		GeneDTO gene = null;
-		if(acc.contains(":")){
-			gene = geneService.getGeneById(acc);
+		if(accOrSymbol.contains(":")){
+			gene = geneService.getGeneById(accOrSymbol);
 		}else{
-			gene = geneService.getGeneByGeneSymbolWithLimitedFields(acc);
+			gene = geneService.getGeneByGeneSymbolWithLimitedFields(accOrSymbol);
 		}
 
 		model.addAttribute("gene", gene);

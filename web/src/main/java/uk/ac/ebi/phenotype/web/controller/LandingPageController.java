@@ -85,7 +85,7 @@ public class LandingPageController {
 	 * @throws SolrServerException
 	 * @throws IOException
 	 */
-	@RequestMapping("/histopath")
+	@RequestMapping("/histopath_old")
 	public String histopath(Model model) throws SolrServerException, IOException {
 		//To display the heatmap we need data in form of ints [ column , row, value ] but row starts from bottom left hand side
 		HistopathHeatmapData heatmapData = histopathService.getHeatmapData();
@@ -96,6 +96,27 @@ public class LandingPageController {
 		model.addAttribute("anatomyHeaders", anatomyArray);
 		model.addAttribute("geneSymbols", geneSymbolsArray);
 		model.addAttribute("data", heatmapData.getData());
+		return "histopathLandingPage_old";
+	}
+
+	/**
+	 *
+	 * @param model
+	 * @return
+	 * @throws SolrServerException
+	 * @throws IOException
+	 */
+	@RequestMapping("/histopath")
+	public String histopathdt(Model model) throws SolrServerException, IOException {
+		//To display the heatmap we need data in form of ints [ column , row, value ] but row starts from bottom left hand side
+		HistopathHeatmapData heatmapData = histopathService.getHeatmapDatadt();
+		//String [] headers=new String []{"blah", "bug"};
+		//JSONArray anatomyArray = null;
+		//anatomyArray= new JSONArray(heatmapData.getParameterNames());
+		//JSONArray geneSymbolsArray=new JSONArray(heatmapData.getGeneSymbols());
+		model.addAttribute("anatomyHeaders", heatmapData.getParameterNames());
+		model.addAttribute("geneSymbols", heatmapData.getGeneSymbols());
+		model.addAttribute("rows", heatmapData.getRows());
 		return "histopathLandingPage";
 	}
 
