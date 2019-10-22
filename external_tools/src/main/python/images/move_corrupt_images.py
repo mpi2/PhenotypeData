@@ -35,4 +35,4 @@ with open(input_files,'rt') as f:
     fnames = [fname.strip('\n') for fname in f.readlines()]
     for fname in fnames:
         fname2 = fname.replace(split_string, replacement_string)
-        os.rename(fname, fname2)
+        os.renames(fname, fname2)
