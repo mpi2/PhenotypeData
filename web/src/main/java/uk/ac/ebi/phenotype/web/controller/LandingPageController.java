@@ -189,6 +189,28 @@ public class LandingPageController {
         return "embryo";
     }
 
+	/**
+	 *
+	 * @param model
+	 * @return
+	 * @throws SolrServerException
+	 * @throws IOException
+	 */
+	@RequestMapping("/embryo_heatmap")
+	public String embryoHeatmap(Model model) throws SolrServerException, IOException {
+		//To display the heatmap we need data in form of ints [ column , row, value ] but row starts from bottom left hand side
+		System.out.println("hitting embryo heatmap endpoint");
+		HistopathHeatmapData heatmapData = histopathService.getHeatmapDatadt();
+		//String [] headers=new String []{"blah", "bug"};
+		//JSONArray anatomyArray = null;
+		//anatomyArray= new JSONArray(heatmapData.getParameterNames());
+		//JSONArray geneSymbolsArray=new JSONArray(heatmapData.getGeneSymbols());
+		model.addAttribute("anatomyHeaders", heatmapData.getParameterNames());
+		model.addAttribute("geneSymbols", heatmapData.getGeneSymbols());
+		model.addAttribute("rows", heatmapData.getRows());
+		return "embryo_heatmap";
+	}
+
     @RequestMapping(value = "/biological-system/pain", method = RequestMethod.GET)
     public String loadPainBiologicalSystemPage(Model model, HttpServletRequest request, RedirectAttributes attributes) {
 	    	System.out.println("pain page called");
