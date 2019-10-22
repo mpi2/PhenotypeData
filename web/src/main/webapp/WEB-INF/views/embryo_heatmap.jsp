@@ -14,18 +14,18 @@
     </jsp:attribute>
 
     <jsp:attribute name="addToFooter">
-<style type="text/css" media="all">
+<%--<style type="text/css" media="all">--%>
 
-        table{
-  margin: 0 auto;
-  width: 100%;
-  clear: both;
-  border-collapse: collapse;
-  table-layout: fixed; // ***********add this
-  word-wrap:break-word; // ***********and this
-}
+<%--        table{--%>
+<%--  margin: 0 auto;--%>
+<%--  width: 100%;--%>
+<%--  clear: both;--%>
+<%--  border-collapse: collapse;--%>
+<%--  table-layout: fixed; // ***********add this--%>
+<%--  word-wrap:break-word; // ***********and this--%>
+<%--}--%>
 
-</style>
+<%--</style>--%>
 
         <script>
 
@@ -34,7 +34,7 @@
                     // "columnDefs": [
                     //     { "width": "2%", "targets": 0 }
                     // ], only use if scroll set to false
-                    "scrollX": true,
+                    //"scrollX": true,
                     'createdRow': function(row, data, index){
                         $(row).find('td:eq(1)').css('background-color', 'Orange');
 
@@ -79,7 +79,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <p><a href="/">Home</a>
-                            <span class="fal fa-angle-right"></span> Histopathology
+                            <span class="fal fa-angle-right"></span> Embryo Heat Map
                         </p>
                     </div>
                 </div>
@@ -90,7 +90,7 @@
                     <div class="page-content">
 
                         <div class="card">
-                            <div class="card-header">Histopathology for every gene tested</div>
+                            <div class="card-header">Embryo data for every gene tested</div>
                             <div class="card-body">
                                 <p class="my-0"><b>Significance Score:</b></p>
                                 <c:set var="noData" scope="page" value="fa fa-circle"/>
@@ -116,12 +116,12 @@
 
 
 
-                            <table id="heatmap" class="display cell-border compact" style="font-size: 10px">
+                            <table id="heatmap" class="display cell-border compact">
                                 <thead>
                                 <tr>
-                                    <th><div class="rotate90">Gene</div></th>
+                                    <th>Gene</th>
                                     <c:forEach items="${anatomyHeaders}" var="parameter">
-                                        <th><div class="rotate90">${parameter}</div></th>
+                                        <th>${parameter}</th>
                                     </c:forEach>
 
                                 </tr>
@@ -138,9 +138,9 @@
                                 </tbody>
                                 <tfoot>
                                 <tr>
-                                    <th><div class="rotate90">Gene</div></th>
+                                    <th>Gene</th>
                                     <c:forEach var="parameter" items="${anatomyHeaders}">
-                                        <th><div class="rotate90">${parameter}</div></th>
+                                        <th>${parameter}</th>
                                     </c:forEach>
                                 </tr>
                                 </tfoot>
