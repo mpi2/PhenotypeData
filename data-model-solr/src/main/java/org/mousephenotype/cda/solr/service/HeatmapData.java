@@ -6,7 +6,7 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HistopathHeatmapData {
+public class HeatmapData {
     private List<String> parameterNames;
 
     public List<List<Integer>> getRows() {
@@ -19,7 +19,7 @@ public class HistopathHeatmapData {
 
     List<List<Integer>>rows= new ArrayList<>();
 
-    public List<String> getParameterNames() {
+    public List<String> getColumnHeaders() {
         return parameterNames;
     }
 
@@ -46,13 +46,13 @@ public class HistopathHeatmapData {
     private List<String> geneSymbols;
     JSONArray data;//triplets required row, column, value
 
-    public HistopathHeatmapData(List<String> parameterNames, List<String> geneSymbols, JSONArray data){
+    public HeatmapData(List<String> parameterNames, List<String> geneSymbols, JSONArray data){
         this.parameterNames=parameterNames;
         this.geneSymbols=geneSymbols;
         this.data=data;
     }
 
-    public HistopathHeatmapData(List<String> parameterNames, List<String> geneSymbols, List<List<Integer>> rows){
+    public HeatmapData(List<String> parameterNames, List<String> geneSymbols, List<List<Integer>> rows){
         this.parameterNames=parameterNames;
         this.geneSymbols=geneSymbols;
         this.rows=rows;

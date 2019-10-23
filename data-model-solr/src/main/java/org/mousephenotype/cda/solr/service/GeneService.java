@@ -927,6 +927,19 @@ public class GeneService extends BasicService implements WebStatus{
 		}
 		return null;
 	}
+
+	public List<GeneDTO> getGeneesForEmbryoData() throws SolrServerException, IOException {
+		SolrQuery solrQuery = new SolrQuery()
+				.setQuery(GeneDTO.EMBRYO_DATA_AVAILABLE + ":true")
+				.setRows(1)
+				.setFields(GeneDTO.MGI_ACCESSION_ID, GeneDTO.MARKER_SYMBOL, GeneDTO.MARKER_NAME, GeneDTO.EMBRYO_MODALITIES,GeneDTO.EMBRYO_ANALYSIS_NAME, GeneDTO.EMBRYO_ANALYSIS_URL);
+
+		QueryResponse rsp = geneCore.query(solrQuery);
+		if (rsp.getResults().getNumFound() > 0) {
+			return rsp.getBeans(GeneDTO.class);
+		}
+		return null;
+	}
 		
 	
 	/**

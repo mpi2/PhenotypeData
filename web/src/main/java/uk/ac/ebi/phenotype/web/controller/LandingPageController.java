@@ -2,12 +2,11 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
-import org.apache.solr.client.solrj.response.PivotField;
-import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.CountTableRow;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.mousephenotype.cda.solr.service.embryoviewer.EmbryoViewerService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -55,6 +54,7 @@ public class LandingPageController {
     private ObservationService       observationService;
     private StatisticalResultService statisticalResultService;
     private HistopathService histopathService;
+	private final EmbryoViewerService embryoViewerService;
 
     @Inject
     public LandingPageController(
@@ -65,7 +65,7 @@ public class LandingPageController {
 			@NotNull MpService mpService,
     		@NotNull ObservationService observationService,
 			@NotNull StatisticalResultService statisticalResultService,
-			@NotNull HistopathService histopathService)
+			@NotNull HistopathService histopathService, @NotNull EmbryoViewerService embryoViewerService)
 	{
         this.geneService = geneService;
 		this.genotypePhenotypeService = genotypePhenotypeService;
@@ -75,6 +75,7 @@ public class LandingPageController {
 		this.observationService = observationService;
 		this.statisticalResultService = statisticalResultService;
 		this.histopathService=histopathService;
+		this.embryoViewerService=embryoViewerService;
     }
 
 
@@ -88,10 +89,10 @@ public class LandingPageController {
 	@RequestMapping("/histopath_old")
 	public String histopath(Model model) throws SolrServerException, IOException {
 		//To display the heatmap we need data in form of ints [ column , row, value ] but row starts from bottom left hand side
-		HistopathHeatmapData heatmapData = histopathService.getHeatmapData();
+		HeatmapData heatmapData = histopathService.getHeatmapData();
 		String [] headers=new String []{"blah", "bug"};
 		JSONArray anatomyArray = null;
-		anatomyArray= new JSONArray(heatmapData.getParameterNames());
+		anatomyArray= new JSONArray(heatmapData.getColumnHeaders());
 		JSONArray geneSymbolsArray=new JSONArray(heatmapData.getGeneSymbols());
 		model.addAttribute("anatomyHeaders", anatomyArray);
 		model.addAttribute("geneSymbols", geneSymbolsArray);
@@ -109,12 +110,12 @@ public class LandingPageController {
 	@RequestMapping("/histopath")
 	public String histopathdt(Model model) throws SolrServerException, IOException {
 		//To display the heatmap we need data in form of ints [ column , row, value ] but row starts from bottom left hand side
-		HistopathHeatmapData heatmapData = histopathService.getHeatmapDatadt();
+		HeatmapData heatmapData = histopathService.getHeatmapDatadt();
 		//String [] headers=new String []{"blah", "bug"};
 		//JSONArray anatomyArray = null;
 		//anatomyArray= new JSONArray(heatmapData.getParameterNames());
 		//JSONArray geneSymbolsArray=new JSONArray(heatmapData.getGeneSymbols());
-		model.addAttribute("anatomyHeaders", heatmapData.getParameterNames());
+		model.addAttribute("anatomyHeaders", heatmapData.getColumnHeaders());
 		model.addAttribute("geneSymbols", heatmapData.getGeneSymbols());
 		model.addAttribute("rows", heatmapData.getRows());
 		return "histopathLandingPage";
@@ -188,6 +189,30 @@ public class LandingPageController {
 
         return "embryo";
     }
+
+	/**
+	 *
+	 * @param model
+	 * @return
+	 * @throws SolrServerException
+	 * @throws IOException
+	 */
+	@RequestMapping("/embryo_heatmap")
+	public String embryoHeatmap(Model model) throws SolrServerException, IOException {
+		//To display the heatmap we need data in form of ints [ column , row, value ] but row starts from bottom left hand side
+		System.out.println("hitting embryo heatmap endpoint");
+		//HistopathHeatmapData heatmapData = histopathService.getHeatmapDatadt();
+		HeatmapData heatmapData = embryoViewerService.getEmbryoHeatmap();
+		assert(heatmapData.getColumnHeaders().size()>0);
+		//String [] headers=new String []{"blah", "bug"};
+		//JSONArray anatomyArray = null;
+		//anatomyArray= new JSONArray(heatmapData.getParameterNames());
+		//JSONArray geneSymbolsArray=new JSONArray(heatmapData.getGeneSymbols());
+		model.addAttribute("anatomyHeaders", heatmapData.getColumnHeaders());
+		model.addAttribute("geneSymbols", heatmapData.getGeneSymbols());
+		model.addAttribute("rows", heatmapData.getRows());
+		return "embryo_heatmap";
+	}
 
     @RequestMapping(value = "/biological-system/pain", method = RequestMethod.GET)
     public String loadPainBiologicalSystemPage(Model model, HttpServletRequest request, RedirectAttributes attributes) {
