@@ -6,7 +6,7 @@
 
 <t:genericpage>
 
-    <jsp:attribute name="title">Register Interest Summary</jsp:attribute>
+    <jsp:attribute name="title">My Genes</jsp:attribute>
     <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${paBaseUrl}/summary">Register Interest</a> &raquo; Summary</jsp:attribute>
     <jsp:attribute name="bodyTag">
         <body>
@@ -20,7 +20,7 @@
             <div class="block block-system">
                 <div class="content">
                     <div class="node node-gene">
-                        <h1 class="title" id="top">Register Interest Summary</h1>
+                        <h1 class="title" id="top">My Genes</h1>
 
                         <div class="alert alert-danger" style="color: crimson">
                             <c:if test="${showWhen}">
@@ -150,7 +150,7 @@
 
                             <br />
 
-                            <a href='${paBaseUrl}/search/gene?kw=*'>Search for more genes to register</a>
+                            <a href='${paBaseUrl}/search'>Search for more genes to register</a>
 
                         </div>
                     </div>
