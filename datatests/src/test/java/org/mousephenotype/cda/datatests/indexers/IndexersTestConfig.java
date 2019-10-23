@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.indexers;
+package org.mousephenotype.cda.datatests.indexers;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrRequest;
@@ -26,7 +26,10 @@ import java.sql.Connection;
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
 @ComponentScan("org.mousephenotype.cda.db")
-public class IndexersTestConfigKomp2 {
+public class IndexersTestConfig {
+
+    @Value("${embryoViewerFilename}")
+    private String embryoViewerFilename;
 
     @Value("${owlpath}")
     protected String owlpath;
@@ -179,5 +182,10 @@ public class IndexersTestConfigKomp2 {
 
             }
         };
+    }
+
+    @Bean
+    public String embryoViewerFilename() {
+        return embryoViewerFilename;
     }
 }

@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.sql.DataSource;
@@ -35,8 +34,7 @@ import java.util.stream.Collectors;
  * These tests take forever to run and consume more memory than is available on developer's machines. Ignore them.
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest
-@ContextConfiguration(classes = {ObservationIndexerTestConfig.class})
+@SpringBootTest(classes = {ObservationIndexerTestConfig.class})
 public class ObservationIndexerTest {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -128,10 +126,7 @@ public class ObservationIndexerTest {
 
         observationIndexer.populateLineBiologicalDataMap(connection);
         Map<String, ObservationIndexer.BiologicalDataBean> bioDataMap = observationIndexer.getLineBiologicalData();
-        Assert.assertTrue(bioDataMap.size() > 50);
-
-        logger.info("Size of line level biological data map {}", bioDataMap.size());
-
+        Assert.assertTrue("Expected bioDataMap size > 50. Actual size: " + bioDataMap.size(), bioDataMap.size() > 50);
     }
 
 

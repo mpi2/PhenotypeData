@@ -55,8 +55,8 @@ public class HistopathServiceTest {
         HistopathService   histopathService   = new HistopathService(observationService);
 
         Map<String, Set<String>> map = new HashMap<>();
-        HistopathHeatmapData heatmapData = histopathService.getHeatmapData();
-        assertTrue(heatmapData.getParameterNames().size()>1);
+        HeatmapData heatmapData = histopathService.getHeatmapData();
+        assertTrue(heatmapData.getColumnHeaders().size()>1);
         assertTrue( heatmapData.getGeneSymbols().size()>1);
         assertTrue(heatmapData.getData().length()>1);
         //NamedList<List<PivotField>> pivots = observationService.getHistopathLandingPageData();
