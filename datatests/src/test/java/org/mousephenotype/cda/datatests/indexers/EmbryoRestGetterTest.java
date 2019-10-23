@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.indexers;
+package org.mousephenotype.cda.datatests.indexers;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -7,22 +7,20 @@ import org.mousephenotype.cda.indexers.utils.EmbryoRestData;
 import org.mousephenotype.cda.indexers.utils.EmbryoRestGetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
-@ContextConfiguration(classes = {IndexersTestConfigKomp2.class})
+@SpringBootTest(classes = {IndexersTestConfig.class})
 public class EmbryoRestGetterTest {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Value("${embryoViewerFilename}")
-	private       String embryoViewerFilename;
+	@Autowired
+	private String embryoViewerFilename;
 
 	@Test
 	public void getEmbryoDataTest() throws JSONException {

@@ -1,10 +1,11 @@
-package org.mousephenotype.cda.indexers;
+package org.mousephenotype.cda.datatests.indexers;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
+import org.mousephenotype.cda.indexers.StatisticalResultsIndexer;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
@@ -17,7 +18,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.PostConstruct;
@@ -34,8 +34,7 @@ import static org.junit.Assert.assertTrue;
 
 @Ignore
 @RunWith(SpringRunner.class)
-@SpringBootTest
-@ContextConfiguration(classes = {StatisticalResultsIndexerTestConfig.class})
+@SpringBootTest(classes = {IndexersTestConfig.class})
 @ComponentScan("org.mousephenotype.cda.db")
 public class StatisticalResultsIndexerTest implements ApplicationContextAware {
 
@@ -156,7 +155,7 @@ public class StatisticalResultsIndexerTest implements ApplicationContextAware {
         assert (results.size() > 100);
     }
 
-    @Test //@Ignore
+    @Test @Ignore
     public void getEmbryoViabilityResults() {
         
         String testName = Thread.currentThread().getStackTrace()[1].getMethodName();
