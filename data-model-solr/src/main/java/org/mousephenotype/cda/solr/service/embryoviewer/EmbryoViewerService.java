@@ -135,18 +135,22 @@ public class EmbryoViewerService {
         for(EmbryoViewerService.GeneEntry gene: genes){
             geneList.add(gene.symbol);
             ArrayList<Integer> row = new ArrayList<Integer>();
+            int typeOfData=2;
+            if(gene.hasAutomatedAnalysis){
+                typeOfData=4;//used to show has automated analysis
+            }
             if(gene.opt9_5){
-                row.add(1);
+                row.add(typeOfData);
             }else{
                 row.add(0);
             }
             if(gene.microct14_5_15_5){
-                row.add(1);
+                row.add(typeOfData);
             }else{
                 row.add(0);
             }
             if(gene.microct18_5){
-                row.add(1);
+                row.add(typeOfData);
             }else{
                 row.add(0);
             }

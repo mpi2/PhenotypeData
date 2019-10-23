@@ -4,7 +4,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <t:genericpage>
 
-    <jsp:attribute name="title">Histopath Landing Page</jsp:attribute>
+    <jsp:attribute name="title">Embryo Heat Map</jsp:attribute>
     <jsp:attribute name="header">
    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.css"/>
 
@@ -104,12 +104,8 @@
                                 <div style="background-color: whitesmoke">
                                     <div title="No Data"  class="mr-3"><i class="${noData}" style="color: white"></i>&nbsp;&nbsp;No Data</div>
                                     <div title="Not Applicable" style="color: ${notApplicableColour}" class="mr-3"> <i class="${notApplicable}"></i>&nbsp;&nbsp;Not Applicable</div>
-                                    <div title="Not Signficant" style="color: ${notSignificantColour}" class="mr-3"><i class="${notSignificant}"></i>&nbsp;&nbsp;<b>Not Significant</b> (histopathology finding that is interpreted by the
-                                        histopathologist to be within normal limits of background strain-related
-                                        findings or an incidental finding not related to genotype)</div>
-                                    <div title="Significant" style="color: ${significantColour}" class="mr-3"><i class="${significant}"></i>&nbsp;&nbsp;<b>Significant</b> (histopathology finding that is interpreted by the
-                                        histopathologist to not be a background strain-related finding or an incidental
-                                        finding)</div>
+                                    <div title="Not Signficant" style="color: ${notSignificantColour}" class="mr-3"><i class="${notSignificant}"></i>&nbsp;&nbsp;<b>Images Available</b> </div>
+                                    <div title="Significant" style="color: ${significantColour}" class="mr-3"><i class="${significant}"></i>&nbsp;&nbsp;<b>Images and Automated Volumetric Analysis Available</b> </div>
                                 </div>
                             </div>
                         </div>
