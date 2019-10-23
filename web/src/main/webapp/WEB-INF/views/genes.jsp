@@ -213,8 +213,14 @@
         <div class="container data-heading">
             <div class="row row-shadow">
                 <div class="col-12 no-gutters">
-                    <h2>Gene: ${gene.markerSymbol} <a href="${cmsBaseUrl}/help/gene-page/" target="_blank"><i
-                            class="fa fa-question-circle" style="float: right; color: #212529;"></i></a></h2>
+                    <h2>Gene: ${gene.markerSymbol}
+                            <a href="${cmsBaseUrl}/data/summary/" title="Log in to follow">
+                                <i class="fas fa-user-alt" style="float: right; color: #212529;"></i>
+                            </a>
+                            <a href="${cmsBaseUrl}/help/gene-page/" target="_blank">
+                                <i class="fa fa-question-circle" style="float: right; color: #212529;"></i>
+                            </a>
+                    </h2>
                 </div>
             </div>
         </div>

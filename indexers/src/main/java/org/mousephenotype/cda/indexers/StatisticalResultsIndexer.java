@@ -94,13 +94,13 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     protected Set<String>                   FEMALE_FER_SIGNIFICANT   = new HashSet<>();
     private   List<String>                  shouldHaveAdded          = new ArrayList<>();
 
-    void setPipelineMap(Map<Long, ImpressBaseDTO> pipelineMap) {
+    public void setPipelineMap(Map<Long, ImpressBaseDTO> pipelineMap) {
         this.pipelineMap = pipelineMap;
     }
-    void setProcedureMap(Map<Long, ImpressBaseDTO> procedureMap) {
+    public void setProcedureMap(Map<Long, ImpressBaseDTO> procedureMap) {
         this.procedureMap = procedureMap;
     }
-    void setParameterMap(Map<Long, ParameterDTO> parameterMap) {
+    public void setParameterMap(Map<Long, ParameterDTO> parameterMap) {
         this.parameterMap = parameterMap;
     }
 
@@ -255,14 +255,14 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     }
 
 
-    ViabilityResults getViabilityResults() {return new ViabilityResults(); }
-    FertilityResults getFertilityResults() {return new FertilityResults(); }
-    ReferenceRangePlusResults getReferenceRangePlusResults() {return new ReferenceRangePlusResults(); }
-    UnidimensionalResults getUnidimensionalResults() {return new UnidimensionalResults(); }
-    CategoricalResults getCategoricalResults() {return new CategoricalResults(); }
-    EmbryoViabilityResults getEmbryoViabilityResults() {return new EmbryoViabilityResults(); }
-    EmbryoResults getEmbryoResults() {return new EmbryoResults(); }
-    GrossPathologyResults getGrossPathologyResults() {return new GrossPathologyResults(); }
+    public ViabilityResults getViabilityResults() {return new ViabilityResults(); }
+    public FertilityResults getFertilityResults() {return new FertilityResults(); }
+    public ReferenceRangePlusResults getReferenceRangePlusResults() {return new ReferenceRangePlusResults(); }
+    public UnidimensionalResults getUnidimensionalResults() {return new UnidimensionalResults(); }
+    public CategoricalResults getCategoricalResults() {return new CategoricalResults(); }
+    public EmbryoViabilityResults getEmbryoViabilityResults() {return new EmbryoViabilityResults(); }
+    public EmbryoResults getEmbryoResults() {return new EmbryoResults(); }
+    public GrossPathologyResults getGrossPathologyResults() {return new GrossPathologyResults(); }
 
 
     /**
@@ -905,7 +905,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
      *
      * @throws SQLException when a database exception occurs
      */
-    void populateBiologicalDataMap() throws SQLException {
+    public void populateBiologicalDataMap() throws SQLException {
 
         String query = "SELECT bm.id, "
                 + "strain.acc AS strain_acc, strain.name AS strain_name, bm.genetic_background, "
@@ -950,7 +950,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
      *
      * @throws SQLException when a database exception occurs
      */
-    void populateResourceDataMap() throws SQLException {
+    public void populateResourceDataMap() throws SQLException {
 
         String query = "SELECT id, name, short_name FROM external_db";
 
@@ -976,7 +976,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
      *
      * @throws SQLException when a database exception occurs
      */
-    void populateSexesMap() throws SQLException {
+    public void populateSexesMap() throws SQLException {
 
         List<String> queries = Arrays.asList(
                 "SELECT CONCAT('unidimensional-', s.id) AS id, GROUP_CONCAT(distinct p.sex) as sexes FROM stats_unidimensional_results s INNER JOIN stat_result_phenotype_call_summary r ON r.unidimensional_result_id=s.id INNER JOIN phenotype_call_summary p ON p.id=r.phenotype_call_summary_id GROUP BY s.id",
@@ -1005,7 +1005,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
      * The embryo significance map keys are document IDs that should match the embryo documents and the key is the MP
      * acc
      */
-    void populateEmbryoSignificanceMap() throws SQLException {
+    public void populateEmbryoSignificanceMap() throws SQLException {
 
         // Generate MySQL REGEX string to include all embryo parameters
         Set<String> allEmbryoProcedures = new HashSet<>();
@@ -1081,7 +1081,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         }
     }
 
-    void populateParameterMpTermMap() throws SQLException {
+    public void populateParameterMpTermMap() throws SQLException {
 
         String query = "SELECT stable_id, ontology_acc FROM phenotype_parameter p " +
                 "INNER JOIN phenotype_parameter_lnk_ontology_annotation l ON l.parameter_id=p.id " +
@@ -1139,7 +1139,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     }
 
 
-    class CategoricalResults implements  Callable<List<StatisticalResultDTO>> {
+    public class CategoricalResults implements  Callable<List<StatisticalResultDTO>> {
         String query = "SELECT CONCAT(dependent_variable, '_CAT_', sr.id) AS doc_id, "
                 + "  'categorical' AS data_type, sr.id AS db_id, control_id, "
                 + "  experimental_id, experimental_sex AS sex, experimental_zygosity, "
@@ -1246,7 +1246,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     /**
      * Populate unidimensional statistic results
      */
-    class UnidimensionalResults implements Callable<List<StatisticalResultDTO>> {
+    public class UnidimensionalResults implements Callable<List<StatisticalResultDTO>> {
 
         String query = "SELECT CONCAT(dependent_variable, '_CONT_', sr.id) as doc_id, "
                 + "  'unidimensional' AS data_type, "
@@ -1406,7 +1406,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     /**
      * 	Generate reference range plus statistic result DTOs
      */
-    class ReferenceRangePlusResults implements  Callable<List<StatisticalResultDTO>> {
+    public class ReferenceRangePlusResults implements  Callable<List<StatisticalResultDTO>> {
 
         String query = "SELECT CONCAT(dependent_variable, '_RR_', sr.id) as doc_id, "
                 + "  'unidimensional-ReferenceRange' AS data_type, "
@@ -1762,7 +1762,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
     }
 
-    class EmbryoResults implements Callable<List<StatisticalResultDTO>> {
+    public class EmbryoResults implements Callable<List<StatisticalResultDTO>> {
 
         String query = "SELECT DISTINCT " +
                 "  CONCAT_WS('-', exp.procedure_stable_id, parameter.stable_id, ls.colony_id, bm.zygosity, sex, exp.organisation_id, exp.metadata_group) AS doc_id,  " +
@@ -1828,7 +1828,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         }
     }
 
-    class EmbryoViabilityResults implements Callable<List<StatisticalResultDTO>> {
+    public class EmbryoViabilityResults implements Callable<List<StatisticalResultDTO>> {
 
         String query = "SELECT co.category, " +
                 "  CONCAT(parameter.stable_id, '_', exp.id, '_embryo') as doc_id, " +
@@ -1892,7 +1892,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
     }
 
-    class GrossPathologyResults implements Callable<List<StatisticalResultDTO>> {
+    public class GrossPathologyResults implements Callable<List<StatisticalResultDTO>> {
 
         String query = "SELECT DISTINCT CONCAT(parameter.stable_id, '_', o.id, '_', term, '_', ls.sex, '_grosspath') as doc_id, " +
                 "'adult-gross-path' AS data_type, db.id AS db_id, " +
@@ -1950,7 +1950,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
     }
 
-    void setSAVE(Boolean SAVE) {
+    public void setSAVE(Boolean SAVE) {
         this.SAVE = SAVE;
     }
 
