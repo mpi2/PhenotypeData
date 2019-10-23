@@ -24,8 +24,8 @@ parser = argparse.ArgumentParser(
 )
 
 parser.add_argument(
-    '--pipeline-stable-id', dest='pipeline_stable_id', required=True,
-    help='Pipeline stable ID as specified in IMPRESS'
+    '--site-name', dest='site_name', required=True,
+    help='Abbreviated name of site as in the directory in images/clean'
 )
 parser.add_argument(
     '--parameter-stable-id', dest='parameter_stable_id', required=True,
@@ -51,14 +51,13 @@ parser.add_argument(
 
 args = parser.parse_args()
 print_every = args.print_every
-project_name = args.pipeline_stable_id.split("_")[0]
-pipeline_stable_id = args.pipeline_stable_id
+site_name = args.site_name;
 parameter_stable_id = args.parameter_stable_id
 dir_base = args.dir_base
-to_process = os.path.join(args.output_dir,project_name+"_"+parameter_stable_id+".txt")
-processed_output_path = os.path.join(args.output_dir,project_name+"_"+parameter_stable_id+"_processed.csv")
-mis_classified_output_path = os.path.join(args.output_dir,project_name+"_"+parameter_stable_id+"_misclassified.csv")
-unable_to_read_output_path = os.path.join(args.output_dir,project_name+"_"+parameter_stable_id+"_unable_to_read.csv")
+to_process = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+".txt")
+processed_output_path = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+"_processed.csv")
+mis_classified_output_path = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+"_misclassified.csv")
+unable_to_read_output_path = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+"_unable_to_read.csv")
 
 
 # Dict to map parameter_stable_ids to expected_class
