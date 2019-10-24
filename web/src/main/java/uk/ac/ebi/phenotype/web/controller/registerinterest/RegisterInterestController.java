@@ -543,7 +543,7 @@ public class RegisterInterestController {
     @RequestMapping(value = "/accountDeleteRequest", method = RequestMethod.GET)
     public String accountDeleteRequest() {
 
-        return "redirect:" + paBaseUrl + "/search/gene?kw=*";
+        return "redirect:" + paBaseUrl + "/search";
     }
 
 
@@ -576,14 +576,14 @@ public class RegisterInterestController {
         model.addAttribute("showLoginLink", true);
         model.addAttribute("status", "Your account has been deleted.");
 
-        return "redirect:" + paBaseUrl + "/search/gene?kw=*";
+        return "redirect:" + paBaseUrl + "/search";
     }
 
     // Create a GET to avoid HttpError 405 when reloading the page via the BACK button.
     @RequestMapping(value = "/accountDeleteConfirmation", method = RequestMethod.GET)
     public String accountDeleteConfirmation() {
 
-        return "redirect:" + paBaseUrl + "/search/gene?kw=*";
+        return "redirect:" + paBaseUrl + "/search";
     }
 
 

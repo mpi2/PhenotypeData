@@ -2,20 +2,20 @@
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
-<%--<%@ page pageEncoding="UTF-8" %>--%>
-<%--<%@ page isELIgnored="false"%>--%>
 
 <t:genericpage>
 
-    <jsp:attribute name="title">My Genes login</jsp:attribute>
-    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${paBaseUrl}/rilogin">My Genes
-        Login</a> &raquo; Login</jsp:attribute>
+    <jsp:attribute name="title">My genes login</jsp:attribute>
+    <jsp:attribute name="breadcrumb">&nbsp;&raquo;
+        <a href="${paBaseUrl}/rilogin">
+            My genes login
+        </a> &raquo; Login</jsp:attribute>
     <jsp:attribute name="header">
         <script src='https://www.google.com/recaptcha/api.js'></script>
     </jsp:attribute>
 
     <jsp:attribute name="bodyTag">
-        <body class="gene-node no-sidebars small-header">
+        <body class="no-sidebars small-header">
     </jsp:attribute>
 
     <jsp:attribute name="addToFooter"></jsp:attribute>
@@ -27,8 +27,8 @@
 
                 <div class="row">
                     <div class="col-md-12">
-                        <p><a href="/">Home</a>
-                            <span class="fal fa-angle-right"></span><a href="${paBaseUrl}/rilogin">My Genes</a>
+                        <p><a href="${paBaseUrl}">Home</a>
+                            <span class="fal fa-angle-right"></span><a href="${paBaseUrl}/rilogin">My genes</a>
                             <span class="fal fa-angle-right"></span> Login
                         </p>
                     </div>
