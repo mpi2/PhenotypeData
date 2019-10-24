@@ -24,8 +24,8 @@ parser = argparse.ArgumentParser(
 )
 
 parser.add_argument(
-    '--pipeline-stable-id', dest='pipeline_stable_id', required=True,
-    help='Pipeline stable ID as specified in IMPRESS'
+    '--site-name', dest='site_name', required=True,
+    help='Abbreviated name of site as in the directory in images/clean'
 )
 parser.add_argument(
     '--parameter-stable-id', dest='parameter_stable_id', required=True,
@@ -34,10 +34,6 @@ parser.add_argument(
 parser.add_argument(
     '-d', '--base-dir', dest='dir_base', default="/nfs/komp2/web/images/clean/impc/",
     help='Base directory for location of images'
-)
-parser.add_argument(
-    '-e', '--expected-class', dest='expected_class', type=int, required=True,
-    help='Integer label of the expected class: 1-head_dorsal,2-forepaw, 3-whole_body_dorsal,4-whole_body_lateral,5-head_lateral,6-hind_leg_hip'
 )
 parser.add_argument(
     '-p', '--print-every', dest='print_every', default=500, type=int,
@@ -55,17 +51,25 @@ parser.add_argument(
 
 args = parser.parse_args()
 print_every = args.print_every
-expected_class = args.expected_class
-project_name = args.pipeline_stable_id.split("_")[0]
-pipeline_stable_id = args.pipeline_stable_id
+site_name = args.site_name;
 parameter_stable_id = args.parameter_stable_id
 dir_base = args.dir_base
-to_process = os.path.join(args.output_dir,project_name+"_"+parameter_stable_id+".txt")
-processed_output_path = os.path.join(args.output_dir,project_name+"_"+parameter_stable_id+"_processed.csv")
-mis_classified_output_path = os.path.join(args.output_dir,project_name+"_"+parameter_stable_id+"_misclassified.csv")
-unable_to_read_output_path = os.path.join(args.output_dir,project_name+"_"+parameter_stable_id+"_unable_to_read.csv")
+to_process = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+".txt")
+processed_output_path = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+"_processed.csv")
+mis_classified_output_path = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+"_misclassified.csv")
+unable_to_read_output_path = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+"_unable_to_read.csv")
 
 
+# Dict to map parameter_stable_ids to expected_class
+parameter_to_class_map = {
+    'IMPC_XRY_051_001' : 1,
+    'IMPC_XRY_049_001' : 2,
+    'IMPC_XRY_034_001' : 3,
+    'IMPC_XRY_048_001' : 4,
+    'IMPC_XRY_050_001' : 5,
+    'IMPC_XRY_052_001' : 6,
+}
+expected_class = parameter_to_class_map[parameter_stable_id]
 # In[3]:
 
 
@@ -85,11 +89,7 @@ else:
 import qc_helper as helper
 
 
-# Create labels using ordered dict. Key is value in "imdetails" value is string we want to display
-from collections import OrderedDict
-label_map = OrderedDict({1:"head_dorsal",2:"forepaw", 3:"whole_body_dorsal",4:"whole_body_lateral",5:"head_lateral",6:"hind_leg_hip"})
-
-classes = label_map.keys()
+classes = parameter_to_class_map.values()
 n_classes = len(classes)
 
 # Read in metadata

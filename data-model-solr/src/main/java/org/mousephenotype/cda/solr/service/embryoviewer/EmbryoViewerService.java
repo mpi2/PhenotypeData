@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.HeatmapData;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +79,12 @@ public class EmbryoViewerService {
                         logger.warn("Could not retreive entry for procedure ID {}", proceduresParameter.procedureId, e);
                     }
                 }
-
+                //add analysis information here for the heat map
+                if(colony.hasAutomatedAnalysis){
+                    gene.hasAutomatedAnalysis=true;
+                    gene.analysisDownloadUrl=colony.analysisDownloadUrl;
+                    gene.analysisViewUrl=colony.analysisViewUrl;
+                }
                 genes.add(gene);
 
             }
@@ -116,6 +122,44 @@ public class EmbryoViewerService {
         return mapper.readValue(url, Procedure.class);
     }
 
+    public HeatmapData getEmbryoHeatmap(){
+        List<EmbryoViewerService.GeneEntry> genes = this.getGenesEmbryoStatus();
+        List<String> columnList=new ArrayList<>();
+        columnList.add("opt9_5");
+        columnList.add("microct14_5_15_5");
+        columnList.add("microct18_5");
+
+
+        List<String> geneList=new ArrayList<>();
+        List<List<Integer>> rows=new ArrayList<List<Integer>>();
+        for(EmbryoViewerService.GeneEntry gene: genes){
+            geneList.add(gene.symbol);
+            ArrayList<Integer> row = new ArrayList<Integer>();
+            int typeOfData=2;
+            if(gene.hasAutomatedAnalysis){
+                typeOfData=4;//used to show has automated analysis
+            }
+            if(gene.opt9_5){
+                row.add(typeOfData);
+            }else{
+                row.add(0);
+            }
+            if(gene.microct14_5_15_5){
+                row.add(typeOfData);
+            }else{
+                row.add(0);
+            }
+            if(gene.microct18_5){
+                row.add(typeOfData);
+            }else{
+                row.add(0);
+            }
+            rows.add(row);
+        }
+        HeatmapData heatmapData=new HeatmapData(columnList,geneList,rows);
+        return heatmapData;
+    }
+
 
     public class GeneEntry {
             @JsonProperty("symbol") String symbol;
@@ -123,6 +167,9 @@ public class EmbryoViewerService {
             @JsonProperty("opt9_5") Boolean opt9_5 = false;
             @JsonProperty("microct14_5_15_5") Boolean microct14_5_15_5 = false;
             @JsonProperty("microct18_5") Boolean microct18_5 = false;
+            @JsonProperty("has_automated_analysis") Boolean hasAutomatedAnalysis = false;
+            @JsonProperty("analysis_download_url") String analysisDownloadUrl;
+            @JsonProperty("analysis_view_url") String analysisViewUrl;
     }
 
 }

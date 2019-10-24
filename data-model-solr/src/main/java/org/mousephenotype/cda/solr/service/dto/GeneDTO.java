@@ -168,7 +168,7 @@ public class GeneDTO {
 	private static final String VEGA_IDS = "vega_id";
 	private static final String NCBI_IDS = "ncbi_id";
 	private static final String CCDS_IDS = "ccds_id";
-	private static final String EMBRYO_MODALITIES = "embryo_modalities";
+	public static final String EMBRYO_MODALITIES = "embryo_modalities";
 
 	public static final String CHR_NAME = "chr_name";
 	public static final String CHR_start = "chr_start";

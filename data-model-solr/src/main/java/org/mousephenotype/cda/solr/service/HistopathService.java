@@ -188,7 +188,7 @@ public class HistopathService {
 		return observations;
 	}
 
-	public HistopathHeatmapData getHeatmapData() throws SolrServerException, IOException {
+	public HeatmapData getHeatmapData() throws SolrServerException, IOException {
 		NamedList<List<PivotField>> pivots = observationService.getHistopathGeneParameterNameCategoryPivots();
 		HashSet<String> anatomyParamName=new HashSet();//in the histopath case this is anatomy/parameter names
 		//then lest order this set as a list alphabetically into a list to then dictate column numbers
@@ -269,11 +269,11 @@ public class HistopathService {
 
 
 
-		HistopathHeatmapData heatmapData=new HistopathHeatmapData(anatomyList,geneList,allCells);
+		HeatmapData heatmapData=new HeatmapData(anatomyList,geneList,allCells);
 		return heatmapData;
 	}
 
-	public HistopathHeatmapData getHeatmapDatadt() throws SolrServerException, IOException {
+	public HeatmapData getHeatmapDatadt() throws SolrServerException, IOException {
 		NamedList<List<PivotField>> pivots = observationService.getHistopathGeneParameterNameCategoryPivots();
 		HashSet<String> anatomyParamName=new HashSet();//in the histopath case this is anatomy/parameter names
 		//then lest order this set as a list alphabetically into a list to then dictate column numbers
@@ -352,7 +352,7 @@ public class HistopathService {
 
 
 
-		HistopathHeatmapData heatmapData=new HistopathHeatmapData(anatomyList,geneList,rows);
+		HeatmapData heatmapData=new HeatmapData(anatomyList,geneList,rows);
 		return heatmapData;
 	}
 
