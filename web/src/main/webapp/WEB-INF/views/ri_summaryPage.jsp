@@ -41,6 +41,9 @@
                 <div class="col-md-12 white-bg">
                     <div class="page-content">
                         <h2 class="title" id="top">My Genes</h2>
+
+                        <h4>Username: ${summary.emailAddress}</h4>
+
                         <c:choose>
                             <c:when test="${fn:length(summary.genes) eq 0}">
                                 You have not yet registered interest in any genes.

@@ -16,7 +16,6 @@
 
     <jsp:body>
 
-
     <body>
         <div id="mainWrapper">
             <div class="login-container">
