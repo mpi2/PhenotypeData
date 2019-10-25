@@ -6,13 +6,6 @@
 
     <jsp:attribute name="title">My Genes</jsp:attribute>
 
-
-    <jsp:attribute name="breadcrumb">&nbsp;&raquo;
-        <a href="${paBaseUrl}/summary">
-            My genes
-        </a> &raquo; Summary
-    </jsp:attribute>
-
     <jsp:attribute name="bodyTag">
         <body class="no-sidebars small-header">
     </jsp:attribute>
