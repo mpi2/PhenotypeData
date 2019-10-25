@@ -22,7 +22,7 @@
 
     <jsp:body>
 
-        <div class="container single single--no-side">
+        <div class="container">
             <div class="breadcrumbs" style="box-shadow: none; margin-top: auto; margin: auto; padding: auto">
 
                 <div class="row">
@@ -49,9 +49,7 @@
                             </ul>
                         </p>
 
-                        <br/>
-
-                        <div class="login-form row">
+                        <div class="login-form row ml-3 mr-3 mb-3">
                             <form action="${paBaseUrl}/rilogin" method="POST" class="form-horizontal">
                                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 
@@ -102,21 +100,32 @@
                                 <br />
 
                                 <div class="form-actions">
-                                    <input type="submit" formmethod="POST" class="btn btn-block btn-primary btn-default"
+                                    <input type="submit"
+                                           class="btn btn-block btn-primary btn-default"
+                                           formmethod="POST"
                                            value="Log in"/>
                                 </div>
-
-                                <br/>
-
-                                <a href="${paBaseUrl}/newAccountRequest">New account</a>
-                                &nbsp;&nbsp;&nbsp;&nbsp;
-                                <a href="${paBaseUrl}/resetPasswordRequest">Forgot password?</a>
-
                             </form>
                         </div>
-
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row mt-3 mb-3">
+                <a
+                        class="btn"
+                        href="${paBaseUrl}/newAccountRequest"
+                        title="Create a new My Genes account">
+                    New account
+                </a>
+                <a
+                        class="btn ml-5"
+                        href="${paBaseUrl}/resetPasswordRequest"
+                        title="Reset My Genes password">
+                    Forgot password?
+                </a>
             </div>
         </div>
 

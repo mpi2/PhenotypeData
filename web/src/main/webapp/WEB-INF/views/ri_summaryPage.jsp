@@ -17,7 +17,17 @@
         <body class="no-sidebars small-header">
     </jsp:attribute>
 
-    <jsp:attribute name="addToFooter"></jsp:attribute>
+    <jsp:attribute name="addToFooter">
+        <script>
+            $(document).ready(function () {
+                $('#following').DataTable({
+                    "scrollY":        "50vh",
+                    "scrollCollapse": true,
+                    "paging":         false
+                });
+            });
+        </script>
+    </jsp:attribute>
 
     <jsp:body>
 
@@ -46,12 +56,12 @@
                                 You are currently following this gene:
                             </c:when>
                             <c:otherwise>
-                                You are currrently following these ${fn:length(summary.genes)} genes:
+                                You are currrently following these genes:
                             </c:otherwise>
                         </c:choose>
 
                         <div id="summaryTableDiv">
-                            <table id="summary-table" class='table tableSorter'>
+                            <table id="following" class='table table-bordered table-hoverr'>
                                 <thead>
                                     <tr>
                                         <th>Gene Symbol</th>
@@ -82,14 +92,10 @@
                                                     </c:otherwise>
                                                 </c:choose>
                                             </td>
-
                                             <td>
                                                 <c:choose>
                                                     <c:when test="${empty gene.riNullAlleleProductionStatus}">
                                                         None
-                                                    </c:when>
-                                                    <c:when test="${gene.riNullAlleleProductionStatus == 'Genotype confirmed mice'}">
-                                                        <a href='${paBaseUrl}/search/allele2?kw="${gene.mgiAccessionId}"'>${gene.riNullAlleleProductionStatus}</a>
                                                     </c:when>
                                                     <c:otherwise>
                                                         ${gene.riNullAlleleProductionStatus}
@@ -101,9 +107,6 @@
                                                     <c:when test="${empty gene.riConditionalAlleleProductionStatus}">
                                                         None
                                                     </c:when>
-                                                    <c:when test="${gene.riConditionalAlleleProductionStatus == 'Genotype confirmed mice'}">
-                                                        <a href='${paBaseUrl}/search/allele2?kw="${gene.mgiAccessionId}"'>${gene.riConditionalAlleleProductionStatus}</a>
-                                                    </c:when>
                                                     <c:otherwise>
                                                         ${gene.riConditionalAlleleProductionStatus}
                                                     </c:otherwise>
@@ -113,10 +116,10 @@
                                                 <c:choose>
                                                     <c:when test="${gene.riPhenotypingStatus == 'Phenotyping data available'}">
 
-                                                        <a href='${paBaseUrl}/genes/${gene.mgiAccessionId}#section-associations'>Yes</a>
+                                                        <a href='${paBaseUrl}/genes/${gene.mgiAccessionId}#order'>Yes</a>
                                                     </c:when>
                                                     <c:otherwise>
-                                                        No
+                                                        <a href='${paBaseUrl}/genes/${gene.mgiAccessionId}#order'>No</a>
                                                     </c:otherwise>
                                                 </c:choose>
                                             </td>
@@ -143,7 +146,7 @@
         </div>
 
         <div class="container">
-            <div class="row mb-5">
+            <div class="row mb-5 ml-3 mr-3">
                 <a
                         href="${paBaseUrl}/rilogout"
                         title="Log out of My Genes">
@@ -159,7 +162,7 @@
                         class="btn btn-outline-danger"
                         href="${paBaseUrl}/accountDeleteRequest"
                         title="Delete My Genes account and all of my followed genes"
-                        style="float: right">
+                        style="float: right;">
                     Delete account
                 </a>
             </div>
