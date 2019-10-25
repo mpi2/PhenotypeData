@@ -37,19 +37,19 @@
                     //"scrollX": true,
                     'createdRow': function(row, data, index){
                         //$(row).find('td:eq(1)').css('background-color', 'grey');
-
+                        $(row).css("cursor", "pointer");
                         for(var i=1; i<data.length; i++) {
                             if (data[i] == 0) {
-                                $(row).find('td:eq('+i+')').css('background-color', '#fff').css('color', 'rgba(0, 0, 0, 0.0)').css("pointer-events", "pointer");
+                                $(row).find('td:eq('+i+')').css('background-color', '#fff').css('color', 'rgba(0, 0, 0, 0.0)');
                             }else
                             if (data[i] == 1) {
-                                $(row).find('td:eq('+i+')').css('background-color', '#808080').css('color', 'rgba(0, 0, 0, 0.0)').css("pointer-events", "pointer");;
+                                $(row).find('td:eq('+i+')').css('background-color', '#808080').css('color', 'rgba(0, 0, 0, 0.0)');
                             }else
                             if (data[i] == 2) {
-                                $(row).find('td:eq('+i+')').css('background-color', '#17a2b8').css('color', 'rgba(0, 0, 0, 0.0)').css('cursor','pointer');
+                                $(row).find('td:eq('+i+')').css('background-color', '#17a2b8').css('color', 'rgba(0, 0, 0, 0.0)');
                             }else
                             if (data[i] == 4) {
-                                $(row).find('td:eq('+i+')').css('background-color', '#ce6211').css('color', 'rgba(0, 0, 0, 0.0)').css('cursor','pointer');
+                                $(row).find('td:eq('+i+')').css('background-color', '#ce6211').css('color', 'rgba(0, 0, 0, 0.0)');
                             }
                         }
                     },
