@@ -37,7 +37,7 @@
             <div class="row row-over-shadow">
                 <div class="col-md-12 white-bg">
                     <div class="page-content">
-                        <h1 class="title" id="top">My Genes</h1>
+                        <h2 class="title" id="top">My Genes</h2>
                         <c:choose>
                             <c:when test="${fn:length(summary.genes) eq 0}">
                                 You have not yet registered interest in any genes.
@@ -123,7 +123,13 @@
                                             <td>
                                                 <form id="formUnregister" style="border: 0;">
                                                     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                                                    <button type="submit" class="btn btn-block btn-primary btn-default" formaction="${paBaseUrl}/unregistration/gene/${gene.mgiAccessionId}" formmethod="POST">Unregister</button>
+                                                    <button
+                                                            formaction="${paBaseUrl}/unregistration/gene/${gene.mgiAccessionId}"
+                                                            class="btn btn-block btn-primary btn-default"
+                                                            type="submit"
+                                                            formmethod="POST">
+                                                        Stop following
+                                                    </button>
                                                 </form>
                                             </td>
                                         </tr>
@@ -134,38 +140,28 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="row">
+        <div class="container">
+            <div class="row mb-5">
                 <a
-                        href="${paBaseUrl}/search"
-                        title="Search for more genes to follow">
-                    More genes
+                        href="${paBaseUrl}/rilogout"
+                        title="Log out of My Genes">
+                    Logout
                 </a>
-            </div>
-
-            <div class="row">
-                <div class=col-3">
-
-                    <a
-                            href="${paBaseUrl}/rilogout"
-                            title="Log out of My Genes">
-                        Logout
-                    </a>
-
-                    <a
-                            class="btn btn-outline-secondary"
-                            href="${paBaseUrl}/resetPasswordRequest"
-                            title="Reset My Genes password">
-                        Reset password
-                    </a>
-
-                    <a
-                            class="btn btn-outline-danger"
-                            href="${paBaseUrl}/accountDeleteRequest"
-                            title="Delete my account and all of my followed genes">
-                        Delete account
-                    </a>
-                </div>
+                <a
+                        class="btn btn-outline-secondary mx-auto"
+                        href="${paBaseUrl}/resetPasswordRequest"
+                        title="Reset My Genes password">
+                    Reset password
+                </a>
+                <a
+                        class="btn btn-outline-danger"
+                        href="${paBaseUrl}/accountDeleteRequest"
+                        title="Delete My Genes account and all of my followed genes"
+                        style="float: right">
+                    Delete account
+                </a>
             </div>
         </div>
 
