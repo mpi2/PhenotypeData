@@ -1,160 +1,166 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
-<%@ page pageEncoding="UTF-8" %>
-<%@ page isELIgnored="false"%>
 
 <t:genericpage>
 
     <jsp:attribute name="title">My Genes</jsp:attribute>
-    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${paBaseUrl}/summary">Register Interest</a> &raquo; Summary</jsp:attribute>
+
     <jsp:attribute name="bodyTag">
-        <body>
+        <body class="no-sidebars small-header">
     </jsp:attribute>
 
-    <jsp:attribute name="addToFooter"></jsp:attribute>
+    <jsp:attribute name="addToFooter">
+        <script>
+            $(document).ready(function () {
+                $('#following').DataTable({
+                    "scrollY":        "50vh",
+                    "scrollCollapse": true,
+                    "paging":         false
+                });
+            });
+        </script>
+    </jsp:attribute>
 
     <jsp:body>
 
-        <div class="region region-content">
-            <div class="block block-system">
-                <div class="content">
-                    <div class="node node-gene">
-                        <h1 class="title" id="top">My Genes</h1>
+        <div class="container single single--no-side">
 
-                        <div class="alert alert-danger" style="color: crimson">
-                            <c:if test="${showWhen}">
-                                ${current.toLocaleString()}:&nbsp;
-                                <br />
-                                <br />
-                            </c:if>
-                            <c:if test="${not empty error}">
-                                <p>${error}</p>
-                            </c:if>
-                        </div>
+            <div class="breadcrumbs" style="box-shadow: none; margin-top: auto; margin: auto; padding: auto">
 
-                        <div class="section">
-                            <div class="inner">
-                                <form id="formActions" style="border: 0;">
-                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                                    <a href="${paBaseUrl}/rilogout">Logout</a>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <button type="submit" class="btn btn-block btn-primary btn-default" formaction="${paBaseUrl}/resetPasswordRequest" formmethod="GET">Reset registration of interest password</button>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <button type="submit" class="btn btn-block btn-primary btn-default" formaction="${paBaseUrl}/accountDeleteRequest" formmethod="POST">Delete all registrations of interest</button>
-                                </form>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p><a href="${paBaseUrl}">Home</a>
+                            <span class="fal fa-angle-right"></span>My Genes
+                        </p>
+                    </div>
+                </div>
+            </div>
 
-                                <h6>Username: ${summary.emailAddress}</h6>
+            <div class="row row-over-shadow">
+                <div class="col-md-12 white-bg">
+                    <div class="page-content">
+                        <h2 class="title" id="top">My Genes</h2>
 
-                                <br />
+                        <h4>Username: ${summary.emailAddress}</h4>
 
-                                <c:choose>
-                                    <c:when test="${fn:length(summary.genes) eq 0}">
+                        <c:choose>
+                            <c:when test="${fn:length(summary.genes) eq 0}">
+                                You have not yet registered interest in any genes.
+                            </c:when>
+                            <c:when test="${fn:length(summary.genes) eq 1}">
+                                You are currently following this gene:
+                            </c:when>
+                            <c:otherwise>
+                                You are currrently following these genes:
+                            </c:otherwise>
+                        </c:choose>
 
-                                        You have not yet registered interest in any genes.
+                        <div id="summaryTableDiv">
+                            <table id="following" class='table table-bordered table-hoverr'>
+                                <thead>
+                                    <tr>
+                                        <th>Gene Symbol</th>
+                                        <th>Gene Accession Id</th>
+                                        <th>Assignment Status</th>
+                                        <th>Null Allele Production Status</th>
+                                        <th>Conditional Allele Production Status</th>
+                                        <th>Phenotyping Data Available</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
 
-                                        <br />
+                                <tbody>
+                                    <c:forEach var="gene" items="${summary.genes}" varStatus="loop">
+                                        <tr>
+                                            <td>
+                                                <a href='${paBaseUrl}/genes/${gene.mgiAccessionId}'>${gene.symbol}</a>
+                                            </td>
+                                            <td><a href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}">${gene.mgiAccessionId}</a></td>
 
-                                    </c:when>
-                                    <c:otherwise>
+                                            <td>
+                                                <c:choose>
+                                                    <c:when test="${empty gene.riAssignmentStatus}">
+                                                        None
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        ${gene.riAssignmentStatus}
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </td>
+                                            <td>
+                                                <c:choose>
+                                                    <c:when test="${empty gene.riNullAlleleProductionStatus}">
+                                                        None
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        ${gene.riNullAlleleProductionStatus}
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </td>
+                                            <td>
+                                                <c:choose>
+                                                    <c:when test="${empty gene.riConditionalAlleleProductionStatus}">
+                                                        None
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        ${gene.riConditionalAlleleProductionStatus}
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </td>
+                                            <td>
+                                                <c:choose>
+                                                    <c:when test="${gene.riPhenotypingStatus == 'Phenotyping data available'}">
 
-                                        You have registered interest in the following ${fn:length(summary.genes)} genes:
-
-                                        <div id="summaryTableDiv">
-                                            <table id="summary-table" class='table tableSorter'>
-                                                <thead>
-                                                    <tr>
-                                                        <th>Gene Symbol</th>
-                                                        <th>Gene Accession Id</th>
-                                                        <th>Assignment Status</th>
-                                                        <th>Null Allele Production Status</th>
-                                                        <th>Conditional Allele Production Status</th>
-                                                        <th>Phenotyping Data Available</th>
-                                                        <th>Action</th>
-                                                    </tr>
-                                                </thead>
-
-                                                <tbody>
-
-                                                    <c:forEach var="gene" items="${summary.genes}" varStatus="loop">
-
-                                                        <tr>
-                                                            <td>
-                                                                <a href='${paBaseUrl}/genes/${gene.mgiAccessionId}'>${gene.symbol}</a>
-                                                            </td>
-                                                            <td><a href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}">${gene.mgiAccessionId}</a></td>
-
-                                                            <td>
-                                                                <c:choose>
-                                                                    <c:when test="${empty gene.riAssignmentStatus}">
-                                                                        None
-                                                                    </c:when>
-                                                                    <c:otherwise>
-                                                                        ${gene.riAssignmentStatus}
-                                                                    </c:otherwise>
-                                                                </c:choose>
-                                                            </td>
-
-                                                            <td>
-                                                                <c:choose>
-                                                                    <c:when test="${empty gene.riNullAlleleProductionStatus}">
-                                                                        None
-                                                                    </c:when>
-                                                                    <c:when test="${gene.riNullAlleleProductionStatus == 'Genotype confirmed mice'}">
-                                                                        <a href='${paBaseUrl}/search/allele2?kw="${gene.mgiAccessionId}"'>${gene.riNullAlleleProductionStatus}</a>
-                                                                    </c:when>
-                                                                    <c:otherwise>
-                                                                        ${gene.riNullAlleleProductionStatus}
-                                                                    </c:otherwise>
-                                                                </c:choose>
-                                                            </td>
-                                                            <td>
-                                                                <c:choose>
-                                                                    <c:when test="${empty gene.riConditionalAlleleProductionStatus}">
-                                                                        None
-                                                                    </c:when>
-                                                                    <c:when test="${gene.riConditionalAlleleProductionStatus == 'Genotype confirmed mice'}">
-                                                                        <a href='${paBaseUrl}/search/allele2?kw="${gene.mgiAccessionId}"'>${gene.riConditionalAlleleProductionStatus}</a>
-                                                                    </c:when>
-                                                                    <c:otherwise>
-                                                                        ${gene.riConditionalAlleleProductionStatus}
-                                                                    </c:otherwise>
-                                                                </c:choose>
-                                                            </td>
-                                                            <td>
-                                                                <c:choose>
-                                                                    <c:when test="${gene.riPhenotypingStatus == 'Phenotyping data available'}">
-
-                                                                        <a href='${paBaseUrl}/genes/${gene.mgiAccessionId}#section-associations'>Yes</a>
-                                                                    </c:when>
-                                                                    <c:otherwise>
-                                                                        No
-                                                                    </c:otherwise>
-                                                                </c:choose>
-                                                            </td>
-                                                            <td>
-                                                                <form id="formUnregister" style="border: 0;">
-                                                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                                                                    <button type="submit" class="btn btn-block btn-primary btn-default" formaction="${paBaseUrl}/unregistration/gene/${gene.mgiAccessionId}" formmethod="POST">Unregister</button>
-                                                                </form>
-                                                            </td>
-                                                        </tr>
-                                                    </c:forEach>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </c:otherwise>
-                                </c:choose>
-                            </div>
-
-                            <br />
-
-                            <a href='${paBaseUrl}/search'>Search for more genes to register</a>
-
+                                                        <a href='${paBaseUrl}/genes/${gene.mgiAccessionId}#order'>Yes</a>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <a href='${paBaseUrl}/genes/${gene.mgiAccessionId}#order'>No</a>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </td>
+                                            <td>
+                                                <form id="formUnregister" style="border: 0;">
+                                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                                    <button
+                                                            formaction="${paBaseUrl}/unregistration/gene/${gene.mgiAccessionId}"
+                                                            class="btn btn-block btn-primary btn-default"
+                                                            type="submit"
+                                                            formmethod="POST">
+                                                        Stop following
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row mb-5 ml-3 mr-3">
+                <a
+                        href="${paBaseUrl}/rilogout"
+                        title="Log out of My Genes">
+                    Logout
+                </a>
+                <a
+                        class="btn btn-outline-secondary mx-auto"
+                        href="${paBaseUrl}/resetPasswordRequest"
+                        title="Reset My Genes password">
+                    Reset password
+                </a>
+                <a
+                        class="btn btn-outline-danger"
+                        href="${paBaseUrl}/accountDeleteRequest"
+                        title="Delete My Genes account and all of my followed genes"
+                        style="float: right;">
+                    Delete account
+                </a>
             </div>
         </div>
 

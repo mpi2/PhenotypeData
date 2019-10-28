@@ -123,7 +123,6 @@ public class GenesController {
 
         cmsBaseUrl = config.get("cmsBaseUrl");
         pharosService = new PharosService();
-
     }
 
     HttpProxy proxy = new HttpProxy();
@@ -293,51 +292,25 @@ public class GenesController {
             LOGGER.error("ERROR: ", e);
         }
 
+        // MY GENES FOLLOWING (REGISTER INTEREST)
         boolean loggedIn = false;
+        boolean following = false;
         try {
 
             loggedIn = riUtils.isLoggedIn();
+            if (loggedIn) {
+                following = riUtils.getGeneAccessionIds().contains(acc);
+            }
 
         } catch (Exception e) {
             // Nothing to do. Handle as unauthenticated.
         }
 
-        // Use Register Interest authenticated endpoint
-        String paBaseUrl = config.get("paBaseUrl");
-        String registerButtonText = "Login to register interest";
-        String registerButtonAnchor = new StringBuilder()
-                .append(paBaseUrl).append("/authenticated")
-                .toString();
-        String formMethod = "GET";
+        model.addAttribute("paBaseUrl", config.get("paBaseUrl"));
+        model.addAttribute("acc", acc);
+        model.addAttribute("isLoggedIn", loggedIn);
+        model.addAttribute("isFollowing", following);
 
-        String registerButtonId = acc;
-        String registerIconClass = "fa fa-sign-in";
-
-        if (loggedIn) {
-
-            formMethod = "POST";
-
-            List<String> geneAccessionIds = riUtils.getGeneAccessionIds();
-
-            if (geneAccessionIds.contains(acc)) {
-
-                registerIconClass = "fa fa-sign-out";
-                registerButtonText = "Unregister interest";
-                registerButtonAnchor = paBaseUrl + "/unregistration/gene/" + acc;
-
-            } else {
-
-                registerIconClass = "fa fa-sign-in";
-                registerButtonText = "Register interest";
-                registerButtonAnchor = paBaseUrl + "/registration/gene/" + acc;
-            }
-        }
-
-        model.addAttribute("registerButtonText", registerButtonText);
-        model.addAttribute("registerButtonAnchor", registerButtonAnchor);
-        model.addAttribute("registerButtonId", registerButtonId);
-        model.addAttribute("registerIconClass", registerIconClass);
-        model.addAttribute("formMethod", formMethod);
 
         try {
             getExperimentalImages(acc, model);
