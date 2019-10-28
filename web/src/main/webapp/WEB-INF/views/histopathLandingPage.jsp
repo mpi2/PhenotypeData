@@ -55,13 +55,33 @@
                     },
                 });
 
+                var url='${baseUrl}/histopath/';
                 $('#heatmap tbody').on('click', 'tr', function () {
                     var data = table.row( this ).data();
-                    var url='${baseUrl}/histopath/'+data[0];
+                    url=url+data[0];
                     var win = window.open(url, '_blank');
                     win.focus();
                 } );
 
+                <%--$('#heatmap tbody').on( 'click', 'td', function () {--%>
+                <%--    var idx = table.cell( this ).index().column;--%>
+                <%--    var idxRow = table.cell( this ).index().row;--%>
+                <%--    var title = table.column( idx ).header();--%>
+                <%--    url=url+'#'+$(title).text();--%>
+                <%--    alert( 'Column title clicked on: col index '+idx+' row index='+idxRow );--%>
+                <%--} );--%>
+
+                table.on('click', 'tbody td', function() {
+
+                    //get textContent of the TD
+                    console.log('TD cell textContent : ', this.textContent)
+                    console.log('colIndex='+this.cellIndex+' rowIndex='+this.parentNode.rowIndex);
+                    var anatomy = table.column( this.cellIndex ).header();
+                    var mgiAccession=table.row(this.parentNode.rowIndex);
+                    //get the value of the TD using the API
+                    console.log('value by API : ', table.cell({ row: this.parentNode.rowIndex, column : this.cellIndex }).data());
+                    console.log('anatomy='+anatomy+' accession='+mgiAccession);
+                })
 
 
                 });
