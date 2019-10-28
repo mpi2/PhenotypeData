@@ -10,9 +10,7 @@
             href="${baseUrl}/search/gene?kw=*">Genes</a> &raquo; ${gene.markerSymbol}</jsp:attribute>
     <jsp:attribute name="bodyTag">
         <body class="gene-node no-sidebars small-header">
-
-        </jsp:attribute>
-
+    </jsp:attribute>
 
     <jsp:attribute name="header">
         		<script type="text/javascript">
@@ -213,13 +211,53 @@
         <div class="container data-heading">
             <div class="row row-shadow">
                 <div class="col-12 no-gutters">
-                    <h2>Gene: ${gene.markerSymbol}
-                            <a href="${cmsBaseUrl}/data/summary/" title="Log in to follow">
-                                <i class="fas fa-user-alt" style="float: right; color: #212529;"></i>
-                            </a>
-                            <a href="${cmsBaseUrl}/help/gene-page/" target="_blank">
-                                <i class="fa fa-question-circle" style="float: right; color: #212529;"></i>
-                            </a>
+                    <h2 style="float: left">Gene: ${gene.markerSymbol}</h2>
+                    <h2>
+                        <form>
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+
+                            <c:choose>
+                                <c:when test="${not empty isLoggedIn and isLoggedIn}">
+                                    <c:choose>
+                                        <c:when test="${isFollowing}">
+                                            <button
+                                                    formaction="${paBaseUrl}/unregistration/gene/${acc}?target=${paBaseUrl}/genes/${acc}"
+                                                    title="You are following ${gene.markerSymbol}. Click to stop following."
+                                                    class="btn btn-outline-secondary"
+                                                    type="submit"
+                                                    formmethod="post"
+                                                    style="float: right;">
+                                                Stop following
+                                            </button>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <button
+                                                    formaction="${paBaseUrl}/registration/gene/${acc}?target=${paBaseUrl}/genes/${acc}"
+                                                    title="Click to follow ${gene.markerSymbol}"
+                                                    class="btn btn-primary"
+                                                    type="submit"
+                                                    formmethod="post"
+                                                    style="float: right">
+                                                Follow
+                                            </button>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </c:when>
+                                <c:otherwise>
+                                    <button
+                                            formaction="${paBaseUrl}/rilogin?target=${paBaseUrl}/genes/${acc}"
+                                            title="Log in to My genes"
+                                            class="btn btn-primary"
+                                            type="submit"
+                                            formmethod="get"
+                                            style="float: right;">
+                                        Log in to follow
+                                    </button>
+                                </c:otherwise>
+                            </c:choose>
+                        </form>
+                        <a href="${cmsBaseUrl}/help/gene-page/" target="_blank">
+                            <i class="fa fa-question-circle" style="float: right; color: #212529; padding-right: 10px;"></i></a>
                     </h2>
                 </div>
             </div>
@@ -752,7 +790,6 @@
                                 });*/
             });
         </script>
-
 
     </jsp:body>
 
