@@ -23,14 +23,17 @@ import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import uk.ac.ebi.phenotype.generic.util.RegisterInterestUtils;
 
+import javax.annotation.Resource;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,13 +43,19 @@ public class SearchController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final SearchGeneService searchGeneService;
+    private final RegisterInterestUtils  riUtils;
+    private final SearchGeneService      searchGeneService;
     private final SearchPhenotypeService searchPhenotypeService;
 
-    @Autowired
-    public SearchController(SearchGeneService searchGeneService, SearchPhenotypeService searchPhenotypeService) {
+    @Resource(name = "globalConfiguration")
+    Map<String, String> config;
+
+    @Inject
+    public SearchController(SearchGeneService searchGeneService, SearchPhenotypeService searchPhenotypeService,
+                            RegisterInterestUtils riUtils, String paBaseUrl) {
         this.searchGeneService = searchGeneService;
         this.searchPhenotypeService = searchPhenotypeService;
+        this.riUtils = riUtils;
     }
 
 
@@ -98,6 +107,8 @@ public class SearchController {
 
 
 
+
+
     private Model searchGenes(String term, Integer start, Integer rows, Model model) throws SolrServerException, IOException {
 
     	if(term.isEmpty()) {
@@ -105,6 +116,7 @@ public class SearchController {
     	}
         QueryResponse response = searchGeneService.searchGenes(term, start, rows);
         final List<GeneDTO> genes = response.getBeans(GeneDTO.class);
+        final Map<String, Boolean> isFollowing = new HashMap<>();
 
         if (genes.size()<1) {
             QueryResponse suggestionsResponse = searchGeneService.searchSuggestions(term, 3);
@@ -116,15 +128,26 @@ public class SearchController {
             model.addAttribute("geneSuggestions", suggestions);
         }
 
+        boolean isLoggedIn = riUtils.isLoggedIn();
+        List<String> followedAccessionIds = riUtils.getGeneAccessionIds();
+
         // Map gene status from "Phenotype Complete" to "Phenotype data available"
         genes.forEach(gene -> {
             if (gene.getLatestPhenotypeStatus() != null && gene.getLatestPhenotypeStatus().equalsIgnoreCase("Phenotyping Complete")) {
                 gene.setLatestPhenotypeStatus("Phenotype data available");
             }
+            if (isLoggedIn) {
+                isFollowing.put(gene.getMgiAccessionId(), followedAccessionIds.contains(gene.getMgiAccessionId()) ? true : false);
+            }
         });
 
         model.addAttribute("genes", genes);
         model.addAttribute("numberOfResults", Long.toString(response.getResults().getNumFound()));
+
+        // Register Interest model requirements
+        model.addAttribute("paBaseUrl", config.get("paBaseUrl"));
+        model.addAttribute("isLoggedIn", isLoggedIn);
+        model.addAttribute("isFollowing", isFollowing);
 
         return model;
     }
@@ -158,6 +181,4 @@ public class SearchController {
 
         return model;
     }
-
-
 }

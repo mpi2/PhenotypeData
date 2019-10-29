@@ -18,13 +18,17 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+# Use SimpleItk for dicom images use readDicom from below
+import qc_helper as helper
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Run script to verify integrity of image files')
     parser.add_argument('-d', '--rootDir', dest='rootDir',
                         help='Root directory to start search for images')
     parser.add_argument('-t', '--filetypes', dest='filetypes',
-                        default='jpg,jpeg,tif,tiff,png',
+                        default='jpg,jpeg,tif,tiff,png,dcm',
                         help='comma separated list of filetypes to verify')
     parser.add_argument('--logfile-path', dest='logfilePath', default=None,
                         help='path to save logfile')
@@ -100,7 +104,10 @@ if __name__ == "__main__":
     corrupt_files = []
     for f in nfs_file_list:
         try:
-            im = plt.imread(f)
+            if f.endswith('dcm'):
+                helper.readDicom(f)
+            else:
+                im = plt.imread(f)
         except Exception as e:
             logger.error("Could not open " + f + ". Error was: " + str(e))
             n_invalid += 1

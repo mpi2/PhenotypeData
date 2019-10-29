@@ -111,7 +111,57 @@
 
                                 <c:forEach var="gene" items="${genes}">
                                     <div class="search-result">
-                                        <a href="${baseUrl}/genes/${gene.mgiAccessionId}"><h4>${gene.markerSymbol}</h4></a>
+                                        <div class="row">
+                                            <div class="col-12 col-md-6">
+                                                <a href="${baseUrl}/genes/${gene.mgiAccessionId}"><h4>${gene.markerSymbol}</h4></a>
+                                            </div>
+
+                                            <div class="col-12 col-md-6">
+                                                <form>
+                                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+
+                                                    <c:choose>
+                                                        <c:when test="${not empty isLoggedIn and isLoggedIn}">
+                                                            <c:choose>
+                                                                <c:when test="${isFollowing[gene.mgiAccessionId]}">
+                                                                    <button
+                                                                            formaction="${paBaseUrl}/unregistration/gene/${gene.mgiAccessionId}?target=${paBaseUrl}/search"
+                                                                            title="You are following ${gene.markerSymbol}. Click to stop following."
+                                                                            class="btn btn-outline-secondary"
+                                                                            type="submit"
+                                                                            formmethod="post"
+                                                                            style="float: right;">
+                                                                        Stop following
+                                                                    </button>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <button
+                                                                            formaction="${paBaseUrl}/registration/gene/${gene.mgiAccessionId}?target=${paBaseUrl}/search"
+                                                                            title="Click to follow ${gene.markerSymbol}"
+                                                                            class="btn btn-primary"
+                                                                            type="submit"
+                                                                            formmethod="post"
+                                                                            style="float: right">
+                                                                        Follow
+                                                                    </button>
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <button
+                                                                    formaction="${paBaseUrl}/rilogin?target=${paBaseUrl}/search"
+                                                                    title="Log in to My genes"
+                                                                    class="btn btn-primary"
+                                                                    type="submit"
+                                                                    formmethod="get"
+                                                                    style="float: right;">
+                                                                Log in to follow
+                                                            </button>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </form>
+                                            </div>
+                                        </div>
                                         <div class="row">
                                             <div class="col-12 col-md-6">
                                                 <p><b>Name: </b>${gene.markerName}<br>
@@ -130,7 +180,6 @@
                                                     <c:if test="${fn:trim(gene.latestMouseStatus) != ''}">${gene.latestMouseStatus}<br></c:if>
                                                     <c:if test="${fn:trim(gene.latestPhenotypeStatus) != ''}">${gene.latestPhenotypeStatus}</c:if>
                                                 </p>
-
                                             </div>
                                         </div>
                                     </div>
