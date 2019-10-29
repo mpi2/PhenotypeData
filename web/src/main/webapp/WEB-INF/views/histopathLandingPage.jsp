@@ -2,13 +2,14 @@
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
-<t:genericpage>
+<t:genericpage-histopath>
 
     <jsp:attribute name="title">Histopath Landing Page</jsp:attribute>
     <jsp:attribute name="header">
-   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.css"/>
 
-<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.js"></script>
+<%--        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedcolumns/3.3.0/css/fixedColumns.dataTables.min.css"/>--%>
+<%--        <script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"/>--%>
+<%--        <script type="text/javascript" src="https://cdn.datatables.net/fixedcolumns/3.3.0/js/dataTables.fixedColumns.min.js"/>--%>
 
 
     </jsp:attribute>
@@ -30,11 +31,13 @@
         <script>
 
             $(document).ready( function () {
+                console.log('documen is ready');
                 var table = $('#heatmap').DataTable({
-                    // "columnDefs": [
-                    //     { "width": "2%", "targets": 0 }
-                    // ], only use if scroll set to false
-                    "scrollX": true,
+                    //scrollY:        300,
+                    scrollX:        true,
+                    //scrollCollapse: true,
+                    paging:         true,
+                    fixedColumns:   true,
                     'createdRow': function(row, data, index){
                         $(row).find('td:eq(1)').css('background-color', 'Orange');
 
@@ -181,5 +184,5 @@
     </jsp:body>
 
 
-    </t:genericpage>
+    </t:genericpage-histopath>
 
