@@ -41,8 +41,8 @@
                             <ul>
                                 <li>Create a new account</li>
                                 <li>Change or reset your password</li>
-                                <li>Follow and unfollow genes of interest</li>
-                                <li>Delete your account and your interest in all of your followed genes</li>
+                                <li>View and manage the list of genes you've followed</li>
+                                <li>Delete your account and stop following all genes</li>
                             </ul>
                         </p>
 
