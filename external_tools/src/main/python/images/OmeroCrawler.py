@@ -65,6 +65,8 @@ class OmeroCrawler:
                 if context is not None:
                     #http://www.ebi.ac.uk/mi/media/omero/webgateway/render_thumbnail/141436
                     #http://ves-oy-ca/omero/webgateway/render_thumbnail/89930/200/
+                    #temporarily replace live link from solr with omero dev link 
+                     url=url.replace('www.ebi.ac.uk/mi/media','wwwdev.ebi.ac.uk/mi/media)
                     if context == 'live':
                         #print "context is live and omero host=" + self.omeroHost 
                         url=url.replace('www.ebi.ac.uk/mi/media',self.omeroHost)
