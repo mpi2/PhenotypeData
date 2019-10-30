@@ -2,13 +2,14 @@
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
-<t:genericpage>
+<t:genericpage-histopath>
 
     <jsp:attribute name="title">Histopath Landing Page</jsp:attribute>
     <jsp:attribute name="header">
-   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.css"/>
 
-<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.js"></script>
+<%--        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedcolumns/3.3.0/css/fixedColumns.dataTables.min.css"/>--%>
+<%--        <script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"/>--%>
+<%--        <script type="text/javascript" src="https://cdn.datatables.net/fixedcolumns/3.3.0/js/dataTables.fixedColumns.min.js"/>--%>
 
 
     </jsp:attribute>
@@ -30,11 +31,15 @@
         <script>
 
             $(document).ready( function () {
+                console.log('documen is ready');
                 var table = $('#heatmap').DataTable({
-                    // "columnDefs": [
-                    //     { "width": "2%", "targets": 0 }
-                    // ], only use if scroll set to false
-                    "scrollX": true,
+                    "pageLength": 100,
+                    scrollY:        500,
+                    scrollX:        true,
+                    fixedHeader: true,
+                    //scrollCollapse: true,
+                    paging:         true,
+                    fixedColumns:   true,
                     'createdRow': function(row, data, index){
                         $(row).find('td:eq(1)').css('background-color', 'Orange');
 
@@ -55,13 +60,33 @@
                     },
                 });
 
+                var url='${baseUrl}/histopath/';
                 $('#heatmap tbody').on('click', 'tr', function () {
                     var data = table.row( this ).data();
-                    var url='${baseUrl}/histopath/'+data[0];
+                    url=url+data[0];
                     var win = window.open(url, '_blank');
                     win.focus();
                 } );
 
+                <%--$('#heatmap tbody').on( 'click', 'td', function () {--%>
+                <%--    var idx = table.cell( this ).index().column;--%>
+                <%--    var idxRow = table.cell( this ).index().row;--%>
+                <%--    var title = table.column( idx ).header();--%>
+                <%--    url=url+'#'+$(title).text();--%>
+                <%--    alert( 'Column title clicked on: col index '+idx+' row index='+idxRow );--%>
+                <%--} );--%>
+
+                table.on('click', 'tbody td', function() {
+
+                    //get textContent of the TD
+                    console.log('TD cell textContent : ', this.textContent)
+                    console.log('colIndex='+this.cellIndex+' rowIndex='+this.parentNode.rowIndex);
+                    var anatomy = table.column( this.cellIndex ).header();
+                    var mgiAccession=table.row(this.parentNode.rowIndex);
+                    //get the value of the TD using the API
+                    console.log('value by API : ', table.cell({ row: this.parentNode.rowIndex, column : this.cellIndex }).data());
+                    console.log('anatomy='+anatomy+' accession='+mgiAccession);
+                })
 
 
                 });
@@ -161,5 +186,5 @@
     </jsp:body>
 
 
-    </t:genericpage>
+    </t:genericpage-histopath>
 

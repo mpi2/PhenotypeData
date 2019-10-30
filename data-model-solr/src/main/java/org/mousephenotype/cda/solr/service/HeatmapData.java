@@ -9,6 +9,16 @@ import java.util.List;
 public class HeatmapData {
     private List<String> parameterNames;
 
+    public List<String> getMgiAccessions() {
+        return mgiAccessions;
+    }
+
+    public void setMgiAccessions(List<String> mgiAccessions) {
+        this.mgiAccessions = mgiAccessions;
+    }
+
+    private List<String> mgiAccessions;
+
     public List<List<Integer>> getRows() {
         return rows;
     }

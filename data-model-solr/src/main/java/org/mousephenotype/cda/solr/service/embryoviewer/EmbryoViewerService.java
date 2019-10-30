@@ -131,9 +131,11 @@ public class EmbryoViewerService {
 
 
         List<String> geneList=new ArrayList<>();
+        List<String> mgiAccessionsList=new ArrayList<>();
         List<List<Integer>> rows=new ArrayList<List<Integer>>();
         for(EmbryoViewerService.GeneEntry gene: genes){
             geneList.add(gene.symbol);
+            mgiAccessionsList.add(gene.mgiAccessionId);
             ArrayList<Integer> row = new ArrayList<Integer>();
             int typeOfData=2;
             if(gene.hasAutomatedAnalysis){
@@ -157,6 +159,7 @@ public class EmbryoViewerService {
             rows.add(row);
         }
         HeatmapData heatmapData=new HeatmapData(columnList,geneList,rows);
+        heatmapData.setMgiAccessions(mgiAccessionsList);
         return heatmapData;
     }
 

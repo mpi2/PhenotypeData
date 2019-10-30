@@ -18,13 +18,17 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+# Use SimpleItk for dicom images use readDicom from below
+import qc_helper as helper
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Run script to verify integrity of image files')
     parser.add_argument('-d', '--rootDir', dest='rootDir',
                         help='Root directory to start search for images')
     parser.add_argument('-t', '--filetypes', dest='filetypes',
-                        default='jpg,jpeg,tif,tiff,png',
+                        default='jpg,jpeg,tif,tiff,png,dcm',
                         help='comma separated list of filetypes to verify')
     parser.add_argument('--logfile-path', dest='logfilePath', default=None,
                         help='path to save logfile')
@@ -100,15 +104,32 @@ if __name__ == "__main__":
     corrupt_files = []
     for f in nfs_file_list:
         try:
-            im = plt.imread(f)
+            if f.endswith('dcm'):
+                helper.readDicom(f)
+            else:
+                im = plt.imread(f)
         except Exception as e:
             logger.error("Could not open " + f + ". Error was: " + str(e))
             n_invalid += 1
-            corrupt_files.append(f+'\n')
+            corrupt_files.append(os.path.abspath(f)+'\n')
 
     logger.info("Number of invalid files: " + str(n_invalid))
     
     if n_invalid > 0 and args.outputPath is not None:
+        if os.path.isfile(args.outputPath):
+            try:
+                with open(args.outputPath, 'rt') as fid:
+                    fnames = [f.strip('\n') for f in fid.readlines()]
+                    for f in fnames:
+                        corrupt_files.append(os.path.abspath(f) + '\n')
+            except Exception as e:
+                print(args.outputPath + " already exists. However, " + \
+                      "attempt to read it and merge current results " + \
+                      "with it failed. Will therefore overwrite it. " + \
+                      "Error was: " + str(e))
+            set_corrupt_files = set(corrupt_files)
+            corrupt_files = list(set_corrupt_files)
+            corrupt_files.sort()
         try:
             with open(args.outputPath, 'wt') as fid:
                 fid.writelines(corrupt_files)
