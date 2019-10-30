@@ -2,7 +2,7 @@
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
-<t:genericpage>
+<t:genericpage-landing>
 
     <jsp:attribute name="title">Embryo Heat Map</jsp:attribute>
     <jsp:attribute name="header">
@@ -36,20 +36,20 @@
                     // ], only use if scroll set to false
                     //"scrollX": true,
                     'createdRow': function(row, data, index){
-                        $(row).find('td:eq(1)').css('background-color', 'Orange');
-
+                        //$(row).find('td:eq(1)').css('background-color', 'grey');
+                        $(row).css("cursor", "pointer");
                         for(var i=1; i<data.length; i++) {
                             if (data[i] == 0) {
-                                $(row).find('td:eq('+i+')').css('background-color', '#fff').css('color', 'rgba(0, 0, 0, 0.0)').css("pointer-events", "none");
+                                $(row).find('td:eq('+i+')').css('background-color', '#fff').css('color', 'rgba(0, 0, 0, 0.0)');
                             }else
                             if (data[i] == 1) {
-                                $(row).find('td:eq('+i+')').css('background-color', '#808080').css('color', 'rgba(0, 0, 0, 0.0)').css("pointer-events", "none");;
+                                $(row).find('td:eq('+i+')').css('background-color', '#808080').css('color', 'rgba(0, 0, 0, 0.0)');
                             }else
                             if (data[i] == 2) {
-                                $(row).find('td:eq('+i+')').css('background-color', '#17a2b8').css('color', 'rgba(0, 0, 0, 0.0)').css('cursor','pointer');
+                                $(row).find('td:eq('+i+')').css('background-color', '#17a2b8').css('color', 'rgba(0, 0, 0, 0.0)');
                             }else
                             if (data[i] == 4) {
-                                $(row).find('td:eq('+i+')').css('background-color', '#ce6211').css('color', 'rgba(0, 0, 0, 0.0)').css('cursor','pointer');
+                                $(row).find('td:eq('+i+')').css('background-color', '#ce6211').css('color', 'rgba(0, 0, 0, 0.0)');
                             }
                         }
                     },
@@ -57,7 +57,15 @@
 
                 $('#heatmap tbody').on('click', 'tr', function () {
                     var data = table.row( this ).data();
-                    var url='${baseUrl}/histopath/'+data[0];
+                    var isAnalysed= false;
+                    var i;
+                    for(i=0; i<data.length; i++){
+                        if(data[i]==4){
+                            isAnalysed=true;
+                        }
+                    }
+                    var url='https://www.mousephenotype.org/embryoviewer?mgi='+data[1];
+                    if(isAnalysed)url='https://www.mousephenotype.org/embryoviewer/?mgi=MGI:1932915&wn=Average&wov=jacobian';
                     var win = window.open(url, '_blank');
                     win.focus();
                 } );
@@ -116,7 +124,8 @@
                                 <thead>
                                 <tr>
                                     <th>Gene</th>
-                                    <c:forEach items="${anatomyHeaders}" var="parameter">
+                                    <th>Accession</th>
+                                    <c:forEach items="${modalityHeaders}" var="parameter">
                                         <th>${parameter}</th>
                                     </c:forEach>
 
@@ -126,6 +135,7 @@
                                 <c:forEach var="arow" items="${rows}" varStatus="status">
                                     <tr>
                                         <td>${geneSymbols[status.index]}</td>
+                                        <td>${mgiAccessions[status.index]}</td>
                                             <c:forEach var="acolumn" items="${arow}">
                                                 <td>${acolumn}</td>
                                             </c:forEach>
@@ -135,7 +145,7 @@
                                 <tfoot>
                                 <tr>
                                     <th>Gene</th>
-                                    <c:forEach var="parameter" items="${anatomyHeaders}">
+                                    <c:forEach var="parameter" items="${modalityHeaders}">
                                         <th>${parameter}</th>
                                     </c:forEach>
                                 </tr>
@@ -157,5 +167,5 @@
     </jsp:body>
 
 
-    </t:genericpage>
+    </t:genericpage-landing>
 

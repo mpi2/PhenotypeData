@@ -208,8 +208,9 @@ public class LandingPageController {
 		//JSONArray anatomyArray = null;
 		//anatomyArray= new JSONArray(heatmapData.getParameterNames());
 		//JSONArray geneSymbolsArray=new JSONArray(heatmapData.getGeneSymbols());
-		model.addAttribute("anatomyHeaders", heatmapData.getColumnHeaders());
+		model.addAttribute("modalityHeaders", heatmapData.getColumnHeaders());
 		model.addAttribute("geneSymbols", heatmapData.getGeneSymbols());
+		model.addAttribute("mgiAccessions", heatmapData.getMgiAccessions());
 		model.addAttribute("rows", heatmapData.getRows());
 		return "embryo_heatmap";
 	}

@@ -50,10 +50,14 @@
     <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/object-fit-images/3.2.4/ofi.min.js'></script>
     <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js' async></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedcolumns/3.3.0/css/fixedColumns.dataTables.min.css"/>
 
-<%--    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.css"/>--%>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
 
-<%--    <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.js"></script>--%>
+            <script type="text/javascript" src="https://cdn.datatables.net/fixedcolumns/3.3.0/js/dataTables.fixedColumns.min.js"/>
+
+
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.css">
     <script src="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.js"></script>
     <script src="https://unpkg.com/bootstrap-table@1.15.4/dist/extensions/mobile/bootstrap-table-mobile.min.js"></script>
@@ -69,11 +73,11 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
 <%--    <script type='text/javascript' src="${baseUrl}/js/general/toggle.js?v=${version}" async></script>--%>
-    <script type="text/javascript" src="${baseUrl}/js/head.min.js?v=${version}" async></script>
-    <script type='text/javascript' src='${baseUrl}/js/buffaloZoo.js' async></script>
-    <script type="text/javascript" src="${baseUrl}/js/default.js?v=${version}" async></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.css" async/>
-    <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.js" async></script>
+<%--    <script type="text/javascript" src="${baseUrl}/js/head.min.js?v=${version}" async></script>--%>
+<%--    <script type='text/javascript' src='${baseUrl}/js/buffaloZoo.js' async></script>--%>
+<%--    <script type="text/javascript" src="${baseUrl}/js/default.js?v=${version}" async></script>--%>
+<%--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.css" async/>--%>
+<%--    <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.js" async></script>--%>
 
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
      replaced with below as unable to get his due to CORS or licence?-->
@@ -107,13 +111,13 @@
     <c:if test="${entry.key != 'internalSolrUrl' && entry.key != 'mappedHostname' && entry.key != 'isProxied'}">var ${entry.key} = "${entry.value}";</c:if></c:forEach>
 
 
-    $(document).ready(function () {
-        $.widget.bridge('uibutton', $.ui.button);
-        $.widget.bridge('uitooltip', $.ui.tooltip);
-        $('[data-toggle="tooltip"]').tooltip({
-            trigger : 'hover'
-        });
-    });
+    // $(document).ready(function () {
+    //     $.widget.bridge('uibutton', $.ui.button);
+    //     $.widget.bridge('uitooltip', $.ui.tooltip);
+    //     $('[data-toggle="tooltip"]').tooltip({
+    //         trigger : 'hover'
+    //     });
+    // });
 </script>
 
 
@@ -212,10 +216,10 @@
 
 <jsp:invoke fragment="addToFooter"/>
 
-<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js?v=${version}'></script>
-<script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>
-<script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>
-<script type='text/javascript' src='${baseUrl}/js/documentationConfig.js?v=${version}'></script>
+<%--<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js?v=${version}'></script>--%>
+<%--<script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>--%>
+<%--<script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>--%>
+<%--<script type='text/javascript' src='${baseUrl}/js/documentationConfig.js?v=${version}'></script>--%>
 
 </body>
 
