@@ -418,7 +418,8 @@ public class RegisterInterestController {
     public String setPasswordGet(
             ModelMap model,
             HttpServletRequest request,
-            @RequestParam("token") String token) {
+            @RequestParam("token") String token,
+            @RequestParam(value = "action", defaultValue = "Reset password") String action) {
 
         // Look up email address from reset_credentials table
         ResetCredentials resetCredentials = riSqlUtils.getResetCredentials(token);
@@ -445,6 +446,7 @@ public class RegisterInterestController {
 
         model.addAttribute("token", token);
         model.addAttribute("emailAddress", resetCredentials.getAddress());
+        model.addAttribute("action", action);
 
         return "ri_setPasswordPage";
     }
@@ -539,11 +541,11 @@ public class RegisterInterestController {
         return "ri_deleteAccountConfirmationPage";
     }
 
-    // Create a GET to avoid HttpError 405 when reloading the page via the BACK button.
-    @RequestMapping(value = "/accountDeleteRequest", method = RequestMethod.GET)
-    public String accountDeleteRequest() {
 
-        return "redirect:" + paBaseUrl + "/search";
+    @RequestMapping(value = "/accountDeleteRequest", method = RequestMethod.GET)
+    public String accountDeleteRequest(HttpServletRequest request, ModelMap model) {
+
+        return accountDeleteRequestPost(model);
     }
 
 

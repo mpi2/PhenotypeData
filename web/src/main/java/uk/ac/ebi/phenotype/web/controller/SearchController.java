@@ -106,9 +106,6 @@ public class SearchController {
     }
 
 
-
-
-
     private Model searchGenes(String term, Integer start, Integer rows, Model model) throws SolrServerException, IOException {
 
     	if(term.isEmpty()) {

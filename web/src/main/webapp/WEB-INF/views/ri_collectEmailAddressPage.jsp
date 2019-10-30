@@ -37,6 +37,7 @@
 
             <div class="row row-over-shadow">
                 <div class="col-md-12 white-bg">
+                    <h2 class="title">Collect e-mail address</h2>
                     <div class="login-form row ml-0 mr-0 mb-2">
                         <form
                                 class="col-md-6"
