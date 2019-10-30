@@ -42,6 +42,7 @@
         <script type="text/javascript">
             var gene_id = '${acc}';
             var monarchUrl = '${monarchUrl}';
+            var isFollowing = '${isFollowing}';
 
             $(document).ready(function () {
                 var heatmap_generated = 0;
@@ -107,11 +108,30 @@
                 });
 
                 // registerInterest();*/
+                // initialiseFollowing(isFollowing);
 
             });
 
+            function initialiseFollowing(isFollowing) {
+                alert(isFollowing);
+                if (isFollowing == true) {
+                    $('#is_following')
+                        .removeClass('d-none')
+                        .addClass('d-block')
+                        .click(function () {
+                            alert("I'm following");
+                    });
+                } else {
+                    $('#not_following')
+                        .removeClass('d-none')
+                        .addClass('d-block')
+                        .click(function () {
+                        alert("I'm NOT following");
+                    });
+                }
+            }
 
-            function registerInterest() {
+            function registerInterest2() {
 
                 $('a.regInterest').click(function () {
 
@@ -147,7 +167,7 @@
                     }
 
                     function riError() {
-                        window.alert('Unable to access register interest service at this time.');
+                        window.alert('Unable to follow/stop following.');
                     }
 
                     if (endpoint.includes('login?target')) {
@@ -221,9 +241,14 @@
                                     <c:choose>
                                         <c:when test="${isFollowing}">
                                             <button
+                                                    id="is_following"
                                                     formaction="${paBaseUrl}/unregistration/gene/${acc}?target=${paBaseUrl}/genes/${acc}"
                                                     title="You are following ${gene.markerSymbol}. Click to stop following."
-                                                    class="btn btn-outline-secondary"
+                                                    class="btn btn-outline-secondary d-block"
+                                                    data-url="${paBaseUrl}/unregistration/gene/${acc}?target=${paBaseUrl}/genes/${acc}"
+                                                    data-new-btn-label=""
+                                                    data-acc="${acc}"
+                                                    data-is_following="true"
                                                     type="submit"
                                                     formmethod="post"
                                                     style="float: right;">
@@ -232,9 +257,12 @@
                                         </c:when>
                                         <c:otherwise>
                                             <button
+                                                    id="not_following"
                                                     formaction="${paBaseUrl}/registration/gene/${acc}?target=${paBaseUrl}/genes/${acc}"
                                                     title="Click to follow ${gene.markerSymbol}"
-                                                    class="btn btn-primary"
+                                                    class="btn btn-primary d-block"
+                                                    data-acc="${acc}"
+                                                    data-is_following="false"
                                                     type="submit"
                                                     formmethod="post"
                                                     style="float: right">

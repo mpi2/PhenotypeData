@@ -38,9 +38,10 @@
                         <h2>My Genes login</h2>
                         <p>
                             My Genes is a place where you can:
-                            <ul>
-                                <li>Create a new account</li>
-                                <li>Change or reset your password</li>
+                            <ul class="mt-0 pt-0">
+                                <li><a href="${paBaseUrl}/newAccountRequest">Create a new account</a></li>
+                                <li> <a href="${paBaseUrl}/resetPasswordRequest">Change or reset your password</a></li>
+                                <li> <a href="${paBaseUrl}/search">Search all genes</a></li>
                                 <li>View and manage the list of genes you've followed</li>
                                 <li>Delete your account and stop following all genes</li>
                             </ul>
@@ -106,23 +107,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="container">
-            <div class="row mt-3 mb-3">
-                <a
-                        class="btn"
-                        href="${paBaseUrl}/newAccountRequest"
-                        title="Create a new My Genes account">
-                    New account
-                </a>
-                <a
-                        class="btn ml-5"
-                        href="${paBaseUrl}/resetPasswordRequest"
-                        title="Reset My Genes password">
-                    Forgot password?
-                </a>
             </div>
         </div>
 

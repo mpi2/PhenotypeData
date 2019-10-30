@@ -16,7 +16,10 @@
                 $('#following').DataTable({
                     "scrollY":        "50vh",
                     "scrollCollapse": true,
-                    "paging":         false
+                    "paging":         false,
+                    "oLanguage": {
+                        "sSearch": "Search the table:"
+                    }
                 });
             });
         </script>
@@ -144,9 +147,16 @@
         <div class="container">
             <div class="row mb-5 ml-3 mr-3">
                 <a
+                        class="btn"
                         href="${paBaseUrl}/rilogout"
                         title="Log out of My Genes">
                     Logout
+                </a>
+                <a
+                        class="btn"
+                        href="${paBaseUrl}/search"
+                        title="Search all genes">
+                    Search all genes
                 </a>
                 <a
                         class="btn btn-outline-secondary mx-auto"
