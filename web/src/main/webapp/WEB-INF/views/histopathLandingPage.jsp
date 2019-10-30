@@ -33,7 +33,8 @@
             $(document).ready( function () {
                 console.log('documen is ready');
                 var table = $('#heatmap').DataTable({
-                    scrollY:        300,
+                    "pageLength": 100,
+                    scrollY:        500,
                     scrollX:        true,
                     fixedHeader: true,
                     //scrollCollapse: true,

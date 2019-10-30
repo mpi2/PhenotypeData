@@ -87,7 +87,7 @@ public class LandingPageController {
 	 * @throws IOException
 	 */
 	@RequestMapping("/histopath_old")
-	public String histopath(Model model) throws SolrServerException, IOException {
+	public String histopathOld(Model model) throws SolrServerException, IOException {
 		//To display the heatmap we need data in form of ints [ column , row, value ] but row starts from bottom left hand side
 		HeatmapData heatmapData = histopathService.getHeatmapData();
 		String [] headers=new String []{"blah", "bug"};
@@ -107,8 +107,8 @@ public class LandingPageController {
 	 * @throws SolrServerException
 	 * @throws IOException
 	 */
-	@RequestMapping("/histopath")
-	public String histopathdt(Model model) throws SolrServerException, IOException {
+	@RequestMapping("landing_pages/histopath")
+	public String histopath(Model model) throws SolrServerException, IOException {
 		//To display the heatmap we need data in form of ints [ column , row, value ] but row starts from bottom left hand side
 		HeatmapData heatmapData = histopathService.getHeatmapDatadt();
 		//String [] headers=new String []{"blah", "bug"};
