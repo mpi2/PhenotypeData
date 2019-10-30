@@ -96,6 +96,15 @@
             <div class="row row-over-shadow">
                 <div class="col-md-12 white-bg">
                     <div class="page-content">
+                        <h1>Embryo Viewer</h1>
+                        <p>
+                            Up to one third of homozygous knockout lines are <b>embryonic lethal</b>, which means no homozygous mice or less than expected are observed past the weaning stage (<a href="https://www.mousephenotype.org/impress/ProcedureInfo?action=list&procID=703&pipeID=7">IMPC Viability Primary Screen</a> procedure). Early death may occur during embryonic development or soon after birth, during the pre-weaning stage. For this reason, the IMPC established a systematic phenotyping pipeline to morphologically evaluate mutant embryos to ascertain the primary perturbations that cause early death and thus gain insight into gene function.
+                        </p>
+                        <p>
+                            As determined in IMPReSS (see interactive diagram <a href="https://www.mousephenotype.org/impress">here</a>), all embryonic lethal lines undergo gross morphology assessment at E12.5 (embryonic day 12.5) to determine whether defects occur earlier or later in development. A comprehensive imaging platform is then used to assess dysmorphology. Embryo gross morphology, as well as 2D and 3D imaging are actively being implemented by the IMPC for embryonic lethal lines.
+
+                            Read more in our paper on <a href="https://europepmc.org/articles/PMC5295821">High-throughput discovery of novel developmental phenotypes, Nature 2016</a>
+                        </p>
 
                         <div class="card">
                             <div class="card-header">Embryo data for every gene tested</div>
