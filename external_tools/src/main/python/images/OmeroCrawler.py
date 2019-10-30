@@ -11,7 +11,7 @@ from Solr import Solr
 
 def main(argv):
     print "running main OmeroCrawler"
-    solrRoot="http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/"
+    solrRoot="https://www.ebi.ac.uk/mi/impc/solr/"
     omeroHost='ves-ebi-cf'
     begin=0
     end=100000000
