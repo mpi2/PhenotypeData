@@ -111,11 +111,25 @@ if __name__ == "__main__":
         except Exception as e:
             logger.error("Could not open " + f + ". Error was: " + str(e))
             n_invalid += 1
-            corrupt_files.append(f+'\n')
+            corrupt_files.append(os.path.abspath(f)+'\n')
 
     logger.info("Number of invalid files: " + str(n_invalid))
     
     if n_invalid > 0 and args.outputPath is not None:
+        if os.path.isfile(args.outputPath):
+            try:
+                with open(args.outputPath, 'rt') as fid:
+                    fnames = [f.strip('\n') for f in fid.readlines()]
+                    for f in fnames:
+                        corrupt_files.append(os.path.abspath(f) + '\n')
+            except Exception as e:
+                print(args.outputPath + " already exists. However, " + \
+                      "attempt to read it and merge current results " + \
+                      "with it failed. Will therefore overwrite it. " + \
+                      "Error was: " + str(e))
+            set_corrupt_files = set(corrupt_files)
+            corrupt_files = list(set_corrupt_files)
+            corrupt_files.sort()
         try:
             with open(args.outputPath, 'wt') as fid:
                 fid.writelines(corrupt_files)
