@@ -227,10 +227,43 @@
 
         <script>
             $(document).ready(function () {
+                var getUrlParameter = function getUrlParameter(sParam) {
+                    var sPageURL = window.location.search.substring(1),
+                        sURLVariables = sPageURL.split('&'),
+                        sParameterName,
+                        i;
+
+                    for (i = 0; i < sURLVariables.length; i++) {
+                        sParameterName = sURLVariables[i].split('=');
+
+                        if (sParameterName[0] === sParam) {
+                            return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                        }
+                    }
+                };
+
+                var anatomy=getUrlParameter("anatomy");
+                if(anatomy!==undefined){
+                    anatomy=anatomy.replace('\"','').replace('\"','');//for some of the anatomy terms they have spaces
+                    console.log('anatomy Param='+anatomy);
+                }
+
                 $('#histopath').DataTable(
                     {
                         "pageLength": 25,
-                        "order": [[6, "desc"]]
+                        "order": [[6, "desc"]],
+                        //code to highlight rows with the anatomy if specified as a parameter
+                        'createdRow': function (row, data, index) {
+                            //$(row).find('td:eq(1)').css('background-color', 'grey');
+                            $(row).css("cursor", "pointer");
+                        if(anatomy){
+                            //for (var i = 1; i < data.length; i++) {
+                                if (data[3].includes(anatomy)) {
+                                    $(row).css('background-color', 'rgb(206, 98, 17, 0.8)');
+                                }
+                           // }
+                        }
+                    }
                     //    "paging": true, lengthChange: false, "searching": false, "order": [[6, "desc"]]
                     });
             });
