@@ -81,7 +81,7 @@ public class CmsMenu extends HttpProxy {
 				// FIXME FIXME FIXME
 				// FIXME FIXME FIXME
 				// FIXME FIXME FIXME
-//				publicMenu = prependToMenu(publicMenu);
+				publicMenu = prependToMenu(publicMenu);
 				// FIXME FIXME FIXME
 				// FIXME FIXME FIXME
 				// FIXME FIXME FIXME
