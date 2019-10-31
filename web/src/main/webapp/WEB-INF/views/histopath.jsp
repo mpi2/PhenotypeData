@@ -195,8 +195,7 @@
                                     <td>
                                         <c:forEach var="image" items="${histRow.imageList }">
 
-                                            <t:hist_img_display img="${image}"
-                                                                impcMediaBaseUrl="${impcMediaBaseUrl}"></t:hist_img_display>
+                                            <a href="${image.jpeg_url}"><img src="${image.thumbnail_url}"/></a>
 
                                         </c:forEach>
                                     </td>
@@ -229,7 +228,11 @@
         <script>
             $(document).ready(function () {
                 $('#histopath').DataTable(
-                    {"paging": true, lengthChange: false, "searching": false, "order": [[6, "desc"]]});
+                    {
+                        "pageLength": 25,
+                        "order": [[6, "desc"]]
+                    //    "paging": true, lengthChange: false, "searching": false, "order": [[6, "desc"]]
+                    });
             });
         </script>
     </jsp:body>

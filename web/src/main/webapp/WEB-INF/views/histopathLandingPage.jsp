@@ -60,8 +60,9 @@
                     },
                 });
 
-                var url='${baseUrl}/histopath/';
+
                 $('#heatmap tbody').on('click', 'tr', function () {
+                    var url='${baseUrl}/histopath/';
                     var data = table.row( this ).data();
                     url=url+data[0];
                     var win = window.open(url, '_blank');
