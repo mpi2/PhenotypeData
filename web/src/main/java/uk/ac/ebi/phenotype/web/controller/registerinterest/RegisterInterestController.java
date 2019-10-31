@@ -306,34 +306,12 @@ public class RegisterInterestController {
     @RequestMapping(value = "/resetPasswordRequest", method = RequestMethod.GET)
     public String resetPasswordRequest(HttpServletRequest request, ModelMap model) {
 
-        // Redirect attempt to reset password for anonymousUser account to /search.
-        if (SecurityUtils.getPrincipal().equalsIgnoreCase("anonymousUser")) {
-            return "redirect: " + paBaseUrl + "/search";
-        }
-
         HttpSession session = request.getSession();
 
         model.addAttribute("title", TITLE_RESET_PASSWORD_REQUEST);
         session.setAttribute("recaptchaPublic", recaptchaPublic);
 
         return "ri_collectEmailAddressPage";
-    }
-
-
-    @RequestMapping(value = "/changePasswordRequest", method = RequestMethod.GET)
-    public String changetPasswordRequest(HttpServletRequest request, ModelMap model) {
-
-        // Redirect attempt to reset password for anonymousUser account to /search.
-        if (SecurityUtils.getPrincipal().equalsIgnoreCase("anonymousUser")) {
-            return "redirect: " + paBaseUrl + "/search";
-        }
-
-        HttpSession session = request.getSession();
-
-        model.addAttribute("title", TITLE_RESET_PASSWORD_REQUEST);
-        session.setAttribute("recaptchaPublic", recaptchaPublic);
-
-        return "FIXMEFIXMEFIXMEri_changePasswordPage";
     }
 
 
@@ -364,6 +342,7 @@ public class RegisterInterestController {
         ActionType requestedActionType = (requestedAction.equals("Reset password") ? ActionType.RESET_PASSWORD : ActionType.NEW_ACCOUNT);
 
         String body;
+        String endpoint;
         String subject;
         String title;
 
@@ -371,30 +350,28 @@ public class RegisterInterestController {
             case NEW_ACCOUNT:
                 title = TITLE_NEW_ACCOUNT_REQUEST;
                 subject = EMAIL_SUBJECT_NEW_ACCOUNT;
+                endpoint = "newAccountRequest";
                 break;
 
             default:
                 title = TITLE_RESET_PASSWORD_REQUEST;
                 subject = EMAIL_SUBJECT_RESET_PASSWORD;
+                endpoint = "resetPasswordRequest";
                 break;
         }
 
-
         // Validate e-mail addresses are identical.
         if ( ! emailAddress.equals(repeatEmailAddress)) {
-            model.addAttribute("emailAddress", emailAddress);
-            model.addAttribute("title", title);
-            model.addAttribute("error", ERR_EMAIL_ADDRESS_MISMATCH);
-
-            return "ri_collectEmailAddressPage";
+            String urlParameters = buildUrlParameters(ERR_EMAIL_ADDRESS_MISMATCH, emailAddress,
+                                                      repeatEmailAddress, title);
+            return "redirect: " + paBaseUrl + "/" + endpoint + urlParameters;
         }
 
         // Validate that it looks like an e-mail address.
         if ( ! emailUtils.isValidEmailAddress(emailAddress)) {
-            model.addAttribute("title", title);
-            model.addAttribute("error", ERR_INVALID_EMAIL_ADDRESS);
-
-            return "ri_collectEmailAddressPage";
+            String urlParameters = buildUrlParameters(ERR_INVALID_EMAIL_ADDRESS, emailAddress,
+                                                      repeatEmailAddress, title);
+            return "redirect: " + paBaseUrl + "/" + endpoint + urlParameters;
         }
 
         // Generate and assemble email
@@ -440,9 +417,23 @@ public class RegisterInterestController {
 
         model.addAttribute("title", title);
         model.addAttribute("status", status);
-        model.addAttribute("repeatEmailAddress", emailAddress);
 
-        return "ri_collectEmailAddressPage";
+        return "ri_sendEmailStatusPage";
+    }
+
+    // This method returns a snippet like this: ?error=true&errorMessage=Bad&emailAddress=x@y.z&repeatEmailAddress=y@z.zz&title=Create
+    private String buildUrlParameters(
+            String errorMessage,
+            String emailAddress,
+            String repeatEmailAddress,
+            String title)
+    {
+        return new StringBuilder()
+                .append("?error=True")
+                .append("&errorMessage=").append(errorMessage)
+                .append("&emailAddress=").append(emailAddress)
+                .append("&repeatEmailAddress=").append(repeatEmailAddress)
+                .append("&title=").append(title).toString();
     }
 
 
