@@ -9,7 +9,7 @@
     <jsp:attribute name="title">Delete account</jsp:attribute>
 
     <jsp:attribute name="bodyTag">
-        <body class="no-sidebars small-header">
+        <body class="no-sidebars small-header
     </jsp:attribute>
 
     <jsp:attribute name="addToFooter"></jsp:attribute>
@@ -23,6 +23,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <p><a href="${paBaseUrl}">Home</a>
+                        <span class="fal fa-angle-right"></span><a href="${paBaseUrl}/summary">My Genes</a>
                         <span class="fal fa-angle-right"></span>Delete account
                     </p>
                 </div>
@@ -44,12 +45,9 @@
                                 account and all of your followed genes. Your e-mail address and followed genes will be
                                 permanently lost.</strong>
 
-                            <div class="form-actions mt-3">
-                                <input type="submit" class="btn btn-outline-danger" value="Permanently delete account" />
+                            <div class="form-actions mt-4 mb-4">
+                                <input type="submit" class="btn btn-outline-danger" value="Permanently delete my account" />
                             </div>
-
-                            <a class="btn" href="${paBaseUrl}/search">Search all genes</a>
-
                         </form>
                     </div>
                 </div>

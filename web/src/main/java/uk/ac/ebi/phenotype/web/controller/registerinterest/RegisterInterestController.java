@@ -254,6 +254,11 @@ public class RegisterInterestController {
             HttpServletRequest request,
             @PathVariable("geneAccessionId") String geneAccessionId) throws InterestException
     {
+        // Redirect attempt to register for anonymousUser account to /search.
+        if (SecurityUtils.getPrincipal().equalsIgnoreCase("anonymousUser")) {
+            return "redirect: " + paBaseUrl + "/search";
+        }
+
         String target = request.getParameter("target");
         if (target == null) {
             target = paBaseUrl + "/summary";
@@ -270,6 +275,11 @@ public class RegisterInterestController {
             HttpServletRequest request,
             @PathVariable("geneAccessionId") String geneAccessionId) throws InterestException
     {
+        // Redirect attempt to unregister for anonymousUser account to /search.
+        if (SecurityUtils.getPrincipal().equalsIgnoreCase("anonymousUser")) {
+            return "redirect: " + paBaseUrl + "/search";
+        }
+
         String target = request.getParameter("target");
         if (target == null) {
             target = paBaseUrl + "/summary";
@@ -296,6 +306,11 @@ public class RegisterInterestController {
     @RequestMapping(value = "/resetPasswordRequest", method = RequestMethod.GET)
     public String resetPasswordRequest(HttpServletRequest request, ModelMap model) {
 
+        // Redirect attempt to reset password for anonymousUser account to /search.
+        if (SecurityUtils.getPrincipal().equalsIgnoreCase("anonymousUser")) {
+            return "redirect: " + paBaseUrl + "/search";
+        }
+
         HttpSession session = request.getSession();
 
         model.addAttribute("title", TITLE_RESET_PASSWORD_REQUEST);
@@ -303,6 +318,24 @@ public class RegisterInterestController {
 
         return "ri_collectEmailAddressPage";
     }
+
+
+    @RequestMapping(value = "/changePasswordRequest", method = RequestMethod.GET)
+    public String changetPasswordRequest(HttpServletRequest request, ModelMap model) {
+
+        // Redirect attempt to reset password for anonymousUser account to /search.
+        if (SecurityUtils.getPrincipal().equalsIgnoreCase("anonymousUser")) {
+            return "redirect: " + paBaseUrl + "/search";
+        }
+
+        HttpSession session = request.getSession();
+
+        model.addAttribute("title", TITLE_RESET_PASSWORD_REQUEST);
+        session.setAttribute("recaptchaPublic", recaptchaPublic);
+
+        return "FIXMEFIXMEFIXMEri_changePasswordPage";
+    }
+
 
     @RequestMapping(value = "/newAccountRequest", method = RequestMethod.GET)
     public String newAccountRequest(HttpServletRequest request, ModelMap model) {
@@ -322,7 +355,6 @@ public class RegisterInterestController {
         @RequestParam(value = "repeatEmailAddress", defaultValue = "") String repeatEmailAddress,
         @RequestParam("requestedAction") String requestedAction
     ) {
-
         HttpSession session = request.getSession();
 
         model.addAttribute("emailAddress", emailAddress);
@@ -538,12 +570,17 @@ public class RegisterInterestController {
     public String accountDeleteRequestPost(ModelMap model) {
         model.addAttribute("emailAddress", SecurityUtils.getPrincipal());
 
-        return "ri_deleteAccountConfirmationPage";
+        return "ri_deleteAccountRequestPage";
     }
 
 
     @RequestMapping(value = "/accountDeleteRequest", method = RequestMethod.GET)
     public String accountDeleteRequest(HttpServletRequest request, ModelMap model) {
+
+        // Redirect attempt to delete anonymousUser account to /search.
+        if (SecurityUtils.getPrincipal().equalsIgnoreCase("anonymousUser")) {
+            return "redirect: " + paBaseUrl + "/search";
+        }
 
         return accountDeleteRequestPost(model);
     }
@@ -556,6 +593,11 @@ public class RegisterInterestController {
             HttpServletResponse response,
             ModelMap model
     ) {
+        // Redirect attempt to delete anonymousUser account to /search.
+        if (SecurityUtils.getPrincipal().equalsIgnoreCase("anonymousUser")) {
+            return "redirect: " + paBaseUrl + "/search";
+        }
+
         try {
 
             riSqlUtils.deleteContact(SecurityUtils.getPrincipal());
@@ -581,7 +623,7 @@ public class RegisterInterestController {
         return "redirect:" + paBaseUrl + "/search";
     }
 
-    // Create a GET to avoid HttpError 405 when reloading the page via the BACK button.
+    // Redirect attempt to delete anonymousUser account to /search.
     @RequestMapping(value = "/accountDeleteConfirmation", method = RequestMethod.GET)
     public String accountDeleteConfirmation() {
 

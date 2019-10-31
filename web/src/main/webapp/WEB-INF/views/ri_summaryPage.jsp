@@ -44,6 +44,42 @@
                 <div class="col-md-12 white-bg">
                     <div class="page-content">
                         <h2 class="title" id="top">My Genes</h2>
+                        <p>
+                            In this screen you may:
+                        <ul class="mt-0 pt-0">
+                            <li>
+                                <a
+<%--                                        class="btn"--%>
+                                        href="${paBaseUrl}/rilogout"
+                                        title="Log out of My Genes">
+                                    Logout
+                                </a>
+                            </li>
+                            <li>
+                                <a
+<%--                                        class="btn"--%>
+                                        href="${paBaseUrl}/changePasswordRequest"
+                                        title="Change your My Genes password">
+                                    Change password
+                                </a>
+                            </li>
+                            <li>
+                                <a
+<%--                                        class="btn"--%>
+                                        href="${paBaseUrl}/accountDeleteRequest"
+                                        title="Delete your My Genes account and all of your followed genes">
+                                    Delete account
+                                </a>
+                            </li>
+
+
+<%--                                <a href="${paBaseUrl}/newAccountRequest">Create a new account</a></li>--%>
+<%--                            <li> <a href="${paBaseUrl}/resetPasswordRequest">Change or reset your password</a></li>--%>
+<%--                            <li> <a href="${paBaseUrl}/search">Search all genes</a></li>--%>
+                            <li>View and manage the list of genes you've followed</li>
+<%--                            <li>Delete your account and stop following all genes</li>--%>
+                        </ul>
+                        </p>
 
                         <h4>Username: ${summary.emailAddress}</h4>
 
@@ -144,35 +180,35 @@
             </div>
         </div>
 
-        <div class="container">
-            <div class="row mb-5 ml-3 mr-3">
-                <a
-                        class="btn"
-                        href="${paBaseUrl}/rilogout"
-                        title="Log out of My Genes">
-                    Logout
-                </a>
-                <a
-                        class="btn"
-                        href="${paBaseUrl}/search"
-                        title="Search all genes">
-                    Search all genes
-                </a>
-                <a
-                        class="btn btn-outline-secondary mx-auto"
-                        href="${paBaseUrl}/resetPasswordRequest"
-                        title="Reset My Genes password">
-                    Reset password
-                </a>
-                <a
-                        class="btn btn-outline-danger"
-                        href="${paBaseUrl}/accountDeleteRequest"
-                        title="Delete My Genes account and all of my followed genes"
-                        style="float: right;">
-                    Delete account
-                </a>
-            </div>
-        </div>
+<%--        <div class="container">--%>
+<%--            <div class="row mb-5 ml-3 mr-3">--%>
+<%--                <a--%>
+<%--                        class="btn"--%>
+<%--                        href="${paBaseUrl}/rilogout"--%>
+<%--                        title="Log out of My Genes">--%>
+<%--                    Logout--%>
+<%--                </a>--%>
+<%--                <a--%>
+<%--                        class="btn"--%>
+<%--                        href="${paBaseUrl}/search"--%>
+<%--                        title="Search all genes">--%>
+<%--                    Search all genes--%>
+<%--                </a>--%>
+<%--                <a--%>
+<%--                        class="btn btn-outline-secondary mx-auto"--%>
+<%--                        href="${paBaseUrl}/resetPasswordRequest"--%>
+<%--                        title="Reset My Genes password">--%>
+<%--                    Reset password--%>
+<%--                </a>--%>
+<%--                <a--%>
+<%--                        class="btn btn-outline-danger"--%>
+<%--                        href="${paBaseUrl}/accountDeleteRequest"--%>
+<%--                        title="Delete My Genes account and all of my followed genes"--%>
+<%--                        style="float: right;">--%>
+<%--                    Delete account--%>
+<%--                </a>--%>
+<%--            </div>--%>
+<%--        </div>--%>
 
     </jsp:body>
 </t:genericpage>
