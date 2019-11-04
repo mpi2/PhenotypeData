@@ -171,6 +171,10 @@ public class RegisterInterestController {
     @RequestMapping(value = "/rilogin", method = RequestMethod.GET)
     public String rilogin(HttpServletRequest request) {
         String error = request.getParameter("error");
+        String target = request.getParameter("target");
+        if ((target == null) || (target.trim().isEmpty())) {
+            target = paBaseUrl + "/summary";
+        }
 
         if (error != null) {
             sleep(INVALID_PASSWORD_SLEEP_SECONDS);
@@ -185,6 +189,7 @@ public class RegisterInterestController {
         session.setAttribute("paBaseUrl", paBaseUrl);
         session.setAttribute("cmsBaseUrl", cmsBaseUrl);
         session.setAttribute("recaptchaPublic", recaptchaPublic);
+        session.setAttribute("target", target);
 
         return "loginPage";
     }
@@ -193,6 +198,10 @@ public class RegisterInterestController {
     @RequestMapping(value = "/rilogin", method = RequestMethod.POST)
     public String riloginPost(HttpServletRequest request) {
         String error = request.getParameter("error");
+        String target = request.getParameter("target");
+        if ((target == null) || (target.trim().isEmpty())) {
+            target = paBaseUrl + "/summary";
+        }
 
         if (error != null) {
             sleep(INVALID_PASSWORD_SLEEP_SECONDS);
@@ -202,7 +211,8 @@ public class RegisterInterestController {
         session.setAttribute("paBaseUrl", paBaseUrl);
         session.setAttribute("cmsBaseUrl", cmsBaseUrl);
 
-        return "redirect: " + paBaseUrl + "/summary";
+        return "redirect: " + target;
+//        return "redirect: " + paBaseUrl + "/summary";
     }
 
 

@@ -38,6 +38,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -178,6 +179,15 @@ public class GenesController {
         processGeneRequest(acc, model, request);
 
         return "genes";
+    }
+
+
+    @Secured("ROLE_USER")
+    @RequestMapping("/genesAuth/{acc}")
+    public String genesAuth(@PathVariable String acc, @RequestParam(value = "heatmap", required = false, defaultValue = "false") Boolean showHeatmap, Model model, HttpServletRequest request, RedirectAttributes attributes)
+            throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SQLException, SolrServerException {
+
+        return genes(acc, showHeatmap, model, request, attributes);
     }
 
     @RequestMapping("/genes/export/{acc}")

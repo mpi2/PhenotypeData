@@ -39,10 +39,15 @@
             <link rel="stylesheet" type="text/css" href="${baseUrl}/css/phenodigm2.css" async>
         <%-- End of phenodigm2 requirements --%>
 
+        <meta name="_csrf" content="${_csrf.token}"/>
+        <meta name="_csrf_header" content="${_csrf.headerName}"/>
+
         <script type="text/javascript">
             var gene_id = '${acc}';
             var monarchUrl = '${monarchUrl}';
-            var isFollowing = '${isFollowing}';
+            var paBaseUrl = '${paBaseUrl}';
+            var isLoggedIn = ${isLoggedIn};
+            var isFollowing = ${isFollowing};
 
             $(document).ready(function () {
                 var heatmap_generated = 0;
@@ -107,88 +112,101 @@
                     }
                 });
 
-                // registerInterest();*/
-                // initialiseFollowing(isFollowing);
+
+
+                registerInterest();
 
             });
 
-            function initialiseFollowing(isFollowing) {
-                alert(isFollowing);
-                if (isFollowing == true) {
-                    $('#is_following')
-                        .removeClass('d-none')
-                        .addClass('d-block')
-                        .click(function () {
-                            alert("I'm following");
-                    });
-                } else {
-                    $('#not_following')
-                        .removeClass('d-none')
-                        .addClass('d-block')
-                        .click(function () {
-                        alert("I'm NOT following");
-                    });
-                }
+            function loadCsRf() {
+                var token = $("meta[name='_csrf']").attr("content");
+                var header = $("meta[name='_csrf_header']").attr("content");
+                $(document).ajaxSend(function(e, xhr, options) {
+                    xhr.setRequestHeader(header, token);
+                });
             }
 
-            function registerInterest2() {
 
-                $('a.regInterest').click(function () {
 
-                    var anchorControl = $(this);
-                    var iconControl = $(anchorControl).find('i');
-                    var endpoint = $(anchorControl).attr('href');
-
-                    var currentAnchorText = $(anchorControl).text().trim();
-
-                    function riSuccess() {
-
-                        if (currentAnchorText.toUpperCase() === 'Unregister Interest'.toUpperCase()) {
-
-                            $(iconControl).removeClass('fa-sign-out');
-                            $(iconControl).addClass('fa-sign-in');
-
-                            endpoint = endpoint.replace('unregistration', 'registration');
-                            $(anchorControl).attr('href', endpoint);
-
-                            $(anchorControl).html('Register interest');
-
-                        } else {
-
-                            // Register -> Unregister
-                            $(iconControl).removeClass('fa-sign-in');
-                            $(iconControl).addClass('fa-sign-out');
-
-                            endpoint = endpoint.replace('registration', 'unregistration');
-                            $(anchorControl).attr('href', endpoint);
-
-                            $(anchorControl).html('Unregister interest');
-                        }
-                    }
-
-                    function riError() {
-                        window.alert('Unable to follow/stop following.');
-                    }
-
-                    if (endpoint.includes('login?target')) {
-                        $.ajax({
-                            url: endpoint,
-                            dataType: 'jsonp',
-                            beforeSend: setHeader,
-                            error: riError
-                        });
+            function registerInterest() {
+                loadCsRf();
+                if (isLoggedIn) {
+                    if (isFollowing) {
+                        setBtnFollowing("following");
                     } else {
-                        $.ajax({
-                            url: endpoint,
-                            dataType: undefined,
-                            beforeSend: undefined,
-                            success: riSuccess,
-                            error: riError
-                        });
+                        setBtnFollowing("notFollowing");
                     }
+                } else {
+                    // $('#btn-follow')
+                    setBtnFollowing("notLoggedIn");
+                }
 
-                    return false;
-                });
+                return true;
+            }
+
+            function setBtnFollowing(desired) {
+                var newHref;
+                var newAddClass;
+                var newTitle;
+                var newText;
+                var newType;
+                var newDesired;
+
+                switch(desired) {
+                    case "following":
+                        newHref = "${paBaseUrl}/unregistration/gene/${acc}";
+                        // newHref = "#";
+                        newAddClass = "btn-outline-secondary";
+                        newTitle = "You are following ${gene.markerSymbol}. Click to stop following.";
+                        newText = "Stop following";
+                        newType = "POST";
+                        newDesired = "notFollowing";
+                        break;
+
+                    case "notFollowing":
+                        newHref = "${paBaseUrl}/registration/gene/${acc}";
+                        // newHref = "#";
+                        newAddClass = "btn-primary";
+                        newTitle = "Click to follow ${gene.markerSymbol}";
+                        newText = "Follow";
+                        newType = "POST";
+                        newDesired = "following";
+                        break;
+
+                    case "notLoggedIn":
+                        <%--newHref = "${paBaseUrl}/genesAuth/${acc}";--%>
+                        <%--newAddClass = "btn-primary";--%>
+                        <%--newTitle = "Log in to My genes";--%>
+                        <%--newText = "Log in to follow";--%>
+                        <%--newType = "GET";--%>
+                        <%--// newDesired = "";--%>
+                        break;
+                }
+
+                $('#btn-follow')
+                    .attr('href', newHref)
+                    .attr('title', newTitle)
+                    .removeClass('btn-primary')
+                    .removeClass('btn-outline-secondary')
+                    .addClass(newAddClass)
+                    .text(newText)
+                    .click(function() {
+                            $.ajax({
+                                type: "POST", //newType,
+                                url: newHref,
+                                success: function() {
+                                    // alert("Success!");
+                                    registerInterest()
+                                    // setBtnFollowing(newDesired);
+                                },
+                                error: riError
+                            });
+                    });
+
+
+                function riError() {
+                    // window.alert('Unable to follow/stop following gene.');
+                }
             }
 
 
@@ -233,57 +251,76 @@
                 <div class="col-12 no-gutters">
                     <h2 style="float: left">Gene: ${gene.markerSymbol}</h2>
                     <h2>
-                        <form>
-                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                        <a
+<%--                                href="${paBaseUrl}/rilogin?target=${paBaseUrl}/genes/${acc}"--%>
+                                class="btn btn-primary"
+                                id="btn-follow"
+                                style="float: right"
+<%--                                title="Log in to My genes"--%>
+                        >
+                            Log in to follow
+                        </a>
+<%--                        <form>--%>
+<%--                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />--%>
 
-                            <c:choose>
-                                <c:when test="${not empty isLoggedIn and isLoggedIn}">
-                                    <c:choose>
-                                        <c:when test="${isFollowing}">
-                                            <button
-                                                    id="is_following"
-                                                    formaction="${paBaseUrl}/unregistration/gene/${acc}?target=${paBaseUrl}/genes/${acc}"
-                                                    title="You are following ${gene.markerSymbol}. Click to stop following."
-                                                    class="btn btn-outline-secondary d-block"
-                                                    data-url="${paBaseUrl}/unregistration/gene/${acc}?target=${paBaseUrl}/genes/${acc}"
-                                                    data-new-btn-label=""
-                                                    data-acc="${acc}"
-                                                    data-is_following="true"
-                                                    type="submit"
-                                                    formmethod="post"
-                                                    style="float: right;">
-                                                Stop following
-                                            </button>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <button
-                                                    id="not_following"
-                                                    formaction="${paBaseUrl}/registration/gene/${acc}?target=${paBaseUrl}/genes/${acc}"
-                                                    title="Click to follow ${gene.markerSymbol}"
-                                                    class="btn btn-primary d-block"
-                                                    data-acc="${acc}"
-                                                    data-is_following="false"
-                                                    type="submit"
-                                                    formmethod="post"
-                                                    style="float: right">
-                                                Follow
-                                            </button>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </c:when>
-                                <c:otherwise>
-                                    <button
-                                            formaction="${paBaseUrl}/rilogin?target=${paBaseUrl}/genes/${acc}"
-                                            title="Log in to My genes"
-                                            class="btn btn-primary"
-                                            type="submit"
-                                            formmethod="get"
-                                            style="float: right;">
-                                        Log in to follow
-                                    </button>
-                                </c:otherwise>
-                            </c:choose>
-                        </form>
+<%--                            <button--%>
+<%--                                    formaction="${paBaseUrl}/rilogin?target=${paBaseUrl}/genes/${acc}"--%>
+<%--                                    title="Log in to My genes"--%>
+<%--                                    class="btn btn-primary"--%>
+<%--                                    type="submit"--%>
+<%--                                    formmethod="get"--%>
+<%--                                    style="float: right;">--%>
+<%--                                Log in to follow--%>
+<%--                            </button>--%>
+
+<%--                            <c:choose>--%>
+<%--                                <c:when test="${not empty isLoggedIn and isLoggedIn}">--%>
+<%--                                    <c:choose>--%>
+<%--                                        <c:when test="${isFollowing}">--%>
+<%--                                            <button--%>
+<%--                                                    id="is_following"--%>
+<%--                                                    formaction="${paBaseUrl}/unregistration/gene/${acc}?target=${paBaseUrl}/genes/${acc}"--%>
+<%--                                                    title="You are following ${gene.markerSymbol}. Click to stop following."--%>
+<%--                                                    class="btn btn-outline-secondary d-block"--%>
+<%--                                                    data-url="${paBaseUrl}/unregistration/gene/${acc}?target=${paBaseUrl}/genes/${acc}"--%>
+<%--                                                    data-new-btn-label=""--%>
+<%--                                                    data-acc="${acc}"--%>
+<%--                                                    data-is_following="true"--%>
+<%--                                                    type="submit"--%>
+<%--                                                    formmethod="post"--%>
+<%--                                                    style="float: right;">--%>
+<%--                                                Stop following--%>
+<%--                                            </button>--%>
+<%--                                        </c:when>--%>
+<%--                                        <c:otherwise>--%>
+<%--                                            <button--%>
+<%--                                                    id="not_following"--%>
+<%--                                                    formaction="${paBaseUrl}/registration/gene/${acc}?target=${paBaseUrl}/genes/${acc}"--%>
+<%--                                                    title="Click to follow ${gene.markerSymbol}"--%>
+<%--                                                    class="btn btn-primary d-block"--%>
+<%--                                                    data-acc="${acc}"--%>
+<%--                                                    data-is_following="false"--%>
+<%--                                                    type="submit"--%>
+<%--                                                    formmethod="post"--%>
+<%--                                                    style="float: right">--%>
+<%--                                                Follow--%>
+<%--                                            </button>--%>
+<%--                                        </c:otherwise>--%>
+<%--                                    </c:choose>--%>
+<%--                                </c:when>--%>
+<%--                                <c:otherwise>--%>
+<%--                                    <button--%>
+<%--                                            formaction="${paBaseUrl}/rilogin?target=${paBaseUrl}/genes/${acc}"--%>
+<%--                                            title="Log in to My genes"--%>
+<%--                                            class="btn btn-primary"--%>
+<%--                                            type="submit"--%>
+<%--                                            formmethod="get"--%>
+<%--                                            style="float: right;">--%>
+<%--                                        Log in to follow--%>
+<%--                                    </button>--%>
+<%--                                </c:otherwise>--%>
+<%--                            </c:choose>--%>
+<%--                        </form>--%>
                         <a href="${cmsBaseUrl}/help/gene-page/" target="_blank">
                             <i class="fa fa-question-circle" style="float: right; color: #212529; padding-right: 10px;"></i></a>
                     </h2>
