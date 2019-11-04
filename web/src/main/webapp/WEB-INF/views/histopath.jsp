@@ -68,6 +68,9 @@
                             </div>
                         </div>
 
+                        <br/>
+                        <br/>
+
                         <table id="histopath" class="table table-sm table-striped dataTable">
 
                             <thead>

@@ -145,8 +145,8 @@
                                 </div>
                             </div>
                         </div>
-
-
+                        <br/>
+                        <br/>
 
                             <table id="heatmap" class="display cell-border compact row-border" style="font-size: 10px">
                                 <thead>
