@@ -45,7 +45,7 @@
 
                         for(var i=1; i<data.length; i++) {
                             if (data[i] == 0) {
-                                $(row).find('td:eq('+i+')').css('color', 'rgba(0, 0, 0, 0.0)').css("pointer-events", "none");
+                                $(row).find('td:eq('+i+')').css('color', 'rgba(0, 0, 0, 0.0)');
                             }else
                             if (data[i] == 1) {
                                 $(row).find('td:eq('+i+')').css('background-color', '#808080').css('color', 'rgba(0, 0, 0, 0.0)').css("pointer-events", "none");;
