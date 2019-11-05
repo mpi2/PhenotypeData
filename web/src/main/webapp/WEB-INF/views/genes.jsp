@@ -112,8 +112,8 @@
                     }
                 });
 
-                loadCsRf();
-                registerInterest();
+                // loadCsRf();
+                // registerInterest();
 
             });
 
@@ -231,15 +231,34 @@
                 <div class="col-12 no-gutters">
                     <h2 style="float: left">Gene: ${gene.markerSymbol}</h2>
                     <h2>
+<%--                        <a--%>
+<%--                                href="${paBaseUrl}/authenticated?target=${paBaseUrl}/genes/${acc}"--%>
+<%--                                class="btn btn-primary"--%>
+<%--                                id="btn-follow"--%>
+<%--                                style="float: right"--%>
+<%--                                title="Log in to My genes"--%>
+<%--                        >--%>
+<%--                            Log in to follow--%>
+<%--                        </a>--%>
+
                         <a
-                                href="${paBaseUrl}/genesAuth/${acc}"
-                                class="btn btn-primary"
+                                <c:choose>
+                                    <c:when test="${isLoggedIn and isFollowing}">
+                                        class="btn btn-outline-secondary"
+                                    </c:when>
+                                    <c:otherwise>
+                                        class="btn btn-primary"
+                                    </c:otherwise>
+                                </c:choose>
+                                href="${paBaseUrl}/toggle/${acc}"
                                 id="btn-follow"
                                 style="float: right"
-                                title="Log in to My genes"
+                                title="${btnFollowTitle}"
                         >
-                            Log in to follow
+                            ${btnFollowText}
                         </a>
+
+
                         <a href="${cmsBaseUrl}/help/gene-page/" target="_blank">
                             <i class="fa fa-question-circle" style="float: right; color: #212529; padding-right: 10px;"></i></a>
                     </h2>

@@ -30,6 +30,8 @@ import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
 import org.mousephenotype.cda.utilities.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -43,6 +45,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import uk.ac.ebi.phenotype.generic.util.RegisterInterestUtils;
 import uk.ac.ebi.phenotype.generic.util.SecurityUtils;
 
 import javax.inject.Inject;
@@ -123,12 +126,13 @@ public class RegisterInterestController {
     private       EmailUtils       emailUtils    = new EmailUtils();
 
     // Properties
-    private String          cmsBaseUrl;
-    private String          paBaseUrl;
-    private PasswordEncoder passwordEncoder;
-    private String          recaptchaPublic;
-    private RiSqlUtils      riSqlUtils;
-    private SmtpParameters  smtpParameters;
+    private String                cmsBaseUrl;
+    private String                paBaseUrl;
+    private PasswordEncoder       passwordEncoder;
+    private String                recaptchaPublic;
+    private RiSqlUtils            riSqlUtils;
+    private RegisterInterestUtils riUtils;
+    private SmtpParameters        smtpParameters;
 
 
     private enum ActionType {
@@ -154,6 +158,7 @@ public class RegisterInterestController {
             String cmsBaseUrl,
             PasswordEncoder passwordEncoder,
             RiSqlUtils riSqlUtils,
+            RegisterInterestUtils riUtils,
             CoreService coreService,
             String recaptchaPublic,
             SmtpParameters smtpParameters
@@ -162,6 +167,7 @@ public class RegisterInterestController {
         this.cmsBaseUrl = cmsBaseUrl;
         this.passwordEncoder = passwordEncoder;
         this.riSqlUtils = riSqlUtils;
+        this.riUtils = riUtils;
         this.coreService = coreService;
         this.recaptchaPublic = recaptchaPublic;
         this.smtpParameters = smtpParameters;
@@ -297,6 +303,27 @@ public class RegisterInterestController {
         riSqlUtils.unregisterGene(SecurityUtils.getPrincipal(), geneAccessionId);
 
         return "redirect:" + target;
+    }
+
+    @Secured("ROLE_USER")
+    @RequestMapping(value = "/toggle/{geneAccessionId}", method = RequestMethod.POST)
+    public ResponseEntity<String> toggleRegistration(
+            HttpServletRequest request,
+            @PathVariable("geneAccessionId") String geneAccessionId) throws InterestException
+    {
+        // Return 'Unauthorised' if not logged in yet
+        if ( ! riUtils.isLoggedIn()) {
+            return new ResponseEntity<>("", HttpStatus.UNAUTHORIZED);
+        }
+
+        boolean following = riUtils.getGeneAccessionIds().contains(geneAccessionId);
+        if (following) {
+            riSqlUtils.unregisterGene(SecurityUtils.getPrincipal(), geneAccessionId);
+        } else {
+            riSqlUtils.registerGene(SecurityUtils.getPrincipal(), geneAccessionId);
+        }
+
+        return new ResponseEntity<>(following ? "notFollowing" : "following", HttpStatus.OK);
     }
 
 

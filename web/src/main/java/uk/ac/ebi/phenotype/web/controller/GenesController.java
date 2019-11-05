@@ -182,14 +182,6 @@ public class GenesController {
     }
 
 
-    @Secured("ROLE_USER")
-    @RequestMapping("/genesAuth/{acc}")
-    public String genesAuth(@PathVariable String acc, @RequestParam(value = "heatmap", required = false, defaultValue = "false") Boolean showHeatmap, Model model, HttpServletRequest request, RedirectAttributes attributes)
-            throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SQLException, SolrServerException {
-
-        return genes(acc, showHeatmap, model, request, attributes);
-    }
-
     @RequestMapping("/genes/export/{acc}")
     public void genesExport(@PathVariable String acc,
                             @RequestParam(required = true, value = "fileType") String fileType,
@@ -305,11 +297,20 @@ public class GenesController {
         // MY GENES FOLLOWING (REGISTER INTEREST)
         boolean loggedIn = false;
         boolean following = false;
+        String btnFollowTitle = "Log in to follow or stop following this gene.";
+        String btnFollowText = "Log in to My Genes";
         try {
 
             loggedIn = riUtils.isLoggedIn();
             if (loggedIn) {
                 following = riUtils.getGeneAccessionIds().contains(acc);
+                if (following) {
+                    btnFollowTitle = "You are following " + gene.getMarkerSymbol() + ". Click to stop following.";
+                    btnFollowText = "Stop following";
+                } else {
+                    btnFollowTitle = "Click to follow " + gene.getMarkerSymbol() + ".";
+                    btnFollowText = "Following";
+                }
             }
 
         } catch (Exception e) {
@@ -320,6 +321,8 @@ public class GenesController {
         model.addAttribute("acc", acc);
         model.addAttribute("isLoggedIn", loggedIn);
         model.addAttribute("isFollowing", following);
+        model.addAttribute("btnFollowTitle", btnFollowTitle);
+        model.addAttribute("btnFollowText", btnFollowText);
 
 
         try {
