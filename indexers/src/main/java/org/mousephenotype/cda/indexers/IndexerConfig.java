@@ -34,9 +34,6 @@ public class IndexerConfig {
     @Value("${buildIndexesSolrUrl}")
     private String writeSolrBaseUrl;
 
-    @Value("${internal_solr_url}")
-    private String internalSolrUrl;
-
     private GenesSecondaryProjectRepository genesSecondaryProjectRepository;
 
     public static final int QUEUE_SIZE = 10000;
@@ -51,7 +48,7 @@ public class IndexerConfig {
 
     @PostConstruct
     public void postConstruct() {
-        logger.info("Configured indexes with build path {}, internal path {}", writeSolrBaseUrl, internalSolrUrl);
+        logger.info("Configured indexes with build path {}", writeSolrBaseUrl);
     }
 
 
@@ -63,7 +60,7 @@ public class IndexerConfig {
     @Bean
     public SolrClient phenodigmCore() {
         // readonly
-        return new HttpSolrClient.Builder(internalSolrUrl + "/phenodigm").build();
+        return new HttpSolrClient.Builder(writeSolrBaseUrl + "/phenodigm").build();
     }
 
 
