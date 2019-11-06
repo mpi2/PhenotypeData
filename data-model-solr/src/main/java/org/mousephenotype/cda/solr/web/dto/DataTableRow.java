@@ -308,7 +308,11 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 			if (procedure.getName().startsWith("Histopathology")) {
 				evidenceLink.setAlt("Table");
 				evidenceLink.setIconType(EvidenceLink.IconType.TABLE);
-				url = baseUrl + "/histopathsum/" + gene.getAccessionId();// getMpathImagesUrlPostQc(baseUrl,
+				String anatomy=phenotypeTerm.getName();
+				if(anatomy.contains("-")) {
+					anatomy = anatomy.substring(0, phenotypeTerm.getName().indexOf("-") - 1);
+				}
+				url = baseUrl + "/histopath/" + gene.getAccessionId()+"?anatomy=\""+anatomy+"\"";// getMpathImagesUrlPostQc(baseUrl,
 																			// gene.getAccessionId(),
 																			// gene.getSymbol(),
 																			// procedure.getName(),
