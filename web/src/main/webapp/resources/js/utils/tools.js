@@ -127,6 +127,7 @@
             'jsonp': 'json.wrf',
             'success': function (jsonstr) {
                 var j = JSON.parse(jsonstr);
+                console.log(j);
 
                 var colorCode = {mousemine: "#8B668B", manual: "#CDB7B5", europubmed: "#BABABA"};
 
@@ -187,7 +188,8 @@
 
 
                 var hostname = window.location.hostname;
-                if ( hostname.indexOf("localhost") != -1 || hostname.indexOf("dev.mousephenotype.org") != -1) {
+                if (false) {
+                //if ( hostname.indexOf("localhost") !== -1 || hostname.indexOf("dev.mousephenotype.org") != -1) {
 
                     //----------------------------------------
                     // monthly increase (weekly breakdown)
@@ -366,7 +368,6 @@
                 var drillDownSeriesDataAgency = [];
                 var agencyNames = [];
 
-                console.log(j.agencyCount);
 
                 agencyNames = Object.keys(j.agencyCount);
                 agencyNumPaperSeries = Object.values(j.agencyCount);
@@ -828,6 +829,7 @@
 
 
     $.fn.fetchAlleleRefDataTable2 = function(oConf) {
+        console.log(oConf);
 
         var baseUrl = oConf.baseUrl;
         var id = oConf.id;
