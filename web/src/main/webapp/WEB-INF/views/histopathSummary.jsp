@@ -70,7 +70,7 @@
 
                                     <td>${histRow.significantCount } / ${histRow.nonSignificantCount }</td>
                                     <td>
-                                        <a href='${baseUrl}/histopath/${gene.mgiAccessionId}#${histRow.sampleId}_${histRow.anatomyName}'><i
+                                        <a href='${baseUrl}/histopath/${gene.mgiAccessionId}?anatomy="${histRow.anatomyName}"'><i
                                                 class="fa fa-table" alt="All Histopath Data"></i></a></td>
                                 </tr>
                             </c:forEach>
