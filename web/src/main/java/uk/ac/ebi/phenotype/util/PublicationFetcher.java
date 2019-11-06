@@ -78,17 +78,17 @@ public class PublicationFetcher {
         switch(publicationType) {
             case IMPC_CONSORTIUM:
                 return ((filter == null) || (filter.isEmpty())
-                        ? displayPager.getNumDocumentsToDisplay()
+                        ? referenceService.countConsortium()
                         : referenceService.countConsortiumFiltered(filter));
 
             case FUNDING_AGENCY:
                 return ((filter == null) || filter.isEmpty())
-                        ? displayPager.getNumDocumentsToDisplay()
+                        ? referenceService.countAgency(agency)
                         : referenceService.countAgencyFiltered(agency, filter);
 
             default:
                 return ((filter == null) || (filter.isEmpty()))
-                        ? displayPager.getNumDocumentsToDisplay()
+                        ? referenceService.countReviewed()
                         : referenceService.countFiltered(filter);
         }
     }

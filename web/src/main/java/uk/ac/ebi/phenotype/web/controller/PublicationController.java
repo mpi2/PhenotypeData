@@ -83,10 +83,10 @@ public class PublicationController implements Exportable<Publication> {
         JSONObject  dataJson  = new JSONObject();
 
         try {
-            dataJson.put("yearlyIncrease", referenceService.getAddedCountByYear());
-            dataJson.put("paperMonthlyIncrementWeekDrilldown", referenceService.getCountByYear());
-            dataJson.put("yearQuarterSum", referenceService.getCountByQuarter());
-            dataJson.put("agencyCount", referenceService.getCountByAgency());
+            dataJson.put("yearlyIncrease", new JSONObject(referenceService.getAddedCountByYear()));
+            dataJson.put("paperMonthlyIncrementWeekDrilldown",  new JSONObject(referenceService.getAddedCountByYear()));
+            dataJson.put("yearQuarterSum",  new JSONObject(referenceService.getCountByQuarter()));
+            dataJson.put("agencyCount",  new JSONObject(referenceService.getCountByAgency()));
 
         } catch (Exception e) {
 
@@ -102,8 +102,6 @@ public class PublicationController implements Exportable<Publication> {
             HttpServletRequest request,
             HttpServletResponse response,
             Model model) throws JSONException {
-        System.out.println("alleleref params: " + params);
-
         PublicationFetcher publicationFetcher = buildPublicationFetcher(request, params);
         String content = fetchPublicationContent(publicationFetcher);
 
@@ -140,8 +138,8 @@ public class PublicationController implements Exportable<Publication> {
         String filter = request.getParameter("sSearch");
         String publicationTypeName = jParams.getString("id");
 
-        int startingDocumentOffset = CommonUtils.tryParseInt(jParams.getString("iDisplayStart") == null ? 0 : CommonUtils.tryParseInt(jParams.getString("iDisplayStart")));
-        int numDocumentsToDisplay = CommonUtils.tryParseInt(jParams.getString("iDisplayLength") == null ? 10 : CommonUtils.tryParseInt(jParams.getString("iDisplayLength")));
+        int startingDocumentOffset = request.getParameter("iDisplayStart") == null ? 0 : Integer.parseInt(request.getParameter("iDisplayStart"));
+        int numDocumentsToDisplay = request.getParameter("iDisplayLength") == null ? 10 : Integer.parseInt(request.getParameter("iDisplayLength"));
 
         String orderByStr = jParams.getString("orderBy");
         String sortByFieldName = orderByStr.split(" ")[0];
@@ -186,9 +184,9 @@ public class PublicationController implements Exportable<Publication> {
         final int DISPLAY_THRESHOLD = 5;
 
         JSONObject j = new JSONObject();
-        j.put("aaData", new JSONArray());
-        j.put("iTotalRecords", publicationFetcher.getAllPublicationsCount());
-        j.put("iTotalDisplayRecords", publicationFetcher.getDisplayPublicationsCount());
+        j.put("data", new JSONArray());
+        j.put("recordsTotal", publicationFetcher.getAllPublicationsCount());
+        j.put("recordsFiltered", publicationFetcher.getDisplayPublicationsCount());
         DateFormat dateFormat = new SimpleDateFormat("yyyy-M-dd");
 
         for (Publication publication : publicationFetcher.getDisplayPublications()) {
@@ -291,7 +289,7 @@ public class PublicationController implements Exportable<Publication> {
             rowData2.add("<div class='innerData'>" + inOneRow + "</div>");
             rowData = rowData2;
 
-            j.getJSONArray("aaData").put(new JSONArray(rowData));
+            j.getJSONArray("data").put(new JSONArray(rowData));
 
         }
 
