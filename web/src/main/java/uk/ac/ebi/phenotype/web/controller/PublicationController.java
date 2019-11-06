@@ -25,6 +25,7 @@ import org.mousephenotype.cda.utilities.DisplayPager;
 import org.mousephenotype.cda.utilities.DisplaySorter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpHeaders;
@@ -185,7 +186,7 @@ public class PublicationController implements Exportable<Publication> {
         final int DISPLAY_THRESHOLD = 5;
 
         JSONObject j = new JSONObject();
-        j.put("aaData", new Object[0]);
+        j.put("aaData", new JSONArray());
         j.put("iTotalRecords", publicationFetcher.getAllPublicationsCount());
         j.put("iTotalDisplayRecords", publicationFetcher.getDisplayPublicationsCount());
         DateFormat dateFormat = new SimpleDateFormat("yyyy-M-dd");
@@ -290,7 +291,7 @@ public class PublicationController implements Exportable<Publication> {
             rowData2.add("<div class='innerData'>" + inOneRow + "</div>");
             rowData = rowData2;
 
-            j.getJSONArray("aaData").put(rowData);
+            j.getJSONArray("aaData").put(new JSONArray(rowData));
 
         }
 
