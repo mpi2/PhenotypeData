@@ -45,10 +45,10 @@ public interface ReferenceRepository extends MongoRepository<Publication, Object
     @CountQuery("{$and: [{$or: [{title: {$regex : ?1 }}, {abstractText: {$regex : ?1 }}, {authorString: {$regex : ?1 }}]}, {status: 'reviewed', 'grantsList.agency': ?0}]}")
     int countByAgencyFiltered(String agency, String filter);
 
-    @Query("{meshHeadingList: {'$regex' : ?0, '$options' : 'i'}}")
+    @Query("{$and: [{meshHeadingList: {'$regex' : ?0, '$options' : 'i'}}, {status: 'reviewed'}]}")
     Page<Publication> findByMeshHeadingListContains(String mesh, Pageable pageable);
 
-    @CountQuery("{meshHeadingList: {'$regex' : ?0, '$options' : 'i'}}")
+    @CountQuery("{$and: [{meshHeadingList: {'$regex' : ?0, '$options' : 'i'}}, {status: 'reviewed'}]}")
     int countDistinctByMeshHeadingListContains(String mesh);
 
     @Query("{$and: [{$or: [{title: {$regex : ?1 }}, {abstractText: {$regex : ?1 }}, {authorString: {$regex : ?1 }}]}, {status: 'reviewed', meshHeadingList: {'$regex' : ?0, '$options' : 'i'}}]}")
