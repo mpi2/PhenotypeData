@@ -311,6 +311,8 @@ public class PublicationController implements Exportable<Publication> {
             return PublicationFetcher.PublicationType.FUNDING_AGENCY;
         } else if (publicationTypeName != null && publicationTypeName.equals("consortiumPapers")) {
             return PublicationFetcher.PublicationType.IMPC_CONSORTIUM;
+        } else if (publicationTypeName != null && publicationTypeName.equals("cardio")) {
+            return PublicationFetcher.PublicationType.BIOSYSTEM;
         } else {
             return PublicationFetcher.PublicationType.ACCEPTED_IMPC_PUBLICATION;
         }
