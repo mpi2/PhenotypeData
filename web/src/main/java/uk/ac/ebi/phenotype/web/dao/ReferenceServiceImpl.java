@@ -89,17 +89,24 @@ public class ReferenceServiceImpl implements ReferenceService {
 
     @Override
     public List<Publication> getAllMeshTerm(String meshTerm, String filter, int start, int length, String orderBy, String sortOrder) {
-        return null;
+        PageRequest pageRequest = getPageRequest(start,length, orderBy, sortOrder);
+        if(filter == null || filter.isEmpty()) {
+            return referenceRepository.findByMeshHeadingListContains(meshTerm, pageRequest).getContent();
+        } else {
+            filter = ".*" + filter + ".*";
+            return referenceRepository.findByMeshtermFiltered(meshTerm, filter, pageRequest).getContent();
+        }
     }
 
     @Override
     public int countMeshTerm(String meshTerm) {
-        return 0;
+        return referenceRepository.countDistinctByMeshHeadingListContains(meshTerm);
     }
 
     @Override
-    public int countMeshTermFiltered(String filter) {
-        return 0;
+    public int countMeshTermFiltered(String meshTerm, String filter) {
+        filter = ".*" + filter + ".*";
+        return referenceRepository.countByMeshtermFiltered(meshTerm, filter);
     }
 
     @Override
