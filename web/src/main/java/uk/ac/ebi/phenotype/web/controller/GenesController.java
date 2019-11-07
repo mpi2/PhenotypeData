@@ -293,35 +293,24 @@ public class GenesController {
             LOGGER.error("ERROR: ", e);
         }
 
-        // MY GENES FOLLOWING (REGISTER INTEREST)
+        // Register Interest setup
         boolean loggedIn = false;
         boolean following = false;
-        String btnFollowTitle = "Log in to My Genes to follow or stop following this gene";
-        String btnFollowText = "Log in";
         try {
-
             loggedIn = riUtils.isLoggedIn();
             if (loggedIn) {
                 following = riUtils.getGeneAccessionIds().contains(acc);
-                if (following) {
-                    btnFollowTitle = "You are following " + gene.getMarkerSymbol() + ". Click to stop following.";
-                    btnFollowText = "Stop following";
-                } else {
-                    btnFollowTitle = "Click to follow " + gene.getMarkerSymbol() + ".";
-                    btnFollowText = "Follow";
-                }
             }
 
         } catch (Exception e) {
             // Nothing to do. Handle as unauthenticated.
         }
 
+        // Register Interest model requirements
         model.addAttribute("paBaseUrl", config.get("paBaseUrl"));
         model.addAttribute("acc", acc);
         model.addAttribute("isLoggedIn", loggedIn);
         model.addAttribute("isFollowing", following);
-        model.addAttribute("btnFollowTitle", btnFollowTitle);
-        model.addAttribute("btnFollowText", btnFollowText);
 
 
         try {

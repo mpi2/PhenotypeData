@@ -129,7 +129,7 @@
 
 
             function registerInterestInitialise() {
-                $('#register_interest_toggle')
+                $('#ri_toggle_${gene.markerSymbol}')
                     .click(function() {
                         $.ajax({
                             type: "POST",
@@ -163,7 +163,7 @@
                         break;
                 }
 
-                $('#register_interest_toggle')
+                $('#ri_toggle_${gene.markerSymbol}')
                     .attr('title', newTitle)
                     .removeClass('btn-primary')
                     .removeClass('btn-outline-primary')
@@ -222,26 +222,45 @@
                     <h2 style="float: left">Gene: ${gene.markerSymbol}</h2>
                     <h2>
                         <a
+                                id="ri_toggle_${gene.markerSymbol}"
+                                style="float: right"
+
                                 <c:choose>
-                                    <c:when test="${isLoggedIn and isFollowing}">
-                                        class="btn btn-outline-primary"
+                                    <c:when test="${isLoggedIn}">
+                                        <c:choose>
+                                            <c:when test="${isFollowing}">
+                                                class="ri_toggle btn btn-primary"
+                                                title="You are following ${gene.markerSymbol}. Click to stop following."
+                                            </c:when>
+                                            <c:otherwise>
+                                                class="ri_toggle btn btn-outline-primary"
+                                                title="Click to follow ${gene.markerSymbol}"
+                                            </c:otherwise>
+                                        </c:choose>
                                     </c:when>
                                     <c:otherwise>
-                                        class="btn btn-primary"
+                                        class="ri_toggle btn btn-primary"
+                                        title="Log in to My Genes to follow or stop following this gene"
+                                        href="${paBaseUrl}/authenticated?target=${paBaseUrl}/genes/${acc}"
                                     </c:otherwise>
                                 </c:choose>
-
-                                <c:if test="${not isLoggedIn}">
-                                    href="${paBaseUrl}/authenticated?target=${paBaseUrl}/genes/${acc}"
-                                </c:if>
-
-                                id="register_interest_toggle"
-                                style="float: right"
-                                title="${btnFollowTitle}"
                         >
-                            ${btnFollowText}
+                            <c:choose>
+                                <c:when test="${isLoggedIn}">
+                                    <c:choose>
+                                        <c:when test="${isFollowing}">
+                                            Stop following
+                                        </c:when>
+                                        <c:otherwise>
+                                            Follow
+                                        </c:otherwise>
+                                    </c:choose>
+                                </c:when>
+                                <c:otherwise>
+                                    Log in
+                                </c:otherwise>
+                            </c:choose>
                         </a>
-
 
                         <a href="${cmsBaseUrl}/help/gene-page/" target="_blank">
                             <i class="fa fa-question-circle" style="float: right; color: #212529; padding-right: 10px;"></i></a>

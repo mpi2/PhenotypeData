@@ -52,6 +52,83 @@
                 ]
             }
         </script>
+
+
+        <meta name="_csrf" content="${_csrf.token}"/>
+        <meta name="_csrf_header" content="${_csrf.headerName}"/>
+
+
+        <script type="text/javascript">
+            var paBaseUrl = '${paBaseUrl}';
+            var isLoggedIn = ${isLoggedIn};
+
+            $(document).ready(function () {
+                loadCsRf();
+                registerInterestInitialise();
+            });
+
+
+            function loadCsRf() {
+                var token = $("meta[name='_csrf']").attr("content");
+                var header = $("meta[name='_csrf_header']").attr("content");
+                console.log('_csrf:_csrf_header' + token + ':' + header);
+                $(document).ajaxSend(function(e, xhr, options) {
+                    xhr.setRequestHeader(header, token);
+                });
+            }
+
+
+            function registerInterestInitialise() {
+                $('a.ri_toggle')
+                    .click(function() {
+
+                    console.log(this);
+                    var acc = $(this).data("acc");
+                    var url = "${paBaseUrl}/toggle/" + acc;
+                    var toggleCtl = $(this);
+
+                    $.ajax({
+                            type: "POST",
+                            url: url,
+                            success: function(newFollowingState) {
+                                updateRegisterInterestToggle(newFollowingState, toggleCtl);
+                            },
+                            error: function(jqXhr, textStatus, errorThrown) {
+                                window.location = "${paBaseUrl}/authenticated?target=${paBaseUrl}/genes/${acc}";
+                            }
+                        });
+                    });
+            }
+
+            function updateRegisterInterestToggle(followingState, toggleCtl) {
+                var newAddClass;
+                var newTitle;
+                var newText;
+
+                switch(followingState) {
+                    case "following":
+                        newAddClass = "btn-outline-primary";
+                        newTitle = "You are following ${gene.markerSymbol}. Click to stop following.";
+                        newText = "Stop following";
+                        break;
+
+                    case "notFollowing":
+                        newAddClass = "btn-primary";
+                        newTitle = "Click to follow ${gene.markerSymbol}";
+                        newText = "Follow";
+                        break;
+                }
+
+                $(toggleCtl)
+                    .attr('title', newTitle)
+                    .removeClass('btn-primary')
+                    .removeClass('btn-outline-primary')
+                    .addClass(newAddClass)
+                    .text(newText)
+            }
+
+        </script>
+
 	</jsp:attribute>
 
     <jsp:attribute name="addToFooter" />
@@ -117,49 +194,47 @@
                                             </div>
 
                                             <div class="col-12 col-md-6">
-                                                <form>
-                                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                                <a
+                                                        id="ri_toggle_${gene.markerSymbol}"
+                                                        data-acc="${gene.mgiAccessionId}"
+                                                        style="float: right"
 
+                                                        <c:choose>
+                                                            <c:when test="${isLoggedIn}">
+                                                                <c:choose>
+                                                                    <c:when test="${isFollowing[gene.mgiAccessionId]}">
+                                                                        class="ri_toggle btn btn-outline-primary"
+                                                                        title="You are following ${gene.markerSymbol}. Click to stop following."
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        class="ri_toggle btn btn-primary"
+                                                                        title="Click to follow ${gene.markerSymbol}"
+                                                                    </c:otherwise>
+                                                                </c:choose>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                class="ri_toggle btn btn-outline-primary"
+                                                                title="Log in to My Genes to follow or stop following this gene"
+                                                                href="${paBaseUrl}/authenticated?target=${paBaseUrl}/genes/${acc}"
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                >
                                                     <c:choose>
-                                                        <c:when test="${not empty isLoggedIn and isLoggedIn}">
+                                                        <c:when test="${isLoggedIn}">
                                                             <c:choose>
                                                                 <c:when test="${isFollowing[gene.mgiAccessionId]}">
-                                                                    <button
-                                                                            formaction="${paBaseUrl}/unregistration/gene/${gene.mgiAccessionId}?target=${paBaseUrl}/search"
-                                                                            title="You are following ${gene.markerSymbol}. Click to stop following."
-                                                                            class="btn btn-outline-secondary"
-                                                                            type="submit"
-                                                                            formmethod="post"
-                                                                            style="float: right;">
-                                                                        Stop following
-                                                                    </button>
+                                                                    Stop following
                                                                 </c:when>
                                                                 <c:otherwise>
-                                                                    <button
-                                                                            formaction="${paBaseUrl}/registration/gene/${gene.mgiAccessionId}?target=${paBaseUrl}/search"
-                                                                            title="Click to follow ${gene.markerSymbol}"
-                                                                            class="btn btn-primary"
-                                                                            type="submit"
-                                                                            formmethod="post"
-                                                                            style="float: right">
-                                                                        Follow
-                                                                    </button>
+                                                                    Follow
                                                                 </c:otherwise>
                                                             </c:choose>
                                                         </c:when>
                                                         <c:otherwise>
-                                                            <button
-                                                                    formaction="${paBaseUrl}/rilogin?target=${paBaseUrl}/search"
-                                                                    title="Log in to My genes"
-                                                                    class="btn btn-primary"
-                                                                    type="submit"
-                                                                    formmethod="get"
-                                                                    style="float: right;">
-                                                                Log in to follow
-                                                            </button>
+                                                            Log in
                                                         </c:otherwise>
                                                     </c:choose>
-                                                </form>
+                                                </a>
                                             </div>
                                         </div>
                                         <div class="row">
