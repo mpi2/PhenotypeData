@@ -166,7 +166,7 @@ public class PublicationFetcher {
                 return referenceService.getAllMeshTerm(agency,
                         filter,
                         0,
-                        filter == null ? referenceService.countAgency(agency) : referenceService.countAgencyFiltered(agency, filter),
+                        filter == null ? referenceService.countBiosystem(agency) : referenceService.countBiosystemFiltered(agency, filter),
                         displaySorter.getSortByFieldName(),
                         displaySorter.getSortByDirection().toString());
 
