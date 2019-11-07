@@ -578,7 +578,7 @@
                                             <tbody>
                                             <c:forEach var="phenotype" items="${rowsForHistopathTable}" varStatus="status">
                                                 <c:set var="europhenome_gender" value="Both-Split"/>
-                                                <tr title="${!phenotype.getEvidenceLink().getDisplay() ? 'No supporting data supplied.' : ''}" data-toggle="tooltip" data-link="${phenotype.getEvidenceLink().url}" class="clickableRow">
+                                                <tr title="${!phenotype.getEvidenceLink().getDisplay() ? 'No supporting data supplied.' : ''}" data-toggle="tooltip" data-link="${fn:escapeXml(phenotype.getEvidenceLink().url)}" class="clickableRow">
 
                                                     <td>
                                                         ${phenotype.phenotypeTerm.name}
