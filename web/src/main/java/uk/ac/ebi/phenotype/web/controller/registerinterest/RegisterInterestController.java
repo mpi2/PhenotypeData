@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -218,7 +217,6 @@ public class RegisterInterestController {
         session.setAttribute("cmsBaseUrl", cmsBaseUrl);
 
         return "redirect: " + target;
-//        return "redirect: " + paBaseUrl + "/summary";
     }
 
 
@@ -255,7 +253,6 @@ public class RegisterInterestController {
     }
 
     // Call this endpoint from unauthenticated pages that want to force authentication (e.g. search, gene pages)
-    @Secured("ROLE_USER")
     @RequestMapping(value = "/authenticated", method = RequestMethod.GET)
     public String authenticated(
             @RequestParam("target") String target
@@ -264,7 +261,6 @@ public class RegisterInterestController {
     }
 
 
-    @Secured("ROLE_USER")
     @RequestMapping(value = "/registration/gene/{geneAccessionId}", method = RequestMethod.POST)
     public String registrationGene(
             HttpServletRequest request,
@@ -285,7 +281,6 @@ public class RegisterInterestController {
     }
 
 
-    @Secured("ROLE_USER")
     @RequestMapping(value = "/unregistration/gene/{geneAccessionId}", method = RequestMethod.POST)
     public String unregistrationGene(
             HttpServletRequest request,
@@ -305,7 +300,6 @@ public class RegisterInterestController {
         return "redirect:" + target;
     }
 
-    @Secured("ROLE_USER")
     @RequestMapping(value = "/toggle/{geneAccessionId}", method = RequestMethod.POST)
     public ResponseEntity<String> toggleRegistration(
             HttpServletRequest request,
@@ -323,11 +317,11 @@ public class RegisterInterestController {
             riSqlUtils.registerGene(SecurityUtils.getPrincipal(), geneAccessionId);
         }
 
+        // Return the compliment of 'following'.
         return new ResponseEntity<>(following ? "notFollowing" : "following", HttpStatus.OK);
     }
 
 
-    @Secured("ROLE_USER")
     @RequestMapping(value = "/summary", method = RequestMethod.GET)
     public String summary(ModelMap model) {
 
@@ -593,7 +587,6 @@ public class RegisterInterestController {
     }
 
 
-    @Secured("ROLE_USER")
     @RequestMapping(value = "/accountDeleteRequest", method = RequestMethod.POST)
     public String accountDeleteRequestPost(ModelMap model) {
         model.addAttribute("emailAddress", SecurityUtils.getPrincipal());
@@ -614,7 +607,6 @@ public class RegisterInterestController {
     }
 
 
-    @Secured("ROLE_USER")
     @RequestMapping(value = "/accountDeleteConfirmation", method = RequestMethod.POST)
     public String accountDeleteConfirmationPost(
             HttpServletRequest request,

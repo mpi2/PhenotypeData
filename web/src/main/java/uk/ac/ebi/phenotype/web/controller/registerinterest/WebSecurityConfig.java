@@ -167,8 +167,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .ignoringAntMatchers("/querybroker")
                 .ignoringAntMatchers("/bqExport")
                 .ignoringAntMatchers("/batchQuery")
-                .ignoringAntMatchers("/alleleRefLogin")
-                .ignoringAntMatchers("/toggle");
+                .ignoringAntMatchers("/alleleRefLogin");
     }
 
     /**

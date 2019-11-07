@@ -95,6 +95,13 @@
 
                                 <br />
 
+                                <noscript>
+                                    <div class="col-12 no-gutters">
+                                        <h5 style="float: left">Please enable javascript if you want to log in to follow or stop
+                                            following this gene.</h5>
+                                    </div>
+                                </noscript>
+
                                 <div class="form-actions">
                                     <input type="submit"
                                            class="btn btn-block btn-primary btn-default"

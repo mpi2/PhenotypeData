@@ -112,8 +112,8 @@
                     }
                 });
 
-                // loadCsRf();
-                // registerInterest();
+                loadCsRf();
+                registerInterestInitialise();
 
             });
 
@@ -128,67 +128,48 @@
             }
 
 
-            function registerInterest() {
-                if (isLoggedIn) {
-                    if (isFollowing) {
-                        setBtnFollowing("following");
-                    } else {
-                        setBtnFollowing("notFollowing");
-                    }
-                }
-
-                return false;
+            function registerInterestInitialise() {
+                $('#register_interest_toggle')
+                    .click(function() {
+                        $.ajax({
+                            type: "POST",
+                            url: "${paBaseUrl}/toggle/${acc}",
+                            success: function(newFollowingState) {
+                                updateRegisterInterestToggle(newFollowingState);
+                            },
+                            error: function(jqXhr, textStatus, errorThrown) {
+                                window.location = "${paBaseUrl}/authenticated?target=${paBaseUrl}/genes/${acc}";
+                            }
+                        });
+                    });
             }
 
-            function setBtnFollowing(desired) {
-                var newUrl;
+            function updateRegisterInterestToggle(followingState) {
                 var newAddClass;
                 var newTitle;
                 var newText;
-                var newDesired;
 
-                switch(desired) {
+                switch(followingState) {
                     case "following":
-                        newUrl = "${paBaseUrl}/unregistration/gene/${acc}";
-                        newAddClass = "btn-outline-secondary";
+                        newAddClass = "btn-outline-primary";
                         newTitle = "You are following ${gene.markerSymbol}. Click to stop following.";
                         newText = "Stop following";
-                        newDesired = "notFollowing";
                         break;
 
                     case "notFollowing":
-                        newUrl = "${paBaseUrl}/registration/gene/${acc}";
                         newAddClass = "btn-primary";
                         newTitle = "Click to follow ${gene.markerSymbol}";
                         newText = "Follow";
-                        newDesired = "following";
                         break;
                 }
 
-                $('#btn-follow')
-                    .attr('href', '#')
+                $('#register_interest_toggle')
                     .attr('title', newTitle)
                     .removeClass('btn-primary')
-                    .removeClass('btn-outline-secondary')
+                    .removeClass('btn-outline-primary')
                     .addClass(newAddClass)
                     .text(newText)
-                    .click(function() {
-                            $.ajax({
-                                type: "POST",
-                                url: newUrl,
-                                success: function() {
-                                    setBtnFollowing(newDesired);
-                                },
-                                error: riError
-                            });
-                    });
-
-
-                function riError() {
-                    // window.alert('Unable to follow/stop following gene.');
-                }
             }
-
 
         </script>
 
@@ -226,32 +207,35 @@
             <!-- End Google Tag Manager (noscript) -->
         </c:if>
 
+
         <div class="container data-heading">
             <div class="row row-shadow">
+
+                <noscript>
+                    <div class="col-12 no-gutters">
+                        <h5 style="float: left">Please enable javascript if you want to log in to follow or stop
+                            following this gene.</h5>
+                    </div>
+                </noscript>
+
                 <div class="col-12 no-gutters">
                     <h2 style="float: left">Gene: ${gene.markerSymbol}</h2>
                     <h2>
-<%--                        <a--%>
-<%--                                href="${paBaseUrl}/authenticated?target=${paBaseUrl}/genes/${acc}"--%>
-<%--                                class="btn btn-primary"--%>
-<%--                                id="btn-follow"--%>
-<%--                                style="float: right"--%>
-<%--                                title="Log in to My genes"--%>
-<%--                        >--%>
-<%--                            Log in to follow--%>
-<%--                        </a>--%>
-
                         <a
                                 <c:choose>
                                     <c:when test="${isLoggedIn and isFollowing}">
-                                        class="btn btn-outline-secondary"
+                                        class="btn btn-outline-primary"
                                     </c:when>
                                     <c:otherwise>
                                         class="btn btn-primary"
                                     </c:otherwise>
                                 </c:choose>
-                                href="${paBaseUrl}/toggle/${acc}"
-                                id="btn-follow"
+
+                                <c:if test="${not isLoggedIn}">
+                                    href="${paBaseUrl}/authenticated?target=${paBaseUrl}/genes/${acc}"
+                                </c:if>
+
+                                id="register_interest_toggle"
                                 style="float: right"
                                 title="${btnFollowTitle}"
                         >

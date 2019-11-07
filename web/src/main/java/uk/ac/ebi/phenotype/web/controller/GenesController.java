@@ -38,7 +38,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -297,8 +296,8 @@ public class GenesController {
         // MY GENES FOLLOWING (REGISTER INTEREST)
         boolean loggedIn = false;
         boolean following = false;
-        String btnFollowTitle = "Log in to follow or stop following this gene.";
-        String btnFollowText = "Log in to My Genes";
+        String btnFollowTitle = "Log in to My Genes to follow or stop following this gene";
+        String btnFollowText = "Log in";
         try {
 
             loggedIn = riUtils.isLoggedIn();
@@ -309,7 +308,7 @@ public class GenesController {
                     btnFollowText = "Stop following";
                 } else {
                     btnFollowTitle = "Click to follow " + gene.getMarkerSymbol() + ".";
-                    btnFollowText = "Following";
+                    btnFollowText = "Follow";
                 }
             }
 
