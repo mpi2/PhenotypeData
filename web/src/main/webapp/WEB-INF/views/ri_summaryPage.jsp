@@ -66,7 +66,8 @@
 
                                 table.row($(tr))
                                     .remove()
-                                    .draw();
+                                    .draw(false)
+                                ;
                             },
                             error: function(jqXhr, textStatus, errorThrown) {
                                 console.log('Unregistration of ' + ${acc} + ' failed:');
