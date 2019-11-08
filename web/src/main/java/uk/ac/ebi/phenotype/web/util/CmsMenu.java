@@ -78,15 +78,6 @@ public class CmsMenu extends HttpProxy {
 
 				publicMenu = this.getContent(url).replaceAll("\\\\", "");
 
-				// FIXME FIXME FIXME
-				// FIXME FIXME FIXME
-				// FIXME FIXME FIXME
-				publicMenu = prependToMenu(publicMenu);
-				// FIXME FIXME FIXME
-				// FIXME FIXME FIXME
-				// FIXME FIXME FIXME
-
-
 				content = publicMenu;
 			}
 
@@ -112,24 +103,6 @@ public class CmsMenu extends HttpProxy {
 		}
 
 	}
-
-
-
-	// FIXME FIXME FIXME
-	// FIXME FIXME FIXME
-	// FIXME FIXME FIXME
-	String prependToMenu(String menu) {
-		String paBaseUrl = "http://localhost:8080/data";
-		String summaryMenu = "{\"name\":\"My Genes\",\"link\":\"" + paBaseUrl + "/summary\",\"children\":[]},";
-		int idx = menu.indexOf("{");
-		StringBuilder sb = new StringBuilder(menu);
-		sb.insert(idx, summaryMenu);
-
-		return sb.toString();
-	}
-	// FIXME FIXME FIXME
-	// FIXME FIXME FIXME
-	// FIXME FIXME FIXME
 
 
 	/**
