@@ -24,6 +24,59 @@
             });
         </script>
     </jsp:attribute>
+MadedddddMa
+    <jsp:attribute name="header">
+
+        <meta name="_csrf" content="${_csrf.token}"/>
+        <meta name="_csrf_header" content="${_csrf.headerName}"/>
+
+        <script type="text/javascript">
+
+            var paBaseUrl = '${paBaseUrl}';
+
+            $(document).ready(function () {
+                loadCsRf();
+                registerInterestInitialise();
+            });
+
+
+            function loadCsRf() {
+                var token = $("meta[name='_csrf']").attr("content");
+                var header = $("meta[name='_csrf_header']").attr("content");
+                console.log('_csrf:_csrf_header' + token + ':' + header);
+                $(document).ajaxSend(function(e, xhr, options) {
+                    xhr.setRequestHeader(header, token);
+                });
+            }
+
+
+            function registerInterestInitialise() {
+                $('a.ri_unregister')
+                    .click(function() {
+
+                        var acc = $(this).data("acc");
+                        var url = "${paBaseUrl}/unregistration/gene/" + acc;
+                        var table = $('#following').DataTable();
+                        var tr = $(this).closest('tr');
+
+                        $.ajax({
+                            type: "POST",
+                            url: url,
+                            success: function() {
+
+                                table.row($(tr))
+                                    .remove()
+                                    .draw();
+                            },
+                            error: function(jqXhr, textStatus, errorThrown) {
+                                console.log('Unregistration of ' + ${acc} + ' failed:');
+                            }
+                        });
+                    });
+            }
+
+        </script>
+    </jsp:attribute>
 
     <jsp:body>
 
@@ -150,16 +203,14 @@
                                                 </c:choose>
                                             </td>
                                             <td>
-                                                <form id="formUnregister" style="border: 0;">
-                                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                                                    <button
-                                                            formaction="${paBaseUrl}/unregistration/gene/${gene.mgiAccessionId}"
-                                                            class="btn btn-block btn-primary btn-default"
-                                                            type="submit"
-                                                            formmethod="POST">
-                                                        Stop following
-                                                    </button>
-                                                </form>
+                                                <a
+                                                        id="ri_unregister_${gene.symbol}"
+                                                        data-acc="${gene.mgiAccessionId}"
+                                                        class="ri_unregister btn btn-primary"
+                                                        title="You are following ${gene.symbol}. Click to stop following."
+                                                        >
+                                                    Stop following
+                                                </a>
                                             </td>
                                         </tr>
                                     </c:forEach>
@@ -170,36 +221,6 @@
                 </div>
             </div>
         </div>
-
-<%--        <div class="container">--%>
-<%--            <div class="row mb-5 ml-3 mr-3">--%>
-<%--                <a--%>
-<%--                        class="btn"--%>
-<%--                        href="${paBaseUrl}/rilogout"--%>
-<%--                        title="Log out of My Genes">--%>
-<%--                    Logout--%>
-<%--                </a>--%>
-<%--                <a--%>
-<%--                        class="btn"--%>
-<%--                        href="${paBaseUrl}/search"--%>
-<%--                        title="Search all genes">--%>
-<%--                    Search all genes--%>
-<%--                </a>--%>
-<%--                <a--%>
-<%--                        class="btn btn-outline-secondary mx-auto"--%>
-<%--                        href="${paBaseUrl}/resetPasswordRequest"--%>
-<%--                        title="Reset My Genes password">--%>
-<%--                    Reset password--%>
-<%--                </a>--%>
-<%--                <a--%>
-<%--                        class="btn btn-outline-danger"--%>
-<%--                        href="${paBaseUrl}/accountDeleteRequest"--%>
-<%--                        title="Delete My Genes account and all of my followed genes"--%>
-<%--                        style="float: right;">--%>
-<%--                    Delete account--%>
-<%--                </a>--%>
-<%--            </div>--%>
-<%--        </div>--%>
 
     </jsp:body>
 </t:genericpage>
