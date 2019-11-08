@@ -24,7 +24,7 @@
             });
         </script>
     </jsp:attribute>
-MadedddddMa
+
     <jsp:attribute name="header">
 
         <meta name="_csrf" content="${_csrf.token}"/>
