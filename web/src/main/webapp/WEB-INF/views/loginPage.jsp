@@ -46,8 +46,9 @@
                         </p>
 
                         <div class="login-form row ml-3 mr-3 mb-3">
-                            <form action="${paBaseUrl}/rilogin?target=${target}" method="POST" class="form-horizontal">
+                            <form action="${paBaseUrl}/rilogin" method="POST" class="form-horizontal">
                                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                                <input type="hidden" name="target" value="${target}"/>
 
                                 <c:if test="${param.error != null}">
 
