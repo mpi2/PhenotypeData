@@ -41,11 +41,11 @@
                     paging:         true,
                     fixedColumns:   true,
                     'createdRow': function(row, data, index){
-                        $(row).find('td:eq(1)').css('background-color', 'Orange');
+                       // $(row).find('td:eq(1)').css('background-color', 'Orange');
 
                         for(var i=1; i<data.length; i++) {
                             if (data[i] == 0) {
-                                $(row).find('td:eq('+i+')').css('background-color', '#fff').css('color', 'rgba(0, 0, 0, 0.0)').css("pointer-events", "none");
+                                $(row).find('td:eq('+i+')').css('color', 'rgba(0, 0, 0, 0.0)');
                             }else
                             if (data[i] == 1) {
                                 $(row).find('td:eq('+i+')').css('background-color', '#808080').css('color', 'rgba(0, 0, 0, 0.0)').css("pointer-events", "none");;
@@ -61,32 +61,38 @@
                 });
 
 
-                $('#heatmap tbody').on('click', 'tr', function () {
-                    var url='${baseUrl}/histopath/';
-                    var data = table.row( this ).data();
-                    url=url+data[0];
-                    var win = window.open(url, '_blank');
-                    win.focus();
-                } );
+                <%--$('#heatmap tbody').on('click', 'tr', function () {--%>
+                <%--    var url='${baseUrl}/histopath/';--%>
+                <%--    console.log('colIndex='+table.row( this ).colIndex+' rowIndex='+this.parentNode.rowIndex);--%>
+                <%--    var data = table.row( this ).data();--%>
+                <%--    url=url+data[0];--%>
+                <%--    //var win = window.open(url, '_blank');--%>
+                <%--    //win.focus();--%>
+                <%--} );--%>
 
                 <%--$('#heatmap tbody').on( 'click', 'td', function () {--%>
+                <%--    var url='${baseUrl}/histopath/';--%>
                 <%--    var idx = table.cell( this ).index().column;--%>
-                <%--    var idxRow = table.cell( this ).index().row;--%>
+                <%--    var idxRow = table.row( this ).index().row;--%>
                 <%--    var title = table.column( idx ).header();--%>
                 <%--    url=url+'#'+$(title).text();--%>
-                <%--    alert( 'Column title clicked on: col index '+idx+' row index='+idxRow );--%>
+                <%--    alert( 'title='+title+'Column title clicked on: col index '+idx+' row index='+idxRow );--%>
                 <%--} );--%>
 
                 table.on('click', 'tbody td', function() {
-
+                    var url='${baseUrl}/histopath/';
                     //get textContent of the TD
-                    console.log('TD cell textContent : ', this.textContent)
-                    console.log('colIndex='+this.cellIndex+' rowIndex='+this.parentNode.rowIndex);
                     var anatomy = table.column( this.cellIndex ).header();
-                    var mgiAccession=table.row(this.parentNode.rowIndex);
+                    var row_data=table.row(this).data();
+                    var gene_symbol=row_data[0];
                     //get the value of the TD using the API
-                    console.log('value by API : ', table.cell({ row: this.parentNode.rowIndex, column : this.cellIndex }).data());
-                    console.log('anatomy='+anatomy+' accession='+mgiAccession);
+                    url=url+gene_symbol;
+                    if($(anatomy).text()){
+                        url=url+'?anatomy="'+$(anatomy).text()+'"';
+                    }
+                    console.log('url='+url);
+                    var win = window.open(url, '_blank');
+                    win.focus();
                 })
 
 
@@ -139,10 +145,10 @@
                                 </div>
                             </div>
                         </div>
+                        <br/>
+                        <br/>
 
-
-
-                            <table id="heatmap" class="display cell-border compact" style="font-size: 10px">
+                            <table id="heatmap" class="display cell-border compact row-border" style="font-size: 10px">
                                 <thead>
                                 <tr>
                                     <th><div class="rotate90">Gene</div></th>
