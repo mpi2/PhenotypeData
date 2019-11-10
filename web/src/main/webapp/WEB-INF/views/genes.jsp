@@ -200,8 +200,17 @@
             <!-- End Google Tag Manager (noscript) -->
         </c:if>
 
+
         <div class="container data-heading">
             <div class="row row-shadow">
+
+                <noscript>
+                    <div class="col-12 no-gutters">
+                        <h5 style="float: left">Please enable javascript if you want to log in to follow or stop
+                            following this gene.</h5>
+                    </div>
+                </noscript>
+
                 <div class="col-12 no-gutters">
                     <h2 style="float: left">Gene: ${gene.markerSymbol}</h2>
                     <h2>

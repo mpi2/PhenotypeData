@@ -129,6 +129,10 @@ public class SearchController {
             if (gene.getLatestPhenotypeStatus() != null && gene.getLatestPhenotypeStatus().equalsIgnoreCase("Phenotyping Complete")) {
                 gene.setLatestPhenotypeStatus("Phenotype data available");
             }
+        });
+
+        // Initialise Register Interest button for each gene
+        genes.forEach(gene -> {
             if (isLoggedIn) {
                 isFollowing.put(gene.getMgiAccessionId(), followedAccessionIds.contains(gene.getMgiAccessionId()) ? true : false);
             }

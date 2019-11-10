@@ -38,7 +38,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -182,14 +181,6 @@ public class GenesController {
     }
 
 
-    @Secured("ROLE_USER")
-    @RequestMapping("/genesAuth/{acc}")
-    public String genesAuth(@PathVariable String acc, @RequestParam(value = "heatmap", required = false, defaultValue = "false") Boolean showHeatmap, Model model, HttpServletRequest request, RedirectAttributes attributes)
-            throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SQLException, SolrServerException {
-
-        return genes(acc, showHeatmap, model, request, attributes);
-    }
-
     @RequestMapping("/genes/export/{acc}")
     public void genesExport(@PathVariable String acc,
                             @RequestParam(required = true, value = "fileType") String fileType,
@@ -302,11 +293,10 @@ public class GenesController {
             LOGGER.error("ERROR: ", e);
         }
 
-        // MY GENES FOLLOWING (REGISTER INTEREST)
+        // Register Interest setup
         boolean loggedIn = false;
         boolean following = false;
         try {
-
             loggedIn = riUtils.isLoggedIn();
             if (loggedIn) {
                 following = riUtils.getGeneAccessionIds().contains(acc);
@@ -316,6 +306,7 @@ public class GenesController {
             // Nothing to do. Handle as unauthenticated.
         }
 
+        // Register Interest model requirements
         model.addAttribute("paBaseUrl", config.get("paBaseUrl"));
         model.addAttribute("acc", acc);
         model.addAttribute("isLoggedIn", loggedIn);
