@@ -45,9 +45,6 @@
         <script type="text/javascript">
             var gene_id = '${acc}';
             var monarchUrl = '${monarchUrl}';
-            var paBaseUrl = '${paBaseUrl}';
-            var isLoggedIn = ${isLoggedIn};
-            var isFollowing = ${isFollowing};
 
             $(document).ready(function () {
                 var heatmap_generated = 0;
@@ -112,82 +109,59 @@
                     }
                 });
 
+                // Enable CSRF processing for forms on this page
+                function loadCsRf() {
+                    var token = $("meta[name='_csrf']").attr("content");
+                    var header = $("meta[name='_csrf_header']").attr("content");
+                    console.log('_csrf:_csrf_header' + token + ':' + header);
+                    $(document).ajaxSend(function(e, xhr, options) {
+                        xhr.setRequestHeader(header, token);
+                    });
+                }
                 loadCsRf();
-                registerInterest();
 
+                // Wire up the AJAX callbacks to the approprate forms
+                $('#follow-form').submit(function(event) {
+
+                    // Prevent the form from submitting when JS is enabled
+                    event.preventDefault();
+
+                    // Do asynch request to change the state of the follow flag for this gene
+                    // and update button appropriately on success
+                    $.ajax({
+                        type: "POST",
+                        url: "${baseUrl}/update-gene-registration?asynch=true",
+                        data: $(this).serialize(),
+                        success: function(data) {
+
+                            // Data is a map of gene accession id -> status
+                            // Status is either "Following" or "Not Following"
+
+                            switch(data["${acc}"]) {
+                                case "Following":
+                                    $('form#follow-form').find("button")
+                                        .attr('title', 'You are following ${gene.markerSymbol}. Click to stop following.')
+                                        .removeClass('btn-primary')
+                                        .addClass('btn-outline-secondary')
+                                        .text('Stop following');
+                                    break;
+
+                                case "Not Following":
+                                    $('form#follow-form').find("button")
+                                        .attr('title', 'Click to follow ${gene.markerSymbol}.')
+                                        .addClass('btn-primary')
+                                        .removeClass('btn-outline-secondary')
+                                        .text('Follow');
+                                    break;
+                            }
+                        },
+                        error: function() {
+                            window.location = "${baseUrl}/rilogin?target=${baseUrl}/genes/${acc}";
+                        }
+                    });
+                });
             });
 
-
-            function loadCsRf() {
-                var token = $("meta[name='_csrf']").attr("content");
-                var header = $("meta[name='_csrf_header']").attr("content");
-                console.log('_csrf:_csrf_header' + token + ':' + header);
-                $(document).ajaxSend(function(e, xhr, options) {
-                    xhr.setRequestHeader(header, token);
-                });
-            }
-
-
-            function registerInterest() {
-                if (isLoggedIn) {
-                    if (isFollowing) {
-                        setBtnFollowing("following");
-                    } else {
-                        setBtnFollowing("notFollowing");
-                    }
-                }
-
-                return false;
-            }
-
-            function setBtnFollowing(desired) {
-                var newUrl;
-                var newAddClass;
-                var newTitle;
-                var newText;
-                var newDesired;
-
-                switch(desired) {
-                    case "following":
-                        newUrl = "${paBaseUrl}/unregistration/gene/${acc}";
-                        newAddClass = "btn-outline-secondary";
-                        newTitle = "You are following ${gene.markerSymbol}. Click to stop following.";
-                        newText = "Stop following";
-                        newDesired = "notFollowing";
-                        break;
-
-                    case "notFollowing":
-                        newUrl = "${paBaseUrl}/registration/gene/${acc}";
-                        newAddClass = "btn-primary";
-                        newTitle = "Click to follow ${gene.markerSymbol}";
-                        newText = "Follow";
-                        newDesired = "following";
-                        break;
-                }
-
-                $('#btn-follow')
-                    .attr('href', '#')
-                    .attr('title', newTitle)
-                    .removeClass('btn-primary')
-                    .removeClass('btn-outline-secondary')
-                    .addClass(newAddClass)
-                    .text(newText)
-                    .click(function() {
-                            $.ajax({
-                                type: "POST",
-                                url: newUrl,
-                                success: function() {
-                                    setBtnFollowing(newDesired);
-                                },
-                                error: riError
-                            });
-                    });
-
-
-                function riError() {
-                    // window.alert('Unable to follow/stop following gene.');
-                }
-            }
 
 
         </script>
@@ -231,15 +205,32 @@
                 <div class="col-12 no-gutters">
                     <h2 style="float: left">Gene: ${gene.markerSymbol}</h2>
                     <h2>
-                        <a
-                                href="${paBaseUrl}/genesAuth/${acc}"
-                                class="btn btn-primary"
-                                id="btn-follow"
-                                style="float: right"
-                                title="Log in to My genes"
-                        >
-                            Log in to follow
-                        </a>
+                        <c:choose>
+                            <c:when test="${isFollowing}">
+                                <c:set var="followText" value="Stop Following"/>
+                                <c:set var="activeClass" value="btn-outline-secondary"/>
+                            </c:when>
+                            <c:otherwise>
+                                <c:set var="followText" value="Follow"/>
+                                <c:set var="activeClass" value="btn-primary"/>
+                            </c:otherwise>
+                        </c:choose>
+                        <c:choose>
+                            <c:when test="${isLoggedIn }">
+                                <form action="${baseUrl}/update-gene-registration" method="POST" id="follow-form">
+                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                                    <input type="hidden" name="geneAccessionId" value="${acc}" />
+                                    <input type="hidden" name="target" value="${baseUrl}/genes/${acc}" />
+                                    <button type="submit" style="float: right" class="btn ${activeClass}">${followText}</button>
+                                </form>
+                            </c:when>
+                            <c:otherwise>
+                                <a href="${baseUrl}/rilogin?target=${baseUrl}/genes/${acc}"
+                                   class="btn btn-primary"
+                                   style="float: right"
+                                   title="Log in to My genes">Log in to follow</a>
+                            </c:otherwise>
+                        </c:choose>
                         <a href="${cmsBaseUrl}/help/gene-page/" target="_blank">
                             <i class="fa fa-question-circle" style="float: right; color: #212529; padding-right: 10px;"></i></a>
                     </h2>

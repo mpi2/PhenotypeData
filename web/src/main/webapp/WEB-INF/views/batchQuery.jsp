@@ -315,44 +315,44 @@
                     + '</div>'
                     + '</div>';
 
-                $("a#bqdoc").qtip({
-                    hide: false,
-                    content: {
-                        text: bqDoc,
-                        title: {'button': 'close'}
-                    },
-                    style: {
-                        classes: 'qtipimpc',
-                        tip: {corner: 'center top'}
-                    },
-                    position: {
-                        my: 'left top',
-                        adjust: {x: 0, y: 0}
-                    },
-                    show: {
-                        event: 'click' //override the default mouseover
-                    },
-                    events: {
-                        show: function (event, api) {
-                            $('div#docTabs').tabs();
-                            $('ul.ui-tabs-nav li a').click(function () {
-                                $('ul.ui-tabs-nav li a').css({
-                                    'border-bottom': 'none',
-                                    'background-color': '#F4F4F4',
-                                    'border': 'none'
-                                });
-                                $(this).css({
-                                    'border': '1px solid #666',
-                                    'border-bottom': '1px solid white',
-                                    'background-color': 'white',
-                                    'color': '#666'
-                                });
-                            });
-
-                            $('ul.ui-tabs-nav li:nth-child(1) a').click();  // activate this by default
-                        }
-                    }
-                });
+                // $("a#bqdoc").qtip({
+                //     hide: false,
+                //     content: {
+                //         text: bqDoc,
+                //         title: {'button': 'close'}
+                //     },
+                //     style: {
+                //         classes: 'qtipimpc',
+                //         tip: {corner: 'center top'}
+                //     },
+                //     position: {
+                //         my: 'left top',
+                //         adjust: {x: 0, y: 0}
+                //     },
+                //     show: {
+                //         event: 'click' //override the default mouseover
+                //     },
+                //     events: {
+                //         show: function (event, api) {
+                //             $('div#docTabs').tabs();
+                //             $('ul.ui-tabs-nav li a').click(function () {
+                //                 $('ul.ui-tabs-nav li a').css({
+                //                     'border-bottom': 'none',
+                //                     'background-color': '#F4F4F4',
+                //                     'border': 'none'
+                //                 });
+                //                 $(this).css({
+                //                     'border': '1px solid #666',
+                //                     'border-bottom': '1px solid white',
+                //                     'background-color': 'white',
+                //                     'color': '#666'
+                //                 });
+                //             });
+                //
+                //             $('ul.ui-tabs-nav li:nth-child(1) a').click();  // activate this by default
+                //         }
+                //     }
+                // });
 
                 $("#accordion").accordion();
 

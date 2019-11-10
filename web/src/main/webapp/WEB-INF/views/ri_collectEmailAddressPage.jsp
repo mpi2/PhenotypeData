@@ -27,8 +27,8 @@
 
                 <div class="row">
                     <div class="col-md-12">
-                        <p><a href="${paBaseUrl}">Home</a>
-                            <span class="fal fa-angle-right"></span><a href="${paBaseUrl}/rilogin">My Genes</a>
+                        <p><a href="${baseUrl}">Home</a>
+                            <span class="fal fa-angle-right"></span><a href="${baseUrl}/rilogin">My Genes</a>
                             <span class="fal fa-angle-right"></span> ${title}
                         </p>
                     </div>
@@ -47,7 +47,7 @@
                     <div class="login-form row ml-0 mr-0 mb-2">
                         <form
                                 class="col-md-6"
-                                action="${paBaseUrl}/sendEmail"
+                                action="${baseUrl}/sendEmail"
                                 method="POST">
                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
                             <input type="hidden" name="requestedAction" value="${title}" />

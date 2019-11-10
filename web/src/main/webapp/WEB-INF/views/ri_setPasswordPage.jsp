@@ -19,8 +19,8 @@
 
             <div class="row">
                 <div class="col-md-12">
-                    <p><a href="${paBaseUrl}">Home</a>
-                        <span class="fal fa-angle-right"></span><a href="${paBaseUrl}/summary">My Genes</a>
+                    <p><a href="${baseUrl}">Home</a>
+                        <span class="fal fa-angle-right"></span><a href="${baseUrl}/summary">My Genes</a>
                         <span class="fal fa-angle-right"></span> ${action}
                     </p>
                 </div>
@@ -37,7 +37,7 @@
 
                     <form
                             class="col-md-6 mt-3"
-                            action="${paBaseUrl}/setPassword?action=${action}"
+                            action="${baseUrl}/setPassword?action=${action}"
                             method="POST">
 
                         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />

@@ -23,8 +23,8 @@
 
                 <div class="row">
                     <div class="col-md-12">
-                        <p><a href="${paBaseUrl}">Home</a>
-                            <span class="fal fa-angle-right"></span><a href="${paBaseUrl}/rilogin">My Genes</a>
+                        <p><a href="${baseUrl}">Home</a>
+                            <span class="fal fa-angle-right"></span><a href="${baseUrl}/rilogin">My Genes</a>
                             <span class="fal fa-angle-right"></span> ${title}
                         </p>
                     </div>

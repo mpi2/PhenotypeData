@@ -24,8 +24,8 @@
 
                 <div class="row">
                     <div class="col-md-12">
-                        <p><a href="${paBaseUrl}">Home</a>
-                            <span class="fal fa-angle-right"></span><a href="${paBaseUrl}/rilogin">My Genes</a>
+                        <p><a href="${baseUrl}">Home</a>
+                            <span class="fal fa-angle-right"></span><a href="${baseUrl}/rilogin">My Genes</a>
                             <span class="fal fa-angle-right"></span> Login
                         </p>
                     </div>
@@ -39,15 +39,16 @@
                         <p>
                             My Genes login is a place where you can:
                             <ul class="mt-0 pt-0">
-                                <li><a href="${paBaseUrl}/newAccountRequest">Create a new account</a></li>
-                                <li> <a href="${paBaseUrl}/resetPasswordRequest">Reset your password</a></li>
+                                <li><a href="${baseUrl}/newAccountRequest">Create a new account</a></li>
+                                <li> <a href="${baseUrl}/resetPasswordRequest">Reset your password</a></li>
                                 <li>Log in to your My Genes account to view and manage the list of genes you've followed</li>
                             </ul>
                         </p>
 
                         <div class="login-form row ml-3 mr-3 mb-3">
-                            <form action="${paBaseUrl}/rilogin?target=${target}" method="POST" class="form-horizontal">
+                            <form action="${baseUrl}/rilogin" method="POST" class="form-horizontal">
                                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                                <input type="hidden" name="target" value="${target}"/>
 
                                 <c:if test="${param.error != null}">
 

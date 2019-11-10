@@ -37,7 +37,7 @@
 
                     <div class="login-form">
 
-                        <form action="accountDeleteConfirmation" method="POST" class="form-horizontal">
+                        <form action="${baseUrl}/accountDeleteConfirmation" method="POST" class="form-horizontal">
                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 
                             <h3>Delete account <i>${emailAddress}</i></h3>
