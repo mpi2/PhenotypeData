@@ -74,7 +74,7 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 		requestConfig.put("mappedHostname", mappedHostname);
 		requestConfig.put("baseUrl", request.getContextPath());
 		requestConfig.put("isProxied", Boolean.FALSE);
-		log.debug("mappedHostName = {}. baseUrl = {}", mappedHostname, request.getContextPath());
+		log.debug("mappedHostName = {}. baseUrl before translation = {}", mappedHostname, request.getContextPath());
 
 		// If this webapp is being accessed behind a proxy, the
 		// x-forwarded-host header will be set, in which case, use the
@@ -100,6 +100,7 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 			}
 		}
 
+		log.debug("mappedHostName = {}. baseUrl after translation = {}", mappedHostname, requestConfig.get("baseUrl"));
 
 		if (config.get("liveSite").equals("false")) {
 			// If DEV or BETA, refresh the cache daily
