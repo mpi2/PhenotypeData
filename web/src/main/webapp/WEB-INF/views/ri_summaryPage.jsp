@@ -6,6 +6,11 @@
 
     <jsp:attribute name="title">My Genes</jsp:attribute>
 
+    <jsp:attribute name="header">
+        <meta name="_csrf" content="${_csrf.token}"/>
+        <meta name="_csrf_header" content="${_csrf.headerName}"/>
+    </jsp:attribute>
+
     <jsp:attribute name="bodyTag">
         <body class="no-sidebars small-header">
     </jsp:attribute>
@@ -14,13 +19,71 @@
         <script>
             $(document).ready(function () {
                 $('#following').DataTable({
-                    "scrollY":        "50vh",
-                    "scrollCollapse": true,
                     "paging":         false,
                     "oLanguage": {
                         "sSearch": "Search the table:"
                     }
                 });
+
+                // Enable CSRF processing for forms on this page
+                function loadCsRf() {
+                    var token = $("meta[name='_csrf']").attr("content");
+                    var header = $("meta[name='_csrf_header']").attr("content");
+                    console.log('_csrf:_csrf_header' + token + ':' + header);
+                    $(document).ajaxSend(function(e, xhr, options) {
+                        xhr.setRequestHeader(header, token);
+                    });
+                }
+                loadCsRf();
+
+                // Wire up the AJAX callbacks to the approprate forms
+                $('form.follow-form').submit(function(event) {
+
+                    // Prevent the form from submitting when JS is enabled
+                    event.preventDefault();
+
+                    // Get which gene this is a form for
+                    var $form = $(this),
+                        acc = $form.find('input[name="geneAccessionId"]').val();
+
+                    // Do asynch request to change the state of the follow flag for this gene
+                    // and update button appropriately on success
+                    $.ajax({
+                        type: "POST",
+                        url: "${baseUrl}/update-gene-registration?asynch=true",
+                        data: $(this).serialize(),
+                        success: function(data) {
+
+                            // Data is a map of gene accession id -> status
+                            // Status is either "Following" or "Not Following"
+                            var acc = Object.keys(data)[0];
+                            switch(data[acc]) {
+                                case "Following":
+                                    $('form#follow-form-'+acc.replace(":", "")).find("button")
+                                        .attr('title', 'You are following ${gene.markerSymbol}. Click to stop following.')
+                                        .removeClass('btn-primary')
+                                        .addClass('btn-outline-secondary')
+                                        .text('Stop following');
+                                    break;
+
+                                case "Not Following":
+                                    $('form#follow-form-'+acc.replace(":", "")).find("button")
+                                        .attr('title', 'Click to follow ${gene.markerSymbol}.')
+                                        .addClass('btn-primary')
+                                        .removeClass('btn-outline-secondary')
+                                        .text('Follow');
+                                    break;
+                                default:
+                                    console.log("Cannot find response type for response: " + acc);
+                                    break;
+                            }
+                        },
+                        error: function() {
+                            window.location("${baseUrl}/rilogin?target=${baseUrl}/summary");
+                        }
+                    });
+                });
+
             });
         </script>
     </jsp:attribute>
@@ -33,7 +96,7 @@
 
                 <div class="row">
                     <div class="col-md-12">
-                        <p><a href="${paBaseUrl}">Home</a>
+                        <p><a href="${baseUrl}">Home</a>
                             <span class="fal fa-angle-right"></span>My Genes
                         </p>
                     </div>
@@ -46,39 +109,30 @@
                         <h2 class="title" id="top">My Genes</h2>
                         <p>
                             In this screen you may:
-                        <ul class="mt-0 pt-0">
-                            <li>
-                                <a
-<%--                                        class="btn"--%>
-                                        href="${paBaseUrl}/rilogout"
-                                        title="Log out of My Genes">
-                                    Logout
-                                </a>
-                            </li>
-                            <li>
-                                <a
-<%--                                        class="btn"--%>
-                                        href="${paBaseUrl}/changePasswordRequest"
-                                        title="Change your My Genes password">
-                                    Change password
-                                </a>
-                            </li>
-                            <li>
-                                <a
-<%--                                        class="btn"--%>
-                                        href="${paBaseUrl}/accountDeleteRequest"
-                                        title="Delete your My Genes account and all of your followed genes">
-                                    Delete account
-                                </a>
-                            </li>
-
-
-<%--                                <a href="${paBaseUrl}/newAccountRequest">Create a new account</a></li>--%>
-<%--                            <li> <a href="${paBaseUrl}/resetPasswordRequest">Change or reset your password</a></li>--%>
-<%--                            <li> <a href="${paBaseUrl}/search">Search all genes</a></li>--%>
-                            <li>View and manage the list of genes you've followed</li>
-<%--                            <li>Delete your account and stop following all genes</li>--%>
-                        </ul>
+                            <ul class="mt-0 pt-0">
+                                <li>
+                                    <a
+                                            href="${baseUrl}/rilogout"
+                                            title="Log out of My Genes">
+                                        Logout
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                            href="${baseUrl}/resetPasswordRequest"
+                                            title="Reset your My Genes password">
+                                        Reset your password
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                            href="${baseUrl}/accountDeleteRequest"
+                                            title="Delete your My Genes account and all of your followed genes">
+                                        Delete your account
+                                    </a>
+                                </li>
+                                <li>View and manage the list of genes you've followed</li>
+                            </ul>
                         </p>
 
                         <h4>Username: ${summary.emailAddress}</h4>
@@ -96,7 +150,7 @@
                         </c:choose>
 
                         <div id="summaryTableDiv">
-                            <table id="following" class='table table-bordered table-hoverr'>
+                            <table id="following" class='table table-bordered'>
                                 <thead>
                                     <tr>
                                         <th>Gene Symbol</th>
@@ -113,7 +167,7 @@
                                     <c:forEach var="gene" items="${summary.genes}" varStatus="loop">
                                         <tr>
                                             <td>
-                                                <a href='${paBaseUrl}/genes/${gene.mgiAccessionId}'>${gene.symbol}</a>
+                                                <a href='${baseUrl}/genes/${gene.mgiAccessionId}'>${gene.symbol}</a>
                                             </td>
                                             <td><a href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}">${gene.mgiAccessionId}</a></td>
 
@@ -151,23 +205,21 @@
                                                 <c:choose>
                                                     <c:when test="${gene.riPhenotypingStatus == 'Phenotyping data available'}">
 
-                                                        <a href='${paBaseUrl}/genes/${gene.mgiAccessionId}#order'>Yes</a>
+                                                        <a href='${baseUrl}/genes/${gene.mgiAccessionId}#order'>Yes</a>
                                                     </c:when>
                                                     <c:otherwise>
-                                                        <a href='${paBaseUrl}/genes/${gene.mgiAccessionId}#order'>No</a>
+                                                        <a href='${baseUrl}/genes/${gene.mgiAccessionId}#order'>No</a>
                                                     </c:otherwise>
                                                 </c:choose>
                                             </td>
                                             <td>
-                                                <form id="formUnregister" style="border: 0;">
+                                                <form id="follow-form-${fn:replace(gene.mgiAccessionId, ':', '')}"
+                                                      action="${baseUrl}/update-gene-registration"
+                                                      method="POST"
+                                                      class="follow-form">
                                                     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                                                    <button
-                                                            formaction="${paBaseUrl}/unregistration/gene/${gene.mgiAccessionId}"
-                                                            class="btn btn-block btn-primary btn-default"
-                                                            type="submit"
-                                                            formmethod="POST">
-                                                        Stop following
-                                                    </button>
+                                                    <input type="hidden" name="geneAccessionId" value="${gene.mgiAccessionId}" />
+                                                    <button class="btn btn-outline-secondary" type="submit">Stop following</button>
                                                 </form>
                                             </td>
                                         </tr>
@@ -179,36 +231,6 @@
                 </div>
             </div>
         </div>
-
-<%--        <div class="container">--%>
-<%--            <div class="row mb-5 ml-3 mr-3">--%>
-<%--                <a--%>
-<%--                        class="btn"--%>
-<%--                        href="${paBaseUrl}/rilogout"--%>
-<%--                        title="Log out of My Genes">--%>
-<%--                    Logout--%>
-<%--                </a>--%>
-<%--                <a--%>
-<%--                        class="btn"--%>
-<%--                        href="${paBaseUrl}/search"--%>
-<%--                        title="Search all genes">--%>
-<%--                    Search all genes--%>
-<%--                </a>--%>
-<%--                <a--%>
-<%--                        class="btn btn-outline-secondary mx-auto"--%>
-<%--                        href="${paBaseUrl}/resetPasswordRequest"--%>
-<%--                        title="Reset My Genes password">--%>
-<%--                    Reset password--%>
-<%--                </a>--%>
-<%--                <a--%>
-<%--                        class="btn btn-outline-danger"--%>
-<%--                        href="${paBaseUrl}/accountDeleteRequest"--%>
-<%--                        title="Delete My Genes account and all of my followed genes"--%>
-<%--                        style="float: right;">--%>
-<%--                    Delete account--%>
-<%--                </a>--%>
-<%--            </div>--%>
-<%--        </div>--%>
 
     </jsp:body>
 </t:genericpage>

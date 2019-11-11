@@ -140,8 +140,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/summary").access("hasRole('USER') or hasRole('ADMIN')")
                 .antMatchers(HttpMethod.POST, "/registration/**").access("hasRole('USER') or hasRole('ADMIN')")
                 .antMatchers(HttpMethod.POST, "/unregistration/**").access("hasRole('USER') or hasRole('ADMIN')")
-                .antMatchers(HttpMethod.GET, "/account").access("hasRole('USER') or hasRole('ADMIN')")
-                .antMatchers(HttpMethod.POST, "/account").access("hasRole('USER') or hasRole('ADMIN')")
+                .antMatchers(HttpMethod.POST, "/toggle/**").access("hasRole('USER') or hasRole('ADMIN')")
+                .antMatchers(HttpMethod.GET, "/account/**").access("hasRole('USER') or hasRole('ADMIN')")
+                .antMatchers(HttpMethod.POST, "/account/**").access("hasRole('USER') or hasRole('ADMIN')")
                 .antMatchers(HttpMethod.GET,"/**")
                 .permitAll()
 
@@ -254,15 +255,49 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * This class was built from the spring-security-web:.1.6.RELEASE version of SavedRequestAwareAuthenticationSuccessHandler.
+     * This class is meant to be identical to SavedRequestAwareAuthenticationSuccessHandler, with the addition of
+     * a request parameter named 'target' which, if supplied, identifies a target different than the default and
+     * different than the original target before spring
+     */
     public class RiSavedRequestAwareAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
         private final Logger       logger       = LoggerFactory.getLogger(this.getClass().getCanonicalName());
         private       RequestCache requestCache = new HttpSessionRequestCache();
 
-        public RiSavedRequestAwareAuthenticationSuccessHandler() {
+
+        @Override
+        public void onAuthenticationSuccess(HttpServletRequest request,
+                                            HttpServletResponse response, Authentication authentication)
+                throws ServletException, IOException {
+            SavedRequest savedRequest = requestCache.getRequest(request, response);
+
+            if (savedRequest == null) {
+                super.onAuthenticationSuccess(request, response, authentication);
+
+                return;
+            }
+            String targetUrlParameter = getTargetUrlParameter();
+            if (isAlwaysUseDefaultTargetUrl()
+                    || (targetUrlParameter != null && StringUtils.hasText(request
+                                                                                  .getParameter(targetUrlParameter)))) {
+                requestCache.removeRequest(request, response);
+                super.onAuthenticationSuccess(request, response, authentication);
+
+                return;
+            }
+
+            clearAuthenticationAttributes(request);
+
+            // Use the DefaultSavedRequest URL
+            String targetUrl = savedRequest.getRedirectUrl();
+            logger.debug("Redirecting to DefaultSavedRequest Url: " + targetUrl);
+            getRedirectStrategy().sendRedirect(request, response, targetUrl);
         }
 
-        public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
+
+        public void onAuthenticationSuccess2(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
             logger.info("============RiSavedRequest: Authentication Success!");
 
             // Set the session maximum inactive interval. The interval parameter is in seconds.
@@ -430,4 +465,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             return value;
         }
     }
+
+
 }

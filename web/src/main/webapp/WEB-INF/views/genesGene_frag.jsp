@@ -88,7 +88,7 @@
            title="View mouse-human gene orthologs with Ensembl comparative genomics browser">Ensembl Orthologs</a>
         &nbsp;&nbsp;
 
-        <a target="_blank" href="${paBaseUrl}/summary" title="Show your genes of interest">My Genes</a>
+        <a target="_blank" href="${baseUrl}/summary" title="Show your genes of interest">My Genes</a>
         &nbsp;&nbsp;
 
         <c:if test="${gene.isIdgGene}">
@@ -111,7 +111,7 @@
         <div class="float-left">
             <form style="border: 0;">
                 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-                <input type="hidden" name="target" value="${paBaseUrl}/genes/${gene.mgiAccessionId}"/>
+                <input type="hidden" name="target" value="${baseUrl}/genes/${gene.mgiAccessionId}"/>
                 <button type="submit" class="btn btn-primary" formaction="${registerButtonAnchor}"
                         formmethod="${formMethod}">
                     <i class="${registerIconClass}"></i>&nbsp;

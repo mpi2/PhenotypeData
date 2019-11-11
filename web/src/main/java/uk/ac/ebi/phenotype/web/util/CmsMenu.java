@@ -60,7 +60,10 @@ public class CmsMenu extends HttpProxy {
 	 * @return a JSON representation of the CMS menu
 	 */
 	@Cacheable(sync = true, value = "menu")
-	public List<MenuItem> getCmsMenu(String cmsBaseUrl) {
+	public List<MenuItem> getCmsMenu(String cmsBaseUrl, String baseUrl) {
+
+		log.info("getCmsMenu baseUrl: "  + baseUrl);
+		log.info("getCmsMenu cmsBaseUrl: "  + cmsBaseUrl);
 
 		String content = publicMenu;
 		Random randomGenerator = new Random();
@@ -81,7 +84,7 @@ public class CmsMenu extends HttpProxy {
 				// FIXME FIXME FIXME
 				// FIXME FIXME FIXME
 				// FIXME FIXME FIXME
-//				publicMenu = prependToMenu(publicMenu);
+				publicMenu = prependToMenu(publicMenu, baseUrl);
 				// FIXME FIXME FIXME
 				// FIXME FIXME FIXME
 				// FIXME FIXME FIXME
@@ -118,9 +121,11 @@ public class CmsMenu extends HttpProxy {
 	// FIXME FIXME FIXME
 	// FIXME FIXME FIXME
 	// FIXME FIXME FIXME
-	String prependToMenu(String menu) {
-		String paBaseUrl = "http://localhost:8080/data";
-		String summaryMenu = "{\"name\":\"My Genes\",\"link\":\"" + paBaseUrl + "/summary\",\"children\":[]},";
+	String prependToMenu(String menu, String baseUrl) {
+
+		log.info("prependToMenu baseUrl: "  + baseUrl);
+
+		String summaryMenu = "{\"name\":\"My Genes\",\"link\":\"" + baseUrl + "/summary\",\"children\":[]},";
 		int idx = menu.indexOf("{");
 		StringBuilder sb = new StringBuilder(menu);
 		sb.insert(idx, summaryMenu);

@@ -27,9 +27,9 @@
 
                 <div class="row">
                     <div class="col-md-12">
-                        <p><a href="${paBaseUrl}">Home</a>
-                            <span class="fal fa-angle-right"></span><a href="${paBaseUrl}/rilogin">My Genes</a>
-                            <span class="fal fa-angle-right"></span> Collect e-mail address
+                        <p><a href="${baseUrl}">Home</a>
+                            <span class="fal fa-angle-right"></span><a href="${baseUrl}/rilogin">My Genes</a>
+                            <span class="fal fa-angle-right"></span> ${title}
                         </p>
                     </div>
                 </div>
@@ -37,29 +37,35 @@
 
             <div class="row row-over-shadow">
                 <div class="col-md-12 white-bg">
-                    <h2 class="title">Collect e-mail address</h2>
+                    <h2 class="title">${title}</h2>
+
+                    <p>
+                        Please enter the e-mail address for your account and press the <i>${title}</i> button. To
+                        complete this operation, please reply to the e-mail sent to that address.
+                    </p>
+
                     <div class="login-form row ml-0 mr-0 mb-2">
                         <form
                                 class="col-md-6"
-                                action="${paBaseUrl}/sendEmail"
+                                action="${baseUrl}/sendEmail"
                                 method="POST">
                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
                             <input type="hidden" name="requestedAction" value="${title}" />
 
-                            <c:if test="${param.error != null}">
+                            <c:if test="${not empty param.error}">
                                 <c:if test="${empty param.errorMessage}">
-                                    <div class="messages error">
+                                    <div class="alert alert-danger">
                                         <p>Invalid username and password.</p>
                                     </div>
                                 </c:if>
                                 <c:if test="${not empty param.errorMessage}">
-                                    <div class="messages error">
+                                    <div class="alert alert-danger">
                                         <p>${param.errorMessage}</p>
                                     </div>
                                 </c:if>
                             </c:if>
                             <c:if test="${status != null}">
-                                <div class="messages" style="color: indigo">
+                                <div class="alert alert-success">
                                     <c:if test="${showWhen}">
                                         ${current.toLocaleString()}:&nbsp;
                                     </c:if>
@@ -68,22 +74,22 @@
                             </c:if>
 
                             <div class="form-group row">
-                                <label for="username" class="col-4 pl-0 col-form-label">Email address</label>
+                                <label for="emailAddress" class="col-4 pl-0 col-form-label">Email address:</label>
                                 <div class="col-6 m-0 pl-0">
                                     <input
                                             class="m-0 pl-1 col-md-12"
                                             type="email"
                                             class="form-control"
-                                            id="username"
+                                            id="emailAddress"
                                             name="emailAddress"
-                                            value="${emailAddress}"
+                                            value="${param.emailAddress}"
                                             placeholder="myaddress@example.com"
                                             required />
                                 </div>
                             </div>
 
                             <div class="form-group row">
-                                <label for="repeatEmailAddress" class="col-4 pl-0 col-form-label">Repeat email address</label>
+                                <label for="repeatEmailAddress" class="col-4 pl-0 col-form-label">Repeat email address:</label>
                                 <div class="col-6 m-0 pl-0">
                                     <input
                                             class="m-0 pl-1 col-md-12"
@@ -91,7 +97,7 @@
                                             class="form-control"
                                             id="repeatEmailAddress"
                                             name="repeatEmailAddress"
-                                            value="${emailAddress}"
+                                            value="${param.repeatEmailAddress}"
                                             placeholder="myaddress@example.com"
                                             required />
                                 </div>
@@ -111,8 +117,8 @@
                                             value="${title}" />
                                 </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

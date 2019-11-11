@@ -6,13 +6,13 @@
     /*
      Get the menu JSON from CMS, fallback to a default menu when CMS endpoint is not responding
      */
+
+    String baseUrl = (request.getAttribute("baseUrl") != null && !((String) request.getAttribute("baseUrl")).isEmpty()) ? (String) request.getAttribute("baseUrl") : application.getInitParameter("baseUrl");
+    jspContext.setAttribute("baseUrl", baseUrl);
+
     String url = (String) request.getAttribute("cmsBaseUrl");
     CmsMenu proxy = new CmsMenu();
-
-    List<CmsMenu.MenuItem> menu = proxy.getCmsMenu(url);
-    String baseUrl = (request.getAttribute("baseUrl") != null && !((String) request.getAttribute("baseUrl")).isEmpty()) ? (String) request.getAttribute("baseUrl") : application.getInitParameter("baseUrl");
-
-    jspContext.setAttribute("baseUrl", baseUrl);
+    List<CmsMenu.MenuItem> menu = proxy.getCmsMenu(url, baseUrl);
     jspContext.setAttribute("menu", menu);
 %>
 

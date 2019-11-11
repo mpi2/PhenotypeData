@@ -180,6 +180,7 @@ public class GenesController {
         return "genes";
     }
 
+
     @RequestMapping("/genes/export/{acc}")
     public void genesExport(@PathVariable String acc,
                             @RequestParam(required = true, value = "fileType") String fileType,
@@ -292,11 +293,10 @@ public class GenesController {
             LOGGER.error("ERROR: ", e);
         }
 
-        // MY GENES FOLLOWING (REGISTER INTEREST)
+        // Register Interest setup
         boolean loggedIn = false;
         boolean following = false;
         try {
-
             loggedIn = riUtils.isLoggedIn();
             if (loggedIn) {
                 following = riUtils.getGeneAccessionIds().contains(acc);
@@ -306,6 +306,7 @@ public class GenesController {
             // Nothing to do. Handle as unauthenticated.
         }
 
+        // Register Interest model requirements
         model.addAttribute("paBaseUrl", config.get("paBaseUrl"));
         model.addAttribute("acc", acc);
         model.addAttribute("isLoggedIn", loggedIn);

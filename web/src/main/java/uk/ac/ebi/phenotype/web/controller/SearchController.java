@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestUtils;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -47,12 +46,9 @@ public class SearchController {
     private final SearchGeneService      searchGeneService;
     private final SearchPhenotypeService searchPhenotypeService;
 
-    @Resource(name = "globalConfiguration")
-    Map<String, String> config;
-
     @Inject
     public SearchController(SearchGeneService searchGeneService, SearchPhenotypeService searchPhenotypeService,
-                            RegisterInterestUtils riUtils, String paBaseUrl) {
+                            RegisterInterestUtils riUtils) {
         this.searchGeneService = searchGeneService;
         this.searchPhenotypeService = searchPhenotypeService;
         this.riUtils = riUtils;
@@ -133,6 +129,10 @@ public class SearchController {
             if (gene.getLatestPhenotypeStatus() != null && gene.getLatestPhenotypeStatus().equalsIgnoreCase("Phenotyping Complete")) {
                 gene.setLatestPhenotypeStatus("Phenotype data available");
             }
+        });
+
+        // Initialise Register Interest button for each gene
+        genes.forEach(gene -> {
             if (isLoggedIn) {
                 isFollowing.put(gene.getMgiAccessionId(), followedAccessionIds.contains(gene.getMgiAccessionId()) ? true : false);
             }
@@ -142,7 +142,6 @@ public class SearchController {
         model.addAttribute("numberOfResults", Long.toString(response.getResults().getNumFound()));
 
         // Register Interest model requirements
-        model.addAttribute("paBaseUrl", config.get("paBaseUrl"));
         model.addAttribute("isLoggedIn", isLoggedIn);
         model.addAttribute("isFollowing", isFollowing);
 
