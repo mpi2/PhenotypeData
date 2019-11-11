@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.annotation.Resource;
@@ -27,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,27 +39,6 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
-
-    @Override
-    public void postHandle(			HttpServletRequest request,
-                                       HttpServletResponse response,
-                                       Object handler,
-                                       ModelAndView modelAndView) throws Exception {
-
-        // Do not set attributes for assets
-        if (request.getRequestURI().endsWith(".js")
-                || request.getRequestURI().endsWith(".css")
-                || request.getRequestURI().endsWith(".gif")
-                || request.getRequestURI().endsWith(".png")) {
-            return;
-        }
-
-
-        Collections.list(request.getAttributeNames()).stream().filter(x-> ! x.toLowerCase().startsWith("org.springframework"))
-                .forEach(x -> log.info("posthandle value of {} is {}", x, request.getAttribute(x).toString()));
-
-        this.preHandle(request, response, handler);
-    }
 
 	/**
 	 * set baseUrl and other variables for all controllers
@@ -86,10 +63,8 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 
 		// Map the global config values into the request configuration
 		config.keySet().forEach(key -> {
-			log.debug("Setting {} to {}", key, config.get(key));
 			requestConfig.put(key, config.get(key));
 		});
-
 
 		// Base url and mapped hostname get overwritten when there is a proxy in the middle.
 		// Set the defaults here and override below if necessary.
@@ -97,6 +72,7 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 		requestConfig.put("mappedHostname", mappedHostname);
 		requestConfig.put("baseUrl", request.getContextPath());
 		requestConfig.put("isProxied", Boolean.FALSE);
+
 		log.debug("mappedHostName = {}. baseUrl before translation = {}", mappedHostname, request.getContextPath());
 
 		// If this webapp is being accessed behind a proxy, the
@@ -133,13 +109,10 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 
 		// Map the request configuration into the request object
 		requestConfig.keySet().forEach(key -> {
+			log.debug("Setting {} to {}", key, requestConfig.get(key));
 			request.setAttribute(key, requestConfig.get(key));
 		});
 		request.setAttribute("requestConfig", requestConfig);
-
-        Collections.list(request.getAttributeNames()).stream().filter(x-> ! x.toLowerCase().startsWith("org.springframework"))
-                .forEach(x -> log.info(" --> prehandle value of {} is {}", x, request.getAttribute(x).toString()));
-
 
         log.debug("Interception! Intercepted path " + request.getRequestURI());
 		return true;
