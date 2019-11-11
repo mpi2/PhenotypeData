@@ -130,6 +130,8 @@ public class CmsMenu extends HttpProxy {
 		StringBuilder sb = new StringBuilder(menu);
 		sb.insert(idx, summaryMenu);
 
+		log.info("menu after inserting is: " + sb.toString());
+
 		return sb.toString();
 	}
 	// FIXME FIXME FIXME
