@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.annotation.Resource;
@@ -26,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,6 +41,27 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
+
+    @Override
+    public void postHandle(			HttpServletRequest request,
+                                       HttpServletResponse response,
+                                       Object handler,
+                                       ModelAndView modelAndView) throws Exception {
+
+        // Do not set attributes for assets
+        if (request.getRequestURI().endsWith(".js")
+                || request.getRequestURI().endsWith(".css")
+                || request.getRequestURI().endsWith(".gif")
+                || request.getRequestURI().endsWith(".png")) {
+            return;
+        }
+
+
+        Collections.list(request.getAttributeNames()).stream().filter(x-> ! x.toLowerCase().startsWith("org.springframework"))
+                .forEach(x -> log.info("posthandle value of {} is {}", x, request.getAttribute(x).toString()));
+
+        this.preHandle(request, response, handler);
+    }
 
 	/**
 	 * set baseUrl and other variables for all controllers
@@ -114,7 +137,11 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 		});
 		request.setAttribute("requestConfig", requestConfig);
 
-		log.debug("Interception! Intercepted path " + request.getRequestURI());
+        Collections.list(request.getAttributeNames()).stream().filter(x-> ! x.toLowerCase().startsWith("org.springframework"))
+                .forEach(x -> log.info(" --> prehandle value of {} is {}", x, request.getAttribute(x).toString()));
+
+
+        log.debug("Interception! Intercepted path " + request.getRequestURI());
 		return true;
 	}
 
