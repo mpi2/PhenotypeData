@@ -7,7 +7,10 @@
     /*
      Get the menu JSON from CMS, fallback to a default menu when CMS endpoint is not responding
      */
-    String baseUrl = (request.getAttribute("baseUrl") != null && !((String) request.getAttribute("baseUrl")).isEmpty()) ? (String) request.getAttribute("baseUrl") : application.getInitParameter("baseUrl");
+    String baseUrl = (request.getAttribute("baseUrl") != null && !((String) request.getAttribute("baseUrl")).isEmpty()) ? (String) request.getAttribute("baseUrl") : application.getInitParameter("base_url");
+    System.out.println("menu.tag request.getAttribute(\"baseUrl\"): " + request.getAttribute("baseUrl"));
+    System.out.println("menu.tag application.getInitParameter(\"base_url\"): " + application.getInitParameter("base_url"));
+    System.out.println("menu.tag baseUrl: " + baseUrl);
     jspContext.setAttribute("baseUrl", baseUrl);
 
     String url = (String) request.getAttribute("cmsBaseUrl");
