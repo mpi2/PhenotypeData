@@ -81,15 +81,6 @@ public class CmsMenu extends HttpProxy {
 
 				publicMenu = this.getContent(url).replaceAll("\\\\", "");
 
-				// FIXME FIXME FIXME
-				// FIXME FIXME FIXME
-				// FIXME FIXME FIXME
-				publicMenu = prependToMenu(publicMenu, baseUrl);
-				// FIXME FIXME FIXME
-				// FIXME FIXME FIXME
-				// FIXME FIXME FIXME
-
-
 				content = publicMenu;
 			}
 
@@ -104,9 +95,13 @@ public class CmsMenu extends HttpProxy {
 			content = publicMenu;
 		}
 
+		// Replace all hardcoded hostnames to the name of the current environment
 		content = content.replaceAll("https:\\\\/\\\\/www.mousephenotype.org", cmsBaseUrl);
 
-		try {
+		// Add the "My Genes" link to the menu
+        content = prependToMenu(content, baseUrl);
+
+        try {
 			final JSONArray jsonMenu = new JSONArray(content);
 			return getMenu(jsonMenu);
 		} catch (JSONException e) {
@@ -118,9 +113,6 @@ public class CmsMenu extends HttpProxy {
 
 
 
-	// FIXME FIXME FIXME
-	// FIXME FIXME FIXME
-	// FIXME FIXME FIXME
 	String prependToMenu(String menu, String baseUrl) {
 
 		log.info("prependToMenu baseUrl: "  + baseUrl);
@@ -134,9 +126,6 @@ public class CmsMenu extends HttpProxy {
 
 		return sb.toString();
 	}
-	// FIXME FIXME FIXME
-	// FIXME FIXME FIXME
-	// FIXME FIXME FIXME
 
 
 	/**
