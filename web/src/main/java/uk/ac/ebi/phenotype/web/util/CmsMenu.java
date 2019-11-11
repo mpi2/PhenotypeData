@@ -99,7 +99,7 @@ public class CmsMenu extends HttpProxy {
 
 		} catch (Exception e) {
 			// If we can't get the menu, default to the logged out menu
-			log.error("Cannot retrieve menu from CMS. Using default menu.", e.getLocalizedMessage());
+			log.error("Cannot retrieve menu from CMS. Using default menu.", e);
 			publicMenu = DEFAULT_MENU;
 			content = publicMenu;
 		}
@@ -129,6 +129,8 @@ public class CmsMenu extends HttpProxy {
 		int idx = menu.indexOf("{");
 		StringBuilder sb = new StringBuilder(menu);
 		sb.insert(idx, summaryMenu);
+
+		log.info("menu after inserting is: " + sb.toString());
 
 		return sb.toString();
 	}
