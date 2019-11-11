@@ -41,11 +41,11 @@
                     paging:         true,
                     fixedColumns:   true,
                     'createdRow': function(row, data, index){
-                        $(row).find('td:eq(1)').css('background-color', 'Orange');
+                       // $(row).find('td:eq(1)').css('background-color', 'Orange');
 
                         for(var i=1; i<data.length; i++) {
                             if (data[i] == 0) {
-                                $(row).find('td:eq('+i+')').css('background-color', '#fff').css('color', 'rgba(0, 0, 0, 0.0)').css("pointer-events", "none");
+                                $(row).find('td:eq('+i+')').css('color', 'rgba(0, 0, 0, 0.0)');
                             }else
                             if (data[i] == 1) {
                                 $(row).find('td:eq('+i+')').css('background-color', '#808080').css('color', 'rgba(0, 0, 0, 0.0)').css("pointer-events", "none");;
@@ -145,10 +145,10 @@
                                 </div>
                             </div>
                         </div>
+                        <br/>
+                        <br/>
 
-
-
-                            <table id="heatmap" class="display cell-border compact" style="font-size: 10px">
+                            <table id="heatmap" class="display cell-border compact row-border" style="font-size: 10px">
                                 <thead>
                                 <tr>
                                     <th><div class="rotate90">Gene</div></th>
