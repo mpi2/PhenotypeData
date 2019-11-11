@@ -67,7 +67,7 @@
                         }
                     }
                     var url='https://www.mousephenotype.org/embryoviewer?mgi='+data[1];
-                    if(isAnalysed)url='https://www.mousephenotype.org/embryoviewer/?mgi=MGI:1932915&wn=Average&wov=jacobian';
+                    if(isAnalysed)url='https://www.mousephenotype.org/embryoviewer/?mgi='+data[1]+'&wn=Average&wov=jacobian';
                     var win = window.open(url, '_blank');
                     win.focus();
                 } );
@@ -144,6 +144,7 @@
                 <tfoot>
                 <tr>
                     <th>Gene</th>
+                    <th>Accession</th>
                     <c:forEach var="parameter" items="${modalityHeaders}">
                         <th>${parameter}</th>
                     </c:forEach>
