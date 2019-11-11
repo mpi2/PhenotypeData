@@ -32,13 +32,8 @@
             conservation: 'development|embryo|disease'
         }
 
-        var kw = null;
-        for (var page in pageKw) {
-            if (window.location.href.indexOf(page) != -1) {
-                kw = pageKw[page];
-                break;
-            }
-        }
+        var page = window.location.href.split('/').pop();
+        var kw = pageKw[page];
 
         var tableHeader = "<thead><th></th></thead>";
         var tableCols = 1;

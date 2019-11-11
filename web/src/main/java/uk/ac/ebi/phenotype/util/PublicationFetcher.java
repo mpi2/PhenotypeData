@@ -42,6 +42,7 @@ public class PublicationFetcher {
         IMPC_CONSORTIUM,
         FUNDING_AGENCY,
         ACCEPTED_IMPC_PUBLICATION,
+        BIOSYSTEM
         ;
     }
 
@@ -63,6 +64,9 @@ public class PublicationFetcher {
             case FUNDING_AGENCY:
                 return referenceService.countAgency(agency);
 
+            case BIOSYSTEM:
+                return referenceService.countMeshTerm(agency);
+
             default:
                 return referenceService.countReviewed();
         }
@@ -78,17 +82,22 @@ public class PublicationFetcher {
         switch(publicationType) {
             case IMPC_CONSORTIUM:
                 return ((filter == null) || (filter.isEmpty())
-                        ? displayPager.getNumDocumentsToDisplay()
+                        ? referenceService.countConsortium()
                         : referenceService.countConsortiumFiltered(filter));
 
             case FUNDING_AGENCY:
                 return ((filter == null) || filter.isEmpty())
-                        ? displayPager.getNumDocumentsToDisplay()
+                        ? referenceService.countAgency(agency)
                         : referenceService.countAgencyFiltered(agency, filter);
+
+            case BIOSYSTEM:
+                return ((filter == null) || filter.isEmpty())
+                        ? referenceService.countMeshTerm(agency)
+                        : referenceService.countMeshTermFiltered(agency, filter);
 
             default:
                 return ((filter == null) || (filter.isEmpty()))
-                        ? displayPager.getNumDocumentsToDisplay()
+                        ? referenceService.countReviewed()
                         : referenceService.countFiltered(filter);
         }
     }
@@ -114,6 +123,13 @@ public class PublicationFetcher {
                                                      displayPager.getNumDocumentsToDisplay(),
                                                      displaySorter.getSortByFieldName(),
                                                      displaySorter.getSortByDirection().toString());
+            case BIOSYSTEM:
+                return referenceService.getAllMeshTerm(agency,
+                        filter,
+                        displayPager.getStartingDocumentOffset(),
+                        displayPager.getNumDocumentsToDisplay(),
+                        displaySorter.getSortByFieldName(),
+                        displaySorter.getSortByDirection().toString());
 
             default:
                 return referenceService.getAllReviewed(filter,
@@ -146,6 +162,13 @@ public class PublicationFetcher {
                                                      filter == null ? referenceService.countAgency(agency) : referenceService.countAgencyFiltered(agency, filter),
                                                      displaySorter.getSortByFieldName(),
                                                      displaySorter.getSortByDirection().toString());
+            case BIOSYSTEM:
+                return referenceService.getAllMeshTerm(agency,
+                        filter,
+                        0,
+                        filter == null ? referenceService.countBiosystem(agency) : referenceService.countBiosystemFiltered(agency, filter),
+                        displaySorter.getSortByFieldName(),
+                        displaySorter.getSortByDirection().toString());
 
             default:
                 return referenceService.getAllReviewed(filter,
