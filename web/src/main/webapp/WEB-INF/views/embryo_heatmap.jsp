@@ -144,6 +144,7 @@
                 <tfoot>
                 <tr>
                     <th>Gene</th>
+                    <th>Accession</th>
                     <c:forEach var="parameter" items="${modalityHeaders}">
                         <th>${parameter}</th>
                     </c:forEach>
