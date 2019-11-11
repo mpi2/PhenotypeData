@@ -22,7 +22,7 @@ public interface ReferenceService {
 
     List<Publication> getAllMeshTerm(String meshTerm, String filter, int start, int length, String orderBy, String sortOrder);
     int countMeshTerm(String meshTerm);
-    int countMeshTermFiltered(String filter);
+    int countMeshTermFiltered(String meshTerm, String filter);
 
     TreeMap<String, Integer> getCountByYear();
 
