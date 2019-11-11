@@ -743,36 +743,21 @@ public class SolrIndex2 {
 
         HashMap<String, Object> allele = new HashMap<>();
 
-        allele.put("marker_symbol" , alleleDoc.get("marker_symbol"));
-        allele.put("mgi_accession_id" , alleleDoc.get("mgi_accession_id"));
-        allele.put("allele_name" , alleleDoc.get("allele_name"));
-        allele.put("allele_type" , alleleDoc.get("allele_type"));
-        allele.put("allele_description" , alleleDoc.get("allele_description"));
-        allele.put("genbank_file" , alleleDoc.get("genbank_file"));
-        allele.put("allele_image" , alleleDoc.get("allele_image"));
-        if (alleleDoc.has("tissue_enquiry_links")) {
-            allele.put("tissue_enquiry_links", alleleDoc.get("tissue_enquiry_links"));
-        }
-        allele.put("allele_simple_image" , alleleDoc.get("allele_simple_image"));
-        if (alleleDoc.has("cassette")) {
-            allele.put("cassette", alleleDoc.get("cassette"));
-        }
-        if (alleleDoc.has("design_id")) {
-            allele.put("design_id", alleleDoc.get("design_id"));
-        }
-        if(alleleDoc.has("es_cell_status")) {
-            allele.put("es_cell_status", alleleDoc.get("es_cell_status"));
-        }
-
+        allele.put("marker_symbol" , getAlleleDocProperty(alleleDoc, "marker_symbol"));
+        allele.put("mgi_accession_id" ,getAlleleDocProperty(alleleDoc,"mgi_accession_id"));
+        allele.put("allele_name" , getAlleleDocProperty(alleleDoc,"allele_name"));
+        allele.put("allele_type" , getAlleleDocProperty(alleleDoc,"allele_type"));
+        allele.put("allele_description" , getAlleleDocProperty(alleleDoc,"allele_description"));
+        allele.put("genbank_file" , getAlleleDocProperty(alleleDoc,"genbank_file"));
+        allele.put("allele_image" , getAlleleDocProperty(alleleDoc,"allele_image"));
+        allele.put("tissue_enquiry_links", getAlleleDocProperty(alleleDoc,"tissue_enquiry_links"));
+        allele.put("allele_simple_image" , getAlleleDocProperty(alleleDoc,"allele_simple_image"));
+        allele.put("cassette", getAlleleDocProperty(alleleDoc,"cassette"));
+        allele.put("design_id", getAlleleDocProperty(alleleDoc,"design_id"));
+        allele.put("es_cell_status", getAlleleDocProperty(alleleDoc,"es_cell_status"));
         allele.put("targeting_vector_status", "No Targeting Vector Production");
-
-        if(alleleDoc.has("mouse_status")) {
-            allele.put("mouse_status", alleleDoc.get("mouse_status"));
-        }
-
-        if (alleleDoc.has("phenotyping_status")) {
-            allele.put("phenotyping_status", alleleDoc.get("phenotyping_status"));
-        }
+        allele.put("mouse_status", getAlleleDocProperty(alleleDoc,"mouse_status"));
+        allele.put("phenotyping_status", getAlleleDocProperty(alleleDoc,"phenotyping_status"));
 
         if (alleleDoc.has("es_cell_status") && ! alleleDoc.get("es_cell_status").equals("No ES Cell Production") && ! alleleDoc.get("es_cell_status").equals("")) {
             allele.put("targeting_vector_status" , "Targeting Vector Confirmed");
@@ -797,6 +782,14 @@ public class SolrIndex2 {
         }
 
         return allele;
+    }
+
+    private Object getAlleleDocProperty(JSONObject alleleDoc, String key) throws JSONException {
+        if(alleleDoc.has(key)) {
+            return alleleDoc.get(key);
+        } else {
+            return null;
+        }
     }
 
    private Map<String, Object> getMouseData(JSONObject jsonObject2) throws IOException, URISyntaxException, JSONException {
