@@ -412,7 +412,8 @@ public class RegisterInterestController {
             Integer randomTimeout = new Random().ints(1, (5 + 1)).limit(1).findFirst().getAsInt();
             if (existingCredentials == null || dateUtils.isExpired(existingCredentials.getCreatedAt(), randomTimeout)) {
 
-                logger.info("Register Interest Credential ({}) either does not exist or the timeout ({} minutes) has expired.  Sending new email.", existingCredentials.getToken(), randomTimeout);
+                logger.info("Register Interest Credential ({}) either does not exist or the timeout ({} minutes) has expired.  Sending new email.",
+                            (existingCredentials == null ? "Null" : existingCredentials.getToken()), randomTimeout);
 
                 // Insert request to reset_credentials table
                 ResetCredentials resetCredentials = new ResetCredentials(emailAddress, token, new Date());
