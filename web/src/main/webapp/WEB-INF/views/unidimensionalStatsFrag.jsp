@@ -29,15 +29,13 @@ ${data.mpTermId}
 	<div class="row">
 
 		<c:forEach begin="0" end="${imageCountMax}" var="i">
-		<c:forEach var="image" items="${controlImages}" varStatus="count">
-		<c:if test="${fn:length(controlImages) > i}">
-			<t:headline_image img="${controlImages[count.index]}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
-			<t:headline_image img="${controlImages[i]}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
-			<t:headline_image img="${mutantImages[count.index]}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
-		</c:if>
-		<c:if test="${fn:length(mutantImages) > i}">
-			<t:headline_image img="${mutantImages[i]}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
-		</c:if>
+                <c:if test="${fn:length(controlImages) > i}">
+                    <t:headline_image img="${controlImages[i]}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
+                </c:if>
+                <c:if test="${fn:length(mutantImages) > i}">
+                    <t:headline_image img="${mutantImages[i]}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
+                </c:if>
+        </c:forEach>
 
 	</div>
 
