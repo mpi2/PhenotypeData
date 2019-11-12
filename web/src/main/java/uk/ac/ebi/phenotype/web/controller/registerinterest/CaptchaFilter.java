@@ -37,44 +37,42 @@ public class CaptchaFilter extends OncePerRequestFilter {
     @Value("${recaptcha.response.param}")
     private String recaptchaResponseParam;
 
-    @Value("${paBaseUrl}")
-    private String paBaseUrl;
-
-
     @Override
-    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         if (
-            ("POST".equalsIgnoreCase(req.getMethod())) &&
+            ("POST".equalsIgnoreCase(request.getMethod())) &&
                 (
-                    req.getServletPath().contains("rilogin") ||
-                    req.getServletPath().contains("sendEmail")
+                    request.getServletPath().contains("rilogin") ||
+                    request.getServletPath().contains("sendEmail")
                 )
             ) {
 
+            String baseUrl = request.getAttribute("baseUrl").toString();;
+
             System.out.println("\n");
-            System.out.println("Request path " + req.getRequestURI());
-            System.out.println("Request method " + req.getMethod());
+            System.out.println("Request path " + request.getRequestURI());
+            System.out.println("Request method " + request.getMethod());
 
-            log.info("URL = " + req.getRequestURL());
+            log.info("URL = " + request.getRequestURL());
 
-            if ( ! validateRecaptcha(req)) {
-                String target = req.getHeader("referer");
-                if ((target == null) || ! (target.startsWith(paBaseUrl))) {
-                    target = paBaseUrl + "/rilogin";
+            if ( ! validateRecaptcha(request)) {
+                String target = request.getHeader("referer");
+                if ((target == null) || ! (target.startsWith(baseUrl))) {
+                    target = baseUrl + "/rilogin";
                 }
                 if (target.endsWith("sendEmail")) {
                     // sendEmail is a POST and will throw a 405 if redirected, as there is no GET. Remap to either New account or Reset password url as appropriate.
-                    String requestedAction = req.getParameter("requestedAction");
-                    target = paBaseUrl + (RegisterInterestController.TITLE_NEW_ACCOUNT_REQUEST.equals(requestedAction) ? "/newAccountRequest" : "/resetPasswordRequest");
+                    String action = request.getParameter("action");
+                    target = baseUrl + (RegisterInterestController.TITLE_NEW_ACCOUNT_REQUEST.equals(action) ? "/newAccountRequest" : "/resetPasswordRequest");
                 }
                 target += "?error=true";
-                res.sendRedirect(target);
+                response.sendRedirect(target);
                 return;
             }
 
         }
 
-        chain.doFilter(req, res);
+        chain.doFilter(request, response);
     }
 
     /**
@@ -106,7 +104,7 @@ public class CaptchaFilter extends OncePerRequestFilter {
             log.info("Exception from recaptcha service", e);
         }
 
-        log.info("Response from google recaptcha service: " + body);
+        log.debug("Response from google recaptcha service: " + body);
 
         return success;
     }

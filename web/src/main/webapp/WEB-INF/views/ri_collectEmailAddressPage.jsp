@@ -50,7 +50,7 @@
                                 action="${baseUrl}/sendEmail"
                                 method="POST">
                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                            <input type="hidden" name="requestedAction" value="${title}" />
+                            <input type="hidden" name="action" value="${title}" />
 
                             <c:if test="${not empty param.error}">
                                 <c:if test="${empty param.errorMessage}">
