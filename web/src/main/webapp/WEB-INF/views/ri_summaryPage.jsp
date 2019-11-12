@@ -90,6 +90,21 @@
 
     <jsp:body>
 
+        <div class="container data-heading">
+            <div class="row row-shadow">
+                <noscript>
+                    <div class="col-12 no-gutters">
+                        <h5 style="float: left">Please enable javascript if you want to log in to follow or stop
+                            following this gene.</h5>
+                    </div>
+                </noscript>
+
+                <div class="col-12 no-gutters">
+                    <h2 class="title">My Genes</h2>
+                </div>
+            </div>
+        </div>
+
         <div class="container single single--no-side">
 
             <div class="breadcrumbs" style="box-shadow: none; margin-top: auto; margin: auto; padding: auto">
@@ -106,7 +121,6 @@
             <div class="row row-over-shadow">
                 <div class="col-md-12 white-bg">
                     <div class="page-content">
-                        <h2 class="title" id="top">My Genes</h2>
                         <p>
                             In this screen you may:
                             <ul class="mt-0 pt-0">
