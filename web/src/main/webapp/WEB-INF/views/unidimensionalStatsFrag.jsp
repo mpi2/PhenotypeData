@@ -24,16 +24,22 @@ ${data.mpTermId}
 
 </c:if>
 
-<c:if test="${headlineImages!=null}">
 <br/>
 <h2>Flow cytometry results:</h2>
 	<div class="row">
-	
-		<c:forEach var="image" items="${headlineImages}" >
-			<t:headline_image img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
-		</c:forEach>
+
+		<c:forEach begin="0" end="${imageCountMax}" var="i">
+		<c:forEach var="image" items="${controlImages}" varStatus="count">
+		<c:if test="${fn:length(controlImages) > i}">
+			<t:headline_image img="${controlImages[count.index]}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
+			<t:headline_image img="${controlImages[i]}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
+			<t:headline_image img="${mutantImages[count.index]}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
+		</c:if>
+		<c:if test="${fn:length(mutantImages) > i}">
+			<t:headline_image img="${mutantImages[i]}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
+		</c:if>
+
 	</div>
-</c:if>
 
 <jsp:include page="unidimensionalTables.jsp"></jsp:include>
 
