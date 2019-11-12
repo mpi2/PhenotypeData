@@ -54,10 +54,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.security.SecureRandom;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -408,12 +405,24 @@ public class RegisterInterestController {
                 throw new InterestException("Skipping email '" + emailAddress + "'.");
             }
 
-            // Insert request to reset_credentials table
-            ResetCredentials resetCredentials = new ResetCredentials(emailAddress, token, new Date());
-            riSqlUtils.updateResetCredentials(resetCredentials);
+            final ResetCredentials existingCredentials = riSqlUtils.getResetCredentialsByEmail(emailAddress);
 
-            // Send e-mail
-            emailUtils.sendEmail(message);
+            // To prevent multiple emails being sent too quickly, randomly wait between 1 and 5 minutes before
+            // sending another email.
+            Integer randomTimeout = new Random().ints(1, (5 + 1)).limit(1).findFirst().getAsInt();
+            if (existingCredentials == null || dateUtils.isExpired(existingCredentials.getCreatedAt(), randomTimeout)) {
+
+                logger.info("Register Interest Credential ({}) either does not exist or the timeout ({} minutes) has expired.  Sending new email.", existingCredentials.getToken(), randomTimeout);
+
+                // Insert request to reset_credentials table
+                ResetCredentials resetCredentials = new ResetCredentials(emailAddress, token, new Date());
+                riSqlUtils.updateResetCredentials(resetCredentials);
+
+                // Send e-mail
+                emailUtils.sendEmail(message);
+            } else {
+                logger.info("Register Interest Credential ({}) timeout ({}) has not exprired. NOT sending new email.", existingCredentials.getToken(), randomTimeout);
+            }
 
         } catch (InterestException e) {
 
