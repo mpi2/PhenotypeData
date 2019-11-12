@@ -37,6 +37,9 @@ public class CaptchaFilter extends OncePerRequestFilter {
     @Value("${recaptcha.response.param}")
     private String recaptchaResponseParam;
 
+    @Value("${base_url}")
+    private String baseUrl;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         if (
@@ -46,8 +49,6 @@ public class CaptchaFilter extends OncePerRequestFilter {
                     request.getServletPath().contains("sendEmail")
                 )
             ) {
-
-            String baseUrl = request.getAttribute("baseUrl").toString();;
 
             System.out.println("\n");
             System.out.println("Request path " + request.getRequestURI());
