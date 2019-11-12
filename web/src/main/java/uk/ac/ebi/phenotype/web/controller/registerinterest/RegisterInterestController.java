@@ -336,7 +336,7 @@ public class RegisterInterestController {
     public String sendEmail(HttpServletRequest request, ModelMap model,
         @RequestParam(value = "emailAddress", defaultValue = "") String emailAddress,
         @RequestParam(value = "repeatEmailAddress", defaultValue = "") String repeatEmailAddress,
-        @RequestParam("requestedAction") String requestedAction
+        @RequestParam("action") String action
     ) {
         HttpSession session = request.getSession();
 
@@ -346,14 +346,20 @@ public class RegisterInterestController {
         model.addAttribute("repeatEmailAddress", repeatEmailAddress);
         session.setAttribute("recaptchaPublic", recaptchaPublic);
 
-        ActionType requestedActionType = (requestedAction.equals("Reset password") ? ActionType.RESET_PASSWORD : ActionType.NEW_ACCOUNT);
+        ActionType actionType = getActionType(action);
+
+        // Validate that it looks like an e-mail address.
+        if (actionType == null) {
+            logger.info("Unknown action type specified: {}", action);
+            return "redirect: " + baseUrl + "/summary";
+        }
 
         String body;
         String endpoint;
         String subject;
         String title;
 
-        switch (requestedActionType) {
+        switch (actionType) {
             case NEW_ACCOUNT:
                 title = TITLE_NEW_ACCOUNT_REQUEST;
                 subject = EMAIL_SUBJECT_NEW_ACCOUNT;
@@ -393,7 +399,7 @@ public class RegisterInterestController {
         String tokenLink = protocol + hostname + baseUrl + "/setPassword?token=" + token + "&action=" + actualAction.toString();
         logger.debug("tokenLink = " + tokenLink);
 
-        if (requestedActionType == ActionType.NEW_ACCOUNT) {
+        if (actionType == ActionType.NEW_ACCOUNT) {
             body = generateNewAccountEmail(tokenLink, accountExists);
         } else {
             body = generateResetPasswordEmail(tokenLink, accountExists);
@@ -464,7 +470,7 @@ public class RegisterInterestController {
             ModelMap model,
             HttpServletRequest request,
             @RequestParam("token") String token,
-            @RequestParam(value = "action", defaultValue = "Reset password") String action) {
+            @RequestParam(value = "action") String action) {
 
         String baseUrl = getBaseUrl(request);
 
@@ -509,9 +515,15 @@ public class RegisterInterestController {
             @RequestParam("action") String action
     ) {
 
-        ActionType actionType = (action.equals("Reset password") ? ActionType.RESET_PASSWORD : ActionType.NEW_ACCOUNT);
-
         String baseUrl = getBaseUrl(request);
+
+        ActionType actionType = getActionType(action);
+
+        // Validate that it looks like an e-mail address.
+        if (actionType == null) {
+            logger.info("Unknown action type specified: {}", action);
+            return "redirect: " + baseUrl + "/summary";
+        }
 
         model.addAttribute("token", token);
 
@@ -579,6 +591,23 @@ public class RegisterInterestController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         return "redirect: " + baseUrl + "/summary";
+    }
+
+    private ActionType getActionType(String action) {
+        ActionType actionType;
+
+        switch (action) {
+            case TITLE_RESET_PASSWORD_REQUEST:
+                actionType = ActionType.RESET_PASSWORD;
+                break;
+            case TITLE_NEW_ACCOUNT_REQUEST:
+                actionType = ActionType.NEW_ACCOUNT;
+                break;
+            default:
+                actionType = null;
+                break;
+        }
+        return actionType;
     }
 
 
