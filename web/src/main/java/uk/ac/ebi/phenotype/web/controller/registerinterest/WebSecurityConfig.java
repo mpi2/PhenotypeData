@@ -16,6 +16,8 @@
 
 package uk.ac.ebi.phenotype.web.controller.registerinterest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,10 +34,15 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
@@ -46,6 +53,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.Arrays;
@@ -184,8 +192,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin()
                 .loginPage("/rilogin")
                 .failureHandler(new CustomAuthenticationFailureHandler())
-
-                //.successHandler(new RiSavedRequestAwareAuthenticationSuccessHandler())
+                .successHandler(new RiSavedRequestAwareAuthenticationSuccessHandler())
                 .usernameParameter("ssoId")
                 .passwordParameter("password")
 
@@ -198,6 +205,51 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .ignoringAntMatchers("/batchQuery")
                 .ignoringAntMatchers("/alleleRefLogin");
     }
+
+
+    /**
+     * Success handler which overrides the default spring behaviour in order to include the baseUrl in the redirection
+     * when appropriate (i.e., when behind a proxy)
+     */
+    public class RiSavedRequestAwareAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+
+        protected Log logger = LogFactory.getLog(this.getClass());
+        private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+
+        @Override
+        public void onAuthenticationSuccess(HttpServletRequest request,
+                                            HttpServletResponse response,
+                                            Authentication authentication)
+                throws IOException {
+            handle(request, response, authentication);
+            clearAuthenticationAttributes(request);
+        }
+
+
+        protected void handle(HttpServletRequest request,
+                              HttpServletResponse response, Authentication authentication)
+                throws IOException {
+
+            String targetUrl = getBaseUrl(request) + "/summary";
+
+            if (response.isCommitted()) {
+                logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
+                return;
+            }
+
+            redirectStrategy.sendRedirect(request, response, targetUrl);
+        }
+
+        protected void clearAuthenticationAttributes(HttpServletRequest request) {
+            HttpSession session = request.getSession(false);
+            if (session == null) {
+                return;
+            }
+            session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
+        }
+    }
+
+
 
     /**
      * A Custom authentication failure class to overide the behaviour when a user authentication fails.  This is
