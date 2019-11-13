@@ -540,7 +540,7 @@ public class RegisterInterestController {
 
         // Validate that it looks like an e-mail address.
         if (actionType == null) {
-            logger.info("Unknown action type specified: {}", action);
+            logger.info("Unknown action type specified: '{}'", action);
             return "redirect: " + baseUrl + "/summary";
         }
 
