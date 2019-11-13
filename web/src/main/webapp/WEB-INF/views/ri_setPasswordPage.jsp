@@ -37,7 +37,7 @@
 
                     <form
                             class="col-md-6 mt-3"
-                            action="${baseUrl}/setPassword?action=${action}"
+                            action="${baseUrl}/setPassword"
                             method="POST">
 
                         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
