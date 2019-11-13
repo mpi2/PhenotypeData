@@ -144,13 +144,20 @@ def runWithSolrAsDataSource(solrUrl, rootDestinationDir, finalDestinationDir, ma
                 download_file_path =  download_file_path.replace(old_url, new_url)
             except KeyError:
                 print "Key '" + old_url + "' not in map - not replacing for " + download_file_path
-        datasource_id=doc['datasource_name']
-        phenotyping_center=doc['phenotyping_center']
-        #experiment=doc['experiment']
-        pipeline_stable_id=doc['pipeline_stable_id']
-        observation_id=doc['id']
-        procedure_stable_id=doc['procedure_stable_id']
-        parameter_stable_id=doc['parameter_stable_id']
+        # On 13/11/2019 got a KeyError for phenotyping centre. This should
+        # not happen, but code modified appropriately
+        try:
+            datasource_id=doc['datasource_name']
+            phenotyping_center=doc['phenotyping_center']
+            #experiment=doc['experiment']
+            pipeline_stable_id=doc['pipeline_stable_id']
+            observation_id=doc['id']
+            procedure_stable_id=doc['procedure_stable_id']
+            parameter_stable_id=doc['parameter_stable_id']
+        except KeyError as e:
+            print "Key " + str(e)+  " not returned by solr - not downloading " + download_file_path
+            notDownloaded.append(download_file_path+'\n')
+            continue
         downloaded = processFile(observation_id, rootDestinationDir, finalDestinationDir, phenotyping_center,pipeline_stable_id, procedure_stable_id, parameter_stable_id, download_file_path)
         if not downloaded:
             notDownloaded.append(download_file_path+'\n')
