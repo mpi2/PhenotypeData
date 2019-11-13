@@ -900,7 +900,7 @@ public class GeneService extends BasicService implements WebStatus{
 	public List<GeneDTO> getGeneByGeneSymbolsOrGeneSynonyms(List<String> symbols) throws SolrServerException, IOException {
 		List<GeneDTO> genes = new ArrayList<>();
 		
-		String symbolsStr = StringUtils.join(symbols, ",");  // ["bla1","bla2"]
+		String symbolsStr = StringUtils.join(symbols, "\",\"");  // ["bla1","bla2"]
 
 		SolrQuery solrQuery = new SolrQuery()
 			.setQuery(GeneDTO.MARKER_SYMBOL_LOWERCASE + ":(" + symbolsStr + ") OR " + GeneDTO.MARKER_SYNONYM_LOWERCASE + ":(" + symbolsStr + ")")
