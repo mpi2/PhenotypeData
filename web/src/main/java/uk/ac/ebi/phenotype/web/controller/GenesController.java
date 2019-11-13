@@ -165,8 +165,13 @@ public class GenesController {
     }
 
     @RequestMapping("/genes/{acc}")
-    public String genes(@PathVariable String acc, @RequestParam(value = "heatmap", required = false, defaultValue = "false") Boolean showHeatmap, Model model, HttpServletRequest request, RedirectAttributes attributes)
-            throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SQLException, SolrServerException {
+    public String genes(@PathVariable String acc,
+                        @RequestParam(value = "heatmap", required = false, defaultValue = "false") Boolean showHeatmap,
+                        Model model,
+                        HttpServletRequest request,
+                        HttpServletResponse response,
+                        RedirectAttributes attributes)
+            throws URISyntaxException, GenomicFeatureNotFoundException, IOException, SQLException, SolrServerException {
 
         String debug = request.getParameter("debug");
         LOGGER.info("#### genesAllele2: debug: " + debug);
@@ -176,6 +181,9 @@ public class GenesController {
         }
 
         processGeneRequest(acc, model, request);
+
+        response.setHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
 
         return "genes";
     }

@@ -164,6 +164,7 @@ public class RegisterInterestController {
     @RequestMapping(value = "/rilogin", method = RequestMethod.GET)
     public String rilogin(
             HttpServletRequest request,
+            HttpServletResponse response,
             @RequestParam(value = "target", required = false) String target,
             @RequestParam(value = "error", required = false) String error
     ) {
@@ -187,6 +188,8 @@ public class RegisterInterestController {
         session.setAttribute("recaptchaPublic", recaptchaPublic);
         session.setAttribute("target", target);
 
+        response.setHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
         return "loginPage";
     }
 
@@ -207,6 +210,8 @@ public class RegisterInterestController {
             sleep(INVALID_PASSWORD_SLEEP_SECONDS);
         }
 
+        response.setHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
         response.sendRedirect(target);
 
     }
@@ -302,11 +307,14 @@ public class RegisterInterestController {
 
     @Secured("ROLE_USER")
     @RequestMapping(value = "/summary", method = RequestMethod.GET)
-    public String summary(ModelMap model) {
+    public String summary(ModelMap model,
+                          HttpServletResponse response) {
 
         Summary summary = riSqlUtils.getSummary(SecurityUtils.getPrincipal());
         model.addAttribute("summary", summary);
 
+        response.setHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
         return "ri_summaryPage";
     }
 
