@@ -193,37 +193,6 @@ public class RegisterInterestController {
         return "loginPage";
     }
 
-    @RequestMapping(value = "/rilogin", method = RequestMethod.POST)
-    public void riloginPost(HttpServletRequest request,
-                              HttpServletResponse response,
-                              @RequestParam(value = "target", required = false) String target,
-                              @RequestParam(value = "error", required = false) String error
-    ) throws IOException {
-
-        logger.debug("/rilogin: Entering POST request");
-        logger.debug("/rilogin: request URI is {}", request.getRequestURI() );
-        logger.debug("/rilogin: request context path is {}", request.getContextPath() );
-        logger.debug("/rilogin: request servlet path is {}", request.getServletPath() );
-
-        String baseUrl = getBaseUrl(request);
-        logger.debug("/rilogin: baseUrl is {}", baseUrl);
-
-        if ((target == null) || (target.trim().isEmpty())) {
-            target = baseUrl + "/summary";
-        }
-
-        if (error != null) {
-            sleep(INVALID_PASSWORD_SLEEP_SECONDS);
-        }
-
-        response.setHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
-        response.setHeader("Pragma", "no-cache");
-
-        logger.debug("/rilogin: Exiting POST request response.sendRedirect(target) (target is {})", target);
-        response.sendRedirect(target);
-
-    }
-
     @RequestMapping(value = "/Access_Denied", method = RequestMethod.GET)
     public String accessDenied(ModelMap model) {
 
@@ -598,7 +567,7 @@ public class RegisterInterestController {
 
             model.addAttribute("title", TITLE_RESET_PASSWORD_FAILED);
             model.addAttribute("error", ERR_RESET_PASSWORD_FAILED);
-            logger.error("Error trying to [re]set password for {}: {}", emailAddress, e.getLocalizedMessage());
+            logger.error("Error trying to [re]set password for {}: {}", emailAddress, e);
 
             String errorMessage = (actionType == ActionType.NEW_ACCOUNT ? ERR_CREATE_ACCOUNT_FAILED : ERR_RESET_PASSWORD_FAILED);
 
