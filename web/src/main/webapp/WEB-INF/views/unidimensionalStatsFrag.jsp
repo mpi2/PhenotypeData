@@ -24,7 +24,8 @@ ${data.mpTermId}
 
 </c:if>
 
-<br/>
+<c:if test="${imageCountMax > 0}">
+<br />
 <h2>Flow cytometry results:</h2>
 	<div class="row">
 
@@ -38,6 +39,7 @@ ${data.mpTermId}
         </c:forEach>
 
 	</div>
+</c:if>
 
 <jsp:include page="unidimensionalTables.jsp"></jsp:include>
 
