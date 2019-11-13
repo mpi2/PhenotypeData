@@ -53,6 +53,7 @@ import javax.mail.Message;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -190,10 +191,11 @@ public class RegisterInterestController {
     }
 
     @RequestMapping(value = "/rilogin", method = RequestMethod.POST)
-    public String riloginPost(HttpServletRequest request,
+    public void riloginPost(HttpServletRequest request,
+                              HttpServletResponse response,
                               @RequestParam(value = "target", required = false) String target,
                               @RequestParam(value = "error", required = false) String error
-    ) {
+    ) throws IOException {
 
         String baseUrl = getBaseUrl(request);
 
@@ -205,7 +207,8 @@ public class RegisterInterestController {
             sleep(INVALID_PASSWORD_SLEEP_SECONDS);
         }
 
-        return "redirect: " + target;
+        response.sendRedirect(target);
+
     }
 
     @RequestMapping(value = "/Access_Denied", method = RequestMethod.GET)
@@ -229,7 +232,7 @@ public class RegisterInterestController {
     // The logical endpoint name is /logout, but when /logout is used, this method never gets called. It appears like
     // some Spring magic is going on. Renaming the endpoint to /rilogout avoids Spring interference and gets properly called.
     @RequestMapping(value = "/rilogout", method = RequestMethod.GET)
-    public String rilogout(HttpServletRequest request, HttpServletResponse response) {
+    public void rilogout(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
@@ -237,7 +240,7 @@ public class RegisterInterestController {
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
 
-        return "redirect:/search";
+        response.sendRedirect(getBaseUrl(request) + "/search");
     }
 
     // Call this endpoint from unauthenticated pages that want to force authentication (e.g. search, gene pages)
