@@ -7,6 +7,7 @@ import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.DiseaseDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
@@ -68,7 +69,7 @@ public class BatchQueryForm {
             checkedFields = Arrays.asList(fllist.split(","));
         }
 
-        j.put("aaData", new Object[0]);
+        j.put("aaData", new JSONArray());
         j.put("iTotalRecords", results.size());
         j.put("iTotalDisplayRecords", results.size());
 
@@ -185,7 +186,7 @@ public class BatchQueryForm {
             //System.out.println("checking " + lcQryId);
 
             if (mode.equals("onPage")) {
-                j.getJSONArray("aaData").put(qryIdRow.get(lcQryId));
+                j.getJSONArray("aaData").put(new JSONArray(qryIdRow.get(lcQryId)));
 
             }
             else {

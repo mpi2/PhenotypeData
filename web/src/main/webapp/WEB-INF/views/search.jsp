@@ -10,8 +10,12 @@
             name="bodyTag"><body id="top" class="page-node searchpage one-sidebar sidebar-first small-header"></jsp:attribute>
 
     <jsp:attribute name="header">
-        <link href="${cmsBaseUrl}/wp-content/themes/impc/css/styles.css?ver=40ab77c511c0b72810d6828792c28c78"
-              rel="stylesheet" type="text/css"/>
+
+        <meta name="_csrf" content="${_csrf.token}"/>
+        <meta name="_csrf_header" content="${_csrf.headerName}"/>
+
+        <link href="${cmsBaseUrl}/wp-content/themes/impc/css/styles.css?ver=40ab77c511c0b72810d6828792c28c78" rel="stylesheet" type="text/css"/>
+
 		<script type="application/ld+json">
             {
                 "@context": "http://schema.org",
@@ -52,6 +56,69 @@
                 ]
             }
         </script>
+        <script>
+            $(document).ready(function () {
+
+                // Enable CSRF processing for forms on this page
+            function loadCsRf() {
+                var token = $("meta[name='_csrf']").attr("content");
+                var header = $("meta[name='_csrf_header']").attr("content");
+                $(document).ajaxSend(function(e, xhr, options) {
+                    xhr.setRequestHeader(header, token);
+                });
+            }
+            loadCsRf();
+
+            // Wire up the AJAX callbacks to the approprate forms
+            $('form.follow-form').submit(function(event) {
+
+                // Prevent the form from submitting when JS is enabled
+                event.preventDefault();
+
+                // Get which gene this is a form for
+                var $form = $(this),
+                    acc = $form.find('input[name="geneAccessionId"]').val();
+
+                // Do asynch request to change the state of the follow flag for this gene
+                // and update button appropriately on success
+                $.ajax({
+                    type: "POST",
+                    url: "${baseUrl}/update-gene-registration?asynch=true",
+                    data: $(this).serialize(),
+                    success: function(data) {
+
+                        // Data is a map of gene accession id -> status
+                        // Status is either "Following" or "Not Following"
+                        var acc = Object.keys(data)[0];
+                        switch(data[acc]) {
+                            case "Following":
+                                $('form#follow-form-'+acc.replace(":", "")).find("button")
+                                    .attr('title', 'You are following ${gene.markerSymbol}. Click to stop following.')
+                                    .removeClass('btn-primary')
+                                    .addClass('btn-outline-secondary')
+                                    .text('Stop following');
+                                break;
+
+                            case "Not Following":
+                                $('form#follow-form-'+acc.replace(":", "")).find("button")
+                                    .attr('title', 'Click to follow ${gene.markerSymbol}.')
+                                    .addClass('btn-primary')
+                                    .removeClass('btn-outline-secondary')
+                                    .text('Follow');
+                                break;
+                            default:
+                                console.log("Cannot find response type for response: " + acc);
+                                break;
+                        }
+                    },
+                    error: function() {
+                        window.location("${baseUrl}/rilogin?target=${baseUrl}/search?term=${term}&type=${type}&page=${currentPage}");
+                    }
+                });
+            });
+        });
+
+        </script>
 	</jsp:attribute>
 
     <jsp:attribute name="addToFooter" />
@@ -91,12 +158,12 @@
                                         <ul class="my-2">
                                             <c:forEach var="i" items="${phenotypeSuggestions}">
                                                 <li>
-                                                    <a href="${baseUrl}/search?term=${i}&type=${type}" aria-controls="suggestion" data-dt-idx="0" tabindex="0" class="">${i}</a>
+                                                    <a href="${baseUrl}/search?term=${i}&type=phenotype" aria-controls="suggestion" data-dt-idx="0" tabindex="0" class="">${i}</a>
                                                 </li>
                                             </c:forEach>
                                             <c:forEach var="i" items="${geneSuggestions}">
                                                 <li>
-                                                    <a href="${baseUrl}/search?term=${i}&type=${type}" aria-controls="suggestion" data-dt-idx="0" tabindex="0" class="">${i}</a>
+                                                    <a href="${baseUrl}/search?term=${i}&type=gene" aria-controls="suggestion" data-dt-idx="0" tabindex="0" class="">${i}</a>
                                                 </li>
                                             </c:forEach>
                                         </ul>
@@ -116,51 +183,50 @@
                                                 <a href="${baseUrl}/genes/${gene.mgiAccessionId}"><h4>${gene.markerSymbol}</h4></a>
                                             </div>
 
-<%--                                            <div class="col-12 col-md-6">--%>
-<%--                                                <form>--%>
-<%--                                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />--%>
+                                            <div class="col-12 col-md-6">
+                                                <form action="${baseUrl}/update-gene-registration"
+                                                      method="POST"
+                                                      class="follow-form"
+                                                      id="follow-form-${fn:replace(gene.mgiAccessionId, ":", "")}">
+                                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                                    <input type="hidden" name="geneAccessionId" value="${gene.mgiAccessionId}" />
+                                                    <input type="hidden" name="target" value="${baseUrl}/rilogin?target=${baseUrl}/search?term=${term}&type=${type}&page=${currentPage}" />
 
-<%--                                                    <c:choose>--%>
-<%--                                                        <c:when test="${not empty isLoggedIn and isLoggedIn}">--%>
-<%--                                                            <c:choose>--%>
-<%--                                                                <c:when test="${isFollowing[gene.mgiAccessionId]}">--%>
-<%--                                                                    <button--%>
-<%--                                                                            formaction="${paBaseUrl}/unregistration/gene/${gene.mgiAccessionId}?target=${paBaseUrl}/search"--%>
-<%--                                                                            title="You are following ${gene.markerSymbol}. Click to stop following."--%>
-<%--                                                                            class="btn btn-outline-secondary"--%>
-<%--                                                                            type="submit"--%>
-<%--                                                                            formmethod="post"--%>
-<%--                                                                            style="float: right;">--%>
-<%--                                                                        Stop following--%>
-<%--                                                                    </button>--%>
-<%--                                                                </c:when>--%>
-<%--                                                                <c:otherwise>--%>
-<%--                                                                    <button--%>
-<%--                                                                            formaction="${paBaseUrl}/registration/gene/${gene.mgiAccessionId}?target=${paBaseUrl}/search"--%>
-<%--                                                                            title="Click to follow ${gene.markerSymbol}"--%>
-<%--                                                                            class="btn btn-primary"--%>
-<%--                                                                            type="submit"--%>
-<%--                                                                            formmethod="post"--%>
-<%--                                                                            style="float: right">--%>
-<%--                                                                        Follow--%>
-<%--                                                                    </button>--%>
-<%--                                                                </c:otherwise>--%>
-<%--                                                            </c:choose>--%>
-<%--                                                        </c:when>--%>
-<%--                                                        <c:otherwise>--%>
-<%--                                                            <button--%>
-<%--                                                                    formaction="${paBaseUrl}/rilogin?target=${paBaseUrl}/search"--%>
-<%--                                                                    title="Log in to My genes"--%>
-<%--                                                                    class="btn btn-primary"--%>
-<%--                                                                    type="submit"--%>
-<%--                                                                    formmethod="get"--%>
-<%--                                                                    style="float: right;">--%>
-<%--                                                                Log in to follow--%>
-<%--                                                            </button>--%>
-<%--                                                        </c:otherwise>--%>
-<%--                                                    </c:choose>--%>
-<%--                                                </form>--%>
-<%--                                            </div>--%>
+                                                    <c:choose>
+                                                        <c:when test="${not empty isLoggedIn and isLoggedIn}">
+                                                            <c:choose>
+                                                                <c:when test="${isFollowing[gene.mgiAccessionId]}">
+                                                                    <button
+                                                                            title="You are following ${gene.markerSymbol}. Click to stop following."
+                                                                            class="btn btn-outline-secondary"
+                                                                            type="submit"
+                                                                            style="float: right;">
+                                                                        Stop following
+                                                                    </button>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <button
+                                                                            title="Click to follow ${gene.markerSymbol}"
+                                                                            class="btn btn-primary"
+                                                                            type="submit"
+                                                                            style="float: right">
+                                                                        Follow
+                                                                    </button>
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <a
+                                                                    href="${baseUrl}/rilogin?target=${baseUrl}/search?term=${term}&type=${type}&page=${currentPage}"
+                                                                    title="Log in to My genes"
+                                                                    class="btn btn-primary"
+                                                                    style="float: right;">
+                                                                Log in to follow
+                                                            </a>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </form>
+                                            </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-12 col-md-6">

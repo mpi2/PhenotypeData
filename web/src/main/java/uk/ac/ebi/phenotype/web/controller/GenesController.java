@@ -165,8 +165,13 @@ public class GenesController {
     }
 
     @RequestMapping("/genes/{acc}")
-    public String genes(@PathVariable String acc, @RequestParam(value = "heatmap", required = false, defaultValue = "false") Boolean showHeatmap, Model model, HttpServletRequest request, RedirectAttributes attributes)
-            throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SQLException, SolrServerException {
+    public String genes(@PathVariable String acc,
+                        @RequestParam(value = "heatmap", required = false, defaultValue = "false") Boolean showHeatmap,
+                        Model model,
+                        HttpServletRequest request,
+                        HttpServletResponse response,
+                        RedirectAttributes attributes)
+            throws URISyntaxException, GenomicFeatureNotFoundException, IOException, SQLException, SolrServerException {
 
         String debug = request.getParameter("debug");
         LOGGER.info("#### genesAllele2: debug: " + debug);
@@ -177,8 +182,12 @@ public class GenesController {
 
         processGeneRequest(acc, model, request);
 
+        response.setHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
+
         return "genes";
     }
+
 
     @RequestMapping("/genes/export/{acc}")
     public void genesExport(@PathVariable String acc,
@@ -292,11 +301,10 @@ public class GenesController {
             LOGGER.error("ERROR: ", e);
         }
 
-        // MY GENES FOLLOWING (REGISTER INTEREST)
+        // Register Interest setup
         boolean loggedIn = false;
         boolean following = false;
         try {
-
             loggedIn = riUtils.isLoggedIn();
             if (loggedIn) {
                 following = riUtils.getGeneAccessionIds().contains(acc);
@@ -306,6 +314,7 @@ public class GenesController {
             // Nothing to do. Handle as unauthenticated.
         }
 
+        // Register Interest model requirements
         model.addAttribute("paBaseUrl", config.get("paBaseUrl"));
         model.addAttribute("acc", acc);
         model.addAttribute("isLoggedIn", loggedIn);

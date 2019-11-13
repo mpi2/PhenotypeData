@@ -515,12 +515,13 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
     }
 
     private boolean addBiologicalData(ResultSet r, ObservationDTOWrite o, RunStatus runStatus) throws Exception {
+        String bioSampleId = r.getString("biological_sample_id");
         if (r.wasNull()) {
             if (addBiologicalDataForLines(runStatus, r, o)) {
                 return true;
             }
         } else {
-            if (addBiologicalDataForSamples(r, o)) {
+            if (addBiologicalDataForSamples(r, o, bioSampleId)) {
 
                 if (missingBiologicalDataErrorCount++ < MAX_MISSING_BIOLOGICAL_DATA_ERROR_COUNT_DISPLAYED) {
                     runStatus.addError(" Cannot find biological data for specimen id: " + r.getString("biological_sample_id") + ", experiment id: " + r.getString("experiment_id"));
@@ -533,8 +534,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
         return false;
     }
 
-    private boolean addBiologicalDataForSamples(ResultSet r, ObservationDTOWrite o) throws Exception {
-        String             bioSampleId = r.getString("biological_sample_id");
+    private boolean addBiologicalDataForSamples(ResultSet r, ObservationDTOWrite o, String bioSampleId) throws Exception {
         BiologicalDataBean b           = biologicalData.get(bioSampleId);
 
         if (b == null) {

@@ -23,7 +23,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <p><a href="${paBaseUrl}">Home</a>
-                        <span class="fal fa-angle-right"></span><a href="${paBaseUrl}/summary">My Genes</a>
+                        <span class="fal fa-angle-right"></span><a href="${baseUrl}/summary">My Genes</a>
                         <span class="fal fa-angle-right"></span>Delete account
                     </p>
                 </div>
@@ -37,7 +37,7 @@
 
                     <div class="login-form">
 
-                        <form action="accountDeleteConfirmation" method="POST" class="form-horizontal">
+                        <form action="${baseUrl}/accountDeleteConfirmation" method="POST" class="form-horizontal">
                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 
                             <h3>Delete account <i>${emailAddress}</i></h3>

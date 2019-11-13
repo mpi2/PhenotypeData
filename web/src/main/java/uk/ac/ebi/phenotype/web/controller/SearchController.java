@@ -29,9 +29,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import uk.ac.ebi.phenotype.generic.util.RegisterInterestUtils;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -47,12 +47,9 @@ public class SearchController {
     private final SearchGeneService      searchGeneService;
     private final SearchPhenotypeService searchPhenotypeService;
 
-    @Resource(name = "globalConfiguration")
-    Map<String, String> config;
-
     @Inject
     public SearchController(SearchGeneService searchGeneService, SearchPhenotypeService searchPhenotypeService,
-                            RegisterInterestUtils riUtils, String paBaseUrl) {
+                            RegisterInterestUtils riUtils) {
         this.searchGeneService = searchGeneService;
         this.searchPhenotypeService = searchPhenotypeService;
         this.riUtils = riUtils;
@@ -80,6 +77,7 @@ public class SearchController {
                          @RequestParam(value = "type", required = false, defaultValue = "gene") String type,
                          @RequestParam(value = "page", required = false, defaultValue = "1") String page,
                          @RequestParam(value = "rows", required = false, defaultValue = "10") String rows,
+                         HttpServletResponse response,
                          Model model) throws IOException, SolrServerException {
 
         Integer pageNumber = Integer.parseInt(page);
@@ -101,6 +99,9 @@ public class SearchController {
         model.addAttribute("rows", rowsPerPage);
         model.addAttribute("start", start);
         model.addAttribute("numPages", numPages);
+
+        response.setHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
 
         return "search";
     }
@@ -133,6 +134,10 @@ public class SearchController {
             if (gene.getLatestPhenotypeStatus() != null && gene.getLatestPhenotypeStatus().equalsIgnoreCase("Phenotyping Complete")) {
                 gene.setLatestPhenotypeStatus("Phenotype data available");
             }
+        });
+
+        // Initialise Register Interest button for each gene
+        genes.forEach(gene -> {
             if (isLoggedIn) {
                 isFollowing.put(gene.getMgiAccessionId(), followedAccessionIds.contains(gene.getMgiAccessionId()) ? true : false);
             }
@@ -142,7 +147,6 @@ public class SearchController {
         model.addAttribute("numberOfResults", Long.toString(response.getResults().getNumFound()));
 
         // Register Interest model requirements
-        model.addAttribute("paBaseUrl", config.get("paBaseUrl"));
         model.addAttribute("isLoggedIn", isLoggedIn);
         model.addAttribute("isFollowing", isFollowing);
 

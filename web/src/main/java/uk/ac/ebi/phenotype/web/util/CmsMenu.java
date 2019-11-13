@@ -60,7 +60,7 @@ public class CmsMenu extends HttpProxy {
 	 * @return a JSON representation of the CMS menu
 	 */
 	@Cacheable(sync = true, value = "menu")
-	public List<MenuItem> getCmsMenu(String cmsBaseUrl) {
+	public List<MenuItem> getCmsMenu(String cmsBaseUrl, String baseUrl) {
 
 		String content = publicMenu;
 		Random randomGenerator = new Random();
@@ -77,16 +77,6 @@ public class CmsMenu extends HttpProxy {
 				}
 
 				publicMenu = this.getContent(url).replaceAll("\\\\", "");
-
-				// FIXME FIXME FIXME
-				// FIXME FIXME FIXME
-				// FIXME FIXME FIXME
-//				publicMenu = prependToMenu(publicMenu);
-				// FIXME FIXME FIXME
-				// FIXME FIXME FIXME
-				// FIXME FIXME FIXME
-
-
 				content = publicMenu;
 			}
 
@@ -96,14 +86,18 @@ public class CmsMenu extends HttpProxy {
 
 		} catch (Exception e) {
 			// If we can't get the menu, default to the logged out menu
-			log.error("Cannot retrieve menu from CMS. Using default menu.", e.getLocalizedMessage());
+			log.error("Cannot retrieve menu from CMS. Using default menu.", e);
 			publicMenu = DEFAULT_MENU;
 			content = publicMenu;
 		}
 
+		// Replace all hardcoded hostnames to the name of the current environment
 		content = content.replaceAll("https:\\\\/\\\\/www.mousephenotype.org", cmsBaseUrl);
 
-		try {
+		// Add the "My Genes" link to the menu
+        content = prependToMenu(content, baseUrl);
+
+        try {
 			final JSONArray jsonMenu = new JSONArray(content);
 			return getMenu(jsonMenu);
 		} catch (JSONException e) {
@@ -115,21 +109,15 @@ public class CmsMenu extends HttpProxy {
 
 
 
-	// FIXME FIXME FIXME
-	// FIXME FIXME FIXME
-	// FIXME FIXME FIXME
-	String prependToMenu(String menu) {
-		String paBaseUrl = "http://localhost:8080/data";
-		String summaryMenu = "{\"name\":\"My Genes\",\"link\":\"" + paBaseUrl + "/summary\",\"children\":[]},";
+	String prependToMenu(String menu, String baseUrl) {
+
+		String summaryMenu = "{\"name\":\"My Genes\",\"link\":\"" + baseUrl + "/summary\",\"children\":[]},";
 		int idx = menu.indexOf("{");
 		StringBuilder sb = new StringBuilder(menu);
 		sb.insert(idx, summaryMenu);
 
 		return sb.toString();
 	}
-	// FIXME FIXME FIXME
-	// FIXME FIXME FIXME
-	// FIXME FIXME FIXME
 
 
 	/**

@@ -59,14 +59,12 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 
 		Map<String, Object> requestConfig = new HashMap<>();
 		requestConfig.put("releaseVersion", dataReleaseVersionManager.getReleaseVersion());
-		requestConfig.put("version", "v2.1.4");
+		requestConfig.put("version", "v3.2.9");
 
 		// Map the global config values into the request configuration
 		config.keySet().forEach(key -> {
-			log.debug("Setting {} to {}", key, config.get(key));
 			requestConfig.put(key, config.get(key));
 		});
-
 
 		// Base url and mapped hostname get overwritten when there is a proxy in the middle.
 		// Set the defaults here and override below if necessary.
@@ -74,7 +72,8 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 		requestConfig.put("mappedHostname", mappedHostname);
 		requestConfig.put("baseUrl", request.getContextPath());
 		requestConfig.put("isProxied", Boolean.FALSE);
-		log.debug("mappedHostName = {}. baseUrl = {}", mappedHostname, request.getContextPath());
+
+		log.debug("mappedHostName = {}. baseUrl before translation = {}", mappedHostname, request.getContextPath());
 
 		// If this webapp is being accessed behind a proxy, the
 		// x-forwarded-host header will be set, in which case, use the
@@ -100,6 +99,7 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 			}
 		}
 
+		log.debug("mappedHostName = {}. baseUrl after translation = {}", mappedHostname, requestConfig.get("baseUrl"));
 
 		if (config.get("liveSite").equals("false")) {
 			// If DEV or BETA, refresh the cache daily
@@ -109,11 +109,12 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 
 		// Map the request configuration into the request object
 		requestConfig.keySet().forEach(key -> {
+			log.debug("Setting {} to {}", key, requestConfig.get(key));
 			request.setAttribute(key, requestConfig.get(key));
 		});
 		request.setAttribute("requestConfig", requestConfig);
 
-		log.debug("Interception! Intercepted path " + request.getRequestURI());
+        log.debug("Interception! Intercepted path " + request.getRequestURI());
 		return true;
 	}
 

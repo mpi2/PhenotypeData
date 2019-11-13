@@ -6,13 +6,13 @@
     /*
      Get the menu JSON from CMS, fallback to a default menu when CMS endpoint is not responding
      */
+
+    String baseUrl = (request.getAttribute("baseUrl") != null && !((String) request.getAttribute("baseUrl")).isEmpty()) ? (String) request.getAttribute("baseUrl") : application.getInitParameter("baseUrl");
+    jspContext.setAttribute("baseUrl", baseUrl);
+
     String url = (String) request.getAttribute("cmsBaseUrl");
     CmsMenu proxy = new CmsMenu();
-
-    List<CmsMenu.MenuItem> menu = proxy.getCmsMenu(url);
-    String baseUrl = (request.getAttribute("baseUrl") != null && !((String) request.getAttribute("baseUrl")).isEmpty()) ? (String) request.getAttribute("baseUrl") : application.getInitParameter("baseUrl");
-
-    jspContext.setAttribute("baseUrl", baseUrl);
+    List<CmsMenu.MenuItem> menu = proxy.getCmsMenu(url, baseUrl);
     jspContext.setAttribute("menu", menu);
 %>
 
@@ -45,8 +45,7 @@
                     <ul id="menu-top-nav-1" class="menu">
                         <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-13"><a
                                 href="${cmsBaseUrl}/help/">Help</a></li>
-                        <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14"><a
-                                href="https://www.mousephenotype.org/forum">Forum</a></li>
+                        <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14"><a href="http://cloud.mousephenotype.org">IMPC Cloud</a></li>
                         <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15"><a
                                 href="${cmsBaseUrl}/contact-us/">Contact us</a></li>
                     </ul>
