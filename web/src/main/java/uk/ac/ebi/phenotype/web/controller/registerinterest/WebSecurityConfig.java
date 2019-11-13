@@ -36,8 +36,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.DefaultRedirectStrategy;
-import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -190,7 +188,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin()
                 .loginPage("/rilogin")
                 .failureHandler(new CustomAuthenticationFailureHandler())
-                .successHandler(new RiSavedRequestAwareAuthenticationSuccessHandler())
+                .successHandler(new CustomAuthenticationSuccessHandler())
                 .usernameParameter("ssoId")
                 .passwordParameter("password")
 
@@ -209,7 +207,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
      * Success handler which overrides the default spring behaviour in order to include the baseUrl in the redirection
      * when appropriate (i.e., when behind a proxy)
      */
-    public class RiSavedRequestAwareAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+    public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
         private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 

@@ -48,7 +48,7 @@
                                 $(row).find('td:eq('+i+')').css('color', 'rgba(0, 0, 0, 0.0)');
                             }else
                             if (data[i] == 1) {
-                                $(row).find('td:eq('+i+')').css('background-color', '#808080').css('color', 'rgba(0, 0, 0, 0.0)').css("pointer-events", "none");;
+                                $(row).find('td:eq('+i+')').css('background-color', '#808080').css('color', 'rgba(0, 0, 0, 0.0)').css("pointer-events", "none");
                             }else
                             if (data[i] == 2) {
                                 $(row).find('td:eq('+i+')').css('background-color', '#17a2b8').css('color', 'rgba(0, 0, 0, 0.0)').css('cursor','pointer');
