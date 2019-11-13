@@ -735,6 +735,23 @@ public class RiSqlUtils {
     }
 
     /**
+     * @param emailAddress the email address to match
+     * @return the most recent {@link ResetCredentials} instance matching {@code emailAddress}, if found; null otherwise
+     */
+    public ResetCredentials getResetCredentialsByEmail(String emailAddress) {
+
+        String query =
+                "SELECT * FROM reset_credentials WHERE email_address = :emailAddress";
+
+        Map<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("emailAddress", emailAddress);
+
+        List<ResetCredentials> list = jdbcInterest.query(query, parameterMap, new ResetCredentialsRowMapper());
+
+        return (list.isEmpty() ? null : list.get(0));
+    }
+
+    /**
      * @param token the token to match
      * @return the most recent {@link ResetCredentials} instance matching {@code token}, if found; null otherwise
      */

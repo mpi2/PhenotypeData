@@ -125,9 +125,9 @@ public class EmbryoViewerService {
     public HeatmapData getEmbryoHeatmap(){
         List<EmbryoViewerService.GeneEntry> genes = this.getGenesEmbryoStatus();
         List<String> columnList=new ArrayList<>();
-        columnList.add("opt9_5");
-        columnList.add("microct14_5_15_5");
-        columnList.add("microct18_5");
+        columnList.add("E9.5");
+        columnList.add("E14.5/E15.5");
+        columnList.add("E18.5");
 
 
         List<String> geneList=new ArrayList<>();

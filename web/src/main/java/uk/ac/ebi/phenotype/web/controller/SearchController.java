@@ -31,6 +31,7 @@ import uk.ac.ebi.phenotype.generic.util.RegisterInterestUtils;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -76,6 +77,7 @@ public class SearchController {
                          @RequestParam(value = "type", required = false, defaultValue = "gene") String type,
                          @RequestParam(value = "page", required = false, defaultValue = "1") String page,
                          @RequestParam(value = "rows", required = false, defaultValue = "10") String rows,
+                         HttpServletResponse response,
                          Model model) throws IOException, SolrServerException {
 
         Integer pageNumber = Integer.parseInt(page);
@@ -97,6 +99,9 @@ public class SearchController {
         model.addAttribute("rows", rowsPerPage);
         model.addAttribute("start", start);
         model.addAttribute("numPages", numPages);
+
+        response.setHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
 
         return "search";
     }

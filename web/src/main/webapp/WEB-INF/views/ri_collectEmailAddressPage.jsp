@@ -22,23 +22,31 @@
 
         <jsp:useBean id="current" class="java.util.Date" />
 
-        <div class="container">
-            <div class="breadcrumbs" style="box-shadow: none; margin-top: auto; margin: auto; padding: auto">
+        <div class="container data-heading">
+            <div class="row row-shadow">
 
+                <div class="col-12 no-gutters">
+                    <h2 class="title">${title}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="container single single--no-side">
+            <div class="breadcrumbs" style="box-shadow: none; margin-top: auto; margin: auto; padding: auto">
                 <div class="row">
                     <div class="col-md-12">
                         <p><a href="${baseUrl}">Home</a>
-                            <span class="fal fa-angle-right"></span><a href="${baseUrl}/rilogin">My Genes</a>
+                            <span class="fal fa-angle-right"></span><a href="${baseUrl}/summary">My Genes</a>
                             <span class="fal fa-angle-right"></span> ${title}
                         </p>
                     </div>
                 </div>
             </div>
+        </div>
 
+        <div class="container single single--no-side">
             <div class="row row-over-shadow">
                 <div class="col-md-12 white-bg">
-                    <h2 class="title">${title}</h2>
-
                     <p>
                         Please enter the e-mail address for your account and press the <i>${title}</i> button. To
                         complete this operation, please reply to the e-mail sent to that address.
@@ -50,7 +58,7 @@
                                 action="${baseUrl}/sendEmail"
                                 method="POST">
                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                            <input type="hidden" name="requestedAction" value="${title}" />
+                            <input type="hidden" name="action" value="${title}" />
 
                             <c:if test="${not empty param.error}">
                                 <c:if test="${empty param.errorMessage}">

@@ -1,1 +1,3 @@
 *.pyc
+.ipynb_checkpoints/
+qc_apply_all_sites_model.ipynb

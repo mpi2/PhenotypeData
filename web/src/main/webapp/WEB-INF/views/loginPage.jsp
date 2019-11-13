@@ -19,23 +19,32 @@
 
     <jsp:body>
 
-        <div class="container">
-            <div class="breadcrumbs" style="box-shadow: none; margin-top: auto; margin: auto; padding: auto">
+        <div class="container data-heading">
+            <div class="row row-shadow">
 
+                <div class="col-12 no-gutters">
+                    <h2>Login</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="container single single--no-side">
+            <div class="breadcrumbs" style="box-shadow: none; margin-top: auto; margin: auto; padding: auto">
                 <div class="row">
                     <div class="col-md-12">
                         <p><a href="${baseUrl}">Home</a>
-                            <span class="fal fa-angle-right"></span><a href="${baseUrl}/rilogin">My Genes</a>
+                            <span class="fal fa-angle-right"></span><a href="${baseUrl}/summary">My Genes</a>
                             <span class="fal fa-angle-right"></span> Login
                         </p>
                     </div>
                 </div>
             </div>
+        </div>
 
+        <div class="container single single--no-side">
             <div class="row row-over-shadow">
                 <div class="col-md-12 white-bg">
                     <div class="page-content">
-                        <h2>My Genes login</h2>
                         <p>
                             My Genes login is a place where you can:
                             <ul class="mt-0 pt-0">
@@ -51,26 +60,8 @@
                                 <input type="hidden" name="target" value="${target}"/>
 
                                 <c:if test="${param.error != null}">
-
-                                    <c:if test="${empty param.errorMessage}">
-                                        <div class="messages error">
-                                            <p>Invalid username and password.</p>
-                                        </div>
-                                    </c:if>
-                                    <c:if test="${not empty param.errorMessage}">
-                                        <div class="messages error">
-                                            <p>${param.errorMessage}</p>
-                                        </div>
-                                    </c:if>
-                                </c:if>
-                                <c:if test="${param.logout != null}">
-                                    <div class="messages" style="color: indigo">
-                                        <p>You have been logged out successfully.</p>
-                                    </div>
-                                </c:if>
-                                <c:if test="${param.deleted != null}">
-                                    <div class="messages" style="color: indigo">
-                                        <p>Your account has been deleted as requested.</p>
+                                    <div class="messages error">
+                                        <p>Invalid username and password</p>
                                     </div>
                                 </c:if>
                                 <c:if test="${param.status != null}">
