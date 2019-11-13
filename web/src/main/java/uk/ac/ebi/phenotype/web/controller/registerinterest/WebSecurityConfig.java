@@ -259,7 +259,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             logger.info("Exception occurred logging in", exception);
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             String baseUrl = getBaseUrl(request);
-            response.sendRedirect(baseUrl + "/rilogin?error=true&errorMessage=Unauthorized");
+            response.sendRedirect(baseUrl + "/rilogin?error=true");
         }
     }
 
