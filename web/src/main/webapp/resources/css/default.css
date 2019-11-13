@@ -7420,16 +7420,6 @@ hr {
     cursor: default !important;
 }
 
-.btn-mailing {
-    border-radius: 45px;
-    padding: 13px 32px;
-    font-size: 14px;
-    text-transform: uppercase;
-    font-weight: 600;
-    outline: none !important;
-    box-shadow: none;
-    border-style: solid;
-}
 
 .clickableRow:hover {
     background-color: #ed7b2538 !important;

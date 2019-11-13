@@ -14,7 +14,7 @@
         <meta name="_csrf" content="${_csrf.token}"/>
         <meta name="_csrf_header" content="${_csrf.headerName}"/>
 
-        <link href="${cmsBaseUrl}/wp-content/themes/impc/css/styles.css?ver=40ab77c511c0b72810d6828792c28c78" rel="stylesheet" type="text/css"/>
+        <link href="${cmsBaseUrl}/wp-content/themes/impc/css/styles.css?ver=903d1cd51c1a00424d898b35ecbaf59d" rel="stylesheet" type="text/css"/>
 
 		<script type="application/ld+json">
             {
