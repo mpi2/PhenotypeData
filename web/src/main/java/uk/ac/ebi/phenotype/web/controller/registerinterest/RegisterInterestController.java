@@ -200,7 +200,13 @@ public class RegisterInterestController {
                               @RequestParam(value = "error", required = false) String error
     ) throws IOException {
 
+        logger.debug("/rilogin: Entering POST request");
+        logger.debug("/rilogin: request URI is {}", request.getRequestURI() );
+        logger.debug("/rilogin: request context path is {}", request.getContextPath() );
+        logger.debug("/rilogin: request servlet path is {}", request.getServletPath() );
+
         String baseUrl = getBaseUrl(request);
+        logger.debug("/rilogin: baseUrl is {}", baseUrl);
 
         if ((target == null) || (target.trim().isEmpty())) {
             target = baseUrl + "/summary";
@@ -212,6 +218,8 @@ public class RegisterInterestController {
 
         response.setHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
         response.setHeader("Pragma", "no-cache");
+
+        logger.debug("/rilogin: Exiting POST request response.sendRedirect(target) (target is {})", target);
         response.sendRedirect(target);
 
     }
