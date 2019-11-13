@@ -42,10 +42,10 @@
                         $(row).css("cursor", "pointer");
                         for(var i=1; i<data.length; i++) {
                             if (data[i] == 0) {
-                                $(row).find('td:eq('+i+')').css('background-color', '#fff').css('color', 'rgba(0, 0, 0, 0.0)');
+                                $(row).find('td:eq('+i+')').css('background-color', '#fff').css('color', 'rgba(0, 0, 0, 0.0)').css("pointer-events", "none");
                             }else
                             if (data[i] == 1) {
-                                $(row).find('td:eq('+i+')').css('background-color', '#808080').css('color', 'rgba(0, 0, 0, 0.0)');
+                                $(row).find('td:eq('+i+')').css('background-color', '#808080').css('color', 'rgba(0, 0, 0, 0.0)').css("pointer-events", "none");
                             }else
                             if (data[i] == 2) {
                                 $(row).find('td:eq('+i+')').css('background-color', '#17a2b8').css('color', 'rgba(0, 0, 0, 0.0)');
@@ -57,20 +57,44 @@
                     },
                 });
 
-                $('#heatmap tbody').on('click', 'tr', function () {
-                    var data = table.row( this ).data();
-                    var isAnalysed= false;
-                    var i;
-                    for(i=0; i<data.length; i++){
-                        if(data[i]==4){
-                            isAnalysed=true;
-                        }
+                table.on('click', 'tbody td', function() {
+                    var url='https://www.mousephenotype.org/embryoviewer?mgi='
+                    //get textContent of the TD
+                    var header = table.column( this.cellIndex ).header();
+                    var row_data=table.row(this).data();
+                    var gene_symbol=row_data[0];
+                    var gene_acc=row_data[1];
+                    //get the value of the TD using the API
+                    url=url+gene_acc;
+                    var e15data=row_data[3];
+                    var umass_data=row_data[5];
+                    if($(header).text()==='E14.5/E15.5' && e15data==='4'){//analysed data for this cell available
+                        url='https://www.mousephenotype.org/embryoviewer/?mgi='+gene_acc+'&wn=Average&wov=jacobian';
                     }
-                    var url='https://www.mousephenotype.org/embryoviewer?mgi='+data[1];
-                    if(isAnalysed)url='https://www.mousephenotype.org/embryoviewer/?mgi='+data[1]+'&wn=Average&wov=jacobian';
+                    if($(header).text()==='UMASS' && umass_data==='2'){//UMASS links available for this cell
+                        url='http://blogs.umass.edu/jmager/'+gene_symbol;
+                    }
                     var win = window.open(url, '_blank');
                     win.focus();
-                } );
+                })
+
+
+                // $('#heatmap tbody').on('click', 'tr', function () {
+                //     var data = table.row( this ).data();
+                //     var isAnalysed= false;
+                //     var i;
+                //     //loop through row cells to see if any have analysed data
+                //     //currently though it's just E15.5 so we need to hard code a rule for now until added to rest service for individual stages by DCC
+                //     for(i=0; i<data.length; i++){
+                //         if(data[i]==4){
+                //             isAnalysed=true;
+                //         }
+                //     }
+                //     var url='https://www.mousephenotype.org/embryoviewer?mgi='+data[1];
+                //     if(isAnalysed)url='https://www.mousephenotype.org/embryoviewer/?mgi='+data[1]+'&wn=Average&wov=jacobian';
+                //     var win = window.open(url, '_blank');
+                //     win.focus();
+                // } );
 
 
 
