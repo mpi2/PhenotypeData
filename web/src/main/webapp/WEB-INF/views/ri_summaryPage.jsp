@@ -163,7 +163,7 @@
                             </c:otherwise>
                         </c:choose>
 
-                        <div id="summaryTableDiv">
+                        <div id="summaryTableDiv" class="pb-4">
                             <table id="following" class='table table-bordered'>
                                 <thead>
                                     <tr>
