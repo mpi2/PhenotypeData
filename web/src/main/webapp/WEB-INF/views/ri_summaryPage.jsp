@@ -62,17 +62,30 @@
                                     $('form#follow-form-'+acc.replace(":", "")).find("button")
                                         .attr('title', 'You are following ${gene.markerSymbol}. Click to stop following.')
                                         .removeClass('btn-primary')
-                                        .addClass('btn-outline-secondary')
-                                        .text('Stop following');
+                                        .addClass('btn-outline-secondary');
+
+                                    $('form#follow-form-'+acc.replace(":", "")).find("span")
+                                        .text('Unfollow');
+
+                                    $('form#follow-form-'+acc.replace(":", "")).find('i')
+                                        .removeClass('fa-user-plus')
+                                        .addClass('fa-user-minus');
                                     break;
 
                                 case "Not Following":
                                     $('form#follow-form-'+acc.replace(":", "")).find("button")
                                         .attr('title', 'Click to follow ${gene.markerSymbol}.')
                                         .addClass('btn-primary')
-                                        .removeClass('btn-outline-secondary')
+                                        .removeClass('btn-outline-secondary');
+
+                                    $('form#follow-form-'+acc.replace(":", "")).find("span")
                                         .text('Follow');
+
+                                    $('form#follow-form-'+acc.replace(":", "")).find('i')
+                                        .removeClass('fa-user-minus')
+                                        .addClass('fa-user-plus');
                                     break;
+
                                 default:
                                     console.log("Cannot find response type for response: " + acc);
                                     break;
@@ -233,7 +246,10 @@
                                                       class="follow-form">
                                                     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
                                                     <input type="hidden" name="geneAccessionId" value="${gene.mgiAccessionId}" />
-                                                    <button class="btn btn-outline-secondary" type="submit">Stop following</button>
+                                                    <button class="btn btn-outline-secondary" type="submit">
+                                                        <i class="fas fa-user-minus"></i>
+                                                        <span>Unfollow</span>
+                                                    </button>
                                                 </form>
                                             </td>
                                         </tr>
