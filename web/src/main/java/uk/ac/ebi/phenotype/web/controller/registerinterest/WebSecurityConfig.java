@@ -227,11 +227,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 return;
             }
 
-            int sessionTimeoutInMinutesBefore = request.getSession().getMaxInactiveInterval();
+            int sessionTimeoutInMinutesBefore = request.getSession().getMaxInactiveInterval() / 60;
             final int SESSION_TIMEOUT_IN_SECONDS = sessionTimeoutInMinutes * 60;
             request.getSession().setMaxInactiveInterval(SESSION_TIMEOUT_IN_SECONDS);
             int sessionTimeoutInMinutesAfter = request.getSession().getMaxInactiveInterval() / 60;
-            logger.info("Reset session timeout from {} to {}.", sessionTimeoutInMinutesBefore, sessionTimeoutInMinutesAfter);
+            logger.info("Reset session timeout from {} minutes to {} minutes", sessionTimeoutInMinutesBefore, sessionTimeoutInMinutesAfter);
 
             response.sendRedirect(targetUrl);
             clearAuthenticationAttributes(request);
