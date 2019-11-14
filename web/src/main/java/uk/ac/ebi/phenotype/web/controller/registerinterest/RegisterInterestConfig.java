@@ -83,6 +83,9 @@ public class RegisterInterestConfig {
     @Value("${recaptcha.public}")
     private String recaptchaPublic;
 
+    @Value("${sessionTimeoutInMinutes}")
+    private Integer sessionTimeoutInMinutes;
+
 
     @Bean
     public String smtpFrom() {
@@ -108,6 +111,10 @@ public class RegisterInterestConfig {
     @Bean
     public String recaptchaPublic() {
         return recaptchaPublic;
+    }
+
+    @Bean Integer sessionTimeoutInMinutes() {
+        return sessionTimeoutInMinutes;
     }
 
     @Bean

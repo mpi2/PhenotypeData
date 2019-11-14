@@ -69,6 +69,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private DataSource riDataSource;
     private CaptchaFilter captchaFilter;
+    private int sessionTimeoutInMinutes;
+
 
     /**
      * Determine and return the correct baseUrl for the request.  The baseUrl is used to construct most of the URL
@@ -134,9 +136,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     // Must use qualifier to get ri database; otherwise, komp2 is served up.
     @Inject
-    public WebSecurityConfig(@Qualifier("riDataSource") DataSource riDataSource, CaptchaFilter captchaFilter) {
+    public WebSecurityConfig(@Qualifier("riDataSource") DataSource riDataSource, CaptchaFilter captchaFilter,
+                             int sessionTimeoutInMinutes) {
         this.riDataSource = riDataSource;
         this.captchaFilter = captchaFilter;
+        this.sessionTimeoutInMinutes = sessionTimeoutInMinutes;
     }
 
     @Bean
@@ -222,6 +226,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
                 return;
             }
+
+            int sessionTimeoutInMinutesBefore = request.getSession().getMaxInactiveInterval();
+            final int SESSION_TIMEOUT_IN_SECONDS = sessionTimeoutInMinutes * 60;
+            request.getSession().setMaxInactiveInterval(SESSION_TIMEOUT_IN_SECONDS);
+            int sessionTimeoutInMinutesAfter = request.getSession().getMaxInactiveInterval() / 60;
+            logger.info("Reset session timeout from {} to {}.", sessionTimeoutInMinutesBefore, sessionTimeoutInMinutesAfter);
 
             response.sendRedirect(targetUrl);
             clearAuthenticationAttributes(request);
