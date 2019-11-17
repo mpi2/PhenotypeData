@@ -95,8 +95,15 @@
                                 $('form#follow-form-'+acc.replace(":", "")).find("button")
                                     .attr('title', 'You are following ${gene.markerSymbol}. Click to stop following.')
                                     .removeClass('btn-primary')
-                                    .addClass('btn-outline-secondary')
-                                    .text('Stop following');
+                                    .addClass('btn-outline-secondary');
+
+                                $('form#follow-form-'+acc.replace(":", "")).find("span")
+                                    .text('Unfollow');
+
+
+                                $('form#follow-form-'+acc.replace(":", "")).find('i')
+                                    .removeClass('fa-user-plus')
+                                    .addClass('fa-user-minus');
                                 break;
 
                             case "Not Following":
@@ -104,7 +111,13 @@
                                     .attr('title', 'Click to follow ${gene.markerSymbol}.')
                                     .addClass('btn-primary')
                                     .removeClass('btn-outline-secondary')
+
+                                $('form#follow-form-'+acc.replace(":", "")).find("span")
                                     .text('Follow');
+
+                                $('form#follow-form-'+acc.replace(":", "")).find('i')
+                                    .removeClass('fa-user-minus')
+                                    .addClass('fa-user-plus');
                                 break;
                             default:
                                 console.log("Cannot find response type for response: " + acc);
@@ -201,7 +214,8 @@
                                                                             class="btn btn-outline-secondary"
                                                                             type="submit"
                                                                             style="float: right;">
-                                                                        Stop following
+                                                                        <i class="fas fa-user-minus"></i>
+                                                                        <span>Unfollow</span>
                                                                     </button>
                                                                 </c:when>
                                                                 <c:otherwise>
@@ -210,7 +224,8 @@
                                                                             class="btn btn-primary"
                                                                             type="submit"
                                                                             style="float: right">
-                                                                        Follow
+                                                                        <i class="fas fa-user-plus"></i>
+                                                                        <span>Follow</span>
                                                                     </button>
                                                                 </c:otherwise>
                                                             </c:choose>

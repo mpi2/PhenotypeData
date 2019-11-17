@@ -62,17 +62,30 @@
                                     $('form#follow-form-'+acc.replace(":", "")).find("button")
                                         .attr('title', 'You are following ${gene.markerSymbol}. Click to stop following.')
                                         .removeClass('btn-primary')
-                                        .addClass('btn-outline-secondary')
-                                        .text('Stop following');
+                                        .addClass('btn-outline-secondary');
+
+                                    $('form#follow-form-'+acc.replace(":", "")).find("span")
+                                        .text('Unfollow');
+
+                                    $('form#follow-form-'+acc.replace(":", "")).find('i')
+                                        .removeClass('fa-user-plus')
+                                        .addClass('fa-user-minus');
                                     break;
 
                                 case "Not Following":
                                     $('form#follow-form-'+acc.replace(":", "")).find("button")
                                         .attr('title', 'Click to follow ${gene.markerSymbol}.')
                                         .addClass('btn-primary')
-                                        .removeClass('btn-outline-secondary')
+                                        .removeClass('btn-outline-secondary');
+
+                                    $('form#follow-form-'+acc.replace(":", "")).find("span")
                                         .text('Follow');
+
+                                    $('form#follow-form-'+acc.replace(":", "")).find('i')
+                                        .removeClass('fa-user-minus')
+                                        .addClass('fa-user-plus');
                                     break;
+
                                 default:
                                     console.log("Cannot find response type for response: " + acc);
                                     break;
@@ -90,6 +103,21 @@
 
     <jsp:body>
 
+        <div class="container data-heading">
+            <div class="row row-shadow">
+                <noscript>
+                    <div class="col-12 no-gutters">
+                        <h5 style="float: left">Please enable javascript if you want to log in to follow or stop
+                            following this gene.</h5>
+                    </div>
+                </noscript>
+
+                <div class="col-12 no-gutters">
+                    <h2 class="title">My Genes</h2>
+                </div>
+            </div>
+        </div>
+
         <div class="container single single--no-side">
 
             <div class="breadcrumbs" style="box-shadow: none; margin-top: auto; margin: auto; padding: auto">
@@ -106,7 +134,6 @@
             <div class="row row-over-shadow">
                 <div class="col-md-12 white-bg">
                     <div class="page-content">
-                        <h2 class="title" id="top">My Genes</h2>
                         <p>
                             In this screen you may:
                             <ul class="mt-0 pt-0">
@@ -149,7 +176,7 @@
                             </c:otherwise>
                         </c:choose>
 
-                        <div id="summaryTableDiv">
+                        <div id="summaryTableDiv" class="pb-4">
                             <table id="following" class='table table-bordered'>
                                 <thead>
                                     <tr>
@@ -219,7 +246,10 @@
                                                       class="follow-form">
                                                     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
                                                     <input type="hidden" name="geneAccessionId" value="${gene.mgiAccessionId}" />
-                                                    <button class="btn btn-outline-secondary" type="submit">Stop following</button>
+                                                    <button class="btn btn-outline-secondary" type="submit">
+                                                        <i class="fas fa-user-minus"></i>
+                                                        <span>Unfollow</span>
+                                                    </button>
                                                 </form>
                                             </td>
                                         </tr>

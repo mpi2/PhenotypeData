@@ -36,8 +36,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.DefaultRedirectStrategy;
-import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -71,6 +69,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private DataSource riDataSource;
     private CaptchaFilter captchaFilter;
+    private int sessionTimeoutInMinutes;
+
 
     /**
      * Determine and return the correct baseUrl for the request.  The baseUrl is used to construct most of the URL
@@ -136,9 +136,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     // Must use qualifier to get ri database; otherwise, komp2 is served up.
     @Inject
-    public WebSecurityConfig(@Qualifier("riDataSource") DataSource riDataSource, CaptchaFilter captchaFilter) {
+    public WebSecurityConfig(@Qualifier("riDataSource") DataSource riDataSource, CaptchaFilter captchaFilter,
+                             int sessionTimeoutInMinutes) {
         this.riDataSource = riDataSource;
         this.captchaFilter = captchaFilter;
+        this.sessionTimeoutInMinutes = sessionTimeoutInMinutes;
     }
 
     @Bean
@@ -190,7 +192,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin()
                 .loginPage("/rilogin")
                 .failureHandler(new CustomAuthenticationFailureHandler())
-                .successHandler(new RiSavedRequestAwareAuthenticationSuccessHandler())
+                .successHandler(new CustomAuthenticationSuccessHandler())
                 .usernameParameter("ssoId")
                 .passwordParameter("password")
 
@@ -209,7 +211,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
      * Success handler which overrides the default spring behaviour in order to include the baseUrl in the redirection
      * when appropriate (i.e., when behind a proxy)
      */
-    public class RiSavedRequestAwareAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+    public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
         private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
@@ -224,6 +226,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
                 return;
             }
+
+            int sessionTimeoutInMinutesBefore = request.getSession().getMaxInactiveInterval() / 60;
+            final int SESSION_TIMEOUT_IN_SECONDS = sessionTimeoutInMinutes * 60;
+            request.getSession().setMaxInactiveInterval(SESSION_TIMEOUT_IN_SECONDS);
+            int sessionTimeoutInMinutesAfter = request.getSession().getMaxInactiveInterval() / 60;
+            logger.info("Reset session timeout from {} minutes to {} minutes", sessionTimeoutInMinutesBefore, sessionTimeoutInMinutesAfter);
 
             response.sendRedirect(targetUrl);
             clearAuthenticationAttributes(request);

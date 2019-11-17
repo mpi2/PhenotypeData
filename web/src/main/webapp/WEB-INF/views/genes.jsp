@@ -142,8 +142,14 @@
                                     $('form#follow-form').find("button")
                                         .attr('title', 'You are following ${gene.markerSymbol}. Click to stop following.')
                                         .removeClass('btn-primary')
-                                        .addClass('btn-outline-secondary')
-                                        .text('Stop following');
+                                        .addClass('btn-outline-secondary');
+
+                                    $('form#follow-form').find("span")
+                                        .text('Unfollow');
+
+                                    $('form#follow-form').find('i')
+                                        .removeClass('fa-user-plus')
+                                        .addClass('fa-user-minus');
                                     break;
 
                                 case "Not Following":
@@ -151,7 +157,13 @@
                                         .attr('title', 'Click to follow ${gene.markerSymbol}.')
                                         .addClass('btn-primary')
                                         .removeClass('btn-outline-secondary')
+
+                                    $('form#follow-form').find("span")
                                         .text('Follow');
+
+                                    $('form#follow-form').find('i')
+                                        .removeClass('fa-user-minus')
+                                        .addClass('fa-user-plus');
                                     break;
                             }
                         },
@@ -216,12 +228,14 @@
                     <h2>
                         <c:choose>
                             <c:when test="${isFollowing}">
-                                <c:set var="followText" value="Stop Following"/>
+                                <c:set var="followText" value="Unfollow"/>
                                 <c:set var="activeClass" value="btn-outline-secondary"/>
+                                <c:set var="activeIconClass" value="fa-user-minus"/>
                             </c:when>
                             <c:otherwise>
                                 <c:set var="followText" value="Follow"/>
                                 <c:set var="activeClass" value="btn-primary"/>
+                                <c:set var="activeIconClass" value="fa-user-plus"/>
                             </c:otherwise>
                         </c:choose>
                         <c:choose>
@@ -230,7 +244,10 @@
                                     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                                     <input type="hidden" name="geneAccessionId" value="${acc}" />
                                     <input type="hidden" name="target" value="${baseUrl}/genes/${acc}" />
-                                    <button type="submit" style="float: right" class="btn ${activeClass}">${followText}</button>
+                                    <button type="submit" style="float: right" class="btn ${activeClass}">
+                                        <i class="fas ${activeIconClass}"></i>
+                                        <span>${followText}</span>
+                                    </button>
                                 </form>
                             </c:when>
                             <c:otherwise>
