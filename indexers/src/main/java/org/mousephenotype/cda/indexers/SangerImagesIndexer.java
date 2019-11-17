@@ -423,12 +423,16 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 
             // Return warnings, if any.
             List<String> noTopLevelList = new ArrayList<>(noTopLevelSet);
-            Collections.sort(noTopLevelList);
-			logger.info(" Top level ontology term not found for: " + String.join(", ", noTopLevelList));
+			if ( ! noTopLevelList.isEmpty()) {
+				Collections.sort(noTopLevelList);
+				logger.info(" Top level ontology term not found for: " + String.join(", ", noTopLevelList));
+			}
 
 			List<String> noOntologyList = new ArrayList<>(ontologyTermNotFound);
-			Collections.sort(noOntologyList);
-			logger.info(" Ontology term not found for: " + String.join(", ", noOntologyList));
+			if ( ! noOntologyList.isEmpty()) {
+				Collections.sort(noOntologyList);
+				logger.info(" Ontology term not found for: " + String.join(", ", noOntologyList));
+			}
 
 			// Final commit to save the rest of the docs
 			sangerImagesCore.commit();
