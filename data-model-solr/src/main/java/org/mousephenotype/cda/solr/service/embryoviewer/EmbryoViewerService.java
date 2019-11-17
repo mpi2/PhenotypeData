@@ -145,9 +145,10 @@ public class EmbryoViewerService {
         int numberOfImpcColumns=3;
         for(String  geneSymbol: geneList){
             ArrayList<Integer> row = new ArrayList<>();
+            String mgiAccessionId="";
             if(geneSymbolToEntryMap.containsKey(geneSymbol)) {
                 GeneEntry gene=geneSymbolToEntryMap.get(geneSymbol);
-                mgiAccessionsList.add(gene.mgiAccessionId);
+                mgiAccessionId=gene.mgiAccessionId;
 
 
                 int typeOfData = IMAGES_AVAILABLE;//if stage is mentioned in rest service means we at least have images
@@ -178,11 +179,16 @@ public class EmbryoViewerService {
 
             }
             if(umassSymbolAccessions.containsKey(geneSymbol)){
-                mgiAccessionsList.add(umassSymbolAccessions.get(geneSymbol));
+
                 row.add(IMAGES_AVAILABLE);
             }else{
                 row.add(NO_DATA);
             }
+
+            if(mgiAccessionId.isEmpty()){//if emtpy assume we need to get it from UMASS data map
+                mgiAccessionsList.add(umassSymbolAccessions.get(geneSymbol));
+            }
+            mgiAccessionsList.add(mgiAccessionId);
             rows.add(row);
         }
 
