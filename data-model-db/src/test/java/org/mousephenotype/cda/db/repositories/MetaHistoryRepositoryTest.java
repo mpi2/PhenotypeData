@@ -46,7 +46,7 @@ public class MetaHistoryRepositoryTest {
     }
 
     @Test
-    public void getAllDataReleaseVersionsCastDesc() {
+    public void getAllDataReleaseVersionsCastAsc() {
         List<String> actual = metaHistoryRepository.getAllDataReleaseVersionsCastAsc();
         assertNotNull(actual);
         assertEquals(5, actual.size());
