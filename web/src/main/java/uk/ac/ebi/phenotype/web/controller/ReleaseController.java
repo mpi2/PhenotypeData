@@ -255,7 +255,7 @@ public class ReleaseController {
 		/**
 		 * Get Historical trends release by release
 		 */
-		List<String> allDataReleaseVersions = metaHisoryRepository.getAllDataReleaseVersionsCastDesc();
+		List<String> allDataReleaseVersions = metaHisoryRepository.getAllDataReleaseVersionsCastAsc();
 
 		String[] trendsVariables = new String[] { "statistically_significant_calls", "phenotyped_genes",
 				"phenotyped_lines" };
