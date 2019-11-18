@@ -46,15 +46,15 @@ public class MetaHistoryRepositoryTest {
     }
 
     @Test
-    public void getAllDataReleaseVersionsCastDesc() {
-        List<String> actual = metaHistoryRepository.getAllDataReleaseVersionsCastDesc();
+    public void getAllDataReleaseVersionsCastAsc() {
+        List<String> actual = metaHistoryRepository.getAllDataReleaseVersionsCastAsc();
         assertNotNull(actual);
         assertEquals(5, actual.size());
-        assertEquals("10.0", actual.get(0));
-        assertEquals("3.4", actual.get(1));
+        assertEquals("1.0", actual.get(0));
+        assertEquals("1.1", actual.get(1));
         assertEquals("2.0", actual.get(2));
-        assertEquals("1.1", actual.get(3));
-        assertEquals("1.0", actual.get(4));
+        assertEquals("3.4", actual.get(3));
+        assertEquals("10.0", actual.get(4));
     }
 
     @Test
