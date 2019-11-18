@@ -34,14 +34,13 @@ public class GenerateService {
 
     public static final String PRIVACY_POLICY_LINK = "https://www.ebi.ac.uk/data-protection/privacy-notice/impc-mailservices";
     public static final String MOUSEINFORMATICS_EMAIL = "mouse-helpdesk@ebi.ac.uk";
+    public static final String FULLY_QUALIFIED_BASE_URL = "https://www.ebi.ac.uk/mi/impc/phenotype-archive";
 
 
-    private String     paBaseUrl;
     private RiSqlUtils sqlUtils;
 
     @Inject
-    public GenerateService(String paBaseUrl, RiSqlUtils sqlUtils) {
-        this.paBaseUrl = paBaseUrl;
+    public GenerateService(RiSqlUtils sqlUtils) {
         this.sqlUtils = sqlUtils;
     }
 
@@ -231,7 +230,7 @@ public class GenerateService {
      * @return An HTML string containing this contact's summary information, in HTML table format
      */
     protected String getSummaryHtmlTableText(Summary summary, boolean inHtml) {
-        return SummaryHtmlTable.buildTableContent(paBaseUrl, summary, inHtml);
+        return SummaryHtmlTable.buildTableContent(FULLY_QUALIFIED_BASE_URL, summary, inHtml);
     }
 
     protected String getSummaryPreface(boolean inHtml) {
@@ -255,10 +254,10 @@ public class GenerateService {
             .append(inHtml ? "<br /><br />" : "\n\n")
 
             .append("You may manage the list of genes for which you have registered interest by visiting the IMPC ")
-            .append(inHtml ? "<a href=\"" + paBaseUrl + "/summary" + "\">" : "'")
+            .append(inHtml ? "<a href=\"" + FULLY_QUALIFIED_BASE_URL + "/summary" + "\">" : "'")
             .append("summary")
             .append(inHtml ? "</a>" : "'")
-            .append(" page at " + paBaseUrl + "/summary.\n")
+            .append(" page at " + FULLY_QUALIFIED_BASE_URL + "/summary.\n")
 
             .append(inHtml ? "<br /><br />" : "\n\n")
 

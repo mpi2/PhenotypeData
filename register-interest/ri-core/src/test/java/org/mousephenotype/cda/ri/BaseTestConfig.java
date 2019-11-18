@@ -35,7 +35,7 @@ import javax.sql.DataSource;
 @ComponentScan(basePackages = { "org.mousephenotype.cda.ri.core" })
 public class BaseTestConfig {
 
-    public static final String PA_BASE_URL = "https://dev.mousephenotype.org/data";
+    public static final String BASE_URL = "https://dev.mousephenotype.org/data";
 
     @Bean
     public DataSource riDataSource() {
@@ -57,8 +57,8 @@ public class BaseTestConfig {
     }
 
     @Bean
-    public String paBaseUrl() {
-        return PA_BASE_URL;
+    public String baseUrl() {
+        return BASE_URL;
     }
 
 

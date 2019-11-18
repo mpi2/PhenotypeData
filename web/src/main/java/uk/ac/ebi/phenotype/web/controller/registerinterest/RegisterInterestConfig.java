@@ -74,9 +74,6 @@ public class RegisterInterestConfig {
     @Value("${mail.smtp.replyto}")
     private String smtpReplyto;
 
-    @Value("${paBaseUrl}")
-    String paBaseUrl;
-
     @Value("${cms_base_url}")
     private String cmsBaseUrl;
 
@@ -97,11 +94,6 @@ public class RegisterInterestConfig {
         return new SmtpParameters(smtpHost, smtpPort, smtpFrom, smtpReplyto);
     }
 
-    @Bean
-    public String paBaseUrl() {
-        return paBaseUrl;
-    }
-
 
     @Bean
     public String cmsBaseUrl() {
@@ -119,6 +111,6 @@ public class RegisterInterestConfig {
 
     @Bean
     public CoreService coreService() {
-        return new CoreService(new GenerateService(paBaseUrl, riSqlUtils()), new SendService(riSqlUtils()));
+        return new CoreService(new GenerateService(riSqlUtils()), new SendService(riSqlUtils()));
     }
 }

@@ -20,7 +20,6 @@ import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.exporter.Exporter;
 import org.mousephenotype.cda.interfaces.Exportable;
 import org.mousephenotype.cda.solr.generic.util.Tools;
-import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.DisplayPager;
 import org.mousephenotype.cda.utilities.DisplaySorter;
 import org.slf4j.Logger;
@@ -57,15 +56,14 @@ import java.util.List;
 public class PublicationController implements Exportable<Publication> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    public final String FULLY_QUALIFIED_GENE_BASE_URL = "https://www.mousephenotype.org/data/genes";
 
     private ReferenceService referenceService;
-    private String           paBaseUrl;
 
 
     @Inject
-    public PublicationController(ReferenceService referenceService, String paBaseUrl) {
+    public PublicationController(ReferenceService referenceService, HttpServletRequest request) {
         this.referenceService = referenceService;
-        this.paBaseUrl = paBaseUrl;
     }
 
 
@@ -340,7 +338,9 @@ public class PublicationController implements Exportable<Publication> {
             }
             row.add(StringUtils.join(symbols, "|"));            // MGI allele symbol
             row.add(StringUtils.join(accessionIds, "|"));       // MGI allele accession id
-            row.add(geneAccessionId == null ? Constants.NO_INFORMATION_AVAILABLE : paBaseUrl + "/" + geneAccessionId);  // IMPC gene link
+            row.add(geneAccessionId == null
+                            ? Constants.NO_INFORMATION_AVAILABLE
+                            : FULLY_QUALIFIED_GENE_BASE_URL + "/" + geneAccessionId);  // IMPC gene link
         } else {
             row.add(Constants.NO_INFORMATION_AVAILABLE);
             row.add(Constants.NO_INFORMATION_AVAILABLE);

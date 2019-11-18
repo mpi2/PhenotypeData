@@ -47,7 +47,7 @@ public class SummaryHtmlTable {
             "    background-color: #dddddd;"+
             "}";
 
-    public static String buildTableContent(String paBaseUrl, Summary summary, boolean inHtml) {
+    public static String buildTableContent(String fullyQualifiedBaseUrl, Summary summary, boolean inHtml) {
 
         StringBuilder body = new StringBuilder();
 
@@ -62,7 +62,7 @@ public class SummaryHtmlTable {
         }
 
         for (Gene gene : summary.getGenes()) {
-            body.append(buildRow(paBaseUrl, gene, inHtml));
+            body.append(buildRow(fullyQualifiedBaseUrl, gene, inHtml));
         }
 
         body.append(inHtml ? "</table>" : "\n");

@@ -19,6 +19,7 @@ package org.mousephenotype.cda.utilities;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -467,5 +468,24 @@ public class CommonUtils {
         }
 
         return retVal.toString();
+    }
+
+
+    public static String getBaseUrl(HttpServletRequest request) {
+        logger.info("Getting baseUrl for request {}, baseUrl is {}", request.getRequestURL().toString(), request.getAttribute("baseUrl").toString());
+        return request.getAttribute("baseUrl").toString();
+    }
+
+    public static String getFullyQualifiedBaseUrl(HttpServletRequest request) {
+
+        String result = new StringBuilder(request.getScheme())
+                .append(":")
+                .append(request.getAttribute("mappedHostname"))
+                .append(getBaseUrl(request))
+                .toString();
+
+        logger.info("Getting fullly qualified baseUrl for request {}: {}", request.getRequestURL().toString(), result);
+
+        return result;
     }
 }

@@ -34,9 +34,6 @@ import javax.sql.DataSource;
 @Profile("!test")
 public class CoreConfig {
 
-    @Value("${paBaseUrl}")
-    private String paBaseUrl;
-
     @Value("${mail.smtp.host}")
     private String smtpHost;
 
@@ -49,11 +46,6 @@ public class CoreConfig {
     @Value("${mail.smtp.replyto}")
     private String smtpReplyto;
 
-
-    @Bean
-    public String paBaseUrl() {
-        return paBaseUrl;
-    }
 
     @Bean
     public NamedParameterJdbcTemplate jdbc() {
