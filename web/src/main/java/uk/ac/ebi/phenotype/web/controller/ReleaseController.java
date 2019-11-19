@@ -425,13 +425,14 @@ public class ReleaseController {
 		return
 				StreamSupport
 						.stream(analyticsSignificantCallsProceduresRepository.findAll().spliterator(), false)
-						.map(ascp -> {
-							AggregateCountXY x = new AggregateCountXY(
-									ascp.getId().intValue(),
-									ascp.getProcedureStableId(), "procedure", ascp.getPhenotypingCenter(),
-									Long.toString(ascp.getSignificantCalls()), "nb of calls", null);
-							return x;
-						})
+						.map(ascp -> new AggregateCountXY(
+								Math.toIntExact(ascp.getSignificantCalls()),
+								ascp.getProcedureStableId(),
+								"procedure",
+								null,
+								ascp.getPhenotypingCenter(),
+								"nb of calls",
+								null))
 						.collect(Collectors.toList());
 	}
 }
