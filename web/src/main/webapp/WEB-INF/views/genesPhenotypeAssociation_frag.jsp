@@ -467,7 +467,6 @@
 
     function chartClick() {
         if (firstChart) {
-            $('#systemSelectorChart').selectpicker('deselectAll');
             $('#all-chart').html(placeholderText);
             $.ajax({
                 url: baseUrl + '/experimentsChartFrag?geneAccession=' + '${gene.mgiAccessionId}',
@@ -482,7 +481,6 @@
 
     function tableClick() {
         if (firstTable) {
-            $('#systemSelectorTable').selectpicker('deselectAll');
             $('#all-table').html(placeholderText);
             $.ajax({
                 url: baseUrl + '/experimentsTableFrag?geneAccession=' + '${gene.mgiAccessionId}',
