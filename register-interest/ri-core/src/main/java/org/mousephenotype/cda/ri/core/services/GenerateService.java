@@ -34,7 +34,6 @@ public class GenerateService {
 
     public static final String PRIVACY_POLICY_LINK = "https://www.ebi.ac.uk/data-protection/privacy-notice/impc-mailservices";
     public static final String MOUSEINFORMATICS_EMAIL = "mouse-helpdesk@ebi.ac.uk";
-    public static final String FULLY_QUALIFIED_BASE_URL = "https://www.ebi.ac.uk/mi/impc/phenotype-archive";
 
 
     private RiSqlUtils sqlUtils;
@@ -71,18 +70,19 @@ public class GenerateService {
 
 
     /**
+     * @param paBaseUrl The fully-qualified Phenotype Archive base url
      * @param summary The {@link Summary} instance containing the summary information (emailAddress and genes of
      *                interest). If the instance is a {@link SummaryWithDecoration}, the resulting string will contain
      *                gene state change decoration; otherwise, it will not.
      * @param inHtml Boolean indicating whether or not the output should be in html
      * @return A string containing the contact (named in the summary) e-mail content
      */
-    public String getSummaryContent(Summary summary, boolean inHtml) {
+    public String getSummaryContent(String paBaseUrl, Summary summary, boolean inHtml) {
         StringBuilder sb = new StringBuilder();
 
         sb
-                .append(getSummaryPreface(inHtml))
-                .append(getSummaryHtmlTableText(summary, inHtml))
+                .append(getSummaryPreface(paBaseUrl, inHtml))
+                .append(getSummaryHtmlTableText(paBaseUrl, summary, inHtml))
                 .append(inHtml ? "<br />" : "\n");
 
         if ((summary instanceof SummaryWithDecoration) && (((SummaryWithDecoration) summary).isDecorated())){
@@ -229,11 +229,11 @@ public class GenerateService {
      * @param inHtml - if true, format result using html; otherwise, do not.
      * @return An HTML string containing this contact's summary information, in HTML table format
      */
-    protected String getSummaryHtmlTableText(Summary summary, boolean inHtml) {
-        return SummaryHtmlTable.buildTableContent(FULLY_QUALIFIED_BASE_URL, summary, inHtml);
+    protected String getSummaryHtmlTableText(String paBaseUrl, Summary summary, boolean inHtml) {
+        return SummaryHtmlTable.buildTableContent(paBaseUrl, summary, inHtml);
     }
 
-    protected String getSummaryPreface(boolean inHtml) {
+    protected String getSummaryPreface(String paBaseUrl, boolean inHtml) {
         StringBuilder sb = new StringBuilder();
         sb
             .append("Dear colleague,\n")
@@ -254,10 +254,10 @@ public class GenerateService {
             .append(inHtml ? "<br /><br />" : "\n\n")
 
             .append("You may manage the list of genes for which you have registered interest by visiting the IMPC ")
-            .append(inHtml ? "<a href=\"" + FULLY_QUALIFIED_BASE_URL + "/summary" + "\">" : "'")
+            .append(inHtml ? "<a href=\"" + paBaseUrl + "/summary" + "\">" : "'")
             .append("summary")
             .append(inHtml ? "</a>" : "'")
-            .append(" page at " + FULLY_QUALIFIED_BASE_URL + "/summary.\n")
+            .append(" page at " + paBaseUrl + "/summary.\n")
 
             .append(inHtml ? "<br /><br />" : "\n\n")
 

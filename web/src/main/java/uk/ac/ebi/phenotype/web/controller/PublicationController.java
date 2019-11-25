@@ -62,7 +62,7 @@ public class PublicationController implements Exportable<Publication> {
 
 
     @Inject
-    public PublicationController(ReferenceService referenceService, HttpServletRequest request) {
+    public PublicationController(ReferenceService referenceService) {
         this.referenceService = referenceService;
     }
 

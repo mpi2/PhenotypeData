@@ -75,8 +75,8 @@ public class ChartsPageTest {
 
 
     @NotNull
-    @Value("${base_url}")
-    private String baseUrl;
+    @Value("${paBaseUrl}")
+    private String paBaseUrl;
 
     @Value("${seleniumUrl}")
     private String seleniumUrl;
@@ -121,7 +121,7 @@ public class ChartsPageTest {
         String impressParameter = "ESLIM_001_001_004";
         String zygosity = "homozygote";
         String geneSymbol = "Mysm1";
-        String target = baseUrl + "/charts?accession=" + mgiGeneAcc + "&parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity;
+        String target = paBaseUrl + "/charts?accession=" + mgiGeneAcc + "&parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity;
         logger.info("Target: " + target);
         driver.get(target);
         String title  = wait.until(ExpectedConditions.presenceOfElementLocated(By.className("title"))).getText();
@@ -151,7 +151,7 @@ public class ChartsPageTest {
         String impressParameter = "M-G-P_014_001_001";
         String zygosity = "homozygote";
         String geneSymbol = "Sparc";
-        String target = baseUrl + "/charts?accession=" + mgiGeneAcc + "&parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity;
+        String target = paBaseUrl + "/charts?accession=" + mgiGeneAcc + "&parameter_stable_id=" + impressParameter + "&zygosity=" + zygosity;
         logger.info("Target: " + target);
         driver.get(target);
         String title  = wait.until(ExpectedConditions.presenceOfElementLocated(By.className("title"))).getText();

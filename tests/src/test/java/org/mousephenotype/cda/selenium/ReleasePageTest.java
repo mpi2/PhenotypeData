@@ -78,8 +78,8 @@ public class ReleasePageTest {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
-//    @Value("${paBaseUrl}")
-//    private String paBaseUrl;
+    @Value("${paBaseUrl}")
+    private String paBaseUrl;
 
     @Value("${seleniumUrl}")
     private String seleniumUrl;
@@ -118,23 +118,23 @@ public class ReleasePageTest {
 
     @Test
     public void testJSONVersion() {
-//        String testName = "testJSONVersion";
-//        Date start = new Date();
-//        RunStatus status = new RunStatus();
-//
-//        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
-//
-//        String target = paBaseUrl + "/release.json";
-//        driver.get(target);
-//
-//        String bodyText = driver.findElement(By.xpath("//body")).getText();
-//        if ( ! bodyText.contains("data_release_version")) {
-//            status.addError("ERROR: Expected json data_release_version tag. URL: " + target);
-//        }
-//
-//        if ( ! status.hasErrors())
-//            status.successCount++;
-//
-//        testUtils.printEpilogue(testName, start, status, 1, 1);
+        String testName = "testJSONVersion";
+        Date start = new Date();
+        RunStatus status = new RunStatus();
+
+        testUtils.logTestStartup(logger, this.getClass(), testName, 1, 1);
+
+        String target = paBaseUrl + "/release.json";
+        driver.get(target);
+
+        String bodyText = driver.findElement(By.xpath("//body")).getText();
+        if ( ! bodyText.contains("data_release_version")) {
+            status.addError("ERROR: Expected json data_release_version tag. URL: " + target);
+        }
+
+        if ( ! status.hasErrors())
+            status.successCount++;
+
+        testUtils.printEpilogue(testName, start, status, 1, 1);
     }
 }

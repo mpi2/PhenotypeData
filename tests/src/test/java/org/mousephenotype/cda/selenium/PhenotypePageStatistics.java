@@ -95,8 +95,8 @@ public class PhenotypePageStatistics {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
-//    @Value("${paBaseUrl}")
-//    private String paBaseUrl;
+    @Value("${paBaseUrl}")
+    private String paBaseUrl;
 
     @Value("${seleniumUrl}")
     private String seleniumUrl;
@@ -137,114 +137,114 @@ public class PhenotypePageStatistics {
      *
      * @throws SolrServerException
      */
-//    @Test
-//    public void testCollectTableAndImageStatistics() throws SolrServerException, IOException {
-//        RunStatus masterStatus = new RunStatus();
-//        String testName = "testCollectTableAndImageStatistics";
-//        List<String> phenotypeIds = new ArrayList(mpService.getAllPhenotypes());
-//        String target = "";
-//
-//        List<String> phenotypeTableOnly = new ArrayList();
-//        List<String> imagesOnly = new ArrayList();
-//        List<String> both = new ArrayList();
-//        String message;
-//        Date start = new Date();
-//
-//        int pagesWithPhenotypeTableCount = 0;
-//        int pagesWithImageCount = 0;
-//        int pagesWithBoth = 0;
-//        List<String> urlsWithNeitherPhenotypeTableNorImage = new ArrayList();
-//
-//        int targetCount = testUtils.getTargetCount(env, testName, phenotypeIds, 10);
-//        testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, phenotypeIds.size());
-//
-//        // Loop through first targetCount phenotype MGI links, testing each one for valid page load.
-//        int i = 0;
-//        for (String phenotypeId : phenotypeIds) {
-//            RunStatus status = new RunStatus();
-//            if (i >= targetCount) {
-//                break;
-//            }
-//            i++;
-//
-//            boolean found = false;
-//
-//            target = paBaseUrl + "/phenotypes/" + phenotypeId;
-//            logger.debug("phenotype[" + i + "] URL: " + target);
-//
-//            try {
-//                driver.get(target);
-//                (new WebDriverWait(driver, timeoutInSeconds)).until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("h1#top")));
-//                found = true;
-//                boolean hasPhenotypeTable = false;
-//                boolean hasImage = false;
-//
-//                // Are there any phenotype associations?
-//                List<WebElement> elementList = driver.findElements(By.cssSelector("div.alert"));
-//
-//                hasPhenotypeTable = ! testUtils.contains(elementList, NO_PHENOTYPE_ASSOCIATIONS);
-//
-//                // Are there any images?
-//                elementList = driver.findElements(By.cssSelector("h2#section"));
-//                if (testUtils.contains(elementList, "Images")) {
-//                    List<WebElement> imagesAccordion = driver.findElements(By.cssSelector("div.accordion-body ul li"));
-//                    if (imagesAccordion.isEmpty()) {
-//                        status.addError("ERROR: Found Image tag but there were no image links");
-//                    } else {
-//                        hasImage = true;
-//                    }
-//                }
-//
-//                if (hasPhenotypeTable && hasImage) {
-//                    pagesWithBoth++;
-//                    both.add(driver.getCurrentUrl());
-//                } else if (hasPhenotypeTable) {
-//                    pagesWithPhenotypeTableCount++;
-//                    phenotypeTableOnly.add(driver.getCurrentUrl());
-//                } else if (hasImage) {
-//                    pagesWithImageCount++;
-//                    imagesOnly.add(driver.getCurrentUrl());
-//                } else {
-//                    urlsWithNeitherPhenotypeTableNorImage.add(driver.getCurrentUrl());
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//                status.addError("EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage());
-//            }
-//
-//            if (found) {
-//                status.successCount++;
-//            } else {
-//                status.addError("h1 with id 'top' not found.");
-//            }
-//
-//            masterStatus.add(status);
-//        }
-//
-//        System.out.println("\nPhenotype pages with tables but no images: " + pagesWithPhenotypeTableCount);
-//        for (String s : phenotypeTableOnly) {
-//            System.out.println(s);
-//        }
-//        System.out.println();
-//        System.out.println("Phenotype pages with images but no tables: " + pagesWithImageCount);
-//        for (String s : imagesOnly) {
-//            System.out.println(s);
-//        }
-//        System.out.println();
-//        System.out.println("Phenotype pages with both tables and images: " + pagesWithBoth);
-//        for (String s : both) {
-//            System.out.println(s);
-//        }
-//        System.out.println();
-//
-//        if ( ! urlsWithNeitherPhenotypeTableNorImage.isEmpty()) {
-//            System.out.println("WARNING: The following " + urlsWithNeitherPhenotypeTableNorImage.size() + " results had neither phenotype table nor images:");
-//            System.out.println("WARNING: Phenotype pages with neither phenotype table nor images: " + urlsWithNeitherPhenotypeTableNorImage.size());
-//            for (String s : urlsWithNeitherPhenotypeTableNorImage) {
-//                System.out.println("\t" + s);
-//            }
-//        }
-//
-//        testUtils.printEpilogue(testName, start, masterStatus, targetCount, phenotypeIds.size());
-//    }
+    @Test
+    public void testCollectTableAndImageStatistics() throws SolrServerException, IOException {
+        RunStatus masterStatus = new RunStatus();
+        String testName = "testCollectTableAndImageStatistics";
+        List<String> phenotypeIds = new ArrayList(mpService.getAllPhenotypes());
+        String target = "";
+
+        List<String> phenotypeTableOnly = new ArrayList();
+        List<String> imagesOnly = new ArrayList();
+        List<String> both = new ArrayList();
+        String message;
+        Date start = new Date();
+
+        int pagesWithPhenotypeTableCount = 0;
+        int pagesWithImageCount = 0;
+        int pagesWithBoth = 0;
+        List<String> urlsWithNeitherPhenotypeTableNorImage = new ArrayList();
+
+        int targetCount = testUtils.getTargetCount(env, testName, phenotypeIds, 10);
+        testUtils.logTestStartup(logger, this.getClass(), testName, targetCount, phenotypeIds.size());
+
+        // Loop through first targetCount phenotype MGI links, testing each one for valid page load.
+        int i = 0;
+        for (String phenotypeId : phenotypeIds) {
+            RunStatus status = new RunStatus();
+            if (i >= targetCount) {
+                break;
+            }
+            i++;
+
+            boolean found = false;
+
+            target = paBaseUrl + "/phenotypes/" + phenotypeId;
+            logger.debug("phenotype[" + i + "] URL: " + target);
+
+            try {
+                driver.get(target);
+                (new WebDriverWait(driver, timeoutInSeconds)).until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("h1#top")));
+                found = true;
+                boolean hasPhenotypeTable = false;
+                boolean hasImage = false;
+
+                // Are there any phenotype associations?
+                List<WebElement> elementList = driver.findElements(By.cssSelector("div.alert"));
+
+                hasPhenotypeTable = ! testUtils.contains(elementList, NO_PHENOTYPE_ASSOCIATIONS);
+
+                // Are there any images?
+                elementList = driver.findElements(By.cssSelector("h2#section"));
+                if (testUtils.contains(elementList, "Images")) {
+                    List<WebElement> imagesAccordion = driver.findElements(By.cssSelector("div.accordion-body ul li"));
+                    if (imagesAccordion.isEmpty()) {
+                        status.addError("ERROR: Found Image tag but there were no image links");
+                    } else {
+                        hasImage = true;
+                    }
+                }
+
+                if (hasPhenotypeTable && hasImage) {
+                    pagesWithBoth++;
+                    both.add(driver.getCurrentUrl());
+                } else if (hasPhenotypeTable) {
+                    pagesWithPhenotypeTableCount++;
+                    phenotypeTableOnly.add(driver.getCurrentUrl());
+                } else if (hasImage) {
+                    pagesWithImageCount++;
+                    imagesOnly.add(driver.getCurrentUrl());
+                } else {
+                    urlsWithNeitherPhenotypeTableNorImage.add(driver.getCurrentUrl());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                status.addError("EXCEPTION processing target URL " + target + ": " + e.getLocalizedMessage());
+            }
+
+            if (found) {
+                status.successCount++;
+            } else {
+                status.addError("h1 with id 'top' not found.");
+            }
+
+            masterStatus.add(status);
+        }
+
+        System.out.println("\nPhenotype pages with tables but no images: " + pagesWithPhenotypeTableCount);
+        for (String s : phenotypeTableOnly) {
+            System.out.println(s);
+        }
+        System.out.println();
+        System.out.println("Phenotype pages with images but no tables: " + pagesWithImageCount);
+        for (String s : imagesOnly) {
+            System.out.println(s);
+        }
+        System.out.println();
+        System.out.println("Phenotype pages with both tables and images: " + pagesWithBoth);
+        for (String s : both) {
+            System.out.println(s);
+        }
+        System.out.println();
+
+        if ( ! urlsWithNeitherPhenotypeTableNorImage.isEmpty()) {
+            System.out.println("WARNING: The following " + urlsWithNeitherPhenotypeTableNorImage.size() + " results had neither phenotype table nor images:");
+            System.out.println("WARNING: Phenotype pages with neither phenotype table nor images: " + urlsWithNeitherPhenotypeTableNorImage.size());
+            for (String s : urlsWithNeitherPhenotypeTableNorImage) {
+                System.out.println("\t" + s);
+            }
+        }
+
+        testUtils.printEpilogue(testName, start, masterStatus, targetCount, phenotypeIds.size());
+    }
 }
