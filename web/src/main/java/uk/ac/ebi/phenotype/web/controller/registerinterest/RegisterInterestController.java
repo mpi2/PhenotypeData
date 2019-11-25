@@ -658,7 +658,7 @@ public class RegisterInterestController {
         model.addAttribute("showWhen", true);
         model.addAttribute("showLoginLink", true);
         model.addAttribute("status", "Your account has been deleted.");
-
+System.out.println("redirect:" + baseUrl + "/search");
         return "redirect:" + baseUrl + "/search";
     }
 
