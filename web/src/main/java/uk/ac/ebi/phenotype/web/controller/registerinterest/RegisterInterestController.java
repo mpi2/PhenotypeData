@@ -659,7 +659,7 @@ public class RegisterInterestController {
         model.addAttribute("showLoginLink", true);
         model.addAttribute("status", "Your account has been deleted.");
 
-        return "redirect:/search";
+        return "redirect:" + baseUrl + "/search";
     }
 
     // Redirect attempt to delete anonymousUser account to /search.
