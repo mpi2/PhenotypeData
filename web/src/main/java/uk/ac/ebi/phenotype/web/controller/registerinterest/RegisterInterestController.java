@@ -28,6 +28,7 @@ import org.mousephenotype.cda.ri.core.services.GenerateService;
 import org.mousephenotype.cda.ri.core.utils.EmailUtils;
 import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
 import org.mousephenotype.cda.utilities.DateUtils;
+import org.mousephenotype.cda.utilities.UrlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -118,10 +119,11 @@ public class RegisterInterestController {
     public final static String TITLE_UNREGISTER_GENE_FAILED    = "Gene unregistration failed.";
     public final static String TITLE_SEND_MAIL_FAILED          = "E-mail server error.";
 
-    private final Logger logger        = LoggerFactory.getLogger(this.getClass());
-    private       CoreService      coreService;
-    private       DateUtils        dateUtils     = new DateUtils();
-    private       EmailUtils       emailUtils    = new EmailUtils();
+    private final Logger      logger     = LoggerFactory.getLogger(this.getClass());
+    private       CoreService coreService;
+    private       DateUtils   dateUtils  = new DateUtils();
+    private       EmailUtils  emailUtils = new EmailUtils();
+    private       UrlUtils    urlUtils   = new UrlUtils();
 
     // Properties
     private PasswordEncoder passwordEncoder;
@@ -711,6 +713,7 @@ System.out.println("redirect:" + baseUrl + "/search");
 
     private String generateResetPasswordEmail(String tokenLink, boolean accountExists) {
         String buttonText = (accountExists ? TITLE_RESET_PASSWORD_REQUEST : TITLE_NEW_ACCOUNT_REQUEST);
+        tokenLink = urlUtils.urlEncode(tokenLink);
 
         StringBuilder body = new StringBuilder()
                 .append("<html>")
@@ -774,6 +777,7 @@ System.out.println("redirect:" + baseUrl + "/search");
 
     private String generateNewAccountEmail(String tokenLink, boolean accountExists) {
         String buttonText = (accountExists ? TITLE_RESET_PASSWORD_REQUEST : TITLE_NEW_ACCOUNT_REQUEST);
+        tokenLink = urlUtils.urlEncode(tokenLink);
 
         StringBuilder body = new StringBuilder()
                 .append("<html>")
