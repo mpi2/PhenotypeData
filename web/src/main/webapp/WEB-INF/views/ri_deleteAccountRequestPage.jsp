@@ -22,7 +22,7 @@
 
             <div class="row">
                 <div class="col-md-12">
-                    <p><a href="${paBaseUrl}">Home</a>
+                    <p><a href="${baseUrl}">Home</a>
                         <span class="fal fa-angle-right"></span><a href="${baseUrl}/summary">My Genes</a>
                         <span class="fal fa-angle-right"></span>Delete account
                     </p>

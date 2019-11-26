@@ -86,10 +86,6 @@ public class DataTableController {
 	private SolrUtilsWeb solrUtilsWeb;
 
 
-	@Value("${paBaseUrl}")
-	private String paBaseUrl;
-
-
 	/**
 	 <p>
 	 * deals with batchQuery
@@ -471,63 +467,63 @@ public class DataTableController {
 
 			// register of interest
 
-			boolean loggedIn = false;
-			try {
-
-				loggedIn = riUtils.isLoggedIn();
-
-			} catch (Exception e) {
-				// Nothing to do. If register interest service isn't working, a 500 is thrown. Handle as unauthenticated.
-			}
-
-			String target = paBaseUrl + "/search/gene?" + request.getQueryString();
-			String formAction;
-			String formMethod;
-			String registerIconClass;
-			String registerButtonText;
-
-			CsrfToken csrf = (CsrfToken) request.getAttribute("_csrf");
-
-			if (loggedIn) {
-
-				List<String> geneAccessionIds = riUtils.getGeneAccessionIds();
-
-				formMethod = "POST";
-
-				if (geneAccessionIds.contains(mgiId)) {
-
-					formAction = paBaseUrl + "/unregistration/gene/" + doc.getString("mgi_accession_id");
-					registerIconClass = "fa fa-sign-out";
-					registerButtonText = "Unregister interest";
-
-					String unregisterTag = buildRiFormTag(target, formAction, formMethod, registerIconClass, registerButtonText, csrf);
-
-					rowData.add(unregisterTag);
-
-				} else {
-
-					formAction = paBaseUrl + "/registration/gene/" + doc.getString("mgi_accession_id");
-					registerIconClass = "fa fa-sign-in";
-					registerButtonText = "Register interest";
-
-					String registerTag = buildRiFormTag(target, formAction, formMethod, registerIconClass, registerButtonText, csrf);
-
-					rowData.add(registerTag);
-				}
-
-			} else {
-
-				// Use Register Interest authenticated endpoint
-
-				formAction = paBaseUrl + "/authenticated";
-				formMethod = "GET";
-				registerIconClass = "fa fa-sign-in";
-				registerButtonText = "Login to register interest";
-
-				String interestTag = buildRiFormTag(target, formAction, formMethod, registerIconClass, registerButtonText, csrf);
-
-				rowData.add(interestTag);
-			}
+//			boolean loggedIn = false;
+//			try {
+//
+//				loggedIn = riUtils.isLoggedIn();
+//
+//			} catch (Exception e) {
+//				// Nothing to do. If register interest service isn't working, a 500 is thrown. Handle as unauthenticated.
+//			}
+//
+//			String target = paBaseUrl + "/search/gene?" + request.getQueryString();
+//			String formAction;
+//			String formMethod;
+//			String registerIconClass;
+//			String registerButtonText;
+//
+//			CsrfToken csrf = (CsrfToken) request.getAttribute("_csrf");
+//
+//			if (loggedIn) {
+//
+//				List<String> geneAccessionIds = riUtils.getGeneAccessionIds();
+//
+//				formMethod = "POST";
+//
+//				if (geneAccessionIds.contains(mgiId)) {
+//
+//					formAction = paBaseUrl + "/unregistration/gene/" + doc.getString("mgi_accession_id");
+//					registerIconClass = "fa fa-sign-out";
+//					registerButtonText = "Unregister interest";
+//
+//					String unregisterTag = buildRiFormTag(target, formAction, formMethod, registerIconClass, registerButtonText, csrf);
+//
+//					rowData.add(unregisterTag);
+//
+//				} else {
+//
+//					formAction = paBaseUrl + "/registration/gene/" + doc.getString("mgi_accession_id");
+//					registerIconClass = "fa fa-sign-in";
+//					registerButtonText = "Register interest";
+//
+//					String registerTag = buildRiFormTag(target, formAction, formMethod, registerIconClass, registerButtonText, csrf);
+//
+//					rowData.add(registerTag);
+//				}
+//
+//			} else {
+//
+//				// Use Register Interest authenticated endpoint
+//
+//				formAction = paBaseUrl + "/authenticated";
+//				formMethod = "GET";
+//				registerIconClass = "fa fa-sign-in";
+//				registerButtonText = "Login to register interest";
+//
+//				String interestTag = buildRiFormTag(target, formAction, formMethod, registerIconClass, registerButtonText, csrf);
+//
+//				rowData.add(interestTag);
+//			}
 
 			j.getJSONArray("aaData").put(rowData);
 		}
