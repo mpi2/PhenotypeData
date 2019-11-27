@@ -57,7 +57,7 @@ public class CoreService {
     }
 
 
-    public void generateAndSend(boolean noDecoration, boolean send, SmtpParameters smtpParameters) {
+    public void generateAndSend(String paBaseUrl, boolean noDecoration, boolean send, SmtpParameters smtpParameters) {
 
         int     count    = 0;
         boolean inHtml   = true;
@@ -77,7 +77,7 @@ public class CoreService {
                 summary = decoratedSummary;
             }
 
-            String content = generateService.getSummaryContent(summary, true);
+            String content = generateService.getSummaryContent(paBaseUrl, summary, true);
 
             if (send) {
 

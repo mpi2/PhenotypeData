@@ -37,6 +37,7 @@ import java.util.*;
  * This class encapsulates the code and data necessary to represent the important
  * components of a search page.
  */
+@Deprecated
 public class SearchPage {
 
     private         String        baseUrl;
