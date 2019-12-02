@@ -23,8 +23,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import uk.ac.ebi.phenotype.web.dao.StatisticsService;
-import uk.ac.ebi.phenotype.web.dao.StatsClient;
 
 import javax.sql.DataSource;
 
@@ -56,13 +54,5 @@ public class ServiceTestConfig {
 
         return komp2DataSource;
     }
-    @Bean
-    public StatsClient statsClient() {
-        return new StatsClient();
-    }
 
-    @Bean
-    public StatisticsService statisticsService() {
-        return new StatisticsService(statsClient());
-    }
 }
