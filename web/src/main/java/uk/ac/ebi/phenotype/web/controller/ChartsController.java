@@ -42,7 +42,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import uk.ac.ebi.phenotype.chart.*;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
-import uk.ac.ebi.phenotype.web.dao.StatisticsService;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -82,7 +81,6 @@ public class ChartsController {
     @Value("${solr_url}")
     public String SOLR_URL;
 
-    private StatisticsService statsService;
 
     @Inject
     public ChartsController(
