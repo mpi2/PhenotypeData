@@ -449,8 +449,8 @@ public class PhenotypePageTest {
 //                  procedures.removeAll(expectedProcedures);
 //                  if ( ! procedures.isEmpty()) {
 //                     status.addError("Unexpected procedures: '" + StringUtils.join(procedures, ", ") + "'");
-//                  }
-//              }
+//                 }
+//             }
 
          } catch (Exception e) {
              status.addError("EXCEPTION: " + e.getLocalizedMessage() + "\nURL: " + target);

@@ -36,7 +36,6 @@ public class AggregateCountXY {
 	 * @param yAttribute
 	 */
 	public AggregateCountXY(int aggregateCount, String xValue, String xName, String xAttribute, String yValue, String yName, String yAttribute) {
-		super();
 		this.aggregateCount = aggregateCount;
 		this.xValue = xValue;
 		this.xName = xName;

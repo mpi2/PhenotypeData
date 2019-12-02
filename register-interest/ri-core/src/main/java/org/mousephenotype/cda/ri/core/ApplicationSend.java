@@ -23,6 +23,7 @@ import org.mousephenotype.cda.ri.core.entities.SmtpParameters;
 import org.mousephenotype.cda.ri.core.services.CoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.WebApplicationType;
@@ -36,6 +37,9 @@ import java.util.Arrays;
 
 @ComponentScan({"org.mousephenotype.cda.ri.core"})
 public class ApplicationSend implements CommandLineRunner {
+
+    @Value("${paBaseUrl}")
+    private String paBaseUrl;
 
     private final Logger         logger = LoggerFactory.getLogger(this.getClass());
     private       CoreService    coreService;
@@ -85,7 +89,7 @@ public class ApplicationSend implements CommandLineRunner {
 
         initialise(args);
 
-        coreService.generateAndSend(noDecoration, send, smtpParameters);
+        coreService.generateAndSend(paBaseUrl, noDecoration, send, smtpParameters);
     }
 
 
