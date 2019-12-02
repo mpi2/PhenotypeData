@@ -47,7 +47,7 @@ public class StatisticsServiceTest {
 	StatisticsService statisticsService;
 
 
-	// 17-09-2019 (mrelac) Ignoring this test as the assertTrue(experiment != null) below currently fails.
+	// 02-12-2019 (JWarren) Ignore tests as we are not sure if this service is going to be put into production so development on hold.
 	@Ignore
 	@Test
 	public void testGetSpecificExperimentFromRest() throws SolrServerException, IOException {

@@ -268,23 +268,15 @@ public class ChartsController {
 
 		GeneDTO gene = geneService.getGeneById(accession[0]);
 		model.addAttribute("gene", gene);
-		boolean testBoth           = false;//change to look at old chart with current code
-		boolean statsServiceResult = true;
-
-
-			System.err.println("no experiment found using stats service falling back to solr");
 			long startTimeSolr = System.currentTimeMillis();
 
 			experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
-			statsServiceResult = false;
+
 			//model.addAttribute("solrExperiment", experiment);
 			//System.out.println("solr experiment="+experiment);
 			long endTimeSolr   = System.currentTimeMillis();
 			long timeTakenSolr = endTimeSolr - startTimeSolr;
 			System.out.println("solr time taken to get experiment=" + timeTakenSolr);
-
-
-		model.addAttribute("statsServiceResult", statsServiceResult);//tell the interface where we got the data from  - temp measure for testing
 
 		ProcedureDTO proc = null;
 		if (experiment != null) {
