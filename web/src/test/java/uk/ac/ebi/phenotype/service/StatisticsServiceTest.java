@@ -97,6 +97,7 @@ public class StatisticsServiceTest {
 	}
 
 	// 17-09-2019 (mrelac) Ignoring this test as the assertTrue(experiment != null) below currently fails.
+
 	@Ignore
 	@Test
 	public void testSexSpecificExperimentFromRest() throws SolrServerException, IOException {

@@ -26,7 +26,7 @@ public class StatsClient {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Value("${statistics_url}")
+	//@Value("${statistics_url}")
 	private String statisticsUrl;
 
 //	private  String statisticsUrl;//"http://localhost:8080/
