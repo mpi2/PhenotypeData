@@ -40,6 +40,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import uk.ac.ebi.phenotype.util.SolrUtilsWeb;
+import uk.ac.ebi.phenotype.web.dao.StatsClient;
 import uk.ac.ebi.phenotype.web.util.DeploymentInterceptor;
 
 import java.util.HashMap;
@@ -69,6 +70,9 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
 
     @Value("${solr_url}")
     private String solrUrl;
+
+    @Value("${statistics_url}")
+    private String statisticsUrl;
 
     @Value("${base_url}")
     private String baseUrl;
@@ -109,6 +113,7 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
         map.put("googleAnalytics", googleAnalytics);
         map.put("liveSite", liveSite);
         map.put("paBaseUrl", paBaseUrl);
+        map.put("statisticsUrl", statisticsUrl);
         return map;
     }
 

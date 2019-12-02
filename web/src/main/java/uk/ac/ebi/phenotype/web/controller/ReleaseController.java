@@ -255,7 +255,7 @@ public class ReleaseController {
 		/**
 		 * Get Historical trends release by release
 		 */
-		List<String> allDataReleaseVersions = metaHisoryRepository.getAllDataReleaseVersionsCastDesc();
+		List<String> allDataReleaseVersions = metaHisoryRepository.getAllDataReleaseVersionsCastAsc();
 
 		String[] trendsVariables = new String[] { "statistically_significant_calls", "phenotyped_genes",
 				"phenotyped_lines" };
@@ -328,7 +328,7 @@ public class ReleaseController {
 		/**
 		 * Get all former releases: releases but the current one
 		 */
-		List<String> releases = metaHisoryRepository.getAllDataReleaseVersionsExcludingOneCastDesc("data_release_version");
+		List<String> releases = metaHisoryRepository.getAllDataReleaseVersionsExcludingOneCastDesc(metaInfo.get("data_release_version"));
 
 		model.addAttribute("metaInfo", metaInfo);
 		model.addAttribute("releases", releases);
@@ -358,40 +358,37 @@ public class ReleaseController {
 
 	private List<AggregateCountXY> getHistoricalData(String propertyKey) {
 
-		List<AggregateCountXY> results = new ArrayList<>();
-
-		metaHisoryRepository.getAllByPropertyKeyCastAsc(propertyKey)
+		return metaHisoryRepository.getAllByPropertyKeyCastAsc(propertyKey)
 				.stream()
-				.map(aggregate -> results.add(new AggregateCountXY(
-						CommonUtils.tryParseInt(aggregate.getPropertyValue()),
-						aggregate.getPropertyKey(),
-						aggregate.getPropertyKey(),
-						null,
-						aggregate.getDataReleaseVersion(),
-						aggregate.getDataReleaseVersion(),
-						null
-				)));
-
-		return results;
+				.map(aggregate -> {
+					return new AggregateCountXY(
+							CommonUtils.tryParseInt(aggregate.getPropertyValue()),
+							aggregate.getPropertyKey(),
+							aggregate.getPropertyKey(),
+							null,
+							aggregate.getDataReleaseVersion(),
+							aggregate.getDataReleaseVersion(),
+							null);
+				})
+		.collect(Collectors.toList());
 	}
 
 
 	private List<AggregateCountXY> getAggregates(String dataType, String statisticalMethod) {
 
-		List<AggregateCountXY> results = new ArrayList<>();
-
-		analyticsPvalueDistributionRepository.getAllByDatatypeAndStatisticalMethodOrderByPvalueBinAsc(dataType, statisticalMethod)
+		return analyticsPvalueDistributionRepository.getAllByDatatypeAndStatisticalMethodOrderByPvalueBinAsc(dataType, statisticalMethod)
 				.stream()
-				.map(dist -> results.add(new AggregateCountXY(
-						dist.getPvalueCount(),
-						Double.toString(dist.getPvalueBin()),
-						"p-value",
-						null,
-						dist.getStatisticalMethod(),
-						dist.getStatisticalMethod(),
-						null)));
-
-		return results;
+				.map(dist -> {
+					return new AggregateCountXY(
+							dist.getPvalueCount(),
+							Double.toString(dist.getPvalueBin()),
+							"p-value",
+							null,
+							dist.getStatisticalMethod(),
+							dist.getStatisticalMethod(),
+							null);
+				})
+		.collect(Collectors.toList());
 	}
 
 
@@ -428,13 +425,14 @@ public class ReleaseController {
 		return
 				StreamSupport
 						.stream(analyticsSignificantCallsProceduresRepository.findAll().spliterator(), false)
-						.map(ascp -> {
-							AggregateCountXY x = new AggregateCountXY(
-									ascp.getId().intValue(),
-									ascp.getProcedureStableId(), "procedure", ascp.getPhenotypingCenter(),
-									Long.toString(ascp.getSignificantCalls()), "nb of calls", null);
-							return x;
-						})
+						.map(ascp -> new AggregateCountXY(
+								Math.toIntExact(ascp.getSignificantCalls()),
+								ascp.getProcedureStableId(),
+								"procedure",
+								null,
+								ascp.getPhenotypingCenter(),
+								"nb of calls",
+								null))
 						.collect(Collectors.toList());
 	}
 }

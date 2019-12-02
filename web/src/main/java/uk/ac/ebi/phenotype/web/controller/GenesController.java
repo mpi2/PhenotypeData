@@ -315,7 +315,6 @@ public class GenesController {
         }
 
         // Register Interest model requirements
-        model.addAttribute("paBaseUrl", config.get("paBaseUrl"));
         model.addAttribute("acc", acc);
         model.addAttribute("isLoggedIn", loggedIn);
         model.addAttribute("isFollowing", following);

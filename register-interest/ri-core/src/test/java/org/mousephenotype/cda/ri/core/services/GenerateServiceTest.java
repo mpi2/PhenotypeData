@@ -19,6 +19,7 @@ package org.mousephenotype.cda.ri.core.services;
 import org.junit.Before;
 import org.junit.Test;
 import org.mousephenotype.cda.ri.BaseTest;
+import org.mousephenotype.cda.ri.BaseTestConfig;
 import org.mousephenotype.cda.ri.core.entities.Gene;
 import org.mousephenotype.cda.ri.core.entities.GeneSent;
 import org.mousephenotype.cda.ri.core.entities.Summary;
@@ -199,11 +200,11 @@ public class GenerateServiceTest extends BaseTest {
         Map<String, GeneSent> genesSent = generateService.getGeneSentStatusByGeneAccessionId(user1);
         summaryWithDecoration = new SummaryWithDecoration(summary, genesSent);
         inHtml = false;
-        content = generateService.getSummaryContent(summaryWithDecoration, inHtml);
+        content = generateService.getSummaryContent(BaseTestConfig.PA_BASE_URL, summaryWithDecoration, inHtml);
         assertEquals(expectedSummaryContentNoHtml, content);
 
         inHtml = true;
-        content = generateService.getSummaryContent(summaryWithDecoration, inHtml);
+        content = generateService.getSummaryContent(BaseTestConfig.PA_BASE_URL, summaryWithDecoration, inHtml);
         assertEquals(expectedSummaryContentInHtml, content);
     }
 
@@ -218,11 +219,11 @@ public class GenerateServiceTest extends BaseTest {
         // user3
         summary = generateService.getsummaryByEmailAddress(user3);
         inHtml = false;
-        content = generateService.getSummaryContent(summary, inHtml);
+        content = generateService.getSummaryContent(BaseTestConfig.PA_BASE_URL, summary, inHtml);
         assertEquals(expectedSummaryContentNoHtmlNoGenes, content);
 
         inHtml = true;
-        content = generateService.getSummaryContent(summary, inHtml);
+        content = generateService.getSummaryContent(BaseTestConfig.PA_BASE_URL, summary, inHtml);
         assertEquals(expectedSummaryContentInHtmlNoGenes, content);
     }
 
