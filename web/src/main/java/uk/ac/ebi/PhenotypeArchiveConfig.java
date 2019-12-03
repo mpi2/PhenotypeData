@@ -94,6 +94,9 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
     @Value("${live_site}")
     private String liveSite;
 
+    @Value("${paBaseUrl}")
+    private String paBaseUrl;
+
 
     @Bean(name = "globalConfiguration")
     public Map<String, String> getGlobalConfig() {
@@ -108,6 +111,7 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
         map.put("pdfThumbnailUrl", Constants.PDF_THUMBNAIL_RELATIVE_URL);
         map.put("googleAnalytics", googleAnalytics);
         map.put("liveSite", liveSite);
+        map.put("paBaseUrl", paBaseUrl);
         map.put("statisticsUrl", statisticsUrl);
         return map;
     }
@@ -150,13 +154,4 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
         return new SolrIndex();
     }
 
-//    @Bean
-//    public StatsClient statsClient() {
-//        return new StatsClient();
-//    }
-
-//    @Bean
-//    public String statisticsUrl() {
-//        return statisticsUrl;
-//    }
 }
