@@ -8,26 +8,11 @@
     <jsp:attribute name="breadcrumb">Embryo Viewer</jsp:attribute>
     <jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
     <jsp:attribute name="header">
-<%--   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.css"/>--%>
-
-<%--<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.js"></script>--%>
-
 
     </jsp:attribute>
 
     <jsp:attribute name="addToFooter">
-<%--<style type="text/css" media="all">--%>
-
-<%--        table{--%>
-<%--  margin: 0 auto;--%>
-<%--  width: 100%;--%>
-<%--  clear: both;--%>
-<%--  border-collapse: collapse;--%>
-<%--  table-layout: fixed; // ***********add this--%>
-<%--  word-wrap:break-word; // ***********and this--%>
-<%--}--%>
-
-<%--</style>--%>
+<
 
         <script>
 
