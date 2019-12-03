@@ -2,32 +2,17 @@
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
-<t:genericpage-landing>
+<t:genericpage-histopath>
 
     <jsp:attribute name="title">Embryo Viewer</jsp:attribute>
     <jsp:attribute name="breadcrumb">Embryo Viewer</jsp:attribute>
     <jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
     <jsp:attribute name="header">
-   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.css"/>
-
-<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.20/datatables.min.js"></script>
-
 
     </jsp:attribute>
 
     <jsp:attribute name="addToFooter">
-<%--<style type="text/css" media="all">--%>
-
-<%--        table{--%>
-<%--  margin: 0 auto;--%>
-<%--  width: 100%;--%>
-<%--  clear: both;--%>
-<%--  border-collapse: collapse;--%>
-<%--  table-layout: fixed; // ***********add this--%>
-<%--  word-wrap:break-word; // ***********and this--%>
-<%--}--%>
-
-<%--</style>--%>
+<
 
         <script>
 
@@ -106,11 +91,26 @@
     </jsp:attribute>
 
     <jsp:body>
-        <div class="container">
-        <div class="row">
-        <div class="col-12">
+        <div class="container single single--no-side">
 
-            <h1>Embryo Viewer</h1>
+        <div class="breadcrumbs" style="box-shadow: none; margin-top: auto; margin: auto; padding: auto">
+
+            <div class="row">
+                <div class="col-md-12">
+                    <p><a href="/">Home</a>
+                        <span class="fal fa-angle-right"></span> Embryo Viewer
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row row-over-shadow">
+        <div class="col-md-12 white-bg">
+        <div class="page-content">
+
+        <div class="card">
+            <div class="card-header"><h3>Embryo data for every gene tested</h3></div>
+        <div class="card-body">
             <p>
                 Up to one third of homozygous knockout lines are <b>embryonic lethal</b>, which means no homozygous mice or less than expected are observed past the weaning stage (<a href="https://www.mousephenotype.org/impress/ProcedureInfo?action=list&procID=703&pipeID=7">IMPC Viability Primary Screen</a> procedure). Early death may occur during embryonic development or soon after birth, during the pre-weaning stage. For this reason, the IMPC established a systematic phenotyping pipeline to morphologically evaluate mutant embryos to ascertain the primary perturbations that cause early death and thus gain insight into gene function.
             </p>
@@ -119,10 +119,6 @@
 
                 Read more in our paper on <a href="https://europepmc.org/articles/PMC5295821">High-throughput discovery of novel developmental phenotypes, Nature 2016</a>
             </p>
-
-            <div class="card">
-                <div class="card-header">Embryo data for every gene tested</div>
-                <div class="card-body">
                     <p class="my-0"><b>Significance Score:</b></p>
                     <c:set var="noData" scope="page" value="fa fa-circle"/>
                     <c:set var="notApplicable" scope="page" value="fa fa-circle"/>
@@ -139,7 +135,7 @@
                         <div title="Significant" style="color: ${significantColour}" class="mr-3"><i class="${significant}"></i>&nbsp;&nbsp;<b>Images and Automated Volumetric Analysis Available</b> </div>
                     </div>
                 </div>
-            </div>
+
 
 
 
@@ -179,11 +175,11 @@
         </div>
         </div>
         </div>
-
+        </div>
 
 
     </jsp:body>
 
 
-    </t:genericpage-landing>
+    </t:genericpage-histopath>
 

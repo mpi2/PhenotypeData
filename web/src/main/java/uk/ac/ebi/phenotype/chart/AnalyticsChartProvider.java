@@ -293,8 +293,8 @@ public class AnalyticsChartProvider {
 
 		JSONArray                           series         =new JSONArray();
 		JSONArray                           categories     = new JSONArray();
-		List<String>                        categoriesList = new ArrayList<String>();
-		Map<String, List<AggregateCountXY>> centerMap      = new HashMap<String, List<AggregateCountXY>>();
+		List<String>                        categoriesList = new ArrayList<>();
+		Map<String, List<AggregateCountXY>> centerMap      = new HashMap<>();
 		try {
 			// List categories first
 			// List centers
@@ -305,7 +305,7 @@ public class AnalyticsChartProvider {
 				}
 				List<AggregateCountXY> beans = null;
 				if (!centerMap.containsKey(bean.getyValue())) {
-					beans = new ArrayList<AggregateCountXY>();
+					beans = new ArrayList<>();
 					centerMap.put(bean.getyValue(), beans);
 				} else {
 					beans = centerMap.get(bean.getyValue());

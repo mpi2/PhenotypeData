@@ -40,7 +40,6 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import uk.ac.ebi.phenotype.util.SolrUtilsWeb;
-import uk.ac.ebi.phenotype.web.dao.StatsClient;
 import uk.ac.ebi.phenotype.web.util.DeploymentInterceptor;
 
 import java.util.HashMap;
@@ -155,13 +154,4 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
         return new SolrIndex();
     }
 
-//    @Bean
-//    public StatsClient statsClient() {
-//        return new StatsClient();
-//    }
-
-//    @Bean
-//    public String statisticsUrl() {
-//        return statisticsUrl;
-//    }
 }

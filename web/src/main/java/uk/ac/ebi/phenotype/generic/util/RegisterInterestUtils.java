@@ -35,10 +35,6 @@ public class RegisterInterestUtils {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @NotNull
-    @Value("${paBaseUrl}")
-    private String paBaseUrl;
-
     private RiSqlUtils riSqlUtils;
 
     @Inject

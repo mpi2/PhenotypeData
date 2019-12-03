@@ -942,8 +942,7 @@ public class RiSqlUtils {
     }
 
     /**
-     * Updates the gene_sent table for this contact emailAddress and gene. If a row already exists for this contact
-     * and gene, the row is updated.
+     * Updates the gene_sent table for this contact emailAddress and gene.
      */
     @Transactional
     public void updateGeneSent(String emailAddress, Gene gene) {
@@ -951,15 +950,6 @@ public class RiSqlUtils {
         final String insert =
                 "INSERT INTO gene_sent (address, mgi_accession_id, assignment_status, conditional_allele_production_status, null_allele_production_status, phenotyping_status, created_at, sent_at) " +
                 "VALUES (:address, :mgiAccessionId, :assignmentStatus, :conditionalAlleleProductionStatus, :nullAlleleProductionStatus, :phenotypingStatus, :createdAt, :sentAt)";
-
-        final String update =
-                "UPDATE gene_sent SET" +
-                        " assignmentstatus = :assignmentStatus," +
-                        " conditional_allele_production_status = :conditionalAlleleProductionStatus," +
-                        " null_allele_production_status = :nullAlleleProductionStatus," +
-                        " phenotyping_status = :phenotypingStatus," +
-                        " sent_at = :sentAt" +
-                " WHERE pk = :pk";
 
         Date now = new Date();
 
@@ -974,15 +964,8 @@ public class RiSqlUtils {
         parameterMap.put("createdAt", now);
         parameterMap.put("sentAt", now);
 
-        GeneSent geneSent = getGeneSent(emailAddress, gene.getMgiAccessionId());
-        if (geneSent == null) {
-
+        if (getGeneSent(emailAddress, gene.getMgiAccessionId()) == null) {
             jdbcInterest.update(insert, parameterMap);
-
-        } else {
-
-            parameterMap.put("pk", geneSent.getPk());
-            jdbcInterest.update(update, parameterMap);
         }
     }
 

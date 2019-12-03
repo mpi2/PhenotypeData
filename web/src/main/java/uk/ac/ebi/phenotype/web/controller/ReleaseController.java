@@ -362,12 +362,12 @@ public class ReleaseController {
 				.stream()
 				.map(aggregate -> {
 					return new AggregateCountXY(
-						CommonUtils.tryParseInt(aggregate.getPropertyValue()),
-						aggregate.getPropertyKey(),
-						aggregate.getPropertyKey(),
-						null,
-						aggregate.getDataReleaseVersion(),
-						aggregate.getDataReleaseVersion(),
+							CommonUtils.tryParseInt(aggregate.getPropertyValue()),
+							aggregate.getPropertyKey(),
+							aggregate.getPropertyKey(),
+							null,
+							aggregate.getDataReleaseVersion(),
+							aggregate.getDataReleaseVersion(),
 							null);
 				})
 		.collect(Collectors.toList());
@@ -380,12 +380,12 @@ public class ReleaseController {
 				.stream()
 				.map(dist -> {
 					return new AggregateCountXY(
-						dist.getPvalueCount(),
-						Double.toString(dist.getPvalueBin()),
-						"p-value",
-						null,
-						dist.getStatisticalMethod(),
-						dist.getStatisticalMethod(),
+							dist.getPvalueCount(),
+							Double.toString(dist.getPvalueBin()),
+							"p-value",
+							null,
+							dist.getStatisticalMethod(),
+							dist.getStatisticalMethod(),
 							null);
 				})
 		.collect(Collectors.toList());
@@ -425,13 +425,14 @@ public class ReleaseController {
 		return
 				StreamSupport
 						.stream(analyticsSignificantCallsProceduresRepository.findAll().spliterator(), false)
-						.map(ascp -> {
-							AggregateCountXY x = new AggregateCountXY(
-									ascp.getId().intValue(),
-									ascp.getProcedureStableId(), "procedure", ascp.getPhenotypingCenter(),
-									Long.toString(ascp.getSignificantCalls()), "nb of calls", null);
-							return x;
-						})
+						.map(ascp -> new AggregateCountXY(
+								Math.toIntExact(ascp.getSignificantCalls()),
+								ascp.getProcedureStableId(),
+								"procedure",
+								null,
+								ascp.getPhenotypingCenter(),
+								"nb of calls",
+								null))
 						.collect(Collectors.toList());
 	}
 }
