@@ -140,9 +140,21 @@ def main(argv):
 
     solr_directory_to_filenames_map = {}
     for rec in solr_recs:
-        fname = os.path.split(rec['download_file_path'])[-1]
-        key = os.path.join(rec['phenotyping_center'],rec['pipeline_stable_id'],rec['procedure_stable_id'],rec['parameter_stable_id'],fname)
-        solr_directory_to_filenames_map[key] = rec['download_file_path']
+        # On 03/12/2019 got a key error for phenotyping centre. This should
+        # not happen, but occurred when downloading the images. Added a
+        # similar fix as to downloadimages.py
+        try:
+            fname = os.path.split(rec['download_file_path'])[-1]
+            key = os.path.join(rec['phenotyping_center'],rec['pipeline_stable_id'],rec['procedure_stable_id'],rec['parameter_stable_id'],fname)
+            solr_directory_to_filenames_map[key] = rec['download_file_path']
+        except KeyError as e:
+            msg = "Key " + str(e)+  " not returned by solr - not uploading"
+            if rec.has_key('download_file_path'): 
+                msg += " " + rec['download_file_path']
+            else:
+                msg += " unspecified filename (no download_file_path)!"
+            print msg
+            continue
 
     # Get images from Omero
     # Sometimes omero on the server throws an ICE memory limit exception. In that case go directly
