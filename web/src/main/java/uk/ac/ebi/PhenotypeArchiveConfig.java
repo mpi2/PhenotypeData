@@ -70,9 +70,6 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
     @Value("${solr_url}")
     private String solrUrl;
 
-    @Value("${statistics_url}")
-    private String statisticsUrl;
-
     @Value("${base_url}")
     private String baseUrl;
 
@@ -112,7 +109,6 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
         map.put("googleAnalytics", googleAnalytics);
         map.put("liveSite", liveSite);
         map.put("paBaseUrl", paBaseUrl);
-        map.put("statisticsUrl", statisticsUrl);
         return map;
     }
 
