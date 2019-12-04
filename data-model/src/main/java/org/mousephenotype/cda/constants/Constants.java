@@ -49,5 +49,5 @@ public class Constants {
     public static final String   IMAGE_COMING_SOON        = "Image coming soon<br>";
 
     // PDF thumbnail icon (so PDFs show a PDF icon.
-    public static final String PDF_THUMBNAIL_RELATIVE_URL = "img/filetype_pdf.img";
+    public static final String PDF_THUMBNAIL_RELATIVE_URL = "img/filetype_pdf.png";
 }
