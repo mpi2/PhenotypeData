@@ -22,7 +22,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <selenium.version>2.41.0</selenium.version>
         <selenium-firefox.version>2.44.0</selenium-firefox.version>
-        <micrometer.version>0.8.0</micrometer.version>
      </properties>
 
     <dependencies>
@@ -150,6 +149,29 @@
             <groupId>org.springframework.retry</groupId>
             <artifactId>spring-retry</artifactId>
         </dependency>
+
+
+        <!-- MONITORING DEPENDENCIES -->
+
+
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/io.micrometer/micrometer-core -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/io.micrometer/micrometer-registry-prometheus -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
 
 
         <!-- APACHE DEPENDENCIES -->
