@@ -106,7 +106,7 @@
 	            		</div>
 	            		<div class="picker">
 	            			<c:forEach var="img" items="${controls}" varStatus="controlLoop">
-	            			<c:set var="controlText" value="WT: ${img.sex}, ${img.parameterName}"/>
+	            			<c:set var="controlText" value="blah WT: ${img.sex}, ${img.parameterName}"/>
 	            			<div class="
 	            			<c:choose>
 	            				<c:when test="${img.sex eq 'male' }">

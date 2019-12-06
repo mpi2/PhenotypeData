@@ -26,13 +26,9 @@ $(document).ready(function(){
 	});
 	//viewport2.load(87043);
     /* Load the selected image into the viewport */
-	  
-	    
-    
 	    var temp2=$(".thumb2").first();
 	    var id2=temp2.attr('data-id');
-	    
-	    
+
 	    	$('#mutant_annotation').text(temp2.attr('oldtitle'));
 	    	if(id2){
 	    		id2 = parseInt(id2);
@@ -66,10 +62,6 @@ $(document).ready(function(){
 		$('#control_annotation').text($(this).attr('oldtitle'));
     });
 
-    
-    
-    
-    
     
     $(".thumb2").click(function(){
         var iid = $(this).attr('data-id');
@@ -111,7 +103,7 @@ $(document).ready(function(){
     
   $("#overlap").click(function() {
 	  console.log('calling overlap');
-	  window.open(baseUrl+'/overlap?alleleAccessionId='+acc+'&id1='+id+'&id2='+id2, 'Overlap');
+	  window.open(baseUrl+'/overlap?acc='+acc+'&id1='+id+'&id2='+id2, 'Overlap');
 	  //need to change the classes for the two images to overlap them and add the js to move the top one around.
 	  //change mutant_box to the resizable class
 //	  $('#mutant_box').toggleClass('half_box_right resizable');
