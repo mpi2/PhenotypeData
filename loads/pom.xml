@@ -79,13 +79,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.mousephenotype.dcc.exportlibrary.xmlvalidationdatastructure</groupId>
-            <artifactId>exportlibrary.xmlvalidationdatastructure</artifactId>
-            <version>1.3</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework.batch</groupId>
             <artifactId>spring-batch-core</artifactId>
         </dependency>
