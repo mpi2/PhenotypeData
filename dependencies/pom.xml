@@ -146,6 +146,20 @@
                 <groupId>org.mousephenotype.dcc.exportlibrary.xmlserialization</groupId>
                 <artifactId>exportlibrary.xmlserialization</artifactId>
                 <version>1.3.7</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>ch.qos.logback</groupId>
+                        <artifactId>logback-classic</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>ch.qos.logback</groupId>
+                        <artifactId>logback-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>log4j-over-slf4j</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!-- java mail services for register interest e-mailings -->
