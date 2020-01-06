@@ -13,6 +13,7 @@
 
     <properties>
         <phenotypedata.version>${project.version}</phenotypedata.version>
+        <hibernate.version>5.4.1.Final</hibernate.version>
     </properties>
 
     <parent>
