@@ -74,8 +74,8 @@
             <artifactId>exportlibrary.xmlserialization</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>org.jboss.logging</groupId>
-                    <artifactId>jboss-logging</artifactId>
+                    <groupId>org.hibernate</groupId>
+                    <artifactId>hibernate-core</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
