@@ -1455,16 +1455,17 @@ public class ObservationService extends BasicService implements WebStatus {
         QueryResponse response = new QueryResponse();
 
         SolrQuery query = new SolrQuery().setQuery("*:*").addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control")
-            .addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId).addFilterQuery(ObservationDTO.STRAIN_ACCESSION_ID + ":" + strain.replace(":", "\\:")).setStart(0).setRows(5000);
+            .addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId).addFilterQuery(ObservationDTO.STRAIN_ACCESSION_ID + ":" + strain.replace(":", "\\:")).setStart(0).setRows(20000);
         query.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
         if (phenotypingCenter != null) {
             query.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"");
         }
 
         if (metadataGroup == null) {
+            // Do nothing
         } else if (metadataGroup.isEmpty()) {
             query.addFilterQuery(ObservationDTO.METADATA_GROUP + ":\"\"");
-        } else {
+        } else if ( ! parameterStableId.contains("BWT_008_001") ){
             query.addFilterQuery(ObservationDTO.METADATA_GROUP + ":" + metadataGroup);
         }
 

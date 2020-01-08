@@ -455,22 +455,15 @@ public class ChartsController {
 		Integer numberMaleControlMice   = 0;
 
 		if (unidimensionalChartDataSet != null) {
-			List<UnidimensionalStatsObject> statsObjects = unidimensionalChartDataSet.getStatsObjects();
-			for (UnidimensionalStatsObject so : statsObjects) {
-				if (so.getSexType() == SexType.female) {
-					if (so.getLine().equals("Control")) {
-						numberFemaleControlMice = so.getSampleSize();
-					} else {
-						numberFemaleMutantMice = so.getSampleSize();
-					}
-				} else if (so.getSexType() == SexType.male) {
-					if (so.getLine().equals("Control")) {
-						numberMaleControlMice = so.getSampleSize();
-					} else {
-						numberMaleMutantMice = so.getSampleSize();
-					}
-				}
-			}
+
+			// Count each specimen only once, no matter how many time's it's been measured
+			final Set<ObservationDTO> mutants = unidimensionalChartDataSet.getExperiment().getMutants();
+			final Set<ObservationDTO> controls = unidimensionalChartDataSet.getExperiment().getControls();
+			numberFemaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			numberMaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			numberFemaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			numberMaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+
 		}
 
 		if (categoricalResultAndChart != null) {
@@ -484,34 +477,15 @@ public class ChartsController {
 		}
 
 		if (seriesParameterChartData != null) {
-			final ExperimentDTO       e        = seriesParameterChartData.getExperiment();
-			final Set<ObservationDTO> controls = e.getControls();
-			final Set<ObservationDTO> mutants  = e.getMutants();
 
-			// Count each specimen only once, not matter how many time's it's been measured
-			Set<String> specimensSeen = new HashSet<>();
+			// Count each specimen only once, no matter how many time's it's been measured
+			final Set<ObservationDTO> controls = seriesParameterChartData.getExperiment().getControls();
+			final Set<ObservationDTO> mutants  = seriesParameterChartData.getExperiment().getMutants();
+			numberFemaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			numberMaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			numberFemaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			numberMaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
 
-			for (ObservationDTO o : controls) {
-				if (!specimensSeen.contains(o.getExternalSampleId())) {
-					specimensSeen.add(o.getExternalSampleId());
-					if (SexType.valueOf(o.getSex()) == SexType.female) {
-						numberFemaleControlMice += 1;
-					} else if (SexType.valueOf(o.getSex()) == SexType.male) {
-						numberMaleControlMice += 1;
-					}
-				}
-			}
-
-			for (ObservationDTO o : mutants) {
-				if (!specimensSeen.contains(o.getExternalSampleId())) {
-					specimensSeen.add(o.getExternalSampleId());
-					if (SexType.valueOf(o.getSex()) == SexType.female) {
-						numberFemaleMutantMice += 1;
-					} else if (SexType.valueOf(o.getSex()) == SexType.male) {
-						numberMaleMutantMice += 1;
-					}
-				}
-			}
 		}
 		
 		model.addAttribute("numberFemaleMutantMice", numberFemaleMutantMice);
