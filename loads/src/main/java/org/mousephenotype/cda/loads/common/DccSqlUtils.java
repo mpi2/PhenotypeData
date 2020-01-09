@@ -320,7 +320,9 @@ public class DccSqlUtils {
 
         try {
             centerPk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
-            centerPkMap.put(parameterMap, centerPk);
+           if (centerPk > 0) {
+               centerPkMap.put(parameterMap, centerPk);
+           }
         } catch (Exception e) {
 
         }
