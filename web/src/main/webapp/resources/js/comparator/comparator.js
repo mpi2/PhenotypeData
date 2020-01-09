@@ -26,13 +26,9 @@ $(document).ready(function(){
 	});
 	//viewport2.load(87043);
     /* Load the selected image into the viewport */
-	  
-	    
-    
 	    var temp2=$(".thumb2").first();
 	    var id2=temp2.attr('data-id');
-	    
-	    
+
 	    	$('#mutant_annotation').text(temp2.attr('oldtitle'));
 	    	if(id2){
 	    		id2 = parseInt(id2);
@@ -66,10 +62,6 @@ $(document).ready(function(){
 		$('#control_annotation').text($(this).attr('oldtitle'));
     });
 
-    
-    
-    
-    
     
     $(".thumb2").click(function(){
         var iid = $(this).attr('data-id');
