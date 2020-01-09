@@ -6,7 +6,7 @@
 
     <jsp:attribute name="title">${allParameters} chart for ${gene.markerSymbol}</jsp:attribute>
     <jsp:attribute name="breadcrumb">&nbsp;&raquo; Statistics &raquo; <a
-            href='${baseUrl}/genes/${gene.mgiAccessionId}'>${gene.markerSymbol}</a></jsp:attribute>
+            href='${baseUrl}/genes/${gene.mgiAccessionId}'>${gene.markerSymbol} blah</a></jsp:attribute>
     <jsp:attribute name="bodyTag"><body  class="chartpage no-sidebars small-header"></jsp:attribute>
     <jsp:attribute name="header">
 			<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
