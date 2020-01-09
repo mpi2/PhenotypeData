@@ -21,6 +21,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Controller
 public class BatchQueryController {
@@ -42,6 +45,17 @@ public class BatchQueryController {
 		}
 
 		return "batchQuery";
+	}
+
+	@RequestMapping(value="/batchquery2", method=RequestMethod.GET)
+	public @ResponseBody
+	String fetchDataFields(
+			@RequestParam(value = "core", required = false) String core,
+			HttpServletRequest request,
+			Model model) {
+
+		return Tools.fetchOutputFieldsCheckBoxesHtml(core);
+
 	}
 
 }
