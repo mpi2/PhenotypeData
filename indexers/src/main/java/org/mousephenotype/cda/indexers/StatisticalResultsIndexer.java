@@ -1682,6 +1682,11 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
                     StatisticalResultDTO doc = parseLineResult(r);
                     doc.setCategories(Arrays.asList(r.getString("category")));
+                    r.getString("p_value");
+                    if (r.wasNull()) {
+                        doc.setpValue(1.0);
+                        doc.setEffectSize(0.0);
+                    }
                     docs.add(doc);
                     if (SAVE) statisticalResultCore.addBean(doc, 30000);
                     shouldHaveAdded.add(doc.getDocId());
