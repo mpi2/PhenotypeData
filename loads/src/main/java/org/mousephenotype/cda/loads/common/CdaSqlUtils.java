@@ -3598,13 +3598,16 @@ public class CdaSqlUtils {
 
         } catch (DuplicateKeyException e) {
             detail = DataLoadException.DETAIL.DUPLICATE_KEY;
-            logger.error(e.getLocalizedMessage());
+            String message = "DUPLICATE INSERT INTO biological_model FOR db_id::allelic_composition::genetic_background::zygosity '" +
+                    dbId + "::" + allelicComposition + "::" + geneticBackground + "::" + zygosity + "'";
+            logger.error(message);
         } catch (Exception e) {
             detail = DataLoadException.DETAIL.GENERAL_ERROR;
             logger.error(e.getLocalizedMessage());
         }
 
-        String message = "INSERT INTO biological_model failed for db_id " + dbId + ", allelic_composition " + allelicComposition + ", genetic_background " + geneticBackground + ", zygosity " + zygosity + "'. Skipping...";
+        String message = "INSERT INTO biological_model failed for db_id::allelic_composition::genetic_background::zygosity " +
+                dbId + "::" + allelicComposition + "::" + geneticBackground + "::" + zygosity + "'. Skipping...";
 
         throw new DataLoadException(message, detail);
     }
