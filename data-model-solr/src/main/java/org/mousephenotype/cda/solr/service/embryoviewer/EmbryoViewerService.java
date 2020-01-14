@@ -228,9 +228,9 @@ public class EmbryoViewerService {
                     .getGeneByGeneSymbolsOrGeneSynonyms(geneSymbols)
                     .stream()
                     .collect(Collectors.toMap(GeneDTO::getMarkerSymbol,GeneDTO::getMgiAccessionId));
-            System.out.println(genesByMgiIdsUmass);
-//            for (EmbryoViewerService.GeneEntry entry : genes) {
-//                entry.symbol = genesByMgiIds.get(entry.mgiAccessionId);
+//            System.out.println(genesByMgiIdsUmass);
+//            for (String key : genesByMgiIdsUmass.keySet()) {
+//               String newGene = genesByMgiIdsUmass.get(key);
 //            }
         } catch (SolrServerException | IOException e) {
             System.out.print(e);
