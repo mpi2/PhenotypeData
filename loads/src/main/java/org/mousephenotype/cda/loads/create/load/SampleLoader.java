@@ -233,7 +233,7 @@ public class SampleLoader implements CommandLineRunner {
 
 
         if ( ! backgroundStrainMismatches.isEmpty()) {
-            logger.info("Background strain mismatches: imits_background_strain::DCC_specimen_strain:");
+            logger.info("Found {} background strain mismatches: imits_background_strain::DCC_specimen_strain:", backgroundStrainMismatches.size());
             backgroundStrainMismatches.stream().sorted().forEach(System.out::println);
         }
 
