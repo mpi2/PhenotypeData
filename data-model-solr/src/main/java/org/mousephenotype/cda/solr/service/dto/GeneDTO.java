@@ -210,14 +210,15 @@ public class GeneDTO {
 
 	@Field(IS_UMASS_GENE)
 	private Boolean isUmassGene;
-
-	public Boolean getUmassGene() {
+	public Boolean getIsUmassGene() {
 		return isUmassGene;
 	}
 
-	public void setUmassGene(Boolean umassGene) {
+	public void setIsUmassGene(Boolean umassGene) {
 		isUmassGene = umassGene;
 	}
+
+
 
 	@Field(VEGA_IDS)
 	private List<String> vegaIds;
