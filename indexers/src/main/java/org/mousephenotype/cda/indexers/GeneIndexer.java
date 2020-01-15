@@ -276,7 +276,7 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 	gene.setIsIdgGene(true);
                 }
                 if(originalUmassGeneSymbols.contains(gene.getMarkerSymbol())){
-                    gene.setUmassGene(true);
+                    gene.setIsUmassGene(true);
                 }
 
                 if(genomicFeatureCoordinates!=null && genomicFeatureXrefs!=null){
