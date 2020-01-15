@@ -104,7 +104,7 @@
 
                 <div class="row no-gutters mb-2 mb-sm-0">
                     <div class="col align-middle text-sm-right pr-1">
-                        <div class="align-middle font-weight-bold pr-2">Embryo View</div>
+                        <div class="align-middle font-weight-bold pr-2">Embryo Screen</div>
                     </div>
 
                     <div class="col-sm-10 align-middle text-sm-left">
