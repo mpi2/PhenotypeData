@@ -38,7 +38,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-3">
-                    <a href="/" class="header__logo-link active"><img class="header__logo" src="${baseUrl}/img/impc-logo-tag@2x.png"/></a>
+                    <a href="/" class="header__logo-link active"><img class="header__logo" src="${baseUrl}/img/IMPC_logo.svg"/></a>
                 </div>
                 <div class="col-9 text-right">
                     <span class="d-none d-lg-block">

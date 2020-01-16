@@ -338,12 +338,12 @@ public class LandingPageController {
 	        model.addAttribute("mpId", mpDTO.getMpId());
 	        model.addAttribute("mpDTO", mpDTO);
 	
-	        String systemNAme = mpDTO.getMpTerm();
+	        String systemName = mpDTO.getMpTerm();
 	        if (mpDTO.getMpTerm().contains("hearing/vestibular/ear")) {
-	            systemNAme = "hearing";
+	            systemName = "hearing";
 	        }
-	        
-	        model.addAttribute("systemName", systemNAme.replace(" phenotype", ""));
+	        String systemNameDisplay = systemName.substring(0, 1).toUpperCase() + systemName.substring(1);
+	        model.addAttribute("systemName", systemNameDisplay.replace(" phenotype", ""));
 	        model.addAttribute("procedures", procedures);
         }
         
