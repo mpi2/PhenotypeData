@@ -21,6 +21,9 @@ INSERT INTO ontology_term (acc, db_id, name, is_obsolete, replacement_acc) VALUE
   ('MA:0002405',   8, 'postnatal mouse',    0, null);
 
 
+INSERT INTO strain(acc, db_id, biotype_acc, biotype_db_id, name) VALUES ('MGI:2683688', 3, 'CV:00000025', 3, 'C57BL/6NCrl');
+
+
 INSERT INTO `phenotype_procedure` VALUES
   ( 1,103,'IMPC_PAT_002',6,'Gross Pathology and Tissue Collection','description',2, 9, 0,'experiment','Adult',   'Week 16', 408),
   ( 2,103,'IMPC_PAT_002',6,'Gross Pathology and Tissue Collection','description',2, 9, 0,'experiment','Terminal','Week 16', 411),
