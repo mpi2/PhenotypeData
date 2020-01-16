@@ -699,8 +699,8 @@ public class ExperimentLoader implements CommandLineRunner {
         if (dccExperiment.isLineLevel()) {
             List<SimpleParameter> simpleParameterList = dccSqlUtils.getSimpleParameters(dccExperiment.getDcc_procedure_pk());
             zygosity = LoadUtils.getLineLevelZygosity(simpleParameterList);
-            key = bioModelManager.createMutantKey(dccExperiment.getDatasourceShortName(), dccExperiment.getColonyId(), zygosity);
-            impcDsKey = bioModelManager.createMutantKey(CdaSqlUtils.IMPC, dccExperiment.getColonyId(), zygosity);
+            key = bioModelManager.createMutantKey(dccExperiment.getDatasourceShortName(), dccExperiment.getSpecimenStrainId(), dccExperiment.getColonyId(), zygosity);
+            impcDsKey = bioModelManager.createMutantKey(CdaSqlUtils.IMPC, dccExperiment.getSpecimenStrainId(), dccExperiment.getColonyId(), zygosity);
         } else {
             if (dccExperiment.isControl()) {
                 zygosity = LoadUtils.getControlZygosity();
@@ -708,8 +708,8 @@ public class ExperimentLoader implements CommandLineRunner {
                 impcDsKey = bioModelManager.createControlKey(CdaSqlUtils.IMPC, dccExperiment.getSpecimenStrainId());
             } else {
                 zygosity = LoadUtils.getSpecimenLevelMutantZygosity(dccExperiment.getZygosity());
-                key = bioModelManager.createMutantKey(dccExperiment.getDatasourceShortName(), dccExperiment.getColonyId(), zygosity);
-                impcDsKey = bioModelManager.createMutantKey(CdaSqlUtils.IMPC, dccExperiment.getColonyId(), zygosity);
+                key = bioModelManager.createMutantKey(dccExperiment.getDatasourceShortName(), dccExperiment.getSpecimenStrainId(), dccExperiment.getColonyId(), zygosity);
+                impcDsKey = bioModelManager.createMutantKey(CdaSqlUtils.IMPC, dccExperiment.getSpecimenStrainId(), dccExperiment.getColonyId(), zygosity);
             }
         }
         biologicalModelPk = bioModelManager.getBiologicalModelPk(key);

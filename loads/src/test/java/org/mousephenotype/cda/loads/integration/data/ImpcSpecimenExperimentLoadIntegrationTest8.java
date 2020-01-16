@@ -18,6 +18,7 @@ package org.mousephenotype.cda.loads.integration.data;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.loads.create.extract.dcc.DccExperimentExtractor;
@@ -52,7 +53,7 @@ import static junit.framework.TestCase.assertTrue;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ComponentScan
 @ContextConfiguration(classes = TestConfig.class)
-public class ImpcSpecimenExperimentLoadIntegrationTest3 {
+public class ImpcSpecimenExperimentLoadIntegrationTest8 {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
@@ -107,16 +108,18 @@ public class ImpcSpecimenExperimentLoadIntegrationTest3 {
     }
 
 
+    @Ignore
 
 
-    // The expected result is that one experiment and two observations should be loaded. The bad Imits strain alue
-    // should be ignored. The correct strain should be taken from the xml file.
+
+    // The expected result is that no experiments or observations should be loaded. The missing Imits strain value
+    // should be ignored. The bad strain value in the xml file should cause the test to fail.
     @Test
     public void testStrainSpecifiedInXmlAndImitsAndImitsIsBad() throws Exception {
 
-        Resource cdaResource        = context.getResource("classpath:sql/h2/LoadImpcSpecimenExperiment-data3.sql");
-        Resource specimenResource   = context.getResource("classpath:xml/ImpcSpecimenExperiment-specimens3.xml");
-        Resource experimentResource = context.getResource("classpath:xml/ImpcSpecimenExperiment-experiments3.xml");
+        Resource cdaResource        = context.getResource("classpath:sql/h2/LoadImpcSpecimenExperiment-data8.sql");
+        Resource specimenResource   = context.getResource("classpath:xml/ImpcSpecimenExperiment-specimens8.xml");
+        Resource experimentResource = context.getResource("classpath:xml/ImpcSpecimenExperiment-experiments8.xml");
 
         ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), cdaResource);
 
@@ -228,7 +231,7 @@ public class ImpcSpecimenExperimentLoadIntegrationTest3 {
             }
         }
 
-        Assert.assertEquals(1, experimentCount.intValue());
-        Assert.assertEquals(2, observationCount.intValue());
+        Assert.assertEquals(0, experimentCount.intValue());
+        Assert.assertEquals(0, observationCount.intValue());
     }
 }

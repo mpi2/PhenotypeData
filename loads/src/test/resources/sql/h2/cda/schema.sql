@@ -1972,6 +1972,10 @@ INSERT INTO participant(project_id, organisation_id, role)
 	SELECT p.id, o.id, 'part_of'
 	FROM project p, organisation o WHERE p.name = 'BaSH' AND o.name = 'BCM';
 
+INSERT INTO participant(project_id, organisation_id, role)
+    SELECT p.id, o.id, 'part_of'
+    FROM project p, organisation o WHERE p.name = 'CCP-IMG' AND o.name = 'CCP-IMG';
+
 
 
 /*
