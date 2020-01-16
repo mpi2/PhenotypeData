@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<centreProcedureSet xmlns="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/procedure">
+    <centre centreID="Ucd" pipeline="UCD_001" project="DTCC">
+        <experiment experimentID="PAT_2015-06-29 2:14 PM_ET8295-113" dateOfExperiment="2015-06-29">
+            <specimenID>ET8295-113</specimenID>
+            <procedure procedureID="IMPC_PAT_002">
+                <simpleParameter parameterID="IMPC_PAT_032_002" unit=" ">
+                    <value>The uterus has mild hydrometra.</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_PAT_049_002" unit="g">
+                    <value>23.62</value>
+                </simpleParameter>
+                <ontologyParameter parameterID="IMPC_PAT_001_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_002_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_003_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_004_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_005_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_006_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_007_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_008_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_009_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_010_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_011_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_012_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_013_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_014_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_015_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_016_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_017_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_018_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_019_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_020_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_021_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_022_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_023_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_028_002">
+                    <term>MP:0002169:normal</term>
+                </ontologyParameter>
+                <ontologyParameter parameterID="IMPC_PAT_029_002">
+                    <term>MP:0009709:hydrometra</term>
+                </ontologyParameter>
+                <procedureMetadata parameterID="IMPC_PAT_030_002">
+                    <value>2015-06-29T14:14:00-07:00</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_PAT_031_002">
+                    <parameterStatus>IMPC_PARAMSC_005: blank placeholder</parameterStatus>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_PAT_052_002">
+                    <value>45</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_PAT_054_002">
+                    <value>Carbon dioxide</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_PAT_055_002">
+                    <value>Cardiac puncture</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_PAT_056_002">
+                    <value>99</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_PAT_058_002">
+                    <value>10% buffered formalin</value>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_PAT_060_002">
+                    <parameterStatus>IMPC_PARAMSC_005: blank placeholder</parameterStatus>
+                </procedureMetadata>
+                <procedureMetadata parameterID="IMPC_PAT_061_002">
+                    <parameterStatus>IMPC_PARAMSC_005: blank placeholder</parameterStatus>
+                </procedureMetadata>
+            </procedure>
+        </experiment>
+    </centre>
+</centreProcedureSet>
