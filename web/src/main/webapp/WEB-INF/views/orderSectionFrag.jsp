@@ -46,7 +46,7 @@
         <tr>
             <th>MGI Allele</th>
             <th>Allele Type</th>
-            <th>Availability</th>
+            <th>Produced</th>
         </tr>
         </thead>
         <tbody>
@@ -99,5 +99,4 @@
             Knockin ${alleleProductsCre2.get("product_type")} are available for this gene.</a></div>
     </c:when>
 </c:choose>
-                            	
                             	
