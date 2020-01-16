@@ -33,7 +33,7 @@
         }
 
         var page = window.location.href;
-        page = page.endsWith("/") ? page.substring(0, str.length - 1) : page;
+        page = page.endsWith("/") ? page.substring(0, page.length - 1) : page;
         page = page.split('/').pop()
         var kw = pageKw[page];
 
