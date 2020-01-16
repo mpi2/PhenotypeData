@@ -646,7 +646,8 @@ public class DccSqlUtils {
         List<Map<String, Object>> ontologyTerms = npJdbcTemplate.queryForList(termQuery, parameterMap);
 
         for (Map<String, Object> ontologyTerm : ontologyTerms) {
-            Long pk = (Long)ontologyTerm.get("ontologyParameter_pk");
+            String pkString = ontologyTerm.get("ontologyParameter_pk").toString();
+            Long pk = (pkString == null ? null : Long.valueOf(pkString));
             String term = (String)ontologyTerm.get("term");
 
             if ( ! retVal.containsKey(pk)) {

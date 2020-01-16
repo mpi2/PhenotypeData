@@ -3,7 +3,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <c:if test="${unidimensionalChartDataSet!=null}">
-
+    got here
     <c:if test="${fn:length(unidimensionalChartDataSet.statsObjects)>1}">
 
         <c:set var="data" value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
@@ -244,7 +244,7 @@
                 </c:if>
 
                 <%-- Display result of a reference range plus calculation --%>
-
+                        got here ref range plus
                 <c:if test="${data.result.statisticalMethod!=null and data.result.statisticalMethod=='Reference Ranges Plus framework'}">
 
                         <h4> Results of statistical analysis  </h4>

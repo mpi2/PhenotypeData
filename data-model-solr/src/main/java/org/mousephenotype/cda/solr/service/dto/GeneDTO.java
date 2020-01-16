@@ -174,6 +174,7 @@ public class GeneDTO {
 	public static final String CHR_start = "chr_start";
 	public static final String CHR_end = "chr_end";
 	public static final String IS_IDG_GENE ="is_idg_gene";
+	public static final String IS_UMASS_GENE ="is_umass_gene";
 	
 	
 	@Field(EMBRYO_ANALYSIS_URL)
@@ -200,14 +201,24 @@ public class GeneDTO {
 
 	@Field(IS_IDG_GENE)
 	private Boolean isIdgGene;
-
 	public Boolean getIsIdgGene() {
 		return isIdgGene;
 	}
-
 	public void setIsIdgGene(Boolean isIdgGene) {
 		this.isIdgGene = isIdgGene;
 	}
+
+	@Field(IS_UMASS_GENE)
+	private Boolean isUmassGene;
+	public Boolean getIsUmassGene() {
+		return isUmassGene;
+	}
+
+	public void setIsUmassGene(Boolean umassGene) {
+		isUmassGene = umassGene;
+	}
+
+
 
 	@Field(VEGA_IDS)
 	private List<String> vegaIds;
@@ -2613,6 +2624,7 @@ public class GeneDTO {
 				", embryoModalities=" + embryoModalities +
 				'}';
 	}
+
 
 
 }
