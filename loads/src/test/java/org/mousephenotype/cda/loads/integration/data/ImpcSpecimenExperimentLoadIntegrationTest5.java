@@ -18,7 +18,6 @@ package org.mousephenotype.cda.loads.integration.data;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.loads.create.extract.dcc.DccExperimentExtractor;
@@ -109,13 +108,11 @@ public class ImpcSpecimenExperimentLoadIntegrationTest5 {
 
 
 
-    @Ignore
 
-
-    // The expected result is that one experiment and two observations should be loaded. The bad Imits strain value
-    // is missing. The correct strain should be taken from the xml file.
+    // The expected result is that one experiment and two observations should be loaded. The good Imits strain value
+    // should be used, as the strain is missing from the xml file.
     @Test
-    public void testStrainSpecifiedInXmlAndImitsAndImitsIsBad() throws Exception {
+    public void testStrainImitsIsGoodXmlIsMissing() throws Exception {
 
         Resource cdaResource        = context.getResource("classpath:sql/h2/LoadImpcSpecimenExperiment-data5.sql");
         Resource specimenResource   = context.getResource("classpath:xml/ImpcSpecimenExperiment-specimens5.xml");

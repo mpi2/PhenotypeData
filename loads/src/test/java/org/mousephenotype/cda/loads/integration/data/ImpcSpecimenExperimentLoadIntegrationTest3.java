@@ -112,7 +112,7 @@ public class ImpcSpecimenExperimentLoadIntegrationTest3 {
     // The expected result is that one experiment and two observations should be loaded. The bad Imits strain alue
     // should be ignored. The correct strain should be taken from the xml file.
     @Test
-    public void testStrainSpecifiedInXmlAndImitsAndImitsIsBad() throws Exception {
+    public void testStrainImitsSameAsXmlBothGood() throws Exception {
 
         Resource cdaResource        = context.getResource("classpath:sql/h2/LoadImpcSpecimenExperiment-data3.sql");
         Resource specimenResource   = context.getResource("classpath:xml/ImpcSpecimenExperiment-specimens3.xml");

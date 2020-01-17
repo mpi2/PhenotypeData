@@ -558,6 +558,12 @@ public class ExperimentLoader implements CommandLineRunner {
         {
             PhenotypedColony colony = phenotypedColonyMap.get(dccExperiment.getColonyId());
 
+            // If the background strain of the mutant specimen has not been provided in the XML file
+            // use the background strain of the colony (from iMits)
+            if ( ! dccExperiment.isControl() && dccExperiment.getSpecimenStrainId() == null && colony.getBackgroundStrain() != null) {
+                dccExperiment.setSpecimenStrainId(colony.getBackgroundStrain());
+            }
+
             // Run the strain name through the StrainMapper to remap incorrect legacy strain names.
             Strain remappedStrain;
             try {
@@ -584,12 +590,6 @@ public class ExperimentLoader implements CommandLineRunner {
             } catch (Exception e ) {
                 e.printStackTrace();
             }
-
-            // If iMits has the colony, use it to get the strain name.
-            if (colony != null) {
-                dccExperiment.setSpecimenStrainId(colony.getBackgroundStrain());
-            }
-
 
             // Get phenotypingCenter and phenotypingCenterPk.
             phenotypingCenter = LoadUtils.mappedExternalCenterNames.get(dccExperiment.getPhenotypingCenter());
