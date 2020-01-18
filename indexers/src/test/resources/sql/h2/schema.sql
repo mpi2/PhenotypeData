@@ -961,6 +961,7 @@ CREATE TABLE phenotyped_colony (
 	gf_db_id                                    INT(11)     NOT NULL,
 	allele_symbol                               VARCHAR(64) NOT NULL,
 	background_strain_name                      VARCHAR(64) NOT NULL,
+    background_strain_acc                       VARCHAR(20)           DEFAULT NULL,
 	phenotyping_centre_organisation_id          INT(11)     NOT NULL,
 	phenotyping_consortium_project_id           INT(11)     NOT NULL,
 	production_centre_organisation_id           INT(11)     NOT NULL,

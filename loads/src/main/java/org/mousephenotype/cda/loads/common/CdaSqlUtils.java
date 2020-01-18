@@ -2378,6 +2378,7 @@ public class CdaSqlUtils {
                         " gf_db_id," +
                         " allele_symbol," +
                         " background_strain_name," +
+                        " background_strain_acc," +
                         " phenotyping_centre_organisation_id," +
                         " phenotyping_consortium_project_id," +
                         " production_centre_organisation_id," +
@@ -2389,6 +2390,7 @@ public class CdaSqlUtils {
                         " :gf_db_id," +
                         " :allele_symbol," +
                         " :background_strain_name," +
+                        " :background_strain_acc," +
                         " :phenotyping_centre_organisation_id," +
                         " :phenotyping_consortium_project_id," +
                         " :production_centre_organisation_id," +
@@ -2404,6 +2406,7 @@ public class CdaSqlUtils {
                 parameterMap.put("gf_db_id", DbIdType.MGI.intValue());
                 parameterMap.put("allele_symbol", phenotypedColony.getAlleleSymbol());
                 parameterMap.put("background_strain_name", phenotypedColony.getBackgroundStrain());
+                parameterMap.put("background_strain_acc", phenotypedColony.getBackgroundStrainAcc());
                 parameterMap.put("phenotyping_centre_organisation_id", phenotypedColony.getPhenotypingCentre().getId());
                 parameterMap.put("phenotyping_consortium_project_id", phenotypedColony.getPhenotypingConsortium().getId());
                 parameterMap.put("production_centre_organisation_id", phenotypedColony.getProductionCentre().getId());
@@ -3434,6 +3437,7 @@ public class CdaSqlUtils {
             phenotypedColony.setAlleleSymbol(rs.getString("allele_symbol"));
 
             phenotypedColony.setBackgroundStrain(rs.getString("background_strain_name"));
+            phenotypedColony.setBackgroundStrainAcc(rs.getString("background_strain_acc"));
 
             Organisation phenotypingCenter = new Organisation();
             phenotypingCenter.setId(rs.getLong("phenotyping_centre_organisation_id"));
