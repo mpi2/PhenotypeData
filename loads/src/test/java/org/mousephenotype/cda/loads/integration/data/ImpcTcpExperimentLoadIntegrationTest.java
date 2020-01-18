@@ -20,7 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.h2.tools.Server;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.loads.create.extract.dcc.DccExperimentExtractor;
@@ -86,37 +85,6 @@ public class ImpcTcpExperimentLoadIntegrationTest {
     private Thread thread;
     @Before
     public void before() throws SQLException {
-
-
-        // Show browser if startServer is true.
-        if (startServer) {
-            startServer = false;
-            Runnable runnable = () -> {
-
-                try {
-                    Server.startWebServer(dccDataSource.getConnection());
-
-                    server = Server.createWebServer("-web");  // .start();
-                    server.start();
-                    System.out.println("URL: " + server.getURL());
-                    System.out.println("Port: " + server.getPort());
-                    Server.openBrowser(server.getURL());
-
-                } catch (Exception e) {
-                    System.out.println("Embedded h2 server failed to start: " + e.getLocalizedMessage());
-                    System.exit(1);
-                }
-            };
-
-            thread = new Thread(runnable);
-            thread.start();
-            try {
-                Thread.sleep(5000);
-            } catch (Exception e) {
-            }
-        }
-
-
         // Reload databases.
         String[] cdaSchemas = new String[] {
                 "sql/h2/cda/schema.sql",
@@ -141,8 +109,7 @@ public class ImpcTcpExperimentLoadIntegrationTest {
         }
     }
 
-// fixme fixme fixme fixme fixme
-@Ignore
+
     @Test
     public void testLoadSpecimenAndExperiment() throws Exception {
 
@@ -238,7 +205,6 @@ public class ImpcTcpExperimentLoadIntegrationTest {
                 key += resultSet.getString("data_point");
                 obs.add(key);
             }
-
         }
 
         System.out.println(obs);
@@ -274,10 +240,6 @@ public class ImpcTcpExperimentLoadIntegrationTest {
 
 
 
-
-
-
-
         //
         // VALIDATE THE METADATA GROUPS AND COMBINED ARE CALCULATED PROPERLY
         //
@@ -305,9 +267,6 @@ public class ImpcTcpExperimentLoadIntegrationTest {
         for (String metadataGroup : metadataCombinedGroups) {
             Assert.assertTrue( ! metadataGroup.toLowerCase().contains("experimenter"));
         }
-
-
-
     }
 
     class ImageRecordDTO {

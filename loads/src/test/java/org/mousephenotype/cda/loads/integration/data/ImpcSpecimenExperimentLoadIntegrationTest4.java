@@ -20,6 +20,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.create.extract.dcc.DccExperimentExtractor;
 import org.mousephenotype.cda.loads.create.extract.dcc.DccSpecimenExtractor;
 import org.mousephenotype.cda.loads.create.load.ExperimentLoader;
@@ -47,7 +48,10 @@ import static junit.framework.TestCase.assertTrue;
 /**
  * This is an end-to-end integration data test class that uses an in-memory database to populate a small dcc, cda_base,
  * and cda set of databases.
- * The specimen and experiment tested here was missing from dcc_6_0 and dcc_6_1 but both were present in the live komp2 database.
+ *
+ * This test validates that a sample and an experiment with a valid background strain in IMITS but no background strain
+ * specified in the XML file is correctly loaded and that the biological model background strain matches the one in
+ * IMITS.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ComponentScan
@@ -64,7 +68,8 @@ public class ImpcSpecimenExperimentLoadIntegrationTest4 {
     @Autowired
     private DataSource dccDataSource;
 
-
+    @Autowired
+    private CdaSqlUtils cdaSqlUtils;
 
     @Autowired
     private DccSpecimenExtractor dccSpecimenExtractor;
@@ -107,12 +112,8 @@ public class ImpcSpecimenExperimentLoadIntegrationTest4 {
     }
 
 
-
-
-    // The expected result is that one experiment and two observations should be loaded. The bad Imits strain value
-    // should be ignored. The correct strain should be taken from the xml file.
     @Test
-    public void testStrainImitsIsBadXmlIsGood() throws Exception {
+    public void testXmlStrainMissing() throws Exception {
 
         Resource cdaResource        = context.getResource("classpath:sql/h2/LoadImpcSpecimenExperiment-data4.sql");
         Resource specimenResource   = context.getResource("classpath:xml/ImpcSpecimenExperiment-specimens4.xml");
@@ -230,5 +231,6 @@ public class ImpcSpecimenExperimentLoadIntegrationTest4 {
 
         Assert.assertEquals(1, experimentCount.intValue());
         Assert.assertEquals(2, observationCount.intValue());
+        Assert.assertEquals("strain_4", cdaSqlUtils.getExperimentBackgroundStrain("PAT_2015-06-29 2:14 PM_ET8295-113").getName());
     }
 }

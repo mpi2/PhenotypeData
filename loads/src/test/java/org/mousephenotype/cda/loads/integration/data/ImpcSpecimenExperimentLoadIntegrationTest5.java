@@ -20,6 +20,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.create.extract.dcc.DccExperimentExtractor;
 import org.mousephenotype.cda.loads.create.extract.dcc.DccSpecimenExtractor;
 import org.mousephenotype.cda.loads.create.load.ExperimentLoader;
@@ -47,7 +48,10 @@ import static junit.framework.TestCase.assertTrue;
 /**
  * This is an end-to-end integration data test class that uses an in-memory database to populate a small dcc, cda_base,
  * and cda set of databases.
- * The specimen and experiment tested here was missing from dcc_6_0 and dcc_6_1 but both were present in the live komp2 database.
+ *
+ * This test validates that a sample and an experiment with a valid background strain in IMITS and a different
+ * background strain in the XML file that is NOT in IMITS XML file is correctly loaded and that the biological model
+ * background strain matches the one in IMITS.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ComponentScan
@@ -64,7 +68,8 @@ public class ImpcSpecimenExperimentLoadIntegrationTest5 {
     @Autowired
     private DataSource dccDataSource;
 
-
+    @Autowired
+    private CdaSqlUtils cdaSqlUtils;
 
     @Autowired
     private DccSpecimenExtractor dccSpecimenExtractor;
@@ -107,12 +112,8 @@ public class ImpcSpecimenExperimentLoadIntegrationTest5 {
     }
 
 
-
-
-    // The expected result is that one experiment and two observations should be loaded. The good Imits strain value
-    // should be used, as the strain is missing from the xml file.
     @Test
-    public void testStrainImitsIsGoodXmlIsMissing() throws Exception {
+    public void testXmlStrainNotInImits() throws Exception {
 
         Resource cdaResource        = context.getResource("classpath:sql/h2/LoadImpcSpecimenExperiment-data5.sql");
         Resource specimenResource   = context.getResource("classpath:xml/ImpcSpecimenExperiment-specimens5.xml");
@@ -230,5 +231,6 @@ public class ImpcSpecimenExperimentLoadIntegrationTest5 {
 
         Assert.assertEquals(1, experimentCount.intValue());
         Assert.assertEquals(2, observationCount.intValue());
+        Assert.assertEquals("strain_5", cdaSqlUtils.getExperimentBackgroundStrain("PAT_2015-06-29 2:14 PM_ET8295-113").getName());
     }
 }

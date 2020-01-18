@@ -47,7 +47,9 @@ import static junit.framework.TestCase.assertTrue;
 /**
  * This is an end-to-end integration data test class that uses an in-memory database to populate a small dcc, cda_base,
  * and cda set of databases.
- * The specimen and experiment tested here was missing from dcc_6_0 and dcc_6_1 but both were present in the live komp2 database.
+ *
+ * This test validates that a sample and an experiment with NO background strain in IMITS but with a value in the XML
+ * file is NOT loaded.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ComponentScan
@@ -63,8 +65,6 @@ public class ImpcSpecimenExperimentLoadIntegrationTest6 {
     
     @Autowired
     private DataSource dccDataSource;
-
-
 
     @Autowired
     private DccSpecimenExtractor dccSpecimenExtractor;
@@ -107,11 +107,8 @@ public class ImpcSpecimenExperimentLoadIntegrationTest6 {
     }
 
 
-    // The expected result is that one experiment and two observations should be loaded. When the SampleLoader runs
-    // it will create a strain based on the bad XML strain name. The biological model associated with this bad strain
-    // name will then be found.
     @Test
-    public void testStrainImitsIsGoodXmlIsBad() throws Exception {
+    public void testColonyIdNotInImits() throws Exception {
 
         Resource cdaResource        = context.getResource("classpath:sql/h2/LoadImpcSpecimenExperiment-data6.sql");
         Resource specimenResource   = context.getResource("classpath:xml/ImpcSpecimenExperiment-specimens6.xml");
@@ -184,7 +181,7 @@ public class ImpcSpecimenExperimentLoadIntegrationTest6 {
 
         assertTrue(bsCount == bmsCount);
 
-        // Check that the model has a gene, allele and strain
+        // The SampleLoader should not have loaded a sample. Check that no biological model has been created.
 
         String modelQuery = "SELECT * FROM biological_model bm " +
                 "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bm.id " +
@@ -197,14 +194,12 @@ public class ImpcSpecimenExperimentLoadIntegrationTest6 {
                 modelCount++;
                 modelIds.add(resultSet.getInt("id"));
             }
-
         }
 
-        Assert.assertEquals(1, modelCount.intValue());
-        Assert.assertEquals(1, modelIds.size());
+        Assert.assertEquals(0, modelCount.intValue());
+        Assert.assertEquals(0, modelIds.size());
 
-
-        // Load the experiment
+        // Attempt to load the experiment
         experimentLoader.run(loadArgs);
 
         experimentQuery = "SELECT COUNT(*) AS cnt FROM experiment";
@@ -227,7 +222,7 @@ public class ImpcSpecimenExperimentLoadIntegrationTest6 {
             }
         }
 
-        Assert.assertEquals(1, experimentCount.intValue());
-        Assert.assertEquals(2, observationCount.intValue());
+        Assert.assertEquals(0, experimentCount.intValue());
+        Assert.assertEquals(0, observationCount.intValue());
     }
 }

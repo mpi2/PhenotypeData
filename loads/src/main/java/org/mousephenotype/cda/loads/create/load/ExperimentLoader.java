@@ -67,6 +67,7 @@ public class ExperimentLoader implements CommandLineRunner {
     private final NamedParameterJdbcTemplate jdbcCda;
 
     private Set<String> badDates                     = new ConcurrentSkipListSet<>();
+    private Set<String> invalidXmlStrainValues       = new ConcurrentSkipListSet<>();
     private Set<String> missingColonyIds             = new ConcurrentSkipListSet<>();
     private Set<String> missingProjects              = new ConcurrentSkipListSet<>();
     private Set<String> experimentsMissingProjects   = new ConcurrentSkipListSet<>();
@@ -118,6 +119,7 @@ public class ExperimentLoader implements CommandLineRunner {
     private static Map<String, PhenotypedColony> phenotypedColonyMap;
     private static Map<String, MissingColonyId>  missingColonyMap;
     private static Map<String, OntologyTerm>     ontologyTermMap;
+    private static Set<String>                   imitsBackgroundStrains;
 
     private int bioModelsAddedCount = 0;
 
@@ -161,6 +163,7 @@ public class ExperimentLoader implements CommandLineRunner {
         phenotypedColonyMap = bioModelManager.getPhenotypedColonyMap();
         missingColonyMap = new ConcurrentHashMapAllowNull<>(cdaSqlUtils.getMissingColonyIdsMap());
         ontologyTermMap = new ConcurrentHashMapAllowNull<>(bioModelManager.getOntologyTermMap());
+        imitsBackgroundStrains = cdaSqlUtils.getImitsBackgroundStrains();
         OntologyTerm impcUncharacterizedBackgroundStrain = ontologyTermMap.get(CdaSqlUtils.IMPC_UNCHARACTERIZED_BACKGROUND_STRAIN);
         strainMapper = new StrainMapper(cdaSqlUtils, bioModelManager.getStrainsByNameOrMgiAccessionIdMap(), impcUncharacterizedBackgroundStrain);
         strainsByNameOrMgiAccessionIdMap = bioModelManager.getStrainsByNameOrMgiAccessionIdMap();
@@ -337,6 +340,12 @@ public class ExperimentLoader implements CommandLineRunner {
 
         // Log infos
 
+
+        if ( ! invalidXmlStrainValues.isEmpty()) {
+            logger.info("Found {} invalid XML background strain values (remapped to IMITS background strain)." +
+                        " See SampleLoader job output for values.", invalidXmlStrainValues.size());
+//            invalidXmlStrainValues.stream().sorted().forEach(System.out::println);
+        }
 
         if ( ! missingColonyMap.values().isEmpty()) {
             logger.info("Missing colonyIds::reason");
@@ -558,10 +567,9 @@ public class ExperimentLoader implements CommandLineRunner {
         {
             PhenotypedColony colony = phenotypedColonyMap.get(dccExperiment.getColonyId());
 
-            // If the background strain of the mutant specimen has not been provided in the XML file
-            // use the background strain of the colony (from iMits)
-            if ( ! dccExperiment.isControl() && dccExperiment.getSpecimenStrainId() == null && colony.getBackgroundStrain() != null) {
-                dccExperiment.setSpecimenStrainId(colony.getBackgroundStrain());
+            // For mutants, select the correct background strain.
+            if ( ! dccExperiment.isControl()) {
+                dccExperiment.setSpecimenStrainId(cdaSqlUtils.getMutantBackgroundStrain(dccExperiment.getSpecimenStrainId(), colony.getBackgroundStrain(), imitsBackgroundStrains, invalidXmlStrainValues));
             }
 
             // Run the strain name through the StrainMapper to remap incorrect legacy strain names.
@@ -609,8 +617,7 @@ public class ExperimentLoader implements CommandLineRunner {
                     phenotypingCenterPk = cdaOrganisation_idMap.get(dccExperiment.getPhenotypingCenter());
                 } else {
                     // It is an error if a MUTANT is not found in the iMits report (i.e. its colony is null)
-                    missing = new MissingColonyId(dccExperiment.getColonyId(), 1, MISSING_COLONY_ID_REASON);
-                    missingColonyMap.put(dccExperiment.getColonyId(), missing);
+                    missingColonyIds.add(dccExperiment.getColonyId());
                     return null;
                 }
             }

@@ -12,7 +12,7 @@ INSERT INTO `phenotype_pipeline` VALUES (13, 'UCD_001', 6, 'UCD Pipeline', '', 1
 INSERT INTO phenotyped_colony
   (id, colony_name, es_cell_name, gf_acc, gf_db_id, allele_symbol, background_strain_name, phenotyping_centre_organisation_id, phenotyping_consortium_project_id, production_centre_organisation_id, production_consortium_project_id)
 VALUES
-  (19999, 'ET8295', 'EPD0095_2_C12', 'MGI:1915094', 3, 'Rab32<tm1b(KOMP)Wtsi>', 'C57BL/6NCrl', 2, 12, 32, 12);
+  (19999, 'ET8295', 'EPD0095_2_C12', 'MGI:1915094', 3, 'Rab32<tm1b(KOMP)Wtsi>', 'strain_3', 2, 12, 32, 12);
 
 
 INSERT INTO ontology_term (acc, db_id, name, is_obsolete, replacement_acc) VALUES
@@ -21,7 +21,7 @@ INSERT INTO ontology_term (acc, db_id, name, is_obsolete, replacement_acc) VALUE
   ('MA:0002405',   8, 'postnatal mouse',    0, null);
 
 
-INSERT INTO strain(acc, db_id, biotype_acc, biotype_db_id, name) VALUES ('MGI:2683688', 3, 'CV:00000025', 3, 'C57BL/6NCrl');
+INSERT INTO strain(acc, db_id, biotype_acc, biotype_db_id, name) VALUES ('MGI:2683688', 3, 'CV:00000025', 3, 'strain_3');
 
 
 INSERT INTO `phenotype_procedure` VALUES

@@ -45,6 +45,7 @@ import javax.validation.constraints.NotNull;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * Created by mrelac on 27/05/16.
@@ -2774,7 +2775,6 @@ public class CdaSqlUtils {
         return sequenceRegions;
     }
 
-
     /**
      * @return a {@link Map<String, Strain>} of strains, keyed by strain name or mgi accession id
      *
@@ -2793,6 +2793,69 @@ public class CdaSqlUtils {
         return strains;
     }
 
+    public Set<String> getImitsBackgroundStrains() {
+        Set<String> backgroundStrains = new ConcurrentSkipListSet<>();
+
+        Map<String, String> parameterMap = new HashMap<>();
+        List<String> bgStrainList = jdbcCda.queryForList("SELECT DISTINCT background_strain_name FROM phenotyped_colony", parameterMap, String.class);
+
+        for (String bgStrain : bgStrainList) {
+            backgroundStrains.add(bgStrain);
+        }
+
+        return backgroundStrains;
+    }
+
+    public String getMutantBackgroundStrain(String backgroundStrainFromXml,
+                                            String backgroundStrainFromImits,
+                                            Set<String> imitsBackgroundStrains,
+                                            Set<String> invalidXmlStrainValues)
+    {
+        // If the background strain of the mutant specimen has been provided in the XML file
+        //    if it is a valid imits background strain
+        //        use the background strain from the XML file
+        //    else
+        //        log the invalid XML file background strain
+        //        use background strain from imits
+        // Else
+        //   use background strain from imits
+        String validatedBackgroundSpecimen;
+
+        if (backgroundStrainFromXml != null) {
+            if (imitsBackgroundStrains.contains(backgroundStrainFromXml)) {
+                logger.info("Using XML strain value");
+                validatedBackgroundSpecimen = backgroundStrainFromXml;
+            } else {
+                String message = backgroundStrainFromXml + "::" + backgroundStrainFromImits;
+                logger.info("XML strain value {} is invalid. Using IMITS strain value {}.", backgroundStrainFromXml, backgroundStrainFromImits);
+                invalidXmlStrainValues.add(message);
+                validatedBackgroundSpecimen = backgroundStrainFromImits;
+            }
+        } else {
+            logger.info("Using IMITS strain value.");
+            validatedBackgroundSpecimen = backgroundStrainFromImits;
+        }
+
+        return validatedBackgroundSpecimen;
+    }
+
+    public Strain getExperimentBackgroundStrain(String experimentId) {
+
+        final String query = "SELECT s.* FROM experiment e" +
+                             " JOIN biological_model_strain bms ON bms.biological_model_id = e.biological_model_id" +
+                             " JOIN strain s ON s.acc = bms.strain_acc and s.db_id = bms.strain_db_id" +
+                             " WHERE e.external_id = :experimentId";
+
+        Map<String, String> parameterMap = new HashMap<>();
+        parameterMap.put("experimentId", experimentId);
+        List<Strain> bgStrainList = jdbcCda.query(query, parameterMap, new StrainRowMapper());
+
+        if ( ! bgStrainList.isEmpty()) {
+            return bgStrainList.get(0);
+        }
+
+        return null;
+    }
 
     /**
      * Try to insert the strain and, if successful, any synonyms.
