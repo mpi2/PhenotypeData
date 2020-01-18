@@ -1466,7 +1466,7 @@ public class CdaSqlUtils {
                 "  pc.gf_db_id,\n" +
                 "  pc.allele_symbol,\n" +
                 "  pc.background_strain_name,\n" +
-                "  pc.pc.background_strain_acc,\n" +
+                "  pc.background_strain_acc,\n" +
                 "  pc.phenotyping_centre_organisation_id,\n" +
                 "  pcphorg.name                              AS pc_phenotyping_centre_name,\n" +
                 "  pc.phenotyping_consortium_project_id,\n" +
