@@ -2827,7 +2827,6 @@ public class CdaSqlUtils {
 
         if (backgroundStrainFromXml != null) {
             if (imitsBackgroundStrains.contains(backgroundStrainFromXml)) {
-                logger.info("Using XML strain value");
                 validatedBackgroundSpecimen = backgroundStrainFromXml;
             } else {
                 String message = backgroundStrainFromXml + "::" + backgroundStrainFromImits;
