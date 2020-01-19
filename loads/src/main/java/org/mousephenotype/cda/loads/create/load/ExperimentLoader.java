@@ -173,6 +173,7 @@ public class ExperimentLoader implements CommandLineRunner {
         Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must not be null");
         Assert.notNull(missingColonyMap, "missingColonyMap must not be null");
         Assert.notNull(ontologyTermMap, "ontologyTermMap must not be null");
+        Assert.notNull(imitsBackgroundStrains, "imitsBackgroundStrains must not be null");
         Assert.notNull(strainMapper, "strainMapper must not be null");
         Assert.notNull(strainsByNameOrMgiAccessionIdMap, "strainsByNameOrMgiAccessionIdMap must not be null");
 
