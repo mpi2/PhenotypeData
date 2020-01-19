@@ -2823,22 +2823,21 @@ public class CdaSqlUtils {
         //        use background strain from imits
         // Else
         //   use background strain from imits
-        String validatedBackgroundSpecimen;
+        String validatedMutantBackgroundStrain;
 
         if (backgroundStrainFromXml != null) {
             if (imitsBackgroundStrains.contains(backgroundStrainFromXml)) {
-                validatedBackgroundSpecimen = backgroundStrainFromXml;
+                validatedMutantBackgroundStrain = backgroundStrainFromXml;
             } else {
-                String message = backgroundStrainFromXml + "::" + backgroundStrainFromImits;
-//                logger.debug("XML strain value {} is invalid. Using IMITS strain value {}.", backgroundStrainFromXml, backgroundStrainFromImits);
+                String message = "'" + backgroundStrainFromXml + "'::'" + backgroundStrainFromImits + "'";
                 invalidXmlStrainValues.add(message);
-                validatedBackgroundSpecimen = backgroundStrainFromImits;
+                validatedMutantBackgroundStrain = backgroundStrainFromImits;
             }
         } else {
-            validatedBackgroundSpecimen = backgroundStrainFromImits;
+            validatedMutantBackgroundStrain = backgroundStrainFromImits;
         }
 
-        return validatedBackgroundSpecimen;
+        return validatedMutantBackgroundStrain;
     }
 
     public Strain getExperimentBackgroundStrain(String experimentId) {
