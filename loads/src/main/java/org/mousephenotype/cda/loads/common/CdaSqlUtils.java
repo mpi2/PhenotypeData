@@ -2831,12 +2831,11 @@ public class CdaSqlUtils {
                 validatedBackgroundSpecimen = backgroundStrainFromXml;
             } else {
                 String message = backgroundStrainFromXml + "::" + backgroundStrainFromImits;
-                logger.info("XML strain value {} is invalid. Using IMITS strain value {}.", backgroundStrainFromXml, backgroundStrainFromImits);
+//                logger.debug("XML strain value {} is invalid. Using IMITS strain value {}.", backgroundStrainFromXml, backgroundStrainFromImits);
                 invalidXmlStrainValues.add(message);
                 validatedBackgroundSpecimen = backgroundStrainFromImits;
             }
         } else {
-            logger.info("Using IMITS strain value.");
             validatedBackgroundSpecimen = backgroundStrainFromImits;
         }
 
