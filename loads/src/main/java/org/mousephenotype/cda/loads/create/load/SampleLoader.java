@@ -237,13 +237,13 @@ public class SampleLoader implements CommandLineRunner {
 
 
         if ( ! invalidXmlStrainValues.isEmpty()) {
-            logger.info("Found {} invalid XML background strain values (remapped to IMITS background strain): XML::IMITS", invalidXmlStrainValues.size());
-//            invalidXmlStrainValues.stream().sorted().forEach(System.out::println);
+            logger.info("Showing {} of {} invalid XML background strain values (remapped to IMITS background strain): XML::IMITS", 10, invalidXmlStrainValues.size());
+            invalidXmlStrainValues.stream().sorted().limit(10).forEach(System.out::println);
         }
 
         if ( ! backgroundStrainMismatches.isEmpty()) {
             logger.info("Found {} background strain mismatches: colony_name::DCC_specimen_strain::imits_background_strain:", backgroundStrainMismatches.size());
-//            backgroundStrainMismatches.stream().sorted().forEach(System.out::println);
+            backgroundStrainMismatches.stream().sorted().forEach(System.out::println);
         }
 
 

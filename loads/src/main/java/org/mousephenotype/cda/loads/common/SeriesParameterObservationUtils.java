@@ -95,8 +95,16 @@ public class SeriesParameterObservationUtils {
                     break;
             }
         } catch (Exception e) {
-            logger.warn("Unable to convert IMPC timepoint for exp {} proc {}", dccExperimentDTO.getExperimentId(), dccExperimentDTO.getProcedureId(), e);
+            String message = "Unable to convert IMPC timepoint date "
+                    + "'"    + input + "'"
+                    + " for phenotypingCenter::experiment::procedure "
+                    + "'"    + dccExperimentDTO.getPhenotypingCenter()
+                    + "'::'" + dccExperimentDTO.getExperimentId()
+                    + "'::'" + dccExperimentDTO.getProcedureId();
+
+            logger.warn(message, e);
         }
+
         return retFloat;
     }
 
