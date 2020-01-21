@@ -242,8 +242,8 @@ public class SampleLoader implements CommandLineRunner {
         }
 
         if ( ! backgroundStrainMismatches.isEmpty()) {
-            logger.info("Found {} background strain mismatches: colony_name::DCC_specimen_strain::imits_background_strain:", backgroundStrainMismatches.size());
-            backgroundStrainMismatches.stream().sorted().forEach(System.out::println);
+            logger.info("Showing {} of {} background strain mismatches: colony_name::DCC_specimen_strain::imits_background_strain:", 10, backgroundStrainMismatches.size());
+            backgroundStrainMismatches.stream().sorted().limit(10).forEach(System.out::println);
         }
 
 
@@ -429,7 +429,7 @@ public class SampleLoader implements CommandLineRunner {
 
             // If this mutant's strainId is null, we cannot create a strain, so log an error and skip the specimen.
             if ((specimen.getStrainID() == null) && ( ! specimen.isIsBaseline())) {
-                logger.error("Specimen {}'s strain is null. Skipping specimen.", specimen.getSpecimenID());
+                logger.info("Specimen {}'s strain is null. Skipping specimen.", specimen.getSpecimenID());
                 return null;
             }
 

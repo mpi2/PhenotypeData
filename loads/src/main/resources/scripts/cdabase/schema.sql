@@ -625,7 +625,7 @@ CREATE TABLE observation (
 	parameter_stable_id        VARCHAR(30) NOT NULL,
 	sequence_id                VARCHAR(30) DEFAULT NULL,
 	population_id              INT(10) UNSIGNED NOT NULL,
-	observation_type           ENUM('categorical', 'datetime', 'ontological', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text'),
+	observation_type           ENUM('categorical', 'datetime', 'ontological', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text', 'text_series'),
 	missing                    TINYINT(1) DEFAULT 0,
 	parameter_status           VARCHAR(50) DEFAULT NULL,
 	parameter_status_message   VARCHAR(450) DEFAULT NULL,

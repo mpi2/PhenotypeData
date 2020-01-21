@@ -1453,7 +1453,7 @@ public class ExperimentLoader implements CommandLineRunner {
                     parameterStatus, parameterStatusMessage,
                     seriesParameter, dataPoint, timePoint, discretePoint);
         } catch (Exception e) {
-            logger.warn("Insert of series parameter observation for phenotyping center {} failed. Skipping... " +
+            logger.warn("Insert of time series parameter observation for phenotyping center {} failed. Skipping... " +
                             " biologicalSamplePk {}. parameterStableId {}." +
                             " parameterPk {}. observationType {}. missing {}. parameterStatus {}. parameterStatusMessage {}." +
                             " dataPoint {}. timePoint {}. discretePoint {}. Reason: {}",
@@ -1491,7 +1491,7 @@ public class ExperimentLoader implements CommandLineRunner {
                     parameterStatus, parameterStatusMessage,
                     seriesParameter, simpleValue, incrementValue);
         } catch (Exception e) {
-            logger.warn("Insert of series parameter observation for phenotyping center {} failed. Skipping... " +
+            logger.warn("Insert of text series parameter observation for phenotyping center {} failed. Skipping... " +
                             " biologicalSamplePk {}. parameterStableId {}." +
                             " parameterPk {}. observationType {}. missing {}. parameterStatus {}. parameterStatusMessage {}." +
                             " textValue {}. increment {}. Reason: {}",
