@@ -1405,6 +1405,9 @@ public class ExperimentLoader implements CommandLineRunner {
 
             // discretePoint if increment value represents a date.
             discretePoint = utils.convertTimepoint(incrementValue, dccExperiment, dccMetadataList);
+            if (discretePoint == null) {
+                valueMissing = 1;
+            }
 
             // Parse value into correct format
             String parsedIncrementValue = utils.getParsedIncrementValue(incrementValue);

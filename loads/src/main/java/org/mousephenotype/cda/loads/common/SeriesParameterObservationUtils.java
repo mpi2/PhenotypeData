@@ -58,8 +58,8 @@ public class SeriesParameterObservationUtils {
      * @param procedureMetadataList the procedure metadata list
      * @return float representing the converted time between -5 hours and +23 hours
      */
-    public float convertTimepoint(String input, DccExperimentDTO dccExperimentDTO, List<ProcedureMetadata> procedureMetadataList) {
-        float retFloat = 0.0f;
+    public Float convertTimepoint(String input, DccExperimentDTO dccExperimentDTO, List<ProcedureMetadata> procedureMetadataList) {
+        Float retFloat = null;
 
         // If there is a +0000 at the end of the timestamp, we need to put it
         // into +00:00 expected format

@@ -40,10 +40,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static junit.framework.TestCase.assertTrue;
 
@@ -260,18 +257,19 @@ public class ImpcSeriesParameterExperimentLoadIntegrationTest {
 
 
         String       observationValuesQuery = "SELECT discrete_point from time_series_observation";
-        List<String> observationValues = new ArrayList<>();
+        List<String> observationDiscretePoints = new ArrayList<>();
         try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(observationValuesQuery)) {
             ResultSet resultSet = p.executeQuery();
             while (resultSet.next()) {
-                observationValues.add(resultSet.getString("discrete_point"));
+                observationDiscretePoints.add(resultSet.getString("discrete_point"));
             }
         }
 
-        observationValues.stream().forEach(System.out::println);
+        Collections.sort(observationDiscretePoints);
+        observationDiscretePoints.stream().forEach(System.out::println);
 
-        Assert.assertTrue("Expected time series observation value '0.02 but not found", observationValues.contains("0.02"));
-        Assert.assertTrue("Expected time series observation value '0.03 but not found", observationValues.contains("0.03"));
-        Assert.assertTrue("Expected time series observation value '0.04 but not found", observationValues.contains("0.04"));
+        Assert.assertTrue("Didn't find expected time series observation discrete_value '11.666", observationDiscretePoints.get(0).startsWith("11.666"));
+        Assert.assertTrue("Didn't find expected time series observation discrete_value '11.916", observationDiscretePoints.get(1).startsWith("11.916"));
+        Assert.assertTrue("Didn't find expected time series observation discrete_value '11.666", observationDiscretePoints.get(2).startsWith("12.166"));
     }
 }

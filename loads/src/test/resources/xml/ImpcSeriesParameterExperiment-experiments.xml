@@ -11,9 +11,9 @@
                     <value>25.2</value>
                 </simpleParameter>
                 <seriesParameter parameterID="IMPC_CAL_009_001" unit="g">
-                    <value incrementValue="2019-10-02T11:40">0.02</value>
                     <value incrementValue="2019-10-02T11:55">0.03</value>
                     <value incrementValue="2019-10-02T12:10">0.04</value>
+                    <value incrementValue="2019-10-02T11:40">0.02</value>
                     <value incrementValue="BAD_DATE_VALUE">9.99</value>
                 </seriesParameter>
             </procedure>
