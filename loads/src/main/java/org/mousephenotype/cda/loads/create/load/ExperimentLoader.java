@@ -67,6 +67,7 @@ public class ExperimentLoader implements CommandLineRunner {
     private final NamedParameterJdbcTemplate jdbcCda;
 
     private Set<String> badDates                     = new ConcurrentSkipListSet<>();
+    private Set<String> invalidXmlStrainValues       = new ConcurrentSkipListSet<>();
     private Set<String> missingColonyIds             = new ConcurrentSkipListSet<>();
     private Set<String> missingProjects              = new ConcurrentSkipListSet<>();
     private Set<String> experimentsMissingProjects   = new ConcurrentSkipListSet<>();
@@ -118,6 +119,7 @@ public class ExperimentLoader implements CommandLineRunner {
     private static Map<String, PhenotypedColony> phenotypedColonyMap;
     private static Map<String, MissingColonyId>  missingColonyMap;
     private static Map<String, OntologyTerm>     ontologyTermMap;
+    private static Set<String>                   imitsBackgroundStrains;
 
     private int bioModelsAddedCount = 0;
 
@@ -161,6 +163,7 @@ public class ExperimentLoader implements CommandLineRunner {
         phenotypedColonyMap = bioModelManager.getPhenotypedColonyMap();
         missingColonyMap = new ConcurrentHashMapAllowNull<>(cdaSqlUtils.getMissingColonyIdsMap());
         ontologyTermMap = new ConcurrentHashMapAllowNull<>(bioModelManager.getOntologyTermMap());
+        imitsBackgroundStrains = cdaSqlUtils.getImitsBackgroundStrains();
         OntologyTerm impcUncharacterizedBackgroundStrain = ontologyTermMap.get(CdaSqlUtils.IMPC_UNCHARACTERIZED_BACKGROUND_STRAIN);
         strainMapper = new StrainMapper(cdaSqlUtils, bioModelManager.getStrainsByNameOrMgiAccessionIdMap(), impcUncharacterizedBackgroundStrain);
         strainsByNameOrMgiAccessionIdMap = bioModelManager.getStrainsByNameOrMgiAccessionIdMap();
@@ -170,6 +173,7 @@ public class ExperimentLoader implements CommandLineRunner {
         Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must not be null");
         Assert.notNull(missingColonyMap, "missingColonyMap must not be null");
         Assert.notNull(ontologyTermMap, "ontologyTermMap must not be null");
+        Assert.notNull(imitsBackgroundStrains, "imitsBackgroundStrains must not be null");
         Assert.notNull(strainMapper, "strainMapper must not be null");
         Assert.notNull(strainsByNameOrMgiAccessionIdMap, "strainsByNameOrMgiAccessionIdMap must not be null");
 
@@ -337,6 +341,12 @@ public class ExperimentLoader implements CommandLineRunner {
 
         // Log infos
 
+
+        if ( ! invalidXmlStrainValues.isEmpty()) {
+            logger.info("Found {} invalid XML background strain values (remapped to IMITS background strain)." +
+                        " See SampleLoader job output for values.", invalidXmlStrainValues.size());
+//            invalidXmlStrainValues.stream().sorted().forEach(System.out::println);
+        }
 
         if ( ! missingColonyMap.values().isEmpty()) {
             logger.info("Missing colonyIds::reason");
@@ -558,6 +568,11 @@ public class ExperimentLoader implements CommandLineRunner {
         {
             PhenotypedColony colony = phenotypedColonyMap.get(dccExperiment.getColonyId());
 
+            // For mutants, select the correct background strain.
+            if ( ! dccExperiment.isControl()) {
+                dccExperiment.setSpecimenStrainId(cdaSqlUtils.getMutantBackgroundStrain(dccExperiment.getSpecimenStrainId(), colony.getBackgroundStrain(), imitsBackgroundStrains, invalidXmlStrainValues));
+            }
+
             // Run the strain name through the StrainMapper to remap incorrect legacy strain names.
             Strain remappedStrain;
             try {
@@ -585,12 +600,6 @@ public class ExperimentLoader implements CommandLineRunner {
                 e.printStackTrace();
             }
 
-            // If iMits has the colony, use it to get the strain name.
-            if (colony != null) {
-                dccExperiment.setSpecimenStrainId(colony.getBackgroundStrain());
-            }
-
-
             // Get phenotypingCenter and phenotypingCenterPk.
             phenotypingCenter = LoadUtils.mappedExternalCenterNames.get(dccExperiment.getPhenotypingCenter());
             if (colony != null) {
@@ -609,8 +618,7 @@ public class ExperimentLoader implements CommandLineRunner {
                     phenotypingCenterPk = cdaOrganisation_idMap.get(dccExperiment.getPhenotypingCenter());
                 } else {
                     // It is an error if a MUTANT is not found in the iMits report (i.e. its colony is null)
-                    missing = new MissingColonyId(dccExperiment.getColonyId(), 1, MISSING_COLONY_ID_REASON);
-                    missingColonyMap.put(dccExperiment.getColonyId(), missing);
+                    missingColonyIds.add(dccExperiment.getColonyId());
                     return null;
                 }
             }
@@ -699,8 +707,8 @@ public class ExperimentLoader implements CommandLineRunner {
         if (dccExperiment.isLineLevel()) {
             List<SimpleParameter> simpleParameterList = dccSqlUtils.getSimpleParameters(dccExperiment.getDcc_procedure_pk());
             zygosity = LoadUtils.getLineLevelZygosity(simpleParameterList);
-            key = bioModelManager.createMutantKey(dccExperiment.getDatasourceShortName(), dccExperiment.getColonyId(), zygosity);
-            impcDsKey = bioModelManager.createMutantKey(CdaSqlUtils.IMPC, dccExperiment.getColonyId(), zygosity);
+            key = bioModelManager.createMutantKey(dccExperiment.getDatasourceShortName(), dccExperiment.getSpecimenStrainId(), dccExperiment.getColonyId(), zygosity);
+            impcDsKey = bioModelManager.createMutantKey(CdaSqlUtils.IMPC, dccExperiment.getSpecimenStrainId(), dccExperiment.getColonyId(), zygosity);
         } else {
             if (dccExperiment.isControl()) {
                 zygosity = LoadUtils.getControlZygosity();
@@ -708,8 +716,8 @@ public class ExperimentLoader implements CommandLineRunner {
                 impcDsKey = bioModelManager.createControlKey(CdaSqlUtils.IMPC, dccExperiment.getSpecimenStrainId());
             } else {
                 zygosity = LoadUtils.getSpecimenLevelMutantZygosity(dccExperiment.getZygosity());
-                key = bioModelManager.createMutantKey(dccExperiment.getDatasourceShortName(), dccExperiment.getColonyId(), zygosity);
-                impcDsKey = bioModelManager.createMutantKey(CdaSqlUtils.IMPC, dccExperiment.getColonyId(), zygosity);
+                key = bioModelManager.createMutantKey(dccExperiment.getDatasourceShortName(), dccExperiment.getSpecimenStrainId(), dccExperiment.getColonyId(), zygosity);
+                impcDsKey = bioModelManager.createMutantKey(CdaSqlUtils.IMPC, dccExperiment.getSpecimenStrainId(), dccExperiment.getColonyId(), zygosity);
             }
         }
         biologicalModelPk = bioModelManager.getBiologicalModelPk(key);
@@ -1397,6 +1405,9 @@ public class ExperimentLoader implements CommandLineRunner {
 
             // discretePoint if increment value represents a date.
             discretePoint = utils.convertTimepoint(incrementValue, dccExperiment, dccMetadataList);
+            if (discretePoint == null) {
+                valueMissing = 1;
+            }
 
             // Parse value into correct format
             String parsedIncrementValue = utils.getParsedIncrementValue(incrementValue);

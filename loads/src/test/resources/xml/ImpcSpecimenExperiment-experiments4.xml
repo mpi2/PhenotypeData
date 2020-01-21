@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<centreProcedureSet xmlns="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/procedure">
+    <centre centreID="Ucd" pipeline="UCD_001" project="DTCC">
+        <experiment experimentID="PAT_2015-06-29 2:14 PM_ET8295-113" dateOfExperiment="2015-06-29">
+            <specimenID>ET8295-113</specimenID>
+            <procedure procedureID="IMPC_PAT_002">
+                <simpleParameter parameterID="IMPC_PAT_032_002" unit=" ">
+                    <value>The uterus has mild hydrometra.</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_PAT_049_002" unit="g">
+                    <value>23.62</value>
+                </simpleParameter>
+            </procedure>
+        </experiment>
+    </centre>
+</centreProcedureSet>

@@ -2,12 +2,16 @@
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
-<t:genericpage-histopath>
+<t:genericpage-landing>
 
     <jsp:attribute name="title">Embryo Viewer</jsp:attribute>
+    <jsp:attribute name="pagename">Embryo Viewer</jsp:attribute>
     <jsp:attribute name="breadcrumb">Embryo Viewer</jsp:attribute>
-    <jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
+    <jsp:attribute name="bodyTag"><body  class="page-template page-template-no-sidebar--large page-template-no-sidebar--large-php page page-id-3162 page-child parent-pageid-42"></jsp:attribute>
+    <jsp:attribute name="heatmap">true</jsp:attribute>
+
     <jsp:attribute name="header">
+
 
     </jsp:attribute>
 
@@ -91,22 +95,10 @@
     </jsp:attribute>
 
     <jsp:body>
-        <div class="container single single--no-side">
 
-        <div class="breadcrumbs" style="box-shadow: none; margin-top: auto; margin: auto; padding: auto">
 
-            <div class="row">
-                <div class="col-md-12">
-                    <p><a href="/">Home</a>
-                        <span class="fal fa-angle-right"></span> Embryo Viewer
-                    </p>
-                </div>
-            </div>
-        </div>
 
-        <div class="row row-over-shadow">
-        <div class="col-md-12 white-bg">
-        <div class="page-content">
+        <div class="page-content people py-5 white-bg">
 
         <div class="card">
             <div class="card-header"><h3>Embryo Data for Every Lethal Gene</h3></div>
@@ -174,12 +166,11 @@
 
         </div>
         </div>
-        </div>
-        </div>
+
 
 
     </jsp:body>
 
 
-    </t:genericpage-histopath>
+    </t:genericpage-landing>
 

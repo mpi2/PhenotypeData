@@ -20,6 +20,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.create.extract.dcc.DccExperimentExtractor;
 import org.mousephenotype.cda.loads.create.extract.dcc.DccSpecimenExtractor;
 import org.mousephenotype.cda.loads.create.load.ExperimentLoader;
@@ -30,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.Resource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -49,13 +49,13 @@ import static junit.framework.TestCase.assertTrue;
  * This is an end-to-end integration data test class that uses an in-memory database to populate a small dcc, cda_base,
  * and cda set of databases.
  *
- * The specimen and experiment tested here was providing an erroneous project from dcc_9_0
+ * This test validates that a sample and an experiment with a valid background strain in IMITS and in the XML file is
+ * correctly loaded and that the biological model background strain matches the one in the XMLfile.
  */
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ComponentScan
 @ContextConfiguration(classes = TestConfig.class)
-public class ThreeISpecimenExperimentLoadIntegrationTest {
+public class ImpcSpecimenExperimentLoadIntegrationTest3 {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
@@ -68,7 +68,7 @@ public class ThreeISpecimenExperimentLoadIntegrationTest {
     private DataSource dccDataSource;
 
     @Autowired
-    private NamedParameterJdbcTemplate jdbcCda;
+    private CdaSqlUtils cdaSqlUtils;
 
     @Autowired
     private DccSpecimenExtractor dccSpecimenExtractor;
@@ -85,6 +85,7 @@ public class ThreeISpecimenExperimentLoadIntegrationTest {
 
     @Before
     public void before() throws SQLException {
+
         // Reload databases.
         String[] cdaSchemas = new String[] {
                 "sql/h2/cda/schema.sql",
@@ -111,21 +112,21 @@ public class ThreeISpecimenExperimentLoadIntegrationTest {
 
 
     @Test
-    public void testLoadMissingSpecimenAndExperiment() throws Exception {
+    public void testXmlStrainInImits() throws Exception {
 
-        Resource cdaResource        = context.getResource("classpath:sql/h2/LoadThreeISpecimenExperiment-data.sql");
-        Resource specimenResource   = context.getResource("classpath:xml/ThreeISpecimenExperiment-specimens.xml");
-        Resource experimentResource = context.getResource("classpath:xml/ThreeISpecimenExperiment-experiments.xml");
+        Resource cdaResource        = context.getResource("classpath:sql/h2/LoadImpcSpecimenExperiment-data3.sql");
+        Resource specimenResource   = context.getResource("classpath:xml/ImpcSpecimenExperiment-specimens3.xml");
+        Resource experimentResource = context.getResource("classpath:xml/ImpcSpecimenExperiment-experiments3.xml");
 
         ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), cdaResource);
 
         String[] extractSpecimenArgs = new String[]{
-                "--datasourceShortName=3i",
+                "--datasourceShortName=IMPC",
                 "--filename=" + specimenResource.getFile().getAbsolutePath()
         };
 
         String[] extractExperimentArgs = new String[]{
-                "--datasourceShortName=3i",
+                "--datasourceShortName=IMPC",
                 "--filename=" + experimentResource.getFile().getAbsolutePath()
         };
 
@@ -155,8 +156,8 @@ public class ThreeISpecimenExperimentLoadIntegrationTest {
             }
         }
 
-        final int EXPECTED_SPECIMEN_COUNT = 2;
-        final int EXPECTED_EXPERIMENT_COUNT = 2;
+        final int EXPECTED_SPECIMEN_COUNT = 1;
+        final int EXPECTED_EXPERIMENT_COUNT = 1;
         assertTrue( "Expected " + EXPECTED_SPECIMEN_COUNT + " specimen(s). Found " + specimenCount, specimenCount == EXPECTED_SPECIMEN_COUNT);
         assertTrue( "Expected " + EXPECTED_EXPERIMENT_COUNT + " experiment(s). Found " + experimentCount, experimentCount == EXPECTED_EXPERIMENT_COUNT);
 
@@ -197,10 +198,9 @@ public class ThreeISpecimenExperimentLoadIntegrationTest {
                 modelCount++;
                 modelIds.add(resultSet.getInt("id"));
             }
-
         }
 
-        Assert.assertEquals(2, modelCount.intValue());
+        Assert.assertEquals(1, modelCount.intValue());
         Assert.assertEquals(1, modelIds.size());
 
 
@@ -227,7 +227,8 @@ public class ThreeISpecimenExperimentLoadIntegrationTest {
             }
         }
 
-        Assert.assertEquals(2, experimentCount.intValue());
-        Assert.assertEquals(24, observationCount.intValue());
+        Assert.assertEquals(1, experimentCount.intValue());
+        Assert.assertEquals(2, observationCount.intValue());
+        Assert.assertEquals("strain_3", cdaSqlUtils.getExperimentBackgroundStrain("PAT_2015-06-29 2:14 PM_ET8295-113").getName());
     }
 }

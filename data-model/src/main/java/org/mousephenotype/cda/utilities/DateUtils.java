@@ -156,6 +156,7 @@ public class DateUtils {
         supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss'Z'"));
         supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"));
         supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm"));
         supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm"));
 
         for (SimpleDateFormat format : supportedFormats) {
