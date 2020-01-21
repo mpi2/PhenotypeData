@@ -339,9 +339,11 @@ public class ObservationService extends BasicService implements WebStatus {
             ExperimentsDataTableRow row=new ExperimentsDataTableRow();
             if(!parameterStableIdToRows.containsKey(parameterStableId)){
                 parameterStableIdToRows.put(parameterStableId, new ArrayList<ExperimentsDataTableRow>());
-            }else {
                 parameterStableIdToRows.get(parameterStableId).add(this.generateRow(observationDTO));
             }
+            //else {
+                //parameterStableIdToRows.get(parameterStableId).add(this.generateRow(observationDTO));
+            //}
         }
         return parameterStableIdToRows;
     }
@@ -362,9 +364,9 @@ public class ObservationService extends BasicService implements WebStatus {
             ImpressBaseDTO pipeline = new ImpressBaseDTO(null, null, dto.getPipelineStableId(), dto.getPipelineName());
             ZygosityType zygosity = dto.getZygosity() != null ? ZygosityType.valueOf(dto.getZygosity()) : ZygosityType.not_applicable;
             ExperimentsDataTableRow row = new ExperimentsDataTableRow(dto.getPhenotypingCenter(), "no statistical method",
-                    "no status", allele, gene, zygosity,
-                    pipeline, procedure, parameter, "no graph url",(Double)0.0,0,
-                    0,(Double)0.0, dto.getMetadataGroup());
+                    "No Stats Result", allele, gene, zygosity,
+                    pipeline, procedure, parameter, "no graph url",1.0,0,
+                    0,0.0, dto.getMetadataGroup());
 
             return row;
 
