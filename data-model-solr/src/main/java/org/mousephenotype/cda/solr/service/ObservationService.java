@@ -43,6 +43,7 @@ import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.web.dto.CategoricalDataObject;
 import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
+import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +54,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -318,6 +320,55 @@ public class ObservationService extends BasicService implements WebStatus {
         ViabilityData data = new ViabilityData(resources, adultOnly, 1000000);
 
         return data;
+    }
+
+    public Map<String, List<ExperimentsDataTableRow>> getAllPhenotypesFromObservationsByGeneAccession(String acc) throws IOException, SolrServerException {
+        Map<String, List<ExperimentsDataTableRow>> parameterStableIdToRows = new HashMap<>();
+        SolrQuery query = new SolrQuery();
+        query.setQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + acc + "\"");
+        //query.setFilterQueries(ObservationDTO.GENE_ACCESSION_ID + ":\"" + acc + "\"");
+//        query.addField(ObservationDTO.GENE_SYMBOL);
+//        query.addField(ObservationDTO.PARAMETER_STABLE_ID);
+
+        query.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
+        query.setRows(100000);
+
+        logger.info("get All Phenotypes for gene " + SolrUtils.getBaseURL(experimentCore) + "/select?" + query);
+        for (ObservationDTO observationDTO : experimentCore.query(query).getBeans(ObservationDTO.class)) {
+            String parameterStableId=observationDTO.getParameterStableId();
+            ExperimentsDataTableRow row=new ExperimentsDataTableRow();
+            if(!parameterStableIdToRows.containsKey(parameterStableId)){
+                parameterStableIdToRows.put(parameterStableId, new ArrayList<ExperimentsDataTableRow>());
+            }else {
+                parameterStableIdToRows.get(parameterStableId).add(this.generateRow(observationDTO));
+            }
+        }
+        return parameterStableIdToRows;
+    }
+
+    private ExperimentsDataTableRow generateRow(ObservationDTO dto) throws UnsupportedEncodingException {
+        {
+
+            MarkerBean allele = new MarkerBean();
+            allele.setAccessionId(dto.getAlleleAccession());
+            allele.setSymbol(dto.getAlleleSymbol());
+
+            MarkerBean gene = new MarkerBean();
+            gene.setAccessionId(dto.getGeneAccession());
+            gene.setSymbol(dto.getGeneSymbol());
+
+            ImpressBaseDTO procedure  = new ImpressBaseDTO(null, null, dto.getProcedureStableId(), dto.getProcedureName());
+            ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, dto.getParameterStableId(), dto.getParameterName());
+            ImpressBaseDTO pipeline = new ImpressBaseDTO(null, null, dto.getPipelineStableId(), dto.getPipelineName());
+            ZygosityType zygosity = dto.getZygosity() != null ? ZygosityType.valueOf(dto.getZygosity()) : ZygosityType.not_applicable;
+            ExperimentsDataTableRow row = new ExperimentsDataTableRow(dto.getPhenotypingCenter(), "no statistical method",
+                    "no status", allele, gene, zygosity,
+                    pipeline, procedure, parameter, "no graph url",(Double)0.0,0,
+                    0,(Double)0.0, dto.getMetadataGroup());
+
+            return row;
+
+        }
     }
 
     public class ViabilityData {

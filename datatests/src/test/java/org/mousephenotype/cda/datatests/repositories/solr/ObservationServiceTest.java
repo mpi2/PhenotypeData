@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,21 @@ public class ObservationServiceTest {
 		try {
 			List<ObservationDTO> result = observationService.getObservationsByProcedureNameAndGene(procedureName, geneAccession);
 			assert(result.size()>5);
+
+		} catch (SolrServerException | IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void getAllPhenotypesFromObservationsByGeneAccession(){
+
+		//gene is Cib2
+		String geneAccession="MGI:1929293";
+		try {
+			//map is parameterStableId to Experiment Row??
+			Map<String, List<ExperimentsDataTableRow>> rows = observationService.getAllPhenotypesFromObservationsByGeneAccession(geneAccession);
+			assert(rows.size()>5);
 
 		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
