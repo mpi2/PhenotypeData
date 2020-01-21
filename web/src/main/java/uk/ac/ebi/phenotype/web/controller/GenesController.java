@@ -261,8 +261,10 @@ public class GenesController {
         try {
 
             phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
+            System.out.println(phenotypeSummaryObjects);
             mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
             mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
+            System.out.println("mpGroupsNotSignificant="+mpGroupsNotSignificant);
             if (!mpGroupsSignificant.keySet().contains("mortality/aging") && viabilityCalls.size() > 0) {
                 //if mortality aging is not significant we need to test if it's been tested or not
                 mpGroupsNotSignificant.put("mortality/aging", "mpTermId=MP:0010768");
