@@ -60,7 +60,7 @@
                     if($(header).text()==='E14.5/E15.5' && e15data==='4'){//analysed data for this cell available
                         url='https://www.mousephenotype.org/embryoviewer/?mgi='+gene_acc+'&wn=Average&wov=jacobian';
                     }
-                    if($(header).text()==='UMASS' && umass_data==='2'){//UMASS links available for this cell
+                    if($(header).text()==='UMASS Pre E9.5' && umass_data==='2'){//UMASS links available for this cell
                         url='http://blogs.umass.edu/jmager/'+gene_symbol;
                     }
                     var win = window.open(url, '_blank');
@@ -101,7 +101,7 @@
         <div class="page-content people py-5 white-bg">
 
         <div class="card">
-            <div class="card-header"><h3>Embryo data for every gene tested</h3></div>
+            <div class="card-header"><h3>Embryo Data for Every Lethal Gene</h3></div>
         <div class="card-body">
             <p>
                 Up to one third of homozygous knockout lines are <b>embryonic lethal</b>, which means no homozygous mice or less than expected are observed past the weaning stage (<a href="https://www.mousephenotype.org/impress/ProcedureInfo?action=list&procID=703&pipeID=7">IMPC Viability Primary Screen</a> procedure). Early death may occur during embryonic development or soon after birth, during the pre-weaning stage. For this reason, the IMPC established a systematic phenotyping pipeline to morphologically evaluate mutant embryos to ascertain the primary perturbations that cause early death and thus gain insight into gene function.
@@ -111,7 +111,7 @@
 
                 Read more in our paper on <a href="https://europepmc.org/articles/PMC5295821">High-throughput discovery of novel developmental phenotypes, Nature 2016</a>
             </p>
-                    <p class="my-0"><b>Significance Score:</b></p>
+                    <p class="my-0"><b>Legend:</b></p>
                     <c:set var="noData" scope="page" value="fa fa-circle"/>
                     <c:set var="notApplicable" scope="page" value="fa fa-circle"/>
                     <c:set var="notSignificant" scope="page" value="fa fa-circle"/>
@@ -121,8 +121,8 @@
                     <c:set var="notSignificantColour" scope="page" value="#17a2b8"/>
                     <c:set var="significantColour" scope="page" value="#ce6211"/>
                     <div style="background-color: whitesmoke">
-                        <div title="No Data"  class="mr-3"><i class="${noData}" style="color: white"></i>&nbsp;&nbsp;No Data</div>
-                        <div title="Not Applicable" style="color: ${notApplicableColour}" class="mr-3"> <i class="${notApplicable}"></i>&nbsp;&nbsp;Not Applicable</div>
+                        <div title="No Images"  class="mr-3"><i class="${noData}" style="color: white"></i>&nbsp;&nbsp;No Data</div>
+<%--                        <div title="Not Applicable" style="color: ${notApplicableColour}" class="mr-3"> <i class="${notApplicable}"></i>&nbsp;&nbsp;Not Applicable</div>--%>
                         <div title="Not Signficant" style="color: ${notSignificantColour}" class="mr-3"><i class="${notSignificant}"></i>&nbsp;&nbsp;<b>Images Available</b> </div>
                         <div title="Significant" style="color: ${significantColour}" class="mr-3"><i class="${significant}"></i>&nbsp;&nbsp;<b>Images and Automated Volumetric Analysis Available</b> </div>
                     </div>

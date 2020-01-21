@@ -89,6 +89,9 @@ public class ExperimentsController {
         //TODO: Change to request all the data from the expirement core and overlay the s-r core results onto this
         // set
         experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
+        //ideally create a test for a method that calls the experiment core and gets info for these object types
+        ///experimentsTableFrag?geneAccession=' + '${gene.mgiAccessionId}',
+       // observationService.get
 
         for (List<ExperimentsDataTableRow> list : experimentRows.values()) {
             rows += list.size();
