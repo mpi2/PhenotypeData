@@ -3668,7 +3668,7 @@ public class CdaSqlUtils {
 
 // FIXME FIXME FIXME
 // 22::Cfh<tm1a(EUCOMM)Wtsi>/Cfh<tm1a(EUCOMM)Wtsi>::involves: C57BL/6N::homozygote
-if (dbId == 22 && allelicComposition.equals("Cfh<tm1a(EUCOMM)Wtsi>/Cfh<tm1a(EUCOMM)Wtsi>") && geneticBackground.equals("involves: C57BL/6N") && zygosity == "homozygote")
+ if (dbId == 22 && allelicComposition.equals("Cfh<tm1a(EUCOMM)Wtsi>/Cfh<tm1a(EUCOMM)Wtsi>") && geneticBackground.equals("involves: C57BL/6N") && zygosity == "homozygote")
   e.printStackTrace();
             logger.error(message);
         } catch (Exception e) {
