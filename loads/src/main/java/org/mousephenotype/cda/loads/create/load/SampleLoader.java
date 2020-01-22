@@ -78,6 +78,7 @@ public class SampleLoader implements CommandLineRunner {
     private NamedParameterJdbcTemplate jdbcCda;
 
     private static Set<String> backgroundStrainMismatches  = new ConcurrentSkipListSet<>();
+    private static Set<String> invalidXmlStrainValues      = new ConcurrentSkipListSet<>();
     private static Set<String> missingCenters              = new ConcurrentSkipListSet<>();
     private static Set<String> missingColonyIds            = new ConcurrentSkipListSet<>();
     private static Set<String> missingDatasourceShortNames = new ConcurrentSkipListSet<>();
@@ -94,6 +95,7 @@ public class SampleLoader implements CommandLineRunner {
     private static Map<String, PhenotypedColony> phenotypedColonyMap;
     private static Map<String, MissingColonyId>  missingColonyMap;
     private static Map<String, OntologyTerm>     ontologyTermMap;
+    private static Set<String>                   imitsBackgroundStrains;
 
     private Long efoDbId;
 
@@ -147,6 +149,7 @@ public class SampleLoader implements CommandLineRunner {
         phenotypedColonyMap = bioModelManager.getPhenotypedColonyMap();
         missingColonyMap = cdaSqlUtils.getMissingColonyIdsMap();
         ontologyTermMap = new ConcurrentHashMapAllowNull<>(bioModelManager.getOntologyTermMap());
+        imitsBackgroundStrains = cdaSqlUtils.getImitsBackgroundStrains();
         OntologyTerm impcUncharacterizedBackgroundStrain = ontologyTermMap.get(CdaSqlUtils.IMPC_UNCHARACTERIZED_BACKGROUND_STRAIN);
         strainMapper = new StrainMapper(cdaSqlUtils, bioModelManager.getStrainsByNameOrMgiAccessionIdMap(), impcUncharacterizedBackgroundStrain);
         strainsByNameOrMgiAccessionIdMap = bioModelManager.getStrainsByNameOrMgiAccessionIdMap();
@@ -157,6 +160,7 @@ public class SampleLoader implements CommandLineRunner {
         Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must not be null");
         Assert.notNull(missingColonyMap, "missingColonyMap must not be null");
         Assert.notNull(ontologyTermMap, "ontologyTermMap must not be null");
+        Assert.notNull(imitsBackgroundStrains, "imitsBackgroundStrains must not be null");
         Assert.notNull(strainMapper, "strainMapper must not be null");
         Assert.notNull(strainsByNameOrMgiAccessionIdMap, "strainsByNameOrMgiAccessionIdMap must not be null");
 
@@ -232,9 +236,14 @@ public class SampleLoader implements CommandLineRunner {
         // Log infos
 
 
+        if ( ! invalidXmlStrainValues.isEmpty()) {
+            logger.info("Showing {} of {} invalid XML background strain values (remapped to IMITS background strain): XML::IMITS", 10, invalidXmlStrainValues.size());
+            invalidXmlStrainValues.stream().sorted().limit(10).forEach(System.out::println);
+        }
+
         if ( ! backgroundStrainMismatches.isEmpty()) {
-            logger.info("Found {} background strain mismatches: colony_name::DCC_specimen_strain::imits_background_strain:", backgroundStrainMismatches.size());
-            backgroundStrainMismatches.stream().sorted().forEach(System.out::println);
+            logger.info("Showing {} of {} background strain mismatches: colony_name::DCC_specimen_strain::imits_background_strain:", 10, backgroundStrainMismatches.size());
+            backgroundStrainMismatches.stream().sorted().limit(10).forEach(System.out::println);
         }
 
 
@@ -412,16 +421,15 @@ public class SampleLoader implements CommandLineRunner {
                     }
                 }
 
-                // If the background strain of the mutant specimen has not been provided in the XML file
-                // use the background strain of the colony (from iMits)
-                if ( !specimen.isIsBaseline() && specimen.getStrainID() == null && colony.getBackgroundStrain() != null) {
-                    specimen.setStrainID(colony.getBackgroundStrain());
+                // For mutants, select the correct background strain.
+                if ( ! specimen.isIsBaseline()) {
+                    specimen.setStrainID(cdaSqlUtils.getMutantBackgroundStrain(specimen.getStrainID(), colony.getBackgroundStrain(), imitsBackgroundStrains, invalidXmlStrainValues));
                 }
             }
 
             // If this mutant's strainId is null, we cannot create a strain, so log an error and skip the specimen.
             if ((specimen.getStrainID() == null) && ( ! specimen.isIsBaseline())) {
-                logger.error("Specimen {}'s strain is null. Skipping specimen.", specimen.getSpecimenID());
+                logger.info("Specimen {}'s strain is null. Skipping specimen.", specimen.getSpecimenID());
                 return null;
             }
 
@@ -458,8 +466,7 @@ public class SampleLoader implements CommandLineRunner {
 
                 // It is an error if a MUTANT is not found in the iMits report (i.e. its colony is null)
                 if ( ! specimen.isIsBaseline()) {
-                    missing = new MissingColonyId(specimen.getColonyID(), 1, MISSING_MUTANT_COLONY_ID_REASON);
-                    missingColonyMap.put(specimen.getColonyID(), missing);
+                    missingColonyIds.add(specimen.getColonyID());
                     return null;
                 }
 

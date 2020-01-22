@@ -20,7 +20,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.mousephenotype.cda.loads.create.extract.dcc.DccExperimentExtractor;
 import org.mousephenotype.cda.loads.create.extract.dcc.DccSpecimenExtractor;
 import org.mousephenotype.cda.loads.create.load.ExperimentLoader;
@@ -49,13 +48,13 @@ import static junit.framework.TestCase.assertTrue;
  * This is an end-to-end integration data test class that uses an in-memory database to populate a small dcc, cda_base,
  * and cda set of databases.
  *
- * This test validates that a sample and an experiment with a valid background strain in IMITS and in the XML file is
- * correctly loaded and that the biological model background strain matches the one in the XMLfile.
+ * This test validates that a sample and an experiment with NO background strain in IMITS but with a value in the XML
+ * file is NOT loaded.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ComponentScan
 @ContextConfiguration(classes = TestConfig.class)
-public class ImpcSpecimenExperimentLoadIntegrationTest3 {
+public class ImpcSpecimenExperimentLoadIntegrationTest6 {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
@@ -66,9 +65,6 @@ public class ImpcSpecimenExperimentLoadIntegrationTest3 {
     
     @Autowired
     private DataSource dccDataSource;
-
-    @Autowired
-    private CdaSqlUtils cdaSqlUtils;
 
     @Autowired
     private DccSpecimenExtractor dccSpecimenExtractor;
@@ -112,11 +108,11 @@ public class ImpcSpecimenExperimentLoadIntegrationTest3 {
 
 
     @Test
-    public void testXmlStrainInImits() throws Exception {
+    public void testColonyIdNotInImits() throws Exception {
 
-        Resource cdaResource        = context.getResource("classpath:sql/h2/LoadImpcSpecimenExperiment-data3.sql");
-        Resource specimenResource   = context.getResource("classpath:xml/ImpcSpecimenExperiment-specimens3.xml");
-        Resource experimentResource = context.getResource("classpath:xml/ImpcSpecimenExperiment-experiments3.xml");
+        Resource cdaResource        = context.getResource("classpath:sql/h2/LoadImpcSpecimenExperiment-data6.sql");
+        Resource specimenResource   = context.getResource("classpath:xml/ImpcSpecimenExperiment-specimens6.xml");
+        Resource experimentResource = context.getResource("classpath:xml/ImpcSpecimenExperiment-experiments6.xml");
 
         ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), cdaResource);
 
@@ -185,7 +181,7 @@ public class ImpcSpecimenExperimentLoadIntegrationTest3 {
 
         assertTrue(bsCount == bmsCount);
 
-        // Check that the model has a gene, allele and strain
+        // The SampleLoader should not have loaded a sample. Check that no biological model has been created.
 
         String modelQuery = "SELECT * FROM biological_model bm " +
                 "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bm.id " +
@@ -200,11 +196,10 @@ public class ImpcSpecimenExperimentLoadIntegrationTest3 {
             }
         }
 
-        Assert.assertEquals(1, modelCount.intValue());
-        Assert.assertEquals(1, modelIds.size());
+        Assert.assertEquals(0, modelCount.intValue());
+        Assert.assertEquals(0, modelIds.size());
 
-
-        // Load the experiment
+        // Attempt to load the experiment
         experimentLoader.run(loadArgs);
 
         experimentQuery = "SELECT COUNT(*) AS cnt FROM experiment";
@@ -227,8 +222,7 @@ public class ImpcSpecimenExperimentLoadIntegrationTest3 {
             }
         }
 
-        Assert.assertEquals(1, experimentCount.intValue());
-        Assert.assertEquals(2, observationCount.intValue());
-        Assert.assertEquals("strain_3", cdaSqlUtils.getExperimentBackgroundStrain("PAT_2015-06-29 2:14 PM_ET8295-113").getName());
+        Assert.assertEquals(0, experimentCount.intValue());
+        Assert.assertEquals(0, observationCount.intValue());
     }
 }

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<centreSpecimenSet xmlns="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/specimen">
+    <centre centreID="Ccpcz">
+        <mouse DOB="2019-07-11" colonyID="CCP-Asb5-del839-EM1-B6N" isBaseline="false" specimenID="E64-E8136" gender="male" zygosity="homozygous" litterId="287151" pipeline="CCP_001" productionCentre="Ccpcz" phenotypingCentre="Ccpcz" project="Ccp"/>
+    </centre>
+</centreSpecimenSet>

@@ -84,7 +84,7 @@ public class BioModelManager {
 
         Specimen specimen = specimenExtended.getSpecimen();
 
-        BioModelKey key = createMutantKey(specimenExtended.getDatasourceShortName(), specimen.getColonyID(), zygosity);
+        BioModelKey key = createMutantKey(specimenExtended.getDatasourceShortName(), specimen.getStrainID(), specimen.getColonyID(), zygosity);
         Long biologicalModelPk = getBiologicalModelPk(key);
         if (biologicalModelPk == null) {
             biologicalModelPk = insert(dbId, biologicalSamplePk, specimenExtended);
@@ -116,7 +116,7 @@ public class BioModelManager {
 
     public synchronized long insertLineIfMissing(String zygosity, long dbId, long phenotypingCenterPk, DccExperimentDTO lineExperiment) throws DataLoadException
     {
-        BioModelKey key               = createMutantKey(lineExperiment.getDatasourceShortName(), lineExperiment.getColonyId(), zygosity);
+        BioModelKey key               = createMutantKey(lineExperiment.getDatasourceShortName(), lineExperiment.getSpecimenStrainId(), lineExperiment.getColonyId(), zygosity);
         Long     biologicalModelPk = getBiologicalModelPk(key);
 
         if (biologicalModelPk == null) {
@@ -136,7 +136,7 @@ public class BioModelManager {
      * @throws DataLoadException
      */
     public synchronized BioModelKey createMutantKey(
-            String datasourceShortName, String colonyId, String zygosity) throws DataLoadException
+            String datasourceShortName, String backgroundStrain, String colonyId, String zygosity) throws DataLoadException
     {
         String      message;
         BioModelKey key;
@@ -154,7 +154,7 @@ public class BioModelManager {
 
         gene = getGene(colony);
         allele = getAllele(colony, gene);
-        strain = strainsByNameOrMgiAccessionIdMap.get(colony.getBackgroundStrain());
+        strain = strainsByNameOrMgiAccessionIdMap.get(backgroundStrain);
 
         if (strain == null) {
             Strain newStrain = StrainMapper.createBackgroundStrain(colony.getBackgroundStrain());
@@ -256,7 +256,7 @@ public class BioModelManager {
         } else {
 
             zygosity = LoadUtils.getSpecimenLevelMutantZygosity(specimen.getZygosity().value());
-            biologicalModelPk = insertMutant(dbId, biologicalSamplePk, datasourceShortName, specimen.getColonyID(), zygosity);
+            biologicalModelPk = insertMutant(dbId, biologicalSamplePk, datasourceShortName, specimen.getStrainID(), specimen.getColonyID(), zygosity);
         }
 
         return biologicalModelPk;
@@ -281,12 +281,12 @@ public class BioModelManager {
         List<SimpleParameter> simpleParameterList = dccSqlUtils.getSimpleParameters(lineExperiment.getDcc_procedure_pk());
         String zygosity = LoadUtils.getLineLevelZygosity(simpleParameterList);
 
-        return insertMutant(dbId, null, datasourceShortName, lineExperiment.getColonyId(), zygosity);
+        return insertMutant(dbId, null, datasourceShortName, lineExperiment.getSpecimenStrainId(), lineExperiment.getColonyId(), zygosity);
     }
 
 
     private long insertMutant(long dbId, Long biologicalSamplePk, String datasourceShortName,
-                             String colonyId, String zygosity) throws DataLoadException {
+                             String backgroundStrain, String colonyId, String zygosity) throws DataLoadException {
 
         long   biologicalModelPk;
         String message;
@@ -312,7 +312,7 @@ public class BioModelManager {
         String geneticBackground = strain.getGeneticBackground();
         BioModelInsertDTOMutant mutantDto = new BioModelInsertDTOMutant(dbId, biologicalSamplePk, allelicComposition, geneticBackground, zygosity, geneAcc, alleleAcc, strainAcc);
 
-        BioModelKey mutantKey = createMutantKey(datasourceShortName, colony.getColonyName(), zygosity);
+        BioModelKey mutantKey = createMutantKey(datasourceShortName, backgroundStrain, colony.getColonyName(), zygosity);
         Long existingModelPk = bioModelPkMap.get(mutantKey);
         biologicalModelPk = cdaSqlUtils.insertBiologicalModelImpc(mutantDto, existingModelPk);
 

@@ -45,6 +45,7 @@ import javax.validation.constraints.NotNull;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * Created by mrelac on 27/05/16.
@@ -1465,6 +1466,7 @@ public class CdaSqlUtils {
                 "  pc.gf_db_id,\n" +
                 "  pc.allele_symbol,\n" +
                 "  pc.background_strain_name,\n" +
+                "  pc.background_strain_acc,\n" +
                 "  pc.phenotyping_centre_organisation_id,\n" +
                 "  pcphorg.name                              AS pc_phenotyping_centre_name,\n" +
                 "  pc.phenotyping_consortium_project_id,\n" +
@@ -2377,6 +2379,7 @@ public class CdaSqlUtils {
                         " gf_db_id," +
                         " allele_symbol," +
                         " background_strain_name," +
+                        " background_strain_acc," +
                         " phenotyping_centre_organisation_id," +
                         " phenotyping_consortium_project_id," +
                         " production_centre_organisation_id," +
@@ -2388,6 +2391,7 @@ public class CdaSqlUtils {
                         " :gf_db_id," +
                         " :allele_symbol," +
                         " :background_strain_name," +
+                        " :background_strain_acc," +
                         " :phenotyping_centre_organisation_id," +
                         " :phenotyping_consortium_project_id," +
                         " :production_centre_organisation_id," +
@@ -2403,6 +2407,7 @@ public class CdaSqlUtils {
                 parameterMap.put("gf_db_id", DbIdType.MGI.intValue());
                 parameterMap.put("allele_symbol", phenotypedColony.getAlleleSymbol());
                 parameterMap.put("background_strain_name", phenotypedColony.getBackgroundStrain());
+                parameterMap.put("background_strain_acc", phenotypedColony.getBackgroundStrainAcc());
                 parameterMap.put("phenotyping_centre_organisation_id", phenotypedColony.getPhenotypingCentre().getId());
                 parameterMap.put("phenotyping_consortium_project_id", phenotypedColony.getPhenotypingConsortium().getId());
                 parameterMap.put("production_centre_organisation_id", phenotypedColony.getProductionCentre().getId());
@@ -2774,7 +2779,6 @@ public class CdaSqlUtils {
         return sequenceRegions;
     }
 
-
     /**
      * @return a {@link Map<String, Strain>} of strains, keyed by strain name or mgi accession id
      *
@@ -2793,6 +2797,66 @@ public class CdaSqlUtils {
         return strains;
     }
 
+    public Set<String> getImitsBackgroundStrains() {
+        Set<String> backgroundStrains = new ConcurrentSkipListSet<>();
+
+        Map<String, String> parameterMap = new HashMap<>();
+        List<String> bgStrainList = jdbcCda.queryForList("SELECT DISTINCT background_strain_name FROM phenotyped_colony", parameterMap, String.class);
+
+        for (String bgStrain : bgStrainList) {
+            backgroundStrains.add(bgStrain);
+        }
+
+        return backgroundStrains;
+    }
+
+    public String getMutantBackgroundStrain(String backgroundStrainFromXml,
+                                            String backgroundStrainFromImits,
+                                            Set<String> imitsBackgroundStrains,
+                                            Set<String> invalidXmlStrainValues)
+    {
+        // If the background strain of the mutant specimen has been provided in the XML file
+        //    if it is a valid imits background strain
+        //        use the background strain from the XML file
+        //    else
+        //        log the invalid XML file background strain
+        //        use background strain from imits
+        // Else
+        //   use background strain from imits
+        String validatedMutantBackgroundStrain;
+
+        if (backgroundStrainFromXml != null) {
+            if (imitsBackgroundStrains.contains(backgroundStrainFromXml)) {
+                validatedMutantBackgroundStrain = backgroundStrainFromXml;
+            } else {
+                String message = "'" + backgroundStrainFromXml + "'::'" + backgroundStrainFromImits + "'";
+                invalidXmlStrainValues.add(message);
+                validatedMutantBackgroundStrain = backgroundStrainFromImits;
+            }
+        } else {
+            validatedMutantBackgroundStrain = backgroundStrainFromImits;
+        }
+
+        return validatedMutantBackgroundStrain;
+    }
+
+    public Strain getExperimentBackgroundStrain(String experimentId) {
+
+        final String query = "SELECT s.* FROM experiment e" +
+                             " JOIN biological_model_strain bms ON bms.biological_model_id = e.biological_model_id" +
+                             " JOIN strain s ON s.acc = bms.strain_acc and s.db_id = bms.strain_db_id" +
+                             " WHERE e.external_id = :experimentId";
+
+        Map<String, String> parameterMap = new HashMap<>();
+        parameterMap.put("experimentId", experimentId);
+        List<Strain> bgStrainList = jdbcCda.query(query, parameterMap, new StrainRowMapper());
+
+        if ( ! bgStrainList.isEmpty()) {
+            return bgStrainList.get(0);
+        }
+
+        return null;
+    }
 
     /**
      * Try to insert the strain and, if successful, any synonyms.
@@ -3371,6 +3435,7 @@ public class CdaSqlUtils {
             phenotypedColony.setAlleleSymbol(rs.getString("allele_symbol"));
 
             phenotypedColony.setBackgroundStrain(rs.getString("background_strain_name"));
+            phenotypedColony.setBackgroundStrainAcc(rs.getString("background_strain_acc"));
 
             Organisation phenotypingCenter = new Organisation();
             phenotypingCenter.setId(rs.getLong("phenotyping_centre_organisation_id"));
@@ -3600,6 +3665,11 @@ public class CdaSqlUtils {
             detail = DataLoadException.DETAIL.DUPLICATE_KEY;
             String message = "DUPLICATE INSERT INTO biological_model FOR db_id::allelic_composition::genetic_background::zygosity '" +
                     dbId + "::" + allelicComposition + "::" + geneticBackground + "::" + zygosity + "'";
+
+// FIXME FIXME FIXME
+// 22::Cfh<tm1a(EUCOMM)Wtsi>/Cfh<tm1a(EUCOMM)Wtsi>::involves: C57BL/6N::homozygote
+ if (dbId == 22 && allelicComposition.equals("Cfh<tm1a(EUCOMM)Wtsi>/Cfh<tm1a(EUCOMM)Wtsi>") && geneticBackground.equals("involves: C57BL/6N") && zygosity == "homozygote")
+  e.printStackTrace();
             logger.error(message);
         } catch (Exception e) {
             detail = DataLoadException.DETAIL.GENERAL_ERROR;

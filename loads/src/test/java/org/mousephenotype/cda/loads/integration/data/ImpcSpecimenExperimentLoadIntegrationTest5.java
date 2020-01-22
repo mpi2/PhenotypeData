@@ -49,13 +49,14 @@ import static junit.framework.TestCase.assertTrue;
  * This is an end-to-end integration data test class that uses an in-memory database to populate a small dcc, cda_base,
  * and cda set of databases.
  *
- * This test validates that a sample and an experiment with a valid background strain in IMITS and in the XML file is
- * correctly loaded and that the biological model background strain matches the one in the XMLfile.
+ * This test validates that a sample and an experiment with a valid background strain in IMITS and a different
+ * background strain in the XML file that is NOT in IMITS XML file is correctly loaded and that the biological model
+ * background strain matches the one in IMITS.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ComponentScan
 @ContextConfiguration(classes = TestConfig.class)
-public class ImpcSpecimenExperimentLoadIntegrationTest3 {
+public class ImpcSpecimenExperimentLoadIntegrationTest5 {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
@@ -112,11 +113,11 @@ public class ImpcSpecimenExperimentLoadIntegrationTest3 {
 
 
     @Test
-    public void testXmlStrainInImits() throws Exception {
+    public void testXmlStrainNotInImits() throws Exception {
 
-        Resource cdaResource        = context.getResource("classpath:sql/h2/LoadImpcSpecimenExperiment-data3.sql");
-        Resource specimenResource   = context.getResource("classpath:xml/ImpcSpecimenExperiment-specimens3.xml");
-        Resource experimentResource = context.getResource("classpath:xml/ImpcSpecimenExperiment-experiments3.xml");
+        Resource cdaResource        = context.getResource("classpath:sql/h2/LoadImpcSpecimenExperiment-data5.sql");
+        Resource specimenResource   = context.getResource("classpath:xml/ImpcSpecimenExperiment-specimens5.xml");
+        Resource experimentResource = context.getResource("classpath:xml/ImpcSpecimenExperiment-experiments5.xml");
 
         ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), cdaResource);
 
@@ -198,6 +199,7 @@ public class ImpcSpecimenExperimentLoadIntegrationTest3 {
                 modelCount++;
                 modelIds.add(resultSet.getInt("id"));
             }
+
         }
 
         Assert.assertEquals(1, modelCount.intValue());
@@ -229,6 +231,6 @@ public class ImpcSpecimenExperimentLoadIntegrationTest3 {
 
         Assert.assertEquals(1, experimentCount.intValue());
         Assert.assertEquals(2, observationCount.intValue());
-        Assert.assertEquals("strain_3", cdaSqlUtils.getExperimentBackgroundStrain("PAT_2015-06-29 2:14 PM_ET8295-113").getName());
+        Assert.assertEquals("strain_5", cdaSqlUtils.getExperimentBackgroundStrain("PAT_2015-06-29 2:14 PM_ET8295-113").getName());
     }
 }

@@ -40,8 +40,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static junit.framework.TestCase.assertTrue;
 
@@ -49,13 +48,12 @@ import static junit.framework.TestCase.assertTrue;
  * This is an end-to-end integration data test class that uses an in-memory database to populate a small dcc, cda_base,
  * and cda set of databases.
  *
- * This test validates that a sample and an experiment with a valid background strain in IMITS and in the XML file is
- * correctly loaded and that the biological model background strain matches the one in the XMLfile.
+ * This test validates the Ccpcz series parameter values that threw exceptions in DR11.0.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ComponentScan
 @ContextConfiguration(classes = TestConfig.class)
-public class ImpcSpecimenExperimentLoadIntegrationTest3 {
+public class ImpcSeriesParameterExperimentLoadIntegrationTest {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
@@ -68,9 +66,6 @@ public class ImpcSpecimenExperimentLoadIntegrationTest3 {
     private DataSource dccDataSource;
 
     @Autowired
-    private CdaSqlUtils cdaSqlUtils;
-
-    @Autowired
     private DccSpecimenExtractor dccSpecimenExtractor;
 
     @Autowired
@@ -81,6 +76,9 @@ public class ImpcSpecimenExperimentLoadIntegrationTest3 {
 
     @Autowired
     private ExperimentLoader experimentLoader;
+
+    @Autowired
+    private CdaSqlUtils cdaSqlUtils;
 
 
     @Before
@@ -112,11 +110,11 @@ public class ImpcSpecimenExperimentLoadIntegrationTest3 {
 
 
     @Test
-    public void testXmlStrainInImits() throws Exception {
+    public void validateCcpczSeriesParameters() throws Exception {
 
-        Resource cdaResource        = context.getResource("classpath:sql/h2/LoadImpcSpecimenExperiment-data3.sql");
-        Resource specimenResource   = context.getResource("classpath:xml/ImpcSpecimenExperiment-specimens3.xml");
-        Resource experimentResource = context.getResource("classpath:xml/ImpcSpecimenExperiment-experiments3.xml");
+        Resource cdaResource        = context.getResource("classpath:sql/h2/LoadImpcSeriesParameterExperiment-data.sql");
+        Resource specimenResource   = context.getResource("classpath:xml/ImpcSeriesParameterExperiment-specimens.xml");
+        Resource experimentResource = context.getResource("classpath:xml/ImpcSeriesParameterExperiment-experiments.xml");
 
         ScriptUtils.executeSqlScript(cdaDataSource.getConnection(), cdaResource);
 
@@ -185,8 +183,6 @@ public class ImpcSpecimenExperimentLoadIntegrationTest3 {
 
         assertTrue(bsCount == bmsCount);
 
-        // Check that the model has a gene, allele and strain
-
         String modelQuery = "SELECT * FROM biological_model bm " +
                 "INNER JOIN biological_model_strain bmstrain ON bmstrain.biological_model_id=bm.id " +
                 "INNER JOIN biological_model_sample bmsamp ON bmsamp.biological_model_id=bm.id " ;
@@ -203,15 +199,11 @@ public class ImpcSpecimenExperimentLoadIntegrationTest3 {
         Assert.assertEquals(1, modelCount.intValue());
         Assert.assertEquals(1, modelIds.size());
 
-
-        // Load the experiment
+        // Looad the experiment
         experimentLoader.run(loadArgs);
 
         experimentQuery = "SELECT COUNT(*) AS cnt FROM experiment";
         experimentCount = 0;
-
-        String observationQuery = "SELECT COUNT(*) AS cnt FROM observation";
-        Integer observationCount = 0;
 
         try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(experimentQuery)) {
             ResultSet resultSet = p.executeQuery();
@@ -220,15 +212,64 @@ public class ImpcSpecimenExperimentLoadIntegrationTest3 {
             }
         }
 
-        try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(observationQuery)) {
+        Assert.assertEquals(1, experimentCount.intValue());
+
+        // There should be 5 valid observations (2 simple, 3 time-series) and 1 missing observation
+
+        String observationNotMissingQuery = "SELECT COUNT(*) AS cnt FROM observation WHERE missing = 0";
+        Integer observationNotMissingCount = 0;
+
+        try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(observationNotMissingQuery)) {
             ResultSet resultSet = p.executeQuery();
             while (resultSet.next()) {
-                observationCount = resultSet.getInt("cnt");
+                observationNotMissingCount = resultSet.getInt("cnt");
             }
         }
 
-        Assert.assertEquals(1, experimentCount.intValue());
-        Assert.assertEquals(2, observationCount.intValue());
-        Assert.assertEquals("strain_3", cdaSqlUtils.getExperimentBackgroundStrain("PAT_2015-06-29 2:14 PM_ET8295-113").getName());
+        Assert.assertEquals("Expected 5 observations but found " + observationNotMissingCount, 5, observationNotMissingCount.intValue());
+
+        String observationIsMissingQuery = "SELECT COUNT(*) AS cnt FROM observation WHERE missing = 1";
+        Integer observationIsMissingCount = 0;
+
+        try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(observationIsMissingQuery)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                observationIsMissingCount = resultSet.getInt("cnt");
+            }
+        }
+
+        Assert.assertEquals("Expected 1 missing observation but found " + observationIsMissingCount, 1, observationIsMissingCount.intValue());
+
+
+        // Check valid time series observation value count
+
+        String timeSeriesObservationQuery = "SELECT COUNT(*) AS cnt FROM time_series_observation";
+        Integer timeSeriesObservationCount = 0;
+
+        try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(timeSeriesObservationQuery)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                timeSeriesObservationCount = resultSet.getInt("cnt");
+            }
+        }
+
+        Assert.assertEquals("Expected 3 time series observations but found " + timeSeriesObservationCount, 3, timeSeriesObservationCount.intValue());
+
+
+        String       observationValuesQuery = "SELECT discrete_point from time_series_observation";
+        List<String> observationDiscretePoints = new ArrayList<>();
+        try (Connection connection = cdaDataSource.getConnection(); PreparedStatement p = connection.prepareStatement(observationValuesQuery)) {
+            ResultSet resultSet = p.executeQuery();
+            while (resultSet.next()) {
+                observationDiscretePoints.add(resultSet.getString("discrete_point"));
+            }
+        }
+
+        Collections.sort(observationDiscretePoints);
+        observationDiscretePoints.stream().forEach(System.out::println);
+
+        Assert.assertTrue("Didn't find expected time series observation discrete_value '11.666", observationDiscretePoints.get(0).startsWith("11.666"));
+        Assert.assertTrue("Didn't find expected time series observation discrete_value '11.916", observationDiscretePoints.get(1).startsWith("11.916"));
+        Assert.assertTrue("Didn't find expected time series observation discrete_value '11.666", observationDiscretePoints.get(2).startsWith("12.166"));
     }
 }

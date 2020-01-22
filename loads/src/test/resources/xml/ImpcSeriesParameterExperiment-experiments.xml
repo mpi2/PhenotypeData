@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<centreProcedureSet xmlns="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/procedure">
+    <centre centreID="Ccpcz" pipeline="CCP_001" project="Ccp">
+        <experiment sequenceID="20191002" experimentID="IMPC_CAL_003_CAL_2019_10_02_2_2019-10-02" dateOfExperiment="2019-10-02">
+            <specimenID>E64-E8136</specimenID>
+            <procedure procedureID="IMPC_CAL_003">
+                <simpleParameter parameterID="IMPC_CAL_002_001" unit="g">
+                    <value>25.4</value>
+                </simpleParameter>
+                <simpleParameter parameterID="IMPC_CAL_001_001" unit="g">
+                    <value>25.2</value>
+                </simpleParameter>
+                <seriesParameter parameterID="IMPC_CAL_009_001" unit="g">
+                    <value incrementValue="2019-10-02T11:55">0.03</value>
+                    <value incrementValue="2019-10-02T12:10">0.04</value>
+                    <value incrementValue="2019-10-02T11:40">0.02</value>
+                    <value incrementValue="BAD_DATE_VALUE">9.99</value>
+                </seriesParameter>
+            </procedure>
+        </experiment>
+    </centre>
+</centreProcedureSet>
