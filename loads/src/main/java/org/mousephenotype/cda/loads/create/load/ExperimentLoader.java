@@ -353,6 +353,7 @@ public class ExperimentLoader implements CommandLineRunner {
             missingColonyMap.values()
                     .stream()
                     .sorted(Comparator.comparing(MissingColonyId::getColonyId))
+                    .filter(missing -> missing.getLogLevel() >= 0)      // Known missing have log level -1. Ignore them.
                     .forEach(missing -> System.out.println(missing.getColonyId() + "::" + missing.getReason()));
         }
 
@@ -592,9 +593,7 @@ public class ExperimentLoader implements CommandLineRunner {
                         if (colony != null) {
                             colony.setBackgroundStrain(remappedStrain.getName());
                         }
-
                     }
-
                 }
             } catch (Exception e ) {
                 e.printStackTrace();
