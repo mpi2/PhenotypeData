@@ -363,8 +363,8 @@ public class ObservationService extends BasicService implements WebStatus {
             ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, dto.getParameterStableId(), dto.getParameterName());
             ImpressBaseDTO pipeline = new ImpressBaseDTO(null, null, dto.getPipelineStableId(), dto.getPipelineName());
             ZygosityType zygosity = dto.getZygosity() != null ? ZygosityType.valueOf(dto.getZygosity()) : ZygosityType.not_applicable;
-            ExperimentsDataTableRow row = new ExperimentsDataTableRow(dto.getPhenotypingCenter(), "no statistical method",
-                    "No Stats Result", allele, gene, zygosity,
+            ExperimentsDataTableRow row = new ExperimentsDataTableRow(dto.getPhenotypingCenter(), "No statistical method",
+                    "No statistical result", allele, gene, zygosity,
                     pipeline, procedure, parameter, "no graph url",1.0,0,
                     0,0.0, dto.getMetadataGroup());
 

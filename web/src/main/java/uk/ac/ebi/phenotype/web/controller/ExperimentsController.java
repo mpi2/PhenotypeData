@@ -95,6 +95,7 @@ public class ExperimentsController {
         for(String key: experimentRowsFromObservations.keySet()){
             if(!experimentRows.containsKey(key)){
                 experimentRows.put(key, experimentRowsFromObservations.get(key));
+               // System.out.println("result not in SR core already:"+experimentRowsFromObservations.get(key));
             }
         }
         for (List<ExperimentsDataTableRow> list : experimentRows.values()) {
