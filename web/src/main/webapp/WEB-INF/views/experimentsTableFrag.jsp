@@ -48,7 +48,7 @@
             <c:set var="stableIdExperimentsRow" value="${experimentRows[stableId]}"/>
             <c:forEach var="row" items="${stableIdExperimentsRow}">
                 <tr title="${!row.getEvidenceLink().getDisplay() ? 'No supporting data supplied.' : ''}" data-toggle="tooltip" data-link="${row.getEvidenceLink().url}" class="${row.getEvidenceLink().getDisplay() ? 'clickableRow' : 'unClickableRow'}">
-                    <td data-value="${row.getAllele().getSymbol()}">
+                    <td data-value="${row.getAllele().getSymbol()}" class="allele-symbol">
                         <a href="${row.getEvidenceLink().url}">
                         <t:formatAllele>${row.getAllele().getSymbol()}</t:formatAllele>
                         </a>

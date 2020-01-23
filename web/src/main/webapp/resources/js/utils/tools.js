@@ -1336,7 +1336,7 @@
 			// The button is styled as the new design
 			var btn = $('<button></button>').attr(
 					{
-						'class' : oFormatSelector[f] + conf['class'] + ' btn btn-primary '
+						'class' : oFormatSelector[f] + ' ' + conf['class']
 					}).html(f);
 			//console.log(btn);
 
