@@ -163,7 +163,7 @@ public class BioModelManager {
             strain = newStrain;
         }
 
-        key = new BioModelKey(datasourceShortName, strain.getId().getAccession(), gene.getId().getAccession(), allele.getId().getAccession(), zygosity);
+        key = new BioModelKey(datasourceShortName, strain.getName(), gene.getId().getAccession(), allele.getId().getAccession(), zygosity);
 
         return key;
     }
@@ -184,7 +184,7 @@ public class BioModelManager {
 
         strain = strainsByNameOrMgiAccessionIdMap.get(strainName);
 
-        key = new BioModelKey(datasourceShortName, strain.getId().getAccession(), null, null, zygosity);
+        key = new BioModelKey(datasourceShortName, strain.getName(), null, null, zygosity);
 
         return key;
     }
