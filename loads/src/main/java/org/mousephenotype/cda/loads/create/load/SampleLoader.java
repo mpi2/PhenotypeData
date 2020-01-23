@@ -423,7 +423,9 @@ public class SampleLoader implements CommandLineRunner {
 
                 // For mutants, select the correct background strain.
                 if ( ! specimen.isIsBaseline()) {
-                    specimen.setStrainID(cdaSqlUtils.getMutantBackgroundStrain(specimen.getStrainID(), colony.getBackgroundStrain(), imitsBackgroundStrains, invalidXmlStrainValues));
+                    Strain backgroundStrain = strainsByNameOrMgiAccessionIdMap.get(specimen.getStrainID());
+                    String backgroundStrainName = (backgroundStrain != null && backgroundStrain.getName() != null ? backgroundStrain.getName() : specimen.getStrainID());
+                    specimen.setStrainID(cdaSqlUtils.getMutantBackgroundStrain(backgroundStrainName, colony.getBackgroundStrain(), imitsBackgroundStrains, invalidXmlStrainValues));
                 }
             }
 

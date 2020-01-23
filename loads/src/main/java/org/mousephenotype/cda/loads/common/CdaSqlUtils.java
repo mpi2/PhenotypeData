@@ -281,19 +281,20 @@ public class CdaSqlUtils {
         String query =
                 "SELECT\n" +
                 "  bm.id, bm.db_id, edbBm.short_name, bm.allelic_composition, bm.genetic_background, bm.zygosity,\n" +
-                "  bms.strain_acc,\n" +
+                "  bms.strain_acc,  s.name AS background_strain_name,\n" +
                 "  bmgf.gf_acc,\n" +
                 "  bma.allele_acc\n" +
                 "FROM biological_model bm\n" +
                 "           JOIN biological_model_strain          bms  ON bms. biological_model_id = bm.id\n" +
                 "LEFT OUTER JOIN biological_model_genomic_feature bmgf ON bmgf.biological_model_id = bm.id\n" +
                 "LEFT OUTER JOIN biological_model_allele          bma  ON bma. biological_model_id = bm.id\n" +
+                "           JOIN strain                           s    ON s.   acc                 = bms.strain_acc\n" +
                 "JOIN external_db edbBm ON edbBm.id = bm.db_id";
 
         List<Map<String, Object>> list = jdbcCda.queryForList(query, new HashMap<>());
         for (Map<String, Object> item : list) {
             String datasourceShortName;
-            String strainAccessionId;
+            String backgroundStrainName;
             String geneAccessionId;
             String alleleAccessionId;
             Object o;
@@ -314,13 +315,13 @@ public class CdaSqlUtils {
             zygosity = (o == null ? "" : o.toString());
             bm.setZygosity(zygosity);
 
-            strainAccessionId = item.get("strain_acc").toString();
+            backgroundStrainName = item.get("background_strain_name").toString();
             o = item.get("gf_acc");
             geneAccessionId = (o == null ? "" : o.toString());
             o = item.get("allele_acc");
             alleleAccessionId = (o == null ? "" : o.toString());
 
-            BioModelKey key = new BioModelKey(datasourceShortName, strainAccessionId, geneAccessionId, alleleAccessionId, zygosity);
+            BioModelKey key = new BioModelKey(datasourceShortName, backgroundStrainName, geneAccessionId, alleleAccessionId, zygosity);
             map.put(key, bm.getId());
         }
 

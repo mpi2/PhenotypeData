@@ -24,7 +24,7 @@ import java.util.Objects;
  * This class encapsulates the components of a biological model lookup key, which are:
  * <ul>
  *     <li>datasourceShortName</li>
- *     <li>strainAccessionId</li>
+ *     <li>backgroundStrainName</li>
  *     <li>geneAccessionId (will be null/empty for controls)</li>
  *     <li>alleleAccessionId (will be null/empty for controls)</li>
  *     <li>zygosity</li>
@@ -34,7 +34,7 @@ import java.util.Objects;
 public class BioModelKey {
 
     private String datasourceShortName;
-    private String strainAccessionId;
+    private String backgroundStrainName;
     private String zygosity;
     private String geneAccessionId;
     private String alleleAccessionId;
@@ -49,14 +49,14 @@ public class BioModelKey {
      * methods instead, which have a much simpler interface and perform the required strain remappings.
      *
      * @param datasourceShortName
-     * @param strainAccessionId
+     * @param backgroundStrainName
      * @param geneAccessionId
      * @param alleleAccessionId
      * @param zygosity
      */
-    public BioModelKey(String datasourceShortName, String strainAccessionId, String geneAccessionId, String alleleAccessionId, String zygosity) {
+    public BioModelKey(String datasourceShortName, String backgroundStrainName, String geneAccessionId, String alleleAccessionId, String zygosity) {
         this.datasourceShortName = datasourceShortName;
-        this.strainAccessionId = strainAccessionId;
+        this.backgroundStrainName = backgroundStrainName;
         this.geneAccessionId = (geneAccessionId == null ? "" : geneAccessionId);
         this.alleleAccessionId = (alleleAccessionId == null ? "" : alleleAccessionId);
         this.zygosity = zygosity;
@@ -70,7 +70,7 @@ public class BioModelKey {
         if (o == null || getClass() != o.getClass()) return false;
         BioModelKey that = (BioModelKey) o;
         return Objects.equals(datasourceShortName, that.datasourceShortName) &&
-                Objects.equals(strainAccessionId, that.strainAccessionId) &&
+                Objects.equals(backgroundStrainName, that.backgroundStrainName) &&
                 Objects.equals(zygosity, that.zygosity) &&
                 Objects.equals(geneAccessionId, that.geneAccessionId) &&
                 Objects.equals(alleleAccessionId, that.alleleAccessionId);
@@ -78,11 +78,11 @@ public class BioModelKey {
 
     @Override
     public int hashCode() {
-        return Objects.hash(datasourceShortName, strainAccessionId, zygosity, geneAccessionId, alleleAccessionId);
+        return Objects.hash(datasourceShortName, backgroundStrainName, zygosity, geneAccessionId, alleleAccessionId);
     }
 
     @Override
     public String toString() {
-        return datasourceShortName + "_" + strainAccessionId + "_" + geneAccessionId + "_" + alleleAccessionId + "_" + zygosity;
+        return datasourceShortName + "_" + backgroundStrainName + "_" + geneAccessionId + "_" + alleleAccessionId + "_" + zygosity;
     }
 }

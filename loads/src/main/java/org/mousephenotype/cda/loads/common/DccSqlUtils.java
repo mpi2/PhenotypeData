@@ -1091,12 +1091,7 @@ public class DccSqlUtils {
                 ", m.DOB\n" +
                 "FROM specimen s\n" +
                 "LEFT OUTER JOIN mouse m ON m.specimen_pk = s.pk\n" +
-                "LEFT OUTER JOIN embryo e on e.specimen_pk = s.pk"
-
-
-                + "\nwhere s.specimenId = '1601-0023F0011' limit 1"
-
-                ;
+                "LEFT OUTER JOIN embryo e on e.specimen_pk = s.pk";
 
         Map<String, Object> parameterMap = new HashMap<>();
 
@@ -2459,9 +2454,6 @@ public class DccSqlUtils {
                         "LEFT OUTER JOIN specimen              s   ON s  .pk            = es .specimen_pk\n" +
                         "LEFT OUTER JOIN experiment_statuscode esc ON esc.experiment_pk = e  .pk\n" +
                         "LEFT OUTER JOIN statuscode            sc  ON sc .pk            = esc.statuscode_pk\n" +
-
-"where s.specimenId = '1601-0023F0011' and e.experimentId = 'Dbn1-20160408-1601-0023F0011'\n" +
-
                         "UNION ALL\n" +
                         "SELECT\n" +
                         "  l.datasourceShortName,\n" +
@@ -2487,7 +2479,7 @@ public class DccSqlUtils {
                         "JOIN center                      c   ON c  .pk            = cp .center_pk\n" +
                         "JOIN procedure_                  p   ON p  .pk            = cp .procedure_pk\n" +
                         "LEFT OUTER JOIN line_statuscode  lsc ON lsc.line_pk       = l  .pk\n" +
-                        "LEFT OUTER JOIN statuscode       sc  ON sc .pk            = lsc.statuscode_pk limit 1";
+                        "LEFT OUTER JOIN statuscode       sc  ON sc .pk            = lsc.statuscode_pk";
 
         List<DccExperimentDTO> experiments = npJdbcTemplate.query(query, new HashMap<>(), new DccExperimentRowMapper());
 

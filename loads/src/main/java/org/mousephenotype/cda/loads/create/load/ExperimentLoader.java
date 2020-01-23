@@ -231,21 +231,21 @@ public class ExperimentLoader implements CommandLineRunner {
         logger.info("loaded {} sample rows", samplesMap.size());
 
 
-//        // Load DCC parameter maps.
-//        mediaParameterMap = dccSqlUtils.getMediaParameters();
-//        logger.info("loaded {} mediaParameter rows", mediaParameterMap.size());
-//
-//        ontologyParameterMap = dccSqlUtils.getOntologyParameters();
-//        logger.info("loaded {} ontologyParameter rows", ontologyParameterMap.size());
-//
-//        seriesParameterMap = dccSqlUtils.getSeriesParameters();
-//        logger.info("loaded {} seriesParameter rows", seriesParameterMap.size());
-//
-//        seriesMediaParameterMap = dccSqlUtils.getSeriesMediaParameters();
-//        logger.info("loaded {} seriesMediaParameter rows", seriesMediaParameterMap.size());
-//
-//        mediaSampleParameterMap = dccSqlUtils.getMediaSampleParameters();
-//        logger.info("loaded {} mediaSampleParameter rows", mediaSampleParameterMap.size());
+        // Load DCC parameter maps.
+        mediaParameterMap = dccSqlUtils.getMediaParameters();
+        logger.info("loaded {} mediaParameter rows", mediaParameterMap.size());
+
+        ontologyParameterMap = dccSqlUtils.getOntologyParameters();
+        logger.info("loaded {} ontologyParameter rows", ontologyParameterMap.size());
+
+        seriesParameterMap = dccSqlUtils.getSeriesParameters();
+        logger.info("loaded {} seriesParameter rows", seriesParameterMap.size());
+
+        seriesMediaParameterMap = dccSqlUtils.getSeriesMediaParameters();
+        logger.info("loaded {} seriesMediaParameter rows", seriesMediaParameterMap.size());
+
+        mediaSampleParameterMap = dccSqlUtils.getMediaSampleParameters();
+        logger.info("loaded {} mediaSampleParameter rows", mediaSampleParameterMap.size());
 
         logger.info("Loading lookup maps finished");
 
