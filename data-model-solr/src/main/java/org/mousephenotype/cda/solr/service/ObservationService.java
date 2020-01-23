@@ -326,9 +326,6 @@ public class ObservationService extends BasicService implements WebStatus {
         Map<String, List<ExperimentsDataTableRow>> parameterStableIdToRows = new HashMap<>();
         SolrQuery query = new SolrQuery();
         query.setQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + acc + "\"");
-        //query.setFilterQueries(ObservationDTO.GENE_ACCESSION_ID + ":\"" + acc + "\"");
-//        query.addField(ObservationDTO.GENE_SYMBOL);
-//        query.addField(ObservationDTO.PARAMETER_STABLE_ID);
 
         query.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
         query.setRows(100000);
