@@ -256,7 +256,10 @@ public class CdaSqlUtils {
     public synchronized Map<BioSampleKey, BiologicalSample> getBiologicalSamplesMapBySampleKey() {
 
         Map<BioSampleKey, BiologicalSample> bioSamplesMap = new HashMap<>();
-        String query = "SELECT p.name as project_name, edb.short_name, bs.* FROM biological_sample bs JOIN external_db edb ON edb.id = bs.db_id INNER JOIN project p ON bs.project_id = p.id";
+        String query = "SELECT p.name as project_name, edb.short_name, bs.*\n" +
+                       "FROM biological_sample bs\n" +
+                       "JOIN external_db edb ON edb.id = bs.db_id\n" +
+                       "JOIN project p ON bs.project_id = p.id";
 
         List<BiologicalSample> samples = jdbcCda.query(query, new BiologicalSampleRowMapper());
         for (BiologicalSample sample : samples) {
@@ -1459,29 +1462,29 @@ public class CdaSqlUtils {
         Map<String, PhenotypedColony> map = new HashMap<>();
         String query =
                 "SELECT\n" +
-                "  pc.id,\n" +
-                "  pc.colony_name,\n" +
-                "  pc.es_cell_name,\n" +
-                "  pc.gf_acc,\n" +
-                "  pc.gf_db_id,\n" +
-                "  pc.allele_symbol,\n" +
-                "  pc.background_strain_name,\n" +
-                "  pc.background_strain_acc,\n" +
-                "  pc.phenotyping_centre_organisation_id,\n" +
-                "  pcphorg.name                              AS pc_phenotyping_centre_name,\n" +
-                "  pc.phenotyping_consortium_project_id,\n" +
-                "  pcphprj.name                              AS pc_phenotyping_project_name,\n" +
-                "  pc.production_centre_organisation_id,\n" +
-                "  pcprorg.name                              AS pc_production_centre_name,\n" +
-                "  pc.production_consortium_project_id,\n" +
-                "  pcprprj.name                              AS pc_production_project_name,\n" +
-                "  gf.*\n" +
-                "FROM phenotyped_colony  pc\n" +
-                "            JOIN genomic_feature    gf          ON gf       .db_id  = gf_db_id AND gf.acc = pc.gf_acc\n" +
-                "            JOIN organisation       pcphorg     ON pcphorg  .id     = pc.phenotyping_centre_organisation_id\n" +
-                "            JOIN project            pcphprj     ON pcphprj  .id     = pc.phenotyping_consortium_project_id\n" +
-                "LEFT OUTER  JOIN organisation       pcprorg     ON pcprorg  .id     = pc.phenotyping_centre_organisation_id\n" +
-                "LEFT OUTER  JOIN project            pcprprj     ON pcprprj  .id     = pc.phenotyping_consortium_project_id";
+                        "  pc.id,\n" +
+                        "  pc.colony_name,\n" +
+                        "  pc.es_cell_name,\n" +
+                        "  pc.gf_acc,\n" +
+                        "  pc.gf_db_id,\n" +
+                        "  pc.allele_symbol,\n" +
+                        "  pc.background_strain_name,\n" +
+                        "  pc.background_strain_acc,\n" +
+                        "  pc.phenotyping_centre_organisation_id,\n" +
+                        "  pcphorg.name                              AS pc_phenotyping_centre_name,\n" +
+                        "  pc.phenotyping_consortium_project_id,\n" +
+                        "  pcphprj.name                              AS pc_phenotyping_project_name,\n" +
+                        "  pc.production_centre_organisation_id,\n" +
+                        "  pcprorg.name                              AS pc_production_centre_name,\n" +
+                        "  pc.production_consortium_project_id,\n" +
+                        "  pcprprj.name                              AS pc_production_project_name,\n" +
+                        "  gf.*\n" +
+                        "FROM phenotyped_colony  pc\n" +
+                        "            JOIN genomic_feature    gf          ON gf       .acc = pc.gf_acc\n" +
+                        "            JOIN organisation       pcphorg     ON pcphorg  .id  = pc.phenotyping_centre_organisation_id\n" +
+                        "            JOIN project            pcphprj     ON pcphprj  .id  = pc.phenotyping_consortium_project_id\n" +
+                        "LEFT OUTER  JOIN organisation       pcprorg     ON pcprorg  .id  = pc.production_centre_organisation_id\n" +
+                        "LEFT OUTER  JOIN project            pcprprj     ON pcprprj  .id  = pc.production_consortium_project_id";
 
         List<PhenotypedColony> phenotypedColonies = jdbcCda.query(query, new HashMap<>(), new PhenotypedColonyRowMapper());
         for (PhenotypedColony phenotypedColony : phenotypedColonies) {
