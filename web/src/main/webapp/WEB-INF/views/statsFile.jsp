@@ -69,7 +69,7 @@
 
         <c:forEach var="graphUrl" items="${allGraphUrlSet}" varStatus="graphUrlLoop">
 
-            <div class="chart" id="chart${graphUrlLoop.count}" graphUrl="${baseUrl}/fileChart?${graphUrl}" id="divChart_${graphUrlLoop.count}">
+            <div class="chart pb-5" id="chart${graphUrlLoop.count}" graphUrl="${baseUrl}/fileChart?${graphUrl}" id="divChart_${graphUrlLoop.count}">
                 <div id="spinner${graphUrlLoop.count}" class="container">
                     <div class="pre-content">
                         <div class="row no-gutters">
@@ -86,18 +86,24 @@
 
         <c:if test="${param.parameter_stable_id != 'IMPC_VIA_001_001' && param.parameter_stable_id != 'IMPC_EVL_001_001' && param.parameter_stable_id != 'IMPC_EVM_001_001' && param.parameter_stable_id != 'IMPC_EVO_001_001' && param.parameter_stable_id != 'IMPC_EVP_001_001'}"><!-- only show downloads if not viability or embryo viability pie charts as we don't have download for line level params yet -->
             <div class="container" id="expression">
-                <div class="row">
-                    <div class="col-12 no-gutters">
+                <div class="row pb-2">
+                    <div class="col-12 col-md-12">
                         <h3><i class="fa fa-download"></i>&nbsp;Download all the data</h3>
                     </div>
                 </div>
             </div>
-            <div class="container single single--no-side">
-                <div class="row">
-                    <div class="col-12 white-bg">
-                        <div class="page-content pt-5 pb-5">
-                            <div id="exportIconsDivGlobal"></div>
-                            <p class="alert alert-warning">NOTE: Data from all charts will be aggregated into one download file.</p>
+            <div class="container white-bg-small">
+                <div class="row pb-5">
+                    <div class="col-12 col-md-12">
+                        <div class="pre-content clear-bg">
+                            <div class="page-content pt-3 pb-5">
+                                <div class="container p-0 p-md-2">
+                                    <div class="row justify-content-center pb-3">
+                                        <div id="exportIconsDivGlobal"></div>
+                                        <p class="alert alert-warning">NOTE: Data from all charts will be aggregated into one download file.</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
