@@ -1773,7 +1773,8 @@ INSERT INTO missing_colony_id (colony_id, log_level, reason) VALUES
 	('Trm1',             -1, 'We were never able to obtain the minimum set of data required to add this colony id'),
 	('MAG',              -1, 'We were never able to obtain the minimum set of data required to add this colony id'),
 	('EUCJ0019_C12',     -1, 'We were never able to obtain the minimum set of data required to add this colony id'),
-	('EPD0130_2_C06',    -1, 'Even though this colonyId is in Hugh''s list, Jeremy''s research has shown there is newer data submitted under colonyId MEYN supporting the data in EPD00130_2_C06, which was an aborted experiment');
+	('EPD0130_2_C06',    -1, 'Even though this colonyId is in Hugh''s list, Jeremy''s research has shown there is newer data submitted under colonyId MEYN supporting the data in EPD00130_2_C06, which was an aborted experiment'),
+    ('EPD0025_2_A04',    -1, 'Even though this colonyId has data, the microinjection was aborted and any data is invalid');
 
 
 /**
