@@ -182,7 +182,7 @@ button[name="clearSearch"] > i::before{
 }
 
 table.small > thead > tr > th, table.small > tbody > tr > td, table.small > tbody > tr > th {
-    font-size: 80% !important;
+    font-size: 14px !important;
     font-weight: 400 !important;
 }
 
@@ -192,4 +192,11 @@ table.small > thead > tr > th, table.small > tbody > tr > td, table.small > tbod
     padding: .75rem !important;
     vertical-align: top !important;
     border-top: 1px solid #dee2e6 !important;
+}
+
+@media (max-width: 550px) {
+    table.small > thead > tr > th, table.small > tbody > tr > td, table.small > tbody > tr > th {
+        font-size: 16px !important;
+        font-weight: 400 !important;
+    }
 }
