@@ -2813,11 +2813,22 @@ public class CdaSqlUtils {
         return backgroundStrains;
     }
 
-    public String getMutantBackgroundStrain(String backgroundStrainFromXml,
-                                            String backgroundStrainFromImits,
+    public String getMutantBackgroundStrain(String backgroundStrainNameOrAccFromXml,
+                                            String backgroundStrainNameFromImits,
                                             Set<String> imitsBackgroundStrains,
-                                            Set<String> invalidXmlStrainValues)
+                                            Set<String> invalidXmlStrainValues,
+                                            Map<String, Strain> strainsByNameOrMgiAccessionIdMap)
     {
+        String backgroundStrainNameFromXml = null;
+
+        if ((backgroundStrainNameOrAccFromXml != null) && (backgroundStrainNameOrAccFromXml.toLowerCase().startsWith("mgi:"))) {
+            Strain backgroundStrain = strainsByNameOrMgiAccessionIdMap.get(backgroundStrainNameOrAccFromXml);
+            if (backgroundStrain != null) {
+                backgroundStrainNameFromXml = backgroundStrain.getName();
+            }
+        }
+
+
         // If the background strain of the mutant specimen has been provided in the XML file
         //    if it is a valid imits background strain
         //        use the background strain from the XML file
@@ -2828,16 +2839,16 @@ public class CdaSqlUtils {
         //   use background strain from imits
         String validatedMutantBackgroundStrain;
 
-        if (backgroundStrainFromXml != null) {
-            if (imitsBackgroundStrains.contains(backgroundStrainFromXml)) {
-                validatedMutantBackgroundStrain = backgroundStrainFromXml;
+        if (backgroundStrainNameFromXml != null) {
+            if (imitsBackgroundStrains.contains(backgroundStrainNameFromXml)) {
+                validatedMutantBackgroundStrain = backgroundStrainNameFromXml;
             } else {
-                String message = "'" + backgroundStrainFromXml + "'::'" + backgroundStrainFromImits + "'";
+                String message = "'" + backgroundStrainNameFromXml + "'::'" + backgroundStrainNameFromImits + "'";
                 invalidXmlStrainValues.add(message);
-                validatedMutantBackgroundStrain = backgroundStrainFromImits;
+                validatedMutantBackgroundStrain = backgroundStrainNameFromImits;
             }
         } else {
-            validatedMutantBackgroundStrain = backgroundStrainFromImits;
+            validatedMutantBackgroundStrain = backgroundStrainNameFromImits;
         }
 
         return validatedMutantBackgroundStrain;
