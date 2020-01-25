@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<centreProcedureSet xmlns="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/procedure"
+                    xmlns:ns2="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/specimen"
+                    xmlns:ns3="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/tracker/submission"
+                    xmlns:ns4="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/tracker/validation">
+    <centre centreID="Wtsi" pipeline="DSS_001" project="ToBeLoadedFromIMITS">
+        <experiment experimentID="3i_617908" dateOfExperiment="2015-06-08">
+            <specimenID>1976280</specimenID>
+            <procedure procedureID="DSS_DSS_001">
+                <simpleParameter parameterID="DSS_DSS_001_001">
+                    <value>0.0</value>
+                </simpleParameter>
+            </procedure>
+        </experiment>
+    </centre>
+</centreProcedureSet>
