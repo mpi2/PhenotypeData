@@ -95,7 +95,7 @@
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
      replaced with below as unable to get his due to CORS or licence?-->
 
-    <link rel="stylesheet" id="styles-css" href="https://www.mousephenotype.org/wp-content/cache/autoptimize/autoptimize_single_96ea3a776336ed801aa228a97d2414ef.php" type="text/css" media="all">
+    <link rel="stylesheet" href="${cmsBaseUrl}/wp-content/themes/impc/css/styles.css">
 
     <link rel="stylesheet" type="text/css" href="https://ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css">
 
