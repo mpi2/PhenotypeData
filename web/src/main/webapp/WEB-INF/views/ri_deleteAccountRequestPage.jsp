@@ -9,49 +9,60 @@
     <jsp:attribute name="title">Delete account</jsp:attribute>
 
     <jsp:attribute name="bodyTag">
-        <body class="no-sidebars small-header
+        <body class="no-sidebars small-header">
     </jsp:attribute>
 
     <jsp:attribute name="addToFooter"></jsp:attribute>
 
     <jsp:body>
-
-        <div class="container single single--no-side">
-
-        <div class="breadcrumbs" style="box-shadow: none; margin-top: auto; margin: auto; padding: auto">
-
+        <div class="container data-heading">
             <div class="row">
-                <div class="col-md-12">
-                    <p><a href="${baseUrl}">Home</a>
-                        <span class="fal fa-angle-right"></span><a href="${baseUrl}/summary">My Genes</a>
-                        <span class="fal fa-angle-right"></span>Delete account
-                    </p>
+                <div class="col-12 no-gutters">
+                    <h2 class="mb-0">Delete account</h2>
                 </div>
             </div>
         </div>
 
-        <div class="row row-over-shadow">
-            <div class="col-md-12 white-bg">
-                <div class="page-content">
-                    <h2 class="title" id="top">Delete account</h2>
+        <div class="container white-bg-small">
 
-                    <div class="login-form">
+        <div class="breadcrumbs clear row">
+            <div class="col-md-12">
+                <aside><a href="${baseUrl}">Home</a>
+                    <span class="fal fa-angle-right"></span><a href="${baseUrl}/summary">My Genes</a>
+                    <span class="fal fa-angle-right"></span>Delete account
+                </aside>
+            </div>
+        </div>
 
-                        <form action="${baseUrl}/accountDeleteConfirmation" method="POST" class="form-horizontal">
-                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+        <div class="row">
+            <div class="col-12 col-md-12">
+                <div class="pre-content clear-bg">
+                    <div class="page-content people py-5 white-bg">
+                        <div class="row no-gutters">
+                            <div lass="col-12 px-0">
+                                <h2 class="title" id="top">Delete account</h2>
 
-                            <h3>Delete account <i>${emailAddress}</i></h3>
-                            <strong><i>WARNING:</i> this action cannot be undone. This action will remove your "My Genes"
-                                account and all of your followed genes. Your e-mail address and followed genes will be
-                                permanently lost.</strong>
+                                <div class="login-form">
 
-                            <div class="form-actions mt-4 mb-4">
-                                <input type="submit" class="btn btn-outline-danger" value="Permanently delete my account" />
+                                    <form action="${baseUrl}/accountDeleteConfirmation" method="POST" class="form-horizontal">
+                                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+
+                                        <h3>Delete account <i>${emailAddress}</i></h3>
+                                        <strong><i>WARNING:</i> this action cannot be undone. This action will remove your "My Genes"
+                                            account and all of your followed genes. Your e-mail address and followed genes will be
+                                            permanently lost.</strong>
+
+                                        <div class="form-actions mt-4 mb-4">
+                                            <input type="submit" class="btn btn-outline-danger" value="Permanently delete my account" />
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
         </div>
 
     </jsp:body>
