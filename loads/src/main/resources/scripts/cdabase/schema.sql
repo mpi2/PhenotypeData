@@ -772,7 +772,7 @@ DROP TABLE IF EXISTS time_series_observation;
 CREATE TABLE time_series_observation (
 	id                        INT(10) UNSIGNED NOT NULL,
 	data_point                FLOAT NOT NULL,
-	time_point                TIMESTAMP,
+	time_point                DATETIME,
 	discrete_point            FLOAT,
 
 	PRIMARY KEY(id),

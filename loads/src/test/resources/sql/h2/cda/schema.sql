@@ -703,12 +703,16 @@ CREATE TABLE multidimensional_observation (
  * time_series_observation
  * A time series is a sequence of observations which are ordered in time
  * (or space).
+ * 25-Jan-2020 (mrelac) Changed time_point from TIMESTAMP to DATETIME to avoid Spring BST date insert errors:
+ *   From the mysql 5.6 docs at https://dev.mysql.com/doc/refman/5.6/en/datetime.html:
+ *   MySQL converts TIMESTAMP values from the current time zone to UTC for storage, and back from UTC to the current time
+ *   zone for retrieval. (This does not occur for other types such as DATETIME.)
  */
 DROP TABLE IF EXISTS time_series_observation;
 CREATE TABLE time_series_observation (
 	id                        INT(10) NOT NULL,
 	data_point                FLOAT NOT NULL,
-	time_point                TIMESTAMP,
+	time_point                DATETIME,
 	discrete_point            FLOAT,
 
 	PRIMARY KEY(id)

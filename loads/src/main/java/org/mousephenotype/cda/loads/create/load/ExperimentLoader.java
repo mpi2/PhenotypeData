@@ -571,7 +571,7 @@ public class ExperimentLoader implements CommandLineRunner {
 
             // For mutants, select the correct background strain.
             if ( ! dccExperiment.isControl()) {
-                dccExperiment.setSpecimenStrainId(cdaSqlUtils.getMutantBackgroundStrain(dccExperiment.getSpecimenStrainId(), colony.getBackgroundStrain(), imitsBackgroundStrains, invalidXmlStrainValues));
+                dccExperiment.setSpecimenStrainId(cdaSqlUtils.getMutantBackgroundStrain(dccExperiment.getSpecimenStrainId(), colony.getBackgroundStrain(), imitsBackgroundStrains, invalidXmlStrainValues, strainsByNameOrMgiAccessionIdMap));
             }
 
             // Run the strain name through the StrainMapper to remap incorrect legacy strain names.

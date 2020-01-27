@@ -237,12 +237,12 @@ public class SampleLoader implements CommandLineRunner {
 
 
         if ( ! invalidXmlStrainValues.isEmpty()) {
-            logger.info("Showing {} of {} invalid XML background strain values (remapped to IMITS background strain): XML::IMITS", 10, invalidXmlStrainValues.size());
+            logger.info("Showing {} of {} invalid XML background strain values (remapped to IMITS background strain): XML::IMITS", Math.min(10, invalidXmlStrainValues.size()), invalidXmlStrainValues.size());
             invalidXmlStrainValues.stream().sorted().limit(10).forEach(System.out::println);
         }
 
         if ( ! backgroundStrainMismatches.isEmpty()) {
-            logger.info("Showing {} of {} background strain mismatches: colony_name::DCC_specimen_strain::imits_background_strain:", 10, backgroundStrainMismatches.size());
+            logger.info("Showing {} of {} background strain mismatches: colony_name::DCC_specimen_strain::imits_background_strain::pipeline", Math.min(10, backgroundStrainMismatches.size()), backgroundStrainMismatches.size());
             backgroundStrainMismatches.stream().sorted().limit(10).forEach(System.out::println);
         }
 
@@ -417,13 +417,13 @@ public class SampleLoader implements CommandLineRunner {
                     if ( specimenStrain==null ||
                             colonyStrain==null ||
                             (! specimenStrain.getName().equalsIgnoreCase(colonyStrain.getName()))) {
-                        backgroundStrainMismatches.add(colony.getColonyName()+"::" + specimen.getStrainID() + "::" + colony.getBackgroundStrain());
+                        backgroundStrainMismatches.add(colony.getColonyName()+"::" + specimen.getStrainID() + "::" + colony.getBackgroundStrain() + "::" + specimen.getPipeline());
                     }
                 }
 
                 // For mutants, select the correct background strain.
                 if ( ! specimen.isIsBaseline()) {
-                    specimen.setStrainID(cdaSqlUtils.getMutantBackgroundStrain(specimen.getStrainID(), colony.getBackgroundStrain(), imitsBackgroundStrains, invalidXmlStrainValues));
+                    specimen.setStrainID(cdaSqlUtils.getMutantBackgroundStrain(specimen.getStrainID(), colony.getBackgroundStrain(), imitsBackgroundStrains, invalidXmlStrainValues, strainsByNameOrMgiAccessionIdMap));
                 }
             }
 
