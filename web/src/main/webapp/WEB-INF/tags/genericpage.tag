@@ -163,12 +163,12 @@
                  sizes="100%"/>
 
             <div class="container">
-                <div class="row text-center">
-                    <div class="col-12 col-md-8 offset-md-2">
+                <div class="row text-center justify-content-md-center">
+                    <div class="col-12 col-md-8">
                         <div class="portal-search pb-5 mb-5 mt-5">
                             <div class="portal-search__tabs">
-                                <a id="geneSearchTab" data-type="gene" class="portalTab portalTabSearchPage left-shadow <c:if test="${param.type != 'phenotype'}">active</c:if>" href="${baseUrl}/search">Genes</a>
-                                <a id="phenotypeSearchTab" data-type="pheno" class=" portalTab portalTabSearchPage right-shadow <c:if test="${param.type == 'phenotype'}">active</c:if>" href="${baseUrl}/search?type=phenotype">Phenotypes</a>
+                                <a id="geneSearchTab" data-type="gene" class="portalTab left-shadow <c:if test="${param.type != 'phenotype'}">active</c:if>" href="${baseUrl}/search">Genes</a>
+                                <a id="phenotypeSearchTab" data-type="pheno" class=" portalTab right-shadow <c:if test="${param.type == 'phenotype'}">active</c:if>" href="${baseUrl}/search?type=phenotype">Phenotypes</a>
                             </div>
                             <div class="portal-search__inputs">
                                 <form id="searchForm" action="${baseUrl}/search">

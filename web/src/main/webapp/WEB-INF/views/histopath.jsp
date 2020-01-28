@@ -9,12 +9,17 @@
 
 
     <jsp:body>
-        <div class="container single single--no-side">
+        <div class="container data-heading">
+            <div class="row">
+                <div class="col-12 no-gutters">
+                    <h2 class="mb-0">Histopathology data for ${gene.markerSymbol}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="container white-bg-small">
 
-            <div class="breadcrumbs" style="box-shadow: none; margin-top: auto; margin: auto; padding: auto">
-
-                <div class="row">
-                    <div class="col-md-12">
+            <div class="breadcrumbs clear row">
+                    <div class="col-12 d-none d-lg-block px-5 pt-5">
                         <p><a href="/">Home</a>
                             <span class="fal fa-angle-right"></span><a href="${baseUrl}/search">Genes</a>
                             <span class="fal fa-angle-right"></span><a
@@ -22,208 +27,204 @@
                             <span class="fal fa-angle-right"></span> Histopathology
                         </p>
                     </div>
-                </div>
             </div>
 
-            <div class="row row-over-shadow">
-                <div class="col-md-12 white-bg">
-                    <div class="page-content">
+            <div class="row">
+                <div class="col-12 col-md-12">
+                    <div class="pre-content clear-bg">
+<div class="page-content people py-5 white-bg">
+    <div class="row no-gutters">
+        <div class="card">
+            <div class="card-header">Score Definitions</div>
+            <div class="card-body">
+                <p class="my-0"><b>Severity Score:</b></p>
+                <ul class="my-0">
+                    <li>0 = Normal,</li>
+                    <li>1 = Mild (observation barely perceptible and not believed to have clinical
+                        significance),
+                    </li>
+                    <li>2 = Moderate (observation visible but involves minor proportion of tissue and
+                        clinical consequences of observation are most likely subclinical),
+                    </li>
+                    <li>3 = Marked (observation clearly visible involves a significant proportion of
+                        tissue and is likely to have some clinical manifestations generally expected to
+                        be minor),
+                    </li>
+                    <li>4 = Severe (observation clearly visible involves a major proportion of tissue
+                        and clinical manifestations are likely associated with significant tissue
+                        dysfunction or damage)
+                    </li>
+                </ul>
 
-                        <h2>Histopathology for ${gene.markerSymbol}</h2>
-                        <p>Gene name: ${gene.markerName}</p>
+                <p class="my-0"><b>Significance Score:</b></p>
+                <ul class="my-0">
+                    <li>0 = Not significant (histopathology finding that is interpreted by the
+                        histopathologist to be within normal limits of background strain-related
+                        findings or an incidental finding not related to genotype)
+                    </li>
+                    <li>1 = Significant (histopathology finding that is interpreted by the
+                        histopathologist to not be a background strain-related finding or an incidental
+                        finding)
+                    </li>
+                </ul>
+            </div>
+        </div>
 
-                        <div class="card">
-                            <div class="card-header">Score Definitions</div>
-                            <div class="card-body">
-                                <p class="my-0"><b>Severity Score:</b></p>
-                                <ul class="my-0">
-                                    <li>0 = Normal,</li>
-                                    <li>1 = Mild (observation barely perceptible and not believed to have clinical
-                                        significance),
-                                    </li>
-                                    <li>2 = Moderate (observation visible but involves minor proportion of tissue and
-                                        clinical consequences of observation are most likely subclinical),
-                                    </li>
-                                    <li>3 = Marked (observation clearly visible involves a significant proportion of
-                                        tissue and is likely to have some clinical manifestations generally expected to
-                                        be minor),
-                                    </li>
-                                    <li>4 = Severe (observation clearly visible involves a major proportion of tissue
-                                        and clinical manifestations are likely associated with significant tissue
-                                        dysfunction or damage)
-                                    </li>
-                                </ul>
+        <br/>
+        <br/>
 
-                                <p class="my-0"><b>Significance Score:</b></p>
-                                <ul class="my-0">
-                                    <li>0 = Not significant (histopathology finding that is interpreted by the
-                                        histopathologist to be within normal limits of background strain-related
-                                        findings or an incidental finding not related to genotype)
-                                    </li>
-                                    <li>1 = Significant (histopathology finding that is interpreted by the
-                                        histopathologist to not be a background strain-related finding or an incidental
-                                        finding)
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
+        <table id="histopath" class="table table-sm table-striped dataTable">
 
-                        <br/>
-                        <br/>
+            <thead>
+            <tr>
+                <th>Zyg</th>
+                <th>Sex</th>
+                <th>Mouse</th>
+                <th>Tissue</th>
+                <th>MPATH Process Term</th>
 
-                        <table id="histopath" class="table table-sm table-striped dataTable">
+                <th>Severity Score</th>
+                <th>Significance Score</th>
+                <th>MPATH Diagnostic</th>
+                <th>PATO Descriptor</th>
+                <th>Free Text</th>
+                <th>Images</th>
+            </tr>
+            </thead>
+            <tbody>
+            <c:forEach var="histRow" items="${histopathRows}">
 
-                            <thead>
-                            <tr>
-                                <th>Zyg</th>
-                                <th>Sex</th>
-                                <th>Mouse</th>
-                                <th>Tissue</th>
-                                <th>MPATH Process Term</th>
+                <tr>
 
-                                <th>Severity Score</th>
-                                <th>Significance Score</th>
-                                <th>MPATH Diagnostic</th>
-                                <th>PATO Descriptor</th>
-                                <th>Free Text</th>
-                                <th>Images</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <c:forEach var="histRow" items="${histopathRows}">
+                    <td>${histRow.zygosity}</td>
+                    <td>
+                        <c:if test="${histRow.sex eq 'female'}">F</c:if>
+                        <c:if test="${histRow.sex eq 'male'}">M</c:if>
+                    </td>
+                    <td>${histRow.sampleId}</td>
+                    <td id="${histRow.anatomyName}">${histRow.anatomyName}
+                        <c:if test="${histRow.anatomyId !=null && histRow.anatomyId !=''}">
+                            [${histRow.anatomyId}]
+                        </c:if>
+                    </td>
 
-                                <tr>
+                    <td>
+                        <c:choose>
+                            <c:when test="${fn:length(histRow.mpathProcessOntologyBeans) == 0}">
 
-                                    <td>${histRow.zygosity}</td>
-                                    <td>
-                                        <c:if test="${histRow.sex eq 'female'}">F</c:if>
-                                        <c:if test="${histRow.sex eq 'male'}">M</c:if>
-                                    </td>
-                                    <td>${histRow.sampleId}</td>
-                                    <td id="${histRow.anatomyName}">${histRow.anatomyName}
-                                        <c:if test="${histRow.anatomyId !=null && histRow.anatomyId !=''}">
-                                            [${histRow.anatomyId}]
-                                        </c:if>
-                                    </td>
+                            </c:when>
+                            <c:otherwise>
+                                <c:forEach var="parameter"
+                                           items="${histRow.mpathProcessOntologyBeans }">
+                                    <c:forEach var="value" items="${parameter.value }">
+                                        ${value.name }
+                                        [${value.id }]
+                                    </c:forEach>
 
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${fn:length(histRow.mpathProcessOntologyBeans) == 0}">
+                                </c:forEach>
+                            </c:otherwise>
+                        </c:choose>
+                    </td>
 
-                                            </c:when>
-                                            <c:otherwise>
-                                                <c:forEach var="parameter"
-                                                           items="${histRow.mpathProcessOntologyBeans }">
-                                                    <c:forEach var="value" items="${parameter.value }">
-                                                        ${value.name }
-                                                        [${value.id }]
-                                                    </c:forEach>
-
-                                                </c:forEach>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </td>
-
-                                    <td>
-                                        <c:forEach var="parameter" items="${histRow.severity }">
-                                            ${parameter.textValue}
-                                        </c:forEach>
-                                    </td>
+                    <td>
+                        <c:forEach var="parameter" items="${histRow.severity }">
+                            ${parameter.textValue}
+                        </c:forEach>
+                    </td>
 
 
-                                    <td>
+                    <td>
 
-                                        <c:if test="${fn:length(histRow.significance) ==0 }">
-                                            Not Annotated
-                                        </c:if>
-                                        <c:forEach var="parameter" items="${histRow.significance }">
-                                            <c:choose>
-                                                <c:when test="${parameter.textValue eq 'Significant'}">
-                                                    1
-                                                </c:when>
-                                                <c:otherwise>
-                                                    0
-                                                </c:otherwise>
-                                            </c:choose>
+                        <c:if test="${fn:length(histRow.significance) ==0 }">
+                            Not Annotated
+                        </c:if>
+                        <c:forEach var="parameter" items="${histRow.significance }">
+                            <c:choose>
+                                <c:when test="${parameter.textValue eq 'Significant'}">
+                                    1
+                                </c:when>
+                                <c:otherwise>
+                                    0
+                                </c:otherwise>
+                            </c:choose>
 
-                                        </c:forEach>
-                                    </td>
+                        </c:forEach>
+                    </td>
 
-                                    <c:choose>
-                                        <c:when test="${fn:length(histRow.mpathDiagnosticOntologyBeans) == 0}">
-                                            <td>
+                    <c:choose>
+                        <c:when test="${fn:length(histRow.mpathDiagnosticOntologyBeans) == 0}">
+                            <td>
 
-                                            </td>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <td>
-                                                <c:forEach var="entry" items="${histRow.mpathDiagnosticOntologyBeans }">
-
-
-                                                    <c:forEach var="bean" items="${entry.value}">
-                                                        ${bean.name}
-                                                        ${bean.id}
-
-                                                    </c:forEach>
-                                                </c:forEach>
-                                            </td>
-                                        </c:otherwise>
-                                    </c:choose>
-
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${fn:length(histRow.patoOntologyBeans) == 0}">
-
-                                            </c:when>
-                                            <c:otherwise>
-
-                                                <c:forEach var="parameter" items="${histRow.patoOntologyBeans }">
-                                                    <c:forEach var="value" items="${parameter.value }">
-                                                        ${value.name }
-                                                    </c:forEach>
-                                                </c:forEach>
-                                            </c:otherwise>
-                                        </c:choose>
-
-                                    </td>
+                            </td>
+                        </c:when>
+                        <c:otherwise>
+                            <td>
+                                <c:forEach var="entry" items="${histRow.mpathDiagnosticOntologyBeans }">
 
 
-                                    <td>
-                                        <c:forEach var="parameter" items="${histRow.freeTextParameters }">
-                                            ${parameter.textValue }
-                                        </c:forEach>
-                                    </td>
+                                    <c:forEach var="bean" items="${entry.value}">
+                                        ${bean.name}
+                                        ${bean.id}
+
+                                    </c:forEach>
+                                </c:forEach>
+                            </td>
+                        </c:otherwise>
+                    </c:choose>
+
+                    <td>
+                        <c:choose>
+                            <c:when test="${fn:length(histRow.patoOntologyBeans) == 0}">
+
+                            </c:when>
+                            <c:otherwise>
+
+                                <c:forEach var="parameter" items="${histRow.patoOntologyBeans }">
+                                    <c:forEach var="value" items="${parameter.value }">
+                                        ${value.name }
+                                    </c:forEach>
+                                </c:forEach>
+                            </c:otherwise>
+                        </c:choose>
+
+                    </td>
 
 
-                                    <td>
-                                        <c:forEach var="image" items="${histRow.imageList }">
+                    <td>
+                        <c:forEach var="parameter" items="${histRow.freeTextParameters }">
+                            ${parameter.textValue }
+                        </c:forEach>
+                    </td>
 
-                                            <a href="${image.jpeg_url}"><img src="${image.thumbnail_url}"/></a>
 
-                                        </c:forEach>
-                                    </td>
+                    <td>
+                        <c:forEach var="image" items="${histRow.imageList }">
 
-                                </tr>
+                            <a href="${image.jpeg_url}"><img src="${image.thumbnail_url}"/></a>
 
-                            </c:forEach>
+                        </c:forEach>
+                    </td>
 
-                        </tbody>
-                        </table>
+                </tr>
 
-                        <div class="row my-5">
-                            <div class="col-12">
-                                <h2>Associated histopathology images</h2>
-                            </div>
-                            <c:forEach var="image" items="${histopathImagesForGene }">
-                                <t:impcimgdisplay2 img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}" />
-                            </c:forEach>
-                        </div>
+            </c:forEach>
+
+            </tbody>
+        </table>
+
+        <div class="row my-5">
+            <div class="col-12">
+                <h2>Associated histopathology images</h2>
+            </div>
+            <c:forEach var="image" items="${histopathImagesForGene }">
+                <t:impcimgdisplay2 img="${image}" impcMediaBaseUrl="${impcMediaBaseUrl}"/>
+            </c:forEach>
+        </div>
+    </div>
+</div>
                     </div>
                 </div>
             </div>
-
-
-
 
 
         </div>
@@ -245,10 +246,10 @@
                     }
                 };
 
-                var anatomy=getUrlParameter("anatomy");
-                if(anatomy!==undefined){
-                    anatomy=anatomy.replace('\"','').replace('\"','');//for some of the anatomy terms they have spaces
-                    console.log('anatomy Param='+anatomy);
+                var anatomy = getUrlParameter("anatomy");
+                if (anatomy !== undefined) {
+                    anatomy = anatomy.replace('\"', '').replace('\"', '');//for some of the anatomy terms they have spaces
+                    console.log('anatomy Param=' + anatomy);
                 }
 
                 $('#histopath').DataTable(
@@ -259,15 +260,15 @@
                         'createdRow': function (row, data, index) {
                             //$(row).find('td:eq(1)').css('background-color', 'grey');
                             $(row).css("cursor", "pointer");
-                        if(anatomy){
-                            //for (var i = 1; i < data.length; i++) {
+                            if (anatomy) {
+                                //for (var i = 1; i < data.length; i++) {
                                 if (data[3].includes(anatomy)) {
                                     $(row).css('background-color', 'rgb(206, 98, 17, 0.8)');
                                 }
-                           // }
+                                // }
+                            }
                         }
-                    }
-                    //    "paging": true, lengthChange: false, "searching": false, "order": [[6, "desc"]]
+                        //    "paging": true, lengthChange: false, "searching": false, "order": [[6, "desc"]]
                     });
             });
         </script>

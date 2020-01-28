@@ -246,15 +246,6 @@
 
                 <div class="row mt-5">
                     <div class="col-md-6">
-                        <h4> Access the results programmatically </h4>
-                        <hr />
-                        <p>
-                            <a target="_blank" class="btn btn-outline-primary btn-sm" href='${srUrl}'> Statistical result raw XML </a>
-                            <a target="_blank" class="btn btn-outline-primary btn-sm" href='${gpUrl}'> Genotype phenotype raw XML </a>
-                            <a target="_blank" class="btn btn-outline-primary btn-sm" href='${baseUrl}${phenStatDataUrl}'> PhenStat-ready raw experiment data</a>
-                        </p>
-                    </div>
-                    <div class="col-md-6">
                         <c:if test="${fn:length(unidimensionalChartDataSet.statsObjects)>1}">
 
                             <c:set var="data" value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
@@ -415,6 +406,15 @@
                                 </table>
                             </c:if>
                         </c:if>
+                    </div>
+                    <div class="col-md-6">
+                        <h4> Access the results programmatically </h4>
+                        <hr />
+                        <p>
+                            <a target="_blank" class="btn btn-outline-primary btn-sm" href='${srUrl}'> Statistical result raw XML </a>
+                            <a target="_blank" class="btn btn-outline-primary btn-sm" href='${gpUrl}'> Genotype phenotype raw XML </a>
+                            <a target="_blank" class="btn btn-outline-primary btn-sm" href='${baseUrl}${phenStatDataUrl}'> PhenStat-ready raw experiment data</a>
+                        </p>
                     </div>
                 </div>
             </div>
