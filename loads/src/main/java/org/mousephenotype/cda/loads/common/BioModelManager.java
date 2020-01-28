@@ -75,9 +75,6 @@ public class BioModelManager {
         return bioModelPkMap.get(bioModelKey);
     }
 
-
-
-
     public synchronized Long insertMutantIfMissing(SpecimenExtended specimenExtended, String zygosity,
                                                   Long dbId, Long biologicalSamplePk) throws DataLoadException
     {
