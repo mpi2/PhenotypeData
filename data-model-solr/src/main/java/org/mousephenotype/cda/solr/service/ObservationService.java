@@ -336,11 +336,20 @@ public class ObservationService extends BasicService implements WebStatus {
             ExperimentsDataTableRow row=new ExperimentsDataTableRow();
             if(!parameterStableIdToRows.containsKey(parameterStableId)){
                 parameterStableIdToRows.put(parameterStableId, new ArrayList<ExperimentsDataTableRow>());
+                //parameterStableIdToRows.get(parameterStableId).add(this.generateRow(observationDTO));
+            }
+            else {
                 parameterStableIdToRows.get(parameterStableId).add(this.generateRow(observationDTO));
             }
-            //else {
-                //parameterStableIdToRows.get(parameterStableId).add(this.generateRow(observationDTO));
-            //}
+        }
+        //loop over rows again so we can collapse on zygosity and count the number of males and females
+        for(String parameterStableId:parameterStableIdToRows.keySet()) {
+            List<ExperimentsDataTableRow> currentRows = parameterStableIdToRows.get(parameterStableId);
+
+            for(ExperimentsDataTableRow tempRow:currentRows){
+
+            }
+            //filter based on zygosity if the zygosity exists for this param already don't add another one?
         }
         return parameterStableIdToRows;
     }
@@ -359,9 +368,13 @@ public class ObservationService extends BasicService implements WebStatus {
             ImpressBaseDTO procedure  = new ImpressBaseDTO(null, null, dto.getProcedureStableId(), dto.getProcedureName());
             ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, dto.getParameterStableId(), dto.getParameterName());
             ImpressBaseDTO pipeline = new ImpressBaseDTO(null, null, dto.getPipelineStableId(), dto.getPipelineName());
+            String statsResultString="";
+            if( dto.getParameterStableId().contains("_XRY_") || dto.getParameterStableId().contains("_ALZ_")){
+                statsResultString="Not Applicable";
+            }
             ZygosityType zygosity = dto.getZygosity() != null ? ZygosityType.valueOf(dto.getZygosity()) : ZygosityType.not_applicable;
-            ExperimentsDataTableRow row = new ExperimentsDataTableRow(dto.getPhenotypingCenter(), "No statistical method",
-                    "No statistical result", allele, gene, zygosity,
+            ExperimentsDataTableRow row = new ExperimentsDataTableRow(dto.getPhenotypingCenter(), statsResultString,
+                    statsResultString, allele, gene, zygosity,
                     pipeline, procedure, parameter, "no graph url",1.0,0,
                     0,0.0, dto.getMetadataGroup());
 

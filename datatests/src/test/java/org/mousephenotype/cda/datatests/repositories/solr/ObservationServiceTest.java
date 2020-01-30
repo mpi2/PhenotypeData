@@ -52,6 +52,9 @@ public class ObservationServiceTest {
 		try {
 			//map is parameterStableId to Experiment Row??
 			Map<String, List<ExperimentsDataTableRow>> rows = observationService.getAllPhenotypesFromObservationsByGeneAccession(geneAccession);
+			for(String paramStableId: rows.keySet()){
+					System.out.println(rows.get(paramStableId));
+			}
 			assert(rows.size()>5);
 
 		} catch (SolrServerException | IOException e) {

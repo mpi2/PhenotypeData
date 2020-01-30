@@ -94,6 +94,7 @@ public class ExperimentsController {
         Map<String, List<ExperimentsDataTableRow>> experimentRowsFromObservations = observationService.getAllPhenotypesFromObservationsByGeneAccession(geneAccession);
         for(String key: experimentRowsFromObservations.keySet()){
             if(!experimentRows.containsKey(key)){
+                List<ExperimentsDataTableRow> tempRows = experimentRowsFromObservations.get(key);
                 experimentRows.put(key, experimentRowsFromObservations.get(key));
                // System.out.println("result not in SR core already:"+experimentRowsFromObservations.get(key));
             }
