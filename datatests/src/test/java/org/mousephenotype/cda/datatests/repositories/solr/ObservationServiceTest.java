@@ -53,7 +53,9 @@ public class ObservationServiceTest {
 			//map is parameterStableId to Experiment Row??
 			Map<String, List<ExperimentsDataTableRow>> rows = observationService.getAllPhenotypesFromObservationsByGeneAccession(geneAccession);
 			for(String paramStableId: rows.keySet()){
-					System.out.println(rows.get(paramStableId));
+				for(ExperimentsDataTableRow row:rows.get(paramStableId)) {
+					System.out.println(paramStableId+" "+row.getZygosity()+" female m "+row.getFemaleMutantCount()+" male m "+row.getMaleMutantCount());
+				}
 			}
 			assert(rows.size()>5);
 

@@ -345,9 +345,10 @@ public class ObservationService extends BasicService implements WebStatus {
         //loop over rows again so we can collapse on zygosity and count the number of males and females
         for(String parameterStableId:parameterStableIdToRows.keySet()) {
             List<ExperimentsDataTableRow> currentRows = parameterStableIdToRows.get(parameterStableId);
-
+            int maleMutantCount=0;
+            int femaleMutantCount=0;
             for(ExperimentsDataTableRow tempRow:currentRows){
-
+               // if(tempRow.get)
             }
             //filter based on zygosity if the zygosity exists for this param already don't add another one?
         }
