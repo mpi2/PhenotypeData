@@ -75,9 +75,6 @@ public class BioModelManager {
         return bioModelPkMap.get(bioModelKey);
     }
 
-
-
-
     public synchronized Long insertMutantIfMissing(SpecimenExtended specimenExtended, String zygosity,
                                                   Long dbId, Long biologicalSamplePk) throws DataLoadException
     {
@@ -157,9 +154,9 @@ public class BioModelManager {
         strain = strainsByNameOrMgiAccessionIdMap.get(backgroundStrain);
 
         if (strain == null) {
-            Strain newStrain = StrainMapper.createBackgroundStrain(colony.getBackgroundStrain());
+            Strain newStrain = StrainMapper.createBackgroundStrain(backgroundStrain);
             cdaSqlUtils.insertStrain(newStrain);
-            strainsByNameOrMgiAccessionIdMap.put(colony.getBackgroundStrain(), newStrain);
+            strainsByNameOrMgiAccessionIdMap.put(backgroundStrain, newStrain);
             strain = newStrain;
         }
 
@@ -306,7 +303,7 @@ public class BioModelManager {
         Allele allele = getAllele(colony, gene);
         AccDbId alleleAcc = new AccDbId(allele.getId().getAccession(), allele.getId().getDatabaseId());
 
-        Strain strain = strainsByNameOrMgiAccessionIdMap.get(colony.getBackgroundStrain());
+        Strain strain = strainsByNameOrMgiAccessionIdMap.get(backgroundStrain);
         AccDbId strainAcc = new AccDbId(strain.getId().getAccession(), strain.getId().getDatabaseId());
 
         String geneticBackground = strain.getGeneticBackground();

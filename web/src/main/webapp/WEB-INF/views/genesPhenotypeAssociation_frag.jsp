@@ -45,7 +45,7 @@
 </script>
 
 <div class="container-fluid">
-    <div class="row flex-xl-nowrap">
+    <div class="row flex-xl-nowrap pb-5">
         <div class="col-lg-8">
             <!-- only display a normal div if no phenotype icons displayed -->
             <div id="phenoSumSmallDiv" class="text-left">

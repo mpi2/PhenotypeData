@@ -2813,11 +2813,22 @@ public class CdaSqlUtils {
         return backgroundStrains;
     }
 
-    public String getMutantBackgroundStrain(String backgroundStrainFromXml,
-                                            String backgroundStrainFromImits,
+    public String getMutantBackgroundStrain(String backgroundStrainNameOrAccFromXml,
+                                            String backgroundStrainNameFromImits,
                                             Set<String> imitsBackgroundStrains,
-                                            Set<String> invalidXmlStrainValues)
+                                            Set<String> invalidXmlStrainValues,
+                                            Map<String, Strain> strainsByNameOrMgiAccessionIdMap)
     {
+        String backgroundStrainNameFromXml = null;
+
+        if ((backgroundStrainNameOrAccFromXml != null) && (backgroundStrainNameOrAccFromXml.toLowerCase().startsWith("mgi:"))) {
+            Strain backgroundStrain = strainsByNameOrMgiAccessionIdMap.get(backgroundStrainNameOrAccFromXml);
+            if (backgroundStrain != null) {
+                backgroundStrainNameFromXml = backgroundStrain.getName();
+            }
+        }
+
+
         // If the background strain of the mutant specimen has been provided in the XML file
         //    if it is a valid imits background strain
         //        use the background strain from the XML file
@@ -2828,16 +2839,16 @@ public class CdaSqlUtils {
         //   use background strain from imits
         String validatedMutantBackgroundStrain;
 
-        if (backgroundStrainFromXml != null) {
-            if (imitsBackgroundStrains.contains(backgroundStrainFromXml)) {
-                validatedMutantBackgroundStrain = backgroundStrainFromXml;
+        if (backgroundStrainNameFromXml != null) {
+            if (imitsBackgroundStrains.contains(backgroundStrainNameFromXml)) {
+                validatedMutantBackgroundStrain = backgroundStrainNameFromXml;
             } else {
-                String message = "'" + backgroundStrainFromXml + "'::'" + backgroundStrainFromImits + "'";
+                String message = "'" + backgroundStrainNameFromXml + "'::'" + backgroundStrainNameFromImits + "'";
                 invalidXmlStrainValues.add(message);
-                validatedMutantBackgroundStrain = backgroundStrainFromImits;
+                validatedMutantBackgroundStrain = backgroundStrainNameFromImits;
             }
         } else {
-            validatedMutantBackgroundStrain = backgroundStrainFromImits;
+            validatedMutantBackgroundStrain = backgroundStrainNameFromImits;
         }
 
         return validatedMutantBackgroundStrain;
@@ -3668,11 +3679,6 @@ public class CdaSqlUtils {
             detail = DataLoadException.DETAIL.DUPLICATE_KEY;
             String message = "DUPLICATE INSERT INTO biological_model FOR db_id::allelic_composition::genetic_background::zygosity '" +
                     dbId + "::" + allelicComposition + "::" + geneticBackground + "::" + zygosity + "'";
-
-// FIXME FIXME FIXME
-// 22::Cfh<tm1a(EUCOMM)Wtsi>/Cfh<tm1a(EUCOMM)Wtsi>::involves: C57BL/6N::homozygote
- if (dbId == 22 && allelicComposition.equals("Cfh<tm1a(EUCOMM)Wtsi>/Cfh<tm1a(EUCOMM)Wtsi>") && geneticBackground.equals("involves: C57BL/6N") && zygosity == "homozygote")
-  e.printStackTrace();
             logger.error(message);
         } catch (Exception e) {
             detail = DataLoadException.DETAIL.GENERAL_ERROR;

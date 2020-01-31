@@ -772,7 +772,7 @@ DROP TABLE IF EXISTS time_series_observation;
 CREATE TABLE time_series_observation (
 	id                        INT(10) UNSIGNED NOT NULL,
 	data_point                FLOAT NOT NULL,
-	time_point                TIMESTAMP,
+	time_point                DATETIME,
 	discrete_point            FLOAT,
 
 	PRIMARY KEY(id),
@@ -1942,7 +1942,8 @@ INSERT INTO missing_colony_id (colony_id, log_level, reason) VALUES
   ('SPLY', -1, 'Known missing 3i colony id'),
   ('SPN', -1, 'Known missing 3i colony id'),
   ('TAAN', -1, 'Known missing 3i colony id'),
-	('JR24351', -1, 'JAX - colony aborted. OK to omit colony. See e-mail to jmason dated 2018-10-11 13:46')
+  ('JR24351', -1, 'JAX - colony aborted. OK to omit colony. See e-mail to jmason dated 2018-10-11 13:46'),
+  ('EPD0025_2_A04', -1, 'Even though there is data, the microinjection was aborted. Thus, the data is invalid.')
 ;
 
 
