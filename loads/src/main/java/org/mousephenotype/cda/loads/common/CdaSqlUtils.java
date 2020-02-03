@@ -3679,11 +3679,6 @@ public class CdaSqlUtils {
             detail = DataLoadException.DETAIL.DUPLICATE_KEY;
             String message = "DUPLICATE INSERT INTO biological_model FOR db_id::allelic_composition::genetic_background::zygosity '" +
                     dbId + "::" + allelicComposition + "::" + geneticBackground + "::" + zygosity + "'";
-
-// FIXME FIXME FIXME
-// 22::Cfh<tm1a(EUCOMM)Wtsi>/Cfh<tm1a(EUCOMM)Wtsi>::involves: C57BL/6N::homozygote
- if (dbId == 22 && allelicComposition.equals("Cfh<tm1a(EUCOMM)Wtsi>/Cfh<tm1a(EUCOMM)Wtsi>") && geneticBackground.equals("involves: C57BL/6N") && zygosity == "homozygote")
-  e.printStackTrace();
             logger.error(message);
         } catch (Exception e) {
             detail = DataLoadException.DETAIL.GENERAL_ERROR;
