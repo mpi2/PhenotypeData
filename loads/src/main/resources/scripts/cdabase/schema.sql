@@ -857,6 +857,9 @@ CREATE TABLE phenotype_call_summary (
 	p_value                   DOUBLE NULL DEFAULT 1,
 	effect_size               DOUBLE NULL DEFAULT 0,
 
+    life_stage                TEXT,
+    life_stage_acc            VARCHAR(100),
+
 	PRIMARY KEY (id),
 	KEY parameter_call_idx (parameter_id),
 	KEY procedure_call_idx (procedure_id),
@@ -897,6 +900,9 @@ CREATE TABLE phenotype_call_summary_withWeight (
 	p_value                   DOUBLE NULL DEFAULT 1,
 	effect_size               DOUBLE NULL DEFAULT 0,
 
+    life_stage                TEXT,
+    life_stage_acc            VARCHAR(100),
+
 	PRIMARY KEY (id),
 	KEY parameter_call_idx (parameter_id),
 	KEY procedure_call_idx (procedure_id),
@@ -932,6 +938,9 @@ CREATE TABLE anatomy_call_summary (
 	anatomy_db_id             INT(10) NOT NULL,
 
 	expression                VARCHAR(200),
+
+    life_stage                TEXT,
+    life_stage_acc            VARCHAR(100),
 
 	PRIMARY KEY (id),
 	KEY parameter_call_idx (parameter_id),
@@ -1099,6 +1108,8 @@ CREATE TABLE stats_categorical_results (
 	male_p_value               DOUBLE,
 	male_effect_size           DOUBLE,
 	classification_tag         VARCHAR(200),
+	life_stage                 TEXT,
+	life_stage_acc             VARCHAR(100),
 
 	PRIMARY KEY (id),
 	KEY control_idx (control_id),
@@ -1178,6 +1189,8 @@ CREATE TABLE stats_unidimensional_results (
 	additional_information           TEXT,
 	raw_output                       MEDIUMTEXT,
 	authoritative                    BOOLEAN,
+    life_stage                       TEXT,
+    life_stage_acc                   VARCHAR(100),
 
 	PRIMARY KEY (id),
 	KEY organisation_idx (organisation_id),
@@ -1255,6 +1268,8 @@ CREATE TABLE stats_unidimensional_results_withWeight (
 	additional_information           TEXT,
 	raw_output                       MEDIUMTEXT,
 	authoritative                    BOOLEAN,
+    life_stage                       TEXT,
+    life_stage_acc                   VARCHAR(100),
 
 	PRIMARY KEY (id),
 	KEY organisation_idx (organisation_id),
@@ -1332,6 +1347,8 @@ CREATE TABLE stats_rrplus_results (
 	additional_information           TEXT,
 	raw_output                       MEDIUMTEXT,
 	authoritative                    BOOLEAN,
+    life_stage                       TEXT,
+    life_stage_acc                   VARCHAR(100),
 
 	PRIMARY KEY (id),
 	KEY organisation_idx (organisation_id),
@@ -1405,6 +1422,8 @@ CREATE TABLE statistical_result (
 	effect_size                      DOUBLE,
 	stderr                           DOUBLE,
 	authoritative                    BOOLEAN,
+    life_stage                       TEXT,
+    life_stage_acc                   VARCHAR(100),
 
 	PRIMARY KEY (id),
 	KEY organisation_idx (organisation_id),
@@ -1472,6 +1491,8 @@ CREATE TABLE statistical_result_phenstat (
 	intercept_stderr_estimate        DOUBLE,
 	interaction_effect_pvalue        DOUBLE,
 	classification_tag               VARCHAR(200),
+    life_stage                       TEXT,
+    life_stage_acc                   VARCHAR(100),
 
 	PRIMARY KEY (id),
 	FOREIGN KEY result_idx (id) REFERENCES statistical_result (id)
@@ -2284,6 +2305,17 @@ INSERT INTO ontology_term(acc, db_id, name, description) VALUES('CV:00000050', 3
 INSERT INTO ontology_term (acc, db_id, name, description)
 VALUES ('CV:00000051', 3, 'IMPC uncharacterized background strain', 'background strain used in IMPC');
 
+
+/*
+ ** LIFE STAGE
+ */
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPCLS:0001', 22, 'E9.5', 'Embryonic day 9.5');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPCLS:0002', 22, 'E12.5', 'Embryonic day 12.5');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPCLS:0003', 22, 'E15.5', 'Embryonic day 15.5');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPCLS:0004', 22, 'E18.5', 'Embryonic day 18.5');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPCLS:0005', 22, 'Early adult', 'Time period less than 16 weeks of age');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPCLS:0006', 22, 'Middle aged adult', 'Time period between 16 and 48 weeks of age');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPCLS:0007', 22, 'Late adult', 'Time period greater than 48 weeks of age');
 
 
 /*
