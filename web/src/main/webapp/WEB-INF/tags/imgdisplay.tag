@@ -16,7 +16,7 @@ allele = allele.replaceAll("##", "</sup>");
 <%@ attribute name="img" required="true" type="java.util.Map" %>
 <%@ attribute name="mediaBaseUrl" required="true" %>
 
-<div class="col-sm-6 col-md-3">
+<div>
 
     <div class="thumbnail">
         <a href="${mediaBaseUrl}/${img.largeThumbnailFilePath}" class="fancybox"
@@ -24,7 +24,7 @@ allele = allele.replaceAll("##", "</sup>");
                 src="${mediaBaseUrl}/${img.smallThumbnailFilePath}" style="max-width: 200px"></a>
     </div>
 
-    <div class="caption">
+    <div class="text-center">
         <c:if test="${not empty img.genotypeString}">
             <t:formatAllele>${img.genotypeString}</t:formatAllele>
             <br/>

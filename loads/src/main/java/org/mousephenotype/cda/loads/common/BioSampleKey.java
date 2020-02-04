@@ -16,6 +16,8 @@
 
 package org.mousephenotype.cda.loads.common;
 
+import java.util.Objects;
+
 /**
  * This class is meant to encapsulate a key that uniquely identifies a sample.
  */
@@ -59,14 +61,16 @@ public class BioSampleKey {
 
     @Override
     public boolean equals(Object o) {
-
-        return (o.toString().equals(this.toString()));
+        if (this == o) return true;
+        if (!(o instanceof BioSampleKey)) return false;
+        BioSampleKey that = (BioSampleKey) o;
+        return specimenId.equals(that.specimenId) &&
+                phenotypingCenterPk.equals(that.phenotypingCenterPk);
     }
 
     @Override
     public int hashCode() {
-        int result = this.toString().hashCode();
-        return result;
+        return Objects.hash(specimenId, phenotypingCenterPk);
     }
 
     @Override
