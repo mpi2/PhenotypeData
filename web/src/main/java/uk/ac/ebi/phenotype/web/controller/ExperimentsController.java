@@ -40,10 +40,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Controller
@@ -86,19 +83,11 @@ public class ExperimentsController {
         int rows = 0;
         String graphBaseUrl = request.getAttribute("baseUrl").toString();
 
-        //TODO: Change to request all the data from the expirement core and overlay the s-r core results onto this
-        // set
+        // JM and JW Decided to get observations first as a whole set and then replace with SR result rows where appropriate
+        Set<ExperimentsDataTableRow> experimentRowsFromObservations = observationService.getAllPhenotypesFromObservationsByGeneAccession(geneAccession);
         experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
         //ideally create a test for a method that calls the experiment core and gets info for these object types
         ///experimentsTableFrag?geneAccession=' + '${gene.mgiAccessionId}',
-        Map<String, List<ExperimentsDataTableRow>> experimentRowsFromObservations = observationService.getAllPhenotypesFromObservationsByGeneAccession(geneAccession);
-        for(String key: experimentRowsFromObservations.keySet()){
-            if(!experimentRows.containsKey(key)){
-                List<ExperimentsDataTableRow> tempRows = experimentRowsFromObservations.get(key);
-                experimentRows.put(key, experimentRowsFromObservations.get(key));
-               // System.out.println("result not in SR core already:"+experimentRowsFromObservations.get(key));
-            }
-        }
         for (List<ExperimentsDataTableRow> list : experimentRows.values()) {
             rows += list.size();
         }

@@ -61,6 +61,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -322,8 +323,12 @@ public class ObservationService extends BasicService implements WebStatus {
         return data;
     }
 
-    public Map<String, List<ExperimentsDataTableRow>> getAllPhenotypesFromObservationsByGeneAccession(String acc) throws IOException, SolrServerException {
-        Map<String, List<ExperimentsDataTableRow>> parameterStableIdToRows = new HashMap<>();
+    static String getKey (ObservationDTO x) {
+        return x.getAlleleSymbol() + x.getParameterStableId() + x.getZygosity() + x.getPhenotypingCenter() + LifeStageMapper.getLifeStage(x.getParameterStableId());
+    }
+
+    public Set<ExperimentsDataTableRow> getAllPhenotypesFromObservationsByGeneAccession(String acc) throws IOException, SolrServerException {
+        Set<ExperimentsDataTableRow> alleleZygParameterStableIdToRows = new HashSet<>();
         SolrQuery query = new SolrQuery();
         query.setQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + acc + "\"");
 
@@ -331,28 +336,52 @@ public class ObservationService extends BasicService implements WebStatus {
         query.setRows(100000);
 
         logger.info("get All Phenotypes for gene " + SolrUtils.getBaseURL(experimentCore) + "/select?" + query);
-        for (ObservationDTO observationDTO : experimentCore.query(query).getBeans(ObservationDTO.class)) {
+        final List<ObservationDTO> beans = experimentCore.query(query).getBeans(ObservationDTO.class);
+
+        Map<String, List<ObservationDTO>> maleKeys = beans.stream()
+                .filter(x -> x.getSex().equals(SexType.male))
+                .collect(Collectors.toMap(ObservationService::getKey, Arrays::asList));
+        Map<String, List<ObservationDTO>> femaleKeys = beans.stream()
+                .filter(x -> x.getSex().equals(SexType.female))
+                .collect(Collectors.toMap(ObservationService::getKey, Arrays::asList));
+        //List<String> femaleKeys = beans.stream().filter(x -> x.getSex().equals(SexType.female)).collect(Collectors.toMap(x -> x.getAlleleSymbol() + x.getParameterStableId() + x.getZygosity() + x.getPhenotypingCenter() + LifeStageMapper.getLifeStage(x.getParameterStableId()));
+
+        for(String key: maleKeys.keySet()){
+            System.out.println("key="+key);
+            System.out.println("values="+ maleKeys.get(key));
+        }
+        //Long maleMutantCount=maleKeys.stream().filter(x -> x.getSex().equals(SexType.male)).count();
+        //Long femaleMutantCount=beans.stream().filter(x -> x.getSex().equals(SexType.female)).count();
+
+        for (ObservationDTO observationDTO : beans) {
+           // int femaleMutantCount=0;
             String parameterStableId=observationDTO.getParameterStableId();
+            String zyg=observationDTO.getZygosity();
+            String allele=observationDTO.getAlleleSymbol();
+            String center=observationDTO.getPhenotypingCenter();
             ExperimentsDataTableRow row=new ExperimentsDataTableRow();
-            if(!parameterStableIdToRows.containsKey(parameterStableId)){
-                parameterStableIdToRows.put(parameterStableId, new ArrayList<ExperimentsDataTableRow>());
-                //parameterStableIdToRows.get(parameterStableId).add(this.generateRow(observationDTO));
-            }
-            else {
-                parameterStableIdToRows.get(parameterStableId).add(this.generateRow(observationDTO));
-            }
+//            if(!alleleZygParameterStableIdToRows.containsKey(parameterStableId)){
+//                alleleZygParameterStableIdToRows.put(parameterStableId, new ArrayList<ExperimentsDataTableRow>());
+//                //alleleZygParameterStableIdToRows.get(parameterStableId).add(this.generateRow(observationDTO));
+//            }
+//            else {
+//                alleleZygParameterStableIdToRows.get(parameterStableId).add(this.generateRow(observationDTO));
+//            }
         }
         //loop over rows again so we can collapse on zygosity and count the number of males and females
-        for(String parameterStableId:parameterStableIdToRows.keySet()) {
-            List<ExperimentsDataTableRow> currentRows = parameterStableIdToRows.get(parameterStableId);
-            int maleMutantCount=0;
-            int femaleMutantCount=0;
-            for(ExperimentsDataTableRow tempRow:currentRows){
-               // if(tempRow.get)
-            }
-            //filter based on zygosity if the zygosity exists for this param already don't add another one?
-        }
-        return parameterStableIdToRows;
+//        for(String parameterStableId:alleleZygParameterStableIdToRows.keySet()) {
+//            List<ExperimentsDataTableRow> currentRows = alleleZygParameterStableIdToRows.get(parameterStableId);
+//            int femaleMutantCount=0;
+//            System.out.println(parameterStableId);
+//            //maleMutantCount = (int) currentRows.stream().filter(x -> x.getParameter().getStableId().equals(parameterStableId)).map(ExperimentsDataTableRow::getZygosity).count();
+//            //femaleMutantCount = (int) currentRows.stream().filter(x -> x.getParameter().getStableId().equals(parameterStableId)).map(ExperimentsDataTableRow::getZygosity).count();
+//            System.out.println("zygosity count= "+maleMutantCount);
+//            for(ExperimentsDataTableRow tempRow:currentRows){
+//              // if(tempRow.get)
+//            }
+//            //filter based on zygosity if the zygosity exists for this param already don't add another one?
+//        }
+        return alleleZygParameterStableIdToRows;
     }
 
     private ExperimentsDataTableRow generateRow(ObservationDTO dto) throws UnsupportedEncodingException {
