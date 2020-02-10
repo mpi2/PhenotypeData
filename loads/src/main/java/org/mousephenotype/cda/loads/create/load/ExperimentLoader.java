@@ -348,7 +348,12 @@ public class ExperimentLoader implements CommandLineRunner {
 //            invalidXmlStrainValues.stream().sorted().forEach(System.out::println);
         }
 
-        if ( ! missingColonyMap.values().isEmpty()) {
+        long missingColonyMapFilteredCount = missingColonyMap.values()
+                .stream()
+                .filter(missing -> missing.getLogLevel() >= 0)      // Known missing have log level -1. Ignore them.
+                .count();
+
+        if (missingColonyMapFilteredCount > 0) {
             logger.info("Missing colonyIds::reason");
             missingColonyMap.values()
                     .stream()

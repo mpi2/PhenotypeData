@@ -22,7 +22,7 @@
     <jsp:body>
 
         <div class="container">
-
+            <h2>Introduction to IMPC Embryo Data</h2>
             <div class="row mb-5">
                 <div class="col-12">
                     <div class="row mb-3">
@@ -38,19 +38,31 @@
 
                         </p>
                         <p>
+                            As determined in IMPReSS (see interactive diagram <a href="${cmsBaseUrl}/impress">here</a>), all embryonic lethal lines undergo
+                            gross morphology assessment at E12.5 (embryonic day 12.5) to determine whether defects occur
+                            earlier or later during embryonic development. A comprehensive imaging platform is then used
+                            to assess dysmorphology. Embryo gross morphology, as well as 2D and 3D imaging are actively
+                            being implemented by the IMPC for lethal lines.
+                        </p>
+                        <p>
                             Read more in our paper on <a href="https://europepmc.org/article/PMC/5295821">High-throughput
                             discovery of novel developmental phenotypes, Nature 2016.</a>
                         </p>
                     </div>
+
                     <h2>Accessing Embryo Phenotype Data</h2>
                     <div class="row mb-3">
                         <p>
-                            Embryo phenotype data can be accessed through the <a href="${baseUrl}/embryo_heatmap">Embryo
-                            Viewer</a>, or via our FTP site or REST API (see the documentation <a
-                                href="${cmsBaseUrl}/help/data-access/">here</a>). In addition, an <a
-                                href="${baseUrl}/embryo/vignettes">Embryo Vignettes page</a> provides a glimpse into
-                            available data.
+                            Embryo phenotype data can be accessed through:
                         </p>
+                            <ul>
+                        <li><a href="${baseUrl}/embryo_heatmap">Embryo
+                            Viewer</a></li>
+                        <li>FTP site or REST API (see the documentation <a
+                                href="${cmsBaseUrl}/help/data-access/">here</a>)</li>
+                        <li><a
+                                href="${baseUrl}/embryo/vignettes">Embryo Vignettes page</a></li>
+                    </ul>
                     </div>
                     <h2>Determining Lethal Lines</h2>
                     <div class="row mb-3">
@@ -69,16 +81,6 @@
                             lethal and subviable strains, heterozygotes are phenotyped in the IMPC <a
                                 href="${cmsBaseUrl}/impress">adult phenotyping
                             pipeline</a>.
-                        </p>
-                    </div>
-                    <h2>IMPC Embryo Phenotyping - Goals and Procedures</h2>
-                    <div class="row mb-3">
-                        <p>
-                            As determined in IMPReSS (see interactive diagram <a href="${cmsBaseUrl}/impress">here</a>), all embryonic lethal lines undergo
-                            gross morphology assessment at E12.5 (embryonic day 12.5) to determine whether defects occur
-                            earlier or later during embryonic development. A comprehensive imaging platform is then used
-                            to assess dysmorphology. Embryo gross morphology, as well as 2D and 3D imaging are actively
-                            being implemented by the IMPC for lethal lines.
                         </p>
                     </div>
                     <div class="row mb-5">
@@ -117,14 +119,6 @@
                             </table>
                         </div>
                     </div>
-
-                    <p>Each IMPC gene knockout strain is assessed for viability by examination of litters produced from
-                        mating heterozygous animals. A strain is declared lethal if no homozygous nulls pups are
-                        detected at weaning age. A strain is declared subviable if homozygous null pups constitute less
-                        than 12.5% of the litter. For lethal strains, embryos are phenotyped in the embryonic and
-                        perinatal lethal pipeline. For embryonic lethal and subviable strains, heterozygotes are
-                        phenotyped in the IMPC adult phenotyping pipeline.</p>
-
                 </div>
             </div>
 
