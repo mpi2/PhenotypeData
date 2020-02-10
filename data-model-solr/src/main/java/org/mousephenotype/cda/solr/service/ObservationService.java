@@ -324,7 +324,7 @@ public class ObservationService extends BasicService implements WebStatus {
     }
 
     static String getKey (ObservationDTO x) {
-        return x.getAlleleSymbol() + x.getParameterStableId() + x.getZygosity() + x.getPhenotypingCenter() + LifeStageMapper.getLifeStage(x.getParameterStableId());
+        return x.getAlleleSymbol() + x.getParameterStableId() + x.getZygosity() + x.getPhenotypingCenter() + LifeStageMapper.getLifeStage(x.getParameterStableId(), x);
     }
 
     public Set<ExperimentsDataTableRow> getAllPhenotypesFromObservationsByGeneAccession(String acc) throws IOException, SolrServerException {
@@ -338,12 +338,17 @@ public class ObservationService extends BasicService implements WebStatus {
         logger.info("get All Phenotypes for gene " + SolrUtils.getBaseURL(experimentCore) + "/select?" + query);
         final List<ObservationDTO> beans = experimentCore.query(query).getBeans(ObservationDTO.class);
 
-        Map<String, List<ObservationDTO>> maleKeys = beans.stream()
-                .filter(x -> x.getSex().equals(SexType.male))
-                .collect(Collectors.toMap(ObservationService::getKey, Arrays::asList));
-        Map<String, List<ObservationDTO>> femaleKeys = beans.stream()
-                .filter(x -> x.getSex().equals(SexType.female))
-                .collect(Collectors.toMap(ObservationService::getKey, Arrays::asList));
+        Map<String, List<ObservationDTO>> maleKeys = null;
+        try {
+            maleKeys = beans.stream()
+                    .filter(x -> x.getSex().equals(SexType.male.toString()))
+                    .collect(Collectors.groupingBy(ObservationService::getKey));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+//        Map<String, List<ObservationDTO>> femaleKeys = beans.stream()
+//                .filter(x -> x.getSex().equals(SexType.female.toString()))
+//                .collect(Collectors.toMap(ObservationService::getKey, Arrays::asList));
         //List<String> femaleKeys = beans.stream().filter(x -> x.getSex().equals(SexType.female)).collect(Collectors.toMap(x -> x.getAlleleSymbol() + x.getParameterStableId() + x.getZygosity() + x.getPhenotypingCenter() + LifeStageMapper.getLifeStage(x.getParameterStableId()));
 
         for(String key: maleKeys.keySet()){
