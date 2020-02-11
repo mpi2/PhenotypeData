@@ -269,18 +269,18 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
      * Check to see if the count of documents we think have been added actually matches
      * the number of documents in solr
      *
-     * @param count the number of documents that should have been added
+     * @param documentsAddedCount The number of documents added
      */
-    private void checkSolrCount(Integer count) throws SolrServerException, IOException {
+    private void checkSolrCount(Integer documentsAddedCount) throws SolrServerException, IOException {
 
         SolrQuery query = new SolrQuery();
         query.setQuery("*:*").setRows(0);
         QueryResponse response = statisticalResultCore.query(query);
-        Long solrCount = response.getResults().getNumFound();
+        Long solrDocumentCount = response.getResults().getNumFound();
 
-        logger.info("  Count of documents in solr: {}, count added by indexer: {}, Difference: {}", solrCount, count, count - solrCount);
+        logger.info("  Count of documents in solr: {}, count added by indexer: {}, Difference: {}", solrDocumentCount, documentsAddedCount, documentsAddedCount - solrDocumentCount);
 
-        if (count - solrCount > 0) {
+        if (documentsAddedCount - solrDocumentCount > 0) {
 
             // The java Set.add() method returns false when attempting to add an element that already exists in
             // the set so the filter will remove all non-duplicate elements leaving only those document IDs that
