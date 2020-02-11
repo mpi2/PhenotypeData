@@ -1704,7 +1704,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     class ViabilityResults implements Callable<List<StatisticalResultDTO>> {
 
         // Populate viability results
-        String query = "SELECT CONCAT(parameter.stable_id, '_', exp.id, '_', CASE WHEN sex IS NULL THEN 'unknown' ELSE sex END) as doc_id, co.category, " +
+        String query = "SELECT CONCAT(parameter.stable_id, '_', exp.id, '_', CASE WHEN sex IS NULL THEN 'na' ELSE sex END) as doc_id, co.category, " +
                 "'line' AS data_type, db.id AS db_id, " +
                 "zygosity as experimental_zygosity, db.id AS external_db_id, exp.pipeline_id, exp.procedure_id, obs.parameter_id, exp.colony_id, sex, " +
                 "parameter.stable_id as dependent_variable, " +
