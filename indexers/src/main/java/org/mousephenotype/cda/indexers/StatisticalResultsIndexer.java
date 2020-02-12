@@ -269,18 +269,18 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
      * Check to see if the count of documents we think have been added actually matches
      * the number of documents in solr
      *
-     * @param count the number of documents that should have been added
+     * @param documentsAddedCount The number of documents added
      */
-    private void checkSolrCount(Integer count) throws SolrServerException, IOException {
+    private void checkSolrCount(Integer documentsAddedCount) throws SolrServerException, IOException {
 
         SolrQuery query = new SolrQuery();
         query.setQuery("*:*").setRows(0);
         QueryResponse response = statisticalResultCore.query(query);
-        Long solrCount = response.getResults().getNumFound();
+        Long solrDocumentCount = response.getResults().getNumFound();
 
-        logger.info("  Count of documents in solr: {}, count added by indexer: {}, Difference: {}", solrCount, count, count - solrCount);
+        logger.info("  Count of documents in solr: {}, count added by indexer: {}, Difference: {}", solrDocumentCount, documentsAddedCount, documentsAddedCount - solrDocumentCount);
 
-        if (count - solrCount > 0) {
+        if (documentsAddedCount - solrDocumentCount > 0) {
 
             // The java Set.add() method returns false when attempting to add an element that already exists in
             // the set so the filter will remove all non-duplicate elements leaving only those document IDs that
@@ -1704,7 +1704,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     class ViabilityResults implements Callable<List<StatisticalResultDTO>> {
 
         // Populate viability results
-        String query = "SELECT CONCAT(parameter.stable_id, '_', exp.id, '_', sex) as doc_id, co.category, " +
+        String query = "SELECT CONCAT(parameter.stable_id, '_', exp.id, '_', CASE WHEN sex IS NULL THEN 'na' ELSE sex END) as doc_id, co.category, " +
                 "'line' AS data_type, db.id AS db_id, " +
                 "zygosity as experimental_zygosity, db.id AS external_db_id, exp.pipeline_id, exp.procedure_id, obs.parameter_id, exp.colony_id, sex, " +
                 "parameter.stable_id as dependent_variable, " +
