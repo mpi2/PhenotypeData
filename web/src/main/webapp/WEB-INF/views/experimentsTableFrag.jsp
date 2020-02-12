@@ -47,44 +47,44 @@
             <c:forEach var="row" items="${experimentRows}">
                 <tr title="${!row.getEvidenceLink().getDisplay() ? 'No supporting data supplied.' : ''}" data-toggle="tooltip" data-link="${row.getEvidenceLink().url}" class="${row.getEvidenceLink().getDisplay() ? 'clickableRow' : 'unClickableRow'}">
                     <td data-value="${row.getAllele().getSymbol()}" class="allele-symbol">
-                        <a href="${row.getEvidenceLink().url}">
+
                         <t:formatAllele>${row.getAllele().getSymbol()}</t:formatAllele>
-                        </a>
+
                     </td>
                     <td data-value="${row.getPhenotypingCenter()}">
-                        <a href="${row.getEvidenceLink().url}">
+
                             ${row.getPhenotypingCenter()}
-                        </a>
+
                     </td>
                     <td data-value="${row.getProcedure().getName()}">
-                        <a href="${row.getEvidenceLink().url}">
+
                             ${row.getProcedure().getName()} / ${row.getParameter().getName()}
-                        </a>
+
                     </td>
                     <td data-value="${row.getZygosity().getShortName()}">
-                        <a href="${row.getEvidenceLink().url}">
+
                             ${row.getZygosity().getShortName()}
-                        </a>
+
                     </td>
                     <c:if test="${row.getFemaleMutantCount() != null && row.getMaleMutantCount() != null}">
                         <td data-value="${row.getFemaleMutantCount()}f:${row.getMaleMutantCount()}m">
-                            <a href="${row.getEvidenceLink().url}">
+
                                     ${row.getFemaleMutantCount()}f:${row.getMaleMutantCount()}m
-                            </a>
+
                         </td>
                     </c:if>
                     <c:if test="${row.getFemaleMutantCount() == null || row.getMaleMutantCount() == null}">
                         <td data-value="${row.getFemaleMutantCount()}f:${row.getMaleMutantCount()}m">
-                            <a href="${row.getEvidenceLink().url}">
 
-                            </a>
+
+
                         </td>
                     </c:if>
 
                     <td data-value="${row.getStatisticalMethod()}">
-                        <a href="${row.getEvidenceLink().url}">
+
                             ${row.getStatisticalMethod()}
-                        </a>
+
                     </td>
                     <c:choose>
                         <c:when

@@ -43,6 +43,7 @@ import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.web.dto.CategoricalDataObject;
 import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
+import org.mousephenotype.cda.solr.web.dto.EvidenceLink;
 import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
@@ -401,17 +402,20 @@ public class ObservationService extends BasicService implements WebStatus {
             String statisticalMethod="";
             String status="";
             if( dto.getParameterStableId().contains("_XRY_")){
-                statisticalMethod="Not Applicable";
+                statisticalMethod="N/A";
             }
             if(dto.getParameterStableId().contains("_ALZ_")){
                 status=dto.getCategory();//set the result to expression or no expression etc as Stats not applicable - but then at least the row is informative?
-                statisticalMethod="Not Applicable";
+                statisticalMethod="N/A";
             }
             ZygosityType zygosity = dto.getZygosity() != null ? ZygosityType.valueOf(dto.getZygosity()) : ZygosityType.not_applicable;
             ExperimentsDataTableRow row = new ExperimentsDataTableRow(dto.getPhenotypingCenter(), statisticalMethod,
                     status, allele, gene, zygosity,
                     pipeline, procedure, parameter, "",null,0,
                     0,0.0, dto.getMetadataGroup());
+            EvidenceLink link=new EvidenceLink();
+            link.setDisplay(false);
+            row.setEvidenceLink(link);//set all links to display false as we have no charts to link to from these rows??
 
             return row;
 
