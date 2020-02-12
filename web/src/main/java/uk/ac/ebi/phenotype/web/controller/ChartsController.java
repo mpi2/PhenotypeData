@@ -467,13 +467,20 @@ public class ChartsController {
 		}
 
 		if (categoricalResultAndChart != null) {
-			final List<CategoricalResult> statsResults = categoricalResultAndChart.getStatsResults();
+/*			final List<CategoricalResult> statsResults = categoricalResultAndChart.getStatsResults();
 			for (CategoricalResult cr : statsResults) {
 				numberFemaleControlMice = cr.getFemaleControls();
 				numberFemaleMutantMice = cr.getFemaleMutants();
 				numberMaleControlMice = cr.getMaleControls();
 				numberMaleMutantMice = cr.getMaleMutants();
-			}
+			}*/
+
+			final Set<ObservationDTO> mutants = categoricalResultAndChart.getExperiment().getMutants();
+			final Set<ObservationDTO> controls = categoricalResultAndChart.getExperiment().getControls();
+			numberFemaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			numberMaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			numberFemaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			numberMaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
 		}
 
 		if (seriesParameterChartData != null) {
