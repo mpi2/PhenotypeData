@@ -18,4 +18,30 @@ public enum LifeStage {
     public String getName() {
         return this.toString();
     }
+
+    public static LifeStage getByDisplayName(String displayName) {
+        switch (displayName.toLowerCase()) {
+            case "e9.5":
+            case "embryonic day 9.5":
+                return LifeStage.E9_5;
+            case "e12.5":
+            case "embryonic day 12.5":
+                return LifeStage.E12_5;
+            case "e15.5":
+            case "embryonic day 15.5":
+                return LifeStage.E15_5;
+            case "e18.5":
+            case "embryonic day 18.5":
+                return LifeStage.E18_5;
+            case "early adult":
+                return LifeStage.EARLY_ADULT;
+            case "middle aged adult":
+                return LifeStage.MIDDLE_AGED_ADULT;
+            case "late adult":
+                return LifeStage.LATE_ADULT;
+            default:
+                throw new IllegalArgumentException("No enum constant " + LifeStage.class + "." + displayName);
+        }
+    }
+
 }
