@@ -27,4 +27,9 @@ public interface OntologyTermRepository extends CrudRepository<OntologyTerm, Dat
     String query = "SELECT ot FROM OntologyTerm ot WHERE ot.id.accession = :acc AND ot.id.databaseId = (SELECT ds.id FROM Datasource ds WHERE ds.shortName = :shortName)";
     @Query(query)
     OntologyTerm getByAccAndShortName(@Param("acc") String acc, @Param("shortName") String shortName);
+
+    String termByNameQuery = "SELECT ot FROM OntologyTerm ot WHERE ot.name = :name AND ot.id.databaseId = (SELECT ds.id FROM Datasource ds WHERE ds.shortName = :shortName)";
+    @Query(termByNameQuery)
+    OntologyTerm getByTermNameAndShortName(@Param("name") String name, @Param("shortName") String shortName);
+
 }
