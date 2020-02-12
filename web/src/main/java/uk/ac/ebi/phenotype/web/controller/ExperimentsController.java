@@ -79,19 +79,25 @@ public class ExperimentsController {
             HttpServletRequest request)
             throws IOException, SolrServerException {
 
-        Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
+        Set<ExperimentsDataTableRow> experimentRows = new HashSet<>();
         int rows = 0;
         String graphBaseUrl = request.getAttribute("baseUrl").toString();
 
         // JM and JW Decided to get observations first as a whole set and then replace with SR result rows where appropriate
         Set<ExperimentsDataTableRow> experimentRowsFromObservations = observationService.getAllPhenotypesFromObservationsByGeneAccession(geneAccession);
-        experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
+        experimentRows.addAll(experimentRowsFromObservations);
+        Map<String, List<ExperimentsDataTableRow>> srResult = srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl);
+        for(String paramKey: srResult.keySet()){
+            List<ExperimentsDataTableRow> rs = srResult.get(paramKey);
+            experimentRows.addAll(rs);
+        }
+
         //ideally create a test for a method that calls the experiment core and gets info for these object types
         ///experimentsTableFrag?geneAccession=' + '${gene.mgiAccessionId}',
-        for (List<ExperimentsDataTableRow> list : experimentRows.values()) {
-            rows += list.size();
-        }
-        model.addAttribute("rows", rows);
+//        for (List<ExperimentsDataTableRow> list : experimentRows.values()) {
+//            rows += list.size();
+//        }
+        model.addAttribute("rows", experimentRows.size());
         model.addAttribute("experimentRows", experimentRows);
         return "experimentsTableFrag";
     }

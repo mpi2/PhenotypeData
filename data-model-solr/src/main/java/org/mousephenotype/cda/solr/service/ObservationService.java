@@ -352,27 +352,15 @@ public class ObservationService extends BasicService implements WebStatus {
         //List<String> femaleKeys = beans.stream().filter(x -> x.getSex().equals(SexType.female)).collect(Collectors.toMap(x -> x.getAlleleSymbol() + x.getParameterStableId() + x.getZygosity() + x.getPhenotypingCenter() + LifeStageMapper.getLifeStage(x.getParameterStableId()));
 
         for(String key: maleKeys.keySet()){
-            System.out.println("key="+key);
-            System.out.println("values="+ maleKeys.get(key));
+//            System.out.println("key="+key);
+//            System.out.println("values="+ maleKeys.get(key));
+            //alleleZygParameterStableIdToRows.addAll(maleKeys.get(key));
+            rowsFromDTOs(alleleZygParameterStableIdToRows, maleKeys.get(key));
         }
         //Long maleMutantCount=maleKeys.stream().filter(x -> x.getSex().equals(SexType.male)).count();
         //Long femaleMutantCount=beans.stream().filter(x -> x.getSex().equals(SexType.female)).count();
 
-        for (ObservationDTO observationDTO : beans) {
-           // int femaleMutantCount=0;
-            String parameterStableId=observationDTO.getParameterStableId();
-            String zyg=observationDTO.getZygosity();
-            String allele=observationDTO.getAlleleSymbol();
-            String center=observationDTO.getPhenotypingCenter();
-            ExperimentsDataTableRow row=new ExperimentsDataTableRow();
-//            if(!alleleZygParameterStableIdToRows.containsKey(parameterStableId)){
-//                alleleZygParameterStableIdToRows.put(parameterStableId, new ArrayList<ExperimentsDataTableRow>());
-//                //alleleZygParameterStableIdToRows.get(parameterStableId).add(this.generateRow(observationDTO));
-//            }
-//            else {
-//                alleleZygParameterStableIdToRows.get(parameterStableId).add(this.generateRow(observationDTO));
-//            }
-        }
+
         //loop over rows again so we can collapse on zygosity and count the number of males and females
 //        for(String parameterStableId:alleleZygParameterStableIdToRows.keySet()) {
 //            List<ExperimentsDataTableRow> currentRows = alleleZygParameterStableIdToRows.get(parameterStableId);
@@ -389,6 +377,13 @@ public class ObservationService extends BasicService implements WebStatus {
         return alleleZygParameterStableIdToRows;
     }
 
+    private void rowsFromDTOs(Set<ExperimentsDataTableRow> alleleZygParameterStableIdToRows, List<ObservationDTO> beans) throws UnsupportedEncodingException {
+        for (ObservationDTO observationDTO : beans) {
+            alleleZygParameterStableIdToRows.add(this.generateRow(observationDTO));
+
+        }
+    }
+
     private ExperimentsDataTableRow generateRow(ObservationDTO dto) throws UnsupportedEncodingException {
         {
 
@@ -403,14 +398,19 @@ public class ObservationService extends BasicService implements WebStatus {
             ImpressBaseDTO procedure  = new ImpressBaseDTO(null, null, dto.getProcedureStableId(), dto.getProcedureName());
             ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, dto.getParameterStableId(), dto.getParameterName());
             ImpressBaseDTO pipeline = new ImpressBaseDTO(null, null, dto.getPipelineStableId(), dto.getPipelineName());
-            String statsResultString="";
-            if( dto.getParameterStableId().contains("_XRY_") || dto.getParameterStableId().contains("_ALZ_")){
-                statsResultString="Not Applicable";
+            String statisticalMethod="";
+            String status="";
+            if( dto.getParameterStableId().contains("_XRY_")){
+                statisticalMethod="Not Applicable";
+            }
+            if(dto.getParameterStableId().contains("_ALZ_")){
+                status=dto.getCategory();//set the result to expression or no expression etc as Stats not applicable - but then at least the row is informative?
+                statisticalMethod="Not Applicable";
             }
             ZygosityType zygosity = dto.getZygosity() != null ? ZygosityType.valueOf(dto.getZygosity()) : ZygosityType.not_applicable;
-            ExperimentsDataTableRow row = new ExperimentsDataTableRow(dto.getPhenotypingCenter(), statsResultString,
-                    statsResultString, allele, gene, zygosity,
-                    pipeline, procedure, parameter, "no graph url",1.0,0,
+            ExperimentsDataTableRow row = new ExperimentsDataTableRow(dto.getPhenotypingCenter(), statisticalMethod,
+                    status, allele, gene, zygosity,
+                    pipeline, procedure, parameter, "",null,0,
                     0,0.0, dto.getMetadataGroup());
 
             return row;
