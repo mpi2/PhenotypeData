@@ -21,15 +21,13 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.json.JSONException;
 import org.mousephenotype.cda.db.pojo.CategoricalResult;
-import org.mousephenotype.cda.enumerations.EmbryoViability;
-import org.mousephenotype.cda.enumerations.ObservationType;
-import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.enumerations.*;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.mousephenotype.cda.solr.web.dto.EmbryoViability_DTO;
 import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
+import org.mousephenotype.cda.utilities.LifeStageMapper;
 import org.mousephenotype.cda.web.ChartType;
 import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.slf4j.Logger;
@@ -531,6 +529,16 @@ public class ChartsController {
 			List<String> phenotypeTerms = gpList.stream().map(GenotypePhenotypeDTO::getMpTermName).distinct().collect(Collectors.toList());
 			model.addAttribute("phenotypes", phenotypeTerms);
 		}
+
+
+
+		LifeStage parameterLifeStage = LifeStageMapper.getLifeStage(parameterStableId);
+
+		List<LifeStage> postnatalLifeStages = Arrays.asList(LifeStage.EARLY_ADULT, LifeStage.MIDDLE_AGED_ADULT, LifeStage.LATE_ADULT);
+
+		Boolean isPostnatal = postnatalLifeStages.contains(parameterLifeStage);
+
+		model.addAttribute("isPostnatal", isPostnatal);
 
 		return "chart";
 	}

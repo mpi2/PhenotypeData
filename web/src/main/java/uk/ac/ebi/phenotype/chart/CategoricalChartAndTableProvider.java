@@ -154,9 +154,9 @@ public class CategoricalChartAndTableProvider {
 						if (categoString.equals(category) && docSexType.equals(sexType)) {
 							mutantCount++;
 							if(sexType.equals(SexType.male)){
-								maleControls.add(expDto);
+								maleMutants.add(expDto);
 							} else if(sexType.equals(SexType.female)){
-								femaleControls.add(expDto);
+								femaleMutants.add(expDto);
 							}
 						}
 					}
