@@ -87,9 +87,7 @@ VALUES
 	 (SELECT @PROJECT_ID_THREEI), (SELECT @ORG_ID_WTSI), (SELECT @PROJECT_ID_THREEI))
 ;
 
-INSERT INTO `phenotyped_colony` VALUES (6049,'MFZQ','EPD0689_1_H02','MGI:894679',3,'Bach2<tm1a(EUCOMM)Wtsi>','C57BL/6N',3,8,3,8);
-
-
+INSERT INTO `phenotyped_colony` VALUES (6049,'MFZQ','EPD0689_1_H02','MGI:894679',3,'Bach2<tm1a(EUCOMM)Wtsi>','C57BL/6N','MGI:2159965',3,8,3,8);
 
 INSERT INTO `biological_model` VALUES (21960,3,'Arhgap17<tm1b(EUCOMM)Wtsi>/Arhgap17<tm1b(EUCOMM)Wtsi>','C57BL/6N-Arhgap17<tm1b(EUCOMM)Wtsi>/Wtsi',NULL);
 INSERT INTO `biological_model` VALUES (24855,3,'Cxcr2<tm1a(EUCOMM)Wtsi>/Cxcr2<tm1a(EUCOMM)Wtsi>','C57BL/6N-Cxcr2<tm1a(EUCOMM)Wtsi>/Wtsi',NULL);

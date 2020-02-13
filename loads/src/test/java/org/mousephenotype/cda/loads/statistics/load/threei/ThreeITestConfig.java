@@ -22,6 +22,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
@@ -48,10 +50,17 @@ public class ThreeITestConfig {
                 .setName("cda_test")
                 .build();
     }
+
+    @Bean(name = "threeIFile")
+    public Resource threeIFile() {
+        return new ClassPathResource("data/threei_test_data.csv");
+    }
+
     @Bean
     public CdaSqlUtils cdaSqlUtils() {
         return new CdaSqlUtils(jdbcCda());
     }
+
     @Bean
     public NamedParameterJdbcTemplate jdbcCda() {
         return new NamedParameterJdbcTemplate(komp2DataSource());

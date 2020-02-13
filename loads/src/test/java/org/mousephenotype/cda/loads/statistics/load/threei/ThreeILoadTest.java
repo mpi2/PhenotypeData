@@ -18,7 +18,6 @@ package org.mousephenotype.cda.loads.statistics.load.threei;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.statistics.MpTermService;
@@ -42,9 +41,6 @@ import java.sql.*;
 public class ThreeILoadTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-//    @Autowired
-//    private ApplicationContext context;
 
     @Autowired
     private DataSource komp2DataSource;
@@ -77,8 +73,6 @@ public class ThreeILoadTest {
         }
     }
 
-    // FIXME FIXME FIXME This test won't run because "threeIFile" can't be found. When we learn where it is, we can resume debugging it.
-    @Ignore
     @Test
     public void testParseThreeIStatsResult() throws Exception {
 
