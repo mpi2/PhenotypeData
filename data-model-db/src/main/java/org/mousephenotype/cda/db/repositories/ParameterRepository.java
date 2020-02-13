@@ -19,8 +19,10 @@ package org.mousephenotype.cda.db.repositories;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.springframework.data.repository.CrudRepository;
 
+import java.util.List;
+
 public interface ParameterRepository extends CrudRepository<Parameter, Long> {
 
-    Parameter getByStableId(String stableId);
     Parameter getFirstByStableId(String stableId);
+    List<Parameter> getByStableId(String stableId);
 }

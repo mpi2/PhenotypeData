@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.loads.statistics.load;
+package org.mousephenotype.cda.loads.statistics.load.impc;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.sql.DataSource;
 import java.sql.*;
 
-// FIXME FIXME FIXME - Compare/merge with Jeremy's version on the master branch first (2019-06-12 mrelac)
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = StatisticalResultLoaderTestConfig.class)
 @Sql(scripts = {"/sql/h2/cda/schema.sql", "/sql/h2/impress/impressSchema.sql", "/sql/h2/statistical_results.sql"})

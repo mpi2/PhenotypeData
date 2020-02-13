@@ -67,7 +67,7 @@ public class ParameterRepositoryTest {
     @Test
     public void getByStableId() throws Exception {
 
-        Parameter actual = parameterRepository.getByStableId("IMPC_BWT_008_001");
+        Parameter actual = parameterRepository.getFirstByStableId("IMPC_BWT_008_001");
         assertNotNull(actual);
 
         compareFields(getExpected(), actual);

@@ -16,7 +16,7 @@ public enum LifeStage {
     }
 
     public String getName() {
-        return this.toString();
+        return this.name;
     }
 
     public static LifeStage getByDisplayName(String displayName) {

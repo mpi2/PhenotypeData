@@ -1,11 +1,8 @@
-package org.mousephenotype.cda.loads.statistics.load;
+package org.mousephenotype.cda.loads.statistics.load.impc;
 
 
-import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
-import org.mousephenotype.cda.db.repositories.ParameterRepository;
-import org.mousephenotype.cda.db.statistics.MpTermService;
+import org.mousephenotype.cda.db.PrimaryDataSource;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
-import org.mousephenotype.cda.loads.statistics.load.threei.ThreeITestConfig;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -18,30 +15,19 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
 
 @Configuration
 @EnableJpaRepositories(basePackages = "org.mousephenotype.cda.db.repositories")
 @EnableTransactionManagement
 @EnableAutoConfiguration
-@ComponentScan(excludeFilters = {
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {
-                StatisticalResultLoaderConfig.class,
-                ThreeITestConfig.class})}
-)
+@ComponentScan(basePackages = {"org.mousephenotype.cda.loads.statistics.load.impc", "org.mousephenotype.cda.db"},
+        excludeFilters = {
+                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {
+                        PrimaryDataSource.class,
+                        StatisticalResultLoaderConfig.class,
+                        StatisticalResultLoader.class
+                })})
 public class StatisticalResultLoaderTestConfig {
-
-    private OntologyTermRepository ontologyTermRepository;
-    private ParameterRepository    parameterRepository;
-
-    public StatisticalResultLoaderTestConfig(
-            @NotNull OntologyTermRepository ontologyTermRepository,
-            @NotNull ParameterRepository parameterRepository)
-    {
-        this.ontologyTermRepository = ontologyTermRepository;
-        this.parameterRepository = parameterRepository;
-    }
-
 
     // cda database
     @Bean
@@ -51,11 +37,6 @@ public class StatisticalResultLoaderTestConfig {
                 .ignoreFailedDrops(true)
                 .setName("cda_test")
                 .build();
-    }
-
-    @Bean
-    public MpTermService mpTermService() {
-        return new MpTermService(ontologyTermRepository, parameterRepository);
     }
 
     @Bean

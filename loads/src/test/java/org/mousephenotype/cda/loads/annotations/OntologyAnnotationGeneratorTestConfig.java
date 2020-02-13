@@ -16,41 +16,32 @@
 
 package org.mousephenotype.cda.loads.annotations;
 
-import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
-import org.mousephenotype.cda.db.repositories.ParameterRepository;
-import org.mousephenotype.cda.db.statistics.MpTermService;
+import org.mousephenotype.cda.db.PrimaryDataSource;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.loads.common.CdaSqlUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import javax.inject.Inject;
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
 
 @Configuration
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
+@ComponentScan(basePackages = {"org.mousephenotype.cda.loads.annotations", "org.mousephenotype.cda.db"},
+        excludeFilters = {
+                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {
+                        OntologyAnnotationGeneratorConfig.class,
+                        PrimaryDataSource.class
+                })})
+@EnableAutoConfiguration
+@EnableTransactionManagement
 public class OntologyAnnotationGeneratorTestConfig {
-
-    private OntologyTermRepository ontologyTermRepository;
-    private ParameterRepository    parameterRepository;
-
-
-    @Inject
-    public OntologyAnnotationGeneratorTestConfig(
-            @NotNull OntologyTermRepository ontologyTermRepository,
-            @NotNull ParameterRepository parameterRepository)
-    {
-        this.ontologyTermRepository = ontologyTermRepository;
-        this.parameterRepository = parameterRepository;
-    }
-
-    //////////////
-    // DATASOURCES
-    //////////////
 
     @Value("${datasource.komp2.jdbc-url}")
     protected String cdabaseUrl;
@@ -66,21 +57,6 @@ public class OntologyAnnotationGeneratorTestConfig {
         return SqlUtils.getConfiguredDatasource(cdabaseUrl, cdabaseUsername, cdabasePassword);
     }
 
-
-    ///////////
-    // SERVICES
-    ///////////
-
-    @Bean
-    public MpTermService mpTermService() {
-        return new MpTermService(ontologyTermRepository, parameterRepository);
-    }
-
-
-    ////////////////
-    // Miscellaneous
-    ////////////////
-
     @Bean
     public CdaSqlUtils cdaSqlUtils() {
         return new CdaSqlUtils(jdbcCda());
@@ -90,23 +66,4 @@ public class OntologyAnnotationGeneratorTestConfig {
     public NamedParameterJdbcTemplate jdbcCda() {
         return new NamedParameterJdbcTemplate(komp2DataSource());
     }
-
-//    @Bean(name = "sessionFactoryHibernate")
-//    public SessionFactory sessionFactory() {
-//
-//        LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
-//        sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
-//        sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
-//
-//        return sessionBuilder.buildSessionFactory();
-//    }
-//
-//    @Bean(name = "komp2TxManager")
-//    @Primary
-//    protected PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
-//        JpaTransactionManager tm = new JpaTransactionManager();
-//        tm.setEntityManagerFactory(emf);
-//        tm.setDataSource(komp2DataSource());
-//        return tm;
-//    }
 }

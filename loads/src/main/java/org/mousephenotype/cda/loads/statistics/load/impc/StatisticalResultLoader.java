@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.loads.statistics.load;
+package org.mousephenotype.cda.loads.statistics.load.impc;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;

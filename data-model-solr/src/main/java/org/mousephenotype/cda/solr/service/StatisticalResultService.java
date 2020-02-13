@@ -1268,7 +1268,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 		r.setMetadataGroup(result.getMetadataGroup());
 		if(result.getNullTestPValue()!= null) r.setNullTestSignificance(new Double(result.getNullTestPValue()));
 		if(result.getPhenotypingCenter()!= null) r.setOrganisation(organisationRepository.getByName(result.getPhenotypingCenter()));
-		if(result.getParameterStableId()!= null) r.setParameter(parameterRepository.getByStableId(result.getParameterStableId()));
+		if(result.getParameterStableId()!= null) r.setParameter(parameterRepository.getFirstByStableId(result.getParameterStableId()));
 		if(result.getPipelineStableId()!= null) r.setPipeline(pipelineRepository.getByStableId(result.getPipelineStableId()));
 		//    if(result.getProjectName()!= null) r.setProject(projectDAO.getProjectByName(result.getProjectName()));
 		if(result.getpValue()!= null) r.setpValue(new Double(result.getpValue()));
@@ -1324,7 +1324,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 		r.setMaleMutants(result.getMaleMutantCount());
 		r.setMetadataGroup(result.getMetadataGroup());
 		if(result.getPhenotypingCenter()!= null) r.setOrganisation(organisationRepository.getByName(result.getPhenotypingCenter()));
-		if(result.getParameterStableId()!= null) r.setParameter(parameterRepository.getByStableId(result.getParameterStableId()));
+		if(result.getParameterStableId()!= null) r.setParameter(parameterRepository.getFirstByStableId(result.getParameterStableId()));
 		if(result.getPipelineStableId()!= null) r.setPipeline(pipelineRepository.getByStableId(result.getPipelineStableId()));
 		//       if(result.getProjectName()!= null) r.setProject(projectDAO.getProjectByName(result.getProjectName()));
 		if(result.getpValue()!= null) r.setpValue(new Double(result.getpValue()));

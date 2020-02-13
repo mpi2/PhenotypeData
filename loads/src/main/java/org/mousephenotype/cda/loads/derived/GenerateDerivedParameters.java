@@ -622,7 +622,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         int i = 0;
         String parameterToCreate = "IMPC_ACS_037_001";
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getFirstByStableId(parameterToCreate);
         String IMPC_ACS_006_001 = "IMPC_ACS_006_001";
         String IMPC_ACS_007_001 = "IMPC_ACS_007_001";
         String IMPC_ACS_008_001 = "IMPC_ACS_008_001";
@@ -712,7 +712,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         String nominatorParam = "ESLIM_003_001_004";
         String denominatorParam = "ESLIM_003_001_003";
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getFirstByStableId(parameterToCreate);
 
         Map<String, ObservationDTO> nominators = getIncrementalDataMapByParameter(nominatorParam);
         Map<String, ObservationDTO> denominators = getIncrementalDataMapByParameter(denominatorParam);
@@ -808,7 +808,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         Map<String, ObservationDTO> resultAt_t0 = getResultsAtIncrement(paramToUse, 0);
         Map<String, ObservationDTO> resultAt_t15 = getResultsAtIncrement(paramToUse, 15);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getFirstByStableId(parameterToCreate);
 
         Set <String> commonIds = resultAt_t0.keySet();
         commonIds.retainAll(resultAt_t15.keySet());
@@ -855,7 +855,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 //		probabilityMap.put("HomXHet", 0.5);
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getFirstByStableId(parameterToCreate);
 
         int i = 0;
 
@@ -917,7 +917,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         allIds.addAll(IMPC_EYE_021_001.keySet());
         allIds.addAll(IMPC_EYE_022_001.keySet());
 
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getFirstByStableId(parameterToCreate);
         int i = 0;
 
         deleteObservationsForParameterId(parameterToCreate);
@@ -993,7 +993,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         deleteObservationsForParameterId(parameterToCreate);
         List<ObservationDTO> res = new ArrayList<> (getResultsAtIncrement(parameterToCopyFrom, increment).values());
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getFirstByStableId(parameterToCreate);
         int i = 0;
         for (ObservationDTO dto: res){
             // then depending on the type, create the relevant information
@@ -1016,7 +1016,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         deleteObservationsForParameterId(parameterToCreate);
         List<ObservationDTO> res = getResultsByParameter(parameterToCopy);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getFirstByStableId(parameterToCreate);
         int i = 0;
         for (ObservationDTO dto: res){
             // then depending on the type, create the relevant information
@@ -1047,7 +1047,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getFirstByStableId(parameterToCreate);
         int i = 0;
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(minuend);
@@ -1105,7 +1105,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getFirstByStableId(parameterToCreate);
         int i = 0;
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(numeratorParameter);
@@ -1159,7 +1159,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         deleteObservationsForParameterId(parameterToCreate);
 
         Long time = System.currentTimeMillis();
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getFirstByStableId(parameterToCreate);
         int i = 0;
 
         System.out.println("getting parameters took " + (System.currentTimeMillis() - time));
@@ -1224,7 +1224,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getFirstByStableId(parameterToCreate);
         int i = 0;
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(firstParam);
@@ -1269,7 +1269,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getFirstByStableId(parameterToCreate);
         int i = 0;
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(numeratorParameter);
@@ -1309,7 +1309,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getFirstByStableId(parameterToCreate);
         int i = 0;
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(numeratorParameter);
@@ -1360,7 +1360,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getFirstByStableId(parameterToCreate);
         int i = 0;
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(numeratorParameter);
@@ -1431,7 +1431,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         String parameterToCreate = "ESLIM_011_001_705";
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getFirstByStableId(parameterToCreate);
         int i = 0;
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add("ESLIM_011_001_006");
@@ -1494,7 +1494,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         int i = 0;
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getFirstByStableId(parameterToCreate);
         Map<String, ObservationDTO> increments = getIncrementalDataMapByParameter(parameterId);
         Set<String> animalIds =  increments.keySet();
         for (String id: animalIds){
@@ -1550,7 +1550,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getFirstByStableId(parameterToCreate);
         int i = 0;
         ArrayList<String> listOfParameters = new ArrayList<>();
         listOfParameters.add(numerator);
@@ -1620,7 +1620,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getFirstByStableId(parameterToCreate);
         int i = 0;
 
         Map<String, ObservationDTO> increments = getIncrementalDataMapByParameter(parameterId);
@@ -1656,7 +1656,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     private int copyDifferenceOfIncrements(String parameterToCreate, String parameterId, Double incrementForMinued, Double incrementForSubtrahend) throws SQLException {
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getFirstByStableId(parameterToCreate);
         int i = 0;
         Map<String, ObservationDTO> increments = getIncrementalDataMapByParameter(parameterId);
         for (String id:  increments.keySet()){
@@ -1685,7 +1685,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getFirstByStableId(parameterToCreate);
         int i = 0;
         Map<String, ObservationDTO> increments = getIncrementalDataMapByParameter(parameterId);
         Set<String> animalIds =  increments.keySet();
@@ -1748,7 +1748,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getFirstByStableId(parameterToCreate);
         int i = 0;
         Map<String, ObservationDTO> increments = getIncrementalDataMapByParameter(parameterId);
         Map<String, ObservationDTO> denominators = getResultsMapByParameter(denominator);
@@ -1805,7 +1805,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         Map<String, Set<ObservationDTO>> res = new HashMap<> (); // <animalid, Set<obsDTO>>
         Map<String, String> metadataGroups = new HashMap<>();
         Map<String, String> metadata = new HashMap<>();
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+        Parameter param = parameterRepository.getFirstByStableId(parameterToCreate);
 
         Map<String, Map<String, Set<ObservationDTO>>> parameterMap = new HashMap<>();
         Set<String> animalIds =  getTimeSeriesResultsUnionByParameter(paramsOfInterest, parameterMap);
