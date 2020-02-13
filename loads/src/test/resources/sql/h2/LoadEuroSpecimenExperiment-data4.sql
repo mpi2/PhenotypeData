@@ -29,4 +29,4 @@ INSERT INTO ontology_term (acc, db_id, name, is_obsolete, replacement_acc) VALUE
 
 INSERT INTO `genomic_feature` VALUES ('MGI:1345634',3,'Amfr','autocrine motility factor receptor','1',2,'2',2,8,93971588,94012842,-1,'45.96','active');
 
-INSERT INTO `phenotyped_colony` VALUES (1942,'EPD0097_2_E01','EPD0097_2_E01','MGI:1345634',3,'Amfr<tm1a(KOMP)Wtsi>','C57BL/6JTyr;C57BL/6N',3,8,3,8);
+INSERT INTO `phenotyped_colony` VALUES (1942,'EPD0097_2_E01','EPD0097_2_E01','MGI:1345634',3,'Amfr<tm1a(KOMP)Wtsi>','C57BL/6JTyr;C57BL/6N','IMPC-CURATE-09A4A',3,8,3,8);

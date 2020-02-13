@@ -23,10 +23,10 @@ INSERT INTO `phenotype_parameter` VALUES (4650,'ESLIM_005_001_703',6,'Fat/Body w
 INSERT INTO `phenotype_parameter` VALUES (4651,'ESLIM_005_001_704',6,'Bone area (BMC/BMD)','Bone_area_BMC/BMD',1,0,'cm^2','FLOAT','simpleParameter','(ESLIM_005_001_005/ESLIM_005_001_004)',0,0,0,1,1,0,0,0,0,'',226);
 
 
-INSERT INTO `phenotyped_colony` VALUES (1717,'EPD0027_1_A04','EPD0027_1_A04','MGI:1918398',3,'Mier1<tm1a(EUCOMM)Wtsi>','C57BL/6JTyr;C57BL/6N',3,1,3,1);
-INSERT INTO `phenotyped_colony` VALUES (1828,'EPD0058_2_D10','EPD0058_2_D10','MGI:98397',3,'Src<tm2a(EUCOMM)Wtsi>','C57BL/6JTyr;C57BL/6N',3,8,3,8);
-INSERT INTO `phenotyped_colony` VALUES (5000,'MABH','EPD0027_1_A04','MGI:1918398',3,'Mier1<tm1a(EUCOMM)Wtsi>','C57BL/6Brd-Tyr<c-Brd>;C57BL/6N',3,1,3,1);
-INSERT INTO `phenotyped_colony` VALUES (5102,'MATZ','EPD0058_2_D10','MGI:98397',3,'Src<tm2a(EUCOMM)Wtsi>','C57BL/6Brd-Tyr<c-Brd>;C57BL/6N',3,8,3,8);
+INSERT INTO `phenotyped_colony` VALUES (1717,'EPD0027_1_A04','EPD0027_1_A04','MGI:1918398',3,'Mier1<tm1a(EUCOMM)Wtsi>','C57BL/6JTyr;C57BL/6N','IMPC-CURATE-EFA41',3,1,3,1);
+INSERT INTO `phenotyped_colony` VALUES (1828,'EPD0058_2_D10','EPD0058_2_D10','MGI:98397',3,'Src<tm2a(EUCOMM)Wtsi>','C57BL/6JTyr;C57BL/6N','IMPC-CURATE-EFA41',3,8,3,8);
+INSERT INTO `phenotyped_colony` VALUES (5000,'MABH','EPD0027_1_A04','MGI:1918398',3,'Mier1<tm1a(EUCOMM)Wtsi>','C57BL/6Brd-Tyr<c-Brd>;C57BL/6N','IMPC-CURATE-09A4A',3,1,3,1);
+INSERT INTO `phenotyped_colony` VALUES (5102,'MATZ','EPD0058_2_D10','MGI:98397',3,'Src<tm2a(EUCOMM)Wtsi>','C57BL/6Brd-Tyr<c-Brd>;C57BL/6N','IMPC-CURATE-09A4A',3,8,3,8);
 
 
 INSERT INTO ontology_term (acc, db_id, name, is_obsolete, replacement_acc) VALUES

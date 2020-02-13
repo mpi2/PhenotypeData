@@ -25,8 +25,8 @@ VALUES
   (3705,'MGP_BCI_015_001',6,'Anesthesia used for blood collection','anesthesia_used_for_blood_collection',1,0,'','TEXT','procedureMetadata',NULL,1,1,1,0,0,0,1,0,0,'',5567),
   (3706,'MGP_BCI_016_001',6,'Comment','comment',1,0,'','TEXT','simpleParameter',NULL,0,0,0,0,0,0,0,0,0,'',5568);
 
-INSERT INTO `phenotyped_colony` VALUES (6049,'MAIL','EPD0027_4_B02','MGI:1890476',3,'Rad18<tm1a(EUCOMM)Wtsi>','B6Brd;B6Dnk;B6N-Tyr<c-Brd>',3,8,3,8);
-INSERT INTO `phenotyped_colony` VALUES (6050,'MAIL2','EPD0027_4_B02','MGI:1890476',3,'Rad18<tm1a(EUCOMM)Wtsi>','B6Brd;B6Dnk;B6N-Tyr<c-Brd>',3,1,3,1);
+INSERT INTO `phenotyped_colony` VALUES (6049,'MAIL','EPD0027_4_B02','MGI:1890476',3,'Rad18<tm1a(EUCOMM)Wtsi>','B6Brd;B6Dnk;B6N-Tyr<c-Brd>','MGI:5446362',3,8,3,8);
+INSERT INTO `phenotyped_colony` VALUES (6050,'MAIL2','EPD0027_4_B02','MGI:1890476',3,'Rad18<tm1a(EUCOMM)Wtsi>','B6Brd;B6Dnk;B6N-Tyr<c-Brd>','MGI:5446362',3,1,3,1);
 
 INSERT INTO `genomic_feature` VALUES
   ('MGI:1890476', 3, 'Rad18', 'RAD18 E3 ubiquitin protein ligase', '1', 2, '2', 2, 6, 112619850, 112696686, -1, '52.42', 'active');

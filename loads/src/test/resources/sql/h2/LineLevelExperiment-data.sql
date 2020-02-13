@@ -20,8 +20,8 @@ INSERT INTO allele VALUES
   ('MGI:4434136', 3, 'MGI:2152453', 3, 'CV:000000101', 3, 'Gsk3a<tm1a(EUCOMM)Wtsi>', 'targeted mutation 1a, Wellcome Trust Sanger Institute');
 
 INSERT INTO phenotyped_colony VALUES
-  (3458,'HMGU-HEPD0659_5_E08-1-1','HEPD0659_5_E08','MGI:1919912',3,'Dis3<tm1e.1(EUCOMM)Hmgu>','C57BL/6NTac',9,15,9,15),
-  (301,'MCCU','EPD0051_1_H11','MGI:2152453',3,'Gsk3a<tm1a(EUCOMM)Wtsi>','C57BL/6Brd-Tyr<c-Brd>;C57BL/6N;C57BL/6NTac',3,8,3,8);
+  (3458,'HMGU-HEPD0659_5_E08-1-1','HEPD0659_5_E08','MGI:1919912',3,'Dis3<tm1e.1(EUCOMM)Hmgu>','C57BL/6NTac','MGI:2164831',9,15,9,15),
+  (301,'MCCU','EPD0051_1_H11','MGI:2152453',3,'Gsk3a<tm1a(EUCOMM)Wtsi>','C57BL/6Brd-Tyr<c-Brd>;C57BL/6N;C57BL/6NTac','IMPC-CURATE-C44BE',3,8,3,8);
 
 INSERT INTO ontology_term (acc, db_id, name, is_obsolete, replacement_acc) VALUES
   ('EFO:0002948', 15, 'postnatal',          0, null),
