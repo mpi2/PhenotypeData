@@ -213,7 +213,7 @@
                                 gene expression reporter element. Heterozygote E12.5 embryos from IMPC strains are
                                 treated to determine in situ expression of the targeted gene.</p>
                             <p>See all genes with <a
-                                    href='${cmsBaseUrl}/understand/data-focus/impc-images-search/impc-images-search/?procedure=Embryo LacZ'>embryo
+                                    href='${cmsBaseUrl}/understand/impc-image-search/?procedure=Embryo LacZ'>embryo
                                 LacZ images</a>.</p>
                         </div>
                         <div class="col-6">
@@ -226,10 +226,9 @@
                                 systems are impacted when the function of a gene is turned off. The developmental stage
                                 selected is determined by an initial assessment.</p>
                             <p>See embryo gross morphology images for
-                                <a href='${cmsBaseUrl}/understand/data-focus/impc-images-search/impc-images-search/?procedure=Gross Morphology Embryo E9.5'>E9.5</a>,
-                                <a href='${cmsBaseUrl}/understand/data-focus/impc-images-search/impc-images-search/?procedure=Gross Morphology Embryo E12.5'>E12.5</a>,
-                                <a href='${cmsBaseUrl}/understand/data-focus/impc-images-search/impc-images-search/?procedure=Gross Morphology Embryo E14.5-E15.5'>E14.5-E15.5</a>,
-                                <a href='${cmsBaseUrl}/understand/data-focus/impc-images-search/impc-images-search/?procedure=Gross Morphology Embryo E18.5'>E18.5</a>.
+                                <a href='${cmsBaseUrl}/understand/impc-image-search/?procedure=Gross Morphology Embryo E12.5'>E12.5</a>,
+                                <a href='${cmsBaseUrl}/understand/impc-image-search/?procedure=Gross Morphology Embryo E14.5-E15.5'>E14.5-E15.5</a>,
+                                <a href='${cmsBaseUrl}/understand/impc-image-search/?procedure=Gross Morphology Embryo E18.5'>E18.5</a>.
                             </p>
                         </div>
                     </div>
