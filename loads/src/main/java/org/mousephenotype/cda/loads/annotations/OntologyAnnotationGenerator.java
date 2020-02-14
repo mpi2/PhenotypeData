@@ -1649,7 +1649,7 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 		String query = "SELECT * FROM (SELECT s.id AS result_id, s.external_db_id, s.colony_id, s.project_id, s.experimental_zygosity AS zygosity, " +
 			" gf.name AS marker_symbol, bmgf.gf_acc, bmgf.gf_db_id, bma.allele_acc, bma.allele_db_id, bms.strain_acc, bms.strain_db_id, " +
 			" s.female_controls, s.female_mutants, s.male_controls, s.male_mutants, s.classification_tag, " +
-			" s.organisation_id AS center_id, pparam.name, s.parameter_id AS parameter_id, pproc.id AS procedure_id, s.pipeline_id AS pipeline_id, " +
+			" s.organisation_id AS center_id, pparam.name, pparam.stable_id as parameter_stable_id, s.parameter_id AS parameter_id, pproc.id AS procedure_id, s.pipeline_id AS pipeline_id, " +
 			" CASE WHEN s.genotype_effect_pvalue = 'NA' THEN NULL WHEN s.genotype_effect_pvalue != 'NA'       THEN CAST(                       SUBSTRING_INDEX(s.genotype_effect_pvalue, ',', 1)      AS DECIMAL(8,7))     END AS decreased_genotype_pvalue, " +
 			" CASE WHEN s.genotype_effect_pvalue = 'NA' THEN NULL WHEN s.genotype_effect_pvalue != 'NA'       THEN CAST(                       SUBSTRING_INDEX(s.genotype_effect_pvalue, ',', -1)     AS DECIMAL(8,7))     END AS increased_genotype_pvalue, " +
 			" CASE WHEN s.gender_female_ko_pvalue = 'NA' THEN NULL WHEN s.gender_female_ko_pvalue != 'NA'     THEN CAST(                       SUBSTRING_INDEX(s.gender_female_ko_pvalue, ',', 1)     AS DECIMAL(8,7))     END AS decreased_female_genotype_pvalue, " +
@@ -1711,6 +1711,7 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 						result.setPipelineId(resultSet.getLong("pipeline_id"));
 						result.setProcedureId(resultSet.getLong("procedure_id"));
 						result.setParameterId(resultSet.getLong("parameter_id"));
+						result.setParameterStableId(resultSet.getString("parameter_stable_id"));
 						result.setZygosity(ZygosityType.valueOf(resultSet.getString("zygosity")));
 						result.setStrainAcc(resultSet.getString("strain_acc"));
 						result.setStrainDbId(resultSet.getLong("strain_db_id"));
