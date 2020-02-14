@@ -60,6 +60,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -228,19 +229,20 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
             }
 
+            AtomicInteger atomicInt = new AtomicInteger(0);
             for (Future<List<StatisticalResultDTO>> future : producers) {
 
                 try {
-                    count += future.get().size();
+                    atomicInt.addAndGet(future.get().size());
                 } catch (ExecutionException | InterruptedException e) {
                     e.printStackTrace();
                 }
-
             }
 
             // Stop threadpool
             pool.shutdown();
 
+            count = atomicInt.get();
 
             if (SAVE) statisticalResultCore.commit();
             checkSolrCount(count);
