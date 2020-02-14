@@ -284,12 +284,12 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 			 */
 			missingMpIds = missingMpIds
 					.stream()
-					.filter(missing -> missing.toString().startsWith("MWT:"))
+					.filter(missing -> ! missing.toString().startsWith("MWT:"))
 					.collect(Collectors.toSet());
 
 			// Log the missing mp terms
 			if ( ! missingMpIds.isEmpty()) {
-				System.out.println("Missing mp terms: (mpTermId::pipelineStableId::procedureStableId::parameterStableId)");
+				System.out.println("Missing " + missingMpIds.size() + " mp terms: (mpTermId::pipelineStableId::procedureStableId::parameterStableId)");
 				missingMpIds
 						.stream()
 						.sorted(Comparator
@@ -310,10 +310,6 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 			e.printStackTrace();
 			throw new IndexerException(e);
 		}
-
-		if ( ! missingMpIds.isEmpty()) {
-            logger.info("Missing mp term COUNT: " + missingMpIds.size());
-        }
 
         logger.info(" Added {} total beans in {}", expectedDocumentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
 		return runStatus;
