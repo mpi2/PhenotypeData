@@ -277,6 +277,16 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 				}
 			}
 
+			/*
+			 * MWT terms started appearing in Impress before DR11.0 They aren't mp terms, they aren't part of any
+			 * ontology, and we (the CDA) do not use them, so technically they are not 'missing'. Remove them.
+			 * It is OK to add them to the mp terms so that any subsequent references to them don't break our code.
+			 */
+			missingMpIds = missingMpIds
+					.stream()
+					.filter(missing -> missing.toString().startsWith("MWT:"))
+					.collect(Collectors.toSet());
+
 			// Log the missing mp terms
 			if ( ! missingMpIds.isEmpty()) {
 				System.out.println("Missing mp terms: (mpTermId::pipelineStableId::procedureStableId::parameterStableId)");
