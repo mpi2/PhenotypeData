@@ -302,7 +302,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 		}
 
 		if ( ! missingMpIds.isEmpty()) {
-            runStatus.addWarning("Missing mp term COUNT: " + missingMpIds.size());
+            logger.info("Missing mp term COUNT: " + missingMpIds.size());
         }
 
         logger.info(" Added {} total beans in {}", expectedDocumentCount, commonUtils.msToHms(System.currentTimeMillis() - start));
