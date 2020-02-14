@@ -71,16 +71,6 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
         this.ontologyTermRepository = ontologyTermRepository;
         this.parameterRepository = parameterRepository;
 
-        try (Connection connection = komp2DataSource.getConnection()) {
-            initializeInsertPhenotypeCallSummaryStatement(connection);
-            initializeInsertCategoricalStatResultPhenotypeCallSummaryStatement(connection);
-            initializeInsertUnidimensionalStatResultPhenotypeCallSummaryStatement(connection);
-            initializeInsertRRPlusStatResultPhenotypeCallSummaryStatement(connection);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Cannot initialize prepared statements -- SQL Exception occured", e);
-        }
-
         lifeStageOntologyTermMap.put(LifeStage.E9_5, ontologyTermRepository.getByTermNameAndShortName(LifeStage.E9_5.getName(), "IMPC"));
         lifeStageOntologyTermMap.put(LifeStage.E12_5, ontologyTermRepository.getByTermNameAndShortName(LifeStage.E12_5.getName(), "IMPC"));
         lifeStageOntologyTermMap.put(LifeStage.E15_5, ontologyTermRepository.getByTermNameAndShortName(LifeStage.E15_5.getName(), "IMPC"));
@@ -133,6 +123,11 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
     public void run(String... strings) throws SQLException {
 
         Connection connection = komp2DataSource.getConnection();
+
+        initializeInsertPhenotypeCallSummaryStatement(connection);
+        initializeInsertCategoricalStatResultPhenotypeCallSummaryStatement(connection);
+        initializeInsertUnidimensionalStatResultPhenotypeCallSummaryStatement(connection);
+        initializeInsertRRPlusStatResultPhenotypeCallSummaryStatement(connection);
 
 		deleteData(connection);
         initializeSexSpecificMap(connection);
@@ -1206,6 +1201,7 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
                 result.setPipelineId(resultSet.getLong("pipeline_id"));
                 result.setProcedureId(resultSet.getLong("procedure_id"));
                 result.setParameterId(resultSet.getLong("parameter_id"));
+                result.setParameterStableId(resultSet.getString("parameter_stable_id"));
                 result.setGeneAcc(resultSet.getString("gf_acc"));
                 result.setGeneDbId(resultSet.getLong("gf_db_id"));
                 result.setAlleleAcc(resultSet.getString("allele_acc"));
@@ -1337,6 +1333,7 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 					}
 
 				}
+                result.setParameterStableId(parameterStableId);
 
 				statResults.add(result);
 
@@ -1832,6 +1829,7 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 				result.setPipelineId(resultSet.getLong("pipeline_id"));
 				result.setProcedureId(resultSet.getLong("procedure_id"));
 				result.setParameterId(resultSet.getLong("parameter_id"));
+				result.setParameterStableId(resultSet.getString("parameter_stable_id"));
 				result.setZygosity(ZygosityType.valueOf(resultSet.getString("zygosity")));
 				result.setStrainAcc(resultSet.getString("strain_acc"));
 				result.setStrainDbId(resultSet.getLong("strain_db_id"));
@@ -1906,6 +1904,7 @@ public class OntologyAnnotationGenerator implements CommandLineRunner {
 				result.setPipelineId(resultSet.getLong("pipeline_id"));
 				result.setProcedureId(resultSet.getLong("procedure_id"));
 				result.setParameterId(resultSet.getLong("parameter_id"));
+                result.setParameterStableId(resultSet.getString("parameter_stable_id"));
 				result.setZygosity(ZygosityType.valueOf(resultSet.getString("zygosity")));
 				result.setStrainAcc(resultSet.getString("strain_acc"));
 				result.setStrainDbId(resultSet.getLong("strain_db_id"));
