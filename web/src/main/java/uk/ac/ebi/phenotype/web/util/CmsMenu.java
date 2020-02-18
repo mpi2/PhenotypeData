@@ -40,8 +40,7 @@ public class CmsMenu extends HttpProxy {
 
 	private static String publicMenu = null;
 
-	private static final String DEFAULT_MENU = "[{\"name\":\"About the IMPC\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/about-impc\\/\",\"children\":[{\"name\":\"Consortium Members\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/about-impc\\/consortium-members\\/\",\"sort\":0,\"children\":[]},{\"name\":\"Collaborations\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/about-impc\\/collaborations\\/\",\"sort\":0,\"children\":[]},{\"name\":\"Funding\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/about-impc\\/funding\\/\",\"sort\":0,\"children\":[]},{\"name\":\"Animal Welfare\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/about-impc\\/animal-welfare\\/\",\"sort\":0,\"children\":[]}]},{\"name\":\"Data\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/\",\"children\":[{\"name\":\"Research Highlights\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/research-highlights\\/\",\"sort\":3,\"children\":[{\"name\":\"Embryo vignettes\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/research-highlights\\/embryo-vignettes\\/\"},{\"name\":\"Embryo development\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/research-highlights\\/embryo-development\\/\"},{\"name\":\"Sexual dimorphism\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/research-highlights\\/sexual-dimorphism\\/\"},{\"name\":\"Cardiovascular\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/research-highlights\\/cardiovascular\\/\"},{\"name\":\"Hearing\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/research-highlights\\/hearing\\/\"},{\"name\":\"Metabolism\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/research-highlights\\/metabolism\\/\"},{\"name\":\"Pain\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/research-highlights\\/pain\\/\"}]},{\"name\":\"Publications\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/publications\\/\",\"sort\":4,\"children\":[{\"name\":\"Papers using IMPC resources\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/publications\\/papers-using-impc-resources\\/\"}]},{\"name\":\"Accessing the Data\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/accessing-the-data\\/\",\"sort\":1,\"children\":[{\"name\":\"Latest data release\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/accessing-the-data\\/latest-data-release\\/\"},{\"name\":\"Access via API\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/accessing-the-data\\/access-via-api\\/\"},{\"name\":\"Access via FTP\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/accessing-the-data\\/access-via-ftp\\/\"},{\"name\":\"Batch query\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/accessing-the-data\\/batch-query\\/\"}]},{\"name\":\"Understanding the Data\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/the-data\\/\",\"sort\":0,\"children\":[{\"name\":\"How We Generate the Data\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/the-data\\/how-we-generate-the-data\\/\"},{\"name\":\"Phenotyping process\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/the-data\\/phenotyping-process-impress\\/\"}]},{\"name\":\"Advanced Tools\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/advanced-tools\\/\",\"sort\":2,\"children\":[{\"name\":\"IMPReSS\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/advanced-tools\\/impress\\/\"},{\"name\":\"Phenoview\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/advanced-tools\\/phenoview\\/\"},{\"name\":\"Parallel Coordinates\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/advanced-tools\\/parallel-coordinates\\/\"},{\"name\":\"GO Annotations\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/advanced-tools\\/go-annotations\\/\"},{\"name\":\"PhenStat\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/advanced-tools\\/phenstat\\/\"},{\"name\":\"Register Interest\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/advanced-tools\\/register-interest\\/\"},{\"name\":\"Embryo Viewer\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/advanced-tools\\/embryo-viewer\\/\"}]}]},{\"name\":\"Human Diseases\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/human-diseases\\/\",\"children\":[]},{\"name\":\"News\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/news\\/\",\"children\":[]},{\"name\":\"Blog\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/blog\\/\",\"children\":[]}]";
-
+	private static final String DEFAULT_MENU = "[{\"id\":16,\"name\":\"About the IMPC\",\"classes\":\"about-impc\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/about-impc\\/\",\"children\":[{\"name\":\"Consortium Members\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/about-impc\\/consortium-members\\/\",\"sort\":1,\"children\":[]},{\"name\":\"Collaborations\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/about-impc\\/collaborations\\/\",\"sort\":2,\"children\":[]},{\"name\":\"Funding\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/about-impc\\/funding\\/\",\"sort\":3,\"children\":[]},{\"name\":\"Animal Welfare\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/about-impc\\/animal-welfare\\/\",\"sort\":4,\"children\":[]},{\"name\":\"About KOMP\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/about-impc\\/about-komp\\/\",\"sort\":5,\"children\":[]},{\"name\":\"About IKMC\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/about-impc\\/about-ikmc\\/\",\"sort\":6,\"children\":[]}]},{\"id\":2451,\"name\":\"Data\",\"classes\":\"data\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/\",\"children\":[{\"name\":\"Data Focus\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/data-focus\\/\",\"sort\":3,\"children\":[{\"name\":\"Embryo Vignettes\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/data-focus\\/embryo-vignettes\\/\"},{\"name\":\"Embryo Development\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/data-focus\\/embryo-development\\/\"},{\"name\":\"Cardiovascular\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/data-focus\\/cardiovascular\\/\"},{\"name\":\"Pain\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/data-focus\\/pain\\/\"},{\"name\":\"Histopathology\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/data-focus\\/histopathology\\/\"},{\"name\":\"Embryo Heatmap\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/data-focus\\/embryo-heatmap\\/\"}]},{\"name\":\"Accessing the Data\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/accessing-the-data\\/\",\"sort\":1,\"children\":[{\"name\":\"Latest data release\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/accessing-the-data\\/latest-data-release\\/\"},{\"name\":\"Access via API\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/accessing-the-data\\/access-via-api\\/\"},{\"name\":\"Access via FTP\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/accessing-the-data\\/access-via-ftp\\/\"},{\"name\":\"Batch query\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/accessing-the-data\\/batch-query\\/\"}]},{\"name\":\"Understanding Our Data\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/the-data\\/\",\"sort\":0,\"children\":[{\"name\":\"How we generate our data\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/the-data\\/how-we-generate-the-data\\/\"},{\"name\":\"Phenotyping process\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/the-data\\/phenotyping-process-impress\\/\"},{\"name\":\"Allele design\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/the-data\\/allele-design\\/\"}]},{\"name\":\"Advanced Tools\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/advanced-tools\\/\",\"sort\":2,\"children\":[{\"name\":\"IMPReSS\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/advanced-tools\\/impress\\/\"},{\"name\":\"Parallel Coordinates\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/advanced-tools\\/parallel-coordinates\\/\"},{\"name\":\"PhenStat\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/advanced-tools\\/phenstat\\/\"},{\"name\":\"iMits\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/advanced-tools\\/imits\\/\"},{\"name\":\"PhenoDCC Tools\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/advanced-tools\\/phenodcc-homepage\\/\"},{\"name\":\"Embryo viewer\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/understand\\/advanced-tools\\/embryo-viewer\\/\"}]}]},{\"id\":18,\"name\":\"Human Diseases\",\"classes\":\"human-diseases\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/human-diseases\\/\",\"children\":[]},{\"id\":7486,\"name\":\"Publications\",\"classes\":\"publications\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/publications\\/\",\"children\":[{\"name\":\"Papers using IMPC resources\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/publications\\/papers-using-impc-resources\\/\",\"sort\":2,\"children\":[]},{\"name\":\"Latest IMPC Papers\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/publications\\/latest-impc-papers\\/\",\"sort\":0,\"children\":[]},{\"name\":\"Data supporting IMPC papers\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/publications\\/data-supporting-impc-papers\\/\",\"sort\":1,\"children\":[{\"name\":\"Essential Genes - Translating to Other Species\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/publications\\/data-supporting-impc-papers\\/essential-genes-linking-to-disease\\/\"},{\"name\":\"Essential Genes \\u2013 Linking to Disease\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/publications\\/data-supporting-impc-papers\\/essential-genes-linking-to-disease-2\\/\"},{\"name\":\"Genetic Basis for Metabolic Diseases\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/publications\\/data-supporting-impc-papers\\/metabolism\\/\"},{\"name\":\"Genes Critical for Hearing Identified\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/publications\\/data-supporting-impc-papers\\/hearing\\/\"},{\"name\":\"Sexual dimorphism\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/publications\\/data-supporting-impc-papers\\/sexual-dimorphism\\/\"}]}]},{\"id\":19,\"name\":\"News\",\"classes\":\"news\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/news\\/\",\"children\":[]},{\"id\":983,\"name\":\"Blog\",\"classes\":\"blog\",\"link\":\"https:\\/\\/www.mousephenotype.org\\/blog\\/\",\"children\":[]}]";
 
 	/**
 	 * Flush the cache every so often.  This is triggered by Spring on a schedule of
@@ -133,7 +132,8 @@ public class CmsMenu extends HttpProxy {
 
 		for (int i = 0; i < menu.length(); i++) {
 			JSONObject topLevel = (JSONObject) menu.get(i);
-			MenuItem mi = new MenuItem(topLevel.getString("link"), topLevel.getString("name"));
+			String classes = topLevel.has("classes") ? topLevel.getString("classes") : null;
+			MenuItem mi = new MenuItem(topLevel.getString("link"), topLevel.getString("name"), classes);
 			assignSort(topLevel, mi);
 
 			JSONArray children = topLevel.getJSONArray("children");
@@ -189,6 +189,7 @@ public class CmsMenu extends HttpProxy {
 		String url;
 		String name;
 		String cssId;
+		String classes;
 		String mobileCssId;
 		String menuId;
 		Integer sort;
@@ -198,6 +199,13 @@ public class CmsMenu extends HttpProxy {
 			this.url = url;
 			this.name = name;
 		}
+
+		public MenuItem(String url, String name, String classes) {
+			this.url = url;
+			this.name = name;
+			this.classes = classes;
+		}
+
 
 		public void addChild(MenuItem menuItem) {
 			if (children == null) { children = new ArrayList<>(); }
@@ -226,6 +234,10 @@ public class CmsMenu extends HttpProxy {
 
 		public String getCssId() {
 
+			if (classes != null) {
+				return classes;
+			}
+
 			String cssId = "";
 
 			if (name.toLowerCase().contains("about")) {
@@ -236,6 +248,8 @@ public class CmsMenu extends HttpProxy {
 				cssId = "menu-item-18";
 			} else if (name.toLowerCase().contains("news")) {
 				cssId = "menu-item-19";
+			} else if (name.toLowerCase().contains("publications")) {
+				cssId = "menu-item-7486";
 			} else if (name.toLowerCase().contains("blog")) {
 				cssId = "menu-item-983";
 			}
@@ -244,6 +258,10 @@ public class CmsMenu extends HttpProxy {
 		}
 
 		public String getMobileCssId() {
+
+			if (classes != null) {
+				return classes;
+			}
 
 			String cssId = "";
 
@@ -272,6 +290,8 @@ public class CmsMenu extends HttpProxy {
 				menuId = "data-menu";
 			} else if (name.toLowerCase().contains("news")) {
 				menuId = "news-menu";
+			} else if (name.toLowerCase().contains("publications")) {
+				menuId = "publications-menu";
 			}
 
 			return menuId;
