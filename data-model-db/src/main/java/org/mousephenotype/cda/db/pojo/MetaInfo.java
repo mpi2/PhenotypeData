@@ -25,6 +25,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Objects;
 
 @Entity
 @Table(name = "meta_info")
@@ -44,4 +45,20 @@ public class MetaInfo {
     private String propertyValue;
 
     private String description;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MetaInfo)) return false;
+        MetaInfo metaInfo = (MetaInfo) o;
+        return id.equals(metaInfo.id) &&
+                propertyKey.equals(metaInfo.propertyKey) &&
+                propertyValue.equals(metaInfo.propertyValue) &&
+                Objects.equals(description, metaInfo.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, propertyKey, propertyValue, description);
+    }
 }
