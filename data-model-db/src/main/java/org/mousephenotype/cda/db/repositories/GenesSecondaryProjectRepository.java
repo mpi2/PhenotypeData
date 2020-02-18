@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.db.repositories;
 
 import org.mousephenotype.cda.db.pojo.GenesSecondaryProject;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.repository.CrudRepository;
 
@@ -25,6 +26,9 @@ import java.util.Set;
 @ComponentScan(basePackages = "org.mousephenotype.cda.db.utilities")
 public interface GenesSecondaryProjectRepository extends CrudRepository<GenesSecondaryProject, Long> {
 
+    @Cacheable("secondaryProjects")
     Set<GenesSecondaryProject> getAllBySecondaryProjectId(String secondaryProjectId);
+
+    @Cacheable("secondaryProjects")
     Set<GenesSecondaryProject> getAllBySecondaryProjectIdAndGroupLabel(String secondaryProjectId, String groupLabel);
 }

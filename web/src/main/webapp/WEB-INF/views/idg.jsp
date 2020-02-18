@@ -72,7 +72,7 @@
                     <h2 id="section-associations">IMPC data representation for IDG genes</h2>
                     <p>
                         IDG human genes are mapped to mouse orthologs using <a href="${baseUrl}/secondaryproject/idg/mapping">HomoloGene</a>. The
-                        <a href="${baseUrl}/documentation/aboutImpc#whatisimpc">IMPC consortium</a> is using different <a href="${baseUrl}/documentation/aboutImpc#howdoesimpcwork">complementary
+                        <a href="${cmsBaseUrl}/about-impc/">IMPC consortium</a> is using different <a href="${baseUrl}/documentation/aboutImpc#howdoesimpcwork">complementary
                         targeting strategies</a> to produce Knockout strains. Mice are produced and submitted to standardised phenotyping pipelines.
                         Currently 77.4 % of mouse IDG gene have data representation in IMPC, the bar charts and heatmap below capture the
                         IMPC data representation at different levels. The percentage might increase as we get more data and this page will reflect the change.
@@ -94,7 +94,7 @@
                     <h4>IMPC IDG data Heat Map</h4>
                     <p>
                         The heat map indicates the detailed IDG gene data representation in IMPC, from product availability to phenotypes.
-                        Phenotypes are grouped by <a href="${baseUrl}/ontologyBrowser?termId=MP:0005375">biological systems</a>.
+                        Phenotypes are grouped by biological systems.
                     </p>
 
                     <div id="geneHeatmap" class="geneHeatMap" style="overflow: hidden; overflow-x: auto;"></div>
@@ -104,7 +104,7 @@
             <div class="row">
                 <div class="col-12">
                     <h2 id="section-associations">Phenotype Associations</h2>
-                    <p>The following chord diagrams represent the various <a href="${baseUrl}/ontologyBrowser?termId=MP:0005375">biological systems</a> phenotype associations for IDG genes categorized both in all and in each family group. The line thickness is correlated with the strength of the association.
+                    <p>The following chord diagrams represent the various biological systems phenotype associations for IDG genes categorized both in all and in each family group. The line thickness is correlated with the strength of the association.
                         Clicking on chosen phenotype(s) on the diagram allow to select common genes. Corresponding gene lists can be downloaded using the download icon.</p>
 
                     <h3>All families</h3>

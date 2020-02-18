@@ -4,12 +4,17 @@ td {
     word-wrap: break-word;
 }
 
+.page-content table th, .page-content table td {
+    font-size: 12px;
+    line-height: 1.1;
+}
+
 .geneHeatMap {
     font-size: 80%;
 }
 
 .geneHeatmap td, th {
-    padding: 0.0em 0.0em 0.0em 0.0em;
+    padding: 0;
 }
 
 table, tr, td, th {
