@@ -1546,7 +1546,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
             Map<String, Set<String>> genesByTopLevelMp = new HashMap<>(); // <mp, <genes>>
             Integer[][] matrix = new Integer[facets.size()][facets.size()];
             // initialize labels -> needed to keep track of order for the matrix cells
-            List<String>  matrixLabels = facets.stream().collect(Collectors.toList());
+            List<String>  matrixLabels = new ArrayList<>(facets);
 
             // Fill matrix with 0s
             for (int i = 0; i < matrixLabels.size(); i++) {
@@ -1644,8 +1644,13 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         query.addFacetField(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
 
         if ( idg != null && idg){
-            Set<GenesSecondaryProject> projectBeans = genesSecondaryProjectRepository.getAllBySecondaryProjectIdAndGroupLabel("idg", idgClass);
-            query.addFilterQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":(\"" + projectBeans.stream().map(gene -> {return gene.getMgiGeneAccessionId();}).collect(Collectors.joining("\" OR \"")) + "\")");
+
+            // If the idgClass has not been set, return all for the idg project, else filter all for the class specified
+            Set<GenesSecondaryProject> projectBeans =
+                    idgClass == null ?
+                    genesSecondaryProjectRepository.getAllBySecondaryProjectId("idg") :
+                    genesSecondaryProjectRepository.getAllBySecondaryProjectIdAndGroupLabel("idg", idgClass);
+            query.addFilterQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":(\"" + projectBeans.stream().map(GenesSecondaryProject::getMgiGeneAccessionId).collect(Collectors.joining("\" OR \"")) + "\")");
         }
 
         if (topLevelMpTerms != null) {
@@ -1662,7 +1667,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
             // Filter out the pivot facets for un-wanted MP top level terms. We can get other top levels in the facets due to multiple parents.
             Map<String, Set<String>> genesByMpTopLevel = getFacetPivotResultsKeepCount(genotypePhenotypeCore.query(interimQuery), interimPivot).entrySet().stream()
                     .filter(entry -> topLevelMpTerms.contains(entry.getKey()))
-                    .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue().keySet()));
+                    .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().keySet()));
 
             // Instantiate commonGenes with itself as it will work as identity on first set intersection (intersection of same sets)
             Set<String> commonGenes = genesByMpTopLevel.values().iterator().next();
