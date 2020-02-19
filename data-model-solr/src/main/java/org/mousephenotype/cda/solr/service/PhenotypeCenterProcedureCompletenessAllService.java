@@ -142,8 +142,8 @@ public class PhenotypeCenterProcedureCompletenessAllService extends BasicService
             final Set<PhenotypeCenterAllServiceBean> dataByCenter   = getCenterData(center);
             int                                      centerRowCount = 0;
 
-            logger.info("Processing center '{} - Start'", center);
-            System.out.println(df.format(new Date()) + ": Processing center '" + center + "' - Start.");
+            logger.debug("Processing center '{} - Start'", center);
+            logger.debug(df.format(new Date()) + ": Processing center '" + center + "' - Start.");
 
             for (ProcedureCompletenessDTO dto : dtos) {
 
@@ -315,11 +315,11 @@ public class PhenotypeCenterProcedureCompletenessAllService extends BasicService
                 results.add(row.toArray(temp));
                 centerRowCount++;
                 if (centerRowCount % 1000 == 0) {
-                    System.out.println("  Wrote " + centerRowCount + " rows.");
+                    logger.debug("  Wrote " + centerRowCount + " rows.");
                 }
             }
 
-            System.out.println(df.format(new Date()) + ": Processing center '" + center + "' - End. " + centerRowCount + " rows added.");
+            logger.debug(df.format(new Date()) + ": Processing center '" + center + "' - End. " + centerRowCount + " rows added.");
         }
 
         if ( ! missingMpTerms.isEmpty()) {
@@ -508,7 +508,7 @@ public class PhenotypeCenterProcedureCompletenessAllService extends BasicService
 
         if ((PERSIST_PATH != null) && isPersistedDataByCenter(center)) {
 
-            logger.info("loading persisted data for center '{}'", center);
+            logger.debug("loading persisted data for center '{}'", center);
             data = loadDataByCenter(center);
 
         } else {
