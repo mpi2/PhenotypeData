@@ -111,6 +111,9 @@
 
                 Read more in our paper on <a href="https://europepmc.org/articles/PMC5295821">High-throughput discovery of novel developmental phenotypes, Nature 2016</a>
             </p>
+            <p class="alert alert-info w-100 my-3">
+			Click on a cell of the heatmap to activate the IMPC Embryo Viewer.</p>
+                            
                     <p class="my-0"><b>Legend:</b></p>
                     <c:set var="noData" scope="page" value="fa fa-circle"/>
                     <c:set var="notApplicable" scope="page" value="fa fa-circle"/>
