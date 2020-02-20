@@ -82,7 +82,7 @@
                                             reload the page.</p>
 
                                         <p><b>More information can be found in the <a
-                                                href="${cmsBaseUrl}/help/faqs/data-visualization/parallel-coordinates-viewer/">Help
+                                                href="${cmsBaseUrl}/help/data-visualization/faqs/how-do-i-use-the-parallel-coordinates-viewer/">Help
                                             pages</a>.</b></p>
 
                                         <form class="shadow-sm p-3 mb-5 bg-light rounded" id="target">
