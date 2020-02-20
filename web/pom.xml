@@ -362,7 +362,40 @@
 
             </plugin>
 
+<!--            <plugin>-->
+<!--                <groupId>pl.project13.maven</groupId>-->
+<!--                <artifactId>git-commit-id-plugin</artifactId>-->
+<!--                &lt;!&ndash;-->
+<!--                     Ensure that the revision goal is invoked during the initialize-->
+<!--                     phase.-->
+<!--                &ndash;&gt;-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <goals>-->
+<!--                            <goal>revision</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--                <configuration>-->
+<!--                    &lt;!&ndash;-->
+<!--                        Configure the location of the .git directory.-->
+<!--                    &ndash;&gt;-->
+<!--                    <dotGitDirectory>${project.basedir}/../../.git</dotGitDirectory>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+
         </plugins>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+        </resources>
+
     </build>
 
 </project>
