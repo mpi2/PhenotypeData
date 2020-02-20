@@ -68,7 +68,7 @@
 
 <%--    <script type='text/javascript' src="${baseUrl}/js/general/toggle.js?v=${version}" async></script>--%>
     <script type="text/javascript" src="${baseUrl}/js/head.min.js?v=${version}" async></script>
-    <script type='text/javascript' src='${baseUrl}/js/buffaloZoo.js' async></script>
+    <script type='text/javascript' src='${baseUrl}/js/buffaloZoo.js?v=${version}' async></script>
     <script type="text/javascript" src="${baseUrl}/js/default.js?v=${version}" async></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.css" async/>
     <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.js" async></script>

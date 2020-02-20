@@ -68,7 +68,7 @@
 
     <script type='text/javascript' src="${baseUrl}/js/general/toggle.js?v=${version}"></script>
     <script type="text/javascript" src="${baseUrl}/js/head.min.js?v=${version}"></script>
-    <script type='text/javascript' src='${baseUrl}/js/buffaloZoo.js'></script>
+    <script type='text/javascript' src='${baseUrl}/js/buffaloZoo.js?v=${version}'></script>
     <script type="text/javascript" src="${baseUrl}/js/default.js?v=${version}"></script>
     <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.css" />

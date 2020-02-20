@@ -31,7 +31,7 @@
     <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.bundle.min.js'
         async='async'></script>
     <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/object-fit-images/3.2.4/ofi.min.js'></script>
-    <script type="text/javascript" src="${baseUrl}/js/buffaloZoo.js"></script>
+    <script type="text/javascript" src="${baseUrl}/js/buffaloZoo.js?v=${version}"></script>
 </head>
 
 <body>
