@@ -34,7 +34,7 @@
 				<div class="col-12">
 
 					<h5>IMPC data demonstrates the effect of sex on many phenotypes, supporting the importance of
-						including males and females in biomedical research</h5>
+						including males and females in biomedical research.</h5>
 					<ul>
 						<li>Press releases: <a href="http://www.bbc.co.uk/programmes/b08vwn6w">BBC Radio 4 - "inside Science"</a>&nbsp;|&nbsp;<a href="https://www.newscientist.com/article/2138671-research-on-male-animals-prevents-women-from-getting-best-drugs/">New Scientist</a>&nbsp;|&nbsp;<a href="http://www.dailymail.co.uk/wires/reuters/article-4640316/Sexual-equality-medical-research-long-overdue-study-finds.html">Daily Mail</a>&nbsp;|&nbsp;<a href="https://www.sciencedaily.com/releases/2017/06/170626124505.htm">Science Daily</a>&nbsp;|&nbsp;<a href="http://fortune.com/2017/06/26/sexual-bias-medical-research/">Fortune</a>&nbsp;|&nbsp;<a href="${cmsBaseUrl}/news/study-of-unprecedented-size-reveals-how-sex-blindspot-could-misdirect-medical-research/">IMPC</a>&nbsp;|&nbsp;<a href="http://www.ebi.ac.uk/about/news/press-releases/sexual-dimorphism-dilemma">EMBL-EBI</a>&nbsp;|&nbsp;<a href="http://www.sanger.ac.uk/news/view/study-reveals-how-sex-blindspot-could-misdirect-medical-research">Sanger</a></li>
 						<li> <a href="https://zenodo.org/record/260398#.WVIkChPys-c">Supporting material to enable replicable analysis</a></li>
