@@ -56,7 +56,10 @@
         margin-bottom: 0px;
     }
 
-
+    .page-content table th, .page-content table td {
+        line-height: 1.5;
+        font-size: 10px;
+    }
 
 
 </style>
