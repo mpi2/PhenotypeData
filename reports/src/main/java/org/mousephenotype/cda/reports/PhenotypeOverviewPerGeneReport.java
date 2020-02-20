@@ -33,7 +33,6 @@ import org.springframework.stereotype.Component;
 import java.beans.Introspector;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Phenotype Overview Per Gene report.
@@ -136,7 +135,7 @@ public class PhenotypeOverviewPerGeneReport extends AbstractReport {
             }
             csvWriter.writeAll(result);
 
-        } catch (SolrServerException | InterruptedException | ExecutionException | IOException e) {
+        } catch (SolrServerException | IOException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }
 

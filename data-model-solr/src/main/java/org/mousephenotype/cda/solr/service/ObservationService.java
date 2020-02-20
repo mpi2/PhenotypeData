@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.solr.service;
 
+import com.google.common.collect.Iterators;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -55,7 +56,6 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 
@@ -215,39 +215,46 @@ public class ObservationService extends BasicService implements WebStatus {
     }
 
 
-    public List<String> getGenesWithMoreProcedures(int n, List<String> resourceName)
-            throws SolrServerException, IOException, InterruptedException, ExecutionException {
+    public List<String> getGenesWithMoreProcedures(int minProcedureCount, List<String> resourceName)
+            throws SolrServerException, IOException {
 
-        List<String> genes = new ArrayList<>();
-        SolrQuery q = new SolrQuery();
+        Set<String> genes = new HashSet<>();
 
-        if (resourceName != null) {
-            q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
-        } else {
-            q.setQuery("*:*");
-        }
+        Set<String> geneAccessionIds = getAllGeneIdsByResource(resourceName, true);
+        Iterators.partition(geneAccessionIds.iterator(), 50).forEachRemaining(geneAccessions ->
+        {
 
-        String geneProcedurePivot = ObservationDTO.GENE_SYMBOL + "," + ObservationDTO.PROCEDURE_NAME;
+            SolrQuery q = new SolrQuery()
+                    .setQuery(geneAccessions.stream().collect(Collectors.joining("\" OR \"", ObservationDTO.GENE_ACCESSION_ID + ":(\"", "\")")))
+                    .addFacetQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"))
+                    .setRows(1)
+                    .setFacetMinCount(1)
+                    .setFacet(true)
+                    .setFacetLimit(-1);
 
-        q.add("facet.pivot", geneProcedurePivot);
+            String geneProcedurePivot = ObservationDTO.GENE_SYMBOL + "," + ObservationDTO.PROCEDURE_NAME;
+            q.add("facet.pivot", geneProcedurePivot);
 
-        q.setFacet(true);
-        q.setRows(1);
-        q.setFacetMinCount(1);
-        q.set("facet.limit", -1);
+            logger.info("Solr url for getOverviewGenesWithMoreProceduresThan " + SolrUtils.getBaseURL(experimentCore) + "/select?" + q);
+            QueryResponse response;
+            try {
+                response = experimentCore.query(q);
+            } catch (SolrServerException | IOException e) {
+                e.printStackTrace();
+                return;
+            }
 
-        logger.info("Solr url for getOverviewGenesWithMoreProceduresThan " + SolrUtils.getBaseURL(experimentCore) + "/select?" + q);
-        QueryResponse response = experimentCore.query(q);
-
-        for (PivotField pivot : response.getFacetPivot().get(geneProcedurePivot)) {
-            if (pivot.getPivot() != null){
-                if (pivot.getPivot().size() >= n) {
-                    genes.add(pivot.getValue().toString());
+            for (PivotField pivot : response.getFacetPivot().get(geneProcedurePivot)) {
+                if (pivot.getPivot() != null){
+                    if (pivot.getPivot().size() >= minProcedureCount) {
+                        genes.add(pivot.getValue().toString());
+                    }
                 }
             }
-        }
 
-        return genes;
+        });
+
+        return new ArrayList<>(genes);
     }
 
     public List<ObservationDTO> getObservationsByParameterStableId(String parameterStableId) throws SolrServerException, IOException {

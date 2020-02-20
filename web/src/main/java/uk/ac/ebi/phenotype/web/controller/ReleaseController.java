@@ -392,7 +392,7 @@ public class ReleaseController {
 	}
 
 
-	public HashMap<String, Integer> getFertilityMap() {
+	public HashMap<String, Integer> getFertilityMap() throws IOException, SolrServerException {
 
 		List<String> resource = new ArrayList<>();
 		resource.add("IMPC");
