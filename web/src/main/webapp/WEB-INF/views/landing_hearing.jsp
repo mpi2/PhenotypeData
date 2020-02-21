@@ -83,14 +83,12 @@
         <div class="container">
             <div class="row">
                 <div class="col-12">
-                    <h5>The IMPC is hunting unknown genes responsible for hearing loss by screening knockout mice.</h5>
-                    <ul>
-                        <li> 360 million people worldwide live with mild to profound hearing loss</li>
-                        <li> 70% hearing loss occurs as an isolated condition (non-syndromic) and 30% with additional
-                            phenotypes (syndromic)
-                        </li>
-                        <li> The vast majority of genes responsible for hearing loss are unknown</li>
-                    </ul>
+                    <p>The IMPC is hunting unknown genes responsible for hearing loss by screening knockout mice.
+                        Worldwide, 360 million people live with mild to profound hearing loss. Notably, 70% hearing loss
+                        occurs
+                        as an isolated condition (non-syndromic) and 30% with additional
+                        phenotypes (syndromic). The vast majority of genes responsible for hearing loss are unknown.
+                    </p>
                     <ul>
 
                         <li> Press releases:
@@ -98,7 +96,7 @@
                             <a href="https://www.mrc.ac.uk/news/browse/genes-critical-for-hearing-identified/">MRC</a>&nbsp;|&nbsp;
                             <a href="${cmsBaseUrl}/blog/2018/04/06/novel-hearing-loss-genes-identified-in-large-study-by-scientists-across-the-world/">IMPC</a>
                         </li>
-						<li><a href="http://bit.ly/IMPCDeafness">Nature Communications (released 12/10/2017)</a></li>
+                        <li><a href="http://bit.ly/IMPCDeafness">Nature Communications (released 12/10/2017)</a></li>
                         <li>
                             <a href="https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-017-00595-4/MediaObjects/41467_2017_595_MOESM1_ESM.pdf">Supplementary
                                 Material</a></li>

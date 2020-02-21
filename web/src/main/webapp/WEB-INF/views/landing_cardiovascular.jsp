@@ -50,13 +50,13 @@
         <div class="container">
             <div class="row">
                 <div class="col-12">
-                    <h5>
+                    <p>
                         This page introduces cardiovascular related phenotypes present in mouse lines produced by the
                         IMPC. The cardiovascular system
                         refers to the observable morphological and physiological characteristics of the mammalian heart,
                         blood vessels, or circulatory
                         system that are manifested through development and lifespan.
-                    </h5>
+                    </p>
                 </div>
             </div>
 

@@ -190,14 +190,16 @@ public class LandingPageController {
         return "embryo";
     }
 
+
 	/**
-	 *
-	 * @param model
-	 * @return
-	 * @throws SolrServerException
-	 * @throws IOException
+	 * /embryo_heatmap has been renamed embryo_imaging
 	 */
 	@RequestMapping("/embryo_heatmap")
+	public String rootForward() {
+		return "redirect:/embryo_imaging";
+	}
+
+	@RequestMapping("/embryo_imaging")
 	public String embryoHeatmap(Model model) throws SolrServerException, IOException {
 		//To display the heatmap we need data in form of ints [ column , row, value ] but row starts from bottom left hand side
 		System.out.println("hitting embryo heatmap endpoint");
@@ -212,7 +214,7 @@ public class LandingPageController {
 		model.addAttribute("geneSymbols", heatmapData.getGeneSymbols());
 		model.addAttribute("mgiAccessions", heatmapData.getMgiAccessions());
 		model.addAttribute("rows", heatmapData.getRows());
-		return "embryo_heatmap";
+		return "embryo_imaging";
 	}
 
     @RequestMapping(value = "/biological-system/pain", method = RequestMethod.GET)
