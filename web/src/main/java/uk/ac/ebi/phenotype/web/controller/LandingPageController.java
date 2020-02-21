@@ -195,8 +195,8 @@ public class LandingPageController {
 	 * /embryo_heatmap has been renamed embryo_imaging
 	 */
 	@RequestMapping("/embryo_heatmap")
-	public String rootForward(HttpServletRequest request) {
-		return "redirect:" + request.getAttribute("baseUrl").toString() + "/embryo_imaging";
+	public String rootForward() {
+		return "redirect:/embryo_imaging";
 	}
 
 	@RequestMapping("/embryo_imaging")
