@@ -595,7 +595,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
     public List<GenotypePhenotypeDTO> getAllGenotypePhenotypes(List<String> resourceName) 
     throws SolrServerException, IOException  {
 
-        SolrQuery query = new SolrQuery().setRows(1000000);
+        SolrQuery query = new SolrQuery().setRows(Integer.MAX_VALUE);
        
         if (resourceName != null){
             query.setQuery(StatisticalResultDTO.RESOURCE_NAME + ":(" + StringUtils.join(resourceName, " OR ") + ")");
