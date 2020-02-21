@@ -173,8 +173,8 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		logger.info(" Added {} total Image URL beans", imageBeans.size());
 
 		if (imageBeans.size() < 100) {
-			runStatus.addError(
-					"Didn't get any image entries from the db with omero_ids set so exiting the impc_image Indexer!!");
+			String message = "Error: got less than 100 image entries from the db with omero_ids set so exiting the impc_image Indexer.";
+			throw new IndexerException(message);
 		}
 
 		this.alleles = populateAlleles();
