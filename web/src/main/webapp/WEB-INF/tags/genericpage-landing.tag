@@ -179,7 +179,7 @@
                             </div>
                             <div class="portal-search__inputs">
                                 <form id="searchForm" action="${baseUrl}/search">
-                                    <input id="searchTerm" name="term" class="portal-search__input" value="${term}" placeholder="Search All 5681 Knockout Data..." type="text"/>
+                                    <input id="searchTerm" name="term" class="portal-search__input" value="${term}" placeholder="Search All 6440 Knockout Data..." type="text"/>
                                     <button id="searchIcon" type="submit"><i class="fas fa-search"></i></button>
                                     <input id="searchType" type="hidden" name="type" value="${type}">
                                     <div id="searchLoader" class="lds-ring">
