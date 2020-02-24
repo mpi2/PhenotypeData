@@ -208,13 +208,6 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 
 				int omeroId=0;
 
-				// "stage" field is needed for search, stage facet on image seach
-				if (imageDTO.getDevelopmentalStageAcc() != null && (imageDTO.getDevelopmentalStageAcc().equalsIgnoreCase(POSTPARTUM_STAGE)|| imageDTO.getDevelopmentalStageAcc().equalsIgnoreCase(POSTNATAL_STAGE))) { // postnatal stage
-					imageDTO.setStage("adult");
-				} else {
-					imageDTO.setStage("embryo");
-				}
-
 				String downloadFilePath = imageDTO.getDownloadFilePath();
 				if (imageBeans.containsKey(downloadFilePath)) {
 

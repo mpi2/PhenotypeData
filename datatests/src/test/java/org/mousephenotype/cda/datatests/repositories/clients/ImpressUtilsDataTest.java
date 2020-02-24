@@ -52,7 +52,7 @@ public class ImpressUtilsDataTest {
 
     @Test
     public void testCheckTypeParameterString() {
-        Parameter       p     = parameterRepository.getByStableId("ESLIM_003_001_006");
+        Parameter       p     = parameterRepository.getFirstByStableId("ESLIM_003_001_006");
         String          value = "2.092";
         ObservationType oType = ImpressUtils.checkType(p, value);
 

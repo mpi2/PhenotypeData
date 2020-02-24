@@ -2235,6 +2235,17 @@ INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_SSC_004', 
 
 
 
+/*
+ ** LIFE STAGE
+ */
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPCLS:0001', 22, 'E9.5', 'Embryonic day 9.5');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPCLS:0002', 22, 'E12.5', 'Embryonic day 12.5');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPCLS:0003', 22, 'E15.5', 'Embryonic day 15.5');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPCLS:0004', 22, 'E18.5', 'Embryonic day 18.5');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPCLS:0005', 22, 'Early adult', 'Time period less than 16 weeks of age');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPCLS:0006', 22, 'Middle aged adult', 'Time period between 16 and 48 weeks of age');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPCLS:0007', 22, 'Late adult', 'Time period greater than 48 weeks of age');
+
 
 /*
 ** Add hand-curated Europhenome colony ids to phenotyped_colony.

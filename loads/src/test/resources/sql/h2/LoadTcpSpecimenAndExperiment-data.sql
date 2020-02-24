@@ -141,7 +141,7 @@ INSERT INTO `phenotype_parameter` VALUES (2206,'IMPC_CBC_057_001',6,'Fasting',''
 INSERT INTO `phenotype_parameter` VALUES (2207,'IMPC_CBC_058_001',6,'Cholesterol ratio','TC/HDLC ratio',1,0,' ','FLOAT','simpleParameter','IMPC_CBC_015_001 IMPC_CBC_016_001 /',0,0,0,1,1,0,0,0,0,'',4713);
 INSERT INTO `phenotype_parameter` VALUES (2208,'IMPC_CBC_059_001',6,'Reagent manufacturer','',1,0,' ','TEXT','procedureMetadata',NULL,0,1,0,0,0,0,1,0,0,'',4855);
 
-INSERT INTO `phenotyped_colony` VALUES (7205,'TCPR0445_ACXM','','MGI:1924833',3,'Notum<em2(IMPC)Tcp>','C57BL/6NCrl',27,12,27,12);
+INSERT INTO `phenotyped_colony` VALUES (7205,'TCPR0445_ACXM','','MGI:1924833',3,'Notum<em2(IMPC)Tcp>','C57BL/6NCrl','MGI:2683688',27,12,27,12);
 INSERT INTO `genomic_feature` VALUES ('MGI:1924833',3,'Notum','notum palmitoleoyl-protein carboxylesterase','1',2,'2',2,11,120653788,120661175,-1,'84.38','active');
 
 INSERT INTO ontology_term (acc, db_id, name, is_obsolete, replacement_acc) VALUES

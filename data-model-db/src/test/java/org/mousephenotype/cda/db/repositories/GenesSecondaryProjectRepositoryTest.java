@@ -71,4 +71,19 @@ public class GenesSecondaryProjectRepositoryTest {
         GenesSecondaryProject actualGene = genesMap.get("MGI:2443413");
         assertEquals(expectedGene, actualGene);
     }
+
+    @Test
+    public void getAllBySecondaryProjectIdAllIdg() {
+        Set<GenesSecondaryProject> genes = genesSecondaryProjectRepository.getAllBySecondaryProjectId("idg");
+        assertTrue(genes.size() > 127);
+        Map<String, GenesSecondaryProject> genesMap = new HashMap<>(200);
+        for (GenesSecondaryProject gene : genes) {
+            genesMap.put(gene.getMgiGeneAccessionId(), gene);
+        }
+        assertTrue(genesMap.size() > 127);
+
+        GenesSecondaryProject expectedGene = new GenesSecondaryProject("MGI:2443413", "idg", "Kinases");
+        GenesSecondaryProject actualGene = genesMap.get("MGI:2443413");
+        assertEquals(expectedGene, actualGene);
+    }
 }

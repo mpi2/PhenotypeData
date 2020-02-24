@@ -8,3 +8,11 @@ VALUES
     (661, 'IMPC_VIA_026_001', 6, 'Female age earliest start', '', 1, 1, 'Weeks', 'INT', 'procedureMetadata', NULL,                             0, 1, 0, 0, 0, 0, 0, 0, 0, '', 3819),
     (758, 'IMPC_ELZ_093_001', 6, 'Placenta', '', 1, 0, '', 'TEXT', 'simpleParameter', NULL,                                                    0, 0, 0, 0, 1, 0, 1, 0, 0, '', 7291)
 ;
+
+
+INSERT INTO `phenotype_pipeline` VALUES (13, 'UCD_001', 6, 'UCD Pipeline', '', 1, 0, 13, 0);
+INSERT INTO `phenotype_procedure` VALUES (10,103,'IMPC_PAT_002',6,'Gross Pathology and Tissue Collection','description',2, 9, 0,'experiment','Terminal','Week 16', 893);
+INSERT INTO phenotype_parameter VALUES (48075,'IMPC_PAT_049_002',6,'Body Weight',NULL,2,0,'g','FLOAT','simpleParameter',NULL,1,0,0,0,0,0,0,0,0,'',65155);
+INSERT INTO phenotype_procedure_parameter VALUES (10, 48075);
+INSERT INTO phenotype_pipeline_procedure VALUES (13, 10);
+

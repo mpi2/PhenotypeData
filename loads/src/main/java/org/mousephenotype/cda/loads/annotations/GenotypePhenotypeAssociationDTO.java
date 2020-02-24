@@ -3,12 +3,9 @@ package org.mousephenotype.cda.loads.annotations;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-
 public class GenotypePhenotypeAssociationDTO {
 
-    public static final String saveStatement = "INSERT INTO phenotype_call_summary(external_db_id, project_id, gf_acc, gf_db_id, strain_acc, strain_db_id, allele_acc, allele_db_id, sex, zygosity, parameter_id, procedure_id, pipeline_id, mp_acc, mp_db_id, p_value, effect_size, organisation_id, colony_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    public static final String saveStatement = "INSERT INTO phenotype_call_summary(external_db_id, project_id, gf_acc, gf_db_id, strain_acc, strain_db_id, allele_acc, allele_db_id, sex, zygosity, parameter_id, procedure_id, pipeline_id, mp_acc, mp_db_id, p_value, effect_size, organisation_id, colony_id, life_stage, life_stage_acc) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     public static final String saveCategoricalAssociationStatement = "INSERT INTO stat_result_phenotype_call_summary(categorical_result_id, phenotype_call_summary_id) VALUES (?, ?)";
     public static final String saveUnidimensionalAssociationStatement = "INSERT INTO stat_result_phenotype_call_summary(unidimensional_result_id, phenotype_call_summary_id) VALUES (?, ?)";
@@ -35,6 +32,8 @@ public class GenotypePhenotypeAssociationDTO {
     private String effect_size;
     private String phenotypingCenter; // Organisation
     private String colony_id;
+    private String lifeStageName;
+    private String lifeStageAcc;
 
     public String getSaveStatement() {
         return saveStatement;
@@ -220,5 +219,21 @@ public class GenotypePhenotypeAssociationDTO {
 
     public void setColony_id(String colony_id) {
         this.colony_id = colony_id;
+    }
+
+    public String getLifeStageName() {
+        return lifeStageName;
+    }
+
+    public void setLifeStageName(String lifeStageName) {
+        this.lifeStageName = lifeStageName;
+    }
+
+    public String getLifeStageAcc() {
+        return lifeStageAcc;
+    }
+
+    public void setLifeStageAcc(String lifeStageAcc) {
+        this.lifeStageAcc = lifeStageAcc;
     }
 }

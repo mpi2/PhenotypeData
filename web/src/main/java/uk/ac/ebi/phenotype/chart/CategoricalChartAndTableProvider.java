@@ -85,14 +85,19 @@ public class CategoricalChartAndTableProvider {
 		categoricalResultAndCharts.setExperiment(experiment);
 		List<? extends StatisticalResult> statsResults = (List<? extends StatisticalResult>) experiment.getResults();
 		CategoricalChartDataObject chartData = new CategoricalChartDataObject();
-		
+
+		Set<ObservationDTO> maleControls = new HashSet<>();
+		Set<ObservationDTO> femaleControls = new HashSet<>();
+		Set<ObservationDTO> maleMutants = new HashSet<>();
+		Set<ObservationDTO> femaleMutants = new HashSet<>();
+
 		// make a chart object one for each sex
 		for (SexType sexType : experiment.getSexes()) {
 			categoricalResultAndCharts.setStatsResults(statsResults);
 			CategoricalSet controlSet = new CategoricalSet();
 			controlSet.setName(WordUtils.capitalize(sexType.name()) + " Control");
 			controlSet.setSexType(sexType);
-			
+
 			for (String category : categories) {
 				if (category.equals("imageOnly")){
 					continue;
@@ -108,6 +113,11 @@ public class CategoricalChartAndTableProvider {
 					String categoString = control.getCategory();
 					if (categoString.equals(category) && docSexType.equals(sexType)) {
 						controlCount++;
+						if(sexType.equals(SexType.male)){
+							maleControls.add(control);
+						} else if(sexType.equals(SexType.female)){
+							femaleControls.add(control);
+						}
 					}
 				}
 
@@ -143,6 +153,11 @@ public class CategoricalChartAndTableProvider {
 						// 1 for each that does
 						if (categoString.equals(category) && docSexType.equals(sexType)) {
 							mutantCount++;
+							if(sexType.equals(SexType.male)){
+								maleMutants.add(expDto);
+							} else if(sexType.equals(SexType.female)){
+								femaleMutants.add(expDto);
+							}
 						}
 					}
 

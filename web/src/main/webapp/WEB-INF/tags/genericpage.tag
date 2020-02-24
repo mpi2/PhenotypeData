@@ -68,7 +68,7 @@
 
 <%--    <script type='text/javascript' src="${baseUrl}/js/general/toggle.js?v=${version}" async></script>--%>
     <script type="text/javascript" src="${baseUrl}/js/head.min.js?v=${version}" async></script>
-    <script type='text/javascript' src='${baseUrl}/js/buffaloZoo.js' async></script>
+    <script type='text/javascript' src='${baseUrl}/js/buffaloZoo.js?v=${version}' async></script>
     <script type="text/javascript" src="${baseUrl}/js/default.js?v=${version}" async></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.css" async/>
     <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.js" async></script>
@@ -76,7 +76,7 @@
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
      replaced with below as unable to get his due to CORS or licence?-->
 
-    <link rel="stylesheet" href="${cmsBaseUrl}/wp-content/themes/impc/css/styles.css">
+    <link rel="stylesheet" href="${cmsBaseUrl}/wp-content/themes/impc/css/styles.css?version=20200213">
     <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" media='all'/>
     <link href="${baseUrl}/css/impc-icons.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" type="text/css" href="https://ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css">

@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.loads.statistics.load;
+package org.mousephenotype.cda.loads.statistics.load.impc;
 
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.db.repositories.ParameterRepository;

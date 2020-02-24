@@ -45,7 +45,7 @@
                 <div class="tab-pane fade ${miceActive == 'active'? 'show active': ''}" id="order-${alleleId}-mice" role="tabpanel"
                      aria-labelledby="order-${alleleId}-mice-tab">
                     <div class="container justify-content-center pt-3">
-                        <table id="mouse_table">
+                        <table id="mouse_table" class="small">
                             <thead>
                             <tr>
                                 <th style="text-align: center;">Colony Name</th>
@@ -129,7 +129,7 @@
                 <div class="tab-pane fade ${cellActive == 'active'? 'show active': ''}" id="order-${alleleId}-cells" role="tabpanel"
                      aria-labelledby="order-${alleleId}-cells-tab">
                     <div class="container justify-content-center pt-3">
-                        <table id="es_cell_table">
+                        <table id="es_cell_table" class="small">
                             <thead>
                             <tr>
                                 <th style="text-align: center;">ES Cell Clone</th>
@@ -199,7 +199,7 @@
                     <div class="container justify-content-center pt-3">
                         <div class="row">
                             <div class="col-12">
-                                <table id="targeting_vector_table">
+                                <table id="targeting_vector_table" class="small">
                                     <thead>
                                     <tr>
 
@@ -210,7 +210,7 @@
                                         <th style="text-align: center;">Order</th>
                                         <th style="text-align: center;">Genbank File</th>
                                         <th style="text-align: center;">Vector Map</th>
-                                        <th style="text-align: center;">Design Oligos</th>
+                                        <%--<th style="text-align: center;">Design Oligos</th>--%>
 
                                     </tr>
                                     </thead>
@@ -253,14 +253,14 @@
             </span>
                                             </td>
 
-                                            <td style="text-align: center;">
+                                            <%--<td style="text-align: center;">
             <span>
                 <c:if test="${not empty targeting_vector['design_oligos_url']}">
                     <a href="${targeting_vector['design_oligos_url']}" target="_blank"><i
                             class="fa fa-external-link-square fa-lg"></i></a>
                 </c:if>
             </span>
-                                            </td>
+                                            </td>--%>
                                         </tr>
                                     </c:forEach>
 

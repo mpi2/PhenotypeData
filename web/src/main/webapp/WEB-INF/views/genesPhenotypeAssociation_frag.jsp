@@ -50,26 +50,26 @@
             <!-- only display a normal div if no phenotype icons displayed -->
             <div id="phenoSumSmallDiv" class="text-left">
                 <div class="row no-gutters mb-2 mb-sm-0">
-                    <div class="col align-middle text-sm-right pr-1">
+                    <div class="col-3 align-middle text-sm-right pr-1">
                         <div class="align-middle font-weight-bold pr-2">Name</div>
                     </div>
-                    <div class="col-sm-10 align-middle text-sm-left">
+                    <div class="col-9 align-middle text-sm-left">
                         <span>${gene.markerName}</span>
                     </div>
                 </div>
                 <div class="row no-gutters mb-2 mb-sm-0">
-                    <div class="col align-middle text-sm-right pr-1">
+                    <div class="col-3 align-middle text-sm-right pr-1">
                         <div class="align-middle font-weight-bold pr-2">MGI ID</div>
                     </div>
-                    <div class="col-sm-10 align-middle text-sm-left">
+                    <div class="col-9 align-middle text-sm-left">
                         <span>${gene.mgiAccessionId}</span>
                     </div>
                 </div>
                 <div class="row no-gutters mb-2 mb-sm-0">
-                    <div class="col align-middle text-sm-right pr-1">
+                    <div class="col-3 align-middle text-sm-right pr-1">
                         <div class="align-middle font-weight-bold pr-2">Synonyms</div>
                     </div>
-                    <div class="col-sm-10 align-middle text-sm-left">
+                    <div class="col-9 align-middle text-sm-left">
                         <c:if test='${fn:length(gene.markerSynonym) gt 1}'>
                             <c:forEach var="synonym" items="${gene.markerSynonym}" varStatus="loop">
                                 <span>${synonym}</span>
@@ -88,10 +88,10 @@
                 </div>
 
                 <div class="row no-gutters mb-2 mb-sm-0">
-                    <div class="col align-middle text-sm-right pr-1">
+                    <div class="col-3 align-middle text-sm-right pr-1">
                         <div class="align-middle font-weight-bold pr-2">Viability</div>
                     </div>
-                    <div class="col-sm-10 align-middle text-sm-left">
+                    <div class="col-9 align-middle text-sm-left">
                         <c:if test="${viabilityCalls != null && viabilityCalls.size() > 0}">
                             <t:viabilityButton callList="${viabilityCalls}"
                                                geneAcc="${gene.mgiAccessionId}" />
@@ -103,11 +103,11 @@
                 </div>
 
                 <div class="row no-gutters mb-2 mb-sm-0">
-                    <div class="col align-middle text-sm-right pr-1">
-                        <div class="align-middle font-weight-bold pr-2">Embryo Screen</div>
+                    <div class="col-3 align-middle text-sm-right pr-1">
+                        <div class="align-middle font-weight-bold pr-2" style="white-space: nowrap">Embryo viewer</div>
                     </div>
 
-                    <div class="col-sm-10 align-middle text-sm-left">
+                    <div class="col-9 align-middle text-sm-left">
                         <c:if test="${gene.embryoDataAvailable}">
                             <a id="embryoViewerBtn" href="${cmsBaseUrl}/embryoviewer/?mgi=${acc}" class="page-nav-link"
                                style="font-size: initial; display: inline;">3D Imaging</a>
@@ -119,10 +119,10 @@
                 </div>
 
                 <div class="row no-gutters mb-2 mb-sm-0">
-                    <div class="col align-middle text-sm-right pr-1">
+                    <div class="col-3 align-middle text-sm-right pr-1">
                         <div class="align-middle font-weight-bold pr-2">Other links</div>
                     </div>
-                    <div class="col-sm-10 align-middle text-sm-left">
+                    <div class="col-9 align-middle text-sm-left">
                         <a target="_blank" class="page-nav-link"
                            href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}"
                            title="See gene page at JAX" style="font-size: initial; display: inline;">MGI &nbsp;<i class="fas fa-external-link"></i></a>

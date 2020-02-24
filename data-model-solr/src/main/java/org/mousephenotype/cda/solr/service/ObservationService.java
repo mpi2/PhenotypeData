@@ -16,6 +16,7 @@
 
 package org.mousephenotype.cda.solr.service;
 
+import com.google.common.collect.Iterators;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -34,10 +35,7 @@ import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
 import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.enumerations.BatchClassification;
-import org.mousephenotype.cda.enumerations.ObservationType;
-import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.enumerations.*;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.service.dto.*;
@@ -62,6 +60,7 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -224,39 +223,46 @@ public class ObservationService extends BasicService implements WebStatus {
     }
 
 
-    public List<String> getGenesWithMoreProcedures(int n, List<String> resourceName)
-            throws SolrServerException, IOException, InterruptedException, ExecutionException {
+    public List<String> getGenesWithMoreProcedures(int minProcedureCount, List<String> resourceName)
+            throws SolrServerException, IOException {
 
-        List<String> genes = new ArrayList<>();
-        SolrQuery q = new SolrQuery();
+        Set<String> genes = new HashSet<>();
 
-        if (resourceName != null) {
-            q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
-        } else {
-            q.setQuery("*:*");
-        }
+        Set<String> geneAccessionIds = getAllGeneIdsByResource(resourceName, true);
+        Iterators.partition(geneAccessionIds.iterator(), 50).forEachRemaining(geneAccessions ->
+        {
 
-        String geneProcedurePivot = ObservationDTO.GENE_SYMBOL + "," + ObservationDTO.PROCEDURE_NAME;
+            SolrQuery q = new SolrQuery()
+                    .setQuery(geneAccessions.stream().collect(Collectors.joining("\" OR \"", ObservationDTO.GENE_ACCESSION_ID + ":(\"", "\")")))
+                    .addFacetQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"))
+                    .setRows(1)
+                    .setFacetMinCount(1)
+                    .setFacet(true)
+                    .setFacetLimit(-1);
 
-        q.add("facet.pivot", geneProcedurePivot);
+            String geneProcedurePivot = ObservationDTO.GENE_SYMBOL + "," + ObservationDTO.PROCEDURE_NAME;
+            q.add("facet.pivot", geneProcedurePivot);
 
-        q.setFacet(true);
-        q.setRows(1);
-        q.setFacetMinCount(1);
-        q.set("facet.limit", -1);
+            logger.info("Solr url for getOverviewGenesWithMoreProceduresThan " + SolrUtils.getBaseURL(experimentCore) + "/select?" + q);
+            QueryResponse response;
+            try {
+                response = experimentCore.query(q);
+            } catch (SolrServerException | IOException e) {
+                e.printStackTrace();
+                return;
+            }
 
-        logger.info("Solr url for getOverviewGenesWithMoreProceduresThan " + SolrUtils.getBaseURL(experimentCore) + "/select?" + q);
-        QueryResponse response = experimentCore.query(q);
-
-        for (PivotField pivot : response.getFacetPivot().get(geneProcedurePivot)) {
-            if (pivot.getPivot() != null){
-                if (pivot.getPivot().size() >= n) {
-                    genes.add(pivot.getValue().toString());
+            for (PivotField pivot : response.getFacetPivot().get(geneProcedurePivot)) {
+                if (pivot.getPivot() != null){
+                    if (pivot.getPivot().size() >= minProcedureCount) {
+                        genes.add(pivot.getValue().toString());
+                    }
                 }
             }
-        }
 
-        return genes;
+        });
+
+        return new ArrayList<>(genes);
     }
 
     public List<ObservationDTO> getObservationsByParameterStableId(String parameterStableId) throws SolrServerException, IOException {
@@ -1744,62 +1750,61 @@ public class ObservationService extends BasicService implements WebStatus {
     }
 
 
-    public Set<String> getAllGeneIdsByResource(List<String> resourceName, boolean experimentalOnly) {
+    public Set<String> getAllGeneIdsByResource(List<String> resources, boolean experimentalOnly) throws IOException, SolrServerException {
 
-        SolrQuery q = new SolrQuery();
-        q.setFacet(true);
-        q.setFacetMinCount(1);
-        q.setFacetLimit(-1);
-        q.setRows(0);
-        q.addFacetField(ObservationDTO.GENE_ACCESSION_ID);
-        if (resourceName != null) {
-            q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
-        } else {
-            q.setQuery("*:*");
+        Set<String> geneAccessionIds = new HashSet<>();
+
+        for( String resource : resources) {
+
+            SolrQuery solrQuery = new SolrQuery();
+            solrQuery.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + resource);
+
+            if (experimentalOnly) {
+                solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + BiologicalSampleType.experimental);
+            }
+
+            solrQuery.addField(ObservationDTO.GENE_ACCESSION_ID);
+            solrQuery.setRows(Integer.MAX_VALUE);
+            solrQuery.add("group", "true")
+                    .add("group.field", ObservationDTO.GENE_ACCESSION_ID)
+                    .add("group.limit", Integer.toString(1))
+            .add("group.main", "true");
+
+            logger.info("associated gene accession id solr query: " + solrQuery);
+            geneAccessionIds.addAll(experimentCore.query(solrQuery).getBeans(ObservationDTO.class).stream().map(ObservationDTOBase::getGeneAccession).collect(Collectors.toSet()));
+
         }
 
-        if (experimentalOnly) {
-            q.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
-        }
-
-        logger.info("Solr URL getAllGeneIdsByResource " + SolrUtils.getBaseURL(experimentCore) + "/select?" + q);
-        try {
-            return getFacets(experimentCore.query(q)).get(ObservationDTO.GENE_ACCESSION_ID).keySet();
-        } catch (SolrServerException | IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
+        return geneAccessionIds;
     }
 
 
-    public Set<String> getAllColonyIdsByResource(List<String> resourceName, boolean experimentalOnly) {
+    public Set<String> getAllColonyIdsByResource(List<String> resources, boolean experimentalOnly) throws IOException, SolrServerException {
 
-        SolrQuery q = new SolrQuery();
-        q.setFacet(true);
-        q.setFacetMinCount(1);
-        q.setFacetLimit(-1);
-        q.setRows(0);
-        q.addFacetField(ObservationDTO.COLONY_ID);
+        Set<String> colonyIds = new HashSet<>();
 
-        if (resourceName != null) {
-            q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
-        } else {
-            q.setQuery("*:*");
+        for( String resource : resources) {
+
+            SolrQuery solrQuery = new SolrQuery();
+            solrQuery.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + resource);
+
+            if (experimentalOnly) {
+                solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + BiologicalSampleType.experimental);
+            }
+
+            solrQuery.addField(ObservationDTO.COLONY_ID);
+            solrQuery.setRows(Integer.MAX_VALUE);
+            solrQuery.add("group", "true")
+                    .add("group.field", ObservationDTO.COLONY_ID)
+                    .add("group.limit", Integer.toString(1))
+                    .add("group.main", "true");
+
+            logger.info("associated colony id solr query: " + solrQuery);
+            colonyIds.addAll(experimentCore.query(solrQuery).getBeans(ObservationDTO.class).stream().map(ObservationDTOBase::getColonyId).collect(Collectors.toSet()));
+
         }
 
-        if (experimentalOnly) {
-            q.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
-        }
-
-        logger.info("Solr URL getAllColonyIdsByResource " + SolrUtils.getBaseURL(experimentCore) + "/select?" + q);
-        try {
-            return getFacets(experimentCore.query(q)).get(ObservationDTO.COLONY_ID).keySet();
-        } catch (SolrServerException | IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
+        return colonyIds;
     }
 
 

@@ -129,11 +129,11 @@ public class ImpressUtilsTest {
         }
 
         // Tabulation (text series) parameter
-        Parameter p = parameterRepository.getByStableId("TCP_VFR_001_001");
+        Parameter p = parameterRepository.getFirstByStableId("TCP_VFR_001_001");
         assertSame(ImpressUtils.checkType(p, "oxoox"), ObservationType.text_series);
 
         // Time series parameter
-        p = parameterRepository.getByStableId("ESLIM_003_001_006");
+        p = parameterRepository.getFirstByStableId("ESLIM_003_001_006");
         assertSame(ImpressUtils.checkType(p, "1.5"), ObservationType.time_series);
 
 

@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
+import com.google.common.collect.Iterators;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.random.EmpiricalDistribution;
@@ -23,6 +24,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.*;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.common.SolrDocument;
@@ -44,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -1268,7 +1271,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 		r.setMetadataGroup(result.getMetadataGroup());
 		if(result.getNullTestPValue()!= null) r.setNullTestSignificance(new Double(result.getNullTestPValue()));
 		if(result.getPhenotypingCenter()!= null) r.setOrganisation(organisationRepository.getByName(result.getPhenotypingCenter()));
-		if(result.getParameterStableId()!= null) r.setParameter(parameterRepository.getByStableId(result.getParameterStableId()));
+		if(result.getParameterStableId()!= null) r.setParameter(parameterRepository.getFirstByStableId(result.getParameterStableId()));
 		if(result.getPipelineStableId()!= null) r.setPipeline(pipelineRepository.getByStableId(result.getPipelineStableId()));
 		//    if(result.getProjectName()!= null) r.setProject(projectDAO.getProjectByName(result.getProjectName()));
 		if(result.getpValue()!= null) r.setpValue(new Double(result.getpValue()));
@@ -1324,7 +1327,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 		r.setMaleMutants(result.getMaleMutantCount());
 		r.setMetadataGroup(result.getMetadataGroup());
 		if(result.getPhenotypingCenter()!= null) r.setOrganisation(organisationRepository.getByName(result.getPhenotypingCenter()));
-		if(result.getParameterStableId()!= null) r.setParameter(parameterRepository.getByStableId(result.getParameterStableId()));
+		if(result.getParameterStableId()!= null) r.setParameter(parameterRepository.getFirstByStableId(result.getParameterStableId()));
 		if(result.getPipelineStableId()!= null) r.setPipeline(pipelineRepository.getByStableId(result.getPipelineStableId()));
 		//       if(result.getProjectName()!= null) r.setProject(projectDAO.getProjectByName(result.getProjectName()));
 		if(result.getpValue()!= null) r.setpValue(new Double(result.getpValue()));
@@ -1342,67 +1345,76 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 		return r;
 	}
 
-
-	public HashMap<String, GeneRowForHeatMap> getSecondaryProjectMapForGeneList(Set<String> geneAccessions, List<BasicBean> topLevelMps) throws IOException, SolrServerException {
-
+	@Cacheable("geneRowCache")
+	public HashMap<String, GeneRowForHeatMap> getSecondaryProjectMapForGeneList(Set<String> geneAccessions1, List<BasicBean> topLevelMps) throws IOException, SolrServerException {
 
 		HashMap<String, GeneRowForHeatMap> geneRowMap = new HashMap<>(); // <geneAcc, row>
+		Iterators.partition(geneAccessions1.iterator(), 50).forEachRemaining(geneAccessions ->
+		{
 
-		SolrQuery q = new SolrQuery()
-				.setQuery(geneAccessions.stream().collect(Collectors.joining("\" OR \"", StatisticalResultDTO.MARKER_ACCESSION_ID + ":(\"", "\")")))
-				.addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
-				.addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
-				.addField(StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME)
-				.addField(StatisticalResultDTO.MP_TERM_NAME)
-				.addField(StatisticalResultDTO.MARKER_SYMBOL)
-				.addField(StatisticalResultDTO.STATUS)
-				.addField(StatisticalResultDTO.SIGNIFICANT)
-				.setRows(Integer.MAX_VALUE)
-				.setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
+			SolrQuery q = new SolrQuery()
+					.setQuery(geneAccessions.stream().collect(Collectors.joining("\" OR \"", StatisticalResultDTO.MARKER_ACCESSION_ID + ":(\"", "\")")))
+					.addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
+					.addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
+					.addField(StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME)
+					.addField(StatisticalResultDTO.MP_TERM_NAME)
+					.addField(StatisticalResultDTO.MARKER_SYMBOL)
+					.addField(StatisticalResultDTO.STATUS)
+					.addField(StatisticalResultDTO.SIGNIFICANT)
+					.setRows(Integer.MAX_VALUE)
+					.setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
 
-		q.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":*"); // Ignore MPATH or other types of associations
-		q.add("group", "true");
-		q.add("group.field", StatisticalResultDTO.MARKER_ACCESSION_ID);
-		q.set("group.limit", Integer.MAX_VALUE);
+			q.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":*"); // Ignore MPATH or other types of associations
+			q.add("group", "true");
+			q.add("group.field", StatisticalResultDTO.MARKER_ACCESSION_ID);
+			q.set("group.limit", Integer.MAX_VALUE);
 
-		GroupCommand groups = statisticalResultCore.query(q, SolrRequest.METHOD.POST).getGroupResponse().getValues().get(0);
-
-		for (Group group:  groups.getValues()){
-			// Each group contains data for a different gene
-			String geneAcc = group.getGroupValue();
-			SolrDocumentList docs = group.getResult();
-			GeneRowForHeatMap row = new GeneRowForHeatMap(geneAcc, docs.get(0).getFieldValue(StatisticalResultDTO.MARKER_SYMBOL).toString(), topLevelMps); // Fill row with default values for all mp top levels
-
-			for (SolrDocument doc : docs) {
-				List<String> currentTopLevelMps = (ArrayList<String>)doc.get(StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME);
-
-				// The current top level might be null, because the actual term is already a top level,
-				// check the associated mp term to see, and add it if it's already top-level
-				if (currentTopLevelMps == null) {
-					if (topLevelMps.stream().anyMatch(x -> x.getName().equals(doc.getFieldValue(StatisticalResultDTO.MP_TERM_NAME).toString()))) {
-						currentTopLevelMps = new ArrayList<>();
-						currentTopLevelMps.add(doc.getFieldValue(StatisticalResultDTO.MP_TERM_NAME).toString());
-					}
-				}
-
-				// The term might have been annotated to "mammalian phenotype" which doesn't have an icon in the grid.  Skip it
-				if (currentTopLevelMps!= null) {
-					for (String mp : currentTopLevelMps) {
-						HeatMapCell cell = row.getXAxisToCellMap().containsKey(mp) ? row.getXAxisToCellMap().get(mp) : new HeatMapCell(mp, HeatMapCell.THREE_I_NO_DATA);
-						if (doc.getFieldValue(StatisticalResultDTO.SIGNIFICANT) != null && doc.getFieldValue(StatisticalResultDTO.SIGNIFICANT).toString().equalsIgnoreCase("true")) {
-							cell.addStatus(HeatMapCell.THREE_I_DEVIANCE_SIGNIFICANT);
-						} else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")) {
-							cell.addStatus(HeatMapCell.THREE_I_DATA_ANALYSED_NOT_SIGNIFICANT);
-						} else {
-							cell.addStatus(HeatMapCell.THREE_I_COULD_NOT_ANALYSE);
-						}
-
-						row.add(cell);
-					}
-				}
+			logger.info("getSecondaryProjectMapForGeneList Statistical result query: " + ((HttpSolrClient) statisticalResultCore).getBaseURL() + "/select?" + q.getQuery());
+			GroupCommand groups = null;
+			try {
+				groups = statisticalResultCore.query(q, SolrRequest.METHOD.POST).getGroupResponse().getValues().get(0);
+			} catch (SolrServerException | IOException e) {
+				e.printStackTrace();
+				return;
 			}
-			geneRowMap.put(geneAcc,row);
-		}
+
+			for (Group group : groups.getValues()) {
+				// Each group contains data for a different gene
+				String geneAcc = group.getGroupValue();
+				SolrDocumentList docs = group.getResult();
+				GeneRowForHeatMap row = new GeneRowForHeatMap(geneAcc, docs.get(0).getFieldValue(StatisticalResultDTO.MARKER_SYMBOL).toString(), topLevelMps); // Fill row with default values for all mp top levels
+
+				for (SolrDocument doc : docs) {
+					List<String> currentTopLevelMps = (ArrayList<String>) doc.get(StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME);
+
+					// The current top level might be null, because the actual term is already a top level,
+					// check the associated mp term to see, and add it if it's already top-level
+					if (currentTopLevelMps == null) {
+						if (topLevelMps.stream().anyMatch(x -> x.getName().equals(doc.getFieldValue(StatisticalResultDTO.MP_TERM_NAME).toString()))) {
+							currentTopLevelMps = new ArrayList<>();
+							currentTopLevelMps.add(doc.getFieldValue(StatisticalResultDTO.MP_TERM_NAME).toString());
+						}
+					}
+
+					// The term might have been annotated to "mammalian phenotype" which doesn't have an icon in the grid.  Skip it
+					if (currentTopLevelMps != null) {
+						for (String mp : currentTopLevelMps) {
+							HeatMapCell cell = row.getXAxisToCellMap().containsKey(mp) ? row.getXAxisToCellMap().get(mp) : new HeatMapCell(mp, HeatMapCell.THREE_I_NO_DATA);
+							if (doc.getFieldValue(StatisticalResultDTO.SIGNIFICANT) != null && doc.getFieldValue(StatisticalResultDTO.SIGNIFICANT).toString().equalsIgnoreCase("true")) {
+								cell.addStatus(HeatMapCell.THREE_I_DEVIANCE_SIGNIFICANT);
+							} else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")) {
+								cell.addStatus(HeatMapCell.THREE_I_DATA_ANALYSED_NOT_SIGNIFICANT);
+							} else {
+								cell.addStatus(HeatMapCell.THREE_I_COULD_NOT_ANALYSE);
+							}
+
+							row.add(cell);
+						}
+					}
+				}
+				geneRowMap.put(geneAcc, row);
+			}
+		});
 
 		return geneRowMap;
 	}

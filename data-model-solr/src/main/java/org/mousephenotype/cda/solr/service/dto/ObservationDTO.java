@@ -163,7 +163,7 @@ public class ObservationDTO extends ObservationDTOBase {
      * @return string representation of the date the experiment was performed
      */
     public String getDateOfExperimentString() {
-        return new SimpleDateFormat(EXPORT_DATE_PATTERN).format(dateOfExperiment);
+        return dateOfExperiment != null ? new SimpleDateFormat(EXPORT_DATE_PATTERN).format(dateOfExperiment) : "-";
     }
 
     public String getDateOfBirthString() {

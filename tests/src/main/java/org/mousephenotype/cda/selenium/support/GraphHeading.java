@@ -476,7 +476,7 @@ public class GraphHeading {
                     element = elements.get(0);
                     parameterName = element.getText();
                     parameterStableId = element.getAttribute("data-parameterstableid");
-                    parameterObject = parameterRepository.getByStableId(parameterStableId);
+                    parameterObject = parameterRepository.getFirstByStableId(parameterStableId);
                     elements = chartElement.findElements(By.xpath(".//span[@class='highcharts-subtitle']//a | ./p[@class='chartSubtitle']//a"));
                     if (elements.isEmpty()) {
                         sopLinkElement = null;
@@ -504,7 +504,7 @@ public class GraphHeading {
                     elements = chartElement.findElements(By.xpath(".//*[@class='highcharts-subtitle']"));
                     if ( ! elements.isEmpty()) {
                         parameterStableId = elements.get(0).getText();
-                        parameterObject = parameterRepository.getByStableId(parameterStableId);
+                        parameterObject = parameterRepository.getFirstByStableId(parameterStableId);
                     }
                     break;
                     

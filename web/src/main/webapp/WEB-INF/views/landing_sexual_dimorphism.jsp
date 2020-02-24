@@ -33,12 +33,12 @@
 			<div class="row">
 				<div class="col-12">
 
-					<h5>IMPC data demonstrates the effect of sex on many phenotypes, supporting the importance of
-						including males and females in biomedical research</h5>
+					<p>IMPC data demonstrates the effect of sex on many phenotypes, supporting the importance of
+						including males and females in biomedical research.</p>
 					<ul>
-						<li>Press releases: <a href="https://www.nature.com/articles/ncomms15475">Nature</a>&nbsp;|&nbsp;<a href="http://www.bbc.co.uk/programmes/b08vwn6w">BBC Radio 4 - "inside Science"</a>&nbsp;|&nbsp;<a href="https://www.newscientist.com/article/2138671-research-on-male-animals-prevents-women-from-getting-best-drugs/">New Scientist</a>&nbsp;|&nbsp;<a href="http://www.dailymail.co.uk/wires/reuters/article-4640316/Sexual-equality-medical-research-long-overdue-study-finds.html">Daily Mail</a>&nbsp;|&nbsp;<a href="https://www.sciencedaily.com/releases/2017/06/170626124505.htm">Science Daily</a>&nbsp;|&nbsp;<a href="http://fortune.com/2017/06/26/sexual-bias-medical-research/">Fortune</a>&nbsp;|&nbsp;<a href="https://www.mousephenotype.org/news/study-unprecedented-size-reveals-how-sex-%E2%80%98blindspot%E2%80%99-could-misdirect-medical-research">IMPC</a>&nbsp;|&nbsp;<a href="http://www.ebi.ac.uk/about/news/press-releases/sexual-dimorphism-dilemma">EMBL-EBI</a>&nbsp;|&nbsp;<a href="http://www.sanger.ac.uk/news/view/study-reveals-how-sex-blindspot-could-misdirect-medical-research">Sanger</a></li>
+						<li>Press releases: <a href="http://www.bbc.co.uk/programmes/b08vwn6w">BBC Radio 4 - "inside Science"</a>&nbsp;|&nbsp;<a href="https://www.newscientist.com/article/2138671-research-on-male-animals-prevents-women-from-getting-best-drugs/">New Scientist</a>&nbsp;|&nbsp;<a href="http://www.dailymail.co.uk/wires/reuters/article-4640316/Sexual-equality-medical-research-long-overdue-study-finds.html">Daily Mail</a>&nbsp;|&nbsp;<a href="https://www.sciencedaily.com/releases/2017/06/170626124505.htm">Science Daily</a>&nbsp;|&nbsp;<a href="http://fortune.com/2017/06/26/sexual-bias-medical-research/">Fortune</a>&nbsp;|&nbsp;<a href="${cmsBaseUrl}/news/study-of-unprecedented-size-reveals-how-sex-blindspot-could-misdirect-medical-research/">IMPC</a>&nbsp;|&nbsp;<a href="http://www.ebi.ac.uk/about/news/press-releases/sexual-dimorphism-dilemma">EMBL-EBI</a>&nbsp;|&nbsp;<a href="http://www.sanger.ac.uk/news/view/study-reveals-how-sex-blindspot-could-misdirect-medical-research">Sanger</a></li>
 						<li> <a href="https://zenodo.org/record/260398#.WVIkChPys-c">Supporting material to enable replicable analysis</a></li>
-						<li><a href="http://em.rdcu.be/wf/click?upn=KP7O1RED-2BlD0F9LDqGVeSJ-2BYK13AOQwsehfu7fiqrAw-3D_rlS5NjXTpmOl66SHsP12rLQI7Hycd1QZjA7AhdQ2b6-2FS-2FPWAuljWGaoUUyQdBhNd5qzu1OSDRnDXa0UviCH1ywsoXX2HEGPW67FIlbNWZVB87NAsEeYQQ3F2GD8bvwBOk-2BPkbKRPqfrgHP4barsF-2BrLfjDnMD0fmPe675sK7phkS3L5CVy1mUUmp4mw-2Fgzbv1ueMSvy-2FUyo41KChqsXtnXKcvriwPUvjZxg6BOMnIFU-3D">Manuscript</a></li>
+						<li><a href="https://www.nature.com/articles/ncomms15475">Publication: Nature Communications 26 June 2017</a></li>
 					</ul>
 
 					<!-- <p class="smallerAlleleFont">

@@ -77,7 +77,7 @@ table.dataTable thead tr {
 						Press releases:
 						<a target='_blank' href='https://www.ebi.ac.uk/about/news/press-releases/mouse-study-identifies-new-diabetes-genes'>EMBL-EBI</a>&nbsp;|&nbsp;
 						<a target='_blank' href='https://www.infrafrontier.eu/news/new-diabetes-genes-discovered-international-mouse-phenotyping-study'>Infrafrontier</a>&nbsp;|&nbsp;
-						<a target='_blank' href='http://bit.ly/MetabolismNewsStory'>IMPC</a>
+						<a target='_blank' href='${cmsBaseUrl}/blog/2018/04/05/new-diabetes-genes-discovered-in-latest-impc-research/'>IMPC</a>
 						</br><a target='_blank' href='http://bit.ly/IMPCMetabolism'>Nature communications publication</a>
 						</br><a target='_blank' href='http://bit.ly/MetabolismSuppMaterial'>Supporting information</a>
 				</div>

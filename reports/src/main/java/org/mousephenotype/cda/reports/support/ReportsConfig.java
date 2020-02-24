@@ -2,25 +2,21 @@ package org.mousephenotype.cda.reports.support;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.mousephenotype.cda.db.repositories.*;
+import org.mousephenotype.cda.db.PrimaryDataSource;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
-import org.mousephenotype.cda.solr.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import javax.inject.Inject;
 import javax.sql.DataSource;
-import javax.validation.constraints.NotNull;
 
 /**
  * ReportType bean configuration
@@ -28,6 +24,12 @@ import javax.validation.constraints.NotNull;
 
 @Configuration
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
+@ComponentScan(basePackages = {"org.mousephenotype.cda.db", "org.mousephenotype.cda.solr.service"},
+		excludeFilters = {
+				@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {
+						PrimaryDataSource.class
+				})})
+@EnableAutoConfiguration
 public class ReportsConfig {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -36,36 +38,10 @@ public class ReportsConfig {
 	private String internalSolrUrl;
 
 
-	private BiologicalModelRepository       biologicalModelRepository;
-	private DatasourceRepository            datasourceRepository;
-	private GenesSecondaryProjectRepository genesSecondaryProjectRepository;
-	private ImpressService                  impressService;
-	private OrganisationRepository          organisationRepository;
-	private ParameterRepository				parameterRepository;
-	private PipelineRepository              pipelineRepository;
-
-	@Inject
-	public ReportsConfig(
-			@NotNull BiologicalModelRepository biologicalModelRepository,
-			@NotNull DatasourceRepository datasourceRepository,
-			@NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository,
-			@NotNull ImpressService impressService,
-			@NotNull OrganisationRepository organisationRepository,
-			@NotNull ParameterRepository parameterRepository, @NotNull PipelineRepository pipelineRepository)
-	{
-		this.biologicalModelRepository = biologicalModelRepository;
-		this.datasourceRepository = datasourceRepository;
-		this.genesSecondaryProjectRepository = genesSecondaryProjectRepository;
-		this.impressService = impressService;
-		this.organisationRepository = organisationRepository;
-		this.parameterRepository = parameterRepository;
-		this.pipelineRepository = pipelineRepository;
-	}
-	
-
 	////////////////////////////////
 	// DataSources and JdbcTemplates
 	////////////////////////////////
+
 
 	// komp2
 	@Value("${datasource.komp2.jdbc-url}")
@@ -275,97 +251,10 @@ public class ReportsConfig {
 	}
 
 
-	///////////
-	// SERVICES
-	///////////
+	////////
+	// Other
+	////////
 
-	@Bean
-	public AnatomyService anatomyService() {
-    	return new AnatomyService(anatomyCore());
-	}
-
-	@Bean
-	public ExperimentService experimentService() {
-		return new ExperimentService();
-	}
-
-	@Bean
-	public GeneService geneService() {
-    	return new GeneService(geneCore());
-	}
-
-	@Bean
-	public ImageService imageService() {
-		return new ImageService(impcImagesCore());
-	}
-
-	@Bean
-	public ImpressService impressService() {
-    	return new ImpressService(pipelineCore());
-	}
-
-	@Bean
-	public MpService mpService() {
-    	return new MpService(mpCore());
-	}
-
-	@Bean
-	public ObservationService observationService() {
-		return new ObservationService(experimentCore());
-	}
-
-	@Bean
-	public PhenotypeCenterProcedureCompletenessService phenotypeCenterProcedureCompletenessService() {
-    	return new PhenotypeCenterProcedureCompletenessService(phenotypeCenterService(), impressService());
-	}
-
-	@Bean
-	public PhenotypeCenterProcedureCompletenessAllService phenotypeCenterProcedureCompletenessAllService() {
-    	return new PhenotypeCenterProcedureCompletenessAllService(phenotypeCenterAllService(), statisticalResultCore());
-	}
-
-	@Bean PhenotypeCenterAllService phenotypeCenterAllService() {
-    	return new PhenotypeCenterAllService(statisticalResultCore(), mpCore());
-	}
-
-	@Bean
-	public PhenotypeCenterService phenotypeCenterService() {
-    	return new PhenotypeCenterService(experimentCore());
-	}
-
-	@Bean
-	public GenotypePhenotypeService genotypePhenotypeService() {
-    	return new GenotypePhenotypeService(impressService, genotypePhenotypeCore(), genesSecondaryProjectRepository);
-	}
-
-	@Bean StatisticalResultService statisticalResultService() {
-    	return new StatisticalResultService(
-    			impressService(),
-				genotypePhenotypeCore(),
-				genesSecondaryProjectRepository,
-				biologicalModelRepository,
-				datasourceRepository,
-				organisationRepository,
-				parameterRepository,
-				pipelineRepository,
-				statisticalResultCore());
-	}
-
-
-	/////////
-	//	Other
-	/////////
-
-//	@Primary
-//	@Bean(name = "sessionFactoryHibernate")
-//	public SessionFactory sessionFactory() {
-//
-//		LocalSessionFactoryBuilder sessionBuilder = new LocalSessionFactoryBuilder(komp2DataSource());
-//		sessionBuilder.scanPackages("org.mousephenotype.cda.db.entity");
-//		sessionBuilder.scanPackages("org.mousephenotype.cda.db.pojo");
-//
-//		return sessionBuilder.buildSessionFactory();
-//	}
 
 	@Bean
 	public SolrClient solrClient() { return new HttpSolrClient.Builder(internalSolrUrl).build(); }
