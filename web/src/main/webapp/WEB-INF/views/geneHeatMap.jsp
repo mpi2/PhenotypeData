@@ -84,7 +84,10 @@
     <script>
         $(document).ready(function () {
             $('#secondaryGeneHeatmap').DataTable({
-                sortable: true
+                sortable: true,
+                fixedColumns: {
+                    leftColumns: 2
+                }
             });
 
         });
