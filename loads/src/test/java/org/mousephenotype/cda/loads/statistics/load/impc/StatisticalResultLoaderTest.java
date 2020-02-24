@@ -94,7 +94,7 @@ public class StatisticalResultLoaderTest {
             }
         }
 
-        Assert.assertEquals(13, resultCount.intValue());
+        Assert.assertEquals(12, resultCount.intValue());
 
         statsQuery = "SELECT * FROM stats_categorical_results";
         resultCount = 0;

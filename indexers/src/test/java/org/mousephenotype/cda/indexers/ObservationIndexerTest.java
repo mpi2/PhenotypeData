@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.sql.DataSource;
@@ -34,6 +36,7 @@ import java.util.stream.Collectors;
  * These tests take forever to run and consume more memory than is available on developer's machines. Ignore them.
  */
 @RunWith(SpringRunner.class)
+//@ComponentScan
 @SpringBootTest(classes = {ObservationIndexerTestConfig.class})
 public class ObservationIndexerTest {
 
@@ -55,17 +58,22 @@ public class ObservationIndexerTest {
     public void setUp() throws Exception {
 
         List<String> resources = Arrays.asList(
-                "sql/h2/schema.sql",
-                "sql/h2/ImpressSchema.sql",
-                "sql/h2/H2ReplaceDateDiff.sql",
-                "sql/h2/indexers/ObservationIndexerTest-data.sql"
+                "classpath:sql/h2/schema.sql",
+                "classpath:sql/h2/ImpressSchema.sql",
+                "classpath:sql/h2/H2ReplaceDateDiff.sql"
         );
 
-//        for (String resource : resources) {
-//            Resource r = context.getResource(resource);
-//            ScriptUtils.executeSqlScript(komp2DataSource.getConnection(), r);
-//        }
+        for (String resource : resources) {
+            Resource r = context.getResource(resource);
+            ScriptUtils.executeSqlScript(komp2DataSource.getConnection(), r);
+        }
     }
+
+
+
+
+
+
 
 
     @Test
@@ -120,8 +128,13 @@ public class ObservationIndexerTest {
 
 //     Ignore this test as it takes too long to run.
     @Test
-//    @Ignore
+    @Ignore
     public void testPopulateLineBiologicalDataMap() throws Exception {
+
+        Resource cdaResource        = context.getResource("classpath:sql/h2/indexers/ObservationIndexerTest-experiment01-data.sql");
+        Resource experimentResource = context.getResource("classpath:xml/ObservationIndexerTest-experiment01-data.xml");
+        ScriptUtils.executeSqlScript(komp2DataSource.getConnection(), cdaResource);
+
         observationIndexer.initialise();
 
         observationIndexer.populateLineBiologicalDataMap(connection);

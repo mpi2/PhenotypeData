@@ -38,7 +38,7 @@ import static org.junit.Assert.assertTrue;
 @ComponentScan("org.mousephenotype.cda.db")
 public class StatisticalResultsIndexerTest implements ApplicationContextAware {
 
-    private static final Logger logger = LoggerFactory.getLogger(StatisticalResultsIndexerTest.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private DataSource komp2DataSource;

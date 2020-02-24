@@ -35,7 +35,7 @@ public class ObservationIndexerTestConfig {
             "sql/h2/schema.sql",
             "sql/h2/ImpressSchema.sql",
             "sql/h2/H2ReplaceDateDiff.sql",
-            "sql/h2/indexers/ObservationIndexerTest-data.sql"
+            "sql/h2/indexers/ObservationIndexerTest-experiment01-data.sql"
     };
 
     @Primary
