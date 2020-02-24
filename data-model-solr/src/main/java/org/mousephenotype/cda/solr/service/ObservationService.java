@@ -64,6 +64,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 
@@ -329,6 +330,14 @@ public class ObservationService extends BasicService implements WebStatus {
         return x.getAlleleSymbol() + x.getParameterStableId() + x.getZygosity() + x.getPhenotypingCenter() + LifeStageMapper.getLifeStage(x.getParameterStableId(), x.getDevelopmentalStageName());
     }
 
+
+    final Function<String, Predicate<String>> hasSex=
+            (String sexType) -> {
+                Predicate<String> checkSex = (String sex) -> sex.equals(sexType);
+                return checkSex;
+            };
+
+
     public Set<ExperimentsDataTableRow> getAllPhenotypesFromObservationsByGeneAccession(String acc) throws IOException, SolrServerException {
         Set<ExperimentsDataTableRow> alleleZygParameterStableIdToRows = new HashSet<>();
         SolrQuery query = new SolrQuery();
@@ -340,10 +349,14 @@ public class ObservationService extends BasicService implements WebStatus {
         logger.info("get All Phenotypes for gene " + SolrUtils.getBaseURL(experimentCore) + "/select?" + query);
         final List<ObservationDTO> beans = experimentCore.query(query).getBeans(ObservationDTO.class);
 
-        Map<String, List<ObservationDTO>> maleKeys = null;
+        Map<String, List<ObservationDTO>> maleKeys = new HashMap<>();
+        Map<String, List<ObservationDTO>> femaleKeys = new HashMap<>();
         try {
             maleKeys = beans.stream()
                     .filter(x -> x.getSex().equals(SexType.male.toString()))
+                    .collect(Collectors.groupingBy(ObservationService::getKey));
+            femaleKeys = beans.stream()
+                    .filter(x -> x.getSex().equals(SexType.female.toString()))
                     .collect(Collectors.groupingBy(ObservationService::getKey));
         } catch (Exception e) {
             e.printStackTrace();
@@ -354,10 +367,10 @@ public class ObservationService extends BasicService implements WebStatus {
         //List<String> femaleKeys = beans.stream().filter(x -> x.getSex().equals(SexType.female)).collect(Collectors.toMap(x -> x.getAlleleSymbol() + x.getParameterStableId() + x.getZygosity() + x.getPhenotypingCenter() + LifeStageMapper.getLifeStage(x.getParameterStableId()));
 
         for(String key: maleKeys.keySet()){
-//            System.out.println("key="+key);
-//            System.out.println("values="+ maleKeys.get(key));
-            //alleleZygParameterStableIdToRows.addAll(maleKeys.get(key));
             rowsFromDTOs(alleleZygParameterStableIdToRows, maleKeys.get(key));
+        }
+        for(String key: femaleKeys.keySet()){
+            rowsFromDTOs(alleleZygParameterStableIdToRows, femaleKeys.get(key));
         }
         //Long maleMutantCount=maleKeys.stream().filter(x -> x.getSex().equals(SexType.male)).count();
         //Long femaleMutantCount=beans.stream().filter(x -> x.getSex().equals(SexType.female)).count();

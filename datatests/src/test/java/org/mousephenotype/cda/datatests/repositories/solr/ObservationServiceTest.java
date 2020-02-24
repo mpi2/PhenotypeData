@@ -58,7 +58,7 @@ public class ObservationServiceTest {
 					System.out.println(row.getParameter().getStableId()+" "+row.getZygosity()+" female m "+row.getFemaleMutantCount()+" male m "+row.getMaleMutantCount());
 				}
 
-			//assert(rows.size()>5);
+			assert(rows.size()>5);
 
 		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
