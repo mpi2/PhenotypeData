@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service;
 
+import com.google.common.collect.Iterators;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -37,6 +38,7 @@ import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -45,6 +47,7 @@ import java.util.stream.Collectors;
 public class GeneService extends BasicService implements WebStatus{
 
 	private static final Logger log = LoggerFactory.getLogger(GeneService.class);
+	public static final int PARTITION_SIZE = 50;
 
 	private SolrClient geneCore;
 
@@ -766,39 +769,7 @@ public class GeneService extends BasicService implements WebStatus{
 		return rsp.getResults();
 	}
 	
-	
-	/**
-	 * Get the mouse top level mp associations for gene (not allele) for geneHeatMap implementation for idg for each of 300 odd genes
-	 * @param geneIds
-	 * @return
-	 * @throws SolrServerException, IOException
-	 */
-	public Map<String, List<String>> getTopLevelMpForGeneSet(Set<String> geneIds)
-	throws SolrServerException, IOException {
-		
-		Map<String, List<String>> geneToStatusMap = new HashMap<>();
-		SolrQuery solrQuery = new SolrQuery();
-		String query="*:*";
-		solrQuery.setQuery(query);
-		solrQuery.setFilterQueries(GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")");
-		solrQuery.setRows(100000);
-		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.TOP_LEVEL_MP_ID);
 
-		QueryResponse rsp = geneCore.query(solrQuery, METHOD.POST);
-
-		SolrDocumentList res = rsp.getResults();
-		for (SolrDocument doc : res) {
-			String accession = (String)doc.getFieldValue(GeneDTO.MGI_ACCESSION_ID);//each doc should have an accession
-			List<String> topLevelMpIds=Collections.emptyList();
-			if (doc.containsKey(GeneDTO.TOP_LEVEL_MP_ID)) {
-				topLevelMpIds = getListFromCollection(doc.getFieldValues(GeneDTO.TOP_LEVEL_MP_ID));
-			}
-			
-			geneToStatusMap.put(accession,topLevelMpIds);
-		}
-		return geneToStatusMap;
-	}
-	
 	
 	/**
 	 * Get the mouse production status for gene (not allele) for geneHeatMap implementation for idg
@@ -877,24 +848,6 @@ public class GeneService extends BasicService implements WebStatus{
 
 		return genes;
 	}
-
-	public List<GeneDTO> getGeneByEnsemblId(List<String> ensembleGeneList) throws SolrServerException, IOException {
-		List<GeneDTO> genes = new ArrayList<>();
-		String ensemble_gene_ids_str = StringUtils.join(ensembleGeneList, ",");  // ["bla1","bla2"]
-		
-		SolrQuery solrQuery = new SolrQuery()
-			.setQuery(GeneDTO.ENSEMBL_GENE_ID + ":(" + ensemble_gene_ids_str + ")")
-			.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.ENSEMBL_GENE_ID, GeneDTO.MARKER_SYMBOL)
-			.setRows(ensembleGeneList.size());
-
-		QueryResponse rsp = geneCore.query(solrQuery, METHOD.POST);
-		
-		if (rsp.getResults().getNumFound() > 0) {
-			genes = rsp.getBeans(GeneDTO.class);
-		}
-		
-		return genes;
-	}
 	
 	// supports multiple symbols or synonyms
 	public List<GeneDTO> getGeneByGeneSymbolsOrGeneSynonyms(List<String> symbols) throws SolrServerException, IOException {
@@ -928,105 +881,6 @@ public class GeneService extends BasicService implements WebStatus{
 		return null;
 	}
 
-	public List<GeneDTO> getGeneesForEmbryoData() throws SolrServerException, IOException {
-		SolrQuery solrQuery = new SolrQuery()
-				.setQuery(GeneDTO.EMBRYO_DATA_AVAILABLE + ":true")
-				.setRows(1)
-				.setFields(GeneDTO.MGI_ACCESSION_ID, GeneDTO.MARKER_SYMBOL, GeneDTO.MARKER_NAME, GeneDTO.EMBRYO_MODALITIES,GeneDTO.EMBRYO_ANALYSIS_NAME, GeneDTO.EMBRYO_ANALYSIS_URL);
-
-		QueryResponse rsp = geneCore.query(solrQuery);
-		if (rsp.getResults().getNumFound() > 0) {
-			return rsp.getBeans(GeneDTO.class);
-		}
-		return null;
-	}
-		
-	
-	/**
-	 * 
-	 * @param geneIds
-	 * @return Number of genes (from the provided list) in each status of interest.
-	 */
-	public HashMap<String, Long> getStatusCount(Set<String> geneIds){
-		
-		HashMap<String, Long> res = new HashMap<>();
-		
-		// build query for these genes
-		String geneQuery = GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")";
-
-		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery(geneQuery)
-			.setRows(1)
-			.setFacet(true);
-		QueryResponse solrResponse;
-		try {
-			// add facet for latest_project_status 
-			solrQuery.addFacetField(GeneDTO.LATEST_ES_CELL_STATUS);
-			solrResponse = geneCore.query(solrQuery);
-			// put all values in the hash
-			for (Count c : solrResponse.getFacetField(GeneDTO.LATEST_ES_CELL_STATUS).getValues()){
-				res.put(c.getName(), c.getCount());
-			}
-			
-			// add facet latest_es_cell_status
-			solrQuery.removeFacetField(GeneDTO.LATEST_ES_CELL_STATUS);
-			solrResponse = geneCore.query(solrQuery.addFacetField(GeneDTO.LATEST_PROJECT_STATUS));
-			// put all values in the hash
-			for (Count c : solrResponse.getFacetField(GeneDTO.LATEST_PROJECT_STATUS).getValues()){
-				res.put(c.getName(), c.getCount());
-			}
-		} catch (SolrServerException | IOException e) {
-			e.printStackTrace();
-		}
-		
-		return res;
-	}
-
-	/**
-	 * Get the mouse production status for gene (not allele) for geneHeatMap implementation for idg for each of 300 odd genes
-	 * @param geneIds
-	 * @return
-	 * @throws SolrServerException, IOException
-	 */
-	public Map<String, GeneDTO> getHumanOrthologsForGeneSet(Set<String> geneIds)
-		throws SolrServerException, IOException {
-
-		Map<String, GeneDTO> geneToHumanOrthologMap = new HashMap<>();
-
-		SolrQuery solrQuery = new SolrQuery();
-
-		solrQuery.setQuery("*:*");
-		solrQuery.setFilterQueries(GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")");
-		solrQuery.setRows(100000);
-		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID, GeneDTO.HUMAN_GENE_SYMBOL, GeneDTO.DISEASE_ID, GeneDTO.LATEST_PHENOTYPE_STATUS);
-		log.info("server query is: {}", solrQuery.toString());
-		QueryResponse rsp = geneCore.query(solrQuery);
-
-		List<GeneDTO> genes = rsp.getBeans(GeneDTO.class);
-		for (GeneDTO gene : genes) {
-			geneToHumanOrthologMap.put(gene.getMgiAccessionId(), gene);
-		}
-
-		return geneToHumanOrthologMap;
-	}
-
-	public List<GeneDTO> getGenesSymbolsBy(String mpId) throws IOException, SolrServerException {
-
-		if (mpId == null) {
-			return null;
-		}
-
-		SolrQuery query = new SolrQuery();
-		query.setQuery("(" + GeneDTO.MP_ID + ":\"" + mpId + "\" OR " + GeneDTO.TOP_LEVEL_MP_ID + ":\"" + mpId + "\")");
-		query.setRows(Integer.MAX_VALUE);
-		query.setFields(GeneDTO.MARKER_SYMBOL, GeneDTO.MGI_ACCESSION_ID, GeneDTO.HUMAN_GENE_SYMBOL, GeneDTO.MP_ID, GeneDTO.MP_TERM);
-
-		QueryResponse rsp = geneCore.query(query);
-
-		return rsp.getBeans(GeneDTO.class);
-
-	}
-	
 	@Override
 	public long getWebStatus() throws SolrServerException, IOException {
 		SolrQuery query = new SolrQuery();
@@ -1048,32 +902,51 @@ public class GeneService extends BasicService implements WebStatus{
 	 * @param statusField the status field
 	 * @return Number of genes (from the provided list) in each status of interest.
 	 */
-	public HashMap<String, Long> getStatusCount(Set<String> geneIds, String statusField) {
+	public Map<String, Long> getStatusCount(Set<String> geneIds, String statusField) {
 
-		HashMap<String, Long> res = new HashMap<>();
-		SolrQuery solrQuery = new SolrQuery();
-		QueryResponse solrResponse;
+		Map<String, AtomicLong> res = new HashMap<>();
 
-		if (geneIds != null){
-			String geneQuery = GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")";
-			solrQuery.setQuery(geneQuery);
-		}else {
+		// Base solr query setup configured to Facet on statusField
+		SolrQuery solrQuery = new SolrQuery()
+				.addFacetField(statusField)
+				.setRows(1)
+				.setFacet(true)
+				.setFacetLimit(-1);
+
+
+		if (geneIds == null) {
 			solrQuery.setQuery("*:*");
-		}
-		solrQuery.setRows(1);
-		solrQuery.setFacet(true);
-		solrQuery.setFacetLimit(-1);
-		try {
-			solrQuery.addFacetField(statusField);
-			solrResponse = geneCore.query(solrQuery);
-			for (Count c : solrResponse.getFacetField(statusField).getValues()) {
-				res.put(c.getName(), c.getCount());
+			try {
+				QueryResponse solrResponse = geneCore.query(solrQuery);
+				for (Count c : solrResponse.getFacetField(statusField).getValues()) {
+					res.put(c.getName(), new AtomicLong(c.getCount()));
+				}
+			} catch (SolrServerException | IOException e) {
+				log.warn("Exception getting gene solr facet query " + solrQuery.toQueryString() + "\n response for getStatusCount \n", e);
 			}
-		} catch (SolrServerException | IOException e) {
-			e.printStackTrace();
+		} else {
+
+			// Partition the set of genes into groups of PARTITION_SIZE so as not to overwhelm solr with OR fields
+
+			Iterators.partition(geneIds.iterator(), PARTITION_SIZE).forEachRemaining(geneAccessionBatch ->
+			{
+				String geneQuery = GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneAccessionBatch, " OR ").replace(":", "\\:") + ")";
+				solrQuery.setQuery(geneQuery);
+
+				try {
+					QueryResponse solrResponse = geneCore.query(solrQuery);
+					for (Count c : solrResponse.getFacetField(statusField).getValues()) {
+						res.putIfAbsent(c.getName(), new AtomicLong(0));
+						res.get(c.getName()).addAndGet(c.getCount());
+					}
+				} catch (SolrServerException | IOException e) {
+					log.warn("Exception getting gene solr facet query " + solrQuery.toQueryString() + "\n response for getStatusCount \n", e);
+				}
+			});
 		}
 
-		return res;
+		return res.entrySet().stream()
+				.collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().longValue()));
 	}
 
     /**

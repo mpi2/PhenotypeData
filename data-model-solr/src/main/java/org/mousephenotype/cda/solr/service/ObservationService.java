@@ -1682,7 +1682,7 @@ public class ObservationService extends BasicService implements WebStatus {
                     .add("group.main", "true");
 
             logger.info("associated colony id solr query: " + solrQuery);
-            colonyIds.addAll(experimentCore.query(solrQuery).getBeans(ObservationDTO.class).stream().map(ObservationDTOBase::getGeneAccession).collect(Collectors.toSet()));
+            colonyIds.addAll(experimentCore.query(solrQuery).getBeans(ObservationDTO.class).stream().map(ObservationDTOBase::getColonyId).collect(Collectors.toSet()));
 
         }
 
