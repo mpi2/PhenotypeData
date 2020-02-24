@@ -28,7 +28,6 @@ import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
 import org.mousephenotype.cda.solr.web.dto.StackedBarsData;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -95,21 +94,10 @@ public class OverviewChartsController {
 	public String getMatrix(
 			@RequestParam(required = false, value = "phenotype_name") List<String> phenotypeName,
 			@RequestParam(required = false, value = "idg") Boolean idg,
-			@RequestParam(required = false, value = "idgClass") String idgClass,
-			Model model,
-			HttpServletRequest request,
-			RedirectAttributes attributes) {
+			@RequestParam(required = false, value = "idgClass") String idgClass) {
 
-		try {
-			try {
-				return genotypePhenotypeService.getPleiotropyMatrix(phenotypeName, idg, idgClass).toString();
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-		} catch (IOException | SolrServerException e) {
-			e.printStackTrace();
-		}
-		return "";
+			return genotypePhenotypeService.getPleiotropyMatrix(phenotypeName, idg, idgClass).toString();
+
 	}
 
 
@@ -125,7 +113,7 @@ public class OverviewChartsController {
 
 		try {
 			return genotypePhenotypeService.getPleiotropyDownload(phenotypeName, idg, idgClass);
-		} catch (IOException | SolrServerException | SQLException e) {
+		} catch (IOException | SolrServerException e) {
 			e.printStackTrace();
 		}
 		return "";

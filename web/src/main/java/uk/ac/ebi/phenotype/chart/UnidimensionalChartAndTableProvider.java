@@ -309,7 +309,7 @@ public class UnidimensionalChartAndTableProvider {
 		return chartAndTable;
 	}
 
-	public ChartData getStatusColumnChart(HashMap<String , Long> values, String title, String divId, List<String> colors){
+	public ChartData getStatusColumnChart(Map<String , Long> values, String title, String divId, List<String> colors){
 		
 		String data = "[";
 		// custom order & selection from Terry
