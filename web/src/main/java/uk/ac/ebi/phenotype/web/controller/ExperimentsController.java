@@ -40,10 +40,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Controller
@@ -82,21 +79,25 @@ public class ExperimentsController {
             HttpServletRequest request)
             throws IOException, SolrServerException {
 
-        Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
+        Set<ExperimentsDataTableRow> experimentRows = new HashSet<>();
         int rows = 0;
         String graphBaseUrl = request.getAttribute("baseUrl").toString();
 
-        //TODO: Change to request all the data from the expirement core and overlay the s-r core results onto this
-        // set
-        experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
+        // JM and JW Decided to get observations first as a whole set and then replace with SR result rows where appropriate
+        Set<ExperimentsDataTableRow> experimentRowsFromObservations = observationService.getAllPhenotypesFromObservationsByGeneAccession(geneAccession);
+        experimentRows.addAll(experimentRowsFromObservations);
+        Map<String, List<ExperimentsDataTableRow>> srResult = srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl);
+        for(String paramKey: srResult.keySet()){
+            List<ExperimentsDataTableRow> rs = srResult.get(paramKey);
+            experimentRows.addAll(rs);
+        }
+
         //ideally create a test for a method that calls the experiment core and gets info for these object types
         ///experimentsTableFrag?geneAccession=' + '${gene.mgiAccessionId}',
-       // observationService.get
-
-        for (List<ExperimentsDataTableRow> list : experimentRows.values()) {
-            rows += list.size();
-        }
-        model.addAttribute("rows", rows);
+//        for (List<ExperimentsDataTableRow> list : experimentRows.values()) {
+//            rows += list.size();
+//        }
+        model.addAttribute("rows", experimentRows.size());
         model.addAttribute("experimentRows", experimentRows);
         return "experimentsTableFrag";
     }

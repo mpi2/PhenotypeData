@@ -151,6 +151,7 @@ button[name="clearSearch"] > i::before{
 .unClickableRow:hover {
     background-color: #ecececf5 !important;
     cursor: inherit !important;
+    color: #2a2a2a;
 }
 
 .highcharts-title {

@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertTrue;
 
@@ -37,6 +39,26 @@ public class ObservationServiceTest {
 		try {
 			List<ObservationDTO> result = observationService.getObservationsByProcedureNameAndGene(procedureName, geneAccession);
 			assert(result.size()>5);
+
+		} catch (SolrServerException | IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void getAllPhenotypesFromObservationsByGeneAccession(){
+
+		//gene is Cib2
+		String geneAccession="MGI:1929293";
+		try {
+			//map is parameterStableId to Experiment Row??
+			Set<ExperimentsDataTableRow> rows = observationService.getAllPhenotypesFromObservationsByGeneAccession(geneAccession);
+
+				for(ExperimentsDataTableRow row:rows) {
+					System.out.println(row.getParameter().getStableId()+" "+row.getZygosity()+" female m "+row.getFemaleMutantCount()+" male m "+row.getMaleMutantCount());
+				}
+
+			assert(rows.size()>5);
 
 		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();

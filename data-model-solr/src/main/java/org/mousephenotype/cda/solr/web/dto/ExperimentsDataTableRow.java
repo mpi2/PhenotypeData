@@ -20,7 +20,11 @@ public class ExperimentsDataTableRow extends DataTableRow{
 	Integer maleMutantCount;
 	Double effectSize;
 	String metadataGroup;
-		
+
+	public ExperimentsDataTableRow() {
+
+	}
+
 	@Override
 	public int compareTo(DataTableRow o) {
 		// TODO Auto-generated method stub

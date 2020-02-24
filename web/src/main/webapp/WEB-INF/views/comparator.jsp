@@ -117,7 +117,7 @@
   								
 							</c:forEach> 
 	            			
-	            				<c:set var="controlText" value="${img.zygosity} <br/>${img.sex}"/>
+	            				<c:set var="controlText" value="${img.zygosity}<br/>${img.sex}"/>
 
 							<div class="
 	            			<c:choose>
@@ -133,7 +133,7 @@
 	            			</c:choose>
 	            			"> <div style="color: #0c0c0c">${controlText}</div>
 	            				
-	            						<img  id="${img.omeroId}" class="thumb" data-id="${img.omeroId}" src="https:${jpegUrlThumbWithoutId}/${img.omeroId}/" <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
+	            						<img  id="${img.omeroId}" class="thumb" data-id="${img.omeroId}" src="https:${jpegUrlThumbWithoutId}/${img.omeroId}/" <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${img.zygosity},${img.sex}">
 
 	            			</div> <!-- end of male female class -->
 	            			</c:forEach>
@@ -175,7 +175,7 @@
 	            			"><div style="color: #0c0c0c">${mutantText}</div>
 								
 									
-	            						<img class="thumb2" id="${img.omeroId}" data-id="${img.omeroId}" src="https:${jpegUrlThumbWithoutId}/${img.omeroId}/" <%-- class="clickable_image_mutant --%> <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
+	            						<img class="thumb2" id="${img.omeroId}" data-id="${img.omeroId}" src="https:${jpegUrlThumbWithoutId}/${img.omeroId}/" <%-- class="clickable_image_mutant --%> <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${img.zygosity},${img.sex}">
 	 
 	            			
 	            			</div>
