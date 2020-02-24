@@ -41,6 +41,9 @@ import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.web.dto.CategoricalDataObject;
 import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
+import org.mousephenotype.cda.solr.web.dto.EvidenceLink;
+import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
+import org.mousephenotype.cda.utilities.LifeStageMapper;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,11 +54,16 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 
@@ -322,6 +330,116 @@ public class ObservationService extends BasicService implements WebStatus {
         ViabilityData data = new ViabilityData(resources, adultOnly, 1000000);
 
         return data;
+    }
+
+    static String getKey (ObservationDTO x) {
+        return x.getAlleleSymbol() + x.getParameterStableId() + x.getZygosity() + x.getPhenotypingCenter() + LifeStageMapper.getLifeStage(x.getParameterStableId(), x.getDevelopmentalStageName());
+    }
+
+
+    final Function<String, Predicate<String>> hasSex=
+            (String sexType) -> {
+                Predicate<String> checkSex = (String sex) -> sex.equals(sexType);
+                return checkSex;
+            };
+
+
+    public Set<ExperimentsDataTableRow> getAllPhenotypesFromObservationsByGeneAccession(String acc) throws IOException, SolrServerException {
+        Set<ExperimentsDataTableRow> alleleZygParameterStableIdToRows = new HashSet<>();
+        SolrQuery query = new SolrQuery();
+        query.setQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + acc + "\"");
+
+        query.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
+        query.setRows(100000);
+
+        logger.info("get All Phenotypes for gene " + SolrUtils.getBaseURL(experimentCore) + "/select?" + query);
+        final List<ObservationDTO> beans = experimentCore.query(query).getBeans(ObservationDTO.class);
+
+        Map<String, List<ObservationDTO>> maleKeys = new HashMap<>();
+        Map<String, List<ObservationDTO>> femaleKeys = new HashMap<>();
+        try {
+            maleKeys = beans.stream()
+                    .filter(x -> x.getSex().equals(SexType.male.toString()))
+                    .collect(Collectors.groupingBy(ObservationService::getKey));
+            femaleKeys = beans.stream()
+                    .filter(x -> x.getSex().equals(SexType.female.toString()))
+                    .collect(Collectors.groupingBy(ObservationService::getKey));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+//        Map<String, List<ObservationDTO>> femaleKeys = beans.stream()
+//                .filter(x -> x.getSex().equals(SexType.female.toString()))
+//                .collect(Collectors.toMap(ObservationService::getKey, Arrays::asList));
+        //List<String> femaleKeys = beans.stream().filter(x -> x.getSex().equals(SexType.female)).collect(Collectors.toMap(x -> x.getAlleleSymbol() + x.getParameterStableId() + x.getZygosity() + x.getPhenotypingCenter() + LifeStageMapper.getLifeStage(x.getParameterStableId()));
+
+        for(String key: maleKeys.keySet()){
+            rowsFromDTOs(alleleZygParameterStableIdToRows, maleKeys.get(key));
+        }
+        for(String key: femaleKeys.keySet()){
+            rowsFromDTOs(alleleZygParameterStableIdToRows, femaleKeys.get(key));
+        }
+        //Long maleMutantCount=maleKeys.stream().filter(x -> x.getSex().equals(SexType.male)).count();
+        //Long femaleMutantCount=beans.stream().filter(x -> x.getSex().equals(SexType.female)).count();
+
+
+        //loop over rows again so we can collapse on zygosity and count the number of males and females
+//        for(String parameterStableId:alleleZygParameterStableIdToRows.keySet()) {
+//            List<ExperimentsDataTableRow> currentRows = alleleZygParameterStableIdToRows.get(parameterStableId);
+//            int femaleMutantCount=0;
+//            System.out.println(parameterStableId);
+//            //maleMutantCount = (int) currentRows.stream().filter(x -> x.getParameter().getStableId().equals(parameterStableId)).map(ExperimentsDataTableRow::getZygosity).count();
+//            //femaleMutantCount = (int) currentRows.stream().filter(x -> x.getParameter().getStableId().equals(parameterStableId)).map(ExperimentsDataTableRow::getZygosity).count();
+//            System.out.println("zygosity count= "+maleMutantCount);
+//            for(ExperimentsDataTableRow tempRow:currentRows){
+//              // if(tempRow.get)
+//            }
+//            //filter based on zygosity if the zygosity exists for this param already don't add another one?
+//        }
+        return alleleZygParameterStableIdToRows;
+    }
+
+    private void rowsFromDTOs(Set<ExperimentsDataTableRow> alleleZygParameterStableIdToRows, List<ObservationDTO> beans) throws UnsupportedEncodingException {
+        for (ObservationDTO observationDTO : beans) {
+            alleleZygParameterStableIdToRows.add(this.generateRow(observationDTO));
+
+        }
+    }
+
+    private ExperimentsDataTableRow generateRow(ObservationDTO dto) throws UnsupportedEncodingException {
+        {
+
+            MarkerBean allele = new MarkerBean();
+            allele.setAccessionId(dto.getAlleleAccession());
+            allele.setSymbol(dto.getAlleleSymbol());
+
+            MarkerBean gene = new MarkerBean();
+            gene.setAccessionId(dto.getGeneAccession());
+            gene.setSymbol(dto.getGeneSymbol());
+
+            ImpressBaseDTO procedure  = new ImpressBaseDTO(null, null, dto.getProcedureStableId(), dto.getProcedureName());
+            ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, dto.getParameterStableId(), dto.getParameterName());
+            ImpressBaseDTO pipeline = new ImpressBaseDTO(null, null, dto.getPipelineStableId(), dto.getPipelineName());
+            String statisticalMethod="";
+            String status="";
+            if( dto.getParameterStableId().contains("_XRY_")){
+                statisticalMethod="N/A";
+            }
+            if(dto.getParameterStableId().contains("_ALZ_")){
+                status=dto.getCategory();//set the result to expression or no expression etc as Stats not applicable - but then at least the row is informative?
+                statisticalMethod="N/A";
+            }
+            ZygosityType zygosity = dto.getZygosity() != null ? ZygosityType.valueOf(dto.getZygosity()) : ZygosityType.not_applicable;
+            ExperimentsDataTableRow row = new ExperimentsDataTableRow(dto.getPhenotypingCenter(), statisticalMethod,
+                    status, allele, gene, zygosity,
+                    pipeline, procedure, parameter, "",null,0,
+                    0,0.0, dto.getMetadataGroup());
+            EvidenceLink link=new EvidenceLink();
+            link.setDisplay(false);
+            row.setEvidenceLink(link);//set all links to display false as we have no charts to link to from these rows??
+
+            return row;
+
+        }
     }
 
     public class ViabilityData {
