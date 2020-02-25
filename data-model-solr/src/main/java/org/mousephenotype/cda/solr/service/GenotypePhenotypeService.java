@@ -1666,7 +1666,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
             return this.symbol.compareTo(o.symbol);
         }
     }
-    
+
     /**
      * The set of associations differs depending on topLevelMpTerms. If at least one term is passed, we need to
      * filter the list of genes that have the required phenotypes. We can't use the list of MP terms themselves

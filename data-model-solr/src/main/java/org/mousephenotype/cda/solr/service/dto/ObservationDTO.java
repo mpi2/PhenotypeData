@@ -41,7 +41,6 @@ public class ObservationDTO extends ObservationDTOBase {
 
 
 
-
     /**
      * tabbedToString method used to get this object in a representation for exporting
      *
