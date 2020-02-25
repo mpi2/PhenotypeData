@@ -1722,7 +1722,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
                         return a;
                     });
 
-            query.addFilterQuery(commonGenes.stream().limit(10).collect(Collectors.joining(" OR ", GenotypePhenotypeDTO.MARKER_SYMBOL + ":(", ")")));
+            query.addFilterQuery(commonGenes.stream().collect(Collectors.joining(" OR ", GenotypePhenotypeDTO.MARKER_SYMBOL + ":(", ")")));
 
         }
 
