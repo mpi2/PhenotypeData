@@ -1666,69 +1666,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
             return this.symbol.compareTo(o.symbol);
         }
     }
-
-    /**
-     * The query differs depending on topLevelMpTerms. If at least one term is passed, we need to find out the list of
-     * genes that have the required phenotypes and use them in the query. We can't use the list of MP terms themselves
-     * as t will filter out the other phenotype associations for the genese we're interested in.
-     * @param topLevelMpTerms
-     * @author ilinca
-     * @return Solr query for g-p associations of genes that have all phenotypes passed in topLevelMpTerms.
-     * @throws IOException
-     * @throws SolrServerException
-     */
-    private SolrQuery getPleiotropyQuery(List<String> topLevelMpTerms, Boolean idg, String idgClass) throws IOException, SolrServerException, SQLException {
-
-        String pivot = GenotypePhenotypeDTO.MARKER_SYMBOL  + "," + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME;
-        SolrQuery query = new SolrQuery()
-                .setQuery("*:*")
-                .setFacet(true)
-                .setFacetLimit(-1);
-        query.add("facet.pivot", pivot);
-        query.addFacetField(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
-
-        if ( idg != null && idg){
-
-            // If the idgClass has not been set, return all for the idg project, else filter all for the class specified
-            Set<GenesSecondaryProject> projectBeans =
-                    idgClass == null ?
-                    genesSecondaryProjectRepository.getAllBySecondaryProjectId("idg") :
-                    genesSecondaryProjectRepository.getAllBySecondaryProjectIdAndGroupLabel("idg", idgClass);
-            query.addFilterQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":(\"" + projectBeans.stream().map(GenesSecondaryProject::getMgiGeneAccessionId).collect(Collectors.joining("\" OR \"")) + "\")");
-        }
-
-        if (topLevelMpTerms != null) {
-
-            // We want data for genes that have ALL top level phenotypes in the list
-            String interimPivot = GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
-            SolrQuery interimQuery = new SolrQuery()
-                    .setFacet(true)
-                    .setFacetLimit(-1)
-                    .setQuery("*:*")
-                    .addFilterQuery(topLevelMpTerms.stream().collect(Collectors.joining("\" OR \"", GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + ":(\"", "\")")));
-            interimQuery.add("facet.pivot", interimPivot);
-
-            // Filter out the pivot facets for un-wanted MP top level terms. We can get other top levels in the facets due to multiple parents.
-            Map<String, Set<String>> genesByMpTopLevel = getFacetPivotResultsKeepCount(genotypePhenotypeCore.query(interimQuery), interimPivot).entrySet().stream()
-                    .filter(entry -> topLevelMpTerms.contains(entry.getKey()))
-                    .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().keySet()));
-
-            // Instantiate commonGenes with itself as it will work as identity on first set intersection (intersection of same sets)
-            Set<String> commonGenes = genesByMpTopLevel.values().iterator().next();
-            // Keep only genes that are present in all top level mp groups
-            commonGenes = genesByMpTopLevel.values().stream()
-                    .reduce(commonGenes, (a, b) -> {
-                        a.retainAll(b);
-                        return a;
-                    });
-
-            query.addFilterQuery(commonGenes.stream().collect(Collectors.joining(" OR ", GenotypePhenotypeDTO.MARKER_SYMBOL + ":(", ")")));
-
-        }
-
-        return query;
-    }
-
+    
     /**
      * The set of associations differs depending on topLevelMpTerms. If at least one term is passed, we need to
      * filter the list of genes that have the required phenotypes. We can't use the list of MP terms themselves
