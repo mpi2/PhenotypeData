@@ -28,7 +28,6 @@ import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -535,7 +534,7 @@ public class ImageService extends BasicService implements WebStatus {
 		query.setQuery(ImageDTO.PROCEDURE_NAME + ":*LacZ*");
 		query.setFilterQueries(ImageDTO.ANATOMY_ID + ":*");
 		query.addFilterQuery(ImageDTO.GENE_ACCESSION_ID + ":*");
-        query.setRows(1000000);
+        query.setRows(Integer.MAX_VALUE);
         query.addField(ImageDTO.GENE_SYMBOL);
 		query.addField(ImageDTO.GENE_ACCESSION_ID);
 		query.addField(ImageDTO.ANATOMY_ID);
@@ -544,123 +543,180 @@ public class ImageService extends BasicService implements WebStatus {
 		return impcImagesCore.query(query).getBeans(ImageDTO.class);
 	}
 
+// FIXME FIXME FIXME
+	public List<List<String>> getLaczExpressionSpreadsheet(String imageCollectionLinkBase) throws IOException, SolrServerException {
 
-	public List<String[]> getLaczExpressionSpreadsheet(String imageCollectionLinkBase) {
-        SolrQuery query = new SolrQuery();
-        ArrayList<String[]> res = new ArrayList<>();
-        String[] aux = new String[0];
+		List<List<String>> result = new ArrayList<>();
+if (1 == 1) return result;
+		SolrQuery query = new SolrQuery()
+				.setQuery(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\" AND "
+								  + ImageDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
+				.setRows(Integer.MAX_VALUE)
+				.setFields(
+						ImageDTO.GENE_SYMBOL
+						, ImageDTO.GENE_ACCESSION_ID
+						, ImageDTO.ALLELE_SYMBOL
+						, ImageDTO.COLONY_ID
+						, ImageDTO.BIOLOGICAL_SAMPLE_ID
+						, ImageDTO.ZYGOSITY
+						, ImageDTO.SEX
+						, ImageDTO.PARAMETER_ASSOCIATION_NAME
+						, ImageDTO.PARAMETER_STABLE_ID
+						, ImageDTO.PARAMETER_ASSOCIATION_VALUE
+						, ImageDTO.GENE_ACCESSION_ID
+						, ImageDTO.PHENOTYPING_CENTER);
 
-        query.setQuery(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\" AND "
-                + ImageDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
-        query.setRows(1000000);
-        query.addField(ImageDTO.GENE_SYMBOL);
-		query.addField(ImageDTO.GENE_ACCESSION_ID);
-        query.addField(ImageDTO.ALLELE_SYMBOL);
-        query.addField(ImageDTO.COLONY_ID);
-        query.addField(ImageDTO.BIOLOGICAL_SAMPLE_ID);
-        query.addField(ImageDTO.ZYGOSITY);
-        query.addField(ImageDTO.SEX);
-        query.addField(ImageDTO.PARAMETER_ASSOCIATION_NAME);
-        query.addField(ImageDTO.PARAMETER_STABLE_ID);
-        query.addField(ImageDTO.PARAMETER_ASSOCIATION_VALUE);
-        query.addField(ImageDTO.GENE_ACCESSION_ID);
-        query.addField(ImageDTO.PHENOTYPING_CENTER);
-        query.setFacet(true);
-        query.setFacetLimit(100);
-        query.addFacetField(ImageDTO.PARAMETER_ASSOCIATION_NAME);
-        query.set("group", true);
-        query.set("group.limit", 100000);
-        query.set("group.field", ImageDTO.BIOLOGICAL_SAMPLE_ID);
+		final List<ImageDTO> imageDTOs = impcImagesCore.query(query).getBeans(ImageDTO.class);
 
-        try {
-            QueryResponse solrResult = impcImagesCore.query(query);
-            ArrayList<String> allParameters = new ArrayList<>();
-            List<String> header = new ArrayList<>();
-            header.add("Gene Symbol");
-			header.add("MGI Gene Id");
-            header.add("Allele Symbol");
-            header.add("Colony Id");
-            header.add("Biological Sample Id");
-            header.add("Zygosity");
-            header.add("Sex");
-            header.add("Phenotyping Centre");
+		final List<String> allParameters = imageDTOs
+				.stream()
+				.map(ImageDTO::getParameterStableId)
+				.distinct()
+				.sorted()
+				.collect(Collectors.toList());
 
-            logger.info(SolrUtils.getBaseURL(impcImagesCore) + "/select?" + query);
+		List<String> header = new ArrayList<>();
+		header.add("Gene Symbol");
+		header.add("MGI Gene Id");
+		header.add("Allele Symbol");
+		header.add("Colony Id");
+		header.add("Biological Sample Id");
+		header.add("Zygosity");
+		header.add("Sex");
+		header.add("Phenotyping Centre");
+		header.addAll(allParameters);
+		header.add("image_collection_link");
 
-            // Get facets as we need to turn them into columns
-            for (Count facet : solrResult.getFacetField(
-                    ImageDTO.PARAMETER_ASSOCIATION_NAME).getValues()) {
-                allParameters.add(facet.getName());
-                header.add(facet.getName());
-            }
-            header.add("image_collection_link");
-            res.add(header.toArray(aux));
-            for (Group group : solrResult.getGroupResponse().getValues().get(0)
-                    .getValues()) {
+		result.add(header);
 
-                List<String> row = new ArrayList<>();
-                ArrayList<String> params = new ArrayList<>();
-                ArrayList<String> paramValues = new ArrayList<>();
-                String urlToImagePicker = imageCollectionLinkBase + "/imageComparator?acc=";
+		for (ImageDTO imageDTO : imageDTOs) {
+			List<String> row = new ArrayList<>();
+			row.add(imageDTO.getGeneSymbol());
+			row.add(imageDTO.getGeneAccession());
+			row.add(imageDTO.getAlleleSymbol());
+			row.add(imageDTO.getColonyId());
+			row.add(Long.toString(imageDTO.getBiologicalSampleId()));
+			row.add(imageDTO.getZygosity());
+			row.add(imageDTO.getSex());
+			row.add(imageDTO.getPhenotypingCenter());
 
-                for (SolrDocument doc : group.getResult()) {
-                    if (row.size() == 0) {
-                        row.add(doc.getFieldValues(ImageDTO.GENE_SYMBOL)
-                                .iterator().next().toString());
-                        row.add(doc.getFieldValues(ImageDTO.GENE_ACCESSION_ID)
-                                .iterator().next().toString());
-                        urlToImagePicker += doc
-                                .getFieldValue(ImageDTO.GENE_ACCESSION_ID)
-                                + "&parameter_stable_id=";
-                        urlToImagePicker += doc
-                                .getFieldValue(ImageDTO.PARAMETER_STABLE_ID);
-                        if (doc.getFieldValue(ImageDTO.ALLELE_SYMBOL) != null) {
-                            row.add(doc.getFieldValue(ImageDTO.ALLELE_SYMBOL)
-                                    .toString());
-                        }
-                        row.add(doc.getFieldValue(ImageDTO.COLONY_ID)
-                                .toString());
-                        row.add(doc
-                                .getFieldValue(ImageDTO.BIOLOGICAL_SAMPLE_ID)
-                                .toString());
-                        if (doc.getFieldValue(ImageDTO.ZYGOSITY) != null) {
-                            row.add(doc.getFieldValue(ImageDTO.ZYGOSITY)
-                                    .toString());
-                        }
-                        row.add(doc.getFieldValue(ImageDTO.SEX).toString());
-                        row.add(doc.getFieldValue(ImageDTO.PHENOTYPING_CENTER)
-                                .toString());
-                    }
+		}
 
-                    if (doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_NAME) != null) {
-                        for (int i = 0; i < doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_NAME).size(); i++) {
-                            params.add(doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_NAME).toArray(new Object[0])[i].toString());
 
-                            if (doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_VALUE) != null) {
-                                paramValues.add(doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_VALUE).toArray(new Object[0])[i].toString());
-                            } else {
-                                paramValues.add(Constants.NO_INFORMATION_AVAILABLE);
-                            }
-                        }
-                    }
-                }
 
-                for (String tissue : allParameters) {
-                    if (params.contains(tissue)) {
-                        row.add(paramValues.get(params.indexOf(tissue)));
-                    } else {
-                        row.add("");
-                    }
-                }
-                row.add(urlToImagePicker);
-                res.add(row.toArray(aux));
-            }
 
-        } catch (SolrServerException | IOException e) {
-            e.printStackTrace();
-        }
-        return res;
-    }
+//		query.setQuery(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\" AND "
+//                + ImageDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental");
+//        query.setRows(1000000);
+//        query.addField(ImageDTO.GENE_SYMBOL);
+//		query.addField(ImageDTO.GENE_ACCESSION_ID);
+//        query.addField(ImageDTO.ALLELE_SYMBOL);
+//        query.addField(ImageDTO.COLONY_ID);
+//        query.addField(ImageDTO.BIOLOGICAL_SAMPLE_ID);
+//        query.addField(ImageDTO.ZYGOSITY);
+//        query.addField(ImageDTO.SEX);
+//        query.addField(ImageDTO.PARAMETER_ASSOCIATION_NAME);
+//        query.addField(ImageDTO.PARAMETER_STABLE_ID);
+//        query.addField(ImageDTO.PARAMETER_ASSOCIATION_VALUE);
+//        query.addField(ImageDTO.GENE_ACCESSION_ID);
+//        query.addField(ImageDTO.PHENOTYPING_CENTER);
+//        query.setFacet(true);
+//        query.setFacetLimit(100);
+//        query.addFacetField(ImageDTO.PARAMETER_ASSOCIATION_NAME);
+//        query.set("group", true);
+//        query.set("group.limit", 100000);
+//        query.set("group.field", ImageDTO.BIOLOGICAL_SAMPLE_ID);
+//
+//        try {
+//            QueryResponse solrResult = impcImagesCore.query(query);
+//            ArrayList<String> allParameters = new ArrayList<>();
+//            List<String> header = new ArrayList<>();
+//            header.add("Gene Symbol");
+//			header.add("MGI Gene Id");
+//            header.add("Allele Symbol");
+//            header.add("Colony Id");
+//            header.add("Biological Sample Id");
+//            header.add("Zygosity");
+//            header.add("Sex");
+//            header.add("Phenotyping Centre");
+//
+//            logger.info(SolrUtils.getBaseURL(impcImagesCore) + "/select?" + query);
+//
+//            // Get facets as we need to turn them into columns
+//            for (Count facet : solrResult.getFacetField(
+//                    ImageDTO.PARAMETER_ASSOCIATION_NAME).getValues()) {
+//                allParameters.add(facet.getName());
+//                header.add(facet.getName());
+//            }
+//            header.add("image_collection_link");
+//            res.add(header.toArray(aux));
+//			for (Group group : solrResult.getGroupResponse().getValues().get(0)
+//					.getValues()) {
+
+//				List<String> row = new ArrayList<>();
+//				ArrayList<String> params = new ArrayList<>();
+//				ArrayList<String> paramValues = new ArrayList<>();
+//				String urlToImagePicker = imageCollectionLinkBase + "/imageComparator?acc=";
+//
+//				for (SolrDocument doc : group.getResult()) {
+//					if (row.size() == 0) {
+//						row.add(doc.getFieldValues(ImageDTO.GENE_SYMBOL)
+//										.iterator().next().toString());
+//						row.add(doc.getFieldValues(ImageDTO.GENE_ACCESSION_ID)
+//										.iterator().next().toString());
+//						urlToImagePicker += doc
+//								.getFieldValue(ImageDTO.GENE_ACCESSION_ID)
+//								+ "&parameter_stable_id=";
+//						urlToImagePicker += doc
+//								.getFieldValue(ImageDTO.PARAMETER_STABLE_ID);
+//						if (doc.getFieldValue(ImageDTO.ALLELE_SYMBOL) != null) {
+//							row.add(doc.getFieldValue(ImageDTO.ALLELE_SYMBOL)
+//											.toString());
+//						}
+//						row.add(doc.getFieldValue(ImageDTO.COLONY_ID)
+//										.toString());
+//						row.add(doc
+//										.getFieldValue(ImageDTO.BIOLOGICAL_SAMPLE_ID)
+//										.toString());
+//						if (doc.getFieldValue(ImageDTO.ZYGOSITY) != null) {
+//							row.add(doc.getFieldValue(ImageDTO.ZYGOSITY)
+//											.toString());
+//						}
+//						row.add(doc.getFieldValue(ImageDTO.SEX).toString());
+//						row.add(doc.getFieldValue(ImageDTO.PHENOTYPING_CENTER)
+//										.toString());
+//					}
+//
+//					if (doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_NAME) != null) {
+//						for (int i = 0; i < doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_NAME).size(); i++) {
+//							params.add(doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_NAME).toArray(new Object[0])[i].toString());
+//
+//							if (doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_VALUE) != null) {
+//								paramValues.add(doc.getFieldValues(ImageDTO.PARAMETER_ASSOCIATION_VALUE).toArray(new Object[0])[i].toString());
+//							} else {
+//								paramValues.add(Constants.NO_INFORMATION_AVAILABLE);
+//							}
+//						}
+//					}
+//				}
+//
+//				for (String tissue : allParameters) {
+//					if (params.contains(tissue)) {
+//						row.add(paramValues.get(params.indexOf(tissue)));
+//					} else {
+//						row.add("");
+//					}
+//				}
+//				row.add(urlToImagePicker);
+//				res.add(row.toArray());
+//			}
+//
+//		} catch (SolrServerException | IOException e) {
+//			e.printStackTrace();
+//		}
+		return result;
+	}
+
 
     /**
 	 *

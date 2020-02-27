@@ -18,6 +18,7 @@ package org.mousephenotype.cda.reports;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.ImageService;
 import org.slf4j.Logger;
@@ -57,7 +58,7 @@ public class LaczExpressionReport extends AbstractReport {
         return Introspector.decapitalize(ClassUtils.getShortClassName(this.getClass()));
     }
 
-    public void run(String[] args) throws ReportException {
+    public void run(String[] args) throws ReportException, IOException, SolrServerException {
 
         List<String> errors = parser.validate(parser.parse(args));
         if ( ! errors.isEmpty()) {
@@ -76,8 +77,8 @@ public class LaczExpressionReport extends AbstractReport {
 
         long start = System.currentTimeMillis();
 
-        List<String[]> result = imageService.getLaczExpressionSpreadsheet(imageCollectionLinkBase);
-        csvWriter.writeAll(result);
+        List<List<String>> results = imageService.getLaczExpressionSpreadsheet(imageCollectionLinkBase);
+        csvWriter.writeRows(results);
 
         try {
             csvWriter.close();
