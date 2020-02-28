@@ -42,8 +42,7 @@
             <ul class="mt-0">
                 <li>Ftp site:&nbsp;<a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-9.2">ftp://ftp.ebi.ac.uk/pub/databases/impc/release-9.2</a>
                 </li>
-                <li>RESTful interfaces:&nbsp;<a
-                        href="/data/documentation/data-access">APIs</a></li>
+                <li>RESTful interfaces: <a href="/data/documentation/data-access">APIs</a></li>
             </ul>
         </div>
     </div>
@@ -155,6 +154,7 @@
             </table>
 
             <h3>Experimental Data and Quality Checks</h3>
+
             <table id="exp_data">
                 <thead>
                     <tr>
