@@ -6,7 +6,7 @@
 
 <t:genericpage>
 
-	<jsp:attribute name="title">IMPC Release Notes</jsp:attribute>
+	<jsp:attribute name="title">Previous IMPC Data Release ${releaseVersion} Notes</jsp:attribute>
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; Release Notes</jsp:attribute>
 	<jsp:attribute name="header">
 
@@ -41,29 +41,42 @@
         <div class="container data-heading">
             <div class="row">
                 <div class="col-12 no-gutters">
-                    <h2 id="top" class="mb-0">IMPC Release Notes</h2>
+                    <h2 id="top" class="mb-0">Previous IMPC Data Release ${releaseVersion} Notes</h2>
                 </div>
             </div>
         </div>
-
 
         <div class="container white-bg-small">
             <div class="row pb-5">
                 <div class="col-12 col-md-12">
                     <div class="pre-content clear-bg">
-                        <div class="page-content people py-5 white-bg">
-                            <jsp:include page="IMPC_Release_Notes_${releaseVersion}.jsp"></jsp:include>
-                            <br/><br/>
+                        <div class="page-content pt-3 pb-5">
+                            <div class="container p-0 p-md-2">
 
-                            <h3>Previous Releases</h3>
-                            <ul>
-                                <c:forEach var="release" items="${releases}">
-                                    <%--                                                <li><a href="${baseUrl}/release_notes/IMPC_Release_Notes_${release}.html">Release ${release} notes</a></li>--%>
-                                    <li><a href="${baseUrl}/pastRelease/${release}">Release ${release} notes</a></li>
-                                </c:forEach>
-                            </ul>
+                                <div  class="row mt-0">
+                                    <div class="col-12">
+                                        <div class="alert alert-primary">
+                                            You are viewing a previous release. Click <a href="${baseUrl}/release">here</a> for the latest release notes.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <jsp:include page="IMPC_Release_Notes_${releaseVersion}.jsp"></jsp:include>
+
+                                <div  class="row mt-5">
+                                    <div class="col-12">
+
+                                        <h3>Previous Releases</h3>
+                                        <ul>
+                                            <c:forEach var="release" items="${releases}">
+                                                <li><a href="${baseUrl}/previous-releases/${release}">Release ${release} notes</a></li>
+                                            </c:forEach>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        </div>
+                    </div>
                 </div>
             </div>
         </div>

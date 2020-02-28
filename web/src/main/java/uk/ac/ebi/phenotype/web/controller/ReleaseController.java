@@ -357,20 +357,20 @@ public class ReleaseController {
 		return null;
 	}
 
-	@RequestMapping(value = "/pastRelease/{releaseVersion}", method = RequestMethod.GET)
+	@RequestMapping(value = "/previous-releases/{releaseVersion}", method = RequestMethod.GET)
 	public String getPastReleasesInformation(Model model, @PathVariable String releaseVersion) throws SQLException {
 
 		Map<String, String> metaInfo = getMetaInfo();
 
 		/**
-		 * Get all past releases
+		 * Get all previous releases
 		 */
 		List<String> releases = metaHisoryRepository.getAllDataReleaseVersionsBeforeSpecified(releaseVersion);
 
 		model.addAttribute(releaseVersion);
 		model.addAttribute("releases", releases);
 
-		return "pastRelease";
+		return "previous_releases";
 	}
 
 	private List<AggregateCountXY> getHistoricalData(String propertyKey) {
