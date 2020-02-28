@@ -297,7 +297,6 @@
                         series:[{"data":[251,3695,1236,1703,52,8,24,2051,1487,2332,2876,1426,5288,3967,1,55,41,424,4967,1348,46,417,4,4493,3303],"name":"hemizygote"},{"data":[3346,66625,32773,30777,1297,21691,1099,43379,20822,33359,45513,19394,86987,68126,2183,419,1030,16586,153981,20759,1101,7686,500,61824,66397],"name":"heterozygote"},{"data":[6435,114960,46468,50455,1943,10307,1782,66340,42884,66530,79462,41232,151635,117879,1322,9220,1662,19015,335343,37356,2028,20456,967,120246,107629],"name":"homozygote"}]
                     });
                 });
-
             </script>
         </div>
     </div>
@@ -315,6 +314,7 @@
                             <script type="text/javascript">$(function () { $('#genotypeStatusChart').highcharts({ colors:['rgba(239, 123, 11,50.0)', 'rgba(9, 120, 161,50.0)', 'rgba(119, 119, 119,50.0)', 'rgba(238, 238, 180,50.0)', 'rgba(36, 139, 75,50.0)', 'rgba(191, 75, 50,50.0)', 'rgba(255, 201, 67,50.0)', 'rgba(191, 151, 50,50.0)', 'rgba(239, 123, 11,50.0)', 'rgba(247, 157, 70,50.0)', 'rgba(247, 181, 117,50.0)', 'rgba(191, 75, 50,50.0)', 'rgba(151, 51, 51,50.0)', 'rgba(144, 195, 212,50.0)'], chart: {type: 'column' }, title: {text: 'Genotyping Status'}, credits: { enabled: false },   xAxis: { type: 'category', labels: { rotation: -45, style: {fontSize: '11px', fontFamily: 'Verdana, sans-serif'} } }, yAxis: { min: 0, title: { text: 'Number of genes' } }, legend: { enabled: false }, tooltip: { pointFormat: '<b>{point.y}</b>' }, series: [{ name: 'Population',  data: [['Micro-injection in progress', 14], ['Chimeras obtained', 18], ['Genotype confirmed', 4238], ['Cre Excision Complete', 3477], ], dataLabels: { enabled: true, style: { fontSize: '13px', fontFamily: 'Verdana, sans-serif' } } }] }); });</script>
                         </div>
                     </div>
+
                     <div class="col-6">
                         <div id="phenotypeStatusChart">
                             <script type="text/javascript">$(function () { $('#phenotypeStatusChart').highcharts({ colors:['rgba(239, 123, 11,50.0)', 'rgba(9, 120, 161,50.0)', 'rgba(119, 119, 119,50.0)', 'rgba(238, 238, 180,50.0)', 'rgba(36, 139, 75,50.0)', 'rgba(191, 75, 50,50.0)', 'rgba(255, 201, 67,50.0)', 'rgba(191, 151, 50,50.0)', 'rgba(239, 123, 11,50.0)', 'rgba(247, 157, 70,50.0)', 'rgba(247, 181, 117,50.0)', 'rgba(191, 75, 50,50.0)', 'rgba(151, 51, 51,50.0)', 'rgba(144, 195, 212,50.0)'], chart: {type: 'column' }, title: {text: 'Phenotyping Status'}, credits: { enabled: false },   xAxis: { type: 'category', labels: { rotation: -45, style: {fontSize: '11px', fontFamily: 'Verdana, sans-serif'} } }, yAxis: { min: 0, title: { text: 'Number of genes' } }, legend: { enabled: false }, tooltip: { pointFormat: '<b>{point.y}</b>' }, series: [{ name: 'Population',  data: [['Phenotype Attempt Registered', 944], ['Phenotyping Started', 187], ['Phenotyping Complete', 5860], ], dataLabels: { enabled: true, style: { fontSize: '13px', fontFamily: 'Verdana, sans-serif' } } }] }); });</script>
@@ -386,6 +386,7 @@
                 <a id="uncheckAllGenByCenter"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
                 <div class="clear both"></div>
             </div>
+
             <div class="col-6">
                 <div id="phenotypeStatusByCenterChart">
                     <script type="text/javascript">$(function () {
@@ -625,5 +626,6 @@
 
         <a id="checkAllDataPoints" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
         <a id="uncheckAllDataPoints"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
+        <div class="clear both"></div>
     </div>
 </div>
