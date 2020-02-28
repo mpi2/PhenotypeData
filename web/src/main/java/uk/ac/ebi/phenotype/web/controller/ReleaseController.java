@@ -40,6 +40,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import uk.ac.ebi.phenotype.chart.AnalyticsChartProvider;
@@ -328,7 +329,7 @@ public class ReleaseController {
 		/**
 		 * Get all former releases: releases but the current one
 		 */
-		List<String> releases = metaHisoryRepository.getAllDataReleaseVersionsExcludingOneCastDesc(metaInfo.get("data_release_version"));
+		List<String> releases = metaHisoryRepository.getAllDataReleaseVersionsBeforeSpecified(metaInfo.get("data_release_version"));
 
 		model.addAttribute("metaInfo", metaInfo);
 		model.addAttribute("releases", releases);
@@ -354,6 +355,22 @@ public class ReleaseController {
 		model.addAttribute("fertilityMap", fertilityDistrib);
 
 		return null;
+	}
+
+	@RequestMapping(value = "/pastRelease/{releaseVersion}", method = RequestMethod.GET)
+	public String getPastReleasesInformation(Model model, @PathVariable String releaseVersion) throws SQLException {
+
+		Map<String, String> metaInfo = getMetaInfo();
+
+		/**
+		 * Get all past releases
+		 */
+		List<String> releases = metaHisoryRepository.getAllDataReleaseVersionsBeforeSpecified(releaseVersion);
+
+		model.addAttribute(releaseVersion);
+		model.addAttribute("releases", releases);
+
+		return "pastRelease";
 	}
 
 	private List<AggregateCountXY> getHistoricalData(String propertyKey) {

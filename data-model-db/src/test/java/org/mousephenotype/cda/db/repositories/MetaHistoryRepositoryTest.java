@@ -58,14 +58,24 @@ public class MetaHistoryRepositoryTest {
     }
 
     @Test
-    public void getAllDataReleaseVersionsExcludingOneCastDesc() {
-        List<String> actual = metaHistoryRepository.getAllDataReleaseVersionsExcludingOneCastDesc("2.0");
+    public void getAllDataReleaseVersionsBeforeSpecified() {
+        List<String> actual = metaHistoryRepository.getAllDataReleaseVersionsBeforeSpecified("2.0");
+        assertNotNull(actual);
+        assertEquals(2, actual.size());
+        assertEquals("1.1", actual.get(0));
+        assertEquals("1.0", actual.get(1));
+
+        actual = metaHistoryRepository.getAllDataReleaseVersionsBeforeSpecified("10.0");
         assertNotNull(actual);
         assertEquals(4, actual.size());
-        assertEquals("10.0", actual.get(0));
-        assertEquals("3.4", actual.get(1));
+        assertEquals("3.4", actual.get(0));
+        assertEquals("2.0", actual.get(1));
         assertEquals("1.1", actual.get(2));
         assertEquals("1.0", actual.get(3));
+
+        actual = metaHistoryRepository.getAllDataReleaseVersionsBeforeSpecified("1.0");
+        assertNotNull(actual);
+        assertEquals(0, actual.size());
     }
 
     @Test

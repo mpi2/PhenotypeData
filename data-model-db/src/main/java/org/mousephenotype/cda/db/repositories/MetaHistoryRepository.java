@@ -31,10 +31,13 @@ public interface MetaHistoryRepository extends CrudRepository<MetaHistory, Long>
     <T> List<T> getAllDataReleaseVersionsCastAsc();
 
 
-    String getAllDataReleaseVersionsExcludingOneCastDescQuery =
-            "SELECT DISTINCT new java.lang.String(dataReleaseVersion) FROM MetaHistory WHERE dataReleaseVersion <> :dataReleaseVersionToExclude ORDER BY CAST(dataReleaseVersion as float) DESC";
-    @Query(value = getAllDataReleaseVersionsExcludingOneCastDescQuery)
-    <T> List<T> getAllDataReleaseVersionsExcludingOneCastDesc(@Param("dataReleaseVersionToExclude") String dataReleaseVersionToExclude);
+    String getAllDataReleaseVersionsLessThanSpecifiedQuery =
+            "SELECT DISTINCT new java.lang.String(dataReleaseVersion)"
+                    + " FROM MetaHistory"
+                    + " WHERE CAST(dataReleaseVersion as float) < CAST(:dataReleaseVersionSpecified as float)"
+                    +  "ORDER BY CAST(dataReleaseVersion as float) DESC";
+    @Query(value = getAllDataReleaseVersionsLessThanSpecifiedQuery)
+    <T> List<T> getAllDataReleaseVersionsBeforeSpecified(@Param("dataReleaseVersionSpecified") String dataReleaseVersionSpecified);
 
 
     String getAllByPropertyKeyQueryCastAsc =
