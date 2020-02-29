@@ -1864,7 +1864,18 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             if (exemplarObservation == null) {
                 continue;
             }
-            Parameter param = parameterRepository.getFirstByStableIdAndProcedures(parameterToCreate, exemplarObservation.getProcedureStableId(), exemplarObservation.getPipelineStableId());
+//            Parameter param = parameterRepository.getFirstByStableIdAndProcedures(parameterToCreate, exemplarObservation.getProcedureStableId(), exemplarObservation.getPipelineStableId());
+            String procedureId = exemplarObservation.getProcedureStableId();
+            String pipelineId = exemplarObservation.getPipelineStableId();
+            if (parameterToCreate.contains("BWT_008_001")) {
+                procedureId = "IMPC_BWT_001";
+            }
+
+            Parameter param = parameterRepository.getFirstByStableIdAndProcedures(parameterToCreate, procedureId, pipelineId);
+
+            if (param==null) {
+                logger.warn("Cannot find parameter for parameter: %s, procedure: %s, pipeline: %s", param, procedureId, pipelineId);
+            }
 
 
             Datasource datasource = datasources.get(exemplarObservation.getExternalDbId());
