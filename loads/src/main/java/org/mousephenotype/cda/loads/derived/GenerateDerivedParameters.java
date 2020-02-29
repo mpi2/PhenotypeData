@@ -1858,47 +1858,56 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         }
 
         logger.info( "  " + parameterToCreate + " Finished parsing data and metadata, contains " + res.keySet().size() + " ids");
-
         for (String id: res.keySet()){
+            int loop = 0;
+            logger.info("  Every line loop counter:" + (loop++) + " id" + id);
 
             ObservationDTO exemplarObservation = res.get(id).stream().findFirst().orElse(null);
+            logger.info("  Every line loop counter:" + (loop++) + " id" + id);
             if (exemplarObservation == null) {
                 continue;
             }
+            logger.info("  Every line loop counter:" + (loop++) + " id" + id);
 //            Parameter param = parameterRepository.getFirstByStableIdAndProcedures(parameterToCreate, exemplarObservation.getProcedureStableId(), exemplarObservation.getPipelineStableId());
             String procedureId = exemplarObservation.getProcedureStableId();
+            logger.info("  Every line loop counter:" + (loop++) + " id" + id);
             String pipelineId = exemplarObservation.getPipelineStableId();
+            logger.info("  Every line loop counter:" + (loop++) + " id" + id);
             if (parameterToCreate.contains("BWT_008_001")) {
                 procedureId = "IMPC_BWT_001";
             }
+            logger.info("  Every line loop counter:" + loop);
 
             Parameter param = parameterRepository.getFirstByStableIdAndProcedures(parameterToCreate, procedureId, pipelineId);
-            if (Math.random()<0.01) {
                 logger.info("  " + parameterToCreate + " Found parameter " + param);
-            }
+
+            logger.info("  Every line loop counter:" + (loop++) + " id" + id);
 
             if (param==null) {
                 logger.warn("Cannot find parameter for parameter: %s, procedure: %s, pipeline: %s", param, procedureId, pipelineId);
             }
+            logger.info("  Every line loop counter:" + (loop++) + " id" + id);
 
 
             Datasource datasource = datasources.get(exemplarObservation.getExternalDbId());
-            if (Math.random()<0.01) {
                 logger.info("  " + parameterToCreate + " Found datasource " + datasource);
-            }
+
+            logger.info("  Every line loop counter:" + (loop++) + " id" + id);
 
             Experiment currentExperiment = createNewExperiment(exemplarObservation, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, exemplarObservation), false);
             currentExperiment.setMetadataCombined(metadata.get(id));
+            logger.info("  Every line loop counter:" + (loop++) + " id" + id);
 
             // No metadata split for body weight curves
             currentExperiment.setMetadataGroup(DigestUtils.md5Hex(""));
-            if (Math.random()<0.01) {
                 logger.info("  " + parameterToCreate + " setting up experiment " + currentExperiment.getExternalId());
-            }
+            logger.info("  Every line loop counter:" + (loop++) + " id" + id);
+
 
             logger.info("  " + parameterToCreate + " Saving experiment " + currentExperiment.getExternalId());
             experimentRepository.save(currentExperiment);
             logger.info("  " + parameterToCreate + " Saved experiment " + currentExperiment.getExternalId());
+            logger.info("  Every line loop counter:" + (loop++) + " id" + id);
 
             logger.info("    " + parameterToCreate + " Saving " + res.get(id).size() + " observations");
             for (ObservationDTO dto : res.get(id)) {
