@@ -1829,6 +1829,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         Map<String, Map<String, Set<ObservationDTO>>> parameterMap = new HashMap<>();
         Set<String> animalIds =  getTimeSeriesResultsUnionByParameter(paramsOfInterest, parameterMap);
 
+        logger.info("  " + parameterToCreate + " Finished Getting Ids");
+
         for (String id: animalIds){
             metadataGroups.put(id, "");
             metadata.put(id, "");
@@ -1857,6 +1859,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 }
             }
         }
+
+        logger.info( "  " + parameterToCreate + " Finished parsing data and metadata, contains " + res.keySet().size() + " ids");
 
         for (String id: res.keySet()){
 
