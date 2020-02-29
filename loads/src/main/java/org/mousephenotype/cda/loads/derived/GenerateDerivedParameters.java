@@ -1823,7 +1823,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         int i = 0;
         deleteObservationsForParameterId(parameterToCreate);
         Map<String, Set<ObservationDTO>> res = new HashMap<> (); // <animalid, Set<obsDTO>>
-        Map<String, String> metadataGroups = new HashMap<>();
         Map<String, String> metadata = new HashMap<>();
 
         Map<String, Map<String, Set<ObservationDTO>>> parameterMap = new HashMap<>();
@@ -1832,7 +1831,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         logger.info("  " + parameterToCreate + " Finished Getting Ids");
 
         for (String id: animalIds){
-            metadataGroups.put(id, "");
             metadata.put(id, "");
             for (String p: paramsOfInterest){
 
@@ -1853,7 +1851,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                         obsDTO.addDiscreteValue(getAgeInWeeks(obsDTO.getDateOfExperiment(), obsDTO.getDateOfBirth()));
                         res.get(id).add(obsDTO);
 
-                        metadataGroups.put(id, metadataGroups.get(id) + "_" + obsDTO.getMetadataGroup());
                         metadata.put(id, metadata.get(id) + ", " + p + ":" + obsDTO.getMetadataCombined());
                     }
                 }
@@ -1886,12 +1883,14 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
             Experiment currentExperiment = createNewExperiment(exemplarObservation, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, exemplarObservation), false);
             currentExperiment.setMetadataCombined(metadata.get(id));
-            currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroups.get(id)));
-            experimentRepository.save(currentExperiment);
-            if (Math.random() < 0.01) {
-                logger.info("  " + parameterToCreate + " Saving experiment " + currentExperiment.getExternalId());
-            }
 
+            // No metadata split for body weight curves
+            currentExperiment.setMetadataGroup(DigestUtils.md5Hex(""));
+
+            experimentRepository.save(currentExperiment);
+            logger.info("  " + parameterToCreate + " Saving experiment " + currentExperiment.getExternalId());
+
+            logger.info("    " + parameterToCreate + " Saving " + res.get(id).size() + " observations");
             for (ObservationDTO dto : res.get(id)) {
                 for (int k = 0; k < dto.getDiscreteValues().size(); k++) {
                     Observation observation = ObservationUtils.createTimeSeriesObservationWithOriginalDate(ObservationType.time_series,
