@@ -1883,15 +1883,22 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
 
             Datasource datasource = datasources.get(exemplarObservation.getExternalDbId());
+            if (Math.random()<0.01) {
+                logger.info("  " + parameterToCreate + " Found datasource " + datasource);
+            }
 
             Experiment currentExperiment = createNewExperiment(exemplarObservation, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, exemplarObservation), false);
             currentExperiment.setMetadataCombined(metadata.get(id));
 
             // No metadata split for body weight curves
             currentExperiment.setMetadataGroup(DigestUtils.md5Hex(""));
+            if (Math.random()<0.01) {
+                logger.info("  " + parameterToCreate + " setting up experiment " + currentExperiment.getExternalId());
+            }
 
-            experimentRepository.save(currentExperiment);
             logger.info("  " + parameterToCreate + " Saving experiment " + currentExperiment.getExternalId());
+            experimentRepository.save(currentExperiment);
+            logger.info("  " + parameterToCreate + " Saved experiment " + currentExperiment.getExternalId());
 
             logger.info("    " + parameterToCreate + " Saving " + res.get(id).size() + " observations");
             for (ObservationDTO dto : res.get(id)) {
