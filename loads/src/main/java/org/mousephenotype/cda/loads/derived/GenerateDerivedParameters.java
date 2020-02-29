@@ -1873,6 +1873,9 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             }
 
             Parameter param = parameterRepository.getFirstByStableIdAndProcedures(parameterToCreate, procedureId, pipelineId);
+            if (Math.random()<0.01) {
+                logger.info("  " + parameterToCreate + " Found parameter " + param);
+            }
 
             if (param==null) {
                 logger.warn("Cannot find parameter for parameter: %s, procedure: %s, pipeline: %s", param, procedureId, pipelineId);
