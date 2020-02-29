@@ -1877,6 +1877,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 procedureId = "IMPC_BWT_001";
             }
             logger.info("  Every line loop counter:" + loop);
+            logger.info(String.format("  Getting parameter object for: (%s, %s, %s)", parameterToCreate, procedureId, pipelineId));
             Parameter param;
             try {
                 param = parameterRepository.getFirstByStableIdAndProcedures(parameterToCreate, procedureId, pipelineId);
