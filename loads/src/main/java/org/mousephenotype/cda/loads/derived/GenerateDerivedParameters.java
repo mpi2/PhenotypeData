@@ -1,5 +1,6 @@
 package org.mousephenotype.cda.loads.derived;
 
+import ch.qos.logback.classic.Level;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -1879,8 +1880,21 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             logger.info("  Every line loop counter:" + loop);
             logger.info(String.format("  Getting parameter object for: (%s, %s, %s)", parameterToCreate, procedureId, pipelineId));
             Parameter param;
+
             try {
+                ch.qos.logback.classic.Level prevLevel =( (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME)).getLevel();
+                ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+                root.setLevel(Level.ALL);
+                ch.qos.logback.classic.Logger hibernateSqlLogger = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger("org.hibernate.SQL");
+                ch.qos.logback.classic.Logger hibernateTypeLogger = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger("org.hibernate.type");
+                final Level prevHibernateSqlLoggerLevel = hibernateSqlLogger.getLevel();
+                final Level prevHibernateTypeLoggerLevel = hibernateTypeLogger.getLevel();
+                hibernateSqlLogger.setLevel(Level.ALL);
+                hibernateTypeLogger.setLevel(Level.TRACE);
                 param = parameterRepository.getFirstByStableIdAndProcedures(parameterToCreate, procedureId, pipelineId);
+                root.setLevel(prevLevel);
+                hibernateSqlLogger.setLevel(prevHibernateSqlLoggerLevel);
+                hibernateTypeLogger.setLevel(prevHibernateTypeLoggerLevel);
             } catch (Exception e) {
                 logger.error("Error when calling parameterRepository", e);
                 return 0;
