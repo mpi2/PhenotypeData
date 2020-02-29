@@ -1866,6 +1866,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
             ObservationDTO exemplarObservation = res.get(id).stream().findFirst().orElse(null);
             if (exemplarObservation == null) {
+                logger.info( "  " + parameterToCreate + " Cannot find exemplar observation, skipping " + res.keySet());
                 continue;
             }
 //            Parameter param = parameterRepository.getFirstByStableIdAndProcedures(parameterToCreate, exemplarObservation.getProcedureStableId(), exemplarObservation.getPipelineStableId());
@@ -2311,6 +2312,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         logger.trace("Executing query: " + query);
         logger.trace("With parameters parameterId=" + parameterId);
 
+        logger.info("    " + parameterId + " Starting get Set of results map by parameter");
+
         Map<String, Set<ObservationDTO>> res = new HashMap<> ();
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, parameterId);
@@ -2323,7 +2326,13 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 }
                 res.get(key).add(obsDTO);
             }
+
+            logger.info("    " + parameterId + " Resulting size of query: " + res.keySet().size());
+
         }
+
+        logger.info("    " + parameterId + " Finished get Set of results map by parameter");
+
         return res;
     }
 
