@@ -1866,7 +1866,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
             ObservationDTO exemplarObservation = res.get(id).stream().findFirst().orElse(null);
             if (exemplarObservation == null) {
-                logger.info( "  " + parameterToCreate + " Cannot find exemplar observation, skipping " + res.keySet());
                 continue;
             }
 //            Parameter param = parameterRepository.getFirstByStableIdAndProcedures(parameterToCreate, exemplarObservation.getProcedureStableId(), exemplarObservation.getPipelineStableId());
@@ -1889,6 +1888,9 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             currentExperiment.setMetadataCombined(metadata.get(id));
             currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroups.get(id)));
             experimentRepository.save(currentExperiment);
+            if (Math.random() < 0.01) {
+                logger.info("  " + parameterToCreate + " Saving experiment " + currentExperiment.getExternalId());
+            }
 
             for (ObservationDTO dto : res.get(id)) {
                 for (int k = 0; k < dto.getDiscreteValues().size(); k++) {
