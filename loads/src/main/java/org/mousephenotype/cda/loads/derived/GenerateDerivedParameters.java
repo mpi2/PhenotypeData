@@ -1829,8 +1829,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         Map<String, Map<String, Set<ObservationDTO>>> parameterMap = new HashMap<>();
         Set<String> animalIds =  getTimeSeriesResultsUnionByParameter(paramsOfInterest, parameterMap);
 
-        logger.info("  " + parameterToCreate + " Finished Getting Ids");
-
         for (String id: animalIds){
             metadata.put(id, "");
             for (String p: paramsOfInterest){
@@ -1858,78 +1856,44 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             }
         }
 
-        logger.info( "  " + parameterToCreate + " Finished parsing data and metadata, contains " + res.keySet().size() + " ids");
         for (String id: res.keySet()){
-            int loop = 0;
-            logger.info("  Every line loop counter:" + (loop++) + " id" + id);
 
             ObservationDTO exemplarObservation = res.get(id).stream().findFirst().orElse(null);
-            logger.info("  Every line loop counter:" + (loop++) + " id" + id);
             if (exemplarObservation == null) {
                 continue;
             }
-            logger.info("  Every line loop counter:" + (loop++) + " id" + id);
-//            Parameter param = parameterRepository.getFirstByStableIdAndProcedures(parameterToCreate, exemplarObservation.getProcedureStableId(), exemplarObservation.getPipelineStableId());
+
             String procedureId = exemplarObservation.getProcedureStableId();
-            logger.info("  Every line loop counter:" + (loop++) + " id" + id);
             String pipelineId = exemplarObservation.getPipelineStableId();
-            logger.info("  Every line loop counter:" + (loop++) + " id" + id);
+
             if (parameterToCreate.contains("BWT_008_001")) {
                 procedureId = "IMPC_BWT_001";
+                pipelineId = "IMPC_001";
             }
-            logger.info("  Every line loop counter:" + loop);
-            logger.info(String.format("  Getting parameter object for: (%s, %s, %s)", parameterToCreate, procedureId, pipelineId));
-            Parameter param;
 
-            try {
-                ch.qos.logback.classic.Level prevLevel =( (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME)).getLevel();
-                ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
-                root.setLevel(Level.ALL);
-                ch.qos.logback.classic.Logger hibernateSqlLogger = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger("org.hibernate.SQL");
-                ch.qos.logback.classic.Logger hibernateTypeLogger = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger("org.hibernate.type");
-                final Level prevHibernateSqlLoggerLevel = hibernateSqlLogger.getLevel();
-                final Level prevHibernateTypeLoggerLevel = hibernateTypeLogger.getLevel();
-                hibernateSqlLogger.setLevel(Level.ALL);
-                hibernateTypeLogger.setLevel(Level.TRACE);
-                param = parameterRepository.getFirstByStableIdAndProcedures(parameterToCreate, procedureId, pipelineId);
-                root.setLevel(prevLevel);
-                hibernateSqlLogger.setLevel(prevHibernateSqlLoggerLevel);
-                hibernateTypeLogger.setLevel(prevHibernateTypeLoggerLevel);
-            } catch (Exception e) {
-                logger.error("Error when calling parameterRepository", e);
-                return 0;
-            }
-                logger.info("  " + parameterToCreate + " Found parameter " + param);
 
-            logger.info("  Every line loop counter:" + (loop++) + " id" + id);
+            ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+            ch.qos.logback.classic.Logger hibernateSqlLogger = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger("org.hibernate.SQL");
+            ch.qos.logback.classic.Logger hibernateTypeLogger = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger("org.hibernate.type");
+            root.setLevel(Level.ALL);
+            hibernateSqlLogger.setLevel(Level.ALL);
+            hibernateTypeLogger.setLevel(Level.TRACE);
+            System.out.println("--------Looking for parameter " + parameterToCreate);
+            Parameter param = parameterRepository.getFirstByStableIdAndProcedures(parameterToCreate, procedureId, pipelineId);
+            System.out.println("--------Parameter found " + param);
 
             if (param==null) {
-                logger.warn("Cannot find parameter for parameter: %s, procedure: %s, pipeline: %s", param, procedureId, pipelineId);
+                logger.warn(String.format("Cannot find parameter for parameter: %s, procedure: %s, pipeline: %s", param, procedureId, pipelineId));
             }
-            logger.info("  Every line loop counter:" + (loop++) + " id" + id);
-
 
             Datasource datasource = datasources.get(exemplarObservation.getExternalDbId());
-                logger.info("  " + parameterToCreate + " Found datasource " + datasource);
-
-            logger.info("  Every line loop counter:" + (loop++) + " id" + id);
-
             Experiment currentExperiment = createNewExperiment(exemplarObservation, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, exemplarObservation), false);
             currentExperiment.setMetadataCombined(metadata.get(id));
-            logger.info("  Every line loop counter:" + (loop++) + " id" + id);
 
             // No metadata split for body weight curves
             currentExperiment.setMetadataGroup(DigestUtils.md5Hex(""));
-                logger.info("  " + parameterToCreate + " setting up experiment " + currentExperiment.getExternalId());
-            logger.info("  Every line loop counter:" + (loop++) + " id" + id);
-
-
-            logger.info("  " + parameterToCreate + " Saving experiment " + currentExperiment.getExternalId());
             experimentRepository.save(currentExperiment);
-            logger.info("  " + parameterToCreate + " Saved experiment " + currentExperiment.getExternalId());
-            logger.info("  Every line loop counter:" + (loop++) + " id" + id);
 
-            logger.info("    " + parameterToCreate + " Saving " + res.get(id).size() + " observations");
             for (ObservationDTO dto : res.get(id)) {
                 for (int k = 0; k < dto.getDiscreteValues().size(); k++) {
                     Observation observation = ObservationUtils.createTimeSeriesObservationWithOriginalDate(ObservationType.time_series,
@@ -2352,8 +2316,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         logger.trace("Executing query: " + query);
         logger.trace("With parameters parameterId=" + parameterId);
 
-        logger.info("    " + parameterId + " Starting get Set of results map by parameter");
-
         Map<String, Set<ObservationDTO>> res = new HashMap<> ();
         try (Connection connection = komp2DataSource.getConnection(); PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setString(1, parameterId);
@@ -2367,11 +2329,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 res.get(key).add(obsDTO);
             }
 
-            logger.info("    " + parameterId + " Resulting size of query: " + res.keySet().size());
-
         }
-
-        logger.info("    " + parameterId + " Finished get Set of results map by parameter");
 
         return res;
     }

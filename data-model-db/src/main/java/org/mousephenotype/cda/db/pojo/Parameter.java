@@ -111,7 +111,7 @@ public class Parameter extends PipelineEntry {
 			)
 	private List<ParameterOption> options;
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, fetch= FetchType.EAGER)
 	@JoinTable(
 			name="phenotype_parameter_lnk_increment",
 			joinColumns = @JoinColumn( name="parameter_id"),

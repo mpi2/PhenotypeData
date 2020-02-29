@@ -66,7 +66,7 @@ public class Procedure extends PipelineEntry implements Comparable, Serializable
      joinColumns = @JoinColumn(name="procedure_id"),
      inverseJoinColumns = @JoinColumn(name="pipeline_id")
      )*/
-    @ManyToMany(mappedBy = "procedures")
+    @ManyToMany(mappedBy = "procedures", fetch= FetchType.EAGER)
     private Set<Pipeline> pipelines = new HashSet<>();
 
     @ManyToMany(cascade = CascadeType.ALL)
