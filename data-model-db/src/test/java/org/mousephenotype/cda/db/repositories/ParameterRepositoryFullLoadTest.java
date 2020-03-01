@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {RepositoriesTestConfig.class})
-public class ParameterRepositoryTest {
+public class ParameterRepositoryFullLoadTest {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -38,13 +38,16 @@ public class ParameterRepositoryTest {
     @Autowired
     private ParameterRepository parameterRepository;
 
+    @Autowired
+    private ProcedureRepository procedureRepository;
+
     @Before
     public void setUp() throws Exception {
 
         List<String> resources = Arrays.asList(
                 "sql/h2/schema.sql",
                 "sql/h2/impressSchema.sql",
-                "sql/h2/repositories/ParameterRepositoryTest-data.sql"
+                "sql/h2/repositories/ParameterRepositoryFullLoadTest-alldata.sql"
         );
 
         for (String resource : resources) {
@@ -53,51 +56,55 @@ public class ParameterRepositoryTest {
         }
     }
 
-
-    @Test
-    public void findById() throws Exception {
-
-        Parameter actual = parameterRepository.findById(8L).get();
-        assertNotNull(actual);
-
-        compareFields(getExpected(), actual);
-    }
-
-
     @Test
     public void getByStableId() throws Exception {
 
         Parameter actual = parameterRepository.getFirstByStableId("IMPC_BWT_008_001");
+        System.out.println(actual);
         assertNotNull(actual);
 
         compareFields(getExpected(), actual);
     }
 
     @Test
+    public void getProcedureByStableId() throws Exception {
+
+        Procedure bwt = procedureRepository.getByStableIdAndPipeline("IMPC_BWT_001", "UCD_001");
+        assertNotNull(bwt);
+        assertEquals(1, bwt.getPipelines().size());
+        assertTrue(bwt.getPipelines().stream().allMatch(x -> x.getStableId().equals("UCD_001")));
+
+        Procedure firstBwt = procedureRepository.getFirstByStableId("IMPC_BWT_001");
+        assertNotNull(firstBwt);
+        assertEquals(1, firstBwt.getPipelines().size());
+        logger.info("Found procedure: " + firstBwt + ", Pipeline(s): " + firstBwt.getPipelines());
+
+    }
+    @Test
     public void testGetByParameterAndProcedure() throws Exception {
 
-        Parameter actual = parameterRepository.getByStableIdAndProcedureAndPipeline("IMPC_PAT_049_002", "IMPC_PAT_002", "UCD_001");
+        Parameter actual = parameterRepository.getByStableIdAndProcedureAndPipeline("IMPC_BWT_008_001", "IMPC_BWT_001", "UCD_001");
         assertNotNull(actual.getProcedures());
         assertNotNull(actual.getProcedures().stream().findFirst().map(Procedure::getPipelines).orElse(null));
-
-        Parameter bad = parameterRepository.getByStableIdAndProcedureAndPipeline("IMPC_PAT_049_002", "IMPC_PAT_002", "IMPC_001");
-        assertNull(bad);
+        System.out.println(actual.getProcedures());
+        System.out.println(actual.getProcedures().stream().findFirst().map(Procedure::getPipelines));
 
     }
 
 
     private void compareFields(Parameter expected, Parameter actual) {
-        assertEquals(expected.getId(), actual.getId());
+
+        final List<Long> ids = Arrays.asList(1739L, 6612L, 11329L, 15720L, 20427L, 25159L, 29765L, 32800L, 35909L, 47676L);
+
+        assertTrue(ids.contains(actual.getId()));
         assertEquals(expected.getStableId(), actual.getStableId());
         assertEquals(expected.getDatasource(), actual.getDatasource());
         assertEquals(expected.getName(), actual.getName());
-        assertEquals(expected.getDescription(), actual.getDescription());
         assertEquals(expected.getMajorVersion(), actual.getMajorVersion());
         assertEquals(expected.getMinorVersion(), actual.getMinorVersion());
         assertEquals(expected.getUnit(), actual.getUnit());
         assertEquals(expected.getDatatype(), actual.getDatatype());
         assertEquals(expected.getType(), actual.getType());
-        assertEquals(expected.getFormula(), actual.getFormula());
         assertEquals(expected.isRequiredFlag(), actual.isRequiredFlag());
         assertEquals(expected.isMetaDataFlag(), actual.isMetaDataFlag());
         assertEquals(expected.isImportantFlag(), actual.isImportantFlag());
@@ -108,12 +115,11 @@ public class ParameterRepositoryTest {
         assertEquals(expected.getSequence(), actual.getSequence());
         assertEquals(expected.isMediaFlag(), actual.isMediaFlag());
         assertEquals(expected.getDataAnalysisNotes(), actual.getDataAnalysisNotes());
-        assertEquals(expected.getStableKey(), actual.getStableKey());
     }
 
     private Parameter getExpected() throws Exception {
         Parameter parameter = new Parameter();
-        parameter.setId(8L);
+        parameter.setId(1739L);
         parameter.setStableId("IMPC_BWT_008_001");
         parameter.setDatasource(getDatasource());
         parameter.setName("Body weight curve");
@@ -132,9 +138,8 @@ public class ParameterRepositoryTest {
         parameter.setIncrementFlag(false);
         parameter.setOptionsFlag(false);
         parameter.setSequence(0);
-        parameter.setMediaFlag(false);
+        parameter.setMediaFlag(true);
         parameter.setDataAnalysisNotes("");
-        parameter.setStableKey(4276L);
 
         return parameter;
     }
