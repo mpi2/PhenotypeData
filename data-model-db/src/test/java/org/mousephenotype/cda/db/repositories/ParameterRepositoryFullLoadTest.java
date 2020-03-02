@@ -1,5 +1,7 @@
 package org.mousephenotype.cda.db.repositories;
 
+import org.apache.commons.compress.compressors.CompressorInputStream;
+import org.apache.commons.compress.compressors.CompressorStreamFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.test.context.ContextConfiguration;
@@ -46,14 +49,25 @@ public class ParameterRepositoryFullLoadTest {
 
         List<String> resources = Arrays.asList(
                 "sql/h2/schema.sql",
-                "sql/h2/impressSchema.sql",
-                "sql/h2/repositories/ParameterRepositoryFullLoadTest-alldata.sql"
+                "sql/h2/impressSchema.sql"
+        );
+
+        List<String> compressedResources = Arrays.asList(
+                "sql/h2/repositories/ParameterRepositoryFullLoadTest-alldata.sql.gz"
         );
 
         for (String resource : resources) {
             Resource r = context.getResource(resource);
             ScriptUtils.executeSqlScript(komp2DataSource.getConnection(), r);
         }
+
+        for (String resource : compressedResources) {
+            Resource r = context.getResource(resource);
+            CompressorInputStream input = new CompressorStreamFactory().createCompressorInputStream(r.getInputStream());
+            Resource unwrappedFile = new InputStreamResource(input);
+            ScriptUtils.executeSqlScript(komp2DataSource.getConnection(), unwrappedFile);
+        }
+
     }
 
     @Test
