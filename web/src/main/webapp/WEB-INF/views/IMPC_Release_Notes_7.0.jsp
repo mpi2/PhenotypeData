@@ -304,9 +304,7 @@
                     </tr>
                 </tbody>
             </table>
-
             <p>Mouse knockout programs:&nbsp;KOMP,IMPC,EUCOMM,NCOM,mirKO,IST12471H5</p>
-
         </div>
     </div>
 </div>
