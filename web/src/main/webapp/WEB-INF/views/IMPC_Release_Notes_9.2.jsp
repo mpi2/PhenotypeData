@@ -71,7 +71,9 @@
     <div class="col-12">
         <h2 class="title" id="data_reports">Data Reports</h2>
         <div class="col-12">
+
             <h3>Lines and Specimens</h3>
+
             <table id="lines_specimen">
                 <thead>
                     <tr>

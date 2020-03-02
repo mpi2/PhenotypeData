@@ -6,7 +6,6 @@
             <h4>IMPC</h4>
             <ul class="mt-0">
 
-
                 <li>Release: 7.0</li>
                 <li>Published: 26 March 2018</li>
             </ul>
@@ -44,8 +43,7 @@
             <ul class="mt-0">
                 <li>Ftp site:&nbsp;<a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-7.0">ftp://ftp.ebi.ac.uk/pub/databases/impc/release-7.0</a>
                 </li>
-                <li>RESTful interfaces:&nbsp;<a
-                        href="/data/documentation/data-access">APIs</a></li>
+                <li>RESTful interfaces:&nbsp;<a href="/data/documentation/data-access">APIs</a></li>
             </ul>
         </div>
     </div>
@@ -53,8 +51,11 @@
 
 <div class="row mt-5">
     <div class="col-12">
+
         <h2 id="new-features">Highlights</h2>
+
         <div class="col-12">
+
             <h3>Data release 7.0</h3>
 
             <div class="well">
@@ -84,7 +85,9 @@
     <div class="col-12">
         <h2 class="title" id="data_reports">Data Reports</h2>
         <div class="col-12">
+
             <h3>Lines and Specimens</h3>
+
             <table id="lines_specimen">
                 <thead>
                     <tr>
@@ -303,6 +306,7 @@
             </table>
 
             <p>Mouse knockout programs:&nbsp;KOMP,IMPC,EUCOMM,NCOM,mirKO,IST12471H5</p>
+
         </div>
     </div>
 </div>
@@ -600,7 +604,7 @@
             </thead>
 
             <tbody>
-            <tr><td>JAX</td><td><a href="/data/page-retired">Browse</a></td><td>IMPC_001</td></tr>
+                <tr><td>JAX</td><td><a href="/data/page-retired">Browse</a></td><td>IMPC_001</td></tr>
                 <tr><td>JAX</td><td><a href="/data/page-retired">Browse</a></td><td>JAX_001</td></tr>
                 <tr><td>TCP</td><td><a href="/data/page-retired">Browse</a></td><td>TCP_001</td></tr>
                 <tr><td>HMGU</td><td><a href="/data/page-retired">Browse</a></td><td>IMPC_001</td></tr>
@@ -619,6 +623,7 @@
 
 <div class="row mt-5">
     <div class="col-12">
+
         <h3>Trends</h3>
 
         <div id="trendsChart">
