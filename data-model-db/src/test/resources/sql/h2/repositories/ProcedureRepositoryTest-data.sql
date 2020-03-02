@@ -1,8 +1,9 @@
 INSERT INTO phenotype_pipeline
     (id, stable_id, db_id, name, description, major_version, minor_version, stable_key, is_deprecated)
 VALUES
+    (1, 'IMPC_001', 6, 'IMPC pipeline', '', 1, 0, 1, 0),
     (14, 'TRC_001', 6, 'Trichuris challenge', '', 1, 0, 18, 0),
-    ('15', 'DSS_001', 6, 'DSS challenge', '', 1, 0, 19, 0),
+    (15, 'DSS_001', 6, 'DSS challenge', '', 1, 0, 19, 0),
     (17, 'HRWLLA_001', 6, 'Harwell late adult', 'Harwell late adult', 1, 0, 30, 0)
 ;
 
@@ -17,6 +18,6 @@ VALUES
 INSERT INTO phenotype_pipeline_procedure
     (pipeline_id, procedure_id)
 VALUES
-    (18, 172),
-    (19, 173),
-    (30, 222);
+    (1, 2),
+    (17, 15),
+    (15, 8);
