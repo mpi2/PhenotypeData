@@ -360,8 +360,6 @@ public class ReleaseController {
 	@RequestMapping(value = "/previous-releases/{releaseVersion}", method = RequestMethod.GET)
 	public String getPastReleasesInformation(Model model, @PathVariable String releaseVersion) throws SQLException {
 
-		Map<String, String> metaInfo = getMetaInfo();
-
 		/**
 		 * Get all previous releases
 		 */
@@ -371,6 +369,12 @@ public class ReleaseController {
 		model.addAttribute("releases", releases);
 
 		return "previous_releases";
+	}
+
+	@RequestMapping(value = "/page-retired", method = RequestMethod.GET)
+	public String pageRetired() throws SQLException {
+
+		return "page_is_retired";
 	}
 
 	private List<AggregateCountXY> getHistoricalData(String propertyKey) {
