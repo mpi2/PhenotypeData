@@ -1865,14 +1865,21 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             String procedureId = exemplarObservation.getProcedureStableId();
             String pipelineId = exemplarObservation.getPipelineStableId();
 
+            // Because the body weight curve procedures aggregate data from several other procedures, the procedure
+            // supplied with the data is not going to necessarily be the same as the derived data.
+            // If we're deriving a body weight curve, override the procedure / pipeline to be the correct body weight
+            // procedure for the supplied parameter
             if (parameterToCreate.contains("BWT_008_001")) {
                 procedureId = "IMPC_BWT_001";
+            } else if (parameterToCreate.startsWith("ESLIM_022")) {
+                procedureId = "ESLIM_022_001";
+                pipelineId = "ESLIM_001";
             }
 
             Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, procedureId, pipelineId);
 
             if (param==null) {
-                logger.warn(String.format("Cannot find parameter for parameter: %s, procedure: %s, pipeline: %s", param, procedureId, pipelineId));
+                logger.warn(String.format("Cannot find parameter for parameter: %s, procedure: %s, pipeline: %s", parameterToCreate, procedureId, pipelineId));
             }
 
             Datasource datasource = datasources.get(exemplarObservation.getExternalDbId());
