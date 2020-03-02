@@ -41,7 +41,7 @@
         <div class="container data-heading">
             <div class="row">
                 <div class="col-12 no-gutters">
-                    <h2 id="top" class="mb-0">Page is retired</h2>
+                    <h2 id="top" class="mb-0">This page is retired</h2>
                 </div>
             </div>
         </div>
