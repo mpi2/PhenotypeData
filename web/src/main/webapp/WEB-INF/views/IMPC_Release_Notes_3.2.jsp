@@ -810,651 +810,747 @@
             </thead>
 
             <tbody>
-
-
-
-
-                                            <tr><td>MRC Harwell</td><td><a href="/data/phenome?phenotyping_center=MRC Harwell&pipeline_stable_id=IMPC_001">Browse</td><td>IMPC_001</td></tr>
-
-                                            <tr><td>MRC Harwell</td><td><a href="/data/phenome?phenotyping_center=MRC Harwell&pipeline_stable_id=HRWL_001">Browse</td><td>HRWL_001</td></tr>
-
-
-
-
-
-                                            <tr><td>RBRC</td><td><a href="/data/phenome?phenotyping_center=RBRC&pipeline_stable_id=IMPC_001">Browse</td><td>IMPC_001</td></tr>
-
-
-
-
-
-                                            <tr><td>NING</td><td><a href="/data/phenome?phenotyping_center=NING&pipeline_stable_id=IMPC_001">Browse</td><td>IMPC_001</td></tr>
-
-
-
-
-
-                                            <tr><td>HMGU</td><td><a href="/data/phenome?phenotyping_center=HMGU&pipeline_stable_id=IMPC_001">Browse</td><td>IMPC_001</td></tr>
-
-                                            <tr><td>HMGU</td><td><a href="/data/phenome?phenotyping_center=HMGU&pipeline_stable_id=HMGU_001">Browse</td><td>HMGU_001</td></tr>
-
-
-
-
-
-                                            <tr><td>ICS</td><td><a href="/data/phenome?phenotyping_center=ICS&pipeline_stable_id=IMPC_001">Browse</td><td>IMPC_001</td></tr>
-
-                                            <tr><td>ICS</td><td><a href="/data/phenome?phenotyping_center=ICS&pipeline_stable_id=ICS_001">Browse</td><td>ICS_001</td></tr>
-
-
-
-
-
-                                            <tr><td>WTSI</td><td><a href="/data/phenome?phenotyping_center=WTSI&pipeline_stable_id=MGP_001">Browse</td><td>MGP_001</td></tr>
-
-
-
-
-
-                                            <tr><td>JAX</td><td><a href="/data/phenome?phenotyping_center=JAX&pipeline_stable_id=IMPC_001">Browse</td><td>IMPC_001</td></tr>
-
-                                            <tr><td>JAX</td><td><a href="/data/phenome?phenotyping_center=JAX&pipeline_stable_id=JAX_001">Browse</td><td>JAX_001</td></tr>
-
-
-
-
-
-                                            <tr><td>UC Davis</td><td><a href="/data/phenome?phenotyping_center=UC Davis&pipeline_stable_id=UCD_001">Browse</td><td>UCD_001</td></tr>
-
-
-
-
-
-                                            <tr><td>TCP</td><td><a href="/data/phenome?phenotyping_center=TCP&pipeline_stable_id=TCP_001">Browse</td><td>TCP_001</td></tr>
-
-
-
-
-
-                                            <tr><td>BCM</td><td><a href="/data/phenome?phenotyping_center=BCM&pipeline_stable_id=IMPC_001">Browse</td><td>IMPC_001</td></tr>
-
-
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div><!-- end of section -->
-
-                        <div class="section">
-
-                            <h2 class="title" id="statistical-analysis">Statistical Analysis</h2>
-
-                            <div class="inner">
-                                <div id="statisticsDiv">
-                                    <div class="container span12">
-
-                                        <h3>Statistical Methods</h3>
-                                        <table id="statistical_methods">
-                                            <thead>
-                                            <tr>
-                                                <th class="headerSort">Data</th>
-                                                <th class="headerSort">Statistical Method</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-
-
-
-                                            <tr>
-                                                <td>categorical</td>
-                                                <td>Fisher's exact test</td>
-                                            </tr>
-
-
-
-
-                                            <tr>
-                                                <td>unidimensional</td>
-                                                <td>Wilcoxon rank sum test with continuity correction</td>
-                                            </tr>
-
-                                            <tr>
-                                                <td>unidimensional</td>
-                                                <td>Mixed Model framework, generalized least squares, equation withoutWeight</td>
-                                            </tr>
-
-                                            <tr>
-                                                <td>unidimensional</td>
-                                                <td>Mixed Model framework, linear mixed-effects model, equation withoutWeight</td>
-                                            </tr>
-
-
-                                            </tbody>
-                                        </table>
-
-                                        <h3>P-value distributions</h3>
-
-
-
-
-                                        <div id="FisherChart">
-                                            <script type="text/javascript">
-                                                $(function () {
-                                                    Highcharts.setOptions({	    colors: ['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)']});    $('#FisherChart').highcharts({
-                                                        chart: {
-                                                            type: 'column',
-                                                            height: 800
-                                                        },
-                                                        title: {
-                                                            text: 'P-value distribution'
-                                                        },
-                                                        subtitle: {
-                                                            text: "Fisher's exact test"
-                                                        },
-                                                        xAxis: {
-                                                            categories: ["0.02","0.04","0.06","0.08","0.1","0.12","0.14","0.16","0.18","0.2","0.22","0.24","0.26","0.28","0.3","0.32","0.34","0.36","0.38","0.4","0.42","0.44","0.46","0.48","0.5","0.52","0.54","0.56","0.58","0.6","0.62","0.64","0.66","0.68","0.7","0.72","0.74","0.76","0.78","0.8","0.82","0.84","0.86","0.88","0.9","0.92","0.94","0.96","0.98","1"],
-                                                            labels: {
-                                                                rotation: -90,
-                                                                align: 'right',
-                                                                style: {
-                                                                    fontSize: '11px',
-                                                                    fontFamily: 'Verdana, sans-serif'
-                                                                }
-                                                            },
-                                                            showLastLabel: true
-                                                        },
-                                                        yAxis: {
-                                                            min: 0,
-                                                            title: {
-                                                                text: 'Frequency'
-                                                            }
-                                                        },
-                                                        credits: {
-                                                            enabled: false
-                                                        },
-                                                        tooltip: {
-                                                            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-                                                            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                                                            '<td style="padding:0"><b>{point.y:.0f} </b></td></tr>',
-                                                            footerFormat: '</table>',
-                                                            shared: true,
-                                                            useHTML: true
-                                                        },
-                                                        plotOptions: {
-                                                            column: {
-                                                                stacking: 'normal',
-                                                                pointPadding: 0.2,
-                                                                borderWidth: 0
-                                                            }
-                                                        },
-                                                        series:[{"data":[4439,1596,1178,1094,871,1489,1202,1294,641,539,715,355,974,624,273,360,2248,538,408,412,503,273,180,259,432,413,274,112,361,270,690,160,277,167,124,100,64,102,48,137,43,40,41,90,42,18,7,3,0,429757],"name":"Fisher's exact test"}]
-                                                    });
-                                                });
-
-                                            </script>
-                                        </div>
-
-
-
-
-
-                                        <div id="WilcoxonChart">
-                                            <script type="text/javascript">
-                                                $(function () {
-                                                    Highcharts.setOptions({	    colors: ['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)']});    $('#WilcoxonChart').highcharts({
-                                                        chart: {
-                                                            type: 'column',
-                                                            height: 800
-                                                        },
-                                                        title: {
-                                                            text: 'P-value distribution'
-                                                        },
-                                                        subtitle: {
-                                                            text: "Wilcoxon rank sum test with continuity correction"
-                                                        },
-                                                        xAxis: {
-                                                            categories: ["0.02","0.04","0.06","0.08","0.1","0.12","0.14","0.16","0.18","0.2","0.22","0.24","0.26","0.28","0.3","0.32","0.34","0.36","0.38","0.4","0.42","0.44","0.46","0.48","0.5","0.52","0.54","0.56","0.58","0.6","0.62","0.64","0.66","0.68","0.7","0.72","0.74","0.76","0.78","0.8","0.82","0.84","0.86","0.88","0.9","0.92","0.94","0.96","0.98","1"],
-                                                            labels: {
-                                                                rotation: -90,
-                                                                align: 'right',
-                                                                style: {
-                                                                    fontSize: '11px',
-                                                                    fontFamily: 'Verdana, sans-serif'
-                                                                }
-                                                            },
-                                                            showLastLabel: true
-                                                        },
-                                                        yAxis: {
-                                                            min: 0,
-                                                            title: {
-                                                                text: 'Frequency'
-                                                            }
-                                                        },
-                                                        credits: {
-                                                            enabled: false
-                                                        },
-                                                        tooltip: {
-                                                            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-                                                            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                                                            '<td style="padding:0"><b>{point.y:.0f} </b></td></tr>',
-                                                            footerFormat: '</table>',
-                                                            shared: true,
-                                                            useHTML: true
-                                                        },
-                                                        plotOptions: {
-                                                            column: {
-                                                                stacking: 'normal',
-                                                                pointPadding: 0.2,
-                                                                borderWidth: 0
-                                                            }
-                                                        },
-                                                        series:[{"data":[1896,1539,1525,1475,1794,1867,1933,1957,1928,2041,1991,2027,2008,2101,2113,2079,2096,2182,2119,2217,2089,2099,2051,2025,1981,1975,1937,1932,1867,1845,1776,1745,1695,1675,1579,1531,1622,1592,1470,2018,1774,2463,1902,1663,1575,1572,2281,857,767,911],"name":"Wilcoxon rank sum test with continuity correction"}]
-                                                    });
-                                                });
-
-                                            </script>
-                                        </div>
-
-
-                                        <div id="MMglsChart">
-                                            <script type="text/javascript">
-                                                $(function () {
-                                                    Highcharts.setOptions({	    colors: ['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)']});    $('#MMglsChart').highcharts({
-                                                        chart: {
-                                                            type: 'column',
-                                                            height: 800
-                                                        },
-                                                        title: {
-                                                            text: 'P-value distribution'
-                                                        },
-                                                        subtitle: {
-                                                            text: "Mixed Model framework, generalized least squares, equation withoutWeight"
-                                                        },
-                                                        xAxis: {
-                                                            categories: ["0.02","0.04","0.06","0.08","0.1","0.12","0.14","0.16","0.18","0.2","0.22","0.24","0.26","0.28","0.3","0.32","0.34","0.36","0.38","0.4","0.42","0.44","0.46","0.48","0.5","0.52","0.54","0.56","0.58","0.6","0.62","0.64","0.66","0.68","0.7","0.72","0.74","0.76","0.78","0.8","0.82","0.84","0.86","0.88","0.9","0.92","0.94","0.96","0.98","1"],
-                                                            labels: {
-                                                                rotation: -90,
-                                                                align: 'right',
-                                                                style: {
-                                                                    fontSize: '11px',
-                                                                    fontFamily: 'Verdana, sans-serif'
-                                                                }
-                                                            },
-                                                            showLastLabel: true
-                                                        },
-                                                        yAxis: {
-                                                            min: 0,
-                                                            title: {
-                                                                text: 'Frequency'
-                                                            }
-                                                        },
-                                                        credits: {
-                                                            enabled: false
-                                                        },
-                                                        tooltip: {
-                                                            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-                                                            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                                                            '<td style="padding:0"><b>{point.y:.0f} </b></td></tr>',
-                                                            footerFormat: '</table>',
-                                                            shared: true,
-                                                            useHTML: true
-                                                        },
-                                                        plotOptions: {
-                                                            column: {
-                                                                stacking: 'normal',
-                                                                pointPadding: 0.2,
-                                                                borderWidth: 0
-                                                            }
-                                                        },
-                                                        series:[{"data":[2591,824,596,537,470,409,346,315,271,261,340,317,294,279,287,262,260,302,289,219,245,237,227,246,234,230,218,236,235,202,228,239,190,207,196,239,201,190,211,255,234,177,163,207,224,240,193,210,175,220],"name":"Mixed Model framework, generalized least squares, equation withoutWeight"}]
-                                                    });
-                                                });
-
-                                            </script>
-                                        </div>
-
-
-                                        <div id="MMlmeChart">
-                                            <script type="text/javascript">
-                                                $(function () {
-                                                    Highcharts.setOptions({	    colors: ['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)']});    $('#MMlmeChart').highcharts({
-                                                        chart: {
-                                                            type: 'column',
-                                                            height: 800
-                                                        },
-                                                        title: {
-                                                            text: 'P-value distribution'
-                                                        },
-                                                        subtitle: {
-                                                            text: "Mixed Model framework, linear mixed-effects model, equation withoutWeight"
-                                                        },
-                                                        xAxis: {
-                                                            categories: ["0.02","0.04","0.06","0.08","0.1","0.12","0.14","0.16","0.18","0.2","0.22","0.24","0.26","0.28","0.3","0.32","0.34","0.36","0.38","0.4","0.42","0.44","0.46","0.48","0.5","0.52","0.54","0.56","0.58","0.6","0.62","0.64","0.66","0.68","0.7","0.72","0.74","0.76","0.78","0.8","0.82","0.84","0.86","0.88","0.9","0.92","0.94","0.96","0.98","1"],
-                                                            labels: {
-                                                                rotation: -90,
-                                                                align: 'right',
-                                                                style: {
-                                                                    fontSize: '11px',
-                                                                    fontFamily: 'Verdana, sans-serif'
-                                                                }
-                                                            },
-                                                            showLastLabel: true
-                                                        },
-                                                        yAxis: {
-                                                            min: 0,
-                                                            title: {
-                                                                text: 'Frequency'
-                                                            }
-                                                        },
-                                                        credits: {
-                                                            enabled: false
-                                                        },
-                                                        tooltip: {
-                                                            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-                                                            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                                                            '<td style="padding:0"><b>{point.y:.0f} </b></td></tr>',
-                                                            footerFormat: '</table>',
-                                                            shared: true,
-                                                            useHTML: true
-                                                        },
-                                                        plotOptions: {
-                                                            column: {
-                                                                stacking: 'normal',
-                                                                pointPadding: 0.2,
-                                                                borderWidth: 0
-                                                            }
-                                                        },
-                                                        series:[{"data":[13380,4502,3546,2878,2518,2231,1967,1686,1662,1632,1635,1503,1457,1420,1459,1369,1345,1308,1373,1253,1277,1251,1301,1306,1227,1240,1218,1174,1229,1287,1163,1217,1143,1204,1168,1138,1157,1210,1173,1135,1194,1068,1184,1144,1106,1140,1195,1148,1079,1114],"name":"Mixed Model framework, linear mixed-effects model, equation withoutWeight"}]
-                                                    });
-                                                });
-
-                                            </script>
-                                        </div>
-
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div><!-- end of section -->
-
-                        <div class="section">
-
-                            <h2 class="title" id="trends">History</h2>
-
-                            <div class="inner">
-                                <div id="trendsDiv">
-                                    <div class="container span12">
-                                        <h3>Trends</h3>
-
-                                        <div id="trendsChart">
-                                            <script type="text/javascript">
-                                                $(function () {
-                                                    $('#trendsChart').highcharts({
-                                                        chart: {
-                                                            zoomType: 'xy'
-                                                        },
-                                                        title: {
-                                                            text: 'Genes/Mutant Lines/MP Calls'
-                                                        },
-                                                        subtitle: {
-                                                            text: 'Release by Release'
-                                                        },
-                                                        xAxis: [{
-                                                            categories: ["1.0","1.1","2.0","3.0","3.1","3.2"],
-                                                        }],
-                                                        yAxis: [{ // Primary yAxis
-                                                            labels: {
-                                                                format: '{value}',
-                                                                style: {
-                                                                    color: Highcharts.getOptions().colors[1]
-                                                                }
-                                                            },
-                                                            title: {
-                                                                text: 'Genes/Mutant Lines',
-                                                                style: {
-                                                                    color: Highcharts.getOptions().colors[1]
-                                                                }
-                                                            }
-                                                        },
-                                                            { // Secondary yAxis
-                                                                title: {
-                                                                    text: 'Phenotype Calls',
-                                                                    style: {
-                                                                        color: Highcharts.getOptions().colors[0]
-                                                                    }
-                                                                },
-                                                                labels: {
-                                                                    format: '{value}',
-                                                                    style: {
-                                                                        color: Highcharts.getOptions().colors[0]
-                                                                    }
-                                                                },
-                                                                opposite: true
-                                                            }
-                                                        ],
-                                                        credits: {
-                                                            enabled: false
-                                                        },
-                                                        tooltip: {
-                                                            shared: true
-                                                        },
-                                                        series:[{"data":[294,470,518,1458,1468,1468],"name":"Phenotyped genes","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" genes"},"type":"column"},{"data":[301,484,535,1528,1540,1540],"name":"Phenotyped lines","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" lines"},"type":"column"},{"yAxis":1,"data":[1069,2732,2182,6114,5974,6064],"name":"MP calls","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" calls"},"type":"spline"}]
-                                                    });
-                                                });
-
-                                            </script>
-                                        </div>
-                                        <br/>
-                                        <br/>
-                                        <br/>
-
-                                        <div id="datapointsTrendsChart">
-                                            <script type="text/javascript">
-                                                $(function () {
-                                                    $('#datapointsTrendsChart').highcharts({
-                                                        chart: {
-                                                            zoomType: 'xy'
-                                                        },
-                                                        title: {
-                                                            text: 'Data points'
-                                                        },
-                                                        subtitle: {
-                                                            text: ''
-                                                        },
-                                                        xAxis: [{
-                                                            categories: ["1.0","1.1","2.0","3.0","3.1","3.2"],
-                                                        }],
-                                                        yAxis: [{ // Primary yAxis
-                                                            labels: {
-                                                                format: '{value}',
-                                                                style: {
-                                                                    color: Highcharts.getOptions().colors[1]
-                                                                }
-                                                            },
-                                                            title: {
-                                                                text: 'Data points',
-                                                                style: {
-                                                                    color: Highcharts.getOptions().colors[1]
-                                                                }
-                                                            }
-                                                        },
-                                                        ],
-                                                        credits: {
-                                                            enabled: false
-                                                        },
-                                                        tooltip: {
-                                                            shared: true
-                                                        },
-                                                        series:[{"data":[0,0,0,0,0,0],"name":"Categorical (QC failed)","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "},"type":"spline"},{"data":[149194,958957,1173776,3935293,3956068,3956068],"name":"Categorical (QC passed)","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "},"type":"spline"},{"data":[388,1214,1764,3426,3426,3426],"name":"Categorical (issues)","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "},"type":"spline"},{"data":[0,0,0,0,0,0],"name":"Image record (QC failed)","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "},"type":"spline"},{"data":[0,5623,10765,106682,107059,107059],"name":"Image record (QC passed)","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "},"type":"spline"},{"data":[0,0,0,0,0,0],"name":"Image record (issues)","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "},"type":"spline"},{"data":[0,0,1721,18591,18591,18591],"name":"Text (QC failed)","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "},"type":"spline"},{"data":[2387,12803,15355,51283,51611,51611],"name":"Text (QC passed)","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "},"type":"spline"},{"data":[0,0,100,161,161,161],"name":"Text (issues)","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "},"type":"spline"},{"data":[0,13176,4,9,9,9],"name":"Time series (QC failed)","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "},"type":"spline"},{"data":[63773,1451844,1798263,7237320,7415471,7415471],"name":"Time series (QC passed)","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "},"type":"spline"},{"data":[83,83,39,82,77684,77684],"name":"Time series (issues)","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "},"type":"spline"},{"data":[172,1443,992,3724,3726,3726],"name":"Unidimensional (QC failed)","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "},"type":"spline"},{"data":[381406,1011637,988022,2782486,2970851,2970851],"name":"Unidimensional (QC passed)","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "},"type":"spline"},{"data":[1454,5286,16928,38737,39065,39065],"name":"Unidimensional (issues)","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "},"type":"spline"}]
-                                                    });
-                                                });
-
-                                            </script>
-                                        </div>
-                                        <br/>
-                                        <br/>
-                                        <br/>
-
-                                        <div id="topLevelTrendsChart">
-                                            <script type="text/javascript">
-                                                $(function () {
-                                                    $('#topLevelTrendsChart').highcharts({
-                                                        chart: {
-                                                            zoomType: 'xy'
-                                                        },
-                                                        title: {
-                                                            text: 'Top Level Phenotypes'
-                                                        },
-                                                        subtitle: {
-                                                            text: ''
-                                                        },
-                                                        xAxis: [{
-                                                            categories: ["1.0","1.1","2.0","3.0","3.1","3.2"],
-                                                        }],
-                                                        yAxis: [{ // Primary yAxis
-                                                            labels: {
-                                                                format: '{value}',
-                                                                style: {
-                                                                    color: Highcharts.getOptions().colors[1]
-                                                                }
-                                                            },
-                                                            title: {
-                                                                text: 'MP Calls',
-                                                                style: {
-                                                                    color: Highcharts.getOptions().colors[1]
-                                                                }
-                                                            }
-                                                        },
-                                                        ],
-                                                        credits: {
-                                                            enabled: false
-                                                        },
-                                                        tooltip: {
-                                                            shared: true
-                                                        },
-                                                        series:[{"data":[73,116,93,241,243,243],"name":"adipose tissue phenotype","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "}},{"data":[74,377,394,636,624,716],"name":"behavior/neurological phenotype","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "}},{"data":[12,26,44,296,261,261],"name":"cardiovascular system phenotype","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "}},{"data":[0,4,24,56,55,55],"name":"craniofacial phenotype","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "}},{"data":[289,473,561,533,536,536],"name":"growth/size/body phenotype","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "}},{"data":[84,125,237,245,245,245],"name":"hearing/vestibular/ear phenotype","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "}},{"data":[131,366,495,704,690,692],"name":"hematopoietic system phenotype","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "}},{"data":[342,1046,1370,1368,1389,1385],"name":"homeostasis/metabolism phenotype","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "}},{"data":[18,69,81,183,169,172],"name":"immune system phenotype","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "}},{"data":[0,19,55,79,77,77],"name":"integument phenotype","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "}},{"data":[0,26,132,204,205,205],"name":"limbs/digits/tail phenotype","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "}},{"data":[0,0,80,858,906,906],"name":"mortality/aging","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "}},{"data":[0,0,0,5,7,7],"name":"muscle phenotype","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "}},{"data":[0,42,79,73,66,66],"name":"nervous system phenotype","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "}},{"data":[10,22,51,88,80,80],"name":"pigmentation phenotype","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "}},{"data":[0,0,8,27,27,27],"name":"renal/urinary system phenotype","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "}},{"data":[0,0,3,43,43,43],"name":"reproductive system phenotype","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "}},{"data":[0,0,0,1,1,1],"name":"respiratory system phenotype","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "}},{"data":[101,162,223,714,718,718],"name":"skeleton phenotype","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "}},{"data":[70,79,127,521,316,316],"name":"vision/eye phenotype","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>","valueSuffix":" "}}]
-                                                    });
-                                                });
-
-                                            </script>
-                                        </div>
-                                        <br/>
-                                        <br/>
-                                        <br/>
-
-                                        <h3>Previous Releases</h3>
-                                        <ul>
-
-
-                                            <li><a href="/data/release_notes/IMPC_Release_Notes_3.1.html">Release 3.1 notes</a></li>
-
-                                            <li><a href="/data/release_notes/IMPC_Release_Notes_3.0.html">Release 3.0 notes</a></li>
-
-                                            <li><a href="/data/release_notes/IMPC_Release_Notes_2.0.html">Release 2.0 notes</a></li>
-
-                                            <li><a href="/data/release_notes/IMPC_Release_Notes_1.1.html">Release 1.1 notes</a></li>
-
-
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- end of section -->
-
-                    </div>
-                </div>
+                <tr><td>JAX</td><td><a href="/data/page-retired">Browse</a></td><td>IMPC_001</td></tr>
+                <tr><td>JAX</td><td><a href="/data/page-retired">Browse</a></td><td>JAX_001</td></tr>
+                <tr><td>NING</td><td><a href="/data/page-retired">Browse</a></td><td>IMPC_001</td></tr>
+                <tr><td>TCP</td><td><a href="/data/page-retired">Browse</a></td><td>TCP_001</td></tr>
+                <tr><td>HMGU</td><td><a href="/data/page-retired">Browse</a></td><td>IMPC_001</td></tr>
+                <tr><td>HMGU</td><td><a href="/data/page-retired">Browse</a></td><td>HMGU_001</td></tr>
+                <tr><td>MRC Harwell</td><td><a href="/data/page-retired">Browse</a></td><td>IMPC_001</td></tr>
+                <tr><td>MRC Harwell</td><td><a href="/data/page-retired">Browse</a></td><td>HRWL_001</td></tr>
+                <tr><td>RBRC</td><td><a href="/data/page-retired">Browse</a></td><td>IMPC_001</td></tr>
+                <tr><td>ICS</td><td><a href="/data/page-retired">Browse</a></td><td>IMPC_001</td></tr>
+                <tr><td>ICS</td><td><a href="/data/page-retired">Browse</a></td><td>ICS_001</td></tr>
+                <tr><td>WTSI</td><td><a href="/data/page-retired">Browse</a></td><td>MGP_001</td></tr>
+                <tr><td>BCM</td><td><a href="/data/page-retired">Browse</a></td><td>IMPC_001</td></tr>
+                <tr><td>UC Davis</td><td><a href="/data/page-retired">Browse</a></td><td>UCD_001</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+
+        <h2 class="title" id="statistical-analysis">Statistical Analysis</h2>
+
+        <div class="col-12">
+
+            <h3>Statistical Methods</h3>
+
+            <table id="statistical_methods">
+                <thead>
+                    <tr>
+                        <th class="headerSort">Data</th>
+                        <th class="headerSort">Statistical Method</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>categorical</td>
+                        <td>Fisher's exact test</td>
+                    </tr>
+                    <tr>
+                        <td>unidimensional</td>
+                        <td>Wilcoxon rank sum test with continuity correction</td>
+                    </tr>
+                    <tr>
+                        <td>unidimensional</td>
+                        <td>Mixed Model framework, generalized least squares, equation withoutWeight</td>
+                    </tr>
+                    <tr>
+                        <td>unidimensional</td>
+                        <td>Mixed Model framework, linear mixed-effects model, equation withoutWeight</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>P-value distributions</h3>
+
+            <div id="FisherChart">
+                <script type="text/javascript">
+                    $(function () {
+                        Highcharts.setOptions({colors: ['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)']});
+                        $('#FisherChart').highcharts({
+                            chart: {
+                                type: 'column',
+                                height: 800
+                            },
+                            title: {
+                                text: 'P-value distribution'
+                            },
+                            subtitle: {
+                                text: "Fisher's exact test"
+                            },
+                            xAxis: {
+                                categories: ["0.02", "0.04", "0.06", "0.08", "0.1", "0.12", "0.14", "0.16", "0.18", "0.2", "0.22", "0.24", "0.26", "0.28", "0.3", "0.32", "0.34", "0.36", "0.38", "0.4", "0.42", "0.44", "0.46", "0.48", "0.5", "0.52", "0.54", "0.56", "0.58", "0.6", "0.62", "0.64", "0.66", "0.68", "0.7", "0.72", "0.74", "0.76", "0.78", "0.8", "0.82", "0.84", "0.86", "0.88", "0.9", "0.92", "0.94", "0.96", "0.98", "1"],
+                                labels: {
+                                    rotation: -90,
+                                    align: 'right',
+                                    style: {
+                                        fontSize: '11px',
+                                        fontFamily: 'Verdana, sans-serif'
+                                    }
+                                },
+                                showLastLabel: true
+                            },
+                            yAxis: {
+                                min: 0,
+                                title: {
+                                    text: 'Frequency'
+                                }
+                            },
+                            credits: {
+                                enabled: false
+                            },
+                            tooltip: {
+                                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                                    '<td style="padding:0"><b>{point.y:.0f} </b></td></tr>',
+                                footerFormat: '</table>',
+                                shared: true,
+                                useHTML: true
+                            },
+                            plotOptions: {
+                                column: {
+                                    stacking: 'normal',
+                                    pointPadding: 0.2,
+                                    borderWidth: 0
+                                }
+                            },
+                            series: [{
+                                "data": [4439, 1596, 1178, 1094, 871, 1489, 1202, 1294, 641, 539, 715, 355, 974, 624, 273, 360, 2248, 538, 408, 412, 503, 273, 180, 259, 432, 413, 274, 112, 361, 270, 690, 160, 277, 167, 124, 100, 64, 102, 48, 137, 43, 40, 41, 90, 42, 18, 7, 3, 0, 429757],
+                                "name": "Fisher's exact test"
+                            }]
+                        });
+                    });
+
+                </script>
+            </div>
+
+            <div id="WilcoxonChart">
+                <script type="text/javascript">
+                    $(function () {
+                        Highcharts.setOptions({colors: ['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)']});
+                        $('#WilcoxonChart').highcharts({
+                            chart: {
+                                type: 'column',
+                                height: 800
+                            },
+                            title: {
+                                text: 'P-value distribution'
+                            },
+                            subtitle: {
+                                text: "Wilcoxon rank sum test with continuity correction"
+                            },
+                            xAxis: {
+                                categories: ["0.02", "0.04", "0.06", "0.08", "0.1", "0.12", "0.14", "0.16", "0.18", "0.2", "0.22", "0.24", "0.26", "0.28", "0.3", "0.32", "0.34", "0.36", "0.38", "0.4", "0.42", "0.44", "0.46", "0.48", "0.5", "0.52", "0.54", "0.56", "0.58", "0.6", "0.62", "0.64", "0.66", "0.68", "0.7", "0.72", "0.74", "0.76", "0.78", "0.8", "0.82", "0.84", "0.86", "0.88", "0.9", "0.92", "0.94", "0.96", "0.98", "1"],
+                                labels: {
+                                    rotation: -90,
+                                    align: 'right',
+                                    style: {
+                                        fontSize: '11px',
+                                        fontFamily: 'Verdana, sans-serif'
+                                    }
+                                },
+                                showLastLabel: true
+                            },
+                            yAxis: {
+                                min: 0,
+                                title: {
+                                    text: 'Frequency'
+                                }
+                            },
+                            credits: {
+                                enabled: false
+                            },
+                            tooltip: {
+                                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                                    '<td style="padding:0"><b>{point.y:.0f} </b></td></tr>',
+                                footerFormat: '</table>',
+                                shared: true,
+                                useHTML: true
+                            },
+                            plotOptions: {
+                                column: {
+                                    stacking: 'normal',
+                                    pointPadding: 0.2,
+                                    borderWidth: 0
+                                }
+                            },
+                            series: [{
+                                "data": [1896, 1539, 1525, 1475, 1794, 1867, 1933, 1957, 1928, 2041, 1991, 2027, 2008, 2101, 2113, 2079, 2096, 2182, 2119, 2217, 2089, 2099, 2051, 2025, 1981, 1975, 1937, 1932, 1867, 1845, 1776, 1745, 1695, 1675, 1579, 1531, 1622, 1592, 1470, 2018, 1774, 2463, 1902, 1663, 1575, 1572, 2281, 857, 767, 911],
+                                "name": "Wilcoxon rank sum test with continuity correction"
+                            }]
+                        });
+                    });
+
+                </script>
+            </div>
+
+            <div id="MMglsChart">
+                <script type="text/javascript">
+                    $(function () {
+                        Highcharts.setOptions({colors: ['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)']});
+                        $('#MMglsChart').highcharts({
+                            chart: {
+                                type: 'column',
+                                height: 800
+                            },
+                            title: {
+                                text: 'P-value distribution'
+                            },
+                            subtitle: {
+                                text: "Mixed Model framework, generalized least squares, equation withoutWeight"
+                            },
+                            xAxis: {
+                                categories: ["0.02", "0.04", "0.06", "0.08", "0.1", "0.12", "0.14", "0.16", "0.18", "0.2", "0.22", "0.24", "0.26", "0.28", "0.3", "0.32", "0.34", "0.36", "0.38", "0.4", "0.42", "0.44", "0.46", "0.48", "0.5", "0.52", "0.54", "0.56", "0.58", "0.6", "0.62", "0.64", "0.66", "0.68", "0.7", "0.72", "0.74", "0.76", "0.78", "0.8", "0.82", "0.84", "0.86", "0.88", "0.9", "0.92", "0.94", "0.96", "0.98", "1"],
+                                labels: {
+                                    rotation: -90,
+                                    align: 'right',
+                                    style: {
+                                        fontSize: '11px',
+                                        fontFamily: 'Verdana, sans-serif'
+                                    }
+                                },
+                                showLastLabel: true
+                            },
+                            yAxis: {
+                                min: 0,
+                                title: {
+                                    text: 'Frequency'
+                                }
+                            },
+                            credits: {
+                                enabled: false
+                            },
+                            tooltip: {
+                                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                                    '<td style="padding:0"><b>{point.y:.0f} </b></td></tr>',
+                                footerFormat: '</table>',
+                                shared: true,
+                                useHTML: true
+                            },
+                            plotOptions: {
+                                column: {
+                                    stacking: 'normal',
+                                    pointPadding: 0.2,
+                                    borderWidth: 0
+                                }
+                            },
+                            series: [{
+                                "data": [2591, 824, 596, 537, 470, 409, 346, 315, 271, 261, 340, 317, 294, 279, 287, 262, 260, 302, 289, 219, 245, 237, 227, 246, 234, 230, 218, 236, 235, 202, 228, 239, 190, 207, 196, 239, 201, 190, 211, 255, 234, 177, 163, 207, 224, 240, 193, 210, 175, 220],
+                                "name": "Mixed Model framework, generalized least squares, equation withoutWeight"
+                            }]
+                        });
+                    });
+
+                </script>
+            </div>
+
+            <div id="MMlmeChart">
+                <script type="text/javascript">
+                    $(function () {
+                        Highcharts.setOptions({colors: ['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)']});
+                        $('#MMlmeChart').highcharts({
+                            chart: {
+                                type: 'column',
+                                height: 800
+                            },
+                            title: {
+                                text: 'P-value distribution'
+                            },
+                            subtitle: {
+                                text: "Mixed Model framework, linear mixed-effects model, equation withoutWeight"
+                            },
+                            xAxis: {
+                                categories: ["0.02", "0.04", "0.06", "0.08", "0.1", "0.12", "0.14", "0.16", "0.18", "0.2", "0.22", "0.24", "0.26", "0.28", "0.3", "0.32", "0.34", "0.36", "0.38", "0.4", "0.42", "0.44", "0.46", "0.48", "0.5", "0.52", "0.54", "0.56", "0.58", "0.6", "0.62", "0.64", "0.66", "0.68", "0.7", "0.72", "0.74", "0.76", "0.78", "0.8", "0.82", "0.84", "0.86", "0.88", "0.9", "0.92", "0.94", "0.96", "0.98", "1"],
+                                labels: {
+                                    rotation: -90,
+                                    align: 'right',
+                                    style: {
+                                        fontSize: '11px',
+                                        fontFamily: 'Verdana, sans-serif'
+                                    }
+                                },
+                                showLastLabel: true
+                            },
+                            yAxis: {
+                                min: 0,
+                                title: {
+                                    text: 'Frequency'
+                                }
+                            },
+                            credits: {
+                                enabled: false
+                            },
+                            tooltip: {
+                                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                                    '<td style="padding:0"><b>{point.y:.0f} </b></td></tr>',
+                                footerFormat: '</table>',
+                                shared: true,
+                                useHTML: true
+                            },
+                            plotOptions: {
+                                column: {
+                                    stacking: 'normal',
+                                    pointPadding: 0.2,
+                                    borderWidth: 0
+                                }
+                            },
+                            series: [{
+                                "data": [13380, 4502, 3546, 2878, 2518, 2231, 1967, 1686, 1662, 1632, 1635, 1503, 1457, 1420, 1459, 1369, 1345, 1308, 1373, 1253, 1277, 1251, 1301, 1306, 1227, 1240, 1218, 1174, 1229, 1287, 1163, 1217, 1143, 1204, 1168, 1138, 1157, 1210, 1173, 1135, 1194, 1068, 1184, 1144, 1106, 1140, 1195, 1148, 1079, 1114],
+                                "name": "Mixed Model framework, linear mixed-effects model, equation withoutWeight"
+                            }]
+                        });
+                    });
+
+                </script>
             </div>
         </div>
+    </div>
+</div>
 
+<div class="row mt-5">
+    <div class="col-12">
+
+        <h3>Trends</h3>
+
+        <div id="trendsChart">
+            <script type="text/javascript">
+                $(function () {
+                    $('#trendsChart').highcharts({
+                        chart: {
+                            zoomType: 'xy'
+                        },
+                        title: {
+                            text: 'Genes/Mutant Lines/MP Calls'
+                        },
+                        subtitle: {
+                            text: 'Release by Release'
+                        },
+                        xAxis: [{
+                            categories: ["1.0", "1.1", "2.0", "3.0", "3.1", "3.2"],
+                        }],
+                        yAxis: [{ // Primary yAxis
+                            labels: {
+                                format: '{value}',
+                                style: {
+                                    color: Highcharts.getOptions().colors[1]
+                                }
+                            },
+                            title: {
+                                text: 'Genes/Mutant Lines',
+                                style: {
+                                    color: Highcharts.getOptions().colors[1]
+                                }
+                            }
+                        },
+                            { // Secondary yAxis
+                                title: {
+                                    text: 'Phenotype Calls',
+                                    style: {
+                                        color: Highcharts.getOptions().colors[0]
+                                    }
+                                },
+                                labels: {
+                                    format: '{value}',
+                                    style: {
+                                        color: Highcharts.getOptions().colors[0]
+                                    }
+                                },
+                                opposite: true
+                            }
+                        ],
+                        credits: {
+                            enabled: false
+                        },
+                        tooltip: {
+                            shared: true
+                        },
+                        series: [{
+                            "data": [294, 470, 518, 1458, 1468, 1468],
+                            "name": "Phenotyped genes",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " genes"
+                            },
+                            "type": "column"
+                        }, {
+                            "data": [301, 484, 535, 1528, 1540, 1540],
+                            "name": "Phenotyped lines",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " lines"
+                            },
+                            "type": "column"
+                        }, {
+                            "yAxis": 1,
+                            "data": [1069, 2732, 2182, 6114, 5974, 6064],
+                            "name": "MP calls",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " calls"
+                            },
+                            "type": "spline"
+                        }]
+                    });
+                });
+
+            </script>
+        </div>
+
+        <div id="datapointsTrendsChart">
+            <script type="text/javascript">
+                $(function () {
+                    $('#datapointsTrendsChart').highcharts({
+                        chart: {
+                            zoomType: 'xy'
+                        },
+                        title: {
+                            text: 'Data points'
+                        },
+                        subtitle: {
+                            text: ''
+                        },
+                        xAxis: [{
+                            categories: ["1.0", "1.1", "2.0", "3.0", "3.1", "3.2"],
+                        }],
+                        yAxis: [{ // Primary yAxis
+                            labels: {
+                                format: '{value}',
+                                style: {
+                                    color: Highcharts.getOptions().colors[1]
+                                }
+                            },
+                            title: {
+                                text: 'Data points',
+                                style: {
+                                    color: Highcharts.getOptions().colors[1]
+                                }
+                            }
+                        },
+                        ],
+                        credits: {
+                            enabled: false
+                        },
+                        tooltip: {
+                            shared: true
+                        },
+                        series: [{
+                            "data": [0, 0, 0, 0, 0, 0],
+                            "name": "Categorical (QC failed)",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            },
+                            "type": "spline"
+                        }, {
+                            "data": [149194, 958957, 1173776, 3935293, 3956068, 3956068],
+                            "name": "Categorical (QC passed)",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            },
+                            "type": "spline"
+                        }, {
+                            "data": [388, 1214, 1764, 3426, 3426, 3426],
+                            "name": "Categorical (issues)",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            },
+                            "type": "spline"
+                        }, {
+                            "data": [0, 0, 0, 0, 0, 0],
+                            "name": "Image record (QC failed)",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            },
+                            "type": "spline"
+                        }, {
+                            "data": [0, 5623, 10765, 106682, 107059, 107059],
+                            "name": "Image record (QC passed)",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            },
+                            "type": "spline"
+                        }, {
+                            "data": [0, 0, 0, 0, 0, 0],
+                            "name": "Image record (issues)",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            },
+                            "type": "spline"
+                        }, {
+                            "data": [0, 0, 1721, 18591, 18591, 18591],
+                            "name": "Text (QC failed)",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            },
+                            "type": "spline"
+                        }, {
+                            "data": [2387, 12803, 15355, 51283, 51611, 51611],
+                            "name": "Text (QC passed)",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            },
+                            "type": "spline"
+                        }, {
+                            "data": [0, 0, 100, 161, 161, 161],
+                            "name": "Text (issues)",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            },
+                            "type": "spline"
+                        }, {
+                            "data": [0, 13176, 4, 9, 9, 9],
+                            "name": "Time series (QC failed)",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            },
+                            "type": "spline"
+                        }, {
+                            "data": [63773, 1451844, 1798263, 7237320, 7415471, 7415471],
+                            "name": "Time series (QC passed)",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            },
+                            "type": "spline"
+                        }, {
+                            "data": [83, 83, 39, 82, 77684, 77684],
+                            "name": "Time series (issues)",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            },
+                            "type": "spline"
+                        }, {
+                            "data": [172, 1443, 992, 3724, 3726, 3726],
+                            "name": "Unidimensional (QC failed)",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            },
+                            "type": "spline"
+                        }, {
+                            "data": [381406, 1011637, 988022, 2782486, 2970851, 2970851],
+                            "name": "Unidimensional (QC passed)",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            },
+                            "type": "spline"
+                        }, {
+                            "data": [1454, 5286, 16928, 38737, 39065, 39065],
+                            "name": "Unidimensional (issues)",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            },
+                            "type": "spline"
+                        }]
+                    });
+                });
+
+            </script>
+        </div>
+
+        <div id="topLevelTrendsChart">
+            <script type="text/javascript">
+                $(function () {
+                    $('#topLevelTrendsChart').highcharts({
+                        chart: {
+                            zoomType: 'xy'
+                        },
+                        title: {
+                            text: 'Top Level Phenotypes'
+                        },
+                        subtitle: {
+                            text: ''
+                        },
+                        xAxis: [{
+                            categories: ["1.0", "1.1", "2.0", "3.0", "3.1", "3.2"],
+                        }],
+                        yAxis: [{ // Primary yAxis
+                            labels: {
+                                format: '{value}',
+                                style: {
+                                    color: Highcharts.getOptions().colors[1]
+                                }
+                            },
+                            title: {
+                                text: 'MP Calls',
+                                style: {
+                                    color: Highcharts.getOptions().colors[1]
+                                }
+                            }
+                        },
+                        ],
+                        credits: {
+                            enabled: false
+                        },
+                        tooltip: {
+                            shared: true
+                        },
+                        series: [{
+                            "data": [73, 116, 93, 241, 243, 243],
+                            "name": "adipose tissue phenotype",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            }
+                        }, {
+                            "data": [74, 377, 394, 636, 624, 716],
+                            "name": "behavior/neurological phenotype",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            }
+                        }, {
+                            "data": [12, 26, 44, 296, 261, 261],
+                            "name": "cardiovascular system phenotype",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            }
+                        }, {
+                            "data": [0, 4, 24, 56, 55, 55],
+                            "name": "craniofacial phenotype",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            }
+                        }, {
+                            "data": [289, 473, 561, 533, 536, 536],
+                            "name": "growth/size/body phenotype",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            }
+                        }, {
+                            "data": [84, 125, 237, 245, 245, 245],
+                            "name": "hearing/vestibular/ear phenotype",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            }
+                        }, {
+                            "data": [131, 366, 495, 704, 690, 692],
+                            "name": "hematopoietic system phenotype",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            }
+                        }, {
+                            "data": [342, 1046, 1370, 1368, 1389, 1385],
+                            "name": "homeostasis/metabolism phenotype",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            }
+                        }, {
+                            "data": [18, 69, 81, 183, 169, 172],
+                            "name": "immune system phenotype",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            }
+                        }, {
+                            "data": [0, 19, 55, 79, 77, 77],
+                            "name": "integument phenotype",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            }
+                        }, {
+                            "data": [0, 26, 132, 204, 205, 205],
+                            "name": "limbs/digits/tail phenotype",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            }
+                        }, {
+                            "data": [0, 0, 80, 858, 906, 906],
+                            "name": "mortality/aging",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            }
+                        }, {
+                            "data": [0, 0, 0, 5, 7, 7],
+                            "name": "muscle phenotype",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            }
+                        }, {
+                            "data": [0, 42, 79, 73, 66, 66],
+                            "name": "nervous system phenotype",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            }
+                        }, {
+                            "data": [10, 22, 51, 88, 80, 80],
+                            "name": "pigmentation phenotype",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            }
+                        }, {
+                            "data": [0, 0, 8, 27, 27, 27],
+                            "name": "renal/urinary system phenotype",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            }
+                        }, {
+                            "data": [0, 0, 3, 43, 43, 43],
+                            "name": "reproductive system phenotype",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            }
+                        }, {
+                            "data": [0, 0, 0, 1, 1, 1],
+                            "name": "respiratory system phenotype",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            }
+                        }, {
+                            "data": [101, 162, 223, 714, 718, 718],
+                            "name": "skeleton phenotype",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            }
+                        }, {
+                            "data": [70, 79, 127, 521, 316, 316],
+                            "name": "vision/eye phenotype",
+                            "tooltip": {
+                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
+                                "valueSuffix": " "
+                            }
+                        }]
+                    });
+                });
+
+            </script>
+        </div>
 
     </div>
-    <!-- /main -->
-
-    <footer id="footer">
-
-        <div class="centercontent">
-            <div class="region region-footer">
-                <div id="block-block-7" class="block block-block">
-                    <div class="content">
-                        <img src="/data/img/footerLogos.jpg" />
-                        <div class="clear"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="footerline">
-
-            <div class="centercontent">
-
-                <div id="footersitemap" class="twothird left">&nbsp;</div>
-                <div class="onethird right">
-
-                    <div id="vnavi">
-                        <ul>
-                            <li><a href="//www.mousephenotype.org/data/release">Release: 3.2</a></li>
-                            <li><a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/">FTP</a></li>
-                            <li><a href="/data/documentation/index">Help/Documentation</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="clear"></div>
-
-                    <p class="textright">&copy; 2015 IMPC &middot; International Mouse Phenotyping Consortium</p>
-
-                    <div class="clear"></div>
-
-                </div>
-
-                <div class="clear"></div>
-
-            </div>
-
-        </div>
-
-        <div class="region region-pinned">
-
-            <div id="flyingnavi" class="block smoothScroll">
-
-                <a href="#top"><i class="fa fa-chevron-up" title="scroll to top"></i></a>
-
-                <ul>
-                    <li><a href="#top">Release Notes</a></li>
-                    <li><a href="#new-features">Highlights</a></li>
-                    <li><a href="#data_reports">Data Reports</a></li>
-                    <li><a href="#phenome-links">Phenotype Associations</a></li>
-                    <li><a href="#statistical-analysis">Statistical Analysis</a></li>
-                    <li><a href="#trends">History</a></li>
-                </ul>
-
-                <div class="clear"></div>
-
-            </div>
-
-        </div>
-
-    </footer>
-
-
-
-
-
-    <!-- <script type="text/javascript" src='/data/js/script.min.js?v=' ></script>-->
-    <script type='text/javascript' src='/data/js/searchAndFacet/searchAndFacetConfig.js?v='></script>
-    <script type='text/javascript' src='/data/js/utils/tools.js?v='></script>
-    <script type='text/javascript' src='/data/js/general/ui.dropdownchecklist_modif.js?v='></script>
-    <script type='text/javascript' src='/data/js/documentationConfig.js?v='></script>
-
-
-    <script type='text/javascript' src="/data/js/searchAndFacet/breadcrumbSearchBox.js?v="></script>
-
-
-
-</div> <!-- wrapper -->
-</body>
-
-
-
-
+</div>
