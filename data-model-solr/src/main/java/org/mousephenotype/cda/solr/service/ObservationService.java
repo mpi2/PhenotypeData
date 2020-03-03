@@ -346,8 +346,6 @@ public class ObservationService extends BasicService implements WebStatus {
                         ObservationDTO.SEX
                 )
                 .setRows(100000);
-        query.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
-        query.setRows(1000000);
 
         logger.info("get All Phenotypes for gene " + SolrUtils.getBaseURL(experimentCore) + "/select?" + query);
         logger.info("  Timing: Starting solr query: " + (System.currentTimeMillis() - start));
@@ -358,7 +356,9 @@ public class ObservationService extends BasicService implements WebStatus {
         // Key -> Sex -> List<ObservationDTO>
         final Map<ObservationDTO.CombinedObservationKey, Map<String, List<ObservationDTO>>> groups = beans.stream()
                 .filter(Objects::nonNull)
-                .collect(Collectors.groupingBy(ObservationDTO::getCombinedKey, Collectors.groupingBy(ObservationDTO::getSex)));
+                .collect(Collectors.groupingBy(
+                        ObservationDTO::getCombinedKey,
+                        Collectors.groupingBy(ObservationDTO::getSex)));
         logger.info("  Timing: Ending collection: " + (System.currentTimeMillis() - start));
 
         logger.info("  Timing: Starting generate rows: " + (System.currentTimeMillis() - start));
@@ -376,67 +376,6 @@ public class ObservationService extends BasicService implements WebStatus {
         return new HashSet<>(alleleZygParameterStableIdToRows);
     }
 
-
-    private void rowsFromDTOs(Set<ExperimentsDataTableRow> alleleZygParameterStableIdToRows, List<ObservationDTO> beans) throws UnsupportedEncodingException {
-        for (ObservationDTO observationDTO : beans) {
-            alleleZygParameterStableIdToRows.add(this.generateRow(observationDTO));
-
-        }
-    }
-
-    private ExperimentsDataTableRow generateRow(ObservationDTO dto) {
-        {
-
-            MarkerBean allele = new MarkerBean();
-            allele.setAccessionId(dto.getAlleleAccession());
-            allele.setSymbol(dto.getAlleleSymbol());
-
-            MarkerBean gene = new MarkerBean();
-            gene.setAccessionId(dto.getGeneAccession());
-            gene.setSymbol(dto.getGeneSymbol());
-
-            ImpressBaseDTO procedure  = new ImpressBaseDTO(null, null, dto.getProcedureStableId(), dto.getProcedureName());
-            ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, dto.getParameterStableId(), dto.getParameterName());
-            ImpressBaseDTO pipeline = new ImpressBaseDTO(null, null, dto.getPipelineStableId(), dto.getPipelineName());
-            String statisticalMethod="";
-            String status="";
-            if( dto.getParameterStableId().contains("_XRY_")){
-                statisticalMethod="N/A";
-            }
-            if(dto.getParameterStableId().contains("_ALZ_")){
-                status=dto.getCategory();//set the result to expression or no expression etc as Stats not applicable - but then at least the row is informative?
-                statisticalMethod="N/A";
-            }
-            ZygosityType zygosity = dto.getZygosity() != null ? ZygosityType.valueOf(dto.getZygosity()) : ZygosityType.not_applicable;
-            ExperimentsDataTableRow row = null;
-
-            try {
-                row = new ExperimentsDataTableRow(dto.getPhenotypingCenter(), statisticalMethod,
-                        status, allele, gene, zygosity,
-                        pipeline, procedure, parameter, "",null,0,
-                        0,0.0, dto.getMetadataGroup());
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-            EvidenceLink link=new EvidenceLink();
-            link.setDisplay(false);
-            row.setEvidenceLink(link);//set all links to display false as we have no charts to link to from these rows??
-
-            if(dto.getSex().equals(SexType.male.toString())){
-               int maleMutants= row.getMaleMutantCount();
-               maleMutants++;
-               row.setMaleMutantCount(maleMutants);
-            }
-            if(dto.getSex().equals(SexType.female.toString())){
-                int femaleMutants= row.getMaleMutantCount();
-                femaleMutants++;
-                row.setFemaleMutantCount(femaleMutants);
-            }
-
-            return row;
-
-        }
-    }
 
     public class ViabilityData {
 
