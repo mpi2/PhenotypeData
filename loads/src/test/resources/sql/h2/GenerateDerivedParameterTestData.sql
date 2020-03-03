@@ -19,10 +19,16 @@ INSERT INTO phenotype_procedure VALUES (43, 176, 'IMPC_ACS_003', 6, 'Acoustic St
                                        (81, 623, 'IMPC_BWT_001', 6, 'Body Weight', 'The body weight test ', 1, 3, 0, 'experiment', 'Adult', 'Unrestricted', 22),
                                        (872, 859, 'IMPC_CAL_003', 6, 'Indirect Calorimetry', 'Indirect calorimetry .', 3, 5, 0, 'experiment', 'Adult', 'Week 11', 253);
 
+-- Insert the procedure to parameter associations
 INSERT INTO phenotype_procedure_parameter VALUES (43, 2882);
 INSERT INTO phenotype_procedure_parameter VALUES (81, 1732);
 INSERT INTO phenotype_procedure_parameter VALUES (81, 1739);
 INSERT INTO phenotype_procedure_parameter VALUES (872, 3013);
+
+-- Insert the pipeline to procedure associations
+INSERT INTO phenotype_pipeline_procedure VALUES (1, 43);
+INSERT INTO phenotype_pipeline_procedure VALUES (1, 81);
+INSERT INTO phenotype_pipeline_procedure VALUES (1, 872);
 
 
  -- ACS EXPERIMENTS

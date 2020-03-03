@@ -33,7 +33,7 @@ public interface ParameterRepository extends CrudRepository<Parameter, Long> {
             "WHERE parameter.stableId = :parameterStableId " +
             "AND procedures.stableId = :procedureStableId " +
             "AND pipelines.stableId = :pipelineStableId")
-    Parameter getFirstByStableIdAndProcedures(@Param("parameterStableId") String parameterStableId,
-                                              @Param("procedureStableId") String procedureStableId,
-                                              @Param("pipelineStableId") String pipelineStableId);
+    Parameter getByStableIdAndProcedureAndPipeline(@Param("parameterStableId") String parameterStableId,
+                                                   @Param("procedureStableId") String procedureStableId,
+                                                   @Param("pipelineStableId") String pipelineStableId);
 }

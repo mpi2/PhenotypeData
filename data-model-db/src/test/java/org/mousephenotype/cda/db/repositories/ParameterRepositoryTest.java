@@ -76,11 +76,11 @@ public class ParameterRepositoryTest {
     @Test
     public void testGetByParameterAndProcedure() throws Exception {
 
-        Parameter actual = parameterRepository.getFirstByStableIdAndProcedures("IMPC_PAT_049_002", "IMPC_PAT_002", "UCD_001");
+        Parameter actual = parameterRepository.getByStableIdAndProcedureAndPipeline("IMPC_PAT_049_002", "IMPC_PAT_002", "UCD_001");
         assertNotNull(actual.getProcedures());
         assertNotNull(actual.getProcedures().stream().findFirst().map(Procedure::getPipelines).orElse(null));
 
-        Parameter bad = parameterRepository.getFirstByStableIdAndProcedures("IMPC_PAT_049_002", "IMPC_PAT_002", "IMPC_001");
+        Parameter bad = parameterRepository.getByStableIdAndProcedureAndPipeline("IMPC_PAT_049_002", "IMPC_PAT_002", "IMPC_001");
         assertNull(bad);
 
     }

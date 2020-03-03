@@ -6,7 +6,7 @@
 
 <t:genericpage>
 
-	<jsp:attribute name="title">IMPC Release Notes</jsp:attribute>
+	<jsp:attribute name="title">IMPC Data Release ${metaInfo["data_release_version"]} Notes</jsp:attribute>
 	<jsp:attribute name="breadcrumb">&nbsp;&raquo; Release Notes</jsp:attribute>
 	<jsp:attribute name="header">
 
@@ -41,7 +41,7 @@
         <div class="container data-heading">
             <div class="row">
                 <div class="col-12 no-gutters">
-                    <h2 id="top" class="mb-0">IMPC Release Notes</h2>
+                    <h2 id="top" class="mb-0">IMPC Data Release ${metaInfo["data_release_version"]} Notes</h2>
                 </div>
             </div>
         </div>
@@ -277,7 +277,7 @@
                                         <h3>Previous Releases</h3>
                                         <ul>
                                             <c:forEach var="release" items="${releases}">
-                                                <li><a href="${baseUrl}/pastRelease/${release}">Release ${release} notes</a></li>
+                                                <li><a href="${baseUrl}/previous-releases/${release}">Release ${release} notes</a></li>
                                             </c:forEach>
                                         </ul>
                                     </div>
