@@ -1,11 +1,11 @@
 package org.mousephenotype.cda.solr.web.dto;
 
-import java.io.UnsupportedEncodingException;
-import java.util.List;
-
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.MarkerBean;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+
+import java.io.UnsupportedEncodingException;
 
 /**
  * @since 2016/03/01
@@ -23,6 +23,16 @@ public class ExperimentsDataTableRow extends DataTableRow{
 
 	public ExperimentsDataTableRow() {
 
+	}
+
+	public ExperimentsDataTableRow(ObservationDTO.CombinedObservationKey key) {
+		setAllele(new MarkerBean(key.getAlleleAccessionId(), key.getAlleleSymbol()));
+		setGene(new MarkerBean(key.getGeneAccession(), key.getGeneSymbol()));
+		setZygosity(key.getZygosity());
+		setPipeline(new ImpressBaseDTO(null, null, key.getPipelineStableId(), key.getPipelineName()));
+		setProcedure(new ImpressBaseDTO(null, null, key.getProcedureStableId(), key.getProcedureName()));
+		setParameter(new ImpressBaseDTO(null, null, key.getParameterStableId(), key.getParameterName()));
+		setPhenotypingCenter(key.getPhenotypingCenter());
 	}
 
 	@Override

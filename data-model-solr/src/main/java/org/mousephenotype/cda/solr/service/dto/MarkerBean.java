@@ -31,8 +31,14 @@ public class MarkerBean {
 	String name;
 	List<String> synonyms;
 	String superScript;
-	
-	
+
+	public MarkerBean () {}
+
+	public MarkerBean(String accessionId, String symbol) {
+		this.accessionId = accessionId;
+		this.symbol = symbol;
+	}
+
 	public String getSuperScript() {
 		return superScript;
 	}

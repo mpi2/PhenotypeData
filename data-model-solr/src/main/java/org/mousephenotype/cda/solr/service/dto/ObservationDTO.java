@@ -15,10 +15,16 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.beans.Field;
+import org.mousephenotype.cda.enumerations.LifeStage;
 import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.utilities.LifeStageMapper;
 
+import javax.validation.constraints.NotNull;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -195,6 +201,47 @@ public class ObservationDTO extends ObservationDTOBase {
                 + " , metadata :" + this.getMetadataGroup()
                 + " , productionCenter :" + this.getProductionCenter()
                 + " ]";
+    }
+
+
+    public CombinedObservationKey getCombinedKey() {
+        return new CombinedObservationKey(
+                getAlleleSymbol(),
+                getAlleleAccession(),
+                getGeneSymbol(),
+                getGeneAccession(),
+                getParameterStableId(),
+                getParameterName(),
+                getProcedureStableId(),
+                getProcedureName(),
+                getPipelineStableId(),
+                getPipelineName(),
+                ZygosityType.valueOf(getZygosity()),
+                getPhenotypingCenter(),
+                LifeStageMapper.getLifeStage(getParameterStableId(), getDevelopmentalStageName())
+        );
+    }
+
+    @Data
+    public class CombinedObservationKey {
+        @NotNull final String alleleSymbol;
+        @NotNull final String alleleAccessionId;
+        @NotNull final String geneSymbol;
+        @NotNull final String geneAccession;
+        @NotNull final String parameterStableId;
+        @NotNull final String parameterName;
+        @NotNull final String procedureStableId;
+        @NotNull final String procedureName;
+        @NotNull final String pipelineStableId;
+        @NotNull final String pipelineName;
+        @NotNull final ZygosityType zygosity;
+        @NotNull final String phenotypingCenter;
+        @NotNull final LifeStage lifeStage;
+
+        @EqualsAndHashCode.Exclude String statisticalMethod;
+        @EqualsAndHashCode.Exclude String status;
+        @EqualsAndHashCode.Exclude String metadataGroup;
+
     }
 
     /**
