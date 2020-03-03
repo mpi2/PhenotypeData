@@ -374,7 +374,7 @@
                 </tbody>
             </table>
 
-            <p>Mouse knockout programs:&nbsp;KOMP,EUCOMM,NCOM,mirKO,IST12471H5</p>
+            <p>Mouse knockout programs: KOMP,EUCOMM,NCOM,mirKO,IST12471H5</p>
         </div>
     </div>
 </div>
@@ -487,6 +487,7 @@
                                 });
                             });</script>
                         </div>
+
                         <div class="col-6">
                             <div id="phenotypeStatusChart">
                                 <script type="text/javascript">$(function () {
@@ -612,6 +613,7 @@
                     </script>
                 </div>
             </div>
+
             <div class="col-6">
                 <div id="phenotypeStatusByCenterChart">
                     <script type="text/javascript">$(function () {
@@ -697,6 +699,7 @@
     <div class="col-12">
 
         <h2>Phenotype Associations</h2>
+
         <div id="callProcedureChart">
             <script type="text/javascript">
                 $(function () {
