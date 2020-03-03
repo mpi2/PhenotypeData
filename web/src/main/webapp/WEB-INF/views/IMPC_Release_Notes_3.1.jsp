@@ -379,7 +379,7 @@
                 </tbody>
             </table>
 
-            <p>Mouse knockout programs:&nbsp;EUCOMM,KOMP,NCOM,mirKO,IST12471H5</p>
+            <p>Mouse knockout programs: EUCOMM,KOMP,NCOM,mirKO,IST12471H5</p>
         </div>
     </div>
 </div>
@@ -708,61 +708,92 @@
         <h2>Phenotype Associations</h2>
 
         <div id="callProcedureChart">
-                                            <script type="text/javascript">
-                                                $(function () {
-                                                    Highcharts.setOptions({	    colors: ['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)']});    $('#callProcedureChart').highcharts({
-                                                        chart: {
-                                                            type: 'column',
-                                                            height: 800
-                                                        },
-                                                        title: {
-                                                            text: 'Phenotype calls per procedure'
-                                                        },
-                                                        subtitle: {
-                                                            text: "Center by center"
-                                                        },
-                                                        xAxis: {
-                                                            categories: ["Auditory Brain Stem Response","Clinical Blood Chemistry","Body Composition (DEXA lean/fat)","Electrocardiogram (ECG)","Echo","Eye Morphology","Fertility of Homozygous Knock-out Mice","Grip Strength","Hematology","Heart Weight","Immunophenotyping","Intraperitoneal glucose tolerance test (IPGTT)","Viability Primary Screen","X-ray","Indirect Calorimetry","Combined SHIRPA and Dysmorphology","Insulin Blood Level","Acoustic Startle and Pre-pulse Inhibition (PPI)","Electroconvulsive Threshold Testing","Hole-board Exploration","Light-Dark Test","Plasma Chemistry","Rotarod","Tail Suspension","Organ Weight"],
-                                                            labels: {
-                                                                rotation: -90,
-                                                                align: 'right',
-                                                                style: {
-                                                                    fontSize: '11px',
-                                                                    fontFamily: 'Verdana, sans-serif'
-                                                                }
-                                                            },
-                                                            showLastLabel: true
-                                                        },
-                                                        yAxis: {
-                                                            min: 0,
-                                                            title: {
-                                                                text: 'Number of phenotype calls'
-                                                            }
-                                                        },
-                                                        credits: {
-                                                            enabled: false
-                                                        },
-                                                        tooltip: {
-                                                            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-                                                            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                                                            '<td style="padding:0"><b>{point.y:.0f} calls</b></td></tr>',
-                                                            footerFormat: '</table>',
-                                                            shared: true,
-                                                            useHTML: true
-                                                        },
-                                                        plotOptions: {
-                                                            column: {
-                                                                stacking: 'normal',
-                                                                pointPadding: 0.2,
-                                                                borderWidth: 0
-                                                            }
-                                                        },
-                                                        series:[{"data":[14,172,0,86,0,19,1,0,16,12,0,60,168,0,0,36,10,0,10,12,100,94,13,12,0],"name":"JAX"},{"data":[0,10,18,0,0,0,0,7,2,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0],"name":"NING"},{"data":[11,85,0,21,0,28,5,0,106,6,0,7,154,75,7,54,0,0,0,0,0,0,0,0,0],"name":"TCP"},{"data":[7,68,12,8,10,49,13,0,50,0,0,13,40,8,8,14,4,0,0,0,0,0,0,0,0],"name":"HMGU"},{"data":[16,159,204,16,21,57,3,51,97,0,0,46,134,118,3,143,0,99,0,0,0,0,0,0,58],"name":"MRC Harwell"},{"data":[7,12,0,6,0,1,3,0,26,0,0,0,0,14,0,18,0,0,0,0,0,0,0,0,0],"name":"RBRC"},{"data":[15,20,26,10,4,50,1,0,22,7,0,4,68,8,6,2,0,11,0,0,0,0,0,0,0],"name":"ICS"},{"data":[93,360,284,0,0,84,6,81,161,7,0,24,172,187,10,0,26,0,0,0,0,0,0,0,0],"name":"WTSI"},{"data":[25,2,56,33,8,23,3,7,5,2,2,3,78,6,0,0,0,0,0,0,0,0,0,0,0],"name":"BCM"},{"data":[25,114,211,23,0,5,8,0,58,7,0,28,92,12,0,59,9,0,0,0,0,0,0,0,0],"name":"UC Davis"}]
-                                                    });
-                                                });
+            <script type="text/javascript">
+                $(function () {
+                    Highcharts.setOptions({colors: ['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)']});
+                    $('#callProcedureChart').highcharts({
+                        chart: {
+                            type: 'column',
+                            height: 800
+                        },
+                        title: {
+                            text: 'Phenotype calls per procedure'
+                        },
+                        subtitle: {
+                            text: "Center by center"
+                        },
+                        xAxis: {
+                            categories: ["Auditory Brain Stem Response", "Clinical Blood Chemistry", "Body Composition (DEXA lean/fat)", "Electrocardiogram (ECG)", "Echo", "Eye Morphology", "Fertility of Homozygous Knock-out Mice", "Grip Strength", "Hematology", "Heart Weight", "Immunophenotyping", "Intraperitoneal glucose tolerance test (IPGTT)", "Viability Primary Screen", "X-ray", "Indirect Calorimetry", "Combined SHIRPA and Dysmorphology", "Insulin Blood Level", "Acoustic Startle and Pre-pulse Inhibition (PPI)", "Electroconvulsive Threshold Testing", "Hole-board Exploration", "Light-Dark Test", "Plasma Chemistry", "Rotarod", "Tail Suspension", "Organ Weight"],
+                            labels: {
+                                rotation: -90,
+                                align: 'right',
+                                style: {
+                                    fontSize: '11px',
+                                    fontFamily: 'Verdana, sans-serif'
+                                }
+                            },
+                            showLastLabel: true
+                        },
+                        yAxis: {
+                            min: 0,
+                            title: {
+                                text: 'Number of phenotype calls'
+                            }
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        tooltip: {
+                            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                                '<td style="padding:0"><b>{point.y:.0f} calls</b></td></tr>',
+                            footerFormat: '</table>',
+                            shared: true,
+                            useHTML: true
+                        },
+                        plotOptions: {
+                            column: {
+                                stacking: 'normal',
+                                pointPadding: 0.2,
+                                borderWidth: 0
+                            }
+                        },
+                        series: [{
+                            "data": [14, 172, 0, 86, 0, 19, 1, 0, 16, 12, 0, 60, 168, 0, 0, 36, 10, 0, 10, 12, 100, 94, 13, 12, 0],
+                            "name": "JAX"
+                        }, {
+                            "data": [0, 10, 18, 0, 0, 0, 0, 7, 2, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            "name": "NING"
+                        }, {
+                            "data": [11, 85, 0, 21, 0, 28, 5, 0, 106, 6, 0, 7, 154, 75, 7, 54, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            "name": "TCP"
+                        }, {
+                            "data": [7, 68, 12, 8, 10, 49, 13, 0, 50, 0, 0, 13, 40, 8, 8, 14, 4, 0, 0, 0, 0, 0, 0, 0, 0],
+                            "name": "HMGU"
+                        }, {
+                            "data": [16, 159, 204, 16, 21, 57, 3, 51, 97, 0, 0, 46, 134, 118, 3, 143, 0, 99, 0, 0, 0, 0, 0, 0, 58],
+                            "name": "MRC Harwell"
+                        }, {
+                            "data": [7, 12, 0, 6, 0, 1, 3, 0, 26, 0, 0, 0, 0, 14, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            "name": "RBRC"
+                        }, {
+                            "data": [15, 20, 26, 10, 4, 50, 1, 0, 22, 7, 0, 4, 68, 8, 6, 2, 0, 11, 0, 0, 0, 0, 0, 0, 0],
+                            "name": "ICS"
+                        }, {
+                            "data": [93, 360, 284, 0, 0, 84, 6, 81, 161, 7, 0, 24, 172, 187, 10, 0, 26, 0, 0, 0, 0, 0, 0, 0, 0],
+                            "name": "WTSI"
+                        }, {
+                            "data": [25, 2, 56, 33, 8, 23, 3, 7, 5, 2, 2, 3, 78, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            "name": "BCM"
+                        }, {
+                            "data": [25, 114, 211, 23, 0, 5, 8, 0, 58, 7, 0, 28, 92, 12, 0, 59, 9, 0, 0, 0, 0, 0, 0, 0, 0],
+                            "name": "UC Davis"
+                        }]
+                    });
+                });
 
-                                            </script>
-                                        </div>
+            </script>
+        </div>
     </div>
 </div>
 
