@@ -23,7 +23,7 @@ public class LifeStageMapper {
     }
 
     public static LifeStage getLifeStage(String parameterStableId, String developmentalStageName) {
-System.out.println(developmentalStageName);
+
         if (LA_PROCEDURES.stream().anyMatch(parameterStableId::contains)) {
             return LifeStage.LATE_ADULT;
         } else if (IP_PROCEDURES.stream().anyMatch(parameterStableId::contains)) {
@@ -36,10 +36,14 @@ System.out.println(developmentalStageName);
             return LifeStage.E15_5;
         } else if (E18_5_PROCEDURES.stream().anyMatch(parameterStableId::contains)) {
             return LifeStage.E18_5;
-        } else if ( ! developmentalStageName.equals("postnatal")) {
+        } else if (developmentalStageName.equals("Early adult")) {
+            return LifeStage.EARLY_ADULT;
+        } else if (!developmentalStageName.equals("postnatal")) {
             return LifeStage.valueOf(developmentalStageName);
-        } else {
+        }else{
             return LifeStage.EARLY_ADULT;
         }
+
     }
+
 }

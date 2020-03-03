@@ -350,34 +350,74 @@ public class ObservationService extends BasicService implements WebStatus {
         query.setQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + acc + "\"");
 
         query.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
-        query.setRows(100000);
+        query.setRows(1000000);
 
         logger.info("get All Phenotypes for gene " + SolrUtils.getBaseURL(experimentCore) + "/select?" + query);
         final List<ObservationDTO> beans = experimentCore.query(query).getBeans(ObservationDTO.class);
 
-        Map<String, List<ObservationDTO>> maleKeys = new HashMap<>();
-        Map<String, List<ObservationDTO>> femaleKeys = new HashMap<>();
-        try {
-            maleKeys = beans.stream()
-                    .filter(x -> x.getSex().equals(SexType.male.toString()))
-                    .collect(Collectors.groupingBy(ObservationService::getKey));
-            femaleKeys = beans.stream()
-                    .filter(x -> x.getSex().equals(SexType.female.toString()))
-                    .collect(Collectors.groupingBy(ObservationService::getKey));
-        } catch (Exception e) {
-            e.printStackTrace();
+
+        Map<String, List<ObservationDTO>> obsByKey = beans.stream().collect(Collectors.groupingBy(ObservationService::getKey));
+        for(String key: obsByKey.keySet()){
+            List<ObservationDTO> values = obsByKey.get(key);
+            System.out.println(key+" value "+values);
+            //keep a count of male and female counts for each entry and set that in the row object
+            int maleCounts=0;
+            int femaleCounts=0;
+
+            for(ObservationDTO value: values){
+                String sex = value.getSex();
+                if(sex.equals(SexType.male.toString()))maleCounts++;
+                else if(sex.equals(SexType.female))femaleCounts++;
+                else {
+                    //do nothing as can't increment male or female counts
+                }
+
+            }
+            ExperimentsDataTableRow tempRow = this.generateRow(values.get(0));
+            tempRow.setMaleMutantCount(maleCounts);
+            tempRow.setFemaleMutantCount(femaleCounts);
+            alleleZygParameterStableIdToRows.add(tempRow);
         }
+
+//    map(x -> {
+//
+//                            return generateRow(x);
+//
+//                    })
+//                    .collect(Collectors.groupingBy(ObservationService::getKey));
+
+
+
+
+
+
+
+
+
+//        Map<String, List<ObservationDTO>> maleKeys = new HashMap<>();
+//        Map<String, List<ObservationDTO>> femaleKeys = new HashMap<>();
+//        try {
+//            maleKeys = beans.stream()
+//                    .filter(x -> x.getSex().equals(SexType.male.toString()))
+//                    .collect(Collectors.groupingBy(ObservationService::getKey));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        for(String key: maleKeys.keySet()) {
+//            System.out.println("key="+key+ " value= "+maleKeys.get(key).size());
+//        }
 //        Map<String, List<ObservationDTO>> femaleKeys = beans.stream()
 //                .filter(x -> x.getSex().equals(SexType.female.toString()))
 //                .collect(Collectors.toMap(ObservationService::getKey, Arrays::asList));
         //List<String> femaleKeys = beans.stream().filter(x -> x.getSex().equals(SexType.female)).collect(Collectors.toMap(x -> x.getAlleleSymbol() + x.getParameterStableId() + x.getZygosity() + x.getPhenotypingCenter() + LifeStageMapper.getLifeStage(x.getParameterStableId()));
 
-        for(String key: maleKeys.keySet()){
-            rowsFromDTOs(alleleZygParameterStableIdToRows, maleKeys.get(key));
-        }
-        for(String key: femaleKeys.keySet()){
-            rowsFromDTOs(alleleZygParameterStableIdToRows, femaleKeys.get(key));
-        }
+//        for(String key: maleKeys.keySet()){
+//            rowsFromDTOs(alleleZygParameterStableIdToRows, maleKeys.get(key));
+//        }
+//        for(String key: femaleKeys.keySet()){
+//            rowsFromDTOs(alleleZygParameterStableIdToRows, femaleKeys.get(key));
+//        }
         //Long maleMutantCount=maleKeys.stream().filter(x -> x.getSex().equals(SexType.male)).count();
         //Long femaleMutantCount=beans.stream().filter(x -> x.getSex().equals(SexType.female)).count();
 
@@ -405,7 +445,7 @@ public class ObservationService extends BasicService implements WebStatus {
         }
     }
 
-    private ExperimentsDataTableRow generateRow(ObservationDTO dto) throws UnsupportedEncodingException {
+    private ExperimentsDataTableRow generateRow(ObservationDTO dto) {
         {
 
             MarkerBean allele = new MarkerBean();
@@ -429,13 +469,30 @@ public class ObservationService extends BasicService implements WebStatus {
                 statisticalMethod="N/A";
             }
             ZygosityType zygosity = dto.getZygosity() != null ? ZygosityType.valueOf(dto.getZygosity()) : ZygosityType.not_applicable;
-            ExperimentsDataTableRow row = new ExperimentsDataTableRow(dto.getPhenotypingCenter(), statisticalMethod,
-                    status, allele, gene, zygosity,
-                    pipeline, procedure, parameter, "",null,0,
-                    0,0.0, dto.getMetadataGroup());
+            ExperimentsDataTableRow row = null;
+
+            try {
+                row = new ExperimentsDataTableRow(dto.getPhenotypingCenter(), statisticalMethod,
+                        status, allele, gene, zygosity,
+                        pipeline, procedure, parameter, "",null,0,
+                        0,0.0, dto.getMetadataGroup());
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
             EvidenceLink link=new EvidenceLink();
             link.setDisplay(false);
             row.setEvidenceLink(link);//set all links to display false as we have no charts to link to from these rows??
+
+            if(dto.getSex().equals(SexType.male.toString())){
+               int maleMutants= row.getMaleMutantCount();
+               maleMutants++;
+               row.setMaleMutantCount(maleMutants);
+            }
+            if(dto.getSex().equals(SexType.female.toString())){
+                int femaleMutants= row.getMaleMutantCount();
+                femaleMutants++;
+                row.setFemaleMutantCount(femaleMutants);
+            }
 
             return row;
 
