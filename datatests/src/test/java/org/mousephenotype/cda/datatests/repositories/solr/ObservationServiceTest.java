@@ -54,11 +54,11 @@ public class ObservationServiceTest {
 			//map is parameterStableId to Experiment Row??
 			Set<ExperimentsDataTableRow> rows = observationService.getAllPhenotypesFromObservationsByGeneAccession(geneAccession);
 
-				for(ExperimentsDataTableRow row:rows) {
-					System.out.println(row.getParameter().getStableId()+" "+row.getZygosity()+" female m "+row.getFemaleMutantCount()+" male m "+row.getMaleMutantCount());
-				}
+//				for(ExperimentsDataTableRow row:rows) {
+//					System.out.println(row.getParameter().getStableId()+" "+row.getZygosity()+" female m "+row.getFemaleMutantCount()+" male m "+row.getMaleMutantCount());
+//				}
 
-			assert(rows.size()>5);
+			assertTrue(rows.size()>4);
 
 		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
