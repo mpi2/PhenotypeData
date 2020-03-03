@@ -5,8 +5,8 @@
         <div>
             <h4>IMPC</h4>
             <ul class="mt-0">
-                <li>Release: 4.0</li>
-                <li>Published:&nbsp;20 October 2015</li>
+                <li>Release: 3.4</li>
+                <li>Published:&nbsp;10 October 2015</li>
             </ul>
         </div>
 
@@ -31,18 +31,19 @@
         <div>
             <h4>Summary</h4>
             <ul class="mt-0">
-                <li>Number of phenotyped genes:&nbsp;2,218</li>
-                <li>Number of phenotyped mutant lines:&nbsp;2,340</li>
-                <li>Number of phenotype calls:&nbsp;12,159</li>
+                <li>Number of phenotyped genes:&nbsp;1,466</li>
+                <li>Number of phenotyped mutant lines:&nbsp;1,537</li>
+                <li>Number of phenotype calls:&nbsp;6,382</li>
             </ul>
         </div>
 
         <div>
             <h4>Data access</h4>
             <ul class="mt-0">
-                <li>Ftp site:&nbsp;<a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-4.0">ftp://ftp.ebi.ac.uk/pub/databases/impc/release-4.0</a>
+                <li>Ftp site:&nbsp;<a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-3.4">ftp://ftp.ebi.ac.uk/pub/databases/impc/release-3.4</a>
                 </li>
-                <li>RESTful interfaces:&nbsp;<a href="/data/documentation/api-help">APIs</a></li>
+                <li>RESTful interfaces:&nbsp;<a
+                        href="/data/documentation/api-help">APIs</a></li>
             </ul>
         </div>
     </div>
@@ -55,10 +56,14 @@
 
         <div class="col-12">
 
-            <h3>Data release 4.0</h3>
+            <h3>Data release 3.4</h3>
 
             <div class="well">
-                <strong>Data release 4.0 represents a major data release.</strong>
+                <strong>Data release 3.4 represents a minor data release. Changes include:</strong>
+                <ul>
+                    <li>Removal of erroneous data</li>
+                    <li>Addition of more viability calls</li>
+                </ul>
             </div>
         </div>
     </div>
@@ -86,69 +91,68 @@
                 <tbody>
                     <tr>
                         <td>JAX</td>
-                        <td>390</td>
-                        <td>2,495</td>
-                        <td>9,309</td>
+                        <td>231</td>
+                        <td>1,322</td>
+                        <td>4,658</td>
                     </tr>
                     <tr>
                         <td>NING</td>
-                        <td>65</td>
-                        <td>734</td>
-                        <td>943</td>
+                        <td>13</td>
+                        <td>142</td>
+                        <td>196</td>
                     </tr>
                     <tr>
                         <td>TCP</td>
-                        <td>228</td>
-                        <td>3,669</td>
-                        <td>9,239</td>
+                        <td>165</td>
+                        <td>571</td>
+                        <td>2,903</td>
                     </tr>
                     <tr>
                         <td>HMGU</td>
-                        <td>102</td>
-                        <td>1,134</td>
-                        <td>1,791</td>
+                        <td>86</td>
+                        <td>818</td>
+                        <td>1,429</td>
                     </tr>
                     <tr>
                         <td>MRC Harwell</td>
-                        <td>286</td>
-                        <td>2,905</td>
-                        <td>6,757</td>
+                        <td>186</td>
+                        <td>2,520</td>
+                        <td>4,191</td>
                     </tr>
                     <tr>
                         <td>RBRC</td>
-                        <td>26</td>
-                        <td>859</td>
-                        <td>578</td>
+                        <td>13</td>
+                        <td>523</td>
+                        <td>244</td>
                     </tr>
                     <tr>
                         <td>ICS</td>
-                        <td>99</td>
-                        <td>1,001</td>
-                        <td>1,521</td>
+                        <td>65</td>
+                        <td>675</td>
+                        <td>1,007</td>
                     </tr>
                     <tr>
                         <td>WTSI</td>
-                        <td>588</td>
-                        <td>2,632</td>
-                        <td>13,519</td>
+                        <td>434</td>
+                        <td>1,751</td>
+                        <td>6,380</td>
                     </tr>
                     <tr>
                         <td>BCM</td>
-                        <td>129</td>
-                        <td>815</td>
-                        <td>3,170</td>
+                        <td>72</td>
+                        <td>435</td>
+                        <td>1,487</td>
                     </tr>
                     <tr>
                         <td>UC Davis</td>
-                        <td>427</td>
-                        <td>1,249</td>
-                        <td>9,427</td>
+                        <td>272</td>
+                        <td>883</td>
+                        <td>6,133</td>
                     </tr>
                 </tbody>
             </table>
 
             <h3>Experimental Data and Quality Checks</h3>
-
             <table id="exp_data">
                 <thead>
                     <tr>
@@ -163,63 +167,62 @@
                     <tr>
                         <td>categorical</td>
                         <td>
-                            5,827,451
+                            3,956,543
                         </td>
                         <td>
-                            756
-                            <sup>*</sup>
+                            0
                         </td>
                         <td>
-                            4,544
+                            3,426
                             <sup>*</sup>
                         </td>
                     </tr>
                     <tr>
                         <td>unidimensional</td>
                         <td>
-                            4,399,848
+                            2,981,261
                         </td>
                         <td>
-                            7,342
+                            3,726
                             <sup>*</sup>
                         </td>
                         <td>
-                            105,213
+                            39,065
                             <sup>*</sup>
                         </td>
                     </tr>
                     <tr>
                         <td>time series</td>
                         <td>
-                            8,721,563
+                            7,383,933
                         </td>
                         <td>
-                            116
+                            9
                             <sup>*</sup>
                         </td>
                         <td>
-                            81,063
+                            77,684
                             <sup>*</sup>
                         </td>
                     </tr>
                     <tr>
                         <td>text</td>
                         <td>
-                            81,962
+                            51,597
                         </td>
                         <td>
-                            13,970
+                            18,591
                             <sup>*</sup>
                         </td>
                         <td>
-                            15,690
+                            161
                             <sup>*</sup>
                         </td>
                     </tr>
                     <tr>
                         <td>image record</td>
                         <td>
-                            186,464
+                            107,044
                         </td>
                         <td>
                             0
@@ -251,7 +254,7 @@
                                 text: "Center by center"
                             },
                             xAxis: {
-                                categories: ["Acoustic Startle and Pre-pulse Inhibition (PPI)", "Combined SHIRPA and Dysmorphology", "Open Field", "DSS Histology", "Rotarod", "FACS", "Organ Weight", "Challenge Whole Body Plethysmography", "Fear Conditioning", "Hot Plate", "Shock Threshold", "Auditory Brain Stem Response", "Adult LacZ", "Tissue Embedding and Block Banking", "Body Weight", "Indirect Calorimetry", "Clinical Blood Chemistry", "Body Composition (DEXA lean/fat)", "Electrocardiogram (ECG)", "Echo", "Embryo LacZ", "Eye Morphology", "Gross Morphology Embryo E9.5", "Gross Morphology Embryo E12.5", "Gross Morphology Embryo E14.5-E15.5", "Gross Morphology Embryo E18.5", "Gross Morphology Placenta E9.5", "Gross Morphology Placenta E12.5", "Gross Morphology Placenta E14.5-E15.5", "Grip Strength", "Hematology", "Histopathology", "Heart Weight", "Immunophenotyping", "Insulin Blood Level", "Intraperitoneal glucose tolerance test (IPGTT)", "Gross Pathology and Tissue Collection", "X-ray", "Electroconvulsive Threshold Testing", "Electroretinography", "Electroretinography 2", "Hole-board Exploration", "Light-Dark Test", "Plasma Chemistry", "Sleep Wake", "Tail Suspension", "Urinalysis", "Anti-nuclear antibody assay", "Buffy coat peripheral blood leukocyte immunophenotyping", "Bone marrow immunophenotyping", "Ear epidermis immunophenotyping", "Whole blood peripheral blood leukocyte immunophenotyping", "Salmonella Challenge", "Tail Flick", "Trichuris"],
+                                categories: ["Rotarod", "FACS", "Organ Weight", "Fear Conditioning", "Hot Plate", "Shock Threshold", "Auditory Brain Stem Response", "Acoustic Startle and Pre-pulse Inhibition (PPI)", "Adult LacZ", "Tissue Embedding and Block Banking", "Body Weight", "Indirect Calorimetry", "Clinical Blood Chemistry", "Challenge Whole Body Plethysmography", "Combined SHIRPA and Dysmorphology", "Body Composition (DEXA lean/fat)", "Electrocardiogram (ECG)", "Echo", "Eye Morphology", "Grip Strength", "Hematology", "Histopathology", "Heart Weight", "Immunophenotyping", "Insulin Blood Level", "Intraperitoneal glucose tolerance test (IPGTT)", "Open Field", "Gross Pathology and Tissue Collection", "X-ray", "Electroconvulsive Threshold Testing", "Electroretinography", "Electroretinography 2", "Hole-board Exploration", "Light-Dark Test", "Plasma Chemistry", "Sleep Wake", "Tail Suspension", "Anti-nuclear antibody assay", "Buffy coat peripheral blood leukocyte immunophenotyping", "Bone marrow immunophenotyping", "Ear epidermis immunophenotyping", "Spleen Immunophenotyping", "Mesenteric Lymph Node Immunophenotyping", "Whole blood peripheral blood leukocyte immunophenotyping"],
                                 labels: {
                                     rotation: -90,
                                     align: 'right',
@@ -287,38 +290,39 @@
                                 }
                             },
                             series: [{
-                                "data": [243, 238, 245, 0, 129, 0, 0, 0, 0, 0, 0, 319, 248, 84, 384, 0, 196, 262, 260, 0, 126, 258, 9, 29, 12, 13, 0, 0, 0, 262, 107, 118, 190, 217, 53, 231, 140, 257, 161, 72, 90, 253, 355, 139, 209, 197, 3, 0, 0, 0, 0, 0, 0, 0, 0],
+                                "data": [185, 0, 0, 0, 0, 0, 213, 0, 25, 83, 219, 0, 182, 0, 204, 0, 172, 0, 177, 0, 61, 117, 169, 0, 73, 201, 2, 8, 0, 166, 67, 10, 208, 213, 189, 141, 207, 0, 0, 0, 0, 0, 0, 0],
                                 "name": "JAX"
                             }, {
-                                "data": [40, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 33, 0, 51, 61, 13, 20, 40, 0, 31, 0, 38, 0, 0, 0, 0, 0, 0, 0, 47, 20, 0, 28, 34, 0, 46, 45, 54, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                "data": [0, 0, 0, 0, 0, 0, 13, 13, 0, 4, 13, 0, 13, 0, 11, 10, 0, 0, 11, 13, 11, 0, 10, 0, 0, 12, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                 "name": "NING"
                             }, {
-                                "data": [147, 151, 164, 0, 0, 0, 0, 34, 0, 0, 0, 127, 40, 167, 226, 157, 147, 158, 153, 0, 16, 154, 52, 90, 35, 0, 52, 90, 35, 150, 148, 108, 87, 0, 0, 158, 166, 166, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 60, 0],
+                                "data": [0, 0, 0, 0, 0, 0, 88, 0, 23, 117, 164, 125, 102, 37, 119, 0, 112, 0, 111, 0, 104, 48, 101, 0, 0, 113, 0, 114, 114, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                 "name": "TCP"
                             }, {
-                                "data": [60, 81, 72, 0, 65, 0, 0, 0, 0, 0, 0, 71, 67, 2, 102, 79, 78, 63, 89, 97, 0, 81, 0, 0, 0, 0, 0, 0, 0, 76, 80, 0, 47, 26, 54, 84, 61, 77, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                "data": [63, 0, 0, 0, 0, 0, 47, 0, 64, 0, 78, 68, 67, 0, 67, 58, 68, 78, 62, 9, 66, 0, 46, 0, 42, 70, 0, 58, 55, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                 "name": "HMGU"
                             }, {
-                                "data": [261, 269, 259, 0, 0, 89, 261, 0, 0, 0, 0, 137, 147, 0, 285, 197, 242, 237, 129, 206, 28, 241, 0, 0, 0, 0, 0, 0, 0, 266, 235, 0, 0, 0, 0, 244, 127, 254, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                "data": [0, 87, 166, 0, 0, 0, 51, 182, 75, 0, 186, 129, 165, 0, 185, 173, 131, 137, 169, 184, 165, 0, 0, 0, 0, 169, 0, 23, 166, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                 "name": "MRC Harwell"
                             }, {
-                                "data": [17, 13, 20, 0, 0, 0, 0, 9, 0, 0, 0, 1, 17, 23, 25, 23, 18, 23, 3, 0, 19, 24, 0, 0, 0, 0, 0, 0, 0, 25, 21, 0, 22, 19, 0, 22, 22, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                "data": [0, 0, 0, 0, 0, 0, 9, 0, 9, 13, 13, 6, 8, 0, 1, 2, 7, 0, 13, 1, 12, 0, 13, 8, 0, 13, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                 "name": "RBRC"
                             }, {
-                                "data": [49, 34, 75, 0, 76, 0, 0, 87, 70, 58, 67, 80, 0, 0, 94, 80, 31, 61, 86, 98, 0, 50, 0, 0, 0, 0, 0, 0, 0, 74, 41, 0, 46, 0, 0, 61, 45, 84, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                "data": [57, 0, 0, 38, 54, 40, 51, 34, 0, 0, 65, 59, 29, 0, 16, 62, 62, 63, 57, 0, 57, 0, 63, 0, 0, 62, 0, 0, 62, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                 "name": "ICS"
                             }, {
-                                "data": [0, 476, 0, 1, 0, 0, 0, 0, 0, 0, 0, 170, 0, 0, 575, 349, 474, 434, 0, 0, 0, 456, 0, 0, 0, 0, 0, 0, 0, 453, 476, 0, 391, 0, 315, 503, 0, 526, 0, 0, 0, 0, 0, 0, 0, 0, 0, 305, 346, 276, 301, 266, 22, 0, 75],
+                                "data": [0, 0, 0, 0, 0, 0, 381, 0, 0, 0, 388, 376, 388, 0, 390, 388, 0, 0, 390, 388, 394, 0, 295, 0, 365, 385, 0, 0, 387, 0, 0, 0, 0, 0, 0, 0, 0, 155, 345, 123, 155, 151, 148, 123],
                                 "name": "WTSI"
                             }, {
-                                "data": [123, 126, 117, 0, 0, 0, 0, 3, 0, 0, 0, 114, 94, 4, 124, 54, 18, 91, 113, 114, 21, 89, 6, 26, 10, 18, 0, 0, 0, 114, 1, 0, 43, 14, 0, 101, 95, 103, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                "name": "BCM"
-                            }, {
-                                "data": [147, 144, 149, 0, 0, 0, 0, 0, 0, 0, 0, 383, 184, 0, 415, 183, 142, 231, 370, 0, 0, 297, 0, 0, 0, 0, 0, 0, 0, 315, 205, 0, 192, 0, 58, 323, 262, 142, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                "data": [0, 0, 0, 0, 0, 0, 229, 0, 184, 0, 234, 0, 181, 0, 262, 183, 241, 0, 226, 0, 173, 0, 220, 0, 111, 236, 0, 0, 52, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                                 "name": "UC Davis"
+                            }, {
+                                "data": [0, 0, 0, 0, 0, 0, 57, 6, 9, 0, 67, 60, 16, 4, 69, 41, 54, 48, 49, 65, 15, 0, 42, 11, 0, 59, 0, 46, 21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                "name": "BCM"
                             }]
                         });
                     });
+
                 </script>
             </div>
 
@@ -337,17 +341,17 @@
                     <tr>
                         <td>Targeted Mutation</td>
                         <td>a</td>
-                        <td>433</td>
+                        <td>346</td>
                     </tr>
                     <tr>
                         <td>Targeted Mutation</td>
                         <td>1</td>
-                        <td>648</td>
+                        <td>431</td>
                     </tr>
                     <tr>
                         <td>Targeted Mutation</td>
                         <td>b</td>
-                        <td>1196</td>
+                        <td>779</td>
                     </tr>
                     <tr>
                         <td>Targeted Mutation</td>
@@ -367,7 +371,7 @@
                     <tr>
                         <td>Targeted Mutation</td>
                         <td>e</td>
-                        <td>40</td>
+                        <td>24</td>
                     </tr>
                 </tbody>
             </table>
@@ -398,7 +402,7 @@
                             text: ""
                         },
                         xAxis: {
-                            categories: ["behavior/neurological phenotype", "craniofacial phenotype", "growth/size/body region phenotype", "hematopoietic system phenotype", "homeostasis/metabolism phenotype", "immune system phenotype", "limbs/digits/tail phenotype", "skeleton phenotype", "vision/eye phenotype", "adipose tissue phenotype", "cardiovascular system phenotype", "digestive/alimentary phenotype", "embryogenesis phenotype", "hearing/vestibular/ear phenotype", "integument phenotype", "mortality/aging", "muscle phenotype", "nervous system phenotype", "pigmentation phenotype", "renal/urinary system phenotype", "respiratory system phenotype", "liver/biliary system phenotype", "reproductive system phenotype"],
+                            categories: ["adipose tissue phenotype", "behavior/neurological phenotype", "cardiovascular system phenotype", "craniofacial phenotype", "growth/size/body region phenotype", "hearing/vestibular/ear phenotype", "hematopoietic system phenotype", "homeostasis/metabolism phenotype", "immune system phenotype", "limbs/digits/tail phenotype", "skeleton phenotype", "vision/eye phenotype", "digestive/alimentary phenotype", "integument phenotype", "mortality/aging", "muscle phenotype", "nervous system phenotype", "pigmentation phenotype", "renal/urinary system phenotype", "respiratory system phenotype", "reproductive system phenotype"],
                             labels: {
                                 rotation: -90,
                                 align: 'right',
@@ -434,13 +438,13 @@
                             }
                         },
                         series: [{
-                            "data": [3, 2, 16, 5, 6, 4, 1, 5, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            "data": [2, 5, 1, 2, 18, 2, 15, 24, 8, 1, 10, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                             "name": "hemizygote"
                         }, {
-                            "data": [660, 20, 554, 503, 762, 272, 79, 388, 265, 109, 130, 5, 1, 51, 59, 3, 2, 81, 45, 11, 32, 0, 0],
+                            "data": [79, 310, 87, 9, 528, 38, 481, 721, 258, 53, 268, 118, 2, 35, 1, 2, 41, 20, 13, 32, 0],
                             "name": "heterozygote"
                         }, {
-                            "data": [2340, 110, 1901, 1618, 1973, 875, 369, 1474, 486, 411, 291, 11, 32, 280, 181, 1677, 7, 163, 133, 17, 22, 1, 131],
+                            "data": [230, 1159, 215, 99, 1623, 205, 1426, 1824, 719, 248, 959, 353, 2, 128, 1258, 5, 93, 95, 16, 21, 48],
                             "name": "homozygote"
                         }]
                     });
@@ -460,12 +464,60 @@
                 <div class="row">
                     <div class="col-6">
                         <div id="genotypeStatusChart">
-			          		<script type="text/javascript">$(function () { $('#genotypeStatusChart').highcharts({ chart: {type: 'column' }, title: {text: 'Genotyping Status'}, credits: { enabled: false },   xAxis: { type: 'category', labels: { rotation: -90, style: {fontSize: '13px', fontFamily: 'Verdana, sans-serif'} } }, yAxis: { min: 0, title: { text: 'Number of genes' } }, legend: { enabled: false }, tooltip: { pointFormat: '<b>{point.y}</b>' }, series: [{ name: 'Population',  data: [['Micro-injection in progress', 16], ['Chimeras obtained', 60], ['Genotype confirmed', 2369], ['Cre Excision Started', 62], ['Cre Excision Complete', 2576], ], dataLabels: { enabled: true, style: { fontSize: '13px', fontFamily: 'Verdana, sans-serif' } } }] }); });</script>
+                            <script type="text/javascript">$(function () {
+                                $('#genotypeStatusChart').highcharts({
+                                    chart: {type: 'column'},
+                                    title: {text: 'Genotyping Status'},
+                                    credits: {enabled: false},
+                                    xAxis: {
+                                        type: 'category',
+                                        labels: {
+                                            rotation: -90,
+                                            style: {fontSize: '13px', fontFamily: 'Verdana, sans-serif'}
+                                        }
+                                    },
+                                    yAxis: {min: 0, title: {text: 'Number of genes'}},
+                                    legend: {enabled: false},
+                                    tooltip: {pointFormat: '<b>{point.y}</b>'},
+                                    series: [{
+                                        name: 'Population',
+                                        data: [['Micro-injection in progress', 17], ['Chimeras obtained', 66], ['Genotype confirmed', 2304], ['Cre Excision Started', 121], ['Cre Excision Complete', 2467],],
+                                        dataLabels: {
+                                            enabled: true,
+                                            style: {fontSize: '13px', fontFamily: 'Verdana, sans-serif'}
+                                        }
+                                    }]
+                                });
+                            });</script>
                         </div>
 
                         <div class="col-6">
                             <div id="phenotypeStatusChart">
-                                <script type="text/javascript">$(function () { $('#phenotypeStatusChart').highcharts({ chart: {type: 'column' }, title: {text: 'Phenotyping Status'}, credits: { enabled: false },   xAxis: { type: 'category', labels: { rotation: -90, style: {fontSize: '13px', fontFamily: 'Verdana, sans-serif'} } }, yAxis: { min: 0, title: { text: 'Number of genes' } }, legend: { enabled: false }, tooltip: { pointFormat: '<b>{point.y}</b>' }, series: [{ name: 'Population',  data: [['Phenotype Attempt Registered', 1189], ['Phenotyping Started', 621], ['Phenotyping Complete', 2088], ], dataLabels: { enabled: true, style: { fontSize: '13px', fontFamily: 'Verdana, sans-serif' } } }] }); });</script>
+                                <script type="text/javascript">$(function () {
+                                    $('#phenotypeStatusChart').highcharts({
+                                        chart: {type: 'column'},
+                                        title: {text: 'Phenotyping Status'},
+                                        credits: {enabled: false},
+                                        xAxis: {
+                                            type: 'category',
+                                            labels: {
+                                                rotation: -90,
+                                                style: {fontSize: '13px', fontFamily: 'Verdana, sans-serif'}
+                                            }
+                                        },
+                                        yAxis: {min: 0, title: {text: 'Number of genes'}},
+                                        legend: {enabled: false},
+                                        tooltip: {pointFormat: '<b>{point.y}</b>'},
+                                        series: [{
+                                            name: 'Population',
+                                            data: [['Phenotype Attempt Registered', 1207], ['Phenotyping Started', 1193], ['Phenotyping Complete', 1408],],
+                                            dataLabels: {
+                                                enabled: true,
+                                                style: {fontSize: '13px', fontFamily: 'Verdana, sans-serif'}
+                                            }
+                                        }]
+                                    });
+                                });</script>
                             </div>
                         </div>
                     </div>
@@ -528,37 +580,37 @@
                                     borderWidth: 0
                                 }
                             },
-                            series: [{"data": [0, 2, 82, 0, 618], "name": "JAX"}, {
-                                "data": [0, 1, 3, 0, 263],
+                            series: [{"data": [0, 2, 84, 0, 600], "name": "JAX"}, {
+                                "data": [0, 5, 28, 0, 203],
                                 "name": "TCP"
-                            }, {"data": [0, 0, 6, 0, 10], "name": "IMG"}, {
-                                "data": [0, 0, 40, 0, 6],
+                            }, {"data": [0, 0, 5, 0, 9], "name": "IMG"}, {
+                                "data": [0, 0, 41, 0, 6],
                                 "name": "Monterotondo"
-                            }, {"data": [0, 41, 92, 23, 336], "name": "Harwell"}, {
+                            }, {"data": [0, 40, 90, 28, 325], "name": "Harwell"}, {
                                 "data": [1, 6, 8, 0, 0],
                                 "name": "SEAT"
-                            }, {"data": [0, 0, 175, 0, 52], "name": "MARC"}, {
+                            }, {"data": [0, 0, 139, 0, 47], "name": "MARC"}, {
                                 "data": [0, 0, 2, 0, 0],
                                 "name": "INFRAFRONTIER-VETMEDUNI"
-                            }, {"data": [0, 0, 174, 2, 278], "name": "BCM"}, {
+                            }, {"data": [0, 0, 175, 2, 278], "name": "BCM"}, {
                                 "data": [0, 0, 1, 0, 0],
                                 "name": "INFRAFRONTIER-CNB"
-                            }, {"data": [0, 0, 0, 0, 2], "name": "CDTA"}, {
-                                "data": [0, 0, 52, 1, 226],
+                            }, {"data": [0, 0, 0, 0, 1], "name": "CDTA"}, {
+                                "data": [0, 0, 59, 1, 219],
                                 "name": "HMGU"
                             }, {"data": [0, 1, 14, 0, 0], "name": "CIPHE"}, {
                                 "data": [0, 0, 1, 0, 0],
                                 "name": "INFRAFRONTIER-Oulu"
-                            }, {"data": [0, 0, 4, 0, 0], "name": "KMPC"}, {
-                                "data": [15, 0, 404, 0, 523],
-                                "name": "UCD"
-                            }, {"data": [0, 3, 102, 0, 93], "name": "ICS"}, {
-                                "data": [0, 0, 3, 0, 0],
-                                "name": "INFRAFRONTIER-IMG"
-                            }, {"data": [0, 1, 1189, 14, 141], "name": "WTSI"}, {
-                                "data": [0, 0, 4, 0, 0],
-                                "name": "NARLabs"
-                            }, {"data": [0, 5, 13, 0, 28], "name": "RIKEN BRC"}]
+                            }, {"data": [15, 0, 404, 6, 507], "name": "UCD"}, {
+                                "data": [1, 4, 101, 0, 89],
+                                "name": "ICS"
+                            }, {"data": [0, 0, 2, 0, 0], "name": "INFRAFRONTIER-IMG"}, {
+                                "data": [0, 1, 1136, 14, 153],
+                                "name": "WTSI"
+                            }, {"data": [0, 0, 1, 0, 0], "name": "NARLabs"}, {
+                                "data": [0, 7, 13, 0, 30],
+                                "name": "RIKEN BRC"
+                            }]
                         });
                     });
                     </script>
@@ -616,32 +668,34 @@
                                     borderWidth: 0
                                 }
                             },
-                            series: [{"data": [274, 0, 389], "name": "JAX"}, {
-                                "data": [104, 0, 179],
+                            series: [{"data": [272, 187, 244], "name": "JAX"}, {
+                                "data": [93, 54, 135],
                                 "name": "TCP"
-                            }, {"data": [4, 0, 0], "name": "IMG"}, {
+                            }, {"data": [2, 0, 0], "name": "IMG"}, {
                                 "data": [6, 0, 0],
                                 "name": "Monterotondo"
-                            }, {"data": [116, 1, 274], "name": "Harwell"}, {
-                                "data": [20, 0, 61],
+                            }, {"data": [141, 82, 184], "name": "Harwell"}, {
+                                "data": [18, 62, 6],
                                 "name": "MARC"
-                            }, {"data": [160, 0, 121], "name": "BCM"}, {
-                                "data": [120, 0, 96],
+                            }, {"data": [176, 58, 65], "name": "BCM"}, {
+                                "data": [114, 33, 82],
                                 "name": "HMGU"
                             }, {"data": [1, 0, 0], "name": "CIPHE"}, {
-                                "data": [97, 0, 412],
+                                "data": [116, 173, 267],
                                 "name": "UCD"
-                            }, {"data": [26, 0, 85], "name": "ICS"}, {
-                                "data": [381, 1, 505],
+                            }, {"data": [25, 25, 60], "name": "ICS"}, {
+                                "data": [351, 559, 403],
                                 "name": "WTSI"
-                            }, {"data": [23, 0, 22], "name": "RIKEN BRC"}]
+                            }, {"data": [26, 14, 13], "name": "RIKEN BRC"}]
                         });
                     });
                     </script>
                 </div>
             </div>
         </div>
-        <p>More charts and status information are available from <a href="https://www.mousephenotype.org/imits/v2/reports/mi_production/komp2_graph_report_display">iMits</a>. </p>
+        <p>More charts and status information are available from <a
+                href="https://www.mousephenotype.org/imits/v2/reports/mi_production/komp2_graph_report_display">iMits</a>.
+        </p>
     </div>
 </div>
 
@@ -666,7 +720,7 @@
                             text: "Center by center"
                         },
                         xAxis: {
-                            categories: ["Acoustic Startle and Pre-pulse Inhibition (PPI)", "Combined SHIRPA and Dysmorphology", "Open Field", "Auditory Brain Stem Response", "Clinical Blood Chemistry", "Body Composition (DEXA lean/fat)", "Electrocardiogram (ECG)", "Echo", "Eye Morphology", "Fertility of Homozygous Knock-out Mice", "Grip Strength", "Heart Weight", "Intraperitoneal glucose tolerance test (IPGTT)", "Viability Primary Screen", "X-ray", "Indirect Calorimetry", "Hematology", "Insulin Blood Level", "Gross Morphology Embryo E9.5", "Gross Morphology Embryo E12.5", "Gross Morphology Embryo E14.5-E15.5", "Gross Morphology Embryo E18.5", "Electroconvulsive Threshold Testing", "Hole-board Exploration", "Light-Dark Test", "Plasma Chemistry", "Rotarod", "Sleep Wake", "Tail Suspension", "Organ Weight", "Gross Morphology Placenta E12.5"],
+                            categories: ["Auditory Brain Stem Response", "Clinical Blood Chemistry", "Body Composition (DEXA lean/fat)", "Electrocardiogram (ECG)", "Echo", "Eye Morphology", "Fertility of Homozygous Knock-out Mice", "Grip Strength", "Hematology", "Heart Weight", "Immunophenotyping", "Intraperitoneal glucose tolerance test (IPGTT)", "Viability Primary Screen", "X-ray", "Indirect Calorimetry", "Combined SHIRPA and Dysmorphology", "Acoustic Startle and Pre-pulse Inhibition (PPI)", "Insulin Blood Level", "Electroconvulsive Threshold Testing", "Hole-board Exploration", "Light-Dark Test", "Plasma Chemistry", "Rotarod", "Sleep Wake", "Tail Suspension", "Organ Weight"],
                             labels: {
                                 rotation: -90,
                                 align: 'right',
@@ -702,38 +756,39 @@
                             }
                         },
                         series: [{
-                            "data": [91, 62, 79, 29, 214, 282, 100, 0, 50, 7, 20, 6, 57, 250, 0, 0, 71, 2, 2, 9, 13, 13, 4, 16, 135, 58, 4, 146, 16, 0, 0],
+                            "data": [14, 172, 0, 86, 0, 19, 1, 0, 21, 12, 0, 60, 242, 0, 0, 36, 0, 10, 10, 12, 100, 92, 13, 92, 12, 0],
                             "name": "JAX"
                         }, {
-                            "data": [4, 3, 0, 0, 14, 40, 0, 0, 0, 0, 14, 2, 4, 50, 22, 0, 47, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            "data": [0, 10, 18, 0, 0, 0, 0, 7, 2, 0, 0, 5, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                             "name": "NING"
                         }, {
-                            "data": [83, 52, 131, 15, 109, 249, 41, 0, 35, 10, 18, 5, 12, 170, 113, 2, 131, 0, 30, 15, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
+                            "data": [11, 85, 0, 21, 0, 28, 5, 0, 108, 6, 0, 7, 160, 75, 2, 54, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                             "name": "TCP"
                         }, {
-                            "data": [68, 16, 103, 13, 61, 9, 34, 18, 210, 13, 31, 3, 19, 52, 12, 4, 54, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            "data": [7, 68, 12, 8, 10, 49, 13, 0, 50, 0, 0, 13, 52, 8, 4, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                             "name": "HMGU"
                         }, {
-                            "data": [252, 175, 169, 32, 185, 249, 16, 28, 84, 0, 48, 0, 65, 130, 125, 3, 90, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 68, 0],
+                            "data": [19, 159, 204, 16, 21, 57, 3, 51, 97, 0, 0, 46, 210, 118, 3, 143, 99, 0, 0, 0, 0, 0, 0, 0, 0, 58],
                             "name": "MRC Harwell"
                         }, {
-                            "data": [4, 1, 2, 0, 11, 38, 0, 0, 2, 3, 0, 4, 2, 14, 19, 2, 26, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            "data": [7, 12, 0, 6, 0, 1, 3, 0, 26, 0, 0, 0, 10, 14, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                             "name": "RBRC"
                         }, {
-                            "data": [33, 11, 56, 18, 21, 35, 18, 6, 42, 2, 5, 8, 3, 106, 22, 2, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            "data": [15, 20, 26, 10, 4, 50, 1, 0, 22, 7, 0, 4, 100, 8, 2, 2, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                             "name": "ICS"
                         }, {
-                            "data": [0, 0, 0, 90, 509, 400, 0, 0, 116, 11, 123, 11, 39, 222, 345, 2, 190, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            "data": [93, 360, 284, 0, 0, 84, 6, 81, 161, 7, 0, 24, 180, 187, 2, 0, 0, 26, 0, 0, 0, 0, 0, 0, 0, 0],
                             "name": "WTSI"
                         }, {
-                            "data": [34, 10, 41, 58, 2, 111, 24, 38, 35, 2, 19, 4, 9, 104, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            "data": [25, 2, 56, 33, 8, 23, 3, 7, 5, 2, 2, 3, 106, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                             "name": "BCM"
                         }, {
-                            "data": [10, 28, 43, 41, 66, 159, 16, 0, 5, 14, 25, 11, 34, 130, 64, 1, 65, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            "data": [25, 114, 211, 23, 0, 5, 8, 0, 58, 7, 0, 28, 126, 12, 0, 59, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0],
                             "name": "UC Davis"
                         }]
                     });
                 });
+
             </script>
         </div>
     </div>
@@ -762,6 +817,7 @@
                 <tr><td>TCP</td><td><a href="/data/page-retired">Browse</a></td><td>TCP_001</td></tr>
                 <tr><td>HMGU</td><td><a href="/data/page-retired">Browse</a></td><td>IMPC_001</td></tr>
                 <tr><td>HMGU</td><td><a href="/data/page-retired">Browse</a></td><td>HMGU_001</td></tr>
+                <tr><td>MRC Harwell</td><td><a href="/data/page-retired">Browse</a></td><td>IMPC_001</td></tr>
                 <tr><td>MRC Harwell</td><td><a href="/data/page-retired">Browse</a></td><td>HRWL_001</td></tr>
                 <tr><td>RBRC</td><td><a href="/data/page-retired">Browse</a></td><td>IMPC_001</td></tr>
                 <tr><td>ICS</td><td><a href="/data/page-retired">Browse</a></td><td>IMPC_001</td></tr>
@@ -770,6 +826,7 @@
                 <tr><td>BCM</td><td><a href="/data/page-retired">Browse</a></td><td>IMPC_001</td></tr>
                 <tr><td>BCM</td><td><a href="/data/page-retired">Browse</a></td><td>BCM_001</td></tr>
                 <tr><td>UC Davis</td><td><a href="/data/page-retired">Browse</a></td><td>UCD_001</td></tr>
+
             </tbody>
         </table>
     </div>
@@ -782,8 +839,7 @@
 
         <div class="col-12">
 
-            <h3>Statistical Methods</h3>
-
+        <h3>Statistical Methods</h3>
             <table id="statistical_methods">
                 <thead>
                     <tr>
@@ -803,17 +859,20 @@
                     </tr>
                     <tr>
                         <td>unidimensional</td>
-                        <td>Mixed Model framework, generalized least squares, equation withoutWeight</td>
+                        <td>Mixed Model framework, generalized least squares, equation
+                            withoutWeight
+                        </td>
                     </tr>
                     <tr>
                         <td>unidimensional</td>
-                        <td>Mixed Model framework, linear mixed-effects model, equation withoutWeight</td>
+                        <td>Mixed Model framework, linear mixed-effects model, equation
+                            withoutWeight
+                        </td>
                     </tr>
                 </tbody>
             </table>
 
             <h3>P-value distributions</h3>
-
             <div id="FisherChart">
                 <script type="text/javascript">
                     $(function () {
@@ -866,7 +925,7 @@
                                 }
                             },
                             series: [{
-                                "data": [5579, 2277, 1486, 1251, 1007, 1155, 1083, 975, 793, 696, 462, 310, 575, 476, 182, 490, 278, 334, 467, 158, 136, 313, 294, 96, 302, 211, 144, 295, 298, 157, 797, 182, 176, 151, 240, 159, 66, 124, 21, 97, 210, 19, 39, 68, 21, 8, 6, 5, 0, 505058],
+                                "data": [4325, 1556, 1157, 1036, 851, 1430, 1165, 1262, 609, 521, 706, 322, 953, 608, 255, 351, 2236, 519, 389, 383, 492, 263, 169, 245, 340, 402, 218, 74, 339, 242, 317, 143, 259, 147, 105, 95, 58, 100, 46, 127, 27, 21, 36, 74, 32, 14, 7, 3, 0, 394123],
                                 "name": "Fisher's exact test"
                             }]
                         });
@@ -926,7 +985,7 @@
                                 }
                             },
                             series: [{
-                                "data": [2353, 2307, 2313, 3298, 3261, 3454, 3385, 3866, 3785, 3873, 3928, 3900, 4018, 3943, 4692, 4302, 4197, 4274, 4258, 4396, 4313, 4921, 4478, 4529, 4457, 4023, 4029, 3986, 3924, 3785, 3837, 3630, 4602, 3765, 3324, 3258, 3221, 3145, 3052, 3796, 4225, 3953, 4734, 3833, 3458, 2103, 1634, 1337, 2065, 3089],
+                                "data": [1256, 1103, 1145, 1129, 1397, 1475, 1528, 1552, 1531, 1624, 1592, 1633, 1626, 1676, 1683, 1668, 1669, 1758, 1674, 1783, 1651, 1652, 1625, 1594, 1556, 1553, 1518, 1534, 1473, 1451, 1402, 1385, 1333, 1308, 1245, 1220, 1332, 1311, 1197, 1760, 1545, 2246, 1703, 1479, 1409, 1432, 2157, 763, 694, 839],
                                 "name": "Wilcoxon rank sum test with continuity correction"
                             }]
                         });
@@ -986,7 +1045,7 @@
                                 }
                             },
                             series: [{
-                                "data": [2998, 992, 703, 662, 522, 502, 432, 425, 391, 368, 418, 361, 427, 410, 403, 337, 322, 359, 348, 348, 383, 369, 345, 315, 384, 381, 380, 367, 460, 375, 374, 338, 378, 338, 354, 400, 362, 387, 432, 395, 444, 455, 475, 391, 452, 477, 394, 435, 488, 543],
+                                "data": [2241, 745, 539, 488, 428, 383, 319, 282, 249, 243, 310, 301, 273, 264, 263, 246, 248, 280, 276, 197, 228, 224, 218, 221, 212, 216, 201, 226, 220, 189, 219, 222, 181, 194, 178, 229, 184, 177, 197, 245, 217, 161, 150, 189, 208, 220, 171, 191, 159, 208],
                                 "name": "Mixed Model framework, generalized least squares, equation withoutWeight"
                             }]
                         });
@@ -1046,7 +1105,7 @@
                                 }
                             },
                             series: [{
-                                "data": [19991, 6619, 4952, 4168, 3713, 3289, 2858, 2420, 2352, 2246, 2110, 2181, 2118, 2039, 1926, 1954, 1882, 1980, 1835, 1934, 1867, 1888, 1804, 1866, 1789, 1714, 1710, 1684, 1688, 1594, 1675, 1634, 1613, 1666, 1633, 1659, 1662, 1679, 1629, 1567, 1637, 1572, 1640, 1595, 1653, 1606, 1609, 1713, 1705, 1648],
+                                "data": [11768, 4003, 3174, 2588, 2266, 1996, 1807, 1509, 1495, 1474, 1450, 1364, 1332, 1276, 1297, 1243, 1209, 1176, 1256, 1118, 1148, 1130, 1164, 1167, 1102, 1106, 1089, 1069, 1107, 1151, 1050, 1103, 1017, 1091, 1049, 1017, 1053, 1089, 1050, 1021, 1072, 955, 1042, 1036, 981, 1022, 1081, 1035, 972, 998],
                                 "name": "Mixed Model framework, linear mixed-effects model, equation withoutWeight"
                             }]
                         });
@@ -1076,7 +1135,7 @@
                             text: 'Release by Release'
                         },
                         xAxis: [{
-                            categories: ["1.0", "1.1", "2.0", "3.0", "3.1", "3.2", "3.3", "3.4", "4.0"],
+                            categories: ["1.0", "1.1", "2.0", "3.0", "3.1", "3.2", "3.3", "3.4"],
                         }],
                         yAxis: [{ // Primary yAxis
                             labels: {
@@ -1115,7 +1174,7 @@
                             shared: true
                         },
                         series: [{
-                            "data": [294, 470, 518, 1458, 1468, 1468, 1466, 1466, 2218],
+                            "data": [294, 470, 518, 1458, 1468, 1468, 1466, 1466],
                             "name": "Phenotyped genes",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
@@ -1123,7 +1182,7 @@
                             },
                             "type": "column"
                         }, {
-                            "data": [301, 484, 535, 1528, 1540, 1540, 1537, 1537, 2340],
+                            "data": [301, 484, 535, 1528, 1540, 1540, 1537, 1537],
                             "name": "Phenotyped lines",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
@@ -1132,7 +1191,7 @@
                             "type": "column"
                         }, {
                             "yAxis": 1,
-                            "data": [1069, 2732, 2182, 6114, 5974, 6064, 6278, 6382, 12159],
+                            "data": [1069, 2732, 2182, 6114, 5974, 6064, 6278, 6382],
                             "name": "MP calls",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
@@ -1160,7 +1219,7 @@
                             text: ''
                         },
                         xAxis: [{
-                            categories: ["1.0", "1.1", "2.0", "3.0", "3.1", "3.2", "3.3", "3.4", "4.0"],
+                            categories: ["1.0", "1.1", "2.0", "3.0", "3.1", "3.2", "3.3", "3.4"],
                         }],
                         yAxis: [{ // Primary yAxis
                             labels: {
@@ -1184,7 +1243,7 @@
                             shared: true
                         },
                         series: [{
-                            "data": [0, 0, 0, 0, 0, 0, 0, 0, 756],
+                            "data": [0, 0, 0, 0, 0, 0, 0, 0],
                             "name": "Categorical (QC failed)",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
@@ -1192,7 +1251,7 @@
                             },
                             "type": "spline"
                         }, {
-                            "data": [149194, 958957, 1173776, 3935293, 3956068, 3956068, 3956543, 3956543, 5827451],
+                            "data": [149194, 958957, 1173776, 3935293, 3956068, 3956068, 3956543, 3956543],
                             "name": "Categorical (QC passed)",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
@@ -1200,7 +1259,7 @@
                             },
                             "type": "spline"
                         }, {
-                            "data": [388, 1214, 1764, 3426, 3426, 3426, 3426, 3426, 4544],
+                            "data": [388, 1214, 1764, 3426, 3426, 3426, 3426, 3426],
                             "name": "Categorical (issues)",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
@@ -1208,7 +1267,7 @@
                             },
                             "type": "spline"
                         }, {
-                            "data": [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            "data": [0, 0, 0, 0, 0, 0, 0, 0],
                             "name": "Image record (QC failed)",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
@@ -1216,7 +1275,7 @@
                             },
                             "type": "spline"
                         }, {
-                            "data": [0, 5623, 10765, 106682, 107059, 107059, 107044, 107044, 186464],
+                            "data": [0, 5623, 10765, 106682, 107059, 107059, 107044, 107044],
                             "name": "Image record (QC passed)",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
@@ -1224,7 +1283,7 @@
                             },
                             "type": "spline"
                         }, {
-                            "data": [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            "data": [0, 0, 0, 0, 0, 0, 0, 0],
                             "name": "Image record (issues)",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
@@ -1232,7 +1291,7 @@
                             },
                             "type": "spline"
                         }, {
-                            "data": [0, 0, 1721, 18591, 18591, 18591, 18591, 18591, 13970],
+                            "data": [0, 0, 1721, 18591, 18591, 18591, 18591, 18591],
                             "name": "Text (QC failed)",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
@@ -1240,7 +1299,7 @@
                             },
                             "type": "spline"
                         }, {
-                            "data": [2387, 12803, 15355, 51283, 51611, 51611, 51597, 51597, 81962],
+                            "data": [2387, 12803, 15355, 51283, 51611, 51611, 51597, 51597],
                             "name": "Text (QC passed)",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
@@ -1248,7 +1307,7 @@
                             },
                             "type": "spline"
                         }, {
-                            "data": [0, 0, 100, 161, 161, 161, 161, 161, 15690],
+                            "data": [0, 0, 100, 161, 161, 161, 161, 161],
                             "name": "Text (issues)",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
@@ -1256,7 +1315,7 @@
                             },
                             "type": "spline"
                         }, {
-                            "data": [0, 13176, 4, 9, 9, 9, 9, 9, 116],
+                            "data": [0, 13176, 4, 9, 9, 9, 9, 9],
                             "name": "Time series (QC failed)",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
@@ -1264,7 +1323,7 @@
                             },
                             "type": "spline"
                         }, {
-                            "data": [63773, 1451844, 1798263, 7237320, 7415471, 7415471, 7383933, 7383933, 8721563],
+                            "data": [63773, 1451844, 1798263, 7237320, 7415471, 7415471, 7383933, 7383933],
                             "name": "Time series (QC passed)",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
@@ -1272,7 +1331,7 @@
                             },
                             "type": "spline"
                         }, {
-                            "data": [83, 83, 39, 82, 77684, 77684, 77684, 77684, 81063],
+                            "data": [83, 83, 39, 82, 77684, 77684, 77684, 77684],
                             "name": "Time series (issues)",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
@@ -1280,7 +1339,7 @@
                             },
                             "type": "spline"
                         }, {
-                            "data": [172, 1443, 992, 3724, 3726, 3726, 3726, 3726, 7342],
+                            "data": [172, 1443, 992, 3724, 3726, 3726, 3726, 3726],
                             "name": "Unidimensional (QC failed)",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
@@ -1288,7 +1347,7 @@
                             },
                             "type": "spline"
                         }, {
-                            "data": [381406, 1011637, 988022, 2782486, 2970851, 2970851, 2981261, 2981261, 4399848],
+                            "data": [381406, 1011637, 988022, 2782486, 2970851, 2970851, 2981261, 2981261],
                             "name": "Unidimensional (QC passed)",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
@@ -1296,7 +1355,7 @@
                             },
                             "type": "spline"
                         }, {
-                            "data": [1454, 5286, 16928, 38737, 39065, 39065, 39065, 39065, 105213],
+                            "data": [1454, 5286, 16928, 38737, 39065, 39065, 39065, 39065],
                             "name": "Unidimensional (issues)",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
@@ -1324,7 +1383,7 @@
                             text: ''
                         },
                         xAxis: [{
-                            categories: ["1.0", "1.1", "2.0", "3.0", "3.1", "3.2", "3.3", "3.4", "4.0"],
+                            categories: ["1.0", "1.1", "2.0", "3.0", "3.1", "3.2", "3.3", "3.4"],
                         }],
                         yAxis: [{ // Primary yAxis
                             labels: {
@@ -1348,161 +1407,140 @@
                             shared: true
                         },
                         series: [{
-                            "data": [73, 116, 93, 241, 243, 243, 243, 243, 452],
+                            "data": [73, 116, 93, 241, 243, 243, 243, 243],
                             "name": "adipose tissue phenotype",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
                                 "valueSuffix": " "
                             }
                         }, {
-                            "data": [74, 377, 394, 636, 624, 716, 716, 716, 2254],
+                            "data": [74, 377, 394, 636, 624, 716, 716, 716],
                             "name": "behavior/neurological phenotype",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
                                 "valueSuffix": " "
                             }
                         }, {
-                            "data": [12, 26, 44, 296, 261, 261, 261, 261, 379],
+                            "data": [12, 26, 44, 296, 261, 261, 261, 261],
                             "name": "cardiovascular system phenotype",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
                                 "valueSuffix": " "
                             }
                         }, {
-                            "data": [0, 4, 24, 56, 55, 55, 55, 55, 77],
+                            "data": [0, 4, 24, 56, 55, 55, 55, 55],
                             "name": "craniofacial phenotype",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
                                 "valueSuffix": " "
                             }
                         }, {
-                            "data": [0, 0, 0, 0, 0, 0, 0, 0, 2],
-                            "name": "digestive/alimentary phenotype",
-                            "tooltip": {
-                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
-                                "valueSuffix": " "
-                            }
-                        }, {
-                            "data": [0, 0, 0, 0, 0, 0, 0, 0, 33],
-                            "name": "embryogenesis phenotype",
-                            "tooltip": {
-                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
-                                "valueSuffix": " "
-                            }
-                        }, {
-                            "data": [289, 473, 561, 533, 536, 536, 536, 536, 982],
+                            "data": [289, 473, 561, 533, 536, 536, 536, 536],
                             "name": "growth/size/body region phenotype",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
                                 "valueSuffix": " "
                             }
                         }, {
-                            "data": [84, 125, 237, 245, 245, 245, 245, 245, 331],
+                            "data": [84, 125, 237, 245, 245, 245, 245, 245],
                             "name": "hearing/vestibular/ear phenotype",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
                                 "valueSuffix": " "
                             }
                         }, {
-                            "data": [131, 366, 495, 704, 690, 692, 694, 694, 775],
+                            "data": [131, 366, 495, 704, 690, 692, 694, 694],
                             "name": "hematopoietic system phenotype",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
                                 "valueSuffix": " "
                             }
                         }, {
-                            "data": [342, 1046, 1370, 1368, 1389, 1385, 1383, 1383, 1576],
+                            "data": [342, 1046, 1370, 1368, 1389, 1385, 1383, 1383],
                             "name": "homeostasis/metabolism phenotype",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
                                 "valueSuffix": " "
                             }
                         }, {
-                            "data": [18, 69, 81, 183, 169, 172, 174, 174, 214],
+                            "data": [18, 69, 81, 183, 169, 172, 174, 174],
                             "name": "immune system phenotype",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
                                 "valueSuffix": " "
                             }
                         }, {
-                            "data": [0, 19, 55, 79, 77, 77, 77, 77, 145],
+                            "data": [0, 19, 55, 79, 77, 77, 77, 77],
                             "name": "integument phenotype",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
                                 "valueSuffix": " "
                             }
                         }, {
-                            "data": [0, 26, 132, 204, 205, 205, 205, 205, 358],
+                            "data": [0, 26, 132, 204, 205, 205, 205, 205],
                             "name": "limbs/digits/tail phenotype",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
                                 "valueSuffix": " "
                             }
                         }, {
-                            "data": [0, 0, 0, 0, 0, 0, 0, 0, 1],
-                            "name": "liver/biliary system phenotype",
-                            "tooltip": {
-                                "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
-                                "valueSuffix": " "
-                            }
-                        }, {
-                            "data": [0, 0, 80, 858, 906, 906, 1122, 1346, 1670],
+                            "data": [0, 0, 80, 858, 906, 906, 1122, 1346],
                             "name": "mortality/aging",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
                                 "valueSuffix": " "
                             }
                         }, {
-                            "data": [0, 0, 0, 5, 7, 7, 7, 7, 9],
+                            "data": [0, 0, 0, 5, 7, 7, 7, 7],
                             "name": "muscle phenotype",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
                                 "valueSuffix": " "
                             }
                         }, {
-                            "data": [0, 42, 79, 73, 66, 66, 66, 66, 178],
+                            "data": [0, 42, 79, 73, 66, 66, 66, 66],
                             "name": "nervous system phenotype",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
                                 "valueSuffix": " "
                             }
                         }, {
-                            "data": [10, 22, 51, 88, 80, 80, 80, 80, 143],
+                            "data": [10, 22, 51, 88, 80, 80, 80, 80],
                             "name": "pigmentation phenotype",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
                                 "valueSuffix": " "
                             }
                         }, {
-                            "data": [0, 0, 8, 27, 27, 27, 27, 27, 26],
+                            "data": [0, 0, 8, 27, 27, 27, 27, 27],
                             "name": "renal/urinary system phenotype",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
                                 "valueSuffix": " "
                             }
                         }, {
-                            "data": [0, 0, 3, 43, 43, 43, 43, 86, 126],
+                            "data": [0, 0, 3, 43, 43, 43, 43, 86],
                             "name": "reproductive system phenotype",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
                                 "valueSuffix": " "
                             }
                         }, {
-                            "data": [0, 0, 0, 1, 1, 1, 1, 1, 2],
+                            "data": [0, 0, 0, 1, 1, 1, 1, 1],
                             "name": "respiratory system phenotype",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
                                 "valueSuffix": " "
                             }
                         }, {
-                            "data": [101, 162, 223, 714, 718, 718, 718, 718, 1352],
+                            "data": [101, 162, 223, 714, 718, 718, 718, 718],
                             "name": "skeleton phenotype",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
                                 "valueSuffix": " "
                             }
                         }, {
-                            "data": [70, 79, 127, 521, 316, 316, 316, 316, 592],
+                            "data": [70, 79, 127, 521, 316, 316, 316, 316],
                             "name": "vision/eye phenotype",
                             "tooltip": {
                                 "pointFormat": "<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br/>",
