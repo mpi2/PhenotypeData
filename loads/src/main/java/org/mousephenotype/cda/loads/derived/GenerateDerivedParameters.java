@@ -1741,7 +1741,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         // EUMODIC bodyweight procedure is always ESLIM_022_001
         //
         if (param.getStableId().contains("ESLIM_022")) {
-            return procedureRepository.getByStableIdAndPipeline("ESLIM_022_001", dto.getPipelineStableId());
+            return procedureRepository.getByStableIdAndPipeline("ESLIM_022_001", "ESLIM_001");
         }
 
         //

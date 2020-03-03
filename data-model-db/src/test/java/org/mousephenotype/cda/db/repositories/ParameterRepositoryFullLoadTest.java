@@ -79,6 +79,18 @@ public class ParameterRepositoryFullLoadTest {
 
         compareFields(getExpected(), actual);
     }
+    @Test
+    public void getEslimByStableId() throws Exception {
+
+        Parameter eslim701 = parameterRepository.getByStableIdAndProcedureAndPipeline("ESLIM_022_001_701", "ESLIM_022_001", "ESLIM_001");
+        System.out.println(eslim701);
+        assertNotNull(eslim701);
+
+        Parameter eslim702 = parameterRepository.getByStableIdAndProcedureAndPipeline("ESLIM_022_001_702", "ESLIM_022_001", "ESLIM_001");
+        System.out.println(eslim702);
+        assertNotNull(eslim702);
+
+    }
 
     @Test
     public void getProcedureByStableId() throws Exception {
@@ -92,6 +104,11 @@ public class ParameterRepositoryFullLoadTest {
         assertNotNull(firstBwt);
         assertEquals(1, firstBwt.getPipelines().size());
         logger.info("Found procedure: " + firstBwt + ", Pipeline(s): " + firstBwt.getPipelines());
+
+        Procedure eslim701 = procedureRepository.getFirstByStableId("ESLIM_022_001");
+        assertNotNull(eslim701);
+        assertEquals(1, eslim701.getPipelines().size());
+        logger.info("Found procedure: " + eslim701 + ", Pipeline(s): " + eslim701.getPipelines());
 
     }
     @Test
