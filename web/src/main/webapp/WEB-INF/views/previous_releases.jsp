@@ -63,17 +63,19 @@
 
                                 <jsp:include page="IMPC_Release_Notes_${releaseVersion}.jsp"></jsp:include>
 
-                                <div  class="row mt-5">
-                                    <div class="col-12">
+                                <c:if test="${not empty releases}">
+                                    <div  class="row mt-5">
+                                        <div class="col-12">
 
-                                        <h3>Previous Releases</h3>
-                                        <ul>
-                                            <c:forEach var="release" items="${releases}">
-                                                <li><a href="${baseUrl}/previous-releases/${release}">Release ${release} notes</a></li>
-                                            </c:forEach>
-                                        </ul>
+                                            <h3>Previous Releases</h3>
+                                            <ul>
+                                                <c:forEach var="release" items="${releases}">
+                                                    <li><a href="${baseUrl}/previous-releases/${release}">Release ${release} notes</a></li>
+                                                </c:forEach>
+                                            </ul>
+                                        </div>
                                     </div>
-                                </div>
+                                </c:if>
                             </div>
                         </div>
                     </div>

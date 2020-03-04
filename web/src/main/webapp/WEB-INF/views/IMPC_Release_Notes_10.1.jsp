@@ -56,7 +56,26 @@
 
             <div class="well">
                 <strong>Release notes:</strong>
-                <p>This represents a minor data release.</p><ul><li>Includes additional Acoustic Startle and Pre-pulse Inhibition (PPI) derived parameters for % Pre-pulse inhibition - Global.  The formula was updated to relax derivation requirements.  Specifically the update allows derivations to be calculated using 3 % PPI parameters rather than requiring all 4.</li><li>Updates to automated methods of detecting anomolous or missing data resulted in some extraneous datapoints being removed.</li><li>The embryonic day associated to Viability E14.5-E15.5 Secondary Screen was updated from E14.5 to E15.5</li><li>The process for generating genotype to phenotype associations for categorical parameters has been changed.  A phenotpye call is made in the case where the data analysis for each individual sex is not significant, but analysis using the combined data from both sexes is significant.</li><li>Fixed issue analyzing Combined retina parameter resulting in more phenotype calls.</li></ul><p></p>
+                <p>This represents a minor data release.</p>
+                <ul>
+                    <li>Includes additional Acoustic Startle and Pre-pulse Inhibition (PPI) derived parameters for %
+                        Pre-pulse inhibition - Global. The formula was updated to relax derivation requirements.
+                        Specifically the update allows derivations to be calculated using 3 % PPI parameters rather than
+                        requiring all 4.
+                    </li>
+                    <li>Updates to automated methods of detecting anomolous or missing data resulted in some extraneous
+                        datapoints being removed.
+                    </li>
+                    <li>The embryonic day associated to Viability E14.5-E15.5 Secondary Screen was updated from E14.5 to
+                        E15.5
+                    </li>
+                    <li>The process for generating genotype to phenotype associations for categorical parameters has
+                        been changed. A phenotpye call is made in the case where the data analysis for each individual
+                        sex is not significant, but analysis using the combined data from both sexes is significant.
+                    </li>
+                    <li>Fixed issue analyzing Combined retina parameter resulting in more phenotype calls.</li>
+                </ul>
+                <p></p>
             </div>
         </div>
     </div>
@@ -66,7 +85,9 @@
     <div class="col-12">
         <h2 class="title" id="data_reports">Data Reports</h2>
         <div class="col-12">
+
             <h3>Lines and Specimens</h3>
+
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -147,6 +168,7 @@
             </table>
 
             <h3>Experimental Data and Quality Checks</h3>
+
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -230,7 +252,9 @@
 
                 </tbody>
             </table>
+
             <p><sup>*</sup>&nbsp;Excluded from statistical analysis.</p>
+
         </div>
     </div>
 </div>
