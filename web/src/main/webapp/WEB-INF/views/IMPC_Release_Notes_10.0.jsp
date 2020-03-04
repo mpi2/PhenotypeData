@@ -52,11 +52,15 @@
     <div class="col-12">
         <h2 id="new-features">Highlights</h2>
         <div class="col-12">
-            <h3>Data release 10.0</h3>
+            <h4>Data release 10.0</h4>
 
             <div class="well">
-                <strong>Data release 10.0 represents a major data release. Changes include:</strong>
-                <p><ul><li>A significant increase in Acoustic Startle procedure data</li><li>About 30,000 missing images due to image file corruption</li></ul></p>
+                <strong>Release notes:</strong>
+                Represents a major data release. Changes include:
+                <ul>
+                    <li>A significant increase in Acoustic Startle procedure data</li>
+                    <li>About 30,000 missing images due to image file corruption</li>
+                </ul>
             </div>
         </div>
     </div>

@@ -55,7 +55,8 @@
             <h4>Data release 9.2</h4>
 
             <div class="well">
-                <strong>Data release 9.2 represents a major data release. Changes include:</strong>
+                <strong>Release notes:</strong>
+                Represents a major data release. Changes include:
                 <ul>
                     <li>Phenotypes for Fear Conditioning procedure (IMPC_FEA_001) derived parameters</li>
                     <li>Corrected histopathology call generation logic which adds more than 300 histopath calls</li>
