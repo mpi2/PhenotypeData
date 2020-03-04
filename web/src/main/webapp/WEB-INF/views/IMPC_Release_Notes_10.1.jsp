@@ -52,7 +52,7 @@
     <div class="col-12">
         <h2 id="new-features">Highlights</h2>
         <div class="col-12">
-            <h4>Data release 10.1</h4>
+            <h3>Data release 10.1</h3>
 
             <div class="well">
                 <strong>Release notes:</strong>
