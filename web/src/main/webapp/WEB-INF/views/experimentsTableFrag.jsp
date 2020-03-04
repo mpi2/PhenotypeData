@@ -80,7 +80,7 @@
         'HOM': 'homozygote'
     }
     var allData = JSON.parse('${allData}');
-    $(document).ready(function () {
+    ///$(document).ready(function () {
         allData.forEach(function (row) {
             row.evidence_link = buildLink(row);
         });
@@ -129,7 +129,7 @@
         }
 
 
-    });
+    //});
 
     function formatProcedureParameter(value, row) {
         return row['procedure_name'] + ' / ' + row['parameter_name'];
