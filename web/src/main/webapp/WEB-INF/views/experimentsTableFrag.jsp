@@ -45,7 +45,9 @@
 
     <table id="strainPvalues" data-toggle="table" data-pagination="true" data-mobile-responsive="true"
            data-sortable="true" style="margin-top: 10px;"
-           data-show-search-clear-button="true" data-search="true" data-toolbar="#stage-selector">
+           data-show-search-clear-button="true" data-search="true" data-toolbar="#stage-selector"
+           data-row-style="rowStyler"
+    >
         <thead>
         <tr>
             <th data-sortable="true" data-field="allele_symbol" data-formatter="formatAllele">Allele</th>
@@ -78,6 +80,9 @@
                 data: allData,
                 onSearch: function (event) {
                     $('#allDataTableCount').html($("#strainPvalues").bootstrapTable('getData').length);
+                },
+                onClickRow: function (row) {
+                    if (row.evidence_link) window.open(row.evidence_link);
                 }
             });
             firstDTLoad = false;
@@ -149,5 +154,12 @@
             }
         }
         return value;
+    }
+
+    function rowStyler(row) {
+        var cssClass = row.evidence_link ? 'clickableRow' : 'unClickableRow';
+        return {
+            classes: [cssClass]
+        };
     }
 </script>

@@ -100,6 +100,7 @@ public class ExperimentsController {
         for(CombinedObservationKey obs : intersection) {
             observationsMap.get(obs).setStatus(srResult.get(obs).getStatus());
             observationsMap.get(obs).setpValue(srResult.get(obs).getpValue());
+            observationsMap.get(obs).setEvidenceLink(srResult.get(obs).getEvidenceLink());
         }
 
         if(mpTermId != null && mpTermId.size() > 0) {
@@ -112,11 +113,13 @@ public class ExperimentsController {
         experimentRows.stream().forEach(experimentsDataTableRow -> {
             JSONObject experimentRowJson = new JSONObject();
             try {
+                String evidenceLink = experimentsDataTableRow.getEvidenceLink() != null ? experimentsDataTableRow.getEvidenceLink().getUrl() : null;
                 experimentRowJson.put(ObservationDTO.ALLELE_SYMBOL, experimentsDataTableRow.getAllele().getSymbol());
                 experimentRowJson.put(ObservationDTO.PHENOTYPING_CENTER, experimentsDataTableRow.getPhenotypingCenter());
                 experimentRowJson.put(ObservationDTO.PROCEDURE_NAME, experimentsDataTableRow.getProcedure().getName());
                 experimentRowJson.put(ObservationDTO.PARAMETER_NAME, experimentsDataTableRow.getParameter().getName());
                 experimentRowJson.put(ObservationDTO.ZYGOSITY, experimentsDataTableRow.getZygosity().getShortName());
+                experimentRowJson.put("evidence_link", evidenceLink);
                 experimentRowJson.put("female_mutants", experimentsDataTableRow.getFemaleMutantCount());
                 experimentRowJson.put("male_mutants", experimentsDataTableRow.getMaleMutantCount());
                 experimentRowJson.put("life_stage", experimentsDataTableRow.getLifeStageName());
