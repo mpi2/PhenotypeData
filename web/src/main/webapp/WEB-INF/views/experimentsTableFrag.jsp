@@ -79,11 +79,11 @@
         'HET': 'heterozygote',
         'HOM': 'homozygote'
     }
+    var allData = JSON.parse('${allData}');
     $(document).ready(function () {
-        var allData = JSON.parse('${allData}');
         allData.forEach(function (row) {
             row.evidence_link = buildLink(row);
-        })
+        });
 
         $('#allDataTableCount').html(${rows});
         if (firstDTLoad) {
