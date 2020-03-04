@@ -51,7 +51,7 @@
     <div class="col-12">
         <h2 id="new-features">Highlights</h2>
         <div class="col-12">
-            <h3>Data release 8.0</h3>
+            <h4>Data release 8.0</h4>
 
             <div class="well">
                 <strong>Data release 8.0 represents a major data release.</strong>

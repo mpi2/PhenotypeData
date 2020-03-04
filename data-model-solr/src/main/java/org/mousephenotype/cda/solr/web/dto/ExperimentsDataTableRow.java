@@ -45,7 +45,18 @@ public class ExperimentsDataTableRow extends DataTableRow{
 		// TODO Auto-generated method stub
 		return 0;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "ExperimentsDataTableRow{" +
+				"statisticalMethod='" + statisticalMethod + '\'' +
+				", status='" + status + '\'' +
+				", femaleMutantCount=" + femaleMutantCount +
+				", maleMutantCount=" + maleMutantCount +
+				", effectSize=" + effectSize +
+				", metadataGroup='" + metadataGroup + '\'' +
+				"} " + super.toString();
+	}
 
 	/**
 	 * 

@@ -56,7 +56,7 @@
 
         <div class="col-12">
 
-            <h3>Data release 7.0</h3>
+            <h4>Data release 7.0</h4>
 
             <div class="well">
                 <strong>Data release 10.0 represents a major data release. Changes include:</strong>

@@ -356,7 +356,9 @@ public class ObservationService extends BasicService implements WebStatus {
         // Key -> Sex -> List<ObservationDTO>
         final Map<CombinedObservationKey, Map<String, List<ObservationDTO>>> groups = beans.stream()
                 .filter(Objects::nonNull)
-                .collect(Collectors.groupingBy(ObservationDTO::getCombinedKey, Collectors.groupingBy(ObservationDTO::getSex)));
+                .collect(Collectors.groupingBy(
+                        ObservationDTO::getCombinedKey,
+                        Collectors.groupingBy(ObservationDTO::getSex)));
         logger.info("  Timing: Ending collection: " + (System.currentTimeMillis() - start));
 
         logger.info("  Timing: Starting generate rows: " + (System.currentTimeMillis() - start));
