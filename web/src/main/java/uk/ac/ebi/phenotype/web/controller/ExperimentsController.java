@@ -113,13 +113,17 @@ public class ExperimentsController {
         experimentRows.stream().forEach(experimentsDataTableRow -> {
             JSONObject experimentRowJson = new JSONObject();
             try {
-                String evidenceLink = experimentsDataTableRow.getEvidenceLink() != null ? experimentsDataTableRow.getEvidenceLink().getUrl() : null;
+                String phenotypeTermName =  experimentsDataTableRow.getPhenotypeTerm() != null ?  experimentsDataTableRow.getPhenotypeTerm().getName() : null;
                 experimentRowJson.put(ObservationDTO.ALLELE_SYMBOL, experimentsDataTableRow.getAllele().getSymbol());
+                experimentRowJson.put(ObservationDTO.ALLELE_ACCESSION_ID, experimentsDataTableRow.getAllele().getAccessionId());
+                experimentRowJson.put(ObservationDTO.GENE_ACCESSION_ID, experimentsDataTableRow.getGene().getAccessionId());
                 experimentRowJson.put(ObservationDTO.PHENOTYPING_CENTER, experimentsDataTableRow.getPhenotypingCenter());
+                experimentRowJson.put(ObservationDTO.PIPELINE_STABLE_ID, experimentsDataTableRow.getPipeline().getStableId());
                 experimentRowJson.put(ObservationDTO.PROCEDURE_NAME, experimentsDataTableRow.getProcedure().getName());
+                experimentRowJson.put(ObservationDTO.PARAMETER_STABLE_ID, experimentsDataTableRow.getParameter().getStableId());
                 experimentRowJson.put(ObservationDTO.PARAMETER_NAME, experimentsDataTableRow.getParameter().getName());
                 experimentRowJson.put(ObservationDTO.ZYGOSITY, experimentsDataTableRow.getZygosity().getShortName());
-                experimentRowJson.put("evidence_link", evidenceLink);
+                experimentRowJson.put("phenotype_term", phenotypeTermName);
                 experimentRowJson.put("female_mutants", experimentsDataTableRow.getFemaleMutantCount());
                 experimentRowJson.put("male_mutants", experimentsDataTableRow.getMaleMutantCount());
                 experimentRowJson.put("life_stage", experimentsDataTableRow.getLifeStageName());

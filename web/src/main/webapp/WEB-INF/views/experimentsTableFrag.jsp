@@ -39,6 +39,9 @@
             <input type="radio" name="options" id="early" autocomplete="off"> Early adult
         </label>
         <label class="btn btn-outline-primary btn-sm">
+            <input type="radio" name="options" id="middle" autocomplete="off"> Adult
+        </label>
+        <label class="btn btn-outline-primary btn-sm">
             <input type="radio" name="options" id="late" autocomplete="off"> Late adult
         </label>
     </div>
@@ -69,10 +72,14 @@
     var firstDTLoad = true;
     var optionToLifeStage = {
         early: 'Early adult',
-        late: 'Late adult'
+        late: 'Late adult',
+        middle: 'Middle aged adult'
     }
     $(document).ready(function () {
         var allData = JSON.parse('${allData}');
+        allData.forEach(function (row) {
+            row.evidence_link = buildLink(row);
+        })
 
         $('#allDataTableCount').html(${rows});
         if (firstDTLoad) {
@@ -154,6 +161,30 @@
             }
         }
         return value;
+    }
+
+    function buildLink(row) {
+        var baseUrl = "${baseUrl}";
+        var link = null;
+        if(row.procedure_name.startsWith("Histopathology")) {
+            link = baseUrl + '/histopath/' + row.gene_accession_id;
+
+            if(row.phenotype_term) {
+                var term = row.phenotype_term.split('-')[0];
+                link = link + '?anatomy="' + term + '"';
+            }
+        } else if(row.procedure_name.startsWith("Gross Pathology and Tissue Collectio")) {
+            link = baseUrl + '/grosspath/' + row.gene_accession_id + '/' + row.parameter_stable_id;
+        } else {
+            link =  baseUrl + "/charts?accession=" + row.gene_accession_id;
+            link += "&allele_accession_id=" + row.allele_accession_id;
+            link += "&parameter_stable_id=" + row.parameter_stable_id;
+            link += "&zygosity=" + row.zygosity;
+            link += "&phenotyping_center=" + row.phenotyping_center;
+            link += "&pipeline_stable_id=" + row.pipeline_stable_id;
+        }
+
+        return link;
     }
 
     function rowStyler(row) {
