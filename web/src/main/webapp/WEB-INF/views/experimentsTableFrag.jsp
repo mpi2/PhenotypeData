@@ -90,7 +90,9 @@
             $("#strainPvalues").bootstrapTable({
                 data: allData,
                 onSearch: function (event) {
+                    var searchText = event == '' ? null : event;
                     $('#allDataTableCount').html($("#strainPvalues").bootstrapTable('getData').length);
+                    window.history.replaceState('', '', updateURLParameter(window.location.href, 'dataSearch', event));
                 },
                 onClickRow: function (row) {
                     if (row.evidence_link) window.open(row.evidence_link);
@@ -115,6 +117,7 @@
                     $("#strainPvalues").bootstrapTable('filterBy', {}, {'filterAlgorithm': 'and'});
                 }
                 $('#allDataTableCount').html($("#strainPvalues").bootstrapTable('getData').length);
+                window.history.replaceState('', '', updateURLParameter(window.location.href, 'dataLifeStage', option));
             }
         );
 
@@ -198,5 +201,25 @@
         return {
             classes: [cssClass]
         };
+    }
+
+    function updateURLParameter(url, param, paramVal){
+        var newAdditionalURL = "";
+        var tempArray = url.split("?");
+        var baseURL = tempArray[0];
+        var additionalURL = tempArray[1];
+        var temp = "";
+        if (additionalURL) {
+            tempArray = additionalURL.split("&");
+            for (var i=0; i<tempArray.length; i++){
+                if(tempArray[i].split('=')[0] != param){
+                    newAdditionalURL += temp + tempArray[i];
+                    temp = "&";
+                }
+            }
+        }
+
+        var rows_txt = paramVal ? temp + "" + param + "=" + paramVal : "";
+        return baseURL + "?" + newAdditionalURL + rows_txt;
     }
 </script>
