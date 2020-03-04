@@ -343,7 +343,8 @@ public class ObservationService extends BasicService implements WebStatus {
                         ObservationDTO.ZYGOSITY,
                         ObservationDTO.PHENOTYPING_CENTER,
                         ObservationDTO.DEVELOPMENTAL_STAGE_NAME,
-                        ObservationDTO.SEX
+                        ObservationDTO.SEX,
+                        ObservationDTO.EXTERNAL_SAMPLE_ID
                 )
                 .setRows(100000);
 
@@ -365,8 +366,8 @@ public class ObservationService extends BasicService implements WebStatus {
         for (CombinedObservationKey key : groups.keySet()) {
             // Translate the key into a ExperimentDataTableRow
             ExperimentsDataTableRow row = new ExperimentsDataTableRow(key);
-            Integer femaleCount = (groups.get(key).get(SexType.female.getName())!= null) ?groups.get(key).get(SexType.female.getName()).size() : 0;
-            Integer maleCount = (groups.get(key).get(SexType.male.getName())!= null) ?groups.get(key).get(SexType.male.getName()).size() : 0;
+            Integer femaleCount = (groups.get(key).get(SexType.female.getName())!= null) ?groups.get(key).get(SexType.female.getName()).stream().map(obs -> obs.getExternalSampleId()).collect(Collectors.toSet()).size() : 0;
+            Integer maleCount = (groups.get(key).get(SexType.male.getName())!= null) ?groups.get(key).get(SexType.male.getName()).stream().map(obs -> obs.getExternalSampleId()).collect(Collectors.toSet()).size() : 0;
             row.setFemaleMutantCount(femaleCount);
             row.setMaleMutantCount(maleCount);
             alleleZygParameterStableIdToRows.add(row);

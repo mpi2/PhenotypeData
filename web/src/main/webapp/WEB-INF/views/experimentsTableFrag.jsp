@@ -39,7 +39,7 @@
             <input type="radio" name="options" id="early" autocomplete="off"> Early adult
         </label>
         <label class="btn btn-outline-primary btn-sm">
-            <input type="radio" name="options" id="middle" autocomplete="off"> Adult
+            <input type="radio" name="options" id="middle" autocomplete="off"> Mid adult
         </label>
         <label class="btn btn-outline-primary btn-sm">
             <input type="radio" name="options" id="late" autocomplete="off"> Late adult
