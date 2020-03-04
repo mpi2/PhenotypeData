@@ -173,7 +173,10 @@
     function buildLink(row) {
         var baseUrl = "${baseUrl}";
         var link = null;
-        if(row.procedure_name.startsWith("Histopathology")) {
+        if(row.procedure_name.startsWith("Viability Primary Screen") && row.parameter_stable_id !== "IMPC_VIA_001_001") {
+            link = null;
+        }
+        else if(row.procedure_name.startsWith("Histopathology")) {
             link = baseUrl + '/histopath/' + row.gene_accession_id;
 
             if(row.phenotype_term) {
