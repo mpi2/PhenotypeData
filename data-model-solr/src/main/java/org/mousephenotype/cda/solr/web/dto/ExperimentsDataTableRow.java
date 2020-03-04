@@ -1,11 +1,15 @@
 package org.mousephenotype.cda.solr.web.dto;
 
+import org.mousephenotype.cda.db.pojo.Experiment;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.service.dto.CombinedObservationKey;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.MarkerBean;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.utilities.LifeStageMapper;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Objects;
 
 /**
  * @since 2016/03/01
@@ -25,7 +29,7 @@ public class ExperimentsDataTableRow extends DataTableRow{
 
 	}
 
-	public ExperimentsDataTableRow(ObservationDTO.CombinedObservationKey key) {
+	public ExperimentsDataTableRow(CombinedObservationKey key) {
 		setAllele(new MarkerBean(key.getAlleleAccessionId(), key.getAlleleSymbol()));
 		setGene(new MarkerBean(key.getGeneAccession(), key.getGeneSymbol()));
 		setZygosity(key.getZygosity());
@@ -33,6 +37,7 @@ public class ExperimentsDataTableRow extends DataTableRow{
 		setProcedure(new ImpressBaseDTO(null, null, key.getProcedureStableId(), key.getProcedureName()));
 		setParameter(new ImpressBaseDTO(null, null, key.getParameterStableId(), key.getParameterName()));
 		setPhenotypingCenter(key.getPhenotypingCenter());
+		setLifeStageName(key.getLifeStage().getName());
 	}
 
 	@Override
@@ -182,5 +187,22 @@ public class ExperimentsDataTableRow extends DataTableRow{
 	public void setMetadataGroup(String metadataGroup) {
 		this.metadataGroup = metadataGroup;
 	}
-	
+
+	public CombinedObservationKey getCombinedKey() {
+		return new CombinedObservationKey(
+				allele.getSymbol(),
+				allele.getAccessionId(),
+				gene.getSymbol(),
+				gene.getAccessionId(),
+				parameter.getStableId(),
+				parameter.getName(),
+				procedure.getStableId(),
+				procedure.getName(),
+				pipeline.getStableId(),
+				pipeline.getName(),
+				zygosity,
+				phenotypingCenter,
+				LifeStageMapper.getLifeStage(parameter.getStableId(), lifeStageName)
+		);
+	}
 }

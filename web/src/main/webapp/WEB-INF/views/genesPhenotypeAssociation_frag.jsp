@@ -460,10 +460,11 @@
 
 <script>
 
+
     var firstChart = true;
     var firstTable = true;
     var currentView = 'chart';
-    const placeholderText = "<div class=\"pre-content\">\n" +
+    var placeholderText = "<div class=\"pre-content\">\n" +
         "    <div class=\"row no-gutters\">\n" +
         "        <div class=\"col-12 my-5\">\n" +
         "            <p class=\"h4 text-center text-justify\"><i class=\"fas fa-atom fa-spin\"></i> A moment please while we gather the data . . . .</p>\n" +
@@ -497,6 +498,11 @@
                 }
             });
         }
+    }
+
+    if(window.location.hash == '#alldatatable'){
+        tableClick();
+        $("#alldatatable-tab").click();
     }
 
     <c:if test='${measurementsChartNumber > 0}'>$("#alldatachart-tab").on('click', chartClick);</c:if>
