@@ -51,6 +51,10 @@ public class ExpressionService extends BasicService {
 	public static final String SECTION_EMBRYO_LACZ="IMPC_ELZ_063_001";
 	public static final String WHOLEOMOUNT_EMBRYO_LACZ="IMPC_ELZ_064_001";
 
+	public final static String SECTION_PARAMETER_STABLE_ID = "IMPC_ALZ_075_001";
+	public final static String WHOLEMOUNT_PARAMETER_STABLE_ID = "IMPC_ALZ_076_001";
+
+
 	private AnatomyService anatomyService;
 	private SolrClient     experimentCore;
 	private SolrClient     impcImagesCore;
@@ -1196,4 +1200,36 @@ public class ExpressionService extends BasicService {
 		
 		return false;
 	}
+
+	/**
+	 *
+	 * @param mgiAccession
+	 *            if mgi accesion null assume a request for control data
+	 * @param fields
+	 * @return
+	 * @throws SolrServerException, IOException
+	 */
+	public List<ObservationDTO> getCategoricalAdultLacZDataForReport() throws SolrServerException, IOException  {
+
+		SolrQuery solrQuery = new SolrQuery()
+		.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"" + "experimental" + "\"")
+		.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\"")
+		.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"")
+		.setFields(ObservationDTO.GENE_SYMBOL
+				, ObservationDTO.GENE_ACCESSION_ID
+				, ObservationDTO.CATEGORY
+				, ObservationDTO.ALLELE_SYMBOL
+				, ObservationDTO.COLONY_ID
+				, ObservationDTO.EXTERNAL_SAMPLE_ID
+				, ObservationDTO.ZYGOSITY
+				, ObservationDTO.SEX
+				, ObservationDTO.PARAMETER_NAME
+				, ObservationDTO.PARAMETER_STABLE_ID
+				, ObservationDTO.GENE_ACCESSION_ID
+				, ObservationDTO.PHENOTYPING_CENTER)
+		.setRows(Integer.MAX_VALUE);
+
+		return experimentCore.query(solrQuery).getBeans(ObservationDTO.class);
+	}
+
 }
