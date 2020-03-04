@@ -74,6 +74,10 @@
         early: 'Early adult',
         late: 'Late adult',
         middle: 'Middle aged adult'
+    };
+    var zygosityMap = {
+        'HET': 'heterozygote',
+        'HOM': 'homozygote'
     }
     $(document).ready(function () {
         var allData = JSON.parse('${allData}');
@@ -179,7 +183,9 @@
             link =  baseUrl + "/charts?accession=" + row.gene_accession_id;
             link += "&allele_accession_id=" + row.allele_accession_id;
             link += "&parameter_stable_id=" + row.parameter_stable_id;
-            link += "&zygosity=" + row.zygosity;
+            if(zygosityMap[row.zygosity]) {
+                link += "&zygosity=" + zygosityMap[row.zygosity];
+            }
             link += "&phenotyping_center=" + row.phenotyping_center;
             link += "&pipeline_stable_id=" + row.pipeline_stable_id;
         }
