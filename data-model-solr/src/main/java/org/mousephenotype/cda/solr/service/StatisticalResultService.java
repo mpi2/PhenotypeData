@@ -1064,6 +1064,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
 	}
 
+
 	public long getPvaluesByAlleleAndPhenotypingCenterAndPipelineCount(String geneAccession, List<String> procedureName ,List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, String graphBaseUrl)
 			throws NumberFormatException, SolrServerException, IOException, UnsupportedEncodingException {
 
@@ -1074,6 +1075,23 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 		long solrResults = statisticalResultCore.query(query).getResults().getNumFound();
 
 		return solrResults;
+	}
+
+	public Map<CombinedObservationKey, ExperimentsDataTableRow> getAllDataRecords(String geneAccession, List<String> procedureName ,List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, String graphBaseUrl)
+			throws NumberFormatException, SolrServerException, IOException, UnsupportedEncodingException {
+
+		Map<CombinedObservationKey, ExperimentsDataTableRow> results = new HashMap<>();
+
+		SolrQuery query = buildQuery(geneAccession, procedureName,alleleSymbol, phenotypingCenter, pipelineName, procedureStableIds, resource, mpTermId, null, null, null, null, null, null, null, null);
+		List<StatisticalResultDTO> solrResults = statisticalResultCore.query(query).getBeans(StatisticalResultDTO.class);
+
+		for (StatisticalResultDTO statResult : solrResults) {
+			ExperimentsDataTableRow row = getRowFromDto(statResult, graphBaseUrl);
+			results.put(row.getCombinedKey(), row);
+		}
+
+		return results;
+
 	}
 
 
@@ -1104,7 +1122,8 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 				dto.getStatus(), allele, gene, zygosity,
 				pipeline, procedure, parameter, graphBaseUrl, dto.getpValue(), dto.getFemaleMutantCount(),
 				dto.getMaleMutantCount(), dto.getEffectSize(), dto.getMetadataGroup());
-
+		row.setLifeStageName(dto.getLifeStageName());
+		row.setLifeStageAcc(dto.getLifeStageAcc());
 		return row;
 
 	}

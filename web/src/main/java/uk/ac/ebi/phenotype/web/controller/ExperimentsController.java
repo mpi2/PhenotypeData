@@ -16,11 +16,17 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
+import org.mousephenotype.cda.solr.service.dto.CombinedObservationKey;
+import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.AllelePageDTO;
 import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +47,7 @@ import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Controller
@@ -85,20 +92,43 @@ public class ExperimentsController {
 
         // JM and JW Decided to get observations first as a whole set and then replace with SR result rows where appropriate
         Set<ExperimentsDataTableRow> experimentRowsFromObservations = observationService.getAllPhenotypesFromObservationsByGeneAccession(geneAccession);
-        experimentRows.addAll(experimentRowsFromObservations);
-        Map<String, List<ExperimentsDataTableRow>> srResult = srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl);
-        for(String paramKey: srResult.keySet()){
-            List<ExperimentsDataTableRow> rs = srResult.get(paramKey);
-            experimentRows.addAll(rs);
+
+        Map<CombinedObservationKey, ExperimentsDataTableRow> srResult = srService.getAllDataRecords(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl);
+        Map<CombinedObservationKey, ExperimentsDataTableRow> observationsMap = experimentRowsFromObservations.stream().collect(Collectors.toMap(ExperimentsDataTableRow::getCombinedKey, row -> row));
+        Set<CombinedObservationKey> intersection = observationsMap.keySet();
+        intersection.retainAll(srResult.keySet());
+        for(CombinedObservationKey obs : intersection) {
+            observationsMap.get(obs).setStatus(srResult.get(obs).getStatus());
+            observationsMap.get(obs).setpValue(srResult.get(obs).getpValue());
         }
 
-        //ideally create a test for a method that calls the experiment core and gets info for these object types
-        ///experimentsTableFrag?geneAccession=' + '${gene.mgiAccessionId}',
-//        for (List<ExperimentsDataTableRow> list : experimentRows.values()) {
-//            rows += list.size();
-//        }
+        if(mpTermId != null && mpTermId.size() > 0) {
+            experimentRows.addAll(intersection.stream().map(key -> observationsMap.get(key)).collect(Collectors.toSet()));
+        } else {
+            experimentRows.addAll(experimentRowsFromObservations);
+        }
+
+        JSONArray experimentRowsJson = new JSONArray();
+        experimentRows.stream().forEach(experimentsDataTableRow -> {
+            JSONObject experimentRowJson = new JSONObject();
+            try {
+                experimentRowJson.put(ObservationDTO.ALLELE_SYMBOL, experimentsDataTableRow.getAllele().getSymbol());
+                experimentRowJson.put(ObservationDTO.PHENOTYPING_CENTER, experimentsDataTableRow.getPhenotypingCenter());
+                experimentRowJson.put(ObservationDTO.PROCEDURE_NAME, experimentsDataTableRow.getProcedure().getName());
+                experimentRowJson.put(ObservationDTO.PARAMETER_NAME, experimentsDataTableRow.getParameter().getName());
+                experimentRowJson.put(ObservationDTO.ZYGOSITY, experimentsDataTableRow.getZygosity().getShortName());
+                experimentRowJson.put("female_mutants", experimentsDataTableRow.getFemaleMutantCount());
+                experimentRowJson.put("male_mutants", experimentsDataTableRow.getMaleMutantCount());
+                experimentRowJson.put("life_stage", experimentsDataTableRow.getLifeStageName());
+                experimentRowJson.put("p_value", experimentsDataTableRow.getpValue());
+                experimentRowJson.put("status", experimentsDataTableRow.getStatus());
+                experimentRowsJson.put(experimentRowJson);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        });
         model.addAttribute("rows", experimentRows.size());
-        model.addAttribute("experimentRows", experimentRows);
+        model.addAttribute("allData", experimentRowsJson.toString().replace("'", "\\'"));
         return "experimentsTableFrag";
     }
 

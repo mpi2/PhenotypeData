@@ -367,7 +367,7 @@ public class GenesController {
         model.addAttribute("attemptRegistered", geneService.checkAttemptRegistered(acc));
         model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
         model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
-        model.addAttribute("allMeasurementsNumber", statisticalResultService.getPvaluesByAlleleAndPhenotypingCenterAndPipelineCount(acc, null, null, null, null, null, null, null, null));
+        model.addAttribute("allMeasurementsNumber", observationService.getAllDataCount(acc));
         model.addAttribute("measurementsChartNumber", statisticalResultService.getParameterCountByGene(acc));
         model.addAttribute("phenotypeGroups", phenotypeGroups);
         model.addAttribute("phenotypeGroupIcons", phenotypeGroupIcons);

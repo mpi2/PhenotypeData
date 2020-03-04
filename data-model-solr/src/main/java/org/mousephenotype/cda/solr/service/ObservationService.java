@@ -354,13 +354,13 @@ public class ObservationService extends BasicService implements WebStatus {
 
         logger.info("  Timing: Starting collection: " + (System.currentTimeMillis() - start));
         // Key -> Sex -> List<ObservationDTO>
-        final Map<ObservationDTO.CombinedObservationKey, Map<String, List<ObservationDTO>>> groups = beans.stream()
+        final Map<CombinedObservationKey, Map<String, List<ObservationDTO>>> groups = beans.stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.groupingBy(ObservationDTO::getCombinedKey, Collectors.groupingBy(ObservationDTO::getSex)));
         logger.info("  Timing: Ending collection: " + (System.currentTimeMillis() - start));
 
         logger.info("  Timing: Starting generate rows: " + (System.currentTimeMillis() - start));
-        for (ObservationDTO.CombinedObservationKey key : groups.keySet()) {
+        for (CombinedObservationKey key : groups.keySet()) {
             // Translate the key into a ExperimentDataTableRow
             ExperimentsDataTableRow row = new ExperimentsDataTableRow(key);
             Integer femaleCount = (groups.get(key).get(SexType.female.getName())!= null) ?groups.get(key).get(SexType.female.getName()).size() : 0;
@@ -372,6 +372,39 @@ public class ObservationService extends BasicService implements WebStatus {
         logger.info("  Timing: Ending generate rows: " + (System.currentTimeMillis() - start));
 
         return new HashSet<>(alleleZygParameterStableIdToRows);
+    }
+
+
+    public Integer getAllDataCount(String acc) throws IOException, SolrServerException {
+
+        Long start = System.currentTimeMillis();
+        List<ExperimentsDataTableRow> alleleZygParameterStableIdToRows = new ArrayList<>();
+        SolrQuery query = new SolrQuery()
+                .setQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + acc + "\"")
+                .setFields(ObservationDTO.ALLELE_SYMBOL,
+                        ObservationDTO.ALLELE_ACCESSION_ID,
+                        ObservationDTO.GENE_SYMBOL,
+                        ObservationDTO.GENE_ACCESSION_ID,
+                        ObservationDTO.PARAMETER_STABLE_ID,
+                        ObservationDTO.PARAMETER_NAME,
+                        ObservationDTO.PROCEDURE_STABLE_ID,
+                        ObservationDTO.PROCEDURE_NAME,
+                        ObservationDTO.PIPELINE_STABLE_ID,
+                        ObservationDTO.PIPELINE_NAME,
+                        ObservationDTO.ZYGOSITY,
+                        ObservationDTO.PHENOTYPING_CENTER,
+                        ObservationDTO.DEVELOPMENTAL_STAGE_NAME,
+                        ObservationDTO.SEX
+                )
+                .setRows(100000);
+
+        logger.info("get All Phenotypes for gene " + SolrUtils.getBaseURL(experimentCore) + "/select?" + query);
+        logger.info("  Timing: Starting solr query: " + (System.currentTimeMillis() - start));
+        final List<ObservationDTO> beans = experimentCore.query(query).getBeans(ObservationDTO.class);
+
+        Set<CombinedObservationKey> rows = beans.stream().map(row -> row.getCombinedKey()).collect(Collectors.toSet());
+
+        return rows.size();
     }
 
 
