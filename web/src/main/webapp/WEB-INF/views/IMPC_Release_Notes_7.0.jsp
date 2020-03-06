@@ -59,7 +59,8 @@
             <h4>Data release 7.0</h4>
 
             <div class="well">
-                <strong>Data release 10.0 represents a major data release. Changes include:</strong>
+                <strong>Release notes:</strong>
+                Represents a major data release. Changes include:
                 <ul>
                     <li>More than 7,000 new phenotypes</li>
                     <li>More than 500 new genes</li>
@@ -514,6 +515,7 @@
                 <div class="clear both"></div>
             </div>
         </div>
+
         <p>More charts and status information are available from <a href="https://www.mousephenotype.org/imits/v2/reports/mi_production/komp2_graph_report_display">iMits</a>. </p>
     </div>
 </div>

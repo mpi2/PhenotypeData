@@ -106,7 +106,7 @@
 
                                             <div class="well">
                                                 <strong>Release notes:</strong>
-                                                    ${metaInfo["data_release_notes"]}
+                                                ${metaInfo["data_release_notes"]}
                                             </div>
                                         </div>
                                     </div>
@@ -230,8 +230,8 @@
                                                 <div class="clear both"></div>
                                             </div>
                                         </div>
+                                        <p>More charts and status information are available from <a href="https://www.mousephenotype.org/imits/v2/reports/mi_production/komp2_graph_report_display">iMits</a>. </p>
                                     </div>
-                                    <p>More charts and status information are available from <a href="https://www.mousephenotype.org/imits/v2/reports/mi_production/komp2_graph_report_display">iMits</a>. </p>
                                 </div> <!-- end row -->
 
                                 <div class="row mt-5">

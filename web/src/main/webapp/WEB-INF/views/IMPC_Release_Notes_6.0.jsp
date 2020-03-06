@@ -56,7 +56,8 @@
             <h3>Data release 6.0</h3>
 
             <div class="well">
-                <strong>Data release 6.0 represents a major data release. Changes include:</strong>
+                <strong>Release notes:</strong>
+                Represents a major data release. Changes include:
                 <ul>
                     <li>&gt; 1k additional mouse lines with new data from the IMPC consortium</li>
                     <li>
@@ -320,7 +321,12 @@
                     </tr>
                 </tbody>
             </table>
-            <p>Mouse knockout programs:&nbsp;RRG305,W062C05,FLP1,mirKO,EUCJ0019c12,IST12471H5,EUCJ0004f10,W096D02,EUCJ0079d10,YHD437,RRR454,Thy1-MAPT*P301S,pT1Betageo,RRH308,KOMP,CB0226,M076C04,EUC0047a08,EUC0027g03,EUC0050e03,XG716,EUCE0233a03,IMPC,RRJ142,EUCOMM,NCOM,YTC001,XG510,EUC0054a05</p>
+            <strong>Mouse knockout programs:</strong>
+           <p>
+        RRG305,W062C05,FLP1,mirKO,EUCJ0019c12,IST12471H5,EUCJ0004f10,W096D02,EUCJ0079d10,YHD437,
+        RRR454,Thy1-MAPT*P301S,pT1Betageo,RRH308,KOMP,CB0226,M076C04,EUC0047a08,EUC0027g03,
+        EUC0050e03,XG716,EUCE0233a03,IMPC,RRJ142,EUCOMM,NCOM,YTC001,XG510,EUC0054a05
+           </p>
         </div>
     </div>
 </div>
@@ -383,8 +389,9 @@
                 <div class="clear both"></div>
             </div>
         </div>
+
+        <p>More charts and status information are available from <a href="https://www.mousephenotype.org/imits/v2/reports/mi_production/komp2_graph_report_display">iMits</a>. </p>
     </div>
-    <p>More charts and status information are available from <a href="https://www.mousephenotype.org/imits/v2/reports/mi_production/komp2_graph_report_display">iMits</a>. </p>
 </div>
 
 <div class="row mt-5">

@@ -58,7 +58,8 @@
             <h3>Data release 6.1</h3>
 
             <div class="well">
-                <strong>Data release 6.1 represents a minor release. Changes include:</strong>
+                <strong>Release notes:</strong>
+                Represents a minor release. Changes include:
                 <ul>
                     <li>New data from the 3i project</li>
                     <li>A fix to strain nomenclature for some legacy lines</li>
@@ -481,6 +482,8 @@
 
             </script>
         </div>
+
+        <p>More charts and status information are available from <a href="https://www.mousephenotype.org/imits/v2/reports/mi_production/komp2_graph_report_display">iMits</a>. </p>
     </div>
 </div>
 

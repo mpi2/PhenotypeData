@@ -533,173 +533,180 @@
 			</div>
 		</div>
 	</div>
-</div>
 
-<div class="col-12">
-	<h3>By Center</h3>
-	<div class="row">
-		<div class="col-6">
-			<div id="genotypeStatusByCenterChart">
-				<script type="text/javascript">$(function () {
-					Highcharts.setOptions({colors: ['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)']});
-					$('#genotypeStatusByCenterChart').highcharts({
-						chart: {
-							type: 'column',
-							height: 800
-						},
-						title: {
-							text: 'Genotyping Status by Center'
-						},
-						subtitle: {
-							text: ""
-						},
-						xAxis: {
-							categories: ["Micro-injection in progress", "Chimeras obtained", "Genotype confirmed", "Cre Excision Started", "Cre Excision Complete"],
-							labels: {
-								rotation: -90,
-								align: 'right',
-								style: {
-									fontSize: '11px',
-									fontFamily: 'Verdana, sans-serif'
+	<div class="col-12">
+		<h4>By Center</h4>
+		<div class="row">
+
+			<div class="col-6">
+				<div id="genotypeStatusByCenterChart">
+					<script type="text/javascript">$(function () {
+						Highcharts.setOptions({colors: ['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)']});
+						$('#genotypeStatusByCenterChart').highcharts({
+							chart: {
+								type: 'column',
+								height: 800
+							},
+							title: {
+								text: 'Genotyping Status by Center'
+							},
+							subtitle: {
+								text: ""
+							},
+							xAxis: {
+								categories: ["Micro-injection in progress", "Chimeras obtained", "Genotype confirmed", "Cre Excision Started", "Cre Excision Complete"],
+								labels: {
+									rotation: -90,
+									align: 'right',
+									style: {
+										fontSize: '11px',
+										fontFamily: 'Verdana, sans-serif'
+									}
+								},
+								showLastLabel: true
+							},
+							yAxis: {
+								min: 0,
+								title: {
+									text: 'Number of Genes'
 								}
 							},
-							showLastLabel: true
-						},
-						yAxis: {
-							min: 0,
-							title: {
-								text: 'Number of Genes'
-							}
-						},
-						credits: {
-							enabled: false
-						},
-						tooltip: {
-							headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-							pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-									'<td style="padding:0"><b>{point.y:.0f}  genes</b></td></tr>',
-							footerFormat: '</table>',
-							shared: true,
-							useHTML: true
-						},
-						plotOptions: {
-							column: {
-								stacking: 'normal',
-								pointPadding: 0.2,
-								borderWidth: 0
-							}
-						},
-						series: [{"name": "INFRAFRONTIER-CNB", "data": [0, 0, 1, 0, 0]}, {
-							"name": "SEAT",
-							"data": [11, 4, 12, 0, 0]
-						}, {"name": "Harwell", "data": [50, 67, 168, 1, 200]}, {
-							"name": "HMGU",
-							"data": [1, 13, 93, 1, 157]
-						}, {"name": "RIKEN BRC", "data": [2, 12, 20, 6, 21]}, {
-							"name": "INFRAFRONTIER-Oulu",
-							"data": [0, 0, 1, 0, 0]
-						}, {"name": "INFRAFRONTIER-VETMEDVie", "data": [0, 0, 2, 0, 0]}, {
-							"name": "Monterotondo",
-							"data": [3, 0, 49, 0, 48]
-						}, {"name": "KMPC", "data": [2, 0, 0, 0, 0]}, {
-							"name": "WTSI",
-							"data": [13, 40, 1075, 3, 221]
-						}, {"name": "NARLabs", "data": [0, 0, 1, 0, 0]}, {
-							"name": "JAX",
-							"data": [5, 31, 41, 102, 483]
-						}, {"name": "MARC", "data": [0, 1, 49, 12, 38]}, {
-							"name": "TCP",
-							"data": [0, 68, 55, 1, 188]
-						}, {"name": "INFRAFRONTIER-IMG", "data": [1, 0, 1, 0, 0]}, {
-							"name": "UCD",
-							"data": [39, 66, 466, 36, 498]
-						}, {"name": "ICS", "data": [0, 2, 103, 0, 92]}, {
-							"name": "CIPHE",
-							"data": [9, 1, 14, 1, 0]
-						}, {"name": "IMG", "data": [10, 0, 6, 0, 6]}, {"name": "BCM", "data": [0, 9, 227, 4, 233]}]
+							credits: {
+								enabled: false
+							},
+							tooltip: {
+								headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+								pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+										'<td style="padding:0"><b>{point.y:.0f}  genes</b></td></tr>',
+								footerFormat: '</table>',
+								shared: true,
+								useHTML: true
+							},
+							plotOptions: {
+								column: {
+									stacking: 'normal',
+									pointPadding: 0.2,
+									borderWidth: 0
+								}
+							},
+							series: [{"name": "INFRAFRONTIER-CNB", "data": [0, 0, 1, 0, 0]}, {
+								"name": "SEAT",
+								"data": [11, 4, 12, 0, 0]
+							}, {"name": "Harwell", "data": [50, 67, 168, 1, 200]}, {
+								"name": "HMGU",
+								"data": [1, 13, 93, 1, 157]
+							}, {"name": "RIKEN BRC", "data": [2, 12, 20, 6, 21]}, {
+								"name": "INFRAFRONTIER-Oulu",
+								"data": [0, 0, 1, 0, 0]
+							}, {"name": "INFRAFRONTIER-VETMEDVie", "data": [0, 0, 2, 0, 0]}, {
+								"name": "Monterotondo",
+								"data": [3, 0, 49, 0, 48]
+							}, {"name": "KMPC", "data": [2, 0, 0, 0, 0]}, {
+								"name": "WTSI",
+								"data": [13, 40, 1075, 3, 221]
+							}, {"name": "NARLabs", "data": [0, 0, 1, 0, 0]}, {
+								"name": "JAX",
+								"data": [5, 31, 41, 102, 483]
+							}, {"name": "MARC", "data": [0, 1, 49, 12, 38]}, {
+								"name": "TCP",
+								"data": [0, 68, 55, 1, 188]
+							}, {"name": "INFRAFRONTIER-IMG", "data": [1, 0, 1, 0, 0]}, {
+								"name": "UCD",
+								"data": [39, 66, 466, 36, 498]
+							}, {"name": "ICS", "data": [0, 2, 103, 0, 92]}, {
+								"name": "CIPHE",
+								"data": [9, 1, 14, 1, 0]
+							}, {"name": "IMG", "data": [10, 0, 6, 0, 6]}, {"name": "BCM", "data": [0, 9, 227, 4, 233]}]
+						});
 					});
-				});
-				</script>
+					</script>
+				</div>
+				<a id="checkAllGenByCenter" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
+				<a id="uncheckAllGenByCenter"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
+				<div class="clear both"></div>
+			</div>
+
+			<div class="col-6">
+				<div id="phenotypeStatusByCenterChart">
+					<script type="text/javascript">$(function () {
+						Highcharts.setOptions({colors: ['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)']});
+						$('#phenotypeStatusByCenterChart').highcharts({
+							chart: {
+								type: 'column',
+								height: 800
+							},
+							title: {
+								text: 'Phenotyping Status by Center'
+							},
+							subtitle: {
+								text: ""
+							},
+							xAxis: {
+								categories: ["Phenotype Attempt Registered", "Phenotyping Started", "Phenotyping Complete"],
+								labels: {
+									rotation: -90,
+									align: 'right',
+									style: {
+										fontSize: '11px',
+										fontFamily: 'Verdana, sans-serif'
+									}
+								},
+								showLastLabel: true
+							},
+							yAxis: {
+								min: 0,
+								title: {
+									text: 'Number of Genes'
+								}
+							},
+							credits: {
+								enabled: false
+							},
+							tooltip: {
+								headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+								pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+										'<td style="padding:0"><b>{point.y:.0f}  genes</b></td></tr>',
+								footerFormat: '</table>',
+								shared: true,
+								useHTML: true
+							},
+							plotOptions: {
+								column: {
+									stacking: 'normal',
+									pointPadding: 0.2,
+									borderWidth: 0
+								}
+							},
+							series: [{"name": "Harwell", "data": [138, 44, 187]}, {
+								"name": "HMGU",
+								"data": [129, 12, 82]
+							}, {"name": "RIKEN BRC", "data": [30, 7, 6]}, {
+								"name": "Monterotondo",
+								"data": [6, 0, 0]
+							}, {"name": "JAX", "data": [302, 70, 239]}, {
+								"name": "WTSI",
+								"data": [346, 154, 398]
+							}, {"name": "MARC", "data": [50, 21, 6]}, {
+								"name": "TCP",
+								"data": [79, 20, 149]
+							}, {"name": "ICS", "data": [13, 15, 60]}, {
+								"name": "UCD",
+								"data": [165, 76, 256]
+							}, {"name": "CIPHE", "data": [2, 0, 0]}, {"name": "IMG", "data": [8, 0, 0]}, {
+								"name": "BCM",
+								"data": [185, 36, 66]
+							}]
+						});
+					});
+					</script>
+				</div>
+				<a id="checkAllPhenByCenter" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
+				<a id="uncheckAllPhenByCenter"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
+				<div class="clear both"></div>
 			</div>
 		</div>
 
-		<div class="col-6">
-			<div id="phenotypeStatusByCenterChart">
-				<script type="text/javascript">$(function () {
-					Highcharts.setOptions({colors: ['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)']});
-					$('#phenotypeStatusByCenterChart').highcharts({
-						chart: {
-							type: 'column',
-							height: 800
-						},
-						title: {
-							text: 'Phenotyping Status by Center'
-						},
-						subtitle: {
-							text: ""
-						},
-						xAxis: {
-							categories: ["Phenotype Attempt Registered", "Phenotyping Started", "Phenotyping Complete"],
-							labels: {
-								rotation: -90,
-								align: 'right',
-								style: {
-									fontSize: '11px',
-									fontFamily: 'Verdana, sans-serif'
-								}
-							},
-							showLastLabel: true
-						},
-						yAxis: {
-							min: 0,
-							title: {
-								text: 'Number of Genes'
-							}
-						},
-						credits: {
-							enabled: false
-						},
-						tooltip: {
-							headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-							pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-									'<td style="padding:0"><b>{point.y:.0f}  genes</b></td></tr>',
-							footerFormat: '</table>',
-							shared: true,
-							useHTML: true
-						},
-						plotOptions: {
-							column: {
-								stacking: 'normal',
-								pointPadding: 0.2,
-								borderWidth: 0
-							}
-						},
-						series: [{"name": "Harwell", "data": [138, 44, 187]}, {
-							"name": "HMGU",
-							"data": [129, 12, 82]
-						}, {"name": "RIKEN BRC", "data": [30, 7, 6]}, {
-							"name": "Monterotondo",
-							"data": [6, 0, 0]
-						}, {"name": "JAX", "data": [302, 70, 239]}, {
-							"name": "WTSI",
-							"data": [346, 154, 398]
-						}, {"name": "MARC", "data": [50, 21, 6]}, {
-							"name": "TCP",
-							"data": [79, 20, 149]
-						}, {"name": "ICS", "data": [13, 15, 60]}, {
-							"name": "UCD",
-							"data": [165, 76, 256]
-						}, {"name": "CIPHE", "data": [2, 0, 0]}, {"name": "IMG", "data": [8, 0, 0]}, {
-							"name": "BCM",
-							"data": [185, 36, 66]
-						}]
-					});
-				});
-				</script>
-			</div>
-		</div>
-
-		<p>More charts and status information are available from <a href="https://www.mousephenotype.org/imits/v2/reports/mi_production/komp2_graph_report_display">iMits</a>. </p>
+		<p>More charts and status information are available from <a	href="https://www.mousephenotype.org/imits/v2/reports/mi_production/komp2_graph_report_display">iMits</a>. </p>
 	</div>
 </div>
 

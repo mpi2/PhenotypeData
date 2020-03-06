@@ -55,7 +55,8 @@
             <h4>Data release 9.1</h4>
 
             <div class="well">
-                <strong>Data release 9.1 represents a major data release. Changes include:</strong>
+                <strong>Release notes:</strong>
+                Represents a major data release. Changes include:
 
                 <ul>
                     <li>Around 500 additional genes</li>
@@ -609,6 +610,7 @@
                 <div class="clear both"></div>
             </div>
         </div>
+
         <p>More charts and status information are available from <a href="https://www.mousephenotype.org/imits/v2/reports/mi_production/komp2_graph_report_display">iMits</a>. </p>
     </div>
 </div>
