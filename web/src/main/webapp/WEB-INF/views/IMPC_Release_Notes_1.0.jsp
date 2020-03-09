@@ -70,7 +70,7 @@
                     or mutant mouse group, a rank sum test is applied instead of a linear regression. The statistical
                     test used is always noted when displayed on the portal or when obtained by the API. Documentation on
                     statistical analysis is available here:
-                    <a href="/data/page-retired">Statistics help</a>
+                    <a href="${baseUrl}/page-retired">Statistics help</a>
                 </p>
 
                 <h3>P-value threshold</h3>
@@ -354,7 +354,7 @@
             </thead>
 
             <tbody>
-                <tr><td>WTSI</td><td><a href="/data/page-retired">Browse</a></td><td>MGP_001</td></tr>
+                <tr><td>WTSI</td><td><a href="${baseUrl}/page-retired">Browse</a></td><td>MGP_001</td></tr>
             </tbody>
         </table>
     </div>

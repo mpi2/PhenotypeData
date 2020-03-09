@@ -372,9 +372,9 @@ public class ReleaseController {
 	}
 
 	@RequestMapping(value = "/page-retired", method = RequestMethod.GET)
-	public String pageRetired() throws SQLException {
+	public String pageRetired() {
 
-		return "page_is_retired";
+		return "page_retired";
 	}
 
 	private List<AggregateCountXY> getHistoricalData(String propertyKey) {

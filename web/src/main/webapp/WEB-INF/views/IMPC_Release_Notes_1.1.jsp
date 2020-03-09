@@ -65,7 +65,7 @@
 
 				<h3>Statistical Tests</h3>
 				<p>In general, we are applying a Fisher Exact Test for categorical data and linear regression for continuous data.  In cases where there is no variability in values for a data parameter in a control or mutant mouse group, a rank sum test is applied instead of a linear regression. The statistical test used is always noted when displayed on the portal or when obtained by the API. Documentation on statistical analysis is available here:
-				<a href="/data/page-retired">Statistics help</a></p>
+				<a href="${baseUrl}/page-retired">Statistics help</a></p>
 
 				<h3>P-value threshold</h3>
 				<p>In this first release, we are using a p value threshold of &le; 1 x10-4 for all statistical tests to make a phenotype call.  This threshold may be adjusted for some parameters upon further review by statistical experts.</p>
@@ -452,16 +452,16 @@
 			</thead>
 
 			<tbody>
-				<tr><td>JAX</td><td><a href="/data/page-retired">Browse</a></td><td>JAX_001</td></tr>
-				<tr><td>TCP</td><td><a href="/data/page-retired">Browse</a></td><td>TCP_001</td></tr>
-				<tr><td>HMGU</td><td><a href="/data/page-retired">Browse</a></td><td>IMPC_001</td></tr>
-				<tr><td>HMGU</td><td><a href="/data/page-retired">Browse</a></td><td>HMGU_001</td></tr>
-				<tr><td>MRC Harwell</td><td><a href="/data/page-retired">Browse</a></td><td>HRWL_001</td></tr>
-				<tr><td>ICS</td><td><a href="/data/page-retired">Browse</a></td><td>IMPC_001</td></tr>
-				<tr><td>ICS</td><td><a href="/data/page-retired">Browse</a></td><td>ICS_001</td></tr>
-				<tr><td>WTSI</td><td><a href="/data/page-retired">Browse</a></td><td>MGP_001</td></tr>
-				<tr><td>BCM</td><td><a href="/data/page-retired">Browse</a></td><td>IMPC_001</td></tr>
-				<tr><td>UC Davis</td><td><a href="/data/page-retired">Browse</a></td><td>UCD_001</td></tr>
+				<tr><td>JAX</td><td><a href="${baseUrl}/page-retired">Browse</a></td><td>JAX_001</td></tr>
+				<tr><td>TCP</td><td><a href="${baseUrl}/page-retired">Browse</a></td><td>TCP_001</td></tr>
+				<tr><td>HMGU</td><td><a href="${baseUrl}/page-retired">Browse</a></td><td>IMPC_001</td></tr>
+				<tr><td>HMGU</td><td><a href="${baseUrl}/page-retired">Browse</a></td><td>HMGU_001</td></tr>
+				<tr><td>MRC Harwell</td><td><a href="${baseUrl}/page-retired">Browse</a></td><td>HRWL_001</td></tr>
+				<tr><td>ICS</td><td><a href="${baseUrl}/page-retired">Browse</a></td><td>IMPC_001</td></tr>
+				<tr><td>ICS</td><td><a href="${baseUrl}/page-retired">Browse</a></td><td>ICS_001</td></tr>
+				<tr><td>WTSI</td><td><a href="${baseUrl}/page-retired">Browse</a></td><td>MGP_001</td></tr>
+				<tr><td>BCM</td><td><a href="${baseUrl}/page-retired">Browse</a></td><td>IMPC_001</td></tr>
+				<tr><td>UC Davis</td><td><a href="${baseUrl}/page-retired">Browse</a></td><td>UCD_001</td></tr>
 			</tbody>
 		</table>
 	</div>
