@@ -40,9 +40,8 @@
 		<div>
 			<h4>Data access</h4>
 			<ul class="mt-0">
-				<li>Ftp site:&nbsp;<a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest">ftp://ftp.ebi.ac.uk/pub/databases/impc/latest</a>
-				</li>
-				<li>RESTful interfaces:&nbsp;<a href="/data/documentation/api-help">APIs</a></li>
+				<li>Ftp site:&nbsp;<a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-1.1">ftp://ftp.ebi.ac.uk/pub/databases/impc/release-1.1</a></li>
+				<li>RESTful interfaces:&nbsp;<a href="https://www.mousephenotype.org/help/programmatic-data-access">APIs</a></li>
 			</ul>
 		</div>
 	</div>
@@ -66,7 +65,7 @@
 
 				<h3>Statistical Tests</h3>
 				<p>In general, we are applying a Fisher Exact Test for categorical data and linear regression for continuous data.  In cases where there is no variability in values for a data parameter in a control or mutant mouse group, a rank sum test is applied instead of a linear regression. The statistical test used is always noted when displayed on the portal or when obtained by the API. Documentation on statistical analysis is available here:
-				<a href="http://www.mousephenotype.org/data/documentation/statistics-help">http://www.mousephenotype.org/data/documentation/statistics-help</a></p>
+				<a href="/data/page-retired">Statistics help</a></p>
 
 				<h3>P-value threshold</h3>
 				<p>In this first release, we are using a p value threshold of &le; 1 x10-4 for all statistical tests to make a phenotype call.  This threshold may be adjusted for some parameters upon further review by statistical experts.</p>

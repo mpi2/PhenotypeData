@@ -40,10 +40,8 @@
         <div>
             <h4>Data access</h4>
             <ul class="mt-0">
-                <li>Ftp site:&nbsp;<a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-6.0">ftp://ftp.ebi.ac.uk/pub/databases/impc/release-6.0</a>
-                </li>
-                <li>RESTful interfaces:&nbsp;<a
-                        href="http://ves-pg-d8:8080/mi/impc/phenotype-archive/documentation/data-access">APIs</a></li>
+                <li>Ftp site:&nbsp;<a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-6.0">ftp://ftp.ebi.ac.uk/pub/databases/impc/release-6.0</a></li>
+                <li>RESTful interfaces:&nbsp;<a href="https://www.mousephenotype.org/help/programmatic-data-access">APIs</a></li>
             </ul>
         </div>
     </div>

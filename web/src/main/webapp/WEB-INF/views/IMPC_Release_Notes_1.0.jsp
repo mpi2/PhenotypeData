@@ -40,9 +40,8 @@
         <div>
             <h4>Data access</h4>
             <ul class="mt-0">
-                <li>Ftp site:&nbsp;<a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/latest">ftp://ftp.ebi.ac.uk/pub/databases/impc/latest</a>
-                </li>
-                <li>RESTful interfaces:&nbsp;<a href="/data/documentation/api-help">APIs</a></li>
+                <li>Ftp site:&nbsp;<a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-1.0">ftp://ftp.ebi.ac.uk/pub/databases/impc/release-1.0</a></li>
+                <li>RESTful interfaces:&nbsp;<a href="https://www.mousephenotype.org/help/programmatic-data-access">APIs</a></li>
             </ul>
         </div>
     </div>
@@ -71,7 +70,7 @@
                     or mutant mouse group, a rank sum test is applied instead of a linear regression. The statistical
                     test used is always noted when displayed on the portal or when obtained by the API. Documentation on
                     statistical analysis is available here:
-                    <a href="http://www.mousephenotype.org/data/documentation/statistics-help">http://www.mousephenotype.org/data/documentation/statistics-help</a>
+                    <a href="/data/page-retired">Statistics help</a>
                 </p>
 
                 <h3>P-value threshold</h3>
