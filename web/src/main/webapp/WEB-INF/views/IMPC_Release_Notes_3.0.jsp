@@ -55,10 +55,11 @@
 
 		<div class="col-12">
 
-			<h3>Data release 3.0</h3>
+			<h4>Data release 3.0</h4>
 
 			<div class="well">
-				<strong>Data release 3.0 represents a major data release. Changes include:</strong>
+                <strong>Release notes:</strong>
+				Represents a major data release. Changes include:
 
 				<ul>
 					<li>1,456 mouse lines with phenotype data that has

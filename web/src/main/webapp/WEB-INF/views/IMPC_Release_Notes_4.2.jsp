@@ -56,7 +56,8 @@
         <div class="col-12">
 
         <h3>Data release 4.2</h3>
-            <strong>Data release 4.2 represents a minor data release. Changes include:</strong>
+            <strong>Release notes:</strong>
+            Represents a minor data release. Changes include:
             <ul>
                 <li>More final QCed data</li>
                 <li>Corrected genetic background strain for some legacy lines</li>

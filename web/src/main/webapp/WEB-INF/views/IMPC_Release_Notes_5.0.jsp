@@ -59,7 +59,8 @@
         <h3>Data release 5.0</h3>
 
             <div class="well">
-                <strong>Data release 5.0 represents a major data release. Changes include:</strong>
+                <strong>Release notes:</strong>
+                Represents a major data release. Changes include:
                 <ul>
                     <li>
                         Data for an additional 1000 phenotyped lines

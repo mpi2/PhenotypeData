@@ -59,7 +59,8 @@
         <h3>Data release 3.1</h3>
 
             <div class="well">
-                <strong>Data release 3.1 represents a minor data release. Changes include:</strong>
+                <strong>Release notes:</strong>
+                Represents a minor data release. Changes include:
                 <ul>
                     <li>Exclusion of "no data" categories when calculating significance of categorical results</li>
                     <li>147 more <a href="/data/secondaryproject/3i">3I</a> lines with 257,008 more data points</li>

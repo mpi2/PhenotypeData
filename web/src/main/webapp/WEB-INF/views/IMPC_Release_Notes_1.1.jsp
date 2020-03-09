@@ -59,9 +59,9 @@
 
 			<div class="well">
 				<strong>Release notes:</strong>
-				<p>This represents a major data release.</p>
+				Represents a major data release.
 
-				<h3>Phenotype Association Versioning</h3>
+				<h3 class="mt-4">Phenotype Association Versioning</h3>
 				<p>Many factors contribute to the identification of phenodeviants by statistical analysis. This includes the number of mutant and baseline mice, the statistical test used, the selected thresholds and changes to the underlying software that runs the analysis. For these reasons, we will be versioning genotype-to-phenotype associations from data release to data release. A given genotype-to-phenotype may change from release to release.</p>
 
 				<h3>Statistical Tests</h3>

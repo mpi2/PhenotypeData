@@ -59,7 +59,8 @@
             <h3>Data release 3.4</h3>
 
             <div class="well">
-                <strong>Data release 3.4 represents a minor data release. Changes include:</strong>
+                <strong>Release notes:</strong>
+                Represents a minor data release. Changes include:
                 <ul>
                     <li>Removal of erroneous data</li>
                     <li>Addition of more viability calls</li>

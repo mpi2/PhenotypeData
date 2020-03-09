@@ -58,7 +58,8 @@
         <h3>Data release 4.3</h3>
 
             <div class="well">
-                <strong>Data release 4.3 represents a minor data release. Changes include:</strong>
+                <strong>Release notes:</strong>
+                Represents a minor data release. Changes include:
                 <ul>
                     <li>Additional embryo data</li>
                     <li>Additional viability data</li>

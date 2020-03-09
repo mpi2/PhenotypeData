@@ -58,7 +58,8 @@
             <h3>Data release 4.0</h3>
 
             <div class="well">
-                <strong>Data release 4.0 represents a major data release.</strong>
+                <strong>Release notes:</strong>
+                Represents a major data release.
             </div>
         </div>
     </div>

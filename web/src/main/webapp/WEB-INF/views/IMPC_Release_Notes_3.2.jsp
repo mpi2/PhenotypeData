@@ -58,7 +58,8 @@
         <h3>Data release 3.2</h3>
 
             <div class="well">
-                <strong>Data release 3.2 represents a minor data release. Changes include:</strong>
+                <strong>Release notes:</strong>
+                Represents a minor data release. Changes include:
                 <ul>
                     <li>
                         More <a href="/data/secondaryproject/3i">3I</a> lines, bringing

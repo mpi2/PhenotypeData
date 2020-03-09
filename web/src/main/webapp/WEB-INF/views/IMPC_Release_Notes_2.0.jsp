@@ -58,9 +58,10 @@
 			<h3>Data release 2.0</h3>
 
 			<div class="well">
-				<strong>Data release 2.0 represents a major data release.</strong>
+				<strong>Release notes:</strong>
+				Represents a major data release.
 
-				<h3>New lines added, some taken away</h3>
+				<h3 class="mt-4">New lines added, some taken away</h3>
 
 				<p>In data release 2.0, we now have 535 mouse lines with phenotype data that has passed quality control. This positive step demonstrates the majority of IMPC centers are now able to generate, capture, export, passed quality control (QC), and distribute high-throughput data for hundreds of new mouse lines. Going forward, we anticipate bi-monthly data releases.</p>
 				<p>In review of our processes, we noticed some lines passed QC in the previous data release that should not have. We have reverted the statuses of these lines to a pre-QC state, meaning they our visible on the portal but not being distributed via the API. The majority if not all of these lines should be available in the next data release.</p>
