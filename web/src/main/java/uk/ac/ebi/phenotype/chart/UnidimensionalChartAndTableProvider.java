@@ -42,6 +42,7 @@ import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UnidimensionalChartAndTableProvider {
@@ -188,6 +189,8 @@ public class UnidimensionalChartAndTableProvider {
 		int       decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
 		int       column        = 0;
 
+		List<String> boxplotData = new ArrayList<>();
+
 		for (ChartsSeriesElement chartsSeriesElement : chartsSeriesElementsList) {
 			// fist get the raw data for each column (only one column per data
 			// set at the moment as we will create both the scatter and boxplots
@@ -200,66 +203,80 @@ public class UnidimensionalChartAndTableProvider {
 
 			List<Float> wt1 = new ArrayList<>();
 			if (listOfFloats.size() > 0) {
-				double Q1 = ChartUtils.getDecimalAdjustedFloat(new Float(pc.getLowerQuartile()), decimalPlaces);
-				double Q3 = ChartUtils.getDecimalAdjustedFloat(new Float(pc.getUpperQuartile()), decimalPlaces);
+				double Q1 = ChartUtils.getDecimalAdjustedFloat(pc.getLowerQuartile(), decimalPlaces);
+				double Q3 = ChartUtils.getDecimalAdjustedFloat(pc.getUpperQuartile(), decimalPlaces);
 				double IQR = Q3 - Q1;
 
-				Float minIQR = ChartUtils.getDecimalAdjustedFloat(new Float(Q1 - (1.5 * IQR)), decimalPlaces);
-				wt1.add(minIQR);// minimum
-				Float q1 = new Float(Q1);
+				Float minIQR = ChartUtils.getDecimalAdjustedFloat((float) (Q1 - (1.5 * IQR)), decimalPlaces);
+
+				// Find the actual minimum data value not lower than the minimum whisker
+				Float minValue = listOfFloats.stream().sorted().filter(x -> x > minIQR).findFirst().orElse(minIQR);
+
+				wt1.add(minValue);// minimum
+				Float q1 = (float) Q1;
 				wt1.add(q1);// lower quartile
 
-				Float decFloat = ChartUtils.getDecimalAdjustedFloat(new Float(pc.getMedian()), decimalPlaces);
+				Float decFloat = ChartUtils.getDecimalAdjustedFloat(pc.getMedian(), decimalPlaces);
 				wt1.add(decFloat);// median
-				Float q3 = new Float(Q3);
+				Float q3 = (float) Q3;
 				wt1.add(q3);// upper quartile
-				Float maxIQR = ChartUtils.getDecimalAdjustedFloat(new Float(Q3 + (1.5 * IQR)), decimalPlaces);
-				wt1.add(maxIQR);// maximumbs.
+
+				Float maxIQR = ChartUtils.getDecimalAdjustedFloat((float) (Q3 + (1.5 * IQR)), decimalPlaces);
+
+				// Find the actual minimum data value not lower than the minimum whisker
+				Float maxValue = listOfFloats.stream().sorted((v1, v2) -> Float.compare(v2, v1)).filter(x -> x < maxIQR).findFirst().orElse(minIQR);
+
+				wt1.add(maxValue);// maximum.
 				chartsSeriesElement.setBoxPlotArray(new JSONArray(wt1.toArray()));
+
+				// Calculate outliers as those data values that are outside of the whiskers
+				List<List<Number>> outliers = new ArrayList<>();
+				for (Float value : listOfFloats.stream().filter(x -> (x < minIQR || x > maxIQR)).distinct().collect(Collectors.toList())) {
+					outliers.add(Arrays.asList(column, value));
+				}
+				chartsSeriesElement.setBoxPlotOutliersArray(new JSONArray(outliers));
 			}
 
-			JSONArray boxPlot2DData = chartsSeriesElement.getBoxPlotArray();
-			if (boxPlot2DData == null) {
-				System.err.println("error no boxplot data for this chartSeriesElemen=" + chartsSeriesElement.getName());
-				boxPlot2DData = new JSONArray();
+			JSONArray boxPlot2DDataOutliers = chartsSeriesElement.getBoxPlotOutliersArray();
+			if (boxPlot2DDataOutliers == null) {
+				System.err.println("error no boxplot outlier data for this chartSeriesElemen=" + chartsSeriesElement.getName());
+				boxPlot2DDataOutliers = new JSONArray();
 			}
 
-			String columnPadding = "";
-			for (int i = 0; i < column; i++) {
-				columnPadding += "[], ";
-			}
+			String outliersString =  boxPlot2DDataOutliers.toString();
 
-			String observationsString = "[" + columnPadding + boxPlot2DData.toString() + "]";
 			String color = ChartColors.getMutantColor(ChartColors.alphaOpaque);
 			if (chartsSeriesElement.getControlOrZygosityString().equals("WT")) {
 				color = ChartColors.getWTColor(ChartColors.alphaTranslucid70);
 			}
 
-			boxPlotObject = "{" + " color: " + color + " ," + ""
-				+ " name: 'Observations', data:" + observationsString + ", "
-				+ " tooltip: { headerFormat: '<em>Genotype No. {point.key}</em><br/>' }  }";
+			boxplotData.add(String.format("{x:%s, low:%s, q1:%s, median:%s, q3:%s, high:%s, name:\"%s\", color:%s}",
+			column,
+			wt1.get(0),
+			wt1.get(1),
+			wt1.get(2),
+			wt1.get(3),
+			wt1.get(4),
+			categoryString,
+			color));
+
+
+			boxPlotObject = "{ color: " + color
+					+ ", type: 'scatter', name: 'Outliers', data:" + outliersString
+					+ ", tooltip: { headerFormat: '<em>Genotype outlier {point.key}</em><br/>' } "
+					+ ", marker: { symbol: 'circle', fillColor: 'rgba(0,0,0,0)', radius: 2, lineWidth: 1, lineColor: "+color+" } }";
 
 			seriesData += boxPlotObject + ",";
 			column++;
 		}
 
-		// loop over the chartSeries data and create scatters for each
-		for (ChartsSeriesElement chartsSeriesElement : chartsSeriesElementsList) {
-			String categoryString = WordUtils.capitalize(chartsSeriesElement.getSexType().toString()) + " " + WordUtils.capitalize(chartsSeriesElement.getControlOrZygosityString());
+		seriesData += "{name: 'Observations', type: 'boxplot', data: [";
+		seriesData += String.join(",", boxplotData);
+		seriesData += "]} ,";
 
-			// for the scatter loop over the original data and assign a column
-			// as the first element for each array
-
-			List<Float> originalDataFloats = chartsSeriesElement.getOriginalData();
-			JSONArray scatterJArray = new JSONArray();
-			categories.put(categoryString);
-			for (Float data : originalDataFloats) {
-				JSONArray array = new JSONArray();
-				array.put(column);
-				array.put(data);
-				scatterJArray.put(array);
-			}
-			column++;
+		String yAxisLabel = parameter.getName() + " (" + yAxisTitle + ")";
+		if (yAxisTitle.trim().isEmpty()) {
+			yAxisLabel = parameter.getName();
 		}
 
 		List<String> colors = ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaOpaque);
@@ -268,13 +285,13 @@ public class UnidimensionalChartAndTableProvider {
 			+ " tooltip: { formatter: function () { if(typeof this.point.high === 'undefined')"
 			+ "{ return '<b>Observation</b><br/>' + this.point.y; } "
 			+ "else { return '<b>Genotype: ' + this.key + '</b>"
-			+ "<br/>UQ + 1.5 * IQR: ' + this.point.options.high + '"
+			+ "<br/>Maximum(data value) <= (UQ + 1.5 * IQR): ' + this.point.options.high + '"
 			+ "<br/>Upper Quartile: ' + this.point.options.q3 + '"
 			+ "<br/>Median: ' + this.point.options.median + '"
 			+ "<br/>Lower Quartile: ' + this.point.options.q1 +'"
-			+ "<br/>LQ - 1.5 * IQR: ' + this.point.low"
+			+ "<br/>Minimum(data value) >= (LQ - 1.5 * IQR): ' + this.point.low"
 			+ "; } } }    ,"
-			+ " title: {  text: 'Boxplot of the data', useHTML:true } , "
+			+ " title: {  text: 'Boxplot of the data <a href=\"/help/quick-guide-to-the-website/chart-page/\" target=\"_blank\"><i class=\"fa fa-question-circle\" style=\"color: #ce6211;\"></i></a>', useHTML:true } , "
 			+ " credits: { enabled: false },  "
 			+ " legend: { enabled: false }, "
 			+ " xAxis: { categories:  " + categories + ","
@@ -287,8 +304,8 @@ public class UnidimensionalChartAndTableProvider {
 			+ "         } "
 			+ "     }, "
 			+ " }, \n"
-			+ " plotOptions: {" + "series:" + "{ groupPadding: 0.25, pointPadding: -0.5 }" + "},"
-			+ " yAxis: { " + "max: " + yMax + ",  min: " + yMin + "," + "labels: { },title: { text: '" + yAxisTitle + "' }, tickAmount: 5 }, "
+			+ " plotOptions: { series: { groupPadding: 0.35, pointPadding: -0.5 }, scatter: { marker: { radius: 3 } } },"
+			+ " yAxis: { max: " + yMax + ",  min: " + yMin + ", labels: { }, title: { text: '" +yAxisLabel + "' }, tickAmount: 5 }, "
 			+ "\n series: [" + seriesData + "] }); });";
 
 		return chartString;

@@ -24,7 +24,8 @@ public enum ChartType {
   , CATEGORICAL_STACKED_COLUMN
   , TIME_SERIES_LINE
   , PIE
-  , TIME_SERIES_LINE_BODYWEIGHT;
+  , TIME_SERIES_LINE_BODYWEIGHT
+  , TEXT;
 
     public String getName() {
         return this.toString();

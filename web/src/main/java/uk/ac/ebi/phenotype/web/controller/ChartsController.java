@@ -20,7 +20,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.json.JSONException;
-import org.mousephenotype.cda.db.pojo.CategoricalResult;
 import org.mousephenotype.cda.enumerations.*;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.*;
@@ -219,29 +218,13 @@ public class ChartsController {
 			return "redirect:" + url;
 		}
 
-		// TODO need to check we don't have more than one accession and one
-		// parameter throw and exception if we do
-		// get the parameter object from the stable id
-		ParameterDTO parameter = impressService.getParameterByStableId(parameterStableId);
-		model.addAttribute("parameter", parameter);
-
-		//3i procedures with at least some headline images associated
-		if (parameter.getStableId().startsWith("MGP_BMI") || parameter.getStableId().startsWith("MGP_MLN") || parameter.getStableId().startsWith("MGP_IMM")) {
-			addFlowCytometryImages(accession, model, parameter);
-		}
-
-		String       metadata     = null;
-		List<String> metadataList = null;
-
-		String          xUnits                  = parameter.getUnitX();
-		ObservationType observationTypeForParam = parameter.getObservationType();
-		List<String>    genderList              = getParamsAsList(gender);
-
 		// Use the first phenotyping center passed in (ignore the others?)
 		// should only now be one center at this stage for one graph/experiment
 		// TODO put length check and exception here
 		// List<String> phenotypingCenters = getParamsAsList(phenotypingCenter);
 
+		String       metadata     = null;
+		List<String> metadataList = null;
 		String metaDataGroupString = null;
 		if (metadataGroup != null && !metadataGroup.equals(DEFAULT_NONE)) {
 			metaDataGroupString = metadataGroup;
@@ -255,47 +238,55 @@ public class ChartsController {
 			log.debug("pipe stable id=" + pipelineStableId);
 			pipeline = impressService.getPipeline(pipelineStableId);
 			model.addAttribute("pipeline", pipeline);
-			model.addAttribute("pipelineUrl", impressService.getPipelineUrlByStableId(pipeline.getStableId()));
+			model.addAttribute("pipelineUrl", impressService.getPipelineUrlByStableKey(pipeline.getStableKey()));
 		}
 
 		model.addAttribute("phenotypingCenter", phenotypingCenter);
 
-		ExperimentDTO experiment = null;
+		ExperimentDTO experiment;
 
 		GeneDTO gene = geneService.getGeneById(accession[0]);
 		model.addAttribute("gene", gene);
-			long startTimeSolr = System.currentTimeMillis();
+		long startTimeSolr = System.currentTimeMillis();
 
-			experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
+		List<String> genderList = getParamsAsList(gender);
+		experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
 
-			//model.addAttribute("solrExperiment", experiment);
-			//System.out.println("solr experiment="+experiment);
-			long endTimeSolr   = System.currentTimeMillis();
-			long timeTakenSolr = endTimeSolr - startTimeSolr;
-			System.out.println("solr time taken to get experiment=" + timeTakenSolr);
+		long endTimeSolr   = System.currentTimeMillis();
+		long timeTakenSolr = endTimeSolr - startTimeSolr;
+		System.out.println("solr time taken to get experiment=" + timeTakenSolr);
 
-		ProcedureDTO proc = null;
+		ProcedureDTO proc;
+		ParameterDTO parameter = null;
+
 		if (experiment != null) {
-			proc = impressService.getProcedureByStableId(experiment.getProcedureStableId());
+			proc = impressService.getProcedureByStableId(experiment.getPipelineStableId(), experiment.getProcedureStableId());
 
 			String procedureUrl = "";
 			String parameterUrl = "";
 			if (proc != null) {
 				//procedureDescription = String.format("<a href=\"%s\">%s</a>", is.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()),  "Procedure: "+ proc.getName());
-				procedureUrl = impressService.getProcedureUrlByKey(proc.getStableKey().toString());
+				procedureUrl = impressService.getProcedureUrlByStableKeyAndPipelineStableKey(proc.getStableKey(), pipeline.getStableKey());
 				model.addAttribute("procedureUrl", procedureUrl);
 			}
+
+			parameter = impressService.getParameterByPipelineProcedureParameterStableKey(pipeline.getStableKey(), proc.getStableKey(), parameterStableId);
+			model.addAttribute("parameter", parameter);
+
+			//3i procedures with at least some headline images associated
+			if (parameter.getStableId().startsWith("MGP_BMI") || parameter.getStableId().startsWith("MGP_MLN") || parameter.getStableId().startsWith("MGP_IMM")) {
+				addFlowCytometryImages(accession, model, parameter);
+			}
+
+			String          xUnits                  = parameter.getUnitX();
+			ObservationType observationTypeForParam = parameter.getObservationType();
+
 			if (parameter.getStableKey() != null) {
-				//title = String.format("<a href=\"%s\">%s</a>", is.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey()),  "Parameter: "+ parameter.getName());
 				parameterUrl = impressService.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(), parameter.getStableKey());
 				model.addAttribute("parameterUrl", parameterUrl);
 			}
 			model.addAttribute("alleleSymbol", experiment.getAlleleSymobl());
 			setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
-			if (pipeline == null) {
-				// if we don't already have the pipeline from the url params get it via the experiment returned
-				pipeline = impressService.getPipeline(experiment.getPipelineStableId());
-			}
 
 			if (experiment.getMetadataGroup() != null) {
 				metadata = experiment.getMetadataHtml();
@@ -539,6 +530,7 @@ public class ChartsController {
 		Boolean isPostnatal = postnatalLifeStages.contains(parameterLifeStage);
 
 		model.addAttribute("isPostnatal", isPostnatal);
+		model.addAttribute("lifeStage", LifeStageMapper.getLifeStage(parameterStableId).getName());
 
 		return "chart";
 	}

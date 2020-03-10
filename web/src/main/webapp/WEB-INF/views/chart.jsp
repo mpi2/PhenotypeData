@@ -103,10 +103,13 @@
                 <div class="col-md-6">
                     <table class="table table-striped">
                         <tr>
+                            <td>Life stage</td>
+                            <td class="font-weight-bold">${lifeStage} <a href="${cmsBaseUrl}/help/standardized-mouse-phenotyping/pipelines/late-adult-and-interval-pipelines/" target="_blank" ><i class="fa fa-question-circle" style="color: #ce6211;"></i></a></td>
+                        </tr>
+                        <tr>
                             <td>Associated Phenotype</td>
                             <c:if test="${phenotypes != null && phenotypes.size() >= 1}"><td><c:forEach var="phenotype" items="${phenotypes}"><div><a class="font-weight-bold" href="${parameterUrl}">${phenotype}</a></div></c:forEach></td></c:if>
                             <c:if test="${phenotypes == null || phenotypes.size() < 1}"><td class="font-weight-bold">No significant association</td></c:if>
-
                         </tr>
                         <tr>
                             <td>Testing protocol</td>
@@ -145,6 +148,9 @@
 Mouseover the charts for more information. Click and drag to zoom the chart. Click on the legends to disable/enable data.</p>
 
         <c:choose>
+            <c:when test="${param['chart_type'] eq 'TEXT'}">
+                <jsp:include page="textFrag.jsp"/>
+            </c:when>
             <c:when test="${param['chart_type'] eq 'UNIDIMENSIONAL_SCATTER_PLOT'}">
                 <jsp:include page="scatterStatsFrag.jsp"/>
             </c:when>
