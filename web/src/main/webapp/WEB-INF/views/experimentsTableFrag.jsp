@@ -185,6 +185,8 @@
             }
         } else if(row.procedure_name.startsWith("Gross Pathology and Tissue Collectio")) {
             link = baseUrl + '/grosspath/' + row.gene_accession_id + '/' + row.parameter_stable_id;
+        }else if(row.parameter_name.toUpperCase().indexOf("image".toUpperCase()) !== -1) {
+            link = baseUrl + '/imageComparator?acc=' + row.gene_accession_id + '&parameter_stable_id=' + row.parameter_stable_id;
         } else {
             link =  baseUrl + "/charts?accession=" + row.gene_accession_id;
             link += "&allele_accession_id=" + row.allele_accession_id;
