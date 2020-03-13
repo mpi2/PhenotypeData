@@ -116,9 +116,9 @@ if n_solr_dirs_not_in_nfs + n_solr_dirs_in_nfs != n_solr_dirs:
     print(f"\tNumber of solr dirs NOT in nfs: {n_solr_dirs_not_in_nfs}")
     print(f"\tTotal number of dirs in solr: {n_solr_dirs}")
 # Get images for dirs missing in nfs
-for d in solr_dirs_not_in_nfs[0]:
+for d in solr_dirs_not_in_nfs:
     get_images_for_directory(d, df_response, output_dir, None)
 
 # Get missing images from dirs present in both nfs and solr
-for d in solr_dirs_in_nfs[-1]:
+for d in solr_dirs_in_nfs:
     get_images_for_directory(d, df_response, output_dir, nfs_base_dir)
