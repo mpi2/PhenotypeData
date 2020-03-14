@@ -174,7 +174,6 @@ public class GenesController {
             throws URISyntaxException, GenomicFeatureNotFoundException, IOException, SQLException, SolrServerException {
 
         String debug = request.getParameter("debug");
-        LOGGER.info("#### genesAllele2: debug: " + debug);
         boolean d = debug != null && debug.equals("true");
         if (d) {
             model.addAttribute("debug", "true");
@@ -266,10 +265,8 @@ public class GenesController {
         try {
 
             phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
-            System.out.println(phenotypeSummaryObjects);
             mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
             mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
-            System.out.println("mpGroupsNotSignificant="+mpGroupsNotSignificant);
             if (!mpGroupsSignificant.keySet().contains("mortality/aging") && viabilityCalls.size() > 0) {
                 //if mortality aging is not significant we need to test if it's been tested or not
                 mpGroupsNotSignificant.put("mortality/aging", "mpTermId=MP:0010768");
@@ -806,7 +803,7 @@ public class GenesController {
     private void processDisease(String acc, Model model) {
 
         // fetch diseases that are linked to a gene via annotations/curation
-        LOGGER.info(String.format("%s - getting gene-disease associations for gene ", acc));
+        LOGGER.debug(String.format("%s - getting gene-disease associations for gene ", acc));
         List<GeneDiseaseAssociation> geneAssociations = phenoDigm2Dao.getGeneToDiseaseAssociations(acc);
 
         // fetch just the ids, and encode them into an array
@@ -824,7 +821,7 @@ public class GenesController {
 
         // fetch models that have this gene
         List<DiseaseModelAssociation> modelAssociations = phenoDigm2Dao.getGeneToDiseaseModelAssociations(acc);
-        LOGGER.info("Found " + modelAssociations.size()+ " associations");
+        LOGGER.debug("Found " + modelAssociations.size()+ " associations");
 
         // create a js object representation of the models        
         String modelAssocsJsArray = "[]";
