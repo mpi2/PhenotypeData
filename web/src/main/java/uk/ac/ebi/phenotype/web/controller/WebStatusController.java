@@ -125,7 +125,7 @@ public class WebStatusController {
             return "webStatus";
         }
 
-        logger.info("Updating webstatus model values");
+        logger.debug("Updating webstatus model values");
         cacheMiss += 1;
 
         ExecutorService executor = Executors.newCachedThreadPool();
