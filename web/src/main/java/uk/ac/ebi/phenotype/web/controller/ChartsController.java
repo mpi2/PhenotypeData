@@ -538,7 +538,7 @@ public class ChartsController {
 
 	private void addFlowCytometryImages(String[] accession, Model model, ParameterDTO parameter)
 			throws SolrServerException, IOException {
-		System.out.println("flow cytomerty for 3i detected get headline images");
+		log.debug("flow cytomerty for 3i detected get headline images");
 		//lets get the 3i headline images
 		//example query http://ves-hx-d8.ebi.ac.uk:8986/solr/impc_images/select?q=parameter_stable_id:MGP_IMM_233_001
 		//or maybe we need to filter by parameter association first based no the initial parameter
@@ -663,7 +663,7 @@ public class ChartsController {
             allParameters = StringUtils.join(pNames, ", ");
 
         }// end of gene iterations
-        log.info(allGraphUrlSet.size() + " chart links.");
+        log.debug(allGraphUrlSet.size() + " chart links.");
         model.addAttribute("allGraphUrlSet", allGraphUrlSet);
         model.addAttribute("allParameters", allParameters);
         return "stats";

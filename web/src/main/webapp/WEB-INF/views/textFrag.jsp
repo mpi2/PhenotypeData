@@ -3,7 +3,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<!-- PieChart here -->
+<!-- Text observation here -->
 <c:if test="${viabilityDTO!=null}">
 
 	<div class="container">
