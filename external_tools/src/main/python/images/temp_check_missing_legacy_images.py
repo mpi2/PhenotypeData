@@ -60,7 +60,8 @@ def get_images_for_directory(directory, dataframe,
                 if os.path.isfile(nfs_image_path):
                     print(f"{nfs_image_path} exists on nfs-not downloading")
                     continue
-            url = sanger_url + image_path
+            # replace spaces - should really use urlencode ...
+            url = sanger_url + image_path.replace(" ","%20")
             image_path = os.path.join(output_dir_base, image_path)
 
             # Before downloading check the file does not exist
