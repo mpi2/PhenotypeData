@@ -281,7 +281,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         QueryResponse response = statisticalResultCore.query(query);
         Long solrDocumentCount = response.getResults().getNumFound();
 
-        logger.info("  Count of documents in solr: {}, count added by indexer: {}, Difference: {}", solrDocumentCount, documentsAddedCount, documentsAddedCount - solrDocumentCount);
+        if (documentsAddedCount - solrDocumentCount != 0) {
+            logger.warn("  Count of documents in solr: {}, count added by indexer: {}, Difference: {}", solrDocumentCount, documentsAddedCount, documentsAddedCount - solrDocumentCount);
+        }
 
         if (documentsAddedCount - solrDocumentCount > 0) {
 
