@@ -105,13 +105,7 @@ public class ImpressBaseDTO {
 	 */
 	public static Comparator<ImpressBaseDTO> getComparatorByName()
 	{   
-		Comparator<ImpressBaseDTO> comp = new Comparator<ImpressBaseDTO>(){
-	    @Override
-	    public int compare(ImpressBaseDTO a, ImpressBaseDTO b)
-	    {
-	        return a.getName().compareTo(b.getName());
-	    }        
-		};
+		Comparator<ImpressBaseDTO> comp = Comparator.comparing(ImpressBaseDTO::getName);
 		return comp;
 	}  
 	
@@ -121,13 +115,7 @@ public class ImpressBaseDTO {
 	 * @return Sort by stable id.
 	 */
 	public static Comparator<ImpressBaseDTO> getComparatorByStableId()	{   
-		Comparator<ImpressBaseDTO> comp = new Comparator<ImpressBaseDTO>(){
-	    @Override
-	    public int compare(ImpressBaseDTO a, ImpressBaseDTO b)
-	    {
-	        return a.getStableId().compareTo(b.getStableId());
-	    }        
-		};
+		Comparator<ImpressBaseDTO> comp = Comparator.comparing(ImpressBaseDTO::getStableId);
 		return comp;
 	}  
 	

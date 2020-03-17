@@ -15,7 +15,6 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.solr.service.ExperimentService;
@@ -240,6 +239,9 @@ public class GraphUtils {
 
                 case time_series:
                     return ChartType.TIME_SERIES_LINE;
+
+                case text:
+                    return ChartType.TEXT;
 
             }
         }

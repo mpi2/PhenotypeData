@@ -54,6 +54,12 @@ public class ScatterChartAndTableProvider {
 		}else if(parameter.getUnitX()!=null && !parameter.getUnitX().equals("")){
 			yTitle=parameter.getUnitX();
 		}
+
+		String yAxisLabel = parameter.getName() + " (" + yTitle + ")";
+		if (yTitle.trim().isEmpty()) {
+			yAxisLabel = parameter.getName();
+		}
+
 		String chartString="	$(function () { "
 			+ "  chart71maleWTSI = new Highcharts.Chart({ "
 			+ "     chart: {"
@@ -63,7 +69,7 @@ public class ScatterChartAndTableProvider {
 			+ "         zoomType: 'xy'"
 
 			+ "     },"
-			+ "   title: {  text: 'Scatterplot of the data' },"
+			+ "   title: {  useHTML:true, text: 'Scatterplot of the data <a href=\"/help/quick-guide-to-the-website/chart-page/\" target=\"_blank\"><i class=\"fa fa-question-circle\" style=\"color: #ce6211;\"></i></a>' },"
 			+ "     xAxis: {"
 			+ "       type: 'datetime',"
 			+ "       labels: { "
@@ -82,7 +88,7 @@ public class ScatterChartAndTableProvider {
 			+ (max != null ? "       max: " + max + ", " : "")
 			+ (min != null ? "       min: " + min + ", " : "")
 			+ "       title: { "
-			+ "         text: '" + yTitle + "' "
+			+ "         text: '" + yAxisLabel + "' "
 			+ "       } "
 			+ "     }, "
 			+ "     credits: { "
@@ -115,7 +121,7 @@ public class ScatterChartAndTableProvider {
 			+ "      }, "
 			+ "     series: " +
 			series.toString()
-			+ "    }); console.log('HERE');"
+			+ "    });"
 			+ "	}); ";
 
 		return chartString;

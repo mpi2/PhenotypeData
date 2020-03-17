@@ -38,13 +38,101 @@ import java.util.List;
 //]
 public class ChartsSeriesElement {
 
-	List<Float>originalData=new ArrayList<>();//to hold original data before being processsed to chart objects
+	private String name;
+	private String colorString;
+	private String chartTypeString;
+	private JSONArray boxPlotArray;
+	private JSONArray boxPlotOutliersArray;
+	private SexType sexType;
+	private ZygosityType zygosityType;
+
+	//to hold original data before being processsed to chart objects
+	List<Float> originalData = new ArrayList<>();
+
+	// to record the column of this data if say for boxplots we need this to determine how many other [] arrays to add before us
+	int column;
+
 	public List<Float> getOriginalData() {
 		return originalData;
 	}
+
 	public void setOriginalData(List<Float> originalData) {
 		this.originalData = originalData;
 	}
+
+	public JSONArray getBoxPlotOutliersArray() {
+		return boxPlotOutliersArray;
+	}
+
+	public void setBoxPlotOutliersArray(JSONArray boxPlotOutliersArray) {
+		this.boxPlotOutliersArray = boxPlotOutliersArray;
+	}
+
+	public ZygosityType getZygosityType() {
+		return zygosityType;
+	}
+
+	public void setZygosityType(ZygosityType zygosityType) {
+		this.zygosityType = zygosityType;
+	}
+
+	String getControlOrZygosityString() {
+		if (zygosityType == null) {
+			return "WT";
+		} else {
+			return zygosityType.getShortName();
+		}
+
+	}
+
+	public int getColumn() {
+		return column;
+	}
+
+	public void setColumn(int column) {
+		this.column = column;
+	}
+
+	public SexType getSexType() {
+		return sexType;
+	}
+
+	public void setSexType(SexType sexType) {
+		this.sexType = sexType;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getColorString() {
+		return colorString;
+	}
+
+	public void setColorString(String colorString) {
+		this.colorString = colorString;
+	}
+
+	public String getChartTypeString() {
+		return chartTypeString;
+	}
+
+	public void setChartTypeString(String chartTypeString) {
+		this.chartTypeString = chartTypeString;
+	}
+
+	public JSONArray getBoxPlotArray() {
+		return boxPlotArray;
+	}
+
+	public void setBoxPlotArray(JSONArray dataArray) {
+		this.boxPlotArray = dataArray;
+	}
+
 	@Override
 	public String toString() {
 		return "ChartsSeriesElement [originalData=" + originalData
@@ -53,69 +141,5 @@ public class ChartsSeriesElement {
 				+ ", colorString=" + colorString + ", chartTypeString="
 				+ chartTypeString + ", dataArray=" + boxPlotArray + "]\n";
 	}
-	int column;//to record the column of this data if say for boxplots we need this to determine how many other [] arrays to add before us
-	SexType sexType;
-	ZygosityType zygosityType;
-
-	/**
-	 * if zygosity type is null then it must be wildtype
-	 * @return
-	 */
-	public ZygosityType getZygosityType() {
-		return zygosityType;
-	}
-	public void setZygosityType(ZygosityType zygosityType) {
-		this.zygosityType = zygosityType;
-	}
-
-	String getControlOrZygosityString() {
-		if(zygosityType==null) {
-			return "WT";
-		}else {
-			return zygosityType.getShortName();
-		}
-
-	}
-	public int getColumn() {
-		return column;
-	}
-	public void setColumn(int column) {
-		this.column = column;
-	}
-
-	public SexType getSexType() {
-		return sexType;
-	}
-	public void setSexType(SexType sexType) {
-		this.sexType = sexType;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public String getColorString() {
-		return colorString;
-	}
-	public void setColorString(String colorString) {
-		this.colorString = colorString;
-	}
-	public String getChartTypeString() {
-		return chartTypeString;
-	}
-	public void setChartTypeString(String chartTypeString) {
-		this.chartTypeString = chartTypeString;
-	}
-	public JSONArray getBoxPlotArray() {
-		return boxPlotArray;
-	}
-	public void setBoxPlotArray(JSONArray dataArray) {
-		this.boxPlotArray = dataArray;
-	}
-	String name;
-	String colorString;
-	String chartTypeString;
-	JSONArray boxPlotArray;
 
 }

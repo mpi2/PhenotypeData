@@ -687,7 +687,6 @@ public class SolrIndex2 {
 
     private JSONObject getResults(String url) throws IOException,
             URISyntaxException, JSONException {
-    	log.info("getResults url in solrindex2="+url);
         HttpProxy proxy = new HttpProxy();
         String content = proxy.getContent(new URL(url));
 
