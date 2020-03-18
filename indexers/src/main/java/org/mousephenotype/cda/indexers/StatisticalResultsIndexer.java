@@ -1193,7 +1193,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                         if (SAVE) statisticalResultCore.addBean(doc, 30000);
                         shouldHaveAdded.add(doc.getDocId());
                         if (docs.size() % REPORT_INTERVAL == 0) {
-                            logger.info((SAVE?"":"Would have") + " Added {} categorical doucments", docs.size());
+                            logger.info((SAVE?"":"Would have") + " Added {} categorical documents", docs.size());
                         }
                     }
 
@@ -1311,7 +1311,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                     if (SAVE) statisticalResultCore.addBean(doc, 30000);
                     shouldHaveAdded.add(doc.getDocId());
                     if (docs.size()% REPORT_INTERVAL ==0) {
-                        logger.info((SAVE?"":"Would have") + " Added {} unidimensional doucments", docs.size());
+                        logger.info((SAVE?"":"Would have") + " Added {} unidimensional documents", docs.size());
                     }
                 }
             } catch (Exception e) {
