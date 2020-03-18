@@ -7,10 +7,7 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by ilinca on 28/03/2017.
@@ -57,7 +54,11 @@ public class TreeJsHelper {
             return children;
         }
 
-
+        private static Set<String> knownMissingRootPaths = new HashSet<>(Arrays.asList(new String[] {
+                "EMAPA:0",      // Anatomical structure
+                "MA:0000001",   // mouse anatomical entity
+                "MA:0003000"    // anatomical structure
+        }));
         public static List<JSONObject> createTreeJson(OntologyTermDTO term, String baseUrl, OntologyParser parser, Map<String, Integer> mpGeneVariantCount, List<String> treeBrowserTopLevels) throws JSONException{
 
             Map<Integer, JSONObject> nodes = new HashMap<>();
@@ -66,7 +67,9 @@ public class TreeJsHelper {
                     getJson(path, baseUrl, parser, term.getAccessionId(), nodes, mpGeneVariantCount);
                 }
             } else {
-                logger.info("No path to root for " + term.getAccessionId() + ". It's OK to have some terms outside, i.e. EMAPA:0, but if you see lots investigate the issue.");
+                if (! knownMissingRootPaths.contains(term.getAccessionId())) {
+                    logger.info("No path to root for " + term.getAccessionId() + ". It's OK to have some terms outside, i.e. EMAPA:0, but if you see lots investigate the issue.");
+                }
             }
 
             // root is 0, mammalian phenotype for MP
