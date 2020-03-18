@@ -29,6 +29,8 @@ import org.mousephenotype.cda.solr.bean.ExpressionImagesBean;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.AnatomyPageTableRow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
@@ -37,13 +39,11 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 
-/**
- * Pulled in 2015/07/09 by @author tudose
- *
- */
 
 @Service
 public class ExpressionService extends BasicService {
+
+	private static final Logger log = LoggerFactory.getLogger(ExpressionService.class);
 
 	public static final String SECTION_PARAM_NAME="LacZ images Section";
 	public static final String WHOLEMOUNT_PARAM_NAME="LacZ images wholemount";
@@ -663,7 +663,6 @@ public class ExpressionService extends BasicService {
 		if (anatomyToDocs.containsKey(anatomy)) {
 
 			for (SolrDocument doc : anatomyToDocs.get(anatomy)) {
-//if(!embryo)System.out.println("anatomy="+anatomy+"embryo ? "+embryo+" doc="+doc);
 				if (doc.containsKey(ObservationDTO.OBSERVATION_TYPE)
 						&& doc.get(ObservationDTO.OBSERVATION_TYPE).equals("categorical")) {
 
@@ -681,7 +680,7 @@ public class ExpressionService extends BasicService {
 							row.setAbnormalAnatomyId(ontologyBean.getId());
 							row.setAbnormalAnatomyName(StringUtils.capitalize(ontologyBean.getName()));
 						} else {
-							System.out.println("no anatomy id for param id: " + parameterStableId);
+							log.debug("no anatomy id for param id: " + parameterStableId);
 						}
 					}
 					row = getExpressionCountForAnatomyTerm(anatomy, row, doc);
