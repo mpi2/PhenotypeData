@@ -327,9 +327,13 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 				}
 			}
 
-			SolrDocument doc = res.getResults().get(0);
-			dto.setGeneSymbol(doc.getFieldValue(StatisticalResultDTO.MARKER_SYMBOL).toString());
-			dto.setGeneAccession(geneAccessionId);
+			if (res.getResults().size() > 0) {
+				SolrDocument doc = res.getResults().get(0);
+				dto.setGeneSymbol(doc.getFieldValue(StatisticalResultDTO.MARKER_SYMBOL).toString());
+				dto.setGeneAccession(geneAccessionId);
+			} else {
+				logger.info("StatisticalResultService.getAllelesInfo(...) - No results from solr query " + ((HttpSolrClient)statisticalResultCore).getBaseURL() + "/" + q);
+			}
 
 		} catch (SolrServerException | IOException e) {
 			e.printStackTrace();
@@ -1167,9 +1171,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 		if (zygosity != null) {
 			solrQuery.addFilterQuery(StatisticalResultDTO.ZYGOSITY + ":" + zygosity.getName());
 		}
-		System.out.println("get phenotypes for top level mp term solrQuery="+solrQuery);
 		List<StatisticalResultDTO> dtos = statisticalResultCore.query(solrQuery).getBeans(StatisticalResultDTO.class);
-		System.out.println("SRDTOS size for " + zygosity.getName() + "="+dtos.size());
 
 		for (StatisticalResultDTO dto : dtos) {
 			if (dto.getTopLevelMpTermId() != null || dto.getFemaleTopLevelMpTermId() != null || dto.getMaleTopLevelMpTermId() != null) {

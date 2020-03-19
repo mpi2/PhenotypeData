@@ -58,7 +58,7 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 
 	private Map<String, String>          emapToEmapa;
 	private Map<String, ObservationType> parameterToObservationTypeMap;
-	private Map<Long, ParameterDTO>    paramIdToParameter;
+	private Map<Long, ParameterDTO>      paramIdToParameter;
 	private Map<String, PipelineDTO>     pipelines;
 	private Map<String, ProcedureDTO>    procedureIdToProcedure;
 
@@ -135,13 +135,22 @@ public class PipelineIndexer extends AbstractIndexer implements CommandLineRunne
 			pipelineCore.deleteByQuery("*:*");
 			pipelineCore.commit();
 
+			Set<String> uniquePipelineKeys = new HashSet<>();
+
 			for (PipelineDTO pipeline : pipelines.values()) {
 
-				for (ProcedureDTO procedure : pipeline.getProcedures()){
+				for (ProcedureDTO procedure : pipeline.getProcedures()) {
 
 					List<ParameterDTO> parameters = procedure.getParameters();
 
 					for (ParameterDTO param : parameters) {
+
+						// Skip pipeline if it has already been added.
+						String key = pipeline.getStableId() + "_" + procedure.getStableId() + "_" + param.getStableId();
+						if (uniquePipelineKeys.contains(key)) {
+							continue;
+						}
+						uniquePipelineKeys.add(key);
 
 						ImpressDTO doc = new ImpressDTO();
 						doc.setParameterId(param.getId());
