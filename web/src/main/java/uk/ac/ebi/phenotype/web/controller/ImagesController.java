@@ -95,7 +95,7 @@ public class ImagesController {
 
 	@RequestMapping("/images*")
 	public String allImages(@RequestParam(required = false, defaultValue = "0", value = "start") int start, 
-			@RequestParam(required = false, defaultValue = "25", value = "length") int length, 
+			@RequestParam(required = false, defaultValue = "24", value = "length") int length,
 			@RequestParam(required = false, defaultValue = "*:*", value = "q") String qIn, 
 			@RequestParam(required = false, defaultValue = "", value = "phenotype_id") String mpId, 
 			@RequestParam(required = false, defaultValue = "", value = "gene_id") String geneId, 
