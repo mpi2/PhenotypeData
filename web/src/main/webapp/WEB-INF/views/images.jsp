@@ -10,7 +10,7 @@
         Images</a> &raquo; Results</jsp:attribute>
 
     <jsp:attribute name="header">
-		<link href="${baseUrl}/css/imagemain.css" rel="stylesheet"/>
+<%--		<link href="${baseUrl}/css/imagemain.css" rel="stylesheet"/>--%>
 		<link href="${baseUrl}/css/searchresults.css" rel="stylesheet"/>
 		<style>
             table th {
@@ -88,6 +88,7 @@
                                             <div class="section">
                                                 <div class="inner">
                                                     <div class="accordion-body" style="display: block">
+                                                        <div id="grid">
                                                         <div class="container-fluid">
                                                             <div class="row">
                                                                 <c:forEach var="image" items="${images}"
@@ -98,6 +99,7 @@
                                                                     </div>
                                                                 </c:forEach>
                                                             </div>
+                                                        </div>
                                                         </div>
                                                     </div>
 
