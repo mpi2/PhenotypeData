@@ -66,6 +66,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -344,10 +345,17 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
         }
     }
 
+    private Set<String> uniqueObservationKeys = new ConcurrentSkipListSet<>();
     private long writeObservations(NamedQuery query, ResultSet r, RunStatus runStatus) throws Exception {
 
 	    long documentCountForQuery = 0L;
         while (r.next()) {
+
+            // Skip observation if it has already been added
+            if (uniqueObservationKeys.contains(r.getString("id"))) {
+                continue;
+            }
+            uniqueObservationKeys.add(r.getString("id"));
 
             if (writeObservation(query, r, runStatus))
                 continue;

@@ -80,19 +80,21 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     private final List<String> EMBRYO_PROCEDURES_NO_VIA = Arrays.asList("IMPC_GPL", "IMPC_GEL", "IMPC_GPM", "IMPC_GEM", "IMPC_GPO", "IMPC_GEO", "IMPC_GPP", "IMPC_GEP");
     private final List<String> EMBRYO_PROCEDURES_VIA = Arrays.asList("IMPC_EVL_001_001", "IMPC_EVM_001_001", "IMPC_EVO_001_001", "IMPC_EVP_001_001");
 
-    private   Map<Long, ImpressBaseDTO>     pipelineMap              = new HashMap<>();
-    private   Map<Long, ImpressBaseDTO>     procedureMap             = new HashMap<>();
-    private   Map<Long, ParameterDTO>       parameterMap             = new HashMap<>();
-    private   Map<String, ResourceBean>     resourceMap              = new HashMap<>();
-    private   Map<String, List<String>>     sexesMap                 = new HashMap<>();
-    private   Set<String>                   alreadyReported          = new HashSet<>();
-    private   Map<Long, BiologicalDataBean> biologicalDataMap        = new HashMap<>();
-    private   Map<String, Set<String>>      parameterMpTermMap       = new HashMap<>();
-    private   Map<String, String>           embryoSignificantResults = new HashMap<>();
+    private Map<Long, ImpressBaseDTO>     pipelineMap              = new HashMap<>();
+    private Map<Long, ImpressBaseDTO>     procedureMap             = new HashMap<>();
+    private Map<Long, ParameterDTO>       parameterMap             = new HashMap<>();
+    private Map<String, ResourceBean>     resourceMap              = new HashMap<>();
+    private Map<String, List<String>>     sexesMap                 = new HashMap<>();
+    private Set<String>                   alreadyReported          = new HashSet<>();
+    private Map<Long, BiologicalDataBean> biologicalDataMap        = new HashMap<>();
+    private Map<String, Set<String>>      parameterMpTermMap       = new HashMap<>();
+    private Map<String, String>           embryoSignificantResults = new HashMap<>();
     private Set<String>                   VIA_SIGNIFICANT          = new HashSet<>();
     private Set<String>                   MALE_FER_SIGNIFICANT     = new HashSet<>();
     private Set<String>                   FEMALE_FER_SIGNIFICANT   = new HashSet<>();
-    private   List<String>                  shouldHaveAdded          = new ArrayList<>();
+    private List<String>                  shouldHaveAdded          = new ArrayList<>();
+
+    private Set<String> uniqueSRKeys = new ConcurrentSkipListSet<>();
 
     public void setPipelineMap(Map<Long, ImpressBaseDTO> pipelineMap) {
         this.pipelineMap = pipelineMap;
@@ -279,7 +281,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         QueryResponse response = statisticalResultCore.query(query);
         Long solrDocumentCount = response.getResults().getNumFound();
 
-        logger.info("  Count of documents in solr: {}, count added by indexer: {}, Difference: {}", solrDocumentCount, documentsAddedCount, documentsAddedCount - solrDocumentCount);
+        if (documentsAddedCount - solrDocumentCount != 0) {
+            logger.warn("  Count of documents in solr: {}, count added by indexer: {}, Difference: {}", solrDocumentCount, documentsAddedCount, documentsAddedCount - solrDocumentCount);
+        }
 
         if (documentsAddedCount - solrDocumentCount > 0) {
 
@@ -294,7 +298,6 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
             logger.warn(" Should have added these {} doc IDs, but missing from solr {}", diff.size(), StringUtils.join(diff, ", "));
         }
-
     }
 
     private Double nullCheckResult(ResultSet r,  String field) throws SQLException {
@@ -555,12 +558,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             doc.setEffectSize(effect_size);
         }
 
-
         return doc;
-
     }
-
-
 
 
     /**
@@ -1183,11 +1182,18 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                     ResultSet r = p.executeQuery();
                     while (r.next()) {
                         StatisticalResultDTO doc = parseCategoricalResult(r, sexSpecificStats);
+
+                        // Skip document if it has already been added
+                        if (uniqueSRKeys.contains(doc.getDocId())) {
+                            continue;
+                        }
+                        uniqueSRKeys.add(doc.getDocId());
+
                         docs.add(doc);
                         if (SAVE) statisticalResultCore.addBean(doc, 30000);
                         shouldHaveAdded.add(doc.getDocId());
                         if (docs.size() % REPORT_INTERVAL == 0) {
-                            logger.info((SAVE?"":"Would have") + " Added {} categorical doucments", docs.size());
+                            logger.info((SAVE?"":"Would have") + " Added {} categorical documents", docs.size());
                         }
                     }
 
@@ -1294,11 +1300,18 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 ResultSet r = p.executeQuery();
                 while (r.next()) {
                     StatisticalResultDTO doc = parseUnidimensionalResult(r);
+
+                    // Skip document if it has already been added
+                    if (uniqueSRKeys.contains(doc.getDocId())) {
+                        continue;
+                    }
+                    uniqueSRKeys.add(doc.getDocId());
+
                     docs.add(doc);
                     if (SAVE) statisticalResultCore.addBean(doc, 30000);
                     shouldHaveAdded.add(doc.getDocId());
                     if (docs.size()% REPORT_INTERVAL ==0) {
-                        logger.info((SAVE?"":"Would have") + " Added {} unidimensional doucments", docs.size());
+                        logger.info((SAVE?"":"Would have") + " Added {} unidimensional documents", docs.size());
                     }
                 }
             } catch (Exception e) {
@@ -1444,6 +1457,13 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 ResultSet r = p.executeQuery();
                 while (r.next()) {
                     StatisticalResultDTO doc = parseReferenceRangeResult(r);
+
+                    // Skip document if it has already been added
+                    if (uniqueSRKeys.contains(doc.getDocId())) {
+                        continue;
+                    }
+                    uniqueSRKeys.add(doc.getDocId());
+
                     docs.add(doc);
                     if (SAVE) statisticalResultCore.addBean(doc, 30000);
                     shouldHaveAdded.add(doc.getDocId());
@@ -1686,6 +1706,13 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                     }
 
                     StatisticalResultDTO doc = parseLineResult(r);
+
+                    // Skip document if it has already been added
+                    if (uniqueSRKeys.contains(doc.getDocId())) {
+                        continue;
+                    }
+                    uniqueSRKeys.add(doc.getDocId());
+
                     doc.setCategories(Collections.singletonList(r.getString("category")));
                     r.getString("p_value");
                     if (r.wasNull()) {
@@ -1758,6 +1785,13 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 while (r.next()) {
 
                     StatisticalResultDTO doc = parseLineResult(r);
+
+                    // Skip document if it has already been added
+                    if (uniqueSRKeys.contains(doc.getDocId())) {
+                        continue;
+                    }
+                    uniqueSRKeys.add(doc.getDocId());
+
                     doc.setCategories(Collections.singletonList(r.getString("category")));
                     docs.add(doc);
                     if (SAVE) statisticalResultCore.addBean(doc, 30000);
@@ -1814,8 +1848,14 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
                 while (r.next()) {
 
-                   StatisticalResultDTO doc = parseLineResult(r);
-                    doc.setDocId(doc.getDocId()+"-"+(i++));
+                    StatisticalResultDTO doc = parseLineResult(r);
+                    doc.setDocId(doc.getDocId() + "-" + (i++));
+
+                    // Skip document if it has already been added
+                    if (uniqueSRKeys.contains(doc.getDocId())) {
+                        continue;
+                    }
+                    uniqueSRKeys.add(doc.getDocId());
 
                     if (embryoSignificantResults.containsKey(r.getString("significant_id"))) {
                         addMpTermData(embryoSignificantResults.get(r.getString("significant_id")), doc);
@@ -1882,6 +1922,12 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 while (r.next()) {
                     StatisticalResultDTO doc = parseLineResult(r);
 
+                    // Skip document if it has already been added
+                    if (uniqueSRKeys.contains(doc.getDocId())) {
+                        continue;
+                    }
+                    uniqueSRKeys.add(doc.getDocId());
+
                     if (embryoSignificantResults.containsKey(r.getString("significant_id"))) {
                         addMpTermData(embryoSignificantResults.get(r.getString("significant_id")), doc);
                         doc.setSignificant(true);
@@ -1945,6 +1991,13 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
                     StatisticalResultDTO doc = parseLineResult(r);
                     doc.setDocId(doc.getDocId()+"-"+(i++));
+
+                    // Skip document if it has already been added
+                    if (uniqueSRKeys.contains(doc.getDocId())) {
+                        continue;
+                    }
+                    uniqueSRKeys.add(doc.getDocId());
+
                     doc.setSignificant(true);
                     docs.add(doc);
 
