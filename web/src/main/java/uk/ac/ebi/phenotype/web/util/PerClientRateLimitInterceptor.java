@@ -26,7 +26,7 @@ public class PerClientRateLimitInterceptor implements HandlerInterceptor {
     public static final long MAX_GENE_PAGE_REQUESTS = 10;
 
     // MIN number of seconds between gene page requests from one host
-    public static final long DELAY_GENE_PAGE_REQUESTS = 3;
+    public static final long DELAY_GENE_PAGE_REQUESTS = 2;
 
 
 
