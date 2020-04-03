@@ -41,6 +41,7 @@ import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import uk.ac.ebi.phenotype.util.SolrUtilsWeb;
 import uk.ac.ebi.phenotype.web.util.DeploymentInterceptor;
+import uk.ac.ebi.phenotype.web.util.PerClientRateLimitInterceptor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -113,7 +114,10 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+
         registry.addInterceptor(deploymentInterceptor);
+        registry.addInterceptor(new PerClientRateLimitInterceptor()).addPathPatterns("/genes/**");
+        registry.addInterceptor(new PerClientRateLimitInterceptor()).addPathPatterns("/charts/**");
     }
 
     @Override
