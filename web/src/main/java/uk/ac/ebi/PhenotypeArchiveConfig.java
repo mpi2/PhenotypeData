@@ -46,10 +46,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created by ilinca on 01/03/2017.
- */
-
 @Configuration
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
 @ComponentScan(value = {"uk.ac.ebi",
