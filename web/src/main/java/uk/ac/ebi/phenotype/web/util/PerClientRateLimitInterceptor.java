@@ -57,7 +57,7 @@ public class PerClientRateLimitInterceptor implements HandlerInterceptor {
                              Object handler) {
 
         log.debug("Buckets: " + String.join(", ", this.buckets.keySet()));
-        String xForwarded = request.getHeader("x-forwarded-host");
+        String xForwarded = request.getHeader("x-forwarded-for");
         String host = StringUtils.isNotEmpty(xForwarded) ? xForwarded : request.getHeader("host");
         Bucket requestBucket = this.buckets.computeIfAbsent(host, key -> rateLimitBucket());
 
