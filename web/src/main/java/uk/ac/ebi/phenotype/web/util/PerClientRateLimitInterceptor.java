@@ -54,7 +54,7 @@ public class PerClientRateLimitInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
-                             Object handler) throws Exception {
+                             Object handler) {
 
         log.debug("Buckets: " + String.join(", ", this.buckets.keySet()));
         String xForwarded = request.getHeader("x-forwarded-host");
@@ -70,9 +70,11 @@ public class PerClientRateLimitInterceptor implements HandlerInterceptor {
             return true;
         }
 
+        final String waitTime = Long.toString(TimeUnit.NANOSECONDS.toMillis(probe.getNanosToWaitForRefill()));
+        log.info("Rate limiting request for page: " + request.getRequestURI() + ", From host: " + host + ", For: " + waitTime + " ms" );
+
         response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value()); // 429
-        response.addHeader("X-Rate-Limit-Retry-After-Milliseconds",
-                Long.toString(TimeUnit.NANOSECONDS.toMillis(probe.getNanosToWaitForRefill())));
+        response.addHeader("X-Rate-Limit-Retry-After-Milliseconds", waitTime);
 
         return false;
     }
