@@ -29,8 +29,7 @@ public class PerClientRateLimitInterceptor implements HandlerInterceptor {
     public static final long DELAY_GENE_PAGE_REQUESTS = 2;
 
 
-
-    private final Map<String, Bucket> buckets =  Collections.synchronizedMap(new LinkedHashMap<String, Bucket>(MAX_SIZE+1, .75F, true) {
+    private final Map<String, Bucket> buckets = Collections.synchronizedMap(new LinkedHashMap<String, Bucket>(MAX_SIZE + 1, .75F, true) {
         // This method is called just after a new entry has been added
         public boolean removeEldestEntry(Map.Entry eldest) {
             return size() > MAX_SIZE;
@@ -45,10 +44,10 @@ public class PerClientRateLimitInterceptor implements HandlerInterceptor {
         return Bucket4j.builder()
                 .addLimit(
                         Bandwidth.classic(MAX_GENE_PAGE_REQUESTS,
-                            Refill.greedy(MAX_GENE_PAGE_REQUESTS, Duration.ofMinutes(1)))
-                        .withInitialTokens(MAX_GENE_PAGE_REQUESTS))
+                                Refill.greedy(MAX_GENE_PAGE_REQUESTS, Duration.ofMinutes(1)))
+                                .withInitialTokens(MAX_GENE_PAGE_REQUESTS))
                 .addLimit(Bandwidth.classic(1,
-                            Refill.greedy(1, Duration.ofSeconds(DELAY_GENE_PAGE_REQUESTS))))
+                        Refill.greedy(1, Duration.ofSeconds(DELAY_GENE_PAGE_REQUESTS))))
                 .build();
     }
 
@@ -56,8 +55,14 @@ public class PerClientRateLimitInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
                              Object handler) {
 
-        log.debug("Buckets: " + String.join(", ", this.buckets.keySet()));
-        String xForwarded = request.getHeader("x-forwarded-host");
+        if (log.isDebugEnabled()) {
+            // Avoid concurrent modification exception
+            synchronized (this.buckets) {
+                log.debug("Buckets: " + String.join(", ", this.buckets.keySet()));
+            }
+        }
+
+        String xForwarded = request.getHeader("x-forwarded-for");
         String host = StringUtils.isNotEmpty(xForwarded) ? xForwarded : request.getHeader("host");
         Bucket requestBucket = this.buckets.computeIfAbsent(host, key -> rateLimitBucket());
 
@@ -71,7 +76,8 @@ public class PerClientRateLimitInterceptor implements HandlerInterceptor {
         }
 
         final String waitTime = Long.toString(TimeUnit.NANOSECONDS.toMillis(probe.getNanosToWaitForRefill()));
-        log.info("Rate limiting request for page: " + request.getRequestURI() + ", From host: " + host + ", For: " + waitTime + " ms" );
+        log.info(String.format("Rate limiting request for page: %s\n  From host: %s\n  User-Agent: %s\n  For: %sms",
+                request.getRequestURI(), host, request.getHeader("User-Agent"), waitTime));
 
         response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value()); // 429
         response.addHeader("X-Rate-Limit-Retry-After-Milliseconds", waitTime);
