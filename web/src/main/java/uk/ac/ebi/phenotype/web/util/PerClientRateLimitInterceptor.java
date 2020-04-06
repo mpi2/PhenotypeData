@@ -15,6 +15,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Interceptor to add filtering based on IP address
+ */
 public class PerClientRateLimitInterceptor implements HandlerInterceptor {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
@@ -23,10 +26,10 @@ public class PerClientRateLimitInterceptor implements HandlerInterceptor {
     public static final int MAX_SIZE = 50;
 
     // MAX number of gene page requests from one host in a minute
-    public static final long MAX_GENE_PAGE_REQUESTS = 10;
+    public static final long MAX_GENE_PAGE_REQUESTS = 15;
 
     // MIN number of seconds between gene page requests from one host
-    public static final long DELAY_GENE_PAGE_REQUESTS = 2;
+    public static final long DELAY_GENE_PAGE_REQUESTS = 1;
 
 
     private final Map<String, Bucket> buckets = Collections.synchronizedMap(new LinkedHashMap<String, Bucket>(MAX_SIZE + 1, .75F, true) {
@@ -38,7 +41,9 @@ public class PerClientRateLimitInterceptor implements HandlerInterceptor {
 
 
     /**
-     * Rate limit the requests to one every 3 seconds and no more than 1 per second
+     * Bucket to Rate limit the requests according to the settnigs
+     *   MAX_GENE_PAGE_REQUESTS = Maximum number of page requests in a minute
+     *   DELAY_GENE_PAGE_REQUESTS = Number of seconds between each page request
      */
     private static Bucket rateLimitBucket() {
         return Bucket4j.builder()
