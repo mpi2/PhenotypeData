@@ -19,7 +19,6 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField;
-import org.mousephenotype.cda.db.pojo.Synonym;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.indexers.beans.MPStrainBean;
 import org.mousephenotype.cda.indexers.beans.ParamProcedurePipelineBean;
@@ -71,9 +70,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     private final Logger logger = LoggerFactory.getLogger(MPIndexer.class);
 
-
     private Map<String, List<AlleleDTO>> allelesByMgiAlleleAccessionId;
-    private Map<String, Synonym>         synonymsBySynonymSymbol;
 
     // Phenotype call summaries (1)
     Map<String, List<PhenotypeCallSummaryBean>> phenotypes1;
@@ -88,11 +85,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     Map<String, Long>    mpCalls            = new HashMap<>();
     Map<String, Integer> mpGeneVariantCount = new HashMap<>();
 
-    private OntologyParser        mpHpParser;
-    private OntologyParser        mpParser;
     private OntologyParser        mpMaParser;
     private OntologyParser        maParser;
-    private OntologyParserFactory ontologyParserFactory;
 
     private SolrClient               alleleCore;
     private SolrClient               genotypePhenotypeCore;
@@ -136,10 +130,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         try (Connection connection = komp2DataSource.getConnection()) {
             initialiseSupportingBeans(connection);
-            ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
-            mpParser = ontologyParserFactory.getMpParser();
+            OntologyParserFactory ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
+            OntologyParser mpParser = ontologyParserFactory.getMpParser();
             logger.debug("Loaded mp parser");
-            mpHpParser = ontologyParserFactory.getMpHpParser();
+            OntologyParser mpHpParser = ontologyParserFactory.getMpHpParser();
             logger.debug("Loaded mp hp parser");
             mpMaParser = ontologyParserFactory.getMpMaParser();
             logger.debug("Loaded mp ma parser");
@@ -148,7 +142,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
 
             // maps MP to number of phenotyping calls
-            runStatus = populateMpCallMaps(synonymsBySynonymSymbol);
+            runStatus = populateMpCallMaps();
 
             for (String error : runStatus.getErrorMessages()) {
                 logger.error(error);
@@ -178,7 +172,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 }
 
 
-                mp.setMpNodeId(mpDTO.getNodeIds() != null ? mpDTO.getNodeIds() : Arrays.asList(-1));
+                mp.setMpNodeId(mpDTO.getNodeIds() != null ? mpDTO.getNodeIds() : new HashSet<>());
 
                 addTopLevelTerms(mp, mpDTO);
                 addIntermediateTerms(mp, mpDTO);
@@ -232,7 +226,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 getMaTermsForMp(mp);
 
                 // this sets the number of postqc/preqc phenotyping calls of this MP
-                addPhenotype1(mp, runStatus);
+                addPhenotype1(mp);
                 mp.setPhenoCalls(sumPhenotypingCalls(termId));
                 addPhenotype2(mp);
 
@@ -246,7 +240,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 expectedDocumentCount++;
                 mpCore.addBean(mp, 60000);
 
-                mpParser.fillJsonTreePath("MP:0000001", "/data/phenotypes/", mpGeneVariantCount, ontologyParserFactory.TOP_LEVEL_MP_TERMS, false); // call this if you want node ids from the objects
+                mpParser.fillJsonTreePath("MP:0000001", "/data/phenotypes/", mpGeneVariantCount, OntologyParserFactory.TOP_LEVEL_MP_TERMS, false); // call this if you want node ids from the objects
             }
 
             // Send a final commit
@@ -262,9 +256,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
     // 22-Mar-2017 (mrelac) Added status to query for errors and warnings.
-    public Map<String, Integer> getPhenotypeGeneVariantCounts(String termId, RunStatus status, Map<String, Synonym> synonyms)
-            throws IOException, URISyntaxException, SolrServerException, JSONException {
-
+    public Map<String, Integer> getPhenotypeGeneVariantCounts(String termId, RunStatus status)
+            throws IOException, URISyntaxException, SolrServerException, JSONException
+    {
         // Errors and warnings are returned in PhenotypeFacetResult.status.
         PhenotypeFacetResult phenoResult = genotypePhenotypeService.getMPCallByMPAccessionAndFilter(termId, null, null, null);
         status.add(phenoResult.getStatus());
@@ -273,7 +267,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         phenotypeList = phenoResult.getPhenotypeCallSummaries();
 
         // This is a map because we need to support lookups
-        Map<Integer, DataTableRow> phenotypes = new HashMap<Integer, DataTableRow>();
+        Map<Integer, DataTableRow> phenotypes = new HashMap<>();
 
         for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
             // On the phenotype pages we only display stats graphs as evidence, the MPATH links can't be linked from phen pages
@@ -284,13 +278,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
                 pr = phenotypes.get(pr.hashCode());
                 // Use a tree set to maintain an alphabetical order (Female, Male)
-                TreeSet<String> sexes = new TreeSet<String>();
-                for (String s : pr.getSexes()) {
-                    sexes.add(s);
-                }
+                TreeSet<String> sexes = new TreeSet<>(pr.getSexes());
                 sexes.add(pcs.getSex().toString());
 
-                pr.setSexes(new ArrayList<String>(sexes));
+                pr.setSexes(new ArrayList<>(sexes));
             }
 
             if (pr.getParameter() != null && pr.getProcedure() != null) {
@@ -298,7 +289,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             }
         }
 
-        List<DataTableRow> uniqGenes = new ArrayList<DataTableRow>(phenotypes.values());
+        List<DataTableRow> uniqGenes = new ArrayList<>(phenotypes.values());
 
         int sumCount = 0;
         for(DataTableRow r : uniqGenes){
@@ -312,114 +303,28 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return kv;
     }
 
-    private boolean isInSlim(String term, OntologyParser parser){
-        return parser.getTermsInSlim().contains(term);
-    }
-
-    private Set<String> getRestrictedNarrowSynonyms(OntologyTermDTO mpFromFullOntology,  int levels) throws IOException, SolrServerException {
-
-        // not taking into account of having phenotyping calls
-        TreeSet<String> synonyms = new TreeSet<String>();
-
-        // get narrow synonyms from all children not in slim.
-        if (mpFromFullOntology.getChildIds() != null && mpFromFullOntology.getChildIds().size() > 0){
-
-            for (String childId : mpFromFullOntology.getChildIds()){
-
-                if (!isInSlim(childId, mpParser)) {   // if not in slim, include all in the specified level
-                    OntologyTermDTO child = mpHpParser.getOntologyTerm(childId);
-                    if (child != null) {
-                        synonyms.addAll(mpHpParser.getNarrowSynonyms(child, levels));
-                        synonyms.add(child.getName());
-                        synonyms.addAll(child.getSynonyms());
-                    }
-                }
-                else if (isInSlim(childId, mpParser)) { // if in slim, add synonym from OUTSIDE slim in the specified level
-                    OntologyTermDTO child = mpHpParser.getOntologyTerm(childId);
-                    if (child != null) {
-                        synonyms.addAll(getNarrowSynonymsOutsideSlim(child, levels, synonyms));
-                    }
-                }
-            }
-        }
-
-        return  synonyms;
-    }
-
-    private TreeSet<String> getNarrowSynonymsOutsideSlim(OntologyTermDTO mpFromFullOntology,  int levels, TreeSet<String> synonyms){
-
-        if (mpFromFullOntology != null &&  levels > 0) {
-            if (!isInSlim(mpFromFullOntology.getAccessionId(), mpParser)) { // not in slim
-                synonyms.addAll(mpHpParser.getNarrowSynonyms(mpFromFullOntology, levels - 1));
-                synonyms.add(mpFromFullOntology.getName());
-                synonyms.addAll(mpFromFullOntology.getSynonyms());
-            } else if (mpFromFullOntology.getChildIds() != null){
-                for (String childId : mpFromFullOntology.getChildIds()) {
-                    if (!isInSlim(childId, mpParser) && mpHpParser.getOntologyTerm(childId) != null) { // child not in slim either
-                        getNarrowSynonymsOutsideSlim(mpHpParser.getOntologyTerm(childId), levels - 1, synonyms);
-                    }
-                }
-            }
-        }
-
-        return synonyms;
-    }
-
-    private boolean isOKForNarrowSynonyms(MpDTO mp) throws IOException, SolrServerException {
-
-        long calls = sumPhenotypingCalls(mp.getMpId());
-        if (calls > 0 && mp.getChildMpId().size() == 0 ){ // leaf node and we have calls
-            return true;
-        }
-
-        boolean hasCallForChildren = false;
-        for (String childId: mp.getChildMpId()){
-            long sum = sumPhenotypingCalls(childId);
-            if (sum > 0) {
-                hasCallForChildren = true;
-                break;
-            }
-        }
-
-        if (calls > 0 && !hasCallForChildren){
-            return true;
-        }
-
-        return false;
-    }
-
-    private RunStatus populateMpCallMaps(Map<String, Synonym> synonyms)
-            throws IOException, SolrServerException, URISyntaxException, JSONException {
+    private RunStatus populateMpCallMaps() throws IOException, SolrServerException, URISyntaxException, JSONException {
         RunStatus status = new RunStatus();
 
-        List<SolrClient> ss = new ArrayList<>();
+        SolrQuery query = new SolrQuery();
+        query.setQuery("*:*");
+        query.setFacet(true);
+        query.setRows(0);
+        query.addFacetField(GenotypePhenotypeDTO.MP_TERM_ID);
+        query.addFacetField(GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID);
+        query.addFacetField(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID);
+        query.setFacetLimit(-1);
 
-        ss.add(genotypePhenotypeCore);
+        for (FacetField facetGroup : genotypePhenotypeCore.query(query).getFacetFields()) {
+            for (FacetField.Count facet : facetGroup.getValues()) {
+                if (!mpCalls.containsKey(facet.getName())) {
+                    mpCalls.put(facet.getName(), 0L);
 
-        for (int i = 0; i < ss.size(); i++){
-
-            SolrClient solrSvr = ss.get(i);
-            SolrQuery query = new SolrQuery();
-            query.setQuery("*:*");
-            query.setFacet(true);
-            query.setRows(0);
-            query.addFacetField(GenotypePhenotypeDTO.MP_TERM_ID);
-            query.addFacetField(GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID);
-            query.addFacetField(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID);
-            query.setFacetLimit(-1);
-
-            for (FacetField facetGroup: solrSvr.query(query).getFacetFields()){
-                for (FacetField.Count facet: facetGroup.getValues()){
-                    if (!mpCalls.containsKey(facet.getName())){
-                        mpCalls.put(facet.getName(), new Long(0));
-
-                        Map<String, Integer> geneVariantCount = getPhenotypeGeneVariantCounts(facet.getName(), status, synonyms);
-                        int gvCount = geneVariantCount.get("sumCount");
-                        mpGeneVariantCount.put(facet.getName(), gvCount);
-                    }
-                    mpCalls.put(facet.getName(), facet.getCount() + mpCalls.get(facet.getName()));
-
+                    Map<String, Integer> geneVariantCount = getPhenotypeGeneVariantCounts(facet.getName(), status);
+                    int                  gvCount          = geneVariantCount.get("sumCount");
+                    mpGeneVariantCount.put(facet.getName(), gvCount);
                 }
+                mpCalls.put(facet.getName(), facet.getCount() + mpCalls.get(facet.getName()));
             }
         }
 
@@ -448,9 +353,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             phenotypes2 = getPhenotypeCallSummary2(connection);
             strains = getStrains(connection);
             pppBeans = getPPPBeans(connection);
-
-            // Synonyms
-            synonymsBySynonymSymbol = IndexerMap.getSynonymsBySynonym(connection);
 
         } catch (SQLException e) {
             throw new IndexerException(e);
@@ -481,7 +383,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             bean.setStrainAcc(rs.getString("strain_acc"));
 
             if ( ! beans.containsKey(mpAcc)) {
-                beans.put(mpAcc, new ArrayList<PhenotypeCallSummaryBean>());
+                beans.put(mpAcc, new ArrayList<>());
             }
             beans.get(mpAcc).add(bean);
             count ++;
@@ -504,7 +406,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             String tId = rs.getString("mp_mgi");
             String impc = rs.getString("impc");
             if ( ! beans.containsKey(tId)) {
-                beans.put(tId, new ArrayList<String>());
+                beans.put(tId, new ArrayList<>());
             }
             beans.get(tId).add(impc);
             count ++;
@@ -526,7 +428,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             String tId = rs.getString("mp_mgi");
             String legacy = rs.getString("legacy");
             if ( ! beans.containsKey(tId)) {
-                beans.put(tId, new ArrayList<String>());
+                beans.put(tId, new ArrayList<>());
             }
             beans.get(tId).add(legacy);
             count ++;
@@ -560,7 +462,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             bean.setStrainAcc(rs.getString("strain_acc"));
 
             if ( ! beans.containsKey(mpAcc)) {
-                beans.put(mpAcc, new ArrayList<PhenotypeCallSummaryBean>());
+                beans.put(mpAcc, new ArrayList<>());
             }
             beans.get(mpAcc).add(bean);
             count ++;
@@ -588,7 +490,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             bean.setName(rs.getString("name"));
 
             if ( ! beans.containsKey(acc)) {
-                beans.put(acc, new ArrayList<MPStrainBean>());
+                beans.put(acc, new ArrayList<>());
             }
             beans.get(acc).add(bean);
             count ++;
@@ -623,7 +525,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             bean.setPipelineStableKey(rs.getString("pipeline_key"));
 
             if ( ! beans.containsKey(id)) {
-                beans.put(id, new ArrayList<ParamProcedurePipelineBean>());
+                beans.put(id, new ArrayList<>());
             }
             beans.get(id).add(bean);
             count ++;
@@ -644,8 +546,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     /**
      * Decorate MpDTO with info for top levels
-     * @param mp
-     * @param mpDTO
      */
     protected static void addTopLevelTerms(MpDTO mp, OntologyTermDTO mpDTO) {
 
@@ -665,7 +565,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         }
     }
 
-    private void addPhenotype1(MpDTO mp, RunStatus runStatus) {
+    private void addPhenotype1(MpDTO mp) {
         if (phenotypes1.containsKey(mp.getMpId())) {
             checkMgiDetails(mp);
 
@@ -686,8 +586,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     private void checkMgiDetails(MpDTO mp) {
         if (mp.getMgiAccessionId() == null) {
-            mp.setMgiAccessionId(new ArrayList<String>());
-            mp.setLatestPhenotypeStatus(new ArrayList<String>());
+            mp.setMgiAccessionId(new ArrayList<>());
+            mp.setLatestPhenotypeStatus(new ArrayList<>());
         }
     }
 
@@ -704,7 +604,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 }
                 if (allele.getDiseaseId() != null) {
                     mp.getDiseaseId().addAll(allele.getDiseaseId());
-                    mp.setDiseaseId(new ArrayList<String>(new HashSet<>(mp.getDiseaseId())));
+                    mp.setDiseaseId(new ArrayList<>(new HashSet<>(mp.getDiseaseId())));
                 }
                 if (allele.getDiseaseTerm() != null) {
                     mp.getDiseaseTerm().addAll(allele.getDiseaseTerm());
@@ -744,7 +644,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 }
                 if (allele.getMgiNovelPredictedInLocus() != null) {
                     mp.getMgiNovelPredictedInLocus().addAll(allele.getMgiNovelPredictedInLocus());
-                    mp.setMgiNovelPredictedInLocus(new ArrayList<Boolean>(new HashSet<>(mp.getMgiNovelPredictedInLocus())));
+                    mp.setMgiNovelPredictedInLocus(new ArrayList<>(new HashSet<>(mp.getMgiNovelPredictedInLocus())));
                 }
                 if (allele.getImpcNovelPredictedInLocus() != null) {
                     mp.getImpcNovelPredictedInLocus().addAll(allele.getImpcNovelPredictedInLocus());
@@ -794,34 +694,33 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     private void initialiseAlleleFields(MpDTO mp) {
         if (mp.getType() == null) {
-            mp.setType(new ArrayList<String>());
-            mp.setDiseaseSource(new ArrayList<String>());
-            mp.setDiseaseId(new ArrayList<String>());
-            mp.setDiseaseTerm(new ArrayList<String>());
-            mp.setDiseaseAlts(new ArrayList<String>());
-            mp.setDiseaseClasses(new ArrayList<String>());
-            mp.setHumanCurated(new ArrayList<Boolean>());
-            mp.setMouseCurated(new ArrayList<Boolean>());
-            mp.setMgiPredicted(new ArrayList<Boolean>());
-            mp.setImpcPredicted(new ArrayList<Boolean>());
-            mp.setMgiPredictedKnownGene(new ArrayList<Boolean>());
-            mp.setImpcPredictedKnownGene(new ArrayList<Boolean>());
-            mp.setMgiNovelPredictedInLocus(new ArrayList<Boolean>());
-            mp.setImpcNovelPredictedInLocus(new ArrayList<Boolean>());
+            mp.setType(new ArrayList<>());
+            mp.setDiseaseSource(new ArrayList<>());
+            mp.setDiseaseId(new ArrayList<>());
+            mp.setDiseaseTerm(new ArrayList<>());
+            mp.setDiseaseAlts(new ArrayList<>());
+            mp.setDiseaseClasses(new ArrayList<>());
+            mp.setHumanCurated(new ArrayList<>());
+            mp.setMouseCurated(new ArrayList<>());
+            mp.setMgiPredicted(new ArrayList<>());
+            mp.setImpcPredicted(new ArrayList<>());
+            mp.setMgiPredictedKnownGene(new ArrayList<>());
+            mp.setImpcPredictedKnownGene(new ArrayList<>());
+            mp.setMgiNovelPredictedInLocus(new ArrayList<>());
+            mp.setImpcNovelPredictedInLocus(new ArrayList<>());
             // MGI accession ID should already be set
-            mp.setMarkerSymbol(new ArrayList<String>());
-            mp.setMarkerName(new ArrayList<String>());
-            mp.setMarkerSynonym(new ArrayList<String>());
-            mp.setMarkerType(new ArrayList<String>());
-            mp.setHumanGeneSymbol(new ArrayList<String>());
-            mp.setStatus(new ArrayList<String>());
-            mp.setImitsPhenotypeStarted(new ArrayList<String>());
-            mp.setImitsPhenotypeComplete(new ArrayList<String>());
-            mp.setImitsPhenotypeStatus(new ArrayList<String>());
-            mp.setLatestProductionCentre(new ArrayList<String>());
-            mp.setLatestPhenotypingCentre(new ArrayList<String>());
-            mp.setAlleleName(new ArrayList<String>());
-            //mp.setPreqcGeneId(new ArrayList<String>());
+            mp.setMarkerSymbol(new ArrayList<>());
+            mp.setMarkerName(new ArrayList<>());
+            mp.setMarkerSynonym(new ArrayList<>());
+            mp.setMarkerType(new ArrayList<>());
+            mp.setHumanGeneSymbol(new ArrayList<>());
+            mp.setStatus(new ArrayList<>());
+            mp.setImitsPhenotypeStarted(new ArrayList<>());
+            mp.setImitsPhenotypeComplete(new ArrayList<>());
+            mp.setImitsPhenotypeStatus(new ArrayList<>());
+            mp.setLatestProductionCentre(new ArrayList<>());
+            mp.setLatestPhenotypingCentre(new ArrayList<>());
+            mp.setAlleleName(new ArrayList<>());
         }
     }
 
@@ -840,8 +739,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         if (strains.containsKey(strainAcc)) {
             if (mp.getStrainId() == null) {
                 // Initialise the strain lists
-                mp.setStrainId(new ArrayList<String>());
-                mp.setStrainName(new ArrayList<String>());
+                mp.setStrainId(new ArrayList<>());
+                mp.setStrainName(new ArrayList<>());
             }
 
             for (MPStrainBean strain : strains.get(strainAcc)) {
@@ -855,15 +754,15 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         if (pppBeans.containsKey(pppId)) {
             if (mp.getParameterName() == null) {
                 // Initialise the PPP lists
-                mp.setParameterName(new ArrayList<String>());
-                mp.setParameterStableId(new ArrayList<String>());
-                mp.setParameterStableKey(new ArrayList<String>());
-                mp.setProcedureName(new ArrayList<String>());
-                mp.setProcedureStableId(new ArrayList<String>());
-                mp.setProcedureStableKey(new ArrayList<String>());
-                mp.setPipelineName(new ArrayList<String>());
-                mp.setPipelineStableId(new ArrayList<String>());
-                mp.setPipelineStableKey(new ArrayList<String>());
+                mp.setParameterName(new ArrayList<>());
+                mp.setParameterStableId(new ArrayList<>());
+                mp.setParameterStableKey(new ArrayList<>());
+                mp.setProcedureName(new ArrayList<>());
+                mp.setProcedureStableId(new ArrayList<>());
+                mp.setProcedureStableKey(new ArrayList<>());
+                mp.setPipelineName(new ArrayList<>());
+                mp.setPipelineStableId(new ArrayList<>());
+                mp.setPipelineStableKey(new ArrayList<>());
             }
 
             for (ParamProcedurePipelineBean pppBean : pppBeans.get(pppId)) {
@@ -884,7 +783,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     protected void getMaTermsForMp(MpDTO mp) {
 
         // get MA ids referenced from MP
-        Set<String> maTerms = mpMaParser.getReferencedClasses(mp.getMpId(), ontologyParserFactory.VIA_PROPERTIES, "MA");
+        Set<String> maTerms = mpMaParser.getReferencedClasses(mp.getMpId(), OntologyParserFactory.VIA_PROPERTIES, "MA");
         for (String maId : maTerms) {
             // get info about these MA terms. In the mp-ma file the MA classes have no details but the id. For example the labels or synonyms are not there.
             OntologyTermDTO ma = maParser.getOntologyTerm(maId);
