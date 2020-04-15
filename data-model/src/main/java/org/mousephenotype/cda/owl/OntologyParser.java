@@ -15,6 +15,7 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -72,7 +73,7 @@ public class OntologyParser {
             if (startsWithPrefix(cls, prefix)) {
 
                 OntologyTermDTO term = getDTO(cls, prefix);
-OntologyTermDTO mpHpTerm = term;
+
                 if (pathToOwlFile.contains("mp-hp.owl")) {
 
                     // use reasoner to get equivalent and subclasses
@@ -113,8 +114,51 @@ OntologyTermDTO mpHpTerm = term;
                             }
                         }
 
-mpHpTerm.setEquivalentClasses(equivalentClasses);
-mpHpTerm.setNarrowSynonymClasses(narrowSynonymClasses);
+                        StringBuilder equivAcc   = new StringBuilder("");
+                        StringBuilder equivTerm  = new StringBuilder("");
+                        StringBuilder narrowAcc  = new StringBuilder("");
+                        StringBuilder narrowTerm = new StringBuilder("");
+
+                        for (OntologyTermDTO t : equivalentClasses) {
+                            if (equivAcc.length() > 0) {
+                                equivAcc.append("|");
+                                equivTerm.append("|");
+                            }
+                            equivAcc.append(t.accessionId);
+                            equivTerm.append(t.name);
+                        }
+
+                        for (OntologyTermDTO t : narrowSynonymClasses) {
+                            if (narrowAcc.length() > 0) {
+                                narrowAcc.append("|");
+                                narrowTerm.append("|");
+                            }
+                            narrowAcc.append(t.accessionId);
+                            narrowTerm.append(t.name);
+                        }
+
+                        List<String> data = new ArrayList<>();
+                        data.add(term.getAccessionId());
+                        data.add(term.getName());
+                        data.add(equivAcc.toString());
+                        data.add(equivTerm.toString());
+                        data.add(narrowAcc.toString());
+                        data.add(narrowTerm.toString());
+
+                        StringBuilder row = new StringBuilder();
+                        for (String cell : data) {
+                            if (row.length() > 0)
+                                row.append(",");
+                            row
+                                .append("\"")
+                                .append(cell)
+                                .append("\"");
+                        }
+
+                        if ((equivAcc.length() > 0) && (narrowAcc.length() > 0)) {
+                            mpHpTerms.add(row.toString());
+                        }
+
                         term.setEquivalentClasses(equivalentClasses);
                         term.setNarrowSynonymClasses(narrowSynonymClasses);
                     }
@@ -134,18 +178,22 @@ mpHpTerm.setNarrowSynonymClasses(narrowSynonymClasses);
                 classMap.put(term.getAccessionId(), cls);
 
 
-if (term.getEquivalentClasses() == null) term.setEquivalentClasses(new HashSet<>());
-if (term.getNarrowSynonymClasses() == null) term.setNarrowSynonymClasses(new HashSet<>());
 
-if (( ! term.getEquivalentClasses().isEmpty()) && ( ! term.getNarrowSynonymClasses().isEmpty())) {
-    mpEquivNarrowMap.put(term.getAccessionId(), term);
-} else if ( ! term.getEquivalentClasses().isEmpty()) {
-    mpEquivMap.put(term.getAccessionId(), term);
-} else if ( ! term.getNarrowSynonymClasses().isEmpty()) {
-    mpNarrowMap.put(term.getAccessionId(), term);
-} else {
-    mpMap.put(term.getAccessionId(), term);
-}
+
+
+
+                if (term.getEquivalentClasses() == null) term.setEquivalentClasses(new HashSet<>());
+                if (term.getNarrowSynonymClasses() == null) term.setNarrowSynonymClasses(new HashSet<>());
+
+                if ((!term.getEquivalentClasses().isEmpty()) && (!term.getNarrowSynonymClasses().isEmpty())) {
+                    mpEquivNarrowMap.put(term.getAccessionId(), term);
+                } else if (!term.getEquivalentClasses().isEmpty()) {
+                    mpEquivMap.put(term.getAccessionId(), term);
+                } else if (!term.getNarrowSynonymClasses().isEmpty()) {
+                    mpNarrowMap.put(term.getAccessionId(), term);
+                } else {
+                    mpMap.put(term.getAccessionId(), term);
+                }
 
 
 
@@ -156,18 +204,22 @@ if (( ! term.getEquivalentClasses().isEmpty()) && ( ! term.getNarrowSynonymClass
             }
         }
 
-
-
-        System.out.println();
-
         // Save the data to a file
-
-
+        Collections.sort(mpHpTerms);
+        FileWriter writer = new FileWriter("mpHpTerms.csv");
+        writer.write("\"Term acc\", \"Term\", \"Equiv acc\", \"Equiv term\", \"Narrow acc\", \"Narrow term\"" + System.lineSeparator());
+        for (String row : mpHpTerms) {
+            writer.write(row + System.lineSeparator());
+        }
+        writer.write(System.lineSeparator());
+        writer.write("\"Equivalent Only count: " + mpEquivMap.size() + "\"" + System.lineSeparator());
+        writer.write("\"Narrow Only count: " + mpNarrowMap.size() + "\"" + System.lineSeparator());
+        writer.write("\"Equivalent and Narrow count: " + mpEquivNarrowMap.size() + "\"" + System.lineSeparator());
+        writer.write("\"Mp Only count: " + mpMap.size() + "\"" + System.lineSeparator());
+        writer.close();
     }
 
-
-
-
+    private List<String> mpHpTerms = new ArrayList<>();
     private Map<String, OntologyTermDTO> mpMap = new HashMap<>();
     private Map<String, OntologyTermDTO> mpEquivMap = new HashMap<>();
     private Map<String, OntologyTermDTO> mpNarrowMap = new HashMap<>();
