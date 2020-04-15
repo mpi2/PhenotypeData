@@ -47,13 +47,6 @@ public class OntologyParser {
     private List<OntologyTermDTO> toplevelterms;
     private Map<Integer, OntologyTermDTO> nodeTermMap = new HashMap<>(); // <nodeId, ontologyId>
 
-
-
-private Map<String, OntologyTermDTO> mpHpTermMap = new HashMap<>(); // OBO-style ids because that's what we index.
-private Map<String, OWLClass> mpHpClassMap = new HashMap<>(); // OBO id t
-
-
-
     public OntologyParser(String pathToOwlFile, String prefix, Collection<String> topLevelIds, Set<String> wantedIds)
             throws OWLOntologyCreationException, IOException, OWLOntologyStorageException {
 
@@ -79,7 +72,7 @@ private Map<String, OWLClass> mpHpClassMap = new HashMap<>(); // OBO id t
             if (startsWithPrefix(cls, prefix)) {
 
                 OntologyTermDTO term = getDTO(cls, prefix);
-OntologyTermDTO mpHpTerm = getDTO(cls, prefix);
+OntologyTermDTO mpHpTerm = term;
                 if (pathToOwlFile.contains("mp-hp.owl")) {
 
                     // use reasoner to get equivalent and subclasses
@@ -139,8 +132,25 @@ mpHpTerm.setNarrowSynonymClasses(narrowSynonymClasses);
 
                 termMap.put(term.getAccessionId(), term);
                 classMap.put(term.getAccessionId(), cls);
-mpHpTermMap.put(term.getAccessionId(), term);
-mpHpClassMap.put(term.getAccessionId(), cls);
+
+
+if (term.getEquivalentClasses() == null) term.setEquivalentClasses(new HashSet<>());
+if (term.getNarrowSynonymClasses() == null) term.setNarrowSynonymClasses(new HashSet<>());
+
+if (( ! term.getEquivalentClasses().isEmpty()) && ( ! term.getNarrowSynonymClasses().isEmpty())) {
+    mpEquivNarrowMap.put(term.getAccessionId(), term);
+} else if ( ! term.getEquivalentClasses().isEmpty()) {
+    mpEquivMap.put(term.getAccessionId(), term);
+} else if ( ! term.getNarrowSynonymClasses().isEmpty()) {
+    mpNarrowMap.put(term.getAccessionId(), term);
+} else {
+    mpMap.put(term.getAccessionId(), term);
+}
+
+
+
+
+
                 // Turn off annoying INFO messages.
                 LogManager.getLogger("org.semanticweb.elk").setLevel(Level.WARN);
             }
@@ -150,8 +160,25 @@ mpHpClassMap.put(term.getAccessionId(), cls);
 
         System.out.println();
 
+        // Save the data to a file
+
 
     }
+
+
+
+
+    private Map<String, OntologyTermDTO> mpMap = new HashMap<>();
+    private Map<String, OntologyTermDTO> mpEquivMap = new HashMap<>();
+    private Map<String, OntologyTermDTO> mpNarrowMap = new HashMap<>();
+    private Map<String, OntologyTermDTO> mpEquivNarrowMap = new HashMap<>();
+
+
+
+
+
+
+
 
 
 
