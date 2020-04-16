@@ -75,22 +75,37 @@ public class OntologyParserTest {
 
         OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0006325");
 
-        Set<String> narrowSynonyms = ontologyParser.getNarrowSynonyms(term, 1);
+        // As of 16-Apr-2020, running against mp-hp.owl, there were 18 narrow synonym terms.
+        // Test deafness
+        List<String> expectedNarrowSynonymsList = Arrays.asList(new String[] {
+                "Congenital deafness",
+                "Congenital hearing loss",
+                "Deafness",
+                "Hearing defect",
+                "Hearing impairment",
+                "Hearing loss",
+                "Hypoacusis",
+                "complete hearing loss",
+                "conductive hearing impairment",
+                "deafness",
+                "impaired perception of sound",
+                "impaired sensory perception of sound",
+                "mixed hearing impairment",
+                "nonsyndromic hearing impairment",
+                "perceptive hearing impairment",
+                "sensorineural hearing impairment",
+                "syndromic hearing impairment",
+                "unilateral deafness"
+        });
+        Set<String> expectedNarrowSynonyms = new HashSet<>(expectedNarrowSynonymsList);
+        Set<String> computedNarrowSynonyms = ontologyParser.getNarrowSynonyms(term, 1);
 
-        assertFalse("Narrow synonyms list is empty!", narrowSynonyms.isEmpty());
-        assertTrue("Narrow synonyms list does not contain a label!", narrowSynonyms.contains("conductive hearing impairment"));
-        assertTrue("Narrow synonyms list does not contain an exact synonym!", narrowSynonyms.contains("complete hearing loss"));
-
-        // Test both HP and MP terms are considered.
-        // MP:0002078, 'Abnormal glucose homeostasis' is equivalent to HP:0001952, 'Glucose intolerance'
-        term = ontologyParser.getOntologyTerm("MP:0002078");
-        String expectedSynonym = "Glucose intolerance";
-
-        Set<String> terms = ontologyParser.getNarrowSynonyms(term,2);
-        if ( ! terms.contains(expectedSynonym)) {
-            System.out.println("Found synonyms: " + StringUtils.join(terms, ", "));
-            fail("Expected synonym '" + expectedSynonym + "' but was not found in Found synonymns.");
-        }
+        assertTrue("Expected at least " +
+                            expectedNarrowSynonyms.size() +
+                            " narrow synonyms but found only " +
+                            computedNarrowSynonyms.size(), computedNarrowSynonyms.size() >= expectedNarrowSynonyms.size());
+        expectedNarrowSynonyms.removeAll(computedNarrowSynonyms);
+        assertTrue(expectedNarrowSynonyms.isEmpty());
     }
 
 
