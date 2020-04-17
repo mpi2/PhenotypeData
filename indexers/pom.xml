@@ -63,6 +63,12 @@
 			<artifactId>data-model-db</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>net.sf.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+			<version>2.3</version>
+		</dependency>
+
 		<!-- OWL Dependencies -->
 		<!-- https://mvnrepository.com/artifact/org.semanticweb.elk/elk-reasoner -->
 		<dependency>
