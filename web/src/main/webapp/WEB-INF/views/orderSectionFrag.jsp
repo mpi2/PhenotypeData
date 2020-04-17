@@ -41,7 +41,7 @@
     <c:if test="${creLine}">
         <c:set var="creLineParam" value="&creLine=true"/>
     </c:if>
-    This service may be affected by the Covid-19 pandemic. <a href="https://www.mousephenotype.org/news/impc-covid-19-update/">See how</a>
+    <h4>This service may be affected by the Covid-19 pandemic. <a href="https://www.mousephenotype.org/news/impc-covid-19-update/">See how</a></h4>
     <table id="creLineTable" data-toggle="table" data-pagination="true" data-mobile-responsive="true" data-sortable="true"   data-detail-view="true" data-detail-formatter="detailFormatter">
         <thead>
         <tr>
