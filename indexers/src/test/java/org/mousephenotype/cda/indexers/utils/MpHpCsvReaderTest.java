@@ -29,16 +29,16 @@ public class MpHpCsvReaderTest {
         msg = "Expected 'curie_y' but found '" + list.get(0).get(6) + "'.";
         assertTrue(msg, list.get(0).get(6).toLowerCase().equals("curie_y"));
 
-        String curie_x;
-        String curie_y;
+        String curie_hp;
+        String curie_mp;
         for (int i = 1; i < list.size(); i++) {
-            curie_x = list.get(i).get(5);
-            curie_y = list.get(i).get(6);
-            msg = "Expected value starting with 'HP:' but found '" + curie_x + "'";
-            assertTrue(msg, curie_x.toUpperCase().startsWith("HP:"));
+            curie_hp = list.get(i).get(MpHpCsvReader.CURIE_HP_COLUMN);
+            curie_mp = list.get(i).get(MpHpCsvReader.CURIE_MP_COLUMN);
+            msg = "Expected value starting with 'HP:' but found '" + curie_hp + "'";
+            assertTrue(msg, curie_hp.toUpperCase().startsWith("HP:"));
 
-            msg = "Expected value starting with 'MP:' but found '" + curie_y + "'";
-            assertTrue(msg, curie_y.toUpperCase().startsWith("MP:"));
+            msg = "Expected value starting with 'MP:' but found '" + curie_mp + "'";
+            assertTrue(msg, curie_mp.toUpperCase().startsWith("MP:"));
         }
     }
 }

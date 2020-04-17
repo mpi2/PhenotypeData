@@ -33,9 +33,13 @@ import java.util.List;
  */
 public class MpHpCsvReader {
 
+    public static final int COLUMN_COUNT = 7;               // mp-hp.csv Column count
+    public static final int CURIE_HP_COLUMN = 5;            // HP column offset (0-relative)
+    public static final int CURIE_MP_COLUMN = 6;            // MP column offset (0-relative)
+
     public static List<List<String>> readAll(String fqFilename) throws IOException {
         List<List<String>> data = new ArrayList<>();
-        final int COLUMN_COUNT = 7;
+
 
         Path           path           = Paths.get(fqFilename);
         BufferedReader bufferedReader = Files.newBufferedReader(path);

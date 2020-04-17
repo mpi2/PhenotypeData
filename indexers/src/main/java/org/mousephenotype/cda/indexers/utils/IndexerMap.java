@@ -53,7 +53,7 @@ public class IndexerMap {
 
     private static final Logger logger = LoggerFactory.getLogger(IndexerMap.class);
 
-    private static Map<String, List<Map<String, String>>> mpToHpTermsMap  = null;
+    private static Map<String, List<String>>              mpToHpTermsMap  = null;
     private static Map<String, List<SangerImageDTO>>      sangerImagesMap = null;
     private static Map<String, List<AlleleDTO>>           allelesMap      = null;
     private static List<AlleleDTO>                        alleles         = null;
@@ -153,22 +153,51 @@ public class IndexerMap {
     }
 
     /**
-     * Returns a cached map of all mp terms to hp terms, indexed by mp id.
+     * Returns a cached map of all mp terms to hp terms, indexed by mp id. The
+     * data source is the monarch mp-hp csv mapping file that replaced an old
+     * OntologyParser service that depended on the unreliable creation of the
+     * mp-hp.owl ontology.
      *
-     * @param phenodigm_core a valid solr connection
-     * @return a cached map of all mp terms to hp terms, indexed by mp id.
+     * @param mpHpCsvPath the fully-qualified path to the mp-hp.csv ontology mapping file provided by Monarch
+     * @return a cached map of each mp term and its corresponding list of hp terms as provided by Monarch
      *
      * @throws IndexerException
      */
-    public static Map<String, List<Map<String, String>>> getMpToHpTerms(SolrClient phenodigm_core) throws IndexerException {
+    public static Map<String, List<String>> getMpToHpTerms(String mpHpCsvPath) throws IndexerException {
+
         if (mpToHpTermsMap == null) {
+
+            mpToHpTermsMap = new HashMap<>();
+
             try {
-                mpToHpTermsMap = SolrUtils.populateMpToHpTermsMap(phenodigm_core);
-            }catch (SolrServerException | IOException e) {
-                throw new IndexerException("Unable to query phenodigm_core in SolrUtils.populateMpToHpTermsMap()", e);
+                List<List<String>> data = MpHpCsvReader.readAll(mpHpCsvPath);
+
+                String mpTermId;
+                String hpTermId;
+
+                for (int i = 1; i < data.size(); i++) {                         // Skip heading
+                    List<String> row = data.get(i);
+                    mpTermId = row.get(MpHpCsvReader.CURIE_MP_COLUMN);
+                    hpTermId = row.get(MpHpCsvReader.CURIE_HP_COLUMN);
+
+                    List<String> hpTermIds = mpToHpTermsMap.get(mpTermId);
+                    if (hpTermIds == null) {
+                        hpTermIds = new ArrayList<>();
+                        mpToHpTermsMap.put(mpTermId, hpTermIds);
+                    }
+
+                    hpTermIds.add(hpTermId);
+                }
+
+            } catch (IOException e) {
+
+                throw new IndexerException("Unable to parse mp-hp term file " + mpHpCsvPath, e);
+
             }
         }
+
         logger.debug(" mpToHpTermsMap size = " + mpToHpTermsMap.size());
+
         return mpToHpTermsMap;
     }
 
