@@ -29,9 +29,13 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -219,7 +223,11 @@ public class OntologyParser {
 
         // Save the data to a file
         Collections.sort(mpHpTerms);
-        FileWriter writer = new FileWriter("mpHpTerms.csv");
+
+        Path       path       = Paths.get("mpHpTerms.csv");
+        File       fqFilename = path.toFile();
+        FileWriter writer     = new FileWriter(fqFilename);
+
         writer.write("\"Term acc\", \"Term\", \"Equiv acc\", \"Equiv term\", \"Narrow acc\", \"Narrow term\"" + System.lineSeparator());
         for (String row : mpHpTerms) {
             writer.write(row + System.lineSeparator());
@@ -230,6 +238,8 @@ public class OntologyParser {
         writer.write("\"Equivalent and Narrow count: " + mpEquivAndCount + "\"" + System.lineSeparator());
         writer.write("\"Mp Only count: " + mpOnlyCount + "\"" + System.lineSeparator());
         writer.close();
+
+        logger.info("mpHp terms written to " + fqFilename.getAbsolutePath());
     }
 
     private void getNextLevelNarrowSynonyms(OWLReasoner r,  OWLClass oc, Integer level, Set<OntologyTermDTO> narrowSynonymClasses ){
