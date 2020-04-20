@@ -137,8 +137,11 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             logger.debug("Loaded mp parser");
 
             mpHpTermsMap = IndexerMap.getMpToHpTerms(owlpath + "/" + MpHpCsvReader.MP_HP_CSV_FILENAME);
+            if ((mpHpTermsMap == null) || mpHpTermsMap.isEmpty()) {
+                throw new IndexerException("mp-hp error: Unable to open" + owlpath + "/" + MpHpCsvReader.MP_HP_CSV_FILENAME);
+            }
 
-            logger.debug("Loaded mp hp term names");
+            logger.debug("Loaded mp hp term names from {}", owlpath + "/" + MpHpCsvReader.MP_HP_CSV_FILENAME);
             mpMaParser = ontologyParserFactory.getMpMaParser();
             logger.debug("Loaded mp ma parser");
             maParser = ontologyParserFactory.getMaParser();

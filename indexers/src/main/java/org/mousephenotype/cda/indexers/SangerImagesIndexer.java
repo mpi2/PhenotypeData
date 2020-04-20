@@ -114,9 +114,13 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 				mpParser = ontologyParserFactory.getMpParser();
 				maParser = ontologyParserFactory.getMaParser();
 				mpHpTermsMap = IndexerMap.getMpToHpTerms(owlpath + "/" + MpHpCsvReader.MP_HP_CSV_FILENAME);
+				if ((mpHpTermsMap == null) || mpHpTermsMap.isEmpty()) {
+					throw new IndexerException("mp-hp error: Unable to open" + owlpath + "/" + MpHpCsvReader.MP_HP_CSV_FILENAME);
+				}
 
 			} catch (OWLOntologyCreationException | OWLOntologyStorageException e) {
 
+				System.err.println();
 				e.printStackTrace();
 			}
 
