@@ -18,7 +18,6 @@ package org.mousephenotype.cda.owl;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
-import org.semanticweb.elk.owlapi.ElkReasonerFactory;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
@@ -29,13 +28,8 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -70,7 +64,6 @@ public class OntologyParser {
             throws OWLOntologyCreationException, IOException, OWLOntologyStorageException {
 
         setUpParser(pathToOwlFile);
-        final boolean MP_HP_OWL = pathToOwlFile.contains("mp-hp.owl");
 
         // Turn off annoying INFO messages.
         LogManager.getLogger("org.semanticweb.elk").setLevel(Level.WARN);
@@ -84,162 +77,16 @@ public class OntologyParser {
             this.topLevelIds.addAll(topLevelIds);
         }
 
-        if (MP_HP_OWL) {
-
-            processMpHpOwl(prefix);
-
-        } else {
-
-            Set<OWLClass> allClasses = ontology.getClassesInSignature();
-            for (OWLClass cls : allClasses) {
-                if (startsWithPrefix(cls, prefix)) {
-                    OntologyTermDTO term = getDTO(cls, prefix);
-                    term.setEquivalentClasses(getEquivaletNamedClasses(cls, prefix));
-
-                    termMap.put(term.getAccessionId(), term);
-                    classMap.put(term.getAccessionId(), cls);
-                }
-            }
-        }
-    }
-
-    private void processMpHpOwl(String prefix) throws IOException {
-
-        int          mpOnlyCount       = 0;
-        int          mpEquivOnlyCount  = 0;
-        int          mpNarrowCountOnly = 0;
-        int          mpEquivAndCount   = 0;
-        List<String> mpHpTerms         = new ArrayList<>();
-        OWLReasoner  owlReasoner       = new ElkReasonerFactory().createReasoner(ontology);
-
         Set<OWLClass> allClasses = ontology.getClassesInSignature();
         for (OWLClass cls : allClasses) {
             if (startsWithPrefix(cls, prefix)) {
-
                 OntologyTermDTO term = getDTO(cls, prefix);
-
-                // get the children of MP term as subClasses (we call it narrow synonyms)
-                // level of 2 means starting from the first level child(ren) (ie, level 1) and the child(ren) of the first level child (level 2)
-                int                  level                = 3;
-                Set<OntologyTermDTO> equivalentClasses    = new HashSet<>();
-                Set<OntologyTermDTO> narrowSynonymClasses = new HashSet<>();
-
-                // using reasoner to get equivalent classes
-                Set<OWLClass> eqClasses = owlReasoner.getEquivalentClasses(cls).getEntities();
-                for (OWLClass eqc : eqClasses) {
-                    String humanPhenotypePrefix = "HP";  // MP-HP mapping happens here
-
-                    if (eqc.getIRI().getShortForm().startsWith(humanPhenotypePrefix)) {
-                        OntologyTermDTO thisTerm = getDTO(eqc, humanPhenotypePrefix);
-                        //System.out.println(term.getAccessionId() + " - equivalent class: " + term.getAccessionId());
-                        equivalentClasses.add(thisTerm);
-                    }
-                }
-
-                // using reasoner to get subclasses (narrow synonym)
-                // getsubclasses(true) gets all direct subclasses (ie, only one level down)
-                // getssubclasses(false) gets ALL subclasses (ie, all recursive levels down)
-
-                if (!term.getAccessionId().equals("MP:0000001")) {  // exclude MP root term for narrow synonyms
-                    Set<OWLClass> subClasses = owlReasoner.getSubClasses(cls, true).getFlattened();
-                    for (OWLClass sc : subClasses) {
-                        OntologyTermDTO thisTerm = getDTO(sc, prefix);
-                        String          termId   = thisTerm.getAccessionId();
-                        if (termId.startsWith("MP") || termId.startsWith("HP")) {
-                            //System.out.println(term.getAccessionId() + " -- narrow synonym class: " + termId);
-
-                            // no need to distinguish inside or outside slim as we use full ontology
-                            narrowSynonymClasses.add(thisTerm);  // this one is level 1
-                            getNextLevelNarrowSynonyms(owlReasoner, sc, level - 1, narrowSynonymClasses); // next whatever levels
-                        }
-                    }
-
-                    StringBuilder equivAcc   = new StringBuilder("");
-                    StringBuilder equivTerm  = new StringBuilder("");
-                    StringBuilder narrowAcc  = new StringBuilder("");
-                    StringBuilder narrowTerm = new StringBuilder("");
-
-                    for (OntologyTermDTO t : equivalentClasses) {
-                        if (equivAcc.length() > 0) {
-                            equivAcc.append("|");
-                            equivTerm.append("|");
-                        }
-                        equivAcc.append(t.accessionId);
-                        equivTerm.append(t.name);
-                    }
-
-                    for (OntologyTermDTO t : narrowSynonymClasses) {
-                        if (narrowAcc.length() > 0) {
-                            narrowAcc.append("|");
-                            narrowTerm.append("|");
-                        }
-                        narrowAcc.append(t.accessionId);
-                        narrowTerm.append(t.name);
-                    }
-
-                    List<String> data = new ArrayList<>();
-                    data.add(term.getAccessionId());
-                    data.add(term.getName());
-                    data.add(equivAcc.toString());
-                    data.add(equivTerm.toString());
-                    data.add(narrowAcc.toString());
-                    data.add(narrowTerm.toString());
-
-                    StringBuilder row = new StringBuilder();
-                    for (String cell : data) {
-                        if (row.length() > 0)
-                            row.append(",");
-                        row
-                            .append("\"")
-                            .append(cell)
-                            .append("\"");
-                    }
-
-                    if ((equivAcc.length() > 0) && (narrowAcc.length() > 0)) {
-                        mpHpTerms.add(row.toString());
-                    }
-
-                    term.setEquivalentClasses(equivalentClasses);
-                    term.setNarrowSynonymClasses(narrowSynonymClasses);
-                }
+                term.setEquivalentClasses(getEquivaletNamedClasses(cls, prefix));
 
                 termMap.put(term.getAccessionId(), term);
                 classMap.put(term.getAccessionId(), cls);
-
-                if (term.getEquivalentClasses() == null) term.setEquivalentClasses(new HashSet<>());
-                if (term.getNarrowSynonymClasses() == null) term.setNarrowSynonymClasses(new HashSet<>());
-
-                if (( ! term.getEquivalentClasses().isEmpty()) && (!term.getNarrowSynonymClasses().isEmpty())) {
-                    mpEquivAndCount++;
-                } else if ( ! term.getEquivalentClasses().isEmpty()) {
-                    mpEquivOnlyCount++;
-                } else if ( ! term.getNarrowSynonymClasses().isEmpty()) {
-                    mpNarrowCountOnly++;
-                } else {
-                    mpOnlyCount++;
-                }
             }
         }
-
-        // Save the data to a file
-        Collections.sort(mpHpTerms);
-
-        Path       path       = Paths.get("mpHpTerms.csv");
-        File       fqFilename = path.toFile();
-        FileWriter writer     = new FileWriter(fqFilename);
-
-        writer.write("\"Term acc\", \"Term\", \"Equiv acc\", \"Equiv term\", \"Narrow acc\", \"Narrow term\"" + System.lineSeparator());
-        for (String row : mpHpTerms) {
-            writer.write(row + System.lineSeparator());
-        }
-        writer.write(System.lineSeparator());
-        writer.write("\"Equivalent Only count: " + mpEquivOnlyCount + "\"" + System.lineSeparator());
-        writer.write("\"Narrow Only count: " + mpNarrowCountOnly + "\"" + System.lineSeparator());
-        writer.write("\"Equivalent and Narrow count: " + mpEquivAndCount + "\"" + System.lineSeparator());
-        writer.write("\"Mp Only count: " + mpOnlyCount + "\"" + System.lineSeparator());
-        writer.close();
-
-        logger.info("mpHp terms written to " + fqFilename.getAbsolutePath());
     }
 
     private void getNextLevelNarrowSynonyms(OWLReasoner r,  OWLClass oc, Integer level, Set<OntologyTermDTO> narrowSynonymClasses ){

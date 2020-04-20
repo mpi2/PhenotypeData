@@ -277,7 +277,6 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 							List<String> mp_term_synonyms = new ArrayList<>();
 							List<String> topLevelMpTermSynonyms = new ArrayList<>();
 
-							List<String> associatedHpIds = new ArrayList<>();
 							List<String> associatedHpTerms = new ArrayList<>();
 
 							List<String> maTopLevelTermIds = new ArrayList<>();
@@ -350,22 +349,9 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 											}
 										}
 
-//                                      // add mp-hp mapping using Monarch's mp-hp hybrid ontology
-										Set <OntologyTermDTO> hpTerms = mpHpTermsMap.get(annotation.mp_id);
-
-
-										Set<String> hpIds   = new HashSet<>();
-										Set<String> hpNames = new HashSet<>();
-
-										for (OntologyTermDTO hpTerm : hpTerms) {
-											hpIds.add(hpTerm.getAccessionId());
-											if (hpTerm.getName() != null) {
-												hpNames.add(hpTerm.getName());
-											}
-										}
-
-										associatedHpIds.addAll(new ArrayList<>(hpIds));
-										associatedHpTerms.addAll(new ArrayList<>(hpNames));
+                                        // add mp-hp mapping using Monarch's mp-hp hybrid ontology
+										Set <String> hpTermNames = mpHpTermsMap.get(annotation.mp_id);
+										associatedHpTerms.addAll(new ArrayList<>(hpTermNames));
 
 									} else {
 
@@ -397,7 +383,6 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 							o.setAnnotatedHigherLevelMpTermId(annotatedHigherLevelMpTermId);
 							o.setAnnotatedHigherLevelMpTermName(annotatedHigherLevelMpTermName);
 
-							o.setHpId(associatedHpIds);
 							o.setHpTerm(associatedHpTerms);
 
 						}

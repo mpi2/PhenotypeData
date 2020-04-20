@@ -25,6 +25,7 @@ import org.mousephenotype.cda.indexers.beans.ParamProcedurePipelineBean;
 import org.mousephenotype.cda.indexers.beans.PhenotypeCallSummaryBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
+import org.mousephenotype.cda.indexers.utils.MpHpCsvReader;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
@@ -71,6 +72,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     private final Logger logger = LoggerFactory.getLogger(MPIndexer.class);
 
     private Map<String, List<AlleleDTO>> allelesByMgiAlleleAccessionId;
+    private Map<String, Set<String>>     mpHpTermsMap = new HashMap<>();
 
     // Phenotype call summaries (1)
     Map<String, List<PhenotypeCallSummaryBean>> phenotypes1;
@@ -133,13 +135,14 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             OntologyParserFactory ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
             OntologyParser mpParser = ontologyParserFactory.getMpParser();
             logger.debug("Loaded mp parser");
-            OntologyParser mpHpParser = ontologyParserFactory.getMpHpParser();
-            logger.debug("Loaded mp hp parser");
+
+            mpHpTermsMap = IndexerMap.getMpToHpTerms(owlpath + "/" + MpHpCsvReader.MP_HP_CSV_FILENAME);
+
+            logger.debug("Loaded mp hp term names");
             mpMaParser = ontologyParserFactory.getMpMaParser();
             logger.debug("Loaded mp ma parser");
             maParser = ontologyParserFactory.getMaParser();
             logger.debug("Loaded ma parser");
-
 
             // maps MP to number of phenotyping calls
             runStatus = populateMpCallMaps();
@@ -171,7 +174,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     mp.setAltMpIds(mpDTO.getAlternateIds());
                 }
 
-
                 mp.setMpNodeId(mpDTO.getNodeIds() != null ? mpDTO.getNodeIds() : new HashSet<>());
 
                 addTopLevelTerms(mp, mpDTO);
@@ -184,44 +186,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 mp.setMpTermSynonym(mpDTO.getSynonyms());
 
                 // add mp-hp mapping using Monarch's mp-hp hybrid ontology
-                OntologyTermDTO mpTerm = mpHpParser.getOntologyTerm(termId);
 
-		        if (mpTerm == null) {
-		            String message = "MP term not found using mpHpParser.getOntologyTerm(termId); where termId = " + termId;
-		            runStatus.addWarning(message);
-		            logger.warn(message);
-                }
-                else {
-                    Set <OntologyTermDTO> hpTerms = mpTerm.getEquivalentClasses();
-                    for ( OntologyTermDTO hpTerm : hpTerms ){
-                        Set<String> hpIds = new HashSet<>();
-                        hpIds.add(hpTerm.getAccessionId());
-                        mp.setHpId(new ArrayList<>(hpIds));
-                        if ( hpTerm.getName() != null ){
-                            Set<String> hpNames = new HashSet<>();
-                            hpNames.add(hpTerm.getName());
-                            mp.setHpTerm(new ArrayList<>(hpNames));
-                        }
-                        if ( hpTerm.getSynonyms() != null ){
-                            mp.setHpTermSynonym(new ArrayList<>(hpTerm.getSynonyms()));
-                        }
-                    }
-                    // the narrow synomys are subclasses from 2 levels down
-                    Set<String> nss = new TreeSet<>();
-                    // MP root term MP:0000001 does not have narrow synonyms
-                    if (mpTerm.getNarrowSynonymClasses() != null){
-                        for (OntologyTermDTO ns : mpTerm.getNarrowSynonymClasses()){
-                            nss.add(ns.getName());
-                        }
-
-                        // 20190202 Per TFM. In an effort to restrict the extraneous terms found in the phenotype search
-                        // while still keeping relevant narrow terms (like deafness), TFM has empirically determined
-                        // that, to include deafness, we need to include no more than 80 narrow terms
-                        if (nss.size() > 0 && nss.size() < 80){
-                            mp.setMpNarrowSynonym(new ArrayList<>(nss));
-                        }
-                    }
-                }
+                Set <String> hpTermNames = mpHpTermsMap.get(termId);
+                mp.setHpTerm(new ArrayList<>(hpTermNames));
 
                 getMaTermsForMp(mp);
 

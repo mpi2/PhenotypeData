@@ -6,7 +6,6 @@ package org.mousephenotype.cda.owl;
  * Refactored by mrelac on 15/04/2019.
  */
 
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.semanticweb.owlapi.model.IRI;
@@ -65,72 +64,6 @@ public class OntologyParserTest {
 		ontologyParser = ontologyParserFactory.getUberonParser();
         assertNotNull(ontologyParser);
     }
-
-
-    // last run: 30 seconds
-    @Test
-    public void testNarrowSynonyms() throws Exception {
-
-		ontologyParser = ontologyParserFactory.getMpHpParser();
-
-        OntologyTermDTO term = ontologyParser.getOntologyTerm("MP:0006325");
-
-        // As of 16-Apr-2020, running against mp-hp.owl, there were 18 narrow synonym terms.
-        // Test deafness
-        List<String> expectedNarrowSynonymsList = Arrays.asList(new String[] {
-                "Congenital deafness",
-                "Congenital hearing loss",
-                "Deafness",
-                "Hearing defect",
-                "Hearing impairment",
-                "Hearing loss",
-                "Hypoacusis",
-                "complete hearing loss",
-                "conductive hearing impairment",
-                "deafness",
-                "impaired perception of sound",
-                "impaired sensory perception of sound",
-                "mixed hearing impairment",
-                "nonsyndromic hearing impairment",
-                "perceptive hearing impairment",
-                "sensorineural hearing impairment",
-                "syndromic hearing impairment",
-                "unilateral deafness"
-        });
-        Set<String> expectedNarrowSynonyms = new HashSet<>(expectedNarrowSynonymsList);
-        Set<String> computedNarrowSynonyms = ontologyParser.getNarrowSynonyms(term, 1);
-
-        assertTrue("Expected at least " +
-                            expectedNarrowSynonyms.size() +
-                            " narrow synonyms but found only " +
-                            computedNarrowSynonyms.size(), computedNarrowSynonyms.size() >= expectedNarrowSynonyms.size());
-        expectedNarrowSynonyms.removeAll(computedNarrowSynonyms);
-        assertTrue(expectedNarrowSynonyms.isEmpty());
-    }
-
-
-    // last run: 56 seconds
-    @Test
-    public void testEquivalent() throws Exception {
-
-        ontologyParser = ontologyParserFactory.getMpHpParser();
-
-        List<OntologyTermDTO> terms = ontologyParser.getTerms();
-        assertFalse("Term list is empty!", terms.isEmpty());
-
-        OntologyTermDTO mp0000572 = ontologyParser.getOntologyTerm("MP:0000572");
-        assertNotNull("Could not find MP:0000572 in mp-hp.owl", mp0000572);
-
-        assertFalse("Could not find equivalent class for MP:0000572 in mp-hp.owl. Equivalent class should be HP:0005922.", mp0000572.getEquivalentClasses().isEmpty());
-        Set<OntologyTermDTO> termSet = mp0000572.getEquivalentClasses();
-        List<OntologyTermDTO> eqTerms =
-                termSet.stream()
-                .filter(term -> term.getAccessionId().equals("HP:0005922"))
-                .collect(Collectors.toList());
-        assertFalse("Expected equivalent class HP:0005922 but list is empty.", eqTerms.isEmpty());
-        assertTrue("Expected equivalent class HP:0005922. Not found.", eqTerms.get(0).getAccessionId().equals("HP:0005922"));
-    }
-
 
     @Test
     public void testReplacementOptions() throws Exception {

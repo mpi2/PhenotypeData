@@ -17,12 +17,6 @@
 package org.mousephenotype.cda.owl;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
-import org.semanticweb.elk.util.collections.ArrayHashSet;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
@@ -105,16 +99,8 @@ public class OntologyParserFactory {
         return new OntologyParser(owlpath + "/mp-ext-merged.owl", "MP", null, null);
     }
 
-    public OntologyParser getMpHpParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
-        return new OntologyParser(owlpath + "/mp-hp.owl", "MP", null, null);
-    }
-
     public OntologyParser getMaParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
         return new OntologyParser(owlpath + "/ma.owl", "MA", TOP_LEVEL_MA_TERMS, getMaWantedIds());
-    }
-
-    public OntologyParser getHpParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
-        return new OntologyParser(owlpath + "/hp.owl", "HP", TOP_LEVEL_HP_TERMS, getHpWantedIds());
     }
 
     public OntologyParser getEmapaParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
@@ -137,90 +123,6 @@ public class OntologyParserFactory {
         OntologyParser parser = getEmapaParser();
         parser.fillJsonTreePath("EMAPA:25765", "/data/anatomy/", null, TREE_TOP_LEVEL_EMAPA_TERMS, true); // mouse
         return parser;
-    }
-
-    protected Set<String> getHpWantedIds() throws SQLException, OWLOntologyCreationException, OWLOntologyStorageException, IOException {
-
-        OntologyParser mpParser = getMpParser();
-        OntologyParser mpHpParser = getMpHpParser();
-
-        int hpCount = 0;
-
-        Set<String> hpWanted = new ArrayHashSet<>();
-
-        // first get the hp from chris mungals hybrid mp-hp ontology
-        // this is a mapping of hp to ALL mps
-        for (String wantedMpId : mpParser.getTermsInSlim()){
-            OntologyTermDTO mpDTO = mpHpParser.getOntologyTerm(wantedMpId);
-            if (mpDTO == null){
-                logger.warn(wantedMpId + " cannot be parsed by mHpParser");
-            }
-            else {
-                Set<OntologyTermDTO> hpDTOs = mpDTO.getEquivalentClasses();
-                for (OntologyTermDTO hp : hpDTOs) {
-                    String termId = hp.getAccessionId();
-                    if (termId.startsWith("HP:")) {
-                        hpCount++;
-                        hpWanted.add(termId);
-                    }
-                }
-            }
-        }
-        logger.info("Mp-Hp hybrid ontology has {} hps", hpWanted.size());
-
-        int seen =0;
-        // then get the hps from phenodigm: disease_hp
-//        String qry = "SELECT DISTINCT hp_id FROM disease_hp";  // all IMPC disease related hps only
-//
-//        try (Connection connection = phenodigm.getConnection();
-//             PreparedStatement p = connection.prepareStatement(qry)) {
-//
-//            ResultSet r = p.executeQuery();
-//            while (r.next()) {
-//                String hpId = r.getString("hp_id");
-//                if (hpId.startsWith("HP:")){ // just double check
-//                    if (hpWanted.contains(hpId)){
-//                        seen++;
-//                    }
-//                    else {
-//                        hpWanted.add(hpId);
-//                    }
-//                }
-//            }
-//        }
-
-        try {
-            SolrQuery q = new SolrQuery();
-
-            q.setQuery("type:disease")
-                    .setRows(9999999)
-                    .addField("disease_phenotypes");
-            SolrDocumentList docs = phenodigmCore.query(q).getResults();
-
-            for (SolrDocument doc : docs){
-                List<String> hpidTerms = (List<String>)doc.getFieldValue("disease_phenotypes");
-
-                for (String hpidTerm : hpidTerms){
-                    String[] vals = hpidTerm.split(" ");
-                    String hpTermId = vals[0];
-
-                    if (hpWanted.contains(hpTermId)){
-                        seen++;
-                    }
-                    else {
-                        System.out.println("Adding " + hpTermId);
-                        hpWanted.add(hpTermId);
-                    }
-                }
-            }
-        } catch (IOException | SolrServerException | HttpSolrClient.RemoteSolrException e) {
-            logger.error("\n\nERROR fetching HP id from phenodigm core\n\n", e);
-        }
-
-        logger.info("Mp-Hp hybrid ontology has {} hps overlapping with phenodigm", seen);
-        logger.info("Got total of {} wanted hps from Mp-Hp hybrid ontology and phenodigm disease_hp table", hpWanted.size());
-
-        return hpWanted;
     }
 
     protected Set<String> getMaWantedIds() throws SQLException, OWLOntologyCreationException, OWLOntologyStorageException, IOException {
