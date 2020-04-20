@@ -150,10 +150,10 @@ public class IndexerMap {
     }
 
     /**
-     * Returns a cached map of all mp terms to hp terms, indexed by mp id. The
+     * Returns a cached map of all mp terms to hp term names, indexed by mp id. The
      * data source is the monarch mp-hp csv mapping file that replaced an old
      * OntologyParser service that depended on the unreliable creation of the
-     * mp-hp.owl ontology. The contents of each list is guaranteed to be unique.
+     * mp-hp.owl ontology.
      *
      * @param mpHpCsvPath the fully-qualified path to the mp-hp.csv ontology mapping file provided by Monarch
      * @return a cached map of each mp term and its corresponding list of hp terms as provided by Monarch
@@ -170,28 +170,29 @@ public class IndexerMap {
                 List<List<String>> data = MpHpCsvReader.readAll(mpHpCsvPath);
 
                 String mpTermId;
-                String hpTermId;
+                String hpTermName;
+
+                // NOTE: The HP term contains a trailing ' (HPO)'. If it exists, remove it.
 
                 for (int i = 1; i < data.size(); i++) {                         // Skip heading
                     List<String> row = data.get(i);
-                    mpTermId = row.get(MpHpCsvReader.CURIE_MP_COLUMN);
-                    hpTermId = row.get(MpHpCsvReader.CURIE_HP_COLUMN);
+                    mpTermId = row.get(MpHpCsvReader.MP_ID_COL_OFFSET);
+                    hpTermName = row.get(MpHpCsvReader.HP_NAME_COL_OFFSET).replace(" (HPO)", "");
 
-                    Set<String> hpTermIds = mpToHpTermsMap.get(mpTermId);
-                    if (hpTermIds == null) {
-                        hpTermIds = new HashSet<>();
-                        mpToHpTermsMap.put(mpTermId, hpTermIds);
+                    Set<String> hpTermNames = mpToHpTermsMap.get(mpTermId);
+                    if (hpTermNames == null) {
+                        hpTermNames = new HashSet<>();
+                        mpToHpTermsMap.put(mpTermId, hpTermNames);
                     }
 
-                    if ( ! hpTermIds.contains(hpTermId)) {
-                        hpTermIds.add(hpTermId);
+                    if ( ! hpTermNames.contains(hpTermName)) {
+                        hpTermNames.add(hpTermName);
                     }
                 }
 
             } catch (IOException e) {
 
                 throw new IndexerException("Unable to parse mp-hp term file " + mpHpCsvPath, e);
-
             }
         }
 

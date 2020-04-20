@@ -34,11 +34,16 @@ import java.util.List;
  */
 public class MpHpCsvReader {
 
-    public static final int COLUMN_COUNT    = 7;            // mp-hp.csv Column count
-    public static final int CURIE_HP_COLUMN = 5;            // HP column offset (0-relative)
-    public static final int CURIE_MP_COLUMN = 6;            // MP column offset (0-relative)
-
     public static final String MP_HP_CSV_FILENAME = "mp-hp.csv";
+
+    public static final int HP_OBO_URL_COL_OFFSET        = 0;     // Column A - HP obo term URL
+    public static final int MP_OBO_URL_COL_OFFSET        = 1;     // Column B - HP obo term URL
+    public static final int HP_NAME_COL_OFFSET           = 2;     // Column C - hp term name with ' (HPO)' appended
+    public static final int MP_NAME_COL_OFFSET           = 3;     // Column D - mp term name with ' (MPO)' appended
+    public static final int MATCHING_CATEGORY_COL_OFFSET = 4;     // Column E - 'matching_category'
+    public static final int HP_ID_COL_OFFSET             = 5;     // Column F - HP term
+    public static final int MP_ID_COL_OFFSET             = 6;     // Column G - MP term
+    public static final int COLUMN_COUNT                 = 7;     // mp-hp.csv Column count
 
     public static List<List<String>> readAll(String fqFilename) throws IOException {
         List<List<String>> data = new ArrayList<>();

@@ -25,24 +25,28 @@ public class MpHpCsvReaderTest {
 
         List<List<String>> list = MpHpCsvReader.readAll(mpHpCsvPath);
 
-        String curie_hp = list.get(0).get(MpHpCsvReader.CURIE_HP_COLUMN);
-        String curie_mp = list.get(0).get(MpHpCsvReader.CURIE_MP_COLUMN);
 
-        // Test heading
-        String msg = "Expected 'curie_x' but found '" + curie_hp + "'.";
-        assertTrue(msg, curie_hp.toLowerCase().equals("curie_x"));
-        msg = "Expected 'curie_y' but found '" + curie_mp + "'.";
-        assertTrue(msg, curie_mp.toLowerCase().equals("curie_y"));
+        // TEST ONLY THOSE COLUMNS REQUIRED FOR MP-HP MAPPING.
+        String hpTermName = list.get(0).get(MpHpCsvReader.HP_NAME_COL_OFFSET);
+        String mpId = list.get(0).get(MpHpCsvReader.MP_ID_COL_OFFSET);
+
+        // Test heading string
+        String msg;
+        msg = "Expected 'label_x' but found '" + hpTermName + "'.";
+        assertTrue(msg, hpTermName.toLowerCase().equals("label_x"));
+
+        msg = "Expected 'curie_y' but found '" + mpId + "'.";
+        assertTrue(msg, mpId.toLowerCase().equals("curie_y"));
 
         // Test data rows
         for (int i = 1; i < list.size(); i++) {
-            curie_hp = list.get(i).get(MpHpCsvReader.CURIE_HP_COLUMN);
-            curie_mp = list.get(i).get(MpHpCsvReader.CURIE_MP_COLUMN);
-            msg = "Expected value starting with 'HP:' but found '" + curie_hp + "'";
-            assertTrue(msg, curie_hp.toUpperCase().startsWith("HP:"));
+            hpTermName = list.get(i).get(MpHpCsvReader.HP_NAME_COL_OFFSET);
+            mpId = list.get(i).get(MpHpCsvReader.MP_ID_COL_OFFSET);
+            msg = "Expected value ending in ' (HPO)' but found '" + hpTermName + "'";
+            assertTrue(msg, hpTermName.toUpperCase().contains(" (HPO)"));
 
-            msg = "Expected value starting with 'MP:' but found '" + curie_mp + "'";
-            assertTrue(msg, curie_mp.toUpperCase().startsWith("MP:"));
+            msg = "Expected value starting with 'MP:' but found '" + mpId + "'";
+            assertTrue(msg, mpId.toUpperCase().startsWith("MP:"));
         }
     }
 }
