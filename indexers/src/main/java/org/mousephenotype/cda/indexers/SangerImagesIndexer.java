@@ -19,6 +19,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
+import org.mousephenotype.cda.indexers.utils.MpHpCsvReader;
 import org.mousephenotype.cda.indexers.utils.SangerProcedureMapper;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
@@ -57,11 +58,10 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final DateTimeFormatter YMD_HMS = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+	private final DateTimeFormatter YMD_HMS            = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
 	private OntologyParser maParser;
 	private OntologyParser mpParser;
-	private OntologyParser mpHpParser;
 
 	private Map<String, List<AlleleDTO>>    alleles;
 	private Map<String, AlleleBean>         alleleMpiMap   = new HashMap<>();
@@ -70,6 +70,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 	private Map<Integer, ExperimentDict>    expMap         = new HashMap<>();
 	private Map<String, GenomicFeatureBean> featuresMap    = new HashMap<>();
 	private Map<Integer, MouseBean>         mouseMvMap     = new HashMap<>();
+	private Map<String, Set<String>>		mpHpTermsMap   = new HashMap<>();
 	private Map<String, String>             subtypeMap     = new HashMap<>();
 	private Map<String, List<String>>       synonyms       = new HashMap<>();
 	private Map<Integer, List<Tag>>         tags           = new HashMap<>();
@@ -112,7 +113,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 				OntologyParserFactory ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
 				mpParser = ontologyParserFactory.getMpParser();
 				maParser = ontologyParserFactory.getMaParser();
-				mpHpParser = ontologyParserFactory.getMpHpParser();
+				mpHpTermsMap = IndexerMap.getMpToHpTerms(owlpath + "/" + MpHpCsvReader.MP_HP_CSV_FILENAME);
 
 			} catch (OWLOntologyCreationException | OWLOntologyStorageException e) {
 
@@ -349,30 +350,22 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 											}
 										}
 
-                                        // add mp-hp mapping using Monarch's mp-hp hybrid ontology
-                                        OntologyTermDTO mphpTerm = mpHpParser.getOntologyTerm(annotation.mp_id);
-
-                                        if (mphpTerm == null) {
-                                            String message = "MP term not found using mpHpParser.getOntologyTerm(termId); where termId = " + annotation.mp_id;
-                                            runStatus.addWarning(message);
-                                            logger.warn(message);
-
-                                        } else {
-
+//                                        // add mp-hp mapping using Monarch's mp-hp hybrid ontology
                                             Set <OntologyTermDTO> hpTerms = mphpTerm.getEquivalentClasses();
-                                            Set<String> hpIds = new HashSet<>();
-                                            Set<String> hpNames = new HashSet<>();
 
-                                            for ( OntologyTermDTO hpTerm : hpTerms ){
-                                                hpIds.add(hpTerm.getAccessionId());
-                                                if ( hpTerm.getName() != null ){
-                                                    hpNames.add(hpTerm.getName());
-                                                }
-                                            }
 
-                                            associatedHpIds.addAll(new ArrayList<>(hpIds));
-                                            associatedHpTerms.addAll(new ArrayList<>(hpNames));
-                                        }
+										Set<String> hpIds   = new HashSet<>();
+										Set<String> hpNames = new HashSet<>();
+
+										for (OntologyTermDTO hpTerm : hpTerms) {
+											hpIds.add(hpTerm.getAccessionId());
+											if (hpTerm.getName() != null) {
+												hpNames.add(hpTerm.getName());
+											}
+										}
+
+										associatedHpIds.addAll(new ArrayList<>(hpIds));
+										associatedHpTerms.addAll(new ArrayList<>(hpNames));
 
 									} else {
 

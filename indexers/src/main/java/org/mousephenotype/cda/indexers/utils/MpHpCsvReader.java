@@ -38,6 +38,8 @@ public class MpHpCsvReader {
     public static final int CURIE_HP_COLUMN = 5;            // HP column offset (0-relative)
     public static final int CURIE_MP_COLUMN = 6;            // MP column offset (0-relative)
 
+    public static final String MP_HP_CSV_FILENAME = "mp-hp.csv";
+
     public static List<List<String>> readAll(String fqFilename) throws IOException {
         List<List<String>> data = new ArrayList<>();
 

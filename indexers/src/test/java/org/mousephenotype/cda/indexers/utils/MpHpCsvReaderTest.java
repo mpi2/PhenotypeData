@@ -21,7 +21,7 @@ public class MpHpCsvReaderTest {
     @Test
     public void readAll() throws IOException {
 
-        String mpHpCsvPath = owlpath + "/mp-hp.csv";
+        String mpHpCsvPath = owlpath + "/" + MpHpCsvReader.MP_HP_CSV_FILENAME;
 
         List<List<String>> list = MpHpCsvReader.readAll(mpHpCsvPath);
 

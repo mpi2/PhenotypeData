@@ -35,10 +35,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This class encapsulates the code and data necessary to represent all of the
@@ -53,7 +50,7 @@ public class IndexerMap {
 
     private static final Logger logger = LoggerFactory.getLogger(IndexerMap.class);
 
-    private static Map<String, List<String>>              mpToHpTermsMap  = null;
+    private static Map<String, Set<String>>               mpToHpTermsMap  = null;
     private static Map<String, List<SangerImageDTO>>      sangerImagesMap = null;
     private static Map<String, List<AlleleDTO>>           allelesMap      = null;
     private static List<AlleleDTO>                        alleles         = null;
@@ -163,7 +160,7 @@ public class IndexerMap {
      *
      * @throws IndexerException
      */
-    public static Map<String, List<String>> getMpToHpTerms(String mpHpCsvPath) throws IndexerException {
+    public static Map<String, Set<String>> getMpToHpTerms(String mpHpCsvPath) throws IndexerException {
 
         if (mpToHpTermsMap == null) {
 
@@ -180,9 +177,9 @@ public class IndexerMap {
                     mpTermId = row.get(MpHpCsvReader.CURIE_MP_COLUMN);
                     hpTermId = row.get(MpHpCsvReader.CURIE_HP_COLUMN);
 
-                    List<String> hpTermIds = mpToHpTermsMap.get(mpTermId);
+                    Set<String> hpTermIds = mpToHpTermsMap.get(mpTermId);
                     if (hpTermIds == null) {
-                        hpTermIds = new ArrayList<>();
+                        hpTermIds = new HashSet<>();
                         mpToHpTermsMap.put(mpTermId, hpTermIds);
                     }
 
