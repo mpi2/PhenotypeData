@@ -350,8 +350,8 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 											}
 										}
 
-//                                        // add mp-hp mapping using Monarch's mp-hp hybrid ontology
-                                            Set <OntologyTermDTO> hpTerms = mphpTerm.getEquivalentClasses();
+//                                      // add mp-hp mapping using Monarch's mp-hp hybrid ontology
+										Set <OntologyTermDTO> hpTerms = mpHpTermsMap.get(annotation.mp_id);
 
 
 										Set<String> hpIds   = new HashSet<>();
