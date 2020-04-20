@@ -191,7 +191,14 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 // add mp-hp mapping using Monarch's mp-hp hybrid ontology
 
                 Set <String> hpTermNames = mpHpTermsMap.get(termId);
-                mp.setHpTerm(new ArrayList<>(hpTermNames));
+
+                if (hpTermNames == null) {
+                    String message = "HP term name not found in mp-hp.csv for MP termId " + termId;
+                    runStatus.addWarning(message);
+                    logger.warn(message);
+                } else {
+                    mp.setHpTerm(new ArrayList<>(hpTermNames));
+                }
 
                 getMaTermsForMp(mp);
 

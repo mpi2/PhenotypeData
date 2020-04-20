@@ -355,8 +355,13 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 
                                         // add mp-hp mapping using Monarch's mp-hp hybrid ontology
 										Set <String> hpTermNames = mpHpTermsMap.get(annotation.mp_id);
-										associatedHpTerms.addAll(new ArrayList<>(hpTermNames));
-
+										if (hpTermNames == null) {
+											String message = "HP term name not found in mp-hp.csv for MP termId " + annotation.mp_id;
+											runStatus.addWarning(message);
+											logger.warn(message);
+										} else {
+											associatedHpTerms.addAll(new ArrayList<>(hpTermNames));
+										}
 									} else {
 
 										if ( ! ontologyTermNotFound.contains(annotation.mp_id)) {
