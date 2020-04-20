@@ -175,6 +175,12 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 		} finally {
             logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
         }
+
+		logger.info("missing mpHp mappings: {}", noMpHpMappings.size());
+		logger.info("mpIds with Hp mappings: {}", mpHpMappings.size());
+
+
+
 		return runStatus;
 	}
 
@@ -356,11 +362,10 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
                                         // add mp-hp mapping using Monarch's mp-hp hybrid ontology
 										Set <String> hpTermNames = mpHpTermsMap.get(annotation.mp_id);
 										if (hpTermNames == null) {
-											String message = "HP term name not found in mp-hp.csv for MP termId " + annotation.mp_id;
-											runStatus.addWarning(message);
-											logger.warn(message);
+											noMpHpMappings.add(annotation.mp_id);
 										} else {
 											associatedHpTerms.addAll(new ArrayList<>(hpTermNames));
+											mpHpMappings.add(annotation.mp_id);
 										}
 									} else {
 
@@ -432,6 +437,9 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 
         return count;
 	}
+
+	private Set<String> mpHpMappings = new HashSet<>();
+	private Set <String> noMpHpMappings = new HashSet<>();
 
 
 

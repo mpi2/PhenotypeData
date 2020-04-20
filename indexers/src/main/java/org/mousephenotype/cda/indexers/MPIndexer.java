@@ -193,11 +193,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 Set <String> hpTermNames = mpHpTermsMap.get(termId);
 
                 if (hpTermNames == null) {
-                    String message = "HP term name not found in mp-hp.csv for MP termId " + termId;
-                    runStatus.addWarning(message);
-                    logger.warn(message);
+                    noMpHpMappings.add(termId);
                 } else {
                     mp.setHpTerm(new ArrayList<>(hpTermNames));
+                    mpHpMappings.add(termId);
                 }
 
                 getMaTermsForMp(mp);
@@ -228,9 +227,29 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             throw new IndexerException(e);
         }
 
+
+
+
+
+        logger.info("missing mpHp mappings: {}", noMpHpMappings.size());
+        logger.info("mpIds with Hp mappings: {}", mpHpMappings.size());
+
+
+
+
+
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
         return runStatus;
     }
+
+
+
+    private Set<String> mpHpMappings = new HashSet<>();
+    private Set <String> noMpHpMappings = new HashSet<>();
+
+
+
+
 
     // 22-Mar-2017 (mrelac) Added status to query for errors and warnings.
     public Map<String, Integer> getPhenotypeGeneVariantCounts(String termId, RunStatus status)
