@@ -156,7 +156,7 @@ public class IndexerMap {
      * Returns a cached map of all mp terms to hp terms, indexed by mp id. The
      * data source is the monarch mp-hp csv mapping file that replaced an old
      * OntologyParser service that depended on the unreliable creation of the
-     * mp-hp.owl ontology.
+     * mp-hp.owl ontology. The contents of each list is guaranteed to be unique.
      *
      * @param mpHpCsvPath the fully-qualified path to the mp-hp.csv ontology mapping file provided by Monarch
      * @return a cached map of each mp term and its corresponding list of hp terms as provided by Monarch
@@ -186,7 +186,9 @@ public class IndexerMap {
                         mpToHpTermsMap.put(mpTermId, hpTermIds);
                     }
 
-                    hpTermIds.add(hpTermId);
+                    if ( ! hpTermIds.contains(hpTermId)) {
+                        hpTermIds.add(hpTermId);
+                    }
                 }
 
             } catch (IOException e) {

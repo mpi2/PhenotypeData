@@ -1,31 +1,27 @@
 package org.mousephenotype.cda.indexers.utils;
 
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {UtilsTestConfig.class})
-public class mpToHpTermsTest {
+public class MpToHpTermsTest {
 
     @Autowired
     private String owlpath;
 
-    @Autowired
-    private ApplicationContext context;
-
     @Test
-    public void getMpToHpTermsTest() throws IndexerException {
+    public void mpToHpTermsTest() throws IndexerException {
 
         String mpHpCsvPath = owlpath + "/mp-hp.csv";
 
@@ -34,7 +30,7 @@ public class mpToHpTermsTest {
         // Spot-check some terms:
         /*
             MP:0001967: HP:0000365  (deafness)
-            MP:0002001: HP:0000618 (blindness)
+            MP:0002001: HP:0000618  (blindness)
             MP:0003342: HP:0001747, HP:0001748, HP:0009799
             MP:0030505: HP:0001571, HP:0011079
             MP:0012674: HP:0004336, HP:0030175
