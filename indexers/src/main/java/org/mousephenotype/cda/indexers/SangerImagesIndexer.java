@@ -75,6 +75,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 	private Map<String, List<String>>       synonyms       = new HashMap<>();
 	private Map<Integer, List<Tag>>         tags           = new HashMap<>();
 
+	private Set<String> mpHpMappings = new HashSet<>();
 
 	private SolrClient alleleCore;
 	private SolrClient sangerImagesCore;
@@ -173,13 +174,10 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 			e.printStackTrace();
 			throw new IndexerException(e);
 		} finally {
+			logger.info("mpIds with Hp mappings: {}", mpHpMappings.size());
+
             logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
         }
-
-		logger.info("missing mpHp mappings: {}", noMpHpMappings.size());
-		logger.info("mpIds with Hp mappings: {}", mpHpMappings.size());
-
-
 
 		return runStatus;
 	}
@@ -361,9 +359,7 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 
                                         // add mp-hp mapping using Monarch's mp-hp hybrid ontology
 										Set <String> hpTermNames = mpHpTermsMap.get(annotation.mp_id);
-										if (hpTermNames == null) {
-											noMpHpMappings.add(annotation.mp_id);
-										} else {
+										if (hpTermNames != null) {
 											associatedHpTerms.addAll(new ArrayList<>(hpTermNames));
 											mpHpMappings.add(annotation.mp_id);
 										}
@@ -437,11 +433,6 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 
         return count;
 	}
-
-	private Set<String> mpHpMappings = new HashSet<>();
-	private Set <String> noMpHpMappings = new HashSet<>();
-
-
 
 	/**
 	 * Add all the relevant data to the Impress map

@@ -1,8 +1,12 @@
 package org.mousephenotype.cda.indexers.utils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.indexers.MPIndexer;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -16,8 +20,10 @@ import static org.junit.Assert.assertTrue;
 @SpringBootTest(classes = {UtilsTestConfig.class})
 public class MpToHpTermsTest {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
-    private String owlpath;
+    private   String owlpath;
 
     @Test
     public void mpToHpTermsTest() throws IndexerException {
@@ -53,13 +59,24 @@ public class MpToHpTermsTest {
         assertTrue(terms.get("MP:0001560").contains("Abnormal circulating insulin level"));
         assertTrue(terms.get("MP:0001560").contains("Abnormal insulin level"));
 
-        // Uncomment to see MP term IDs mapped to multiple HP term names.
-//        terms
-//            .entrySet()
-//            .stream()
-//            .forEach(x -> {
-//                if ((x.getValue().size() > 1) || (x.getKey().equals("MP:0001967") || x.getKey().equals("MP:0002001")))
-//                    System.out.println(x.getKey() + ": " + StringUtils.join(x.getValue(), ", "));
-//            });
+    }
+
+    @Test
+    public void printAllMappings() throws IndexerException {
+
+        String mpHpCsvPath = owlpath + "/" + MpHpCsvReader.MP_HP_CSV_FILENAME;
+
+        Map<String, Set<String>> terms = IndexerMap.getMpToHpTerms(mpHpCsvPath);
+
+        System.out.println();
+        System.out.println("mpIds with multiple hpTerms are separated by :: (double colons).");
+        System.out.println("There are " + terms.size() + " mpId -> hpTerm mappings:");
+        terms
+            .entrySet()
+            .stream()
+            .sorted(Map.Entry.comparingByKey())
+            .forEach(x -> {
+                    System.out.println(x.getKey() + ": " + StringUtils.join(x.getValue(), "::"));
+            });
     }
 }
