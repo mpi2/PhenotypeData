@@ -17,7 +17,6 @@
 package org.mousephenotype.cda.indexers.utils;
 
 import org.mousephenotype.cda.indexers.beans.OrganisationBean;
-import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 

@@ -3,7 +3,6 @@ package org.mousephenotype.cda.indexers.utils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.indexers.MPIndexer;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
