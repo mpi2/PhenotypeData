@@ -57,7 +57,6 @@ public class MpToHpTermsTest {
 
         assertTrue(terms.get("MP:0001560").contains("Abnormal circulating insulin level"));
         assertTrue(terms.get("MP:0001560").contains("Abnormal insulin level"));
-
     }
 
     @Test
