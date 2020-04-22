@@ -24,7 +24,7 @@ public class H2Function {
     @SuppressWarnings("rawtypes")
     public static int removeDateDifference() {
         try {
-            Field field = Function.class.getDeclaredField("FUNCTIONS");
+            Field field = Function.class.getDeclaredField("FUNCTIONS_BY_NAME");
             field.setAccessible(true);
             ((Map)field.get(null)).remove("DATEDIFF");
         } catch (Exception e) {

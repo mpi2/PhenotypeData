@@ -95,12 +95,11 @@ public class DateUtilsTest {
                 new DateExpectedOutput("2012-12-12T12:12:01.123", "2012-12-12T12:12:01.123Z[UTC]"),
                 new DateExpectedOutput("2012-12-12 12:12:01.123Z", "2012-12-12T12:12:01.123Z[UTC]"),
                 new DateExpectedOutput("2012-12-12T 12:12:01.123Z", "2012-12-12T12:12:01.123Z[UTC]")
-
         );
 
         for (DateExpectedOutput input : inputs) {
 
-            System.out.println("Testing Date format: " + input.dateString);
+            logger.debug("Testing Date format: " + input.dateString);
 
             ZonedDateTime actualDate =
                     ZonedDateTime.parse(input.dateString,
