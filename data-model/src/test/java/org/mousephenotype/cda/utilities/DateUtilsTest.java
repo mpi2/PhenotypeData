@@ -77,7 +77,7 @@ public class DateUtilsTest {
 
         for (DateExpectedOutput input : inputs) {
 
-            System.out.println("Testing Date format: " + input.dateString);
+           logger.debug("Testing Date format: " + input.dateString);
 
             ZonedDateTime actualDate =
                     ZonedDateTime.parse(input.dateString,
