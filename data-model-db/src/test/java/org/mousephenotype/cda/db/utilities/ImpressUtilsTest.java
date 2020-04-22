@@ -28,6 +28,7 @@ import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.pojo.Parameter;
 import org.mousephenotype.cda.db.repositories.ParameterRepository;
 import org.mousephenotype.cda.enumerations.ObservationType;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -49,7 +50,7 @@ import static org.junit.Assert.assertSame;
 @ContextConfiguration(classes = {UtilitiesTestConfig.class})
 public class ImpressUtilsTest {
 
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private ApplicationContext context;

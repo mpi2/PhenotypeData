@@ -74,22 +74,22 @@ public class ParameterRepositoryFullLoadTest {
     public void getByStableId() throws Exception {
 
         Parameter actual = parameterRepository.getFirstByStableId("IMPC_BWT_008_001");
-        System.out.println(actual);
+        logger.debug(actual.toString());
         assertNotNull(actual);
 
         compareFields(getExpected(), actual);
     }
+
     @Test
     public void getEslimByStableId() throws Exception {
 
         Parameter eslim701 = parameterRepository.getByStableIdAndProcedureAndPipeline("ESLIM_022_001_701", "ESLIM_022_001", "ESLIM_001");
-        System.out.println(eslim701);
+        logger.debug(eslim701.toString());
         assertNotNull(eslim701);
 
         Parameter eslim702 = parameterRepository.getByStableIdAndProcedureAndPipeline("ESLIM_022_001_702", "ESLIM_022_001", "ESLIM_001");
-        System.out.println(eslim702);
+        logger.debug(eslim702.toString());
         assertNotNull(eslim702);
-
     }
 
     @Test
@@ -103,23 +103,22 @@ public class ParameterRepositoryFullLoadTest {
         Procedure firstBwt = procedureRepository.getFirstByStableId("IMPC_BWT_001");
         assertNotNull(firstBwt);
         assertEquals(1, firstBwt.getPipelines().size());
-        logger.info("Found procedure: " + firstBwt + ", Pipeline(s): " + firstBwt.getPipelines());
+        logger.debug("Found procedure: " + firstBwt + ", Pipeline(s): " + firstBwt.getPipelines());
 
         Procedure eslim701 = procedureRepository.getFirstByStableId("ESLIM_022_001");
         assertNotNull(eslim701);
         assertEquals(1, eslim701.getPipelines().size());
-        logger.info("Found procedure: " + eslim701 + ", Pipeline(s): " + eslim701.getPipelines());
-
+        logger.debug("Found procedure: " + eslim701 + ", Pipeline(s): " + eslim701.getPipelines());
     }
+
     @Test
     public void testGetByParameterAndProcedure() throws Exception {
 
         Parameter actual = parameterRepository.getByStableIdAndProcedureAndPipeline("IMPC_BWT_008_001", "IMPC_BWT_001", "UCD_001");
         assertNotNull(actual.getProcedures());
         assertNotNull(actual.getProcedures().stream().findFirst().map(Procedure::getPipelines).orElse(null));
-        System.out.println(actual.getProcedures());
-        System.out.println(actual.getProcedures().stream().findFirst().map(Procedure::getPipelines));
-
+        logger.debug(actual.getProcedures().toString());
+        logger.debug(actual.getProcedures().stream().findFirst().map(Procedure::getPipelines).toString());
     }
 
 

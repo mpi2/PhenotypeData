@@ -157,6 +157,7 @@ public class ReferenceServiceImpl implements ReferenceService {
         Sort.Direction direction = Sort.Direction.DESC;
         if(sortOrder.equals("ASC"))
             direction = Sort.Direction.ASC;
-        return new PageRequest(page, length, direction, orderBy);
+
+        return PageRequest.of(page, length, direction, orderBy);
     }
 }
