@@ -24,6 +24,8 @@ import java.util.List;
 /**
  * Created by mrelac on 24/07/2015.
  */
+// TODO - This should be migrated to data-model and integraded with CsvUtils.
+@Deprecated
 public class MpCSVWriter extends CSVWriter {
 
     public MpCSVWriter(Writer writer) {
