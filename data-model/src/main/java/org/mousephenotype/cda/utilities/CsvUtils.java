@@ -39,7 +39,7 @@ public class CsvUtils {
 
     public void writeAndFlushRow(List<String> row) {
         open(csvFilename);
-        writer.writeNext(row.toArray(new String[0]));
+        write(row);
         close();
     }
 
