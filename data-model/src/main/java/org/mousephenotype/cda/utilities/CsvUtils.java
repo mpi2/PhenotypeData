@@ -31,30 +31,27 @@ public class CsvUtils {
 
     private static Logger logger = LoggerFactory.getLogger(CsvUtils.class);
 
-    private String     csvFilename;
-    private Path       path;
-    private File       file;
-    private FileWriter fileWriter;
-    private CSVWriter  writer;
+    private static String     fqFilename;
+    private        FileWriter fileWriter;
+    private        CSVWriter  writer;
 
     public void writeAndFlushRow(String csvFilename, List<String> row) {
-        open(csvFilename);
+        open(csvFilename, true);
         write(row);
         close();
     }
 
     // TODO - Migrate MpCsvWriter here and add CsvReader methods.
 
-    public void open(String filename) {
+    public void open(String csvFilename, boolean append) {
+
         try {
-            path = Paths.get(csvFilename);
-            file = path.toFile();
-            this.csvFilename = filename;
-            fileWriter = new FileWriter(file, true);
+            fileWriter = getFileWriter(csvFilename, append);
             writer = new CSVWriter(fileWriter);
 
         } catch (IOException e) {
-            logger.error("can't open file {}", file);
+            logger.error("can't open file {}. Reason: {}", fqFilename, e.getLocalizedMessage());
+            e.printStackTrace();
         }
     }
 
@@ -64,26 +61,40 @@ public class CsvUtils {
 
     public void close() {
         try {
-            if (writer != null) {
-                writer.close();
-            }
             if (fileWriter != null) {
                 fileWriter.close();
+                fileWriter = null;
             }
 
         } catch (IOException e) {
-            logger.error("can't open file {}", file);
+            logger.error("can't open file {}. Reason: {}", fqFilename, e.getLocalizedMessage());
+            e.printStackTrace();
         }
     }
 
-    static void deleteAndRecreateFile(String filename) {
+    static void deleteAndRecreateFile(String csvFilename) {
+
+        Path path = Paths.get(csvFilename);
+        File file = path.toFile();
+
         try {
-            System.out.println("Creating " + filename);
-            FileWriter fw = new FileWriter(filename);
-            fw.close();
+            logger.info("Creating file {}", file.getAbsolutePath());
+            FileWriter fileWriter = new FileWriter(file);
+            fileWriter.close();
 
         } catch (IOException e) {
-            logger.error("can't open file {}", filename);
+            logger.error("can't open file {}. Reason: {}", fqFilename, e.getLocalizedMessage());
+            e.printStackTrace();
         }
+    }
+
+    private FileWriter getFileWriter(String csvFilename,  boolean append) throws IOException {
+
+        Path path = Paths.get(csvFilename);
+        File file = path.toFile();
+        fqFilename = file.getAbsolutePath();
+        logger.info("{} file {} for writing", append ? "Opening" : "Creating", fqFilename);
+
+        return new FileWriter(csvFilename, append);
     }
 }
