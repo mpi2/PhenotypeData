@@ -32,12 +32,12 @@ public class CsvUtils {
     private static Logger logger = LoggerFactory.getLogger(CsvUtils.class);
 
     private String     csvFilename;
-    private Path       path = Paths.get(csvFilename);
-    private File       file = path.toFile();
+    private Path       path;
+    private File       file;
     private FileWriter fileWriter;
     private CSVWriter  writer;
 
-    public void writeAndFlushRow(List<String> row) {
+    public void writeAndFlushRow(String csvFilename, List<String> row) {
         open(csvFilename);
         write(row);
         close();
@@ -47,6 +47,8 @@ public class CsvUtils {
 
     public void open(String filename) {
         try {
+            path = Paths.get(csvFilename);
+            file = path.toFile();
             this.csvFilename = filename;
             fileWriter = new FileWriter(file, true);
             writer = new CSVWriter(fileWriter);
