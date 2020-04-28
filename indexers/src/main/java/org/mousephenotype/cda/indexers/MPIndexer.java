@@ -168,7 +168,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 String termId = mpDtoFromSlim.getAccessionId();
 if ( ! mpIdFromSlim.equals(termId)) {
     logger.info("mpIdFromSlim: {}. termId: {}", mpIdFromSlim, termId);
+    threshold++;
 }
+if (threshold > 10) System.exit(1);
 if (1 == 1) continue;
                 MpDTO mpDtoToAdd = new MpDTO();
                 mpDtoToAdd.setDataType("mp");
@@ -263,7 +265,7 @@ if (1 == 1) continue;
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
         return runStatus;
     }
-
+private int threshold = 0;
     // 22-Mar-2017 (mrelac) Added status to query for errors and warnings.
     public Map<String, Integer> getPhenotypeGeneVariantCounts(String termId, RunStatus status)
             throws IOException, URISyntaxException, SolrServerException, JSONException {
