@@ -162,33 +162,35 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mpCore.deleteByQuery("*:*");
             mpCore.commit();
 
-            for (String mpId: mpParser.getTermsInSlim()) {
+            for (String mpIdFromSlim: mpParser.getTermsInSlim()) {
 
-                OntologyTermDTO mpDTO = mpParser.getOntologyTerm(mpId);
-                String termId = mpDTO.getAccessionId();
-
-                MpDTO mp = new MpDTO();
-                mp.setDataType("mp");
-                mp.setMpId(termId);
-                mp.setMpTerm(mpDTO.getName());
-                mp.setMpDefinition(mpDTO.getDefinition());
+                OntologyTermDTO mpDtoFromSlim = mpParser.getOntologyTerm(mpIdFromSlim);
+                String termId = mpDtoFromSlim.getAccessionId();
+if ( ! mpIdFromSlim.equals(termId)) {
+    logger.info("mpIdFromSlim: {}. termId: {}", mpIdFromSlim, termId);
+}
+if (1 == 1) continue;
+                MpDTO mpDtoToAdd = new MpDTO();
+                mpDtoToAdd.setDataType("mp");
+                mpDtoToAdd.setMpId(termId);
+                mpDtoToAdd.setMpTerm(mpDtoFromSlim.getName());
+                mpDtoToAdd.setMpDefinition(mpDtoFromSlim.getDefinition());
 
                 // alternative MP ID
-                if ( mpDTO.getAlternateIds() != null && !mpDTO.getAlternateIds().isEmpty() ) {
-                    mp.setAltMpIds(mpDTO.getAlternateIds());
+                if ( mpDtoFromSlim.getAlternateIds() != null && !mpDtoFromSlim.getAlternateIds().isEmpty() ) {
+                    mpDtoToAdd.setAltMpIds(mpDtoFromSlim.getAlternateIds());
                 }
 
+                mpDtoToAdd.setMpNodeId(mpDtoFromSlim.getNodeIds() != null ? mpDtoFromSlim.getNodeIds() : new HashSet<>());
 
-                mp.setMpNodeId(mpDTO.getNodeIds() != null ? mpDTO.getNodeIds() : new HashSet<>());
+                addTopLevelTerms(mpDtoToAdd, mpDtoFromSlim);
+                addIntermediateTerms(mpDtoToAdd, mpDtoFromSlim);
 
-                addTopLevelTerms(mp, mpDTO);
-                addIntermediateTerms(mp, mpDTO);
-
-                mp.setChildMpId(mpDTO.getChildIds());
-                mp.setChildMpTerm(mpDTO.getChildNames());
-                mp.setParentMpId(mpDTO.getParentIds());
-                mp.setParentMpTerm(mpDTO.getParentNames());
-                mp.setMpTermSynonym(mpDTO.getSynonyms());
+                mpDtoToAdd.setChildMpId(mpDtoFromSlim.getChildIds());
+                mpDtoToAdd.setChildMpTerm(mpDtoFromSlim.getChildNames());
+                mpDtoToAdd.setParentMpId(mpDtoFromSlim.getParentIds());
+                mpDtoToAdd.setParentMpTerm(mpDtoFromSlim.getParentNames());
+                mpDtoToAdd.setMpTermSynonym(mpDtoFromSlim.getSynonyms());
 
                 // add mp-hp mapping using Monarch's mp-hp hybrid ontology
                 OntologyTermDTO mpTerm = mpHpParser.getOntologyTerm(termId);
@@ -203,14 +205,14 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     for ( OntologyTermDTO hpTerm : hpTerms ){
                         Set<String> hpIds = new HashSet<>();
                         hpIds.add(hpTerm.getAccessionId());
-                        mp.setHpId(new ArrayList<>(hpIds));
+                        mpDtoToAdd.setHpId(new ArrayList<>(hpIds));
                         if ( hpTerm.getName() != null ){
                             Set<String> hpNames = new HashSet<>();
                             hpNames.add(hpTerm.getName());
-                            mp.setHpTerm(new ArrayList<>(hpNames));
+                            mpDtoToAdd.setHpTerm(new ArrayList<>(hpNames));
                         }
                         if ( hpTerm.getSynonyms() != null ){
-                            mp.setHpTermSynonym(new ArrayList<>(hpTerm.getSynonyms()));
+                            mpDtoToAdd.setHpTermSynonym(new ArrayList<>(hpTerm.getSynonyms()));
                         }
                     }
                     // the narrow synomys are subclasses from 2 levels down
@@ -225,27 +227,27 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                         // while still keeping relevant narrow terms (like deafness), TFM has empirically determined
                         // that, to include deafness, we need to include no more than 80 narrow terms
                         if (nss.size() > 0 && nss.size() < 80){
-                            mp.setMpNarrowSynonym(new ArrayList<>(nss));
+                            mpDtoToAdd.setMpNarrowSynonym(new ArrayList<>(nss));
                         }
                     }
                 }
 
-                getMaTermsForMp(mp);
+                getMaTermsForMp(mpDtoToAdd);
 
                 // this sets the number of postqc/preqc phenotyping calls of this MP
-                addPhenotype1(mp);
-                mp.setPhenoCalls(sumPhenotypingCalls(termId));
-                addPhenotype2(mp);
+                addPhenotype1(mpDtoToAdd);
+                mpDtoToAdd.setPhenoCalls(sumPhenotypingCalls(termId));
+                addPhenotype2(mpDtoToAdd);
 
-                mp.setSearchTermJson(mpDTO.getSeachJson());
-                mp.setScrollNode(mpDTO.getScrollToNode());
-                mp.setChildrenJson(mpDTO.getChildrenJson());
+                mpDtoToAdd.setSearchTermJson(mpDtoFromSlim.getSeachJson());
+                mpDtoToAdd.setScrollNode(mpDtoFromSlim.getScrollToNode());
+                mpDtoToAdd.setChildrenJson(mpDtoFromSlim.getChildrenJson());
 
                 logger.debug(" Added {} records for termId {}", count, termId);
                 count ++;
 
                 expectedDocumentCount++;
-                mpCore.addBean(mp, 60000);
+                mpCore.addBean(mpDtoToAdd, 60000);
 
                 mpParser.fillJsonTreePath("MP:0000001", "/data/phenotypes/", mpGeneVariantCount, OntologyParserFactory.TOP_LEVEL_MP_TERMS, false);
             }
