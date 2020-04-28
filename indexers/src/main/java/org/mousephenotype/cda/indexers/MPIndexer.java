@@ -69,10 +69,12 @@ import java.util.*;
 @EnableAutoConfiguration
 public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
-    private final Logger logger = LoggerFactory.getLogger(MPIndexer.class);
-
+    private final Logger       logger                   = LoggerFactory.getLogger(MPIndexer.class);
+    public final static String MP_HP_TERMS_FOUND_BY_OWL = "mpHpTermsFoundByOwl.csv";
+    public final static String MP_HP_TERMS_FOUND_BY_UPHENO = "mpHpTermsFoundByUpheno.csv";
 
     private Map<String, List<AlleleDTO>> allelesByMgiAlleleAccessionId;
+    private Map<String, Set<String>>     mpHpTermsMap = new HashMap<>();
 
     // Phenotype call summaries (1)
     Map<String, List<PhenotypeCallSummaryBean>> phenotypes1;
@@ -97,6 +99,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     private SolrClient               genotypePhenotypeCore;
     private SolrClient               mpCore;
     private GenotypePhenotypeService genotypePhenotypeService;
+
+    public static final boolean USE_LEGACY_MP_HP_OWL = true;
 
     private CsvUtils csvUtils = new CsvUtils();
 
@@ -136,123 +140,14 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         long start = System.currentTimeMillis();
 
         try (Connection connection = komp2DataSource.getConnection()) {
-            initialiseSupportingBeans(connection);
-            ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
-            mpParser = ontologyParserFactory.getMpParser();
-            logger.debug("Loaded mp parser");
-            mpHpParser = ontologyParserFactory.getMpHpParser();
-            logger.debug("Loaded mp hp parser");
-            mpMaParser = ontologyParserFactory.getMpMaParser();
-            logger.debug("Loaded mp ma parser");
-            maParser = ontologyParserFactory.getMaParser();
-            logger.debug("Loaded ma parser");
 
-
-            // maps MP to number of phenotyping calls
-            runStatus = populateMpCallMaps();
-
-            for (String error : runStatus.getErrorMessages()) {
-                logger.error(error);
-            }
-            for (String warning : runStatus.getWarningMessages()) {
-                logger.warn(warning);
-            }
+            runStatus = initialise(connection);
 
             // Delete the documents in the core if there are any.
             mpCore.deleteByQuery("*:*");
             mpCore.commit();
 
-            for (String mpIdFromSlim: mpParser.getTermsInSlim()) {
-
-                OntologyTermDTO mpDtoFromSlim = mpParser.getOntologyTerm(mpIdFromSlim);
-                String termId = mpDtoFromSlim.getAccessionId();
-if ( ! mpIdFromSlim.equals(termId)) {
-    logger.info("mpIdFromSlim: {}. termId: {}", mpIdFromSlim, termId);
-    threshold++;
-}
-if (threshold > 10) System.exit(1);
-if (1 == 1) continue;
-                MpDTO mpDtoToAdd = new MpDTO();
-                mpDtoToAdd.setDataType("mp");
-                mpDtoToAdd.setMpId(termId);
-                mpDtoToAdd.setMpTerm(mpDtoFromSlim.getName());
-                mpDtoToAdd.setMpDefinition(mpDtoFromSlim.getDefinition());
-
-                // alternative MP ID
-                if ( mpDtoFromSlim.getAlternateIds() != null && !mpDtoFromSlim.getAlternateIds().isEmpty() ) {
-                    mpDtoToAdd.setAltMpIds(mpDtoFromSlim.getAlternateIds());
-                }
-
-                mpDtoToAdd.setMpNodeId(mpDtoFromSlim.getNodeIds() != null ? mpDtoFromSlim.getNodeIds() : new HashSet<>());
-
-                addTopLevelTerms(mpDtoToAdd, mpDtoFromSlim);
-                addIntermediateTerms(mpDtoToAdd, mpDtoFromSlim);
-
-                mpDtoToAdd.setChildMpId(mpDtoFromSlim.getChildIds());
-                mpDtoToAdd.setChildMpTerm(mpDtoFromSlim.getChildNames());
-                mpDtoToAdd.setParentMpId(mpDtoFromSlim.getParentIds());
-                mpDtoToAdd.setParentMpTerm(mpDtoFromSlim.getParentNames());
-                mpDtoToAdd.setMpTermSynonym(mpDtoFromSlim.getSynonyms());
-
-                // add mp-hp mapping using Monarch's mp-hp hybrid ontology
-                OntologyTermDTO mpTerm = mpHpParser.getOntologyTerm(termId);
-
-		        if (mpTerm == null) {
-		            String message = "MP term not found using mpHpParser.getOntologyTerm(termId); where termId = " + termId;
-		            runStatus.addWarning(message);
-		            logger.warn(message);
-                }
-                else {
-                    Set <OntologyTermDTO> hpTerms = mpTerm.getEquivalentClasses();
-                    for ( OntologyTermDTO hpTerm : hpTerms ){
-                        Set<String> hpIds = new HashSet<>();
-                        hpIds.add(hpTerm.getAccessionId());
-                        mpDtoToAdd.setHpId(new ArrayList<>(hpIds));
-                        if ( hpTerm.getName() != null ){
-                            Set<String> hpNames = new HashSet<>();
-                            hpNames.add(hpTerm.getName());
-                            mpDtoToAdd.setHpTerm(new ArrayList<>(hpNames));
-                        }
-                        if ( hpTerm.getSynonyms() != null ){
-                            mpDtoToAdd.setHpTermSynonym(new ArrayList<>(hpTerm.getSynonyms()));
-                        }
-                    }
-                    // the narrow synomys are subclasses from 2 levels down
-                    Set<String> nss = new TreeSet<>();
-                    // MP root term MP:0000001 does not have narrow synonyms
-                    if (mpTerm.getNarrowSynonymClasses() != null){
-                        for (OntologyTermDTO ns : mpTerm.getNarrowSynonymClasses()){
-                            nss.add(ns.getName());
-                        }
-
-                        // 20190202 Per TFM. In an effort to restrict the extraneous terms found in the phenotype search
-                        // while still keeping relevant narrow terms (like deafness), TFM has empirically determined
-                        // that, to include deafness, we need to include no more than 80 narrow terms
-                        if (nss.size() > 0 && nss.size() < 80){
-                            mpDtoToAdd.setMpNarrowSynonym(new ArrayList<>(nss));
-                        }
-                    }
-                }
-
-                getMaTermsForMp(mpDtoToAdd);
-
-                // this sets the number of postqc/preqc phenotyping calls of this MP
-                addPhenotype1(mpDtoToAdd);
-                mpDtoToAdd.setPhenoCalls(sumPhenotypingCalls(termId));
-                addPhenotype2(mpDtoToAdd);
-
-                mpDtoToAdd.setSearchTermJson(mpDtoFromSlim.getSeachJson());
-                mpDtoToAdd.setScrollNode(mpDtoFromSlim.getScrollToNode());
-                mpDtoToAdd.setChildrenJson(mpDtoFromSlim.getChildrenJson());
-
-                logger.debug(" Added {} records for termId {}", count, termId);
-                count ++;
-
-                expectedDocumentCount++;
-                mpCore.addBean(mpDtoToAdd, 60000);
-
-                mpParser.fillJsonTreePath("MP:0000001", "/data/phenotypes/", mpGeneVariantCount, OntologyParserFactory.TOP_LEVEL_MP_TERMS, false);
-            }
+            count = saveMpTermsInSlim(count, runStatus);
 
             // Send a final commit
             mpCore.commit();
@@ -265,7 +160,239 @@ if (1 == 1) continue;
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
         return runStatus;
     }
-private int threshold = 0;
+
+    private RunStatus initialise(Connection connection) throws IndexerException, OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException, SolrServerException, URISyntaxException, JSONException {
+
+        RunStatus runStatus;
+        initialiseSupportingBeans(connection);
+        initialiseOntologyParsers();
+        runStatus = populateMpCallMaps();
+
+        runStatus.getErrorMessages().stream().forEach( s -> logger.error(s));
+        runStatus.getWarningMessages().stream().forEach( s -> logger.warn(s));
+
+        return runStatus;
+    }
+
+    private void initialiseOntologyParsers() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
+
+        ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
+        mpParser = ontologyParserFactory.getMpParser();
+        logger.debug("Loaded mp parser");
+        mpHpParser = ontologyParserFactory.getMpHpParser();
+        logger.debug("Loaded mp hp parser");
+        mpMaParser = ontologyParserFactory.getMpMaParser();
+        logger.debug("Loaded mp ma parser");
+        maParser = ontologyParserFactory.getMaParser();
+        logger.debug("Loaded ma parser");
+    }
+
+    private int saveMpTermsInSlim(int count, RunStatus runStatus)
+            throws IOException, SolrServerException, JSONException
+    {
+        for (String mpIdFromSlim: mpParser.getTermIdsInSlim()) {
+
+            OntologyTermDTO mpDtoFromSlim = mpParser.getOntologyTerm(mpIdFromSlim);
+
+            MpDTO mpDtoToAdd = new MpDTO();
+            mpDtoToAdd.setDataType("mp");
+            mpDtoToAdd.setMpId(mpIdFromSlim);
+            mpDtoToAdd.setMpTerm(mpDtoFromSlim.getName());
+            mpDtoToAdd.setMpDefinition(mpDtoFromSlim.getDefinition());
+
+            if ( mpDtoFromSlim.getAlternateIds() != null &&                 // Add alternate ids
+                 ! mpDtoFromSlim.getAlternateIds().isEmpty() )
+            {
+                mpDtoToAdd.setAltMpIds(mpDtoFromSlim.getAlternateIds());
+            }
+
+            mpDtoToAdd.setMpNodeId(mpDtoFromSlim.getNodeIds() != null       // Add mp node ids
+                                           ? mpDtoFromSlim.getNodeIds()
+                                           : new HashSet<>());
+
+            addTopLevelTerms(mpDtoToAdd, mpDtoFromSlim);                    // Add top-level terms
+            addIntermediateTerms(mpDtoToAdd, mpDtoFromSlim);                // Add intermediate terms
+
+            mpDtoToAdd.setChildMpId(mpDtoFromSlim.getChildIds());           // Add child mp ids
+            mpDtoToAdd.setChildMpTerm(mpDtoFromSlim.getChildNames());       // Add child mp names
+            mpDtoToAdd.setParentMpId(mpDtoFromSlim.getParentIds());         // Add parent mp ids
+            mpDtoToAdd.setParentMpTerm(mpDtoFromSlim.getParentNames());     // Add parent mp names
+            mpDtoToAdd.setMpTermSynonym(mpDtoFromSlim.getSynonyms());       // Add synonym names
+
+            addHpTerms(runStatus, mpIdFromSlim, mpDtoToAdd);                // Add HP terms
+            addMaTerms(mpDtoToAdd);                                         // Add ma terms
+
+            // this sets the number of postqc/preqc phenotyping calls of this MP
+            addPhenotype1(mpDtoToAdd);
+            mpDtoToAdd.setPhenoCalls(sumPhenotypingCalls(mpIdFromSlim));
+            addPhenotype2(mpDtoToAdd);
+
+            mpDtoToAdd.setSearchTermJson(mpDtoFromSlim.getSeachJson());
+            mpDtoToAdd.setScrollNode(mpDtoFromSlim.getScrollToNode());
+            mpDtoToAdd.setChildrenJson(mpDtoFromSlim.getChildrenJson());
+
+            logger.debug(" Added {} records for termId {}", count, mpIdFromSlim);
+            count ++;
+
+            expectedDocumentCount++;
+            mpCore.addBean(mpDtoToAdd, 60000);
+
+            mpParser.fillJsonTreePath("MP:0000001",
+                                      "/data/phenotypes/",
+                                      mpGeneVariantCount,
+                                      OntologyParserFactory.TOP_LEVEL_MP_TERMS,
+                                      false);
+        }
+
+        return count;
+    }
+
+    private void addHpTerms(RunStatus runStatus, String mpIdFromSlim, MpDTO mpDtoToAdd) {
+
+        // TODO - Write csv files with results for comparison.
+        // TODO - Dump data into sets and do a set difference to see what's missing
+
+        // Get the data the Monarch legacy OWL way
+        final List<String> owlHpTermIds        = new ArrayList<>();
+        final List<String> owlHpTermNames      = new ArrayList<>();
+        final List<String> owlHpSynonymNames   = new ArrayList<>();
+        final List<String> owlMpNarrowSynonyms = new ArrayList<>();
+        getHpTermsFromOWL(runStatus, mpIdFromSlim, owlHpTermIds, owlHpTermNames,
+                          owlHpSynonymNames, owlMpNarrowSynonyms);
+
+        // Get the data the Monarch new CSV file way
+        final List<String> csvHpTermNames = new ArrayList<>();
+        getHpTermsFromCSV(mpIdFromSlim, csvHpTermNames);
+
+        if (USE_LEGACY_MP_HP_OWL) {
+            mpDtoToAdd.setHpId(owlHpTermIds);                   // hp term ids
+            mpDtoToAdd.setHpTerm(owlHpTermNames);               // hp term names
+            mpDtoToAdd.setHpTermSynonym(owlHpSynonymNames);     // hp synonym names
+            mpDtoToAdd.setMpNarrowSynonym(owlMpNarrowSynonyms); // mp-hp narrow synonym names
+        } else {
+            mpDtoToAdd.setHpTerm(csvHpTermNames);
+        }
+    }
+
+    private void getHpTermsFromOWL(
+            RunStatus runStatus,
+            String mpIdFromSlim,
+            List<String> hpTermIds,
+            List<String> hpTermNames,
+            List<String> hpSynonymNames,
+            List<String> mpNarrowSynonyms
+    ) {
+
+        OntologyTermDTO mpHpTerm = mpHpParser.getOntologyTerm(mpIdFromSlim);
+
+        if (mpHpTerm == null) {
+            String message = "Term " + mpIdFromSlim + " missing from mpHpParser";
+            runStatus.addWarning(message);
+            logger.warn(message);
+        } else {
+            Set<OntologyTermDTO> hpTerms = mpHpTerm.getEquivalentClasses();
+            for (OntologyTermDTO hpTerm : hpTerms) {
+                Set<String> hpIds = new HashSet<>();
+                hpIds.add(hpTerm.getAccessionId());
+//                mpDtoToAdd.setHpId(new ArrayList<>(hpIds));
+                hpTermIds.addAll(hpIds);
+                if (hpTerm.getName() != null) {
+                    Set<String> hpNames = new HashSet<>();
+                    hpNames.add(hpTerm.getName());
+//                    mpDtoToAdd.setHpTerm(new ArrayList<>(hpNames));
+                    hpTermNames.addAll(hpNames);
+                }
+                if (hpTerm.getSynonyms() != null) {
+//                    mpDtoToAdd.setHpTermSynonym(new ArrayList<>(hpTerm.getSynonyms()));
+                    hpSynonymNames.addAll(hpTerm.getSynonyms());
+                }
+            }
+
+            mpNarrowSynonyms.addAll(getMpNarrowSynonymsFromOWL(mpHpTerm));
+        }
+    }
+
+    private List<String> getMpNarrowSynonymsFromOWL(OntologyTermDTO mpHpTerm) {
+        List<String> narrowSynonymNames = new ArrayList<>();
+
+        // the narrow synonyms are subclasses from 2 levels down
+        Set<String> narrowSynonymSet = new TreeSet<>();
+        // MP root term MP:0000001 does not have narrow synonyms
+        if (mpHpTerm.getNarrowSynonymClasses() != null) {
+
+            mpHpTerm.getNarrowSynonymClasses()
+                    .stream()
+                    .forEach(narrowSynonym -> narrowSynonymSet
+                            .add(narrowSynonym.getName()));
+
+
+
+            // 20190202 Per TFM. In an effort to restrict the extraneous terms found in the phenotype search
+            // while still keeping relevant narrow terms (like deafness), TFM has empirically determined
+            // that, to include deafness, we need to include no more than 80 narrow terms
+            if (narrowSynonymSet.size() > 0 && narrowSynonymSet.size() < 80) {
+                narrowSynonymNames.addAll(narrowSynonymSet);
+            }
+        }
+
+        return narrowSynonymNames;
+    }
+
+
+    private void getHpTermsFromCSV(String mpIdFromSlim, List<String> csvHpTermNames) {
+
+        Set <String> hpTermNames = mpHpTermsMap.get(mpIdFromSlim);
+
+        if (hpTermNames != null) {
+//            mpDtoToAdd.setHpTerm(new ArrayList<>(hpTermNames));
+            csvHpTermNames.addAll(hpTermNames);
+        }
+    }
+
+
+
+//     else {
+//        Set <OntologyTermDTO> hpTerms = mpTerm.getEquivalentClasses();
+//        for ( OntologyTermDTO hpTerm : hpTerms ){
+//            Set<String> hpIds = new HashSet<>();
+//            hpIds.add(hpTerm.getAccessionId());
+//            mpDtoToAdd.setHpId(new ArrayList<>(hpIds));
+//            if ( hpTerm.getName() != null ){
+//                Set<String> hpNames = new HashSet<>();
+//                hpNames.add(hpTerm.getName());
+//                mpDtoToAdd.setHpTerm(new ArrayList<>(hpNames));
+//            }
+//            if ( hpTerm.getSynonyms() != null ){
+//                mpDtoToAdd.setHpTermSynonym(new ArrayList<>(hpTerm.getSynonyms()));
+//            }
+//        }
+//        // the narrow synomys are subclasses from 2 levels down
+//        Set<String> nss = new TreeSet<>();
+//        // MP root term MP:0000001 does not have narrow synonyms
+//        if (mpTerm.getNarrowSynonymClasses() != null){
+//            for (OntologyTermDTO ns : mpTerm.getNarrowSynonymClasses()){
+//                nss.add(ns.getName());
+//            }
+//
+//            // 20190202 Per TFM. In an effort to restrict the extraneous terms found in the phenotype search
+//            // while still keeping relevant narrow terms (like deafness), TFM has empirically determined
+//            // that, to include deafness, we need to include no more than 80 narrow terms
+//            if (nss.size() > 0 && nss.size() < 80){
+//                mpDtoToAdd.setMpNarrowSynonym(new ArrayList<>(nss));
+//            }
+//        }
+//    }
+
+
+
+
+
+
+
+
+
+
+
     // 22-Mar-2017 (mrelac) Added status to query for errors and warnings.
     public Map<String, Integer> getPhenotypeGeneVariantCounts(String termId, RunStatus status)
             throws IOException, URISyntaxException, SolrServerException, JSONException {
@@ -337,7 +464,6 @@ private int threshold = 0;
                     mpGeneVariantCount.put(facet.getName(), gvCount);
                 }
                 mpCalls.put(facet.getName(), facet.getCount() + mpCalls.get(facet.getName()));
-
             }
         }
 
@@ -548,33 +674,33 @@ private int threshold = 0;
         return beans;
     }
 
-    protected static void addIntermediateTerms(MpDTO mp, OntologyTermDTO mpDTO) {
+    private void addIntermediateTerms(MpDTO mpDtoToAdd, OntologyTermDTO mpDtoFromSlim) {
 
-        if (mpDTO.getIntermediateIds() != null) {
-            mp.addIntermediateMpId(mpDTO.getIntermediateIds());
-            mp.addIntermediateMpTerm(mpDTO.getIntermediateNames());
-            mp.addIntermediateMpTermSynonym(mpDTO.getIntermediateSynonyms());
+        if (mpDtoFromSlim.getIntermediateIds() != null) {
+            mpDtoToAdd.addIntermediateMpId(mpDtoFromSlim.getIntermediateIds());
+            mpDtoToAdd.addIntermediateMpTerm(mpDtoFromSlim.getIntermediateNames());
+            mpDtoToAdd.addIntermediateMpTermSynonym(mpDtoFromSlim.getIntermediateSynonyms());
         }
     }
 
     /**
      * Decorate MpDTO with info for top levels
      */
-    protected static void addTopLevelTerms(MpDTO mp, OntologyTermDTO mpDTO) {
+    private void addTopLevelTerms(MpDTO mpDtoToAdd, OntologyTermDTO mpDtoFromSlim) {
 
-        if (mpDTO.getTopLevelIds() != null && mpDTO.getTopLevelIds().size() > 0){
-            mp.addTopLevelMpId(mpDTO.getTopLevelIds());
-            mp.addTopLevelMpTerm(mpDTO.getTopLevelNames());
-            mp.addTopLevelMpTermSynonym(mpDTO.getTopLevelSynonyms());
-            mp.addTopLevelMpTermId(mpDTO.getTopLevelTermIdsConcatenated());
-            mp.addTopLevelMpTermInclusive(mpDTO.getTopLevelNames());
-            mp.addTopLevelMpIdInclusive(mpDTO.getTopLevelIds());
+        if (mpDtoFromSlim.getTopLevelIds() != null && mpDtoFromSlim.getTopLevelIds().size() > 0){
+            mpDtoToAdd.addTopLevelMpId(mpDtoFromSlim.getTopLevelIds());
+            mpDtoToAdd.addTopLevelMpTerm(mpDtoFromSlim.getTopLevelNames());
+            mpDtoToAdd.addTopLevelMpTermSynonym(mpDtoFromSlim.getTopLevelSynonyms());
+            mpDtoToAdd.addTopLevelMpTermId(mpDtoFromSlim.getTopLevelTermIdsConcatenated());
+            mpDtoToAdd.addTopLevelMpTermInclusive(mpDtoFromSlim.getTopLevelNames());
+            mpDtoToAdd.addTopLevelMpIdInclusive(mpDtoFromSlim.getTopLevelIds());
 
         }
         else {
             // add self as top level
-            mp.addTopLevelMpTermInclusive(mpDTO.getName());
-            mp.addTopLevelMpIdInclusive(mpDTO.getAccessionId());
+            mpDtoToAdd.addTopLevelMpTermInclusive(mpDtoFromSlim.getName());
+            mpDtoToAdd.addTopLevelMpIdInclusive(mpDtoFromSlim.getAccessionId());
         }
     }
 
@@ -734,7 +860,6 @@ private int threshold = 0;
             mp.setLatestProductionCentre(new ArrayList<>());
             mp.setLatestPhenotypingCentre(new ArrayList<>());
             mp.setAlleleName(new ArrayList<>());
-            //mp.setPreqcGeneId(new ArrayList<String>());
         }
     }
 
@@ -794,29 +919,28 @@ private int threshold = 0;
     }
 
 
-    protected void getMaTermsForMp(MpDTO mp) {
+    protected void addMaTerms(MpDTO mpDtoToAdd) {
 
         // get MA ids referenced from MP
-        Set<String> maTerms = mpMaParser.getReferencedClasses(mp.getMpId(), OntologyParserFactory.VIA_PROPERTIES, "MA");
+        Set<String> maTerms = mpMaParser.getReferencedClasses(mpDtoToAdd.getMpId(), OntologyParserFactory.VIA_PROPERTIES, "MA");
         for (String maId : maTerms) {
             // get info about these MA terms. In the mp-ma file the MA classes have no details but the id. For example the labels or synonyms are not there.
             OntologyTermDTO ma = maParser.getOntologyTerm(maId);
             if (ma != null) {
-                mp.addInferredMaId(ma.getAccessionId());
-                mp.addInferredMaTerm(ma.getName());
+                mpDtoToAdd.addInferredMaId(ma.getAccessionId());
+                mpDtoToAdd.addInferredMaTerm(ma.getName());
                 if (ma.getTopLevelIds() != null) {
-                    mp.addInferredSelectedTopLevelMaId(ma.getTopLevelIds());
-                    mp.addInferredSelectedTopLevelMaTerm(ma.getTopLevelNames());
+                    mpDtoToAdd.addInferredSelectedTopLevelMaId(ma.getTopLevelIds());
+                    mpDtoToAdd.addInferredSelectedTopLevelMaTerm(ma.getTopLevelNames());
                 }
                 if (ma.getIntermediateIds() != null){
-                    mp.addInferredIntermediatedMaId(ma.getIntermediateIds());
-                    mp.addInferredIntermediateMaTerm(ma.getIntermediateNames());
+                    mpDtoToAdd.addInferredIntermediatedMaId(ma.getIntermediateIds());
+                    mpDtoToAdd.addInferredIntermediateMaTerm(ma.getIntermediateNames());
                 }
             } else {
                 logger.info("Term not found in MA : " + maId);
             }
         }
-
     }
 
     public static void main(String[] args) {

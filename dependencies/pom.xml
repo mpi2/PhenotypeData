@@ -144,6 +144,12 @@
             </dependency>
 
             <dependency>
+                <groupId>com.opencsv</groupId>
+                <artifactId>opencsv</artifactId>
+                <version>4.6</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.mousephenotype.dcc.exportlibrary.datastructure</groupId>
                 <artifactId>exportlibrary.datastructure</artifactId>
                 <version>3.8.4</version>

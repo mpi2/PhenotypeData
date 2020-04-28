@@ -72,18 +72,14 @@ public class CsvUtils {
         }
     }
 
-    static void deleteAndRecreateFile(String csvFilename) {
-
-        Path path = Paths.get(csvFilename);
-        File file = path.toFile();
+    public void deleteAndRecreateFile(String csvFilename) {
 
         try {
-            logger.info("Creating file {}", file.getAbsolutePath());
-            FileWriter fileWriter = new FileWriter(file);
+            FileWriter fileWriter = getFileWriter(csvFilename, false);
             fileWriter.close();
 
         } catch (IOException e) {
-            logger.error("can't open file {}. Reason: {}", fqFilename, e.getLocalizedMessage());
+            logger.error("can't open file/close {}. Reason: {}", fqFilename, e.getLocalizedMessage());
             e.printStackTrace();
         }
     }

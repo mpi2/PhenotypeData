@@ -322,7 +322,7 @@ public class OntologyParserTest {
 
         ontologyParser = new OntologyParser(owlpath + "/hp.owl", "HP", null, wantedIds);
 
-        assertTrue( ! ontologyParser.getTermsInSlim().contains("UPHENO:0001002"));
+        assertTrue( ! ontologyParser.getTermIdsInSlim().contains("UPHENO:0001002"));
     }
 
     @Test

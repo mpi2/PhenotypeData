@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.reports.support;
 
-import au.com.bytecode.opencsv.CSVWriter;
+import com.opencsv.CSVWriter;
 
 import java.io.Writer;
 import java.util.List;

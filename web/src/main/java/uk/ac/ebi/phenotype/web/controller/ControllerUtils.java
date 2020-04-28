@@ -15,7 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import au.com.bytecode.opencsv.CSVWriter;
+import com.opencsv.CSVWriter;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -64,9 +64,9 @@ public class ControllerUtils {
 
 	    response.setContentType("text/csv;charset=utf-8");
 	    response.setHeader("Content-Disposition","attachment; filename="+fileName);
-	    OutputStream resOs= response.getOutputStream();
-	    OutputStream buffOs= new BufferedOutputStream(resOs);
-	    CSVWriter writer = new CSVWriter(new OutputStreamWriter(buffOs));
+	    OutputStream resOs  = response.getOutputStream();
+	    OutputStream buffOs = new BufferedOutputStream(resOs);
+	    CSVWriter    writer = new CSVWriter(new OutputStreamWriter(buffOs));
 	    for (List<String[]> table : toWrite){
 	    	writer.writeAll(table);
 	    	writer.writeNext(new String[0]);
