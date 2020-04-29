@@ -211,7 +211,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         initialiseOntologyParsers();
         runStatus = populateMpCallMaps();
         csv = new CsvWriters();
-        csv.openAll();
 
         runStatus.getErrorMessages().stream().forEach( s -> logger.error(s));
         runStatus.getWarningMessages().stream().forEach( s -> logger.warn(s));
