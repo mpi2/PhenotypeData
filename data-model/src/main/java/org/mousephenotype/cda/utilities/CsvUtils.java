@@ -35,16 +35,18 @@ public class CsvUtils {
     private        FileWriter fileWriter;
     private        CSVWriter  writer;
 
-    public void writeAndFlushRow(String csvFilename, List<String> row) {
-        open(csvFilename, true);
-        write(row);
-        close();
-    }
-
     // TODO - Migrate MpCsvWriter here and add CsvReader methods.
 
-    public void open(String csvFilename, boolean append) {
+    public CsvUtils() { }
 
+    public CsvUtils(String csvFilename) throws IOException {
+        open(csvFilename, true);
+    }
+    public void open(String csvFilename, boolean append) throws IOException {
+
+        if (fqFilename != null) {
+            throw new IOException("File is already open");
+        }
         try {
             fileWriter = getFileWriter(csvFilename, append);
             writer = new CSVWriter(fileWriter);
@@ -52,14 +54,19 @@ public class CsvUtils {
         } catch (IOException e) {
             logger.error("can't open file {}. Reason: {}", fqFilename, e.getLocalizedMessage());
             e.printStackTrace();
+            throw e;
         }
+    }
+
+    public void write(String... row) {
+        writer.writeNext(row);
     }
 
     public void write(List<String> row) {
         writer.writeNext(row.toArray(new String[0]));
     }
 
-    public void close() {
+    public void close() throws IOException {
         try {
             if (fileWriter != null) {
                 fileWriter.close();
@@ -67,30 +74,50 @@ public class CsvUtils {
             }
 
         } catch (IOException e) {
-            logger.error("can't open file {}. Reason: {}", fqFilename, e.getLocalizedMessage());
+            logger.error("can't close file {}. Reason: {}", fqFilename, e.getLocalizedMessage());
             e.printStackTrace();
+            throw e;
         }
+        fqFilename = null;
+        fileWriter = null;
+        writer = null;
     }
 
-    public void deleteAndRecreateFile(String csvFilename) {
+    // PRIVATE METHODS
 
-        try {
-            FileWriter fileWriter = getFileWriter(csvFilename, false);
-            fileWriter.close();
-
-        } catch (IOException e) {
-            logger.error("can't open file/close {}. Reason: {}", fqFilename, e.getLocalizedMessage());
-            e.printStackTrace();
-        }
-    }
-
-    private FileWriter getFileWriter(String csvFilename,  boolean append) throws IOException {
-
+    private FileWriter getFileWriter(String csvFilename,  boolean append)
+            throws IOException
+    {
         Path path = Paths.get(csvFilename);
         File file = path.toFile();
         fqFilename = file.getAbsolutePath();
         logger.info("{} file {} for writing", append ? "Opening" : "Creating", fqFilename);
 
         return new FileWriter(csvFilename, append);
+    }
+
+    // STATIC METHODS THAT FLUSH ON EVERY WRITE.
+
+    public static void deleteAndRecreateFile(String csvFilename) throws IOException {
+
+        CsvUtils u = new CsvUtils();
+        try {
+            FileWriter fileWriter = u.getFileWriter(csvFilename, false);
+            u.close();
+
+        } catch (IOException e) {
+            logger.error("can't open file/close {}. Reason: {}", fqFilename, e.getLocalizedMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public static void writeAndFlushRow(String csvFilename, List<String> row)
+            throws IOException
+    {
+        CsvUtils u = new CsvUtils();
+        u.open(csvFilename, true);
+        u.write(row);
+        u.close();
     }
 }

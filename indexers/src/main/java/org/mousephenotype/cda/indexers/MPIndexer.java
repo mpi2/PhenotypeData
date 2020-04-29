@@ -64,14 +64,12 @@ import java.util.*;
 /**
  * @author Matt Pearce
  * @author ilinca
- *
+ * @author mrelac
  */
 @EnableAutoConfiguration
 public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     private final Logger       logger                   = LoggerFactory.getLogger(MPIndexer.class);
-    public final static String MP_HP_TERMS_FOUND_BY_OWL = "mpHpTermsFoundByOwl.csv";
-    public final static String MP_HP_TERMS_FOUND_BY_UPHENO = "mpHpTermsFoundByUpheno.csv";
 
     private Map<String, List<AlleleDTO>> allelesByMgiAlleleAccessionId;
     private Map<String, Set<String>>     mpHpTermsMap = new HashMap<>();
@@ -102,7 +100,47 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     public static final boolean USE_LEGACY_MP_HP_OWL = true;
 
-    private CsvUtils csvUtils = new CsvUtils();
+    // These csv writers write the files in CSVs below
+    private class CsvWriters {
+        final String MP_HP_TERMS_FOUND_BY_OWL          = "mpHpTermsFoundByOwl.csv";
+        final String MP_HP_TERMS_FOUND_BY_UPHENO       = "mpHpTermsFoundByUpheno.csv";
+        final String MP_HP_TERMS_FOUND_AFTER_FILTERING = "mpHpTermsFoundAfterFiltering.csv";
+        final String MP_HP_TERMS_IN_OWL_NOT_IN_UPHENO  = "mpHpTermsInOwlNotInUpheno.csv";
+        final String MP_HP_TERMS_IN_UPHENO_NOT_IN_OWL   = "mpHpTermsInUphenoNotInOwl.csv";
+
+        public CsvUtils byOwl;
+        public CsvUtils byUpheno;
+        public CsvUtils afterFiltering;
+        public CsvUtils inOwl;
+        public CsvUtils inUpheno;
+
+        public void openAll() throws IOException {
+            byOwl = new CsvUtils(MP_HP_TERMS_FOUND_BY_OWL);
+            byUpheno = new CsvUtils(MP_HP_TERMS_FOUND_BY_UPHENO);
+            afterFiltering = new CsvUtils(MP_HP_TERMS_FOUND_AFTER_FILTERING);
+            inOwl = new CsvUtils(MP_HP_TERMS_IN_OWL_NOT_IN_UPHENO);
+            inUpheno = new CsvUtils(MP_HP_TERMS_IN_UPHENO_NOT_IN_OWL);
+
+            writeHeadings();
+        }
+
+        private void writeHeadings() {
+            byUpheno.write("MP Term", "HP Terms");
+            afterFiltering.write("MP Term", "HP Terms");
+            inOwl.write("MP Term", "HP Terms");
+            inUpheno.write("MP Term", "HP Terms");
+        }
+
+        public void closeAll() throws IOException {
+            if (byOwl != null) byOwl.close();
+            if (byUpheno != null) byUpheno.close();
+            if (afterFiltering != null) afterFiltering.close();
+            if (inOwl != null) inOwl.close();
+            if (inUpheno != null) inUpheno.close();
+        }
+    }
+    private CsvWriters csv;
+
 
     protected MPIndexer() {
 
@@ -147,17 +185,22 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mpCore.deleteByQuery("*:*");
             mpCore.commit();
 
+            csv.openAll();
             count = saveMpTermsInSlim(count, runStatus);
+            csv.closeAll();
 
             // Send a final commit
             mpCore.commit();
 
         } catch (SolrServerException | IOException | OWLOntologyCreationException | OWLOntologyStorageException | SQLException | URISyntaxException | JSONException e) {
             e.printStackTrace();
+            // Try to close any csv files
+            try { csv.closeAll(); } catch (IOException io) { }
             throw new IndexerException(e);
         }
 
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
+
         return runStatus;
     }
 
@@ -167,6 +210,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         initialiseSupportingBeans(connection);
         initialiseOntologyParsers();
         runStatus = populateMpCallMaps();
+        csv = new CsvWriters();
+        csv.openAll();
 
         runStatus.getErrorMessages().stream().forEach( s -> logger.error(s));
         runStatus.getWarningMessages().stream().forEach( s -> logger.warn(s));
@@ -249,7 +294,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     private void addHpTerms(RunStatus runStatus, String mpIdFromSlim, MpDTO mpDtoToAdd) {
 
-        // TODO - Write csv files with results for comparison.
         // TODO - Dump data into sets and do a set difference to see what's missing
 
         // Get the data the Monarch legacy OWL way
@@ -272,6 +316,42 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         } else {
             mpDtoToAdd.setHpTerm(csvHpTermNames);
         }
+
+        // Write csv files with results for comparison.
+        List<String> row = new ArrayList<>();
+        row.add(mpIdFromSlim);
+        row.addAll(csvHpTermNames);
+        csv.byUpheno.write(row);
+
+        // owl csv file layout
+        // mp_term   OWL HP Term Ids             mpDtoToAdd.getHpId()
+        //           OWL HP Term Names           mpDtoToAdd.getHpTerm()
+        //           OWL HP Synonym Names        mpDtoToAdd.getHpTermSynonym()
+        //           OWL MP-HP narrow synonyms   mpDtoToAdd.getMpNarrowSynonym()
+        row = new ArrayList<>();
+        row.add(mpIdFromSlim);
+        row.add("OWL HP Term Ids");
+        row.addAll(owlHpTermIds);
+        csv.byOwl.write(row);
+
+        row = new ArrayList<>();
+        row.add("");
+        row.add("OWL HP Term Names");
+        row.addAll(owlHpTermNames);
+        csv.byOwl.write(row);
+
+        row = new ArrayList<>();
+        row.add("");
+        row.add("OWL HP Synonym Names");
+        row.addAll(owlHpSynonymNames);
+        row.add("MP_NARROW_SYNONYM_NAMES");
+        csv.byOwl.write(row);
+
+        row = new ArrayList<>();
+        row.add("");
+        row.add("OWL MP-HP Narrow Synonyms");
+        row.addAll(owlMpNarrowSynonyms);
+        csv.byOwl.write(row);
     }
 
     private void getHpTermsFromOWL(
@@ -294,16 +374,13 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             for (OntologyTermDTO hpTerm : hpTerms) {
                 Set<String> hpIds = new HashSet<>();
                 hpIds.add(hpTerm.getAccessionId());
-//                mpDtoToAdd.setHpId(new ArrayList<>(hpIds));
                 hpTermIds.addAll(hpIds);
                 if (hpTerm.getName() != null) {
                     Set<String> hpNames = new HashSet<>();
                     hpNames.add(hpTerm.getName());
-//                    mpDtoToAdd.setHpTerm(new ArrayList<>(hpNames));
                     hpTermNames.addAll(hpNames);
                 }
                 if (hpTerm.getSynonyms() != null) {
-//                    mpDtoToAdd.setHpTermSynonym(new ArrayList<>(hpTerm.getSynonyms()));
                     hpSynonymNames.addAll(hpTerm.getSynonyms());
                 }
             }
@@ -325,8 +402,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     .forEach(narrowSynonym -> narrowSynonymSet
                             .add(narrowSynonym.getName()));
 
-
-
             // 20190202 Per TFM. In an effort to restrict the extraneous terms found in the phenotype search
             // while still keeping relevant narrow terms (like deafness), TFM has empirically determined
             // that, to include deafness, we need to include no more than 80 narrow terms
@@ -344,56 +419,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         Set <String> hpTermNames = mpHpTermsMap.get(mpIdFromSlim);
 
         if (hpTermNames != null) {
-//            mpDtoToAdd.setHpTerm(new ArrayList<>(hpTermNames));
             csvHpTermNames.addAll(hpTermNames);
         }
     }
 
-
-
-//     else {
-//        Set <OntologyTermDTO> hpTerms = mpTerm.getEquivalentClasses();
-//        for ( OntologyTermDTO hpTerm : hpTerms ){
-//            Set<String> hpIds = new HashSet<>();
-//            hpIds.add(hpTerm.getAccessionId());
-//            mpDtoToAdd.setHpId(new ArrayList<>(hpIds));
-//            if ( hpTerm.getName() != null ){
-//                Set<String> hpNames = new HashSet<>();
-//                hpNames.add(hpTerm.getName());
-//                mpDtoToAdd.setHpTerm(new ArrayList<>(hpNames));
-//            }
-//            if ( hpTerm.getSynonyms() != null ){
-//                mpDtoToAdd.setHpTermSynonym(new ArrayList<>(hpTerm.getSynonyms()));
-//            }
-//        }
-//        // the narrow synomys are subclasses from 2 levels down
-//        Set<String> nss = new TreeSet<>();
-//        // MP root term MP:0000001 does not have narrow synonyms
-//        if (mpTerm.getNarrowSynonymClasses() != null){
-//            for (OntologyTermDTO ns : mpTerm.getNarrowSynonymClasses()){
-//                nss.add(ns.getName());
-//            }
-//
-//            // 20190202 Per TFM. In an effort to restrict the extraneous terms found in the phenotype search
-//            // while still keeping relevant narrow terms (like deafness), TFM has empirically determined
-//            // that, to include deafness, we need to include no more than 80 narrow terms
-//            if (nss.size() > 0 && nss.size() < 80){
-//                mpDtoToAdd.setMpNarrowSynonym(new ArrayList<>(nss));
-//            }
-//        }
-//    }
-
-
-
-
-
-
-
-
-
-
-
-    // 22-Mar-2017 (mrelac) Added status to query for errors and warnings.
     public Map<String, Integer> getPhenotypeGeneVariantCounts(String termId, RunStatus status)
             throws IOException, URISyntaxException, SolrServerException, JSONException {
 
@@ -469,7 +498,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         return status;
     }
-
 
     private long sumPhenotypingCalls(String mpId) {
 
@@ -683,9 +711,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         }
     }
 
-    /**
-     * Decorate MpDTO with info for top levels
-     */
+    // Decorate MpDTO with info for top levels
     private void addTopLevelTerms(MpDTO mpDtoToAdd, OntologyTermDTO mpDtoFromSlim) {
 
         if (mpDtoFromSlim.getTopLevelIds() != null && mpDtoFromSlim.getTopLevelIds().size() > 0){
@@ -917,7 +943,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             }
         }
     }
-
 
     protected void addMaTerms(MpDTO mpDtoToAdd) {
 
