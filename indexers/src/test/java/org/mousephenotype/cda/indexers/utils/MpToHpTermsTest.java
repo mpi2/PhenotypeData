@@ -65,16 +65,16 @@ public class MpToHpTermsTest {
         String mpHpCsvPath = owlpath + "/" + MpHpCsvReader.MP_HP_CSV_FILENAME;
 
         Map<String, Set<String>> terms = IndexerMap.getMpToHpTerms(mpHpCsvPath);
-
-        System.out.println();
-        System.out.println("mpIds with multiple hpTerms are separated by :: (double colons).");
-        System.out.println("There are " + terms.size() + " mpId -> hpTerm mappings:");
-        terms
-                .entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByKey())
-                .forEach(x -> {
-                    System.out.println(x.getKey() + ": " + StringUtils.join(x.getValue(), "::"));
-                });
+        // Print mpIds with multiple hpterms.
+//        System.out.println();
+//        System.out.println("mpIds with multiple hpTerms are separated by :: (double colons).");
+//        System.out.println("There are " + terms.size() + " mpId -> hpTerm mappings:");
+//        terms
+//                .entrySet()
+//                .stream()
+//                .sorted(Map.Entry.comparingByKey())
+//                .forEach(x -> {
+//                    System.out.println(x.getKey() + ": " + StringUtils.join(x.getValue(), "::"));
+//                });
     }
 }
