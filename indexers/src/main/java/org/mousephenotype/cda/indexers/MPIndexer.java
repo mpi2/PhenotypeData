@@ -103,31 +103,36 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     private Map<String, Set<String>> owlHpTermIdMap = new HashMap<>();
     private Map<String, Set<String>> owlHpTermNameMap = new HashMap<>();
     private Map<String, Set<String>> owlHpSynonymNameMap = new HashMap<>();
-    private Map<String, Set<String>> owlMpNarrowSynonymMap = new HashMap<>();
-    private Map<String, Set<String>> csvHpTermNameMap = new HashMap<>();
+    private Map<String, Set<String>> owlMpNarrowSynonymMap  = new HashMap<>();
+    private Map<String, Set<String>> mpHpCsvMissingOwlTerms = new HashMap<>();
 
     // These csv writers write the files in CSVs below
     private class CsvWriters {
-        final String MP_HP_TERMS_FOUND_BY_OWL          = "mpHpTermsFoundByOwl.csv";
-        final String MP_HP_TERMS_FOUND_BY_UPHENO       = "mpHpTermsFoundByUpheno.csv";
+        final String MP_HP_TERMS_FOUND_BY_OWL    = "mpHpTermsFoundByOwl.csv";
+        final String MP_HP_TERMS_FOUND_BY_UPHENO = "mpHpTermsFoundByUpheno.csv";
+        final String MP_HP_CSV_MISSING_OWL_TERMS = "mpHpCsvMissingOwlTerms.csv";
 
         public MpCsvWriter byOwl;
         public MpCsvWriter byUpheno;
+        public MpCsvWriter missingOwl;
 
         public void createAll() throws IOException {
             byOwl = new MpCsvWriter(MP_HP_TERMS_FOUND_BY_OWL, false);
             byUpheno = new MpCsvWriter(MP_HP_TERMS_FOUND_BY_UPHENO, false);
+            missingOwl = new MpCsvWriter(MP_HP_CSV_MISSING_OWL_TERMS, false);
             logger.info("upheno csv created at {}", byUpheno.getFqFilename());
             writeHeadings();
         }
 
         private void writeHeadings() {
             byUpheno.write("MP Term", "HP Terms");
+            missingOwl.write("MP Term", "HP Terms");
         }
 
         public void closeAll() throws IOException {
             if (byOwl != null) byOwl.close();
             if (byUpheno != null) byUpheno.close();
+            if (missingOwl != null) byUpheno.close();
         }
     }
     private CsvWriters csv;
@@ -209,12 +214,12 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     owlHpTermNames.addAll(owlHpSynonymNameMap.get(mpId));
                     owlHpTermNames.addAll(owlMpNarrowSynonymMap.get(mpId));
 
-                    Set<String> csvHpTermNames = csvHpTermNameMap.get(mpId);
+                    Set<String> csvHpTermNames = mpHpCsvMissingOwlTerms.get(mpId);
                     owlHpTermNames.removeAll(csvHpTermNames);
                     if ( ! owlHpTermNames.isEmpty()) {
                         List<String> data = new ArrayList<>();
                         data.add(mpId);  data.addAll(owlHpTermNames);
-                        csv.byUpheno.write(data);
+                        csv.missingOwl.write(data);
                     }
                 });
     }
@@ -377,7 +382,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         owlHpTermNameMap.put(mpIdFromSlim, new HashSet(owlHpTermNames));
         owlHpSynonymNameMap.put(mpIdFromSlim, new HashSet(owlHpSynonymNames));
         owlMpNarrowSynonymMap.put(mpIdFromSlim, new HashSet(owlMpNarrowSynonyms));
-        csvHpTermNameMap.put(mpIdFromSlim, new HashSet(csvHpTermNames));
+        mpHpCsvMissingOwlTerms.put(mpIdFromSlim, new HashSet(csvHpTermNames));
     }
 
     private void getHpTermsFromOWL(
