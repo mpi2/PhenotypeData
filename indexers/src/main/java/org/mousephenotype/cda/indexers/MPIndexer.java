@@ -120,7 +120,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             byOwl = new MpCsvWriter(MP_HP_TERMS_FOUND_BY_OWL, false);
             byUpheno = new MpCsvWriter(MP_HP_TERMS_FOUND_BY_UPHENO, false);
             missingOwl = new MpCsvWriter(MP_HP_CSV_MISSING_OWL_TERMS, false);
-            logger.info("upheno csv created at {}", byUpheno.getFqFilename());
+            logger.info("upheno csv of terms created with new Monarch upheno csv file created at {}", byUpheno.getFqFilename());
+            logger.info("owl csv of terms created with hp-mp.owl created at {}", byOwl.getFqFilename());
+            logger.info("OWL terms missing from upheno csv created at {}", missingOwl.getFqFilename());
             writeHeadings();
         }
 
