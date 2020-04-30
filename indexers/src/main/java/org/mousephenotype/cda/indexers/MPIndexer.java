@@ -212,7 +212,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     owlHpTermNames.removeAll(csvHpTermNames);
                     if ( ! owlHpTermNames.isEmpty()) {
                         List<String> data = new ArrayList<>();
-                        data.add(mpId);  data.addAll(csvHpTermNames);
+                        data.add(mpId);  data.addAll(owlHpTermNames);
                         csv.byUpheno.write(data);
                     }
                 });
