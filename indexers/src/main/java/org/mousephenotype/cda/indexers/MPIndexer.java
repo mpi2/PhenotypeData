@@ -211,6 +211,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         owlHpTermIdMap.keySet()
                 .stream()
+                .sorted()
                 .forEach(mpId -> {
                     Set<String> owlHpTermNames = owlHpTermNameMap.get(mpId);
                     owlHpTermNames.addAll(owlHpSynonymNameMap.get(mpId));
