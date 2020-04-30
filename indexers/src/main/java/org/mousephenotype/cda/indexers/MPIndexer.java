@@ -36,7 +36,7 @@ import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.web.dto.DataTableRow;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
-import org.mousephenotype.cda.utilities.CsvUtils;
+import org.mousephenotype.cda.utilities.MpCsvWriter;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
@@ -108,19 +108,19 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         final String MP_HP_TERMS_IN_OWL_NOT_IN_UPHENO  = "mpHpTermsInOwlNotInUpheno.csv";
         final String MP_HP_TERMS_IN_UPHENO_NOT_IN_OWL   = "mpHpTermsInUphenoNotInOwl.csv";
 
-        public CsvUtils byOwl;
-        public CsvUtils byUpheno;
-        public CsvUtils afterFiltering;
-        public CsvUtils inOwl;
-        public CsvUtils inUpheno;
+        public MpCsvWriter byOwl;
+        public MpCsvWriter byUpheno;
+        public MpCsvWriter afterFiltering;
+        public MpCsvWriter inOwl;
+        public MpCsvWriter inUpheno;
 
-        public void openAll() throws IOException {
-            byOwl = new CsvUtils(MP_HP_TERMS_FOUND_BY_OWL);
-            byUpheno = new CsvUtils(MP_HP_TERMS_FOUND_BY_UPHENO);
-            afterFiltering = new CsvUtils(MP_HP_TERMS_FOUND_AFTER_FILTERING);
-            inOwl = new CsvUtils(MP_HP_TERMS_IN_OWL_NOT_IN_UPHENO);
-            inUpheno = new CsvUtils(MP_HP_TERMS_IN_UPHENO_NOT_IN_OWL);
-
+        public void createAll() throws IOException {
+            byOwl = new MpCsvWriter(MP_HP_TERMS_FOUND_BY_OWL, false);
+            byUpheno = new MpCsvWriter(MP_HP_TERMS_FOUND_BY_UPHENO, false);
+            afterFiltering = new MpCsvWriter(MP_HP_TERMS_FOUND_AFTER_FILTERING, false);
+            inOwl = new MpCsvWriter(MP_HP_TERMS_IN_OWL_NOT_IN_UPHENO, false);
+            inUpheno = new MpCsvWriter(MP_HP_TERMS_IN_UPHENO_NOT_IN_OWL, false);
+            logger.info("upheno csv created at {}", byUpheno.getFqFilename());
             writeHeadings();
         }
 
@@ -185,7 +185,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mpCore.deleteByQuery("*:*");
             mpCore.commit();
 
-            csv.openAll();
+            csv.createAll();
             count = saveMpTermsInSlim(count, runStatus);
             csv.closeAll();
 

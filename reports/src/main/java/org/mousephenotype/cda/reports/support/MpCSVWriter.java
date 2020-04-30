@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Created by mrelac on 24/07/2015.
  */
-// TODO - This should be migrated to data-model and integraded with CsvUtils.
+// TODO - These should be migrated to data-model and integrated with MpCsvWriter.
 @Deprecated
 public class MpCSVWriter extends CSVWriter {
 
@@ -32,6 +32,7 @@ public class MpCSVWriter extends CSVWriter {
         super(writer);
     }
 
+    @Deprecated  // Use data-model MpCsvWriter(String csvFilename, boolean append, char separator)
     public MpCSVWriter(Writer writer, char separator) {
         super(writer, separator);
     }
@@ -52,10 +53,12 @@ public class MpCSVWriter extends CSVWriter {
         super(writer, separator, quotechar, lineEnd);
     }
 
+    @Deprecated  // Use data-model MpCsvWriter write()
     public void writeRow(List<String> nextLine) {
         writeNext(nextLine.toArray(new String[0]));
     }
 
+    @Deprecated  // Use data-model MpCsvWriter writeRowsMulti()
     public void writeAllMulti(List<List<String[]>> allLines) {
         for (List<String[]> row : allLines) {
             writeAll(row);
@@ -63,10 +66,10 @@ public class MpCSVWriter extends CSVWriter {
         }
     }
 
+    @Deprecated  // Use data-model MpCsvWriter writeRows()
     public void writeRows(List<List<String>> data) {
         for (List<String> row : data) {
             writeRow(row);
         }
     }
-
 }
