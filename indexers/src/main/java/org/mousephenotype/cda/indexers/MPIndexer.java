@@ -25,6 +25,7 @@ import org.mousephenotype.cda.indexers.beans.ParamProcedurePipelineBean;
 import org.mousephenotype.cda.indexers.beans.PhenotypeCallSummaryBean;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
+import org.mousephenotype.cda.indexers.utils.MpHpCsvReader;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
@@ -232,7 +233,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         return runStatus;
     }
 
-    private void initialiseOntologyParsers() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
+    private void initialiseOntologyParsers() throws OWLOntologyCreationException, OWLOntologyStorageException,
+            IOException, SQLException, IndexerException {
 
         ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
         mpParser = ontologyParserFactory.getMpParser();
@@ -243,6 +245,12 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         logger.debug("Loaded mp ma parser");
         maParser = ontologyParserFactory.getMaParser();
         logger.debug("Loaded ma parser");
+
+        mpHpTermsMap = IndexerMap.getMpToHpTerms(owlpath + "/" + MpHpCsvReader.MP_HP_CSV_FILENAME);
+        if ((mpHpTermsMap == null) || mpHpTermsMap.isEmpty()) {
+            throw new IndexerException("mp-hp error: Unable to open" + owlpath + "/" + MpHpCsvReader.MP_HP_CSV_FILENAME);
+        }
+        logger.debug("Loaded mp hp term names from {}", owlpath + "/" + MpHpCsvReader.MP_HP_CSV_FILENAME);
     }
 
     private int saveMpTermsInSlim(int count, RunStatus runStatus)
