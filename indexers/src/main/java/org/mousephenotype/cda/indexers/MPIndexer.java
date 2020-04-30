@@ -99,44 +99,34 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     private GenotypePhenotypeService genotypePhenotypeService;
 
     public static final boolean USE_LEGACY_MP_HP_OWL = true;
+    private Map<String, Set<String>> owlHpTermIdMap = new HashMap<>();
+    private Map<String, Set<String>> owlHpTermNameMap = new HashMap<>();
+    private Map<String, Set<String>> owlHpSynonymNameMap = new HashMap<>();
+    private Map<String, Set<String>> owlMpNarrowSynonymMap = new HashMap<>();
+    private Map<String, Set<String>> csvHpTermNameMap = new HashMap<>();
 
     // These csv writers write the files in CSVs below
     private class CsvWriters {
         final String MP_HP_TERMS_FOUND_BY_OWL          = "mpHpTermsFoundByOwl.csv";
         final String MP_HP_TERMS_FOUND_BY_UPHENO       = "mpHpTermsFoundByUpheno.csv";
-        final String MP_HP_TERMS_FOUND_AFTER_FILTERING = "mpHpTermsFoundAfterFiltering.csv";
-        final String MP_HP_TERMS_IN_OWL_NOT_IN_UPHENO  = "mpHpTermsInOwlNotInUpheno.csv";
-        final String MP_HP_TERMS_IN_UPHENO_NOT_IN_OWL   = "mpHpTermsInUphenoNotInOwl.csv";
 
         public MpCsvWriter byOwl;
         public MpCsvWriter byUpheno;
-        public MpCsvWriter afterFiltering;
-        public MpCsvWriter inOwl;
-        public MpCsvWriter inUpheno;
 
         public void createAll() throws IOException {
             byOwl = new MpCsvWriter(MP_HP_TERMS_FOUND_BY_OWL, false);
             byUpheno = new MpCsvWriter(MP_HP_TERMS_FOUND_BY_UPHENO, false);
-            afterFiltering = new MpCsvWriter(MP_HP_TERMS_FOUND_AFTER_FILTERING, false);
-            inOwl = new MpCsvWriter(MP_HP_TERMS_IN_OWL_NOT_IN_UPHENO, false);
-            inUpheno = new MpCsvWriter(MP_HP_TERMS_IN_UPHENO_NOT_IN_OWL, false);
             logger.info("upheno csv created at {}", byUpheno.getFqFilename());
             writeHeadings();
         }
 
         private void writeHeadings() {
             byUpheno.write("MP Term", "HP Terms");
-            afterFiltering.write("MP Term", "HP Terms");
-            inOwl.write("MP Term", "HP Terms");
-            inUpheno.write("MP Term", "HP Terms");
         }
 
         public void closeAll() throws IOException {
             if (byOwl != null) byOwl.close();
             if (byUpheno != null) byUpheno.close();
-            if (afterFiltering != null) afterFiltering.close();
-            if (inOwl != null) inOwl.close();
-            if (inUpheno != null) inUpheno.close();
         }
     }
     private CsvWriters csv;
@@ -187,6 +177,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
             csv.createAll();
             count = saveMpTermsInSlim(count, runStatus);
+            addHpTermDifferencesToCsv();    // Compute set difference and add to csv files
             csv.closeAll();
 
             // Send a final commit
@@ -202,6 +193,29 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
 
         return runStatus;
+    }
+
+    private void addHpTermDifferencesToCsv() {
+        csv.byOwl.write("");
+        csv.byOwl.write("");
+        csv.byOwl.write("MP TERMS MISSING FROM UPHENO:");
+        csv.byOwl.write("MP ID", "Terms ...");
+
+        owlHpTermIdMap.keySet()
+                .stream()
+                .forEach(mpId -> {
+                    Set<String> owlHpTermNames = owlHpTermNameMap.get(mpId);
+                    owlHpTermNames.addAll(owlHpSynonymNameMap.get(mpId));
+                    owlHpTermNames.addAll(owlMpNarrowSynonymMap.get(mpId));
+
+                    Set<String> csvHpTermNames = csvHpTermNameMap.get(mpId);
+                    owlHpTermNames.removeAll(csvHpTermNames);
+                    if ( ! owlHpTermNames.isEmpty()) {
+                        List<String> data = new ArrayList<>();
+                        data.add(mpId);  data.addAll(csvHpTermNames);
+                        csv.byUpheno.write(data);
+                    }
+                });
     }
 
     private RunStatus initialise(Connection connection) throws IndexerException, OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException, SolrServerException, URISyntaxException, JSONException {
@@ -293,8 +307,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     private void addHpTerms(RunStatus runStatus, String mpIdFromSlim, MpDTO mpDtoToAdd) {
 
-        // TODO - Dump data into sets and do a set difference to see what's missing
-
         // Get the data the Monarch legacy OWL way
         final List<String> owlHpTermIds        = new ArrayList<>();
         final List<String> owlHpTermNames      = new ArrayList<>();
@@ -351,6 +363,13 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         row.add("OWL MP-HP Narrow Synonyms");
         row.addAll(owlMpNarrowSynonyms);
         csv.byOwl.write(row);
+
+        // Add data to sets for later analysis
+        owlHpTermIdMap.put(mpIdFromSlim, new HashSet<>(owlHpTermIds));
+        owlHpTermNameMap.put(mpIdFromSlim, new HashSet(owlHpTermNames));
+        owlHpSynonymNameMap.put(mpIdFromSlim, new HashSet(owlHpSynonymNames));
+        owlMpNarrowSynonymMap.put(mpIdFromSlim, new HashSet(owlMpNarrowSynonyms));
+        csvHpTermNameMap.put(mpIdFromSlim, new HashSet(csvHpTermNames));
     }
 
     private void getHpTermsFromOWL(
