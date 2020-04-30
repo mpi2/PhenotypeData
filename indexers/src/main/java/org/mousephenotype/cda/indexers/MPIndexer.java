@@ -132,7 +132,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         public void closeAll() throws IOException {
             if (byOwl != null) byOwl.close();
             if (byUpheno != null) byUpheno.close();
-            if (missingOwl != null) byUpheno.close();
+            if (missingOwl != null) missingOwl.close();
         }
     }
     private CsvWriters csv;
