@@ -207,24 +207,32 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     private void addHpTermDifferencesToCsv() {
 
+        int missingTermCount = 0;
         owlHpTermIdMap.keySet()
             .stream()
             .sorted()
             .forEach(mpId -> {
                 Set<String> owlHpTermNames = owlHpTermNameMap.get(mpId);
-                owlHpTermNames.addAll(owlHpSynonymNameMap.get(mpId));
-                owlHpTermNames.addAll(owlMpNarrowSynonymMap.get(mpId));
+                // If owlMpTermNames is null, there are no mp-hp terms found by the legacy OWL method. Skip.
+                if (owlHpTermNames != null) {
+                    owlHpTermNames.addAll(owlHpSynonymNameMap.get(mpId));
+                    owlHpTermNames.addAll(owlMpNarrowSynonymMap.get(mpId));
 
-                Set<String> csvHpTermNames = mpHpCsvMissingOwlTerms.get(mpId);
-                owlHpTermNames.removeAll(csvHpTermNames);
-                if ( ! owlHpTermNames.isEmpty()) {
-                    List<String> data = new ArrayList<>();
-                    data.add(mpId);
-                    data.add(Integer.toString(owlHpTermNames.size()));
-                    data.addAll(owlHpTermNames.stream().sorted().collect(Collectors.toList()));
-                    csv.missingOwl.write(data);
+                    Set<String> csvHpTermNames = mpHpCsvMissingOwlTerms.get(mpId);
+                    owlHpTermNames.removeAll(csvHpTermNames);
+                    if (!owlHpTermNames.isEmpty()) {
+                        List<String> data = new ArrayList<>();
+                        data.add(mpId);
+                        data.add(Integer.toString(owlHpTermNames.size()));
+                        data.addAll(owlHpTermNames.stream().sorted().collect(Collectors.toList()));
+                        csv.missingOwl.write(data);
+                    }
                 }
             });
+
+        csv.missingOwl.write("");
+        csv.missingOwl.write(Integer.toString(missingTermCount) +
+                             " mp-hp mp IDs are missing from new UPHENO term list.");
     }
 
     private RunStatus initialise(Connection connection) throws IndexerException, OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException, SolrServerException, URISyntaxException, JSONException {
