@@ -220,7 +220,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     owlHpTermNames.addAll(owlMpNarrowSynonymMap.get(mpId));
 
                     Set<String> csvHpTermNames = mpHpCsvMissingOwlTerms.get(mpId);
-                    owlHpTermNames.removeAll(csvHpTermNames);
+                    owlHpTermNames.removeAll(csvHpTermNames == null ? new HashSet<>() : csvHpTermNames);
                     if ( ! owlHpTermNames.isEmpty()) {
                         List<String> data = new ArrayList<>();
                         data.add(mpId);
