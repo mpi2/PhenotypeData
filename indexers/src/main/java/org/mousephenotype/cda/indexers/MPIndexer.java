@@ -237,7 +237,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         csv.missingOwl.write(Integer.toString(missingMpIdCount[0]) +
                              " mp-hp mp IDs (" +
                                      Integer.toString(missingTermCount[0]) +
-                                     " terms) are missing from the ew UPHENO term list.");
+                                     " terms) are missing from the new UPHENO term list.");
     }
 
     private RunStatus initialise(Connection connection)
@@ -393,10 +393,12 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         //           Term Count   OWL HP Term Names           mpDtoToAdd.getHpTerm()
         //           Term Count   OWL HP Synonym Names        mpDtoToAdd.getHpTermSynonym()
         //           Term Count   OWL MP-HP narrow synonyms   mpDtoToAdd.getMpNarrowSynonym()
-        List<String> row = new ArrayList<>();
-        row.add(mpIdFromSlim);
 
+        List<String> row;
+        boolean mpIdWritten = false;
         if ( ! owlHpTermIds.isEmpty()) {
+            row = new ArrayList<>();
+            row.add(mpIdWritten ? "" : mpIdFromSlim); mpIdWritten = true;
             row.add("OWL HP Term Ids");
             row.add(Integer.toString(owlHpTermIds.size()));
             row.addAll(owlHpTermIds.stream().sorted().collect(Collectors.toList()));
@@ -405,7 +407,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         if ( ! owlHpTermNames.isEmpty()) {
             row = new ArrayList<>();
-            row.add("");
+            row.add(mpIdWritten ? "" : mpIdFromSlim); mpIdWritten = true;
             row.add("OWL HP Term Names");
             row.add(Integer.toString(owlHpTermNames.size()));
             row.addAll(owlHpTermNames.stream().sorted().collect(Collectors.toList()));
@@ -414,7 +416,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         if ( ! owlHpSynonymNames.isEmpty()) {
             row = new ArrayList<>();
-            row.add("");
+            row.add(mpIdWritten ? "" : mpIdFromSlim); mpIdWritten = true;
             row.add("OWL HP Synonym Names");
             row.add(Integer.toString(owlHpSynonymNames.size()));
             row.addAll(owlHpSynonymNames.stream().sorted().collect(Collectors.toList()));
@@ -423,7 +425,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         if ( ! owlMpNarrowSynonyms.isEmpty()) {
             row = new ArrayList<>();
-            row.add("");
+            row.add(mpIdWritten ? "" : mpIdFromSlim); mpIdWritten = true;
             row.add("OWL MP-HP Narrow Synonyms");
             row.add(Integer.toString(owlMpNarrowSynonyms.size()));
             row.addAll(owlMpNarrowSynonyms.stream().sorted().collect(Collectors.toList()));
