@@ -61,6 +61,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Matt Pearce
@@ -127,8 +128,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         }
 
         private void writeHeadings() {
-            byUpheno.write("MP Term", "HP Terms");
-            missingOwl.write("MP Term", "HP Terms");
+            byUpheno.write("MP Term", "HP Term Count", "HP Terms");
+            missingOwl.write("MP Term", "HP Term Count", "HP Terms");
+            missingOwl.write("MP Term", "HP Term Count", "Source", "HP Terms");
         }
 
         public void closeAll() throws IOException {
@@ -204,27 +206,25 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
     private void addHpTermDifferencesToCsv() {
-        csv.byOwl.write("");
-        csv.byOwl.write("");
-        csv.byOwl.write("MP TERMS MISSING FROM UPHENO:");
-        csv.byOwl.write("MP ID", "Terms ...");
 
         owlHpTermIdMap.keySet()
-                .stream()
-                .sorted()
-                .forEach(mpId -> {
-                    Set<String> owlHpTermNames = owlHpTermNameMap.get(mpId);
-                    owlHpTermNames.addAll(owlHpSynonymNameMap.get(mpId));
-                    owlHpTermNames.addAll(owlMpNarrowSynonymMap.get(mpId));
+            .stream()
+            .sorted()
+            .forEach(mpId -> {
+                Set<String> owlHpTermNames = owlHpTermNameMap.get(mpId);
+                owlHpTermNames.addAll(owlHpSynonymNameMap.get(mpId));
+                owlHpTermNames.addAll(owlMpNarrowSynonymMap.get(mpId));
 
-                    Set<String> csvHpTermNames = mpHpCsvMissingOwlTerms.get(mpId);
-                    owlHpTermNames.removeAll(csvHpTermNames);
-                    if ( ! owlHpTermNames.isEmpty()) {
-                        List<String> data = new ArrayList<>();
-                        data.add(mpId);  data.addAll(owlHpTermNames);
-                        csv.missingOwl.write(data);
-                    }
-                });
+                Set<String> csvHpTermNames = mpHpCsvMissingOwlTerms.get(mpId);
+                owlHpTermNames.removeAll(csvHpTermNames);
+                if ( ! owlHpTermNames.isEmpty()) {
+                    List<String> data = new ArrayList<>();
+                    data.add(mpId);
+                    data.add(Integer.toString(owlHpTermNames.size()));
+                    data.addAll(owlHpTermNames.stream().sorted().collect(Collectors.toList()));
+                    csv.missingOwl.write(data);
+                }
+            });
     }
 
     private RunStatus initialise(Connection connection) throws IndexerException, OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException, SolrServerException, URISyntaxException, JSONException {
@@ -264,7 +264,11 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     private int saveMpTermsInSlim(int count, RunStatus runStatus)
             throws IOException, SolrServerException, JSONException
     {
-        for (String mpIdFromSlim: mpParser.getTermIdsInSlim()) {
+        List<String> termsInSlim = mpParser.getTermIdsInSlim()
+                .stream()
+                .sorted()
+                .collect(Collectors.toList());
+        for (String mpIdFromSlim: termsInSlim) {
 
             OntologyTermDTO mpDtoFromSlim = mpParser.getOntologyTerm(mpIdFromSlim);
 
@@ -341,51 +345,82 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mpDtoToAdd.setHpTermSynonym(owlHpSynonymNames);     // hp synonym names
             mpDtoToAdd.setMpNarrowSynonym(owlMpNarrowSynonyms); // mp-hp narrow synonym names
         } else {
-            mpDtoToAdd.setHpTerm(csvHpTermNames);
+            mpDtoToAdd.setHpTerm(csvHpTermNames);               // all hp term names and synonyms
         }
 
-        // Write csv files with results for comparison.
-        List<String> row = new ArrayList<>();
-        row.add(mpIdFromSlim);
-        row.addAll(csvHpTermNames);
-        csv.byUpheno.write(row);
 
+        // Write csv files with results for comparison. If there are no OWL hp term/synonyms,
+        // omit from both OWL and CSV output files.
+        if (owlHpTermIds.isEmpty()  &&
+            owlHpTermNames.isEmpty() &&
+            owlHpSynonymNames.isEmpty() &&
+            owlMpNarrowSynonyms.isEmpty()) {
+            return;
+        }
+
+        writeOwlCsvData(mpIdFromSlim, owlHpTermIds, owlHpTermNames, owlHpSynonymNames, owlMpNarrowSynonyms);
+
+        if ( ! csvHpTermNames.isEmpty()) {
+            List<String> row;
+            row = new ArrayList<>();
+            row.add(mpIdFromSlim);
+            row.addAll(csvHpTermNames.stream().sorted().collect(Collectors.toList()));
+            csv.byUpheno.write(row);
+
+            mpHpTermsMap.put(mpIdFromSlim, new HashSet(csvHpTermNames));
+        }
+    }
+
+    private void writeOwlCsvData(String mpIdFromSlim, List<String> owlHpTermIds, List<String> owlHpTermNames, List<String> owlHpSynonymNames, List<String> owlMpNarrowSynonyms) {
         // owl csv file layout
-        // mp_term   OWL HP Term Ids             mpDtoToAdd.getHpId()
-        //           OWL HP Term Names           mpDtoToAdd.getHpTerm()
-        //           OWL HP Synonym Names        mpDtoToAdd.getHpTermSynonym()
-        //           OWL MP-HP narrow synonyms   mpDtoToAdd.getMpNarrowSynonym()
-        row = new ArrayList<>();
-        row.add(mpIdFromSlim);
-        row.add("OWL HP Term Ids");
-        row.addAll(owlHpTermIds);
-        csv.byOwl.write(row);
+        // mp_term   Term Count   OWL HP Term Ids             mpDtoToAdd.getHpId()
+        //           Term Count   OWL HP Term Names           mpDtoToAdd.getHpTerm()
+        //           Term Count   OWL HP Synonym Names        mpDtoToAdd.getHpTermSynonym()
+        //           Term Count   OWL MP-HP narrow synonyms   mpDtoToAdd.getMpNarrowSynonym()
+        List<String> row;
+        if ( ! owlHpTermIds.isEmpty()) {
+            row = new ArrayList<>();
+            row.add(mpIdFromSlim);
+            row.add("OWL HP Term Ids");
+            row.add(Integer.toString(owlHpTermIds.size()));
+            row.addAll(owlHpTermIds.stream().sorted().collect(Collectors.toList()));
+            csv.byOwl.write(row);
+        }
 
-        row = new ArrayList<>();
-        row.add("");
-        row.add("OWL HP Term Names");
-        row.addAll(owlHpTermNames);
-        csv.byOwl.write(row);
+        if ( ! owlHpTermNames.isEmpty()) {
+            row = new ArrayList<>();
+            row.add("");
+            row.add("OWL HP Term Names");
+            row.add(Integer.toString(owlHpTermNames.size()));
+            row.addAll(owlHpTermNames.stream().sorted().collect(Collectors.toList()));
+            csv.byOwl.write(row);
+        }
 
-        row = new ArrayList<>();
-        row.add("");
-        row.add("OWL HP Synonym Names");
-        row.addAll(owlHpSynonymNames);
-        row.add("MP_NARROW_SYNONYM_NAMES");
-        csv.byOwl.write(row);
+        if ( ! owlHpSynonymNames.isEmpty()) {
+            row = new ArrayList<>();
+            row.add("");
+            row.add("OWL HP Synonym Names");
+            row.add(Integer.toString(owlHpSynonymNames.size()));
+            row.addAll(owlHpSynonymNames.stream().sorted().collect(Collectors.toList()));
+            csv.byOwl.write(row);
+        }
 
-        row = new ArrayList<>();
-        row.add("");
-        row.add("OWL MP-HP Narrow Synonyms");
-        row.addAll(owlMpNarrowSynonyms);
-        csv.byOwl.write(row);
+        if (!owlMpNarrowSynonyms.isEmpty()) {
+            row = new ArrayList<>();
+            row.add("");
+            row.add("OWL MP-HP Narrow Synonyms");
+            row.add(Integer.toString(owlMpNarrowSynonyms.size()));
+            row.addAll(owlMpNarrowSynonyms.stream().sorted().collect(Collectors.toList()));
+            csv.byOwl.write(row);
+        }
+
+        csv.byOwl.write("");
 
         // Add data to sets for later analysis
         owlHpTermIdMap.put(mpIdFromSlim, new HashSet<>(owlHpTermIds));
         owlHpTermNameMap.put(mpIdFromSlim, new HashSet(owlHpTermNames));
         owlHpSynonymNameMap.put(mpIdFromSlim, new HashSet(owlHpSynonymNames));
         owlMpNarrowSynonymMap.put(mpIdFromSlim, new HashSet(owlMpNarrowSynonyms));
-        mpHpCsvMissingOwlTerms.put(mpIdFromSlim, new HashSet(csvHpTermNames));
     }
 
     private void getHpTermsFromOWL(
