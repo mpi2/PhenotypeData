@@ -128,9 +128,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         }
 
         private void writeHeadings() {
-            byUpheno.write("MP Term", "HP Term Count", "HP Terms");
-            missingOwl.write("MP Term", "HP Term Count", "HP Terms");
-            missingOwl.write("MP Term", "HP Term Count", "Source", "HP Terms");
+            byUpheno.write("MP ID", "HP Term Count", "HP Terms");
+            missingOwl.write("MP ID", "Term Count", "Terms");
+            byOwl.write("MP ID", "Source", "Term Count", "Terms");
         }
 
         public void closeAll() throws IOException {
@@ -219,8 +219,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     owlHpTermNames.addAll(owlHpSynonymNameMap.get(mpId));
                     owlHpTermNames.addAll(owlMpNarrowSynonymMap.get(mpId));
 
-                    Set<String> csvHpTermNames = mpHpCsvMissingOwlTerms.get(mpId);
-                    owlHpTermNames.removeAll(csvHpTermNames == null ? new HashSet<>() : csvHpTermNames);
+                    Set<String> csvHpTermNames = mpHpCsvMissingOwlTerms.getOrDefault(mpId, new HashSet<>());
+                    owlHpTermNames.removeAll(csvHpTermNames);
                     if ( ! owlHpTermNames.isEmpty()) {
                         List<String> data = new ArrayList<>();
                         data.add(mpId);
@@ -240,8 +240,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                                      " terms) are missing from the ew UPHENO term list.");
     }
 
-    private RunStatus initialise(Connection connection) throws IndexerException, OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException, SolrServerException, URISyntaxException, JSONException {
-
+    private RunStatus initialise(Connection connection)
+            throws IndexerException, OWLOntologyCreationException, OWLOntologyStorageException, IOException,
+            SQLException, SolrServerException, URISyntaxException, JSONException
+    {
         RunStatus runStatus;
         initialiseSupportingBeans(connection);
         initialiseOntologyParsers();
@@ -377,6 +379,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             List<String> row;
             row = new ArrayList<>();
             row.add(mpIdFromSlim);
+            row.add(Integer.toString(csvHpTermNames.size()));
             row.addAll(csvHpTermNames.stream().sorted().collect(Collectors.toList()));
             csv.byUpheno.write(row);
 
@@ -390,10 +393,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         //           Term Count   OWL HP Term Names           mpDtoToAdd.getHpTerm()
         //           Term Count   OWL HP Synonym Names        mpDtoToAdd.getHpTermSynonym()
         //           Term Count   OWL MP-HP narrow synonyms   mpDtoToAdd.getMpNarrowSynonym()
-        List<String> row;
+        List<String> row = new ArrayList<>();
+        row.add(mpIdFromSlim);
+
         if ( ! owlHpTermIds.isEmpty()) {
-            row = new ArrayList<>();
-            row.add(mpIdFromSlim);
             row.add("OWL HP Term Ids");
             row.add(Integer.toString(owlHpTermIds.size()));
             row.addAll(owlHpTermIds.stream().sorted().collect(Collectors.toList()));
@@ -418,7 +421,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             csv.byOwl.write(row);
         }
 
-        if (!owlMpNarrowSynonyms.isEmpty()) {
+        if ( ! owlMpNarrowSynonyms.isEmpty()) {
             row = new ArrayList<>();
             row.add("");
             row.add("OWL MP-HP Narrow Synonyms");
