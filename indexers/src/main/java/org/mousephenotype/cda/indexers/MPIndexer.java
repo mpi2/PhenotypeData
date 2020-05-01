@@ -207,7 +207,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     private void addHpTermDifferencesToCsv() {
 
-        int missingTermCount = 0;
+        final int[] missingMpIdCount = {0};
+        final int[] missingTermCount = {0};
         owlHpTermIdMap.keySet()
             .stream()
             .sorted()
@@ -220,19 +221,23 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
                     Set<String> csvHpTermNames = mpHpCsvMissingOwlTerms.get(mpId);
                     owlHpTermNames.removeAll(csvHpTermNames);
-                    if (!owlHpTermNames.isEmpty()) {
+                    if ( ! owlHpTermNames.isEmpty()) {
                         List<String> data = new ArrayList<>();
                         data.add(mpId);
                         data.add(Integer.toString(owlHpTermNames.size()));
                         data.addAll(owlHpTermNames.stream().sorted().collect(Collectors.toList()));
                         csv.missingOwl.write(data);
+                        missingTermCount[0] += owlHpTermNames.size();
+                        missingMpIdCount[0]++;
                     }
                 }
             });
 
         csv.missingOwl.write("");
-        csv.missingOwl.write(Integer.toString(missingTermCount) +
-                             " mp-hp mp IDs are missing from new UPHENO term list.");
+        csv.missingOwl.write(Integer.toString(missingMpIdCount[0]) +
+                             " mp-hp mp IDs (" +
+                                     Integer.toString(missingTermCount[0]) +
+                                     " terms) are missing from the ew UPHENO term list.");
     }
 
     private RunStatus initialise(Connection connection) throws IndexerException, OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException, SolrServerException, URISyntaxException, JSONException {
