@@ -78,9 +78,9 @@ public class OntologyParser {
             this.topLevelIds.addAll(topLevelIds);
         }
 
-        OWLReasoner r = null;
+        OWLReasoner owlReasoner = null;
         if (pathToOwlFile.contains("mp-hp.owl")) {
-            r = new ElkReasonerFactory().createReasoner(ontology);
+            owlReasoner = new ElkReasonerFactory().createReasoner(ontology);
         }
 
         Set<OWLClass> allClasses = ontology.getClassesInSignature();
@@ -91,48 +91,7 @@ public class OntologyParser {
                 OntologyTermDTO term = getDTO(cls, prefix);
 
                 if (pathToOwlFile.contains("mp-hp.owl")) {
-
-                    // use reasoner to get equivalent and subclasses
-
-                    // get the children of MP term as subClasses (we call it narrow synonyms)
-                    // level of 2 means starting from the first level child(ren) (ie, level 1) and the child(ren) of the first level child (level 2)
-                    int level = 3;
-                    Set<OntologyTermDTO> equivalentClasses = new HashSet<>();
-                    Set<OntologyTermDTO> narrowSynonymClasses = new HashSet<>();
-
-                    // using reasoner to get equivalent classes
-                    Set<OWLClass> eqClasses = r.getEquivalentClasses(cls).getEntities();
-                    for (OWLClass eqc : eqClasses) {
-                        String humanPhenotypePrefix = "HP";  // MP-HP mapping happens here
-
-                        if (eqc.getIRI().getShortForm().startsWith(humanPhenotypePrefix)) {
-                            OntologyTermDTO thisTerm = getDTO(eqc, humanPhenotypePrefix);
-                            //System.out.println(term.getAccessionId() + " - equivalent class: " + term.getAccessionId());
-                            equivalentClasses.add(thisTerm);
-                        }
-                    }
-
-                    // using reasoner to get subclasses (narrow synonym)
-                    // getsubclasses(true) gets all direct subclasses (ie, only one level down)
-                    // getssubclasses(false) gets ALL subclasses (ie, all recursive levels down)
-
-                    if (! term.getAccessionId().equals("MP:0000001")) {  // exclude MP root term for narrow synonyms
-                        Set<OWLClass> subClasses = r.getSubClasses(cls, true).getFlattened();
-                        for (OWLClass sc : subClasses) {
-                            OntologyTermDTO thisTerm = getDTO(sc, prefix);
-                            String termId = thisTerm.getAccessionId();
-                            if (termId.startsWith("MP") || termId.startsWith("HP")) {
-                                //System.out.println(term.getAccessionId() + " -- narrow synonym class: " + termId);
-
-                                // no need to distinguish inside or outside slim as we use full ontology
-                                narrowSynonymClasses.add(thisTerm);  // this one is level 1
-                                getNextLevelNarrowSynonyms(r, sc, level - 1, narrowSynonymClasses); // next whatever levels
-                            }
-                        }
-
-                        term.setEquivalentClasses(equivalentClasses);
-                        term.setNarrowSynonymClasses(narrowSynonymClasses);
-                    }
+                    parseMpHp(prefix, owlReasoner, cls, term);
                 }
                 else {
                     term.setEquivalentClasses(getEquivaletNamedClasses(cls, prefix));
@@ -141,6 +100,50 @@ public class OntologyParser {
                 termMap.put(term.getAccessionId(), term);
                 classMap.put(term.getAccessionId(), cls);
             }
+        }
+    }
+
+    private void parseMpHp(String prefix, OWLReasoner owlReasoner, OWLClass cls, OntologyTermDTO term) {
+        // use reasoner to get equivalent and subclasses
+
+        // get the children of MP term as subClasses (we call it narrow synonyms)
+        // level of 2 means starting from the first level child(ren) (ie, level 1) and the child(ren) of the first level child (level 2)
+        int                  level                = 3;
+        Set<OntologyTermDTO> equivalentClasses    = new HashSet<>();
+        Set<OntologyTermDTO> narrowSynonymClasses = new HashSet<>();
+
+        // using reasoner to get equivalent classes
+        Set<OWLClass> eqClasses = owlReasoner.getEquivalentClasses(cls).getEntities();
+        for (OWLClass eqc : eqClasses) {
+            String humanPhenotypePrefix = "HP";  // MP-HP mapping happens here
+
+            if (eqc.getIRI().getShortForm().startsWith(humanPhenotypePrefix)) {
+                OntologyTermDTO thisTerm = getDTO(eqc, humanPhenotypePrefix);
+                //System.out.println(term.getAccessionId() + " - equivalent class: " + term.getAccessionId());
+                equivalentClasses.add(thisTerm);
+            }
+        }
+
+        // using reasoner to get subclasses (narrow synonym)
+        // getsubclasses(true) gets all direct subclasses (ie, only one level down)
+        // getssubclasses(false) gets ALL subclasses (ie, all recursive levels down)
+
+        if (! term.getAccessionId().equals("MP:0000001")) {  // exclude MP root term for narrow synonyms
+            Set<OWLClass> subClasses = owlReasoner.getSubClasses(cls, true).getFlattened();
+            for (OWLClass sc : subClasses) {
+                OntologyTermDTO thisTerm = getDTO(sc, prefix);
+                String termId = thisTerm.getAccessionId();
+                if (termId.startsWith("MP") || termId.startsWith("HP")) {
+                    //System.out.println(term.getAccessionId() + " -- narrow synonym class: " + termId);
+
+                    // no need to distinguish inside or outside slim as we use full ontology
+                    narrowSynonymClasses.add(thisTerm);  // this one is level 1
+                    getNextLevelNarrowSynonyms(owlReasoner, sc, level - 1, narrowSynonymClasses); // next whatever levels
+                }
+            }
+
+            term.setEquivalentClasses(equivalentClasses);
+            term.setNarrowSynonymClasses(narrowSynonymClasses);
         }
     }
 

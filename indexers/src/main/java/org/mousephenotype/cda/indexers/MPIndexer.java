@@ -71,7 +71,7 @@ import java.util.stream.Collectors;
 @EnableAutoConfiguration
 public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
-    private final Logger       logger                   = LoggerFactory.getLogger(MPIndexer.class);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private Map<String, List<AlleleDTO>> allelesByMgiAlleleAccessionId;
     private Map<String, Set<String>>     mpHpTermsMap = new HashMap<>();
@@ -100,45 +100,53 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     private SolrClient               mpCore;
     private GenotypePhenotypeService genotypePhenotypeService;
 
-    public static final boolean USE_LEGACY_MP_HP_OWL = true;
-    private Map<String, Set<String>> owlHpTermIdMap = new HashMap<>();
-    private Map<String, Set<String>> owlHpTermNameMap = new HashMap<>();
-    private Map<String, Set<String>> owlHpSynonymNameMap = new HashMap<>();
-    private Map<String, Set<String>> owlMpNarrowSynonymMap  = new HashMap<>();
-    private Map<String, Set<String>> mpHpCsvMissingOwlTerms = new HashMap<>();
+    public static final boolean                  USE_LEGACY_MP_HP_OWL   = true;
+    private             Map<String, Set<String>> owlHpTermIdMap         = new HashMap<>();
+    private             Map<String, Set<String>> owlHpTermNameMap       = new HashMap<>();
+    private             Map<String, Set<String>> owlHpSynonymNameMap    = new HashMap<>();
+    private             Map<String, Set<String>> owlMpNarrowSynonymMap  = new HashMap<>();
+    private             Map<String, Set<String>> mpHpCsvMissingOwlTerms = new HashMap<>();
 
     // These csv writers write the files in CSVs below
     private class CsvWriters {
-        final String MP_HP_TERMS_FOUND_BY_OWL    = "mpHpTermsFoundByOwl.csv";
-        final String MP_HP_TERMS_FOUND_BY_UPHENO = "mpHpTermsFoundByUpheno.csv";
-        final String MP_HP_CSV_MISSING_OWL_TERMS = "mpHpCsvMissingOwlTerms.csv";
+        final String MP_HP_TERMS_OWL_WHITELIST         = "mpHpTermsOwlWhitelist.csv";
+        final String MP_HP_TERMS_FOUND_BY_OWL          = "mpHpTermsFoundByOwl.csv";
+        final String MP_HP_TERMS_FOUND_BY_UPHENO       = "mpHpTermsFoundByUpheno.csv";
+        final String MP_HP_CSV_MISSING_OWL_TERMS       = "mpHpCsvMissingOwlTerms.csv";
 
+        public MpCsvWriter byOwlWhitelist;
         public MpCsvWriter byOwl;
         public MpCsvWriter byUpheno;
         public MpCsvWriter missingOwl;
 
         public void createAll() throws IOException {
+            byOwlWhitelist = new MpCsvWriter(MP_HP_TERMS_OWL_WHITELIST, false);
             byOwl = new MpCsvWriter(MP_HP_TERMS_FOUND_BY_OWL, false);
             byUpheno = new MpCsvWriter(MP_HP_TERMS_FOUND_BY_UPHENO, false);
             missingOwl = new MpCsvWriter(MP_HP_CSV_MISSING_OWL_TERMS, false);
+
+            logger.info("owl whitelist 2-column csv of terms created with hp-mp.owl created at {}", byOwlWhitelist.getFqFilename());
+            logger.info("owl csv of terms created with hp-mp.owl by source created at {}", byOwl.getFqFilename());
             logger.info("upheno csv of terms created with new Monarch upheno csv file created at {}", byUpheno.getFqFilename());
-            logger.info("owl csv of terms created with hp-mp.owl created at {}", byOwl.getFqFilename());
             logger.info("OWL terms missing from upheno csv created at {}", missingOwl.getFqFilename());
             writeHeadings();
         }
 
         private void writeHeadings() {
+            byOwlWhitelist.write("MP ID", "TERM");
+            byOwl.write("MP ID", "Source", "Term Count", "Terms");
             byUpheno.write("MP ID", "HP Term Count", "HP Terms");
             missingOwl.write("MP ID", "Term Count", "Terms");
-            byOwl.write("MP ID", "Source", "Term Count", "Terms");
         }
 
         public void closeAll() throws IOException {
+            if (byOwlWhitelist != null) byOwlWhitelist.close();
             if (byOwl != null) byOwl.close();
             if (byUpheno != null) byUpheno.close();
             if (missingOwl != null) missingOwl.close();
         }
     }
+
     private CsvWriters csv;
 
 
@@ -153,8 +161,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             @NotNull SolrClient alleleCore,
             @NotNull SolrClient genotypePhenotypeCore,
             @NotNull SolrClient mpCore,
-            @NotNull GenotypePhenotypeService genotypePhenotypeService)
-    {
+            @NotNull GenotypePhenotypeService genotypePhenotypeService) {
         super(komp2DataSource, ontologyTermRepository);
         this.alleleCore = alleleCore;
         this.genotypePhenotypeCore = genotypePhenotypeCore;
@@ -170,12 +177,12 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
     @Override
-    public RunStatus run ()
-            throws IndexerException{
+    public RunStatus run()
+            throws IndexerException {
 
-        int count = 0;
+        int       count = 0;
         RunStatus runStatus;
-        long start = System.currentTimeMillis();
+        long      start = System.currentTimeMillis();
 
         try (Connection connection = komp2DataSource.getConnection()) {
 
@@ -196,7 +203,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         } catch (SolrServerException | IOException | OWLOntologyCreationException | OWLOntologyStorageException | SQLException | URISyntaxException | JSONException e) {
             e.printStackTrace();
             // Try to close any csv files
-            try { csv.closeAll(); } catch (IOException io) { }
+            try {
+                csv.closeAll();
+            } catch (IOException io) {
+            }
             throw new IndexerException(e);
         }
 
@@ -210,48 +220,47 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         final int[] missingMpIdCount = {0};
         final int[] missingTermCount = {0};
         owlHpTermIdMap.keySet()
-            .stream()
-            .sorted()
-            .forEach(mpId -> {
-                Set<String> owlHpTermNames = owlHpTermNameMap.get(mpId);
-                // If owlMpTermNames is null, there are no mp-hp terms found by the legacy OWL method. Skip.
-                if (owlHpTermNames != null) {
-                    owlHpTermNames.addAll(owlHpSynonymNameMap.get(mpId));
-                    owlHpTermNames.addAll(owlMpNarrowSynonymMap.get(mpId));
+                .stream()
+                .sorted()
+                .forEach(mpId -> {
+                    Set<String> owlHpTermNames = owlHpTermNameMap.get(mpId);
+                    // If owlMpTermNames is null, there are no mp-hp terms found by the legacy OWL method. Skip.
+                    if (owlHpTermNames != null) {
+                        owlHpTermNames.addAll(owlHpSynonymNameMap.get(mpId));
+                        owlHpTermNames.addAll(owlMpNarrowSynonymMap.get(mpId));
 
-                    Set<String> csvHpTermNames = mpHpCsvMissingOwlTerms.getOrDefault(mpId, new HashSet<>());
-                    owlHpTermNames.removeAll(csvHpTermNames);
-                    if ( ! owlHpTermNames.isEmpty()) {
-                        List<String> data = new ArrayList<>();
-                        data.add(mpId);
-                        data.add(Integer.toString(owlHpTermNames.size()));
-                        data.addAll(owlHpTermNames.stream().sorted().collect(Collectors.toList()));
-                        csv.missingOwl.write(data);
-                        missingTermCount[0] += owlHpTermNames.size();
-                        missingMpIdCount[0]++;
+                        Set<String> csvHpTermNames = mpHpCsvMissingOwlTerms.getOrDefault(mpId, new HashSet<>());
+                        owlHpTermNames.removeAll(csvHpTermNames);
+                        if (!owlHpTermNames.isEmpty()) {
+                            List<String> data = new ArrayList<>();
+                            data.add(mpId);
+                            data.add(Integer.toString(owlHpTermNames.size()));
+                            data.addAll(owlHpTermNames.stream().sorted().collect(Collectors.toList()));
+                            csv.missingOwl.write(data);
+                            missingTermCount[0] += owlHpTermNames.size();
+                            missingMpIdCount[0]++;
+                        }
                     }
-                }
-            });
+                });
 
         csv.missingOwl.write("");
         csv.missingOwl.write(Integer.toString(missingMpIdCount[0]) +
-                             " mp-hp mp IDs (" +
+                                     " mp-hp mp IDs (" +
                                      Integer.toString(missingTermCount[0]) +
                                      " terms) are missing from the new UPHENO term list.");
     }
 
     private RunStatus initialise(Connection connection)
             throws IndexerException, OWLOntologyCreationException, OWLOntologyStorageException, IOException,
-            SQLException, SolrServerException, URISyntaxException, JSONException
-    {
+            SQLException, SolrServerException, URISyntaxException, JSONException {
         RunStatus runStatus;
         initialiseSupportingBeans(connection);
         initialiseOntologyParsers();
         runStatus = populateMpCallMaps();
         csv = new CsvWriters();
 
-        runStatus.getErrorMessages().stream().forEach( s -> logger.error(s));
-        runStatus.getWarningMessages().stream().forEach( s -> logger.warn(s));
+        runStatus.getErrorMessages().stream().forEach(s -> logger.error(s));
+        runStatus.getWarningMessages().stream().forEach(s -> logger.warn(s));
 
         return runStatus;
     }
@@ -277,13 +286,12 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
     private int saveMpTermsInSlim(int count, RunStatus runStatus)
-            throws IOException, SolrServerException, JSONException
-    {
+            throws IOException, SolrServerException, JSONException {
         List<String> termsInSlim = mpParser.getTermIdsInSlim()
                 .stream()
                 .sorted()
                 .collect(Collectors.toList());
-        for (String mpIdFromSlim: termsInSlim) {
+        for (String mpIdFromSlim : termsInSlim) {
 
             OntologyTermDTO mpDtoFromSlim = mpParser.getOntologyTerm(mpIdFromSlim);
 
@@ -293,9 +301,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mpDtoToAdd.setMpTerm(mpDtoFromSlim.getName());
             mpDtoToAdd.setMpDefinition(mpDtoFromSlim.getDefinition());
 
-            if ( mpDtoFromSlim.getAlternateIds() != null &&                 // Add alternate ids
-                 ! mpDtoFromSlim.getAlternateIds().isEmpty() )
-            {
+            if (mpDtoFromSlim.getAlternateIds() != null &&                 // Add alternate ids
+                    ! mpDtoFromSlim.getAlternateIds().isEmpty()) {
                 mpDtoToAdd.setAltMpIds(mpDtoFromSlim.getAlternateIds());
             }
 
@@ -325,7 +332,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mpDtoToAdd.setChildrenJson(mpDtoFromSlim.getChildrenJson());
 
             logger.debug(" Added {} records for termId {}", count, mpIdFromSlim);
-            count ++;
+            count++;
 
             expectedDocumentCount++;
             mpCore.addBean(mpDtoToAdd, 60000);
@@ -366,28 +373,47 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         // Write csv files with results for comparison. If there are no OWL hp term/synonyms,
         // omit from both OWL and CSV output files.
-        if (owlHpTermIds.isEmpty()  &&
-            owlHpTermNames.isEmpty() &&
-            owlHpSynonymNames.isEmpty() &&
-            owlMpNarrowSynonyms.isEmpty()) {
+        if (owlHpTermIds.isEmpty() &&
+                owlHpTermNames.isEmpty() &&
+                owlHpSynonymNames.isEmpty() &&
+                owlMpNarrowSynonyms.isEmpty()) {
             return;
         }
 
         writeOwlCsvData(mpIdFromSlim, owlHpTermIds, owlHpTermNames, owlHpSynonymNames, owlMpNarrowSynonyms);
 
         if ( ! csvHpTermNames.isEmpty()) {
-            List<String> row;
-            row = new ArrayList<>();
-            row.add(mpIdFromSlim);
-            row.add(Integer.toString(csvHpTermNames.size()));
-            row.addAll(csvHpTermNames.stream().sorted().collect(Collectors.toList()));
-            csv.byUpheno.write(row);
-
-            mpHpTermsMap.put(mpIdFromSlim, new HashSet(csvHpTermNames));
+            writeUphenoCsvData(mpIdFromSlim, csvHpTermNames);
         }
     }
 
+    private void writeUphenoCsvData(String mpIdFromSlim, List<String> csvHpTermNames) {
+
+        List<String> row;
+        row = new ArrayList<>();
+        row.add(mpIdFromSlim);
+        row.add(Integer.toString(csvHpTermNames.size()));
+        row.addAll(csvHpTermNames.stream().sorted().collect(Collectors.toList()));
+        csv.byUpheno.write(row);
+
+        mpHpTermsMap.put(mpIdFromSlim, new HashSet(csvHpTermNames));
+    }
+
     private void writeOwlCsvData(String mpIdFromSlim, List<String> owlHpTermIds, List<String> owlHpTermNames, List<String> owlHpSynonymNames, List<String> owlMpNarrowSynonyms) {
+
+        Set<String> allNames = new HashSet<>();
+
+        allNames.addAll(owlHpTermNames);
+        allNames.addAll(owlHpSynonymNames);
+        allNames.addAll(owlMpNarrowSynonyms);
+
+        allNames.stream().sorted().forEachOrdered(term -> {
+            final ArrayList<String> finalRow = new ArrayList<>();
+            finalRow.add(mpIdFromSlim);
+            finalRow.add(term);
+            csv.byOwlWhitelist.write(finalRow);
+        });
+
         // owl csv file layout
         // mp_term   Term Count   OWL HP Term Ids             mpDtoToAdd.getHpId()
         //           Term Count   OWL HP Term Names           mpDtoToAdd.getHpTerm()
@@ -395,10 +421,11 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         //           Term Count   OWL MP-HP narrow synonyms   mpDtoToAdd.getMpNarrowSynonym()
 
         List<String> row;
-        boolean mpIdWritten = false;
+        boolean      mpIdWritten = false;
         if ( ! owlHpTermIds.isEmpty()) {
             row = new ArrayList<>();
-            row.add(mpIdWritten ? "" : mpIdFromSlim); mpIdWritten = true;
+            row.add(mpIdWritten ? "" : mpIdFromSlim);
+            mpIdWritten = true;
             row.add("OWL HP Term Ids");
             row.add(Integer.toString(owlHpTermIds.size()));
             row.addAll(owlHpTermIds.stream().sorted().collect(Collectors.toList()));
@@ -407,7 +434,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         if ( ! owlHpTermNames.isEmpty()) {
             row = new ArrayList<>();
-            row.add(mpIdWritten ? "" : mpIdFromSlim); mpIdWritten = true;
+            row.add(mpIdWritten ? "" : mpIdFromSlim);
+            mpIdWritten = true;
             row.add("OWL HP Term Names");
             row.add(Integer.toString(owlHpTermNames.size()));
             row.addAll(owlHpTermNames.stream().sorted().collect(Collectors.toList()));
@@ -416,7 +444,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         if ( ! owlHpSynonymNames.isEmpty()) {
             row = new ArrayList<>();
-            row.add(mpIdWritten ? "" : mpIdFromSlim); mpIdWritten = true;
+            row.add(mpIdWritten ? "" : mpIdFromSlim);
+            mpIdWritten = true;
             row.add("OWL HP Synonym Names");
             row.add(Integer.toString(owlHpSynonymNames.size()));
             row.addAll(owlHpSynonymNames.stream().sorted().collect(Collectors.toList()));
@@ -425,7 +454,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         if ( ! owlMpNarrowSynonyms.isEmpty()) {
             row = new ArrayList<>();
-            row.add(mpIdWritten ? "" : mpIdFromSlim); mpIdWritten = true;
+            row.add(mpIdWritten ? "" : mpIdFromSlim);
+            mpIdWritten = true;
             row.add("OWL MP-HP Narrow Synonyms");
             row.add(Integer.toString(owlMpNarrowSynonyms.size()));
             row.addAll(owlMpNarrowSynonyms.stream().sorted().collect(Collectors.toList()));
@@ -503,7 +533,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     private void getHpTermsFromCSV(String mpIdFromSlim, List<String> csvHpTermNames) {
 
-        Set <String> hpTermNames = mpHpTermsMap.get(mpIdFromSlim);
+        Set<String> hpTermNames = mpHpTermsMap.get(mpIdFromSlim);
 
         if (hpTermNames != null) {
             csvHpTermNames.addAll(hpTermNames);
@@ -546,7 +576,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         List<DataTableRow> uniqGenes = new ArrayList<>(phenotypes.values());
 
         int sumCount = 0;
-        for(DataTableRow r : uniqGenes){
+        for (DataTableRow r : uniqGenes) {
             // want all counts, even if sex field has no data
             sumCount += r.getSexes().size();
         }
@@ -618,10 +648,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         Map<String, List<PhenotypeCallSummaryBean>> beans = new HashMap<>();
 
-        String q = "select distinct gf_acc, mp_acc, concat(mp_acc,'_',gf_acc) as mp_mgi, parameter_id, procedure_id, pipeline_id, allele_acc, strain_acc from phenotype_call_summary where gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null";
-        PreparedStatement ps = connection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
+        String            q     = "select distinct gf_acc, mp_acc, concat(mp_acc,'_',gf_acc) as mp_mgi, parameter_id, procedure_id, pipeline_id, allele_acc, strain_acc from phenotype_call_summary where gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null";
+        PreparedStatement ps    = connection.prepareStatement(q);
+        ResultSet         rs    = ps.executeQuery();
+        int               count = 0;
         while (rs.next()) {
             PhenotypeCallSummaryBean bean = new PhenotypeCallSummaryBean();
 
@@ -636,11 +666,11 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             bean.setAlleleAcc(rs.getString("allele_acc"));
             bean.setStrainAcc(rs.getString("strain_acc"));
 
-            if ( ! beans.containsKey(mpAcc)) {
+            if (!beans.containsKey(mpAcc)) {
                 beans.put(mpAcc, new ArrayList<>());
             }
             beans.get(mpAcc).add(bean);
-            count ++;
+            count++;
         }
         logger.debug(" Added {} phenotype call summaries (1)", count);
 
@@ -652,18 +682,18 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         Map<String, List<String>> beans = new HashMap<>();
 
-        String q = "select distinct external_db_id as 'impc', concat (mp_acc,'_', gf_acc) as mp_mgi from phenotype_call_summary where external_db_id = 22";
-        PreparedStatement ps = connection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
+        String            q     = "select distinct external_db_id as 'impc', concat (mp_acc,'_', gf_acc) as mp_mgi from phenotype_call_summary where external_db_id = 22";
+        PreparedStatement ps    = connection.prepareStatement(q);
+        ResultSet         rs    = ps.executeQuery();
+        int               count = 0;
         while (rs.next()) {
-            String tId = rs.getString("mp_mgi");
+            String tId  = rs.getString("mp_mgi");
             String impc = rs.getString("impc");
-            if ( ! beans.containsKey(tId)) {
+            if (!beans.containsKey(tId)) {
                 beans.put(tId, new ArrayList<>());
             }
             beans.get(tId).add(impc);
-            count ++;
+            count++;
         }
         logger.debug(" Added {} IMPC records", count);
 
@@ -674,18 +704,18 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         Map<String, List<String>> beans = new HashMap<>();
 
-        String q = "select distinct external_db_id as 'legacy', concat (mp_acc,'_', gf_acc) as mp_mgi from phenotype_call_summary where external_db_id = 12";
-        PreparedStatement ps = connection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
+        String            q     = "select distinct external_db_id as 'legacy', concat (mp_acc,'_', gf_acc) as mp_mgi from phenotype_call_summary where external_db_id = 12";
+        PreparedStatement ps    = connection.prepareStatement(q);
+        ResultSet         rs    = ps.executeQuery();
+        int               count = 0;
         while (rs.next()) {
-            String tId = rs.getString("mp_mgi");
+            String tId    = rs.getString("mp_mgi");
             String legacy = rs.getString("legacy");
-            if ( ! beans.containsKey(tId)) {
+            if (!beans.containsKey(tId)) {
                 beans.put(tId, new ArrayList<>());
             }
             beans.get(tId).add(legacy);
-            count ++;
+            count++;
         }
         logger.debug(" Added {} legacy records", count);
 
@@ -697,10 +727,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         Map<String, List<PhenotypeCallSummaryBean>> beans = new HashMap<>();
 
-        String q = "select distinct gf_acc, mp_acc, parameter_id, procedure_id, pipeline_id, concat(parameter_id,'_',procedure_id,'_',pipeline_id) as ididid, allele_acc, strain_acc from phenotype_call_summary where gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null";
-        PreparedStatement ps = connection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
+        String            q     = "select distinct gf_acc, mp_acc, parameter_id, procedure_id, pipeline_id, concat(parameter_id,'_',procedure_id,'_',pipeline_id) as ididid, allele_acc, strain_acc from phenotype_call_summary where gf_db_id=3 and gf_acc like 'MGI:%' and allele_acc is not null and strain_acc is not null";
+        PreparedStatement ps    = connection.prepareStatement(q);
+        ResultSet         rs    = ps.executeQuery();
+        int               count = 0;
         while (rs.next()) {
             PhenotypeCallSummaryBean bean = new PhenotypeCallSummaryBean();
 
@@ -715,11 +745,11 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             bean.setAlleleAcc(rs.getString("allele_acc"));
             bean.setStrainAcc(rs.getString("strain_acc"));
 
-            if ( ! beans.containsKey(mpAcc)) {
+            if (!beans.containsKey(mpAcc)) {
                 beans.put(mpAcc, new ArrayList<>());
             }
             beans.get(mpAcc).add(bean);
-            count ++;
+            count++;
         }
         logger.debug(" Added {} phenotype call summaries (2)", count);
 
@@ -731,10 +761,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         Map<String, List<MPStrainBean>> beans = new HashMap<>();
 
-        String q = "select distinct name, acc from strain where db_id=3";
-        PreparedStatement ps = connection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
+        String            q     = "select distinct name, acc from strain where db_id=3";
+        PreparedStatement ps    = connection.prepareStatement(q);
+        ResultSet         rs    = ps.executeQuery();
+        int               count = 0;
         while (rs.next()) {
             MPStrainBean bean = new MPStrainBean();
 
@@ -743,11 +773,11 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             bean.setAcc(acc);
             bean.setName(rs.getString("name"));
 
-            if ( ! beans.containsKey(acc)) {
+            if (!beans.containsKey(acc)) {
                 beans.put(acc, new ArrayList<>());
             }
             beans.get(acc).add(bean);
-            count ++;
+            count++;
         }
         logger.debug(" Added {} strain beans", count);
 
@@ -759,10 +789,10 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         Map<String, List<ParamProcedurePipelineBean>> beans = new HashMap<>();
 
-        String q = "select concat(pp.id,'_',pproc.id,'_',ppipe.id) as ididid, pp.name as parameter_name, pp.stable_key as parameter_stable_key, pp.stable_id as parameter_stable_id, pproc.name as procedure_name, pproc.stable_key as procedure_stable_key, pproc.stable_id as procedure_stable_id, ppipe.name as pipeline_name, ppipe.stable_key as pipeline_key, ppipe.stable_id as pipeline_stable_id from phenotype_parameter pp inner join phenotype_procedure_parameter ppp on pp.id=ppp.parameter_id inner join phenotype_procedure pproc on ppp.procedure_id=pproc.id inner join phenotype_pipeline_procedure ppproc on pproc.id=ppproc.procedure_id inner join phenotype_pipeline ppipe on ppproc.pipeline_id=ppipe.id";
-        PreparedStatement ps = connection.prepareStatement(q);
-        ResultSet rs = ps.executeQuery();
-        int count = 0;
+        String            q     = "select concat(pp.id,'_',pproc.id,'_',ppipe.id) as ididid, pp.name as parameter_name, pp.stable_key as parameter_stable_key, pp.stable_id as parameter_stable_id, pproc.name as procedure_name, pproc.stable_key as procedure_stable_key, pproc.stable_id as procedure_stable_id, ppipe.name as pipeline_name, ppipe.stable_key as pipeline_key, ppipe.stable_id as pipeline_stable_id from phenotype_parameter pp inner join phenotype_procedure_parameter ppp on pp.id=ppp.parameter_id inner join phenotype_procedure pproc on ppp.procedure_id=pproc.id inner join phenotype_pipeline_procedure ppproc on pproc.id=ppproc.procedure_id inner join phenotype_pipeline ppipe on ppproc.pipeline_id=ppipe.id";
+        PreparedStatement ps    = connection.prepareStatement(q);
+        ResultSet         rs    = ps.executeQuery();
+        int               count = 0;
         while (rs.next()) {
             ParamProcedurePipelineBean bean = new ParamProcedurePipelineBean();
 
@@ -778,11 +808,11 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             bean.setPipelineStableId(rs.getString("pipeline_stable_id"));
             bean.setPipelineStableKey(rs.getString("pipeline_key"));
 
-            if ( ! beans.containsKey(id)) {
+            if (!beans.containsKey(id)) {
                 beans.put(id, new ArrayList<>());
             }
             beans.get(id).add(bean);
-            count ++;
+            count++;
         }
         logger.debug(" Added {} PPP beans", count);
 
@@ -801,7 +831,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     // Decorate MpDTO with info for top levels
     private void addTopLevelTerms(MpDTO mpDtoToAdd, OntologyTermDTO mpDtoFromSlim) {
 
-        if (mpDtoFromSlim.getTopLevelIds() != null && mpDtoFromSlim.getTopLevelIds().size() > 0){
+        if (mpDtoFromSlim.getTopLevelIds() != null && mpDtoFromSlim.getTopLevelIds().size() > 0) {
             mpDtoToAdd.addTopLevelMpId(mpDtoFromSlim.getTopLevelIds());
             mpDtoToAdd.addTopLevelMpTerm(mpDtoFromSlim.getTopLevelNames());
             mpDtoToAdd.addTopLevelMpTermSynonym(mpDtoFromSlim.getTopLevelSynonyms());
@@ -809,8 +839,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mpDtoToAdd.addTopLevelMpTermInclusive(mpDtoFromSlim.getTopLevelNames());
             mpDtoToAdd.addTopLevelMpIdInclusive(mpDtoFromSlim.getTopLevelIds());
 
-        }
-        else {
+        } else {
             // add self as top level
             mpDtoToAdd.addTopLevelMpTermInclusive(mpDtoFromSlim.getName());
             mpDtoToAdd.addTopLevelMpIdInclusive(mpDtoFromSlim.getAccessionId());
@@ -1045,7 +1074,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     mpDtoToAdd.addInferredSelectedTopLevelMaId(ma.getTopLevelIds());
                     mpDtoToAdd.addInferredSelectedTopLevelMaTerm(ma.getTopLevelNames());
                 }
-                if (ma.getIntermediateIds() != null){
+                if (ma.getIntermediateIds() != null) {
                     mpDtoToAdd.addInferredIntermediatedMaId(ma.getIntermediateIds());
                     mpDtoToAdd.addInferredIntermediateMaTerm(ma.getIntermediateNames());
                 }
