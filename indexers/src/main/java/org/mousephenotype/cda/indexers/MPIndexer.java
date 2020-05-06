@@ -99,7 +99,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     private SolrClient               mpCore;
     private GenotypePhenotypeService genotypePhenotypeService;
 
-    public static final boolean USE_LEGACY_MP_HP_OWL = true;
+    public static final boolean USE_LEGACY_MP_HP_OWL = false;
 
     private Map<String, Set<String>> owlHpTermIdMap        = new HashMap<>();
     private Map<String, Set<String>> owlHpTermNameMap      = new HashMap<>();
@@ -249,11 +249,11 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
         csv.owlMissingImpc.write("");
         csv.owlMissingImpc.write(Integer.toString(missingImpcTermCount[0]) +
-                                  " terms) are missing from the new impc_search_index term list.");
+                                  " terms are missing from the new impc_search_index term list.");
 
         csv.impcMissingOwl.write("");
         csv.impcMissingOwl.write(Integer.toString(missingOwlTermCount[0]) +
-                                         " terms) are missing from the old owl term list.");
+                                         " terms are missing from the old owl term list.");
     }
 
     private RunStatus initialise(Connection connection)
@@ -354,6 +354,11 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
     }
 
     private void addHpTerms(RunStatus runStatus, String mpIdFromSlim, MpDTO mpDtoToAdd) {
+
+        // Exclude MP:0000001
+        if (mpIdFromSlim.equals("MP:0000001")) {
+            return;
+        }
 
         // Get the data the Monarch legacy OWL way
         final List<String> owlHpTermIds        = new ArrayList<>();
