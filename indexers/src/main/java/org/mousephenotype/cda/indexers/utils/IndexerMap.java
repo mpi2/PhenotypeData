@@ -27,6 +27,7 @@ import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
+import org.mousephenotype.cda.utilities.MpCsvReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,16 +51,18 @@ public class IndexerMap {
 
     private static final Logger logger = LoggerFactory.getLogger(IndexerMap.class);
 
-    private static Map<String, Set<String>>               mpToHpTermsMap  = null;
-    private static Map<String, List<SangerImageDTO>>      sangerImagesMap = null;
-    private static Map<String, List<AlleleDTO>>           allelesMap      = null;
-    private static List<AlleleDTO>                        alleles         = null;
-    private static Map<Long, ImpressBaseDTO>              pipelineMap     = null;
-    private static Map<Long, ImpressBaseDTO>              procedureMap    = null;
-    private static Map<Long, ParameterDTO>                parameterMap    = null;
-    private static Map<Long, OrganisationBean>            organisationMap = null;
-    private static Map<String, Map<String, List<String>>> maUberonEfoMap  = null;
-    private static DmddRestData                           dmddRestData;
+    protected static Map<String, Set<String>>               mpToHpTermsMap  = null;     // made protected so cacheing can be tested.
+    private static   Map<String, List<SangerImageDTO>>      sangerImagesMap = null;
+    private static   Map<String, List<AlleleDTO>>           allelesMap      = null;
+    private static   List<AlleleDTO>                        alleles         = null;
+    private static   Map<Long, ImpressBaseDTO>              pipelineMap     = null;
+    private static   Map<Long, ImpressBaseDTO>              procedureMap    = null;
+    private static   Map<Long, ParameterDTO>                parameterMap    = null;
+    private static   Map<Long, OrganisationBean>            organisationMap = null;
+    private static   Map<String, Map<String, List<String>>> maUberonEfoMap  = null;
+    private static   DmddRestData                           dmddRestData;
+
+    public static final String MP_HP_CSV_FILENAME = "impc_search_index.csv";
     
 
     // PUBLIC METHODS
@@ -155,7 +158,7 @@ public class IndexerMap {
      * OntologyParser service that depended on the unreliable creation of the
      * mp-hp.owl ontology.
      *
-     * @param mpHpCsvPath the fully-qualified path to the mp-hp.csv ontology mapping file provided by Monarch
+     * @param mpHpCsvPath the fully-qualified path to the impc_search_index.csv ontology mapping file provided by Monarch
      * @return a cached map of each mp term and its corresponding list of hp terms as provided by Monarch
      *
      * @throws IndexerException
@@ -164,39 +167,38 @@ public class IndexerMap {
 
         if (mpToHpTermsMap == null) {
 
-            mpToHpTermsMap = new HashMap<>();
+            // As of 05-May-2020 there were just under 13,000 mp-hp terms in the latest impc_search_index.csv from Monarch.
+            mpToHpTermsMap = new HashMap<>(20000);
 
             try {
-                List<List<String>> data = MpHpCsvReader.readAll(mpHpCsvPath);
+                // The Monarch input file format has 2 columns we use: 'phenotype' and 'value'.
+                // Get the column numbers from the heading (first) row.
 
-                String mpTermId;
-                String hpTermName;
+                MpCsvReader reader = new MpCsvReader(mpHpCsvPath);
+                List<String> row = reader.read();
+                final String PHENOTYPE = "phenotype";
+                final String VALUE = "value";
+                int mpIdCol = row.indexOf(PHENOTYPE);
+                int nameCol = row.indexOf(VALUE);
+                if (mpIdCol < 0)  throw new IndexerException("Required heading " + PHENOTYPE + " is missing.");
+                if (nameCol < 0)  throw new IndexerException("Required heading " + VALUE + " is missing.");
 
-                // NOTE: The HP term contains a trailing ' (HPO)'. If it exists, remove it.
-
-                for (int i = 1; i < data.size(); i++) {                         // Skip heading
-                    List<String> row = data.get(i);
-                    mpTermId = row.get(MpHpCsvReader.MP_ID_COL_OFFSET);
-                    hpTermName = row.get(MpHpCsvReader.HP_NAME_COL_OFFSET).replace(" (HPO)", "");
-
-                    Set<String> hpTermNames = mpToHpTermsMap.get(mpTermId);
-                    if (hpTermNames == null) {
-                        hpTermNames = new HashSet<>();
-                        mpToHpTermsMap.put(mpTermId, hpTermNames);
+                while ((row = reader.read()) != null) {
+                    Set<String> terms = mpToHpTermsMap.get(row.get(mpIdCol));
+                    if (terms == null) {
+                        terms = new HashSet<>();
+                        mpToHpTermsMap.put(row.get(mpIdCol), terms);
                     }
-
-                    if ( ! hpTermNames.contains(hpTermName)) {
-                        hpTermNames.add(hpTermName);
-                    }
+                    terms.add(row.get(nameCol));
                 }
 
             } catch (IOException e) {
 
                 throw new IndexerException("Unable to parse mp-hp term file " + mpHpCsvPath, e);
             }
-        }
 
-        logger.debug(" mpToHpTermsMap size = " + mpToHpTermsMap.size());
+            logger.info(" Added {} unique mp-hp terms from impc_search_index.csv" + mpToHpTermsMap.size());
+        }
 
         return mpToHpTermsMap;
     }

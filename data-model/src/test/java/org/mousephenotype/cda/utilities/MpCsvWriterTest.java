@@ -17,9 +17,11 @@
 package org.mousephenotype.cda.utilities;
 
 import com.opencsv.CSVReader;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -50,30 +52,32 @@ public class MpCsvWriterTest {
         Files.deleteIfExists(Paths.get(TEST_FILENAME));
     }
 
-
-    // TODO - need tests for append flag, various new writer methods, flush.
+    @After
+    public void cleanup() throws IOException {
+        Files.deleteIfExists(Paths.get(TEST_FILENAME));
+    }
 
 
     @Test
     public void createEmptyCsvFile() throws IOException {
 
         assertTrue( ! Files.exists(Paths.get(TEST_FILENAME)));
-        MpCsvWriter utils = new MpCsvWriter(TEST_FILENAME, false);
-        utils.close();
+        MpCsvWriter writer = new MpCsvWriter(TEST_FILENAME, false);
+        writer.close();
         assertTrue(Files.exists(Paths.get(TEST_FILENAME)));
     }
 
     @Test
     public void writeAndFlushOneRow() throws IOException {
 
-        MpCsvWriter utils = new MpCsvWriter(TEST_FILENAME, false);
-        utils.close();
+        MpCsvWriter writer = new MpCsvWriter(TEST_FILENAME, false);
+        writer.close();
 
-        utils = new MpCsvWriter(TEST_FILENAME, true);
+        writer = new MpCsvWriter(TEST_FILENAME, true);
         List<String> actual;
 
-        utils.write(EXPECTED_LINE_1);
-        utils.flush();
+        writer.write(EXPECTED_LINE_1);
+        writer.flush();
         actual = read();
         assertArrayEquals(EXPECTED_LINE_1.toArray(), actual.toArray());
     }
@@ -81,19 +85,19 @@ public class MpCsvWriterTest {
     @Test
     public void writeAndFlushTwoRowsWithFlushAfterFirst() throws IOException {
 
-        MpCsvWriter utils = new MpCsvWriter(TEST_FILENAME, false);
-        utils.close();
+        MpCsvWriter writer = new MpCsvWriter(TEST_FILENAME, false);
+        writer.close();
 
-        utils = new MpCsvWriter(TEST_FILENAME, true);
+        writer = new MpCsvWriter(TEST_FILENAME, true);
         List<String> actual;
 
-        utils.write(EXPECTED_LINE_1);
-        utils.flush();
+        writer.write(EXPECTED_LINE_1);
+        writer.flush();
         actual = read();
         assertArrayEquals(EXPECTED_LINE_1.toArray(), actual.toArray());
 
-        utils.write(EXPECTED_LINE_2);
-        utils.flush();
+        writer.write(EXPECTED_LINE_2);
+        writer.flush();
         List<List<String>> actualAll = readAll();
         assertEquals(EXPECTED_ALL.size(), actualAll.size());
         for (int i = 0; i < actualAll.size(); i++) {
@@ -106,30 +110,55 @@ public class MpCsvWriterTest {
 
         List<List<String>> actualAll;
 
-        MpCsvWriter utils = new MpCsvWriter(TEST_FILENAME, false);
-        utils.close();
+        MpCsvWriter writer = new MpCsvWriter(TEST_FILENAME, false);
+        writer.close();
 
-        utils = new MpCsvWriter(TEST_FILENAME, true);
+        writer = new MpCsvWriter(TEST_FILENAME, true);
         List<String> actual;
 
-        utils.write(EXPECTED_LINE_1);
+        writer.write(EXPECTED_LINE_1);
 
         // File doesn't get flushed until after it's closed.
         actualAll = readAll();
         assertEquals(0, actualAll.size());
 
-        utils.write(EXPECTED_LINE_2);
+        writer.write(EXPECTED_LINE_2);
 
         actualAll = readAll();
         assertEquals(0, actualAll.size());
 
-        utils.close();
+        writer.close();
         actualAll = readAll();
 
         assertEquals(EXPECTED_ALL.size(), actualAll.size());
         for (int i = 0; i < actualAll.size(); i++) {
             assertArrayEquals(EXPECTED_ALL.get(i).toArray(), actualAll.get(i).toArray());
         }
+    }
+
+    @Test
+    public void close() throws IOException {
+        assertTrue( ! Files.exists(Paths.get(TEST_FILENAME)));
+        MpCsvWriter writer = new MpCsvWriter(TEST_FILENAME, false);
+        String actualFqFilename = writer.getFqFilename();
+        writer.close();
+
+        assertNull(writer.getFqFilename());
+        try {
+            writer.write(EXPECTED_LINE_1);
+            fail("Expected Null Pointer Exception because file is closed.");
+        } catch (NullPointerException e) {;
+        }
+    }
+
+    @Test
+    public void getFqFilename() throws IOException {
+
+        assertTrue( ! Files.exists(Paths.get(TEST_FILENAME)));
+        MpCsvWriter writer = new MpCsvWriter(TEST_FILENAME, false);
+        String actualFqFilename = writer.getFqFilename();
+        writer.close();
+        assertTrue(actualFqFilename.startsWith(File.separator));
     }
 
 
