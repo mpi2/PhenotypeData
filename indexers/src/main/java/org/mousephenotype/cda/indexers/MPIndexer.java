@@ -101,14 +101,9 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     public static final boolean USE_LEGACY_MP_HP_OWL = false;
 
-    private Map<String, Set<String>> owlHpTermIdMap        = new HashMap<>();
-    private Map<String, Set<String>> owlHpTermNameMap      = new HashMap<>();
-    private Map<String, Set<String>> owlHpSynonymNameMap   = new HashMap<>();
-    private Map<String, Set<String>> owlMpNarrowSynonymMap = new HashMap<>();
-
     // Maps indexed by mpId containing mp-hp names
-    private Map<String, Set<String>> mpHpOwl = new HashMap<>();
-    private Map<String, Set<String>> mpHpImpc = new HashMap<>();
+    private final Map<String, Set<String>> mpHpOwl = new HashMap<>();
+    private final Map<String, Set<String>> mpHpImpc = new HashMap<>();
 
     // These csv writers write the files in CSVs below
     private class CsvWriters {
@@ -375,12 +370,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         // Get the data the Monarch new impc_search_index way
         final Set<String> impcHpTermNameCollection = mpHpTermsMap.get(mpIdFromSlim);
 
-        // TODO Test that this doesn't break mp by adding only names to .setHpTerm()
         if (USE_LEGACY_MP_HP_OWL) {
-//            mpDtoToAdd.setHpId(owlHpTermIds);                   // hp term ids
-//            mpDtoToAdd.setHpTerm(owlHpTermNames);               // hp term names
-//            mpDtoToAdd.setHpTermSynonym(owlHpSynonymNames);     // hp synonym names
-//            mpDtoToAdd.setMpNarrowSynonym(owlMpNarrowSynonyms); // mp-hp narrow synonym names
             mpDtoToAdd.setHpTerm(new ArrayList<>(owlHpTermNameCollection));
         } else {
             mpDtoToAdd.setHpTerm(new ArrayList<>(impcHpTermNameCollection));
