@@ -47,6 +47,7 @@ import uk.ac.ebi.phenotype.chart.AnalyticsChartProvider;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -358,12 +359,17 @@ public class ReleaseController {
 	}
 
 	@RequestMapping(value = "/release_notes/{releaseVersion}.html", method = RequestMethod.GET)
-	public String remapLegacyPastReleasesInformation(Model model, @PathVariable String releaseVersion) throws SQLException {
+	public String remapLegacyPastReleasesInformation(Model model, @PathVariable String releaseVersion,
+													 HttpServletRequest request) throws SQLException {
 		// Remap legacy request to new format
 		String tmp = releaseVersion.replace("IMPC_Release_Notes_", "");
 		tmp = tmp.replace(".html", "");
 		Double d = new CommonUtils().tryParseDouble(tmp);
-		return "redirect:/previous-releases/" + Double.toString(d);
+
+		String url =  "http:" + request.getAttribute("mappedHostname").toString()
+				+ request.getAttribute("baseUrl").toString()
+				+ "/previous-releases/" + Double.toString(d);
+		return "redirect:" + url;
 	}
 
 	@RequestMapping(value = "/previous-releases/{releaseVersion}", method = RequestMethod.GET)
