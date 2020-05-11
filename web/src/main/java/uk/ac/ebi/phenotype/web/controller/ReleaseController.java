@@ -357,18 +357,31 @@ public class ReleaseController {
 		return null;
 	}
 
+	@RequestMapping(value = "/release_notes/{releaseVersion}.html", method = RequestMethod.GET)
+	public String remapLegacyPastReleasesInformation(Model model, @PathVariable String releaseVersion) throws SQLException {
+		// Remap legacy request to new format
+		String tmp = releaseVersion.replace("IMPC_Release_Notes_", "");
+		tmp = tmp.replace(".html", "");
+		Double d = new CommonUtils().tryParseDouble(tmp);
+		return "redirect:/previous-releases/" + Double.toString(d);
+	}
+
 	@RequestMapping(value = "/previous-releases/{releaseVersion}", method = RequestMethod.GET)
 	public String getPastReleasesInformation(Model model, @PathVariable String releaseVersion) throws SQLException {
 
 		/**
 		 * Get all previous releases
 		 */
-		List<String> releases = metaHisoryRepository.getAllDataReleaseVersionsBeforeSpecified(releaseVersion);
+		List<String> previousReleases = metaHisoryRepository.getAllDataReleaseVersionsBeforeSpecified(releaseVersion);
+		List<String> allReleases = metaHisoryRepository.getAllDataReleaseVersionsCastDesc();
+		if (allReleases.contains(releaseVersion)) {
+			model.addAttribute(releaseVersion);
+			model.addAttribute("releases", previousReleases);
 
-		model.addAttribute(releaseVersion);
-		model.addAttribute("releases", releases);
+			return "previous_releases";
+		}
 
-		return "previous_releases";
+		throw new RuntimeException("Page not found");
 	}
 
 	@RequestMapping(value = "/page-retired", method = RequestMethod.GET)
