@@ -374,7 +374,8 @@ public class ReleaseController {
 		 */
 		List<String> previousReleases = metaHisoryRepository.getAllDataReleaseVersionsBeforeSpecified(releaseVersion);
 		List<String> allReleases = metaHisoryRepository.getAllDataReleaseVersionsCastDesc();
-		if (allReleases.contains(releaseVersion)) {
+		String currentRelease = allReleases.get(0);
+		if (( ! releaseVersion.equals(currentRelease)) && (allReleases.contains(releaseVersion))) {
 			model.addAttribute(releaseVersion);
 			model.addAttribute("releases", previousReleases);
 
