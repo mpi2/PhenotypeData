@@ -1,11 +1,9 @@
 package org.mousephenotype.cda.indexers.utils;
 
-import org.apache.commons.lang3.StringUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -17,17 +15,32 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {UtilsTestConfig.class})
-public class MpToHpTermsTest {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+public class IndexerMapTest {
 
     @Autowired
-    private   String owlpath;
+    private String owlpath;
+
+    final int EXPECTED_MIN_TERM_COUNT = 12900;
+    String mpHpCsvPath;
+
+    @Before
+    public void initialise() {
+        mpHpCsvPath = owlpath + "/" + IndexerMap.MP_HP_CSV_FILENAME;
+    }
+
+    @Test
+    public void getMpToHpTermsCacheing() throws IndexerException {
+
+        IndexerMap               indexerMap = new IndexerMap();
+        Map<String, Set<String>> termsMap   = indexerMap.getMpToHpTerms(mpHpCsvPath);
+
+        assertTrue(IndexerMap.mpToHpTermsMap != null);
+        assertTrue("Expected at least " + EXPECTED_MIN_TERM_COUNT + " but found " + termsMap.size(), termsMap.size() > EXPECTED_MIN_TERM_COUNT);
+    }
+
 
     @Test
     public void mpToHpTermsTest() throws IndexerException {
-
-        String mpHpCsvPath = owlpath + "/" + MpHpCsvReader.MP_HP_CSV_FILENAME;
 
         Map<String, Set<String>> terms = IndexerMap.getMpToHpTerms(mpHpCsvPath);
 
@@ -57,24 +70,5 @@ public class MpToHpTermsTest {
 
         assertTrue(terms.get("MP:0001560").contains("Abnormal circulating insulin level"));
         assertTrue(terms.get("MP:0001560").contains("Abnormal insulin level"));
-    }
-
-    @Test
-    public void printAllMappings() throws IndexerException {
-
-        String mpHpCsvPath = owlpath + "/" + MpHpCsvReader.MP_HP_CSV_FILENAME;
-
-        Map<String, Set<String>> terms = IndexerMap.getMpToHpTerms(mpHpCsvPath);
-        // Print mpIds with multiple hpterms.
-//        System.out.println();
-//        System.out.println("mpIds with multiple hpTerms are separated by :: (double colons).");
-//        System.out.println("There are " + terms.size() + " mpId -> hpTerm mappings:");
-//        terms
-//                .entrySet()
-//                .stream()
-//                .sorted(Map.Entry.comparingByKey())
-//                .forEach(x -> {
-//                    System.out.println(x.getKey() + ": " + StringUtils.join(x.getValue(), "::"));
-//                });
     }
 }

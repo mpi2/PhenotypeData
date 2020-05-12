@@ -19,7 +19,6 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
-import org.mousephenotype.cda.indexers.utils.MpHpCsvReader;
 import org.mousephenotype.cda.indexers.utils.SangerProcedureMapper;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
@@ -114,9 +113,9 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 				OntologyParserFactory ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
 				mpParser = ontologyParserFactory.getMpParser();
 				maParser = ontologyParserFactory.getMaParser();
-				mpHpTermsMap = IndexerMap.getMpToHpTerms(owlpath + "/" + MpHpCsvReader.MP_HP_CSV_FILENAME);
+				mpHpTermsMap = IndexerMap.getMpToHpTerms(owlpath + "/" + IndexerMap.MP_HP_CSV_FILENAME);
 				if ((mpHpTermsMap == null) || mpHpTermsMap.isEmpty()) {
-					throw new IndexerException("mp-hp error: Unable to open" + owlpath + "/" + MpHpCsvReader.MP_HP_CSV_FILENAME);
+					throw new IndexerException("mp-hp error: Unable to open" + owlpath + "/" + IndexerMap.MP_HP_CSV_FILENAME);
 				}
 
 			} catch (OWLOntologyCreationException | OWLOntologyStorageException e) {
@@ -357,8 +356,6 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 											}
 										}
 
-										// TODO - update this  comment.
-                                        // add mp-hp mapping using Monarch's mp-hp hybrid ontology
 										Set <String> hpTermNames = mpHpTermsMap.get(annotation.mp_id);
 										if (hpTermNames != null) {
 											associatedHpTerms.addAll(new ArrayList<>(hpTermNames));
