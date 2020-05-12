@@ -106,7 +106,9 @@ public class ExperimentsController {
             observationsMap.get(obs).setStatus(srResult.get(obs).getStatus());
             observationsMap.get(obs).setpValue(srResult.get(obs).getpValue());
             observationsMap.get(obs).setEvidenceLink(srResult.get(obs).getEvidenceLink());
-            observationsMap.get(obs).setPhenotypeTerm(gpResult.get(obs).getPhenotypeTerm());
+            if (gpResult.get(obs) != null) {
+                observationsMap.get(obs).setPhenotypeTerm(gpResult.get(obs).getPhenotypeTerm());
+            }
         }
 
         if(mpTermId != null && mpTermId.size() > 0) {
