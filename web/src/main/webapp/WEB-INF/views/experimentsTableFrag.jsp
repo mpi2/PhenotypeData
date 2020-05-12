@@ -60,10 +60,10 @@
                 Parameter
             </th>
             <th data-sortable="true" data-field="life_stage">Life stage</th>
-            <th data-sortable="true" data-field="status">Zygosity</th>
-            <th data-sortable="true" data-field="status">Significant</th>
+            <th data-sortable="true" data-field="zygosity">Zygosity</th>
+            <th data-sortable="true" data-field="significant">Significant</th>
             <th data-sortable="true" data-field="p_value" data-formatter="formatPvalue">P Value</th>
-            <th data-sortable="true" data-field="status">Phenotype</th>
+            <th data-sortable="true" data-field="phenotype_term">Phenotype</th>
         </tr>
         </thead>
     </table>

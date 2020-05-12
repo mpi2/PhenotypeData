@@ -38,7 +38,9 @@ import uk.ac.ebi.phenotype.chart.TimeSeriesChartAndTableProvider;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
@@ -53,19 +55,20 @@ import java.util.stream.Collectors;
 public class OverviewChartsController {
 
 
-	private GenotypePhenotypeService genotypePhenotypeService;
-	private ImpressUtils             impressUtils;
-	private ObservationService       observationService;
-	private ParameterRepository      parameterRepository;
-	private StatisticalResultService statisticalResultService;
+	private final GenotypePhenotypeService genotypePhenotypeService;
+	private final ImpressUtils             impressUtils;
+	private final ObservationService       observationService;
+	private final ParameterRepository      parameterRepository;
+	private final StatisticalResultService statisticalResultService;
 
 	@Inject
 	public OverviewChartsController(
-            GenotypePhenotypeService genotypePhenotypeService,
             ImpressUtils impressUtils,
             ObservationService observationService,
             ParameterRepository parameterRepository,
-            StatisticalResultService statisticalResultService)
+			@NotNull @Named("genotype-phenotype-service") GenotypePhenotypeService genotypePhenotypeService,
+			@NotNull @Named("statistical-result-service") StatisticalResultService statisticalResultService
+			)
 	{
 		this.genotypePhenotypeService = genotypePhenotypeService;
 		this.impressUtils = impressUtils;

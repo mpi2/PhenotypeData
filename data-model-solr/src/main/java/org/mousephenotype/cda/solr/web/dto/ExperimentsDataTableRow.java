@@ -1,19 +1,15 @@
 package org.mousephenotype.cda.solr.web.dto;
 
-import org.mousephenotype.cda.db.pojo.Experiment;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.CombinedObservationKey;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.MarkerBean;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.utilities.LifeStageMapper;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Objects;
 
 /**
- * @since 2016/03/01
- * @author ilinca
+ * This class represents a row in the experiments table
  *
  */
 public class ExperimentsDataTableRow extends DataTableRow{
@@ -24,6 +20,8 @@ public class ExperimentsDataTableRow extends DataTableRow{
 	Integer maleMutantCount;
 	Double effectSize;
 	String metadataGroup;
+	Boolean significant;
+
 
 	public ExperimentsDataTableRow() {
 
@@ -63,7 +61,6 @@ public class ExperimentsDataTableRow extends DataTableRow{
 	 * @param statisticalMethod
 	 * @param status
 	 * @param allele
-	 * @param sexes
 	 * @param zygosity
 	 * @param procedure
 	 * @param parameter
@@ -73,7 +70,7 @@ public class ExperimentsDataTableRow extends DataTableRow{
 	 * @param maleMutantCount
 	 * @throws UnsupportedEncodingException
 	 */
-	public ExperimentsDataTableRow(	String phenotypingCenter, String statisticalMethod, String status, MarkerBean allele,  MarkerBean gene, ZygosityType zygosity, ImpressBaseDTO pipeline, ImpressBaseDTO procedure, ImpressBaseDTO parameter, String graphBaseUrl, Double pValue, Integer femaleMutantCount, Integer maleMutantCount, Double effectSize, String metadataGroup) 
+	public ExperimentsDataTableRow(	String phenotypingCenter, String statisticalMethod, String status, MarkerBean allele,  MarkerBean gene, ZygosityType zygosity, ImpressBaseDTO pipeline, ImpressBaseDTO procedure, ImpressBaseDTO parameter, String graphBaseUrl, Double pValue, Integer femaleMutantCount, Integer maleMutantCount, Double effectSize, String metadataGroup)
 	throws UnsupportedEncodingException{
 		
 		this.statisticalMethod = statisticalMethod;
@@ -186,6 +183,14 @@ public class ExperimentsDataTableRow extends DataTableRow{
 
 	public void setMetadataGroup(String metadataGroup) {
 		this.metadataGroup = metadataGroup;
+	}
+
+	public Boolean getSignificant() {
+		return significant;
+	}
+
+	public void setSignificant(Boolean significant) {
+		this.significant = significant;
 	}
 
 	public CombinedObservationKey getCombinedKey() {

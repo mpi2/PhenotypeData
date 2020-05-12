@@ -33,13 +33,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
 
 /**
- * Pulled in 2015/07/09
- * @author tudose
+ * Service class to collect interactions with the experiment datasource.
+ * The experiment datasource holds information about the experimental observations
  *
  */
 
@@ -56,8 +57,8 @@ public class ExperimentService{
     @Inject
     public ExperimentService(
             ObservationService observationService,
-            StatisticalResultService statisticalResultService,
-            GenotypePhenotypeService genotypePhenotypeService)
+            @Named("statistical-result-service") StatisticalResultService statisticalResultService,
+            @Named("genotype-phenotype-service") GenotypePhenotypeService genotypePhenotypeService)
     {
         this.observationService = observationService;
         this.statisticalResultService = statisticalResultService;

@@ -5,78 +5,84 @@ import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Named;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
 /**
- * Class to handle the nagios web status monitoring pages
- *
- * @author jwarren
- *
+ * Monitor the various critical endpoints required by the portal.  If any of these are unresponsive
+ * the page will signal to that this app is unhealthy and any downstream consequences can occur (i.e., removal
+ * from loadbalancer, automatic restart, etc.)
  */
 @Controller
 public class WebStatusController {
 
     private final Logger logger = LoggerFactory.getLogger(WebStatusController.class);
 
-    public static final Integer TIMEOUT_INTERVAL = 2;
-
-    @Autowired
-    ObservationService observationService;
-
-    @Autowired
-    private GenotypePhenotypeService genotypePhenotypeService;
-
-    @Autowired
-    private StatisticalResultService statisticalResultService;
-
-    @Autowired
-    private AlleleService alleleService;
-
-    @Autowired
-    private ImagesSolrJ sangerImages;
-
-    @Autowired
-    ImageService impcImageService;
-
-    @Autowired
-    MpService mpService;
-
-    @Autowired
-    AnatomyService anatomyService;
-
-    @Autowired
-    ImpressService pipelineService;
-
-    @Autowired
-    private GeneService geneService;
-
-    @Autowired
-    PhenodigmService phenodigmService;
+    public static final Integer TIMEOUT_INTERVAL = 3;
 
     List<WebStatus> webStatusObjects;
 
+    private final ObservationService observationService;
+    private final GenotypePhenotypeService genotypePhenotypeService;
+    private final StatisticalResultService statisticalResultService;
+    private final AlleleService alleleService;
+    private final ImagesSolrJ sangerImages;
+    private final GeneService geneService;
+    private final ImageService impcImageService;
+    private final MpService mpService;
+//    private final AnatomyService anatomyService;
+    private final ImpressService pipelineService;
+    private final PhenodigmService phenodigmService;
+
     // imits solr services
 
-    @Autowired
-    Allele2Service allele2;
-
-    @Autowired
-    ProductService productService;
+    final Allele2Service allele2;
+    final ProductService productService;
 
     List<WebStatus> nonEssentialWebStatusObjects;
     private Model savedModel = null;
     private Integer cacheHit = 0;
     private Integer cacheMiss = 0;
+
+    public WebStatusController(
+            @NotNull @Named("genotype-phenotype-service") GenotypePhenotypeService genotypePhenotypeService,
+            @NotNull @Named("statistical-result-service") StatisticalResultService statisticalResultService,
+            ObservationService observationService,
+            ProductService productService,
+            AlleleService alleleService,
+            ImagesSolrJ sangerImages,
+            ImageService impcImageService,
+            MpService mpService,
+//            AnatomyService anatomyService,
+            ImpressService pipelineService,
+            GeneService geneService,
+            Allele2Service allele2,
+            PhenodigmService phenodigmService
+    ) {
+        this.statisticalResultService = statisticalResultService;
+        this.observationService = observationService;
+        this.productService = productService;
+        this.genotypePhenotypeService = genotypePhenotypeService;
+        this.alleleService = alleleService;
+        this.sangerImages = sangerImages;
+        this.impcImageService = impcImageService;
+        this.mpService = mpService;
+//        this.anatomyService = anatomyService;
+        this.pipelineService = pipelineService;
+        this.geneService = geneService;
+        this.allele2 = allele2;
+        this.phenodigmService = phenodigmService;
+    }
 
     @PostConstruct
     public void initialise() {
@@ -92,7 +98,7 @@ public class WebStatusController {
         webStatusObjects.add(sangerImages);
         webStatusObjects.add(impcImageService);
         webStatusObjects.add(mpService);
-        webStatusObjects.add(anatomyService);
+//        webStatusObjects.add(anatomyService);
         webStatusObjects.add(pipelineService);
         webStatusObjects.add(geneService);
         webStatusObjects.add(phenodigmService);
@@ -184,8 +190,8 @@ public class WebStatusController {
                 // number = status.getWebStatus();
 
                 // This block causes the method reference getWebStatus to be submitted to the executor
-                // And then "get"ted from the future.  If the request is not complete in 2 seconds (more than enough time)
-                // then timeout and throw an exception
+                // And then "get"ted from the future.  If the request is not complete in TIMEOUT_INTERVAL
+                // seconds (more than enough time) then timeout and throw an exception
                 Callable<Long> task = status::getWebStatus;
                 future = executor.submit(task);
                 number = future.get(TIMEOUT_INTERVAL, TimeUnit.SECONDS);
