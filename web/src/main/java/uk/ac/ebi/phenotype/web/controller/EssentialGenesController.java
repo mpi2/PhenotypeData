@@ -34,6 +34,7 @@ import uk.ac.ebi.phenotype.service.PharosService;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -57,7 +58,6 @@ public class EssentialGenesController {
     private final ExpressionService        expressionService;
     private final GeneService              geneService;
     private final StatisticalResultService statisticalResultService;
-    private final GenotypePhenotypeService genotypePhenotypeService;
     private final OrderService             orderService;
     private final ImpressService           impressService;
     private final WebDao                   phenoDigm2Dao;
@@ -71,7 +71,7 @@ public class EssentialGenesController {
     private PharosService pharosService;
 
     @Inject
-    public EssentialGenesController(PhenotypeCallSummarySolr phenotypeCallSummaryService, PhenotypeSummaryDAO phenSummary, ImagesSolrDao imagesSolrDao, ObservationService observationService, SolrIndex solrIndex, SolrIndex2 solrIndex2, WebDao phenoDigm2Dao, ImageService imageService, ExpressionService expressionService, RegisterInterestUtils riUtils, GeneService geneService, ImpressService impressService, GenotypePhenotypeService genotypePhenotypeService, OrderService orderService, StatisticalResultService statisticalResultService) {
+    public EssentialGenesController(PhenotypeCallSummarySolr phenotypeCallSummaryService, PhenotypeSummaryDAO phenSummary, ImagesSolrDao imagesSolrDao, ObservationService observationService, SolrIndex solrIndex, SolrIndex2 solrIndex2, WebDao phenoDigm2Dao, ImageService imageService, ExpressionService expressionService, RegisterInterestUtils riUtils, GeneService geneService, ImpressService impressService, OrderService orderService,  @Named("statistical-result-service") StatisticalResultService statisticalResultService) {
         this.phenotypeCallSummaryService = phenotypeCallSummaryService;
         this.phenSummary = phenSummary;
         this.imagesSolrDao = imagesSolrDao;
@@ -84,7 +84,6 @@ public class EssentialGenesController {
         this.riUtils = riUtils;
         this.geneService = geneService;
         this.impressService = impressService;
-        this.genotypePhenotypeService = genotypePhenotypeService;
         this.orderService = orderService;
         this.statisticalResultService = statisticalResultService;
     }

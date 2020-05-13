@@ -5,9 +5,9 @@
 
 <t:genericpage>
 
-    <jsp:attribute name="title">${gene.markerSymbol} - ${gene.markerName}</jsp:attribute>
+    <jsp:attribute name="title">Essential Genes</jsp:attribute>
     <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
-            href="${baseUrl}/search/gene?kw=*">Genes</a> &raquo; ${gene.markerSymbol}</jsp:attribute>
+            href="${baseUrl}/search/gene?kw=*">Essential Genes</a></jsp:attribute>
     <jsp:attribute name="bodyTag">
         <body class="page-template page-template-no-sidebar--large page-template-no-sidebar--large-php page page-id-3162 page-child parent-pageid-42">
     </jsp:attribute>
@@ -47,131 +47,7 @@
             var monarchUrl = '${monarchUrl}';
 
             $(document).ready(function () {
-                var heatmap_generated = 0;
-                var expressionTab = 0;
-                var hash = location.hash;
-                if (hash.indexOf("tabs-") > -1) {
-                    expressionTab = $('a[href="' + hash + '"]').parent().index();
-                    $("#section-expression").focus();
-                }
 
-                $("#exptabs").tabs({active: expressionTab});
-                $("#phenotabs").tabs({active: 0});
-                $("#phenotabs2").tabs({active: 0});
-                $("#tabs").tabs();
-
-                $('div#anatomo2').hide(); // by default
-                $('div#embryo2').hide(); // by default
-
-                $('.wtExp').hide();
-                $('div#toggleWt').click(function () {
-                    if ($('.wtExp').is(':visible')) {
-                        $('.wtExp').hide();
-                        $(this).text("Show Wildtype Expression");
-                    } else {
-                        $('.wtExp').show();
-                        $(this).text("Hide Wildtype Expression");
-                    }
-                });
-
-                $('div#anatogramToggle').change(function () {
-                    if ($('#anatomo1').is(':visible')) {
-                        $('#anatomo1').hide();
-                        $('#anatomo2').show();
-                        $(this).text("Show expression table");
-                    } else {
-                        $('#anatomo1').show();
-                        $('#anatomo2').hide();
-                        $(this).text("Hide expression table");
-                    }
-                });
-
-                $('input[name=options]').change(function () {
-                    var value = $('input[name=options]:checked').val();
-                    if (value === 'anatogram') {
-                        $('#anatomo1').hide();
-                        $('#anatomo2').show();
-                    } else {
-                        $('#anatomo2').hide();
-                        $('#anatomo1').show();
-                    }
-                });
-
-                $('input[name=optionsEmbryo]').change(function () {
-                    var value = $('input[name=optionsEmbryo]:checked').val();
-                    console.log('hi');
-                    if (value === 'table') {
-                        $('#embryo1').show();
-                        $('#embryo2').hide();
-                    } else {
-                        $('#embryo1').hide();
-                        $('#embryo2').show();
-                    }
-                });
-
-                // Enable CSRF processing for forms on this page
-                function loadCsRf() {
-                    var token = $("meta[name='_csrf']").attr("content");
-                    var header = $("meta[name='_csrf_header']").attr("content");
-                    console.log('_csrf:_csrf_header' + token + ':' + header);
-                    $(document).ajaxSend(function(e, xhr, options) {
-                        xhr.setRequestHeader(header, token);
-                    });
-                }
-                loadCsRf();
-
-                // Wire up the AJAX callbacks to the approprate forms
-                $('#follow-form').submit(function(event) {
-
-                    // Prevent the form from submitting when JS is enabled
-                    event.preventDefault();
-
-                    // Do asynch request to change the state of the follow flag for this gene
-                    // and update button appropriately on success
-                    $.ajax({
-                        type: "POST",
-                        url: "${baseUrl}/update-gene-registration?asynch=true",
-                        data: $(this).serialize(),
-                        success: function(data) {
-
-                            // Data is a map of gene accession id -> status
-                            // Status is either "Following" or "Not Following"
-
-                            switch(data["${acc}"]) {
-                                case "Following":
-                                    $('form#follow-form').find("button")
-                                        .attr('title', 'You are following ${gene.markerSymbol}. Click to stop following.')
-                                        .removeClass('btn-primary')
-                                        .addClass('btn-outline-secondary');
-
-                                    $('form#follow-form').find("span")
-                                        .text('Unfollow');
-
-                                    $('form#follow-form').find('i')
-                                        .removeClass('fa-user-plus')
-                                        .addClass('fa-user-minus');
-                                    break;
-
-                                case "Not Following":
-                                    $('form#follow-form').find("button")
-                                        .attr('title', 'Click to follow ${gene.markerSymbol}.')
-                                        .addClass('btn-primary')
-                                        .removeClass('btn-outline-secondary')
-
-                                    $('form#follow-form').find("span")
-                                        .text('Follow');
-
-                                    $('form#follow-form').find('i')
-                                        .removeClass('fa-user-minus')
-                                        .addClass('fa-user-plus');
-                                    break;
-                            }
-                        },
-                        error: function() {
-                            window.location = "${baseUrl}/rilogin?target=${baseUrl}/genes/${acc}";
-                        }
-                    });
-                });
             });
 
 
@@ -212,33 +88,73 @@
             <!-- End Google Tag Manager (noscript) -->
         </c:if>
 
-
         <div class="container data-heading">
             <div class="row">
 
+                <noscript>
+                    <div class="col-12 no-gutters">
+                        <h5 style="float: left">Please enable javascript if you want to log in to follow or stop
+                            following this gene.</h5>
+                    </div>
+                </noscript>
 
+                <div class="col-12 no-gutters">
+                    <h2 style="float: left" class="mb-0">Essential Genes</h2>
+                    <h2>
+                        <c:choose>
+                            <c:when test="${isFollowing}">
+                                <c:set var="followText" value="Unfollow"/>
+                                <c:set var="activeClass" value="btn-outline-secondary"/>
+                                <c:set var="activeIconClass" value="fa-user-minus"/>
+                            </c:when>
+                            <c:otherwise>
+                                <c:set var="followText" value="Follow"/>
+                                <c:set var="activeClass" value="btn-primary"/>
+                                <c:set var="activeIconClass" value="fa-user-plus"/>
+                            </c:otherwise>
+                        </c:choose>
+                        <c:choose>
+                            <c:when test="${isLoggedIn }">
+                                <form action="${baseUrl}/update-gene-registration" method="POST" id="follow-form">
+                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                                    <input type="hidden" name="geneAccessionId" value="${acc}" />
+                                    <input type="hidden" name="target" value="${baseUrl}/genes/${acc}" />
+                                    <button type="submit" style="float: right" class="btn ${activeClass}">
+                                        <i class="fas ${activeIconClass}"></i>
+                                        <span>${followText}</span>
+                                    </button>
+                                </form>
+                            </c:when>
+                            <c:otherwise>
+                                <a href="${baseUrl}/rilogin?target=${baseUrl}/genes/${acc}"
+                                   class="btn btn-primary"
+                                   style="float: right"
+                                   title="Log in to My genes">Log in to follow</a>
+                            </c:otherwise>
+                        </c:choose>
+                        <a href="${cmsBaseUrl}/help/gene-page/" target="_blank">
+                            <i class="fa fa-question-circle" style="float: right; color: #212529; padding-right: 10px;"></i></a>
+                    </h2>
+                </div>
             </div>
         </div>
-
         <div class="container white-bg-small">
             <div class="row pb-5">
                 <div class="col-12 col-md-12">
                     <div class="pre-content clear-bg">
                         <div class="page-content people py-5 white-bg">
-                           Page content here!
+                           <p> Identifying which genes are linked to a rare disease is one of the most difficult challenges geneticists face. By cross comparing viability and phenotyping data from knockout IMPC mice with human cell essential scores from the Cancer Dependency map, genes can be categorised on how essential they are for supporting life and the likelihood they are associated with de novo genetic disorders. In this portal, we present integrated views of viability data to help researchers explore the full genetic spectrum of essentiality and aid in their discovery of new human disease genes.  More in our blog post here.
+                           </p>
+                            <p>
+                                IMPC associated publications: Dickinson et al. Nature 2016 | Muñoz-Fuentes et al. Conservation Genetics Special Issue 2019 | Cacheiro et al. Nature Communications 2020
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="container" id="expression">
-            <div class="row pb-2">
-                <div class="col-12 col-md-12">
-                    <h3><i class="icon icon-conceptual icon-expression"></i>&nbsp;Expression</h3>
-                </div>
-            </div>
-        </div>
+
 
 
     </jsp:body>
