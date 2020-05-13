@@ -37,10 +37,7 @@ import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.dto.*;
-import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
-import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
-import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
-import org.mousephenotype.cda.solr.web.dto.PhenotypeTableRowAnatomyPage;
+import org.mousephenotype.cda.solr.web.dto.*;
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
@@ -50,14 +47,16 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -65,6 +64,8 @@ import java.util.stream.Collectors;
 
 import static java.util.Map.Entry.comparingByKey;
 
+@Service
+@Named("genotype-phenotype-service")
 public class GenotypePhenotypeService extends BasicService implements WebStatus {
 
     private final       Logger logger            = LoggerFactory.getLogger(this.getClass());
@@ -1847,6 +1848,51 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         return null;
     }
 
+
+
+    public Map<CombinedObservationKey, ExperimentsDataTableRow> getAllDataRecords(String geneAccession, List<String> procedureName , List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, String graphBaseUrl)
+            throws NumberFormatException, SolrServerException, IOException {
+
+        Map<CombinedObservationKey, ExperimentsDataTableRow> results = new HashMap<>();
+
+        SolrQuery query = buildQuery(geneAccession, procedureName,alleleSymbol, phenotypingCenter, pipelineName, procedureStableIds, resource, mpTermId, null, null, null, null, null, null, null, null);
+        List<GenotypePhenotypeDTO> solrResults = genotypePhenotypeCore.query(query).getBeans(GenotypePhenotypeDTO.class);
+
+        for (GenotypePhenotypeDTO dto : solrResults) {
+            ExperimentsDataTableRow row = getRowFromDto(dto, graphBaseUrl);
+            results.put(row.getCombinedKey(), row);
+        }
+
+        return results;
+
+    }
+
+    private ExperimentsDataTableRow getRowFromDto(GenotypePhenotypeDTO dto, String graphBaseUrl)
+            throws UnsupportedEncodingException {
+
+        MarkerBean allele = new MarkerBean();
+        allele.setAccessionId(dto.getAlleleAccessionId());
+        allele.setSymbol(dto.getAlleleSymbol());
+
+        MarkerBean gene = new MarkerBean();
+        gene.setAccessionId(dto.getMarkerAccessionId());
+        gene.setSymbol(dto.getMarkerSymbol());
+
+        ImpressBaseDTO procedure  = new ImpressBaseDTO(null, Long.parseLong(dto.getProcedureStableKey()), dto.getProcedureStableId(), dto.getProcedureName());
+        ImpressBaseDTO parameter = new ImpressBaseDTO(null, Long.parseLong(dto.getParameterStableKey()), dto.getParameterStableId(), dto.getParameterName());
+        ImpressBaseDTO pipeline = new ImpressBaseDTO(null,Long.parseLong( dto.getPipelineStableKey()), dto.getPipelineStableId(), dto.getPipelineName());
+
+        ZygosityType zygosity = dto.getZygosity() != null ? ZygosityType.valueOf(dto.getZygosity()) : ZygosityType.not_applicable;
+        ExperimentsDataTableRow row = new ExperimentsDataTableRow(dto.getPhenotypingCenter(), dto.getStatisticalMethod(),
+                "Success", allele, gene, zygosity,
+                pipeline, procedure, parameter, graphBaseUrl, dto.getP_value(), null,
+                null, dto.getEffectSize(), null);
+        row.setLifeStageName(dto.getLifeStageName());
+        row.setLifeStageAcc(dto.getLifeStageAcc());
+        row.setPhenotypeTerm(new BasicBean(dto.getMpTermId(), dto.getMpTermName()));
+        row.setSignificant(Boolean.TRUE);
+        return row;
+    }
 
     // IMPLEMENTATIONS
 

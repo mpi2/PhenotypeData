@@ -42,8 +42,10 @@ import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
@@ -81,18 +83,18 @@ public class ChartsController {
 
     @Inject
     public ChartsController(
-    		CategoricalChartAndTableProvider categoricalChartAndTableProvider,
-			TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider,
-			UnidimensionalChartAndTableProvider continousChartAndTableProvider,
-			ScatterChartAndTableProvider scatterChartAndTableProvider,
-			AbrChartAndTableProvider abrChartAndTableProvider,
-			ViabilityChartAndDataProvider viabilityChartAndDataProvider,
-			ExperimentService experimentService,
-			StatisticalResultService srService,
-			GeneService geneService,
-			ImpressService impressService,
-			ImageService imageService,
-			GenotypePhenotypeService gpService
+    		@NotNull CategoricalChartAndTableProvider categoricalChartAndTableProvider,
+			@NotNull TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider,
+			@NotNull UnidimensionalChartAndTableProvider continousChartAndTableProvider,
+			@NotNull ScatterChartAndTableProvider scatterChartAndTableProvider,
+			@NotNull AbrChartAndTableProvider abrChartAndTableProvider,
+			@NotNull ViabilityChartAndDataProvider viabilityChartAndDataProvider,
+			@NotNull ExperimentService experimentService,
+			@NotNull GeneService geneService,
+			@NotNull ImpressService impressService,
+			@NotNull ImageService imageService,
+			@NotNull @Named("statistical-result-service") StatisticalResultService srService,
+			@NotNull @Named("genotype-phenotype-service") GenotypePhenotypeService gpService
 	) {
         this.categoricalChartAndTableProvider = categoricalChartAndTableProvider;
         this.timeSeriesChartAndTableProvider = timeSeriesChartAndTableProvider;

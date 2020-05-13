@@ -7,7 +7,6 @@ import org.mousephenotype.cda.solr.service.dto.CountTableRow;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.service.embryoviewer.EmbryoViewerService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -24,6 +23,7 @@ import uk.ac.ebi.phenotype.chart.ScatterChartAndTableProvider;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.io.BufferedReader;
@@ -36,36 +36,34 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
- * Created by ilinca on 24/10/2016.
+ * LandingPage controller is the controller for all landing pages in the
+ * portal.  The
  */
 
 @Controller
 public class LandingPageController {
 
-    @NotNull
-    @Value("${impc_media_base_url}")
-    private String impcMediaBaseUrl;
-
-	private GeneService              geneService;
-	private GenotypePhenotypeService genotypePhenotypeService;
-	private ImageService             imageService;
-	private ImpressService           impressService;
-	private MpService                mpService;
-    private ObservationService       observationService;
-    private StatisticalResultService statisticalResultService;
-    private HistopathService histopathService;
-	private final EmbryoViewerService embryoViewerService;
+	private final GeneService              geneService;
+	private final GenotypePhenotypeService genotypePhenotypeService;
+	private final ImageService             imageService;
+	private final ImpressService           impressService;
+	private final MpService                mpService;
+    private final ObservationService       observationService;
+    private final StatisticalResultService statisticalResultService;
+    private final HistopathService         histopathService;
+	private final EmbryoViewerService      embryoViewerService;
 
     @Inject
     public LandingPageController(
 			@NotNull GeneService geneService,
-			@NotNull GenotypePhenotypeService genotypePhenotypeService,
 			@NotNull ImageService imageService,
 			@NotNull ImpressService impressService,
 			@NotNull MpService mpService,
     		@NotNull ObservationService observationService,
-			@NotNull StatisticalResultService statisticalResultService,
-			@NotNull HistopathService histopathService, @NotNull EmbryoViewerService embryoViewerService)
+			@NotNull @Named("genotype-phenotype-service") GenotypePhenotypeService genotypePhenotypeService,
+			@NotNull @Named("statistical-result-service") StatisticalResultService statisticalResultService,
+			@NotNull HistopathService histopathService,
+			@NotNull EmbryoViewerService embryoViewerService)
 	{
         this.geneService = geneService;
 		this.genotypePhenotypeService = genotypePhenotypeService;
@@ -120,58 +118,6 @@ public class LandingPageController {
 		model.addAttribute("rows", heatmapData.getRows());
 		return "histopathLandingPage";
 	}
-
-
-//	@RequestMapping("/biological-system")
-//	public String getAlleles(Model model, HttpServletRequest request) throws IOException {
-//
-//        String baseUrl = request.getAttribute("baseUrl").toString();
-//
-//        List<LandingPageDTO> bsPages = new ArrayList<>();
-//        LandingPageDTO cardiovascular = new LandingPageDTO();
-//
-//        cardiovascular.setTitle("Cardiovascular");
-//        cardiovascular.setImage(impcMediaBaseUrl + "/render_thumbnail/211474/400/");
-//        cardiovascular.setDescription("This page aims to present cardiovascular system related phenotypes lines which have been produced by IMPC.");
-//        cardiovascular.setLink("biological-system/cardiovascular");
-//        bsPages.add(cardiovascular);
-//
-//        // don't show deafness or vision pages on live until ready
-//        Boolean isLive= Boolean.valueOf((String) request.getAttribute("liveSite"));
-//        
-//            LandingPageDTO deafness = new LandingPageDTO();
-//            deafness.setTitle("Hearing");
-//            deafness.setImage(baseUrl + "/img/landing/deafnessIcon.png");
-//            deafness.setDescription("This page aims to relate deafnessnes to phenotypes which have been produced by IMPC.");
-//            deafness.setLink("biological-system/hearing");
-//            bsPages.add(deafness);
-//            if(!isLive){
-//	            LandingPageDTO vision = new LandingPageDTO();
-//	            vision.setTitle("Vision");
-//	            vision.setImage(baseUrl + "/img/landing/deafnessIcon.png");
-//	            vision.setDescription("This page aims to relate vision to phenotypes which have been produced by IMPC.");
-//	            vision.setLink("biological-system/vision");
-//	            bsPages.add(vision);
-//	            
-//	            LandingPageDTO metabolism = new LandingPageDTO();
-//	            metabolism.setTitle("Metabolism");
-//	            metabolism.setImage(baseUrl + "/img/landing/deafnessIcon.png");
-//	            metabolism.setDescription("This page aims to relate metabolism to phenotypes which have been produced by IMPC.");
-//	            metabolism.setLink("biological-system/metabolism");
-//	            bsPages.add(metabolism);
-//	            
-//	            LandingPageDTO cmg = new LandingPageDTO();
-//	            cmg.setTitle("Center for Mendelian Genomics ");
-//	            cmg.setImage(baseUrl + "/img/landing/cmg-logo_1.png");
-//	            cmg.setDescription("This page aims to relate CMG mouse lines to phenotypes which have been produced by IMPC.");
-//	            cmg.setLink("biological-system/cmg");
-//	            bsPages.add(cmg);
-//            }
-//
-//        model.addAttribute("pages", bsPages);
-//
-//        return "landing";
-//	}
 
     @RequestMapping(value = "/embryo", method = RequestMethod.GET)
     public String loadEmbryoPage(Model model, HttpServletRequest request, RedirectAttributes attributes)

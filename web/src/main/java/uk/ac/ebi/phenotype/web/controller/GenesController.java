@@ -60,6 +60,7 @@ import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -86,7 +87,6 @@ public class GenesController {
     private final ExpressionService        expressionService;
     private final GeneService              geneService;
     private final StatisticalResultService statisticalResultService;
-    private final GenotypePhenotypeService genotypePhenotypeService;
     private final OrderService             orderService;
     private final ImpressService           impressService;
     private final WebDao                   phenoDigm2Dao;
@@ -100,7 +100,20 @@ public class GenesController {
     private PharosService pharosService;
 
     @Inject
-    public GenesController(PhenotypeCallSummarySolr phenotypeCallSummaryService, PhenotypeSummaryDAO phenSummary, ImagesSolrDao imagesSolrDao, ObservationService observationService, SolrIndex solrIndex, SolrIndex2 solrIndex2, WebDao phenoDigm2Dao, ImageService imageService, ExpressionService expressionService, RegisterInterestUtils riUtils, GeneService geneService, ImpressService impressService, GenotypePhenotypeService genotypePhenotypeService, OrderService orderService, StatisticalResultService statisticalResultService) {
+    public GenesController(PhenotypeCallSummarySolr phenotypeCallSummaryService,
+                           PhenotypeSummaryDAO phenSummary,
+                           ImagesSolrDao imagesSolrDao,
+                           ObservationService observationService,
+                           SolrIndex solrIndex,
+                           SolrIndex2 solrIndex2,
+                           WebDao phenoDigm2Dao,
+                           ImageService imageService,
+                           ExpressionService expressionService,
+                           RegisterInterestUtils riUtils,
+                           GeneService geneService,
+                           ImpressService impressService,
+                           OrderService orderService,
+                           @Named("statistical-result-service") StatisticalResultService statisticalResultService) {
         this.phenotypeCallSummaryService = phenotypeCallSummaryService;
         this.phenSummary = phenSummary;
         this.imagesSolrDao = imagesSolrDao;
@@ -113,7 +126,6 @@ public class GenesController {
         this.riUtils = riUtils;
         this.geneService = geneService;
         this.impressService = impressService;
-        this.genotypePhenotypeService = genotypePhenotypeService;
         this.orderService = orderService;
         this.statisticalResultService = statisticalResultService;
     }

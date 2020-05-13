@@ -9,8 +9,7 @@ import javax.validation.constraints.NotNull;
 
 @Data
 public class CombinedObservationKey {
-    @NotNull
-    final String alleleSymbol;
+    @NotNull final String alleleSymbol;
     @NotNull final String alleleAccessionId;
     @NotNull final String geneSymbol;
     @NotNull final String geneAccession;

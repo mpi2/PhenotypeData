@@ -47,6 +47,7 @@ import uk.ac.ebi.phenotype.chart.AnalyticsChartProvider;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -357,18 +358,37 @@ public class ReleaseController {
 		return null;
 	}
 
+	@RequestMapping(value = "/release_notes/{releaseVersion}.html", method = RequestMethod.GET)
+	public String remapLegacyPastReleasesInformation(Model model, @PathVariable String releaseVersion,
+													 HttpServletRequest request) throws SQLException {
+		// Remap legacy request to new format
+		String tmp = releaseVersion.replace("IMPC_Release_Notes_", "");
+		tmp = tmp.replace(".html", "");
+		Double d = new CommonUtils().tryParseDouble(tmp);
+
+		String url =  "http:" + request.getAttribute("mappedHostname").toString()
+				+ request.getAttribute("baseUrl").toString()
+				+ "/previous-releases/" + Double.toString(d);
+		return "redirect:" + url;
+	}
+
 	@RequestMapping(value = "/previous-releases/{releaseVersion}", method = RequestMethod.GET)
 	public String getPastReleasesInformation(Model model, @PathVariable String releaseVersion) throws SQLException {
 
 		/**
 		 * Get all previous releases
 		 */
-		List<String> releases = metaHisoryRepository.getAllDataReleaseVersionsBeforeSpecified(releaseVersion);
+		List<String> previousReleases = metaHisoryRepository.getAllDataReleaseVersionsBeforeSpecified(releaseVersion);
+		List<String> allReleases = metaHisoryRepository.getAllDataReleaseVersionsCastDesc();
+		String currentRelease = allReleases.get(0);
+		if (( ! releaseVersion.equals(currentRelease)) && (allReleases.contains(releaseVersion))) {
+			model.addAttribute(releaseVersion);
+			model.addAttribute("releases", previousReleases);
 
-		model.addAttribute(releaseVersion);
-		model.addAttribute("releases", releases);
+			return "previous_releases";
+		}
 
-		return "previous_releases";
+		throw new RuntimeException("Page not found");
 	}
 
 	@RequestMapping(value = "/page-retired", method = RequestMethod.GET)
