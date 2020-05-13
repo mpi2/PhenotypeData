@@ -50,6 +50,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -62,6 +63,7 @@ import java.util.stream.Stream;
 
 
 @Service
+@Named("statistical-result-service")
 public class StatisticalResultService extends GenotypePhenotypeService implements WebStatus {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -1068,21 +1070,8 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
 	}
 
-
-	public long getPvaluesByAlleleAndPhenotypingCenterAndPipelineCount(String geneAccession, List<String> procedureName ,List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, String graphBaseUrl)
-			throws NumberFormatException, SolrServerException, IOException, UnsupportedEncodingException {
-
-		Map<String, List<ExperimentsDataTableRow>> results = new HashMap<>();
-
-		SolrQuery query = buildQuery(geneAccession, procedureName,alleleSymbol, phenotypingCenter, pipelineName, procedureStableIds, resource, mpTermId, null, null, null, null, null, null, null, null);
-		query.setRows(0);
-		long solrResults = statisticalResultCore.query(query).getResults().getNumFound();
-
-		return solrResults;
-	}
-
 	public Map<CombinedObservationKey, ExperimentsDataTableRow> getAllDataRecords(String geneAccession, List<String> procedureName ,List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, String graphBaseUrl)
-			throws NumberFormatException, SolrServerException, IOException, UnsupportedEncodingException {
+			throws NumberFormatException, SolrServerException, IOException {
 
 		Map<CombinedObservationKey, ExperimentsDataTableRow> results = new HashMap<>();
 
@@ -1098,15 +1087,6 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
 	}
 
-
-	/**
-	 * @author ilinca
-	 * @since 2016/03/01
-	 * @param dto
-	 * @param graphBaseUrl
-	 * @return
-	 * @throws UnsupportedEncodingException
-	 */
 	private ExperimentsDataTableRow getRowFromDto(StatisticalResultDTO dto, String graphBaseUrl)
 			throws UnsupportedEncodingException{
 
@@ -1128,8 +1108,8 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 				dto.getMaleMutantCount(), dto.getEffectSize(), dto.getMetadataGroup());
 		row.setLifeStageName(dto.getLifeStageName());
 		row.setLifeStageAcc(dto.getLifeStageAcc());
+		row.setSignificant(dto.getSignificant());
 		return row;
-
 	}
 
 

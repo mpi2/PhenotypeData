@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.1.8.RELEASE</version>
+        <version>2.2.6.RELEASE</version>
         <relativePath />
         <!-- lookup parent from repository -->
     </parent>
@@ -73,6 +73,12 @@
             <dependency>
                 <groupId>org.mousephenotype.cda</groupId>
                 <artifactId>web</artifactId>
+                <version>${phenotypedata.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mousephenotype.cda</groupId>
+                <artifactId>api</artifactId>
                 <version>${phenotypedata.version}</version>
             </dependency>
 
@@ -144,6 +150,12 @@
             </dependency>
 
             <dependency>
+                <groupId>com.opencsv</groupId>
+                <artifactId>opencsv</artifactId>
+                <version>4.6</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.mousephenotype.dcc.exportlibrary.datastructure</groupId>
                 <artifactId>exportlibrary.datastructure</artifactId>
                 <version>3.8.4</version>
@@ -191,6 +203,12 @@
                 <artifactId>hibernate-validator</artifactId>
                 <version>6.0.17.Final</version>
             </dependency>
+
+            <dependency>
+            <groupId>org.springframework.hateoas</groupId>
+            <artifactId>spring-hateoas</artifactId>
+            <version>1.0.5.RELEASE</version>
+        </dependency>
 
         </dependencies>
     </dependencyManagement>

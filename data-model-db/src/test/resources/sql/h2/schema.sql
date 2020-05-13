@@ -1278,7 +1278,16 @@ CREATE TABLE stat_result_phenotype_call_summary (
 --
 -- Discrete statistical result schema
 --
+-- Drop these dependent tables first:
+DROP TABLE IF EXISTS statistical_result_phenotype_call_summary;
+DROP TABLE IF EXISTS statistical_result_additional;
+DROP TABLE IF EXISTS statistical_result_phenstat;
+DROP TABLE IF EXISTS statistical_result_fisher_exact;
+DROP TABLE IF EXISTS statistical_result_manual;
+
+-- Now drop statistical_result:
 DROP TABLE IF EXISTS statistical_result;
+
 CREATE TABLE statistical_result (
 	id                               INT(10) NOT NULL AUTO_INCREMENT,
 	control_id                       INT(10),
@@ -1327,7 +1336,6 @@ CREATE TABLE statistical_result (
 );
 
 
-DROP TABLE IF EXISTS statistical_result_phenotype_call_summary;
 CREATE TABLE statistical_result_phenotype_call_summary (
 	phenotype_call_summary_id INT(10) NOT NULL,
 	result_id                 INT(10),
@@ -1338,7 +1346,6 @@ CREATE TABLE statistical_result_phenotype_call_summary (
 );
 
 
-DROP TABLE IF EXISTS statistical_result_additional;
 CREATE TABLE statistical_result_additional (
 	id                         INT(10) NOT NULL,
 	raw_output                 MEDIUMTEXT,
@@ -1350,7 +1357,6 @@ CREATE TABLE statistical_result_additional (
 );
 
 
-DROP TABLE IF EXISTS statistical_result_phenstat;
 CREATE TABLE statistical_result_phenstat (
 	id                               INT(10) NOT NULL,
 	batch_significance               BOOLEAN,
@@ -1389,7 +1395,6 @@ CREATE TABLE statistical_result_phenstat (
 );
 
 
-DROP TABLE IF EXISTS statistical_result_fisher_exact;
 CREATE TABLE statistical_result_fisher_exact (
 	id         INT(10) NOT NULL,
 	category_a TEXT,
@@ -1401,7 +1406,6 @@ CREATE TABLE statistical_result_fisher_exact (
 );
 
 
-DROP TABLE IF EXISTS statistical_result_manual;
 CREATE TABLE statistical_result_manual (
 	id     INT(10) NOT NULL,
 	method VARCHAR(200),

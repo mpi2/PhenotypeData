@@ -1723,25 +1723,27 @@ public class ObservationService extends BasicService implements WebStatus {
 
         Set<String> geneAccessionIds = new HashSet<>();
 
-        for( String resource : resources) {
+        if (resources != null) {
+            for (String resource : resources) {
 
-            SolrQuery solrQuery = new SolrQuery();
-            solrQuery.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + resource);
+                SolrQuery solrQuery = new SolrQuery();
+                solrQuery.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + resource);
 
-            if (experimentalOnly) {
-                solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + BiologicalSampleType.experimental);
+                if (experimentalOnly) {
+                    solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + BiologicalSampleType.experimental);
+                }
+
+                solrQuery.addField(ObservationDTO.GENE_ACCESSION_ID);
+                solrQuery.setRows(Integer.MAX_VALUE);
+                solrQuery.add("group", "true")
+                        .add("group.field", ObservationDTO.GENE_ACCESSION_ID)
+                        .add("group.limit", Integer.toString(1))
+                        .add("group.main", "true");
+
+                logger.info("associated gene accession id solr query: " + solrQuery);
+                geneAccessionIds.addAll(experimentCore.query(solrQuery).getBeans(ObservationDTO.class).stream().map(ObservationDTOBase::getGeneAccession).collect(Collectors.toSet()));
+
             }
-
-            solrQuery.addField(ObservationDTO.GENE_ACCESSION_ID);
-            solrQuery.setRows(Integer.MAX_VALUE);
-            solrQuery.add("group", "true")
-                    .add("group.field", ObservationDTO.GENE_ACCESSION_ID)
-                    .add("group.limit", Integer.toString(1))
-            .add("group.main", "true");
-
-            logger.info("associated gene accession id solr query: " + solrQuery);
-            geneAccessionIds.addAll(experimentCore.query(solrQuery).getBeans(ObservationDTO.class).stream().map(ObservationDTOBase::getGeneAccession).collect(Collectors.toSet()));
-
         }
 
         return geneAccessionIds;

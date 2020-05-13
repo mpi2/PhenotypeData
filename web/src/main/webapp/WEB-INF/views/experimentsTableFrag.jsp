@@ -59,10 +59,11 @@
                 data-formatter="formatProcedureParameter">Procedure /
                 Parameter
             </th>
-            <th data-formatter="formatMutants">Mutants</th>
             <th data-sortable="true" data-field="life_stage">Life stage</th>
+            <th data-sortable="true" data-field="zygosity">Zygosity</th>
+            <th data-sortable="true" data-field="significant">Significant</th>
             <th data-sortable="true" data-field="p_value" data-formatter="formatPvalue">P Value</th>
-            <th data-sortable="true" data-field="status">Status</th>
+            <th data-sortable="true" data-field="phenotype_term">Phenotype</th>
         </tr>
         </thead>
     </table>

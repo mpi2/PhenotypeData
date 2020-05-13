@@ -107,8 +107,8 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
             initialiseSupportingBeans();
 
-            Set<String> maIds = maParser.getTermsInSlim();
-            Set<String> emapaIds = emapaParser.getTermsInSlim();
+            Set<String> maIds = maParser.getTermIdsInSlim();
+            Set<String> emapaIds = emapaParser.getTermIdsInSlim();
 
             // Add all ma terms to the index.
             for (String maId : maIds ) {

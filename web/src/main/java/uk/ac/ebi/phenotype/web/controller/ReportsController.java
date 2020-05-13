@@ -20,46 +20,48 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.OntologyBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import uk.ac.ebi.phenotype.chart.PieChartCreator;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
 
 
 /**
- * @author tudose
- * @since Feb 2015
+ * Controller to house the endpoints related to the reports that are generated
+ * each data release highlighting / assembling various aspects of the data.
  */
 
 @Controller
 public class ReportsController {
 
-	@Autowired
-	private GenotypePhenotypeService genotypePhenotypeService;
+	private final GenotypePhenotypeService genotypePhenotypeService;
+	private final MpService mpService;
 
-	@Autowired
-	private MpService mpService;
+	@Inject
+	public ReportsController(
+			@NotNull @Named("genotype-phenotype-service") GenotypePhenotypeService genotypePhenotypeService,
+			@NotNull MpService mpService) {
+		this.genotypePhenotypeService = genotypePhenotypeService;
+		this.mpService = mpService;
+	}
 
-	
+
 	@RequestMapping(value = "/reports", method = RequestMethod.GET)
-	public String defaultAction(HttpSession session, HttpServletRequest request, HttpServletResponse response) 
-	throws IOException {
-
+	public String defaultAction() {
 		return "reports";
 	}
 
 
 	@RequestMapping(value = "/reports/ebidcc", method = RequestMethod.GET)
-	public String ebiDccReport(HttpSession session, HttpServletRequest request, HttpServletResponse response, Model model) 
+	public String ebiDccReport(Model model)
 	throws IOException, URISyntaxException, SolrServerException {
 		
 		int exact = 0;

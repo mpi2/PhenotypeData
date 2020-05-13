@@ -34,7 +34,6 @@ import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 import org.mousephenotype.cda.solr.web.dto.PhenotypePageTableRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -49,8 +48,11 @@ import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
@@ -68,50 +70,42 @@ public class PhenotypesController {
     private final Logger log = LoggerFactory.getLogger(PhenotypesController.class);
     private static final int numberOfImagesToDisplay = 5;
 
-    @Autowired
-    private PhenotypeCallSummarySolr phenotypeSummaryHelper;
-    
-    @Autowired
-    private ImagesSolrDao imagesSummaryHelper;
-    
-    @Autowired
-    StatisticalResultService statisticalResultService;
-
-    @Autowired
-    GenotypePhenotypeService genotypePhenotypeService;
-
-    @Autowired
-    MpService mpService;
-
-    @Autowired
-    ObservationService observationService;
-
-    @Autowired
-    ImpressService impressService;
-
-    @Autowired
-    ImageService imageService;
+    private final PhenotypeCallSummarySolr phenotypeSummaryHelper;
+    private final ImagesSolrDao imagesSummaryHelper;
+    private final StatisticalResultService statisticalResultService;
+    private final GenotypePhenotypeService genotypePhenotypeService;
+    private final MpService mpService;
+    private final ImpressService impressService;
+    private final ImageService imageService;
 
     @Resource(name = "globalConfiguration")
     Map<String, String> config;
 
     private String cmsBaseUrl;
 
+    @Inject
+    public PhenotypesController(
+            PhenotypeCallSummarySolr phenotypeSummaryHelper,
+            ImagesSolrDao imagesSummaryHelper,
+            @NotNull @Named("genotype-phenotype-service") GenotypePhenotypeService genotypePhenotypeService,
+            @NotNull @Named("statistical-result-service") StatisticalResultService statisticalResultService,
+            MpService mpService,
+            ImpressService impressService,
+            ImageService imageService) {
+        this.phenotypeSummaryHelper = phenotypeSummaryHelper;
+        this.imagesSummaryHelper = imagesSummaryHelper;
+        this.statisticalResultService = statisticalResultService;
+        this.genotypePhenotypeService = genotypePhenotypeService;
+        this.mpService = mpService;
+        this.impressService = impressService;
+        this.imageService = imageService;
+    }
+
     @PostConstruct
     private void postConstruct() {
         cmsBaseUrl = config.get("cmsBaseUrl");
     }
     
-    /**
-     * Convenience method for developing the new buf zoo style - delete when style done JW
-     * @return
-     */
-    @RequestMapping(value="/phenotypes/index", method = RequestMethod.GET)
-    public String loadIndex() {
-    	System.out.println("inde page loading");
-    	return "index";
-    }
-
     /**
      * Phenotype controller loads information required for displaying the
      * phenotype page or, in the case of an error, redirects to the error page
@@ -120,7 +114,6 @@ public class PhenotypesController {
      * display
      * @param model the data model
      * @param request the <code>HttpServletRequest</code> request instance
-     * @param attributes redirect attributes
      * @return the name of the view to render, or redirect to search page on
      * error
      * @throws OntologyTermNotFoundException
@@ -131,8 +124,11 @@ public class PhenotypesController {
      *
      */
     @RequestMapping(value = "/phenotypes/{phenotypeId}", method = RequestMethod.GET)
-    public String loadMpPage(   @PathVariable String phenotypeId,  Model model, HttpServletRequest request, RedirectAttributes attributes)
-    throws IOException, URISyntaxException, SolrServerException, JSONException {
+    public String loadMpPage(
+            @PathVariable String phenotypeId,
+            Model model,
+            HttpServletRequest request
+    ) throws IOException, URISyntaxException, SolrServerException, JSONException {
     	
     	// Check whether the MP term exists
     	MpDTO mpTerm = mpService.getPhenotype(phenotypeId);
@@ -215,7 +211,7 @@ public class PhenotypesController {
     	
         Map<String, Map<String, Integer>> sortPhenFacets = phenFacets;
         for (String key : phenFacets.keySet()) {
-            sortPhenFacets.put(key, new TreeMap<String, Integer>(phenFacets.get(key)));
+            sortPhenFacets.put(key, new TreeMap<>(phenFacets.get(key)));
         }
         return sortPhenFacets;
     }

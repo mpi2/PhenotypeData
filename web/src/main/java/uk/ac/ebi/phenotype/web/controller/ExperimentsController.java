@@ -15,21 +15,21 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.CombinedObservationKey;
-import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.web.dto.AllelePageDTO;
 import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,8 +40,10 @@ import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
@@ -54,19 +56,21 @@ import java.util.stream.Collectors;
 public class ExperimentsController {
 
 
-    @Autowired
-    SolrIndex solrIndex;
-
-    @Autowired
-    private StatisticalResultService srService;
-
-    @Autowired
-    private MpService mpService;
-
-    @Autowired
-    private ObservationService observationService;
-
+    private final GenotypePhenotypeService gpService;
+    private final StatisticalResultService srService;
+    private final MpService mpService;
+    private final ObservationService observationService;
     private PhenomeChartProvider phenomeChartProvider = new PhenomeChartProvider();
+
+    public ExperimentsController(@NotNull @Named("genotype-phenotype-service") GenotypePhenotypeService gpService,
+                                 @NotNull @Named("statistical-result-service") StatisticalResultService srService,
+                                 @NotNull MpService mpService,
+                                 @NotNull ObservationService observationService) {
+        this.gpService = gpService;
+        this.srService = srService;
+        this.mpService = mpService;
+        this.observationService = observationService;
+    }
 
     /**
      * Runs when the request missing an accession ID. This redirects to the
@@ -94,6 +98,7 @@ public class ExperimentsController {
         Set<ExperimentsDataTableRow> experimentRowsFromObservations = observationService.getAllPhenotypesFromObservationsByGeneAccession(geneAccession);
 
         Map<CombinedObservationKey, ExperimentsDataTableRow> srResult = srService.getAllDataRecords(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl);
+        Map<CombinedObservationKey, ExperimentsDataTableRow> gpResult = gpService.getAllDataRecords(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl);
         Map<CombinedObservationKey, ExperimentsDataTableRow> observationsMap = experimentRowsFromObservations.stream().collect(Collectors.toMap(ExperimentsDataTableRow::getCombinedKey, row -> row));
         Set<CombinedObservationKey> intersection = observationsMap.keySet();
         intersection.retainAll(srResult.keySet());
@@ -101,6 +106,9 @@ public class ExperimentsController {
             observationsMap.get(obs).setStatus(srResult.get(obs).getStatus());
             observationsMap.get(obs).setpValue(srResult.get(obs).getpValue());
             observationsMap.get(obs).setEvidenceLink(srResult.get(obs).getEvidenceLink());
+            if (gpResult.get(obs) != null) {
+                observationsMap.get(obs).setPhenotypeTerm(gpResult.get(obs).getPhenotypeTerm());
+            }
         }
 
         if(mpTermId != null && mpTermId.size() > 0) {
@@ -114,6 +122,28 @@ public class ExperimentsController {
             JSONObject experimentRowJson = new JSONObject();
             try {
                 String phenotypeTermName =  experimentsDataTableRow.getPhenotypeTerm() != null ?  experimentsDataTableRow.getPhenotypeTerm().getName() : null;
+
+                final Optional<ExperimentsDataTableRow> obj = srResult.values().stream().filter(x -> x == experimentsDataTableRow).findFirst();
+                Boolean srSignificant = null;
+                if (obj.isPresent()) {
+                    final ExperimentsDataTableRow row = obj.get();
+                    srSignificant = row.getSignificant();
+                }
+
+                // Significant, Not significant, Unable to process, Supplied
+                String significant = "N/A";
+                if (experimentsDataTableRow.getStatisticalMethod() != null && experimentsDataTableRow.getStatisticalMethod().toLowerCase().contains("failed")) {
+                    significant = "Unable to process";
+                } else if (experimentsDataTableRow.getStatisticalMethod() != null && experimentsDataTableRow.getStatisticalMethod().toLowerCase().contains("supplied")) {
+                    significant = "Supplied";
+                } else if (experimentsDataTableRow.getStatus()!= null && experimentsDataTableRow.getStatus().toLowerCase().contains("not tested (no variation)")) {
+                    significant = "Not significant";
+                } else if (StringUtils.isNotEmpty(phenotypeTermName)) {
+                        significant = "Significant";
+                } else if (experimentsDataTableRow.getStatus()!= null && experimentsDataTableRow.getStatus().equals("Success")) {
+                    significant = "Not significant";
+                }
+
                 experimentRowJson.put(ObservationDTO.ALLELE_SYMBOL, experimentsDataTableRow.getAllele().getSymbol());
                 experimentRowJson.put(ObservationDTO.ALLELE_ACCESSION_ID, experimentsDataTableRow.getAllele().getAccessionId());
                 experimentRowJson.put(ObservationDTO.GENE_ACCESSION_ID, experimentsDataTableRow.getGene().getAccessionId());
@@ -123,6 +153,7 @@ public class ExperimentsController {
                 experimentRowJson.put(ObservationDTO.PARAMETER_STABLE_ID, experimentsDataTableRow.getParameter().getStableId());
                 experimentRowJson.put(ObservationDTO.PARAMETER_NAME, experimentsDataTableRow.getParameter().getName());
                 experimentRowJson.put(ObservationDTO.ZYGOSITY, experimentsDataTableRow.getZygosity().getShortName());
+                experimentRowJson.put(StatisticalResultDTO.SIGNIFICANT, significant);
                 experimentRowJson.put("phenotype_term", phenotypeTermName);
                 experimentRowJson.put("female_mutants", experimentsDataTableRow.getFemaleMutantCount());
                 experimentRowJson.put("male_mutants", experimentsDataTableRow.getMaleMutantCount());

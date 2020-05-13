@@ -25,10 +25,16 @@ import java.util.List;
 
 public interface MetaHistoryRepository extends CrudRepository<MetaHistory, Long> {
 
-    String getAllDataReleaseVersionQuery =
+    String getAllDataReleaseVersionsCastAscQuery =
             "SELECT DISTINCT new java.lang.String(dataReleaseVersion) FROM MetaHistory ORDER BY CAST(dataReleaseVersion as float) ASC";
-    @Query(value = getAllDataReleaseVersionQuery)
+    @Query(value = getAllDataReleaseVersionsCastAscQuery)
     <T> List<T> getAllDataReleaseVersionsCastAsc();
+
+
+    String getAllDataReleaseVersionsCastDescQuery =
+            "SELECT DISTINCT new java.lang.String(dataReleaseVersion) FROM MetaHistory ORDER BY CAST(dataReleaseVersion as float) DESC";
+    @Query(value = getAllDataReleaseVersionsCastDescQuery)
+    <T> List<T> getAllDataReleaseVersionsCastDesc();
 
 
     String getAllDataReleaseVersionsLessThanSpecifiedQuery =

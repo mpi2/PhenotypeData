@@ -18,70 +18,60 @@ package uk.ac.ebi.phenotype.web.controller;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
-import org.mousephenotype.cda.solr.service.StatisticalResultService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.phenotype.chart.ColorCodingPalette;
 import uk.ac.ebi.phenotype.chart.Constants;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import javax.inject.Named;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Map;
 
 
 @Controller
 public class PhenomeStatsController {
 
-	@NotNull @Autowired
-	GenotypePhenotypeService genotypePhenotypeService;
+    private final GenotypePhenotypeService genotypePhenotypeService;
+    private final PhenomeChartProvider phenomeChartProvider = new PhenomeChartProvider();
 
-	@NotNull @Autowired
-	StatisticalResultService srService;
+    public PhenomeStatsController(
+            @NotNull @Named("genotype-phenotype-service") GenotypePhenotypeService genotypePhenotypeService
+    ) {
+        this.genotypePhenotypeService = genotypePhenotypeService;
+    }
 
-	@Resource(name="globalConfiguration")
-	private Map<String, String> config;
+    @RequestMapping(value = "/phenome", method = RequestMethod.GET)
+    public String getGraph(
+            @RequestParam(required = true, value = "pipeline_stable_id") String pipelineStableId,
+            @RequestParam(required = false, value = "phenotyping_center") String phenotypingCenter,
+            Model model) throws SolrServerException, IOException, URISyntaxException, JSONException {
 
-	private PhenomeChartProvider phenomeChartProvider = new PhenomeChartProvider();
+        PhenotypeFacetResult results = genotypePhenotypeService.getPhenotypeFacetResultByPhenotypingCenterAndPipeline(phenotypingCenter, pipelineStableId);
 
-	@RequestMapping(value="/phenome", method=RequestMethod.GET)
-	public String getGraph(
-		//@PathVariable String phenotype_id,
-		@RequestParam(required = true, value = "pipeline_stable_id") String pipelineStableId,
-		@RequestParam(required = false, value = "phenotyping_center") String phenotypingCenter,
-		Model model,
-		HttpServletRequest request,
-		RedirectAttributes attributes) throws SolrServerException, IOException , URISyntaxException, JSONException {
+        ColorCodingPalette colorCoding = new ColorCodingPalette();
 
-		PhenotypeFacetResult results = genotypePhenotypeService.getPhenotypeFacetResultByPhenotypingCenterAndPipeline(phenotypingCenter, pipelineStableId);
+        colorCoding.generatePhenotypeCallSummaryColorsNew(
+                results.getPhenotypeCallSummaries(),
+                ColorCodingPalette.NB_COLOR_MAX,
+                1,
+                Constants.SIGNIFICANT_P_VALUE);
 
-		ColorCodingPalette colorCoding = new ColorCodingPalette();
+        // generate a chart
+        String chart = phenomeChartProvider.generatePhenomeChartByPhenotype(
+                results.getPhenotypeCallSummaries(),
+                phenotypingCenter,
+                Constants.SIGNIFICANT_P_VALUE);
 
-		colorCoding.generatePhenotypeCallSummaryColorsNew(
-				results.getPhenotypeCallSummaries(),
-				ColorCodingPalette.NB_COLOR_MAX,
-				1,
-				Constants.SIGNIFICANT_P_VALUE);
+        model.addAttribute("phenotypeCalls", results.getPhenotypeCallSummaries());
+        model.addAttribute("palette", colorCoding.getPalette());
+        model.addAttribute("chart", chart);
 
-		// generate a chart
-		String chart = phenomeChartProvider.generatePhenomeChartByPhenotype(
-				results.getPhenotypeCallSummaries(),
-				phenotypingCenter,
-				Constants.SIGNIFICANT_P_VALUE);
-
-		model.addAttribute("phenotypeCalls", results.getPhenotypeCallSummaries());
-		model.addAttribute("palette", colorCoding.getPalette());
-		model.addAttribute("chart", chart);
-
-		return null;
-	}
+        return null;
+    }
 }
