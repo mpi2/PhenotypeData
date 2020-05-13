@@ -143,10 +143,57 @@
                 <div class="col-12 col-md-12">
                     <div class="pre-content clear-bg">
                         <div class="page-content people py-5 white-bg">
-                           <p> Identifying which genes are linked to a rare disease is one of the most difficult challenges geneticists face. By cross comparing viability and phenotyping data from knockout IMPC mice with human cell essential scores from the Cancer Dependency map, genes can be categorised on how essential they are for supporting life and the likelihood they are associated with de novo genetic disorders. In this portal, we present integrated views of viability data to help researchers explore the full genetic spectrum of essentiality and aid in their discovery of new human disease genes.  More in our blog post here.
+                            <p> Identifying which genes are linked to a rare disease is one of the most difficult challenges geneticists face. By cross comparing viability and phenotyping data from knockout IMPC mice with human cell essential scores from the Cancer Dependency map, genes can be categorised on how essential they are for supporting life and the likelihood they are associated with de novo genetic disorders. In this portal, we present integrated views of viability data to help researchers explore the full genetic spectrum of essentiality and aid in their discovery of new human disease genes.  More in our blog post <a href="">here</a>.
                            </p>
+                                IMPC associated publications: <a href="">Dickinson et al. Nature 2016</a> | <a href="">Muñoz-Fuentes et al. Conservation Genetics Special Issue 2019</a> | <a href="">Cacheiro et al. Nature Communications 2020</a>
+                            </p>
                             <p>
-                                IMPC associated publications: Dickinson et al. Nature 2016 | Muñoz-Fuentes et al. Conservation Genetics Special Issue 2019 | Cacheiro et al. Nature Communications 2020
+                                <img src="img/essential_genes/skull.png"/>
+                                <img src="img/essential_genes/rainbow.png"/>
+                                <img src="img/essential_genes/mantick.png"/>
+                                FUSIL
+                                Full Spectrum of Intolerence to Loss of Function
+                            </p>
+                            <p>
+                                <img src="img/essential_genes/ballclump.png"/>
+                                HaploEssential
+
+                                IMPC haploessential screen to study genes most important to life
+
+                            </p>
+                            <p>
+                                <img src="img/essential_genes/batchq.png"/>
+                                Batch Query
+                                Submit your gene list  to find human and mouse essential scores
+                            </p>
+                            <p>
+                                FUSIL scores available for NNNN human genes
+                                <ul>
+                                    <li>CL- Cellular Essential
+                                    </li>
+                            <li>
+                                DL- Developmental Essential
+                            </li>
+                            <li>
+                                SV- Subviable
+
+                            </li>
+                            <li>
+                                VP- Viable with phenotype
+
+                            </li>
+                            <li>
+                                VN-  Viable with no phenotype detected
+                            </li>
+                                </ul>
+                            DL genes are enriched for de novo genetic diseases as described in
+                            <a href="">Cacheiro et al. Nature Communications 2020</a>
+
+                            </p>
+                            <p>
+                                <h2>Batch Query</h2>
+                            Visit the IMPC <a href="">Batch Query</a> to submit your gene list to find human and mouse essentiality scores.
+
                             </p>
                         </div>
                     </div>
