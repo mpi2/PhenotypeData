@@ -19,6 +19,7 @@ package org.mousephenotype.cda.reports;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
@@ -81,9 +82,9 @@ public class HitsPerLineReport extends AbstractReport {
             String[] headerParams  ={"# Hits", "# Colonies With This Many HOM Hits", "# Colonies With This Many HET Hits", "# Colonies With This Many Calls"};
             zygosityTable.add(headerParams);
 
-            Map<String, Long> homsMap = genotypePhenotypeService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.homozygote, 1, statisticalResultService.P_VALUE_THRESHOLD);
-            Map<String, Long> hetsMap = genotypePhenotypeService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.heterozygote, 1, statisticalResultService.P_VALUE_THRESHOLD);
-            Map<String, Long> allMap = genotypePhenotypeService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, null, 1, statisticalResultService.P_VALUE_THRESHOLD);
+            Map<String, Long> homsMap = genotypePhenotypeService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.homozygote, 1, Constants.P_VALUE_THRESHOLD);
+            Map<String, Long> hetsMap = genotypePhenotypeService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.heterozygote, 1, Constants.P_VALUE_THRESHOLD);
+            Map<String, Long> allMap = genotypePhenotypeService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, null, 1, Constants.P_VALUE_THRESHOLD);
 
             Map<String, Long> homsNoHits = statisticalResultService.getColoniesNoMPHit(resources, ZygosityType.homozygote);
             Map<String, Long> hetsNoHits = statisticalResultService.getColoniesNoMPHit(resources, ZygosityType.heterozygote);
