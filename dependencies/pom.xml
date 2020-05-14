@@ -141,6 +141,11 @@
                 <artifactId>ri-extract</artifactId>
                 <version>${phenotypedata.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.mousephenotype.cda</groupId>
+                <artifactId>utilities</artifactId>
+                <version>${phenotypedata.version}</version>
+            </dependency>
 
             <!-- https://mvnrepository.com/artifact/net.sf.jopt-simple/jopt-simple -->
             <dependency>

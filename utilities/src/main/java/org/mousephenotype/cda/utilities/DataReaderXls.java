@@ -49,10 +49,9 @@ public class DataReaderXls extends DataReader {
 
     /**
      * Opens the stream defined by the url used in the constructor.
-     * @throws IOException
      */
     @Override
-    protected void open() throws IOException {
+    protected void open() {
         try (InputStream inputStream = url.openStream()) {
             workbook = WorkbookFactory.create(inputStream);
         } catch (Exception e) {
@@ -65,11 +64,9 @@ public class DataReaderXls extends DataReader {
     
     /**
      * Closes the stream defined by the url used in the constructor.
-     * 
-     * @throws IOException
      */
     @Override
-    public void close() throws Exception {
+    public void close()  {
         // nothing to do.
     }
     
@@ -79,15 +76,14 @@ public class DataReaderXls extends DataReader {
      * @return  the next line as a <code>List</code> of <code>String</code> if 
      * there is still data; null otherwise
      * 
-     * @throws IOException
      */
     @Override
-    public List<String> getLine() throws IOException {
+    public List<String> getLine()  {
         if (rowIterator == null) {
             return null;
         }
 
-        List<String> line = new ArrayList();
+        List<String> line = new ArrayList<>();
         if ( ! rowIterator.hasNext())
             return null;
         

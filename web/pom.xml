@@ -28,12 +28,6 @@
 
         <!-- CDA/REGISTER INTEREST DEPENDENCIES -->
 
-
-        <dependency>
-            <groupId>org.mousephenotype.cda</groupId>
-            <artifactId>data-model-db</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.mousephenotype.cda</groupId>
             <artifactId>data-model-solr</artifactId>
