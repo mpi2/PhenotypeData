@@ -187,8 +187,9 @@ public class StatisticalResultDTO {
 
 	public static final String SIGNIFICANT = "significant";
 
+	// Required for the webapp to display the correct classification tag
 	public SignificantType getSignificantType() {
-        return SignificantType.valueOf(getClassificationTag());
+        return SignificantType.getValue(getClassificationTag());
     }
 
 	@Id

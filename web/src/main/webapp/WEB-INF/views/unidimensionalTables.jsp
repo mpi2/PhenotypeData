@@ -71,29 +71,28 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <c:if test="${data.result.genderFemaleKoPValue!=null || data.result.genderFemaleKoEstimate!=null || data.result.genderFemaleKoStandardErrorEstimate!=null}">
+                                <c:if test="${data.result.femaleKoEffectPValue!=null || data.result.femaleKoParameterEstimate!=null || data.result.femaleKoEffectStderrEstimate!=null}">
                                     <tr>
                                         <td>Female</td>
-                                        <c:if test="${data.result.genderFemaleKoPValue!=null}">
-                                            <td class="pvalue"><t:formatScientific>${data.result.genderFemaleKoPValue }</t:formatScientific></td>
+                                        <c:if test="${data.result.femaleKoEffectPValue!=null}">
+                                            <td class="pvalue"><t:formatScientific>${data.result.femaleKoEffectPValue }</t:formatScientific></td>
                                         </c:if>
-                                        <td class="effect"><t:formatScientific>${data.result.genderFemaleKoEstimate}</t:formatScientific></td>
-                                        <c:if
-                                                test="${data.result.genderFemaleKoStandardErrorEstimate!=null}">
-                                            <td>&#177;<t:formatScientific>${data.result.genderFemaleKoStandardErrorEstimate }</t:formatScientific></td>
+                                        <td class="effect"><t:formatScientific>${data.result.femaleKoParameterEstimate}</t:formatScientific></td>
+                                        <c:if test="${data.result.femaleKoEffectStderrEstimate!=null}">
+                                            <td>&#177;<t:formatScientific>${data.result.femaleKoEffectStderrEstimate }</t:formatScientific></td>
                                         </c:if>
                                     </tr>
                                 </c:if>
-                                <c:if test="${data.result.genderMaleKoPValue!=null || data.result.genderMaleKoEstimate != null || data.result.genderMaleKoStandardErrorEstimate!=null}">
+                                <c:if test="${data.result.maleKoEffectPValue!=null || data.result.maleKoParameterEstimate != null || data.result.maleKoEffectStderrEstimate!=null}">
                                     <tr>
                                         <td>Male</td>
-                                        <c:if test="${data.result.genderMaleKoPValue!=null}">
-                                            <td class="pvalue"><t:formatScientific>${data.result.genderMaleKoPValue }</t:formatScientific></td>
+                                        <c:if test="${data.result.maleKoEffectPValue!=null}">
+                                            <td class="pvalue"><t:formatScientific>${data.result.maleKoEffectPValue }</t:formatScientific></td>
                                         </c:if>
-                                        <td class="effect"><t:formatScientific>${data.result.genderMaleKoEstimate}</t:formatScientific></td>
+                                        <td class="effect"><t:formatScientific>${data.result.maleKoParameterEstimate}</t:formatScientific></td>
                                         <c:if
-                                                test="${data.result.genderMaleKoStandardErrorEstimate!=null}">
-                                            <td>&#177;<t:formatScientific>${data.result.genderMaleKoStandardErrorEstimate }</t:formatScientific></td>
+                                                test="${data.result.maleKoEffectStderrEstimate!=null}">
+                                            <td>&#177;<t:formatScientific>${data.result.maleKoEffectStderrEstimate }</t:formatScientific></td>
                                         </c:if>
                                     </tr>
                                 </c:if>

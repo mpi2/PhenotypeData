@@ -151,8 +151,8 @@ public class ScatterChartAndTableProvider {
 
 				if (SexType.valueOf(docGender).equals(sex)) {
 					Float dataPoint = control.getDataPoint();
-					logger.debug("data value=" + dataPoint);
-							addScatterPoint(dataArray, control, dataPoint);
+//					logger.debug("data value=" + dataPoint);
+					addScatterPoint(dataArray, control, dataPoint);
 				}
 
 			}
