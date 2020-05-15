@@ -100,19 +100,11 @@ public class LandingPageController {
 
 	/**
 	 *
-	 * @param model
-	 * @return
-	 * @throws SolrServerException
-	 * @throws IOException
 	 */
 	@RequestMapping("landing_pages/histopath")
 	public String histopath(Model model) throws SolrServerException, IOException {
 		//To display the heatmap we need data in form of ints [ column , row, value ] but row starts from bottom left hand side
 		HeatmapData heatmapData = histopathService.getHeatmapDatadt();
-		//String [] headers=new String []{"blah", "bug"};
-		//JSONArray anatomyArray = null;
-		//anatomyArray= new JSONArray(heatmapData.getParameterNames());
-		//JSONArray geneSymbolsArray=new JSONArray(heatmapData.getGeneSymbols());
 		model.addAttribute("anatomyHeaders", heatmapData.getColumnHeaders());
 		model.addAttribute("geneSymbols", heatmapData.getGeneSymbols());
 		model.addAttribute("rows", heatmapData.getRows());
@@ -120,8 +112,7 @@ public class LandingPageController {
 	}
 
     @RequestMapping(value = "/embryo", method = RequestMethod.GET)
-    public String loadEmbryoPage(Model model, HttpServletRequest request, RedirectAttributes attributes)
-            throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
+    public String loadEmbryoPage(Model model) {
 
         AnalyticsChartProvider chartsProvider = new AnalyticsChartProvider();
         List<String> resources = Arrays.asList( "IMPC" );
@@ -278,8 +269,8 @@ public class LandingPageController {
         		
         		model.addAttribute("paramToNumber", paramToNumber);
         		model.addAttribute("impcImageGroups", groups);
-        		model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getScatterChart("phenotypeChart", genotypePhenotypeService.getTopLevelPhenotypeIntersection(mpDTO.getMpId(), filterOnMarkerAccession), "Gene pleiotropy",
-																								  description, "Number of phenotype associations to " + pageTitle, "Number of associations to other phenotypes",
+        		model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getScatterChart("phenotypeChart", genotypePhenotypeService.getTopLevelPhenotypeIntersection(mpDTO.getMpId(), filterOnMarkerAccession),
+						"Number of phenotype associations to " + pageTitle, "Number of associations to other phenotypes",
 																								  "Other phenotype calls: ", pageTitle + " phenotype calls: ", "Gene"));
 	        model.addAttribute("genePercentage", ControllerUtils.getPercentages(mpDTO.getMpId(), statisticalResultService, genotypePhenotypeService));
 	        model.addAttribute("phenotypes", genotypePhenotypeService.getAssociationsCount(mpDTO.getMpId(), resources));

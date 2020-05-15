@@ -96,7 +96,7 @@ public class UtilitiesController {
         if (length == null) {
             length = 100;
         }
-        model.addAttribute("statsLinks", os.getLinksListForStats(start, length, type, parameterIds));
+        model.addAttribute("statsLinks", os.getLinksListForStats(start, length, type));
     }
 
     /**

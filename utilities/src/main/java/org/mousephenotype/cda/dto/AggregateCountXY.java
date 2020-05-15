@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.db.pojo;
+package org.mousephenotype.cda.dto;
 
 /*******************************************************************************
  * Copyright 2015 EMBL - European Bioinformatics Institute

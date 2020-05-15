@@ -16,38 +16,38 @@
 package uk.ac.ebi.phenotype.chart;
 
 import org.apache.commons.lang3.text.WordUtils;
-import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class ScatterChartAndTableProvider {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-	@Autowired
-	UnidimensionalChartAndTableProvider unidimensionalChartAndTableProvider;
+	private final UnidimensionalChartAndTableProvider unidimensionalChartAndTableProvider;
 
-	@Autowired
-	ImpressService impressService;
+	public ScatterChartAndTableProvider(
+			UnidimensionalChartAndTableProvider unidimensionalChartAndTableProvider
+	) {
+		this.unidimensionalChartAndTableProvider = unidimensionalChartAndTableProvider;
+	}
 
-	public String createScatter(ExperimentDTO experiment, Float min, Float max, String experimentNumber, ParameterDTO parameter, JSONArray series) {
+	public String createScatter(Float min, Float max, String experimentNumber, ParameterDTO parameter, JSONArray series) {
 		String yTitle="";
 		if(parameter.getUnitY()!=null && !parameter.getUnitY().equals("")){//if incremental parameter we should have a y unit - if not we use the xunit - most scatters were displaying null so this is a fix JW
 			yTitle=parameter.getUnitY();
@@ -60,7 +60,7 @@ public class ScatterChartAndTableProvider {
 			yAxisLabel = parameter.getName();
 		}
 
-		String chartString="	$(function () { "
+		return "	$(function () { "
 			+ "  chart71maleWTSI = new Highcharts.Chart({ "
 			+ "     chart: {"
 			+ "renderTo: 'scatter"
@@ -123,22 +123,17 @@ public class ScatterChartAndTableProvider {
 			series.toString()
 			+ "    });"
 			+ "	}); ";
-
-		return chartString;
 	}
 
 
-	public ScatterChartAndData doScatterData(ExperimentDTO experiment, Float yMin, Float yMax, ParameterDTO parameter, String experimentNumber)
-	throws IOException,	URISyntaxException {
+	public ScatterChartAndData doScatterData(ExperimentDTO experiment, Float yMin, Float yMax, ParameterDTO parameter, String experimentNumber) {
 
 		JSONArray series=new JSONArray();
 		// maybe need to put these into method that can be called as repeating
 		// this - so needs refactoring though there are minor differences?
-		Map<String, List<DiscreteTimePoint>> lines = new HashMap<String, List<DiscreteTimePoint>>();
 
 		for (SexType sex : experiment.getSexes()) {
 
-			List<DiscreteTimePoint> controlDataPoints = new ArrayList<>();
 			JSONObject              controlJsonObject =new JSONObject();
 			JSONArray               dataArray         =new JSONArray();
 
@@ -169,10 +164,6 @@ public class ScatterChartAndTableProvider {
 			}
 
 			series.put(controlJsonObject);
-
-			TimeSeriesStats stats = new TimeSeriesStats();
-			List<DiscreteTimePoint> controlMeans = stats.getMeanDataPoints(controlDataPoints);
-			lines.put(WordUtils.capitalize(sex.name())+" WT", controlMeans);
 			logger.debug("finished putting control to data points");
 		}
 
@@ -220,10 +211,10 @@ public class ScatterChartAndTableProvider {
 		}
 
 		ScatterChartAndData scatterChartAndData = new ScatterChartAndData();
-		String chartString = createScatter(experiment, yMin, yMax, experimentNumber, parameter, series);
+		String chartString = createScatter(yMin, yMax, experimentNumber, parameter, series);
 		scatterChartAndData.setChart(chartString);
 
-		List<UnidimensionalStatsObject> unidimensionalStatsObjects=null;
+		List<UnidimensionalStatsObject> unidimensionalStatsObjects;
 		if(experiment.getObservationType().equals(ObservationType.unidimensional)) {
 			unidimensionalStatsObjects = unidimensionalChartAndTableProvider.createUnidimensionalStatsObjects(experiment, parameter);
 			scatterChartAndData.setUnidimensionalStatsObjects(unidimensionalStatsObjects);
@@ -231,13 +222,13 @@ public class ScatterChartAndTableProvider {
 		return scatterChartAndData;
 	}
 
-	public static String getScatterChart(String divId, JSONArray data, String title, String subtitle, String yTitle, String xTitle, String xTooltipPrefix, String yTooltipPrefix, String seriesTitle){
+	public static String getScatterChart(String divId, JSONArray data, String yTitle, String xTitle, String xTooltipPrefix, String yTooltipPrefix, String seriesTitle){
 		String seriesLabel="";
 		if(seriesTitle!=null){
 			seriesLabel="name: 'Gene',";
 		}
 
-		String chartString = " chart = new Highcharts.Chart({ " + " colors:" + ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaOpaque) + ", " +
+		return " chart = new Highcharts.Chart({ " + " colors:" + ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaOpaque) + ", " +
 		" chart: { type: 'scatter',	zoomType: 'xy',	renderTo: '" + divId + "'}, " +
 		" title: { text: ''}, " +
 		" subtitle: {	text: ''	}," +
@@ -250,8 +241,6 @@ public class ScatterChartAndTableProvider {
 				"marker: {radius: 5}, " +
 				"tooltip: {headerFormat: '', pointFormat: '<b>{point.markerSymbol}</b><br>" + xTooltipPrefix +" {point.x:,.0f}<br/>" + yTooltipPrefix + "{point.y:,.0f}', hideDelay:5} }	}," +
 		" series: [{	"+seriesLabel+"  data: "+ data + "}]});";
-
-		return chartString;
 
 	}
 

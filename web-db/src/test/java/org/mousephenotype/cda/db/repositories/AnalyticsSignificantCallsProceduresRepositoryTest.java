@@ -35,7 +35,7 @@ public class AnalyticsSignificantCallsProceduresRepositoryTest {
     public void setUp() throws Exception {
 
         List<String> resources = Arrays.asList(
-                "sql/h2/repositories/AnalyticsSignificantCallsProceduresRepositoryTest-data.sql"
+                "sql/h2/repositories/org.mousephenotype.cda.db.repositories.AnalyticsSignificantCallsProceduresRepositoryTest-data.sql"
         );
 
         for (String resource : resources) {

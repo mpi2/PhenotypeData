@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Hits Per Line report.
@@ -164,7 +163,7 @@ public class HitsPerLineReport extends AbstractReport {
             result.add(zygosityTable);
             csvWriter.writeAllMulti(result);
 
-        } catch (SolrServerException | InterruptedException | ExecutionException | IOException e) {
+        } catch (SolrServerException | IOException e) {
             e.printStackTrace();
         }
 

@@ -15,9 +15,9 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 
 
 public class UnidimensionalStatsObject {
@@ -25,15 +25,15 @@ public class UnidimensionalStatsObject {
 	private String line = "Control";// if not set we assume control
 	private ZygosityType zygosity = ZygosityType.homozygote;
 	private SexType sexType = SexType.male;
-	private Float mean = new Float(0);
-	private Float sd = new Float(0);
+	private Float mean = (float) 0;
+	private Float sd = (float) 0;
 	private Integer sampleSize = 0;
 	private String label = "Not set"; // label to display on x Axis. Need this at least for ABR
 	private String mpTermId;
 	private String mpTermName;
 	private String allele = "allele not found";
 	private String geneticBackground = "genetic background not found";
-	private UnidimensionalResult result;
+	private StatisticalResultDTO result;
 	private String status;
 
 
@@ -69,11 +69,11 @@ public class UnidimensionalStatsObject {
 		this.sampleSize = sampleSize;
 	}
 
-	public UnidimensionalResult getResult() {
+	public StatisticalResultDTO getResult() {
 		return result;
 	}
 
-	public void setResult(UnidimensionalResult result) {
+	public void setResult(StatisticalResultDTO result) {
 		this.result = result;
 	}
 

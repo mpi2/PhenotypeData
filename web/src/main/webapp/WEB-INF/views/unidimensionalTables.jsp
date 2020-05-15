@@ -14,7 +14,7 @@
         </c:if>
 
         <%-- Display result of a mixed model calculation --%>
-        <!-- Statistical Result docId: ${data.result.id} -->
+        <!-- Statistical Result docId: ${data.result.dbId} -->
 
         <div class="row">
             <div class="col-md-12">
@@ -31,17 +31,17 @@
 
                             <dl class="alert alert-success">
                                 <dt>P value</dt>
-                                <dd><t:formatScientific>${data.result.nullTestSignificance}</t:formatScientific></dd>
+                                <dd><t:formatScientific>${data.result.nullTestPValue}</t:formatScientific></dd>
 
                                 <dt>Classification</dt>
-                                <dd>${data.result.significanceClassification.text}</dd>
+                                <dd>${data.result.significantType.text}</dd>
 
                             </dl>
 
                             <table class="table table-striped small">
                                 <c:choose>
                                 <c:when
-                                        test="${data.result.significanceClassification.text == 'If phenotype is significant it is for the one sex tested' || data.result.significanceClassification.text == 'Both genders equally' || data.result.significanceClassification.text == 'No significant change'  || data.result.significanceClassification.text == 'Can not differentiate genders' }">
+                                        test="${data.result.significantType.text == 'If phenotype is significant it is for the one sex tested' || data.result.significantType.text == 'Both genders equally' || data.result.significantType.text == 'No significant change'  || data.result.significantType.text == 'Can not differentiate genders' }">
                                 <thead>
                                 <tr>
                                     <th>Genotype effect P Value</th>
@@ -61,7 +61,7 @@
                                 </tr>
                                 </c:when>
                                 <c:when
-                                        test="${data.result.significanceClassification.text == 'Female only' || data.result.significanceClassification.text == 'Male only'  || data.result.significanceClassification.text == 'Different effect size, females greater' || data.result.significanceClassification.text == 'Different effect size, males greater' || data.result.significanceClassification.text == 'Female and male different directions'}">
+                                        test="${data.result.significantType.text == 'Female only' || data.result.significantType.text == 'Male only'  || data.result.significantType.text == 'Different effect size, females greater' || data.result.significantType.text == 'Different effect size, males greater' || data.result.significantType.text == 'Female and male different directions'}">
                                 <thead>
                                 <tr>
                                     <th>Sex</th>
@@ -267,16 +267,16 @@
                                         <%-- <td>${data.result.mixedModel}</td> --%>
                                         <%-- <c:if test="${data.result.colonyId!=null}"><tr><td>Colony Id</td><td>${data.result.colonyId }</td></tr></c:if> --%>
                                         <%-- <c:if test="${data.result.dependantVariable!=null}"><tr><td>Dependant Variable</td><td>${data.result.dependantVariable}</td></tr></c:if> --%>
-                                    <c:if test="${data.result.batchSignificance!=null}">
+                                    <c:if test="${data.result.batchSignificant != null}">
                                         <tr>
                                             <td>Batch effect significant</td>
-                                            <td>${data.result.batchSignificance }</td>
+                                            <td>${data.result.batchSignificant }</td>
                                         </tr>
                                     </c:if>
-                                    <c:if test="${data.result.varianceSignificance!=null}">
+                                    <c:if test="${data.result.varianceSignificant != null}">
                                         <tr>
                                             <td>Variance significant</td>
-                                            <td>${data.result.varianceSignificance }</td>
+                                            <td>${data.result.varianceSignificant }</td>
                                         </tr>
                                     </c:if>
                                     <c:if test="${data.result.interactionEffectPValue!=null}">
@@ -286,16 +286,16 @@
                                         </tr>
                                     </c:if>
                                         <%-- <c:if test="${data.result.nullTestSignificance !=null}"><tr><td>Null Test Significance</td><td>${data.result.nullTestSignificance }</td></tr></c:if> --%>
-                                    <c:if test="${data.result.genotypeParameterEstimate!=null}">
+                                    <c:if test="${data.result.genotypeEffectParameterEstimate!=null}">
                                         <tr>
                                             <td>Genotype parameter estimate</td>
-                                            <td><t:formatScientific>${data.result.genotypeParameterEstimate }</t:formatScientific></td>
+                                            <td><t:formatScientific>${data.result.genotypeEffectParameterEstimate }</t:formatScientific></td>
                                         </tr>
                                     </c:if>
-                                    <c:if test="${data.result.genotypeStandardErrorEstimate!=null}">
+                                    <c:if test="${data.result.genotypeEffectStderrEstimate!=null}">
                                         <tr>
                                             <td>Genotype standard error estimate</td>
-                                            <td><t:formatScientific>${data.result.genotypeStandardErrorEstimate }</t:formatScientific></td>
+                                            <td><t:formatScientific>${data.result.genotypeEffectStderrEstimate }</t:formatScientific></td>
                                         </tr>
                                     </c:if>
                                     <c:if test="${data.result.genotypeEffectPValue!=null}">
@@ -304,35 +304,23 @@
                                             <td><t:formatScientific>${data.result.genotypeEffectPValue}</t:formatScientific></td>
                                         </tr>
                                     </c:if>
-                                    <c:if test="${data.result.genderMaleKoPValue!=null}">
-                                        <tr>
-                                            <td>Male Effect P Value</td>
-                                            <td><t:formatScientific>${data.result.genderMaleKoPValue}</t:formatScientific></td>
-                                        </tr>
-                                    </c:if>
-                                    <c:if test="${data.result.genderFemaleKoPValue!=null}">
-                                        <tr>
-                                            <td>Female Effect P Value</td>
-                                            <td><t:formatScientific>${data.result.genderFemaleKoPValue}</t:formatScientific></td>
-                                        </tr>
-                                    </c:if>
 
-                                    <c:if test="${data.result.genderParameterEstimate!=null}">
+                                    <c:if test="${data.result.sexEffectParameterEstimate!=null}">
                                         <tr>
-                                            <td>Gender Parameter Estimate</td>
-                                            <td><t:formatScientific>${data.result.genderParameterEstimate }</t:formatScientific></td>
+                                            <td>Sex Parameter Estimate</td>
+                                            <td><t:formatScientific>${data.result.sexEffectParameterEstimate }</t:formatScientific></td>
                                         </tr>
                                     </c:if>
-                                    <c:if test="${data.result.genderStandardErrorEstimate!=null}">
+                                    <c:if test="${data.result.sexEffectStderrEstimate!=null}">
                                         <tr>
-                                            <td>Gender Standard Error Estimate</td>
-                                            <td><t:formatScientific>${data.result.genderStandardErrorEstimate }</t:formatScientific></td>
+                                            <td>Sex Standard Error Estimate</td>
+                                            <td><t:formatScientific>${data.result.sexEffectStderrEstimate }</t:formatScientific></td>
                                         </tr>
                                     </c:if>
-                                    <c:if test="${data.result.genderEffectPValue!=null}">
+                                    <c:if test="${data.result.sexEffectPValue!=null}">
                                         <tr>
-                                            <td>Gender Effect P Value</td>
-                                            <td><t:formatScientific>${data.result.genderEffectPValue}</t:formatScientific></td>
+                                            <td>Sex Effect P Value</td>
+                                            <td><t:formatScientific>${data.result.sexEffectPValue}</t:formatScientific></td>
                                         </tr>
                                     </c:if>
                                     <c:if test="${data.result.interceptEstimate!=null}">
@@ -341,35 +329,35 @@
                                             <td><t:formatScientific>${data.result.interceptEstimate }</t:formatScientific></td>
                                         </tr>
                                     </c:if>
-                                    <c:if test="${data.result.interceptEstimateStandardError!=null}">
+                                    <c:if test="${data.result.interceptEstimateStderrEstimate!=null}">
                                         <tr>
                                             <td>Intercept Estimate Standard Error</td>
-                                            <td><t:formatScientific>${data.result.interceptEstimateStandardError }</t:formatScientific></td>
+                                            <td><t:formatScientific>${data.result.interceptEstimateStderrEstimate }</t:formatScientific></td>
                                         </tr>
                                     </c:if>
-                                    <c:if test="${data.result.genderMaleKoPValue!=null}">
+                                    <c:if test="${data.result.maleKoEffectPValue!=null}">
                                         <tr>
-                                            <td>Gender Male KO P Value</td>
-                                            <td><t:formatScientific>${data.result.genderMaleKoPValue }</t:formatScientific></td>
+                                            <td>Sex Male KO P Value</td>
+                                            <td><t:formatScientific>${data.result.maleKoEffectPValue }</t:formatScientific></td>
                                         </tr>
                                     </c:if>
-                                    <c:if test="${data.result.genderFemaleKoPValue!=null}">
+                                    <c:if test="${data.result.femaleKoEffectPValue!=null}">
                                         <tr>
-                                            <td>Gender Female KO P Value</td>
-                                            <td><t:formatScientific>${data.result.genderFemaleKoPValue }</t:formatScientific></td>
+                                            <td>Sex Female KO P Value</td>
+                                            <td><t:formatScientific>${data.result.femaleKoEffectPValue }</t:formatScientific></td>
                                         </tr>
                                     </c:if>
                                     <!-- 10-15 -->
-                                    <c:if test="${data.result.weightParameterEstimate!=null}">
+                                    <c:if test="${data.result.weightEffectParameterEstimate!=null}">
                                         <tr>
                                             <td>Weight Parameter Estimate</td>
-                                            <td><t:formatScientific>${data.result.weightParameterEstimate }</t:formatScientific></td>
+                                            <td><t:formatScientific>${data.result.weightEffectParameterEstimate }</t:formatScientific></td>
                                         </tr>
                                     </c:if>
-                                    <c:if test="${data.result.weightStandardErrorEstimate!=null}">
+                                    <c:if test="${data.result.weightEffectStderrEstimate!=null}">
                                         <tr>
                                             <td>Weight Standard Error Estimate</td>
-                                            <td><t:formatScientific>${data.result.weightStandardErrorEstimate }</t:formatScientific></td>
+                                            <td><t:formatScientific>${data.result.weightEffectStderrEstimate }</t:formatScientific></td>
                                         </tr>
                                     </c:if>
                                     <c:if test="${data.result.weightEffectPValue!=null}">
@@ -378,13 +366,16 @@
                                             <td><t:formatScientific>${data.result.weightEffectPValue }</t:formatScientific></td>
                                         </tr>
                                     </c:if>
-                                        <%-- <c:if test="${data.result.gp1Genotype!=null}"><tr><td>Gp 1 Genotype</td><td>${data.result.gp1Genotype }</td></tr></c:if> --%>
-                                        <%-- <c:if test="${data.result.gp1ResidualsNormalityTest!=null}"><tr><td>Gp 1 Residuals Normality Test </td><td>${data.result.gp1ResidualsNormalityTest }</td></tr></c:if>This one always fails so I wouldn't include due to large number of readings.  If you want to keep add WT residuals then you an lose row above - NC --%>
-                                        <%-- <c:if test="${data.result.gp2Genotype!=null}"><tr><td>Gp 2 Genotype</td><td>${data.result.gp2Genotype }</td></tr></c:if> --%>
-                                    <c:if test="${data.result.gp2ResidualsNormalityTest!=null}">
+                                    <c:if test="${data.result.group1ResidualsNormalityTest!=null}">
+                                        <tr>
+                                            <td>WT Residuals Normality Tests</td>
+                                            <td><t:formatScientific>${data.result.group1ResidualsNormalityTest }</t:formatScientific></td>
+                                        </tr>
+                                    </c:if>
+                                    <c:if test="${data.result.group2ResidualsNormalityTest!=null}">
                                         <tr>
                                             <td>KO Residuals Normality Tests</td>
-                                            <td><t:formatScientific>${data.result.gp2ResidualsNormalityTest }</t:formatScientific></td>
+                                            <td><t:formatScientific>${data.result.group2ResidualsNormalityTest }</t:formatScientific></td>
                                         </tr>
                                     </c:if>
                                     <!-- relabel as KO residuals normality tests -->
@@ -394,15 +385,12 @@
                                             <td><t:formatScientific>${data.result.blupsTest }</t:formatScientific></td>
                                         </tr>
                                     </c:if>
-                                    <c:if test="${data.result.rotatedResidualsNormalityTest !=null}">
+                                    <c:if test="${data.result.rotatedResidualsTest !=null}">
                                         <tr>
                                             <td>Rotated Residuals Normality Test</td>
-                                            <td><t:formatScientific>${data.result.rotatedResidualsNormalityTest }</t:formatScientific></td>
+                                            <td><t:formatScientific>${data.result.rotatedResidualsTest }</t:formatScientific></td>
                                         </tr>
                                     </c:if>
-                                        <%-- <c:if test="${data.result.interactionSignificance!=null}"><tr><td>Interaction Significance </td><td>${data.result.interactionSignificance }</td></tr></c:if> do you need as next row gives detail>? - NK --%>
-                                        <%-- <c:if test="${data.result.genderFemaleKoEstimate!=null}"><tr><td>Gender Female KO Estimate </td><td>${data.result.genderFemaleKoEstimate }</td></tr></c:if> --%>
-                                        <%-- <c:if test="${data.result.genderMaleKoEstimate!=null}"><tr><td>Gender Male KO Estimate </td><td>${data.result.genderMaleKoEstimate }</td></tr></c:if> --%>
                                 </table>
                             </c:if>
                         </c:if>

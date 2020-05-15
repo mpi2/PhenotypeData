@@ -16,8 +16,7 @@
 package uk.ac.ebi.phenotype.chart;
 
 import org.apache.commons.lang3.text.WordUtils;
-import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
-import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.dto.DiscreteTimePoint;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.ImpressService;
@@ -39,27 +38,8 @@ import java.util.*;
 
 @Service
 public class TimeSeriesChartAndTableProvider {
-
-	
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
-
-	public ChartData doTimeSeriesOverviewData(
-			Map<String, List<DiscreteTimePoint>> lines, Parameter p) {
-
-		if (lines == null) {
-			return new ChartData();
-		}
-
-		String title = p.getName();
-		// create CharData
-		ChartData chartsNTablesForParameter = creatDiscretePointTimeSeriesChartOverview(
-				"1", title, lines, p.checkParameterUnit(1),
-				p.checkParameterUnit(2), 1, "org", p);
-		return chartsNTablesForParameter;
-	}
-
-
 
 	public ChartData doTimeSeriesData(ExperimentDTO experiment,	ParameterDTO parameter, String experimentNumber) {
 
@@ -115,9 +95,8 @@ public class TimeSeriesChartAndTableProvider {
 						Float discreteTimePoint = expDto.getDiscretePoint();
 
 						// Ensure the timepoint is valid
-						if ((TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameter.getStableId()) && discreteTimePoint > 0) ||
-								!TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameter.getStableId())) {
-							mutantData.add(new DiscreteTimePoint(discreteTimePoint, new Float(dataPoint)));
+						if (!TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameter.getStableId()) || discreteTimePoint > 0) {
+							mutantData.add(new DiscreteTimePoint(discreteTimePoint, dataPoint));
 						}
 					}
 				}
@@ -160,22 +139,14 @@ public class TimeSeriesChartAndTableProvider {
 	 * Creates a single chart and adds it to the chart array that is then added
 	 * to the model by the main method
 	 *
-	 * @param title
-	 * @param lines
-	 * @param xUnitsLabel
-	 * @param yUnitsLabel
-	 * @param organisation
-	 * @param parameter
-	 *
-	 * @return
 	 */
 	private ChartData creatDiscretePointTimeSeriesChart(String expNumber,
 			String title, Map<String, List<DiscreteTimePoint>> lines,
 			String xUnitsLabel, String yUnitsLabel, int decimalPlaces, String organisation, ParameterDTO parameter) {
 
 		JSONArray  series        = new JSONArray();
-		String     seriesString  = "";
-		Set<Float> categoriesSet = new HashSet<Float>();
+		String     seriesString;
+		Set<Float> categoriesSet = new HashSet<>();
 		String     mColor        = ChartColors.getMutantColor(ChartColors.alphaTranslucid70).replaceAll("'", "");
 		String     wtColor       = ChartColors.getWTColor(ChartColors.alphaTranslucid70).replaceAll("'", "");
 
@@ -238,10 +209,7 @@ public class TimeSeriesChartAndTableProvider {
 		// need to add error bars to series data as well!
 		// sort the categories by time as means are all sorted already
 
-		List<Float> cats = new ArrayList<Float>();
-		for (Float cat : categoriesSet) {
-			cats.add(cat);
-		}
+		List<Float> cats = new ArrayList<>(categoriesSet);
 		Collections.sort(cats);
 		String noDecimalsString = "";
 		if (xUnitsLabel.equals("number")) {
@@ -295,10 +263,10 @@ public class TimeSeriesChartAndTableProvider {
 		chartAndTable.setTitle(title);
 		String parameterLink = "";
 		if (parameter != null) {
-			parameterLink = "<a href=\""+ImpressService.getParameterUrl(parameter.getStableKey()).toString()+"\">"+parameter.getStableId()+"</a>";
+			parameterLink = "<a href=\""+ ImpressService.getParameterUrl(parameter.getStableKey()) +"\">"+parameter.getStableId()+"</a>";
 			if (parameter.getProcedureNames() != null) {
 				parameter.getProcedureStableKey();
-				parameterLink = "<a href=\""+ImpressService.getParameterUrl(parameter.getStableKey()).toString()+"\">"+parameter.getStableId()+"</a>";
+				parameterLink = "<a href=\""+ ImpressService.getParameterUrl(parameter.getStableKey()) +"\">"+parameter.getStableId()+"</a>";
 			}
 		}
 		
@@ -310,134 +278,5 @@ public class TimeSeriesChartAndTableProvider {
 		return chartAndTable;
 	}
 
-	private ChartData creatDiscretePointTimeSeriesChartOverview(String expNumber,
-			String title, Map<String, List<DiscreteTimePoint>> lines,
-			String xUnitsLabel, String yUnitsLabel, int decimalPlaces, String organisation, Parameter parameter) {
-
-		JSONArray series = new JSONArray();
-		String seriesString = "";
-		Set<Float> categoriesSet = new HashSet<Float>();
-		
-		try {
-			int i = 0;
-			for (String key : lines.keySet()) {// key is line name or "Control"
-
-				JSONObject object = new JSONObject();
-				JSONArray data = new JSONArray();
-				object.put("name", key);
-
-				String colorString;
-				if (key.equalsIgnoreCase("Control")){
-					colorString = ChartColors.getDefaultControlColor(ChartColors.alphaTranslucid70);
-				}
-				else {
-					colorString = ChartColors.getRgbaString(SexType.male, i, ChartColors.alphaTranslucid70);
-				}
-				object.put("color", colorString);
-
-				JSONObject errorBarsObject = null;
-				try {
-					errorBarsObject = new JSONObject();
-					errorBarsObject.put("name", "Standard Deviation");
-					errorBarsObject.put("type", "errorbar");
-					errorBarsObject.put("color", colorString);
-
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-
-				JSONArray errorsDataJson = new JSONArray();
-				for (DiscreteTimePoint pt : lines.get(key)) {
-					JSONArray pair = new JSONArray();
-					pair.put(pt.getDiscreteTime());
-					pair.put(pt.getData());
-					categoriesSet.add(pt.getDiscreteTime());
-					data.put(pair);
-					// set the error bars
-					JSONArray errorBarsJ = new JSONArray();
-					errorBarsJ.put(pt.getDiscreteTime());
-					errorBarsJ.put(pt.getErrorPair().get(0));
-					errorBarsJ.put(pt.getErrorPair().get(1));
-					errorsDataJson.put(errorBarsJ);
-
-					errorBarsObject.put("data", errorsDataJson);
-
-				}
-				object.put("data", data);
-				String placeholderString = "placeholder";
-				object.put(placeholderString, placeholderString);
-				series.put(object);
-				series.put(errorBarsObject);
-				i++;
-			}
-
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-
-		// need to add error bars to series data as well!
-		// sort the categories by time as means are all sorted already
-
-		List<Float> cats = new ArrayList<Float>();
-		for (Float cat : categoriesSet) {
-			cats.add(cat);
-		}
-		Collections.sort(cats);
-		String noDecimalsString = "";
-		if (xUnitsLabel.equals("number")) {
-			// set the xAxis to be numbers with no decimals
-			noDecimalsString = "allowDecimals:false,";
-		}
-
-		String decimalFormatString = ":." + decimalPlaces + "f";
-		String headerFormatString = "headerFormat: '<span style=\"font-size: 12px\">"
-				+ WordUtils.capitalize(xUnitsLabel)
-				+ " {point.key}</span><br/>',";
-		String pointToolTip = "tooltip: { "
-				+ headerFormatString
-				+ "pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>:<b>{point.y"
-				+ decimalFormatString + "}" + yUnitsLabel + "</b> '}";
-		String escapedPlaceholder = "\"placeholder\":\"placeholder\"";
-		seriesString = series.toString().replace(escapedPlaceholder,
-				pointToolTip);
-
-		String errorBarsToolTip = "tooltip: { pointFormat: 'SD: {point.low"
-				+ decimalFormatString + "}-{point.high" + decimalFormatString
-				+ "}<br/>' }";
-		String escapedErrorString = "\"errorbar\"";
-		seriesString = seriesString.replace(escapedErrorString,
-				escapedErrorString + "," + errorBarsToolTip);
-		String axisFontSize = "15";
-
-		List<String> colors=ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaTranslucid70);
-//		JSONArray colorArray = new JSONArray(colors);
-
-		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ "
-//				+" colors:"+colorArray
-				+" chart: {  zoomType: 'x', renderTo: 'single-chart-div', type: 'line', marginRight: 130, marginBottom: 50 }, title: { text: '"
-				+ WordUtils.capitalize(title)
-				+ "', x: -20  }, credits: { enabled: false },  subtitle: { text: '"
-				+ parameter.getStableId()
-				+ "', x: -20 }, xAxis: { "
-				+ noDecimalsString
-				+ " labels: { style:{ fontSize:"
-				+ axisFontSize
-				+ " }},   title: {   text: '"
-				+ xUnitsLabel
-				+ "'   }  }, yAxis: { labels: { style:{ fontSize:"
-				+ axisFontSize
-				+ " }}, title: { text: ' "
-				+ yUnitsLabel
-				+ "' }, plotLines: [{ value: 0, width: 1, color: '#808080' }] },  legend: { layout: 'vertical', align: 'right', verticalAlign: 'top', x: -10, y: 100, borderWidth: 0 }, "
-				+ "tooltip: {shared: true},"
-				+ "series: "
-				+ seriesString
-				+ " }); });  ";
-		ChartData chartAndTable = new ChartData();
-		chartAndTable.setChart(javascript);
-		chartAndTable.setOrganisation(organisation);
-		chartAndTable.setId(parameter.getStableId());
-		return chartAndTable;
-	}
 
 }

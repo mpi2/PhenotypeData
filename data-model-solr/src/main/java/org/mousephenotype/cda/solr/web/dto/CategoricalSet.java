@@ -15,22 +15,23 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.web.dto;
 
+import org.mousephenotype.cda.enumerations.SexType;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.mousephenotype.cda.enumerations.SexType;
-
 
 
 /**
- * Class to hold multiple CategoricalDataObjects pertaining to one bar no the graph eg. data for control, normal, abnormal is one set another set would be data for het, normal and abnormal
+ * Class to hold multiple CategoricalDataObjects pertaining to one bar no the graph eg. data for control, normal,
+ * abnormal is one set another set would be data for het, normal and abnormal
  * @author jwarren
  *
  */
 public class CategoricalSet {
 	String name="";
-		List<CategoricalDataObject> catObjects=new ArrayList<CategoricalDataObject>();
+		List<CategoricalDataObject> catObjects=new ArrayList<>();
 		HashMap<String, CategoricalDataObject> catObjMap = new HashMap<String, CategoricalDataObject>();
 		long count = 0;
 		private SexType sexType;

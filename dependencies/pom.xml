@@ -141,9 +141,16 @@
                 <artifactId>ri-extract</artifactId>
                 <version>${phenotypedata.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>org.mousephenotype.cda</groupId>
                 <artifactId>utilities</artifactId>
+                <version>${phenotypedata.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mousephenotype.cda</groupId>
+                <artifactId>web-db</artifactId>
                 <version>${phenotypedata.version}</version>
             </dependency>
 

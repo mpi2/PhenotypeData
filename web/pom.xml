@@ -30,6 +30,11 @@
 
         <dependency>
             <groupId>org.mousephenotype.cda</groupId>
+            <artifactId>web-db</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mousephenotype.cda</groupId>
             <artifactId>data-model-solr</artifactId>
         </dependency>
 

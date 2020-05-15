@@ -31,13 +31,7 @@
 
         <dependency>
             <groupId>org.mousephenotype.cda</groupId>
-            <artifactId>data-model-db</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.h2database</groupId>
-                    <artifactId>h2</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>web-db</artifactId>
         </dependency>
 
         <dependency>
