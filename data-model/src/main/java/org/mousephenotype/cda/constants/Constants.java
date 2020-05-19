@@ -6,11 +6,12 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Observation parameter constants.
- *
- * Created by mrelac on 02/07/2015.
+ * Contants used in the IMPC data portal project
  */
 public class Constants {
+
+    // IMPC default p-value threshold used to indicate significance
+    public static final double P_VALUE_THRESHOLD = 0.0001;
 
     // Brackets denote optional components Single quotes denote literal characters.
     public static final String DATETIME_FORMAT_OPTIONAL_MILLISECONDS = "yyyy-MM-dd['T'][' ']HH:mm:ss[.SSS]['Z']";

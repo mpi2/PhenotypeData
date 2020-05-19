@@ -58,7 +58,7 @@ public class PhenotypeCallSummarySolr {
 
 	public PhenotypeFacetResult getPhenotypeCallByGeneAccessionAndFilter(String accId, List<String> topLevelMpTermName, List<String> resourceFullname)
 			throws IOException, JSONException, URISyntaxException {
-		return genotypePhenotypeService.getMPByGeneAccessionAndFilter(accId, topLevelMpTermName, resourceFullname);
+		return genotypePhenotypeService.getMPByGeneAccessionAndFilter(accId, topLevelMpTermName);
 	}
 
 	/**

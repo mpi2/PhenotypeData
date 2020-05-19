@@ -169,7 +169,7 @@ public class ParallelCoordinatesController {
 		if (!cache.containsKey(key)){
 			String mappedHostname = (String) request.getAttribute("mappedHostname") + (String) request.getAttribute("baseUrl");
 			List<ParameterDTO> parameters = impressService.getParameters(procedureIds, "unidimensional", topLevelMpId);
-			String data = getJsonForParallelCoordinates(srs.getGenotypeEffectFor(procedureIds, phenotypingCenter, false, mappedHostname, genes, topLevelMpId), parameters);
+			String data = getJsonForParallelCoordinates(srs.getGenotypeEffectFor(procedureIds, phenotypingCenter, false, genes, topLevelMpId), parameters);
 			cache.put(key, data);
 
 		}

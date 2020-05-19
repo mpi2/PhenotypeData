@@ -325,7 +325,7 @@ public class ChartsController {
 						case UNIDIMENSIONAL_BOX_PLOT:
 
 							try {
-								unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xUnits);
+								unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, xUnits);
 							} catch (JSONException e) {
 								e.printStackTrace();
 							}
@@ -338,7 +338,7 @@ public class ChartsController {
 
 						case CATEGORICAL_STACKED_COLUMN:
 
-							categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, accession[0], experimentNumber);
+							categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, experimentNumber);
 							model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
 							break;
 

@@ -15,8 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import org.mousephenotype.cda.db.pojo.BiologicalModel;
-import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
+import org.mousephenotype.cda.dto.DiscreteTimePoint;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 
@@ -27,7 +26,6 @@ public class ChartData {
     private String title;
     private ParameterDTO parameter;
     private String subTitle;
-    private BiologicalModel expBiologicalModel;
     private ExperimentDTO experiment;
     private String chart;
     private String organisation = "";
@@ -113,14 +111,6 @@ public class ChartData {
         this.subTitle = subTitle;
     }
 
-    public BiologicalModel getExpBiologicalModel() {
-        return expBiologicalModel;
-    }
-
-    public void setExpBiologicalModel(BiologicalModel expBiologicalModel) {
-        this.expBiologicalModel = expBiologicalModel;
-    }
-
     public ExperimentDTO getExperiment() {
         return experiment;
     }
@@ -185,7 +175,6 @@ public class ChartData {
         return Objects.equals(title, chartData.title) &&
                 Objects.equals(parameter, chartData.parameter) &&
                 Objects.equals(subTitle, chartData.subTitle) &&
-                Objects.equals(expBiologicalModel, chartData.expBiologicalModel) &&
                 Objects.equals(experiment, chartData.experiment) &&
                 Objects.equals(chart, chartData.chart) &&
                 Objects.equals(organisation, chartData.organisation) &&
@@ -197,12 +186,12 @@ public class ChartData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, parameter, subTitle, expBiologicalModel, experiment, chart, organisation, min, max, id, lines);
+        return Objects.hash(title, parameter, subTitle, experiment, chart, organisation, min, max, id, lines);
     }
 
     @Override
     public String toString() {
-        return "ChartData [expBiologicalModel=" + expBiologicalModel + ", experiment=" + experiment + ", chart=" + chart
+        return "ChartData [experiment=" + experiment + ", chart=" + chart
                 + ", organisation=" + organisation + ", min=" + min + ", max=" + max + ", id=" + id + ", lines=" + lines
                 + "]";
     }

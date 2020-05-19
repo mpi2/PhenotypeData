@@ -15,105 +15,100 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.web.dto;
 
-import org.mousephenotype.cda.db.pojo.CategoricalResult;
-
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 
 
 /**
- * class to hold the categorical data with associated meta data and stats so we
- * keep things neat and tidy and don't have long list of parameters and or
- * arrays that can get mixed up
- * 
+ * class to hold the categorical data with associated meta data and stats so we keep things neat and tidy and don't have
+ * long list of parameters and or arrays that can get mixed up
+ *
  * @author jwarren
- * 
  */
 public class CategoricalDataObject {
-	private String name = "";
-	
-	private CategoricalResult result;
-	
 
-	public CategoricalResult getResult() {
-		return result;
-	}
+    private Double pValue;
+    private Double maxEffect;
+    private String category = "";
+    private String name = "";
+	private StatisticalResultDTO result;
+	private Long count = new Long(0);
 
-	public void setResult(CategoricalResult result) {
-		this.result = result;
-	}
 
-	private Long count=new Long(0);
-	public Long getCount() {
-		return count;
-	}
+    public CategoricalDataObject(String name, double pValue, double maxEffect) {
+        this.name = name;
+        this.pValue = pValue;
+        this.maxEffect = maxEffect;
+    }
 
-	public void setCount(Long count) {
-		this.count = count;
-	}
+    public CategoricalDataObject() {
+    }
 
-	public String getName() {
-		return name;
-	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public StatisticalResultDTO getResult() {
+        return result;
+    }
 
-	public Double getpValue() {
-		return this.pValue;
-	}
+    public void setResult(StatisticalResultDTO result) {
+        this.result = result;
+    }
 
-	public void setpValue(double pValue) {
-		this.pValue = pValue;
-	}
+    public Long getCount() {
+        return count;
+    }
 
-	public Double getMaxEffect() {
-		return maxEffect;
-	}
+    public void setCount(Long count) {
+        this.count = count;
+    }
 
-	public void setMaxEffect(double maxEffect) {
-		this.maxEffect = maxEffect;
-	}
+    public String getName() {
+        return name;
+    }
 
-	private Double pValue;
-	private Double maxEffect;
-	private String category="";
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getCategory() {
-		return category;
-	}
+    public Double getpValue() {
+        return this.pValue;
+    }
 
-	public CategoricalDataObject(String name, double pValue, double maxEffect) {
-		this.name = name;
-		this.pValue = pValue;
-		this.maxEffect = maxEffect;
-	}
+    public void setpValue(double pValue) {
+        this.pValue = pValue;
+    }
 
-	public CategoricalDataObject(){
-		
-	}
-	
-	public String toString(){
-		String name=this.getName();
-		String count="";
-				if(this.count!=null){
-					count=Long.toString(this.count);
-				}
-		String pValue="";
-		if(this.pValue!=null){
-			pValue=Double.toString(this.pValue);
-		}
-		String maxEffect="";
-		if(this.maxEffect!=null){
-			maxEffect=Double.toString(this.maxEffect);
-		}
-	
-		String string="name="+name+" category="+category+" count="+count+" pValue="+pValue+" maxEffect="+maxEffect;
-		return string;
-	}
+    public Double getMaxEffect() {
+        return maxEffect;
+    }
 
-	public void setCategory(String category) {
-		this.category=category;
-		
-	}
-	
+    public void setMaxEffect(double maxEffect) {
+        this.maxEffect = maxEffect;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public String toString() {
+        String name = this.getName();
+        String count = "";
+        if (this.count != null) {
+            count = Long.toString(this.count);
+        }
+        String pValue = "";
+        if (this.pValue != null) {
+            pValue = Double.toString(this.pValue);
+        }
+        String maxEffect = "";
+        if (this.maxEffect != null) {
+            maxEffect = Double.toString(this.maxEffect);
+        }
+
+		return "name=" + name + " category=" + category + " count=" + count + " pValue=" + pValue + " maxEffect=" + maxEffect;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+
+    }
+
 }

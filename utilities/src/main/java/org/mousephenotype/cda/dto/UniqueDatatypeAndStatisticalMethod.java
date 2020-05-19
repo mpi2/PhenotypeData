@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.db.pojo;
+package org.mousephenotype.cda.dto;
 
 import java.util.Objects;
 

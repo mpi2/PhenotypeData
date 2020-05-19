@@ -16,12 +16,6 @@
 
 package org.mousephenotype.cda.selenium.support;
 
-import org.mousephenotype.cda.selenium.exception.TestException;
-import org.mousephenotype.cda.utilities.RunStatus;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
 /**
  *
  * @author mrelac
@@ -30,26 +24,26 @@ import org.openqa.selenium.support.ui.WebDriverWait;
  * section.
  */
 public class GraphSectionPie extends GraphSection {
-
-    /**
-     * Creates a new <code>GraphSectionPie</code> instance
-     *
-     * @param driver <code>WebDriver</code> instance
-     * @param wait <code>WebDriverWait</code> instance
-     * @param graphUrl the graph url
-     * @param chartElement <code>WebElement</code> pointing to the HTML
-     *                     div.chart element of the pie chart section.
-     *
-     * @throws TestException
-     */
-    public GraphSectionPie(WebDriver driver, WebDriverWait wait, String graphUrl, WebElement chartElement) throws TestException {
-        super(driver, wait, graphUrl, chartElement);
-    }
-
-    @Override
-    public RunStatus validate() throws TestException {
-        RunStatus status = super.validate();                                   // Validate common components.
-
-        return status;
-    }
+//
+//    /**
+//     * Creates a new <code>GraphSectionPie</code> instance
+//     *
+//     * @param driver <code>WebDriver</code> instance
+//     * @param wait <code>WebDriverWait</code> instance
+//     * @param graphUrl the graph url
+//     * @param chartElement <code>WebElement</code> pointing to the HTML
+//     *                     div.chart element of the pie chart section.
+//     *
+//     * @throws TestException
+//     */
+//    public GraphSectionPie(WebDriver driver, WebDriverWait wait, String graphUrl, WebElement chartElement) throws TestException {
+//        super(driver, wait, graphUrl, chartElement);
+//    }
+//
+//    @Override
+//    public RunStatus validate() throws TestException {
+//        RunStatus status = super.validate();                                   // Validate common components.
+//
+//        return status;
+//    }
 }

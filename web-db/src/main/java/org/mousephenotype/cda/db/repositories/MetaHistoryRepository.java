@@ -26,20 +26,20 @@ import java.util.List;
 public interface MetaHistoryRepository extends CrudRepository<MetaHistory, Long> {
 
     String getAllDataReleaseVersionsCastAscQuery =
-            "SELECT DISTINCT new java.lang.String(dataReleaseVersion) FROM MetaHistory ORDER BY CAST(dataReleaseVersion as float) ASC";
+            "SELECT DISTINCT new java.lang.String(dataReleaseVersion) FROM org.mousephenotype.cda.db.pojo.MetaHistory ORDER BY CAST(dataReleaseVersion as float) ASC";
     @Query(value = getAllDataReleaseVersionsCastAscQuery)
     <T> List<T> getAllDataReleaseVersionsCastAsc();
 
 
     String getAllDataReleaseVersionsCastDescQuery =
-            "SELECT DISTINCT new java.lang.String(dataReleaseVersion) FROM MetaHistory ORDER BY CAST(dataReleaseVersion as float) DESC";
+            "SELECT DISTINCT new java.lang.String(dataReleaseVersion) FROM org.mousephenotype.cda.db.pojo.MetaHistory ORDER BY CAST(dataReleaseVersion as float) DESC";
     @Query(value = getAllDataReleaseVersionsCastDescQuery)
     <T> List<T> getAllDataReleaseVersionsCastDesc();
 
 
     String getAllDataReleaseVersionsLessThanSpecifiedQuery =
             "SELECT DISTINCT new java.lang.String(dataReleaseVersion)"
-                    + " FROM MetaHistory"
+                    + " FROM org.mousephenotype.cda.db.pojo.MetaHistory"
                     + " WHERE CAST(dataReleaseVersion as float) < CAST(:dataReleaseVersionSpecified as float)"
                     +  "ORDER BY CAST(dataReleaseVersion as float) DESC";
     @Query(value = getAllDataReleaseVersionsLessThanSpecifiedQuery)
@@ -47,7 +47,7 @@ public interface MetaHistoryRepository extends CrudRepository<MetaHistory, Long>
 
 
     String getAllByPropertyKeyQueryCastAsc =
-            "FROM MetaHistory WHERE propertyKey = :propertyKey ORDER BY CAST(dataReleaseVersion as float) ASC";
+            "FROM org.mousephenotype.cda.db.pojo.MetaHistory WHERE propertyKey = :propertyKey ORDER BY CAST(dataReleaseVersion as float) ASC";
     @Query(value = getAllByPropertyKeyQueryCastAsc)
     List<MetaHistory> getAllByPropertyKeyCastAsc(@Param("propertyKey") String propertyKey);
 }

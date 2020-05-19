@@ -4,7 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.pojo.AnalyticsPvalueDistribution;
-import org.mousephenotype.cda.db.pojo.UniqueDatatypeAndStatisticalMethod;
+import org.mousephenotype.cda.dto.UniqueDatatypeAndStatisticalMethod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
@@ -35,7 +35,7 @@ public class AnalyticsPvalueDistributionRepositoryTest {
     @Before
     public void setUp() throws Exception {
 
-        List<String> resources = Arrays.asList("sql/h2/repositories/AnalyticsPvalueDistributionRepositoryTest-data.sql");
+        List<String> resources = Arrays.asList("sql/h2/repositories/org.mousephenotype.cda.db.repositories.AnalyticsPvalueDistributionRepositoryTest-data.sql");
 
         for (String resource : resources) {
             Resource r = context.getResource(resource);
@@ -64,27 +64,27 @@ public class AnalyticsPvalueDistributionRepositoryTest {
     @Test
     public void getAllByDatatypeAndStatisticalMethodOrderByPvalueBinAsc() {
 
-        List<AnalyticsPvalueDistribution>      expectedCategorical = Arrays.asList(
-                new AnalyticsPvalueDistribution(2L,   "categorical",    "Fisher's exact test", 0.02, 0.02, 0),
-                new AnalyticsPvalueDistribution(3L,   "categorical",    "Fisher's exact test", 0.04, 0.02, 0),
-                new AnalyticsPvalueDistribution(1L,   "categorical",    "Fisher's exact test", 0.06, 0.02, 0));
+        List<AnalyticsPvalueDistribution> expectedCategorical = Arrays.asList(
+                new AnalyticsPvalueDistribution(2L, "categorical", "Fisher's exact test", 0.02, 0.02, 0),
+                new AnalyticsPvalueDistribution(3L, "categorical", "Fisher's exact test", 0.04, 0.02, 0),
+                new AnalyticsPvalueDistribution(1L, "categorical", "Fisher's exact test", 0.06, 0.02, 0));
         List<AnalyticsPvalueDistribution> actualCategorical = analyticsPvalueDistributionRepository
                 .getAllByDatatypeAndStatisticalMethodOrderByPvalueBinAsc("categorical", "Fisher's exact test");
         assertArrayEquals(expectedCategorical.toArray(), actualCategorical.toArray());
 
 
-        List<AnalyticsPvalueDistribution>      expectedUniWilcox = Arrays.asList(
-                new AnalyticsPvalueDistribution(51L,   "unidimensional",    "Wilcoxon rank sum test with continuity correction", 0.02, 0.02, 0),
-                new AnalyticsPvalueDistribution(52L,   "unidimensional",    "Wilcoxon rank sum test with continuity correction", 0.04, 0.02, 0));
+        List<AnalyticsPvalueDistribution> expectedUniWilcox = Arrays.asList(
+                new AnalyticsPvalueDistribution(51L, "unidimensional", "Wilcoxon rank sum test with continuity correction", 0.02, 0.02, 0),
+                new AnalyticsPvalueDistribution(52L, "unidimensional", "Wilcoxon rank sum test with continuity correction", 0.04, 0.02, 0));
         List<AnalyticsPvalueDistribution> actualUniWilcox = analyticsPvalueDistributionRepository
                 .getAllByDatatypeAndStatisticalMethodOrderByPvalueBinAsc("unidimensional", "Wilcoxon rank sum test with continuity correction");
         assertArrayEquals(expectedUniWilcox.toArray(), actualUniWilcox.toArray());
 
 
-        List<AnalyticsPvalueDistribution>      expectedUniMixed = Arrays.asList(
-                new AnalyticsPvalueDistribution(103L,   "unidimensional",    "Mixed Model framework, generalized least squares, equation withoutWeight", 0.02, 0.02, 6065),
-                new AnalyticsPvalueDistribution(102L,   "unidimensional",    "Mixed Model framework, generalized least squares, equation withoutWeight", 0.04, 0.02, 2078),
-                new AnalyticsPvalueDistribution(101L,   "unidimensional",    "Mixed Model framework, generalized least squares, equation withoutWeight", 0.06, 0.02, 1588));
+        List<AnalyticsPvalueDistribution> expectedUniMixed = Arrays.asList(
+                new AnalyticsPvalueDistribution(103L, "unidimensional", "Mixed Model framework, generalized least squares, equation withoutWeight", 0.02, 0.02, 6065),
+                new AnalyticsPvalueDistribution(102L, "unidimensional", "Mixed Model framework, generalized least squares, equation withoutWeight", 0.04, 0.02, 2078),
+                new AnalyticsPvalueDistribution(101L, "unidimensional", "Mixed Model framework, generalized least squares, equation withoutWeight", 0.06, 0.02, 1588));
         List<AnalyticsPvalueDistribution> actualUniMixed = analyticsPvalueDistributionRepository
                 .getAllByDatatypeAndStatisticalMethodOrderByPvalueBinAsc("unidimensional", "Mixed Model framework, generalized least squares, equation withoutWeight");
         assertArrayEquals(expectedUniMixed.toArray(), actualUniMixed.toArray());

@@ -1,4 +1,4 @@
-/*******************************************************************************
+package org.mousephenotype.cda.db.pojo; /*******************************************************************************
  * Copyright © 2019 EMBL - European Bioinformatics Institute
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the
@@ -14,8 +14,6 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.db.pojo;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,15 +26,15 @@ import javax.persistence.Table;
 import java.util.Objects;
 
 @Entity
-@Table(name = "meta_history")
+@Table(name = "meta_info")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class MetaHistory {
+public class MetaInfo {
 
     @Id
-    private Long   id;
+    private Long id;
 
     @Column(name = "property_key")
     private String propertyKey;
@@ -44,22 +42,21 @@ public class MetaHistory {
     @Column(name = "property_value")
     private String propertyValue;
 
-    @Column(name = "data_release_version")
-    private String dataReleaseVersion;
+    private String description;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        MetaHistory that = (MetaHistory) o;
-        return id.equals(that.id) &&
-                propertyKey.equals(that.propertyKey) &&
-                propertyValue.equals(that.propertyValue) &&
-                dataReleaseVersion.equals(that.dataReleaseVersion);
+        if (!(o instanceof MetaInfo)) return false;
+        MetaInfo metaInfo = (MetaInfo) o;
+        return id.equals(metaInfo.id) &&
+                propertyKey.equals(metaInfo.propertyKey) &&
+                propertyValue.equals(metaInfo.propertyValue) &&
+                Objects.equals(description, metaInfo.description);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, propertyKey, propertyValue, dataReleaseVersion);
+        return Objects.hash(id, propertyKey, propertyValue, description);
     }
 }

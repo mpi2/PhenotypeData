@@ -18,7 +18,6 @@ package org.mousephenotype.cda.reports;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.constants.Constants;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.GeneService;
@@ -70,7 +69,7 @@ public class ViabilityReport extends AbstractReport {
 
         try {
 
-            ObservationService.ViabilityData data = observationService.getViabilityData(resources, true, 1000000);
+            ObservationService.ViabilityData data = observationService.getViabilityData(resources, true);
 
             //System.out.println("keys: "+ data.getViabilityCategories().keySet());
             TreeMap<String, Set<String>> categoryData = new TreeMap<>(data.getViabilityCategories());                   // Using a TreeMap causes the categories to be sorted for better presentation.
@@ -173,7 +172,7 @@ public class ViabilityReport extends AbstractReport {
                 csvWriter.writeRow(row);
             }
 
-        } catch (SolrServerException | IOException e) {
+        } catch (Exception e) {
 
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }

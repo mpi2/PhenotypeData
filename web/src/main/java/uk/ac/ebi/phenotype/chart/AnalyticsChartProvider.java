@@ -15,27 +15,23 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import org.mousephenotype.cda.db.pojo.AggregateCountXY;
+import org.mousephenotype.cda.dto.AggregateCountXY;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.*;
 import java.util.Map.Entry;
 
-
-
 public class AnalyticsChartProvider {
 
-	static Map<String, String> trendsSeriesTypes = null;
-	static Map<String, String> trendsSeriesNames = null;
-	static Map<String, String> trendsSeriesUnits = null;
+	static Map<String, String> trendsSeriesTypes;
+	static Map<String, String> trendsSeriesNames;
+	static Map<String, String> trendsSeriesUnits;
 
 	static {
 
-		trendsSeriesTypes = new HashMap<String, String>();
+		trendsSeriesTypes = new HashMap<>();
 		trendsSeriesTypes.put("phenotyped_genes", "column");
 		trendsSeriesTypes.put("phenotyped_lines", "column");
 		trendsSeriesTypes.put("statistically_significant_calls", "spline");
@@ -56,7 +52,7 @@ public class AnalyticsChartProvider {
 		trendsSeriesTypes.put("image_record_datapoints_QC_failed", "spline");
 		trendsSeriesTypes.put("image_record_datapoints_issues", "spline");
 
-		trendsSeriesNames = new HashMap<String, String>();
+		trendsSeriesNames = new HashMap<>();
 		trendsSeriesNames.put("phenotyped_genes", "Phenotyped genes");
 		trendsSeriesNames.put("phenotyped_lines", "Phenotyped lines");
 		trendsSeriesNames.put("statistically_significant_calls", "MP calls");
@@ -77,11 +73,11 @@ public class AnalyticsChartProvider {
 		trendsSeriesNames.put("image_record_datapoints_QC_failed", "Image record (QC failed)");
 		trendsSeriesNames.put("image_record_datapoints_issues", "Image record (issues)");
 
-		trendsSeriesUnits = new HashMap<String, String>();
+		trendsSeriesUnits = new HashMap<>();
 		trendsSeriesUnits.put("phenotyped_genes", "genes");
 		trendsSeriesUnits.put("phenotyped_lines", "lines");
 		trendsSeriesUnits.put("statistically_significant_calls", "calls");
-	};
+	}
 
 	private String createHistoryTrendChart(
 			JSONArray series,
@@ -92,139 +88,123 @@ public class AnalyticsChartProvider {
 			String yAxis2Legend,
 			boolean yAxisCombined, String containerId, String checkAllId, String uncheckAllId) {
 
-		String chartString=
-
-				"$(function () { var chart_" + containerId + "; \n"+
-				"$(document).ready(function() { chart_"	+ containerId + " = new Highcharts.Chart({ \n" +
-			    "        chart: {\n"+
-				"               zoomType: 'xy',\n"+
-			    "				renderTo: '" + containerId + "'"+	
-				"            },\n"+
-				"            title: {\n"+
-				"                text: '"+title+"'\n"+
-				"            },\n"+
-				"            subtitle: {\n"+
-				"                text: '"+subTitle+"'\n"+
-				"            },\n"+
-				"            xAxis: [{\n"+
-				"                categories: "+ categories.toString() +",\n"+
-				"                   }],\n"+
-            				"            yAxis: [{ // Primary yAxis\n"+
-            				"                labels: {\n"+
-            				"                    format: '{value}',\n"+
-            				"                    style: {\n"+
-            				"                        color: Highcharts.getOptions().colors[1]\n"+
-            				"                    }\n"+
-            				"                },\n"+
-            				"                title: {\n"+
-            				"                    text: '"+yAxis1Legend+"',\n"+
-            				"                    style: {\n"+
-            				"                        color: Highcharts.getOptions().colors[1]\n"+
-            				"                    }\n"+
-            				"                }\n"+
-            				"            }, \n"+
-            				((!yAxisCombined) ? "" :
-            				"            { // Secondary yAxis\n"+
-            				"                title: {\n"+
-            				"                    text: '"+yAxis2Legend+"',\n"+
-            				"                    style: {\n"+
-            				"                        color: Highcharts.getOptions().colors[0]\n"+
-            				"                    }\n"+
-            				"                },\n"+
-            				"                labels: {\n"+
-            				"                    format: '{value}',\n"+
-            				"                    style: {\n"+
-            				"                        color: Highcharts.getOptions().colors[0]\n"+
-            				"                    }\n"+
-            				"                },\n"+
-            				"                opposite: true\n"+
-            				"            }\n") +
-            				"            ],\n"+
-            			    "      credits: { \n"+
-            			    "         enabled: false \n"+
-            			    "      }, \n"+
-            				"            tooltip: {\n"+
-            				"                shared: true\n"+
-            				"            },\n"+
- /*           				"            legend: {\n"+
-            				"                layout: 'vertical',\n"+
-            				"                align: 'left',\n"+
-            				"                x: 120,\n"+
-            				"                verticalAlign: 'top',\n"+
-            				"                y: 100,\n"+
-            				"                floating: true,\n"+
-            				"                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'\n"+
-            				"            },\n"+*/
-            				"            series:" + series.toString() +"\n"+
-            				"        });\n"+
-            				"    });\n"
-            				+ ChartUtils.getSelectAllButtonJs("chart_"+ containerId, checkAllId, uncheckAllId)
-            				+ "});";
-		return chartString;
+		return "$(function () { var chart_" + containerId + "; \n"+
+		"$(document).ready(function() { chart_"	+ containerId + " = new Highcharts.Chart({ \n" +
+		"        chart: {\n"+
+		"               zoomType: 'xy',\n"+
+		"				renderTo: '" + containerId + "'"+
+		"            },\n"+
+		"            title: {\n"+
+		"                text: '"+title+"'\n"+
+		"            },\n"+
+		"            subtitle: {\n"+
+		"                text: '"+subTitle+"'\n"+
+		"            },\n"+
+		"            xAxis: [{\n"+
+		"                categories: "+ categories.toString() +",\n"+
+		"                   }],\n"+
+					"            yAxis: [{ // Primary yAxis\n"+
+					"                labels: {\n"+
+					"                    format: '{value}',\n"+
+					"                    style: {\n"+
+					"                        color: Highcharts.getOptions().colors[1]\n"+
+					"                    }\n"+
+					"                },\n"+
+					"                title: {\n"+
+					"                    text: '"+yAxis1Legend+"',\n"+
+					"                    style: {\n"+
+					"                        color: Highcharts.getOptions().colors[1]\n"+
+					"                    }\n"+
+					"                }\n"+
+					"            }, \n"+
+					((!yAxisCombined) ? "" :
+					"            { // Secondary yAxis\n"+
+					"                title: {\n"+
+					"                    text: '"+yAxis2Legend+"',\n"+
+					"                    style: {\n"+
+					"                        color: Highcharts.getOptions().colors[0]\n"+
+					"                    }\n"+
+					"                },\n"+
+					"                labels: {\n"+
+					"                    format: '{value}',\n"+
+					"                    style: {\n"+
+					"                        color: Highcharts.getOptions().colors[0]\n"+
+					"                    }\n"+
+					"                },\n"+
+					"                opposite: true\n"+
+					"            }\n") +
+					"            ],\n"+
+					"      credits: { \n"+
+					"         enabled: false \n"+
+					"      }, \n"+
+					"            tooltip: {\n"+
+					"                shared: true\n"+
+					"            },\n"+
+					"            series:" + series.toString() +"\n"+
+					"        });\n"+
+					"    });\n"
+					+ ChartUtils.getSelectAllButtonJs("chart_"+ containerId, checkAllId, uncheckAllId)
+					+ "});";
 	}
 
 
 	public String createLineProceduresOverviewChart(JSONArray series, JSONArray categories, String title, String subTitle, String yAxisLegend, String yAxisUnit, 
 			String containerId, Boolean stacked, String checkAllId, String uncheckAllId) {
 
-		String chartString=
-			"$(function () {\n var chart_" + containerId + ";" +
-			"	Highcharts.setOptions({"+
-			"	    colors: " + ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque) + "});" +
-			"   chart_" + containerId + " = new Highcharts.Chart({ " +
-		//    "    $('#"+ containerId +"').highcharts({\n"+
-		    "        chart: {\n"+
-		    "            type: 'column',\n"+
-		    "            height: 800,\n"+
-		    "			 renderTo:" + containerId +
-		    "        },\n"+
-		    "        title: {\n"+
-		    "            text: '"+title+"'\n"+
-		    "       },\n"+
-		    "        subtitle: {\n"+
-		    "            text: \""+subTitle+"\"\n"+
-		    "       },\n"+
-		    "        xAxis: {\n"+
-		    "            categories: "+ categories.toString() +",\n"+
-			"            labels: { \n"+
-			"               rotation: -90, \n"+
-			"               align: 'right', \n"+
-			"               style: { \n"+
-			"                  fontSize: '11px', \n"+
-			"                  fontFamily: '\"Roboto\", sans-serif' \n"+
-			"               } \n"+
-			"            }, \n"+
-			"            showLastLabel: true \n"+
-			"        },\n"+
-		    "        yAxis: {\n"+
-		    "            min: 0,\n"+
-		    "            title: {\n"+
-		    "                text: '"+ yAxisLegend +"'\n"+
-		    "            }\n"+
-		    "        },\n"+
-		    "      credits: {\n"+
-		    "         enabled: false\n"+
-		    "      },\n"+
-		    "        tooltip: {\n"+
-		    "            headerFormat: '<span style=\"font-size:10px\">{point.key}</span><table>',\n"+
-		    "            pointFormat: '<tr><td style=\"color:{series.color};padding:0\">{series.name}: </td>' +\n"+
-		    "                '<td style=\"padding:0\"><b>{point.y:.0f} "+yAxisUnit+"</b></td></tr>',\n"+
-		    "            footerFormat: '</table>',\n"+
-		    "            shared: true,\n"+
-		    "            useHTML: true\n"+
-		    "        },\n"+
-		    "        plotOptions: {\n"+
-		    "            column: {\n" + ((stacked) ? "            	 stacking: 'normal',\n" : "")+
-		    "                pointPadding: 0.2,\n"+
-		    "                borderWidth: 0\n"+
-		    "            }\n"+
-		    "        },\n"+
-		    "        series:" + series.toString() +"\n"+
-		    "    });\n"+
-		    ChartUtils.getSelectAllButtonJs("chart_" + containerId, checkAllId, uncheckAllId) + 
-		    "});\n";
-
-		return chartString;
+		return "$(function () {\n var chart_" + containerId + ";" +
+		"	Highcharts.setOptions({"+
+		"	    colors: " + ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque) + "});" +
+		"   chart_" + containerId + " = new Highcharts.Chart({ " +
+		"        chart: {\n"+
+		"            type: 'column',\n"+
+		"            height: 800,\n"+
+		"			 renderTo:" + containerId +
+		"        },\n"+
+		"        title: {\n"+
+		"            text: '"+title+"'\n"+
+		"       },\n"+
+		"        subtitle: {\n"+
+		"            text: \""+subTitle+"\"\n"+
+		"       },\n"+
+		"        xAxis: {\n"+
+		"            categories: "+ categories.toString() +",\n"+
+		"            labels: { \n"+
+		"               rotation: -90, \n"+
+		"               align: 'right', \n"+
+		"               style: { \n"+
+		"                  fontSize: '11px', \n"+
+		"                  fontFamily: '\"Roboto\", sans-serif' \n"+
+		"               } \n"+
+		"            }, \n"+
+		"            showLastLabel: true \n"+
+		"        },\n"+
+		"        yAxis: {\n"+
+		"            min: 0,\n"+
+		"            title: {\n"+
+		"                text: '"+ yAxisLegend +"'\n"+
+		"            }\n"+
+		"        },\n"+
+		"      credits: {\n"+
+		"         enabled: false\n"+
+		"      },\n"+
+		"        tooltip: {\n"+
+		"            headerFormat: '<span style=\"font-size:10px\">{point.key}</span><table>',\n"+
+		"            pointFormat: '<tr><td style=\"color:{series.color};padding:0\">{series.name}: </td>' +\n"+
+		"                '<td style=\"padding:0\"><b>{point.y:.0f} "+yAxisUnit+"</b></td></tr>',\n"+
+		"            footerFormat: '</table>',\n"+
+		"            shared: true,\n"+
+		"            useHTML: true\n"+
+		"        },\n"+
+		"        plotOptions: {\n"+
+		"            column: {\n" + ((stacked) ? "            	 stacking: 'normal',\n" : "")+
+		"                pointPadding: 0.2,\n"+
+		"                borderWidth: 0\n"+
+		"            }\n"+
+		"        },\n"+
+		"        series:" + series.toString() +"\n"+
+		"    });\n"+
+		ChartUtils.getSelectAllButtonJs("chart_" + containerId, checkAllId, uncheckAllId) +
+		"});\n";
 
 	}
 
@@ -250,12 +230,11 @@ public class AnalyticsChartProvider {
 					data.put(obj);
 				}
 
-				String chart = "$(function () { $('#" + containerId + "').highcharts({ "
+				return "$(function () { $('#" + containerId + "').highcharts({ "
 						 + " chart: { plotBackgroundColor: null, plotShadow: false}, "
 						 + " colors:" + colors + ", "
 						 + " title: {  text: '" + title + "' }, "
 						 + " credits: { enabled: false }, "
-				//		 + " tooltip: {  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'},"
 						 + " tooltip: {  pointFormat: '<b>{point.percentage:.2f}%</b>'},"
 						 + " plotOptions: { "
 						 	+ "pie: { "
@@ -263,17 +242,13 @@ public class AnalyticsChartProvider {
 						 		+ "showInLegend: true, "
 						 		+ "allowPointSelect: true, "
 						 		+ "cursor: 'pointer', "
-					//	 		+ "dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.percentage:.2f} %', "
 						 		+ "dataLabels: { enabled: true, format: '{point.percentage:.2f} %', "
 						 		+ "style: { color: '#666', width:'60px' }  }  },"
-//						 	+ "series: {  dataLabels: {  enabled: true, format: '{point.name}: {point.percentage:.1f}%'} }"
 						 	+ "series: {  dataLabels: {  enabled: true, format: '{point.percentage:.2f}%'} }"
 						 + " },"
 					+ " series: [{  type: 'pie',   name: '',  "
 						+ "data: " + data + "  }]"
 				+" }); });";
-
-				return chart;
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -288,8 +263,7 @@ public class AnalyticsChartProvider {
 			String yAxisLegend,
 			String yAxisUnit,
 			String containerId, String checkAll, String uncheckAll
-			) throws IOException,
-			URISyntaxException {
+			) {
 
 		JSONArray                           series         =new JSONArray();
 		JSONArray                           categories     = new JSONArray();
@@ -303,7 +277,7 @@ public class AnalyticsChartProvider {
 					categoriesList.add(bean.getxValue());
 					categories.put(bean.getxValue());
 				}
-				List<AggregateCountXY> beans = null;
+				List<AggregateCountXY> beans;
 				if (!centerMap.containsKey(bean.getyValue())) {
 					beans = new ArrayList<>();
 					centerMap.put(bean.getyValue(), beans);
@@ -344,15 +318,12 @@ public class AnalyticsChartProvider {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		
-		String chartString= this.createLineProceduresOverviewChart(series, categories, title, subTitle, yAxisLegend, yAxisUnit, containerId, true, checkAll, uncheckAll);
 
-		return chartString;
+		return this.createLineProceduresOverviewChart(series, categories, title, subTitle, yAxisLegend, yAxisUnit, containerId, true, checkAll, uncheckAll);
 	}
 
 	/**
 	 * Generate a graph with trends information...
-	 * @return
 	 */
 	public String generateHistoryTrendsChart(
 			Map<String, List<AggregateCountXY>> trendsMap,
@@ -371,36 +342,36 @@ public class AnalyticsChartProvider {
 		try {
 
 			// generate categories (release by release asc)
-			for (String release: releases) {
+			for (String release : releases) {
 				categories.put(release);
 			}
 
-			List<String> keys = new ArrayList<String>(trendsMap.keySet());
+			List<String> keys = new ArrayList<>(trendsMap.keySet());
 			Collections.sort(keys);
 
 			// We use all keys provided
 			for (String trendProperty : keys) {
 				// new series
-				List<AggregateCountXY> beans               = trendsMap.get(trendProperty);
-				JSONObject             containerJsonObject =new JSONObject();
-				JSONArray              dataArray           =new JSONArray();
+				List<AggregateCountXY> beans = trendsMap.get(trendProperty);
+				JSONObject containerJsonObject = new JSONObject();
+				JSONArray dataArray = new JSONArray();
 				// this is not performant but we need to plot the missing values
-				for (String release: releases) {
+				for (String release : releases) {
 					boolean found = false;
-					for (AggregateCountXY bean: beans) {
+					for (AggregateCountXY bean : beans) {
 						if (bean.getyValue().equals(release)) {
 							dataArray.put(bean.getAggregateCount());
 							found = true;
 							break;
 						}
 					}
-					if (!found){
+					if (!found) {
 						dataArray.put(0); // default vaule
 					}
 				}
 				containerJsonObject.put("data", dataArray);
 				containerJsonObject.put("type", trendsSeriesTypes.get(trendProperty));
-				String name = (trendsSeriesNames.containsKey(trendProperty)) ? trendsSeriesNames.get(trendProperty) : trendProperty;
+				String name = trendsSeriesNames.getOrDefault(trendProperty, trendProperty);
 				containerJsonObject.put("name", name);
 
 				if (trendProperty.equals("statistically_significant_calls")) {
@@ -409,7 +380,7 @@ public class AnalyticsChartProvider {
 
 				JSONObject tooltip = new JSONObject();
 				tooltip.put("pointFormat", "<span style=\"color:{series.color}\">\u25CF</span> {series.name}: <b>{point.y}</b><br/>");
-				tooltip.put("valueSuffix", " " + ((trendsSeriesUnits.containsKey(trendProperty)) ? trendsSeriesUnits.get(trendProperty) : ""));
+				tooltip.put("valueSuffix", " " + (trendsSeriesUnits.getOrDefault(trendProperty, "")));
 				containerJsonObject.put("tooltip", tooltip);
 
 				series.put(containerJsonObject);
@@ -419,8 +390,7 @@ public class AnalyticsChartProvider {
 			e.printStackTrace();
 		}
 
-		String chartString = createHistoryTrendChart(series, categories, title, subtitle, yAxis1Legend, yAxis2Legend, yAxisCombined, containerId, checkAllId, uncheckAllId);
-		return chartString;
+		return createHistoryTrendChart(series, categories, title, subtitle, yAxis1Legend, yAxis2Legend, yAxisCombined, containerId, checkAllId, uncheckAllId);
 
 	}
 
