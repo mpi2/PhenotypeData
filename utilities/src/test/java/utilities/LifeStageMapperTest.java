@@ -1,7 +1,8 @@
-package org.mousephenotype.cda.utilities;
+package utilities;
 
 import org.junit.Test;
-import org.mousephenotype.cda.enumerations.LifeStage;
+import org.mousephenotype.cda.dto.LifeStage;
+import org.mousephenotype.cda.utilities.LifeStageMapper;
 
 import java.util.HashMap;
 import java.util.Map;

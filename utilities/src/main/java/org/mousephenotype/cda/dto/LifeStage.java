@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.enumerations;
+package org.mousephenotype.cda.dto;
 
 public enum LifeStage {
     E9_5("E9.5"),

@@ -19,7 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
-import org.mousephenotype.cda.constants.Constants;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.mousephenotype.cda.solr.service.ExpressionService;
@@ -33,7 +33,6 @@ import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -46,7 +45,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import uk.ac.ebi.phenotype.generic.util.RegisterInterestUtils;
 import uk.ac.ebi.phenotype.service.BatchQueryForm;
 import uk.ac.ebi.phenotype.util.SolrUtilsWeb;
 
@@ -75,9 +73,6 @@ public class DataTableController {
 
 	@NotNull @Autowired
     ExpressionService expressionService;
-
-	@NotNull @Autowired
-	private RegisterInterestUtils riUtils;
 
 	@NotNull @Resource(name = "globalConfiguration")
 	private Map<String, String> config;

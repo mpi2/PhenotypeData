@@ -1,8 +1,7 @@
 package org.mousephenotype.cda.db;
 
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.constants.Constants;
-import org.mousephenotype.cda.utilities.DateUtils;
+import org.mousephenotype.cda.common.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -225,7 +224,7 @@ public class WeightMap {
             }
         }
 
-        logger.info(" Added {} specimen weight data map entries", count, weightMap.size());
+        logger.info(" Added {} specimen weight data map entries (weight map size: {})", count, weightMap.size());
     }
 
     /**

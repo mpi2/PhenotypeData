@@ -1,6 +1,6 @@
 package org.mousephenotype.cda.utilities;
 
-import org.mousephenotype.cda.enumerations.LifeStage;
+import org.mousephenotype.cda.dto.LifeStage;
 
 import java.util.Arrays;
 import java.util.HashSet;

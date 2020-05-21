@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.constants;
+package org.mousephenotype.cda.common;
 
 import java.util.Arrays;
 import java.util.HashSet;

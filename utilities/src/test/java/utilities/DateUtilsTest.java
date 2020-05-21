@@ -14,10 +14,11 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.utilities;
+package utilities;
 
 import org.junit.Test;
 import org.mousephenotype.cda.common.Constants;
+import org.mousephenotype.cda.utilities.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
