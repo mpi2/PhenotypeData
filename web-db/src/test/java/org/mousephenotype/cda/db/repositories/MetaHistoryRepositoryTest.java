@@ -35,8 +35,8 @@ public class MetaHistoryRepositoryTest {
     public void setUp() throws Exception {
 
         List<String> resources = Arrays.asList(
-                "sql/h2/schema.sql",
-                "sql/h2/repositories/org.mousephenotype.cda.db.repositories.MetaHistoryRepositoryTest-data.sql"
+                "h2/schema.sql",
+                "h2/repository/MetaHistoryRepositoryTest-data.sql"
         );
 
         for (String resource : resources) {

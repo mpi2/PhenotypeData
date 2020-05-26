@@ -33,7 +33,7 @@ public class GenesSecondaryProjectRepositoryTest {
     public void setUp() throws Exception {
 
         List<String> resources = Arrays.asList(
-                "sql/h2/schema.sql"
+                "h2/schema.sql"
         );
 
         for (String resource : resources) {
