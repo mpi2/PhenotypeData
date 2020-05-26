@@ -19,28 +19,17 @@ import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.db.pojo.StatisticalResult;
-import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.imits.StatusConstants;
 import org.mousephenotype.cda.solr.service.ImpressService;
-import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
-import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
-import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
-import org.mousephenotype.cda.solr.web.dto.StackedBarsData;
-import org.mousephenotype.cda.web.ChartType;
+import org.mousephenotype.cda.solr.service.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.text.DecimalFormat;
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,9 +38,14 @@ public class UnidimensionalChartAndTableProvider {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-	@Autowired
-	ImpressService impressService;
-	
+	private final ImpressService impressService;
+
+	@Inject
+	public UnidimensionalChartAndTableProvider(
+			@NotNull ImpressService impressService
+	) {
+		this.impressService = impressService;
+	}
 
 	/**
 	 * return one unidimensional data set per experiment - one experiment should
@@ -59,27 +53,26 @@ public class UnidimensionalChartAndTableProvider {
 	 * table at the bottom
 	 *
 	 */
-	public UnidimensionalDataSet doUnidimensionalData(ExperimentDTO experiment, String chartId, ParameterDTO parameter, ChartType boxOrScatter, Boolean byMouseId, String yAxisTitle)
-			throws SQLException, IOException, URISyntaxException, JSONException {
+	public UnidimensionalDataSet doUnidimensionalData(ExperimentDTO experiment, String chartId, ParameterDTO parameter, String yAxisTitle)
+			throws JSONException {
 		
 
 		long startTime = System.currentTimeMillis();
 		System.out.println("start time="+System.currentTimeMillis());
 
-		ChartData chartAndTable = null;
+		ChartData chartAndTable;
 		List<UnidimensionalDataSet> unidimensionalDataSets = new ArrayList<>();
 
 		// get control data
-		List<UnidimensionalResult> allUnidimensionalResults = new ArrayList<>();
+		List<StatisticalResultDTO> allUnidimensionalResults = new ArrayList<>();
 		UnidimensionalDataSet unidimensionalDataSet = new UnidimensionalDataSet();
 		unidimensionalDataSet.setExperiment(experiment);
 		unidimensionalDataSet.setOrganisation(experiment.getOrganisation());
 		unidimensionalDataSet.setExperimentId(experiment.getExperimentId());
-		List<UnidimensionalStatsObject> unidimensionalStatsObjects = new ArrayList<>();
 
 		// category e.g normal, abnormal
-		Map<SexType, List<List<Float>>> genderAndRawDataMap = new HashMap<SexType, List<List<Float>>>();
-		List<ChartsSeriesElement> chartsSeriesElementsList = new ArrayList<ChartsSeriesElement>();
+		Map<SexType, List<List<Float>>> genderAndRawDataMap = new HashMap<>();
+		List<ChartsSeriesElement> chartsSeriesElementsList = new ArrayList<>();
 		for (SexType sexType : experiment.getSexes()) {
 			List<List<Float>> rawData = new ArrayList<>();
 			List<Float> dataFloats = new ArrayList<>();
@@ -98,7 +91,7 @@ public class UnidimensionalChartAndTableProvider {
 			for (ZygosityType zType : experiment.getZygosities()) {
 
 				List<Float> mutantCounts = new ArrayList<>();
-				Set<ObservationDTO> expObservationsSet = Collections.emptySet();
+				Set<ObservationDTO> expObservationsSet;
 				expObservationsSet = experiment.getMutants(sexType, zType);
 
 				for (ObservationDTO expDto : expObservationsSet) {
@@ -116,7 +109,7 @@ public class UnidimensionalChartAndTableProvider {
 		}
 
 		List<UnidimensionalStatsObject> unidimensionalStatsObject = createUnidimensionalStatsObjects(experiment, parameter);
-		unidimensionalStatsObjects.addAll(unidimensionalStatsObject);
+		List<UnidimensionalStatsObject> unidimensionalStatsObjects = new ArrayList<>(unidimensionalStatsObject);
 		Map <String, Float> boxMinMax = ChartUtils.getMinMaxXAxis(chartsSeriesElementsList, experiment);
 		chartAndTable = processChartData(chartId, boxMinMax.get("min"), boxMinMax.get("max"), parameter, experiment, yAxisTitle, chartsSeriesElementsList);
 		String title = "<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + parameter.getName() + "</span>";
@@ -144,22 +137,10 @@ public class UnidimensionalChartAndTableProvider {
 
 	public List<UnidimensionalStatsObject> createUnidimensionalStatsObjects(ExperimentDTO experiment, ParameterDTO parameter) {
 
-		List<UnidimensionalStatsObject> unidimensionalStatsObject = produceUnidimensionalStatsData(parameter, experiment);
-		return unidimensionalStatsObject;
+		return produceUnidimensionalStatsData(experiment);
 	}
 
 
-	/**
-	 *
-	 * @param chartId
-	 * @param yMin
-	 * @param yMax
-	 * @param parameter
-	 * @param experiment
-	 * @param yAxisTitle
-	 * @param chartsSeriesElementsList
-	 * @return
-	 */
 	private ChartData processChartData(String chartId, Float yMin, Float yMax, ParameterDTO parameter, ExperimentDTO experiment, String yAxisTitle, List<ChartsSeriesElement> chartsSeriesElementsList) throws JSONException {
 
 		String chartString = createContinuousBoxPlotChartsString(chartId, yMin, yMax, parameter, yAxisTitle, chartsSeriesElementsList, experiment);
@@ -169,17 +150,6 @@ public class UnidimensionalChartAndTableProvider {
 	}
 
 
-	/**
-	 *
-	 * @param experimentNumber
-	 * @param yMin
-	 * @param yMax
-	 * @param parameter
-	 * @param yAxisTitle
-	 * @param chartsSeriesElementsList
-	 * @param experiment
-	 * @return
-	 */
 	private String createContinuousBoxPlotChartsString(String experimentNumber, Float yMin, Float yMax,ParameterDTO parameter, String yAxisTitle,
 		List<ChartsSeriesElement> chartsSeriesElementsList, ExperimentDTO experiment) throws JSONException {
 
@@ -312,20 +282,6 @@ public class UnidimensionalChartAndTableProvider {
 	}
 
 
-	public ChartData getHistogram(List<String> labels, List<Double> values, String title) {
-
-		double min = 0;
-		for (double val : values)
-			if (val < min) min = val;
-		String chartId = "histogram" + values.hashCode();
-		String yTitle = "Number of lines";
-		String javascript = "$(function () {    var chart; $(document).ready(function() {chart = new Highcharts.Chart({ chart: { style: { fontFamily: '\"Roboto\", sans-serif;'  } , type: 'column' , renderTo: '" + chartId + "'}," + " title: { text: '" + title + "' },  subtitle: {   text: '' }, " + " xAxis: { categories: " + labels + " }," + " yAxis: { min: " + min + ",  title: {  text: '" + yTitle + "'  }   }," + " tooltip: {" + "   headerFormat: '<span style=\"font-size:10px\">{point.key}</span><table>'," + "  pointFormat: '<tr><td style=\"color:{series.color};padding:0\">{series.name}: </td>' +" + "     '<td style=\"padding:0\"><b>{point.y:.1f} mm</b></td></tr>'," + " footerFormat: '</table>', shared: true,  useHTML: true  }, " + "  plotOptions: {   column: {  pointPadding: 0.2,  borderWidth: 0  }  }," + "   series: [{ name: 'Mutants',  data: " + values + "  }]" + " });  }); });";
-		ChartData chartAndTable = new ChartData();
-		chartAndTable.setChart(javascript);
-		chartAndTable.setId(chartId);
-		return chartAndTable;
-	}
-
 	public ChartData getStatusColumnChart(Map<String , Long> values, String title, String divId, List<String> colors){
 		
 		String data = "[";
@@ -363,7 +319,7 @@ public class UnidimensionalChartAndTableProvider {
 		}
 		data += "]";
 		if(colors==null || colors.isEmpty()){
-			colors=ChartColors.getHighDifferenceColorsRgba(new Double(50));
+			colors=ChartColors.getHighDifferenceColorsRgba(50d);
 		}
 		String javascript = "$(function () { $('#" + divId + "').highcharts({" +
 			" colors:"+colors+
@@ -384,90 +340,10 @@ public class UnidimensionalChartAndTableProvider {
 	}
 
 
-	public ChartData getStackedHistogram(StackedBarsData map, Parameter parameter, String procedureName) {
 
-		if (map == null) { return new ChartData(); }
-		String title = parameter.getName();
-		String subtitle = procedureName;
-		String xLabel = "Ratio (mutantMean / controlMean)";//parameter.getUnit();
-		List<Double> control = map.getControlMutatns();
-		List<Double> mutant = map.getPhenMutants();
-		List<String> labels = new ArrayList<>();
-		List<String> controlGenes = map.getControlGenes();
-		List<String> mutantGenes = map.getMutantGenes();
-		List<String> controlGenesUrl = map.getControlGeneAccesionIds();
-		List<String> mutantGenesUrl = map.getMutantGeneAccesionIds();
-		DecimalFormat df;
-		List<Double> upperBounds = map.getUpperBounds();
-		// We need to set the number of decimals according to the difference between the lowest and highest, so that the bin labels will be distinct
-		// Here's an example where 2 decimals are not enogh https://www.mousephenotype.org/data/phenotypes/MP:0000063
-		if (upperBounds.get(upperBounds.size() - 1) - upperBounds.get(0) > 0.1){
-			df = new DecimalFormat("#.##");
-		}
-		else if (upperBounds.get(upperBounds.size() - 1) - upperBounds.get(0) > 0.01){
-			df = new DecimalFormat("#.####");
-		}
-		else if (upperBounds.get(upperBounds.size() - 1) - upperBounds.get(0) > 0.001){
-			df = new DecimalFormat("#.#####");
-		}
-		else{
-			df = new DecimalFormat("#.########ß");
-		}
-		for (int i = 0; i < upperBounds.size(); i++) {
-			String c = controlGenes.get(i);
-			String controlG = "";
-			if (c.length() > 50) {
-				int len = 0;
-				for (String gene : c.split(" ")) {
-					controlG += gene + " ";
-					len += gene.length();
-					if (len > 50) {
-						controlG += "<br/>";
-						len = 0;
-					}
-				}
-			} else controlG = c;
-			labels.add("'" + df.format(upperBounds.get(i)) + "###" + controlG + "###" + mutantGenes.get(i) + "###" + controlGenesUrl.get(i) + "###" + mutantGenesUrl.get(i) + "'");
-		}
-		double min = 0;
-		for (double val : mutant)
-			if (val < min) min = val;
-		for (double val : control)
-			if (val < min) min = val;
+	private List<UnidimensionalStatsObject> produceUnidimensionalStatsData(ExperimentDTO experiment) {
 
-		String chartId = parameter.getStableId();
-		String yTitle = "Number of lines";
-		String javascript = "$(document).ready(function() {" + "chart = new Highcharts.Chart({ "
-		+ "	colors:['rgba(239, 123, 11,0.7)','rgba(9, 120, 161,0.7)'],"
-		+ " chart: {  type: 'column' , renderTo: 'single-chart-div',  zoomType: 'y', style: { fontFamily: '\"Roboto\", sans-serif' }}," +
-		" title: {  text: '<span data-parameterStableId=\"" + parameter.getStableId() + "\">" + title + "</span>', useHTML:true  }," +
-		" subtitle: { text: '" + subtitle + "'}," +
-		" credits: { enabled: false }," +
-		" xAxis: { categories: " + labels + ", " +
-			"labels: {formatter:function(){ return this.value.split('###')[0]; }, rotation: -45} , "
-			+ "title: { text: '" + xLabel + "'} }," +
-		" yAxis: { min: " + min + ",  "
-			+ "	title: {  text: '" + yTitle + "'  }, "
-			+ "stackLabels: { enabled: false}  }," + " "
-			+ "tooltip: { " + "formatter: function() { " + "if ('Mutant strains with no calls for this phenotype' === this.series.name )" + "return ''+  this.series.name +': '+ this.y + ' out of '+ this.point.stackTotal;" + "else return ''+  this.series.name +': '+ this.y + ' out of '+ this.point.stackTotal + '<br/>Genes: ' +  this.x.split('###')[2];}  }, " + " "
-		+ "plotOptions: { column: {  stacking: 'normal',  dataLabels: { enabled: false} }, " + "series: { cursor: 'pointer', point: { events: { click: function() { " + "var url = document.URL.split('/phenotypes/')[0];" + "if ('Mutant strains with no calls for this phenotype' === this.series.name) {" + "url += '/charts?' + this.category.split('###')[3];" + "} else {" + "url += '/charts?' + this.category.split('###')[4];" + "} " + "url += '&parameter_stable_id=" + parameter.getStableId() + "';" + "window.open(url); " + "console.log(url);" + "} } } }" + "} ," + " series: [{ name: 'Mutant strains with this phenotype called',  data: " + mutant + "  }, {name: 'Mutant strains with no calls for this phenotype', data: " + control + "}]" + " });  }); ";
-		ChartData chartAndTable = new ChartData();
-		chartAndTable.setChart(javascript);
-		chartAndTable.setId(chartId);
-
-		return chartAndTable;
-	}
-
-
-	/**
-	 * 
-	 * @param parameter
-	 * @param experiment
-	 * @return
-	 */
-	private List<UnidimensionalStatsObject> produceUnidimensionalStatsData(ParameterDTO parameter, ExperimentDTO experiment) {
-
-		List<? extends StatisticalResult> results = experiment.getResults();
+		List<StatisticalResultDTO> results = experiment.getResults();
 		logger.debug("result=" + results);
 		List<UnidimensionalStatsObject> statsObjects = new ArrayList<>();
 
@@ -487,9 +363,9 @@ public class UnidimensionalChartAndTableProvider {
 				Set<ObservationDTO> mutants = experiment.getMutants(sexType, zType);
 				tempStatsObject = generateStats(experiment, tempStatsObject, mutants, zType, sexType);
 
-				for (StatisticalResult result : results) {
-					if (result.getZygosityType().equals(zType)) {
-						tempStatsObject.setResult((UnidimensionalResult) result);
+				for (StatisticalResultDTO result : results) {
+					if (ZygosityType.valueOf(result.getZygosity()).equals(zType)) {
+						tempStatsObject.setResult(result);
 					}
 				}
 
@@ -512,9 +388,8 @@ public class UnidimensionalChartAndTableProvider {
 		}
 		if (mutants.size() > 0) {
 			int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
-			Float mean = ChartUtils.getDecimalAdjustedFloat(new Float(stats.getMean()), decimalPlaces);
-			// System.out.println("mean=" + mean);
-			Float sd = ChartUtils.getDecimalAdjustedFloat(new Float(stats.getStandardDeviation()), decimalPlaces);
+			Float mean = ChartUtils.getDecimalAdjustedFloat((float) stats.getMean(), decimalPlaces);
+			Float sd = ChartUtils.getDecimalAdjustedFloat((float) stats.getStandardDeviation(), decimalPlaces);
 			tempStatsObject.setMean(mean);
 			tempStatsObject.setSd(sd);
 			if (zygosity != null) {

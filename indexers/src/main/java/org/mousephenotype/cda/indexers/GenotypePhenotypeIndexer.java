@@ -20,17 +20,17 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.constants.ParameterConstants;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
-import org.mousephenotype.cda.enumerations.LifeStage;
+import org.mousephenotype.cda.dto.LifeStage;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
-import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.utilities.PercentChangeStringParser;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
@@ -186,10 +186,10 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 if (!r.wasNull()) {
 
                     // Default female, override if male
-                    Double percentageChange = StatisticalResultService.getFemalePercentageChange(percentageChangeDb);
+                    Double percentageChange = PercentChangeStringParser.getFemalePercentageChange(percentageChangeDb);
 
                     if (doc.getSex().equals(SexType.male.getName())) {
-                        percentageChange = StatisticalResultService.getMalePercentageChange(percentageChangeDb);
+                        percentageChange = PercentChangeStringParser.getMalePercentageChange(percentageChangeDb);
                     }
 
                     if (percentageChange != null) {

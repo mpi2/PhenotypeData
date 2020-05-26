@@ -54,93 +54,115 @@ public class MpCsvWriterTest {
 
     @After
     public void cleanup() throws IOException {
-        Files.deleteIfExists(Paths.get(TEST_FILENAME));
+            System.out.println("  Trying to delete file");
+            System.out.println("  File exists? " + Files.exists(Paths.get(TEST_FILENAME)));
+            System.out.println("  File name: " + Paths.get(TEST_FILENAME).toAbsolutePath());
+            Files.deleteIfExists(Paths.get(TEST_FILENAME));
+            System.out.println("  Is file deleted? " + !Files.exists(Paths.get(TEST_FILENAME)));
+            System.out.println("  File exists? " + Files.exists(Paths.get(TEST_FILENAME)));
+            assertTrue(!Files.exists(Paths.get(TEST_FILENAME)));
+
     }
 
 
     @Test
     public void createEmptyCsvFile() throws IOException {
+        System.out.println("Starting createEmptyCsvFile()");
 
         assertTrue( ! Files.exists(Paths.get(TEST_FILENAME)));
-        MpCsvWriter writer = new MpCsvWriter(TEST_FILENAME, false);
-        writer.close();
+        try (MpCsvWriter writer = new MpCsvWriter(TEST_FILENAME, false)) {
+            writer.flush();
+            System.out.println("   FQ filename:" + writer.getFqFilename());
+        }
+
         assertTrue(Files.exists(Paths.get(TEST_FILENAME)));
+        System.out.println("Ending createEmptyCsvFile()");
+
     }
 
     @Test
     public void writeAndFlushOneRow() throws IOException {
+        System.out.println("Starting writeAndFlushOneRow()");
 
-        MpCsvWriter writer = new MpCsvWriter(TEST_FILENAME, false);
-        writer.close();
+        assertTrue(!Files.exists(Paths.get(TEST_FILENAME)));
 
-        writer = new MpCsvWriter(TEST_FILENAME, true);
-        List<String> actual;
+        try (MpCsvWriter writer = new MpCsvWriter(TEST_FILENAME, false)) {
+            List<String> actual;
 
-        writer.write(EXPECTED_LINE_1);
-        writer.flush();
-        actual = read();
-        assertArrayEquals(EXPECTED_LINE_1.toArray(), actual.toArray());
+            writer.write(EXPECTED_LINE_1);
+            writer.flush();
+            actual = read();
+            assertArrayEquals(EXPECTED_LINE_1.toArray(), actual.toArray());
+
+        }
+
+       System.out.println("Ending writeAndFlushOneRow()");
+
     }
 
     @Test
     public void writeAndFlushTwoRowsWithFlushAfterFirst() throws IOException {
+        System.out.println("Starting writeAndFlushTwoRowsWithFlushAfterFirst()");
+        assertTrue( ! Files.exists(Paths.get(TEST_FILENAME)));
 
-        MpCsvWriter writer = new MpCsvWriter(TEST_FILENAME, false);
-        writer.close();
+        try( MpCsvWriter writer = new MpCsvWriter(TEST_FILENAME, true)) {
+            List<String> actual;
 
-        writer = new MpCsvWriter(TEST_FILENAME, true);
-        List<String> actual;
+            writer.write(EXPECTED_LINE_1);
+            writer.flush();
+            actual = read();
+            assertArrayEquals(EXPECTED_LINE_1.toArray(), actual.toArray());
 
-        writer.write(EXPECTED_LINE_1);
-        writer.flush();
-        actual = read();
-        assertArrayEquals(EXPECTED_LINE_1.toArray(), actual.toArray());
-
-        writer.write(EXPECTED_LINE_2);
-        writer.flush();
-        List<List<String>> actualAll = readAll();
-        assertEquals(EXPECTED_ALL.size(), actualAll.size());
-        for (int i = 0; i < actualAll.size(); i++) {
-            assertArrayEquals(EXPECTED_ALL.get(i).toArray(), actualAll.get(i).toArray());
+            writer.write(EXPECTED_LINE_2);
+            writer.flush();
+            List<List<String>> actualAll = readAll();
+            assertEquals(EXPECTED_ALL.size(), actualAll.size());
+            for (int i = 0; i < actualAll.size(); i++) {
+                assertArrayEquals(EXPECTED_ALL.get(i).toArray(), actualAll.get(i).toArray());
+            }
         }
     }
 
     @Test
     public void writeAndFlushTwoRowsWithFlushAtEnd() throws IOException {
+        System.out.println("Starting writeAndFlushTwoRowsWithFlushAtEnd()");
+        assertTrue( ! Files.exists(Paths.get(TEST_FILENAME)));
 
         List<List<String>> actualAll;
 
-        MpCsvWriter writer = new MpCsvWriter(TEST_FILENAME, false);
-        writer.close();
+        try(MpCsvWriter writer = new MpCsvWriter(TEST_FILENAME, true)) {
+            List<String> actual;
 
-        writer = new MpCsvWriter(TEST_FILENAME, true);
-        List<String> actual;
+            writer.write(EXPECTED_LINE_1);
 
-        writer.write(EXPECTED_LINE_1);
+            // File doesn't get flushed until after it's closed.
+            actualAll = readAll();
+            assertEquals(0, actualAll.size());
 
-        // File doesn't get flushed until after it's closed.
-        actualAll = readAll();
-        assertEquals(0, actualAll.size());
+            writer.write(EXPECTED_LINE_2);
 
-        writer.write(EXPECTED_LINE_2);
+            actualAll = readAll();
+            assertEquals(0, actualAll.size());
 
-        actualAll = readAll();
-        assertEquals(0, actualAll.size());
+            writer.flush();
 
-        writer.close();
-        actualAll = readAll();
+            actualAll = readAll();
 
-        assertEquals(EXPECTED_ALL.size(), actualAll.size());
-        for (int i = 0; i < actualAll.size(); i++) {
-            assertArrayEquals(EXPECTED_ALL.get(i).toArray(), actualAll.get(i).toArray());
+            assertEquals(EXPECTED_ALL.size(), actualAll.size());
+            for (int i = 0; i < actualAll.size(); i++) {
+                assertArrayEquals(EXPECTED_ALL.get(i).toArray(), actualAll.get(i).toArray());
+            }
         }
+        System.out.println("End writeAndFlushTwoRowsWithFlushAtEnd()");
+
     }
 
     @Test
     public void close() throws IOException {
+        System.out.println("Starting close()");
+
         assertTrue( ! Files.exists(Paths.get(TEST_FILENAME)));
         MpCsvWriter writer = new MpCsvWriter(TEST_FILENAME, false);
-        String actualFqFilename = writer.getFqFilename();
         writer.close();
 
         assertNull(writer.getFqFilename());
@@ -153,28 +175,28 @@ public class MpCsvWriterTest {
 
     @Test
     public void getFqFilename() throws IOException {
+        System.out.println("Starting getFqFilename()");
 
         assertTrue( ! Files.exists(Paths.get(TEST_FILENAME)));
-        MpCsvWriter writer = new MpCsvWriter(TEST_FILENAME, false);
-        String actualFqFilename = writer.getFqFilename();
-        writer.close();
-        assertTrue(actualFqFilename.startsWith(File.separator));
+        try (MpCsvWriter writer = new MpCsvWriter(TEST_FILENAME, false)) {
+            String actualFqFilename = writer.getFqFilename();
+            assertTrue(actualFqFilename.endsWith(TEST_FILENAME) && actualFqFilename.contains(File.separator));
+        }
     }
 
 
     // PRIVATE METHODS
 
     private List<String> read() throws IOException {
-        FileReader fr = new FileReader(TEST_FILENAME);
-        CSVReader  r  = new CSVReader(fr);
-        return Arrays.asList(r.readNext());
+        try (FileReader fr = new FileReader(TEST_FILENAME); CSVReader r = new CSVReader(fr)) {
+            return Arrays.asList(r.readNext());
+        }
     }
 
     private List<List<String>> readAll() throws IOException {
-        FileReader     fr      = new FileReader(TEST_FILENAME);
-        CSVReader      r       = new CSVReader(fr);
-        List<String[]> results = r.readAll();
-        return results.stream().map(row ->
-            Arrays.asList(row)).collect(Collectors.toList());
+        try (FileReader fr = new FileReader(TEST_FILENAME); CSVReader r = new CSVReader(fr)) {
+            List<String[]> results = r.readAll();
+            return results.stream().map(Arrays::asList).collect(Collectors.toList());
+        }
     }
 }

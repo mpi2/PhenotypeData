@@ -15,10 +15,8 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import org.mousephenotype.cda.db.pojo.BiologicalModel;
-import org.mousephenotype.cda.db.pojo.CategoricalResult;
-import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +30,7 @@ public class CategoricalResultAndCharts {
 
 	List<CategoricalChartDataObject> maleAndFemale=new ArrayList<CategoricalChartDataObject>();
 	ExperimentDTO experiment;
-	List<BiologicalModel> biologicalModels=new ArrayList<BiologicalModel>();
-	private List<CategoricalResult> statsResults;
+	private List<StatisticalResultDTO> statsResults;
 	private String organisation="placeHolder";
 	
 	private Double combinedPValue;//male and female controls and experimental data combined to get an overall p value
@@ -46,12 +43,12 @@ public class CategoricalResultAndCharts {
 		this.combinedPValue = combinedPValue;
 	}
 
-	public List<CategoricalResult> getStatsResults() {
+	public List<StatisticalResultDTO> getStatsResults() {
 		return statsResults;
 	}
 
-	public void setStatsResults(List<? extends StatisticalResult> list) {
-		this.statsResults = (List<CategoricalResult>) list;
+	public void setStatsResults(List<StatisticalResultDTO> list) {
+		this.statsResults = list;
 	}
 
 	public List<CategoricalChartDataObject> getMaleAndFemale() {
@@ -60,18 +57,6 @@ public class CategoricalResultAndCharts {
 
 	public void setMaleAndFemale(List<CategoricalChartDataObject> maleAndFemale) {
 		this.maleAndFemale = maleAndFemale;
-	}
-
-	public List<BiologicalModel> getBiologicalModels() {
-		return biologicalModels;
-	}
-
-	public void setBiologicalModels(List<BiologicalModel> biologicalModels) {
-		this.biologicalModels = biologicalModels;
-	}
-
-	public void addBiologicalModel(BiologicalModel biologicalModel) {
-		this.biologicalModels.add(biologicalModel);
 	}
 
 	public void add(CategoricalChartDataObject chartData) {

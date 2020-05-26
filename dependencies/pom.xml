@@ -142,6 +142,18 @@
                 <version>${phenotypedata.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.mousephenotype.cda</groupId>
+                <artifactId>utilities</artifactId>
+                <version>${phenotypedata.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mousephenotype.cda</groupId>
+                <artifactId>web-db</artifactId>
+                <version>${phenotypedata.version}</version>
+            </dependency>
+
             <!-- https://mvnrepository.com/artifact/net.sf.jopt-simple/jopt-simple -->
             <dependency>
                 <groupId>net.sf.jopt-simple</groupId>

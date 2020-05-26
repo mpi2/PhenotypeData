@@ -21,7 +21,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.PivotField;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
-import org.mousephenotype.cda.enumerations.LifeStage;
+import org.mousephenotype.cda.dto.LifeStage;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.LifeStageMapper;

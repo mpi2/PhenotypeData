@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Data Overview report.
@@ -121,7 +120,7 @@ public class DataOverviewReport extends AbstractReport {
                 linesPerCenter.add(row);
             }
 
-        } catch (SolrServerException | InterruptedException | IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         result.add(linesPerCenter);
@@ -146,10 +145,10 @@ public class DataOverviewReport extends AbstractReport {
             for(String mpTerm : topLevelMpTermByGeneMapAll.keySet()) {
                 String[] row = {
                         mpTerm,
-                        new Integer(topLevelMpTermByGeneMapAll.get(mpTerm).size()).toString(),
-                        new Float((float) topLevelMpTermByGeneMapAll.get(mpTerm).size() / genesAll.size()*100)+"%",
-                        new Integer(topLevelMpTermByGeneMapComplete.get(mpTerm).size()).toString(),
-                        new Float((float) topLevelMpTermByGeneMapComplete.get(mpTerm).size() / genesComplete.size()*100)+"%"};
+                        Integer.toString(topLevelMpTermByGeneMapAll.get(mpTerm).size()),
+                        (float) topLevelMpTermByGeneMapAll.get(mpTerm).size() / genesAll.size() * 100 +"%",
+                        Integer.toString(topLevelMpTermByGeneMapComplete.get(mpTerm).size()),
+                        (float) topLevelMpTermByGeneMapComplete.get(mpTerm).size() / genesComplete.size() * 100 +"%"};
                 mpTable.add(row);
             }
 
@@ -166,14 +165,14 @@ public class DataOverviewReport extends AbstractReport {
             for(String mpTerm : mpTermByGeneMapAll.keySet()) {
                 String[] row = {
                         mpTerm,
-                        new Integer(mpTermByGeneMapAll.get(mpTerm).size()).toString(),
-                        new Float((float) mpTermByGeneMapAll.get(mpTerm).size() / genesAll.size()*100)+"%",
-                        new Integer(mpTermByGeneMapComplete.get(mpTerm).size()).toString(),
-                        new Float((float) mpTermByGeneMapComplete.get(mpTerm).size() / genesComplete.size()*100)+"%"};
+                        Integer.toString(mpTermByGeneMapAll.get(mpTerm).size()),
+                        (float) mpTermByGeneMapAll.get(mpTerm).size() / genesAll.size() * 100 +"%",
+                        Integer.toString(mpTermByGeneMapComplete.get(mpTerm).size()),
+                        (float) mpTermByGeneMapComplete.get(mpTerm).size() / genesComplete.size() * 100 +"%"};
                 mpTable.add(row);
             }
 
-        } catch (SolrServerException | InterruptedException | ExecutionException | IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

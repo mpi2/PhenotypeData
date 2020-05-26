@@ -28,10 +28,9 @@
 
         <!-- CDA/REGISTER INTEREST DEPENDENCIES -->
 
-
         <dependency>
             <groupId>org.mousephenotype.cda</groupId>
-            <artifactId>data-model-db</artifactId>
+            <artifactId>web-db</artifactId>
         </dependency>
 
         <dependency>

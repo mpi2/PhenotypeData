@@ -17,7 +17,7 @@
 package org.mousephenotype.cda.utilities;
 
 import org.junit.Test;
-import org.mousephenotype.cda.constants.Constants;
+import org.mousephenotype.cda.common.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

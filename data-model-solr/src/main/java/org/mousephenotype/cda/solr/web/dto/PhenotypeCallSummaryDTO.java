@@ -1,6 +1,5 @@
 package org.mousephenotype.cda.solr.web.dto;
 
-import org.mousephenotype.cda.db.pojo.Strain;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
@@ -22,7 +21,6 @@ public class PhenotypeCallSummaryDTO {
 	protected BasicBean    phenotypeTerm;
 	protected double pValue     = 0;
 	protected double effectSize = 0;
-	protected Strain          strain;
 	protected MarkerBean      allele;
 	protected MarkerBean      gene;
 	protected ImpressBaseDTO  pipeline;
@@ -151,19 +149,6 @@ public class PhenotypeCallSummaryDTO {
 		this.phenotypeTerm = phenotypeTerm;
 	}
 
-	/**
-	 * @return the strain
-	 */
-	public Strain getStrain() {
-		return strain;
-	}
-
-	/**
-	 * @param strain the strain to set
-	 */
-	public void setStrain(Strain strain) {
-		this.strain = strain;
-	}
 
 	/**
 	 * @return the allele
@@ -385,7 +370,6 @@ public class PhenotypeCallSummaryDTO {
 				", phenotypeTerm=" + phenotypeTerm +
 				", pValue=" + pValue +
 				", effectSize=" + effectSize +
-				", strain=" + strain +
 				", allele=" + allele +
 				", gene=" + gene +
 				", pipeline=" + pipeline +

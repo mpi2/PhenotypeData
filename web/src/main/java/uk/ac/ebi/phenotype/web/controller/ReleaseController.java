@@ -15,18 +15,16 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import org.apache.solr.client.solrj.SolrServerException;
 import org.json.JSONObject;
-import org.mousephenotype.cda.db.pojo.AggregateCountXY;
 import org.mousephenotype.cda.db.pojo.MetaInfo;
-import org.mousephenotype.cda.db.pojo.UniqueDatatypeAndStatisticalMethod;
 import org.mousephenotype.cda.db.repositories.AnalyticsPvalueDistributionRepository;
 import org.mousephenotype.cda.db.repositories.AnalyticsSignificantCallsProceduresRepository;
 import org.mousephenotype.cda.db.repositories.MetaHistoryRepository;
 import org.mousephenotype.cda.db.repositories.MetaInfoRepository;
+import org.mousephenotype.cda.dto.AggregateCountXY;
+import org.mousephenotype.cda.dto.UniqueDatatypeAndStatisticalMethod;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.Allele2Service;
-import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.PhenodigmService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
@@ -49,9 +47,6 @@ import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -80,7 +75,6 @@ public class ReleaseController {
 	private UnidimensionalChartAndTableProvider           chartProvider;
 	private MetaHistoryRepository                         metaHisoryRepository;
 	private MetaInfoRepository                            metaInfoRepository;
-	private ObservationService                            observationService;
 	private PhenodigmService                              phenodigmService;
 	private StatisticalResultService                      statisticalResultService;
 
@@ -93,7 +87,6 @@ public class ReleaseController {
 			@NotNull UnidimensionalChartAndTableProvider chartProvider,
 			@NotNull MetaHistoryRepository metaHisoryRepository,
 			@NotNull MetaInfoRepository metaInfoRepository,
-			@NotNull ObservationService observationService,
 			@NotNull PhenodigmService phenodigmService,
 			@NotNull StatisticalResultService statisticalResultService)
 	{
@@ -103,7 +96,6 @@ public class ReleaseController {
 		this.chartProvider = chartProvider;
 		this.metaHisoryRepository = metaHisoryRepository;
 		this.metaInfoRepository = metaInfoRepository;
-		this.observationService = observationService;
 		this.phenodigmService = phenodigmService;
 		this.statisticalResultService = statisticalResultService;
 	}
@@ -111,10 +103,9 @@ public class ReleaseController {
 
 	/**
 	 * Force update meta info cache every fifteen minutes
-	 * @throws SQLException when the database is not available
 	 */
 	@Scheduled(cron = "0 0/15 * * * *")
-	private void updateCacheTimer() throws SQLException {
+	private void updateCacheTimer() {
 		logger.info("Cache timeout expired. Clearing metadata cache");
 		cachedMetaInfo = null;
 		getMetaInfo();
@@ -128,9 +119,8 @@ public class ReleaseController {
 	 * Sometimes (defined by CACHE_REFRESH_PERCENT), refresh the cached data
 	 *
 	 * @return map of the meta data
-	 * @throws SQLException
 	 */
-	private Map<String, String> getMetaInfo() throws SQLException {
+	private Map<String, String> getMetaInfo() {
 		Map<String, String> metaInfo = cachedMetaInfo;
 
 		if (metaInfo == null || Math.random() < CACHE_REFRESH_PERCENT) {
@@ -159,19 +149,9 @@ public class ReleaseController {
 	@RequestMapping(value = "/release.json", method = RequestMethod.GET)
 	public ResponseEntity<String> getJsonReleaseInformation() {
 
-		try {
-
-			// 10% of the time refresh the cached metadata info
-			Map<String, String> metaInfo = getMetaInfo();
-
-			JSONObject json = new JSONObject(metaInfo);
-
-			return new ResponseEntity<>(json.toString(), createResponseHeaders(), HttpStatus.OK);
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return new ResponseEntity<>("Error retreiving release information", createResponseHeaders(),
-					HttpStatus.SERVICE_UNAVAILABLE);
-		}
+		Map<String, String> metaInfo = getMetaInfo();
+		JSONObject json = new JSONObject(metaInfo);
+		return new ResponseEntity<>(json.toString(), createResponseHeaders(), HttpStatus.OK);
 	}
 
 	private HttpHeaders createResponseHeaders() {
@@ -181,13 +161,12 @@ public class ReleaseController {
 	}
 
 	@RequestMapping(value = "/release/web")
-	public String getWebRelease(Model model) {
+	public String getWebRelease() {
 		return "webRelease";
 	}
 
 	@RequestMapping(value = "/release", method = RequestMethod.GET)
-	public String getReleaseInformation(Model model)
-			throws SolrServerException, IOException, URISyntaxException, SQLException {
+	public String getReleaseInformation(Model model) {
 
 		// 10% of the time refresh the cached metadata info
 		Map<String, String> metaInfo = getMetaInfo();
@@ -239,7 +218,7 @@ public class ReleaseController {
 												UniqueDatatypeAndStatisticalMethod::getStatisticalMethod,
 												Collectors.toList())));
 
-		/**
+		/*
 		 * Generate pValue distribution graph for all methods
 		 */
 		Map<String, String> distributionCharts = new HashMap<>();
@@ -254,7 +233,7 @@ public class ReleaseController {
 			}
 		}
 
-		/**
+		/*
 		 * Get Historical trends release by release
 		 */
 		List<String> allDataReleaseVersions = metaHisoryRepository.getAllDataReleaseVersionsCastAsc();
@@ -262,8 +241,8 @@ public class ReleaseController {
 		String[] trendsVariables = new String[] { "statistically_significant_calls", "phenotyped_genes",
 				"phenotyped_lines" };
 		Map<String, List<AggregateCountXY>> trendsMap = new HashMap<>();
-		for (int i = 0; i < trendsVariables.length; i++) {
-			trendsMap.put(trendsVariables[i], getHistoricalData(trendsVariables[i]));
+		for (String trendsVariable : trendsVariables) {
+			trendsMap.put(trendsVariable, getHistoricalData(trendsVariable));
 		}
 
 		String trendsChart = chartsProvider.generateHistoryTrendsChart(trendsMap, allDataReleaseVersions,
@@ -273,13 +252,11 @@ public class ReleaseController {
 		Map<String, List<AggregateCountXY>> datapointsTrendsMap = new HashMap<>();
 		String[]                            status              = new String[] { "QC_passed", "QC_failed", "issues" };
 
-		for (int i = 0; i < dataTypes.length; i++) {
-			for (int j = 0; j < status.length; j++) {
-				String                 propertyKey = dataTypes[i] + "_datapoints_" + status[j];
-				List<AggregateCountXY> dataPoints  = getHistoricalData(propertyKey);
-				// if (beans.size() > 0) {
+		for (String dataType : dataTypes) {
+			for (String s : status) {
+				String propertyKey = dataType + "_datapoints_" + s;
+				List<AggregateCountXY> dataPoints = getHistoricalData(propertyKey);
 				datapointsTrendsMap.put(propertyKey, dataPoints);
-				// }
 			}
 		}
 
@@ -325,9 +302,7 @@ public class ReleaseController {
 				"Number of Genes", " genes", "genotypeStatusByCenterChart", "checkAllGenByCenter",
 				"uncheckAllGenByCenter");
 
-		HashMap<String, Integer> fertilityDistrib = getFertilityMap();
-
-		/**
+		/*
 		 * Get all former releases: releases but the current one
 		 */
 		List<String> releases = metaHisoryRepository.getAllDataReleaseVersionsBeforeSpecified(metaInfo.get("data_release_version"));
@@ -353,14 +328,13 @@ public class ReleaseController {
 												   "Phenotyping Status", "phenotypeStatusChart", null));
 		model.addAttribute("phenotypingDistributionChart", phenotypingDistributionChart);
 		model.addAttribute("genotypingDistributionChart", genotypingDistributionChart);
-		model.addAttribute("fertilityMap", fertilityDistrib);
 
 		return null;
 	}
 
 	@RequestMapping(value = "/release_notes/{releaseVersion}.html", method = RequestMethod.GET)
-	public String remapLegacyPastReleasesInformation(Model model, @PathVariable String releaseVersion,
-													 HttpServletRequest request) throws SQLException {
+	public String remapLegacyPastReleasesInformation(@PathVariable String releaseVersion,
+													 HttpServletRequest request) {
 		// Remap legacy request to new format
 		String tmp = releaseVersion.replace("IMPC_Release_Notes_", "");
 		tmp = tmp.replace(".html", "");
@@ -368,14 +342,14 @@ public class ReleaseController {
 
 		String url =  "http:" + request.getAttribute("mappedHostname").toString()
 				+ request.getAttribute("baseUrl").toString()
-				+ "/previous-releases/" + Double.toString(d);
+				+ "/previous-releases/" + d;
 		return "redirect:" + url;
 	}
 
 	@RequestMapping(value = "/previous-releases/{releaseVersion}", method = RequestMethod.GET)
-	public String getPastReleasesInformation(Model model, @PathVariable String releaseVersion) throws SQLException {
+	public String getPastReleasesInformation(Model model, @PathVariable String releaseVersion) {
 
-		/**
+		/*
 		 * Get all previous releases
 		 */
 		List<String> previousReleases = metaHisoryRepository.getAllDataReleaseVersionsBeforeSpecified(releaseVersion);
@@ -401,16 +375,14 @@ public class ReleaseController {
 
 		return metaHisoryRepository.getAllByPropertyKeyCastAsc(propertyKey)
 				.stream()
-				.map(aggregate -> {
-					return new AggregateCountXY(
-							CommonUtils.tryParseInt(aggregate.getPropertyValue()),
-							aggregate.getPropertyKey(),
-							aggregate.getPropertyKey(),
-							null,
-							aggregate.getDataReleaseVersion(),
-							aggregate.getDataReleaseVersion(),
-							null);
-				})
+				.map(aggregate -> new AggregateCountXY(
+						CommonUtils.tryParseInt(aggregate.getPropertyValue()),
+						aggregate.getPropertyKey(),
+						aggregate.getPropertyKey(),
+						null,
+						aggregate.getDataReleaseVersion(),
+						aggregate.getDataReleaseVersion(),
+						null))
 		.collect(Collectors.toList());
 	}
 
@@ -432,34 +404,6 @@ public class ReleaseController {
 		.collect(Collectors.toList());
 	}
 
-
-	public HashMap<String, Integer> getFertilityMap() throws IOException, SolrServerException {
-
-		List<String> resource = new ArrayList<>();
-		resource.add("IMPC");
-		Set<String> fertileColonies = observationService.getAllColonyIdsByResource(resource, true);
-		Set<String> maleInfertileColonies = new HashSet<>();
-		Set<String> femaleInfertileColonies = new HashSet<>();
-		Set<String> bothSexesInfertileColonies;
-
-		maleInfertileColonies = statisticalResultService.getAssociationsDistribution("male infertility", "IMPC").keySet();
-		femaleInfertileColonies = statisticalResultService.getAssociationsDistribution("female infertility", "IMPC").keySet();
-
-		bothSexesInfertileColonies = new HashSet<>(maleInfertileColonies);
-		bothSexesInfertileColonies.retainAll(femaleInfertileColonies);
-		fertileColonies.removeAll(maleInfertileColonies);
-		fertileColonies.removeAll(femaleInfertileColonies);
-		maleInfertileColonies.removeAll(bothSexesInfertileColonies);
-		femaleInfertileColonies.removeAll(bothSexesInfertileColonies);
-
-		HashMap<String, Integer> res = new HashMap<>();
-		res.put("female infertile", femaleInfertileColonies.size());
-		res.put("male infertile", maleInfertileColonies.size());
-		res.put("both sexes infertile", bothSexesInfertileColonies.size());
-		res.put("fertile", fertileColonies.size());
-
-		return res;
-	}
 
 	private List<AggregateCountXY> getAllProcedurePhenotypeCalls() {
 

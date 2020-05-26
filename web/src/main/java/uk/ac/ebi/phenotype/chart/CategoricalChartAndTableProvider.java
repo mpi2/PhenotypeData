@@ -16,29 +16,23 @@
 package uk.ac.ebi.phenotype.chart;
 
 import org.apache.commons.lang3.text.WordUtils;
-import org.mousephenotype.cda.db.pojo.CategoricalResult;
-import org.mousephenotype.cda.db.pojo.Parameter;
-import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
-import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.web.dto.CategoricalDataObject;
 import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
+import javax.inject.Inject;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.Map.Entry;
@@ -48,26 +42,21 @@ public class CategoricalChartAndTableProvider {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-	@Autowired
-	ImpressService impressService;
+	private final ImpressService impressService;
+
+	@Inject
+	public CategoricalChartAndTableProvider(ImpressService impressService) {
+		this.impressService = impressService;
+	}
 
 
 	/**
 	 * return a list of categorical result and chart objects - one for each
 	 * ExperimentDTO
-	 *
-	 * @param experiment
-	 * @param parameter
-	 * @param acc
-	 * @param numberString
-	 * @return
-	 * @throws SQLException
-	 * @throws IOException
-	 * @throws URISyntaxException
 	 */
 	public CategoricalResultAndCharts doCategoricalData(ExperimentDTO experiment, ParameterDTO parameter,
-	String acc, String numberString)
-	throws SQLException, IOException, URISyntaxException {
+														String numberString)
+	throws SQLException {
 
 		logger.debug("running categorical data");
 		
@@ -83,13 +72,8 @@ public class CategoricalChartAndTableProvider {
 			
 		CategoricalResultAndCharts categoricalResultAndCharts = new CategoricalResultAndCharts();
 		categoricalResultAndCharts.setExperiment(experiment);
-		List<? extends StatisticalResult> statsResults = (List<? extends StatisticalResult>) experiment.getResults();
+		List<StatisticalResultDTO> statsResults = experiment.getResults();
 		CategoricalChartDataObject chartData = new CategoricalChartDataObject();
-
-		Set<ObservationDTO> maleControls = new HashSet<>();
-		Set<ObservationDTO> femaleControls = new HashSet<>();
-		Set<ObservationDTO> maleMutants = new HashSet<>();
-		Set<ObservationDTO> femaleMutants = new HashSet<>();
 
 		// make a chart object one for each sex
 		for (SexType sexType : experiment.getSexes()) {
@@ -113,16 +97,9 @@ public class CategoricalChartAndTableProvider {
 					String categoString = control.getCategory();
 					if (categoString.equals(category) && docSexType.equals(sexType)) {
 						controlCount++;
-						if(sexType.equals(SexType.male)){
-							maleControls.add(control);
-						} else if(sexType.equals(SexType.female)){
-							femaleControls.add(control);
-						}
 					}
 				}
-
 				controlCatData.setCount(controlCount);
-				//System.out.println("control=" + sexType.name() + " count=" + controlCount + " category=" + category);
 				controlSet.add(controlCatData);
 			}
 			chartData.add(controlSet);
@@ -136,10 +113,10 @@ public class CategoricalChartAndTableProvider {
 					if (category.equals("imageOnly")){
 						continue;
 					}
-					Long mutantCount = new Long(0);
+					Long mutantCount = 0L;
 					// loop over all the experimental docs and get
 					// all that apply to current loop parameters
-					Set<ObservationDTO> expObservationsSet = Collections.emptySet();
+					Set<ObservationDTO> expObservationsSet;
 					expObservationsSet = experiment.getMutants(sexType, zType);
 
 					for (ObservationDTO expDto : expObservationsSet) {
@@ -153,11 +130,6 @@ public class CategoricalChartAndTableProvider {
 						// 1 for each that does
 						if (categoString.equals(category) && docSexType.equals(sexType)) {
 							mutantCount++;
-							if(sexType.equals(SexType.male)){
-								maleMutants.add(expDto);
-							} else if(sexType.equals(SexType.female)){
-								femaleMutants.add(expDto);
-							}
 						}
 					}
 
@@ -165,22 +137,17 @@ public class CategoricalChartAndTableProvider {
 					expCatData.setName(zType.name());
 					expCatData.setCategory(category);
 					expCatData.setCount(mutantCount);
-					CategoricalResult tempStatsResult = null;
-					for (StatisticalResult result : statsResults) {
-						//System.out.println("is matching?="+result.getZygosityType()+" zType="+zType +" result sex="+result.getSexType()+" loopsexType="+sexType +" sexType="+SexType.both);
-						if(result.getSexType() != null && result.getSexType().equals(SexType.both)){
-							//System.out.println("both pValue detected");
-							CategoricalResult veryTempStatsResult = (CategoricalResult) result;
-							categoricalResultAndCharts.setCombinedPValue(veryTempStatsResult.getpValue());
+					StatisticalResultDTO tempStatsResult = null;
+					for (StatisticalResultDTO result : statsResults) {
+						if(result.getSex() != null && SexType.valueOf(result.getSex()).equals(SexType.both)){
+							categoricalResultAndCharts.setCombinedPValue(result.getpValue());
 						}
-						// System.out.println("result.getZygosityType()!="+result.getZygosityType()+"  && result.getSexType()="+result.getSexType());
-						if (result.getZygosityType() != null && result.getSexType() != null) {
-							if (result.getZygosityType().equals(zType) && result.getSexType().equals(sexType)) {
-								expCatData.setResult((CategoricalResult) result);
-								result.setSexType(sexType);
-								result.setZygosityType(zType);
-								tempStatsResult = (CategoricalResult) result;
-								// result.setControlBiologicalModel(controlBiologicalModel);
+						if (result.getZygosity() != null && result.getSex() != null) {
+							if (ZygosityType.valueOf(result.getZygosity()).equals(zType) && SexType.valueOf(result.getSex()).equals(sexType)) {
+								expCatData.setResult(result);
+								result.setSex(sexType.getName());
+								result.setZygosity(zType.getName());
+								tempStatsResult = result;
 							}
 						}
 					}
@@ -193,8 +160,7 @@ public class CategoricalChartAndTableProvider {
 							expCatData.setMaxEffect(tempStatsResult.getEffectSize());
 						}
 					}
-					// logger.warn("pValue="+pValue+" maxEffect="+maxEffect);
-					// }
+
 					zTypeSet.add(expCatData);
 
 				}
@@ -205,7 +171,7 @@ public class CategoricalChartAndTableProvider {
 
 		}// end of gender
 
-		String chartNew = this.createCategoricalChartFromObjects(numberString, chartData, parameter, experiment);
+		String chartNew = this.createCategoricalChartFromObjects(numberString, chartData);
 		chartData.setChart(chartNew);
 		categoricalResultAndCharts.add(chartData);
 		categoricalResultAndCharts.setStatsResults(experiment.getResults());
@@ -215,129 +181,21 @@ public class CategoricalChartAndTableProvider {
 	}
 
 
-	public List<ChartData> doCategoricalDataOverview(CategoricalSet controlSet, CategoricalSet mutantSet, Model model, Parameter parameter,
-		String procedureName)
-	throws SQLException {
-
-		ChartData chartData = new ChartData();
-		List<ChartData> categoricalResultAndCharts = new ArrayList<ChartData>();
-		String chartNew = this.createCategoricalChartOverview(controlSet, mutantSet, model, parameter, procedureName, chartData);
-
-		/* 2015/08/20 Ilinca : Commented out if for empty control sets as the FER an VIA never have control data.  */
-		chartData.setChart(chartNew);
-		categoricalResultAndCharts.add(chartData);
-
-		return categoricalResultAndCharts;
-	}
-
-
-	private String createCategoricalChartOverview(CategoricalSet controlSet,
-	CategoricalSet mutantSet,
-	Model model,
-	Parameter parameter, String procedureName,
-	ChartData chartData)
-	throws SQLException {
-
-		// to not 0 index as using loop count in jsp
-		JSONArray seriesArray          = new JSONArray();
-		JSONArray xAxisCategoriesArray = new JSONArray();
-		String    title                = parameter.getName();
-		String    subtitle             = procedureName ; // parameter.getStableId();
-
-		// get a list of unique categories
-		HashMap<String, List<Long>> categories = new LinkedHashMap<String, List<Long>>();
-		// keep the order so we have normal first!
-		if (controlSet != null && controlSet.getCount() > 0){
-			for (CategoricalDataObject catObject : controlSet.getCatObjects()) {
-				String category = catObject.getCategory();
-				categories.put(category, new ArrayList<Long>());
-			}
-			xAxisCategoriesArray.put(controlSet.getName());
-		}
-		
-		if (mutantSet != null && mutantSet.getCount() > 0){
-			for (CategoricalDataObject catObject : mutantSet.getCatObjects()) {
-				String category = catObject.getCategory();
-				if (!categories.containsKey(category) && !category.equalsIgnoreCase("no data")) {
-					categories.put(category, new ArrayList<Long>());
-				}
-			}
-			xAxisCategoriesArray.put(mutantSet.getName());
-		}
-
-		for (String categoryLabel : categories.keySet()) {
-			if (controlSet != null && controlSet.getCount() > 0){
-				if (controlSet.getCategoryByLabel(categoryLabel) != null) {
-					categories.get(categoryLabel).add(controlSet.getCategoryByLabel(categoryLabel).getCount());
-				}
-				else categories.get(categoryLabel).add((long) 0);
-			}
-
-			if (mutantSet.getCategoryByLabel(categoryLabel) != null) {
-				categories.get(categoryLabel).add(mutantSet.getCategoryByLabel(categoryLabel).getCount());
-			}
-			else categories.get(categoryLabel).add((long) 0);
-		}
-
-		try {
-			Iterator<Entry<String, List<Long>>> it = categories.entrySet().iterator();
-			while (it.hasNext()) {
-				Map.Entry<String, List<Long>> pairs = (Map.Entry<String, List<Long>>) it.next();
-				List<Long> data = (List<Long>) pairs.getValue();
-				JSONObject dataset1 = new JSONObject();// e.g. normal
-				dataset1.put("name", pairs.getKey());
-				JSONArray dataset = new JSONArray();
-				for (Long singleValue : data) {
-					dataset.put(singleValue);
-				}
-				dataset1.put("data", dataset);
-				
-				seriesArray.put(dataset1);
-			}
-			
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-
-		String chartId = "single-chart-div";
-		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque);
-		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ "
-		+ "colors:" + colors + ", "
-		+ "tooltip: {  pointFormat: '{series.name}: <b>{point.y}</b>'},"
-		+ "chart: { renderTo: '" + chartId + "', type: 'column', style: { fontFamily: '\"Roboto\", sans-serif' }}, "
-		+ "title: { text: '', useHTML:true }, "
-		+ "subtitle: { text:''}, credits: { enabled: false }, "
-		+ "xAxis: { categories: " + xAxisCategoriesArray + "}, "
-		+ "yAxis: { min: 0, title: { text: 'Percent Occurrence' } ,  "
-		+ "labels: {       formatter: function() { return this.value +'%';   }  }  },  "
-		+ "plotOptions: { column: { stacking: 'percent' } }, "
-		+ "series: " + seriesArray + " });  });";
-
-		chartData.setChart(javascript);
-		chartData.setId(chartId);
-		return javascript;
-
-	}
-
-
 	private String createCategoricalChartFromObjects(String chartId,
-	CategoricalChartDataObject chartData, ParameterDTO parameter,
-	ExperimentDTO experiment)
-	throws SQLException {
+													 CategoricalChartDataObject chartData) {
 
 		JSONArray seriesArray = new JSONArray();
 		JSONArray xAxisCategoriesArray = new JSONArray();
-		String title = parameter.getName();
-		
+
 		List<CategoricalSet> catSets = chartData.getCategoricalSets();
 		// get a list of unique categories
-		HashMap<String, List<Long>> categories = new LinkedHashMap<String, List<Long>>();
+		HashMap<String, List<Long>> categories = new LinkedHashMap<>();
 		// keep the order so we have normal first!
 		CategoricalSet catSet1 = catSets.get(0);
 		// assume each cat set has the same number of categories
 		for (CategoricalDataObject catObject : catSet1.getCatObjects()) {
 			String category = catObject.getCategory();
-			categories.put(category, new ArrayList<Long>());
+			categories.put(category, new ArrayList<>());
 		}
 		
 		// loop through control, then hom, then het etc
@@ -350,11 +208,9 @@ public class CategoricalChartAndTableProvider {
 		}
 
 		try {
-			Iterator<Entry<String, List<Long>>> it = categories.entrySet().iterator();
-			while (it.hasNext()) {
-				Map.Entry<String, List<Long>> pairs    = (Map.Entry<String, List<Long>>) it.next();
-				List<Long>                    data     = (List<Long>) pairs.getValue();
-				JSONObject                    dataset1 = new JSONObject();// e.g. normal
+			for (Entry<String, List<Long>> pairs : categories.entrySet()) {
+				List<Long> data = pairs.getValue();
+				JSONObject dataset1 = new JSONObject();// e.g. normal
 				dataset1.put("name", pairs.getKey());
 				JSONArray dataset = new JSONArray();
 
@@ -369,22 +225,6 @@ public class CategoricalChartAndTableProvider {
 			e.printStackTrace();
 		}
 
-		// replace space in MRC Harwell with underscore so valid javascript
-		// variable
-		// String chartId = bm.getId() + sex.name()+organisation.replace(" ",
-		// "_")+"_"+metadataGroup;
-
-		ProcedureDTO proc = impressService.getProcedureByStableId(experiment.getProcedureStableId()) ;
-		String procedureDescription = "";
-		if (proc != null) {
-			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Long)proc.getStableKey()).toString()), "Procedure: "+proc.getName());
-		}
-		if (parameter.getStableKey() != null) {
-			title = String.format("<a href=\"%s\">%s</a>", impressService.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey()),  "Parameter: "+ parameter.getName());
-		}
-
-
-		//impressService.getAnchorForProcedure(experiment.getProcedureName(), experiment.getProcedureStableId());
 
 		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque);
 		String toolTipFunction = "	{ formatter: function() {         return \''+  this.series.name +': '+ this.y +' ('+ (this.y*100/this.total).toFixed(1) +'%)';   }    }";

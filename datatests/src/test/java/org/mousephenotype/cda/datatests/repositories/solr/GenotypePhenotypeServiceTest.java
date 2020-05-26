@@ -36,7 +36,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.*;
 
 import static org.junit.Assert.assertTrue;
@@ -153,7 +152,7 @@ public class GenotypePhenotypeServiceTest {
 
             geneSymbols = genotypePhenotypeService.getGenesForMpId(phenotypeId);
 
-        } catch (IOException | URISyntaxException | SolrServerException e) {
+        } catch (IOException | SolrServerException e) {
 
             e.printStackTrace();
         }

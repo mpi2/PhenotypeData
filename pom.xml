@@ -32,6 +32,8 @@
         <module>thirdparty_loads</module>
         <module>datatests</module>
         <module>api</module>
+        <module>utilities</module>
+        <module>web-db</module>
     </modules>
 
     <properties>

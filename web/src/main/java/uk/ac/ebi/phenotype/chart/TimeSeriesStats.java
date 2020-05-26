@@ -15,15 +15,15 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.mousephenotype.cda.dto.DiscreteTimePoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
-
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class TimeSeriesStats {
@@ -61,11 +61,11 @@ public class TimeSeriesStats {
 			double mean = stats.getMean();
 			double std = stats.getStandardDeviation();
 			DiscreteTimePoint meanDataTimePoint = new DiscreteTimePoint(time,
-					new Float(mean), new Float(stats.getStandardDeviation()), timeMap.get(time).size());
+					(float) mean, (float) stats.getStandardDeviation(), timeMap.get(time).size());
 			List<Float> errorPair = new ArrayList<>();
 
-			Float lower = new Float(mean - std);
-			Float higher = new Float(mean + std);
+			Float lower = (float) (mean - std);
+			Float higher = (float) (mean + std);
 			errorPair.add(lower);
 			errorPair.add(higher);
 			log.debug("stddev=" + std + " lower=" + lower + " higher=" + higher);

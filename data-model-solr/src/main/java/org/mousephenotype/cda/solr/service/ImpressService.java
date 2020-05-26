@@ -70,6 +70,7 @@ public class ImpressService extends BasicService implements WebStatus {
 	 * @since 2015/07/17
 	 * @author tudose
 	 * @return
+	 * @return
 	 */
 
 	public List<ProcedureDTO> getProceduresByPipeline(String pipelineStableId) {

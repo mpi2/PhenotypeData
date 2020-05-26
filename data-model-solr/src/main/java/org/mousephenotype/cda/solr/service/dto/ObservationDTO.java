@@ -15,16 +15,12 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.beans.Field;
-import org.mousephenotype.cda.enumerations.LifeStage;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.utilities.LifeStageMapper;
 
-import javax.validation.constraints.NotNull;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZoneOffset;

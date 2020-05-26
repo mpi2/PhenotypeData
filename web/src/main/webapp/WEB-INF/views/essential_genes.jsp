@@ -13,49 +13,6 @@
     </jsp:attribute>
 
     <jsp:attribute name="header">
-        		<script type="text/javascript">
-                    var base_url = '${baseUrl}';
-                    var geneId = '${gene.mgiAccessionId}';
-                </script>
-        <script type='text/javascript' src="${baseUrl}/js/general/dropDownExperimentPage.js?v=${version}" async></script>
-
-        <script src="https://code.highcharts.com/highcharts.js"></script>
-        <script src="https://code.highcharts.com/modules/exporting.js"></script>
-
-        <script src="${baseUrl}/js/general/enu.js"></script>
-            <script src="${baseUrl}/js/general/dropdownfilters.js" async></script>
-            <script type="text/javascript" src="${baseUrl}/js/general/allele.js" async></script>
-        <%-- Phenogrid requirements --%>
-        <script type="text/javascript"
-                src="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.min.js?v=${version}" async></script>
-            <link rel="stylesheet" type="text/css"
-                  href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.min.css?v=${version}" async>
-
-        <%-- Phenodigm2 requirements --%>
-        <script src="//d3js.org/d3.v4.min.js"></script>
-            <script type="text/javascript">var impc = {baseUrl: "${baseUrl}"}</script>
-            <script type="text/javascript" src="${baseUrl}/js/vendor/underscore/underscore-1.8.3.min.js"></script>
-            <script type="text/javascript" src="${baseUrl}/js/phenodigm2/phenodigm2.js?v=${version}"></script>
-            <link rel="stylesheet" type="text/css" href="${baseUrl}/css/phenodigm2.css" async>
-        <%-- End of phenodigm2 requirements --%>
-
-        <meta name="_csrf" content="${_csrf.token}"/>
-        <meta name="_csrf_header" content="${_csrf.headerName}"/>
-
-        <script type="text/javascript">
-            var gene_id = '${acc}';
-            var monarchUrl = '${monarchUrl}';
-
-            $(document).ready(function () {
-
-            });
-
-
-
-        </script>
-
-        <link rel="stylesheet" type="text/css" href="${baseUrl}/css/genes.css"/>
-
         <c:if test="${liveSite || param.checklive != null}">
             <!-- Google Tag Manager -->
             <script>
@@ -75,7 +32,6 @@
             </script>
             <!-- End Google Tag Manager -->
         </c:if>
-
     </jsp:attribute>
 
     <jsp:body>
@@ -90,109 +46,113 @@
 
         <div class="container data-heading">
             <div class="row">
-
-                <noscript>
-                    <div class="col-12 no-gutters">
-                        <h5 style="float: left">Please enable javascript if you want to log in to follow or stop
-                            following this gene.</h5>
-                    </div>
-                </noscript>
-
                 <div class="col-12 no-gutters">
                     <h2 style="float: left" class="mb-0">Essential Genes</h2>
                     <h2>
-                        <c:choose>
-                            <c:when test="${isFollowing}">
-                                <c:set var="followText" value="Unfollow"/>
-                                <c:set var="activeClass" value="btn-outline-secondary"/>
-                                <c:set var="activeIconClass" value="fa-user-minus"/>
-                            </c:when>
-                            <c:otherwise>
-                                <c:set var="followText" value="Follow"/>
-                                <c:set var="activeClass" value="btn-primary"/>
-                                <c:set var="activeIconClass" value="fa-user-plus"/>
-                            </c:otherwise>
-                        </c:choose>
-                        <c:choose>
-                            <c:when test="${isLoggedIn }">
-                                <form action="${baseUrl}/update-gene-registration" method="POST" id="follow-form">
-                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-                                    <input type="hidden" name="geneAccessionId" value="${acc}" />
-                                    <input type="hidden" name="target" value="${baseUrl}/genes/${acc}" />
-                                    <button type="submit" style="float: right" class="btn ${activeClass}">
-                                        <i class="fas ${activeIconClass}"></i>
-                                        <span>${followText}</span>
-                                    </button>
-                                </form>
-                            </c:when>
-                            <c:otherwise>
-                                <a href="${baseUrl}/rilogin?target=${baseUrl}/genes/${acc}"
-                                   class="btn btn-primary"
-                                   style="float: right"
-                                   title="Log in to My genes">Log in to follow</a>
-                            </c:otherwise>
-                        </c:choose>
-                        <a href="${cmsBaseUrl}/help/gene-page/" target="_blank">
+                        <a href="${cmsBaseUrl}/help/essential-genes-page/" target="_blank">
                             <i class="fa fa-question-circle" style="float: right; color: #212529; padding-right: 10px;"></i></a>
                     </h2>
                 </div>
             </div>
         </div>
+
         <div class="container white-bg-small">
             <div class="row pb-5">
+
                 <div class="col-12 col-md-12">
+
+
                     <div class="pre-content clear-bg">
+                        <div class="breadcrumbs clear row">
+                            <div class="col-12 d-none d-lg-block pt-5">
+                                <aside>
+                                    <a href="/">Home</a> <span class="fal fa-angle-right"></span>
+                                    <a href="${baseUrl}/search">Genes</a><span class="fal fa-angle-right"></span>
+                                    Essential Genes
+                                </aside>
+                            </div>
+                        </div>
                         <div class="page-content people py-5 white-bg">
-                            <p> Identifying which genes are linked to a rare disease is one of the most difficult challenges geneticists face. By cross comparing viability and phenotyping data from knockout IMPC mice with human cell essential scores from the Cancer Dependency map, genes can be categorised on how essential they are for supporting life and the likelihood they are associated with de novo genetic disorders. In this portal, we present integrated views of viability data to help researchers explore the full genetic spectrum of essentiality and aid in their discovery of new human disease genes.  More in our blog post <a href="">here</a>.
-                           </p>
-                                IMPC associated publications: <a href="">Dickinson et al. Nature 2016</a> | <a href="">Muñoz-Fuentes et al. Conservation Genetics Special Issue 2019</a> | <a href="">Cacheiro et al. Nature Communications 2020</a>
+                            <p>Identifying which genes are linked to a rare disease is one of the most difficult
+                                challenges geneticists face. By cross comparing viability and phenotyping data from
+                                knockout IMPC mice with human cell essential scores from the Cancer Dependency map,
+                                genes can be categorised on how essential they are for supporting life and the
+                                likelihood they are associated with de novo genetic disorders. In this portal, we
+                                present integrated views of viability data to help researchers explore the full genetic
+                                spectrum of essentiality and aid in their discovery of new human disease genes. More in
+                                our blog post <a href="">here</a>.
                             </p>
-                            <p>
-                                <img src="img/essential_genes/skull.png"/>
-                                <img src="img/essential_genes/rainbow.png"/>
-                                <img src="img/essential_genes/mantick.png"/>
-                                FUSIL
-                                Full Spectrum of Intolerence to Loss of Function
+                            <p><b>IMPC associated publications</b>: <a href="">Dickinson et al. Nature 2016</a> | <a href="">Muñoz-Fuentes
+                                et al. Conservation Genetics Special Issue 2019</a> | <a href="">Cacheiro et al. Nature
+                                Communications 2020</a>
                             </p>
-                            <p>
-                                <img src="img/essential_genes/ballclump.png"/>
-                                HaploEssential
 
-                                IMPC haploessential screen to study genes most important to life
+                            <div class="row">
+                                <div class="col-4">
+                                    <img class="mx-auto d-block" src="img/essential_genes/fusil.png"/>
+                                </div>
 
+                                <div class="col-4">
+                                    <img class="mx-auto d-block" src="img/essential_genes/ballclump.png"/>
+                                </div>
+
+                                <div class="col-4">
+                                    <img class="mx-auto d-block" src="img/essential_genes/batchq.png"/>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-4">
+                                    <h5 class="text-center">FUSIL</h5>
+                                    <u><b>Fu</b></u>ll <u><b>S</b></u>pectrum of Intolerence to <u><b>L</b></u>oss of
+                                    Function
+                                </div>
+
+                                <div class="col-4">
+                                    <h5 class="text-center">HaploEssential</h5>
+                                    <p>IMPC haploessential screen to study genes most important to life</p>
+                                </div>
+
+                                <div class="col-4">
+                                    <h5 class="text-center">Batch Query</h5>
+                                    <p>Submit your gene list to find human and mouse essential scores</p>
+                                </div>
+                            </div>
+
+                            <h2 class="pt-5">IMPC and human cell viability data</h2>
+                            <div class="row">
+                                <div class="col-6">
+                                </div>
+                                <div class="col-6">
+                                    <p>FUSIL scores available for NNNN human genes</p>
+                                    <ul>
+                                        <li>
+                                            CL- Cellular Essential
+                                        </li>
+                                        <li>
+                                            DL- Developmental Essential
+                                        </li>
+                                        <li>
+                                            SV- Subviable
+                                        </li>
+                                        <li>
+                                            VP- Viable with phenotype
+                                        </li>
+                                        <li>
+                                            VN- Viable with no phenotype detected
+                                        </li>
+                                    </ul>
+
+                                    <p>DL genes are enriched for de novo genetic diseases as described in<a href="">Cacheiro
+                                        et al. Nature Communications 2020</a>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <h2 class="pt-5">Batch Query</h2>
+                            <p>Visit the IMPC <a href="${baseUrl}/batchQuery">Batch Query</a> to submit your gene list to find human and mouse
+                            essentiality scores.
                             </p>
-                            <p>
-                                <img src="img/essential_genes/batchq.png"/>
-                                Batch Query
-                                Submit your gene list  to find human and mouse essential scores
-                            </p>
-                            <p>
-                                FUSIL scores available for NNNN human genes
-                                <ul>
-                                    <li>CL- Cellular Essential
-                                    </li>
-                            <li>
-                                DL- Developmental Essential
-                            </li>
-                            <li>
-                                SV- Subviable
-
-                            </li>
-                            <li>
-                                VP- Viable with phenotype
-
-                            </li>
-                            <li>
-                                VN-  Viable with no phenotype detected
-                            </li>
-                                </ul>
-                            DL genes are enriched for de novo genetic diseases as described in
-                            <a href="">Cacheiro et al. Nature Communications 2020</a>
-
-                            </p>
-                            <p>
-                                <h2>Batch Query</h2>
-                            Visit the IMPC <a href="">Batch Query</a> to submit your gene list to find human and mouse essentiality scores.
 
                             </p>
                         </div>

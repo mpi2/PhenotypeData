@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.loads.reports.support;
 
-import org.mousephenotype.cda.constants.Constants;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.reports.support.MpCSVWriter;
 import org.mousephenotype.cda.reports.support.ReportException;

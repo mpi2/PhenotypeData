@@ -17,7 +17,7 @@ package org.mousephenotype.cda.indexers;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.constants.Constants;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
