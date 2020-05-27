@@ -1,4 +1,4 @@
-package org.mousephenotype.cda.db.repositories; /*******************************************************************************
+/*******************************************************************************
  * Copyright © 2013 - 2015 EMBL - European Bioinformatics Institute
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
@@ -8,6 +8,7 @@ package org.mousephenotype.cda.db.repositories; /*******************************
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  ******************************************************************************/
+package org.mousephenotype.cda.db.repositories;
 
 import org.mousephenotype.cda.db.HibernateConfig;
 import org.springframework.context.annotation.Bean;
