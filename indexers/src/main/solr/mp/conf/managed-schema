@@ -563,9 +563,6 @@
         <field name="top_level_mp_term_synonym" type="text" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="top_level_mp_term_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
 
-        <field name="top_level_mp_term_inclusive" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-        <field name="top_level_mp_id_inclusive" type="string" indexed="true" stored="true" required="false" multiValued="true" />
-
         <!-- mp to hp mapping -->
         <field name="hp_id" type="string" indexed="true" stored="true" required="false" multiValued="true" />
         <field name="hp_term" type="string" indexed="true" stored="true" required="false" multiValued="true" />

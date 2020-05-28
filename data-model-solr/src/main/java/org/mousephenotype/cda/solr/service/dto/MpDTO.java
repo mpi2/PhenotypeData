@@ -52,8 +52,6 @@ public class MpDTO {
 	public static final String TOP_LEVEL_MP_DEFINITION = "top_level_mp_definition";
 	public static final String TOP_LEVEL_MP_TERM_SYNONYM = "top_level_mp_term_synonym";
 	public static final String TOP_LEVEL_MP_TERM_ID = "top_level_mp_term_id";
-	public static final String TOP_LEVEL_MP_TERM_INCLUSIVE = "top_level_mp_term_inclusive";
-	public static final String TOP_LEVEL_MP_ID_INCLUSIVE = "top_level_mp_id_inclusive";
 
 	public static final String HP_ID = "hp_id";
 	public static final String HP_TERM = "hp_term";
@@ -225,12 +223,6 @@ public class MpDTO {
 
 	@Field(TOP_LEVEL_MP_TERM_ID)
 	private List<String> topLevelMpTermId;
-
-	@Field(TOP_LEVEL_MP_TERM_INCLUSIVE)
-	private List<String> topLevelMpTermInclusive;
-
-	@Field(TOP_LEVEL_MP_ID_INCLUSIVE)
-	private List<String> topLevelMpIdInclusive;
 
 	@Field(HP_ID)
 	private List<String> hpId;
@@ -822,43 +814,6 @@ public class MpDTO {
 	public void addTopLevelMpTerm(Collection<String> topLevelMpTerm) {
 		if (this.topLevelMpTerm == null) { this.topLevelMpTerm = new ArrayList<>();}
 		this.topLevelMpTerm.addAll(topLevelMpTerm);
-	}
-
-	public List<String> getTopLevelMpTermInclusive() {
-		return topLevelMpTermInclusive;
-	}
-
-	public void setTopLevelMpTermInclusive(List<String> topLevelMpTermInclusive) {
-		this.topLevelMpTermInclusive = topLevelMpTermInclusive;
-	}
-
-	public void addTopLevelMpTermInclusive(String term){
-		if (this.topLevelMpTermInclusive == null){ this.topLevelMpTermInclusive = new ArrayList<>();}
-		this.topLevelMpTermInclusive.add(term);
-	}
-
-	public void addTopLevelMpTermInclusive(Collection<String> term){
-		if (this.topLevelMpTermInclusive == null){ this.topLevelMpTermInclusive = new ArrayList<>();}
-		this.topLevelMpTermInclusive.addAll(term);
-	}
-
-	public void addTopLevelMpIdInclusive(String id){
-		if (this.topLevelMpIdInclusive == null){ this.topLevelMpIdInclusive = new ArrayList<>();}
-		this.topLevelMpIdInclusive.add(id);
-	}
-
-	public void addTopLevelMpIdInclusive(Collection<String> id){
-		if (this.topLevelMpIdInclusive == null){ this.topLevelMpIdInclusive = new ArrayList<>();}
-		this.topLevelMpIdInclusive.addAll(id);
-	}
-
-
-	public List<String> getTopLevelMpIdInclusive() {
-		return topLevelMpIdInclusive;
-	}
-
-	public void setTopLevelMpIdInclusive(List<String> topLevelMpIdInclusive) {
-		this.topLevelMpIdInclusive = topLevelMpIdInclusive;
 	}
 
 	public List<String> getTopLevelMpDefinition() {
@@ -1845,10 +1800,6 @@ public class MpDTO {
 			return false;
 		if (topLevelMpTermId != null ? !topLevelMpTermId.equals(mpDTO.topLevelMpTermId) : mpDTO.topLevelMpTermId != null)
 			return false;
-		if (topLevelMpTermInclusive != null ? !topLevelMpTermInclusive.equals(mpDTO.topLevelMpTermInclusive) : mpDTO.topLevelMpTermInclusive != null)
-			return false;
-		if (topLevelMpIdInclusive != null ? !topLevelMpIdInclusive.equals(mpDTO.topLevelMpIdInclusive) : mpDTO.topLevelMpIdInclusive != null)
-			return false;
 		if (hpId != null ? !hpId.equals(mpDTO.hpId) : mpDTO.hpId != null) return false;
 		if (hpTerm != null ? !hpTerm.equals(mpDTO.hpTerm) : mpDTO.hpTerm != null) return false;
 		if (hpTermSynonym != null ? !hpTermSynonym.equals(mpDTO.hpTermSynonym) : mpDTO.hpTermSynonym != null)
@@ -1992,8 +1943,6 @@ public class MpDTO {
 		result = 31 * result + (topLevelMpDefinition != null ? topLevelMpDefinition.hashCode() : 0);
 		result = 31 * result + (topLevelMpTermSynonym != null ? topLevelMpTermSynonym.hashCode() : 0);
 		result = 31 * result + (topLevelMpTermId != null ? topLevelMpTermId.hashCode() : 0);
-		result = 31 * result + (topLevelMpTermInclusive != null ? topLevelMpTermInclusive.hashCode() : 0);
-		result = 31 * result + (topLevelMpIdInclusive != null ? topLevelMpIdInclusive.hashCode() : 0);
 		result = 31 * result + (hpId != null ? hpId.hashCode() : 0);
 		result = 31 * result + (hpTerm != null ? hpTerm.hashCode() : 0);
 		result = 31 * result + (hpTermSynonym != null ? hpTermSynonym.hashCode() : 0);
@@ -2103,8 +2052,6 @@ public class MpDTO {
 				", topLevelMpDefinition=" + topLevelMpDefinition +
 				", topLevelMpTermSynonym=" + topLevelMpTermSynonym +
 				", topLevelMpTermId=" + topLevelMpTermId +
-				", topLevelMpTermInclusive=" + topLevelMpTermInclusive +
-				", topLevelMpIdInclusive=" + topLevelMpIdInclusive +
 				", hpId=" + hpId +
 				", hpTerm=" + hpTerm +
 				", hpTermSynonym=" + hpTermSynonym +

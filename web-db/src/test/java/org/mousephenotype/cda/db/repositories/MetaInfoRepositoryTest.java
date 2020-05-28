@@ -40,7 +40,7 @@ public class MetaInfoRepositoryTest {
     public void setUp() throws Exception {
 
         List<String> resources = Arrays.asList(
-                "sql/h2/repositories/org.mousephenotype.cda.db.repositories.MetaInfoRepositoryTest-data.sql"
+                "h2/repository/MetaInfoRepositoryTest-data.sql"
         );
 
         for (String resource : resources) {

@@ -35,7 +35,7 @@ public class AnalyticsPvalueDistributionRepositoryTest {
     @Before
     public void setUp() throws Exception {
 
-        List<String> resources = Arrays.asList("sql/h2/repositories/org.mousephenotype.cda.db.repositories.AnalyticsPvalueDistributionRepositoryTest-data.sql");
+        List<String> resources = Arrays.asList("h2/repository/AnalyticsPvalueDistributionRepositoryTest-data.sql");
 
         for (String resource : resources) {
             Resource r = context.getResource(resource);
