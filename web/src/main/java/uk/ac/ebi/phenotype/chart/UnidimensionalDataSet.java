@@ -15,121 +15,116 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import java.util.List;
-
-import org.mousephenotype.cda.db.pojo.UnidimensionalResult;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+
+import java.util.List;
 
 /**
  * UnidimensionalDataSet should represent one experimentDTO i.e. both sexes with one table or one sex and one table
- * @author jwarren
  *
  */
 public class UnidimensionalDataSet {
 
-	private String experimentId = "";
-	private String title;
-	private String subtitle;
-	private ExperimentDTO experiment;
-	private String organisation = "";
-	private Float min;
-	private Float max;
-
+    private String experimentId = "";
+    private String title;
+    private String subtitle;
+    private ExperimentDTO experiment;
+    private String organisation = "";
+    private Float min;
+    private Float max;
+	private ChartData chartData;
+	private List<StatisticalResultDTO> allUnidimensionalResults;
+	private List<UnidimensionalStatsObject> statsObjects;
 
 
 	public String getOrganisation() {
+        return organisation;
+    }
 
-		return organisation;
-	}
+    public void setOrganisation(String organisation) {
+        this.organisation = organisation;
+    }
 
+    public String getExperimentId() {
+        return experimentId;
+    }
 
-	public void setOrganisation(String organisation) {
-
-	this.organisation = organisation;
-	}
-	public String getExperimentId() {
-		return experimentId;
-	}
-	public void setExperimentId(String experimentId) {
-		this.experimentId = experimentId;
-	}
-
-	private ChartData chartData;
+    public void setExperimentId(String experimentId) {
+        this.experimentId = experimentId;
+    }
 
 
-	public ChartData getChartData() {
-		return chartData;
-	}
-	public void setChartData(ChartData chartData) {
-		this.chartData = chartData;
-	}
-	public List<UnidimensionalResult> getAllUnidimensionalResults() {
-		return allUnidimensionalResults;
-	}
-	public void setAllUnidimensionalResults(
-			List<UnidimensionalResult> allUnidimensionalResults) {
-		this.allUnidimensionalResults = allUnidimensionalResults;
-	}
+    public ChartData getChartData() {
+        return chartData;
+    }
 
-	private List<UnidimensionalResult> allUnidimensionalResults;
-	private List<UnidimensionalStatsObject> statsObjects;
-	public List<UnidimensionalStatsObject> getStatsObjects() {
-		return statsObjects;
-	}
-	public void setStatsObjects(List<UnidimensionalStatsObject> statsObjects) {
-		this.statsObjects = statsObjects;
-	}
-	/**
-	 * @return the experiment
-	 */
-	public ExperimentDTO getExperiment() {
-		return experiment;
-	}
-	/**
-	 * @param experiment the experiment to set
-	 */
-	public void setExperiment(ExperimentDTO experiment) {
-		this.experiment = experiment;
-	}
+    public void setChartData(ChartData chartData) {
+        this.chartData = chartData;
+    }
 
-	public Float getMin() {
+    public List<StatisticalResultDTO> getAllUnidimensionalResults() {
+        return allUnidimensionalResults;
+    }
 
-		return min;
-	}
+    public void setAllUnidimensionalResults(List<StatisticalResultDTO> allUnidimensionalResults) {
+        this.allUnidimensionalResults = allUnidimensionalResults;
+    }
 
-	public void setMin(Float min) {
+    public List<UnidimensionalStatsObject> getStatsObjects() {
+        return statsObjects;
+    }
 
-		this.min = min;
-	}
+    public void setStatsObjects(List<UnidimensionalStatsObject> statsObjects) {
+        this.statsObjects = statsObjects;
+    }
 
-	public Float getMax() {
+    public ExperimentDTO getExperiment() {
+        return experiment;
+    }
 
-		return max;
-	}
+    public void setExperiment(ExperimentDTO experiment) {
+        this.experiment = experiment;
+    }
 
-	public void setMax(Float max) {
+    public Float getMin() {
 
-		this.max = max;
-	}
+        return min;
+    }
 
-	public String getTitle() {
+    public void setMin(Float min) {
 
-		return title;
-	}
+        this.min = min;
+    }
 
-	public void setTitle(String title) {
+    public Float getMax() {
 
-		this.title = title;
-	}
+        return max;
+    }
 
-	public String getSubtitle() {
+    public void setMax(Float max) {
 
-		return subtitle;
-	}
+        this.max = max;
+    }
 
-	public void setSubtitle(String subtitle) {
+    public String getTitle() {
 
-		this.subtitle = subtitle;
-	}
+        return title;
+    }
+
+    public void setTitle(String title) {
+
+        this.title = title;
+    }
+
+    public String getSubtitle() {
+
+        return subtitle;
+    }
+
+    public void setSubtitle(String subtitle) {
+
+        this.subtitle = subtitle;
+    }
 
 }

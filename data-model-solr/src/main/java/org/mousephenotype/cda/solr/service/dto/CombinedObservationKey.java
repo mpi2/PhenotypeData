@@ -2,7 +2,7 @@ package org.mousephenotype.cda.solr.service.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.mousephenotype.cda.enumerations.LifeStage;
+import org.mousephenotype.cda.dto.LifeStage;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 
 import javax.validation.constraints.NotNull;

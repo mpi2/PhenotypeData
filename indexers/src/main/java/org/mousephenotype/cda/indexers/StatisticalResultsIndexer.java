@@ -16,6 +16,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.constants.ParameterConstants;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.pojo.Parameter;
@@ -32,11 +33,10 @@ import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
-import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
-import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+import org.mousephenotype.cda.utilities.PercentChangeStringParser;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
@@ -72,7 +72,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
     private Boolean SAVE = Boolean.TRUE;
     private Map<String, List<String>> impressAbnormals = new HashMap<>();
 
-    private Double SIGNIFICANCE_THRESHOLD = GenotypePhenotypeService.P_VALUE_THRESHOLD;
+    private Double SIGNIFICANCE_THRESHOLD = Constants.P_VALUE_THRESHOLD;
     private final double REPORT_INTERVAL = 100000;
 
     static final String RESOURCE_3I = "3i";
@@ -1152,7 +1152,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 + "  male_mutants, female_controls, female_mutants, "
                 + "  metadata_group, statistical_method, workflow, status, "
                 + "  category_a, category_b, "
-                + "  SEX_SPECIFIC_STATS "
+                + "  male_p_value, male_effect_size, female_p_value, female_effect_size, classification_tag, "
                 + "  p_value AS categorical_p_value, effect_size AS categorical_effect_size, "
                 + "  mp_acc, NULL AS male_mp_acc, NULL AS female_mp_acc, "
                 + "  db.short_name AS resource_name, db.name AS resource_fullname, db.id AS resource_id, "
@@ -1169,20 +1169,13 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
             List<StatisticalResultDTO> docs = new ArrayList<>();
 
-            String additionalColumns = "male_p_value, male_effect_size, female_p_value, female_effect_size, classification_tag, ";
             try (Connection connection = komp2DataSource.getConnection()) {
-
-                SqlUtils sqlUtils = new SqlUtils();
-                Boolean sexSpecificStats = sqlUtils.columnInSchemaMysql(connection, "stats_categorical_result", "male_p_value");
-
-                query = query.replaceAll("SEX_SPECIFIC_STATS", sexSpecificStats ? additionalColumns : "");
-
                 try (PreparedStatement p = connection.prepareStatement(query, java.sql.ResultSet.TYPE_FORWARD_ONLY,  java.sql.ResultSet.CONCUR_READ_ONLY)) {
 
                     p.setFetchSize(Integer.MIN_VALUE);
                     ResultSet r = p.executeQuery();
                     while (r.next()) {
-                        StatisticalResultDTO doc = parseCategoricalResult(r, sexSpecificStats);
+                        StatisticalResultDTO doc = parseCategoricalResult(r);
 
                         // Skip document if it has already been added
                         if (uniqueSRKeys.contains(doc.getDocId())) {
@@ -1209,7 +1202,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             return docs;
         }
 
-        private StatisticalResultDTO parseCategoricalResult(ResultSet r, Boolean additionalColumns) throws SQLException {
+        private StatisticalResultDTO parseCategoricalResult(ResultSet r) throws SQLException {
 
             StatisticalResultDTO doc = parseResultCommonFields(r);
             if (sexesMap.containsKey("categorical-" + doc.getDbId())) {
@@ -1221,13 +1214,11 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
             doc.setEffectSize(r.getDouble("categorical_effect_size"));
 
-            if (additionalColumns) {
-                doc.setMaleKoEffectPValue(r.getDouble("male_p_value"));
-                doc.setMaleKoParameterEstimate(r.getDouble("male_effect_size"));
-                doc.setFemaleKoEffectPValue(r.getDouble("female_p_value"));
-                doc.setFemaleKoParameterEstimate(r.getDouble("female_effect_size"));
-                doc.setClassificationTag(r.getString("classification_tag"));
-            }
+            doc.setMaleKoEffectPValue(r.getDouble("male_p_value"));
+            doc.setMaleKoParameterEstimate(r.getDouble("male_effect_size"));
+            doc.setFemaleKoEffectPValue(r.getDouble("female_p_value"));
+            doc.setFemaleKoParameterEstimate(r.getDouble("female_effect_size"));
+            doc.setClassificationTag(r.getString("classification_tag"));
 
             setSignificantFlag(SIGNIFICANCE_THRESHOLD, doc);
 
@@ -1377,12 +1368,12 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
             String percentageChange = r.getString("genotype_percentage_change");
             if (!r.wasNull()) {
-                Double femalePercentageChange = StatisticalResultService.getFemalePercentageChange(percentageChange);
+                Double femalePercentageChange = PercentChangeStringParser.getFemalePercentageChange(percentageChange);
                 if (femalePercentageChange != null) {
                     doc.setFemalePercentageChange(femalePercentageChange.toString() + "%");
                 }
 
-                Double malePercentageChange = StatisticalResultService.getMalePercentageChange(percentageChange);
+                Double malePercentageChange = PercentChangeStringParser.getMalePercentageChange(percentageChange);
                 if (malePercentageChange != null) {
                     doc.setMalePercentageChange(malePercentageChange.toString() + "%");
                 }

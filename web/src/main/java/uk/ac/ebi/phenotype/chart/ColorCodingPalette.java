@@ -15,11 +15,10 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
+import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.mousephenotype.cda.db.pojo.PhenotypeCallSummary;
-import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 
 /**
  * Generates a color palette given a set of p-values
@@ -29,52 +28,52 @@ import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
 public class ColorCodingPalette {
 
 	// Palette (should be moved to another package)
-	static List<List<int[]>> rgbOrangeRedPalette = null;
+	static List<List<int[]>> rgbOrangeRedPalette;
 
 	public static final int NB_COLOR_MIN = 3;
 	public static final int NB_COLOR_MAX = 9;
 
 	static {
 
-		rgbOrangeRedPalette = new ArrayList<List<int[]>>();
+		rgbOrangeRedPalette = new ArrayList<>();
 
-		List<int[]> p1 = new ArrayList<int[]>();
+		List<int[]> p1 = new ArrayList<>();
 		p1.add(new int[] {254,253,227});
 		p1.add(new int[] {232,187,74});
 		p1.add(new int[] {200,132,51});
 		rgbOrangeRedPalette.add(p1);
 
-		p1 = new ArrayList<int[]>();
+		p1 = new ArrayList<>();
 		p1.add(new int[] {254,253,252,215});
 		p1.add(new int[] {240,204,141,48});
 		p1.add(new int[] {217,138,89,31});
 		rgbOrangeRedPalette.add(p1);
 
-		p1 = new ArrayList<int[]>();
+		p1 = new ArrayList<>();
 		p1.add(new int[] {254,253,252,227,179});
 		p1.add(new int[] {240,204,141,74,0});
 		p1.add(new int[] {217,138,89,51,0});
 		rgbOrangeRedPalette.add(p1);
 
-		p1 = new ArrayList<int[]>();
+		p1 = new ArrayList<>();
 		p1.add(new int[] {254,253,253,252,227,179});
 		p1.add(new int[] {240,212,187,141,74,0});
 		p1.add(new int[] {217,158,132,89,51,0});
 		rgbOrangeRedPalette.add(p1);
 
-		p1 = new ArrayList<int[]>();
+		p1 = new ArrayList<>();
 		p1.add(new int[] {254,253,253,252,239,215,153});
 		p1.add(new int[] {240,212,187,141,101,48,0});
 		p1.add(new int[] {217,158,132,89,72,31,0});
 		rgbOrangeRedPalette.add(p1);
 
-		p1 = new ArrayList<int[]>();
+		p1 = new ArrayList<>();
 		p1.add(new int[] {255,254,253,253,252,239,215,153});
 		p1.add(new int[] {247,232,212,187,141,101,48,0});
 		p1.add(new int[] {236,200,158,132,89,72,31,0});
 		rgbOrangeRedPalette.add(p1);
 
-		p1 = new ArrayList<int[]>();
+		p1 = new ArrayList<>();
 		p1.add(new int[] {255,254,253,253,252,239,215,179,127});
 		p1.add(new int[] {247,232,212,187,141,101,48,0,0});
 		p1.add(new int[] {236,200,158,132,89,72,31,0,0});
@@ -136,10 +135,6 @@ public class ColorCodingPalette {
 		return palette;
 	}
 
-	public void convertPvaluesToColorIndex(List<Double> pValues, int maxColorIndex, double scale) {
-		convertPvaluesToColorIndex(pValues, maxColorIndex, scale, Constants.SIGNIFICANT_P_VALUE);
-	}
-
 	/**
 	 * Convert p values to a color index to color nodes in a graph.
 	 * The P-values are fit into a range from 1 to maColorIndex by applying a scale.
@@ -160,7 +155,7 @@ public class ColorCodingPalette {
 	public void convertPvaluesToColorIndex(List<Double> pValues, int maxColorIndex, double scale, double minimalPValue){
 
 		// check p-values
-		Double apv[] = pValues.toArray(new Double[]{});
+		Double[] apv = pValues.toArray(new Double[]{});
 
 		// convert to color space
 		colors = new double[apv.length];
@@ -201,55 +196,6 @@ public class ColorCodingPalette {
 	
 
 	/**
-	 * Add a colorIndex to a set of statistical results
-	 * @param statisticalResults structure containing
-	 * @param maxColorIndex
-	 * @param scale
-	 * @param minimalPValue
-	 */
-	private void addColorIndexToStatisticalResults(List<PhenotypeCallSummary> phenotypeCalls, int maxColorIndex, double scale, double minimalPValue){
-
-		// to scale from 0 to max color index
-		double maxColor = 0;
-
-		for (PhenotypeCallSummary call: phenotypeCalls) {
-			// OK, for this call, compute a color index
-
-				double pValue = call.getpValue();
-				if (pValue < minimalPValue) {
-					pValue = minimalPValue;
-				}
-
-				call.setColorIndex(-Math.log10(pValue));
-				if (call.getColorIndex() > maxColor) {
-					maxColor = call.getColorIndex();
-				}
-			}
-
-		if( scale == 0 ){
-			scale = maxColorIndex / maxColor;
-		}
-
-		// scale
-
-		for (PhenotypeCallSummary call: phenotypeCalls) {
-			call.setColorIndex(call.getColorIndex()*scale);
-			call.setColorIndex(Math.round(call.getColorIndex()));
-				// check whether any color is greater than the maxColorIndex
-				if (call.getColorIndex() > maxColorIndex) {
-					call.setColorIndex(maxColorIndex);
-				}
-			}
-
-	}
-	
-	/**
-	 * @since 2015/09/22
-	 * @author tudose
-	 * @param phenotypeCalls
-	 * @param maxColorIndex
-	 * @param scale
-	 * @param minimalPValue
 	 */
 	private void addColorIndexToStatisticalResultsNew(List<PhenotypeCallSummaryDTO> phenotypeCalls, int maxColorIndex, double scale, double minimalPValue){
 
@@ -298,26 +244,6 @@ public class ColorCodingPalette {
 
 
 	/**
-	 * All in one: given a set of phenotype call summary
-	 * @param pValues
-	 * @param maxColorIndex
-	 * @param scale
-	 * @param minimalPValue
-	 */
-	public void generatePhenotypeCallSummaryColors(List<PhenotypeCallSummary> phenotypeCalls, int maxColorIndex, double scale, double minimalPValue) {
-
-		palette = getColorPalette(maxColorIndex);
-
-		addColorIndexToStatisticalResults( 	phenotypeCalls, maxColorIndex, scale, minimalPValue);
-	}
-	
-	/**
-	 * @author tudose
-	 * @since 2015/09/22
-	 * @param phenotypeCalls
-	 * @param maxColorIndex
-	 * @param scale
-	 * @param minimalPValue
 	 */
 	public void generatePhenotypeCallSummaryColorsNew(List<PhenotypeCallSummaryDTO> phenotypeCalls, int maxColorIndex, double scale, double minimalPValue) {
 
@@ -328,10 +254,6 @@ public class ColorCodingPalette {
 
 	/**
 	 * All in one: given a set of p-value
-	 * @param pValues
-	 * @param maxColorIndex
-	 * @param scale
-	 * @param minimalPValue
 	 */
 	public void generateColors(List<Double> pValues, int maxColorIndex, double scale, double minimalPValue) {
 

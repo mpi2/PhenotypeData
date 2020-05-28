@@ -37,7 +37,7 @@ public class HistopathService {
 
 	}
 
-    public List<HistopathPageTableRow> getTableData(Map<String, List<ObservationDTO>> uniqueSampleSequeneAndAnatomyName, Map<String, String> sampleIds) throws SolrServerException, IOException {
+    public List<HistopathPageTableRow> getTableData(Map<String, List<ObservationDTO>> uniqueSampleSequeneAndAnatomyName, Map<String, String> sampleIds) {
         List<HistopathPageTableRow> rows = new ArrayList<>();
 
         for (String key : uniqueSampleSequeneAndAnatomyName.keySet()) {
@@ -127,84 +127,35 @@ public class HistopathService {
 
     }
 
-	
-
-	private Map<Integer, List<ObservationDTO>> getSequenceIds(List<ObservationDTO> list) {
-		Map<Integer, List<ObservationDTO>>seqIdToObservations=new HashMap<>();
-		for(ObservationDTO ob: list){
-			if(seqIdToObservations.containsKey(ob.getSequenceId())){
-				//if(ob.getSequenceId()==0)System.out.println("sequenceid == 0 need to change the way we handle nulls on sequenceId");
-				seqIdToObservations.get(ob.getSequenceId()).add(ob);
-			}else{
-				//haven't seen a 0 sequenceId so assigning nulls to zero??
-				List<ObservationDTO> obsForSeqId=new ArrayList<ObservationDTO>();
-				obsForSeqId.add(ob);
-				seqIdToObservations.put(ob.getSequenceId(), obsForSeqId);
-			}
-			
-		}
-		return seqIdToObservations;
-	}
-
-	public Map<String, List<ObservationDTO>> getSampleToObservationMap(List<ObservationDTO> observations) {
-		Map<String, List<ObservationDTO>> map = new HashMap<>();
-		for (ObservationDTO obs : observations) {
-			String sampleId = obs.getExternalSampleId();
-			if (!map.containsKey(sampleId)) {
-				map.put(sampleId, new ArrayList<ObservationDTO>());
-			}
-			map.get(sampleId).add(obs);
-		}
-		return map;
-	}
-
-	public Set<String> getAnatomyNamesFromObservations(List<ObservationDTO> observations) {
-		Set<String> anatomyNames = new TreeSet<>();
-		for (ObservationDTO obs : observations) {
-			String anatomyString = getAnatomyStringFromObservation(obs);
-			if (anatomyString != null) {
-				anatomyNames.add(anatomyString);
-			}
-		}
-		return anatomyNames;
-	}
-
 	private String getAnatomyStringFromObservation(ObservationDTO obs) {
 		String anatomyString = null;
 		String paramName = obs.getParameterName();
 		if (paramName.contains(delimeter)) {
 			anatomyString = paramName.substring(0, paramName.indexOf(delimeter));
-			// System.out.println("anatomyString=" + anatomyString);
-		} else {
-			//System.out.println("no delimeter found with =" + paramName);
 		}
+
 		return anatomyString;
 	}
 
 	public List<ObservationDTO> getObservationsForHistopathForGene(String acc) throws SolrServerException, IOException {
-		List<ObservationDTO> observations = observationService.getObservationsByProcedureNameAndGene("Histopathology",
-				acc
-		);
-		return observations;
+		return observationService.getObservationsByProcedureNameAndGene("Histopathology", acc);
 	}
 
 	public HeatmapData getHeatmapData() throws SolrServerException, IOException {
 		NamedList<List<PivotField>> pivots = observationService.getHistopathGeneParameterNameCategoryPivots();
-		HashSet<String> anatomyParamName=new HashSet();//in the histopath case this is anatomy/parameter names
+		HashSet<String> anatomyParamName = new HashSet<>();//in the histopath case this is anatomy/parameter names
 		//then lest order this set as a list alphabetically into a list to then dictate column numbers
-		HashSet geneSymbols=new HashSet();// for histopath it's gene symbols
-		Map<String, Map<String,String>> geneToParameterToCategory=new HashMap();
-		HashSet uniqueCategories=new HashSet();
+		HashSet<String> geneSymbols = new HashSet<>();// for histopath it's gene symbols
+		Map<String, Map<String, String>> geneToParameterToCategory = new HashMap<>();
+		HashSet<String> uniqueCategories = new HashSet<>();
 
-		List<List<Integer>> data=new ArrayList<>();// [[column, row, value],[
 		Map<String, Set<String>> map = new HashMap<>();
 		for (Map.Entry<String, List<PivotField>> pivotFacet : pivots) {
 			for(PivotField phenotypePivotFacet : pivotFacet.getValue()) {
 				String geneSYMBOL = phenotypePivotFacet.getValue().toString();
 				if(!geneToParameterToCategory.containsKey(geneSYMBOL)){
-					geneToParameterToCategory.put(geneSYMBOL, new HashMap<String,String>());
+					geneToParameterToCategory.put(geneSYMBOL, new HashMap<>());
 				}
-				//System.out.println("geneSYMBOL="+geneSYMBOL);
 				geneSymbols.add(geneSYMBOL);
 				map.putIfAbsent(geneSYMBOL, new HashSet<>());
 				for(PivotField genePivotFacet : phenotypePivotFacet.getPivot()) {
@@ -220,17 +171,13 @@ public class HistopathService {
 							if(geneToParameterToCategory.get(geneSYMBOL).containsKey(parameterName)){
 								String oldValue=geneToParameterToCategory.get(geneSYMBOL).get(parameterName);
 								//System.err.println("error we already have this combination lets get the most significant one of the two??"+geneSYMBOL+" "+ parameterName +" "+geneToParameterToCategory.get(geneSYMBOL).get(parameterName)+" vs "+pivotCategory.getValue().toString());
-								if(this.getIntValueForString(oldValue) > this.getIntValueForString(newValue)){
-									//old value is higher so don't replace it
-								}else{
+								if(this.getIntValueForString(oldValue) < this.getIntValueForString(newValue)){
 									geneToParameterToCategory.get(geneSYMBOL).put(parameterName, pivotCategory.getValue().toString());
 								}
 							}else {
 								geneToParameterToCategory.get(geneSYMBOL).put(parameterName, pivotCategory.getValue().toString());
 							}
-							if(!uniqueCategories.contains(pivotCategory.getValue())){
-								uniqueCategories.add(pivotCategory.getValue());
-							}
+							uniqueCategories.add((String) pivotCategory.getValue());
 						}
 					}
 					//System.out.println("geneSYMBOL="+geneSYMBOL+"parameterName="+parameterName);
@@ -238,10 +185,10 @@ public class HistopathService {
 			}
 		}
 
-		List<String> anatomyList=new ArrayList<String>(anatomyParamName);
+		List<String> anatomyList= new ArrayList<>(anatomyParamName);
 		Collections.sort(anatomyList);
-		List<String> geneList=new ArrayList(geneSymbols);
-		Collections.sort(geneList, Collections.reverseOrder());//so we get alphabetical order starting at top of heatmap
+		List<String> geneList=new ArrayList<>(geneSymbols);
+		geneList.sort(Collections.reverseOrder());//so we get alphabetical order starting at top of heatmap
 		System.out.println("uniqueCategories="+uniqueCategories);
 		//generate the data array here from the data structures we have just created as we need to know all column headers before we do this
 		JSONArray allCells=new JSONArray();
@@ -249,12 +196,9 @@ public class HistopathService {
 		for(String geneSymbol: geneList){
 			int column=0;
 			for(String parameterName:anatomyList){
-				String value=null;
-				if(geneToParameterToCategory.get(geneSymbol).containsKey(parameterName)){
-					value=geneToParameterToCategory.get(geneSymbol).get(parameterName);
-				}else{
-					value="No value found";//we need an empty cell value even if nothing in original data
-				}
+				String value;
+				//we need an empty cell value even if nothing in original data
+				value = geneToParameterToCategory.get(geneSymbol).getOrDefault(parameterName, "No value found");
 				int significance=this.getIntValueForString(value);
 				geneToParameterToCategory.get(geneSymbol).get(parameterName);
 				JSONArray cell=new JSONArray();
@@ -268,26 +212,23 @@ public class HistopathService {
 		}
 
 
-
-		HeatmapData heatmapData=new HeatmapData(anatomyList,geneList,allCells);
-		return heatmapData;
+		return new HeatmapData(anatomyList,geneList,allCells);
 	}
 
 	public HeatmapData getHeatmapDatadt() throws SolrServerException, IOException {
 		NamedList<List<PivotField>> pivots = observationService.getHistopathGeneParameterNameCategoryPivots();
-		HashSet<String> anatomyParamName=new HashSet();//in the histopath case this is anatomy/parameter names
+		HashSet<String> anatomyParamName=new HashSet<>();//in the histopath case this is anatomy/parameter names
 		//then lest order this set as a list alphabetically into a list to then dictate column numbers
-		HashSet geneSymbols=new HashSet();// for histopath it's gene symbols
-		Map<String, Map<String,String>> geneToParameterToCategory=new HashMap();
-		HashSet uniqueCategories=new HashSet();
+		HashSet<String> geneSymbols=new HashSet<>();// for histopath it's gene symbols
+		Map<String, Map<String,String>> geneToParameterToCategory=new HashMap<>();
+		HashSet<String> uniqueCategories=new HashSet<>();
 
-		List<List<Integer>> data=new ArrayList<>();// [[column, row, value],[
 		Map<String, Set<String>> map = new HashMap<>();
 		for (Map.Entry<String, List<PivotField>> pivotFacet : pivots) {
 			for(PivotField phenotypePivotFacet : pivotFacet.getValue()) {
 				String geneSYMBOL = phenotypePivotFacet.getValue().toString();
 				if(!geneToParameterToCategory.containsKey(geneSYMBOL)){
-					geneToParameterToCategory.put(geneSYMBOL, new HashMap<String,String>());
+					geneToParameterToCategory.put(geneSYMBOL, new HashMap<>());
 				}
 				//System.out.println("geneSYMBOL="+geneSYMBOL);
 				geneSymbols.add(geneSYMBOL);
@@ -305,17 +246,13 @@ public class HistopathService {
 							if(geneToParameterToCategory.get(geneSYMBOL).containsKey(parameterName)){
 								String oldValue=geneToParameterToCategory.get(geneSYMBOL).get(parameterName);
 								//System.err.println("error we already have this combination lets get the most significant one of the two??"+geneSYMBOL+" "+ parameterName +" "+geneToParameterToCategory.get(geneSYMBOL).get(parameterName)+" vs "+pivotCategory.getValue().toString());
-								if(this.getIntValueForString(oldValue) > this.getIntValueForString(newValue)){
-									//old value is higher so don't replace it
-								}else{
+								if(this.getIntValueForString(oldValue) < this.getIntValueForString(newValue)){
 									geneToParameterToCategory.get(geneSYMBOL).put(parameterName, pivotCategory.getValue().toString());
 								}
 							}else {
 								geneToParameterToCategory.get(geneSYMBOL).put(parameterName, pivotCategory.getValue().toString());
 							}
-							if(!uniqueCategories.contains(pivotCategory.getValue())){
-								uniqueCategories.add(pivotCategory.getValue());
-							}
+							uniqueCategories.add((String) pivotCategory.getValue());
 						}
 					}
 					//System.out.println("geneSYMBOL="+geneSYMBOL+"parameterName="+parameterName);
@@ -323,37 +260,29 @@ public class HistopathService {
 			}
 		}
 
-		List<String> anatomyList=new ArrayList<String>(anatomyParamName);
+		List<String> anatomyList= new ArrayList<>(anatomyParamName);
 		Collections.sort(anatomyList);
-		List<String> geneList=new ArrayList(geneSymbols);
-		Collections.sort(geneList, Collections.reverseOrder());//so we get alphabetical order starting at top of heatmap
+		List<String> geneList=new ArrayList<>(geneSymbols);
+		geneList.sort(Collections.reverseOrder());//so we get alphabetical order starting at top of heatmap
 		System.out.println("uniqueCategories="+uniqueCategories);
 		//generate the data array here from the data structures we have just created as we need to know all column headers before we do this
-		JSONArray allCells=new JSONArray();
 		List<List<Integer>> rows=new ArrayList<>();
 
 		for(String geneSymbol: geneList){
 			List<Integer> row=new ArrayList<>();
-			int column=0;
 			for(String parameterName:anatomyList){
-				String value=null;
-				if(geneToParameterToCategory.get(geneSymbol).containsKey(parameterName)){
-					value=geneToParameterToCategory.get(geneSymbol).get(parameterName);
-				}else{
-					value="No value found";//we need an empty cell value even if nothing in original data
-				}
+				String value;
+				//we need an empty cell value even if nothing in original data
+				value = geneToParameterToCategory.get(geneSymbol).getOrDefault(parameterName, "No value found");
 				int significance=this.getIntValueForString(value);
 				geneToParameterToCategory.get(geneSymbol).get(parameterName);
 				row.add(significance);
-				column++;
 			}
 			rows.add(row);
 		}
 
 
-
-		HeatmapData heatmapData=new HeatmapData(anatomyList,geneList,rows);
-		return heatmapData;
+		return new HeatmapData(anatomyList,geneList,rows);
 	}
 
 	private int getIntValueForString(String value) {
@@ -387,21 +316,18 @@ public class HistopathService {
 			if (obs.getObservationType().equalsIgnoreCase("categorical")) {
 				if (obs.getCategory().equalsIgnoreCase("0")) {
 					addObservation = false;
-					// System.out.println("setting obs to false");
-
 				}
 
 			}
 			if (obs.getObservationType().equalsIgnoreCase("ontological")) {
 				if (obs.getSubTermName() != null) {
 					for (String name : obs.getSubTermName()) {
-						if (name.equalsIgnoreCase("normal"))
+						if (name.equalsIgnoreCase("normal")) {
 							addObservation = false;
-						// System.out.println("setting obs to false");
-
+							break;
+						}
 					}
 				}
-
 			}
 
 			if (addObservation) {
@@ -413,7 +339,7 @@ public class HistopathService {
 	}
 
 	public List<HistopathPageTableRow> collapseHistopathTableRows(List<HistopathPageTableRow> histopathRows) {
-		List<HistopathPageTableRow> collapsedRows=new ArrayList<HistopathPageTableRow>();
+		List<HistopathPageTableRow> collapsedRows= new ArrayList<>();
 		Map<String, HistopathSumPageTableRow> anatomyToRowMap=new HashMap<>();
 		for(HistopathPageTableRow row: histopathRows){
 			String anatomy=row.getAnatomyName();
@@ -425,7 +351,6 @@ public class HistopathService {
 			//anatomyRow.getSignificance().addAll(row.getSignificance());
 			//anatomyRow.getSeverity().addAll(row.getSeverity());
 			boolean significant=false;
-			boolean images=false;
 			for(ParameterValueBean sign:row.getSignificance()){
 				String text=sign.getTextValue();
 				//System.out.println("text="+text+"|");
@@ -439,9 +364,6 @@ public class HistopathService {
 					
 				}else{//assume non significant if not significant
 					anatomyRow.setNonSignificantCount(anatomyRow.getNonSignificantCount()+1);
-				}
-				if(anatomyRow.getImageList().size()>0){
-					images=true;
 				}
 			}
 			if(significant){
@@ -459,10 +381,7 @@ public class HistopathService {
 				
 			}
 			
-			
-			
-			//anatomyRow.setSignificanceCount(anatomyRow.getSignificanceCount()+ row.getSignificance().size());
-			//anatomyRow.getSeverity().addAll(row.getSeverity());
+
 		}
 		for(String anatomy: anatomyToRowMap.keySet()){
 			if(anatomyToRowMap.get(anatomy).getSignificantCount()>0){
@@ -481,7 +400,7 @@ public class HistopathService {
 			if(uniqueDataSets.containsKey(key)){
 				uniqueDataSets.get(key).add(obs);
 			}else{
-				ArrayList<ObservationDTO> newList = new ArrayList<ObservationDTO>();
+				ArrayList<ObservationDTO> newList = new ArrayList<>();
 				newList.add(obs);
 				uniqueDataSets.put(key, newList );
 			}

@@ -16,11 +16,11 @@
 package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.enumerations.*;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.mousephenotype.cda.solr.stats.strategy.AllControlsStrategy;
 import org.mousephenotype.cda.solr.stats.strategy.ControlSelectionStrategy;
@@ -78,18 +78,15 @@ public class ExperimentService{
     	    }
 
     /**
+     * Get the experiment DTO for the supplied data
      *
-     * @param geneAccession
-     * @param sex
-     *            null for both sexes
-     * @param zygosities
-     *            null for any zygosity
-     * @param strain
-     *            null for any strain
+     * @param pipelineStableId the pipeline to get the experiment for
+     * @param parameterStableId the parameter to get the experiment for
+     * @param geneAccession the gene to get experiment for
+     * @param sex null for both sexes
+     * @param zygosities null for any zygosity
+     * @param strain null for any strain
      * @return list of experiment objects
-     * @throws SolrServerException, IOException
-     * @throws IOException
-     * @throws URISyntaxException
      */
 
     public List<ExperimentDTO> getExperimentDTO(String parameterStableId, String pipelineStableId, String geneAccession,
@@ -187,7 +184,7 @@ public class ExperimentService{
                 ObservationType statisticalType = experiment.getObservationType();
                 ZygosityType zygosity = ZygosityType.valueOf(observation.getZygosity());
 
-                List<? extends StatisticalResult> results = statisticalResultService.getStatisticalResult(alleleAccession, strain, phenCenter, pipelineStableId, parameterStableId, metaDataGroup, zygosity, sex, statisticalType);
+                List<StatisticalResultDTO> results = statisticalResultService.getStatisticalResult(alleleAccession, strain, phenCenter, pipelineStableId, parameterStableId, metaDataGroup, zygosity, sex, statisticalType);
                 experiment.setResults(results);
             }
 
@@ -528,9 +525,9 @@ public class ExperimentService{
      * @throws SpecificExperimentException
      */
     public ExperimentDTO getSpecificExperimentDTO(String parameterStableId, String pipelineStableId, String acc, List<String> genderList, List<String> zyList, String phenotypingCenter, String strain, String metadataGroup, String alleleAccession, String ebiMappedSolrUrl)
-    throws SolrServerException, IOException , URISyntaxException, SpecificExperimentException {
+    throws SolrServerException, IOException, SpecificExperimentException {
 
-    	List<ExperimentDTO> experimentList = new ArrayList<>();
+    	List<ExperimentDTO> experimentList;
         boolean includeResults = true;
 
         // if gender list is size 2 assume both sexes so no filter needed

@@ -28,7 +28,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
-public class MpCsvReader {
+public class MpCsvReader implements AutoCloseable {
 
     private static Logger logger = LoggerFactory.getLogger(MpCsvReader.class);
 

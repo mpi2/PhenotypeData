@@ -20,7 +20,11 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.json.JSONException;
-import org.mousephenotype.cda.enumerations.*;
+import org.mousephenotype.cda.dto.LifeStage;
+import org.mousephenotype.cda.enumerations.EmbryoViability;
+import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
@@ -325,7 +329,7 @@ public class ChartsController {
 						case UNIDIMENSIONAL_BOX_PLOT:
 
 							try {
-								unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xUnits);
+								unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, xUnits);
 							} catch (JSONException e) {
 								e.printStackTrace();
 							}
@@ -338,7 +342,7 @@ public class ChartsController {
 
 						case CATEGORICAL_STACKED_COLUMN:
 
-							categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, accession[0], experimentNumber);
+							categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, experimentNumber);
 							model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
 							break;
 

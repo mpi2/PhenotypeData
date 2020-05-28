@@ -751,13 +751,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mpDtoToAdd.addTopLevelMpTerm(mpDtoFromSlim.getTopLevelNames());
             mpDtoToAdd.addTopLevelMpTermSynonym(mpDtoFromSlim.getTopLevelSynonyms());
             mpDtoToAdd.addTopLevelMpTermId(mpDtoFromSlim.getTopLevelTermIdsConcatenated());
-            mpDtoToAdd.addTopLevelMpTermInclusive(mpDtoFromSlim.getTopLevelNames());
-            mpDtoToAdd.addTopLevelMpIdInclusive(mpDtoFromSlim.getTopLevelIds());
-
-        } else {
-            // add self as top level
-            mpDtoToAdd.addTopLevelMpTermInclusive(mpDtoFromSlim.getName());
-            mpDtoToAdd.addTopLevelMpIdInclusive(mpDtoFromSlim.getAccessionId());
         }
     }
 

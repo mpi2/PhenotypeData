@@ -112,7 +112,7 @@ public class ImageComparatorController {
 		System.out.println("acc="+acc+", parameterStableId="+ parameterStableId+", parameterAssociationValue"+ parameterAssociationValue+", anatomyId="+ anatomyId+", zygosity="+
 				zygosity+", colonyId="+ colonyId+", mpId="+ mpId+", sex="+ sexType);
 		List<ImageDTO> filteredMutants = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId,
-				zygosity, colonyId, mpId, sexType,  null);
+				zygosity, colonyId, mpId, sexType);
 		
 		ImageDTO imgDoc =null;
 		if (!filteredMutants.isEmpty()) {
