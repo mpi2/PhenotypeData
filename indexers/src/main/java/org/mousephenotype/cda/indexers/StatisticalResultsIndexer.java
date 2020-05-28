@@ -1056,6 +1056,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 "FROM phenotype_call_summary pcs " +
                 "INNER JOIN phenotype_parameter parameter ON parameter.id = pcs.parameter_id " +
                 "WHERE parameter.stable_id = 'IMPC_VIA_001_001' ";
+        System.out.println("sig query="+query);
         sigQueries.add(new SignificantQuery("Viability", query, VIA_SIGNIFICANT));
 
         query = "SELECT colony_id " +

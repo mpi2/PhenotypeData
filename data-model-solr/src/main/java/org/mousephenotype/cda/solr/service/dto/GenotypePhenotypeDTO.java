@@ -79,11 +79,24 @@ public class GenotypePhenotypeDTO {
     public static final String TOP_LEVEL_MP_TERM_ID = "top_level_mp_term_id";
     public static final String TOP_LEVEL_MP_TERM_NAME = "top_level_mp_term_name";
     public static final String ZYGOSITY = "zygosity";
+    public static final String MP_TERM_ID_OPTIONS="mp_term_id_options";
 
 
     @Id
     @Field(ID)
     String id;
+
+    public List<String> getMpTermOptions() {
+        return mpTermOptions;
+    }
+
+    public void setMpTermOptions(List<String> mpTermOptions) {
+        this.mpTermOptions = mpTermOptions;
+    }
+
+    @Field(MP_TERM_ID_OPTIONS)
+    List<String> mpTermOptions;
+
 
     @Field(ONTOLOGY_DB_ID)
     Long ontologyDbId;

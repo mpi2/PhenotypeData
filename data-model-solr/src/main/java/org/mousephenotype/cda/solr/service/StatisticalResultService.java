@@ -1056,7 +1056,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
 		SolrQuery query = buildQuery(geneAccession, procedureName,alleleSymbol, phenotypingCenter, pipelineName, procedureStableIds, resource, mpTermId, null, null, null, null, null, null, null, null);
 		List<StatisticalResultDTO> solrResults = statisticalResultCore.query(query).getBeans(StatisticalResultDTO.class);
-
+System.out.println("all chart query="+query);
 		for (StatisticalResultDTO statResult : solrResults) {
 
 			if (!results.containsKey(statResult.getParameterStableId())) {
