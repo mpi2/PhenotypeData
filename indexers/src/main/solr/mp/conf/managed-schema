@@ -737,56 +737,6 @@
 
   <dynamicField name="*_c" type="currency" indexed="true" stored="true"/>
 
-    <copyField source="*" dest="text"/>
-    <copyField source="mp_id" dest="auto_suggest" />
-    <copyField source="mp_term" dest="auto_suggest" />
-    <copyField source="mp_term_synonym" dest="auto_suggest" />
-    <copyField source="mp_narrow_synonym" dest="auto_suggest" />
-    <copyField source="mp_definition" dest="auto_suggest" />
-    <copyField source="alt_mp_id" dest="auto_suggest" />
-
-    <copyField source="top_level_mp_id" dest="auto_suggest" />
-    <copyField source="top_level_mp_term" dest="auto_suggest" />
-    <copyField source="top_level_mp_term_synonym" dest="auto_suggest" />
-    <!--<copyField source="top_level_mp_term" dest="annotatedHigherLevelMpTermName" />-->
-
-    <copyField source="intermediate_mp_id" dest="auto_suggest" />
-    <copyField source="intermediate_mp_term" dest="auto_suggest" />
-    <copyField source="intermediate_mp_term_synonym" dest="auto_suggest" />
-
-    <copyField source="child_mp_id" dest="auto_suggest" />
-    <copyField source="child_mp_term" dest="auto_suggest" />
-    <copyField source="child_mp_term_synonym" dest="auto_suggest" />
-
-    <copyField source="inferred_ma_id" dest="auto_suggest" />
-    <copyField source="inferred_ma_term" dest="auto_suggest" />
-
-    <copyField source="inferred_selected_top_level_ma_id" dest="auto_suggest" />
-    <copyField source="inferred_selected_top_level_ma_term" dest="auto_suggest" />
-
-    <copyField source="allele_id" dest="auto_suggest" />
-    <copyField source="allele_symbol" dest="auto_suggest" />
-
-    <copyField source="go_id" dest="auto_suggest" />
-    <copyField source="mgi_accession_id" dest="auto_suggest" />
-
-    <copyField source="strain_accession_id" dest="auto_suggest" />
-    <copyField source="strain_name" dest="auto_suggest" />
-
-    <copyField source="marker_symbol" dest="auto_suggest" />
-
-    <copyField source="pipeline_stable_id" dest="auto_suggest" />
-    <copyField source="pipeline_name" dest="auto_suggest" />
-
-    <copyField source="procedure_stable_id" dest="auto_suggest" />
-    <copyField source="procedure_name" dest="auto_suggest" />
-
-    <copyField source="parameter_stable_id" dest="auto_suggest" />
-    <copyField source="parameter_name" dest="auto_suggest" />
-
-    <copyField source="preqc_gene_id" dest="mgi_accession_id" />
-
-
     <!--  qf bucket list -->
 
     <copyField source="mp_id" dest="mixSynQf" />
