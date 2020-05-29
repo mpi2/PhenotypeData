@@ -79,7 +79,6 @@ public class GenotypePhenotypeDTO {
     public static final String TOP_LEVEL_MP_TERM_ID = "top_level_mp_term_id";
     public static final String TOP_LEVEL_MP_TERM_NAME = "top_level_mp_term_name";
     public static final String ZYGOSITY = "zygosity";
-    public static final String MP_TERM_ID_OPTIONS="mp_term_id_options";
 
 
     @Id
