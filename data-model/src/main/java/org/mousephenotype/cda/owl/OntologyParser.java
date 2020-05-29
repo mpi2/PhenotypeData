@@ -25,8 +25,6 @@ import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.search.EntitySearcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 import java.io.File;
@@ -62,7 +60,7 @@ public class OntologyParser {
     private Map<Integer, OntologyTermDTO> nodeTermMap = new HashMap<>(); // <nodeId, ontologyId>
 
     public OntologyParser(String pathToOwlFile, String prefix, Collection<String> topLevelIds, Set<String> wantedIds)
-            throws OWLOntologyCreationException, IOException, OWLOntologyStorageException {
+            throws IOException, OWLOntologyStorageException {
 
         setUpParser(pathToOwlFile);
 
@@ -166,74 +164,7 @@ public class OntologyParser {
         }
     }
 
-    public List<OntologyTermDTO> getTopLevelTerms(){
-        if (toplevelterms == null){
-            toplevelterms = new ArrayList<>();
-            for (String topLevelId : topLevelIds){
-                toplevelterms.add(termMap.get(topLevelId));
-            }
-        }
-        return toplevelterms;
 
-    }
-
-    /**
-     * Computes paths in the format needed for TreeJs, for the ontology browsers.
-     * [!] This is not computed by default. If you want the trees, call this method on the parser first.
-     * @throws JSONException 
-     */
-    public void fillJsonTreePath(String rootId, String pathToPage,  Map<String, Integer>  countsMap, List<String> treeBrowserTopLevels, Boolean withPartOf) throws JSONException {
-
-        OWLClass root = classMap.get(rootId);
-        // fill lists with nodes on path
-        fillJsonTreePath(root, new ArrayList<>(), withPartOf, rootId);
-        // use node list to generate JSON documents
-        for ( String id : getTermIdsInSlim()) {
-            OntologyTermDTO  term       = getOntologyTerm(id);
-            List<JSONObject> searchTree = TreeJsHelper.createTreeJson(term, pathToPage, this, countsMap, treeBrowserTopLevels);
-            term.setSeachJson(searchTree.toString());
-            String scrollNodeId = TreeJsHelper.getScrollTo(searchTree);
-            term.setScrollToNode(scrollNodeId);
-            List<JSONObject> childrenTree = TreeJsHelper.getChildrenJson(term, pathToPage, this, countsMap);
-            term.setChildrenJson(childrenTree.toString());
-        }
-    }
-
-    /**
-     *
-     * @param cls - start from root.
-     */
-    private void fillJsonTreePath (OWLClass cls, List<Integer> pathFromRoot, Boolean withPartOf, String rootId){
-
-        if (cls != null && (!getIdentifierShortForm(cls).equalsIgnoreCase(rootId) || nodeTermMap.size() == 0)){ // avoid starting over from root
-
-            int nodeId = nodeTermMap.size();
-            OntologyTermDTO ontDTO = getOntologyTerm(getIdentifierShortForm(cls));
-
-            pathFromRoot.add(nodeId);
-            Set<OWLClass> childrenPartOf = getChildren(cls, withPartOf);
-            ontDTO.addPathsToRoot(nodeId, new ArrayList<>(pathFromRoot));
-            nodeTermMap.put(nodeId, ontDTO);
-
-            if (childrenPartOf != null){
-                for (OWLClass child: childrenPartOf){
-                    fillJsonTreePath(child, new ArrayList<>(pathFromRoot), withPartOf, rootId);
-                }
-            }
-        }
-    }
-
-    private Boolean startsWithPrefix(OWLClass cls, Collection<String> prefix){
-        if (prefix == null){
-            return true; // when prefix is passed as null it means we don't care about it; take everything
-        }
-        for (String p: prefix) {
-            if (!getIdentifierShortForm(cls).startsWith(p + ":")) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     private Boolean startsWithPrefix(OWLClass cls, String prefix){
         return (prefix == null || getIdentifierShortForm(cls).startsWith(prefix + ":"));
@@ -241,7 +172,7 @@ public class OntologyParser {
 
 
     public List<OntologyTermDTO> getTerms(){
-        return termMap.values().stream().collect(Collectors.toList());
+        return new ArrayList<>(termMap.values());
     }
 
 
@@ -252,21 +183,12 @@ public class OntologyParser {
         return termMap.get(accessionId);
     }
 
-    /**
-     * Only works if you filled the nodes first
-     * @param nodeId
-     * @return
-     */
-    public OntologyTermDTO getOntologyTerm (Integer nodeId){
-        return nodeTermMap.get(nodeId);
-    }
 
     /**
      * Set up properties for parsing ontology.
-     * @throws OWLOntologyCreationException
      */
     private void setUpParser(String pathToOwlFile)
-            throws OWLOntologyCreationException, OWLOntologyStorageException {
+            throws OWLOntologyStorageException {
 
         LABEL_ANNOTATION = factory.getRDFSLabel();
 

@@ -2,7 +2,6 @@ package org.mousephenotype.cda.datatests.indexers;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrRequest;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
@@ -18,8 +17,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
 
+import javax.inject.Named;
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.sql.Connection;
 
 @Configuration
@@ -48,11 +47,6 @@ public class IndexersTestConfig {
 
     @Autowired
     public MpTermService mpTermService;
-
-//    @Bean
-//    public StatisticalResultsIndexer statisticalResultsIndexer() {
-//        return new StatisticalResultsIndexer(komp2DataSource, ontologyTermRepository, mpTermService, parameterRepository, statisticalResultCore());
-//    }
 
 
     /////////////////////////
@@ -156,7 +150,7 @@ public class IndexersTestConfig {
     }
 
     @Bean
-    public OntologyParserFactory ontologyParserFactory() {
+    public OntologyParserFactory ontologyParserFactory(@Named("komp2DataSource") DataSource komp2DataSource) {
         return new OntologyParserFactory(komp2DataSource, owlpath);
     }
 
@@ -165,7 +159,7 @@ public class IndexersTestConfig {
     ////////////////
 
     @Bean
-    public Connection connection() throws Exception {
+    public Connection connection(@Named("komp2DataSource") DataSource komp2DataSource) throws Exception {
         return komp2DataSource.getConnection();
     }
 
@@ -173,12 +167,12 @@ public class IndexersTestConfig {
     public SolrClient solrClient() {
         return new SolrClient() {
             @Override
-            public NamedList<Object> request(SolrRequest solrRequest, String s) throws SolrServerException, IOException {
+            public NamedList<Object> request(SolrRequest solrRequest, String s) {
                 return null;
             }
 
             @Override
-            public void close() throws IOException {
+            public void close() {
 
             }
         };

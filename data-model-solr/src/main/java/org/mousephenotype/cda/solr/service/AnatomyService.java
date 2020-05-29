@@ -91,84 +91,6 @@ public class AnatomyService extends BasicService implements WebStatus {
 		return null;
 	}
 
-	/**
-	 * @author ilinca
-	 * @since 2016/05/03
-	 * @param id
-	 * @return
-	 * @throws SolrServerException, IOException
-	 */
-	public List<OntologyBean> getParents(String id) 
-	throws SolrServerException, IOException  {
-
-		SolrQuery solrQuery = new SolrQuery()
-				.setQuery(AnatomyDTO.ANATOMY_ID + ":\"" + id + "\"")
-				.setRows(1);
-
-		QueryResponse rsp = anatomyCore.query(solrQuery);
-		List<AnatomyDTO> mps = rsp.getBeans(AnatomyDTO.class);
-		List<OntologyBean> parents = new ArrayList<>();
-
-		if (mps.size() > 1){
-			throw new Error("More documents in anatomy core for the same anatomy id: " + id);
-		}
-
-		if ((mps.get(0).getParentAnatomyId() == null || mps.get(0).getParentAnatomyId().size() == 0)){
-			if (mps.get(0).getTopLevelMpId() != null && mps.get(0).getTopLevelMpId().size() > 0){ // first level below top level
-				for (int i = 0; i < mps.get(0).getTopLevelMpId().size(); i++){
-					parents.add(new OntologyBean(mps.get(0).getTopLevelMpId().get(i), mps.get(0).getTopLevelMpTerm().get(i)));
-				}
-			}
-			return parents;
-		}
-
-		if (mps.get(0).getParentAnatomyId().size() != mps.get(0).getParentAnatomyTerm().size()){
-			throw new Error("Length of parent id list and parent term list does not match for anatomy id: " + id);
-		}
-
-		for (int i = 0; i < mps.get(0).getParentAnatomyId().size(); i++){
-			parents.add(new OntologyBean(mps.get(0).getParentAnatomyId().get(i),	mps.get(0).getParentAnatomyTerm().get(i)));
-		}
-
-		return parents;
-	}
-
-	/**
-	 * @author ilinca
-	 * @since 2016/05/03
-	 * @param id
-	 * @return
-	 * @throws SolrServerException, IOException
-	 */
-	public List<OntologyBean> getChildren(String id) 
-	throws SolrServerException, IOException  {
-
-		SolrQuery solrQuery = new SolrQuery()
-				.setQuery(AnatomyDTO.ANATOMY_ID + ":\"" + id + "\"")
-				.setRows(1);
-
-		QueryResponse rsp = anatomyCore.query(solrQuery);
-		List<AnatomyDTO> mps = rsp.getBeans(AnatomyDTO.class);
-		List<OntologyBean> children = new ArrayList<>();
-
-		if (mps.size() > 1){
-			throw new Error("More documents in anatomy core for the same anatomy id: " + id);
-		}
-
-		if (mps.get(0).getChildAnatomyId() == null || mps.get(0).getChildAnatomyId().size() == 0){
-			return children;
-		}
-
-		if (mps.get(0).getChildAnatomyTerm().size() != mps.get(0).getChildAnatomyId().size()){
-			throw new Error("Length of children id list and children term list does not match for anatomy id: " + id);
-		}
-
-		for (int i = 0; i < mps.get(0).getChildAnatomyId().size(); i++){
-			children.add(new OntologyBean(mps.get(0).getChildAnatomyId().get(i), mps.get(0).getChildAnatomyTerm().get(i)));
-		}
-
-		return children;
-	}
 
 	public AnatomogramDataBean getUberonIdAndTopLevelMaTerm(AnatomogramDataBean bean) throws SolrServerException, IOException  {
 		SolrQuery solrQuery = new SolrQuery();
@@ -178,7 +100,7 @@ public class AnatomyService extends BasicService implements WebStatus {
 		QueryResponse rsp = anatomyCore.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
 
-		ArrayList<String> uberonIds = new ArrayList<String>();
+		List<String> uberonIds = new ArrayList<>();
 		Set<String> mappedEfoIds = new HashSet<>();
 		Set<String> mappedUberonIds = new HashSet<>();
 
@@ -191,13 +113,13 @@ public class AnatomyService extends BasicService implements WebStatus {
 				for (Object child : doc.getFieldValues(AnatomyDTO.UBERON_ID)) {
 					mappedUberonIds.add((String) child);
 				}
-				bean.setMappedUberonIdsForAnatomogram(new ArrayList(mappedUberonIds));
+				bean.setMappedUberonIdsForAnatomogram(new ArrayList<>(mappedUberonIds));
 			}
 			if (doc.containsKey(AnatomyDTO.EFO_ID)) {
 				for (Object child : doc.getFieldValues(AnatomyDTO.EFO_ID)) {
 					mappedEfoIds.add((String) child);
 				}
-				bean.setMappedUberonIdsForAnatomogram(new ArrayList(mappedEfoIds));
+				bean.setMappedUberonIdsForAnatomogram(new ArrayList<>(mappedEfoIds));
 			}
 
 			if (doc.containsKey(AnatomyDTO.ALL_AE_MAPPED_UBERON_ID)) {
@@ -239,41 +161,4 @@ public class AnatomyService extends BasicService implements WebStatus {
 		return "Anatomy Service";
 	}
 
-
-	public String getSearchTermJson(String anatomyTermId)
-			throws SolrServerException, IOException {
-
-		SolrQuery solrQuery = new SolrQuery()
-				.setQuery(AnatomyDTO.ANATOMY_ID + ":\"" + anatomyTermId + "\"")
-				.setRows(1);
-		solrQuery.addField(AnatomyDTO.SEARCH_TERM_JSON);
-
-		QueryResponse rsp = anatomyCore.query(solrQuery);
-
-		List<AnatomyDTO> mas = rsp.getBeans(AnatomyDTO.class);
-
-		return (mas != null) ? mas.get(0).getSearchTermJson() : "";
-	}
-
-	public String getChildrenJson(String nodeId, String termId)
-			throws SolrServerException, IOException {
-
-		// Node_id is unique in ontodb for each ontology.
-		// But we are mixing ontologies here so need to use a combination of node_id and anotomy_id prefix for uniqueness
-		String qStr = null;
-		if ( termId.startsWith("MA:") ){
-			qStr = "MA*";
-		}
-		else if ( termId.startsWith("EMAPA:") ){
-			qStr = "EMAPA*";
-		}
-		SolrQuery solrQuery = new SolrQuery()
-				.setQuery(AnatomyDTO.ANATOMY_NODE_ID + ":" + nodeId + " AND " + AnatomyDTO.ANATOMY_ID + ":" + qStr)
-				.setRows(1);
-		solrQuery.addField(AnatomyDTO.CHILDREN_JSON);
-		QueryResponse rsp = anatomyCore.query(solrQuery);
-		List<AnatomyDTO> mas = rsp.getBeans(AnatomyDTO.class);
-
-		return (mas != null) ? mas.get(0).getChildrenJson() : "";
-	}
 }

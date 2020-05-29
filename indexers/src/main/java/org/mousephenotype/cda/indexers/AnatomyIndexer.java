@@ -36,7 +36,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 
@@ -201,22 +200,18 @@ public class AnatomyIndexer extends AbstractIndexer implements CommandLineRunner
 
         anatomyDTO.setAnatomyNodeId(termDTO.getNodeIds());
 
-        anatomyDTO.setSearchTermJson(termDTO.getSeachJson());
-        anatomyDTO.setScrollNode(termDTO.getScrollToNode());
-        anatomyDTO.setChildrenJson(termDTO.getChildrenJson());
-
     }
 
     private void initialiseSupportingBeans() {
 
         try {
             OntologyParserFactory ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
-            emapaParser = ontologyParserFactory.getEmapaParserWithTreeJson();
-            maParser = ontologyParserFactory.getMaParserWithTreeJson();
+            emapaParser = ontologyParserFactory.getEmapaParser();
+            maParser = ontologyParserFactory.getMaParser();
             uberonParser = ontologyParserFactory.getUberonParser();
             maUberonEfoByTermId = AnatomogramMapper.getMapping(maParser, uberonParser, "UBERON", "MA");
 
-        } catch (SQLException | IOException | OWLOntologyCreationException | OWLOntologyStorageException | JSONException e1) {
+        } catch (SQLException | IOException | OWLOntologyCreationException | OWLOntologyStorageException e1) {
             e1.printStackTrace();
         }
     }
