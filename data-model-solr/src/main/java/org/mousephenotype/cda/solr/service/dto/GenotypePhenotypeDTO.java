@@ -86,18 +86,6 @@ public class GenotypePhenotypeDTO {
     @Field(ID)
     String id;
 
-    public List<String> getMpTermOptions() {
-        return mpTermOptions;
-    }
-
-    public void setMpTermOptions(List<String> mpTermOptions) {
-        this.mpTermOptions = mpTermOptions;
-    }
-
-    @Field(MP_TERM_ID_OPTIONS)
-    List<String> mpTermOptions;
-
-
     @Field(ONTOLOGY_DB_ID)
     Long ontologyDbId;
 
