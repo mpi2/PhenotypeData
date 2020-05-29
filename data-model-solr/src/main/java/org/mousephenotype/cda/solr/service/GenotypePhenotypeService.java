@@ -996,19 +996,19 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
                     + StringUtils.join(phenotypingCenter, "\" OR \"") + "\")");
         }
         if (mpTermId != null) {
-            query.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-                    + StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-                    + StatisticalResultDTO.MP_TERM_ID_OPTIONS + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-                    + StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-                    + StatisticalResultDTO.FEMALE_TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"")
-                    + "\") OR " + StatisticalResultDTO.FEMALE_MP_TERM_ID + ":(\""
-                    + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-                    + StatisticalResultDTO.FEMALE_INTERMEDIATE_MP_TERM_ID + ":(\""
-                    + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-                    + StatisticalResultDTO.MALE_TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"")
-                    + "\") OR " + StatisticalResultDTO.MALE_INTERMEDIATE_MP_TERM_ID + ":(\""
-                    + StringUtils.join(mpTermId, "\" OR \"") + "\") OR " + StatisticalResultDTO.MALE_MP_TERM_ID + ":(\""
-                    + StringUtils.join(mpTermId, "\" OR \"") + "\")");
+            query.addFilterQuery(GenotypePhenotypeDTO.MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
+                    + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
+                   // + StatisticalResultDTO.MP_TERM_ID_OPTIONS + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
+                    + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\")");
+                  //  + GenotypePhenotypeDTO.FEMALE_TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"")
+                    //+ "\") OR " + StatisticalResultDTO.FEMALE_MP_TERM_ID + ":(\""
+                   // + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
+                   // + GenotypePhenotypeDTO.FEMALE_INTERMEDIATE_MP_TERM_ID + ":(\""
+                   // + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
+//                    + GenotypePhenotypeDTO.MALE_TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"")
+//                    + "\") OR " + GenotypePhenotypeDTO.MALE_INTERMEDIATE_MP_TERM_ID + ":(\""
+//                    + StringUtils.join(mpTermId, "\" OR \"") + "\") OR " + GenotypePhenotypeDTO.MALE_MP_TERM_ID + ":(\""
+//                    + StringUtils.join(mpTermId, "\" OR \"") + "\")");
         }
         if (pipelineName != null) {
             query.addFilterQuery(
