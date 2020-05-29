@@ -20,6 +20,7 @@ import org.apache.solr.client.solrj.beans.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -74,11 +75,7 @@ public class AnatomyDTO {
     public static final String CHILD_MP_ID = "child_mp_id";
     public static final String CHILD_MP_TERM = "child_mp_term";
     public static final String CHILD_MP_TERM_SYNONYM = "child_mp_term_synonym";
-    
-    //OntologyBrowser
-	public static final String SEARCH_TERM_JSON = MpDTO.SEARCH_TERM_JSON;
-	public static final String CHILDREN_JSON = MpDTO.CHILDREN_JSON;
-	public static final String SCROLL_NODE = MpDTO.SCROLL_NODE;
+
 
 
     @Field(DATA_TYPE)
@@ -185,16 +182,6 @@ public class AnatomyDTO {
     @Field(ALL_AE_MAPPED_EFO_ID)
     private List<String> all_ae_mapped_efoIds;
 
-
-    // ontology browser
-    @Field(SEARCH_TERM_JSON)
-    private String searchTermJson;
-
-    @Field(CHILDREN_JSON)
-    private String childrenJson;
-
-    @Field(SCROLL_NODE)
-    private String scrollNode;
 
     public String getDataType() {
         return dataType;
@@ -530,144 +517,52 @@ public class AnatomyDTO {
         this.all_ae_mapped_efoIds = all_ae_mapped_efoIds;
     }
 
-    public String getSearchTermJson() {
-        return searchTermJson;
-    }
-
-    public void setSearchTermJson(String searchTermJson) {
-        this.searchTermJson = searchTermJson;
-    }
-
-    public String getChildrenJson() {
-        return childrenJson;
-    }
-
-    public void setChildrenJson(String childrenJson) {
-        this.childrenJson = childrenJson;
-    }
-
-    public String getScrollNode() {
-        return scrollNode;
-    }
-
-    public void setScrollNode(String scrollNode) {
-        this.scrollNode = scrollNode;
-    }
-
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         AnatomyDTO that = (AnatomyDTO) o;
-
-        if (dataType != null ? !dataType.equals(that.dataType) : that.dataType != null) return false;
-        if (anatomyId != null ? !anatomyId.equals(that.anatomyId) : that.anatomyId != null) return false;
-        if (anatomyTerm != null ? !anatomyTerm.equals(that.anatomyTerm) : that.anatomyTerm != null) return false;
-        if (anatomyTermSynonym != null ? !anatomyTermSynonym.equals(that.anatomyTermSynonym) : that.anatomyTermSynonym != null)
-            return false;
-        if (altAnatomyIds != null ? !altAnatomyIds.equals(that.altAnatomyIds) : that.altAnatomyIds != null)
-            return false;
-        if (anatomyNodeId != null ? !anatomyNodeId.equals(that.anatomyNodeId) : that.anatomyNodeId != null)
-            return false;
-        if (stage != null ? !stage.equals(that.stage) : that.stage != null) return false;
-        if (topLevelAnatomyId != null ? !topLevelAnatomyId.equals(that.topLevelAnatomyId) : that.topLevelAnatomyId != null)
-            return false;
-        if (topLevelAnatomyTerm != null ? !topLevelAnatomyTerm.equals(that.topLevelAnatomyTerm) : that.topLevelAnatomyTerm != null)
-            return false;
-        if (topLevelAnatomyTermSynonym != null ? !topLevelAnatomyTermSynonym.equals(that.topLevelAnatomyTermSynonym) : that.topLevelAnatomyTermSynonym != null)
-            return false;
-        if (selectedTopLevelAnatomyId != null ? !selectedTopLevelAnatomyId.equals(that.selectedTopLevelAnatomyId) : that.selectedTopLevelAnatomyId != null)
-            return false;
-        if (selectedTopLevelAnatomyTerm != null ? !selectedTopLevelAnatomyTerm.equals(that.selectedTopLevelAnatomyTerm) : that.selectedTopLevelAnatomyTerm != null)
-            return false;
-        if (selectedTopLevelAnatomyTermSynonym != null ? !selectedTopLevelAnatomyTermSynonym.equals(that.selectedTopLevelAnatomyTermSynonym) : that.selectedTopLevelAnatomyTermSynonym != null)
-            return false;
-        if (selectedTopLevelAnatomyIdTerm != null ? !selectedTopLevelAnatomyIdTerm.equals(that.selectedTopLevelAnatomyIdTerm) : that.selectedTopLevelAnatomyIdTerm != null)
-            return false;
-        if (intermediateAnatomyId != null ? !intermediateAnatomyId.equals(that.intermediateAnatomyId) : that.intermediateAnatomyId != null)
-            return false;
-        if (intermediateAnatomyTerm != null ? !intermediateAnatomyTerm.equals(that.intermediateAnatomyTerm) : that.intermediateAnatomyTerm != null)
-            return false;
-        if (intermediateAnatomyTermSynonym != null ? !intermediateAnatomyTermSynonym.equals(that.intermediateAnatomyTermSynonym) : that.intermediateAnatomyTermSynonym != null)
-            return false;
-        if (parentAnatomyId != null ? !parentAnatomyId.equals(that.parentAnatomyId) : that.parentAnatomyId != null)
-            return false;
-        if (parentAnatomyTerm != null ? !parentAnatomyTerm.equals(that.parentAnatomyTerm) : that.parentAnatomyTerm != null)
-            return false;
-        if (childAnatomyId != null ? !childAnatomyId.equals(that.childAnatomyId) : that.childAnatomyId != null)
-            return false;
-        if (childAnatomyTerm != null ? !childAnatomyTerm.equals(that.childAnatomyTerm) : that.childAnatomyTerm != null)
-            return false;
-        if (mpId != null ? !mpId.equals(that.mpId) : that.mpId != null) return false;
-        if (mpTerm != null ? !mpTerm.equals(that.mpTerm) : that.mpTerm != null) return false;
-        if (mpTermSynonym != null ? !mpTermSynonym.equals(that.mpTermSynonym) : that.mpTermSynonym != null)
-            return false;
-        if (topLevelMpId != null ? !topLevelMpId.equals(that.topLevelMpId) : that.topLevelMpId != null) return false;
-        if (topLevelMpTerm != null ? !topLevelMpTerm.equals(that.topLevelMpTerm) : that.topLevelMpTerm != null)
-            return false;
-        if (topLevelMpTermSynonym != null ? !topLevelMpTermSynonym.equals(that.topLevelMpTermSynonym) : that.topLevelMpTermSynonym != null)
-            return false;
-        if (childMpId != null ? !childMpId.equals(that.childMpId) : that.childMpId != null) return false;
-        if (childMpTerm != null ? !childMpTerm.equals(that.childMpTerm) : that.childMpTerm != null) return false;
-        if (childMpTermSynonym != null ? !childMpTermSynonym.equals(that.childMpTermSynonym) : that.childMpTermSynonym != null)
-            return false;
-        if (uberonIds != null ? !uberonIds.equals(that.uberonIds) : that.uberonIds != null) return false;
-        if (all_ae_mapped_uberonIds != null ? !all_ae_mapped_uberonIds.equals(that.all_ae_mapped_uberonIds) : that.all_ae_mapped_uberonIds != null)
-            return false;
-        if (efoIds != null ? !efoIds.equals(that.efoIds) : that.efoIds != null) return false;
-        if (all_ae_mapped_efoIds != null ? !all_ae_mapped_efoIds.equals(that.all_ae_mapped_efoIds) : that.all_ae_mapped_efoIds != null)
-            return false;
-        if (searchTermJson != null ? !searchTermJson.equals(that.searchTermJson) : that.searchTermJson != null)
-            return false;
-        if (childrenJson != null ? !childrenJson.equals(that.childrenJson) : that.childrenJson != null) return false;
-        return !(scrollNode != null ? !scrollNode.equals(that.scrollNode) : that.scrollNode != null);
-
+        return Objects.equals(dataType, that.dataType) &&
+                Objects.equals(anatomyId, that.anatomyId) &&
+                Objects.equals(anatomyTerm, that.anatomyTerm) &&
+                Objects.equals(anatomyTermSynonym, that.anatomyTermSynonym) &&
+                Objects.equals(altAnatomyIds, that.altAnatomyIds) &&
+                Objects.equals(anatomyNodeId, that.anatomyNodeId) &&
+                Objects.equals(stage, that.stage) &&
+                Objects.equals(topLevelAnatomyId, that.topLevelAnatomyId) &&
+                Objects.equals(topLevelAnatomyTerm, that.topLevelAnatomyTerm) &&
+                Objects.equals(topLevelAnatomyTermSynonym, that.topLevelAnatomyTermSynonym) &&
+                Objects.equals(selectedTopLevelAnatomyId, that.selectedTopLevelAnatomyId) &&
+                Objects.equals(selectedTopLevelAnatomyTerm, that.selectedTopLevelAnatomyTerm) &&
+                Objects.equals(selectedTopLevelAnatomyTermSynonym, that.selectedTopLevelAnatomyTermSynonym) &&
+                Objects.equals(selectedTopLevelAnatomyIdTerm, that.selectedTopLevelAnatomyIdTerm) &&
+                Objects.equals(intermediateAnatomyId, that.intermediateAnatomyId) &&
+                Objects.equals(intermediateAnatomyTerm, that.intermediateAnatomyTerm) &&
+                Objects.equals(intermediateAnatomyTermSynonym, that.intermediateAnatomyTermSynonym) &&
+                Objects.equals(parentAnatomyId, that.parentAnatomyId) &&
+                Objects.equals(parentAnatomyTerm, that.parentAnatomyTerm) &&
+                Objects.equals(childAnatomyId, that.childAnatomyId) &&
+                Objects.equals(childAnatomyTerm, that.childAnatomyTerm) &&
+                Objects.equals(mpId, that.mpId) &&
+                Objects.equals(mpTerm, that.mpTerm) &&
+                Objects.equals(mpTermSynonym, that.mpTermSynonym) &&
+                Objects.equals(topLevelMpId, that.topLevelMpId) &&
+                Objects.equals(topLevelMpTerm, that.topLevelMpTerm) &&
+                Objects.equals(topLevelMpTermSynonym, that.topLevelMpTermSynonym) &&
+                Objects.equals(childMpId, that.childMpId) &&
+                Objects.equals(childMpTerm, that.childMpTerm) &&
+                Objects.equals(childMpTermSynonym, that.childMpTermSynonym) &&
+                Objects.equals(uberonIds, that.uberonIds) &&
+                Objects.equals(all_ae_mapped_uberonIds, that.all_ae_mapped_uberonIds) &&
+                Objects.equals(efoIds, that.efoIds) &&
+                Objects.equals(all_ae_mapped_efoIds, that.all_ae_mapped_efoIds);
     }
 
     @Override
     public int hashCode() {
-        int result = dataType != null ? dataType.hashCode() : 0;
-        result = 31 * result + (anatomyId != null ? anatomyId.hashCode() : 0);
-        result = 31 * result + (anatomyTerm != null ? anatomyTerm.hashCode() : 0);
-        result = 31 * result + (anatomyTermSynonym != null ? anatomyTermSynonym.hashCode() : 0);
-        result = 31 * result + (altAnatomyIds != null ? altAnatomyIds.hashCode() : 0);
-        result = 31 * result + (anatomyNodeId != null ? anatomyNodeId.hashCode() : 0);
-        result = 31 * result + (stage != null ? stage.hashCode() : 0);
-        result = 31 * result + (topLevelAnatomyId != null ? topLevelAnatomyId.hashCode() : 0);
-        result = 31 * result + (topLevelAnatomyTerm != null ? topLevelAnatomyTerm.hashCode() : 0);
-        result = 31 * result + (topLevelAnatomyTermSynonym != null ? topLevelAnatomyTermSynonym.hashCode() : 0);
-        result = 31 * result + (selectedTopLevelAnatomyId != null ? selectedTopLevelAnatomyId.hashCode() : 0);
-        result = 31 * result + (selectedTopLevelAnatomyTerm != null ? selectedTopLevelAnatomyTerm.hashCode() : 0);
-        result = 31 * result + (selectedTopLevelAnatomyTermSynonym != null ? selectedTopLevelAnatomyTermSynonym.hashCode() : 0);
-        result = 31 * result + (selectedTopLevelAnatomyIdTerm != null ? selectedTopLevelAnatomyIdTerm.hashCode() : 0);
-        result = 31 * result + (intermediateAnatomyId != null ? intermediateAnatomyId.hashCode() : 0);
-        result = 31 * result + (intermediateAnatomyTerm != null ? intermediateAnatomyTerm.hashCode() : 0);
-        result = 31 * result + (intermediateAnatomyTermSynonym != null ? intermediateAnatomyTermSynonym.hashCode() : 0);
-        result = 31 * result + (parentAnatomyId != null ? parentAnatomyId.hashCode() : 0);
-        result = 31 * result + (parentAnatomyTerm != null ? parentAnatomyTerm.hashCode() : 0);
-        result = 31 * result + (childAnatomyId != null ? childAnatomyId.hashCode() : 0);
-        result = 31 * result + (childAnatomyTerm != null ? childAnatomyTerm.hashCode() : 0);
-        result = 31 * result + (mpId != null ? mpId.hashCode() : 0);
-        result = 31 * result + (mpTerm != null ? mpTerm.hashCode() : 0);
-        result = 31 * result + (mpTermSynonym != null ? mpTermSynonym.hashCode() : 0);
-        result = 31 * result + (topLevelMpId != null ? topLevelMpId.hashCode() : 0);
-        result = 31 * result + (topLevelMpTerm != null ? topLevelMpTerm.hashCode() : 0);
-        result = 31 * result + (topLevelMpTermSynonym != null ? topLevelMpTermSynonym.hashCode() : 0);
-        result = 31 * result + (childMpId != null ? childMpId.hashCode() : 0);
-        result = 31 * result + (childMpTerm != null ? childMpTerm.hashCode() : 0);
-        result = 31 * result + (childMpTermSynonym != null ? childMpTermSynonym.hashCode() : 0);
-        result = 31 * result + (uberonIds != null ? uberonIds.hashCode() : 0);
-        result = 31 * result + (all_ae_mapped_uberonIds != null ? all_ae_mapped_uberonIds.hashCode() : 0);
-        result = 31 * result + (efoIds != null ? efoIds.hashCode() : 0);
-        result = 31 * result + (all_ae_mapped_efoIds != null ? all_ae_mapped_efoIds.hashCode() : 0);
-        result = 31 * result + (searchTermJson != null ? searchTermJson.hashCode() : 0);
-        result = 31 * result + (childrenJson != null ? childrenJson.hashCode() : 0);
-        result = 31 * result + (scrollNode != null ? scrollNode.hashCode() : 0);
-        return result;
+        return Objects.hash(dataType, anatomyId, anatomyTerm, anatomyTermSynonym, altAnatomyIds, anatomyNodeId, stage, topLevelAnatomyId, topLevelAnatomyTerm, topLevelAnatomyTermSynonym, selectedTopLevelAnatomyId, selectedTopLevelAnatomyTerm, selectedTopLevelAnatomyTermSynonym, selectedTopLevelAnatomyIdTerm, intermediateAnatomyId, intermediateAnatomyTerm, intermediateAnatomyTermSynonym, parentAnatomyId, parentAnatomyTerm, childAnatomyId, childAnatomyTerm, mpId, mpTerm, mpTermSynonym, topLevelMpId, topLevelMpTerm, topLevelMpTermSynonym, childMpId, childMpTerm, childMpTermSynonym, uberonIds, all_ae_mapped_uberonIds, efoIds, all_ae_mapped_efoIds);
     }
-
 
     @Override
     public String toString() {
@@ -706,9 +601,7 @@ public class AnatomyDTO {
                 ", all_ae_mapped_uberonIds=" + all_ae_mapped_uberonIds +
                 ", efoIds=" + efoIds +
                 ", all_ae_mapped_efoIds=" + all_ae_mapped_efoIds +
-                ", searchTermJson='" + searchTermJson + '\'' +
-                ", childrenJson='" + childrenJson + '\'' +
-                ", scrollNode='" + scrollNode + '\'' +
                 '}';
     }
 }
+

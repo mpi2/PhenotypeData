@@ -62,11 +62,6 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * @author Matt Pearce
- * @author ilinca
- * @author mrelac
- */
 @EnableAutoConfiguration
 public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
@@ -203,7 +198,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             // Try to close any csv files
             try {
                 csv.closeAll();
-            } catch (IOException io) {
+            } catch (IOException ignored) {
             }
             throw new IndexerException(e);
         }
@@ -243,11 +238,11 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 });
 
         csv.owlMissingImpc.write("");
-        csv.owlMissingImpc.write(Integer.toString(missingImpcTermCount[0]) +
+        csv.owlMissingImpc.write(missingImpcTermCount[0] +
                                   " terms are missing from the new impc_search_index term list.");
 
         csv.impcMissingOwl.write("");
-        csv.impcMissingOwl.write(Integer.toString(missingOwlTermCount[0]) +
+        csv.impcMissingOwl.write(missingOwlTermCount[0] +
                                          " terms are missing from the old owl term list.");
     }
 
@@ -260,8 +255,8 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         runStatus = populateMpCallMaps();
         csv = new CsvWriters();
 
-        runStatus.getErrorMessages().stream().forEach(s -> logger.error(s));
-        runStatus.getWarningMessages().stream().forEach(s -> logger.warn(s));
+        runStatus.getErrorMessages().forEach(logger::error);
+        runStatus.getWarningMessages().forEach(logger::warn);
 
         return runStatus;
     }
@@ -307,10 +302,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 mpDtoToAdd.setAltMpIds(mpDtoFromSlim.getAlternateIds());
             }
 
-            mpDtoToAdd.setMpNodeId(mpDtoFromSlim.getNodeIds() != null       // Add mp node ids
-                                           ? mpDtoFromSlim.getNodeIds()
-                                           : new HashSet<>());
-
             addTopLevelTerms(mpDtoToAdd, mpDtoFromSlim);                    // Add top-level terms
             addIntermediateTerms(mpDtoToAdd, mpDtoFromSlim);                // Add intermediate terms
 
@@ -328,21 +319,11 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
             mpDtoToAdd.setPhenoCalls(sumPhenotypingCalls(mpIdFromSlim));
             addPhenotype2(mpDtoToAdd);
 
-            mpDtoToAdd.setSearchTermJson(mpDtoFromSlim.getSeachJson());
-            mpDtoToAdd.setScrollNode(mpDtoFromSlim.getScrollToNode());
-            mpDtoToAdd.setChildrenJson(mpDtoFromSlim.getChildrenJson());
-
             logger.debug(" Added {} records for termId {}", count, mpIdFromSlim);
             count++;
 
             expectedDocumentCount++;
             mpCore.addBean(mpDtoToAdd, 60000);
-
-            mpParser.fillJsonTreePath("MP:0000001",
-                                      "/data/phenotypes/",
-                                      mpGeneVariantCount,
-                                      OntologyParserFactory.TOP_LEVEL_MP_TERMS,
-                                      false);
         }
 
         return count;
@@ -440,7 +421,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         if (mpHpTerm.getNarrowSynonymClasses() != null) {
 
             mpHpTerm.getNarrowSynonymClasses()
-                    .stream()
                     .forEach(narrowSynonym -> narrowSynonymSet
                             .add(narrowSynonym.getName()));
 
@@ -739,7 +719,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         if (mpDtoFromSlim.getIntermediateIds() != null) {
             mpDtoToAdd.addIntermediateMpId(mpDtoFromSlim.getIntermediateIds());
             mpDtoToAdd.addIntermediateMpTerm(mpDtoFromSlim.getIntermediateNames());
-            mpDtoToAdd.addIntermediateMpTermSynonym(mpDtoFromSlim.getIntermediateSynonyms());
         }
     }
 
@@ -749,7 +728,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         if (mpDtoFromSlim.getTopLevelIds() != null && mpDtoFromSlim.getTopLevelIds().size() > 0) {
             mpDtoToAdd.addTopLevelMpId(mpDtoFromSlim.getTopLevelIds());
             mpDtoToAdd.addTopLevelMpTerm(mpDtoFromSlim.getTopLevelNames());
-            mpDtoToAdd.addTopLevelMpTermSynonym(mpDtoFromSlim.getTopLevelSynonyms());
             mpDtoToAdd.addTopLevelMpTermId(mpDtoFromSlim.getTopLevelTermIdsConcatenated());
         }
     }
@@ -768,7 +746,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                     // From JS mapping script - row.get('legacy')
                     mp.setLegacyPhenotypeStatus(1);
                 }
-                addAllele(mp, allelesByMgiAlleleAccessionId.get(pheno1.getGfAcc()), false);
+                addAllele(mp, allelesByMgiAlleleAccessionId.get(pheno1.getGfAcc()));
             }
         }
     }
@@ -780,7 +758,7 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
         }
     }
 
-    private void addAllele(MpDTO mp, List<AlleleDTO> alleles, boolean includeStatus) {
+    private void addAllele(MpDTO mp, List<AlleleDTO> alleles) {
         if (alleles != null) {
             initialiseAlleleFields(mp);
 
@@ -872,10 +850,6 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
                 }
                 if (allele.getAlleleName() != null) {
                     mp.getAlleleName().addAll(allele.getAlleleName());
-                }
-
-                if (includeStatus && allele.getMgiAccessionId() != null) {
-                    mp.getLatestPhenotypeStatus().add("Phenotyping Started");
                 }
             }
         }
