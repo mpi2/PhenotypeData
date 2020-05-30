@@ -181,6 +181,100 @@ public class CategoricalChartAndTableProvider {
 	}
 
 
+	public List<ChartData> doCategoricalDataOverview(CategoricalSet controlSet, CategoricalSet mutantSet) {
+
+		ChartData chartData = new ChartData();
+		createCategoricalChartOverview(controlSet, mutantSet, chartData);
+
+		List<ChartData> categoricalResultAndCharts = new ArrayList<>();
+		categoricalResultAndCharts.add(chartData);
+
+		return categoricalResultAndCharts;
+	}
+
+
+	private void createCategoricalChartOverview(CategoricalSet controlSet,
+	CategoricalSet mutantSet,
+	ChartData chartData) {
+
+		// to not 0 index as using loop count in jsp
+		JSONArray seriesArray          = new JSONArray();
+		JSONArray xAxisCategoriesArray = new JSONArray();
+
+		// get a list of unique categories
+		HashMap<String, List<Long>> categories = new LinkedHashMap<>();
+		// keep the order so we have normal first!
+		if (controlSet != null && controlSet.getCount() > 0){
+			for (CategoricalDataObject catObject : controlSet.getCatObjects()) {
+				String category = catObject.getCategory();
+				categories.put(category, new ArrayList<>());
+			}
+			xAxisCategoriesArray.put(controlSet.getName());
+		}
+
+		if (mutantSet != null && mutantSet.getCount() > 0){
+			for (CategoricalDataObject catObject : mutantSet.getCatObjects()) {
+				String category = catObject.getCategory();
+				if (!categories.containsKey(category) && !category.equalsIgnoreCase("no data")) {
+					categories.put(category, new ArrayList<>());
+				}
+			}
+			xAxisCategoriesArray.put(mutantSet.getName());
+		}
+
+		for (String categoryLabel : categories.keySet()) {
+			if (controlSet != null && controlSet.getCount() > 0){
+				if (controlSet.getCategoryByLabel(categoryLabel) != null) {
+					categories.get(categoryLabel).add(controlSet.getCategoryByLabel(categoryLabel).getCount());
+				}
+				else categories.get(categoryLabel).add((long) 0);
+			}
+
+			assert mutantSet != null;
+			if (mutantSet.getCategoryByLabel(categoryLabel) != null) {
+				categories.get(categoryLabel).add(mutantSet.getCategoryByLabel(categoryLabel).getCount());
+			}
+			else categories.get(categoryLabel).add((long) 0);
+		}
+
+		try {
+			for (Entry<String, List<Long>> pairs : categories.entrySet()) {
+				List<Long> data = pairs.getValue();
+				JSONObject dataset1 = new JSONObject();// e.g. normal
+				dataset1.put("name", pairs.getKey());
+				JSONArray dataset = new JSONArray();
+				for (Long singleValue : data) {
+					dataset.put(singleValue);
+				}
+				dataset1.put("data", dataset);
+
+				seriesArray.put(dataset1);
+			}
+
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		String chartId = "single-chart-div";
+		List<String> colors = ChartColors.getHighDifferenceColorsRgba(ChartColors.alphaOpaque);
+		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ "
+		+ "colors:" + colors + ", "
+		+ "tooltip: {  pointFormat: '{series.name}: <b>{point.y}</b>'},"
+		+ "chart: { renderTo: '" + chartId + "', type: 'column', style: { fontFamily: '\"Roboto\", sans-serif' }}, "
+		+ "title: { text: '', useHTML:true }, "
+		+ "subtitle: { text:''}, credits: { enabled: false }, "
+		+ "xAxis: { categories: " + xAxisCategoriesArray + "}, "
+		+ "yAxis: { min: 0, title: { text: 'Percent Occurrence' } ,  "
+		+ "labels: {       formatter: function() { return this.value +'%';   }  }  },  "
+		+ "plotOptions: { column: { stacking: 'percent' } }, "
+		+ "series: " + seriesArray + " });  });";
+
+		chartData.setChart(javascript);
+		chartData.setId(chartId);
+
+	}
+
+
 	private String createCategoricalChartFromObjects(String chartId,
 													 CategoricalChartDataObject chartData) {
 

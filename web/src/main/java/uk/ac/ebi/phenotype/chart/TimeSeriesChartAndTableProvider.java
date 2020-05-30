@@ -41,6 +41,29 @@ public class TimeSeriesChartAndTableProvider {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
+	public ChartData doTimeSeriesOverviewData(
+			Map<String, List<DiscreteTimePoint>> lines, ParameterDTO parameter) {
+
+		if (lines == null) {
+			return new ChartData();
+		}
+
+		String title = parameter.getName();
+		// create CharData
+		ChartData chartsNTablesForParameter = creatDiscretePointTimeSeriesChartOverview(
+				"1",
+				title,
+				lines,
+				parameter.getUnitX(),
+				parameter.getUnitY(),
+				1,
+				"org",
+				parameter.getStableId());
+		return chartsNTablesForParameter;
+	}
+
+
+
 	public ChartData doTimeSeriesData(ExperimentDTO experiment,	ParameterDTO parameter, String experimentNumber) {
 
 		ChartData chartNTableForParameter = null;
@@ -278,5 +301,134 @@ public class TimeSeriesChartAndTableProvider {
 		return chartAndTable;
 	}
 
+	private ChartData creatDiscretePointTimeSeriesChartOverview(String expNumber,
+			String title, Map<String, List<DiscreteTimePoint>> lines,
+			String xUnitsLabel, String yUnitsLabel, int decimalPlaces, String organisation, String parameterStableId) {
+
+		JSONArray series = new JSONArray();
+		String seriesString;
+		Set<Float> categoriesSet = new HashSet<>();
+
+		try {
+			int i = 0;
+			for (String key : lines.keySet()) {// key is line name or "Control"
+
+				JSONObject object = new JSONObject();
+				JSONArray data = new JSONArray();
+				object.put("name", key);
+
+				String colorString;
+				if (key.equalsIgnoreCase("Control")){
+					colorString = ChartColors.getDefaultControlColor(ChartColors.alphaTranslucid70);
+				}
+				else {
+					colorString = ChartColors.getRgbaString(SexType.male, i, ChartColors.alphaTranslucid70);
+				}
+				object.put("color", colorString);
+
+				JSONObject errorBarsObject = null;
+				try {
+					errorBarsObject = new JSONObject();
+					errorBarsObject.put("name", "Standard Deviation");
+					errorBarsObject.put("type", "errorbar");
+					errorBarsObject.put("color", colorString);
+
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+
+				JSONArray errorsDataJson = new JSONArray();
+				for (DiscreteTimePoint pt : lines.get(key)) {
+					JSONArray pair = new JSONArray();
+					pair.put(pt.getDiscreteTime());
+					pair.put(pt.getData());
+					categoriesSet.add(pt.getDiscreteTime());
+					data.put(pair);
+					// set the error bars
+					JSONArray errorBarsJ = new JSONArray();
+					errorBarsJ.put(pt.getDiscreteTime());
+					errorBarsJ.put(pt.getErrorPair().get(0));
+					errorBarsJ.put(pt.getErrorPair().get(1));
+					errorsDataJson.put(errorBarsJ);
+
+					errorBarsObject.put("data", errorsDataJson);
+
+				}
+				object.put("data", data);
+				String placeholderString = "placeholder";
+				object.put(placeholderString, placeholderString);
+				series.put(object);
+				series.put(errorBarsObject);
+				i++;
+			}
+
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		// need to add error bars to series data as well!
+		// sort the categories by time as means are all sorted already
+
+		List<Float> cats = new ArrayList<Float>();
+		for (Float cat : categoriesSet) {
+			cats.add(cat);
+		}
+		Collections.sort(cats);
+		String noDecimalsString = "";
+		if (xUnitsLabel.equals("number")) {
+			// set the xAxis to be numbers with no decimals
+			noDecimalsString = "allowDecimals:false,";
+		}
+
+		String decimalFormatString = ":." + decimalPlaces + "f";
+		String headerFormatString = "headerFormat: '<span style=\"font-size: 12px\">"
+				+ WordUtils.capitalize(xUnitsLabel)
+				+ " {point.key}</span><br/>',";
+		String pointToolTip = "tooltip: { "
+				+ headerFormatString
+				+ "pointFormat: '<span style=\"font-weight: bold; color: {series.color}\">{series.name}</span>:<b>{point.y"
+				+ decimalFormatString + "}" + yUnitsLabel + "</b> '}";
+		String escapedPlaceholder = "\"placeholder\":\"placeholder\"";
+		seriesString = series.toString().replace(escapedPlaceholder,
+				pointToolTip);
+
+		String errorBarsToolTip = "tooltip: { pointFormat: 'SD: {point.low"
+				+ decimalFormatString + "}-{point.high" + decimalFormatString
+				+ "}<br/>' }";
+		String escapedErrorString = "\"errorbar\"";
+		seriesString = seriesString.replace(escapedErrorString,
+				escapedErrorString + "," + errorBarsToolTip);
+		String axisFontSize = "15";
+
+		List<String> colors=ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaTranslucid70);
+//		JSONArray colorArray = new JSONArray(colors);
+
+		String javascript = "$(document).ready(function() { chart = new Highcharts.Chart({ "
+//				+" colors:"+colorArray
+				+" chart: {  zoomType: 'x', renderTo: 'single-chart-div', type: 'line', marginRight: 130, marginBottom: 50 }, title: { text: '"
+				+ WordUtils.capitalize(title)
+				+ "', x: -20  }, credits: { enabled: false },  subtitle: { text: '"
+				+ parameterStableId
+				+ "', x: -20 }, xAxis: { "
+				+ noDecimalsString
+				+ " labels: { style:{ fontSize:"
+				+ axisFontSize
+				+ " }},   title: {   text: '"
+				+ xUnitsLabel
+				+ "'   }  }, yAxis: { labels: { style:{ fontSize:"
+				+ axisFontSize
+				+ " }}, title: { text: ' "
+				+ yUnitsLabel
+				+ "' }, plotLines: [{ value: 0, width: 1, color: '#808080' }] },  legend: { layout: 'vertical', align: 'right', verticalAlign: 'top', x: -10, y: 100, borderWidth: 0 }, "
+				+ "tooltip: {shared: true},"
+				+ "series: "
+				+ seriesString
+				+ " }); });  ";
+		ChartData chartAndTable = new ChartData();
+		chartAndTable.setChart(javascript);
+		chartAndTable.setOrganisation(organisation);
+		chartAndTable.setId(parameterStableId);
+		return chartAndTable;
+	}
 
 }

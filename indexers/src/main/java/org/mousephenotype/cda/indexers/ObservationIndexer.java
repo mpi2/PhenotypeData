@@ -438,7 +438,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
         o.setParameterId(parameterMap.get(r.getLong("parameter_id")).getId());
         o.setParameterName(parameterMap.get(r.getLong("parameter_id")).getName());
         o.setParameterStableId(parameterMap.get(r.getLong("parameter_id")).getStableId());
-        o.setDataType(parameterMap.get(r.getLong("parameter_id")).getDatatype());
+        o.setDataType(parameterMap.get(r.getLong("parameter_id")).getDataType());
     }
 
     private void addDateOfExperiment(ResultSet r, ObservationDTOWrite o) throws SQLException {

@@ -24,12 +24,14 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.imits.StatusConstants;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.*;
+import org.mousephenotype.cda.solr.web.dto.StackedBarsData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -339,6 +341,78 @@ public class UnidimensionalChartAndTableProvider {
 		return chartAndTable;
 	}
 
+
+	public ChartData getStackedHistogram(StackedBarsData map, String parameterName, String parameterStableId, String procedureName) {
+
+		if (map == null) { return new ChartData(); }
+		String xLabel = "Ratio (mutantMean / controlMean)";
+		List<Double> control = map.getControlMutatns();
+		List<Double> mutant = map.getPhenMutants();
+		List<String> labels = new ArrayList<>();
+		List<String> controlGenes = map.getControlGenes();
+		List<String> mutantGenes = map.getMutantGenes();
+		List<String> controlGenesUrl = map.getControlGeneAccesionIds();
+		List<String> mutantGenesUrl = map.getMutantGeneAccesionIds();
+		DecimalFormat df;
+		List<Double> upperBounds = map.getUpperBounds();
+		// We need to set the number of decimals according to the difference between the lowest and highest, so that the bin labels will be distinct
+		// Here's an example where 2 decimals are not enogh https://www.mousephenotype.org/data/phenotypes/MP:0000063
+		if (upperBounds.get(upperBounds.size() - 1) - upperBounds.get(0) > 0.1){
+			df = new DecimalFormat("#.##");
+		}
+		else if (upperBounds.get(upperBounds.size() - 1) - upperBounds.get(0) > 0.01){
+			df = new DecimalFormat("#.####");
+		}
+		else if (upperBounds.get(upperBounds.size() - 1) - upperBounds.get(0) > 0.001){
+			df = new DecimalFormat("#.#####");
+		}
+		else{
+			df = new DecimalFormat("#.########ß");
+		}
+		for (int i = 0; i < upperBounds.size(); i++) {
+			String c = controlGenes.get(i);
+			String controlG = "";
+			if (c.length() > 50) {
+				int len = 0;
+				for (String gene : c.split(" ")) {
+					controlG += gene + " ";
+					len += gene.length();
+					if (len > 50) {
+						controlG += "<br/>";
+						len = 0;
+					}
+				}
+			} else controlG = c;
+			labels.add("'" + df.format(upperBounds.get(i)) + "###" + controlG + "###" + mutantGenes.get(i) + "###" + controlGenesUrl.get(i) + "###" + mutantGenesUrl.get(i) + "'");
+		}
+		double min = 0;
+		for (double val : mutant)
+			if (val < min) min = val;
+		for (double val : control)
+			if (val < min) min = val;
+
+		String chartId = parameterStableId;
+		String yTitle = "Number of lines";
+		String javascript = "$(document).ready(function() {" + "chart = new Highcharts.Chart({ "
+		+ "	colors:['rgba(239, 123, 11,0.7)','rgba(9, 120, 161,0.7)'],"
+		+ " chart: {  type: 'column' , renderTo: 'single-chart-div',  zoomType: 'y', style: { fontFamily: '\"Roboto\", sans-serif' }}," +
+		" title: {  text: '<span data-parameterStableId=\"" + parameterStableId + "\">" + parameterName + "</span>', useHTML:true  }," +
+		" subtitle: { text: '" + procedureName + "'}," +
+		" credits: { enabled: false }," +
+		" xAxis: { categories: " + labels + ", " +
+			"labels: {formatter:function(){ return this.value.split('###')[0]; }, rotation: -45} , "
+			+ "title: { text: '" + xLabel + "'} }," +
+		" yAxis: { min: " + min + ",  "
+			+ "	title: {  text: '" + yTitle + "'  }, "
+			+ "stackLabels: { enabled: false}  }," + " "
+			+ "tooltip: { " + "formatter: function() { " + "if ('Mutant strains with no calls for this phenotype' === this.series.name )" + "return ''+  this.series.name +': '+ this.y + ' out of '+ this.point.stackTotal;" + "else return ''+  this.series.name +': '+ this.y + ' out of '+ this.point.stackTotal + '<br/>Genes: ' +  this.x.split('###')[2];}  }, " + " "
+		+ "plotOptions: { column: {  stacking: 'normal',  dataLabels: { enabled: false} }, " + "series: { cursor: 'pointer', point: { events: { click: function() { " + "var url = document.URL.split('/phenotypes/')[0];" + "if ('Mutant strains with no calls for this phenotype' === this.series.name) {" + "url += '/charts?' + this.category.split('###')[3];" + "} else {" + "url += '/charts?' + this.category.split('###')[4];" + "} " + "url += '&parameter_stable_id=" + parameterStableId + "';" + "window.open(url); " + "console.log(url);" + "} } } }" + "} ," + " series: [{ name: 'Mutant strains with this phenotype called',  data: " + mutant + "  }, {name: 'Mutant strains with no calls for this phenotype', data: " + control + "}]" + " });  }); ";
+		ChartData chartAndTable = new ChartData();
+		chartAndTable.setChart(javascript);
+		chartAndTable.setId(chartId);
+
+		return chartAndTable;
+	}
 
 
 	private List<UnidimensionalStatsObject> produceUnidimensionalStatsData(ExperimentDTO experiment) {

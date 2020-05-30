@@ -642,7 +642,7 @@ public class ImpressService extends BasicService implements WebStatus {
 			return null;
 		}
 
-		ImpressDTO dto = response.getBeans(ImpressDTO.class).get(0);
+		ImpressDTO dto = dtoList.get(0);
 		param.setId(dto.getParameterId());
 		param.setStableId(dto.getParameterStableId());
 		param.setStableKey(dto.getParameterStableKey());
@@ -651,7 +651,7 @@ public class ImpressService extends BasicService implements WebStatus {
 		param.setName(dto.getParameterName());
 		param.setObservationType(ObservationType.valueOf(dto.getObservationType()));
 		param.setCategories(dto.getCategories());
-		List<String> procedures = new ArrayList<String>();
+		List<String> procedures = new ArrayList<>();
 		procedures.add(dto.getProcedureName());
 		param.setProcedureNames(procedures);
 

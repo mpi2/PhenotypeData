@@ -19,8 +19,10 @@ package org.mousephenotype.cda.solr.service;
 import com.google.common.collect.Iterators;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.*;
@@ -30,6 +32,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.FacetParams;
 import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.common.Constants;
+import org.mousephenotype.cda.dto.DiscreteTimePoint;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -37,6 +40,8 @@ import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.service.dto.*;
+import org.mousephenotype.cda.solr.web.dto.CategoricalDataObject;
+import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
 import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
@@ -806,6 +811,247 @@ public class ObservationService extends BasicService implements WebStatus {
         return results;
     }
 
+    public Set<String> getCenters(String parameterStableId, List<String> genes, List<String> strains, String biologicalSample)
+            throws SolrServerException, IOException  {
+
+        Set<String> centers = new HashSet<>();
+        SolrQuery query = new SolrQuery().addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + biologicalSample).addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId);
+        String q = (strains.size() > 1) ? "(" + ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(strains.toArray(), "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\")" : ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + strains.get(0) + "\"";
+        String fq = "";
+        if (genes != null && genes.size() > 0) {
+            fq += " (";
+            fq += (genes.size() > 1) ? ObservationDTO.GENE_ACCESSION_ID + ":\"" + StringUtils.join(genes.toArray(), "\" OR " + ObservationDTO.GENE_ACCESSION_ID + ":\"") + "\"" : ObservationDTO.GENE_ACCESSION_ID + ":\"" + genes.get(0) + "\"";
+            fq += ")";
+        }
+        query.addFilterQuery(fq);
+        query.setQuery(q);
+        query.setRows(Integer.MAX_VALUE);
+        query.setFields(ObservationDTO.GENE_ACCESSION_ID, ObservationDTO.DATA_POINT);
+        query.set("group", true);
+        query.set("group.field", ObservationDTO.PHENOTYPING_CENTER);
+        query.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
+
+        List<Group> groups = experimentCore.query(query, SolrRequest.METHOD.POST).getGroupResponse().getValues().get(0).getValues();
+        for (Group gr : groups) {
+            centers.add(gr.getGroupValue());
+        }
+
+        return centers;
+    }
+
+    // gets categorical data for graphs on phenotype page
+    public CategoricalSet getCategories(String parameterStableId, List<String> genes, String biologicalSampleGroup, List<String> strains, String[] center, String[] sex) throws IOException, SolrServerException {
+
+        CategoricalSet resSet = new CategoricalSet();
+        resSet.setName(biologicalSampleGroup);
+        SolrQuery query = new SolrQuery().addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + biologicalSampleGroup).addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId);
+
+        String q = (strains.size() > 1) ? "(" + ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(strains.toArray(), "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\")" : ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + strains.get(0) + "\"";
+
+        if (genes != null && genes.size() > 0) {
+            q += " AND (";
+            q += (genes.size() > 1) ? ObservationDTO.GENE_ACCESSION_ID + ":\"" + StringUtils.join(genes.toArray(), "\" OR " + ObservationDTO.GENE_ACCESSION_ID + ":\"") + "\"" : ObservationDTO.GENE_ACCESSION_ID + ":\"" + genes.get(0) + "\"";
+            q += ")";
+        }
+
+        if (center != null && center.length > 0) {
+            q += " AND (";
+            q += (center.length > 1) ? ObservationDTO.PHENOTYPING_CENTER + ":\"" + StringUtils.join(center, "\" OR " + ObservationDTO.PHENOTYPING_CENTER + ":\"") + "\"" : ObservationDTO.PHENOTYPING_CENTER + ":\"" + center[0] + "\"";
+            q += ")";
+        }
+
+        if (sex != null && sex.length == 1) {
+            q += " AND " + ObservationDTO.SEX + ":\"" + sex[0] + "\"";
+        }
+
+        query.setQuery(q);
+        query.set("group.field", ObservationDTO.CATEGORY);
+        query.set("group", true);
+        query.setRows(100);
+        query.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
+
+        logger.info("URL in getCategories " + SolrUtils.getBaseURL(experimentCore) + "/select?" + query);
+
+        QueryResponse res = experimentCore.query(query, SolrRequest.METHOD.POST);
+
+        List<Group> groups = res.getGroupResponse().getValues().get(0).getValues();
+        for (Group gr : groups) {
+            CategoricalDataObject catObj = new CategoricalDataObject();
+            catObj.setCount((long) gr.getResult().getNumFound());
+	        String catLabel = gr.getGroupValue();
+            catObj.setCategory(catLabel);
+            resSet.add(catObj);
+        }
+        return resSet;
+    }
+
+
+    // gets categorical data for graphs on phenotype page
+    public Map<String, List<DiscreteTimePoint>> getTimeSeriesMutantData(String parameterStableId, List<String> genes, List<String> strains, String[] center, String[] sex)
+            throws SolrServerException, IOException  {
+
+        Map<String, List<DiscreteTimePoint>> finalRes = new HashMap<>(); // <allele_accession, timeSeriesData>
+
+        SolrQuery query = new SolrQuery().addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental").addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId);
+
+        String q = (strains.size() > 1) ? "(" + ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(strains.toArray(), "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\")" : ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + strains.get(0) + "\"";
+
+        if (genes != null && genes.size() > 0) {
+            q += " AND (";
+            q += (genes.size() > 1) ? ObservationDTO.GENE_ACCESSION_ID + ":\"" + StringUtils.join(genes.toArray(), "\" OR " + ObservationDTO.GENE_ACCESSION_ID + ":\"") + "\"" : ObservationDTO.GENE_ACCESSION_ID + ":\"" + genes.get(0) + "\"";
+            q += ")";
+        }
+
+        if (center != null && center.length > 0) {
+            q += " AND (";
+            q += (center.length > 1) ? ObservationDTO.PHENOTYPING_CENTER + ":\"" + StringUtils.join(center, "\" OR " + ObservationDTO.PHENOTYPING_CENTER + ":\"") + "\"" : ObservationDTO.PHENOTYPING_CENTER + ":\"" + center[0] + "\"";
+            q += ")";
+        }
+
+        if (sex != null && sex.length == 1) {
+            q += " AND " + ObservationDTO.SEX + ":\"" + sex[0] + "\"";
+        }
+
+        query.setQuery(q);
+        query.set("group.field", ObservationDTO.GENE_SYMBOL);
+        query.set("group", true);
+        query.set("fl", ObservationDTO.DATA_POINT + "," + ObservationDTO.DISCRETE_POINT);
+        query.set("group.limit", 100000); // number of documents to be returned
+        query.set("group.sort", ObservationDTO.DISCRETE_POINT + " asc");
+        query.setRows(10000);
+
+        List<Group> groups = experimentCore.query(query).getGroupResponse().getValues().get(0).getValues();
+
+        for (Group gr : groups) {
+            SolrDocumentList resDocs = gr.getResult();
+            DescriptiveStatistics stats = new DescriptiveStatistics();
+            float discreteTime = (float) resDocs.get(0).getFieldValue(ObservationDTO.DISCRETE_POINT);
+            List<DiscreteTimePoint> res = new ArrayList<>();
+            for (int i = 0; i < resDocs.getNumFound(); i ++) {
+                SolrDocument doc = resDocs.get(i);
+                stats.addValue((float) doc.getFieldValue(ObservationDTO.DATA_POINT));
+                if (discreteTime != (float) doc.getFieldValue(ObservationDTO.DISCRETE_POINT) || i == resDocs.getNumFound() - 1) { // we
+                    float discreteDataPoint = (float) stats.getMean();
+                    DiscreteTimePoint dp = new DiscreteTimePoint(discreteTime, discreteDataPoint, (float) stats.getStandardDeviation());
+                    List<Float> errorPair = new ArrayList<>();
+                    Float lower = discreteDataPoint;
+                    Float higher = discreteDataPoint;
+                    errorPair.add(lower);
+                    errorPair.add(higher);
+                    dp.setErrorPair(errorPair);
+                    res.add(dp);
+                    // update discrete point
+                    discreteTime = Float.parseFloat(doc.getFieldValue(ObservationDTO.DISCRETE_POINT).toString());
+                    // update stats
+                    stats = new DescriptiveStatistics();
+                }
+            }
+            // add list
+            finalRes.put(gr.getGroupValue(), res);
+        }
+        return finalRes;
+    }
+
+
+    // gets categorical data for graphs on phenotype page
+    public List<DiscreteTimePoint> getTimeSeriesControlData(String parameter, List<String> strains, String[] center, String[] sex)
+            throws SolrServerException, IOException  {
+
+        List<DiscreteTimePoint> res = new ArrayList<>();
+        SolrQuery query = new SolrQuery().addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":control").addFilterQuery(ObservationDTO.PARAMETER_STABLE_ID + ":" + parameter);
+        String q = (strains.size() > 1) ? "(" + ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(strains.toArray(), "\" OR " + ObservationDTO.STRAIN_ACCESSION_ID + ":\"") + "\")" : ObservationDTO.STRAIN_ACCESSION_ID + ":\"" + strains.get(0) + "\"";
+
+        if (center != null && center.length > 0) {
+            q += " AND (";
+            q += (center.length > 1) ? ObservationDTO.PHENOTYPING_CENTER + ":\"" + StringUtils.join(center, "\" OR " + ObservationDTO.PHENOTYPING_CENTER + ":\"") + "\"" : ObservationDTO.PHENOTYPING_CENTER + ":\"" + center[0] + "\"";
+            q += ")";
+        }
+
+        if (sex != null && sex.length == 1) {
+            q += " AND " + ObservationDTO.SEX + ":\"" + sex[0] + "\"";
+        }
+
+        query.setQuery(q);
+        query.set("group.field", ObservationDTO.DISCRETE_POINT);
+        query.set("group", true);
+        query.set("fl", ObservationDTO.DATA_POINT + "," + ObservationDTO.DISCRETE_POINT);
+        query.set("group.limit", 100000); // number of documents to be returned
+        // per group
+        query.set("sort", ObservationDTO.DISCRETE_POINT + " asc");
+        query.setRows(10000);
+
+        List<Group> groups = experimentCore.query(query).getGroupResponse().getValues().get(0).getValues();
+        boolean rounding = false;
+        // decide if binning is needed i.e. is the increment points are too
+        // scattered, as for calorimetry
+        if (groups.size() > 30) { // arbitrary value, just piced it because it
+            // seems reasonable for the size of our
+            // graphs
+            if (Float.parseFloat(groups.get(groups.size() - 1).getGroupValue()) - Float.parseFloat(groups.get(0).getGroupValue()) <= 30) { // then
+                // rounding
+                // will
+                // be
+                // enough
+                rounding = true;
+            }
+        }
+        if (rounding) {
+            int bin = Math.round(Float.parseFloat(groups.get(0).getGroupValue()));
+            for (Group gr : groups) {
+                int discreteTime = Math.round(Float.parseFloat(gr.getGroupValue()));
+                // for calormetry ignore what's before -5 and after 16
+                if (parameter.startsWith("IMPC_CAL") || parameter.startsWith("ESLIM_003_001") || parameter.startsWith("M-G-P_003_001")) {
+                    if (discreteTime < -5) {
+                        continue;
+                    } else if (discreteTime > 16) {
+                        break;
+                    }
+                }
+                float sum = 0;
+                SolrDocumentList resDocs = gr.getResult();
+                DescriptiveStatistics stats = new DescriptiveStatistics();
+                for (SolrDocument doc : resDocs) {
+                    sum += (float) doc.getFieldValue(ObservationDTO.DATA_POINT);
+                    stats.addValue((float) doc.getFieldValue(ObservationDTO.DATA_POINT));
+                }
+                if (bin < discreteTime || groups.indexOf(gr) == groups.size() - 1) { // finished
+                    float discreteDataPoint = sum / resDocs.getNumFound();
+                    DiscreteTimePoint dp = new DiscreteTimePoint((float) discreteTime, discreteDataPoint, (float) stats.getStandardDeviation());
+                    List<Float> errorPair = new ArrayList<>();
+                    double std = stats.getStandardDeviation();
+                    Float lower = (float) (discreteDataPoint - std);
+                    Float higher = (float) (discreteDataPoint + std);
+                    errorPair.add(lower);
+                    errorPair.add(higher);
+                    dp.setErrorPair(errorPair);
+                    res.add(dp);
+                    bin = discreteTime;
+                }
+            }
+        } else {
+            for (Group gr : groups) {
+                Float discreteTime = Float.valueOf(gr.getGroupValue());
+                float sum = 0;
+                SolrDocumentList resDocs = gr.getResult();
+                DescriptiveStatistics stats = new DescriptiveStatistics();
+                for (SolrDocument doc : resDocs) {
+                    sum += (float) doc.getFieldValue(ObservationDTO.DATA_POINT);
+                    stats.addValue((float) doc.getFieldValue(ObservationDTO.DATA_POINT));
+                }
+                float discreteDataPoint = sum / resDocs.getNumFound();
+                DiscreteTimePoint dp = new DiscreteTimePoint(discreteTime, discreteDataPoint, (float) stats.getStandardDeviation());
+                List<Float> errorPair = new ArrayList<>();
+                double std = stats.getStandardDeviation();
+                Float lower = (float) (discreteDataPoint - std);
+                Float higher = (float) (discreteDataPoint + std);
+                errorPair.add(lower);
+                errorPair.add(higher);
+                dp.setErrorPair(errorPair);
+                res.add(dp);
+            }
+        }
+        return res;
+    }
 
     /**
      * Get all controls for a specified set of center, strain, parameter,
