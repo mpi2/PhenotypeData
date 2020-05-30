@@ -145,7 +145,7 @@ public class OverviewChartsController {
 
 
     public ChartData getDataOverviewChart(String mpId, Model model, String parameterStableId, String[] center, String[] sex)
-            throws SolrServerException, IOException , URISyntaxException, SQLException{
+            throws SolrServerException, IOException {
 
         ParameterDTO parameter = impressService.getParameterByStableId(parameterStableId);
         ChartData chartRes = null;
@@ -165,7 +165,7 @@ public class OverviewChartsController {
                 centerToFilter = tempCenters.toArray(new String[0]);
             }
 
-            if(parameter.getDataType().equals(ObservationType.categorical.name()) ){
+            if(parameter.getObservationType().equals(ObservationType.categorical) ){
                 CategoricalSet controlSet = observationService.getCategories(parameter.getStableId(), null , "control", OverviewChartsConstants.B6N_STRAINS, centerToFilter, sex);
                 controlSet.setName("Control");
                 CategoricalSet mutantSet = observationService.getCategories(parameter.getStableId(), null, "experimental", OverviewChartsConstants.B6N_STRAINS, centerToFilter, sex);
@@ -176,7 +176,7 @@ public class OverviewChartsController {
                 }
             }
 
-            else if ( parameter.getDataType().equals(ObservationType.time_series.toString()) ){
+            else if ( parameter.getObservationType().equals(ObservationType.time_series) ){
                 Map<String, List<DiscreteTimePoint>> data = new HashMap<>();
                 data.put("Control", observationService.getTimeSeriesControlData(parameter.getStableId(), OverviewChartsConstants.B6N_STRAINS, centerToFilter, sex));
                 data.putAll(observationService.getTimeSeriesMutantData(parameter.getStableId(), genes, OverviewChartsConstants.B6N_STRAINS, centerToFilter, sex));
@@ -185,7 +185,7 @@ public class OverviewChartsController {
                 chartRes = chart;
             }
 
-            else if ( parameter.getDataType().equals(ObservationType.unidimensional.name()) ){
+            else if ( parameter.getObservationType().equals(ObservationType.unidimensional) ){
                 StackedBarsData data = statisticalResultService.getUnidimensionalData(parameterStableId, genes, OverviewChartsConstants.B6N_STRAINS, "experimental", centerToFilter, sex);
                 chartRes = uctp.getStackedHistogram(data, parameter.getName(), parameterStableId, procedureName);
             }
