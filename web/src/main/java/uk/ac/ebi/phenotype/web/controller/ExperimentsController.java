@@ -88,7 +88,7 @@ public class ExperimentsController {
             @RequestParam(required = false, value = "resource") ArrayList<String> resource,
             Model model,
             HttpServletRequest request)
-            throws IOException, SolrServerException {
+            throws IOException, SolrServerException, JSONException {
 
         Set<ExperimentsDataTableRow> experimentRows = new HashSet<>();
         int rows = 0;
@@ -116,6 +116,7 @@ public class ExperimentsController {
         } else {
             experimentRows.addAll(experimentRowsFromObservations);
         }
+
 
         JSONArray experimentRowsJson = new JSONArray();
         experimentRows.stream().forEach(experimentsDataTableRow -> {
@@ -165,8 +166,45 @@ public class ExperimentsController {
                 e.printStackTrace();
             }
         });
+
+
+        //sort
+
+        JSONArray sortedJsonArray = new JSONArray();
+
+        List<JSONObject> jsonValues = new ArrayList<JSONObject>();
+        for (int i = 0; i < experimentRowsJson.length(); i++) {
+            jsonValues.add(experimentRowsJson.getJSONObject(i));
+        }
+        Collections.sort( jsonValues, new Comparator<JSONObject>() {
+            //You can change "Name" with "ID" if you want to sort by ID
+            private static final String KEY_NAME = ObservationDTO.PROCEDURE_NAME;
+
+            @Override
+            public int compare(JSONObject a, JSONObject b) {
+                String valA = new String();
+                String valB = new String();
+
+                try {
+                    valA = (String) a.get(KEY_NAME);
+                    valB = (String) b.get(KEY_NAME);
+                }
+                catch (JSONException e) {
+                    //do something
+                }
+
+                return valA.compareTo(valB);
+                //if you want to change the sort order, simply use the following:
+                //return -valA.compareTo(valB);
+            }
+        });
+
+        for (int i = 0; i < experimentRowsJson.length(); i++) {
+            sortedJsonArray.put(jsonValues.get(i));
+        }
+
         model.addAttribute("rows", experimentRows.size());
-        model.addAttribute("allData", experimentRowsJson.toString().replace("'", "\\'"));
+        model.addAttribute("allData", sortedJsonArray.toString().replace("'", "\\'"));
         return "experimentsTableFrag";
     }
 
@@ -193,6 +231,13 @@ public class ExperimentsController {
         Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
         String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
         experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
+        //remove any trace of viability data from chart as we decided as a group in ticket #184
+        //experimentRows.remove("IMPC_VIA_001_001");
+        for(String key: experimentRows.keySet()){
+            if(key.contains("_VIA_")){//remove any viability data from chart as often no p values - was a group decision JW.
+                experimentRows.remove(key);
+            }
+        }
         Map<String, Object> chartData = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
         model.addAttribute("chart", chartData.get("chart"));
         model.addAttribute("count", chartData.get("count"));
