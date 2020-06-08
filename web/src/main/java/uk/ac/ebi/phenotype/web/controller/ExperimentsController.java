@@ -233,9 +233,11 @@ public class ExperimentsController {
         experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
         //remove any trace of viability data from chart as we decided as a group in ticket #184
         //experimentRows.remove("IMPC_VIA_001_001");
-        for(String key: experimentRows.keySet()){
+        Map<String, List<ExperimentsDataTableRow>> experimentRowsToFilter=new HashMap<>();//need
+        for(Iterator<String> iterator= experimentRows.keySet().iterator(); iterator.hasNext();){
+            String key=iterator.next();
             if(key.contains("_VIA_")){//remove any viability data from chart as often no p values - was a group decision JW.
-                experimentRows.remove(key);
+                iterator.remove();//using the iterator directly resolves any concurrent modification exceptions
             }
         }
         Map<String, Object> chartData = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
