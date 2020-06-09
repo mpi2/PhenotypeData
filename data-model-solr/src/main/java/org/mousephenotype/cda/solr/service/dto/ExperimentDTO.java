@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
-import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.enumerations.ControlStrategy;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -40,7 +39,7 @@ public class ExperimentDTO {
     private Set<ZygosityType>                 zygosities;
     private Set<SexType>                      sexes;
     private ControlStrategy                   controlSelectionStrategy;
-    private List<? extends StatisticalResult> results;
+    private List<StatisticalResultDTO>        results;
     private String                            alleleSymobl;
     private String                            geneticBackgtround;
 
@@ -119,7 +118,7 @@ public class ExperimentDTO {
     public void setControlSelectionStrategy(ControlStrategy controlSelectionStrategy) {
 		this.controlSelectionStrategy = controlSelectionStrategy;
 	}
-    
+
 
 	public String getAlleleSymobl() {
 		return alleleSymobl;
@@ -264,20 +263,20 @@ public class ExperimentDTO {
     public String getParameterStableId() {
         return parameterStableId;
     }
-    
+
 	/**
 	 * @return the procedureName
 	 */
 	public String getProcedureName() {
-	
+
 		return procedureName;
 	}
-	
+
 	/**
 	 * @param procedureName the procedureName to set
 	 */
 	public void setProcedureName(String procedureName) {
-	
+
 		this.procedureName = procedureName;
 	}
 
@@ -383,12 +382,11 @@ public class ExperimentDTO {
     /**
      * @return the result
      */
-    public List<? extends StatisticalResult> getResults() {
+    public List<StatisticalResultDTO> getResults() {
         return results;
     }
 
-
-    public void setResults(List<? extends StatisticalResult> results) {
+    public void setResults(List<StatisticalResultDTO> results) {
         this.results = results;
     }
 
@@ -502,7 +500,7 @@ public class ExperimentDTO {
     public void setFemaleControls(Set<ObservationDTO> femaleControls) {
         this.femaleControls = femaleControls;
     }
-    
+
     public String getAlleleAccession() {
         return this.alleleAccession;
     }
@@ -510,20 +508,20 @@ public class ExperimentDTO {
     public void setAlleleAccession(String alleleAccession) {
         this.alleleAccession=alleleAccession;
     }
-    
+
 	/**
 	 * @return the procedureStableId
 	 */
 	public String getProcedureStableId() {
-	
+
 		return procedureStableId;
 	}
-	
+
 	/**
 	 * @param procedureStableId the procedureStableId to set
 	 */
 	public void setProcedureStableId(String procedureStableId) {
-	
+
 		this.procedureStableId = procedureStableId;
 	}
 

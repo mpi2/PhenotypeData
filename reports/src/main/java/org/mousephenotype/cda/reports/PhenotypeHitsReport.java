@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Phenotype Hits report.
@@ -91,10 +90,10 @@ public class PhenotypeHitsReport extends AbstractReport {
                     sign = significant.get(mp);
                 }
                 row[1] = sign.toString();
-                Long notSignificant = all.get(mp) - sign;
-                row[2] = notSignificant.toString();
-                Float percentage =  100 * ((float)sign / (float)all.get(mp));
-                row[3] = (percentage.toString());
+                long notSignificant = all.get(mp) - sign;
+                row[2] = Long.toString(notSignificant);
+                float percentage =  100 * ((float)sign / (float)all.get(mp));
+                row[3] = (Float.toString(percentage));
                 table.add(row);
             }
         }
@@ -124,12 +123,12 @@ public class PhenotypeHitsReport extends AbstractReport {
                     }
                     row[1] = Integer.toString(sign);
                     row[2] = Integer.toString(genesAllMp.get(mp).size());
-                    Float percentage =  100 * ((float)sign / (float)genesAllMp.get(mp).size());
-                    row[3] = (percentage.toString());
+                    float percentage =  100 * ((float)sign / (float)genesAllMp.get(mp).size());
+                    row[3] = (Float.toString(percentage));
                     table.add(row);
                 }
             }
-        } catch (SolrServerException | InterruptedException | ExecutionException | IOException e) {
+        } catch (SolrServerException | IOException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }
 
@@ -158,8 +157,8 @@ public class PhenotypeHitsReport extends AbstractReport {
                     }
                     row[1] = Integer.toString(sign);
                     row[2] = Integer.toString(genesAllMp.get(mp).size());
-                    Float percentage =  100 * ((float)sign / (float)genesAllMp.get(mp).size());
-                    row[3] = (percentage.toString());
+                    float percentage =  100 * ((float)sign / (float)genesAllMp.get(mp).size());
+                    row[3] = (Float.toString(percentage));
                     table.add(row);
                 }
             }
@@ -167,7 +166,7 @@ public class PhenotypeHitsReport extends AbstractReport {
             result.add(new ArrayList<>(table));
             csvWriter.writeAllMulti(result);
 
-        } catch (SolrServerException | ExecutionException | InterruptedException | IOException  e) {
+        } catch (SolrServerException | IOException  e) {
             throw new ReportException("Exception closing csvWriter: " + e.getLocalizedMessage());
         }
 

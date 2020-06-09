@@ -164,10 +164,6 @@ public class PhenotypesController {
 
 	    model.addAttribute("genePercentage", ControllerUtils.getPercentages(phenotypeId, statisticalResultService, genotypePhenotypeService));
 
-        // Stuff for parent-child display
-        model.addAttribute("hasChildren", mpService.getChildren(phenotypeId).size() > 0 ? true : false);
-        model.addAttribute("hasParents", mpService.getParents(phenotypeId).size() > 0 ? true : false);
-
         // Associations table and filters
         PhenotypeFacetResult phenoResult = phenotypeSummaryHelper.getPhenotypeCallByMPAccessionAndFilter(phenotypeId,  null, null, null);
         model.addAttribute("phenoFacets", getPhenotypeFacets(phenoResult));

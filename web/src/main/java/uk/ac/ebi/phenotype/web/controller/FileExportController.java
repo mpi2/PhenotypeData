@@ -20,18 +20,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
-import org.mousephenotype.cda.constants.Constants;
-import org.mousephenotype.cda.db.pojo.Allele;
-import org.mousephenotype.cda.db.pojo.Strain;
-import org.mousephenotype.cda.db.repositories.AlleleRepository;
-import org.mousephenotype.cda.db.repositories.StrainRepository;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
-import org.mousephenotype.cda.solr.service.ExperimentService;
-import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.MpService;
-import org.mousephenotype.cda.solr.service.SolrIndex;
+import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
@@ -40,7 +33,6 @@ import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -52,10 +44,10 @@ import uk.ac.ebi.phenotype.util.SolrUtilsWeb;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
@@ -71,79 +63,67 @@ public class FileExportController {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-	@NotNull @Autowired
-	private GeneService geneService;
-
-	@NotNull @Autowired
-	private MpService mpService;
-
-	@NotNull @Autowired
-	private ExperimentService experimentService;
-
-	@NotNull @Autowired
-	private SolrIndex solrIndex;
-
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
 
-	@NotNull @Autowired
-	private SolrUtilsWeb solrUtilsWeb;
-
-	@NotNull @Autowired
-	private AlleleRepository alleleRepository;
-
-	@NotNull @Autowired
-	private StrainRepository strainRepository;
-
-
 	private String hostName;
+
+	private final GeneService geneService;
+	private final MpService mpService;
+	private final ExperimentService experimentService;
+	private final SolrIndex solrIndex;
+	private final SolrUtilsWeb solrUtilsWeb;
+	private final ObservationService observationService;
+
+
+	@Inject
+	public FileExportController(
+			GeneService geneService,
+			MpService mpService,
+			ExperimentService experimentService,
+			SolrIndex solrIndex,
+			SolrUtilsWeb solrUtilsWeb,
+			ObservationService observationService
+
+	) {
+		this.geneService = geneService;
+		this.mpService = mpService;
+		this.experimentService = experimentService;
+		this.solrIndex = solrIndex;
+		this.solrUtilsWeb = solrUtilsWeb;
+		this.observationService = observationService;
+	}
 
 	/**
 	 * Return a TSV formatted response which contains all datapoints
 	 *
-	 * @param pipelineStableId
-	 * @param procedureStableId
-	 * @param parameterStableId
-	 * @param alleleAccession
-	 * @param sexesParameter
-	 * @param zygositiesParameter
-	 * @param strainParameter
-	 * @return
-	 * @throws SolrServerException, IOException
-	 * @throws IOException
-	 * @throws URISyntaxException
 	 */
 	@ResponseBody
 	@CrossOrigin(origins = {"http://localhost:4200", "https://wwwdev.ebi.ac.uk/"})
 	@RequestMapping(value = "/exportraw", method = RequestMethod.GET, produces = "text/plain")
 	public String getExperimentalData(
-			@RequestParam(value = "phenotyping_center", required = true) String phenotypingCenter, // assume reuired in code
-			@RequestParam(value = "pipeline_stable_id", required = true) String pipelineStableId, // assume reuired in code
+			@RequestParam(value = "phenotyping_center", required = true) String phenotypingCenter, // assume required in code
+			@RequestParam(value = "pipeline_stable_id", required = true) String pipelineStableId, // assume required in code
 			@RequestParam(value = "procedure_stable_id", required = false) String procedureStableId,
-			@RequestParam(value = "parameter_stable_id", required = true) String parameterStableId, // assume reuired in code
+			@RequestParam(value = "parameter_stable_id", required = true) String parameterStableId, // assume required in code
 			@RequestParam(value = "allele_accession_id", required = false) String alleleAccessionId,
 			@RequestParam(value = "allele_accession", required = false) String alleleAccession,
 			@RequestParam(value = "sex", required = false) String[] sexesParameter,
 			@RequestParam(value = "zygosity", required = false) String[] zygositiesParameter,
-			@RequestParam(value = "strain", required = false) String strainParameter,
-			HttpServletResponse response)
-			throws SolrServerException, IOException, URISyntaxException, SQLException {
+			@RequestParam(value = "strain", required = false) String strainParameter
+	) throws SolrServerException, IOException, URISyntaxException, SQLException {
+
+		String sex = (sexesParameter != null && sexesParameter.length > 1) ? SexType.valueOf(sexesParameter[0]).getName() : "null";
 
 		if (alleleAccession!=null) {
 			alleleAccessionId = alleleAccession;
 		}
-
-		Allele allele = alleleRepository.getById_Accession(alleleAccessionId);
-		String sex = (sexesParameter != null && sexesParameter.length > 1) ? SexType.valueOf(sexesParameter[0]).getName() : "null";
-		String geneAcc = allele.getGene().getId().getAccession();
-		String alleleAcc = allele.getId().getAccession();
+		String alleleAcc = alleleAccessionId;
+		String geneAcc = observationService.getGeneAccFromAlleleAcc(alleleAccessionId);
 
 		String strainAccession = null;
 		if (strainParameter != null) {
-			Strain s = strainRepository.getStrainByName(strainParameter);
-			if (s != null) {
-				strainAccession = s.getId().getAccession();
-			}
+			strainAccession = observationService.getStrainNameFromStrainAcc(strainParameter);
 		}
 
 		String[] alleleArray = {alleleAcc};
@@ -216,9 +196,6 @@ public class FileExportController {
 	 * <p>
 	 * Export table as TSV or Excel file.
 	 * </p>
-	 *
-	 * @param model
-	 * @return
 	 */
 	@RequestMapping(value = "/export", method = RequestMethod.GET)
 	public void exportTableAsExcelTsv(
@@ -997,7 +974,7 @@ public class FileExportController {
 			Integer legacyPhenotypeStatus = (doc.has(GeneDTO.LEGACY_PHENOTYPE_STATUS)) ? doc.getInt(GeneDTO.LEGACY_PHENOTYPE_STATUS) : null;
 
 			Integer hasQc = (doc.has(GeneDTO.HAS_QC)) ? doc.getInt(GeneDTO.HAS_QC) : null;
-			String phenotypeStatus = geneService.getPhenotypingStatus(statusField, hasQc, legacyPhenotypeStatus, genePageUrl, toExport, legacyOnly);
+			String phenotypeStatus = GeneService.getPhenotypingStatus(statusField, hasQc, legacyPhenotypeStatus, genePageUrl, toExport, legacyOnly);
 
 
 			if (phenotypeStatus.isEmpty()) {

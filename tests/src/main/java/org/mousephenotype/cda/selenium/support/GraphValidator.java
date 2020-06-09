@@ -16,9 +16,6 @@
 
 package org.mousephenotype.cda.selenium.support;
 
-import org.mousephenotype.cda.selenium.exception.TestException;
-import org.mousephenotype.cda.utilities.RunStatus;
-
 /**
  * This abstract class encapsulates the common code and data necessary to
  * validate a graph section. Subclasses handle validation for specific graph
@@ -27,23 +24,23 @@ import org.mousephenotype.cda.utilities.RunStatus;
  * @author mrelac
  */
 public abstract class GraphValidator {
-
-    protected GraphSection pageSection;
-    public static final String IMPC_PIPELINE = "IMPC Pipeline";
-    public GraphValidator() {
-
-    }
-
-    public GraphSection getPageSection() {
-        return pageSection;
-    }
-
-    public void setPageSection(GraphSection pageSection) {
-        this.pageSection = pageSection;
-    }
-
-
-    public RunStatus validate() throws TestException {
-        return pageSection.getHeading().validate();
-    }
+//
+//    protected GraphSection pageSection;
+//    public static final String IMPC_PIPELINE = "IMPC Pipeline";
+//    public GraphValidator() {
+//
+//    }
+//
+//    public GraphSection getPageSection() {
+//        return pageSection;
+//    }
+//
+//    public void setPageSection(GraphSection pageSection) {
+//        this.pageSection = pageSection;
+//    }
+//
+//
+//    public RunStatus validate() throws TestException {
+//        return pageSection.getHeading().validate();
+//    }
 }

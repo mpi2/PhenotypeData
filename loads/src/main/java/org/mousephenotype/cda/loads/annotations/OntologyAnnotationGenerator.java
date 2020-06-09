@@ -7,7 +7,7 @@ import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.db.repositories.ParameterRepository;
 import org.mousephenotype.cda.db.statistics.MpTermService;
 import org.mousephenotype.cda.db.statistics.ResultDTO;
-import org.mousephenotype.cda.enumerations.LifeStage;
+import org.mousephenotype.cda.dto.LifeStage;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.utilities.LifeStageMapper;

@@ -27,7 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-public class MpCsvWriter {
+public class MpCsvWriter implements AutoCloseable {
 
     private static Logger logger = LoggerFactory.getLogger(MpCsvWriter.class);
 
@@ -46,7 +46,7 @@ public class MpCsvWriter {
     public MpCsvWriter(String csvFilename, boolean append, char separator) throws IOException {
         fqFilename = expandFilename(csvFilename);
         FileWriter fileWriter = new FileWriter(fqFilename, append);
-        writer = new CSVWriter(fileWriter);
+//        writer = new CSVWriter(fileWriter);
 
         writer = new CSVWriter(fileWriter, separator, defaultQuotechar, defaultEscapechar, defaultLineEnd);
     }

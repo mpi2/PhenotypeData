@@ -395,19 +395,7 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                             }
                         }
                         break;
-                    case MpDTO.MP_NARROW_SYNONYM:
-                        if (mp.getMpNarrowSynonym() != null) {
-                            for (String mpNarrowSynonym : mp.getMpNarrowSynonym()) {
-                                if (mpNarrowSynonymSet.add(mpNarrowSynonym)) {
-                                    AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setMpNarrowSynonym(mpNarrowSynonym);
-                                    asyn.setDocType(docType);
-                                    asyn.setMpTerm(mp.getMpTerm());
-                                    beans.add(asyn);
-                                }
-                            }
-                        }
-                        break;
+
                     case MpDTO.HP_ID:
                         if ( mp.getHpId() != null ) {
                             for ( String hpId : mp.getHpId() ) {
@@ -487,19 +475,6 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                             }
                         }
                         break;
-                    case MpDTO.TOP_LEVEL_MP_TERM_SYNONYM:
-                        if (mp.getTopLevelMpTermSynonym() != null) {
-                            for (String s : mp.getTopLevelMpTermSynonym()) {
-                                mapKey = s;
-                                if (mpTermSynonymSet.add(mapKey)) {
-                                    AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setMpTermSynonym(s);
-                                    asyn.setDocType(docType);
-                                    beans.add(asyn);
-                                }
-                            }
-                        }
-                        break;
                     case MpDTO.INTERMEDIATE_MP_ID:
                         if (mp.getIntermediateMpId() != null) {
                             for (String s : mp.getIntermediateMpId()) {
@@ -520,19 +495,6 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (mpTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpTerm(s);
-                                    asyn.setDocType(docType);
-                                    beans.add(asyn);
-                                }
-                            }
-                        }
-                        break;
-                    case MpDTO.INTERMEDIATE_MP_TERM_SYNONYM:
-                        if (mp.getIntermediateMpTermSynonym() != null) {
-                            for (String s : mp.getIntermediateMpTermSynonym()) {
-                                mapKey = s;
-                                if (mpTermSynonymSet.add(mapKey)) {
-                                    AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setMpTermSynonym(s);
                                     asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }
@@ -586,19 +548,6 @@ public class AutosuggestIndexer extends AbstractIndexer implements CommandLineRu
                                 if (mpTermSet.add(mapKey)) {
                                     AutosuggestBean asyn = new AutosuggestBean();
                                     asyn.setMpTerm(s);
-                                    asyn.setDocType(docType);
-                                    beans.add(asyn);
-                                }
-                            }
-                        }
-                        break;
-                    case MpDTO.CHILD_MP_TERM_SYNONYM:
-                        if (mp.getChildMpTermSynonym() != null) {
-                            for (String s : mp.getChildMpTermSynonym()) {
-                                mapKey = s;
-                                if (mpTermSynonymSet.add(mapKey)) {
-                                    AutosuggestBean asyn = new AutosuggestBean();
-                                    asyn.setMpTermSynonym(s);
                                     asyn.setDocType(docType);
                                     beans.add(asyn);
                                 }

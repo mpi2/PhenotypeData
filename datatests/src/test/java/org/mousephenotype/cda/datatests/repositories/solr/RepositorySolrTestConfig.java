@@ -152,11 +152,6 @@ public class RepositorySolrTestConfig {
     ///////////
 
     @Bean
-    public AdvancedSearchService advancedSearchService() {
-        return new AdvancedSearchService(genotypePhenotypeService());
-    }
-
-    @Bean
     public AlleleService alleleService() {
         return new AlleleService(alleleCore());
 

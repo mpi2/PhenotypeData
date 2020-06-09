@@ -16,8 +16,7 @@
 package uk.ac.ebi.phenotype.chart;
 
 import org.apache.commons.lang3.text.WordUtils;
-import org.mousephenotype.cda.db.pojo.DiscreteTimePoint;
-import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.dto.DiscreteTimePoint;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.ImpressService;
@@ -39,23 +38,27 @@ import java.util.*;
 
 @Service
 public class TimeSeriesChartAndTableProvider {
-
-	
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
 	public ChartData doTimeSeriesOverviewData(
-			Map<String, List<DiscreteTimePoint>> lines, Parameter p) {
+			Map<String, List<DiscreteTimePoint>> lines, ParameterDTO parameter) {
 
 		if (lines == null) {
 			return new ChartData();
 		}
 
-		String title = p.getName();
+		String title = parameter.getName();
 		// create CharData
 		ChartData chartsNTablesForParameter = creatDiscretePointTimeSeriesChartOverview(
-				"1", title, lines, p.checkParameterUnit(1),
-				p.checkParameterUnit(2), 1, "org", p);
+				"1",
+				title,
+				lines,
+				parameter.getUnitX(),
+				parameter.getUnitY(),
+				1,
+				"org",
+				parameter.getStableId());
 		return chartsNTablesForParameter;
 	}
 
@@ -115,9 +118,8 @@ public class TimeSeriesChartAndTableProvider {
 						Float discreteTimePoint = expDto.getDiscretePoint();
 
 						// Ensure the timepoint is valid
-						if ((TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameter.getStableId()) && discreteTimePoint > 0) ||
-								!TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameter.getStableId())) {
-							mutantData.add(new DiscreteTimePoint(discreteTimePoint, new Float(dataPoint)));
+						if (!TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameter.getStableId()) || discreteTimePoint > 0) {
+							mutantData.add(new DiscreteTimePoint(discreteTimePoint, dataPoint));
 						}
 					}
 				}
@@ -160,22 +162,14 @@ public class TimeSeriesChartAndTableProvider {
 	 * Creates a single chart and adds it to the chart array that is then added
 	 * to the model by the main method
 	 *
-	 * @param title
-	 * @param lines
-	 * @param xUnitsLabel
-	 * @param yUnitsLabel
-	 * @param organisation
-	 * @param parameter
-	 *
-	 * @return
 	 */
 	private ChartData creatDiscretePointTimeSeriesChart(String expNumber,
 			String title, Map<String, List<DiscreteTimePoint>> lines,
 			String xUnitsLabel, String yUnitsLabel, int decimalPlaces, String organisation, ParameterDTO parameter) {
 
 		JSONArray  series        = new JSONArray();
-		String     seriesString  = "";
-		Set<Float> categoriesSet = new HashSet<Float>();
+		String     seriesString;
+		Set<Float> categoriesSet = new HashSet<>();
 		String     mColor        = ChartColors.getMutantColor(ChartColors.alphaTranslucid70).replaceAll("'", "");
 		String     wtColor       = ChartColors.getWTColor(ChartColors.alphaTranslucid70).replaceAll("'", "");
 
@@ -238,10 +232,7 @@ public class TimeSeriesChartAndTableProvider {
 		// need to add error bars to series data as well!
 		// sort the categories by time as means are all sorted already
 
-		List<Float> cats = new ArrayList<Float>();
-		for (Float cat : categoriesSet) {
-			cats.add(cat);
-		}
+		List<Float> cats = new ArrayList<>(categoriesSet);
 		Collections.sort(cats);
 		String noDecimalsString = "";
 		if (xUnitsLabel.equals("number")) {
@@ -295,10 +286,10 @@ public class TimeSeriesChartAndTableProvider {
 		chartAndTable.setTitle(title);
 		String parameterLink = "";
 		if (parameter != null) {
-			parameterLink = "<a href=\""+ImpressService.getParameterUrl(parameter.getStableKey()).toString()+"\">"+parameter.getStableId()+"</a>";
+			parameterLink = "<a href=\""+ ImpressService.getParameterUrl(parameter.getStableKey()) +"\">"+parameter.getStableId()+"</a>";
 			if (parameter.getProcedureNames() != null) {
 				parameter.getProcedureStableKey();
-				parameterLink = "<a href=\""+ImpressService.getParameterUrl(parameter.getStableKey()).toString()+"\">"+parameter.getStableId()+"</a>";
+				parameterLink = "<a href=\""+ ImpressService.getParameterUrl(parameter.getStableKey()) +"\">"+parameter.getStableId()+"</a>";
 			}
 		}
 		
@@ -312,12 +303,12 @@ public class TimeSeriesChartAndTableProvider {
 
 	private ChartData creatDiscretePointTimeSeriesChartOverview(String expNumber,
 			String title, Map<String, List<DiscreteTimePoint>> lines,
-			String xUnitsLabel, String yUnitsLabel, int decimalPlaces, String organisation, Parameter parameter) {
+			String xUnitsLabel, String yUnitsLabel, int decimalPlaces, String organisation, String parameterStableId) {
 
 		JSONArray series = new JSONArray();
-		String seriesString = "";
-		Set<Float> categoriesSet = new HashSet<Float>();
-		
+		String seriesString;
+		Set<Float> categoriesSet = new HashSet<>();
+
 		try {
 			int i = 0;
 			for (String key : lines.keySet()) {// key is line name or "Control"
@@ -417,7 +408,7 @@ public class TimeSeriesChartAndTableProvider {
 				+" chart: {  zoomType: 'x', renderTo: 'single-chart-div', type: 'line', marginRight: 130, marginBottom: 50 }, title: { text: '"
 				+ WordUtils.capitalize(title)
 				+ "', x: -20  }, credits: { enabled: false },  subtitle: { text: '"
-				+ parameter.getStableId()
+				+ parameterStableId
 				+ "', x: -20 }, xAxis: { "
 				+ noDecimalsString
 				+ " labels: { style:{ fontSize:"
@@ -436,7 +427,7 @@ public class TimeSeriesChartAndTableProvider {
 		ChartData chartAndTable = new ChartData();
 		chartAndTable.setChart(javascript);
 		chartAndTable.setOrganisation(organisation);
-		chartAndTable.setId(parameter.getStableId());
+		chartAndTable.setId(parameterStableId);
 		return chartAndTable;
 	}
 

@@ -160,7 +160,7 @@ public class ImageServiceTest {
             failed = true;
         }
 
-        mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex, organ);
+        mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex);
 
         expectedSize = 207009;                  // 26-Oct-2017 (mrelac) As of this date there were 207009 mutant images found.
         actualSize   = mutantImages.size();
@@ -210,7 +210,7 @@ public class ImageServiceTest {
 
         assertTrue(message, actualSize >= expectedSize);
 
-        mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex, organ);
+        mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex);
 
         expectedSize = 3;                      // 26-Oct-2017 (mrelac) As of this date there were 34 mutant images found.
         actualSize   = mutantImages.size();
@@ -256,7 +256,7 @@ public class ImageServiceTest {
             failed = true;
         }
 
-        mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex, organ);
+        mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex);
 
         expectedSize = 2;                       // 26-Oct-2017 (mrelac) As of this date there were 2 mutant images found.
         actualSize   = mutantImages.size();
@@ -307,7 +307,7 @@ public class ImageServiceTest {
             failed = true;
         }
 
-        mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex, organ);
+        mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex);
 
         expectedSize = 0;                       // 26-Oct-2017 (mrelac) As of this date there were no mutant images found.
         actualSize   = mutantImages.size();

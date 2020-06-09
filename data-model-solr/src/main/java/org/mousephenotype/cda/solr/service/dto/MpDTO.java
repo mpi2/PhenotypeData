@@ -21,39 +21,28 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-
-/**
- * Created by jmason on 23/10/2014.
- */
 public class MpDTO {
 
 	public static final String MP_ID = "mp_id";
 	public static final String MP_TERM = "mp_term";
 	public static final String MP_DEFINITION = "mp_definition";
 	public static final String MP_TERM_SYNONYM = "mp_term_synonym";
-	public static final String MP_NODE_ID = "mp_node_id";
 	public static final String ALT_MP_ID = "alt_mp_id";
     public static final String MP_NARROW_SYNONYM = "mp_narrow_synonym";
 
 	public static final String CHILD_MP_ID = "child_mp_id";
 	public static final String CHILD_MP_TERM = "child_mp_term";
-	public static final String CHILD_MP_DEFINITION = "child_mp_definition";
 	public static final String CHILD_MP_TERM_SYNONYM = "child_mp_term_synonym";
 	public static final String PARENT_MP_ID = "parent_mp_id";
 	public static final String PARENT_MP_TERM = "parent_mp_term";
-	public static final String PARENT_MP_DEFINITION = "parent_mp_definition";
 	public static final String PARENT_MP_TERM_SYNONYM = "parent_mp_term_synonym";
 	public static final String INTERMEDIATE_MP_ID = "intermediate_mp_id";
 	public static final String INTERMEDIATE_MP_TERM = "intermediate_mp_term";
-	public static final String INTERMEDIATE_MP_DEFINITION = "intermediate_mp_definition";
 	public static final String INTERMEDIATE_MP_TERM_SYNONYM = "intermediate_mp_term_synonym";
 	public static final String TOP_LEVEL_MP_ID = "top_level_mp_id";
 	public static final String TOP_LEVEL_MP_TERM = "top_level_mp_term";
-	public static final String TOP_LEVEL_MP_DEFINITION = "top_level_mp_definition";
 	public static final String TOP_LEVEL_MP_TERM_SYNONYM = "top_level_mp_term_synonym";
 	public static final String TOP_LEVEL_MP_TERM_ID = "top_level_mp_term_id";
-	public static final String TOP_LEVEL_MP_TERM_INCLUSIVE = "top_level_mp_term_inclusive";
-	public static final String TOP_LEVEL_MP_ID_INCLUSIVE = "top_level_mp_id_inclusive";
 
 	public static final String HP_ID = "hp_id";
 	public static final String HP_TERM = "hp_term";
@@ -65,7 +54,6 @@ public class MpDTO {
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM = "inferred_selected_top_level_ma_term";
 	public static final String INFERRED_INTERMEDIATE_MA_ID = "inferred_intermediate_ma_id";
 	public static final String INFERRED_INTERMEDIATE_MA_TERM = "inferred_intermediate_ma_term";
-	public static final String GO_ID = "go_id";
 	public static final String P_VALUE = "p_value";
 	public static final String MGI_ACCESSION_ID = "mgi_accession_id";
 	public static final String PHENO_CALLS = "pheno_calls";
@@ -128,9 +116,6 @@ public class MpDTO {
 	public static final String PARAMETER_STABLE_ID = "parameter_stable_id";
 	public static final String PARAMETER_STABLE_KEY = "parameter_stable_key";
 
-	public static final String SEARCH_TERM_JSON = "search_term_json";
-	public static final String CHILDREN_JSON = "children_json";
-	public static final String SCROLL_NODE = "scroll_node";
 	public static final String GENE_VARIANT_COUNT = "gene_variant_count";
 	public static final String GENE_VARIANT_MALE_COUNT = "gene_variant_male_count";
 	public static final String GENE_VARIANT_FEMALE_COUNT = "gene_variant_female_count";
@@ -147,21 +132,6 @@ public class MpDTO {
 
 	@Field(MP_TERM_SYNONYM)
 	private List<String> mpTermSynonym;
-
-    @Field(MP_NARROW_SYNONYM)
-    private List<String> mpNarrowSynonym;
-
-	@Field(MP_NODE_ID)
-	private List<Integer> mpNodeId;
-
-	@Field(SEARCH_TERM_JSON)
-	private String searchTermJson;
-
-	@Field(CHILDREN_JSON)
-	private String childrenJson;
-	
-	@Field(SCROLL_NODE)
-	private String scrollNode;
 
 	@Field(GENE_VARIANT_COUNT)
 	private Integer geneVariantCount;
@@ -181,23 +151,11 @@ public class MpDTO {
 	@Field(CHILD_MP_TERM)
 	private List<String> childMpTerm;
 
-	@Field(CHILD_MP_DEFINITION)
-	private List<String> childMpDefinition;
-
-	@Field(CHILD_MP_TERM_SYNONYM)
-	private List<String> childMpTermSynonym;
-
 	@Field(PARENT_MP_ID)
 	private List<String> parentMpId;
 
 	@Field(PARENT_MP_TERM)
 	private List<String> parentMpTerm;
-
-	@Field(PARENT_MP_DEFINITION)
-	private List<String> parentMpDefinition;
-
-	@Field(PARENT_MP_TERM_SYNONYM)
-	private List<String> parentMpTermSynonym;
 
 	@Field(INTERMEDIATE_MP_ID)
 	private List<String> intermediateMpId;
@@ -205,11 +163,6 @@ public class MpDTO {
 	@Field(INTERMEDIATE_MP_TERM)
 	private List<String> intermediateMpTerm;
 
-	@Field(INTERMEDIATE_MP_DEFINITION)
-	private List<String> intermediateMpDefinition;
-
-	@Field(INTERMEDIATE_MP_TERM_SYNONYM)
-	private List<String> intermediateMpTermSynonym;
 
 	@Field(TOP_LEVEL_MP_ID)
 	private List<String> topLevelMpId;
@@ -217,20 +170,8 @@ public class MpDTO {
 	@Field(TOP_LEVEL_MP_TERM)
 	private List<String> topLevelMpTerm;
 
-	@Field(TOP_LEVEL_MP_DEFINITION)
-	private List<String> topLevelMpDefinition;
-
-	@Field(TOP_LEVEL_MP_TERM_SYNONYM)
-	private List<String> topLevelMpTermSynonym;
-
 	@Field(TOP_LEVEL_MP_TERM_ID)
 	private List<String> topLevelMpTermId;
-
-	@Field(TOP_LEVEL_MP_TERM_INCLUSIVE)
-	private List<String> topLevelMpTermInclusive;
-
-	@Field(TOP_LEVEL_MP_ID_INCLUSIVE)
-	private List<String> topLevelMpIdInclusive;
 
 	@Field(HP_ID)
 	private List<String> hpId;
@@ -261,9 +202,6 @@ public class MpDTO {
 
 	@Field(INFERRED_INTERMEDIATE_MA_TERM)
 	private List<String> inferredIntermediateMaTerm;
-
-	@Field(GO_ID)
-	private List<String> goId;
 
 	@Field(P_VALUE)
 	private List<Float> pValue;
@@ -455,10 +393,6 @@ public class MpDTO {
 		this.mpTermSynonym = mpTermSynonym;
 	}
 
-	public void setMpNodeId(List<Integer> mpNodeId) {
-		this.mpNodeId = mpNodeId;
-	}
-
 	public List<String> getMixedSynonyms() {
 		return mixedSynonyms;
 	}
@@ -488,16 +422,6 @@ public class MpDTO {
 	public void setMpTerm(String mpTerm) {
 
 		this.mpTerm = mpTerm;
-	}
-
-
-	public String getScrollNode() {
-		return scrollNode;
-	}
-
-
-	public void setScrollNode(String scrollNode) {
-		this.scrollNode = scrollNode;
 	}
 
 
@@ -552,26 +476,6 @@ public class MpDTO {
 
 	}
 
-    public List<String> getMpNarrowSynonym() {
-        return mpNarrowSynonym;
-    }
-
-    public void setMpNarrowSynonym(List<String> mpNarrowSynonym) {
-        this.mpNarrowSynonym = mpNarrowSynonym;
-    }
-
-    public List<Integer> getMpNodeId() {
-
-		return mpNodeId;
-	}
-
-
-	public void setMpNodeId(Collection<Integer> mpNodeId) {
-		if (mpNodeId != null) {
-			this.mpNodeId = new ArrayList<>(mpNodeId);
-		}
-	}
-
 
 	public List<String> getAltMpIds() {
 
@@ -624,49 +528,6 @@ public class MpDTO {
 		}
 	}
 
-	public List<String> getChildMpDefinition() {
-
-		return childMpDefinition;
-	}
-
-
-	public void setChildMpDefinition(List<String> childMpDefinition) {
-
-		this.childMpDefinition = childMpDefinition;
-	}
-
-
-	public List<String> getChildMpTermSynonym() {
-
-		return childMpTermSynonym;
-	}
-
-
-	public String getSearchTermJson() {
-		return searchTermJson;
-	}
-
-
-	public void setSearchTermJson(String searchTermJson) {
-		this.searchTermJson = searchTermJson;
-	}
-
-
-	public String getChildrenJson() {
-		return childrenJson;
-	}
-
-
-	public void setChildrenJson(String childrenJson) {
-		this.childrenJson = childrenJson;
-	}
-
-
-	public void setChildMpTermSynonym(List<String> childMpTermSynonym) {
-
-		this.childMpTermSynonym = childMpTermSynonym;
-	}
-
 
 	public List<String> getParentMpId() {
 
@@ -706,30 +567,6 @@ public class MpDTO {
 		}
 	}
 
-	public List<String> getParentMpDefinition() {
-
-		return parentMpDefinition;
-	}
-
-
-	public void setParentMpDefinition(List<String> parentMpDefinition) {
-
-		this.parentMpDefinition = parentMpDefinition;
-	}
-
-
-	public List<String> getParentMpTermSynonym() {
-
-		return parentMpTermSynonym;
-	}
-
-
-	public void setParentMpTermSynonym(List<String> parentMpTermSynonym) {
-
-		this.parentMpTermSynonym = parentMpTermSynonym;
-	}
-
-
 	public List<String> getIntermediateMpId() {
 
 		return intermediateMpId;
@@ -763,35 +600,6 @@ public class MpDTO {
 	}
 
 
-	public List<String> getIntermediateMpDefinition() {
-
-		return intermediateMpDefinition;
-	}
-
-
-	public void setIntermediateMpDefinition(List<String> intermediateMpDefinition) {
-
-		this.intermediateMpDefinition = intermediateMpDefinition;
-	}
-
-
-	public List<String> getIntermediateMpTermSynonym() {
-
-		return intermediateMpTermSynonym;
-	}
-
-
-	public void setIntermediateMpTermSynonym(List<String> intermediateMpTermSynonym) {
-
-		this.intermediateMpTermSynonym = intermediateMpTermSynonym;
-	}
-
-	public void addIntermediateMpTermSynonym(Collection<String> intermediateMpTermSynonym) {
-
-		if (this.intermediateMpTermSynonym == null){ this.intermediateMpTermSynonym = new ArrayList<>();}
-		this.intermediateMpTermSynonym.addAll(intermediateMpTermSynonym);
-	}
-
 	public List<String> getTopLevelMpId() {
 
 		return topLevelMpId;
@@ -824,70 +632,6 @@ public class MpDTO {
 		this.topLevelMpTerm.addAll(topLevelMpTerm);
 	}
 
-	public List<String> getTopLevelMpTermInclusive() {
-		return topLevelMpTermInclusive;
-	}
-
-	public void setTopLevelMpTermInclusive(List<String> topLevelMpTermInclusive) {
-		this.topLevelMpTermInclusive = topLevelMpTermInclusive;
-	}
-
-	public void addTopLevelMpTermInclusive(String term){
-		if (this.topLevelMpTermInclusive == null){ this.topLevelMpTermInclusive = new ArrayList<>();}
-		this.topLevelMpTermInclusive.add(term);
-	}
-
-	public void addTopLevelMpTermInclusive(Collection<String> term){
-		if (this.topLevelMpTermInclusive == null){ this.topLevelMpTermInclusive = new ArrayList<>();}
-		this.topLevelMpTermInclusive.addAll(term);
-	}
-
-	public void addTopLevelMpIdInclusive(String id){
-		if (this.topLevelMpIdInclusive == null){ this.topLevelMpIdInclusive = new ArrayList<>();}
-		this.topLevelMpIdInclusive.add(id);
-	}
-
-	public void addTopLevelMpIdInclusive(Collection<String> id){
-		if (this.topLevelMpIdInclusive == null){ this.topLevelMpIdInclusive = new ArrayList<>();}
-		this.topLevelMpIdInclusive.addAll(id);
-	}
-
-
-	public List<String> getTopLevelMpIdInclusive() {
-		return topLevelMpIdInclusive;
-	}
-
-	public void setTopLevelMpIdInclusive(List<String> topLevelMpIdInclusive) {
-		this.topLevelMpIdInclusive = topLevelMpIdInclusive;
-	}
-
-	public List<String> getTopLevelMpDefinition() {
-
-		return topLevelMpDefinition;
-	}
-
-
-	public void setTopLevelMpDefinition(List<String> topLevelMpDefinition) {
-
-		this.topLevelMpDefinition = topLevelMpDefinition;
-	}
-
-
-	public List<String> getTopLevelMpTermSynonym() {
-
-		return topLevelMpTermSynonym;
-	}
-
-
-	public void setTopLevelMpTermSynonym(List<String> topLevelMpTermSynonym) {
-
-		this.topLevelMpTermSynonym = topLevelMpTermSynonym;
-	}
-
-	public void addTopLevelMpTermSynonym(Collection<String> topLevelMpTermSynonym) {
-		if (this.topLevelMpTermSynonym == null){ this.topLevelMpTermSynonym = new ArrayList<>();}
-		this.topLevelMpTermSynonym.addAll(topLevelMpTermSynonym);
-	}
 
 	public List<String> getTopLevelMpTermId() {
 
@@ -1025,17 +769,6 @@ public class MpDTO {
 		this.inferredSelectedTopLevelMaTerm.addAll(inferredSelectedTopLevelMaTerm);
 	}
 
-
-	public List<String> getGoId() {
-
-		return goId;
-	}
-
-
-	public void setGoId(List<String> goId) {
-
-		this.goId = goId;
-	}
 
 	public List<Float> getpValue() {
 
@@ -1802,13 +1535,6 @@ public class MpDTO {
 		if (mpDefinition != null ? !mpDefinition.equals(mpDTO.mpDefinition) : mpDTO.mpDefinition != null) return false;
 		if (mpTermSynonym != null ? !mpTermSynonym.equals(mpDTO.mpTermSynonym) : mpDTO.mpTermSynonym != null)
 			return false;
-		if (mpNarrowSynonym != null ? !mpNarrowSynonym.equals(mpDTO.mpNarrowSynonym) : mpDTO.mpNarrowSynonym != null)
-			return false;
-		if (mpNodeId != null ? !mpNodeId.equals(mpDTO.mpNodeId) : mpDTO.mpNodeId != null) return false;
-		if (searchTermJson != null ? !searchTermJson.equals(mpDTO.searchTermJson) : mpDTO.searchTermJson != null)
-			return false;
-		if (childrenJson != null ? !childrenJson.equals(mpDTO.childrenJson) : mpDTO.childrenJson != null) return false;
-		if (scrollNode != null ? !scrollNode.equals(mpDTO.scrollNode) : mpDTO.scrollNode != null) return false;
 		if (geneVariantCount != null ? !geneVariantCount.equals(mpDTO.geneVariantCount) : mpDTO.geneVariantCount != null)
 			return false;
 		if (geneVariantMaleCount != null ? !geneVariantMaleCount.equals(mpDTO.geneVariantMaleCount) : mpDTO.geneVariantMaleCount != null)
@@ -1818,36 +1544,18 @@ public class MpDTO {
 		if (altMpId != null ? !altMpId.equals(mpDTO.altMpId) : mpDTO.altMpId != null) return false;
 		if (childMpId != null ? !childMpId.equals(mpDTO.childMpId) : mpDTO.childMpId != null) return false;
 		if (childMpTerm != null ? !childMpTerm.equals(mpDTO.childMpTerm) : mpDTO.childMpTerm != null) return false;
-		if (childMpDefinition != null ? !childMpDefinition.equals(mpDTO.childMpDefinition) : mpDTO.childMpDefinition != null)
-			return false;
-		if (childMpTermSynonym != null ? !childMpTermSynonym.equals(mpDTO.childMpTermSynonym) : mpDTO.childMpTermSynonym != null)
-			return false;
+
 		if (parentMpId != null ? !parentMpId.equals(mpDTO.parentMpId) : mpDTO.parentMpId != null) return false;
 		if (parentMpTerm != null ? !parentMpTerm.equals(mpDTO.parentMpTerm) : mpDTO.parentMpTerm != null) return false;
-		if (parentMpDefinition != null ? !parentMpDefinition.equals(mpDTO.parentMpDefinition) : mpDTO.parentMpDefinition != null)
-			return false;
-		if (parentMpTermSynonym != null ? !parentMpTermSynonym.equals(mpDTO.parentMpTermSynonym) : mpDTO.parentMpTermSynonym != null)
-			return false;
+
 		if (intermediateMpId != null ? !intermediateMpId.equals(mpDTO.intermediateMpId) : mpDTO.intermediateMpId != null)
 			return false;
 		if (intermediateMpTerm != null ? !intermediateMpTerm.equals(mpDTO.intermediateMpTerm) : mpDTO.intermediateMpTerm != null)
 			return false;
-		if (intermediateMpDefinition != null ? !intermediateMpDefinition.equals(mpDTO.intermediateMpDefinition) : mpDTO.intermediateMpDefinition != null)
-			return false;
-		if (intermediateMpTermSynonym != null ? !intermediateMpTermSynonym.equals(mpDTO.intermediateMpTermSynonym) : mpDTO.intermediateMpTermSynonym != null)
-			return false;
 		if (topLevelMpId != null ? !topLevelMpId.equals(mpDTO.topLevelMpId) : mpDTO.topLevelMpId != null) return false;
 		if (topLevelMpTerm != null ? !topLevelMpTerm.equals(mpDTO.topLevelMpTerm) : mpDTO.topLevelMpTerm != null)
 			return false;
-		if (topLevelMpDefinition != null ? !topLevelMpDefinition.equals(mpDTO.topLevelMpDefinition) : mpDTO.topLevelMpDefinition != null)
-			return false;
-		if (topLevelMpTermSynonym != null ? !topLevelMpTermSynonym.equals(mpDTO.topLevelMpTermSynonym) : mpDTO.topLevelMpTermSynonym != null)
-			return false;
 		if (topLevelMpTermId != null ? !topLevelMpTermId.equals(mpDTO.topLevelMpTermId) : mpDTO.topLevelMpTermId != null)
-			return false;
-		if (topLevelMpTermInclusive != null ? !topLevelMpTermInclusive.equals(mpDTO.topLevelMpTermInclusive) : mpDTO.topLevelMpTermInclusive != null)
-			return false;
-		if (topLevelMpIdInclusive != null ? !topLevelMpIdInclusive.equals(mpDTO.topLevelMpIdInclusive) : mpDTO.topLevelMpIdInclusive != null)
 			return false;
 		if (hpId != null ? !hpId.equals(mpDTO.hpId) : mpDTO.hpId != null) return false;
 		if (hpTerm != null ? !hpTerm.equals(mpDTO.hpTerm) : mpDTO.hpTerm != null) return false;
@@ -1865,7 +1573,6 @@ public class MpDTO {
 			return false;
 		if (inferredIntermediateMaTerm != null ? !inferredIntermediateMaTerm.equals(mpDTO.inferredIntermediateMaTerm) : mpDTO.inferredIntermediateMaTerm != null)
 			return false;
-		if (goId != null ? !goId.equals(mpDTO.goId) : mpDTO.goId != null) return false;
 		if (pValue != null ? !pValue.equals(mpDTO.pValue) : mpDTO.pValue != null) return false;
 		if (mgiAccessionId != null ? !mgiAccessionId.equals(mpDTO.mgiAccessionId) : mpDTO.mgiAccessionId != null)
 			return false;
@@ -1966,34 +1673,19 @@ public class MpDTO {
 		result = 31 * result + (mpTerm != null ? mpTerm.hashCode() : 0);
 		result = 31 * result + (mpDefinition != null ? mpDefinition.hashCode() : 0);
 		result = 31 * result + (mpTermSynonym != null ? mpTermSynonym.hashCode() : 0);
-		result = 31 * result + (mpNarrowSynonym != null ? mpNarrowSynonym.hashCode() : 0);
-		result = 31 * result + (mpNodeId != null ? mpNodeId.hashCode() : 0);
-		result = 31 * result + (searchTermJson != null ? searchTermJson.hashCode() : 0);
-		result = 31 * result + (childrenJson != null ? childrenJson.hashCode() : 0);
-		result = 31 * result + (scrollNode != null ? scrollNode.hashCode() : 0);
 		result = 31 * result + (geneVariantCount != null ? geneVariantCount.hashCode() : 0);
 		result = 31 * result + (geneVariantMaleCount != null ? geneVariantMaleCount.hashCode() : 0);
 		result = 31 * result + (geneVariantFemaleCount != null ? geneVariantFemaleCount.hashCode() : 0);
 		result = 31 * result + (altMpId != null ? altMpId.hashCode() : 0);
 		result = 31 * result + (childMpId != null ? childMpId.hashCode() : 0);
 		result = 31 * result + (childMpTerm != null ? childMpTerm.hashCode() : 0);
-		result = 31 * result + (childMpDefinition != null ? childMpDefinition.hashCode() : 0);
-		result = 31 * result + (childMpTermSynonym != null ? childMpTermSynonym.hashCode() : 0);
 		result = 31 * result + (parentMpId != null ? parentMpId.hashCode() : 0);
 		result = 31 * result + (parentMpTerm != null ? parentMpTerm.hashCode() : 0);
-		result = 31 * result + (parentMpDefinition != null ? parentMpDefinition.hashCode() : 0);
-		result = 31 * result + (parentMpTermSynonym != null ? parentMpTermSynonym.hashCode() : 0);
 		result = 31 * result + (intermediateMpId != null ? intermediateMpId.hashCode() : 0);
 		result = 31 * result + (intermediateMpTerm != null ? intermediateMpTerm.hashCode() : 0);
-		result = 31 * result + (intermediateMpDefinition != null ? intermediateMpDefinition.hashCode() : 0);
-		result = 31 * result + (intermediateMpTermSynonym != null ? intermediateMpTermSynonym.hashCode() : 0);
 		result = 31 * result + (topLevelMpId != null ? topLevelMpId.hashCode() : 0);
 		result = 31 * result + (topLevelMpTerm != null ? topLevelMpTerm.hashCode() : 0);
-		result = 31 * result + (topLevelMpDefinition != null ? topLevelMpDefinition.hashCode() : 0);
-		result = 31 * result + (topLevelMpTermSynonym != null ? topLevelMpTermSynonym.hashCode() : 0);
 		result = 31 * result + (topLevelMpTermId != null ? topLevelMpTermId.hashCode() : 0);
-		result = 31 * result + (topLevelMpTermInclusive != null ? topLevelMpTermInclusive.hashCode() : 0);
-		result = 31 * result + (topLevelMpIdInclusive != null ? topLevelMpIdInclusive.hashCode() : 0);
 		result = 31 * result + (hpId != null ? hpId.hashCode() : 0);
 		result = 31 * result + (hpTerm != null ? hpTerm.hashCode() : 0);
 		result = 31 * result + (hpTermSynonym != null ? hpTermSynonym.hashCode() : 0);
@@ -2004,7 +1696,6 @@ public class MpDTO {
 		result = 31 * result + (inferredSelectedTopLevelMaTerm != null ? inferredSelectedTopLevelMaTerm.hashCode() : 0);
 		result = 31 * result + (inferredIntermediatedMaId != null ? inferredIntermediatedMaId.hashCode() : 0);
 		result = 31 * result + (inferredIntermediateMaTerm != null ? inferredIntermediateMaTerm.hashCode() : 0);
-		result = 31 * result + (goId != null ? goId.hashCode() : 0);
 		result = 31 * result + (pValue != null ? pValue.hashCode() : 0);
 		result = 31 * result + (mgiAccessionId != null ? mgiAccessionId.hashCode() : 0);
 		result = 31 * result + (phenoCalls != null ? phenoCalls.hashCode() : 0);
@@ -2077,34 +1768,19 @@ public class MpDTO {
 				", mpTerm='" + mpTerm + '\'' +
 				", mpDefinition='" + mpDefinition + '\'' +
 				", mpTermSynonym=" + mpTermSynonym +
-				", mpNarrowSynonym=" + mpNarrowSynonym +
-				", mpNodeId=" + mpNodeId +
-				", searchTermJson='" + searchTermJson + '\'' +
-				", childrenJson='" + childrenJson + '\'' +
-				", scrollNode='" + scrollNode + '\'' +
 				", geneVariantCount=" + geneVariantCount +
 				", geneVariantMaleCount=" + geneVariantMaleCount +
 				", geneVariantFemaleCount=" + geneVariantFemaleCount +
 				", altMpId=" + altMpId +
 				", childMpId=" + childMpId +
 				", childMpTerm=" + childMpTerm +
-				", childMpDefinition=" + childMpDefinition +
-				", childMpTermSynonym=" + childMpTermSynonym +
 				", parentMpId=" + parentMpId +
 				", parentMpTerm=" + parentMpTerm +
-				", parentMpDefinition=" + parentMpDefinition +
-				", parentMpTermSynonym=" + parentMpTermSynonym +
 				", intermediateMpId=" + intermediateMpId +
 				", intermediateMpTerm=" + intermediateMpTerm +
-				", intermediateMpDefinition=" + intermediateMpDefinition +
-				", intermediateMpTermSynonym=" + intermediateMpTermSynonym +
 				", topLevelMpId=" + topLevelMpId +
 				", topLevelMpTerm=" + topLevelMpTerm +
-				", topLevelMpDefinition=" + topLevelMpDefinition +
-				", topLevelMpTermSynonym=" + topLevelMpTermSynonym +
 				", topLevelMpTermId=" + topLevelMpTermId +
-				", topLevelMpTermInclusive=" + topLevelMpTermInclusive +
-				", topLevelMpIdInclusive=" + topLevelMpIdInclusive +
 				", hpId=" + hpId +
 				", hpTerm=" + hpTerm +
 				", hpTermSynonym=" + hpTermSynonym +
@@ -2115,7 +1791,6 @@ public class MpDTO {
 				", inferredSelectedTopLevelMaTerm=" + inferredSelectedTopLevelMaTerm +
 				", inferredIntermediatedMaId=" + inferredIntermediatedMaId +
 				", inferredIntermediateMaTerm=" + inferredIntermediateMaTerm +
-				", goId=" + goId +
 				", pValue=" + pValue +
 				", mgiAccessionId=" + mgiAccessionId +
 				", phenoCalls=" + phenoCalls +

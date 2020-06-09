@@ -17,7 +17,7 @@
 package org.mousephenotype.cda.selenium.support;
 
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.constants.Constants;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.openqa.selenium.*;

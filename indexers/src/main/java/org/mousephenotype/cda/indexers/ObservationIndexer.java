@@ -19,7 +19,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.constants.Constants;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.db.WeightMap;
 import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
@@ -438,7 +438,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
         o.setParameterId(parameterMap.get(r.getLong("parameter_id")).getId());
         o.setParameterName(parameterMap.get(r.getLong("parameter_id")).getName());
         o.setParameterStableId(parameterMap.get(r.getLong("parameter_id")).getStableId());
-        o.setDataType(parameterMap.get(r.getLong("parameter_id")).getDatatype());
+        o.setDataType(parameterMap.get(r.getLong("parameter_id")).getDataType());
     }
 
     private void addDateOfExperiment(ResultSet r, ObservationDTOWrite o) throws SQLException {
