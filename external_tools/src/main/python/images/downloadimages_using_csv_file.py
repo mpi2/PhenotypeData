@@ -101,7 +101,7 @@ def runWithCsvFileAsDataSource(rootDestinationDir, finalDestinationDir, inputFil
             phenotyping_center = row[2]
             pipeline_stable_id = row[3]
             procedure_stable_id = row[4]
-            parameter_stable_id = row[5]
+            parameter_stable_id = row[6]
             if len(phenotyping_center) == 0 or \
                len(pipeline_stable_id) == 0 or \
                len(procedure_stable_id) == 0 or \
