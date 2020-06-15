@@ -289,6 +289,7 @@ public class ExperimentService{
                     Date experimentDate = new Date(0L);
                     for (ObservationDTO o : experiment.getMutants()) {
 
+                        //put a null pointer check here as for viability data has none and chart fails
                         allBatches.add(o.getDateOfExperiment().getYear() + "-" + o.getDateOfExperiment().getMonth() + "-" + o.getDateOfExperiment().getDate());
 
                         if (phenotypingCenter == null) {

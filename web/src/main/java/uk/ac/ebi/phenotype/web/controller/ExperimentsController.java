@@ -95,27 +95,7 @@ public class ExperimentsController {
         String graphBaseUrl = request.getAttribute("baseUrl").toString();
 
         // JM and JW Decided to get observations first as a whole set and then replace with SR result rows where appropriate
-        Set<ExperimentsDataTableRow> experimentRowsFromObservations = observationService.getAllPhenotypesFromObservationsByGeneAccession(geneAccession);
-
-        Map<CombinedObservationKey, ExperimentsDataTableRow> srResult = srService.getAllDataRecords(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl);
-        Map<CombinedObservationKey, ExperimentsDataTableRow> gpResult = gpService.getAllDataRecords(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl);
-        Map<CombinedObservationKey, ExperimentsDataTableRow> observationsMap = experimentRowsFromObservations.stream().collect(Collectors.toMap(ExperimentsDataTableRow::getCombinedKey, row -> row));
-        Set<CombinedObservationKey> intersection = observationsMap.keySet();
-        intersection.retainAll(srResult.keySet());
-        for(CombinedObservationKey obs : intersection) {
-            observationsMap.get(obs).setStatus(srResult.get(obs).getStatus());
-            observationsMap.get(obs).setpValue(srResult.get(obs).getpValue());
-            observationsMap.get(obs).setEvidenceLink(srResult.get(obs).getEvidenceLink());
-            if (gpResult.get(obs) != null) {
-                observationsMap.get(obs).setPhenotypeTerm(gpResult.get(obs).getPhenotypeTerm());
-            }
-        }
-
-        if(mpTermId != null && mpTermId.size() > 0) {
-            experimentRows.addAll(intersection.stream().map(key -> observationsMap.get(key)).collect(Collectors.toSet()));
-        } else {
-            experimentRows.addAll(experimentRowsFromObservations);
-        }
+        Map<CombinedObservationKey, ExperimentsDataTableRow> srResult = getCombinedObservationKeyExperimentsDataTableRowMap(geneAccession, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, procedureName, mpTermId, resource, experimentRows, graphBaseUrl);
 
 
         JSONArray experimentRowsJson = new JSONArray();
@@ -206,6 +186,32 @@ public class ExperimentsController {
         model.addAttribute("rows", experimentRows.size());
         model.addAttribute("allData", sortedJsonArray.toString().replace("'", "\\'"));
         return "experimentsTableFrag";
+    }
+
+    private Map<CombinedObservationKey, ExperimentsDataTableRow> getCombinedObservationKeyExperimentsDataTableRowMap(@RequestParam(required = true, value = "geneAccession") String geneAccession, @RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol, @RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter, @RequestParam(required = false, value = "pipelineName") List<String> pipelineName, @RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId, @RequestParam(required = false, value = "procedureName") List<String> procedureName, @RequestParam(required = false, value = "mpTermId") List<String> mpTermId, @RequestParam(required = false, value = "resource") ArrayList<String> resource, Set<ExperimentsDataTableRow> experimentRows, String graphBaseUrl) throws IOException, SolrServerException {
+        Set<ExperimentsDataTableRow> experimentRowsFromObservations = observationService.getAllPhenotypesFromObservationsByGeneAccession(geneAccession);
+
+        Map<CombinedObservationKey, ExperimentsDataTableRow> srResult = srService.getAllDataRecords(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl);
+        Map<CombinedObservationKey, ExperimentsDataTableRow> gpResult = gpService.getAllDataRecords(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl);
+        Map<CombinedObservationKey, ExperimentsDataTableRow> observationsMap = experimentRowsFromObservations.stream().collect(Collectors.toMap(ExperimentsDataTableRow::getCombinedKey, row -> row));
+        Set<CombinedObservationKey> intersection = observationsMap.keySet();
+        System.out.println("observations map="+observationsMap);
+        intersection.retainAll(srResult.keySet());
+        for(CombinedObservationKey obs : intersection) {
+            observationsMap.get(obs).setStatus(srResult.get(obs).getStatus());
+            observationsMap.get(obs).setpValue(srResult.get(obs).getpValue());
+            observationsMap.get(obs).setEvidenceLink(srResult.get(obs).getEvidenceLink());
+            if (gpResult.get(obs) != null) {
+                observationsMap.get(obs).setPhenotypeTerm(gpResult.get(obs).getPhenotypeTerm());
+            }
+        }
+
+        if(mpTermId != null && mpTermId.size() > 0) {
+            experimentRows.addAll(intersection.stream().map(key -> observationsMap.get(key)).collect(Collectors.toSet()));
+        } else {
+            experimentRows.addAll(experimentRowsFromObservations);
+        }
+        return srResult;
     }
 
 
