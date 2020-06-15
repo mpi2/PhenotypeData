@@ -5,7 +5,7 @@
 <%@ attribute name="geneAcc" required="true" type="java.lang.String"%>
 <%@ taglib uri = "http://java.sun.com/jsp/jstl/functions" prefix = "fn" %>
 
-<c:set var="via_href" value="${baseUrl}/charts?accession=${geneAcc}&parameter_stable_id=IMPC_VIA_001_001_001&parameter_stable_id=IMPC_EVP_001_001&parameter_stable_id=IMPC_EVO_001_001&parameter_stable_id=IMPC_EVM_001_001&parameter_stable_id=IMPC_EVL_001_001"></c:set>
+<c:set var="via_href" value="${baseUrl}/charts?accession=${geneAcc}&parameter_stable_id=IMPC_VIA_001_001&parameter_stable_id=IMPC_EVP_001_001&parameter_stable_id=IMPC_EVO_001_001&parameter_stable_id=IMPC_EVM_001_001&parameter_stable_id=IMPC_EVL_001_001"></c:set>
 
 <c:if test="${callList.size() == 1}">
 	<!--<a class="status done" href="${geneAcc}">	-->
