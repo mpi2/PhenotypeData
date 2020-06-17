@@ -253,6 +253,7 @@ public class ChartsController {
 
 		GeneDTO gene = geneService.getGeneById(accession[0]);
 		model.addAttribute("gene", gene);
+
 		long startTimeSolr = System.currentTimeMillis();
 
 		List<String> genderList = getParamsAsList(gender);
