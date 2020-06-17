@@ -896,7 +896,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
             query.addFilterQuery(StatisticalResultDTO.METADATA_GROUP + ":" + metadataGroup);
         }
 
-        System.out.println("statistical-result query========: " + query);
+        //System.out.println("statistical-result query========: " + query);
 
 		QueryResponse response = statisticalResultCore.query(query);
         List<StatisticalResultDTO> solrResults = response.getBeans(StatisticalResultDTO.class);

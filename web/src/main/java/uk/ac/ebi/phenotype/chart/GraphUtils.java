@@ -148,15 +148,7 @@ System.out.println("urls="+urls);
         for (String sex : genderList) {
             genderString += seperator + "gender=" + sex;
         }
-//        if (chartType != null) {
-//            if (chartType == ChartType.PIE) {
-//                urls.add("chart_type=PIE&parameter_stable_id=IMPC_VIA_001_001");
-//                return urls;
-//            }
-//        } else {
-            // default chart type
             chartType = getDefaultChartType(parameter);
-//        }
 
         if (!ChartUtils.getPlotParameter(parameter.getStableId()).equalsIgnoreCase(parameter.getStableId())) {
             parameterStableId = ChartUtils.getPlotParameter(parameter.getStableId());
