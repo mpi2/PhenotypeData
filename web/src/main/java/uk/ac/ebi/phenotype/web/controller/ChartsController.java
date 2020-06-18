@@ -671,12 +671,33 @@ public class ChartsController {
 
         }// end of gene iterations
         log.debug(allGraphUrlSet.size() + " chart links.");
-        model.addAttribute("allGraphUrlSet", allGraphUrlSet);
+        List allUrls=putEarlyAdultViabilityFirst(allGraphUrlSet);//we want early adult viability first if  present rather than embryo viability data
+        model.addAttribute("allGraphUrlSet", allUrls);
         model.addAttribute("allParameters", allParameters);
         return "stats";
     }
 
 
+
+	private List<String> putEarlyAdultViabilityFirst(Set<String> urlsSet) {
+		//if we have the main early adult viability chart we want to show that top
+		//so reorder here
+		List<String> urlsList=new ArrayList<>();
+		urlsList.addAll(urlsSet);
+		Iterator urlsIt=urlsList.iterator();
+		String viaUrl="";
+		while(urlsIt.hasNext()){
+			String tempUrl=(String)urlsIt.next();
+			if(tempUrl.contains("_VIA_001_001")){
+				viaUrl=new String(tempUrl);
+				urlsIt.remove();
+			}
+		}
+		if(!viaUrl.isEmpty()) {
+			urlsList.add(0, viaUrl);
+		}
+		return urlsList;
+	}
     /**
      * Convenience method that just changes an array [] to a more modern LIst (I
      * hate arrays! :) )

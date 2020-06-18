@@ -120,6 +120,9 @@ public class GraphUtils {
 
         urls.forEach(url -> { log.debug("URL: " + url); });
 System.out.println("urls="+urls);
+//if we have the main early adult viability chart we want to show that top
+        //so reorder here
+
         return urls;
     }
 
