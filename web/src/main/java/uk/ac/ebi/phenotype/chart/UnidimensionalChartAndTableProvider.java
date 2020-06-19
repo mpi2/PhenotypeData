@@ -17,8 +17,6 @@ package uk.ac.ebi.phenotype.chart;
 
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.imits.StatusConstants;
@@ -27,6 +25,8 @@ import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.web.dto.StackedBarsData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;

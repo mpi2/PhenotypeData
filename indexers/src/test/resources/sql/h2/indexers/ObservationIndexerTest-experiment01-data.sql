@@ -28,24 +28,6 @@ VALUES
 -- INSERT INTO biological_model_strain
 
 
-
-
-INSERT INTO phenotyped_colony
-    (id, colony_name, es_cell_name, gf_acc, gf_db_id, allele_symbol, background_strain_name, background_strain_acc,
-     phenotyping_centre_organisation_id, phenotyping_consortium_project_id, production_centre_organisation_id, production_consortium_project_id)
-VALUES
-  (117, '129/SvEv-Gnas<tm1Jop>/H', NULL, 'MGI:95777',   3, 'Gnas<tm1Jop>', '129S9/SvEvH', NULL, 7, 1, 7, 1),
-  (227, 'B6.129P2-Vnn1<tm1Pna>/H', NULL, 'MGI:108395',  3, 'Vnn1<tm1Pna>', 'C57BL/6J', NULL,    7, 1, 7, 1),
-  (207, 'B6.Cg-Sfrp2<C50F>/H',     NULL, 'MGI:108078',  3, 'Sfrp2<C50F>', 'C57BL/6J', NULL,     7, 1, 7, 1),
-  (127, 'B6.Cg-Sfrp5<Q27STOP>/H',  NULL, 'MGI:1860298', 3, 'Sfrp5<Q27STOP>', 'C57BL/6J', NULL,  7, 1, 7, 1),
-  (183, 'C.Cg-Ostes/H',            NULL, 'MGI:3688249', 3, 'Ostes', 'BALB/cAnNCrl', NULL,       7, 1, 7, 1)
-;
-
-
-
-
-
-
 DROP TABLE IF EXISTS phenotype_parameter_ontology_annotation;
 CREATE TABLE phenotype_parameter_ontology_annotation (
      id                 INTEGER NULL,

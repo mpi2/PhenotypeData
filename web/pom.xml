@@ -26,6 +26,7 @@
 
     <dependencies>
 
+
         <!-- CDA/REGISTER INTEREST DEPENDENCIES -->
 
         <dependency>
@@ -46,7 +47,6 @@
 
         <!-- SPRING BOOT DEPENDENCIES -->
 
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
@@ -56,6 +56,9 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
         </dependency>
+
+
+        <!-- SPRING BOOT STARTER DEPENDENCIES -->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -69,13 +72,13 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-            <scope>compile</scope>
+            <artifactId>spring-boot-starter-json</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
@@ -85,7 +88,6 @@
 
 
         <!-- SPRING DEPENDENCIES -->
-
 
         <dependency>
             <groupId>org.springframework</groupId>
@@ -152,8 +154,6 @@
 
         <!-- MONITORING DEPENDENCIES -->
 
-
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -170,7 +170,6 @@
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
-
 
 
         <!-- APACHE DEPENDENCIES -->

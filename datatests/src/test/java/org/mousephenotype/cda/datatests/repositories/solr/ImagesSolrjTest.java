@@ -8,7 +8,6 @@ import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
@@ -24,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {RepositorySolrTestConfig.class})
-public class ImagesSolrjTest extends AbstractTransactionalJUnit4SpringContextTests {
+public class ImagesSolrjTest  {
 
 	@Autowired
 	ImagesSolrJ imagesSolrJ;
