@@ -525,7 +525,7 @@ public class ChartsController {
 				}
 			}
 			//for line level parameters such as viability
-			if (parameterStableId.equalsIgnoreCase("IMPC_VIA_001_001")) {
+			if (org.mousephenotype.cda.common.Constants.adultViabilityParameters.contains(parameterStableId)) {
 				for (String param : org.mousephenotype.cda.common.Constants.adultViabilityParameters) {
 					List<GenotypePhenotypeDTO> addGpList = gpService.getGenotypePhenotypeFor(
 							gene.getMgiAccessionId(),
