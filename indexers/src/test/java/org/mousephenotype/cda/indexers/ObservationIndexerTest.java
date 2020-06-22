@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
  * These tests take forever to run and consume more memory than is available on developer's machines. Ignore them.
  */
 @RunWith(SpringRunner.class)
-//@ComponentScan
 @SpringBootTest(classes = {ObservationIndexerTestConfig.class})
 public class ObservationIndexerTest {
 
@@ -113,8 +112,8 @@ public class ObservationIndexerTest {
         observationIndexer.populateBiologicalDataMap(connection);
         Map<String, ObservationIndexer.BiologicalDataBean> bioDataMap = observationIndexer.getBiologicalData();
 
+        logger.info("Size of biological data map {}", bioDataMap.size());
         Assert.assertTrue(bioDataMap.size() > 1000);
-	    logger.info("Size of biological data map {}", bioDataMap.size());
 
 	    for (ObservationIndexer.BiologicalDataBean biologicalDataBean : bioDataMap.values()) {
 

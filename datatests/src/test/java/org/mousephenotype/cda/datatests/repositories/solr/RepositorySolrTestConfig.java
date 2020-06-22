@@ -18,27 +18,19 @@ package org.mousephenotype.cda.datatests.repositories.solr;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.mousephenotype.cda.db.repositories.GenesSecondaryProjectRepository;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
 import org.mousephenotype.cda.solr.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
 
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-
 @Configuration
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
-@EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
-@ComponentScan("org.mousephenotype.cda.db")
 public class RepositorySolrTestConfig {
 
     @Value("${internal_solr_url}")
@@ -47,14 +39,6 @@ public class RepositorySolrTestConfig {
     private GenotypePhenotypeService genotypePhenotypeService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    private GenesSecondaryProjectRepository genesSecondaryProjectRepository;
-
-    @Inject
-    public RepositorySolrTestConfig(@NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository) {
-        this.genesSecondaryProjectRepository = genesSecondaryProjectRepository;
-    }
-
 
     /////////////////////////
     // READ-ONLY SOLR SERVERS
@@ -204,11 +188,6 @@ public class RepositorySolrTestConfig {
     @Bean
     public PhenodigmService phenodigmService() {
         return new PhenodigmService(phenodigmCore());
-    }
-
-    @Bean
-    public GenotypePhenotypeService genotypePhenotypeService() {
-        return new GenotypePhenotypeService(impressService(), genotypePhenotypeCore(), genesSecondaryProjectRepository);
     }
 
 

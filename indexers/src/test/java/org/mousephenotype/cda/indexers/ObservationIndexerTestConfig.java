@@ -9,9 +9,10 @@ import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.solr.service.ImpressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.*;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.data.solr.repository.config.EnableSolrRepositories;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
@@ -20,9 +21,6 @@ import java.io.IOException;
 import java.sql.Connection;
 
 @Configuration
-@EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
-@EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
-@ComponentScan("org.mousephenotype.cda.db")
 public class ObservationIndexerTestConfig {
 
     @Value("${owlpath}")
@@ -47,7 +45,6 @@ public class ObservationIndexerTestConfig {
                 .addScripts(resources)
                 .build();
     }
-
 
     @Lazy
     @Autowired
@@ -164,7 +161,6 @@ public class ObservationIndexerTestConfig {
         return komp2DataSource().getConnection();
     }
 
-// FIXME FIXME FIXME REFACTOR THESE TESTS. Activating this bean invokes WeightMap population which takes over 8 minutes to complete according to the comment.
     @Bean
     public ObservationIndexer observationIndexer() {
         return new ObservationIndexer(komp2DataSource(), ontologyTermRepository, experimentCore());

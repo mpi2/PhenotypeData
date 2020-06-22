@@ -571,7 +571,7 @@ CREATE TABLE observation (
 -- 	observation_type           ENUM('categorical', 'datetime', 'ontological', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text'),
 
 	observation_type           VARCHAR(24),
-	    CHECK ( observation_type IN ('categorical', 'datetime', 'ontological', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text')),
+	    CHECK ( observation_type IN ('categorical', 'datetime', 'ontological', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text', 'text_series')),
 	missing                    TINYINT(1) DEFAULT 0,
 	parameter_status           VARCHAR(50) DEFAULT NULL,
 	parameter_status_message   VARCHAR(450) DEFAULT NULL,
@@ -1296,7 +1296,16 @@ CREATE TABLE stat_result_phenotype_call_summary (
 --
 -- Discrete statistical result schema
 --
+-- Drop these dependent tables first:
+DROP TABLE IF EXISTS statistical_result_phenotype_call_summary;
+DROP TABLE IF EXISTS statistical_result_additional;
+DROP TABLE IF EXISTS statistical_result_phenstat;
+DROP TABLE IF EXISTS statistical_result_fisher_exact;
+DROP TABLE IF EXISTS statistical_result_manual;
+
+-- Now drop statistical_result:
 DROP TABLE IF EXISTS statistical_result;
+
 CREATE TABLE statistical_result (
 	id                               INT(10) NOT NULL AUTO_INCREMENT,
 	control_id                       INT(10),
@@ -1347,7 +1356,6 @@ CREATE TABLE statistical_result (
 );
 
 
-DROP TABLE IF EXISTS statistical_result_phenotype_call_summary;
 CREATE TABLE statistical_result_phenotype_call_summary (
 	phenotype_call_summary_id INT(10) NOT NULL,
 	result_id                 INT(10),
@@ -1358,7 +1366,6 @@ CREATE TABLE statistical_result_phenotype_call_summary (
 );
 
 
-DROP TABLE IF EXISTS statistical_result_additional;
 CREATE TABLE statistical_result_additional (
 	id                         INT(10) NOT NULL,
 	raw_output                 MEDIUMTEXT,
@@ -1370,7 +1377,6 @@ CREATE TABLE statistical_result_additional (
 );
 
 
-DROP TABLE IF EXISTS statistical_result_phenstat;
 CREATE TABLE statistical_result_phenstat (
 	id                               INT(10) NOT NULL,
 	batch_significance               BOOLEAN,
@@ -1411,7 +1417,6 @@ CREATE TABLE statistical_result_phenstat (
 );
 
 
-DROP TABLE IF EXISTS statistical_result_fisher_exact;
 CREATE TABLE statistical_result_fisher_exact (
 	id         INT(10) NOT NULL,
 	category_a TEXT,
@@ -1423,7 +1428,6 @@ CREATE TABLE statistical_result_fisher_exact (
 );
 
 
-DROP TABLE IF EXISTS statistical_result_manual;
 CREATE TABLE statistical_result_manual (
 	id     INT(10) NOT NULL,
 	method VARCHAR(200),
@@ -1795,7 +1799,8 @@ INSERT INTO missing_colony_id (colony_id, log_level, reason) VALUES
 	('Trm1',             -1, 'We were never able to obtain the minimum set of data required to add this colony id'),
 	('MAG',              -1, 'We were never able to obtain the minimum set of data required to add this colony id'),
 	('EUCJ0019_C12',     -1, 'We were never able to obtain the minimum set of data required to add this colony id'),
-	('EPD0130_2_C06',    -1, 'Even though this colonyId is in Hugh''s list, Jeremy''s research has shown there is newer data submitted under colonyId MEYN supporting the data in EPD00130_2_C06, which was an aborted experiment');
+	('EPD0130_2_C06',    -1, 'Even though this colonyId is in Hugh''s list, Jeremy''s research has shown there is newer data submitted under colonyId MEYN supporting the data in EPD00130_2_C06, which was an aborted experiment'),
+    ('EPD0025_2_A04',    -1, 'Even though this colonyId has data, the microinjection was aborted and any data is invalid');
 
 
 /**
@@ -1856,7 +1861,7 @@ INSERT INTO project(id, name, fullname, description) VALUES(14,                 
 INSERT INTO project(id, name, fullname, description) VALUES(15,                  'Helmholtz GMC', 'Helmholtz German Mouse Clinic', 'Characterisation of mouse models for human diseases to understand molecular mechanisms of human disorders and for the development of new therapies');
 INSERT INTO project(id, name, fullname, description) VALUES(16,                  'MRC', 'MRC project', '-');
 INSERT INTO project(id, name, fullname, description) VALUES(17,                  'MARC', 'Model Animal Research Center', 'Nanjing University - Model Animal Research Center');
-INSERT INTO project(id, name, fullname, description) VALUES(18,                  'RBRC', 'RIKEN BioResource Research Center', 'RIKEN BioResource Research Center - Japan');
+INSERT INTO project(id, name, fullname, description) VALUES(18,                  'RBRC', 'RIKEN BioResource Center', 'RIKEN BioResource Center - Japan');
 INSERT INTO project(id, name, fullname, description) VALUES(19,                  'CAM-SU GRC', 'Cambrige-Soochow Genomic Resource Center', 'Cambrige-Soochow Genomic Resource Center');
 INSERT INTO project(id, name, fullname, description) VALUES(20,                  'EMBL Monterotondo', 'European Molecular Biology Laboratory Monterotondo', 'European Molecular Biology Laboratory Monterotondo');
 INSERT INTO project(id, name, fullname, description) VALUES(21,                  'Infrafrontier-I3', 'Infrafrontier-I3 Consortium', 'Infrafrontier-I3 Consortium');
@@ -1907,7 +1912,7 @@ INSERT INTO organisation(id, name, fullname, country) VALUES(22,                
 INSERT INTO organisation(id, name, fullname, country) VALUES(@ORG_ID_CMHD,                    'CMHD', 'Centre for Modeling Human Disease', 'Canada');
 INSERT INTO organisation(id, name, fullname, country) VALUES(24,                              'CIPHE', 'Centre d''ImmunoPhenomique', 'France');
 INSERT INTO organisation(id, name, fullname, country) VALUES(25,                              'BCM', 'Baylor College of Medicine', 'USA');
-INSERT INTO organisation(id, name, fullname, country) VALUES(26,                              'RBRC', 'RIKEN BioResource Research Center', 'Japan');
+INSERT INTO organisation(id, name, fullname, country) VALUES(26,                              'RBRC', 'RIKEN BioResource Center', 'Japan');
 INSERT INTO organisation(id, name, fullname, country) VALUES(27,                              'TCP', 'The Centre for Phenogenomics', 'Canada');
 INSERT INTO organisation(id, name, fullname, country) VALUES(28,                              'NING', 'Nanjing University Model Animal Research Center', 'China');
 INSERT INTO organisation(id, name, fullname, country) VALUES(29,                              'CDTA', 'Institut de Transgenose (CDTA Orleans)', 'France');

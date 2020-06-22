@@ -16,9 +16,9 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.json.JSONArray;
 import org.mousephenotype.cda.solr.service.PhenotypeCenterProcedureCompletenessService;
 import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -74,7 +74,7 @@ public class PhenotypeCenterProgressController {
 			e.printStackTrace();
 		}
 
-		Map<String,JSONArray> centerDataJSON=new HashMap<>();
+		Map<String, JSONArray> centerDataJSON =new HashMap<>();
 		getPostOrPreQcData(centerDataMap, centerDataJSON);
 		model.addAttribute("centerDataJSON", centerDataJSON);
 		model.addAttribute("centerDataMap", centerDataMap);
