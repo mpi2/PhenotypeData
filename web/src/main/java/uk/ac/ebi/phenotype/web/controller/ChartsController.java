@@ -524,6 +524,20 @@ public class ChartsController {
 					gpList.addAll(addGpList);
 				}
 			}
+			//for line level parameters such as viability
+			if (org.mousephenotype.cda.common.Constants.adultViabilityParameters.contains(parameterStableId)) {
+				for (String param : org.mousephenotype.cda.common.Constants.adultViabilityParameters) {
+					List<GenotypePhenotypeDTO> addGpList = gpService.getGenotypePhenotypeFor(
+							gene.getMgiAccessionId(),
+							param,
+							experiment.getStrain(),
+							experiment.getAlleleAccession(),
+							experiment.getZygosities(),
+							experiment.getOrganisation(),
+							null);//dont' filter out sex based as line level and this causes issues with associated phenotype dipslay on chart
+					gpList.addAll(addGpList);
+				}
+			}
 			List<String> phenotypeTerms = gpList.stream().map(GenotypePhenotypeDTO::getMpTermName).distinct().collect(Collectors.toList());
 			model.addAttribute("phenotypes", phenotypeTerms);
 		}
