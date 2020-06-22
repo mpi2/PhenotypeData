@@ -42,7 +42,7 @@ public class BaseTestConfig {
         return new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
                 .ignoreFailedDrops(true)
-                .setName("ri")
+                .generateUniqueName(true)
                 .build();
     }
 
