@@ -525,8 +525,8 @@ public class ChartsController {
 				}
 			}
 			//for line level parameters such as viability
-			if (org.mousephenotype.cda.common.Constants.adultViabilityParameters.contains(parameterStableId)) {
-				for (String param : org.mousephenotype.cda.common.Constants.adultViabilityParameters) {
+			if (org.mousephenotype.cda.common.Constants.viabilityParameters.contains(parameterStableId)) {
+				for (String param : org.mousephenotype.cda.common.Constants.viabilityParameters) {
 					List<GenotypePhenotypeDTO> addGpList = gpService.getGenotypePhenotypeFor(
 							gene.getMgiAccessionId(),
 							param,
@@ -534,7 +534,7 @@ public class ChartsController {
 							experiment.getAlleleAccession(),
 							experiment.getZygosities(),
 							experiment.getOrganisation(),
-							null);//dont' filter out sex based as line level and this causes issues with associated phenotype dipslay on chart
+							null);//dont' filter out sex based as line level parameters this causes issues with associated phenotype dipslay on chart
 					gpList.addAll(addGpList);
 				}
 			}
