@@ -701,6 +701,9 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
 
         if (sex != null) {
             String sexes = sex.stream().map(SexType::getName).collect(Collectors.joining(" OR "));
+            if(sexes.equalsIgnoreCase("female OR male") || sexes.equalsIgnoreCase("male OR female")){
+                sexes="female OR male OR both";//to account for where entries in solr have used both instead of female and male sexes e.g. threei data has some
+            }
             query.addFilterQuery(GenotypePhenotypeDTO.SEX + ":(" + sexes + ")");
         }
 
