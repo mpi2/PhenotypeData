@@ -289,6 +289,7 @@ public class ExperimentService{
                     Date experimentDate = new Date(0L);
                     for (ObservationDTO o : experiment.getMutants()) {
 
+                        //put a null pointer check here as for viability data has none and chart fails
                         allBatches.add(o.getDateOfExperiment().getYear() + "-" + o.getDateOfExperiment().getMonth() + "-" + o.getDateOfExperiment().getDate());
 
                         if (phenotypingCenter == null) {
@@ -435,8 +436,6 @@ public class ExperimentService{
         //for viability we don't need to filter on Sex or Zygosity
         List<ObservationDTO> observations = observationService.getExperimentObservationsBy(parameterStableId, pipelineStableId, acc, null, phenotypingCenter, strain, null, metadataGroup, alleleAccession);
         ObservationDTO outcomeObservation = observations.get(0);
-        System.out.println("specific outcome="+observations);
-        System.out.println("category of observation="+outcomeObservation.getCategory());
         viabilityDTO.setCategory(observations.get(0).getCategory());
         for(int i=3;i<15; i++){
             String formatted = String.format("%02d",i);

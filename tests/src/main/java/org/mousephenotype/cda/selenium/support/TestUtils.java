@@ -17,6 +17,7 @@
 package org.mousephenotype.cda.selenium.support;
 
 import org.apache.commons.lang3.StringUtils;
+import org.junit.Assert;
 import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.RunStatus;
@@ -29,8 +30,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
-
-import static org.junit.Assert.fail;
 
 /**
  * This class is intended to hold methods useful for testing but not worthy of their own class.
@@ -698,7 +697,7 @@ public class TestUtils {
         String warningClause = (status.hasWarnings() ? " (" + status.getWarningMessages().size() + " warning(s) " : "");
         System.out.println(dateFormat.format(stop) + ": " + status.successCount + " of " + totalRecords + " (total possible: " + totalPossible + ") records successfully processed" + warningClause + " in " + commonUtils.formatDateDifference(start, stop) + ".");
         if (status.hasErrors()) {
-            fail("ERRORS: " + status.getErrorMessages().size());
+            Assert.fail("ERRORS: " + status.getErrorMessages().size());
         }
         System.out.println();
     }

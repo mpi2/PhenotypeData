@@ -197,7 +197,7 @@ public class IndexerMap {
                 throw new IndexerException("Unable to parse mp-hp term file " + mpHpCsvPath, e);
             }
 
-            logger.info(" Added {} unique mp-hp terms from impc_search_index.csv" + mpToHpTermsMap.size());
+            logger.info(" Added {} unique mp-hp terms from impc_search_index.csv", mpToHpTermsMap.size());
         }
 
         return mpToHpTermsMap;

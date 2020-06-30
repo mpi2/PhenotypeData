@@ -16,19 +16,12 @@
         <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
-
     <dependencies>
 
         <!-- Spring -->
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
         <dependency>
@@ -48,12 +41,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <!-- This dependency (and a bootstrap.properties) is all that's required to pull configuration values
              from the configService. -->
         <dependency>
@@ -61,9 +48,7 @@
             <artifactId>spring-cloud-starter-config</artifactId>
         </dependency>
 
-
         <!-- mousephenotype.org -->
-
         <dependency>
             <groupId>org.mousephenotype.cda</groupId>
             <artifactId>utilities</artifactId>
@@ -71,7 +56,6 @@
 
 
         <!-- database -->
-
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
@@ -89,9 +73,7 @@
             <scope>test</scope>
         </dependency>
 
-
         <!-- logging -->
-
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -99,7 +81,6 @@
 
 
         <!-- Jersey web services client dependencies -->
-
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-moxy</artifactId>
@@ -115,9 +96,7 @@
             <artifactId>jersey-apache-connector</artifactId>
         </dependency>
 
-
         <!-- Other -->
-
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -148,12 +127,10 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>
         <plugins>
-
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -169,22 +146,7 @@
                         </configuration>
                     </execution>
                 </executions>
-
             </plugin>
-
-            <!-- Creates a test jar against which other module test classes may declare a dependency. -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -193,10 +155,7 @@
                     <!-- Don't fail if there are no runnable tests -->
                     <failIfNoTests>false</failIfNoTests>
                 </configuration>
-
             </plugin>
-
         </plugins>
     </build>
-
 </project>

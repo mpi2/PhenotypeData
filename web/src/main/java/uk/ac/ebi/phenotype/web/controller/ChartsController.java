@@ -19,7 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.json.JSONException;
 import org.mousephenotype.cda.dto.LifeStage;
 import org.mousephenotype.cda.enumerations.EmbryoViability;
 import org.mousephenotype.cda.enumerations.ObservationType;
@@ -36,6 +35,7 @@ import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -253,6 +253,7 @@ public class ChartsController {
 
 		GeneDTO gene = geneService.getGeneById(accession[0]);
 		model.addAttribute("gene", gene);
+
 		long startTimeSolr = System.currentTimeMillis();
 
 		List<String> genderList = getParamsAsList(gender);
@@ -523,6 +524,20 @@ public class ChartsController {
 					gpList.addAll(addGpList);
 				}
 			}
+			//for line level parameters such as viability
+			if (org.mousephenotype.cda.common.Constants.viabilityParameters.contains(parameterStableId)) {
+				for (String param : org.mousephenotype.cda.common.Constants.viabilityParameters) {
+					List<GenotypePhenotypeDTO> addGpList = gpService.getGenotypePhenotypeFor(
+							gene.getMgiAccessionId(),
+							param,
+							experiment.getStrain(),
+							experiment.getAlleleAccession(),
+							experiment.getZygosities(),
+							experiment.getOrganisation(),
+							null);//dont' filter out sex based as line level parameters this causes issues with associated phenotype dipslay on chart
+					gpList.addAll(addGpList);
+				}
+			}
 			List<String> phenotypeTerms = gpList.stream().map(GenotypePhenotypeDTO::getMpTermName).distinct().collect(Collectors.toList());
 			model.addAttribute("phenotypes", phenotypeTerms);
 		}
@@ -670,12 +685,33 @@ public class ChartsController {
 
         }// end of gene iterations
         log.debug(allGraphUrlSet.size() + " chart links.");
-        model.addAttribute("allGraphUrlSet", allGraphUrlSet);
+        List allUrls=putEarlyAdultViabilityFirst(allGraphUrlSet);//we want early adult viability first if  present rather than embryo viability data
+        model.addAttribute("allGraphUrlSet", allUrls);
         model.addAttribute("allParameters", allParameters);
         return "stats";
     }
 
 
+
+	private List<String> putEarlyAdultViabilityFirst(Set<String> urlsSet) {
+		//if we have the main early adult viability chart we want to show that top
+		//so reorder here
+		List<String> urlsList=new ArrayList<>();
+		urlsList.addAll(urlsSet);
+		Iterator urlsIt=urlsList.iterator();
+		String viaUrl="";
+		while(urlsIt.hasNext()){
+			String tempUrl=(String)urlsIt.next();
+			if(tempUrl.contains("_VIA_001_001")){
+				viaUrl=new String(tempUrl);
+				urlsIt.remove();
+			}
+		}
+		if(!viaUrl.isEmpty()) {
+			urlsList.add(0, viaUrl);
+		}
+		return urlsList;
+	}
     /**
      * Convenience method that just changes an array [] to a more modern LIst (I
      * hate arrays! :) )

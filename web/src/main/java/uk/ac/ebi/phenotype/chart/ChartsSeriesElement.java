@@ -15,9 +15,9 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import org.json.JSONArray;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,12 +38,12 @@ import java.util.List;
 //]
 public class ChartsSeriesElement {
 
-	private String name;
-	private String colorString;
-	private String chartTypeString;
-	private JSONArray boxPlotArray;
-	private JSONArray boxPlotOutliersArray;
-	private SexType sexType;
+	private String       name;
+	private String       colorString;
+	private String       chartTypeString;
+	private JSONArray    boxPlotArray;
+	private JSONArray    boxPlotOutliersArray;
+	private SexType      sexType;
 	private ZygosityType zygosityType;
 
 	//to hold original data before being processsed to chart objects

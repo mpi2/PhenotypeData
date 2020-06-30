@@ -371,10 +371,12 @@ public class MPIndexer extends AbstractIndexer implements CommandLineRunner {
 
     private void writeCsvData(String mpIdFromSlim, Set<String> csvHpTermNames, MpCsvWriter writer) {
 
-        csvHpTermNames
-                .stream()
-                .sorted()
-                .forEachOrdered(name -> writer.write(mpIdFromSlim, "", name));
+        if (csvHpTermNames != null) {
+            csvHpTermNames
+                    .stream()
+                    .sorted()
+                    .forEachOrdered(name -> writer.write(mpIdFromSlim, "", name));
+        }
     }
 
     private void getHpTermsFromOWL(

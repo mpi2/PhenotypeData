@@ -1,8 +1,6 @@
-package org.mousephenotype.cda.ri;
+package org.mousephenotype.cda.ri.core.services;
 
 import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,7 +28,7 @@ import javax.sql.DataSource;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @ContextConfiguration(classes = {BaseTestConfig.class})
-public class BaseTest {
+public abstract class BaseTest {
 
     @Autowired
     protected ApplicationContext context;
@@ -45,11 +43,5 @@ public class BaseTest {
         ScriptUtils.executeSqlScript(riDataSource.getConnection(), r);
         r = context.getResource("classpath:sql/h2/base-test-data.sql");
         ScriptUtils.executeSqlScript(riDataSource.getConnection(), r);
-    }
-
-    @Ignore
-    @Test
-    public void aTest() {
-
     }
 }
