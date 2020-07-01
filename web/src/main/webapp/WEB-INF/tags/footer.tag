@@ -80,7 +80,9 @@
             </div>
             <div class="col-12 col-md-6 text-right">
                 <h6>
-                    <small>Access Data Release <span id="data-no">10.0</span> Data</small>
+                    <a href="https://www.mousephenotype.org/data/release">
+                        <small>Access Data Release <span id="data-no">10.1</span> Data</small>
+                    </a>
                 </h6>
                 <div class="menu-footer-access-container">
                     <ul id="menu-footer-access" class="menu">

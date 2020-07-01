@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.db.pojo.Datasource;
 import org.mousephenotype.cda.db.pojo.Parameter;
+import org.mousephenotype.cda.db.pojo.Procedure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +21,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {RepositoriesTestConfig.class})
@@ -67,10 +67,22 @@ public class ParameterRepositoryTest {
     @Test
     public void getByStableId() throws Exception {
 
-        Parameter actual = parameterRepository.getByStableId("IMPC_BWT_008_001");
+        Parameter actual = parameterRepository.getFirstByStableId("IMPC_BWT_008_001");
         assertNotNull(actual);
 
         compareFields(getExpected(), actual);
+    }
+
+    @Test
+    public void testGetByParameterAndProcedure() throws Exception {
+
+        Parameter actual = parameterRepository.getByStableIdAndProcedureAndPipeline("IMPC_PAT_049_002", "IMPC_PAT_002", "UCD_001");
+        assertNotNull(actual.getProcedures());
+        assertNotNull(actual.getProcedures().stream().findFirst().map(Procedure::getPipelines).orElse(null));
+
+        Parameter bad = parameterRepository.getByStableIdAndProcedureAndPipeline("IMPC_PAT_049_002", "IMPC_PAT_002", "IMPC_001");
+        assertNull(bad);
+
     }
 
 

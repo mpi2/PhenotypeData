@@ -94,7 +94,7 @@ public class MpTermService {
             return parameterCache.get(parameterStableId);
         }
 
-        Parameter parameter = parameterRepository.getByStableId(parameterStableId);
+        Parameter parameter = parameterRepository.getFirstByStableId(parameterStableId);
         MultiKeyMap multiKeyMap = new MultiKeyMap();
 
         synchronized (this) {

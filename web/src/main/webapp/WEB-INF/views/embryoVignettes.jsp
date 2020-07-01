@@ -19,7 +19,19 @@
 
     <jsp:body>
         <div class="container">
-
+            <div class="row mb-3">
+                <div class="col-12">
+                    <h2>IMPC Embryo Vignettes</h2>
+                    <p>The vignettes showcase the IMPC embryo pipeline. They highlight the different phenotyping
+                        procedures centres employ to phenotype embryonic lethal or subviable nulls. For more information
+                        on the pipeline refer to the: <a href="${baseUrl}/embryo"
+                                                         target="_blank"> IMPC Embryo Pipeline Introduction</a>, or read
+                        more in our paper <a href=https://europepmc.org/articles/PMC5295821 target="_blank">High-throughput
+                            discovery of novel developmental phenotypes, Nature 2016</a>. For a comprehensive list of
+                        lines with 3D image data refer to: <a href="${baseUrl}/embryo_heatmap" target="_blank">IMPC 3D Embryo Data</a>.</p>
+                </div>
+            </div>
+            <hr>
             <div class="row mb-5">
                 <div class="col-12">
                     <c:set var="geneId" value="MGI:1913761"></c:set>
@@ -37,17 +49,19 @@
                             </p>
                             <p>Phenotype data links</p>
                             <ul>
-                                <li>Viability: <a
-                                        href="${baseUrl}/charts?accession=MGI:1913761&amp;allele_accession_id=MGI:4842477&amp;zygosity=homozygote&amp;parameter_stable_id=IMPC_VIA_001_001&amp;pipeline_stable_id=MGP_001&amp;phenotyping_center=WTSI"
-                                        target="_blank">Complete preweaning lethality</a></li>
-                                <li>Embryo Lacz Expression: NA</li>
-                                <li>Embryo Gross Morphology: <a
-                                        href="${baseUrl}/images?gene_id=MGI:1913761&amp;fq=expName:Embryo%20Dysmorphology">Images</a>
+                                <li>
+                                    Viability:
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_VIA_001_001"
+                                       target="_blank">Complete preweaning lethality</a>
                                 </li>
-                                <li>3-D imaging: <a href="http://dmdd.org.uk/mutants/Chtop">Images</a></li>
-                                <li>Placental Histopathology: <a href="http://dmdd.org.uk/mutants/Chtop">Images</a></li>
-                                <li>Adult and Embryo Phenotype Data: <a
-                                        href="${baseUrl}/genes/MGI:1913761#section-associations">Table</a></li>
+                                <li>3-D imaging: <a href="http://dmdd.org.uk/mutants/Chtop" target="_blank">Images</a>
+                                </li>
+                                <li>Placental Histopathology: <a href="http://dmdd.org.uk/mutants/Chtop"
+                                                                 target="_blank">Images</a></li>
+                                <li>
+                                    All adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#phenotypesTab"
+                                                                        target="_blank">Table</a>
+                                </li>
                             </ul>
                         </div>
                         <div class="col-4">
@@ -69,7 +83,7 @@
                         <div class="col-8">
                             <p>Kelch domain-containing protein 2 functions as a transcriptional corepressor through its
                                 inhibitory interaction with LZIP.</p>
-                            <p> Klhdc2 mutants showed complete preweaning lethality with no homozygous pups observed,
+                            <p>Klhdc2 mutants showed complete preweaning lethality with no homozygous pups observed,
                                 but remain viable up to E18.5.
                                 Micro-computed tomography (microCT) imaging revealed mutants display posterior
                                 polydactyly and edema. In addition to this,
@@ -83,9 +97,10 @@
                                 The gene is expressed in
                                 <a href="https://www.ebi.ac.uk/gxa/experiments/E-MTAB-3358?accessKey=&amp;serializedFilterFactors=DEVELOPMENTAL_STAGE:adult&amp;queryFactorType=ORGANISM_PART&amp;rootContext=&amp;heatmapMatrixSize=50&amp;displayLevels=false&amp;displayGeneDistribution=false&amp;geneQuery=KLHDC2&amp;exactMatch=true&amp;_exactMatch=on&amp;_queryFactorValues=1&amp;specific=true&amp;_specific=on&amp;cutoff=0.5">heart</a>
                                 (expression atlas link) and has been implicated in <a
-                                        href="http://www.ncbi.nlm.nih.gov/pubmed/16008511">endothelial
+                                        href="http://www.ncbi.nlm.nih.gov/pubmed/16008511" target="_blank">endothelial
                                     differentation</a> and
-                                <a href="http://www.ncbi.nlm.nih.gov/pubmed/16860314">myoblast differentation</a>.
+                                <a href="http://www.ncbi.nlm.nih.gov/pubmed/16860314" target="_blank">myoblast
+                                    differentation</a>.
                                 Heterozygote null mice have abnormal heart rhythms while
                                 the lethal embryos may have a heart defect.
                             </p>
@@ -93,31 +108,39 @@
                             <p>Phenotype data links</p>
 
                             <ul>
-                                <li>Viability: <a
-                                        href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548587&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"
-                                        target="_blank">Complete preweaning lethality</a></li>
-                                <li> Embryonic Viability: <a
-                                        href="${cmsBaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_EVO_001_001">E14.5</a>,
-                                    <a href="${cmsBaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_EVO_001_001">E18.5</a>
+                                <li>
+                                    Viability:
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_VIA_001_001"
+                                       target="_blank">Adult Homozygous - Lethal</a>,
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_EVM_001_001"
+                                       target="_blank">E12.5 Homozygous - Viable</a>
                                 </li>
-                                <li>Embryo LacZ Expression: <a
-                                        href="${cmsBaseUrl}/phenoview/?gid=1521-35-4&qeid=IMPC_ELZ_064_001">
-                                    Images </a></li>
-                                <li>Embryo Gross Morphology: NA</li>
-                                <li>3-D Imaging: <a
-                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}&pid=203&h=382&s=on&c=off&a=off&o=vertical&zoom=4&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=69&wy=117&wz=177&wl=0&wu=200&mn=klhdc2-tm1b-ic/19.3c_5577193&mx=89&my=120&mz=176&ml=0&mu=213&wov=none&mov=none">Adrenal
-                                    gland</a>,
-                                    <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}&pid=203&h=489&s=on&c=off&a=off&o=vertical&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=80&wy=117&wz=177&wl=0&wu=150&mn=klhdc2-tm1b-ic/21.1f_5578050&mx=80&my=106&mz=154&ml=0&mu=180">Intestines</a>,
-                                    <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}&pid=203&h=372&s=on&c=on&a=on&o=horizontal&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=91&wy=116&wz=163&wl=0&wu=255&mn=klhdc2-tm1b-ic/21.1f_5578050&mx=82&my=117&mz=144&ml=0&mu=255&wov=none&mov=none">VSD</a>,
-                                    <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}&pid=204">E18.5</a>
+                                <li>
+                                    Embryo LacZ Expression: <a
+                                        href="${baseUrl}/imageComparator?acc=${geneId}&anatomy_term=%22TS20%20embryo%20or%20Unassigned%22&parameter_stable_id=IMPC_ELZ_064_001"
+                                        target="_blank">Images</a>
                                 </li>
-                                <li>Adult and Embryo Phenotype Data: <a
-                                        href="${baseUrl}/genes/${geneId}#section-associations">Table</a></li>
+                                <li>3-D Imaging:
+                                    <!--
+                                    <a href="${cmsBaseUrl}/embryoviewer/?mgi=${geneId}&pid=203&h=382&s=on&c=off&a=off&o=vertical&zoom=4&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=69&wy=117&wz=177&wl=0&wu=200&mn=klhdc2-tm1b-ic/19.3c_5577193&mx=89&my=120&mz=176&ml=0&mu=213&wov=none&mov=none" target="_blank">Adrenal
+                                    gland</a>, 
+                                    <a href="${cmsBaseUrl}/embryoviewer/?mgi=${geneId}&pid=203&h=489&s=on&c=off&a=off&o=vertical&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=80&wy=117&wz=177&wl=0&wu=150&mn=klhdc2-tm1b-ic/21.1f_5578050&mx=80&my=106&mz=154&ml=0&mu=180" target="_blank">Intestines</a>, 
+                                    <a href="${cmsBaseUrl}/embryoviewer/?mgi=${geneId}&pid=203&h=372&s=on&c=on&a=on&o=horizontal&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5b_5553715&wx=91&wy=116&wz=163&wl=0&wu=255&mn=klhdc2-tm1b-ic/21.1f_5578050&mx=82&my=117&mz=144&ml=0&mu=255&wov=none&mov=none" target="_blank">VSD</a>, 
+-->
+                                    <a href="${cmsBaseUrl}/embryoviewer/?mgi=${geneId}" target="_blank">3D Viewer</a>
+                                </li>
+                                <li>
+                                    All adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#phenotypesTab"
+                                                                        target="_blank">Table</a>
+                                </li>
                             </ul>
 
                         </div>
                         <div class="col-4">
-                            <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=MGI:1916804"><img class="w-100" alt="E18.5  Klhdc2 null embryo" src="${baseUrl}/img/vignettes/Kldhc2.png">E18.5 Klhdc2 null embryo</a>
+                            <a href="${cmsBaseUrl}/embryoviewer/?mgi=${geneId}" target="_blank"><img class="w-100"
+                                                                                                     alt="E18.5  Klhdc2 null embryo"
+                                                                                                     src="${baseUrl}/img/vignettes/Kldhc2.png">E18.5
+                                Klhdc2 null embryo</a>
                         </div>
                     </div>
                 </div>
@@ -130,7 +153,7 @@
                     <h2 class="title" id="${geneId}"><t:formatAllele>Acvr2a<tm1.1(KOMP)Vlcg></t:formatAllele></h2>
 
                     <div id="3" class="row">
-<div class="col-8">
+                        <div class="col-8">
                             <p>
                                 Activin receptor IIA is a receptor for activins, which are members of the TGF-beta
                                 superfamily involved in diverse biological processes.<br>
@@ -148,9 +171,11 @@
 
                             <ul>
                                 <li>
-                                    Viability:<a
-                                        href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548333&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP"
-                                        target="_blank">Partial preweaning lethality</a>
+                                    Viability:
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_VIA_001_001"
+                                       target="_blank">Adult Homozygous - Subviable</a>,
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_EVO_001_001"
+                                       target="_blank">E15.5 Homozygous - Viable</a>
                                 </li>
                                 <li>
                                     Viability at P3/P7: <a id="acvr2aP3Trigger" class="various"
@@ -158,18 +183,21 @@
                                 </li>
                                 <li>
                                     Embryo LacZ Expression: <a
-                                        href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
+                                        href="${baseUrl}/imageComparator?acc=${geneId}&anatomy_term=%22TS20%20embryo%20or%20Unassigned%22&parameter_stable_id=IMPC_ELZ_064_001"
+                                        target="_blank">Images</a>
                                 </li>
                                 <li>
-                                    Embryo Gross Morphology: <a
-                                        href="${baseUrl}/imageComparator?acc=MGI:102806&parameter_stable_id=IMPC_GEO_050_001">Images</a>
+                                    Gross Morphology: <a
+                                        href="${baseUrl}/imageComparator?&parameter_stable_id=IMPC_GEO_050_001&acc=${geneId}"
+                                        target="_blank">E15.5 Images</a>
                                 </li>
                                 <li>
-                                    3-D Imaging: <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}">Image</a>
+                                    3-D Imaging: <a href="${cmsBaseUrl}/embryoviewer/?mgi=${geneId}" target="_blank">3D
+                                    Viewer</a>
                                 </li>
                                 <li>
-                                    Adult and Embryo Phenotype Data: <a
-                                        href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                                    All adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#phenotypesTab"
+                                                                        target="_blank">Table</a>
                                 </li>
                                 <li>
                                     Embryo Histopathology: <a id="acvr2aHistTrigger" class="various" href="#acvr2aHist">Image</a>
@@ -207,7 +235,7 @@
                     <h2 class="title" id="${geneId}"><t:formatAllele>Cbx4<tm1.1(KOMP)Vlcg></t:formatAllele></h2>
 
                     <div class="row">
-<div class="col-8">
+                        <div class="col-8">
                             <p>
                                 Chromobox 4 is in the polycomb protein family that are key regulators of transcription
                                 and is reported to be upregulated in lung bud formation and required for thymus
@@ -225,23 +253,21 @@
 
                             <ul>
                                 <li>
-                                    Viability:<a
-                                        href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548407&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP"
-                                        target="_blank"> Complete preweaning lethality</a>
+                                    Viability:
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_VIA_001_001"
+                                       target="_blank">Adult Homozygous - Lethal</a>,
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_EVM_001_001"
+                                       target="_blank">E12.5 Homozygous - Viable</a>,
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_EVO_001_001"
+                                       target="_blank">E15.5 Homozygous - Viable</a>
                                 </li>
                                 <li>
-                                    Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
+                                    3-D Imaging: <a href="${cmsBaseUrl}/embryoviewer/?mgi=${geneId}" target="_blank">3D
+                                    Viewer</a>
                                 </li>
                                 <li>
-                                    Embryo Gross Morphology: NA
-                                </li>
-                                <li>
-                                    3-D Imaging: <a
-                                        href="${cmsBaseUrl}/embryoviewer/?mgiGeneAccessionId=MGI:1195985&v=2d&pid=203&h=561&s=off&c=off&a=on&o=vertical&zoom=0&sb=600&wn=Average&wx=92&wy=62&wz=175&wl=23&wu=255&mn=AAPN_K1026-1-e15.5&mx=92&my=68&mz=139&ml=20&mu=179&wov=jacobian&mov=none">Image</a>
-                                </li>
-                                <li>
-                                    Adult and Embryo Phenotype Data: <a
-                                        href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                                    All adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#phenotypesTab"
+                                                                        target="_blank">Table</a>
                                 </li>
                                 <li>
                                     3D Volumetric Analysis: <a href="#cbx4Graphs" id="cbx4GraphsTrigger"
@@ -287,7 +313,7 @@
                     <h2 class="title" id="${geneId}"><t:formatAllele>Tmem100<tm1e.1(KOMP)Wtsi></t:formatAllele></h2>
 
                     <div class="row">
-<div class="col-8">
+                        <div class="col-8">
                             <p>
                                 Transmembrane Protein 100 functions downstream of the BMP/ALK1 signaling pathway.<br>
                                 Tmem100 mutants showed complete preweaning lethality and were also lethal at E12.5.
@@ -302,23 +328,24 @@
 
                             <ul>
                                 <li>
-                                    Viability: <a
-                                        href="${baseUrl}/charts?accession=MGI:1915138&allele_accession_id=MGI:5548552&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP"
-                                        target="_blank">Complete preweaning lethality</a>
+                                    Viability:
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_VIA_001_001"
+                                       target="_blank">Adult Homozygous - Lethal</a>,
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_EVL_001_001"
+                                       target="_blank">E9.5 Homozygous - Viable</a>
+                                </li>
+
+                                <li>
+                                    Gross Morphology: <a
+                                        href="${baseUrl}/imageComparator?&parameter_stable_id=IMPC_GEL_044_001&acc=${geneId}"
+                                        target="_blank">E9.5 Images</a>
+                                <li>
+                                    3-D Imaging: <a href="${cmsBaseUrl}/embryoviewer/?mgi=${geneId}" target="_blank">3D
+                                    Viewer</a>
                                 </li>
                                 <li>
-                                    Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
-                                </li>
-                                <li>
-                                    Embryo Gross Morphology: <a id="tmem100EmbGrossTrigger" href="#tmem100EmbGross"
-                                                                class="various">Images</a>
-                                </li>
-                                <li>
-                                    3-D Imaging: <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}">Image</a>
-                                </li>
-                                <li>
-                                    Adult and Embryo Phenotype Data: <a
-                                        href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                                    All adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#phenotypesTab"
+                                                                        target="_blank">Table</a>
                                 </li>
                             </ul>
 
@@ -354,7 +381,7 @@
                     <h2 class="title" id="${geneId}"><t:formatAllele>Eya4<tm1b(KOMP)Wtsi></t:formatAllele></h2>
 
                     <div class="row">
-<div class="col-8">
+                        <div class="col-8">
                             <p>
                                 Eyes absent transcriptional coactivator and phosphatase 4 is associated with a variety
                                 of developmental defects including hearing loss.<br>
@@ -370,26 +397,28 @@
 
                             <ul>
                                 <li>
-                                    Viability: <a
-                                        href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548437&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP"
-                                        target="_blank">Complete preweaning lethality</a>
+                                    Viability:
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_VIA_001_001"
+                                       target="_blank">Adult Homozygous - Lethal</a>,
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_EVM_001_001"
+                                       target="_blank">E12.5 Homozygous - Viable</a>,
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_EVO_001_001"
+                                       target="_blank">E15.5 Homozygous - Viable</a>
                                 </li>
                                 <li>
                                     Embryo LacZ Expression: <a id="eyaEmbLacZTrigger" href="#eyaEmbLacZ"
                                                                class="various">Images</a>
                                 </li>
                                 <li>
-                                    Embryo Gross Morphology: NA
-                                </li>
-                                <li>
                                     Embryo Histopathology: <a id="eyaEmbHisTrigger" href="#eyaEmbHis" class="various">Images</a>
                                 </li>
                                 <li>
-                                    3-D Imaging: <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}">Image</a>
+                                    3-D Imaging: <a href="${cmsBaseUrl}/embryoviewer/?mgi=${geneId}" target="_blank">3D
+                                    Viewer</a>
                                 </li>
                                 <li>
-                                    Adult and Embryo Phenotype Data: <a
-                                        href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                                    All adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#phenotypesTab"
+                                                                        target="_blank">Table</a>
                                 </li>
 
                             </ul>
@@ -440,11 +469,7 @@
                             </p>
 
                         </div>
-
-
                     </div>
-
-
                 </div>
             </div>
 
@@ -455,7 +480,7 @@
                     <c:set var="geneId" value="MGI:3039593"></c:set>
                     <h2 id="${geneId}"><t:formatAllele>Tox3<tm1b(KOMP)Mbp></t:formatAllele></h2>
                     <div class="row">
-<div class="col-8">
+                        <div class="col-8">
                             <p> Tox High Mobility Group Box Family Member 3 is a member of the HMG-box family involved
                                 in bending and unwinding DNA.
                                 Tox3 mutants have partial preweaning lethality with 1/3 of the pups dying before P7.
@@ -469,31 +494,21 @@
                             Phenotype data links
                             <ul>
                                 <li>
-                                    Viability: <a
-                                        href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548886&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP"
-                                        target="_blank">Partial preweaning lethality</a>
+                                    Viability:
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_VIA_001_001"
+                                       target="_blank">Adult Homozygous - Subviable</a>
                                 </li>
                                 <li>
                                     Viability at P3/P7: <a href="#tox3Viable" id="tox3ViableTrigger" class="various">Viable</a>
-                                </li>
-                                <li>
-                                    Embryo Lacz Expression: NA
-                                </li>
-                                <li>
-                                    Embryo Gross Morphology: NA
                                 </li>
                                 <li>
                                     Embryo Histopathology: <a href="#tox3His" id="tox3HisTrigger"
                                                               class="various">Images</a>
                                 </li>
                                 <li>
-                                    3-D imaging: NA
+                                    All adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#phenotypesTab"
+                                                                        target="_blank">Table</a>
                                 </li>
-                                <li>
-                                    Adult and Embryo Phenotype Data: <a
-                                        href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
-                                </li>
-
                             </ul>
                         </div>
                         <div class="col-4"><img class="w-100" alt="Tox3 MRI" src="${baseUrl}/img/vignettes/tox3MRI.png">
@@ -537,7 +552,7 @@
                     <c:set var="geneId" value="MGI:1922814"></c:set>
                     <h2 id="${geneId}"><t:formatAllele>Rsph9<tm1.1(KOMP)Vlcg></t:formatAllele></h2>
                     <div class="row">
-<div class="col-8">
+                        <div class="col-8">
                             <p>
                                 Radial spoke head protein 9 is a component of the radial spoke head in motile cilia
                                 and flagella.
@@ -553,28 +568,17 @@
                             <p>Phenotype data links</p>
                             <ul>
                                 <li>
-                                    Viability: <a
-                                        href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5695930&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=TCP_001&phenotyping_center=TCP"
-                                        target="_blank">Partial preweaning lethality</a>
+                                    Viability:
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_VIA_001_001"
+                                       target="_blank">Adult Homozygous - Subviable</a>
                                 </li>
                                 <li>
                                     Viability at P3/P7: <a href="#rsph9Viable" class="various"
                                                            id="rsph9ViableTrigger">Viable</a>
                                 </li>
                                 <li>
-                                    Embryo Lacz Expression: NA
-                                </li>
-                                <li>
-                                    Embryo Gross Morphology: NA
-                                </li>
-                                <li>
-                                    3-D imaging: <a
-                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}">Image</a>
-                                </li>
-
-                                <li>
-                                    Adult and Embryo Phenotype Data: <a
-                                        href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                                    All adult and embryo phenotypes: <a
+                                        href="${baseUrl}/genes/${geneId}#phenotypesTab" target="_blank">Table</a>
                                 </li>
                                 <li>
                                     Whole Brain MRI: <a href="#rsph9Mri" class="various"
@@ -595,7 +599,6 @@
 
                         <div id="rsph9Viable" style="display: none">
                             <h3>P3/P7 viability test Rsph9</h3>
-
                             <img class="w-100" src="${baseUrl}/img/vignettes/Rsph9Table.png">
                         </div>
 
@@ -622,7 +625,7 @@
                     <h2 class="title" id="${geneId}"><t:formatAllele>Pax7<tm1.1(KOMP)Vlcg></t:formatAllele></h2>
 
                     <div class="row">
-<div class="col-8">
+                        <div class="col-8">
                             <p>
                                 Pax 7 is a nuclear transcription factor with DNA-binding activity via its paired
                                 domain.<br>
@@ -643,23 +646,22 @@
 
                             <ul>
                                 <li>
-                                    Viability: <a
-                                        href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5505636&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=JAX_001&phenotyping_center=JAX"
-                                        target="_blank">Partial preweaning lethality</a>
+                                    Viability:
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_VIA_001_001"
+                                       target="_blank">Adult Homozygous - Subviable</a>
                                 </li>
                                 <li>
-                                    Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#section-expression">Images</a>
+                                    Embryo LacZ Expression: <a
+                                        href="${baseUrl}/imageComparator?acc=${geneId}&anatomy_term=%22TS20%20embryo%20or%20Unassigned%22&parameter_stable_id=IMPC_ELZ_064_001"
+                                        target="_blank">Images</a>
                                 </li>
                                 <li>
-                                    Embryo Gross Morphology: NA
+                                    3-D Imaging: <a href="${cmsBaseUrl}/embryoviewer/?mgi=${geneId}" target="_blank">3D
+                                    Viewer</a>
                                 </li>
                                 <li>
-                                    3-D Imaging: <a
-                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}">Image</a>
-                                </li>
-                                <li>
-                                    Adult and Embryo Phenotype Data: <a
-                                        href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                                    All adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#phenotypesTab"
+                                                                        target="_blank">Table</a>
                                 </li>
                             </ul>
 
@@ -681,12 +683,11 @@
                 <div class="col-12">
                     <c:set var="geneId" value="MGI:1928849"></c:set>
                     <h2 class="title" id="${geneId}">
-                        <t:formatAllele>Svep1<tm1b (EUCOMM)Hmgu/J>
-                        </t:formatAllele>
+                        <t:formatAllele>Svep1<tm1b (EUCOMM)Hmgu/J></t:formatAllele>
                     </h2>
 
                     <div class="row">
-<div class="col-8">
+                        <div class="col-8">
                             <p>
                                 Svep1 codes for an uncharacterized protein named after the multiple domains
                                 identified in the
@@ -713,26 +714,32 @@
 
                             <ul>
                                 <li>
-                                    Viability: <a
-                                        href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5509058&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=JAX_001&phenotyping_center=JAX"
-                                        target="_blank">Complete preweaning lethality</a>
+                                    Viability:
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_VIA_001_001"
+                                       target="_blank">Adult Homozygous - Lethal</a>,
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_EVM_001_001"
+                                       target="_blank">E12.5 Homozygous - Subviable</a>
                                 </li>
                                 <li>
-                                    Embryo LacZ Expression: NA
+                                    Embryo LacZ Expression: <a
+                                        href="${baseUrl}/imageComparator?acc=${geneId}&anatomy_term=%22TS20%20embryo%20or%20Unassigned%22&parameter_stable_id=IMPC_ELZ_064_001"
+                                        target="_blank">Images</a>
                                 </li>
                                 <li>
-                                    Embryo Gross Morphology: <a
-                                        href="${cmsBaseUrl}/phenoview/?gid=4771-61-7&qeid=IMPC_GEO_050_001">E14.5-E15.5</a>,
-                                    <a href="${cmsBaseUrl}/phenoview/?gid=4771-61-7&qeid=IMPC_GEP_064_001">E18.5</a>
-                                    images
+                                    Gross Morphology:
+                                    <a href="${baseUrl}/imageComparator?&parameter_stable_id=IMPC_GEP_064_001&acc=${geneId}"
+                                       target="_blank">E18.5 Images</a>,
+                                    <a href="${baseUrl}/imageComparator?&parameter_stable_id=IMPC_GEO_050_001&acc=${geneId}"
+                                       target="_blank">E15.5 Images</a>
+
                                 </li>
                                 <li>
-                                    3-D Imaging: <a
-                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=MGI:1928849&pid=204">E18.5</a>
+                                    3-D Imaging: <a href="${cmsBaseUrl}/embryoviewer/?mgi=${geneId}" target="_blank">3D
+                                    Viewer</a>
                                 </li>
                                 <li>
-                                    Adult and Embryo Phenotype Data: <a
-                                        href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                                    All adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#phenotypesTab"
+                                                                        target="_blank">Table</a>
                                 </li>
                             </ul>
 
@@ -750,12 +757,11 @@
                 <div class="col-12">
                     <c:set var="geneId" value="MGI:2151064"></c:set>
                     <h2 class="title" id="${geneId}">
-                        <t:formatAllele>Strn3<tm1b (KOMP)Wtsi/J>
-                        </t:formatAllele>
+                        <t:formatAllele>Strn3<tm1b (KOMP)Wtsi/J></t:formatAllele>
                     </h2>
 
                     <div class="row">
-<div class="col-8">
+                        <div class="col-8">
                             <p>
                                 Striatins act as both calcium-dependent signaling proteins and scaffolding
                                 proteins, linking calcium-sensing signaling events with cellular action [1].
@@ -781,26 +787,28 @@
 
                             <ul>
                                 <li>
-                                    Viability: <a
-                                        href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5468974&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=JAX_001&phenotyping_center=JAX"
-                                        target="_blank">Complete preweaning lethality</a>
+                                    Viability:
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_VIA_001_001"
+                                       target="_blank">Adult Homozygous - Lethal</a>,
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_EVM_001_001"
+                                       target="_blank">E12.5 Homozygous - Viable</a>,
                                 </li>
                                 <li>
                                     Embryo LacZ Expression: <a
-                                        href="${cmsBaseUrl}/phenoview/?gid=1193-61-7&qeid=IMPC_ELZ_064_001">Images</a>
+                                        href="${baseUrl}/imageComparator?acc=${geneId}&anatomy_term=%22TS20%20embryo%20or%20Unassigned%22&parameter_stable_id=IMPC_ELZ_064_001"
+                                        target="_blank">Images</a>
                                 </li>
                                 <li>
-                                    Embryo Gross Morphology: <a
-                                        href="${cmsBaseUrl}/phenoview/?gid=1193-61-7&qeid=IMPC_GEO_050_001">E14.5-E15.5
-                                    images</a>
+                                    Gross Morphology:
+                                    <a href="${baseUrl}/imageComparator?&parameter_stable_id=IMPC_GEO_050_001&acc=${geneId}"
+                                       target="_blank">E15.5 Images</a>
+                                <li>
+                                    3-D Imaging: <a href="${cmsBaseUrl}/embryoviewer/?mgi=${geneId}" target="_blank">3D
+                                    Viewer</a>
                                 </li>
                                 <li>
-                                    3-D Imaging: <a
-                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=MGI:2151064&pid=203">Images</a>
-                                </li>
-                                <li>
-                                    Adult and Embryo Phenotype Data: <a
-                                        href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                                    All adult and embryo phenotypes: <a
+                                        href="${baseUrl}/genes/${geneId}#phenotypesTab" target="_blank">Table</a>
                                 </li>
                             </ul>
 
@@ -819,12 +827,11 @@
                 <div class="col-12">
                     <c:set var="geneId" value="MGI:104606"></c:set>
                     <h2 class="title" id="${geneId}">
-                        <t:formatAllele>Rab34<tm1b (EUCOMM)Hmgu/J>
-                        </t:formatAllele>
+                        <t:formatAllele>Rab34<tm1b (EUCOMM)Hmgu/J></t:formatAllele>
                     </h2>
 
                     <div class="row">
-<div class="col-8">
+                        <div class="col-8">
                             <p>
                                 Rab34 is a member of the RAS oncogene family, which are small GTPases
                                 involved in intracellular vesicle transport. Rab34 is known to be Golgi-bound,
@@ -843,29 +850,35 @@
 
                             <ul>
                                 <li>
-                                    Viability: <a
-                                        href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5520180&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=JAX_001&phenotyping_center=JAX"
-                                        target="_blank">Complete preweaning lethality</a>
+                                    Viability:
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_VIA_001_001"
+                                       target="_blank">Adult Homozygous - Lethal</a>,
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_EVO_001_001"
+                                       target="_blank">E15.5 Homozygous - Viable</a>
                                 </li>
                                 <li>
-                                    Embryo LacZ Expression: NA
+                                    Embryo LacZ Expression: <a
+                                        href="${baseUrl}/imageComparator?acc=${geneId}&anatomy_term=%22TS20%20embryo%20or%20Unassigned%22&parameter_stable_id=IMPC_ELZ_064_001"
+                                        target="_blank">Images</a>
                                 </li>
                                 <li>
-                                    Embryo Gross Morphology: <a
-                                        href="${cmsBaseUrl}/phenoview/?gid=3317-61-7&qeid=IMPC_GEM_049_001">E12.5</a>,
-                                    <a href="${cmsBaseUrl}/phenoview/?gid=3317-61-7&qeid=IMPC_GEO_050_001">E14.5-E15.5</a>,
-                                    <a href="${cmsBaseUrl}/phenoview/?gid=3317-61-7&qeid=IMPC_GEP_064_001">E18.5</a>
-                                    images
+                                    Gross Morphology:
+                                    <a href="${baseUrl}/imageComparator?&parameter_stable_id=IMPC_GEP_064_001&acc=${geneId}"
+                                       target="_blank">E18.5 Images</a>,
+                                    <a href="${baseUrl}/imageComparator?&parameter_stable_id=IMPC_GEO_050_001&acc=${geneId}"
+                                       target="_blank">E15.5 Images</a>,
+                                    <a href="${baseUrl}/imageComparator?&parameter_stable_id=IMPC_GEM_049_001&acc=${geneId}"
+                                       target="_blank">E12.5 Images</a>
                                 </li>
                                 <li>
-                                    3-D Imaging: NA
+                                    3-D Imaging: <a href="${cmsBaseUrl}/embryoviewer/?mgi=${geneId}" target="_blank">3D
+                                    Viewer</a>
                                 </li>
                                 <li>
-                                    Adult and Embryo Phenotype Data: <a
-                                        href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                                    All adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#phenotypesTab"
+                                                                        target="_blank">Table</a>
                                 </li>
                             </ul>
-
                         </div>
                         <div class="col-4">
                             <img class="w-100" alt="Rab34 null embryo" title="Fig. 1"
@@ -883,12 +896,11 @@
                     <c:set var="geneId" value="MGI:103226"></c:set>
                     <h2 class="title" id="${geneId}">
                         <t:formatAllele>Cox7c
-                        <tm1b (KOMP)Mbp>
-                            </t:formatAllele>
+                        <tm1b (KOMP)Mbp></t:formatAllele>
                     </h2>
 
                     <div class="row">
-<div class="col-8">
+                        <div class="col-8">
                             <p>
                                 Cytochrome c oxidase subunit VIIc (Cox7c) is a nuclear-encoded regulatory
                                 component of cytochrome c oxidase. Homozygous mutants show complete
@@ -902,33 +914,34 @@
 
                             <ul>
                                 <li>
-                                    Viability: <a
-                                        href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5463977&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=JAX_001&phenotyping_center=JAX"
-                                        target="_blank">Complete preweaning lethality</a>
+                                    Viability:
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_VIA_001_001"
+                                       target="_blank">Adult Homozygous - Lethal</a>
                                 </li>
                                 <li>
-                                    Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#tabs-4">data</a>,
-                                    <a href="${cmsBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_ELZ_064_001">images</a>
+                                    Embryo LacZ Expression: <a
+                                        href="${baseUrl}/imageComparator?acc=${geneId}&anatomy_term=%22TS20%20embryo%20or%20Unassigned%22&parameter_stable_id=IMPC_ELZ_064_001"
+                                        target="_blank">Images</a>
                                 </li>
                                 <li>
-                                    Placental Histopathology: <a
-                                        href="${cmsBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GPM_001_001,IMPC_GPM_002_001,IMPC_GPM_004_001,IMPC_GPM_003_001,IMPC_GPM_005_001">E12.5</a>,
-                                    <a href="${cmsBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GPO_006_001,IMPC_GPO_001_001,IMPC_GPO_002_001,IMPC_GPO_004_001,IMPC_GPO_003_001">E14.5</a>
+                                    Gross Morphology:
+                                    <a
+                                            href="${baseUrl}/imageComparator?&parameter_stable_id=IMPC_GEP_064_001&acc=${geneId}"
+                                            target="_blank">E18.5 Images</a>,
+                                    <a
+                                            href="${baseUrl}/imageComparator?&parameter_stable_id=IMPC_GEO_050_001&acc=${geneId}"
+                                            target="_blank">E15.5 Images</a>,
+                                    <a
+                                            href="${baseUrl}/imageComparator?&parameter_stable_id=IMPC_GEM_049_001&acc=${geneId}"
+                                            target="_blank">E12.5 Images</a>
                                 </li>
                                 <li>
-                                    Embryo Gross Morphology: <a
-                                        href="${cmsBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GEM_049_001">E12.5</a>,
-                                    <a href="${cmsBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GEO_050_001">E14.5-E15.5</a>,
-                                    <a href="${cmsBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_GEP_064_001">E18.5</a>
-                                    images
+                                    3-D Imaging: <a href="${cmsBaseUrl}/embryoviewer/?mgi=${geneId}" target="_blank">3D
+                                    Viewer</a>
                                 </li>
                                 <li>
-                                    3-D Imaging: <a
-                                        href="${cmsBaseUrl}/phenoview/?gid=801-61-7&qeid=IMPC_EMO_001_001">Images</a>
-                                </li>
-                                <li>
-                                    Adult and Embryo Phenotype Data: <a
-                                        href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                                    All adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#phenotypesTab"
+                                                                        target="_blank">Table</a>
                                 </li>
                             </ul>
 
@@ -946,12 +959,11 @@
                 <div class="col-12">
                     <c:set var="geneId" value="MGI:1920939"></c:set>
                     <h2 class="title" id="${geneId}">
-                        <t:formatAllele>Bloc1s2<tm1.1(KOMP)Mbp>
-                        </t:formatAllele>
+                        <t:formatAllele>Bloc1s2<tm1.1(KOMP)Mbp></t:formatAllele>
                     </h2>
 
                     <div class="row">
-<div class="col-8">
+                        <div class="col-8">
                             <p>
                                 Biogenesis of lysosomal organelles complex 1, subunit 2 is a component of the
                                 BLOC-1 complex, which functions in the formation of lysosome-related
@@ -971,25 +983,25 @@
 
                             <ul>
                                 <li>
-                                    Viability: <a
-                                        href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5490495&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=JAX_001&phenotyping_center=JAX"
-                                        target="_blank">Complete preweaning lethality</a>
+                                    Viability:
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_VIA_001_001"
+                                       target="_blank">Adult Homozygous - Lethal</a>
                                 </li>
                                 <li>
-                                    Embryo LacZ Expression: <a href="${baseUrl}/genes/${geneId}#tabs-4">Data</a>
+                                    Embryo LacZ Expression: No expression
                                 </li>
                                 <li>
-                                    Embryo Gross Morphology: <a
-                                        href="${cmsBaseUrl}/phenoview/?gid=3325-61-7&qeid=IMPC_GEM_049_001">E12.5</a>
-                                    images
+                                    Gross Morphology:
+                                    <a href="${baseUrl}/imageComparator?&parameter_stable_id=IMPC_GEM_049_001&acc=${geneId}"
+                                       target="_blank">E12.5 Images</a>
                                 </li>
                                 <li>
-                                    3-D Imaging: <a
-                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}&pid=203">Images</a>
+                                    3-D Imaging: <a href="${cmsBaseUrl}/embryoviewer/?mgi=${geneId}" target="_blank">3D
+                                    Viewer</a>
                                 </li>
                                 <li>
-                                    Adult and Embryo Phenotype Data: <a
-                                        href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                                    All adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#phenotypesTab"
+                                                                        target="_blank">Table</a>
                                 </li>
                             </ul>
 
@@ -1013,7 +1025,7 @@
                     </h2>
 
                     <div class="row">
-<div class="col-8">
+                        <div class="col-8">
                             <p> Gfpt1 encodes glutamine:fructose-6-phosphate amidotransferase 1, which catalyzes
                                 the transfer of an amino group from
                                 glutamine onto fructose-6-phosphate. This is the first and rate limiting enzyme
@@ -1025,48 +1037,38 @@
                                 at E9.5 illustrated developmental delay, craniofacial abnormalities, abnormal
                                 allantois development, failure to complete turning and abnormal heart looping.
                             </p>
-
                             <p>Phenotype data links</p>
-
                             <ul>
                                 <li>
-                                    Viability: <a
-                                        href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5637207&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"
-                                        target="_blank">Complete preweaning lethality by E12.5 </a>
+                                    Viability:
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_VIA_001_001"
+                                       target="_blank">Adult Homozygous - Lethal</a>,
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_EVM_001_001"
+                                       target="_blank">E12.5 Homozygous - Lethal</a>
                                 </li>
                                 <li>
-                                    Embryonic Viability: <a
-                                        href="${cmsBaseUrl}/phenoview/?gid=2800-35-4&qeid=IMPC_EVL_001_001">Homozygous
-                                    viable at E9.5</a>
+                                    Embryo LacZ Expression: <a
+                                        href="${baseUrl}/imageComparator?acc=${geneId}&anatomy_term=%22TS20%20embryo%20or%20Unassigned%22&parameter_stable_id=IMPC_ELZ_064_001"
+                                        target="_blank">Images</a>
                                 </li>
                                 <li>
-                                    Embryo LacZ Expression: NA
+                                    3-D Imaging: <a href="${cmsBaseUrl}/embryoviewer/?mgi=${geneId}" target="_blank">3D
+                                    Viewer</a>
                                 </li>
                                 <li>
-                                    Embryo Gross Morphology: NA
-                                </li>
-                                <li>
-                                    3-D Imaging: <a
-                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}&pid=202&h=311&s=on&c=on&a=on&o=horizontal&zoom=0&sb=600&wn=FGF8-TM1B-IC/15.3i_5864455&wx=63&wy=54&wz=153&wl=0&wu=255&mn=GFPT1-PL-TM1B-IC/18.2e_5761935&mx=63&my=54&mz=153&ml=0&mu=255">Images</a>
-                                </li>
-                                <li>
-                                    Adult and Embryo Phenotype Data: <a
-                                        href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                                    All adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#phenotypesTab"
+                                                                        target="_blank">Table</a>
                                 </li>
                             </ul>
-
                         </div>
                         <div class="col-4">
                             <img class="w-100" alt="Developmental delay and failure to turn in E9.5 Gfpt1-null mutants."
                                  src="${baseUrl}/img/vignettes/gfpt1.png"> Developmental delay and failure to
                             turn in E9.5 Gfpt1-null mutants. Morphology captured by OPT.
                         </div>
-
                     </div>
                 </div>
             </div>
-
-
             <hr/>
             <div class="row mb-5">
                 <div class="col-12">
@@ -1075,9 +1077,8 @@
                         <t:formatAllele>Atg3<tm1b(EUCOMM)Hmgu>
                         </t:formatAllele>
                     </h2>
-
                     <div class="row">
-<div class="col-8">
+                        <div class="col-8">
                             <p> Atg3 is an E2-like protein-conjugating enzyme involved in autophagy broadly
                                 expressed during development and in the adult.
                             </p>
@@ -1094,29 +1095,26 @@
 
                             <ul>
                                 <li>
-                                    Viability: <a
-                                        href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548550&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"
-                                        target="_blank">Complete preweaning lethality </a>
-                                </li>
-                                <li>
-                                    Embryonic Viability: <a
-                                        href="${cmsBaseUrl}/phenoview/?gid=754-35-4&qeid=IMPC_EVO_001_001">Homozygous
-                                    viable at E14.5</a>
+                                    Viability:
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_VIA_001_001"
+                                       target="_blank">Adult Homozygous - Lethal</a>,
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_EVM_001_001"
+                                       target="_blank">E12.5 Homozygous - Viable</a>,
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_EVO_001_001"
+                                       target="_blank">E14.5 Homozygous - Viable</a>
                                 </li>
                                 <li>
                                     Embryo LacZ Expression: <a
-                                        href="${baseUrl}/genes/${geneId}#tabs-4">Table</a>
+                                        href="${baseUrl}/imageComparator?acc=${geneId}&anatomy_term=%22TS20%20embryo%20or%20Unassigned%22&parameter_stable_id=IMPC_ELZ_064_001"
+                                        target="_blank">Images</a>
                                 </li>
                                 <li>
-                                    Embryo Gross Morphology: NA
+                                    3-D Imaging: <a href="${cmsBaseUrl}/embryoviewer/?mgi=${geneId}" target="_blank">3D
+                                    Viewer</a>
                                 </li>
                                 <li>
-                                    3-D Imaging: <a
-                                        href="${cmsBaseUrl}EmbryoViewerWebApp/?gene_symbol=atg3&pid=203&h=589&s=off&c=off&a=on&o=vertical&zoom=0&sb=600&wn=atg3-pl-tm1b-ic/18.2h_5548936&wx=97&wy=123&wz=172&wl=0&wu=183&mn=atg3-pl-tm1b-ic/18.2d_5548932&mx=81&my=107&mz=145&ml=0&mu=224">Images</a>
-                                </li>
-                                <li>
-                                    Adult and Embryo Phenotype Data: <a
-                                        href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                                    All adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#phenotypesTab"
+                                                                        target="_blank">Table</a>
                                 </li>
                             </ul>
 
@@ -1141,7 +1139,7 @@
                     </h2>
 
                     <div class="row">
-<div class="col-8">
+                        <div class="col-8">
                             <p>Kdm8 encodes for lysine (K)-specific demethylase 8, which is predicted to have
                                 dual functions as a histone demethylase and as a protein hydroxylase.
                                 The gene is formerly known as Jmjd5.
@@ -1161,31 +1159,22 @@
 
                             <ul>
                                 <li>
-                                    Viability: <a
-                                        href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548680&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"
-                                        target="_blank">Complete preweaning lethality for both tm1a and tm1b
-                                    allele </a>
-                                </li>
-                                <li>
-                                    Embryonic Viability: <a
-                                        href="${cmsBaseUrl}/phenoview/?gid=376-35-4&qeid=IMPC_EVL_001_001"><t:formatAllele>Kdm8<tm1b/tm1b></t:formatAllele>
-                                    are homozygous viable up to E9.5 </a>
+                                    Viability:
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_VIA_001_001"
+                                       target="_blank">Adult Homozygous - Lethal</a>
                                 </li>
                                 <li>
                                     Embryo LacZ Expression: <a
-                                        href="${cmsBaseUrl}/phenoview/?gid=376-35-4&qeid=IMPC_ELZ_064_001">Table</a>,
-                                    <a href="${cmsBaseUrl}/phenoview/?gid=376-35-4&qeid=IMPC_ELZ_064_001">images</a>
+                                        href="${baseUrl}/imageComparator?acc=${geneId}&anatomy_term=%22TS20%20embryo%20or%20Unassigned%22&parameter_stable_id=IMPC_ELZ_064_001"
+                                        target="_blank">Images</a>
                                 </li>
                                 <li>
-                                    Embryo Gross Morphology: NA
+                                    3-D Imaging: <a href="${cmsBaseUrl}/embryoviewer/?mgi=${geneId}" target="_blank">3D
+                                    Viewer</a>
                                 </li>
                                 <li>
-                                    3-D Imaging: <a
-                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?gene_symbol=Kdm8&pid=202&h=378&s=off&c=on&a=off&o=vertical&zoom=0&sb=600&wn=GFPT1-PL-TM1B-IC/18.5f_5813512&wx=103&wy=127&wz=143&wl=0&wu=148&mn=JMJD5-TM1B-IC/21.1a_5317800&mx=41&my=30&mz=85&ml=0&mu=185">Images</a>
-                                </li>
-                                <li>
-                                    Adult and Embryo Phenotype Data: <a
-                                        href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                                    All adult and embryo phenotypes: <a
+                                        href="${baseUrl}/genes/${geneId}#phenotypesTab" target="_blank">Table</a>
                                 </li>
                             </ul>
 
@@ -1207,9 +1196,8 @@
                     <h2 class="title" id="${geneId}">
                         <t:formatAllele>Slc39a8<tm1b(EUCOMM)Wtsi></t:formatAllele>
                     </h2>
-
                     <div class="row">
-<div class="col-8">
+                        <div class="col-8">
                             <p>Solute carrier family 39 (metal ion transporter), member 8 encodes a protein that
                                 functions as a transporter for several divalent cations.
                                 Mutants show complete preweaning lethality with no homozygous pups observed, but
@@ -1219,54 +1207,39 @@
                                 It also revealed mutants lacked a sternum and had a small chest cavity and
                                 liver.
                             </p>
-
                             <p>Phenotype data links</p>
-
                             <ul>
                                 <li>
-                                    Viability: <a
-                                        href="${baseUrl}/charts?accession=${geneId}&allele_accession_id=MGI:5548544&zygosity=homozygote&parameter_stable_id=IMPC_VIA_001_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell"
-                                        target="_blank">Complete preweaning lethality</a>
-                                </li>
-                                <li>
-                                    Embryonic Viability: Homozygous viable at <a
-                                        href="${cmsBaseUrl}/phenoview/?gid=409-35-4&qeid=IMPC_EVO_001_001">E14.5</a>
-                                    and
-                                    <a href="${cmsBaseUrl}/phenoview/?gid=409-35-4&qeid=IMPC_EVP_001_001">E18.5</a>
+                                    Viability:
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_VIA_001_001"
+                                       target="_blank">Adult Homozygous - Lethal</a>,
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_EVM_001_001"
+                                       target="_blank">E12.5 Homozygous - Viable</a>
                                 </li>
                                 <li>
                                     Embryo LacZ Expression: <a
-                                        href="${cmsBaseUrl}/phenoview/?gid=409-35-4&qeid=IMPC_ELZ_064_001">Table</a>,
-                                    <a href="${cmsBaseUrl}/phenoview/?gid=409-35-4&qeid=IMPC_ELZ_064_001">images</a>
+                                        href="${baseUrl}/imageComparator?acc=${geneId}&anatomy_term=%22TS20%20embryo%20or%20Unassigned%22&parameter_stable_id=IMPC_ELZ_064_001"
+                                        target="_blank">Images</a>
                                 </li>
                                 <li>
-                                    Embryo Gross Morphology: NA
+                                    3-D Imaging: <a href="${cmsBaseUrl}/embryoviewer/?mgi=${geneId}" target="_blank">3D
+                                    Viewer</a>
                                 </li>
                                 <li>
-                                    3-D Imaging: <a
-                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?gene_symbol=Slc39a8&pid=203&h=435&s=off&c=on&a=on&o=vertical&zoom=0&sb=600&wn=klf7-tm1b-ic/16.5f_5553719&wx=84&wy=89&wz=149&wl=0&wu=183&mn=slc39a8-tm1b-ic/16.2e_5528113&mx=75&my=90&mz=120&ml=0&mu=225">Images</a>
-                                </li>
-                                <li>
-                                    Adult and Embryo Phenotype Data: <a
-                                        href="${baseUrl}/genes/${geneId}#section-associations">Table</a>
+                                    All adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#phenotypesTab"
+                                                                        target="_blank">Table</a>
                                 </li>
                             </ul>
                         </div>
-
                         <div class="col-4">
                             <img class="w-100"
                                  alt="Slc39a8-null mutants are significantly smaller than WT littermates and have smaller livers."
                                  src="${baseUrl}/img/vignettes/Slc39a8.png"> <br/> Slc39a8-null mutants are
                             significantly smaller than WT littermates and have smaller livers.
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
-
-
             <hr/>
             <div class="row mb-5">
                 <div class="col-12">
@@ -1274,9 +1247,8 @@
                     <h2 class="title" id="${geneId}">
                         <t:formatAllele>Gyg<tm1b(KOMP)Wtsi></t:formatAllele>
                     </h2>
-
                     <div class="row">
-<div class="col-8">
+                        <div class="col-8">
                             <p>Glycogenin is an enzyme that converts glucose to glycogen. Glycogenin catalyzes
                                 UDP-alpha-D-glucose + glycogenin &rlhar; UDP + alpha-D-glucosylglycogenin. The
                                 enzyme is a homodimer of 37 kDa subunits.
@@ -1289,34 +1261,30 @@
                                 thymus and abnormal nervous system morphology. This is the first reported Gyg
                                 mouse mutant.
                             </p>
-
                             <p>Phenotype data links</p>
-
                             <ul>
                                 <li>
-                                    Viability: <a
-                                        href="${cmsBaseUrl}/phenoview/?gid=3385-18-1&qeid=IMPC_EVP_001_001"
-                                        target="_blank">Embryo viability E18.5</a>
+                                    Viability:
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_VIA_001_001"
+                                       target="_blank">Adult Homozygous - Lethal</a>,
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_EVP_001_001"
+                                       target="_blank">E18.5 Homozygous - Viable</a>
                                 </li>
-
                                 <li>
                                     Embryo LacZ Expression: <a
-                                        href="${cmsBaseUrl}/phenoview/?gid=3385-18-1&qeid=IMPC_ELZ_064_001">Images</a>
-
-                                </li>
-
-                                <li>
-                                    3-D Imaging: <a
-                                        href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=MGI:1351614">Images</a>
+                                        href="${baseUrl}/imageComparator?acc=${geneId}&anatomy_term=%22TS20%20embryo%20or%20Unassigned%22&parameter_stable_id=IMPC_ELZ_064_001"
+                                        target="_blank">Images</a>
                                 </li>
                                 <li>
-                                    Adult het phenotype data: <a
-                                        href="${baseUrl}/charts?accession=MGI:1351614&allele_accession_id=MGI:5548475&zygosity=heterozygote&parameter_stable_id=IMPC_ECH_009_001&pipeline_stable_id=BCM_001&phenotyping_center=BCM">Thick
-                                    ventricular wall</a>
+                                    3-D Imaging: <a href="${cmsBaseUrl}/embryoviewer/?mgi=${geneId}" target="_blank">3D
+                                    Viewer</a>
+                                </li>
+                                <li>
+                                    All adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#phenotypesTab"
+                                                                        target="_blank">Table</a>
                                 </li>
                             </ul>
                         </div>
-
                         <div class="col-4">
                             <img class="w-100"
                                  alt="Single images from E18.5 microCT volumes showing spinal cord abnormalities (arrow), enlarged thymus (asterisk) and thickened myocardium (arrowhead) in homozygous null embryos compared to wild-type littermates."
@@ -1325,14 +1293,9 @@
                             (asterisk) and thickened myocardium (arrowhead) in homozygous null embryos compared
                             to wild-type littermates.
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
-
-
             <hr/>
             <div class="row mb-5">
                 <div class="col-12">
@@ -1340,52 +1303,45 @@
                     <h2 class="title" id="${geneId}">
                         <t:formatAllele>Tmem132a<tm1b(KOMP)Wtsi></t:formatAllele>
                     </h2>
-
                     <div class="row">
-<div class="col-8">
+                        <div class="col-8">
                             <p>Transmembrane protein132a is transmembrane protein of unknown function.
                                 Homozygous null mutants were viable at normal proportions at E15.5 and E18.5 but
                                 showed obvious and severe defects that were readibly visible by eye. Embryos had
                                 abnormal limb morphology with syndactyly, spina bifida, heart abnormalities.
                                 Some mutants were smaller than littermates.
-
-
                             </p>
-
                             <p>Phenotype data links</p>
-
                             <ul>
                                 <li>
-                                    Viability: <a
-                                        href="${cmsBaseUrl}/phenoview/?gid=263-18-1&qeid=IMPC_EVP_001_001"
-                                        target="_blank">Embryo viability E18.5</a>
+                                    Viability:
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_VIA_001_001"
+                                       target="_blank">Adult Homozygous - Lethal</a>,
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_EVM_001_001"
+                                       target="_blank">E12.5 Homozygous - Viable</a>,
+                                    <a href="${baseUrl}/charts?accession=${geneId}&parameter_stable_id=IMPC_EVP_001_001"
+                                       target="_blank">E18.5 Homozygous - Viable</a>
                                 </li>
-
                                 <li>
                                     Embryo LacZ Expression: <a
-                                        href="${cmsBaseUrl}/phenoview/?gid=263-18-1&qeid=IMPC_ELZ_064_001">Images</a>
-
-                                </li>
-
-                                <li>
-                                    3-D Imaging: <a href="${cmsBaseUrl}/EmbryoViewerWebApp/?mgiGeneAccessionId=${geneId}">Images</a>
+                                        href="${baseUrl}/imageComparator?acc=${geneId}&anatomy_term=%22TS20%20embryo%20or%20Unassigned%22&parameter_stable_id=IMPC_ELZ_064_001"
+                                        target="_blank">Images</a>
                                 </li>
                                 <li>
-                                    Adult het phenotype data: <a
-                                        href="${baseUrl}/charts?accession=MGI:2147810&allele_accession_id=MGI:5548753&zygosity=heterozygote&parameter_stable_id=IMPC_DXA_010_001&pipeline_stable_id=BCM_001&phenotyping_center=BCM">Abnormal
-                                    bone structure</a>,
-                                    <a href="${baseUrl}/charts?accession=MGI:2147810&allele_accession_id=MGI:5548753&zygosity=heterozygote&parameter_stable_id=IMPC_DXA_009_001&pipeline_stable_id=BCM_001&phenotyping_center=BCM">Increased
-                                        total body fat</a>,
-                                    <a href="${baseUrl}/charts?accession=MGI:2147810&allele_accession_id=MGI:5548753&zygosity=heterozygote&parameter_stable_id=IMPC_DXA_005_001&pipeline_stable_id=BCM_001&phenotyping_center=BCM">Decreased
-                                        bone mineral content</a>
+                                    3-D Imaging: <a href="${cmsBaseUrl}/embryoviewer/?mgi=${geneId}" target="_blank">3D
+                                    Viewer</a>
+                                </li>
+                                <li>
+                                    All adult and embryo phenotypes: <a href="${baseUrl}/genes/${geneId}#phenotypesTab"
+                                                                        target="_blank">Table</a>
                                 </li>
                                 <li>
                                     Sagittal images from microCT: <a href="#tmem132aMri" class="various"
-                                                                     id="tmem132aTrigger">Images</a>
+                                                                     id="tmem132aTrigger">Centre provided image</a>
                                 </li>
                                 <li>
                                     Axial images from microCT <a href="#tmem132amCT" class="various"
-                                                                 id="tmem132amCTTrigger">Images</a>
+                                                                 id="tmem132amCTTrigger">Centre provided image</a>
                                 </li>
                             </ul>
                         </div>
@@ -1419,7 +1375,6 @@
                 </div>
             </div>
         </div>
-
         </div>
         </div>
 
@@ -1437,12 +1392,9 @@
             $("#rsph9MriTrigger").fancybox();
             $("#tmem132aTrigger").fancybox();
             $("#tmem132amCTTrigger").fancybox();
-
-
         </script>
 
 
     </jsp:body>
 
 </t:genericpage-landing>
-

@@ -20,17 +20,17 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.constants.ParameterConstants;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
+import org.mousephenotype.cda.dto.LifeStage;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
-import org.mousephenotype.cda.solr.service.StatisticalResultService;
-import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.utilities.PercentChangeStringParser;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
@@ -86,6 +86,8 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
             @NotNull SolrClient genotypePhenotypeCore) {
         super(komp2DataSource, ontologyTermRepository);
         this.genotypePhenotypeCore = genotypePhenotypeCore;
+
+
     }
 
 
@@ -144,7 +146,7 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 "  s.sex AS sex, s.zygosity AS zygosity, p.name AS project_name, p.fullname AS project_fullname, s.mp_acc AS ontology_term_id, ot.name AS ontology_term_name, " +
                 "  CASE WHEN s.p_value IS NOT NULL THEN s.p_value WHEN s.sex='female' THEN sur.gender_female_ko_pvalue WHEN s.sex='male' THEN sur.gender_male_ko_pvalue END AS p_value, " +
                 "  s.effect_size AS effect_size, " +
-                "  s.colony_id, db.name AS resource_fullname, db.short_name AS resource_name " +
+                "  s.colony_id, db.name AS resource_fullname, db.short_name AS resource_name, s.life_stage, s.life_stage_acc " +
                 "FROM phenotype_call_summary s " +
                 "  LEFT OUTER JOIN stat_result_phenotype_call_summary srpcs ON srpcs.phenotype_call_summary_id = s.id " +
                 "  LEFT OUTER JOIN stats_unidimensional_results sur ON sur.id = srpcs.unidimensional_result_id " +
@@ -184,10 +186,10 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 if (!r.wasNull()) {
 
                     // Default female, override if male
-                    Double percentageChange = StatisticalResultService.getFemalePercentageChange(percentageChangeDb);
+                    Double percentageChange = PercentChangeStringParser.getFemalePercentageChange(percentageChangeDb);
 
                     if (doc.getSex().equals(SexType.male.getName())) {
-                        percentageChange = StatisticalResultService.getMalePercentageChange(percentageChangeDb);
+                        percentageChange = PercentChangeStringParser.getMalePercentageChange(percentageChangeDb);
                     }
 
                     if (percentageChange != null) {
@@ -253,12 +255,9 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                 doc.setParameterName(parameterMap.get(r.getLong("parameter_id")).getName());
                 doc.setParameterStableId(parameterMap.get(r.getLong("parameter_id")).getStableId());
 
+                doc.setLifeStageName(r.getString("life_stage"));
+                doc.setLifeStageAcc(r.getString("life_stage_acc"));
 
-                BasicBean stage = getDevelopmentalStage(pipelineStableId, procedureStableId, colonyId);
-                if (stage != null) {
-                    doc.setLifeStageAcc(stage.getId());
-                    doc.setLifeStageName(stage.getName());
-                }
 
                 // MP association
                 if (r.getString("ontology_term_id").startsWith("MP:")) {
@@ -300,12 +299,11 @@ public class GenotypePhenotypeIndexer extends AbstractIndexer {
                     }
 
 
-                    if (doc.getLifeStageAcc().equalsIgnoreCase(POSTPARTUM_STAGE)) {
+                    if (doc.getLifeStageName().equalsIgnoreCase(LifeStage.EARLY_ADULT.getName())) {
 
                         getMaTermsForMp(doc, mpId, true);
 
                         // Also check mappings up the tree, as a leaf term might not have a mapping, but the parents might.
-                        Set<String> anatomyIdsForAncestors = new HashSet<>();
                         for (String mpAncestorId : mpParser.getOntologyTerm(mpId).getIntermediateIds()) {
                             getMaTermsForMp(doc, mpAncestorId, false);
                         }

@@ -1,20 +1,26 @@
+/*******************************************************************************
+ * Copyright 2015 EMBL - European Bioinformatics Institute
+ *
+ * Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific
+ * language governing permissions and limitations under the
+ * License.
+ *******************************************************************************/
+
 package org.mousephenotype.cda.owl;
 
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
-import org.semanticweb.elk.util.collections.ArrayHashSet;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 import javax.sql.DataSource;
@@ -25,23 +31,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-/**
- * Created by ilinca on 29/03/2017.
- */
-/**
- * pdsimplify: This class refers to old Phenodigm objects or db
- */
+
 public class OntologyParserFactory {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private String owlpath;
     private DataSource komp2DataSource;
-
-    @Autowired
-    @Qualifier("phenodigmCore")
-    SolrClient phenodigmCore;
-
 
     public OntologyParserFactory(DataSource komp2DataSource, String owlpath){
 
@@ -65,14 +61,9 @@ public class OntologyParserFactory {
             "MA:0000010", "MA:0000012", "MA:0000014", "MA:0000016", "MA:0000017", "MA:0000325", "MA:0000326", "MA:0000327",
             "MA:0002411", "MA:0002418", "MA:0002431", "MA:0002711", "MA:0002887", "MA:0002405"));
 
-    public static final List<String> TREE_TOP_LEVEL_MA_TERMS = new ArrayList<>(Arrays.asList("MA:0002433", "MA:0002450", "MA:0000003",
-            "MA:0003001", "MA:0003002"));
-
     public static final Set<String> TOP_LEVEL_EMAPA_TERMS = new HashSet<>(Arrays.asList("EMAPA:16104", "EMAPA:16192", "EMAPA:16246",
             "EMAPA:16405", "EMAPA:16469", "EMAPA:16727", "EMAPA:16748", "EMAPA:16840", "EMAPA:17524", "EMAPA:31858"));
 
-    public static final List<String> TREE_TOP_LEVEL_EMAPA_TERMS = new ArrayList<>(Arrays.asList("EMAPA:16039", "EMAPA:36040", "EMAPA:36037",
-            "EMAPA:36031", "EMAPA:16042", "EMAPA:35949", "EMAPA:16103", "EMAPA:35868"));
 
     public static final Set<String> TOP_LEVEL_HP_TERMS = new HashSet<>(Arrays.asList( "HP:0002086","HP:0045027","HP:0001871","HP:0001939","HP:0001574","HP:0001608",
             "HP:0001626","HP:0025354","HP:0001507","HP:0025142","HP:0001197","HP:0003549",
@@ -97,114 +88,12 @@ public class OntologyParserFactory {
         return new OntologyParser(owlpath + "/ma.owl", "MA", TOP_LEVEL_MA_TERMS, getMaWantedIds());
     }
 
-    public OntologyParser getHpParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
-        return new OntologyParser(owlpath + "/hp.owl", "HP", TOP_LEVEL_HP_TERMS, getHpWantedIds());
-    }
-
     public OntologyParser getEmapaParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
         return new OntologyParser(owlpath + "/emapa.owl", "EMAPA", TOP_LEVEL_EMAPA_TERMS, getEmapaWantedIds());
     }
 
     public OntologyParser getUberonParser() throws OWLOntologyCreationException, OWLOntologyStorageException, IOException, SQLException {
         return new OntologyParser(owlpath + "/uberon.owl", "UBERON", null, null);
-    }
-
-    public OntologyParser getMaParserWithTreeJson() throws OWLOntologyStorageException, IOException, SQLException, OWLOntologyCreationException, JSONException {
-
-        OntologyParser parser = getMaParser();
-        parser.fillJsonTreePath("MA:0002405", "/data/anatomy/", null, TREE_TOP_LEVEL_MA_TERMS, true); // postnatal mouse
-        return parser;
-    }
-
-    public OntologyParser getEmapaParserWithTreeJson() throws OWLOntologyStorageException, IOException, SQLException, OWLOntologyCreationException, JSONException {
-
-        OntologyParser parser = getEmapaParser();
-        parser.fillJsonTreePath("EMAPA:25765", "/data/anatomy/", null, TREE_TOP_LEVEL_EMAPA_TERMS, true); // mouse
-        return parser;
-    }
-
-    protected Set<String> getHpWantedIds() throws SQLException, OWLOntologyCreationException, OWLOntologyStorageException, IOException {
-
-        OntologyParser mpParser = getMpParser();
-        OntologyParser mpHpParser = getMpHpParser();
-
-        int hpCount = 0;
-
-        Set<String> hpWanted = new ArrayHashSet<>();
-
-        // first get the hp from chris mungals hybrid mp-hp ontology
-        // this is a mapping of hp to ALL mps
-        for (String wantedMpId : mpParser.getTermsInSlim()){
-            OntologyTermDTO mpDTO = mpHpParser.getOntologyTerm(wantedMpId);
-            if (mpDTO == null){
-                logger.warn(wantedMpId + " cannot be parsed by mHpParser");
-            }
-            else {
-                Set<OntologyTermDTO> hpDTOs = mpDTO.getEquivalentClasses();
-                for (OntologyTermDTO hp : hpDTOs) {
-                    String termId = hp.getAccessionId();
-                    if (termId.startsWith("HP:")) {
-                        hpCount++;
-                        hpWanted.add(termId);
-                    }
-                }
-            }
-        }
-        logger.info("Mp-Hp hybrid ontology has {} hps", hpWanted.size());
-
-        int seen =0;
-        // then get the hps from phenodigm: disease_hp
-//        String qry = "SELECT DISTINCT hp_id FROM disease_hp";  // all IMPC disease related hps only
-//
-//        try (Connection connection = phenodigm.getConnection();
-//             PreparedStatement p = connection.prepareStatement(qry)) {
-//
-//            ResultSet r = p.executeQuery();
-//            while (r.next()) {
-//                String hpId = r.getString("hp_id");
-//                if (hpId.startsWith("HP:")){ // just double check
-//                    if (hpWanted.contains(hpId)){
-//                        seen++;
-//                    }
-//                    else {
-//                        hpWanted.add(hpId);
-//                    }
-//                }
-//            }
-//        }
-
-        try {
-            SolrQuery q = new SolrQuery();
-
-            q.setQuery("type:disease")
-                    .setRows(9999999)
-                    .addField("disease_phenotypes");
-            SolrDocumentList docs = phenodigmCore.query(q).getResults();
-
-            for (SolrDocument doc : docs){
-                List<String> hpidTerms = (List<String>)doc.getFieldValue("disease_phenotypes");
-
-                for (String hpidTerm : hpidTerms){
-                    String[] vals = hpidTerm.split(" ");
-                    String hpTermId = vals[0];
-
-                    if (hpWanted.contains(hpTermId)){
-                        seen++;
-                    }
-                    else {
-                        System.out.println("Adding " + hpTermId);
-                        hpWanted.add(hpTermId);
-                    }
-                }
-            }
-        } catch (IOException | SolrServerException | HttpSolrClient.RemoteSolrException e) {
-            logger.error("\n\nERROR fetching HP id from phenodigm core\n\n", e);
-        }
-
-        logger.info("Mp-Hp hybrid ontology has {} hps overlapping with phenodigm", seen);
-        logger.info("Got total of {} wanted hps from Mp-Hp hybrid ontology and phenodigm disease_hp table", hpWanted.size());
-
-        return hpWanted;
     }
 
     protected Set<String> getMaWantedIds() throws SQLException, OWLOntologyCreationException, OWLOntologyStorageException, IOException {
@@ -235,16 +124,13 @@ public class OntologyParserFactory {
 
     }
 
-
-
-    protected Set<String> getEmapaWantedIds() throws SQLException, OWLOntologyCreationException, OWLOntologyStorageException, IOException {
+    protected Set<String> getEmapaWantedIds() throws SQLException, IOException {
 
         Set<String> wantedIds = new HashSet<>();
         Set<String> emapIds = new HashSet<>();
 
         // In IMPRESS we have only EMAP ids
         emapIds.addAll(getOntologyIds(14, komp2DataSource));
-
 
         // Add EMAP terms from image annotations
         PreparedStatement statement = komp2DataSource.getConnection().prepareStatement("SELECT DISTINCT(UPPER(ontology_acc)) as TERM_ID FROM phenotype_parameter_ontology_annotation ppoa WHERE ppoa.ontology_db_id=?");

@@ -22,7 +22,7 @@
 
 package uk.ac.ebi;
 
-import org.mousephenotype.cda.constants.Constants;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.solr.service.SolrIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,14 +41,11 @@ import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import uk.ac.ebi.phenotype.util.SolrUtilsWeb;
 import uk.ac.ebi.phenotype.web.util.DeploymentInterceptor;
+import uk.ac.ebi.phenotype.web.util.PerClientRateLimitInterceptor;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-/**
- * Created by ilinca on 01/03/2017.
- */
 
 @Configuration
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
@@ -69,9 +66,6 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
 
     @Value("${solr_url}")
     private String solrUrl;
-
-    @Value("${statistics_url}")
-    private String statisticsUrl;
 
     @Value("${base_url}")
     private String baseUrl;
@@ -94,6 +88,9 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
     @Value("${live_site}")
     private String liveSite;
 
+    @Value("${paBaseUrl}")
+    private String paBaseUrl;
+
 
     @Bean(name = "globalConfiguration")
     public Map<String, String> getGlobalConfig() {
@@ -108,7 +105,7 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
         map.put("pdfThumbnailUrl", Constants.PDF_THUMBNAIL_RELATIVE_URL);
         map.put("googleAnalytics", googleAnalytics);
         map.put("liveSite", liveSite);
-        map.put("statisticsUrl", statisticsUrl);
+        map.put("paBaseUrl", paBaseUrl);
         return map;
     }
 
@@ -117,7 +114,10 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+
         registry.addInterceptor(deploymentInterceptor);
+        registry.addInterceptor(new PerClientRateLimitInterceptor()).addPathPatterns("/genes/**");
+        registry.addInterceptor(new PerClientRateLimitInterceptor()).addPathPatterns("/charts/**");
     }
 
     @Override
@@ -150,13 +150,4 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
         return new SolrIndex();
     }
 
-//    @Bean
-//    public StatsClient statsClient() {
-//        return new StatsClient();
-//    }
-
-//    @Bean
-//    public String statisticsUrl() {
-//        return statisticsUrl;
-//    }
 }

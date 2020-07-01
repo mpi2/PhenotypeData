@@ -71,12 +71,13 @@ public class PhenotypedColonyLoader implements InitializingBean, Step {
             , "colonyName"                  // C - Colony Name
             , "esCellName"                  // D - Es Cell Name
             , "backgroundStrainName"        // E - Colony Background Strain Name
-            , "productionCentre"            // F - Production Centre        (IGNORED)
-            , "productionConsortium"        // G - Production Consortium
-            , "phenotypingCentre"           // H - Phenotyping Centre
-            , "phenotypingConsortium"       // I - Phenotyping Consortium
-            , "cohortProductionCentre"      // J - Cohort Production Centre
-            , "alleleSymbol"                // K - Allele Symbol
+            , "backgroundStrainAcc"         // F - Colony Background Strain MGI Accession ID
+            , "productionCentre"            // G - Production Centre        (IGNORED)
+            , "productionConsortium"        // H - Production Consortium
+            , "phenotypingCentre"           // I - Phenotyping Centre
+            , "phenotypingConsortium"       // J - Phenotyping Consortium
+            , "cohortProductionCentre"      // K - Cohort Production Centre
+            , "alleleSymbol"                // L - Allele Symbol
         };
 
     @Autowired
@@ -143,6 +144,7 @@ public class PhenotypedColonyLoader implements InitializingBean, Step {
             phenotypedColony.setEs_cell_name(fs.readString("esCellName"));
 
             phenotypedColony.setBackgroundStrain(fs.readString("backgroundStrainName"));
+            phenotypedColony.setBackgroundStrainAcc(fs.readString("backgroundStrainAcc"));
 
             Organisation phenotypingCentre = new Organisation();
 

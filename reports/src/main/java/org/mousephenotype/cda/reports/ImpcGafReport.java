@@ -52,7 +52,6 @@ public class ImpcGafReport extends AbstractReport {
     private GeneService              geneService;
     private GenotypePhenotypeService genotypePhenotypeService;
     private MetaInfoRepository       metaInfoRepository;
-    private ObservationService       observationService;
 
 
     @Inject
@@ -66,7 +65,6 @@ public class ImpcGafReport extends AbstractReport {
         this.geneService = geneService;
         this.genotypePhenotypeService = genotypePhenotypeService;
         this.metaInfoRepository = metaInfoRepository;
-        this.observationService = observationService;
     }
 
     //    public ImpcGafReport() {

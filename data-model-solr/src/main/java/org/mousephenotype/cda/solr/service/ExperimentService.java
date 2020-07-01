@@ -16,11 +16,11 @@
 package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.db.pojo.StatisticalResult;
 import org.mousephenotype.cda.enumerations.*;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.mousephenotype.cda.solr.stats.strategy.AllControlsStrategy;
 import org.mousephenotype.cda.solr.stats.strategy.ControlSelectionStrategy;
@@ -33,13 +33,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
 
 /**
- * Pulled in 2015/07/09
- * @author tudose
+ * Service class to collect interactions with the experiment datasource.
+ * The experiment datasource holds information about the experimental observations
  *
  */
 
@@ -56,8 +57,8 @@ public class ExperimentService{
     @Inject
     public ExperimentService(
             ObservationService observationService,
-            StatisticalResultService statisticalResultService,
-            GenotypePhenotypeService genotypePhenotypeService)
+            @Named("statistical-result-service") StatisticalResultService statisticalResultService,
+            @Named("genotype-phenotype-service") GenotypePhenotypeService genotypePhenotypeService)
     {
         this.observationService = observationService;
         this.statisticalResultService = statisticalResultService;
@@ -77,18 +78,15 @@ public class ExperimentService{
     	    }
 
     /**
+     * Get the experiment DTO for the supplied data
      *
-     * @param geneAccession
-     * @param sex
-     *            null for both sexes
-     * @param zygosities
-     *            null for any zygosity
-     * @param strain
-     *            null for any strain
+     * @param pipelineStableId the pipeline to get the experiment for
+     * @param parameterStableId the parameter to get the experiment for
+     * @param geneAccession the gene to get experiment for
+     * @param sex null for both sexes
+     * @param zygosities null for any zygosity
+     * @param strain null for any strain
      * @return list of experiment objects
-     * @throws SolrServerException, IOException
-     * @throws IOException
-     * @throws URISyntaxException
      */
 
     public List<ExperimentDTO> getExperimentDTO(String parameterStableId, String pipelineStableId, String geneAccession,
@@ -186,7 +184,7 @@ public class ExperimentService{
                 ObservationType statisticalType = experiment.getObservationType();
                 ZygosityType zygosity = ZygosityType.valueOf(observation.getZygosity());
 
-                List<? extends StatisticalResult> results = statisticalResultService.getStatisticalResult(alleleAccession, strain, phenCenter, pipelineStableId, parameterStableId, metaDataGroup, zygosity, sex, statisticalType);
+                List<StatisticalResultDTO> results = statisticalResultService.getStatisticalResult(alleleAccession, strain, phenCenter, pipelineStableId, parameterStableId, metaDataGroup, zygosity, sex, statisticalType);
                 experiment.setResults(results);
             }
 
@@ -291,6 +289,7 @@ public class ExperimentService{
                     Date experimentDate = new Date(0L);
                     for (ObservationDTO o : experiment.getMutants()) {
 
+                        //put a null pointer check here as for viability data has none and chart fails
                         allBatches.add(o.getDateOfExperiment().getYear() + "-" + o.getDateOfExperiment().getMonth() + "-" + o.getDateOfExperiment().getDate());
 
                         if (phenotypingCenter == null) {
@@ -437,8 +436,6 @@ public class ExperimentService{
         //for viability we don't need to filter on Sex or Zygosity
         List<ObservationDTO> observations = observationService.getExperimentObservationsBy(parameterStableId, pipelineStableId, acc, null, phenotypingCenter, strain, null, metadataGroup, alleleAccession);
         ObservationDTO outcomeObservation = observations.get(0);
-        System.out.println("specific outcome="+observations);
-        System.out.println("category of observation="+outcomeObservation.getCategory());
         viabilityDTO.setCategory(observations.get(0).getCategory());
         for(int i=3;i<15; i++){
             String formatted = String.format("%02d",i);
@@ -527,9 +524,9 @@ public class ExperimentService{
      * @throws SpecificExperimentException
      */
     public ExperimentDTO getSpecificExperimentDTO(String parameterStableId, String pipelineStableId, String acc, List<String> genderList, List<String> zyList, String phenotypingCenter, String strain, String metadataGroup, String alleleAccession, String ebiMappedSolrUrl)
-    throws SolrServerException, IOException , URISyntaxException, SpecificExperimentException {
+    throws SolrServerException, IOException, SpecificExperimentException {
 
-    	List<ExperimentDTO> experimentList = new ArrayList<>();
+    	List<ExperimentDTO> experimentList;
         boolean includeResults = true;
 
         // if gender list is size 2 assume both sexes so no filter needed

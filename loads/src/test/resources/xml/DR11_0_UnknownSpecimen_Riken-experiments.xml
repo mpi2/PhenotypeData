@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<centreProcedureSet xmlns="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/procedure">
+    <centre centreID="Rbrc" pipeline="IMPC_001" project="RIKEN BRC">
+        <experiment sequenceID="4" experimentID="IMPC_BWT_001_2016-09-29" dateOfExperiment="2016-09-29">
+            <specimenID>IM0064_d0070F</specimenID>
+            <procedure procedureID="IMPC_BWT_001">
+                <simpleParameter parameterID="IMPC_BWT_001_001" unit="g">
+                    <value>12.8</value>
+                </simpleParameter>
+            </procedure>
+        </experiment>
+    </centre>
+</centreProcedureSet>

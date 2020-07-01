@@ -105,7 +105,7 @@ public class ProcedureRepositoryTest {
     public void getByStableId() throws Exception {
 
         Procedure expected = getExpected();
-        Procedure actual = procedureRepository.getByStableId("IMPC_HOU_001");
+        Procedure actual = procedureRepository.getByStableIdAndPipeline("IMPC_HOU_001", "IMPC_001");
 
         compareFields(expected, actual);
     }

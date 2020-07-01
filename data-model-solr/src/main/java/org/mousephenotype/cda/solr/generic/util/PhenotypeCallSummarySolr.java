@@ -25,13 +25,14 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
 
 /**
- * Added to cda 2015/07/09
- * @author tudose
+ * PhenotypeCallSummarySolr collects all interactions with the genotype-phenotype
+ * datasource.
  *
  */
 
@@ -46,7 +47,7 @@ public class PhenotypeCallSummarySolr {
 
 
 	@Inject
-	public PhenotypeCallSummarySolr(GenotypePhenotypeService genotypePhenotypeService) {
+	public PhenotypeCallSummarySolr(@Named("genotype-phenotype-service") GenotypePhenotypeService genotypePhenotypeService) {
 		this.genotypePhenotypeService = genotypePhenotypeService;
 	}
 
@@ -57,7 +58,7 @@ public class PhenotypeCallSummarySolr {
 
 	public PhenotypeFacetResult getPhenotypeCallByGeneAccessionAndFilter(String accId, List<String> topLevelMpTermName, List<String> resourceFullname)
 			throws IOException, JSONException, URISyntaxException {
-		return genotypePhenotypeService.getMPByGeneAccessionAndFilter(accId, topLevelMpTermName, resourceFullname);
+		return genotypePhenotypeService.getMPByGeneAccessionAndFilter(accId, topLevelMpTermName);
 	}
 
 	/**

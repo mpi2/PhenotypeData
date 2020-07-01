@@ -15,26 +15,16 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
+import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.mousephenotype.cda.db.pojo.BiologicalModel;
-import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
 
 
 public class CategoricalChartDataObject {
 	List<CategoricalSet> categoricalSets;
 	private String chart="";
 	private String chartIdentifier="";
-	private BiologicalModel biologicalModel=new BiologicalModel();//one bm per chart???
-
-	public BiologicalModel getBiologicalModel() {
-		return biologicalModel;
-	}
-
-	public void setBiologicalModel(BiologicalModel biologicalModel) {
-		this.biologicalModel = biologicalModel;
-	}
 
 	public String getChartIdentifier() {
 		return chartIdentifier;

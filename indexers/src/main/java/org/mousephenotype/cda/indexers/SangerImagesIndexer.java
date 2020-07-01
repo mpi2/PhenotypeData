@@ -61,7 +61,6 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 
 	private OntologyParser maParser;
 	private OntologyParser mpParser;
-	private OntologyParser mpHpParser;
 
 	private Map<String, List<AlleleDTO>>    alleles;
 	private Map<String, AlleleBean>         alleleMpiMap   = new HashMap<>();
@@ -70,10 +69,12 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 	private Map<Integer, ExperimentDict>    expMap         = new HashMap<>();
 	private Map<String, GenomicFeatureBean> featuresMap    = new HashMap<>();
 	private Map<Integer, MouseBean>         mouseMvMap     = new HashMap<>();
+	private Map<String, Set<String>>		mpHpTermsMap   = new HashMap<>();
 	private Map<String, String>             subtypeMap     = new HashMap<>();
 	private Map<String, List<String>>       synonyms       = new HashMap<>();
 	private Map<Integer, List<Tag>>         tags           = new HashMap<>();
 
+	private Set<String> mpHpMappings = new HashSet<>();
 
 	private SolrClient alleleCore;
 	private SolrClient sangerImagesCore;
@@ -112,10 +113,14 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 				OntologyParserFactory ontologyParserFactory = new OntologyParserFactory(komp2DataSource, owlpath);
 				mpParser = ontologyParserFactory.getMpParser();
 				maParser = ontologyParserFactory.getMaParser();
-				mpHpParser = ontologyParserFactory.getMpHpParser();
+				mpHpTermsMap = IndexerMap.getMpToHpTerms(owlpath + "/" + IndexerMap.MP_HP_CSV_FILENAME);
+				if ((mpHpTermsMap == null) || mpHpTermsMap.isEmpty()) {
+					throw new IndexerException("mp-hp error: Unable to open" + owlpath + "/" + IndexerMap.MP_HP_CSV_FILENAME);
+				}
 
 			} catch (OWLOntologyCreationException | OWLOntologyStorageException e) {
 
+				System.err.println();
 				e.printStackTrace();
 			}
 
@@ -168,8 +173,11 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 			e.printStackTrace();
 			throw new IndexerException(e);
 		} finally {
+			logger.info("mpIds with Hp mappings: {}", mpHpMappings.size());
+
             logger.info(" Added {} total beans in {}", count, commonUtils.msToHms(System.currentTimeMillis() - start));
         }
+
 		return runStatus;
 	}
 
@@ -276,7 +284,6 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 							List<String> mp_term_synonyms = new ArrayList<>();
 							List<String> topLevelMpTermSynonyms = new ArrayList<>();
 
-							List<String> associatedHpIds = new ArrayList<>();
 							List<String> associatedHpTerms = new ArrayList<>();
 
 							List<String> maTopLevelTermIds = new ArrayList<>();
@@ -349,31 +356,11 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 											}
 										}
 
-                                        // add mp-hp mapping using Monarch's mp-hp hybrid ontology
-                                        OntologyTermDTO mphpTerm = mpHpParser.getOntologyTerm(annotation.mp_id);
-
-                                        if (mphpTerm == null) {
-                                            String message = "MP term not found using mpHpParser.getOntologyTerm(termId); where termId = " + annotation.mp_id;
-                                            runStatus.addWarning(message);
-                                            logger.warn(message);
-
-                                        } else {
-
-                                            Set <OntologyTermDTO> hpTerms = mphpTerm.getEquivalentClasses();
-                                            Set<String> hpIds = new HashSet<>();
-                                            Set<String> hpNames = new HashSet<>();
-
-                                            for ( OntologyTermDTO hpTerm : hpTerms ){
-                                                hpIds.add(hpTerm.getAccessionId());
-                                                if ( hpTerm.getName() != null ){
-                                                    hpNames.add(hpTerm.getName());
-                                                }
-                                            }
-
-                                            associatedHpIds.addAll(new ArrayList<>(hpIds));
-                                            associatedHpTerms.addAll(new ArrayList<>(hpNames));
-                                        }
-
+										Set <String> hpTermNames = mpHpTermsMap.get(annotation.mp_id);
+										if (hpTermNames != null) {
+											associatedHpTerms.addAll(new ArrayList<>(hpTermNames));
+											mpHpMappings.add(annotation.mp_id);
+										}
 									} else {
 
 										if ( ! ontologyTermNotFound.contains(annotation.mp_id)) {
@@ -404,15 +391,11 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 							o.setAnnotatedHigherLevelMpTermId(annotatedHigherLevelMpTermId);
 							o.setAnnotatedHigherLevelMpTermName(annotatedHigherLevelMpTermName);
 
-							o.setHpId(associatedHpIds);
 							o.setHpTerm(associatedHpTerms);
-
 						}
-
 					}
 					o.setTagNames(tagNames);
 					o.setTagValues(tagValues);
-
 				}
 
 				expectedDocumentCount++;
@@ -445,8 +428,6 @@ public class SangerImagesIndexer extends AbstractIndexer implements CommandLineR
 
         return count;
 	}
-
-
 
 	/**
 	 * Add all the relevant data to the Impress map

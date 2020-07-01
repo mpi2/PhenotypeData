@@ -15,7 +15,6 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.solr.service.ExperimentService;
@@ -67,10 +66,10 @@ public class GraphUtils {
         String accessionAndParam = "accession=" + acc;
 
         if (chartType != null) {
-            if (chartType == ChartType.PIE) {
-                urls.add("chart_type=PIE&parameter_stable_id=IMPC_VIA_001_001");
-                return urls;
-            }
+//            if (chartType == ChartType.PIE) {
+//                urls.add("chart_type=PIE&parameter_stable_id=IMPC_VIA_001_001");
+//                return urls;
+//            }
         } else {
             // default chart type
             chartType = getDefaultChartType(parameter);
@@ -120,6 +119,9 @@ public class GraphUtils {
         }
 
         urls.forEach(url -> { log.debug("URL: " + url); });
+System.out.println("urls="+urls);
+//if we have the main early adult viability chart we want to show that top
+        //so reorder here
 
         return urls;
     }
@@ -149,15 +151,7 @@ public class GraphUtils {
         for (String sex : genderList) {
             genderString += seperator + "gender=" + sex;
         }
-        if (chartType != null) {
-            if (chartType == ChartType.PIE) {
-                urls.add("chart_type=PIE&parameter_stable_id=IMPC_VIA_001_001");
-                return urls;
-            }
-        } else {
-            // default chart type
             chartType = getDefaultChartType(parameter);
-        }
 
         if (!ChartUtils.getPlotParameter(parameter.getStableId()).equalsIgnoreCase(parameter.getStableId())) {
             parameterStableId = ChartUtils.getPlotParameter(parameter.getStableId());
@@ -240,6 +234,9 @@ public class GraphUtils {
 
                 case time_series:
                     return ChartType.TIME_SERIES_LINE;
+
+                case text:
+                    return ChartType.TEXT;
 
             }
         }

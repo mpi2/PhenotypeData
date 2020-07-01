@@ -19,8 +19,9 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.constants.Constants;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.db.WeightMap;
+import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
 import org.mousephenotype.cda.enumerations.ObservationType;
@@ -32,7 +33,6 @@ import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyParserFactory;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.solr.service.OntologyBean;
-import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTOWrite;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
@@ -66,8 +66,8 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 /**
  * Populate the experiment core
@@ -159,7 +159,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 	    if ( ! SKIP_SLOW_LOADING_MAPS) {
             weightMap = new WeightMap(komp2DataSource);
         }
-        long count = 0;
+        long count;
         RunStatus runStatus = new RunStatus();
         long start = System.currentTimeMillis();
 
@@ -228,7 +228,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
         return runStatus;
     }
 
-    private class NamedQuery {
+    private static class NamedQuery {
 	    public final String name;
 	    public final String query;
 
@@ -242,13 +242,13 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 		experimentCore.deleteByQuery("*:*");
 
 		List<NamedQuery> observationQueries = Arrays.asList(
-		        new NamedQuery("Categorical",      "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, o.biological_sample_id, o.sequence_id as sequence_id ,e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, bs.project_id AS specimen_project_id, co.category as raw_category FROM observation o INNER JOIN categorical_observation co ON o.id=co.id INNER JOIN experiment_observation eo ON eo.observation_id=o.id INNER JOIN experiment e on eo.experiment_id=e.id  LEFT OUTER JOIN biological_sample bs ON bs.id = o.biological_sample_id WHERE o.missing=0"),
-                new NamedQuery("Unidimensional",   "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, o.biological_sample_id, o.sequence_id as sequence_id ,e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, bs.project_id AS specimen_project_id, uo.data_point as unidimensional_data_point FROM observation o INNER JOIN unidimensional_observation uo ON o.id=uo.id INNER JOIN experiment_observation eo ON eo.observation_id=o.id INNER JOIN experiment e on eo.experiment_id=e.id LEFT OUTER JOIN biological_sample bs ON bs.id = o.biological_sample_id WHERE o.missing=0"),
+                new NamedQuery("Categorical", "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, o.biological_sample_id, o.sequence_id as sequence_id ,e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, bs.project_id AS specimen_project_id, co.category as raw_category FROM observation o INNER JOIN categorical_observation co ON o.id=co.id INNER JOIN experiment_observation eo ON eo.observation_id=o.id INNER JOIN experiment e on eo.experiment_id=e.id  LEFT OUTER JOIN biological_sample bs ON bs.id = o.biological_sample_id WHERE o.missing=0"),
+                new NamedQuery("Unidimensional", "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, o.biological_sample_id, o.sequence_id as sequence_id ,e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, bs.project_id AS specimen_project_id, uo.data_point as unidimensional_data_point FROM observation o INNER JOIN unidimensional_observation uo ON o.id=uo.id INNER JOIN experiment_observation eo ON eo.observation_id=o.id INNER JOIN experiment e on eo.experiment_id=e.id LEFT OUTER JOIN biological_sample bs ON bs.id = o.biological_sample_id WHERE o.missing=0"),
                 new NamedQuery("Multidimensional", "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, o.biological_sample_id, o.sequence_id as sequence_id ,e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, bs.project_id AS specimen_project_id, mo.data_point as multidimensional_data_point, mo.order_index, mo.dimension FROM observation o INNER JOIN multidimensional_observation mo ON o.id=mo.id INNER JOIN experiment_observation eo ON eo.observation_id=o.id INNER JOIN experiment e on eo.experiment_id=e.id LEFT OUTER JOIN biological_sample bs ON bs.id = o.biological_sample_id WHERE o.missing=0"),
-                new NamedQuery("TimeSeries",       "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, o.biological_sample_id, o.sequence_id as sequence_id ,e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, bs.project_id AS specimen_project_id, tso.data_point as time_series_data_point, tso.time_point, tso.discrete_point FROM observation o INNER JOIN time_series_observation tso ON o.id=tso.id INNER JOIN experiment_observation eo ON eo.observation_id=o.id INNER JOIN experiment e on eo.experiment_id=e.id LEFT OUTER JOIN biological_sample bs ON bs.id = o.biological_sample_id WHERE o.missing=0"),
-                new NamedQuery("Text",             "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, o.biological_sample_id, o.sequence_id as sequence_id ,e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, bs.project_id AS specimen_project_id, tro.text_value as text_value FROM observation o INNER JOIN text_observation tro ON o.id=tro.id INNER JOIN experiment_observation eo ON eo.observation_id=o.id INNER JOIN experiment e on eo.experiment_id=e.id LEFT OUTER JOIN biological_sample bs ON bs.id = o.biological_sample_id WHERE o.missing=0"),
-                new NamedQuery("Image",            "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, o.biological_sample_id, o.sequence_id as sequence_id ,e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, bs.project_id AS specimen_project_id, iro.file_type, iro.download_file_path FROM observation o INNER JOIN image_record_observation iro ON o.id=iro.id INNER JOIN experiment_observation eo ON eo.observation_id=o.id INNER JOIN experiment e on eo.experiment_id=e.id LEFT OUTER JOIN biological_sample bs ON bs.id = o.biological_sample_id WHERE o.missing=0"),
-                new NamedQuery("OntologyTerm",     "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, o.biological_sample_id, o.sequence_id as sequence_id ,e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, bs.project_id AS specimen_project_id, onto.term AS ontology_id, onto.term_value AS ontology_term FROM observation o INNER JOIN ontology_entity onto ON o.id=onto.ontology_observation_id INNER JOIN experiment_observation eo ON eo.observation_id=o.id INNER JOIN experiment e on eo.experiment_id=e.id LEFT OUTER JOIN biological_sample bs ON bs.id = o.biological_sample_id WHERE o.missing=0")
+                new NamedQuery("TimeSeries", "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, o.biological_sample_id, o.sequence_id as sequence_id ,e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, bs.project_id AS specimen_project_id, tso.data_point as time_series_data_point, tso.time_point, tso.discrete_point FROM observation o INNER JOIN time_series_observation tso ON o.id=tso.id INNER JOIN experiment_observation eo ON eo.observation_id=o.id INNER JOIN experiment e on eo.experiment_id=e.id LEFT OUTER JOIN biological_sample bs ON bs.id = o.biological_sample_id WHERE o.missing=0"),
+                new NamedQuery("Text", "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, o.biological_sample_id, o.sequence_id as sequence_id ,e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, bs.project_id AS specimen_project_id, tro.text_value as text_value FROM observation o INNER JOIN text_observation tro ON o.id=tro.id INNER JOIN experiment_observation eo ON eo.observation_id=o.id INNER JOIN experiment e on eo.experiment_id=e.id LEFT OUTER JOIN biological_sample bs ON bs.id = o.biological_sample_id WHERE o.missing=0"),
+                new NamedQuery("Image", "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, o.biological_sample_id, o.sequence_id as sequence_id ,e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, bs.project_id AS specimen_project_id, iro.file_type, iro.download_file_path FROM observation o INNER JOIN image_record_observation iro ON o.id=iro.id INNER JOIN experiment_observation eo ON eo.observation_id=o.id INNER JOIN experiment e on eo.experiment_id=e.id LEFT OUTER JOIN biological_sample bs ON bs.id = o.biological_sample_id WHERE o.missing=0"),
+                new NamedQuery("OntologyTerm", "SELECT o.id as id, o.db_id as datasource_id, o.parameter_id as parameter_id, o.parameter_stable_id, o.observation_type, o.missing, o.parameter_status, o.parameter_status_message, o.biological_sample_id, o.sequence_id as sequence_id ,e.project_id as project_id, e.pipeline_id as pipeline_id, e.procedure_id as procedure_id, e.date_of_experiment, e.external_id, e.id as experiment_id, e.metadata_combined as metadata_combined, e.metadata_group as metadata_group, bs.project_id AS specimen_project_id, onto.term AS ontology_id, onto.term_value AS ontology_term FROM observation o INNER JOIN ontology_entity onto ON o.id=onto.ontology_observation_id INNER JOIN experiment_observation eo ON eo.observation_id=o.id INNER JOIN experiment e on eo.experiment_id=e.id LEFT OUTER JOIN biological_sample bs ON bs.id = o.biological_sample_id WHERE o.missing=0")
          );
 
         startTimestamp = System.currentTimeMillis();
@@ -260,7 +260,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 
             observationQueries
                 .parallelStream()
-                .map(query -> {
+                .forEach(query -> {
 
                     long documentCountForQuery = 0L;
                     try (Connection connection = komp2DataSource.getConnection()) {
@@ -276,9 +276,8 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
                         throw new RuntimeException(e);
                     }
 
-                    return documentCountForQuery;
                 }
-            ).collect(Collectors.toList());
+            );
 
         } else {
 
@@ -337,19 +336,27 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
             p.setFetchSize(Integer.MIN_VALUE);
 
         } catch (Exception e) {
-	        if (e.getLocalizedMessage().contains("Invalid value \"-2147483648\" for parameter \"rows\" [90008-199]")) {
-	            ;   // Do nothing - this message is generated by the H2 database engine when trying to set fetch size
-                    // to Integer.MIN_VALUE (mysql).
-            } else {
+
+            // NOTE: This message is generated by the H2 database engine when trying to set fetch size
+            // to Integer.MIN_VALUE (mysql).  It's harmless to ignore these exceptions.
+	        if ( ! e.getLocalizedMessage().contains("Invalid value \"-2147483648\" for parameter \"rows\"")) {
+	            logger.error(e.getLocalizedMessage());
 	            throw e;
             }
         }
     }
 
+    private Set<String> uniqueObservationKeys = new ConcurrentSkipListSet<>();
     private long writeObservations(NamedQuery query, ResultSet r, RunStatus runStatus) throws Exception {
 
 	    long documentCountForQuery = 0L;
         while (r.next()) {
+
+            // Skip observation if it has already been added
+            if (uniqueObservationKeys.contains(r.getString("id"))) {
+                continue;
+            }
+            uniqueObservationKeys.add(r.getString("id"));
 
             if (writeObservation(query, r, runStatus))
                 continue;
@@ -378,7 +385,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
         addSpecimenProject(r, o);
         addMetadata(r, o);
         addBiologicalData(r, o, runStatus);
-        addDevelopmentalStageIfApplicable(o);
+        addLifeStageIfApplicable(o);
         o.setObservationType(r.getString("observation_type"));
         addCorrectDataPointForType(r, o);
         addParameterAssociationsIfApplicable(r, o);
@@ -432,7 +439,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
         o.setParameterId(parameterMap.get(r.getLong("parameter_id")).getId());
         o.setParameterName(parameterMap.get(r.getLong("parameter_id")).getName());
         o.setParameterStableId(parameterMap.get(r.getLong("parameter_id")).getStableId());
-        o.setDataType(parameterMap.get(r.getLong("parameter_id")).getDatatype());
+        o.setDataType(parameterMap.get(r.getLong("parameter_id")).getDataType());
     }
 
     private void addDateOfExperiment(ResultSet r, ObservationDTOWrite o) throws SQLException {
@@ -475,9 +482,9 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
     }
 
     private void addSpecimenProject(ResultSet r, ObservationDTOWrite o) throws SQLException {
-	    Long l = r.getLong("specimen_project_id");
-        o.setSpecimenProjectId((l != null) && (l > 0L) ? l : null);
-        o.setSpecimenProjectName((l != null) && (l > 0L) ? projectMap.get(l).name : null);
+	    long specimenProjectId = r.getLong("specimen_project_id");
+        o.setSpecimenProjectId((r.wasNull()) && (specimenProjectId > 0L) ? specimenProjectId : null);
+        o.setSpecimenProjectName((r.wasNull()) && (specimenProjectId > 0L) ? projectMap.get(specimenProjectId).name : null);
     }
 
     private void addDatasource(ResultSet r, ObservationDTOWrite o) throws SQLException {
@@ -514,27 +521,23 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
         }
     }
 
-    private boolean addBiologicalData(ResultSet r, ObservationDTOWrite o, RunStatus runStatus) throws Exception {
+    private void addBiologicalData(ResultSet r, ObservationDTOWrite o, RunStatus runStatus) throws Exception {
         String bioSampleId = r.getString("biological_sample_id");
         if (r.wasNull()) {
-            if (addBiologicalDataForLines(runStatus, r, o)) {
-                return true;
-            }
+            addBiologicalDataForLines(runStatus, r, o);
         } else {
-            if (addBiologicalDataForSamples(r, o, bioSampleId)) {
+            if (addBiologicalDataForSamples(o, bioSampleId)) {
 
                 if (missingBiologicalDataErrorCount++ < MAX_MISSING_BIOLOGICAL_DATA_ERROR_COUNT_DISPLAYED) {
                     runStatus.addError(" Cannot find biological data for specimen id: " + r.getString("biological_sample_id") + ", experiment id: " + r.getString("experiment_id"));
                 }
 
-                return true;
             }
         }
 
-        return false;
     }
 
-    private boolean addBiologicalDataForSamples(ResultSet r, ObservationDTOWrite o, String bioSampleId) throws Exception {
+    private boolean addBiologicalDataForSamples(ObservationDTOWrite o, String bioSampleId) throws Exception {
         BiologicalDataBean b           = biologicalData.get(bioSampleId);
 
         if (b == null) {
@@ -573,13 +576,13 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
         return false;
     }
 
-    private boolean addBiologicalDataForLines(RunStatus runStatus, ResultSet r, ObservationDTOWrite o) throws SQLException {
+    private void addBiologicalDataForLines(RunStatus runStatus, ResultSet r, ObservationDTOWrite o) throws SQLException {
         if ( ! SKIP_SLOW_LOADING_MAPS) {
             BiologicalDataBean b = lineBiologicalData.get(r.getString("experiment_id"));
             if (b == null) {
                 runStatus.addError(
                         " Cannot find biological data for line level experiment " + r.getString("experiment_id"));
-                return true;
+                return;
             }
 
             addBiologicalInformation(o, b);
@@ -613,18 +616,13 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
         // procedures (i.e. no control mice will go through VIA or
         // FER procedures.)
         o.setGroup(BiologicalSampleType.experimental.getName());
-        return false;
     }
 
-    private void addDevelopmentalStageIfApplicable(ObservationDTOWrite o) throws SQLException {
-        //
-        // NOTE
-        // Developmental stage must be set after the colony ID, pipeline ID and procedure ID fields are set
-        //
-        BasicBean developmentalStage = getDevelopmentalStage(o.getPipelineStableId(), o.getProcedureStableId(), o.getColonyId());
-        if (developmentalStage != null) {
-            o.setDevelopmentStageAcc(developmentalStage.getId());
-            o.setDevelopmentStageName(developmentalStage.getName());
+    private void addLifeStageIfApplicable(ObservationDTOWrite o) {
+        final OntologyTerm lifeStage = getLifeStage(o.getParameterStableId());
+        if (lifeStage != null) {
+            o.setDevelopmentStageAcc(lifeStage.getId().getAccession());
+            o.setDevelopmentStageName(lifeStage.getName());
         }
     }
 
@@ -880,16 +878,18 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
 					DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT_OPTIONAL_MILLISECONDS);
 					b.dateOfBirth = ZonedDateTime.parse(rawDOB, formatter.withZone(ZoneId.of("UTC")));
 
+                } catch (DateTimeParseException e) {
+
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT_OPTIONAL_MILLISECONDS);
+                    if (rawDOB != null) {
+                        b.dateOfBirth = ZonedDateTime.parse(rawDOB, formatter.withZone(ZoneId.of("UTC")));
+                    }
+
                 } catch (NullPointerException e) {
 
                     b.dateOfBirth = null;
-                    logger.debug("  No date of birth set for specimen external ID: {}",
-                                 resultSet.getString("external_sample_id"));
+                    logger.debug("  No date of birth set for specimen external ID: {}", resultSet.getString("external_sample_id"));
 
-				} catch (DateTimeParseException e) {
-
-					DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT_OPTIONAL_MILLISECONDS);
-					b.dateOfBirth = ZonedDateTime.parse(rawDOB, formatter.withZone(ZoneId.of("UTC")));
                 }
 
                 b.externalSampleId = resultSet.getString("external_sample_id");
@@ -933,7 +933,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
                 + "FROM experiment e "
                 + "INNER JOIN organisation org ON e.organisation_id=org.id "
                 + "INNER JOIN biological_model_strain bm_strain ON bm_strain.biological_model_id=e.biological_model_id "
-                + "INNER JOIN strain strain ON strain.acc=bm_strain.strain_acc "
+                + "INNER JOIN strain ON strain.acc=bm_strain.strain_acc "
                 + "INNER JOIN biological_model bm ON bm.id = e.biological_model_id";
 
         try (PreparedStatement p = connection.prepareStatement(query)) {
@@ -970,7 +970,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
                             + " INNER JOIN biological_model_sample bms ON bms.biological_sample_id=ls.id "
                             + " INNER JOIN biological_model bm ON bm.id=bms.biological_model_id "
                             + " INNER JOIN biological_model_strain bm_strain ON bm_strain.biological_model_id=bm.id "
-                            + " INNER JOIN strain strain ON strain.acc=bm_strain.strain_acc "
+                            + " INNER JOIN strain ON strain.acc=bm_strain.strain_acc "
                             + " WHERE bm.allelic_composition !='' AND ls.colony_id = ? LIMIT 1 ";
                     try (PreparedStatement p2 = connection.prepareStatement(query2)) {
                         p2.setString(1, resultSet.getString("colony_id"));
@@ -1243,7 +1243,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
     /**
      * Internal class to act as Map value DTO for biological data
      */
-    class BiologicalDataBean {
+    static class BiologicalDataBean {
 
         public String        alleleAccession;
         public String        alleleSymbol;
@@ -1274,7 +1274,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
     /**
      * Internal class to act as Map value DTO for datasource data
      */
-    class DatasourceBean {
+    static class DatasourceBean {
 
 		public Long   id;
         public String name;
@@ -1283,7 +1283,7 @@ public class ObservationIndexer extends AbstractIndexer implements CommandLineRu
     /**
      * Internal class to act as Map value DTO for datasource data
      */
-    class ParameterAssociationBean {
+    static class ParameterAssociationBean {
 
         public String parameterAssociationName;
         public String parameterAssociationValue;

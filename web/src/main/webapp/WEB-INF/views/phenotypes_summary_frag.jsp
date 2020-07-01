@@ -2,10 +2,10 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<div class="row white-bg">
+<div class="row">
     <c:if test="${not empty procedures}">
     <div class="col-12">
-        <table id="proceduresTable" class="table dt-responsive" style="width:100%">
+        <table id="proceduresTable" class="table dt-responsive">
             <thead>
             <tr>
                 <th class="headerSort">Procedure</th>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<centreSpecimenSet xmlns="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/specimen">
+    <centre centreID="Rbrc">
+        <mouse DOB="2016-09-03" colonyID="RIKEN-Rlim-B02_" isBaseline="false" specimenID="IM0064_d0070F" gender="female" zygosity="heterozygous" litterId="IM0064_108.1" pipeline="IMPC_001" productionCentre="Rbrc" phenotypingCentre="Rbrc" project="RIKEN BRC">
+            <genotype MGIGeneId="MGI:1342291" geneSymbol="Rlim" MGIAlleleId="em1Rbrc" fatherZygosity="hemizygous" motherZygosity="heterozygous" Hjid="199980173"/>
+        </mouse>
+    </centre>
+</centreSpecimenSet>

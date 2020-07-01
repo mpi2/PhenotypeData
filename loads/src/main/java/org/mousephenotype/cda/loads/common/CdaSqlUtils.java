@@ -18,7 +18,7 @@ package org.mousephenotype.cda.loads.common;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.constants.Constants;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.db.pojo.Procedure;
 import org.mousephenotype.cda.db.pojo.*;
 import org.mousephenotype.cda.db.utilities.ImpressUtils;
@@ -45,6 +45,7 @@ import javax.validation.constraints.NotNull;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * Created by mrelac on 27/05/16.
@@ -255,7 +256,10 @@ public class CdaSqlUtils {
     public synchronized Map<BioSampleKey, BiologicalSample> getBiologicalSamplesMapBySampleKey() {
 
         Map<BioSampleKey, BiologicalSample> bioSamplesMap = new HashMap<>();
-        String query = "SELECT p.name as project_name, edb.short_name, bs.* FROM biological_sample bs JOIN external_db edb ON edb.id = bs.db_id INNER JOIN project p ON bs.project_id = p.id";
+        String query = "SELECT p.name as project_name, edb.short_name, bs.*\n" +
+                       "FROM biological_sample bs\n" +
+                       "JOIN external_db edb ON edb.id = bs.db_id\n" +
+                       "JOIN project p ON bs.project_id = p.id";
 
         List<BiologicalSample> samples = jdbcCda.query(query, new BiologicalSampleRowMapper());
         for (BiologicalSample sample : samples) {
@@ -1458,28 +1462,29 @@ public class CdaSqlUtils {
         Map<String, PhenotypedColony> map = new HashMap<>();
         String query =
                 "SELECT\n" +
-                "  pc.id,\n" +
-                "  pc.colony_name,\n" +
-                "  pc.es_cell_name,\n" +
-                "  pc.gf_acc,\n" +
-                "  pc.gf_db_id,\n" +
-                "  pc.allele_symbol,\n" +
-                "  pc.background_strain_name,\n" +
-                "  pc.phenotyping_centre_organisation_id,\n" +
-                "  pcphorg.name                              AS pc_phenotyping_centre_name,\n" +
-                "  pc.phenotyping_consortium_project_id,\n" +
-                "  pcphprj.name                              AS pc_phenotyping_project_name,\n" +
-                "  pc.production_centre_organisation_id,\n" +
-                "  pcprorg.name                              AS pc_production_centre_name,\n" +
-                "  pc.production_consortium_project_id,\n" +
-                "  pcprprj.name                              AS pc_production_project_name,\n" +
-                "  gf.*\n" +
-                "FROM phenotyped_colony  pc\n" +
-                "            JOIN genomic_feature    gf          ON gf       .db_id  = gf_db_id AND gf.acc = pc.gf_acc\n" +
-                "            JOIN organisation       pcphorg     ON pcphorg  .id     = pc.phenotyping_centre_organisation_id\n" +
-                "            JOIN project            pcphprj     ON pcphprj  .id     = pc.phenotyping_consortium_project_id\n" +
-                "LEFT OUTER  JOIN organisation       pcprorg     ON pcprorg  .id     = pc.phenotyping_centre_organisation_id\n" +
-                "LEFT OUTER  JOIN project            pcprprj     ON pcprprj  .id     = pc.phenotyping_consortium_project_id";
+                        "  pc.id,\n" +
+                        "  pc.colony_name,\n" +
+                        "  pc.es_cell_name,\n" +
+                        "  pc.gf_acc,\n" +
+                        "  pc.gf_db_id,\n" +
+                        "  pc.allele_symbol,\n" +
+                        "  pc.background_strain_name,\n" +
+                        "  pc.background_strain_acc,\n" +
+                        "  pc.phenotyping_centre_organisation_id,\n" +
+                        "  pcphorg.name                              AS pc_phenotyping_centre_name,\n" +
+                        "  pc.phenotyping_consortium_project_id,\n" +
+                        "  pcphprj.name                              AS pc_phenotyping_project_name,\n" +
+                        "  pc.production_centre_organisation_id,\n" +
+                        "  pcprorg.name                              AS pc_production_centre_name,\n" +
+                        "  pc.production_consortium_project_id,\n" +
+                        "  pcprprj.name                              AS pc_production_project_name,\n" +
+                        "  gf.*\n" +
+                        "FROM phenotyped_colony  pc\n" +
+                        "            JOIN genomic_feature    gf          ON gf       .acc = pc.gf_acc\n" +
+                        "            JOIN organisation       pcphorg     ON pcphorg  .id  = pc.phenotyping_centre_organisation_id\n" +
+                        "            JOIN project            pcphprj     ON pcphprj  .id  = pc.phenotyping_consortium_project_id\n" +
+                        "LEFT OUTER  JOIN organisation       pcprorg     ON pcprorg  .id  = pc.production_centre_organisation_id\n" +
+                        "LEFT OUTER  JOIN project            pcprprj     ON pcprprj  .id  = pc.production_consortium_project_id";
 
         List<PhenotypedColony> phenotypedColonies = jdbcCda.query(query, new HashMap<>(), new PhenotypedColonyRowMapper());
         for (PhenotypedColony phenotypedColony : phenotypedColonies) {
@@ -2377,6 +2382,7 @@ public class CdaSqlUtils {
                         " gf_db_id," +
                         " allele_symbol," +
                         " background_strain_name," +
+                        " background_strain_acc," +
                         " phenotyping_centre_organisation_id," +
                         " phenotyping_consortium_project_id," +
                         " production_centre_organisation_id," +
@@ -2388,6 +2394,7 @@ public class CdaSqlUtils {
                         " :gf_db_id," +
                         " :allele_symbol," +
                         " :background_strain_name," +
+                        " :background_strain_acc," +
                         " :phenotyping_centre_organisation_id," +
                         " :phenotyping_consortium_project_id," +
                         " :production_centre_organisation_id," +
@@ -2403,6 +2410,7 @@ public class CdaSqlUtils {
                 parameterMap.put("gf_db_id", DbIdType.MGI.intValue());
                 parameterMap.put("allele_symbol", phenotypedColony.getAlleleSymbol());
                 parameterMap.put("background_strain_name", phenotypedColony.getBackgroundStrain());
+                parameterMap.put("background_strain_acc", phenotypedColony.getBackgroundStrainAcc());
                 parameterMap.put("phenotyping_centre_organisation_id", phenotypedColony.getPhenotypingCentre().getId());
                 parameterMap.put("phenotyping_consortium_project_id", phenotypedColony.getPhenotypingConsortium().getId());
                 parameterMap.put("production_centre_organisation_id", phenotypedColony.getProductionCentre().getId());
@@ -2774,7 +2782,6 @@ public class CdaSqlUtils {
         return sequenceRegions;
     }
 
-
     /**
      * @return a {@link Map<String, Strain>} of strains, keyed by strain name or mgi accession id
      *
@@ -2793,6 +2800,77 @@ public class CdaSqlUtils {
         return strains;
     }
 
+    public Set<String> getImitsBackgroundStrains() {
+        Set<String> backgroundStrains = new ConcurrentSkipListSet<>();
+
+        Map<String, String> parameterMap = new HashMap<>();
+        List<String> bgStrainList = jdbcCda.queryForList("SELECT DISTINCT background_strain_name FROM phenotyped_colony", parameterMap, String.class);
+
+        for (String bgStrain : bgStrainList) {
+            backgroundStrains.add(bgStrain);
+        }
+
+        return backgroundStrains;
+    }
+
+    public String getMutantBackgroundStrain(String backgroundStrainNameOrAccFromXml,
+                                            String backgroundStrainNameFromImits,
+                                            Set<String> imitsBackgroundStrains,
+                                            Set<String> invalidXmlStrainValues,
+                                            Map<String, Strain> strainsByNameOrMgiAccessionIdMap)
+    {
+        String backgroundStrainNameFromXml = null;
+
+        if ((backgroundStrainNameOrAccFromXml != null) && (backgroundStrainNameOrAccFromXml.toLowerCase().startsWith("mgi:"))) {
+            Strain backgroundStrain = strainsByNameOrMgiAccessionIdMap.get(backgroundStrainNameOrAccFromXml);
+            if (backgroundStrain != null) {
+                backgroundStrainNameFromXml = backgroundStrain.getName();
+            }
+        }
+
+
+        // If the background strain of the mutant specimen has been provided in the XML file
+        //    if it is a valid imits background strain
+        //        use the background strain from the XML file
+        //    else
+        //        log the invalid XML file background strain
+        //        use background strain from imits
+        // Else
+        //   use background strain from imits
+        String validatedMutantBackgroundStrain;
+
+        if (backgroundStrainNameFromXml != null) {
+            if (imitsBackgroundStrains.contains(backgroundStrainNameFromXml)) {
+                validatedMutantBackgroundStrain = backgroundStrainNameFromXml;
+            } else {
+                String message = "'" + backgroundStrainNameFromXml + "'::'" + backgroundStrainNameFromImits + "'";
+                invalidXmlStrainValues.add(message);
+                validatedMutantBackgroundStrain = backgroundStrainNameFromImits;
+            }
+        } else {
+            validatedMutantBackgroundStrain = backgroundStrainNameFromImits;
+        }
+
+        return validatedMutantBackgroundStrain;
+    }
+
+    public Strain getExperimentBackgroundStrain(String experimentId) {
+
+        final String query = "SELECT s.* FROM experiment e" +
+                             " JOIN biological_model_strain bms ON bms.biological_model_id = e.biological_model_id" +
+                             " JOIN strain s ON s.acc = bms.strain_acc and s.db_id = bms.strain_db_id" +
+                             " WHERE e.external_id = :experimentId";
+
+        Map<String, String> parameterMap = new HashMap<>();
+        parameterMap.put("experimentId", experimentId);
+        List<Strain> bgStrainList = jdbcCda.query(query, parameterMap, new StrainRowMapper());
+
+        if ( ! bgStrainList.isEmpty()) {
+            return bgStrainList.get(0);
+        }
+
+        return null;
+    }
 
     /**
      * Try to insert the strain and, if successful, any synonyms.
@@ -3371,6 +3449,7 @@ public class CdaSqlUtils {
             phenotypedColony.setAlleleSymbol(rs.getString("allele_symbol"));
 
             phenotypedColony.setBackgroundStrain(rs.getString("background_strain_name"));
+            phenotypedColony.setBackgroundStrainAcc(rs.getString("background_strain_acc"));
 
             Organisation phenotypingCenter = new Organisation();
             phenotypingCenter.setId(rs.getLong("phenotyping_centre_organisation_id"));
@@ -3598,13 +3677,16 @@ public class CdaSqlUtils {
 
         } catch (DuplicateKeyException e) {
             detail = DataLoadException.DETAIL.DUPLICATE_KEY;
-            logger.error(e.getLocalizedMessage());
+            String message = "DUPLICATE INSERT INTO biological_model FOR db_id::allelic_composition::genetic_background::zygosity '" +
+                    dbId + "::" + allelicComposition + "::" + geneticBackground + "::" + zygosity + "'";
+            logger.error(message);
         } catch (Exception e) {
             detail = DataLoadException.DETAIL.GENERAL_ERROR;
             logger.error(e.getLocalizedMessage());
         }
 
-        String message = "INSERT INTO biological_model failed for db_id " + dbId + ", allelic_composition " + allelicComposition + ", genetic_background " + geneticBackground + ", zygosity " + zygosity + "'. Skipping...";
+        String message = "INSERT INTO biological_model failed for db_id::allelic_composition::genetic_background::zygosity " +
+                dbId + "::" + allelicComposition + "::" + geneticBackground + "::" + zygosity + "'. Skipping...";
 
         throw new DataLoadException(message, detail);
     }

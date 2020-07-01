@@ -6,7 +6,7 @@
 
     <jsp:attribute name="title">${allParameters} chart for ${gene.markerSymbol}</jsp:attribute>
     <jsp:attribute name="breadcrumb">&nbsp;&raquo; Statistics &raquo; <a
-            href='${baseUrl}/genes/${gene.mgiAccessionId}'>${gene.markerSymbol}</a></jsp:attribute>
+            href='${baseUrl}/genes/${gene.mgiAccessionId}'>${gene.markerSymbol} blah</a></jsp:attribute>
     <jsp:attribute name="bodyTag"><body  class="chartpage no-sidebars small-header"></jsp:attribute>
     <jsp:attribute name="header">
 			<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
@@ -67,9 +67,9 @@
 
     <jsp:body>
 <div class="container data-heading">
-            <div class="row row-shadow">
+            <div class="row">
                 <div class="col-12 no-gutters">
-                    <h2>${gene.markerSymbol} data chart</h2>
+                    <h2 class="mb-0">${gene.markerSymbol} data chart</h2>
                 </div>
             </div>
         </div>
@@ -83,12 +83,16 @@
 
         <c:forEach var="graphUrl" items="${allGraphUrlSet}" varStatus="graphUrlLoop">
 
-            <div class="chart" id="chart${graphUrlLoop.count}" graphUrl="${baseUrl}/chart?${graphUrl}" id="divChart_${graphUrlLoop.count}">
-                <div id="spinner${graphUrlLoop.count}" class="container">
-                    <div class="pre-content">
-                        <div class="row no-gutters">
-                            <div class="col-12 my-5">
-                                <p class="h4 text-center text-justify"><i class="fas fa-atom fa-spin"></i> A moment please while we gather the data . . . .</p>
+            <div class="chart container white-bg-small pb-5" id="chart${graphUrlLoop.count}" graphUrl="${baseUrl}/chart?${graphUrl}" id="divChart_${graphUrlLoop.count}">
+                <div id="spinner${graphUrlLoop.count}" class="row pb-5">
+                    <div class="col-12 col-md-12">
+                        <div class="pre-content clear-bg">
+                            <div class="page-content pt-3 pb-5">
+                                <div class="container p-0 p-md-2">
+                                    <div class="row justify-content-center pb-1">
+                                        <p class="h4 text-center text-justify"><i class="fas fa-atom fa-spin"></i> A moment please while we gather the data . . . .</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -105,12 +109,20 @@
                     </div>
                 </div>
             </div>
-            <div class="container single single--no-side">
-                <div class="row">
-                    <div class="col-12 white-bg">
-                        <div class="page-content pt-5 pb-5">
-                            <div id="exportIconsDivGlobal"></div>
-                            <p class="alert alert-warning">NOTE: Data from all charts will be aggregated into one download file.</p>
+            <div class="container white-bg-small">
+                <div class="row pb-5">
+                    <div class="col-12 col-md-12">
+                        <div class="pre-content clear-bg">
+                            <div class="page-content people py-5 white-bg">
+                                <div class="container p-md-2">
+                                    <div class="row pb-3">
+                                <div id="exportIconsDivGlobal"></div>
+                                    </div>
+                                    <div class="row pb-3 alert alert-warning">
+                                        <p>NOTE: Data from all charts will be aggregated into one download file.</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

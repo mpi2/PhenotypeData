@@ -7,7 +7,6 @@ import org.mousephenotype.cda.solr.service.dto.CountTableRow;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.service.embryoviewer.EmbryoViewerService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -24,6 +23,7 @@ import uk.ac.ebi.phenotype.chart.ScatterChartAndTableProvider;
 import uk.ac.ebi.phenotype.error.OntologyTermNotFoundException;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.io.BufferedReader;
@@ -36,36 +36,34 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
- * Created by ilinca on 24/10/2016.
+ * LandingPage controller is the controller for all landing pages in the
+ * portal.  The
  */
 
 @Controller
 public class LandingPageController {
 
-    @NotNull
-    @Value("${impc_media_base_url}")
-    private String impcMediaBaseUrl;
-
-	private GeneService              geneService;
-	private GenotypePhenotypeService genotypePhenotypeService;
-	private ImageService             imageService;
-	private ImpressService           impressService;
-	private MpService                mpService;
-    private ObservationService       observationService;
-    private StatisticalResultService statisticalResultService;
-    private HistopathService histopathService;
-	private final EmbryoViewerService embryoViewerService;
+	private final GeneService              geneService;
+	private final GenotypePhenotypeService genotypePhenotypeService;
+	private final ImageService             imageService;
+	private final ImpressService           impressService;
+	private final MpService                mpService;
+    private final ObservationService       observationService;
+    private final StatisticalResultService statisticalResultService;
+    private final HistopathService         histopathService;
+	private final EmbryoViewerService      embryoViewerService;
 
     @Inject
     public LandingPageController(
 			@NotNull GeneService geneService,
-			@NotNull GenotypePhenotypeService genotypePhenotypeService,
 			@NotNull ImageService imageService,
 			@NotNull ImpressService impressService,
 			@NotNull MpService mpService,
     		@NotNull ObservationService observationService,
-			@NotNull StatisticalResultService statisticalResultService,
-			@NotNull HistopathService histopathService, @NotNull EmbryoViewerService embryoViewerService)
+			@NotNull @Named("genotype-phenotype-service") GenotypePhenotypeService genotypePhenotypeService,
+			@NotNull @Named("statistical-result-service") StatisticalResultService statisticalResultService,
+			@NotNull HistopathService histopathService,
+			@NotNull EmbryoViewerService embryoViewerService)
 	{
         this.geneService = geneService;
 		this.genotypePhenotypeService = genotypePhenotypeService;
@@ -102,80 +100,19 @@ public class LandingPageController {
 
 	/**
 	 *
-	 * @param model
-	 * @return
-	 * @throws SolrServerException
-	 * @throws IOException
 	 */
 	@RequestMapping("landing_pages/histopath")
 	public String histopath(Model model) throws SolrServerException, IOException {
 		//To display the heatmap we need data in form of ints [ column , row, value ] but row starts from bottom left hand side
 		HeatmapData heatmapData = histopathService.getHeatmapDatadt();
-		//String [] headers=new String []{"blah", "bug"};
-		//JSONArray anatomyArray = null;
-		//anatomyArray= new JSONArray(heatmapData.getParameterNames());
-		//JSONArray geneSymbolsArray=new JSONArray(heatmapData.getGeneSymbols());
 		model.addAttribute("anatomyHeaders", heatmapData.getColumnHeaders());
 		model.addAttribute("geneSymbols", heatmapData.getGeneSymbols());
 		model.addAttribute("rows", heatmapData.getRows());
 		return "histopathLandingPage";
 	}
 
-
-//	@RequestMapping("/biological-system")
-//	public String getAlleles(Model model, HttpServletRequest request) throws IOException {
-//
-//        String baseUrl = request.getAttribute("baseUrl").toString();
-//
-//        List<LandingPageDTO> bsPages = new ArrayList<>();
-//        LandingPageDTO cardiovascular = new LandingPageDTO();
-//
-//        cardiovascular.setTitle("Cardiovascular");
-//        cardiovascular.setImage(impcMediaBaseUrl + "/render_thumbnail/211474/400/");
-//        cardiovascular.setDescription("This page aims to present cardiovascular system related phenotypes lines which have been produced by IMPC.");
-//        cardiovascular.setLink("biological-system/cardiovascular");
-//        bsPages.add(cardiovascular);
-//
-//        // don't show deafness or vision pages on live until ready
-//        Boolean isLive= Boolean.valueOf((String) request.getAttribute("liveSite"));
-//        
-//            LandingPageDTO deafness = new LandingPageDTO();
-//            deafness.setTitle("Hearing");
-//            deafness.setImage(baseUrl + "/img/landing/deafnessIcon.png");
-//            deafness.setDescription("This page aims to relate deafnessnes to phenotypes which have been produced by IMPC.");
-//            deafness.setLink("biological-system/hearing");
-//            bsPages.add(deafness);
-//            if(!isLive){
-//	            LandingPageDTO vision = new LandingPageDTO();
-//	            vision.setTitle("Vision");
-//	            vision.setImage(baseUrl + "/img/landing/deafnessIcon.png");
-//	            vision.setDescription("This page aims to relate vision to phenotypes which have been produced by IMPC.");
-//	            vision.setLink("biological-system/vision");
-//	            bsPages.add(vision);
-//	            
-//	            LandingPageDTO metabolism = new LandingPageDTO();
-//	            metabolism.setTitle("Metabolism");
-//	            metabolism.setImage(baseUrl + "/img/landing/deafnessIcon.png");
-//	            metabolism.setDescription("This page aims to relate metabolism to phenotypes which have been produced by IMPC.");
-//	            metabolism.setLink("biological-system/metabolism");
-//	            bsPages.add(metabolism);
-//	            
-//	            LandingPageDTO cmg = new LandingPageDTO();
-//	            cmg.setTitle("Center for Mendelian Genomics ");
-//	            cmg.setImage(baseUrl + "/img/landing/cmg-logo_1.png");
-//	            cmg.setDescription("This page aims to relate CMG mouse lines to phenotypes which have been produced by IMPC.");
-//	            cmg.setLink("biological-system/cmg");
-//	            bsPages.add(cmg);
-//            }
-//
-//        model.addAttribute("pages", bsPages);
-//
-//        return "landing";
-//	}
-
     @RequestMapping(value = "/embryo", method = RequestMethod.GET)
-    public String loadEmbryoPage(Model model, HttpServletRequest request, RedirectAttributes attributes)
-            throws OntologyTermNotFoundException, IOException, URISyntaxException, SolrServerException, SQLException {
+    public String loadEmbryoPage(Model model) {
 
         AnalyticsChartProvider chartsProvider = new AnalyticsChartProvider();
         List<String> resources = Arrays.asList( "IMPC" );
@@ -190,14 +127,16 @@ public class LandingPageController {
         return "embryo";
     }
 
+
 	/**
-	 *
-	 * @param model
-	 * @return
-	 * @throws SolrServerException
-	 * @throws IOException
+	 * /embryo_heatmap has been renamed embryo_imaging
 	 */
 	@RequestMapping("/embryo_heatmap")
+	public String rootForward() {
+		return "redirect:/embryo_imaging";
+	}
+
+	@RequestMapping("/embryo_imaging")
 	public String embryoHeatmap(Model model) throws SolrServerException, IOException {
 		//To display the heatmap we need data in form of ints [ column , row, value ] but row starts from bottom left hand side
 		System.out.println("hitting embryo heatmap endpoint");
@@ -212,7 +151,7 @@ public class LandingPageController {
 		model.addAttribute("geneSymbols", heatmapData.getGeneSymbols());
 		model.addAttribute("mgiAccessions", heatmapData.getMgiAccessions());
 		model.addAttribute("rows", heatmapData.getRows());
-		return "embryo_heatmap";
+		return "embryo_imaging";
 	}
 
     @RequestMapping(value = "/biological-system/pain", method = RequestMethod.GET)
@@ -330,20 +269,20 @@ public class LandingPageController {
         		
         		model.addAttribute("paramToNumber", paramToNumber);
         		model.addAttribute("impcImageGroups", groups);
-        		model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getScatterChart("phenotypeChart", genotypePhenotypeService.getTopLevelPhenotypeIntersection(mpDTO.getMpId(), filterOnMarkerAccession), "Gene pleiotropy",
-																								  description, "Number of phenotype associations to " + pageTitle, "Number of associations to other phenotypes",
+        		model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getScatterChart("phenotypeChart", genotypePhenotypeService.getTopLevelPhenotypeIntersection(mpDTO.getMpId(), filterOnMarkerAccession),
+						"Number of phenotype associations to " + pageTitle, "Number of associations to other phenotypes",
 																								  "Other phenotype calls: ", pageTitle + " phenotype calls: ", "Gene"));
 	        model.addAttribute("genePercentage", ControllerUtils.getPercentages(mpDTO.getMpId(), statisticalResultService, genotypePhenotypeService));
 	        model.addAttribute("phenotypes", genotypePhenotypeService.getAssociationsCount(mpDTO.getMpId(), resources));
 	        model.addAttribute("mpId", mpDTO.getMpId());
 	        model.addAttribute("mpDTO", mpDTO);
 	
-	        String systemNAme = mpDTO.getMpTerm();
+	        String systemName = mpDTO.getMpTerm();
 	        if (mpDTO.getMpTerm().contains("hearing/vestibular/ear")) {
-	            systemNAme = "hearing";
+	            systemName = "hearing";
 	        }
-	        
-	        model.addAttribute("systemName", systemNAme.replace(" phenotype", ""));
+	        String systemNameDisplay = systemName.substring(0, 1).toUpperCase() + systemName.substring(1);
+	        model.addAttribute("systemName", systemNameDisplay.replace(" phenotype", ""));
 	        model.addAttribute("procedures", procedures);
         }
         

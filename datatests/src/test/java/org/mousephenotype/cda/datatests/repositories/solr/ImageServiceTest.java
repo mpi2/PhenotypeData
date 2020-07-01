@@ -160,7 +160,7 @@ public class ImageServiceTest {
             failed = true;
         }
 
-        mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex, organ);
+        mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex);
 
         expectedSize = 207009;                  // 26-Oct-2017 (mrelac) As of this date there were 207009 mutant images found.
         actualSize   = mutantImages.size();
@@ -175,9 +175,6 @@ public class ImageServiceTest {
         assertTrue(message, ! failed);
     }
 
-    // FIXME FIXME FIXME This test fails as of 03-Apr-2019, so I'm disabling it as there isn't any obvious failure observed here. Will research later.
-    // FIXME FIXME FIXME 15-Apr-2019 (mrelac) Why is the ImageService querying with unknown field 'parameter_association_value'?
-    @Ignore
     @Test
     public void testGetComparisonViewerMethodsWithExpression() throws IOException, SolrServerException {
 
@@ -210,7 +207,7 @@ public class ImageServiceTest {
 
         assertTrue(message, actualSize >= expectedSize);
 
-        mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex, organ);
+        mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex);
 
         expectedSize = 3;                      // 26-Oct-2017 (mrelac) As of this date there were 34 mutant images found.
         actualSize   = mutantImages.size();
@@ -256,7 +253,7 @@ public class ImageServiceTest {
             failed = true;
         }
 
-        mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex, organ);
+        mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex);
 
         expectedSize = 2;                       // 26-Oct-2017 (mrelac) As of this date there were 2 mutant images found.
         actualSize   = mutantImages.size();
@@ -307,7 +304,7 @@ public class ImageServiceTest {
             failed = true;
         }
 
-        mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex, organ);
+        mutantImages = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sex);
 
         expectedSize = 0;                       // 26-Oct-2017 (mrelac) As of this date there were no mutant images found.
         actualSize   = mutantImages.size();

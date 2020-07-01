@@ -1,5 +1,20 @@
-package org.mousephenotype.cda.owl;
+/*******************************************************************************
+ * Copyright 2015 EMBL - European Bioinformatics Institute
+ *
+ * Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+ * either express or implied. See the License for the specific
+ * language governing permissions and limitations under the
+ * License.
+ *******************************************************************************/
 
+package org.mousephenotype.cda.owl;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
@@ -10,15 +25,12 @@ import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.search.EntitySearcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-
 
 public class OntologyParser {
 
@@ -42,56 +54,18 @@ public class OntologyParser {
     private Map<String, Set<OWLClass>> ancestorsCache;
     private Map<String, OntologyTermDTO> termMap = new HashMap<>(); // OBO-style ids because that's what we index.
     private Map<String, OWLClass> classMap = new HashMap<>(); // OBO id to OWLClass object. We need this to avoid pre-loading of referrenced classes (MAs from MP)
-    private Set<String> termsInSlim; // <ids of classes on slim>
-    private TreeSet<String> topLevelIds;
+    private Set<String>           termIdsInSlim; // <ids of classes on slim>
+    private TreeSet<String>       topLevelIds;
     private List<OntologyTermDTO> toplevelterms;
     private Map<Integer, OntologyTermDTO> nodeTermMap = new HashMap<>(); // <nodeId, ontologyId>
 
-    /**
-     *
-     * @param pathToOwlFile
-     * @param prefix
-     * @param topLevelIds ontology ids to be used as top level (selected top level); Only need to pass this if you want top levels or intermediate terms up to the top level;
-     * @param wantedIds ids to be used for the slim. If null whole ontology will be used.
-     * @throws OWLOntologyCreationException
-     */
-//    public OntologyParser(String pathToOwlFile, String prefix, Collection<String> topLevelIds, Set<String> wantedIds)
-//            throws OWLOntologyCreationException, IOException, OWLOntologyStorageException {
-//
-//        setUpParser(pathToOwlFile);
-//
-//        if (wantedIds != null){
-//            getTermsInSlim(wantedIds, prefix);
-//        }
-//
-//        if (topLevelIds != null) {
-//            this.topLevelIds = new TreeSet<>(); // sort alphabetically
-//            this.topLevelIds.addAll(topLevelIds);
-//        }
-//
-//        Set<OWLClass> allClasses = ontology.getClassesInSignature();
-//        for (OWLClass cls : allClasses){
-//            if (startsWithPrefix(cls, prefix)){
-//                OntologyTermDTO term = getDTO(cls, prefix);
-//                term.setEquivalentClasses(getEquivaletNamedClasses(cls, prefix));
-//
-//                // 20171018 // JM // Filtered _in_ the root term and top level terms (if supplied)
-////                if ( ! (term.getChildIds().size() > 0 && term.getParentIds().size() == 0) &&
-////                        (topLevelIds != null && ! topLevelIds.contains(term.getAccessionId()))
-////                        && term.getTopLevelIds().size() == 0) {
-////                    continue;
-////                }
-//
-//                termMap.put(term.getAccessionId(), term);
-//                classMap.put(term.getAccessionId(), cls);
-//            }
-//        }
-//    }
-
     public OntologyParser(String pathToOwlFile, String prefix, Collection<String> topLevelIds, Set<String> wantedIds)
-            throws OWLOntologyCreationException, IOException, OWLOntologyStorageException {
+            throws IOException, OWLOntologyStorageException {
 
         setUpParser(pathToOwlFile);
+
+        // Turn off annoying INFO messages.
+        LogManager.getLogger("org.semanticweb.elk").setLevel(Level.WARN);
 
         if (wantedIds != null){
             getTermsInSlim(wantedIds, prefix);
@@ -102,9 +76,9 @@ public class OntologyParser {
             this.topLevelIds.addAll(topLevelIds);
         }
 
-        OWLReasoner r = null;
+        OWLReasoner owlReasoner = null;
         if (pathToOwlFile.contains("mp-hp.owl")) {
-            r = new ElkReasonerFactory().createReasoner(ontology);
+            owlReasoner = new ElkReasonerFactory().createReasoner(ontology);
         }
 
         Set<OWLClass> allClasses = ontology.getClassesInSignature();
@@ -115,66 +89,59 @@ public class OntologyParser {
                 OntologyTermDTO term = getDTO(cls, prefix);
 
                 if (pathToOwlFile.contains("mp-hp.owl")) {
-
-                    // use reasoner to get equivalent and subclasses
-
-                    // get the children of MP term as subClasses (we call it narrow synonyms)
-                    // level of 2 means starting from the first level child(ren) (ie, level 1) and the child(ren) of the first level child (level 2)
-                    int level = 3;
-                    Set<OntologyTermDTO> equivalentClasses = new HashSet<>();
-                    Set<OntologyTermDTO> narrowSynonymClasses = new HashSet<>();
-
-                    // using reasoner to get equivalent classes
-                    Set<OWLClass> eqClasses = r.getEquivalentClasses(cls).getEntities();
-                    for (OWLClass eqc : eqClasses) {
-                        String humanPhenotypePrefix = "HP";  // MP-HP mapping happens here
-
-                        if (eqc.getIRI().getShortForm().startsWith(humanPhenotypePrefix)) {
-                            OntologyTermDTO thisTerm = getDTO(eqc, humanPhenotypePrefix);
-                            //System.out.println(term.getAccessionId() + " - equivalent class: " + term.getAccessionId());
-                            equivalentClasses.add(thisTerm);
-                        }
-                    }
-
-                    // using reasoner to get subclasses (narrow synonym)
-                    // getsubclasses(true) gets all direct subclasses (ie, only one level down)
-                    // getssubclasses(false) gets ALL subclasses (ie, all recursive levels down)
-
-                    if (! term.getAccessionId().equals("MP:0000001")) {  // exclude MP root term for narrow synonyms
-                        Set<OWLClass> subClasses = r.getSubClasses(cls, true).getFlattened();
-                        for (OWLClass sc : subClasses) {
-                            OntologyTermDTO thisTerm = getDTO(sc, prefix);
-                            String termId = thisTerm.getAccessionId();
-                            if (termId.startsWith("MP") || termId.startsWith("HP")) {
-                                //System.out.println(term.getAccessionId() + " -- narrow synonym class: " + termId);
-
-                                // no need to distinguish inside or outside slim as we use full ontology
-                                narrowSynonymClasses.add(thisTerm);  // this one is level 1
-                                getNextLevelNarrowSynonyms(r, sc, level - 1, narrowSynonymClasses); // next whatever levels
-                            }
-                        }
-
-                        term.setEquivalentClasses(equivalentClasses);
-                        term.setNarrowSynonymClasses(narrowSynonymClasses);
-                    }
+                    parseMpHp(prefix, owlReasoner, cls, term);
                 }
                 else {
                     term.setEquivalentClasses(getEquivaletNamedClasses(cls, prefix));
                 }
 
-                // 20171018 // JM // Filtered _in_ the root term and top level terms (if supplied)
-//                if ( ! (term.getChildIds().size() > 0 && term.getParentIds().size() == 0) &&
-//                        (topLevelIds != null && ! topLevelIds.contains(term.getAccessionId()))
-//                        && term.getTopLevelIds().size() == 0) {
-//                    continue;
-//                }
-
                 termMap.put(term.getAccessionId(), term);
                 classMap.put(term.getAccessionId(), cls);
-
-                // Turn off annoying INFO messages.
-                LogManager.getLogger("org.semanticweb.elk").setLevel(Level.WARN);
             }
+        }
+    }
+
+    private void parseMpHp(String prefix, OWLReasoner owlReasoner, OWLClass cls, OntologyTermDTO term) {
+        // use reasoner to get equivalent and subclasses
+
+        // get the children of MP term as subClasses (we call it narrow synonyms)
+        // level of 2 means starting from the first level child(ren) (ie, level 1) and the child(ren) of the first level child (level 2)
+        int                  level                = 3;
+        Set<OntologyTermDTO> equivalentClasses    = new HashSet<>();
+        Set<OntologyTermDTO> narrowSynonymClasses = new HashSet<>();
+
+        // using reasoner to get equivalent classes
+        Set<OWLClass> eqClasses = owlReasoner.getEquivalentClasses(cls).getEntities();
+        for (OWLClass eqc : eqClasses) {
+            String humanPhenotypePrefix = "HP";  // MP-HP mapping happens here
+
+            if (eqc.getIRI().getShortForm().startsWith(humanPhenotypePrefix)) {
+                OntologyTermDTO thisTerm = getDTO(eqc, humanPhenotypePrefix);
+                //System.out.println(term.getAccessionId() + " - equivalent class: " + term.getAccessionId());
+                equivalentClasses.add(thisTerm);
+            }
+        }
+
+        // using reasoner to get subclasses (narrow synonym)
+        // getsubclasses(true) gets all direct subclasses (ie, only one level down)
+        // getssubclasses(false) gets ALL subclasses (ie, all recursive levels down)
+
+        if (! term.getAccessionId().equals("MP:0000001")) {  // exclude MP root term for narrow synonyms
+            Set<OWLClass> subClasses = owlReasoner.getSubClasses(cls, true).getFlattened();
+            for (OWLClass sc : subClasses) {
+                OntologyTermDTO thisTerm = getDTO(sc, prefix);
+                String termId = thisTerm.getAccessionId();
+                if (termId.startsWith("MP") || termId.startsWith("HP")) {
+                    //System.out.println(term.getAccessionId() + " -- narrow synonym class: " + termId);
+
+                    // no need to distinguish inside or outside slim as we use full ontology
+                    narrowSynonymClasses.add(thisTerm);  // this one is level 1
+                    getNextLevelNarrowSynonyms(owlReasoner, sc, level - 1, narrowSynonymClasses); // next whatever levels
+                }
+            }
+
+            term.setEquivalentClasses(equivalentClasses);
+            term.setNarrowSynonymClasses(narrowSynonymClasses);
         }
     }
 
@@ -198,77 +165,6 @@ public class OntologyParser {
     }
 
 
-    public List<OntologyTermDTO> getTopLevelTerms(){
-        if (toplevelterms == null){
-            toplevelterms = new ArrayList<>();
-            for (String topLevelId : topLevelIds){
-                toplevelterms.add(termMap.get(topLevelId));
-            }
-        }
-        return toplevelterms;
-
-    }
-
-    /**
-     * Computes paths in the format needed for TreeJs, for the ontology browsers.
-     * [!] This is not computed by default. If you want the trees, call this method on the parser first.
-     * @throws JSONException 
-     */
-    public void fillJsonTreePath(String rootId, String pathToPage,  Map<String, Integer>  countsMap, List<String> treeBrowserTopLevels, Boolean withPartOf) throws JSONException {
-
-        OWLClass root = classMap.get(rootId);
-        // fill lists with nodes on path
-        fillJsonTreePath(root, new ArrayList<>(), withPartOf, rootId);
-        // use node list to generate JSON documents
-        for ( String id : getTermsInSlim()) {
-            OntologyTermDTO  term       = getOntologyTerm(id);
-            List<JSONObject> searchTree = TreeJsHelper.createTreeJson(term, pathToPage, this, countsMap, treeBrowserTopLevels);
-            term.setSeachJson(searchTree.toString());
-            String scrollNodeId = TreeJsHelper.getScrollTo(searchTree);
-            term.setScrollToNode(scrollNodeId);
-            List<JSONObject> childrenTree = TreeJsHelper.getChildrenJson(term, pathToPage, this, countsMap);
-            term.setChildrenJson(childrenTree.toString());
-        }
-    }
-
-
-    /**
-     *
-     * @param cls - start from root.
-     */
-    private void fillJsonTreePath (OWLClass cls, List<Integer> pathFromRoot, Boolean withPartOf, String rootId){
-
-        if (cls != null && (!getIdentifierShortForm(cls).equalsIgnoreCase(rootId) || nodeTermMap.size() == 0)){ // avoid starting over from root
-
-            int nodeId = nodeTermMap.size();
-            OntologyTermDTO ontDTO = getOntologyTerm(getIdentifierShortForm(cls));
-
-            pathFromRoot.add(nodeId);
-            Set<OWLClass> childrenPartOf = getChildren(cls, withPartOf);
-            ontDTO.addPathsToRoot(nodeId, new ArrayList<>(pathFromRoot));
-            nodeTermMap.put(nodeId, ontDTO);
-
-            if (childrenPartOf != null){
-                for (OWLClass child: childrenPartOf){
-                    fillJsonTreePath(child, new ArrayList<>(pathFromRoot), withPartOf, rootId);
-                }
-            }
-        }
-
-    }
-
-
-    private Boolean startsWithPrefix(OWLClass cls, Collection<String> prefix){
-        if (prefix == null){
-            return true; // when prefix is passed as null it means we don't care about it; take everything
-        }
-        for (String p: prefix) {
-            if (!getIdentifierShortForm(cls).startsWith(p + ":")) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     private Boolean startsWithPrefix(OWLClass cls, String prefix){
         return (prefix == null || getIdentifierShortForm(cls).startsWith(prefix + ":"));
@@ -276,7 +172,7 @@ public class OntologyParser {
 
 
     public List<OntologyTermDTO> getTerms(){
-        return termMap.values().stream().collect(Collectors.toList());
+        return new ArrayList<>(termMap.values());
     }
 
 
@@ -287,22 +183,12 @@ public class OntologyParser {
         return termMap.get(accessionId);
     }
 
-    /**
-     * Only works if you filled the nodes first
-     * @param nodeId
-     * @return
-     */
-    public OntologyTermDTO getOntologyTerm (Integer nodeId){
-        return nodeTermMap.get(nodeId);
-    }
-
 
     /**
      * Set up properties for parsing ontology.
-     * @throws OWLOntologyCreationException
      */
     private void setUpParser(String pathToOwlFile)
-            throws OWLOntologyCreationException, OWLOntologyStorageException {
+            throws OWLOntologyStorageException {
 
         LABEL_ANNOTATION = factory.getRDFSLabel();
 
@@ -389,7 +275,6 @@ public class OntologyParser {
         return res;
     }
 
-
     private Set<OWLClass> getDescendentsPartOf(OWLClass cls, int maxLevels, int currentLevel, Set<OWLClass> children ){
 
         Set<OWLClass> subclasses = getChildren(cls, true);
@@ -402,10 +287,9 @@ public class OntologyParser {
                 }
             }
         }
+
         return children;
-
     }
-
 
     /**
      *  OWL identifiers look like "http://purl.obolibrary.org/obo/MA_0100084" and we want "MA:0100084", which is the old OBO style
@@ -415,7 +299,6 @@ public class OntologyParser {
     protected String getIdentifierShortForm (OWLClass cls){
         return cls.getIRI().getShortForm().replace("_", ":");
     }
-
 
     /**
      *
@@ -432,10 +315,9 @@ public class OntologyParser {
                 altIds.add(altId.getLiteral());
             }
         }
+
         return altIds;
-
     }
-
 
     /**
      *
@@ -449,10 +331,9 @@ public class OntologyParser {
                 return label.getLiteral();
             }
         }
+
         return "";
-
     }
-
 
     /**
      *
@@ -469,9 +350,9 @@ public class OntologyParser {
                 }
             }
         }
+
         return null;
     }
-
 
     /**
      * @param cls
@@ -492,7 +373,6 @@ public class OntologyParser {
 
         return synonyms;
     }
-
 
     private OntologyTermDTO getDTO(OWLClass cls, String prefix){
 
@@ -539,9 +419,9 @@ public class OntologyParser {
                 eqClasses.add(getDTO(classExpression.asOWLClass(), prefix));
             }
         }
+
         return  eqClasses;
     }
-
 
     public Set<String> getReferencedClasses(String clsId, Set<OWLObjectPropertyImpl> viaProperties, String prefixOfReferrencedClass){
 
@@ -576,16 +456,15 @@ public class OntologyParser {
                 }
             }
         }
+
         // Return the ids, but filter for the right prefix
         return  res.stream().filter(cls -> {return startsWithPrefix(cls, prefixOfReferrencedClass);})
             .map(cls -> {return getIdentifierShortForm(cls);}).collect(Collectors.toSet());
     }
 
+    public Set<String> getTermIdsInSlim(){
 
-    public Set<String> getTermsInSlim(){
-
-        return termsInSlim;
-
+        return termIdsInSlim;
     }
 
     /**
@@ -600,8 +479,8 @@ public class OntologyParser {
             throws IOException, OWLOntologyStorageException {
 
         // Cache it in termsInSlim so we don't have to re-compute this every time
-        if (termsInSlim != null){
-            return termsInSlim;
+        if (termIdsInSlim != null){
+            return termIdsInSlim;
         }
 
         // Add replacement ids for deprecated classes to wanted ids
@@ -632,10 +511,10 @@ public class OntologyParser {
             }
         }
 
-        termsInSlim = classesInSlim;
-        logger.debug("Set termsInSlim " + termsInSlim.size());
-        return classesInSlim;
+        termIdsInSlim = classesInSlim;
+        logger.debug("Set termsInSlim " + termIdsInSlim.size());
 
+        return classesInSlim;
     }
 
     protected OWLClass getOwlClass(String shortFormId){
@@ -661,7 +540,6 @@ public class OntologyParser {
         return ancestorIds;
     }
 
-
     protected String getXref(OWLClass cls,  String prefixOfCrossRef) {
 
         if (!cls.getIRI().isNothing() && EntitySearcher.getAnnotations(cls, ontology, X_REF) != null) {
@@ -677,9 +555,7 @@ public class OntologyParser {
         }
 
         return null;
-
     }
-
 
     // TODO run reasoner on ontology first
     /**
@@ -718,9 +594,7 @@ public class OntologyParser {
         }
 
         return ancestorIds;
-
     }
-
 
     /**
      *
@@ -731,9 +605,9 @@ public class OntologyParser {
     private void addChildrenInfo(OWLClass cls, OntologyTermDTO term, String prefix){
 
         Set<OWLClass> children = getChildren(cls, true);
-        if (termsInSlim != null){
+        if (termIdsInSlim != null){
             // Filter out child terms not in slim or with another prefix
-            children = children.stream().filter(termCls -> { return termsInSlim.contains(getIdentifierShortForm(termCls)) || !startsWithPrefix(termCls, prefix);}).collect(Collectors.toSet());
+            children = children.stream().filter(termCls -> { return termIdsInSlim.contains(getIdentifierShortForm(termCls)) || !startsWithPrefix(termCls, prefix);}).collect(Collectors.toSet());
         }
         for (OWLClass child : children){
             term.addChildId(getIdentifierShortForm(child.asOWLClass()));
@@ -757,7 +631,6 @@ public class OntologyParser {
                 term.addTopLevelTermIdsConcatenated(getLabel(topLevel), getIdentifierShortForm(topLevel));
             }
         }
-
     }
 
     /**
@@ -786,7 +659,6 @@ public class OntologyParser {
                 term.addIntermediateSynonyms(getSynonyms(intermediateTerm));
             }
         }
-
     }
 
 
@@ -834,7 +706,6 @@ public class OntologyParser {
         return false;
     }
 
-
     /**
      *
      * @param cls
@@ -852,10 +723,9 @@ public class OntologyParser {
                 return ((OWLLiteral) res.iterator().next().getValue()).getLiteral();
             }
         }
+
         return null;
-
     }
-
 
     /**
      *
@@ -882,15 +752,13 @@ public class OntologyParser {
         if (ann.getValue() instanceof OWLLiteral){
             consider = ((OWLLiteral) ann.getValue()).getLiteral();
         }
+
         return consider;
-
     }
-
 
     private Set<OWLClass> getChildren(OWLClass cls, Boolean withPartOf){
 
         Set<OWLClass> children = new HashSet<>();
-
         Collection<OWLAxiom> referencingAxioms = EntitySearcher.getReferencingAxioms(cls, ontology);
 
         if (withPartOf) {
@@ -911,13 +779,14 @@ public class OntologyParser {
                 }
             }
         }
+
         // add simple parents (is-a)
         for ( OWLClassExpression classExpression: EntitySearcher.getSubClasses(cls, ontology)){
             if (classExpression.isClassExpressionLiteral()){
                 children.add(classExpression.asOWLClass());
             }
         }
-        return children;
 
+        return children;
     }
 }

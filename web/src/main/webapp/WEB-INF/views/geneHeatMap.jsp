@@ -20,19 +20,19 @@
     <table>
         <tr>
             <td>
-                <div class="table_legend_color hm-significant"></div>
+                <div class="table_legend_color hm-significant">&nbsp;</div>
                 <div class="table_legend_key">Deviance Significant</div>
             </td>
             <td>
-                <div class="table_legend_color hm-not-significant"></div>
+                <div class="table_legend_color hm-not-significant">&nbsp;</div>
                 <div class="table_legend_key">Data analysed, no significant call</div>
             </td>
             <td>
-                <div class="table_legend_color hm-not-analysed"></div>
+                <div class="table_legend_color hm-not-analysed">&nbsp;</div>
                 <div class="table_legend_key">Could not analyse</div>
             </td>
             <td>
-                <div class="table_legend_color hm-no-data"></div>
+                <div class="table_legend_color hm-no-data">&nbsp;</div>
                 <div class="table_legend_key">No data</div>
             </td>
         </tr>
@@ -55,9 +55,9 @@
 
     <c:forEach items="${geneRows}" var="row">
         <tr>
-            <td><a href="${baseUrl}/genes/${row.accession}"> ${row.symbol} <i
-                    class="icon icon-species">M</i></a><br/> ${row.getHumanSymbolToString()}<i
-                    class="icon icon-species">H</i></td>
+            <td>
+                <a href="${baseUrl}/genes/${row.accession}">${row.symbol}</a>
+                <br/>${row.getHumanSymbolToString()}</td>
             <td>${row.groupLabel}</td>
             <td>${row.miceProduced}</td>
             <c:forEach var="xAxisBean" items="${xAxisBeans}">
@@ -85,7 +85,9 @@
         $(document).ready(function () {
             $('#secondaryGeneHeatmap').DataTable({
                 sortable: true,
-                "sPaginationType": "bootstrap"
+                fixedColumns: {
+                    leftColumns: 2
+                }
             });
 
         });

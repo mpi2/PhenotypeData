@@ -84,7 +84,7 @@ public class OntologyAnnotationGeneratorTest {
 
     @Test
     public void testGetAllOptionsForParameter() throws Exception {
-        Parameter parameter = parameterRepository.getByStableId("IMPC_XRY_001_001");
+        Parameter parameter = parameterRepository.getFirstByStableId("IMPC_XRY_001_001");
 
         Map<String, OntologyTerm> results =  mpTermService.getAllOptionsForParameter(connection, ontologyTermRepository, parameter, PhenotypeAnnotationType.abnormal);
 
@@ -98,7 +98,7 @@ public class OntologyAnnotationGeneratorTest {
 
     @Test
     public void testGetAnnotationTypeMap() throws Exception {
-        Parameter parameter = parameterRepository.getByStableId("IMPC_HEM_001_001");
+        Parameter parameter = parameterRepository.getFirstByStableId("IMPC_HEM_001_001");
 
         MultiKeyMap annotationsMap = mpTermService.getAnnotationTypeMap(parameter.getStableId(), connection, ontologyTermRepository, parameterRepository);
 
@@ -115,7 +115,7 @@ public class OntologyAnnotationGeneratorTest {
 
     @Test
     public void testGetAnnotationTypeMap3iParameter() throws Exception {
-        Parameter parameter = parameterRepository.getByStableId("MGP_PBI_036_001");
+        Parameter parameter = parameterRepository.getFirstByStableId("MGP_PBI_036_001");
 
         MultiKeyMap annotationsMap = mpTermService.getAnnotationTypeMap(parameter.getStableId(), connection, ontologyTermRepository, parameterRepository);
         Set<OntologyTerm> annotationsFlatMap = new HashSet();
@@ -146,7 +146,7 @@ public class OntologyAnnotationGeneratorTest {
 
     @Test
     public void testGetAnnotationTypeMapNoNormal() throws Exception {
-        Parameter parameter = parameterRepository.getByStableId("M-G-P_014_001_001");
+        Parameter parameter = parameterRepository.getFirstByStableId("M-G-P_014_001_001");
 
         MultiKeyMap annotationsMap = mpTermService.getAnnotationTypeMap(parameter.getStableId(), connection, ontologyTermRepository, parameterRepository);
 
@@ -203,7 +203,7 @@ public class OntologyAnnotationGeneratorTest {
 
     @Test
     public void testGetUnidimensionalResultsAndTerm_IMPC_HEM_001_001() throws SQLException {
-        Parameter parameter = parameterRepository.getByStableId("IMPC_HEM_001_001");
+        Parameter parameter = parameterRepository.getFirstByStableId("IMPC_HEM_001_001");
 
         Pipeline pipeline = pipelineRepository.getByStableId("MGP_001");
         List<ResultDTO> results = mpGenerator.getUnidimensionalResults(connection);
@@ -288,8 +288,8 @@ public class OntologyAnnotationGeneratorTest {
 
         mpGenerator.processLineParameters(lineResults);
 
-        Parameter mp = parameterRepository.getByStableId("IMPC_FER_001_001"); //fale fertility
-        Parameter fp = parameterRepository.getByStableId("IMPC_FER_019_001"); //female fertility
+        Parameter mp = parameterRepository.getFirstByStableId("IMPC_FER_001_001"); //fale fertility
+        Parameter fp = parameterRepository.getFirstByStableId("IMPC_FER_019_001"); //female fertility
         String query = "SELECT * FROM phenotype_call_summary WHERE parameter_id IN (" + mp.getId() + ", " + fp.getId() + ")";
         int checked = 0;
         try (Connection cnx = komp2DataSource.getConnection(); PreparedStatement statement = cnx.prepareStatement(query)) {
@@ -323,7 +323,7 @@ public class OntologyAnnotationGeneratorTest {
 
         Set<Parameter> embLineParams = new HashSet<>();
         for(String parm : Arrays.asList("IMPC_EVL_001_001", "IMPC_EVM_001_001", "IMPC_EVO_001_001", "IMPC_EVP_001_001")) {
-            embLineParams.add(parameterRepository.getByStableId(parm));
+            embLineParams.add(parameterRepository.getFirstByStableId(parm));
         }
 
         assert(lineResults.size()>100);
@@ -337,7 +337,7 @@ public class OntologyAnnotationGeneratorTest {
     @Test
     public void testCategoricalResults() throws SQLException {
 
-        Long parameterId = parameterRepository.getByStableId("M-G-P_026_001_029").getId();
+        Long parameterId = parameterRepository.getFirstByStableId("M-G-P_026_001_029").getId();
         List<ResultDTO> categoriocalResults = mpGenerator.getCategoricalResults(connection);
 
         assert(categoriocalResults.size()>100);
@@ -391,7 +391,7 @@ public class OntologyAnnotationGeneratorTest {
     @Test
     public void testSignificantCategoricalResultVps4aLensOpacity() throws  Exception {
 
-        Long parameterId = parameterRepository.getByStableId("IMPC_EYE_017_001").getId();
+        Long parameterId = parameterRepository.getFirstByStableId("IMPC_EYE_017_001").getId();
         List<ResultDTO> categoricalResults = mpGenerator.getCategoricalResults(connection);
         ResultDTO toSave = null;
 
@@ -451,13 +451,18 @@ public class OntologyAnnotationGeneratorTest {
 
         // Attempt to "save" the result
         mpGenerator.initializeSexSpecificMap(connection);
+        mpGenerator.initializeInsertPhenotypeCallSummaryStatement(connection);
+        mpGenerator.initializeInsertCategoricalStatResultPhenotypeCallSummaryStatement(connection);
+        mpGenerator.initializeInsertUnidimensionalStatResultPhenotypeCallSummaryStatement(connection);
+        mpGenerator.initializeInsertRRPlusStatResultPhenotypeCallSummaryStatement(connection);
+
         mpGenerator.saveCategoricalResult(connection, toSave);
     }
 
     @Test
     public void testCategoricalResultBmp4EyelidClosure() throws SQLException {
 
-        Long parameterId = parameterRepository.getByStableId("IMPC_EYE_005_001").getId();
+        Long parameterId = parameterRepository.getFirstByStableId("IMPC_EYE_005_001").getId();
         List<ResultDTO> categoriocalResults = mpGenerator.getCategoricalResults(connection);
 
         assert(categoriocalResults.size()>100);
@@ -522,7 +527,7 @@ public class OntologyAnnotationGeneratorTest {
     @Test
     public void testSexuallyDimorphicCategoricalResult() throws SQLException {
 
-        Long parameterId = parameterRepository.getByStableId("IMPC_EYE_092_001").getId();
+        Long parameterId = parameterRepository.getFirstByStableId("IMPC_EYE_092_001").getId();
         List<ResultDTO> categoriocalResults = mpGenerator.getCategoricalResults(connection);
 
         assert(categoriocalResults.size()>100);

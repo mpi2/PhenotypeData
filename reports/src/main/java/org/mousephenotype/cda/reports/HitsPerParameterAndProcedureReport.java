@@ -30,7 +30,6 @@ import java.beans.Introspector;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Hits Per Parameter And Procedure report.
@@ -84,7 +83,7 @@ public class HitsPerParameterAndProcedureReport extends AbstractReport {
             result.add(procedures);
             csvWriter.writeAllMulti(result);
 
-        } catch (SolrServerException | IOException | InterruptedException | ExecutionException e) {
+        } catch (SolrServerException | IOException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }
 

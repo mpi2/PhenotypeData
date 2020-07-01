@@ -22,6 +22,7 @@ import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -60,7 +61,8 @@ public class GeneHeatmapController {
 	 * @throws SolrServerException, IOException
          */
 	@RequestMapping("/geneHeatMap")
-	public String getHeatmapJS(@RequestParam(required = true, value = "project") String project,
+	@Cacheable("geneHeatMapCache")
+	public String getHeatmapJS(@RequestParam(value = "project") String project,
                 Model model,
                 HttpServletRequest request) throws SolrServerException, IOException, SQLException {
 
@@ -80,6 +82,7 @@ public class GeneHeatmapController {
 
 
 	@RequestMapping("/threeIMap")
+	@Cacheable("geneHeatMapCache")
 	public String getThreeIMap(Model model, HttpServletRequest request)
 			throws SolrServerException, IOException, SQLException {
 

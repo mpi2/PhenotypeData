@@ -14,7 +14,7 @@
         <meta name="_csrf" content="${_csrf.token}"/>
         <meta name="_csrf_header" content="${_csrf.headerName}"/>
 
-        <link href="${cmsBaseUrl}/wp-content/themes/impc/css/styles.css?ver=40ab77c511c0b72810d6828792c28c78" rel="stylesheet" type="text/css"/>
+        <link href="${cmsBaseUrl}/wp-content/themes/impc/css/styles.css?version=20200213" rel="stylesheet" type="text/css"/>
 
 		<script type="application/ld+json">
             {
@@ -155,7 +155,7 @@
                     </div>
 
                     <div class="pre-content pr-md-25">
-                        <h2>Search</h2>
+                        <h2>${fn:toUpperCase(fn:substring(type, 0, 1))}${fn:toLowerCase(fn:substring(type, 1,fn:length(type)))} search results</h2>
 
                         <div class="page-content pb-5">
 
@@ -164,7 +164,7 @@
                             </c:if>
                             <c:if test="${numberOfResults == 0}">
                                 <div>
-                                    <p>No results found for search term "${term}".</p>
+                                    <p>No results found for ${type} "${term}".</p>
                                     <c:if test="${fn:length(phenotypeSuggestions) > 0 || fn:length(geneSuggestions) > 0}">
                                         <hr />
                                         Perhaps you were searching for:
@@ -181,8 +181,9 @@
                                             </c:forEach>
                                         </ul>
                                     </c:if>
+                                    <p>This search only looked in our ${type} database.</p>
                                     <p class="my-3">
-                                        <a class="btn btn-success" href="${cmsBaseUrl}/?s=${term}">Search static content for the term <b>${term}</b></a>
+                                        <a class="btn btn-success" href="${cmsBaseUrl}/?s=${term}">Search documentation, news, and blog posts for <b>${term}</b></a>
                                     </p>
                                 </div>
                             </c:if>

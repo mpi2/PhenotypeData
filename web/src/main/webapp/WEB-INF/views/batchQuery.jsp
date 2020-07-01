@@ -772,116 +772,119 @@
 
     <jsp:body>
         <div class="container data-heading">
-            <div class="row row-shadow">
+            <div class="row">
                 <div class="col-12 no-gutters">
-                    <h2>IMPC Dataset Batch Query</h2>
+                    <h2 class="mb-0">IMPC Dataset Batch Query</h2>
                 </div>
             </div>
         </div>
 
 
-        <div class="container single single--no-side">
-            <div class="row row-over-shadow">
-                <div class="col-12 white-bg">
-                    <div class="page-content pt-5 pb-5">
-                        <div class="section">
+        <div class="container white-bg-small">
+            <div class="row pb-5">
+                <div class="col-12 col-md-12">
+                    <div class="page-content people py-5 white-bg">
+                        <div class="page-content pt-5 pb-5">
+                            <div class="section">
 
-                            <!--  <h2 id="section-gostats" class="title ">IMPC Dataset Batch Query</h2>-->
-                            <div class='inner' id='srchBlock'>
+                                <!--  <h2 id="section-gostats" class="title ">IMPC Dataset Batch Query</h2>-->
+                                <div class='inner' id='srchBlock'>
 
-                                <div class='fl2'>
+                                    <div class='fl2'>
 
-                                    <h6 class='bq'>Customized Output</h6>
-                                    <div id='fieldList'>${outputFields}</div>
-                                </div>
+                                        <h6 class='bq'>Customized Output</h6>
+                                        <div id='fieldList'>${outputFields}</div>
+                                    </div>
 
-                                <div class='fl1'>
-                                    <h6 class='bq'>Datatype Input</h6>
-                                    <div id='query'>
-                                        <table id='dataInput'>
-                                            <tr>
-                                                <td><span class='cat'>ID:</span></td>
-                                                <td><input type="radio" id="gene" value="MGI:106209" name="dataType"
-                                                           class='bq' checked="checked">IMPC Gene
-                                                    <input type="radio" id="ensembl" value="ENSMUSG00000011257"
-                                                           name="dataType" class='bq'>Ensembl Gene
-                                                    <input type="radio" id="mp" value="MP:0001926" name="dataType"
-                                                           class='bq'>MP
-                                                    <input type="radio" id="hp" value="HP:0000400" name="dataType"
-                                                           class='bq'>HP<br>
-                                                    <input type="radio" id="disease"
-                                                           value="OMIM:100300 or ORPHA:93 or DECIPHER:17"
-                                                           name="dataType" class='bq'>OMIM / ORPHANET / DECIPHER
-                                                    <input type="radio" id="anatomy"
-                                                           value="MA:0003077 or EMAPA:35955 (ok to mix)" name="dataType"
-                                                           class='bq'>ANATOMY
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><span class='cat'>Symbol:</span></td>
-                                                <td><input type="radio" id="human_marker_symbol"
-                                                           value="Ca4 or CA4 (case insensitive). Synonym search supported"
-                                                           name="dataType" class='bq'>Human Marker Symbol
-                                                    <input type="radio" id="mouse_marker_symbol"
-                                                           value="Car4 or CAR4 (case insensitive). Synonym search supported"
-                                                           name="dataType" class='bq'>Mouse Marker Symbol
-                                                </td>
-                                            <tr>
-                                                <td><span class='cat'>Example:</span></td>
-                                                <td class='note idnote'>MGI:106209</td>
-                                            </tr>
-                                        </table>
+                                    <div class='fl1'>
+                                        <h6 class='bq'>Datatype Input</h6>
+                                        <div id='query'>
+                                            <table id='dataInput'>
+                                                <tr>
+                                                    <td><span class='cat'>ID:</span></td>
+                                                    <td><input type="radio" id="gene" value="MGI:106209" name="dataType"
+                                                               class='bq' checked="checked">IMPC Gene
+                                                        <input type="radio" id="ensembl" value="ENSMUSG00000011257"
+                                                               name="dataType" class='bq'>Ensembl Gene
+                                                        <input type="radio" id="mp" value="MP:0001926" name="dataType"
+                                                               class='bq'>MP
+                                                        <input type="radio" id="hp" value="HP:0000400" name="dataType"
+                                                               class='bq'>HP<br>
+                                                        <input type="radio" id="disease"
+                                                               value="OMIM:100300 or ORPHA:93 or DECIPHER:17"
+                                                               name="dataType" class='bq'>OMIM / ORPHANET / DECIPHER
+                                                        <input type="radio" id="anatomy"
+                                                               value="MA:0003077 or EMAPA:35955 (ok to mix)" name="dataType"
+                                                               class='bq'>ANATOMY
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class='cat'>Symbol:</span></td>
+                                                    <td><input type="radio" id="human_marker_symbol"
+                                                               value="Ca4 or CA4 (case insensitive). Synonym search supported"
+                                                               name="dataType" class='bq'>Human Marker Symbol
+                                                        <input type="radio" id="mouse_marker_symbol"
+                                                               value="Car4 or CAR4 (case insensitive). Synonym search supported"
+                                                               name="dataType" class='bq'>Mouse Marker Symbol
+                                                    </td>
+                                                <tr>
+                                                    <td><span class='cat'>Example:</span></td>
+                                                    <td class='note idnote'>MGI:106209</td>
+                                                </tr>
+                                            </table>
 
-                                        <div id="accordion">
-                                            <p class='header'>Paste in your list</p>
-                                            <div>
-                                                <p>
-                                                    <form id='pastedIds'>
-                                                        <textarea id='pastedList' rows="5" cols="50"></textarea>
-                                                        <input type="submit" id="pastedlist" name="" value="Submit"
-                                                               onclick="return submitPastedList()"/>
-                                                        <input type="reset" name="reset" value="Reset">
-                                                <p>
-                                                <p class='notes'>Supports space, comma, tab or new line separated
-                                                    identifier list</p>
-                                                <p class='notes'>Please DO NOT submit a mix of identifiers from different datatypes</p>
-                                                </form>
-                                                </p>
-                                            </div>
-                                            <p class='header'>Upload your list from file</p>
-                                            <div>
-
-                                                <form id="ajaxForm" method="post" action="${baseUrl}/batchQuery"
-                                                      enctype="multipart/form-data">
-                                                    <!-- File input -->
-                                                    <input name="fileupload" id="fileupload" type="file"/><br/>
-                                                    <input name="dataType" id="dtype" value="" type="hidden"/><br/>
-                                                    <input type="submit" id="upload" name="upload" value="Upload"
-                                                           onclick="return uploadJqueryForm()"/>
-                                                    <input type="reset" name="reset" value="Reset">
+                                            <div id="accordion">
+                                                <p class='header'>Paste in your list</p>
+                                                <div>
                                                     <p>
-                                                    <p class='notes'>Supports comma, tab or new line separated
+                                                        <form id='pastedIds'>
+                                                            <textarea id='pastedList' rows="5" cols="50"></textarea>
+                                                            <input type="submit" id="pastedlist" name="" value="Submit"
+                                                                   onclick="return submitPastedList()"/>
+                                                            <input type="reset" name="reset" value="Reset">
+                                                    <p>
+                                                    <p class='notes'>Supports space, comma, tab or new line separated
                                                         identifier list</p>
-                                                    <p class='notes'>Please DO NOT submit a mix of identifiers from
-                                                        different datatypes</p>
-                                                </form>
+                                                    <p class='notes'>Please DO NOT submit a mix of identifiers from different datatypes</p>
+                                                    </form>
+                                                    </p>
+                                                </div>
+                                                <p class='header'>Upload your list from file</p>
+                                                <div>
 
+                                                    <form id="ajaxForm" method="post" action="${baseUrl}/batchQuery"
+                                                          enctype="multipart/form-data">
+                                                        <!-- File input -->
+                                                        <input name="fileupload" id="fileupload" type="file"/><br/>
+                                                        <input name="dataType" id="dtype" value="" type="hidden"/><br/>
+                                                        <input type="submit" id="upload" name="upload" value="Upload"
+                                                               onclick="return uploadJqueryForm()"/>
+                                                        <input type="reset" name="reset" value="Reset">
+                                                        <p>
+                                                        <p class='notes'>Supports comma, tab or new line separated
+                                                            identifier list</p>
+                                                        <p class='notes'>Please DO NOT submit a mix of identifiers from
+                                                            different datatypes</p>
+                                                    </form>
+
+                                                </div>
+                                                <p class='header'>Full dataset</p>
+                                                <form>
+                                                    <div id='fullDump'></div>
+                                                    Please use our <a id='ftp'
+                                                                      href='ftp://ftp.ebi.ac.uk/pub/databases/impc/'
+                                                                      target='_blank'>FTP</a> site for large dataset.
+                                                </form>
                                             </div>
-                                            <p class='header'>Full dataset</p>
-                                            <form>
-                                                <div id='fullDump'></div>
-                                                Please use our <a id='ftp'
-                                                                  href='ftp://ftp.ebi.ac.uk/pub/databases/impc/'
-                                                                  target='_blank'>FTP</a> site for large dataset.
-                                            </form>
+
                                         </div>
 
                                     </div>
-
                                 </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -889,26 +892,32 @@
 
         <div class="container" id="expression">
             <div class="row">
-                <div class="col-12 no-gutters">
+                <div class="col-12 col-md-12">
                     <h3><i class="fa fa-table"></i>&nbsp;Results</h3>
                 </div>
             </div>
         </div>
 
 
-        <div class="container single single--no-side">
+        <div class="container white-bg-small">
             <div class="row">
-                <div class="col-12 white-bg">
-                    <div class="page-content pt-5 pb-5">
-                        <div class="inner">
-                            <div class="section" id="sec2">
-                                <div class="inner">
-                                    <div id='infoBlock'></div>
-                                    <div id='errBlock'></div>
-                                    <div id='bqResult'></div>
+                <div class="col-12 col-md-12">
+                    <div class="pre-content clear-bg">
+                        <div class="page-content pt-5 pb-5">
+                            <div class="container p-0 p-md-2">
+                                <div class="row justify-content-end pb-3">
+                                    <div class="col-12">
+                                        <div class="section" id="sec2">
+                                            <div class="inner">
+                                                <div id='infoBlock'></div>
+                                                <div id='errBlock'></div>
+                                                <div id='bqResult'></div>
+                                            </div>
+                                        </div>
+
+                                    </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>

@@ -5,52 +5,16 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 <c:set var="omeroStaticUrl" value="${fn:replace(impcMediaBaseUrl,'/omero/webgateway', '/static/')}"/>
 <t:genericpage>
-
-<jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href='${baseUrl}/genes/${gene.mgiAccessionId}'>${gene.markerSymbol}</a>&nbsp;&raquo; Image Comparator</jsp:attribute>
-
-
  <jsp:attribute name="title">${gene.markerSymbol} Image Picker</jsp:attribute>
+	<jsp:attribute name="breadcrumb">&nbsp;&raquo;<a href="${baseUrl}/genes/${gene.mgiAccessionId}">${gene.markerSymbol}</a>&nbsp;&raquo; Image Comparator</jsp:attribute>
+	<jsp:attribute name="bodyTag"><body  class="chartpage no-sidebars small-header"></jsp:attribute>
 <jsp:attribute name="header">
-  
-  <!-- <style type="text/css">
-    .viewport {
-        height: 100px;
-        width: 800px;
-        padding: 10px;
-    }
-</style> -->
-  <!-- This min.css contains all the smaller css files below... ->
-    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/omeroweb.viewer.min.css" type="text/css" rel="stylesheet"></link> -->
 
-    <!-- But many of these can be removed if we limit the functionality of the viewer (E.g. no Channel sliders, color-pickers etc) -->
-
-    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/reset.css" type="text/css" rel="stylesheet"></link> -->
-    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.body.css" type="text/css" rel="stylesheet"></link> -->
-    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webclient/css/dusty.css" type="text/css" rel="stylesheet"></link> -->
     <link href="${omeroStaticUrl}webgateway/css/ome.viewport.css" type="text/css" rel="stylesheet"></link>
     
     <link href="${baseUrl}/css/comparator/comparator.css" rel="stylesheet" type="text/css" /><!-- put after default omero css so we can override -->
-    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.toolbar.css" type="text/css" rel="stylesheet"></link> -->
-  
-    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/base.css" type="text/css" rel="stylesheet"></link> -->
-    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.snippet_header_logo.css" type="text/css" rel="stylesheet"></link> -->
-    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.postit.css" type="text/css" rel="stylesheet"></link> -->
-    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.rangewidget.css" type="text/css" rel="stylesheet"></link> -->
-    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/3rdparty/farbtastic-1.2/farbtastic.css" type="text/css" rel="stylesheet"></link> -->
-    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/ome.colorbtn.css" type="text/css" rel="stylesheet"></link> -->
-    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/3rdparty/JQuerySpinBtn-1.3a/JQuerySpinBtn.css" type="text/css" rel="stylesheet"></link> -->
-    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/3rdparty/jquery-ui-1.10.4/themes/base/jquery-ui.all.css" type="text/css" rel="stylesheet"></link> -->
-    <!-- <link href="https://wwwdev.ebi.ac.uk/mi/media/static/webgateway/css/omero_image.css" type="text/css" rel="stylesheet"></link>  -->
    <link href="${omeroStaticUrl}3rdparty/panojs-2.0.0/panojs.css" type="text/css" rel="stylesheet"></link>
-   <%--  <link href="${omeroStaticUrl}webgateway/css/ome.gs_slider.css" type="text/css" rel="stylesheet"></link>  --%>
-   
-    <%-- <script src="${omeroStaticUrl}3rdparty/jquery.mousewheel-3.0.6.js" type="text/javascript"></script> 
-   <script src="${omeroStaticUrl}webgateway/js/ome.gs_slider.js" type="text/javascript"></script> 
-   <script src="${omeroStaticUrl}webgateway/js/ome.popup.js" type="text/javascript"></script>
-    <script src="${omeroStaticUrl}webgateway/js/ome.gs_utils.js" type="text/javascript"></script>
-   <script src="${omeroStaticUrl}webgateway/js/ome.viewport.js" type="text/javascript"></script>
-   <script src="${omeroStaticUrl}webgateway/js/ome.viewportImage.js" type="text/javascript"></script>
-     --%>
+
 </jsp:attribute>
 
 <jsp:attribute name="addToFooter">
@@ -58,8 +22,6 @@
 	<script type='text/javascript' src="${baseUrl}/js/comparator/comparator.js?v=${version}"></script>
 </jsp:attribute>
 <jsp:body>
-
-
  <div class="row">
        <div class="col-12 no-gutters">
         	<div class="node"> 
@@ -74,6 +36,8 @@
 	       	jpegUrlThumbWithoutId: ${jpegUrlThumbWithoutId}
 	        jpegUrlDetailWithoutId: ${jpegUrlDetailWithoutId}
 	        pdfWithoutId: ${pdfWithoutId} --%>
+
+				&nbsp;<a href='${baseUrl}/genes/${gene.mgiAccessionId}'>${gene.markerSymbol}</a><span class="fal fa-angle-right"></span> Image Comparator
             <form action="">
             <div id="comparator" class="section">
             	<c:if test="${mediaType !=null }">
@@ -136,6 +100,7 @@
             		<input type="submit" value="Go"> <span class="btn" id="mutant_only_button">Display Mutant Only</span>&nbsp;&nbsp;&nbsp;<span class="btn" id="overlap">Overlap Mode</span>
             	</div>
             		<div id="control_box" class="box half_box_left">
+						<h3>WT Images</h3>
             		<!-- <div class="thumbList" style="float:left"> -->
 					        <div id="viewport" class="viewport"></div>
 					   <!--  </div> -->
@@ -152,8 +117,9 @@
   								
 							</c:forEach> 
 	            			
-	            				<c:set var="controlText" value="WT: ${img.zygosity} ${img.sex} ${img.ageInDays} days ${img.parameterName} ${controlParamAssValues}"/>
-	            			<div class="
+	            				<c:set var="controlText" value="${img.zygosity}<br/>${img.sex}"/>
+
+							<div class="
 	            			<c:choose>
 	            				<c:when test="${img.sex eq 'male' }">
 	            					clickbox_male"
@@ -165,36 +131,24 @@
 	            					clickbox_no_sex
 	            				</c:otherwise>
 	            			</c:choose>
-	            			">
+	            			"> <div style="color: #0c0c0c">${controlText}</div>
 	            				
-	            						<img  id="${img.omeroId}" class="thumb" data-id="${img.omeroId}" src="https:${jpegUrlThumbWithoutId}/${img.omeroId}/" <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${controlText}">
-	            					
+	            						<img  id="${img.omeroId}" class="thumb" data-id="${img.omeroId}" src="https:${jpegUrlThumbWithoutId}/${img.omeroId}/" <c:if test='${controlLoop.index eq 0}'>img_selected</c:if>" title="${img.zygosity},${img.sex}">
+
 	            			</div> <!-- end of male female class -->
 	            			</c:forEach>
 	            		
 					    </div>
 	            	</div>
-	            		
-	            		
-	            		
-	            		
-	            		
-	            		
-	            		
-	            		
+
 					<div id="mutant_box" class="half_box_right">
-						
+						<h3>Mutant Images</h3>
 						 <!-- <div class="thumbList" style="float:left"> -->
 					        <div id="viewport2" class="viewport"></div>
 					    <!-- </div> -->
 		            	<div id="mutant_annotation" class="annotation">
 		            	</div> 
-					 
-					 
-					   
-					
-				
-					    
+
 					    <div class="thumbList">
 					    
 					       
@@ -204,7 +158,7 @@
   								<c:set var="paramAssValues" value="${stat.first ? '' : paramAssValues} ${currentItem}:${img.parameterAssociationValue[stat.index]}" />
   								
 							</c:forEach> 
-	            			<c:set var="mutantText" value='Mutant: ${img.alleleSymbol} ${img.zygosity} ${img.sex} ${img.ageInDays} days ${img.parameterName} ${paramAssValues}'/>
+	            			<c:set var="mutantText" value='${img.zygosity}<br/> ${img.sex} '/>
 	            			
 	            			<div class="
 	            			<c:choose>
@@ -218,10 +172,10 @@
 	            					clickbox_no_sex
 	            				</c:otherwise>
 	            			</c:choose>
-	            			">
+	            			"><div style="color: #0c0c0c">${mutantText}</div>
 								
 									
-	            						<img class="thumb2" id="${img.omeroId}" data-id="${img.omeroId}" src="https:${jpegUrlThumbWithoutId}/${img.omeroId}/" <%-- class="clickable_image_mutant --%> <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${mutantText}">
+	            						<img class="thumb2" id="${img.omeroId}" data-id="${img.omeroId}" src="https:${jpegUrlThumbWithoutId}/${img.omeroId}/" <%-- class="clickable_image_mutant --%> <c:if test='${mutantLoop.index eq 0}'>img_selected</c:if>" title="${img.zygosity},${img.sex}">
 	 
 	            			
 	            			</div>

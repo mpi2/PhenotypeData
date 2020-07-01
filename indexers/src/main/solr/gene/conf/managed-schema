@@ -726,6 +726,7 @@
         <field name="xref" type="string" indexed="true" stored="true" multiValued="true"/>
         <field name="embryo_modalities" type="string" indexed="true" stored="true" multiValued="true"/>
         <field name="is_idg_gene" type="boolean" indexed="true" stored="true" multiValued="false"/>
+        <field name="is_umass_gene" type="boolean" indexed="true" stored="true" multiValued="false"/>
         <field name="dmdd_image_data_available" type="boolean" indexed="true" stored="true" multiValued="false"/>
         <field name="dmdd_lethal_data_available" type="boolean" indexed="true" stored="true" multiValued="false"/>
 

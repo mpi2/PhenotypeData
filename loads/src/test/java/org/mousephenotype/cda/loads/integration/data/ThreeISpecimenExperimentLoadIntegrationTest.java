@@ -18,7 +18,6 @@ package org.mousephenotype.cda.loads.integration.data;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.loads.create.extract.dcc.DccExperimentExtractor;
@@ -49,10 +48,10 @@ import static junit.framework.TestCase.assertTrue;
 /**
  * This is an end-to-end integration data test class that uses an in-memory database to populate a small dcc, cda_base,
  * and cda set of databases.
+ *
  * The specimen and experiment tested here was providing an erroneous project from dcc_9_0
  */
 
-// fixme fixme fixme fixme fixme - ComponentScan, SpringJUnit4ClassRunner
 @RunWith(SpringJUnit4ClassRunner.class)
 @ComponentScan
 @ContextConfiguration(classes = TestConfig.class)
@@ -71,8 +70,6 @@ public class ThreeISpecimenExperimentLoadIntegrationTest {
     @Autowired
     private NamedParameterJdbcTemplate jdbcCda;
 
-
-
     @Autowired
     private DccSpecimenExtractor dccSpecimenExtractor;
 
@@ -88,9 +85,6 @@ public class ThreeISpecimenExperimentLoadIntegrationTest {
 
     @Before
     public void before() throws SQLException {
-
-
-
         // Reload databases.
         String[] cdaSchemas = new String[] {
                 "sql/h2/cda/schema.sql",
@@ -116,8 +110,6 @@ public class ThreeISpecimenExperimentLoadIntegrationTest {
     }
 
 
-// fixme fixme fixme fixme fixme
-@Ignore
     @Test
     public void testLoadMissingSpecimenAndExperiment() throws Exception {
 

@@ -125,11 +125,11 @@ public class EmbryoViewerService {
     public HeatmapData getEmbryoHeatmap(){
         List<EmbryoViewerService.GeneEntry> genes = this.getGenesEmbryoStatus();
         List<String> columnList=new ArrayList<>();
-        columnList.add("E9.5");
-        columnList.add("E14.5/E15.5");
-        columnList.add("E18.5");
+        columnList.add("OPT E9.5");
+        columnList.add("MicroCT E14.5-E15.5");
+        columnList.add("MicroCT E18.5");
         //UMASS data column and hacks for Washington meeting
-        columnList.add("UMASS");
+        columnList.add("UMASS Pre E9.5");
         //add rows for UMASS - hack here as code not very open for extension
         Map<String,String> umassSymbolAccessions=this.populateUmassData();
         List<String> geneList=new ArrayList<>();
@@ -228,9 +228,9 @@ public class EmbryoViewerService {
                     .getGeneByGeneSymbolsOrGeneSynonyms(geneSymbols)
                     .stream()
                     .collect(Collectors.toMap(GeneDTO::getMarkerSymbol,GeneDTO::getMgiAccessionId));
-            System.out.println(genesByMgiIdsUmass);
-//            for (EmbryoViewerService.GeneEntry entry : genes) {
-//                entry.symbol = genesByMgiIds.get(entry.mgiAccessionId);
+//            System.out.println(genesByMgiIdsUmass);
+//            for (String key : genesByMgiIdsUmass.keySet()) {
+//               String newGene = genesByMgiIdsUmass.get(key);
 //            }
         } catch (SolrServerException | IOException e) {
             System.out.print(e);

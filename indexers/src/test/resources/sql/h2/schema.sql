@@ -571,7 +571,7 @@ CREATE TABLE observation (
 -- 	observation_type           ENUM('categorical', 'datetime', 'ontological', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text'),
 
 	observation_type           VARCHAR(24),
-	    CHECK ( observation_type IN ('categorical', 'datetime', 'ontological', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text')),
+	    CHECK ( observation_type IN ('categorical', 'datetime', 'ontological', 'image_record', 'unidimensional', 'multidimensional', 'time_series', 'metadata', 'text', 'text_series')),
 	missing                    TINYINT(1) DEFAULT 0,
 	parameter_status           VARCHAR(50) DEFAULT NULL,
 	parameter_status_message   VARCHAR(450) DEFAULT NULL,
@@ -708,7 +708,7 @@ DROP TABLE IF EXISTS time_series_observation;
 CREATE TABLE time_series_observation (
 	id                        INT(10) NOT NULL,
 	data_point                FLOAT NOT NULL,
-	time_point                TIMESTAMP,
+	time_point                DATETIME,
 	discrete_point            FLOAT,
 
 	PRIMARY KEY(id)
@@ -961,6 +961,7 @@ CREATE TABLE phenotyped_colony (
 	gf_db_id                                    INT(11)     NOT NULL,
 	allele_symbol                               VARCHAR(64) NOT NULL,
 	background_strain_name                      VARCHAR(64) NOT NULL,
+    background_strain_acc                       VARCHAR(20)           DEFAULT NULL,
 	phenotyping_centre_organisation_id          INT(11)     NOT NULL,
 	phenotyping_consortium_project_id           INT(11)     NOT NULL,
 	production_centre_organisation_id           INT(11)     NOT NULL,
@@ -1277,7 +1278,16 @@ CREATE TABLE stat_result_phenotype_call_summary (
 --
 -- Discrete statistical result schema
 --
+-- Drop these dependent tables first:
+DROP TABLE IF EXISTS statistical_result_phenotype_call_summary;
+DROP TABLE IF EXISTS statistical_result_additional;
+DROP TABLE IF EXISTS statistical_result_phenstat;
+DROP TABLE IF EXISTS statistical_result_fisher_exact;
+DROP TABLE IF EXISTS statistical_result_manual;
+
+-- Now drop statistical_result:
 DROP TABLE IF EXISTS statistical_result;
+
 CREATE TABLE statistical_result (
 	id                               INT(10) NOT NULL AUTO_INCREMENT,
 	control_id                       INT(10),
@@ -1326,7 +1336,6 @@ CREATE TABLE statistical_result (
 );
 
 
-DROP TABLE IF EXISTS statistical_result_phenotype_call_summary;
 CREATE TABLE statistical_result_phenotype_call_summary (
 	phenotype_call_summary_id INT(10) NOT NULL,
 	result_id                 INT(10),
@@ -1337,7 +1346,6 @@ CREATE TABLE statistical_result_phenotype_call_summary (
 );
 
 
-DROP TABLE IF EXISTS statistical_result_additional;
 CREATE TABLE statistical_result_additional (
 	id                         INT(10) NOT NULL,
 	raw_output                 MEDIUMTEXT,
@@ -1349,7 +1357,6 @@ CREATE TABLE statistical_result_additional (
 );
 
 
-DROP TABLE IF EXISTS statistical_result_phenstat;
 CREATE TABLE statistical_result_phenstat (
 	id                               INT(10) NOT NULL,
 	batch_significance               BOOLEAN,
@@ -1388,7 +1395,6 @@ CREATE TABLE statistical_result_phenstat (
 );
 
 
-DROP TABLE IF EXISTS statistical_result_fisher_exact;
 CREATE TABLE statistical_result_fisher_exact (
 	id         INT(10) NOT NULL,
 	category_a TEXT,
@@ -1400,7 +1406,6 @@ CREATE TABLE statistical_result_fisher_exact (
 );
 
 
-DROP TABLE IF EXISTS statistical_result_manual;
 CREATE TABLE statistical_result_manual (
 	id     INT(10) NOT NULL,
 	method VARCHAR(200),
@@ -1772,7 +1777,8 @@ INSERT INTO missing_colony_id (colony_id, log_level, reason) VALUES
 	('Trm1',             -1, 'We were never able to obtain the minimum set of data required to add this colony id'),
 	('MAG',              -1, 'We were never able to obtain the minimum set of data required to add this colony id'),
 	('EUCJ0019_C12',     -1, 'We were never able to obtain the minimum set of data required to add this colony id'),
-	('EPD0130_2_C06',    -1, 'Even though this colonyId is in Hugh''s list, Jeremy''s research has shown there is newer data submitted under colonyId MEYN supporting the data in EPD00130_2_C06, which was an aborted experiment');
+	('EPD0130_2_C06',    -1, 'Even though this colonyId is in Hugh''s list, Jeremy''s research has shown there is newer data submitted under colonyId MEYN supporting the data in EPD00130_2_C06, which was an aborted experiment'),
+    ('EPD0025_2_A04',    -1, 'Even though this colonyId has data, the microinjection was aborted and any data is invalid');
 
 
 /**
@@ -2232,6 +2238,17 @@ INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_SSC_003', 
 INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPC_SSC_004', 22, 'LIMS error', 'LIMS error resulted in erroneous data submission');
 
 
+
+/*
+ ** LIFE STAGE
+ */
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPCLS:0001', 22, 'E9.5', 'Embryonic day 9.5');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPCLS:0002', 22, 'E12.5', 'Embryonic day 12.5');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPCLS:0003', 22, 'E15.5', 'Embryonic day 15.5');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPCLS:0004', 22, 'E18.5', 'Embryonic day 18.5');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPCLS:0005', 22, 'Early adult', 'Time period less than 16 weeks of age');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPCLS:0006', 22, 'Middle aged adult', 'Time period between 16 and 48 weeks of age');
+INSERT INTO ontology_term(acc, db_id, name, description) VALUES('IMPCLS:0007', 22, 'Late adult', 'Time period greater than 48 weeks of age');
 
 
 /*

@@ -22,17 +22,16 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <selenium.version>2.41.0</selenium.version>
         <selenium-firefox.version>2.44.0</selenium-firefox.version>
-        <micrometer.version>0.8.0</micrometer.version>
      </properties>
 
     <dependencies>
 
-        <!-- CDA/REGISTER INTEREST DEPENDENCIES -->
 
+        <!-- CDA/REGISTER INTEREST DEPENDENCIES -->
 
         <dependency>
             <groupId>org.mousephenotype.cda</groupId>
-            <artifactId>data-model-db</artifactId>
+            <artifactId>web-db</artifactId>
         </dependency>
 
         <dependency>
@@ -48,7 +47,6 @@
 
         <!-- SPRING BOOT DEPENDENCIES -->
 
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
@@ -58,6 +56,9 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
         </dependency>
+
+
+        <!-- SPRING BOOT STARTER DEPENDENCIES -->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -71,13 +72,13 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-            <scope>compile</scope>
+            <artifactId>spring-boot-starter-json</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
@@ -87,7 +88,6 @@
 
 
         <!-- SPRING DEPENDENCIES -->
-
 
         <dependency>
             <groupId>org.springframework</groupId>
@@ -149,6 +149,26 @@
         <dependency>
             <groupId>org.springframework.retry</groupId>
             <artifactId>spring-retry</artifactId>
+        </dependency>
+
+
+        <!-- MONITORING DEPENDENCIES -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/io.micrometer/micrometer-core -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/io.micrometer/micrometer-registry-prometheus -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
 
 
@@ -222,7 +242,6 @@
         <dependency>
             <groupId>com.opencsv</groupId>
             <artifactId>opencsv</artifactId>
-            <version>4.0</version>
         </dependency>
 
         <dependency>
@@ -250,12 +269,6 @@
         </dependency>
 
         <dependency>
-            <groupId>net.sf.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>2.3</version>
-        </dependency>
-
-        <dependency>
             <groupId>se.jiderhamn</groupId>
             <artifactId>classloader-leak-prevention</artifactId>
             <version>[1.0,2.0)</version>
@@ -272,6 +285,13 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>test</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.github.vladimir-bukhtoyarov</groupId>
+            <artifactId>bucket4j-core</artifactId>
+            <version>4.10.0</version>
         </dependency>
 
     </dependencies>
@@ -340,7 +360,40 @@
 
             </plugin>
 
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <!--
+                     Ensure that the revision goal is invoked during the initialize
+                     phase.
+                -->
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!--
+                        Configure the location of the .git directory.
+                    -->
+                    <dotGitDirectory>${project.basedir}/../../.git</dotGitDirectory>
+                </configuration>
+            </plugin>
+
         </plugins>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.properties</include>
+                </includes>
+            </resource>
+        </resources>
+
     </build>
 
 </project>

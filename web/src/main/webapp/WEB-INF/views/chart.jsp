@@ -39,27 +39,27 @@
         </div>
 
         <c:if test="${ ! chartOnly}">
-
-            <div class="container single single--no-side">
-
-            <div class="breadcrumbs" style="box-shadow: none; margin-top: auto; margin: auto; padding: auto">
-                <div style="float: right;"><a href="${cmsBaseUrl}/help/quick-guide-to-the-website/chart-page/" target="_blank" style="color: #ce6211;"><i class="fa fa-question-circle" style="font-size: xx-large"></i></a></div>
-
-                <div class="row">
-                    <div class="col-md-12">
-                        <p><a href="/">Home</a> <span><span class="fal fa-angle-right"></span></span>
-                            <a href="${baseUrl}/search">Genes</a> <span><span class="fal fa-angle-right"></span></span>
-                            <a href="${baseUrl}/genes/${gene.mgiAccessionId}">${gene.markerSymbol}</a> <span><span class="fal fa-angle-right"></span></span>
+            <div class="breadcrumbs clear row">
+                <div class="col-10 d-none d-lg-block px-5 pt-5">
+                    <aside>
+                        <a href="/">Home</a> <span class="fal fa-angle-right"></span>
+                        <a href="${baseUrl}/search">Genes</a> <span class="fal fa-angle-right"></span>
+                        <a href="${baseUrl}/genes/${gene.mgiAccessionId}">${gene.markerSymbol}</a> <span class="fal fa-angle-right"></span>
                             ${parameter.procedureNames[0]} / ${parameter.name}
-                        </p>
-                    </div>
+                    </aside>
+                </div>
+                <div class="col-2 d-none d-lg-block px-5 pt-5">
+                    <aside>
+                        <a href="${cmsBaseUrl}/help/quick-guide-to-the-website/chart-page/" target="_blank" ><i class="fa fa-question-circle" style="font-size: xx-large; color: #ce6211;"></i></a>
+                    </aside>
                 </div>
             </div>
 
 
-            <div class="row row-over-shadow">
-                    <div class="col-md-12 white-bg">
-                        <div class="page-content">
+            <div class="row">
+                    <div class="col-12 col-md-12">
+            <div class="pre-content clear-bg">
+                        <div class="page-content people py-5 white-bg">
 
             <c:if test="${viabilityDTO!=null}">
                 <h5>${viabilityDTO.category}</h5>
@@ -80,8 +80,7 @@
                     <div class="card-body">
                         <p>
         <c:if test="${embryoViabilityDTO==null && viabilityDTO==null}">
-                            A <b>${parameter.procedureNames[0]}</b> phenotypic assay was performed on <b>${numberMice}
-                            mice</b>. The charts show the results of measuring <b>${parameter.name}</b> in <b>${numberFemaleMutantMice}
+            A <b>${parameter.procedureNames[0]}</b> phenotypic assay was performed on <b>${numberMice} <c:if test="${!isPostnatal}">embryo</c:if><c:if test="${isPostnatal}">mice</c:if></b>. The charts show the results of measuring <b>${parameter.name}</b> in <b>${numberFemaleMutantMice}
                             female</b>, <b>${numberMaleMutantMice} male</b> mutants compared to
                             <b>${numberFemaleControlMice} female</b>, <b>${numberMaleControlMice} male</b> controls.  The
             mutants are <b>${zygosity}</b> for the <b><t:formatAllele>${alleleSymbol}</t:formatAllele></b> allele.
@@ -104,10 +103,13 @@
                 <div class="col-md-6">
                     <table class="table table-striped">
                         <tr>
+                            <td>Life stage</td>
+                            <td class="font-weight-bold">${lifeStage} <a href="${cmsBaseUrl}/help/standardized-mouse-phenotyping/pipelines/late-adult-and-interval-pipelines/" target="_blank" ><i class="fa fa-question-circle" style="color: #ce6211;"></i></a></td>
+                        </tr>
+                        <tr>
                             <td>Associated Phenotype</td>
-                            <c:if test="${phenotypes != null && phenotypes.size() >= 1}"><td><c:forEach var="phenotype" items="${phenotypes}"><a class="font-weight-bold" href="${parameterUrl}">${phenotype}</a><br/></c:forEach></td></c:if>
+                            <c:if test="${phenotypes != null && phenotypes.size() >= 1}"><td><c:forEach var="phenotype" items="${phenotypes}"><div><a class="font-weight-bold" href="${parameterUrl}">${phenotype}</a></div></c:forEach></td></c:if>
                             <c:if test="${phenotypes == null || phenotypes.size() < 1}"><td class="font-weight-bold">No significant association</td></c:if>
-
                         </tr>
                         <tr>
                             <td>Testing protocol</td>
@@ -134,6 +136,7 @@
 
                 </div>
             </div>
+
         </c:if>
 
 <c:if test="${statsServiceResult && ! isLive}">
@@ -141,10 +144,13 @@
 	Result is from New Statistical Result Service!!! How quick was this???
 	</p>
 </c:if>
-        <p class="alert alert-info w-100">
+        <p class="alert alert-info w-100 my-3">
 Mouseover the charts for more information. Click and drag to zoom the chart. Click on the legends to disable/enable data.</p>
 
         <c:choose>
+            <c:when test="${param['chart_type'] eq 'TEXT'}">
+                <jsp:include page="textFrag.jsp"/>
+            </c:when>
             <c:when test="${param['chart_type'] eq 'UNIDIMENSIONAL_SCATTER_PLOT'}">
                 <jsp:include page="scatterStatsFrag.jsp"/>
             </c:when>
@@ -178,7 +184,7 @@ Mouseover the charts for more information. Click and drag to zoom the chart. Cli
                     </div>
                 </div>
             </div>
-
+</div>
             
 
 <script>

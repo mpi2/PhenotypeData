@@ -138,11 +138,9 @@ public class AllelesController {
 
         HashMap<String, HashMap<String, List<String>>> constructs;
         if ( request.getParameter("bare") != null && request.getParameter("bare").equals("true")) {
-                log.info("Call SolrIndex2 with pipeline = Cre");
         	constructs = solrIndex2.getAlleleQcInfo( type, name, true);
         }
         else {
-                log.info("Call SolrIndex2 with pipeline = impc");
         	constructs = solrIndex2.getAlleleQcInfo( type, name, false);
         }
 
@@ -157,8 +155,6 @@ public class AllelesController {
             return "qcDataSimple";
         }
 
-        log.info("#### qcData: model: " + model);
-
         return "qcData";
     }
 
@@ -172,7 +168,6 @@ public class AllelesController {
             HttpServletRequest request,
             RedirectAttributes attributes) throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, IOException, Exception {
 
-        log.info("#### genotyping_primers_acc_allele");
 
         Map<String, String> allele_identifier = new HashMap();
         allele_identifier.put("allele_name", allele_name);
@@ -180,11 +175,9 @@ public class AllelesController {
 
         Map<String, Object> products;
         if ( request.getParameter("bare") != null && request.getParameter("bare").equals("true")) {
-                log.info("Call SolrIndex2 with pipeline = Cre");
         	products = solrIndex2.getAlleleProductInfo("cre", allele_identifier, false);
         }
         else {
-                log.info("Call SolrIndex2 with pipeline = impc");
         	products = solrIndex2.getAlleleProductInfo("impc", allele_identifier, false);
         }
 

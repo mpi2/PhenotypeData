@@ -78,6 +78,7 @@ public class LoadUtils {
         put("Ph",                       "PH");                          // center.centerId -> organisation.name
         put("CDTA",                     "CDTA");                        // center.centerId -> organisation.name
         put("Crl",                      "CRL");                         // center.centerId -> organisation.name
+        put("Ccpcz",                    "CCP-IMG");                     // center.centerId -> organisation.name
     }};
 
     public static <K, V> Map<V, K> inverseMap(Map<K, V> sourceMap) {
@@ -107,8 +108,9 @@ public class LoadUtils {
         put("RIKEN BRC",                "RBRC");                        // center.project -> project.name
         put("KMPC",                     "KMPC");                        // center.project -> project.name
         put("Kmpc",                     "KMPC");                        // center.project -> project.name
-        put("3i",                       "3i");                     // center.project -> project.name
-        put("IMPC",                     "IMPC");                     // center.project -> project.name
+        put("3i",                       "3i");                          // center.project -> project.name
+        put("IMPC",                     "IMPC");                        // center.project -> project.name
+        put("Ccp",                      "CCP-IMG");                     // center.project -> project.name
     }};
 
 

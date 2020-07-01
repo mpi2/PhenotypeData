@@ -63,6 +63,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
           , "Colony Name"
           , "Es Cell Name"
           , "Colony Background Strain"
+          , "Mgi Strain Accession id"
           , "Cohort Production Centre"
           , "Production Consortium"
           , "Phenotyping Centre"
@@ -89,6 +90,7 @@ public class PhenotypedColonyProcessor implements ItemProcessor<PhenotypedColony
                   , newPhenotypedColony.getColonyName()
                   , newPhenotypedColony.getEs_cell_name()
                   , newPhenotypedColony.getBackgroundStrain()
+                  , newPhenotypedColony.getBackgroundStrainAcc()
                   , newPhenotypedColony.getProductionCentre().getName()
                   , newPhenotypedColony.getProductionConsortium().getName()
                   , newPhenotypedColony.getPhenotypingCentre().getName()

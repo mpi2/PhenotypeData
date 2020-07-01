@@ -78,11 +78,14 @@ public class SampleLoader implements CommandLineRunner {
     private NamedParameterJdbcTemplate jdbcCda;
 
     private static Set<String> backgroundStrainMismatches  = new ConcurrentSkipListSet<>();
+    private static Set<String> invalidXmlStrainValues      = new ConcurrentSkipListSet<>();
     private static Set<String> missingCenters              = new ConcurrentSkipListSet<>();
     private static Set<String> missingColonyIds            = new ConcurrentSkipListSet<>();
     private static Set<String> missingDatasourceShortNames = new ConcurrentSkipListSet<>();
     private static Set<String> missingProjects             = new ConcurrentSkipListSet<>();
     private static Set<String> unexpectedStage             = new ConcurrentSkipListSet<>();
+
+    private Set<String> loadedSamples = new ConcurrentSkipListSet<>();
 
     private final  Logger               logger  = LoggerFactory.getLogger(this.getClass());
     private static Map<String, Integer> written = new ConcurrentHashMapAllowNull<>();
@@ -94,6 +97,7 @@ public class SampleLoader implements CommandLineRunner {
     private static Map<String, PhenotypedColony> phenotypedColonyMap;
     private static Map<String, MissingColonyId>  missingColonyMap;
     private static Map<String, OntologyTerm>     ontologyTermMap;
+    private static Set<String>                   imitsBackgroundStrains;
 
     private Long efoDbId;
 
@@ -147,9 +151,11 @@ public class SampleLoader implements CommandLineRunner {
         phenotypedColonyMap = bioModelManager.getPhenotypedColonyMap();
         missingColonyMap = cdaSqlUtils.getMissingColonyIdsMap();
         ontologyTermMap = new ConcurrentHashMapAllowNull<>(bioModelManager.getOntologyTermMap());
+        imitsBackgroundStrains = cdaSqlUtils.getImitsBackgroundStrains();
         OntologyTerm impcUncharacterizedBackgroundStrain = ontologyTermMap.get(CdaSqlUtils.IMPC_UNCHARACTERIZED_BACKGROUND_STRAIN);
         strainMapper = new StrainMapper(cdaSqlUtils, bioModelManager.getStrainsByNameOrMgiAccessionIdMap(), impcUncharacterizedBackgroundStrain);
         strainsByNameOrMgiAccessionIdMap = bioModelManager.getStrainsByNameOrMgiAccessionIdMap();
+        loadedSamples = cdaSqlUtils.getBiologicalSamplesMapBySampleKey().keySet().stream().map(BioSampleKey::toString).collect(Collectors.toSet());
 
         Assert.notNull(bioModelManager, "bioModelManager must not be null");
         Assert.notNull(cdaDb_idMap, "cdaDb_idMap must not be null");
@@ -157,6 +163,7 @@ public class SampleLoader implements CommandLineRunner {
         Assert.notNull(phenotypedColonyMap, "phenotypedColonyMap must not be null");
         Assert.notNull(missingColonyMap, "missingColonyMap must not be null");
         Assert.notNull(ontologyTermMap, "ontologyTermMap must not be null");
+        Assert.notNull(imitsBackgroundStrains, "imitsBackgroundStrains must not be null");
         Assert.notNull(strainMapper, "strainMapper must not be null");
         Assert.notNull(strainsByNameOrMgiAccessionIdMap, "strainsByNameOrMgiAccessionIdMap must not be null");
 
@@ -197,9 +204,16 @@ public class SampleLoader implements CommandLineRunner {
         logger.info(StringUtils.repeat("*", message.length()));
         logger.info(message);
         logger.info(StringUtils.repeat("*", message.length()));
-
+        logger.info("loadedSamples before run: {}", loadedSamples.size());
 
         for (SpecimenExtended specimenExtended : specimens) {
+
+            // Skip this dcc specimen if it's already been loaded into the cda database. Samples are unique by cda phenotyping center and specimen id
+            Long phenotypingCenterPk = cdaOrganisation_idMap.get(specimenExtended.getSpecimen().getPhenotypingCentre().value());
+            BioSampleKey bioSampleKey = new BioSampleKey(specimenExtended.getSpecimen().getSpecimenID(), phenotypingCenterPk);
+            if (loadedSamples.contains(bioSampleKey.toString())) {
+                continue;
+            }
 
             sampleCount++;
 
@@ -226,15 +240,23 @@ public class SampleLoader implements CommandLineRunner {
                 drainQueue(tasks);
             }
         }
+
+        logger.info("loadedSamples after run: {}", loadedSamples.size());
+
         executor.shutdown();
 
 
         // Log infos
 
 
+        if ( ! invalidXmlStrainValues.isEmpty()) {
+            logger.info("Showing {} of {} invalid XML background strain values (remapped to IMITS background strain): XML::IMITS", Math.min(10, invalidXmlStrainValues.size()), invalidXmlStrainValues.size());
+            invalidXmlStrainValues.stream().sorted().limit(10).forEach(System.out::println);
+        }
+
         if ( ! backgroundStrainMismatches.isEmpty()) {
-            logger.info("Background strain mismatches: imits_background_strain::DCC_specimen_strain:");
-            backgroundStrainMismatches.stream().sorted().forEach(System.out::println);
+            logger.info("Showing {} of {} background strain mismatches: colony_name::DCC_specimen_strain::imits_background_strain::pipeline", Math.min(10, backgroundStrainMismatches.size()), backgroundStrainMismatches.size());
+            backgroundStrainMismatches.stream().sorted().limit(10).forEach(System.out::println);
         }
 
 
@@ -408,20 +430,19 @@ public class SampleLoader implements CommandLineRunner {
                     if ( specimenStrain==null ||
                             colonyStrain==null ||
                             (! specimenStrain.getName().equalsIgnoreCase(colonyStrain.getName()))) {
-                        backgroundStrainMismatches.add(colony.getColonyName()+"::" + specimen.getStrainID() + "::" + colony.getBackgroundStrain());
+                        backgroundStrainMismatches.add(colony.getColonyName()+"::" + specimen.getStrainID() + "::" + colony.getBackgroundStrain() + "::" + specimen.getPipeline());
                     }
                 }
 
-                // If the background strain of the mutant specimen has not been provided in the XML file
-                // use the background strain of the colony (from iMits)
-                if ( !specimen.isIsBaseline() && specimen.getStrainID() == null && colony.getBackgroundStrain() != null) {
-                    specimen.setStrainID(colony.getBackgroundStrain());
+                // For mutants, select the correct background strain.
+                if ( ! specimen.isIsBaseline()) {
+                    specimen.setStrainID(cdaSqlUtils.getMutantBackgroundStrain(specimen.getStrainID(), colony.getBackgroundStrain(), imitsBackgroundStrains, invalidXmlStrainValues, strainsByNameOrMgiAccessionIdMap));
                 }
             }
 
             // If this mutant's strainId is null, we cannot create a strain, so log an error and skip the specimen.
             if ((specimen.getStrainID() == null) && ( ! specimen.isIsBaseline())) {
-                logger.error("Specimen {}'s strain is null. Skipping specimen.", specimen.getSpecimenID());
+                logger.info("Specimen {}'s strain is null. Skipping specimen.", specimen.getSpecimenID());
                 return null;
             }
 
@@ -458,8 +479,7 @@ public class SampleLoader implements CommandLineRunner {
 
                 // It is an error if a MUTANT is not found in the iMits report (i.e. its colony is null)
                 if ( ! specimen.isIsBaseline()) {
-                    missing = new MissingColonyId(specimen.getColonyID(), 1, MISSING_MUTANT_COLONY_ID_REASON);
-                    missingColonyMap.put(specimen.getColonyID(), missing);
+                    missingColonyIds.add(specimen.getColonyID());
                     return null;
                 }
 
@@ -500,6 +520,9 @@ public class SampleLoader implements CommandLineRunner {
             counts = insertSampleExperimentalSpecimen(specimenExtended, dbId, phenotypingCenterPk, productionCenterPk, projectPk);
             written.put("experimentalSample", written.get("experimentalSample") + 1);
         }
+
+        BioSampleKey key = new BioSampleKey(specimenExtended.getSpecimen().getSpecimenID(), phenotypingCenterPk);
+        loadedSamples.add(key.toString());
 
         written.put("biologicalSample", written.get("biologicalSample") + counts.get("biologicalSample"));
         written.put("liveSample", written.get("liveSample") + counts.get("liveSample"));

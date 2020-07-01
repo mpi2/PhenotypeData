@@ -26,6 +26,7 @@ public class PhenotypedColony {
     private GenomicFeature gene;
     private String alleleSymbol;
     private String backgroundStrain;
+    private String backgroundStrainAcc;
     private Organisation phenotypingCentre;
     private Project phenotypingConsortium;
     private Organisation productionCentre;
@@ -75,8 +76,16 @@ public class PhenotypedColony {
         return backgroundStrain;
     }
 
+    public String getBackgroundStrainAcc() {
+        return backgroundStrainAcc;
+    }
+
     public void setBackgroundStrain(String backgroundStrain) {
         this.backgroundStrain = backgroundStrain;
+    }
+
+    public void setBackgroundStrainAcc(String backgroundStrainAcc) {
+        this.backgroundStrainAcc = backgroundStrainAcc;
     }
 
     public Organisation getPhenotypingCentre() {
@@ -120,6 +129,7 @@ public class PhenotypedColony {
                 ", gene=" + gene +
                 ", alleleSymbol=" + alleleSymbol +
                 ", backgroundStrain=" + backgroundStrain +
+                ", backgroundStrainAcc=" + backgroundStrainAcc +
                 ", phenotypingCentre=" + phenotypingCentre +
                 ", phenotypingConsortium=" + phenotypingConsortium +
                 ", productionCentre=" + productionCentre +

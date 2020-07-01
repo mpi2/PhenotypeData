@@ -150,49 +150,6 @@ public class MpService extends BasicService implements WebStatus{
 		return parents;
 	}
 
-
-	/**
-	 * @author ilinca
-	 * @since 2016/04/05
-	 * @param mpTermId
-	 * @return JSON in jstree format for ontology browser
-	 * @throws SolrServerException, IOException
-	 */
-	public String getSearchTermJson(String mpTermId)
-	throws SolrServerException, IOException{
-
-		SolrQuery solrQuery = new SolrQuery()
-				.setQuery(MpDTO.MP_ID + ":\"" + mpTermId + "\"")
-				.setRows(1);
-		solrQuery.addField(MpDTO.SEARCH_TERM_JSON);
-
-		QueryResponse rsp = mpCore.query(solrQuery);
-		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
-
-		return (mps != null) ? mps.get(0).getSearchTermJson() : "";
-	}
-
-
-	/**
-	 * @author ilinca
-	 * @since 2016/04/05
-	 * @return JSON in jstree format for ontology browser
-	 * @throws SolrServerException, IOException
-	 */
-	public String getChildrenJson(String nodeId, String termId)
-	throws SolrServerException, IOException{
-
-		SolrQuery solrQuery = new SolrQuery()
-				.setQuery(MpDTO.MP_NODE_ID + ":" + nodeId)
-				.setRows(1);
-		solrQuery.addField(MpDTO.CHILDREN_JSON);
-
-		QueryResponse rsp = mpCore.query(solrQuery);
-		List<MpDTO> mps = rsp.getBeans(MpDTO.class);
-
-		return (mps != null) ? mps.get(0).getChildrenJson() : "";
-	}
-
 	/**
 	 * @author ilinca
 	 * @since 2016/03/22

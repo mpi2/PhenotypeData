@@ -1,15 +1,15 @@
 package org.mousephenotype.cda.solr.web.dto;
 
-import java.io.UnsupportedEncodingException;
-import java.util.List;
-
 import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.solr.service.dto.CombinedObservationKey;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.MarkerBean;
+import org.mousephenotype.cda.utilities.LifeStageMapper;
+
+import java.io.UnsupportedEncodingException;
 
 /**
- * @since 2016/03/01
- * @author ilinca
+ * This class represents a row in the experiments table
  *
  */
 public class ExperimentsDataTableRow extends DataTableRow{
@@ -20,20 +20,47 @@ public class ExperimentsDataTableRow extends DataTableRow{
 	Integer maleMutantCount;
 	Double effectSize;
 	String metadataGroup;
-		
+	Boolean significant;
+
+
+	public ExperimentsDataTableRow() {
+
+	}
+
+	public ExperimentsDataTableRow(CombinedObservationKey key) {
+		setAllele(new MarkerBean(key.getAlleleAccessionId(), key.getAlleleSymbol()));
+		setGene(new MarkerBean(key.getGeneAccession(), key.getGeneSymbol()));
+		setZygosity(key.getZygosity());
+		setPipeline(new ImpressBaseDTO(null, null, key.getPipelineStableId(), key.getPipelineName()));
+		setProcedure(new ImpressBaseDTO(null, null, key.getProcedureStableId(), key.getProcedureName()));
+		setParameter(new ImpressBaseDTO(null, null, key.getParameterStableId(), key.getParameterName()));
+		setPhenotypingCenter(key.getPhenotypingCenter());
+		setLifeStageName(key.getLifeStage().getName());
+	}
+
 	@Override
 	public int compareTo(DataTableRow o) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "ExperimentsDataTableRow{" +
+				"statisticalMethod='" + statisticalMethod + '\'' +
+				", status='" + status + '\'' +
+				", femaleMutantCount=" + femaleMutantCount +
+				", maleMutantCount=" + maleMutantCount +
+				", effectSize=" + effectSize +
+				", metadataGroup='" + metadataGroup + '\'' +
+				"} " + super.toString();
+	}
 
 	/**
 	 * 
 	 * @param statisticalMethod
 	 * @param status
 	 * @param allele
-	 * @param sexes
 	 * @param zygosity
 	 * @param procedure
 	 * @param parameter
@@ -43,7 +70,7 @@ public class ExperimentsDataTableRow extends DataTableRow{
 	 * @param maleMutantCount
 	 * @throws UnsupportedEncodingException
 	 */
-	public ExperimentsDataTableRow(	String phenotypingCenter, String statisticalMethod, String status, MarkerBean allele,  MarkerBean gene, ZygosityType zygosity, ImpressBaseDTO pipeline, ImpressBaseDTO procedure, ImpressBaseDTO parameter, String graphBaseUrl, Double pValue, Integer femaleMutantCount, Integer maleMutantCount, Double effectSize, String metadataGroup) 
+	public ExperimentsDataTableRow(	String phenotypingCenter, String statisticalMethod, String status, MarkerBean allele,  MarkerBean gene, ZygosityType zygosity, ImpressBaseDTO pipeline, ImpressBaseDTO procedure, ImpressBaseDTO parameter, String graphBaseUrl, Double pValue, Integer femaleMutantCount, Integer maleMutantCount, Double effectSize, String metadataGroup)
 	throws UnsupportedEncodingException{
 		
 		this.statisticalMethod = statisticalMethod;
@@ -157,5 +184,30 @@ public class ExperimentsDataTableRow extends DataTableRow{
 	public void setMetadataGroup(String metadataGroup) {
 		this.metadataGroup = metadataGroup;
 	}
-	
+
+	public Boolean getSignificant() {
+		return significant;
+	}
+
+	public void setSignificant(Boolean significant) {
+		this.significant = significant;
+	}
+
+	public CombinedObservationKey getCombinedKey() {
+		return new CombinedObservationKey(
+				allele.getSymbol(),
+				allele.getAccessionId(),
+				gene.getSymbol(),
+				gene.getAccessionId(),
+				parameter.getStableId(),
+				parameter.getName(),
+				procedure.getStableId(),
+				procedure.getName(),
+				pipeline.getStableId(),
+				pipeline.getName(),
+				zygosity,
+				phenotypingCenter,
+				LifeStageMapper.getLifeStage(parameter.getStableId(), lifeStageName)
+		);
+	}
 }

@@ -37,8 +37,8 @@ import org.springframework.util.Assert;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.*;
 import java.sql.Date;
+import java.sql.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -54,6 +54,10 @@ public class DccSqlUtils {
     private final Logger               logger      = LoggerFactory.getLogger(this.getClass());
     private NamedParameterJdbcTemplate npJdbcTemplate;
     private       LoadUtils            loadUtils;
+
+    // Cache for toe PK key from the DCC database
+    private Map<Map<String, String>, Long> centerPkMap = new HashMap<>();
+
 
 
     @Inject
@@ -304,21 +308,27 @@ public class DccSqlUtils {
         long centerPk = 0L;
         String query = "SELECT pk FROM center WHERE centerId = :centerId AND pipeline = :pipeline AND project = :project";
 
-        Map<String, Object> parameterMap = new HashMap<>();
+        Map<String, String> parameterMap = new HashMap<>();
 
         parameterMap.put("centerId", centerId);
         parameterMap.put("pipeline", pipeline);
         parameterMap.put("project", project);
 
+        if (centerPkMap.containsKey(parameterMap)) {
+            return centerPkMap.get(parameterMap);
+        }
+
         try {
             centerPk = loadUtils.queryForPk(npJdbcTemplate, query, parameterMap);
+           if (centerPk > 0) {
+               centerPkMap.put(parameterMap, centerPk);
+           }
         } catch (Exception e) {
 
         }
 
         return centerPk;
     }
-    private Map<String, Long> centerPkMap = new HashMap<>();
 
     public long getCenter_specimenPk(long centerPk, long specimenPk) {
         long center_specimenPk = 0L;
@@ -636,7 +646,8 @@ public class DccSqlUtils {
         List<Map<String, Object>> ontologyTerms = npJdbcTemplate.queryForList(termQuery, parameterMap);
 
         for (Map<String, Object> ontologyTerm : ontologyTerms) {
-            Long pk = (Long)ontologyTerm.get("ontologyParameter_pk");
+            String pkString = ontologyTerm.get("ontologyParameter_pk").toString();
+            Long pk = (pkString == null ? null : Long.valueOf(pkString));
             String term = (String)ontologyTerm.get("term");
 
             if ( ! retVal.containsKey(pk)) {

@@ -41,12 +41,12 @@
 				
             
             
-            		<div class="col-md-8">
+            		<div class="col-md-12">
 					
 						<table class="table table-striped small">
 							<thead>
 								<tr>
-									<th>Control/Hom/Het</th>
+									<th>Sample type</th>
 									<c:forEach var="categoryObject"	items="${categoricalResultAndChart.maleAndFemale[0].categoricalSets[0].catObjects}"	 varStatus="categoriesStatus">
 										<th>${categoryObject.category}</th>
 									</c:forEach>

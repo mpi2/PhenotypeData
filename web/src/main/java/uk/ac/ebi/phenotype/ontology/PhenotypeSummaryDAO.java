@@ -109,7 +109,7 @@ public class PhenotypeSummaryDAO  {
 				String sex = getSexesRepresentationForPhenotypesSet(resp);
 				String mpName = getTopLevelNameFromId(id);
 				long n = getNumSignificantCalls(resp);
-				boolean significant = (n > 0) ? true : false;
+				boolean significant = n > 0;
 				PhenotypeSummaryType phen;
 				if (significant) {
 					 phen = new PhenotypeSummaryType(id, mpName, sex, n, significant);

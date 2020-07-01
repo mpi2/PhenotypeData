@@ -17,10 +17,23 @@
 package org.mousephenotype.cda.db.repositories;
 
 import org.mousephenotype.cda.db.pojo.Parameter;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 public interface ParameterRepository extends CrudRepository<Parameter, Long> {
 
-    Parameter getByStableId(String stableId);
     Parameter getFirstByStableId(String stableId);
+
+    List<Parameter> getByStableId(String stableId);
+
+    @Query("SELECT parameter FROM Parameter parameter INNER JOIN parameter.procedures procedures INNER JOIN procedures.pipelines pipelines " +
+            "WHERE parameter.stableId = :parameterStableId " +
+            "AND procedures.stableId = :procedureStableId " +
+            "AND pipelines.stableId = :pipelineStableId")
+    Parameter getByStableIdAndProcedureAndPipeline(@Param("parameterStableId") String parameterStableId,
+                                                   @Param("procedureStableId") String procedureStableId,
+                                                   @Param("pipelineStableId") String pipelineStableId);
 }

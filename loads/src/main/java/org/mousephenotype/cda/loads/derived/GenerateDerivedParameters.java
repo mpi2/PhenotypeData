@@ -622,7 +622,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         int i = 0;
         String parameterToCreate = "IMPC_ACS_037_001";
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         String IMPC_ACS_006_001 = "IMPC_ACS_006_001";
         String IMPC_ACS_007_001 = "IMPC_ACS_007_001";
         String IMPC_ACS_008_001 = "IMPC_ACS_008_001";
@@ -655,6 +654,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             if (parameterMap.get(IMPC_ACS_006_001).get(id).getDataPoint() != 0){ // denominator
                 // create an experiment
                 ObservationDTO dto = parameterMap.get(IMPC_ACS_007_001).get(id);
+                Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, dto.getProcedureStableId(), dto.getPipelineStableId());
+
                 Datasource datasource = datasources.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
 
@@ -712,7 +713,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         String nominatorParam = "ESLIM_003_001_004";
         String denominatorParam = "ESLIM_003_001_003";
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
 
         Map<String, ObservationDTO> nominators = getIncrementalDataMapByParameter(nominatorParam);
         Map<String, ObservationDTO> denominators = getIncrementalDataMapByParameter(denominatorParam);
@@ -727,6 +727,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         for (String id: animalIds){
             if (nominators.get(id).getIncrementValues().size() != 0 && denominators.get(id).getIncrementValues().size() != 0){
                 ObservationDTO dto = nominators.get(id);
+                Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, dto.getProcedureStableId(), dto.getPipelineStableId());
+
                 Datasource datasource = datasources.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
 
@@ -808,7 +810,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         Map<String, ObservationDTO> resultAt_t0 = getResultsAtIncrement(paramToUse, 0);
         Map<String, ObservationDTO> resultAt_t15 = getResultsAtIncrement(paramToUse, 15);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
 
         Set <String> commonIds = resultAt_t0.keySet();
         commonIds.retainAll(resultAt_t15.keySet());
@@ -816,6 +817,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         int i = 0;
         for (String id :  commonIds){
             ObservationDTO dto = resultAt_t0.get(id);
+            Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, dto.getProcedureStableId(), dto.getPipelineStableId());
+
             // then depending on the type, create the relevant information
             Datasource datasource = datasources.get(dto.getExternalDbId());
             Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
@@ -855,7 +858,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 //		probabilityMap.put("HomXHet", 0.5);
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
 
         int i = 0;
 
@@ -871,6 +873,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
             // Save an observation
             ObservationDTO dto = getObservationDTOForColony(colony.colonyId, colony.experimentId);
+            Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, dto.getProcedureStableId(), dto.getPipelineStableId());
+
             dto.setDataPoint(pValue);
 
 
@@ -917,7 +921,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         allIds.addAll(IMPC_EYE_021_001.keySet());
         allIds.addAll(IMPC_EYE_022_001.keySet());
 
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
 
         deleteObservationsForParameterId(parameterToCreate);
@@ -933,6 +936,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             dto = isAbnormal(dto,  IMPC_EYE_022_001.get(id));
 
             if (dto != null) {
+                Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, dto.getProcedureStableId(), dto.getPipelineStableId());
+
 
                 Datasource datasource = datasources.get(dto.getExternalDbId());
 
@@ -993,9 +998,10 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         deleteObservationsForParameterId(parameterToCreate);
         List<ObservationDTO> res = new ArrayList<> (getResultsAtIncrement(parameterToCopyFrom, increment).values());
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         for (ObservationDTO dto: res){
+            Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, dto.getProcedureStableId(), dto.getPipelineStableId());
+
             // then depending on the type, create the relevant information
             Datasource datasource = datasources.get(dto.getExternalDbId());
             Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
@@ -1016,9 +1022,10 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         deleteObservationsForParameterId(parameterToCreate);
         List<ObservationDTO> res = getResultsByParameter(parameterToCopy);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         for (ObservationDTO dto: res){
+            Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, dto.getProcedureStableId(), dto.getPipelineStableId());
+
             // then depending on the type, create the relevant information
             Datasource datasource = datasources.get(dto.getExternalDbId());
             Procedure proc = getProcedureFromObservation(param, dto);
@@ -1047,7 +1054,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(minuend);
@@ -1061,6 +1067,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             try {
                 if (parameterMap.get(divisorParameter).get(id).getDataPoint() != 0) { // denominator
                     ObservationDTO dto = parameterMap.get(minuend).get(id);
+                    Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, dto.getProcedureStableId(), dto.getPipelineStableId());
+
                     Datasource datasource = datasources.get(dto.getExternalDbId());
                     Experiment currentExperiment = createNewExperiment(dto, "derived_" + parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
 //                    String metadataGroup = parameterMap.get(minuend).get(id).getMetadataGroup() + "_" +
@@ -1105,7 +1113,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(numeratorParameter);
@@ -1117,6 +1124,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         for (String id: animalIds){
             if (parameterMap.get(divisorParameter).get(id).getDataPoint() != 0){ // denominator
                 ObservationDTO dto = parameterMap.get(numeratorParameter).get(id);
+                Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, dto.getProcedureStableId(), dto.getPipelineStableId());
                 Datasource datasource = datasources.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" + parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
 //                String metadataGroup = parameterMap.get(numeratorParameter).get(id).getMetadataGroup() + "_" +
@@ -1159,7 +1167,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         deleteObservationsForParameterId(parameterToCreate);
 
         Long time = System.currentTimeMillis();
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
 
         System.out.println("getting parameters took " + (System.currentTimeMillis() - time));
@@ -1184,6 +1191,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                     lineLevelParameterMap.get(denominator).get(id).getDataPoint() != 0){ // denominator
 
                 ObservationDTO dto = lineLevelParameterMap.get(numerator).get(id);
+                Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, dto.getProcedureStableId(), dto.getPipelineStableId());
+
                 Datasource datasource = datasources.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" + parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
 //                String metadataGroup = lineLevelParameterMap.get(numerator).get(id).getMetadataGroup() + "_" +
@@ -1224,7 +1233,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(firstParam);
@@ -1238,6 +1246,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                     parameterMap.get(secondParam).get(id) != null &&
                     parameterMap.get(secondParam).get(id).getDataPoint() != 0){ // denominator
                 ObservationDTO dto = parameterMap.get(firstParam).get(id);
+                Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, dto.getProcedureStableId(), dto.getPipelineStableId());
+
                 Datasource datasource = datasources.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" + parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
 //                String metadataGroup = parameterMap.get(firstParam).get(id).getMetadataGroup() + "_" +
@@ -1269,7 +1279,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+
         int i = 0;
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(numeratorParameter);
@@ -1284,6 +1294,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                     parameterMap.get(divisorParameter).get(id).getDataPoint() != 0){ // denominator
 
                 ObservationDTO dto = parameterMap.get(numeratorParameter).get(id);
+                Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, dto.getProcedureStableId(), dto.getPipelineStableId());
+
                 Datasource datasource = datasources.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" + parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
 
@@ -1309,7 +1321,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
+
         int i = 0;
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(numeratorParameter);
@@ -1325,6 +1337,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                     parameterMap.get(divisorParameter).get(id).getDataPoint() != 0){ // denominator
 
                 ObservationDTO dto = parameterMap.get(numeratorParameter).get(id);
+                Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, dto.getProcedureStableId(), dto.getPipelineStableId());
                 Datasource datasource = datasources.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
 //                String metadataGroup = parameterMap.get(divisorParameter).get(id).getMetadataGroup() + "_" +
@@ -1360,7 +1373,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add(numeratorParameter);
@@ -1376,6 +1388,7 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
                 try {
                     ObservationDTO dto = parameterMap.get(numeratorParameter).get(id);
+                Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, dto.getProcedureStableId(), dto.getPipelineStableId());
 
                     // Filter out calculating derived parameter for HRWL_OWT procedures
                     if (dto.getProcedureStableId().startsWith("HRWL_OWT")) {
@@ -1431,7 +1444,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         String parameterToCreate = "ESLIM_011_001_705";
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         ArrayList<String> paramsOfInterest = new ArrayList<>();
         paramsOfInterest.add("ESLIM_011_001_006");
@@ -1446,6 +1458,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         for (String id: animalIds){
             if (parameterMap.get("ESLIM_011_001_006").get(id).getDataPoint() != 0){ // denominator
                 ObservationDTO dto = parameterMap.get("ESLIM_011_001_006").get(id);
+                Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, dto.getProcedureStableId(), dto.getPipelineStableId());
+
                 Datasource datasource = datasources.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
 //                String metadataGroup = parameterMap.get("ESLIM_011_001_006").get(id).getMetadataGroup() + "_" +
@@ -1494,12 +1508,13 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
         int i = 0;
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         Map<String, ObservationDTO> increments = getIncrementalDataMapByParameter(parameterId);
         Set<String> animalIds =  increments.keySet();
         for (String id: animalIds){
             if (increments.get(id).getIncrementValues().size() != 0){ // denominator, here should actually always be > 0
                 ObservationDTO dto = increments.get(id);
+                Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, dto.getProcedureStableId(), dto.getPipelineStableId());
+
 
                 Double dataPoint = getAUC(dto.getIncrementValues(), dto.getDiscreteValues());
                 if (dataPoint > 0){
@@ -1550,7 +1565,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         ArrayList<String> listOfParameters = new ArrayList<>();
         listOfParameters.add(numerator);
@@ -1566,6 +1580,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
 
             try {
                 ObservationDTO dto = parameterMap.get(numerator).get(id);
+                Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, dto.getProcedureStableId(), dto.getPipelineStableId());
+
                 Datasource datasource = datasources.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" + parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
 
@@ -1620,7 +1636,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
 
         Map<String, ObservationDTO> increments = getIncrementalDataMapByParameter(parameterId);
@@ -1629,6 +1644,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         for (String id: animalIds){
             if (increments.get(id).getIncrementValues().size() != 0){ // denominator, here should actually always be > 0
                 ObservationDTO dto = increments.get(id);
+                Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, dto.getProcedureStableId(), dto.getPipelineStableId());
+
                 Datasource datasource = datasources.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
 
@@ -1656,12 +1673,13 @@ public class GenerateDerivedParameters implements CommandLineRunner {
     private int copyDifferenceOfIncrements(String parameterToCreate, String parameterId, Double incrementForMinued, Double incrementForSubtrahend) throws SQLException {
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         Map<String, ObservationDTO> increments = getIncrementalDataMapByParameter(parameterId);
         for (String id:  increments.keySet()){
 
             ObservationDTO dto = increments.get(id);
+            Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, dto.getProcedureStableId(), dto.getPipelineStableId());
+
             int minuedPosition = dto.getDiscreteValues().indexOf(incrementForMinued);
             int subtrahendPosition = dto.getDiscreteValues().indexOf(incrementForSubtrahend);
 
@@ -1685,12 +1703,13 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         Map<String, ObservationDTO> increments = getIncrementalDataMapByParameter(parameterId);
         Set<String> animalIds =  increments.keySet();
         for (String id: animalIds){
             ObservationDTO dto = increments.get(id);
+            Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, dto.getProcedureStableId(), dto.getPipelineStableId());
+
 
             Datasource datasource = datasources.get(dto.getExternalDbId());
 
@@ -1722,14 +1741,14 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         // EUMODIC bodyweight procedure is always ESLIM_022_001
         //
         if (param.getStableId().contains("ESLIM_022")) {
-            return procedureRepository.getByStableId("ESLIM_022_001");
+            return procedureRepository.getByStableIdAndPipeline("ESLIM_022_001", "ESLIM_001");
         }
 
         //
         // IMPC bodyweight procedure is always IMPC_BWT_001
         //
         if (param.getStableId().contains("IMPC_BWT")) {
-            return procedureRepository.getByStableId("IMPC_BWT_001");
+            return procedureRepository.getByStableIdAndPipeline("IMPC_BWT_001", dto.getPipelineStableId());
         }
 
         for (Procedure p : param.getProcedures()) {
@@ -1748,7 +1767,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
             throws SQLException{
 
         deleteObservationsForParameterId(parameterToCreate);
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
         int i = 0;
         Map<String, ObservationDTO> increments = getIncrementalDataMapByParameter(parameterId);
         Map<String, ObservationDTO> denominators = getResultsMapByParameter(denominator);
@@ -1760,6 +1778,8 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         for (String id: intersection){
             if (increments.get(id).getIncrementValues().size() != 0 && denominators.get(id).getDataPoint() != 0){
                 ObservationDTO dto = increments.get(id);
+                Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, dto.getProcedureStableId(), dto.getPipelineStableId());
+
                 Datasource datasource = datasources.get(dto.getExternalDbId());
                 Experiment currentExperiment = createNewExperiment(dto, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, dto), true);
 //                String metadataGroup = denominators.get(id).getMetadataGroup() + "_" +
@@ -1803,15 +1823,12 @@ public class GenerateDerivedParameters implements CommandLineRunner {
         int i = 0;
         deleteObservationsForParameterId(parameterToCreate);
         Map<String, Set<ObservationDTO>> res = new HashMap<> (); // <animalid, Set<obsDTO>>
-        Map<String, String> metadataGroups = new HashMap<>();
         Map<String, String> metadata = new HashMap<>();
-        Parameter param = parameterRepository.getByStableId(parameterToCreate);
 
         Map<String, Map<String, Set<ObservationDTO>>> parameterMap = new HashMap<>();
         Set<String> animalIds =  getTimeSeriesResultsUnionByParameter(paramsOfInterest, parameterMap);
 
         for (String id: animalIds){
-            metadataGroups.put(id, "");
             metadata.put(id, "");
             for (String p: paramsOfInterest){
 
@@ -1832,7 +1849,6 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                         obsDTO.addDiscreteValue(getAgeInWeeks(obsDTO.getDateOfExperiment(), obsDTO.getDateOfBirth()));
                         res.get(id).add(obsDTO);
 
-                        metadataGroups.put(id, metadataGroups.get(id) + "_" + obsDTO.getMetadataGroup());
                         metadata.put(id, metadata.get(id) + ", " + p + ":" + obsDTO.getMetadataCombined());
                     }
                 }
@@ -1846,11 +1862,32 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 continue;
             }
 
-            Datasource datasource = datasources.get(exemplarObservation.getExternalDbId());
+            String procedureId = exemplarObservation.getProcedureStableId();
+            String pipelineId = exemplarObservation.getPipelineStableId();
 
+            // Because the body weight curve procedures aggregate data from several other procedures, the procedure
+            // supplied with the data is not going to necessarily be the same as the derived data.
+            // If we're deriving a body weight curve, override the procedure / pipeline to be the correct body weight
+            // procedure for the supplied parameter
+            if (parameterToCreate.contains("BWT_008_001")) {
+                procedureId = "IMPC_BWT_001";
+            } else if (parameterToCreate.startsWith("ESLIM_022")) {
+                procedureId = "ESLIM_022_001";
+                pipelineId = "ESLIM_001";
+            }
+
+            Parameter param = parameterRepository.getByStableIdAndProcedureAndPipeline(parameterToCreate, procedureId, pipelineId);
+
+            if (param==null) {
+                logger.warn(String.format("Cannot find parameter for parameter: %s, procedure: %s, pipeline: %s", parameterToCreate, procedureId, pipelineId));
+            }
+
+            Datasource datasource = datasources.get(exemplarObservation.getExternalDbId());
             Experiment currentExperiment = createNewExperiment(exemplarObservation, "derived_" +parameterToCreate + "_" + i++, getProcedureFromObservation(param, exemplarObservation), false);
             currentExperiment.setMetadataCombined(metadata.get(id));
-            currentExperiment.setMetadataGroup(DigestUtils.md5Hex(metadataGroups.get(id)));
+
+            // No metadata split for body weight curves
+            currentExperiment.setMetadataGroup(DigestUtils.md5Hex(""));
             experimentRepository.save(currentExperiment);
 
             for (ObservationDTO dto : res.get(id)) {
@@ -2287,7 +2324,9 @@ public class GenerateDerivedParameters implements CommandLineRunner {
                 }
                 res.get(key).add(obsDTO);
             }
+
         }
+
         return res;
     }
 

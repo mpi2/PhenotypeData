@@ -16,6 +16,7 @@
 package org.mousephenotype.cda.solr.service.dto;
 
 import org.apache.solr.client.solrj.beans.Field;
+import org.mousephenotype.cda.enumerations.SignificantType;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.solr.core.mapping.SolrDocument;
 
@@ -186,6 +187,10 @@ public class StatisticalResultDTO {
 
 	public static final String SIGNIFICANT = "significant";
 
+	// Required for the webapp to display the correct classification tag
+	public SignificantType getSignificantType() {
+        return SignificantType.getValue(getClassificationTag());
+    }
 
 	@Id
     @Field(DOCUMENT_ID)

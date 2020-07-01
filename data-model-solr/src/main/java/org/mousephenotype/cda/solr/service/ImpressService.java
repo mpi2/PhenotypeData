@@ -70,6 +70,7 @@ public class ImpressService extends BasicService implements WebStatus {
 	 * @since 2015/07/17
 	 * @author tudose
 	 * @return
+	 * @return
 	 */
 
 	public List<ProcedureDTO> getProceduresByPipeline(String pipelineStableId) {
@@ -251,10 +252,37 @@ public class ImpressService extends BasicService implements WebStatus {
 		SolrDocument doc = pipelineCore.query(query).getResults().get(0);
 
 		return new ImpressBaseDTO((Long)doc.getFirstValue(ImpressDTO.PIPELINE_ID),
-				Long.getLong(doc.getFirstValue(ImpressDTO.PIPELINE_STABLE_KEY).toString()),
+				(Long) doc.getFirstValue(ImpressDTO.PIPELINE_STABLE_KEY),
 				doc.getFirstValue(ImpressDTO.PIPELINE_STABLE_ID).toString(),
 				doc.getFirstValue(ImpressDTO.PIPELINE_NAME).toString());
 
+	}
+
+	public ProcedureDTO getProcedureByStableId(String pipelineStableId, String procedureStableId) {
+
+		ProcedureDTO procedure = new ProcedureDTO();
+		try {
+			SolrQuery query = new SolrQuery()
+					.setQuery(ImpressDTO.PROCEDURE_STABLE_ID + ":" + procedureStableId + " AND " + ImpressDTO.PIPELINE_STABLE_ID +":"+pipelineStableId)
+					.setFields(ImpressDTO.PROCEDURE_ID,
+							ImpressDTO.PROCEDURE_NAME,
+							ImpressDTO.PROCEDURE_STABLE_ID,
+							ImpressDTO.PROCEDURE_STABLE_KEY);
+
+			QueryResponse response = pipelineCore.query(query);
+
+			ImpressDTO imd = response.getBeans(ImpressDTO.class).get(0);
+
+			procedure.setStableId(imd.getProcedureStableId().toString());
+			procedure.setName(imd.getProcedureName().toString());
+			procedure.setStableKey(imd.getProcedureStableKey());
+			return procedure;
+
+		} catch (SolrServerException | IOException | IndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 
 
@@ -417,10 +445,16 @@ public class ImpressService extends BasicService implements WebStatus {
 		return null;
 	}
 
+	public String getProcedureUrlByStableKeyAndPipelineStableKey(Long procedureStableKey, Long pipelineStableKey) {
 
+		return String.format("%s/impress/ProcedureInfo?action=list&procID=%s&pipeID=%s",
+				cmsBaseUrl,
+				procedureStableKey,
+				pipelineStableKey);
+	}
 	public String getProcedureUrlByKey(String procedureStableKey) {
 
-		return cmsBaseUrl + "/impress/protocol/" + procedureStableKey;
+		return cmsBaseUrl + "/impress/ProcedureInfo?action=list&procID=" + procedureStableKey;
 	}
 
 
@@ -449,12 +483,8 @@ public class ImpressService extends BasicService implements WebStatus {
 	}
 
 
-	public String getPipelineUrlByStableId(String stableId){
-		Long pipelineKey = getPipelineStableKey(stableId);
-		if (pipelineKey != null ){
-			return cmsBaseUrl + "/impress/procedures/" + pipelineKey;
-		}
-		else return "#";
+	public String getPipelineUrlByStableKey(Long stableKey){
+		return cmsBaseUrl + "/impress/PipelineInfo?id=" + stableKey;
 	}
 
 
@@ -539,20 +569,27 @@ public class ImpressService extends BasicService implements WebStatus {
 
 
 	/**
-	 * @author tudose
 	 * @since 2015/08/20
-	 * @param stableId
-	 * @return
-	 * @throws SolrServerException, IOException
+	 * @param parameterStableId stable ID of the parameter in question
 	 */
-	public ParameterDTO getParameterByStableId(String stableId)
-	throws SolrServerException, IOException  {
+	public ParameterDTO getParameterByPipelineProcedureParameterStableKey(Long pipelineStableKey, Long procedureStableKey, String parameterStableId)
+			throws SolrServerException, IOException  {
 
 		ParameterDTO param = new ParameterDTO();
 		SolrQuery query = new SolrQuery()
-				.setQuery(ImpressDTO.PARAMETER_STABLE_ID + ":" + stableId )
-				.setFields(ImpressDTO.PARAMETER_NAME, ImpressDTO.PARAMETER_ID, ImpressDTO.PARAMETER_STABLE_KEY, ImpressDTO.PARAMETER_STABLE_ID, ImpressDTO.OBSERVATION_TYPE, ImpressDTO.CATEGORIES,
-						ImpressDTO.UNITX, ImpressDTO.UNITY, ImpressDTO.PROCEDURE_NAME )
+				.setQuery(String.format("%s:%s AND %s:%S AND %s:%s",
+						ImpressDTO.PIPELINE_STABLE_KEY, pipelineStableKey,
+						ImpressDTO.PROCEDURE_STABLE_KEY, procedureStableKey,
+						ImpressDTO.PARAMETER_STABLE_ID, parameterStableId))
+				.setFields(ImpressDTO.PARAMETER_NAME,
+						ImpressDTO.PARAMETER_ID,
+						ImpressDTO.PARAMETER_STABLE_KEY,
+						ImpressDTO.PARAMETER_STABLE_ID,
+						ImpressDTO.OBSERVATION_TYPE,
+						ImpressDTO.CATEGORIES,
+						ImpressDTO.UNITX,
+						ImpressDTO.UNITY,
+						ImpressDTO.PROCEDURE_NAME)
 				.setRows(1);
 		QueryResponse response = pipelineCore.query(query);
 
@@ -571,6 +608,50 @@ public class ImpressService extends BasicService implements WebStatus {
 		param.setObservationType(ObservationType.valueOf(dto.getObservationType()));
 		param.setCategories(dto.getCategories());
 		List<String> procedures = new ArrayList<String>();
+		procedures.add(dto.getProcedureName());
+		param.setProcedureNames(procedures);
+
+		return param;
+	}
+
+
+	/**
+	 * @since 2015/08/20
+	 * @param stableId
+	 */
+	public ParameterDTO getParameterByStableId(String stableId)
+	throws SolrServerException, IOException  {
+
+		ParameterDTO param = new ParameterDTO();
+		SolrQuery query = new SolrQuery()
+				.setQuery(ImpressDTO.PARAMETER_STABLE_ID + ":" + stableId )
+				.setFields(ImpressDTO.PARAMETER_NAME,
+						ImpressDTO.PARAMETER_ID,
+						ImpressDTO.PARAMETER_STABLE_KEY,
+						ImpressDTO.PARAMETER_STABLE_ID,
+						ImpressDTO.OBSERVATION_TYPE,
+						ImpressDTO.CATEGORIES,
+						ImpressDTO.UNITX,
+						ImpressDTO.UNITY,
+						ImpressDTO.PROCEDURE_NAME)
+				.setRows(1);
+		QueryResponse response = pipelineCore.query(query);
+
+		List<ImpressDTO> dtoList = response.getBeans(ImpressDTO.class);
+		if ((dtoList == null) || (dtoList.isEmpty())) {
+			return null;
+		}
+
+		ImpressDTO dto = dtoList.get(0);
+		param.setId(dto.getParameterId());
+		param.setStableId(dto.getParameterStableId());
+		param.setStableKey(dto.getParameterStableKey());
+		param.setUnitX(dto.getUnitX());
+		param.setUnitY(dto.getUnitY());
+		param.setName(dto.getParameterName());
+		param.setObservationType(ObservationType.valueOf(dto.getObservationType()));
+		param.setCategories(dto.getCategories());
+		List<String> procedures = new ArrayList<>();
 		procedures.add(dto.getProcedureName());
 		param.setProcedureNames(procedures);
 
@@ -642,6 +723,6 @@ public class ImpressService extends BasicService implements WebStatus {
 
 	public String getParameterUrlByProcedureAndParameterKey(Long procedureKey,Long parameterKey) {
 		
-		return cmsBaseUrl + "/impress/parameterontologies/"+parameterKey + "/"+procedureKey;
+		return cmsBaseUrl + "/impress/OntologyInfo?action=list&procID="+procedureKey+"#"+parameterKey;
 	}
 }

@@ -20,6 +20,8 @@ import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.dcc.exportlibrary.datastructure.core.procedure.ProcedureMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -34,6 +36,8 @@ import java.util.*;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SeriesParameterObservationUtilsTestConfig.class)
 public class SeriesParameterObservationUtilsTest extends TestCase {
+
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private SeriesParameterObservationUtils utils;
 
@@ -69,7 +73,7 @@ public class SeriesParameterObservationUtilsTest extends TestCase {
 
    		for (String value : variousTimeValues) {
 
-   			System.out.println("Testing date format: " + value);
+   			logger.debug("Testing date format: " + value);
 
    			String testDateString = utils.getParsedIncrementValue(value);
    			assertTrue(testDateString.equals(finalDateString));

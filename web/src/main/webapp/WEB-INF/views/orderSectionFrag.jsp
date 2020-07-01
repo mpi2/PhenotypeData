@@ -41,12 +41,13 @@
     <c:if test="${creLine}">
         <c:set var="creLineParam" value="&creLine=true"/>
     </c:if>
+    <h4>This service may be affected by the Covid-19 pandemic. <a href="https://www.mousephenotype.org/news/impc-covid-19-update/">See how</a></h4>
     <table id="creLineTable" data-toggle="table" data-pagination="true" data-mobile-responsive="true" data-sortable="true"   data-detail-view="true" data-detail-formatter="detailFormatter">
         <thead>
         <tr>
             <th>MGI Allele</th>
             <th>Allele Type</th>
-            <th>Availability</th>
+            <th>Produced</th>
         </tr>
         </thead>
         <tbody>
@@ -99,5 +100,4 @@
             Knockin ${alleleProductsCre2.get("product_type")} are available for this gene.</a></div>
     </c:when>
 </c:choose>
-                            	
                             	

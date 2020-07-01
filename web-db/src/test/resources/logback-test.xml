@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- FRAMEWORK -->
+    <logger name="ch.qos.logback"                                               level="WARN" />
+    <logger name="org.apache.maven"                                             level="WARN" />
+    <logger name="org.apache.tomcat.jdbc.pool"                                  level="${log.level:-WARN}" />
+    <logger name="org.apache.tomcat.jdbc.pool.PooledConnection"                 level="${log.level:-ERROR}" />
+    <logger name="org.hibernate"                                                level="${log.level:-WARN}" />
+    <logger name="org.springframework"                                          level="WARN" />
+
+    <!-- ONTOLOGY PARSING - loads-> org.mousephenotype.cda.loads.cdaloader -->
+<!--    <logger name="org.semanticweb.owlapi.rdf.rdfxml.parser"                     level="WARN" />-->
+<!--    <logger name="org.semanticweb.owlapi.util.SAXParsers"                       level="WARN" />-->
+<!--    <logger name="org.semanticweb.owlapi.io.AbstractOWLParser"                  level="WARN" />-->
+
+
+
+    <!-- PHENOTYPE ARCHIVE -->
+<!--    <logger name="org.mousephenotype"                                           level="INFO"/>-->
+<!--   	<logger name="org.mousephenotype.cda.solr"                                  level="INFO" />-->
+<!--    <logger name="org.mousephenotype.cda.reports"                               level="INFO" />-->
+<!--   	<logger name="org.mousephenotype.cda.tests"                                 level="INFO" />-->
+<!--    <logger name="org.mousephenotype.cda.utilities.HttpProxy"                   level="WARN" />-->
+<!--    <logger name="org.mousephenotype.cda.loads"                                 level="INFO" />-->
+<!--    <logger name="org.mousephenotype.cda.solr.service"                          level="WARN" />-->
+<!--    <logger name="org.mousephenotype.interest"                                  level="INFO" />-->
+
+    <!-- uncomment this line to see ImageService solr queries -->
+    <!--<logger name="org.mousephenotype.cda.solr.service.ImageService"             level="INFO" />-->
+
+    <!-- OTHER -->
+    <logger name="org.springframework.boot.autoconfigure.logging.AutoConfigurationReportLoggingInitializer" level="ERROR" />
+
+    <!-- Quiets WARN [main] o.s.aop.framework.CglibAopProxy : Unable to proxy interface-implementing method
+         [public final void org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests.setApplicationContext(org.springframework.context.ApplicationContext)]
+         because it is marked as final: Consider using interface-based JDK proxies instead! -->
+<!--    <logger name="org.springframework.aop.framework.CglibAopProxy"                                                               level="ERROR" />-->
+
+    <!-- Suppress the annoying ConfigurationClassEnhancer warning (below). See https://jira.spring.io/browse/BATCH-2161
+    2016-11-02 14:46:43.921  WARN 2611 [           main] o.s.c.a.ConfigurationClassEnhancer       :
+        @Bean method ScopeConfiguration.stepScope is non-static and returns an object assignable to Spring's BeanFactoryPostProcessor interface.
+        This will result in a failure to process annotations such as @Autowired, @Resource and @PostConstruct within the method's declaring
+        @Configuration class. Add the 'static' modifier to this method to avoid these container lifecycle issues; see @Bean javadoc for complete details. -->
+<!--    <logger name="org.springframework.context.annotation.ConfigurationClassEnhancer"                                             level="ERROR" />-->
+
+    <!-- Suppress thelk reasoner INFO messages -->
+<!--    <logger name="org.semanticweb.elk.reasoner.Reasoner"                                                                         level="WARN" />-->
+
+<!--    <logger name="org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener"                       level="WARN" />-->
+
+<!--    <logger name="org.semanticweb.owlapi.util.SAXParsers"                                                                        level="ERROR" />-->
+
+<!--    <include resource="org/springframework/boot/logging/logback/base.xml"/>-->
+
+<!--    <logger name="org.springframework.boot.test"                                                                                 level="WARN" />-->
+
+<!--    <logger name="org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator"                                     level="ERROR" />-->
+
+    <!-- Quiets this message: "[DEPRECATION] Encountered positional parameter near line 1, column 77 in HQL:" in BiologicalModelDAOTest -->
+<!--    <logger name="org.hibernate.hql.internal.ast.HqlSqlWalker"                                                                   level="ERROR" />-->
+
+    <!-- Quiets "HHH000436: Entity manager factory name (default) is already registered.  If entity manager will be clustered or passivated, specify a unique value for property 'hibernate.ejb.entitymanager_factory_name'". -->
+<!--    <logger name="org.hibernate.jpa.internal.EntityManagerFactoryRegistry"                                                       level="ERROR" />-->
+
+<!--    <logger name="org.springframework.boot.logging.ClasspathLoggingApplicationListener"                                          level="INFO" />-->
+
+    <!-- UtilitiesTest has sometimes throws a warning that it cannot shut down the H2 or the HSQL database(s). They can be safely ignored. -->
+    <logger name="org.springframework.jdbc.datasource.embedded.H2EmbeddedDatabaseConfigurer"                                     level="ERROR" />
+    <logger name="org.springframework.jdbc.datasource.embedded.HsqlEmbeddedDatabaseConfigurer"                                   level="ERROR" />
+    <logger name="org.springframework.batch.core.configuration.annotation.DefaultBatchConfigurer"                                level="ERROR" />
+
+</configuration>

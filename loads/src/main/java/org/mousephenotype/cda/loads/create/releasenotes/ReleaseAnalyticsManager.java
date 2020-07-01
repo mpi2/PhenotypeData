@@ -716,6 +716,12 @@ public class ReleaseAnalyticsManager implements CommandLineRunner {
                 //System.out.println("Allele type\t" + matcher.group(1));
                 //System.out.println("Targeting Vector\t" + matcher.group(2));
                 String vectorProject = matcher.group(2);
+
+                // Required to fix bad data entry in the iMits system
+                // The allele superscript is defined for gene Ctps2 as lowercase "impc" instead of the proper "IMPC"
+                if (vectorProject.contains("impc")) {
+                    vectorProject = vectorProject.toUpperCase();
+                }
                 if (!vectorProjects.containsKey(vectorProject)) {
                     vectorProjects.put(vectorProject, 0);
                 }

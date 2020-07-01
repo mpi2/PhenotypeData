@@ -22,7 +22,6 @@ import org.mousephenotype.cda.loads.exceptions.DataLoadException;
 import org.mousephenotype.cda.owl.OntologyParser;
 import org.mousephenotype.cda.owl.OntologyTermDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
-import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.*;
@@ -125,17 +124,11 @@ public class OntologyLoader implements Step, Tasklet, InitializingBean {
         List<OntologyTermDTO> dtoTerms;
         List<OntologyTerm> terms;
 
-        try {
-            dtoTerms = new OntologyParser(sourceFilename, prefix, null, null).getTerms();
-            terms = ontologyDTOTermsToOntologyTerms(dtoTerms);
+        dtoTerms = new OntologyParser(sourceFilename, prefix, null, null).getTerms();
+        terms = ontologyDTOTermsToOntologyTerms(dtoTerms);
 
-            logger.info("FILENAME: {}. PREFIX: {}. TERMS COUNT: {}.",
-                        sourceFilename, prefix, terms.size());
-
-        } catch (OWLOntologyCreationException e) {
-
-            throw new DataLoadException(e);
-        }
+        logger.info("FILENAME: {}. PREFIX: {}. TERMS COUNT: {}.",
+                    sourceFilename, prefix, terms.size());
 
         Map<String, Integer> counts = cdaSqlUtils.insertOntologyTerm(terms);
         written.put("terms", written.get("terms") + counts.get("terms"));

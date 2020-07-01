@@ -55,7 +55,7 @@
 
     <script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
 
-            <script type="text/javascript" src="https://cdn.datatables.net/fixedcolumns/3.3.0/js/dataTables.fixedColumns.min.js"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedcolumns/3.3.0/css/fixedColumns.dataTables.min.css"/>
 
 
 <%--    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.css">--%>
@@ -81,7 +81,7 @@
 
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
      replaced with below as unable to get his due to CORS or licence?-->
-     
+
     <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" media='all'/>
     <link href="${baseUrl}/css/impc-icons.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" type="text/css" href="https://ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css">
@@ -176,7 +176,7 @@
                         </div>
                         <div class="portal-search__inputs">
                             <form id="searchForm" action="${baseUrl}/search">
-                                <input id="searchTerm" name="term" class="portal-search__input" value="${term}" placeholder="Search the data..." type="text"/>
+                                <input id="searchTerm" name="term" class="portal-search__input" value="${term}" placeholder="Search All 6440 Knockout Data..." type="text"/>
                                 <button id="searchIcon" type="submit"><i class="fas fa-search"></i></button>
                                 <input id="searchType" type="hidden" name="type" value="${type}">
                                 <div id="searchLoader" class="lds-ring">

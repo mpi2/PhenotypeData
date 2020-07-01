@@ -17,7 +17,7 @@ package org.mousephenotype.cda.indexers;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.constants.Constants;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.db.repositories.OntologyTermRepository;
 import org.mousephenotype.cda.indexers.exceptions.IndexerException;
 import org.mousephenotype.cda.indexers.utils.IndexerMap;
@@ -207,13 +207,6 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 			for (ImageDTO imageDTO : imageList) {
 
 				int omeroId=0;
-
-				// "stage" field is needed for search, stage facet on image seach
-				if (imageDTO.getDevelopmentalStageAcc() != null && (imageDTO.getDevelopmentalStageAcc().equalsIgnoreCase(POSTPARTUM_STAGE)|| imageDTO.getDevelopmentalStageAcc().equalsIgnoreCase(POSTNATAL_STAGE))) { // postnatal stage
-					imageDTO.setStage("adult");
-				} else {
-					imageDTO.setStage("embryo");
-				}
 
 				String downloadFilePath = imageDTO.getDownloadFilePath();
 				if (imageBeans.containsKey(downloadFilePath)) {

@@ -62,6 +62,13 @@ public class OntologyTermRepositoryTest {
         assertEquals(getExpected(), actual);
     }
 
+    @Test
+    public void getByNameAndShortName() {
+        OntologyTerm actual = ontologyTermRepository.getByTermNameAndShortName("E9.5", "IMPC");
+        assertNotNull(actual);
+        assertEquals(getExpectedLifeStageTerm(), actual);
+    }
+
 
     private OntologyTerm getExpected() {
 
@@ -70,6 +77,20 @@ public class OntologyTermRepositoryTest {
         ontologyTerm.setId(new DatasourceEntityId("IMPC_PARAMSC_012", 22));
         ontologyTerm.setName("Software failure");
         ontologyTerm.setDescription("LIMS says no");
+        ontologyTerm.setIsObsolete(false);
+        ontologyTerm.setReplacementAcc(null);
+
+        return ontologyTerm;
+    }
+
+
+    private OntologyTerm getExpectedLifeStageTerm() {
+
+        OntologyTerm ontologyTerm = new OntologyTerm();
+
+        ontologyTerm.setId(new DatasourceEntityId("IMPCLS:0001", 22));
+        ontologyTerm.setName("E9.5");
+        ontologyTerm.setDescription("Embryonic day 9.5");
         ontologyTerm.setIsObsolete(false);
         ontologyTerm.setReplacementAcc(null);
 

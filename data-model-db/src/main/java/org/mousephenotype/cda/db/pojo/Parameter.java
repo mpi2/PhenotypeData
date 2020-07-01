@@ -111,7 +111,7 @@ public class Parameter extends PipelineEntry {
 			)
 	private List<ParameterOption> options;
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, fetch= FetchType.EAGER)
 	@JoinTable(
 			name="phenotype_parameter_lnk_increment",
 			joinColumns = @JoinColumn( name="parameter_id"),
@@ -546,7 +546,7 @@ public class Parameter extends PipelineEntry {
 
 	@Override
 	public String toString() {
-		return "Parameter [name=" + getName() + ", unit=" + unit + ", type=" + type + ", datatype=" + datatype + ", formula=" + formula
+		return "Parameter [Stable Id=" + stableId + ", name=" + getName() + ", unit=" + unit + ", type=" + type + ", datatype=" + datatype + ", formula=" + formula
 				+ ", derivedFlag=" + derivedFlag + ", sequence=" + sequence + ", requiredFlag=" + requiredFlag
 				+ ", metaDataFlag=" + metaDataFlag + ", importantFlag=" + importantFlag + ", annotateFlag="
 				+ annotateFlag + ", incrementFlag=" + incrementFlag + ", optionsFlag=" + optionsFlag + ", mediaFlag="

@@ -18,8 +18,6 @@ package org.mousephenotype.cda.ri.core.services;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mousephenotype.cda.ri.BaseTest;
-import org.mousephenotype.cda.ri.BaseTestConfig;
 import org.mousephenotype.cda.ri.core.entities.Gene;
 import org.mousephenotype.cda.ri.core.entities.GeneSent;
 import org.mousephenotype.cda.ri.core.entities.Summary;

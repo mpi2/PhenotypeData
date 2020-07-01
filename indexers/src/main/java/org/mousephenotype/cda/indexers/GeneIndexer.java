@@ -85,6 +85,9 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
     private IndexerMap                             indexerMap                                   = new IndexerMap();
     private Map<String, List<MpDTO>>               mgiAccessionToMP                             = new HashMap<>();
     private Map<String, List<Map<String, String>>> phenotypeSummaryGeneAccessionsToPipelineInfo = new HashMap<>();
+    private List<String> originalUmassGeneSymbols = Arrays.asList("4933427D14Rik","Actr8","Alg14","Ap2s1","Atp2b1","B4gat1","Bc052040","Bcs1l","Borcs6","Casc3","Ccdc59","Cenpo","Clpx","Dbr1","Dctn6","Ddx59","Dnaaf2","Dolk","Elof1","Exoc2","Fastkd6","Glrx3","Hlcs","Ipo11","Isca1","mars2","Mcrs1","med20","Mepce","Mrm3","Mrpl22","Mrpl3","Mrpl44","Mrps18c","Mrps22","Mrps25","mtpap","Nars2","Ndufa9","Ndufs8","Orc6","Pmpcb","Pold2","Polr1a","Polr1d","Ppp1r35","Prim1","Prpf4b","Rab11a","Ranbp2","Rbbp4","Riok1","Rpain","Sars","Sdhaf2","Ska2","Snapc2","Sptssa","Strn3","Timm22","tmx2","Tpk1","Trit1","Tubgcp4","Ube2m","Washc4","Ylpm1","Zc3h4","Zfp407","Zwint");
+
+
 
     protected GeneIndexer() {
 
@@ -271,6 +274,9 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                 
                 if(idgGenes.contains(gene.getMgiAccessionId())){
                 	gene.setIsIdgGene(true);
+                }
+                if(originalUmassGeneSymbols.contains(gene.getMarkerSymbol())){
+                    gene.setIsUmassGene(true);
                 }
 
                 if(genomicFeatureCoordinates!=null && genomicFeatureXrefs!=null){
@@ -467,26 +473,15 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                                 gene.getTopLevelMpTerm().addAll(mp.getTopLevelMpTerm());
                             }
 
-                            if (mp.getTopLevelMpTermSynonym() != null) {
-                                gene.getTopLevelMpTermSynonym().addAll(mp.getTopLevelMpTermSynonym());
-                            }
 
                             if (mp.getIntermediateMpId() != null) {
                                 gene.getIntermediateMpId().addAll(mp.getIntermediateMpId());
                                 gene.getIntermediateMpTerm().addAll(mp.getIntermediateMpTerm());
                             }
 
-                            if (mp.getIntermediateMpTermSynonym() != null) {
-                                gene.getIntermediateMpTermSynonym().addAll(mp.getIntermediateMpTermSynonym());
-                            }
-
                             if (mp.getChildMpId() != null) {
                                 gene.getChildMpId().addAll(mp.getChildMpId());
                                 gene.getChildMpTerm().addAll(mp.getChildMpTerm());
-                            }
-
-                            if (mp.getChildMpTermSynonym() != null) {
-                                gene.getChildMpTermSynonym().addAll(mp.getChildMpTermSynonym());
                             }
 
                             if (mp.getInferredMaId() != null) {

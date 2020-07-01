@@ -33,7 +33,6 @@ import org.springframework.stereotype.Component;
 import java.beans.Introspector;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Phenotype Overview Per Gene report.
@@ -44,6 +43,7 @@ import java.util.concurrent.ExecutionException;
 public class PhenotypeOverviewPerGeneReport extends AbstractReport {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
+    private List<GenotypePhenotypeDTO> missingGPTerms = new ArrayList<>();
 
     @Autowired
     GenotypePhenotypeService genotypePhenotypeService;
@@ -100,8 +100,13 @@ public class PhenotypeOverviewPerGeneReport extends AbstractReport {
                 // Term can be EMAP, MPATH, MP, etc.
                 if ((gp.getAnatomyTermName() != null) && ( ! gp.getAnatomyTermName().isEmpty())) {
                     geneToPhenotypes.get(gp.getMarkerSymbol()).add(gp.getAnatomyTermName() + "/" + gp.getParameterName());
-                } else if ((gp.getMpathTermName() != null) && ( ! gp.getMpathTermName().isEmpty())) {
-                    geneToPhenotypes.get(gp.getMarkerSymbol()).add(gp.getMpathTermName() + "/" + gp.getParameterName());
+                } else if ((gp.getMpathTermName() != null)) {
+                    if ( ! gp.getMpathTermName().isEmpty()) {
+                        geneToPhenotypes.get(gp.getMarkerSymbol()).add(gp.getMpathTermName() + "/" + gp.getParameterName());
+                    } else {
+                        missingGPTerms.add(gp);
+                        continue;
+                    }
                 } else if ((gp.getMpTermName() != null) && ( ! gp.getMpTermName().isEmpty())) {
                     geneToPhenotypes.get(gp.getMarkerSymbol()).add(gp.getMpTermName());
                 } else {
@@ -134,11 +139,23 @@ public class PhenotypeOverviewPerGeneReport extends AbstractReport {
                 String[] row = {geneSymbol, mgiGeneId, "0", ""};
                 result.add(row);
             }
-            csvWriter.writeAll(result);
 
-        } catch (SolrServerException | InterruptedException | ExecutionException | IOException e) {
+        } catch (SolrServerException | IOException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }
+
+        if ( ! missingGPTerms.isEmpty()) {
+            result.add( new String[] { " "});
+            result.add( new String[] {"Gene Symbol", "MGI Gene Id", "Missing/obsolete MPATH term"});
+
+            missingGPTerms
+                    .stream()
+                    .forEach(gp -> {
+                        result.add(new String[] { gp.getMarkerSymbol(), gp.getMarkerAccessionId(), gp.getMpathTermId(), });
+                    });
+        }
+
+        csvWriter.writeAll(result);
 
         try {
             csvWriter.close();

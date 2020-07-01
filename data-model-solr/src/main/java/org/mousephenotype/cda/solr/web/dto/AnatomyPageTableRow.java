@@ -15,8 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.web.dto;
 
-import org.mousephenotype.cda.db.pojo.DatasourceEntityId;
-import org.mousephenotype.cda.db.pojo.OntologyTerm;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
@@ -25,12 +23,8 @@ import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.web.dto.EvidenceLink.IconType;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 public class AnatomyPageTableRow extends DataTableRow{
@@ -41,20 +35,16 @@ public class AnatomyPageTableRow extends DataTableRow{
     String anatomyLinks;
     int numberOfImages = 0;
 
-    public AnatomyPageTableRow() {
-        super();
-    }
 
-    
-    public void  addIncrementToNumberOfImages(){
+	public void  addIncrementToNumberOfImages(){
     	numberOfImages ++;
     }
 
     public AnatomyPageTableRow(ObservationDTO observation, String anatomyId, String baseUrl, String expressionValue) {
 
     	super();
-        List<String> sex = new ArrayList<String>();
-        sex.add(observation.getSex().toString());
+        List<String> sex = new ArrayList<>();
+        sex.add(observation.getSex());
         MarkerBean gene = new MarkerBean();
         gene.setSymbol(observation.getGeneSymbol());
         gene.setAccessionId(observation.getGeneAccession());
@@ -76,7 +66,6 @@ public class AnatomyPageTableRow extends DataTableRow{
         this.setParameter(param);
         this.setPhenotypingCenter(observation.getPhenotypingCenter());
 
-//        System.out.println("class="+observation.getClass());
         List<OntologyTerm> anatomyTerms = new ArrayList<>();
         
 		if (observation instanceof ImageDTO) {
@@ -102,21 +91,10 @@ public class AnatomyPageTableRow extends DataTableRow{
 
 		}
 
-		
         this.setExpression(expressionValue);
         this.setAnatomy(anatomyTerms);
 
-	    // Collect the parallel lists of IDs and Term names into combined parallel list of all three sets (term, intermediates, top levels)
-	    List<String> anatomyIds = Stream.of(observation.getAnatomyId(), observation.getIntermediateAnatomyId(), observation.getSelectedTopLevelAnatomyId())
-		    .filter(Objects::nonNull)
-		    .flatMap(Collection::stream)
-		    .collect(Collectors.toList());
-	    List<String> anatomy = Stream.of(observation.getAnatomyTerm(), observation.getIntermediateAnatomyTerm(), observation.getSelectedTopLevelAnatomyTerm())
-		    .filter(Objects::nonNull)
-		    .flatMap(Collection::stream)
-		    .collect(Collectors.toList());
-
-        this.setEvidenceLink(buildImageUrl(baseUrl, anatomyId, anatomy.get(anatomyIds.indexOf(anatomyId)), expressionValue));
+		this.setEvidenceLink(buildImageUrl(baseUrl, anatomyId, expressionValue));
         this.setAnatomyLinks(getAnatomyWithLinks(baseUrl));
         if(expressionValue.equals("ambiguous")){
 			System.out.println("odd expression value for row="+this);
@@ -128,23 +106,23 @@ public class AnatomyPageTableRow extends DataTableRow{
 
     public String getAnatomyWithLinks(String baseUrl){
     	
-    	String links = "";
+    	StringBuilder links = new StringBuilder();
     	
     	if (anatomy != null && anatomy.size() > 0){
-	    	links = "<a href=\"" + baseUrl + "/anatomy/";
+	    	links = new StringBuilder("<a href=\"" + baseUrl + "/anatomy/");
 	    	for (int i = 0; i < anatomy.size(); i++){
-	    		links += anatomy.get(i).getId().getAccession() + "\">" + anatomy.get(i).getName() + "</a>";
+	    		links.append(anatomy.get(i).getId().getAccession()).append("\">").append(anatomy.get(i).getName()).append("</a>");
 	    		if (i != anatomy.size()-1 ){
-	    			links += ", <a href=\"" + baseUrl + "/anatomy/";
+	    			links.append(", <a href=\"").append(baseUrl).append("/anatomy/");
 	    		}
 	    	}
     	}
 
-    	return links;
+    	return links.toString();
     }
 
 
-    public EvidenceLink buildImageUrl(String baseUrl, String anatomyId, String anatomyTerm, String expressionValue){
+    public EvidenceLink buildImageUrl(String baseUrl, String anatomyId, String expressionValue){
     	//http://localhost:8080/phenotype-archive/imageCompara?anatomy_id:%22EMAPA:16105%22&gene_symbol:Ap4e1&parameter_name:%22LacZ%20images%20wholemount%22&parameter_association_value:%22ambiguous%22
 		//System.out.println("building evidence link");
     	String url = baseUrl + "/imageComparator?";
@@ -254,7 +232,7 @@ public class AnatomyPageTableRow extends DataTableRow{
 
 	public String toTabbedString() {
 		String tab="\t";
-		String geneAccession="";
+		String geneAccession;
 		if(this.getGene().getAccessionId()==null) {
 			geneAccession="control";
 		}else {

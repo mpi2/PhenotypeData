@@ -1,13 +1,11 @@
 package uk.ac.ebi.phenotype.stats.model;
 
+import org.springframework.hateoas.CollectionModel;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.hateoas.Resources;
-
-import uk.ac.ebi.phenotype.stats.model.Statistics;
-
-public class StatsResources extends Resources<Statistics> {
+public class StatsResources extends CollectionModel<Statistics> {
 
 private List<Statistics> stats;
 	

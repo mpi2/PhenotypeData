@@ -49,143 +49,150 @@
     <jsp:body>
 
         <div class="container data-heading">
-            <div class="row row-shadow">
+            <div class="row">
                 <div class="col-12 no-gutters">
-                    <h2>Phenotype: ${phenotype.getMpTerm()} <a href="${cmsBaseUrl}/help/quick-guide-to-the-website/phenotype-page/" target="_blank"><i class="fa fa-question-circle" style="float: right; color: #212529;"></i></a></h2>
+                    <h2 class="mb-0">Phenotype: ${phenotype.getMpTerm()} <a href="${cmsBaseUrl}/help/quick-guide-to-the-website/phenotype-page/" target="_blank"><i class="fa fa-question-circle" style="float: right; color: #212529;"></i></a></h2>
                 </div>
             </div>
         </div>
 
         <c:if test="${hasData}">
-            <div class="container single single--no-side">
-                <div class="row row-over-shadow">
-                    <div class="col-12 white-bg">
-                        <div class="page-content pt-5 pb-5">
+            <div class="container white-bg-small">
+                <div class="row pb-5">
+                    <div class="col-12 col-md-12">
+                        <div  class="pre-content clear-bg">
+                            <div class="page-content people py-5 white-bg">
 
-                            <div class="row no-gutters">
-                                <div class="col-8 align-middle">
-                                    <div class="row no-gutters">
-                                        <div class="col-md-2 align-middle text-right pr-1">
-                                            <div class="align-middle font-weight-bold pr-2">Definition</div>
-                                        </div>
-                                        <div class="col-md-10 align-middle">
-                                            <span>${phenotype.getMpDefinition()}</span>
-                                        </div>
-                                    </div>
-                                    <c:if test="${not empty phenotype.getMpTermSynonym()}">
+                                <div class="row no-gutters">
+                                    <div class="col-8 align-middle">
                                         <div class="row no-gutters">
                                             <div class="col-md-2 align-middle text-right pr-1">
-                                                <div class="align-middle font-weight-bold pr-2">Synonyms</div>
+                                                <div class="align-middle font-weight-bold pr-2">Definition</div>
                                             </div>
-                                            <div class="col-md-8">
-                                                <c:if test='${phenotype.getMpTermSynonym().size() == 1}'>
-
-                                                    <c:forEach var="synonym" items="${phenotype.getMpTermSynonym()}"
-                                                               varStatus="loop">
-                                                        <span>${synonym}<c:if test="${!loop.last}">,&nbsp;</c:if></span>
-                                                        <c:if test="${!loop.last}">,&nbsp;</c:if>
-                                                    </c:forEach>
-                                                </c:if>
-
-                                                <c:if test='${phenotype.getMpTermSynonym().size() gt 1}'>
-                                                    <c:set var="count" value="0" scope="page"/>
-
-                                                    <c:forEach var="synonym" items="${phenotype.getMpTermSynonym()}"
-                                                               varStatus="loop">
-                                                        <c:set var="count" value="${count + 1}" scope="page"/>
-                                                        <span>${synonym}<c:if test="${!loop.last}">,&nbsp;</c:if></span>
-
-                                                    </c:forEach>
-                                                </c:if>
+                                            <div class="col-md-10 align-middle">
+                                                <span>${phenotype.getMpDefinition()}</span>
                                             </div>
                                         </div>
-                                    </c:if>
+                                        <c:if test="${not empty phenotype.getMpTermSynonym()}">
+                                            <div class="row no-gutters">
+                                                <div class="col-md-2 align-middle text-right pr-1">
+                                                    <div class="align-middle font-weight-bold pr-2">Synonyms</div>
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <c:if test='${phenotype.getMpTermSynonym().size() == 1}'>
 
-                                    <div class="row no-gutters justify-content-around text-center mt-3">
-                                        <a href="#genesAssociations" class="col-sm-4">
-                                            <i class="fal fa-dna mb-1 text-dark" style="font-size: 5em;"></i>
-                                            <span class="page-nav-link">Significant gene associations</span>
-                                        </a>
-                                        <a href="#phenotypeProcedures" class="col-sm-4">
-                                            <i class="fal fa-tasks mb-1 text-dark" style="font-size: 5em;"></i>
-                                            <span class="page-nav-link">The way we measure</span>
-                                        </a>
-                                        <a href="#phenotypeStats" class="col-sm-4">
-                                            <i class="fal fa-chart-line mb-1 text-dark" style="font-size: 5em;"
-                                               data-toggle="tooltip"
-                                               data-placement="top"></i>
-                                            <span class="page-nav-link">Phenotype stats</span>
-                                        </a>
+                                                        <c:forEach var="synonym" items="${phenotype.getMpTermSynonym()}"
+                                                                   varStatus="loop">
+                                                            <span>${synonym}<c:if test="${!loop.last}">,&nbsp;</c:if></span>
+                                                            <c:if test="${!loop.last}">,&nbsp;</c:if>
+                                                        </c:forEach>
+                                                    </c:if>
+
+                                                    <c:if test='${phenotype.getMpTermSynonym().size() gt 1}'>
+                                                        <c:set var="count" value="0" scope="page"/>
+
+                                                        <c:forEach var="synonym" items="${phenotype.getMpTermSynonym()}"
+                                                                   varStatus="loop">
+                                                            <c:set var="count" value="${count + 1}" scope="page"/>
+                                                            <span>${synonym}<c:if test="${!loop.last}">,&nbsp;</c:if></span>
+
+                                                        </c:forEach>
+                                                    </c:if>
+                                                </div>
+                                            </div>
+                                        </c:if>
+
+                                        <div class="row no-gutters justify-content-around text-center mt-3">
+                                            <a href="#genesAssociations" class="col-sm-4">
+                                                <i class="fal fa-dna mb-1 text-dark" style="font-size: 5em;"></i>
+                                                <span class="page-nav-link">Significant gene associations</span>
+                                            </a>
+                                            <a href="#phenotypeProcedures" class="col-sm-4">
+                                                <i class="fal fa-tasks mb-1 text-dark" style="font-size: 5em;"></i>
+                                                <span class="page-nav-link">The way we measure</span>
+                                            </a>
+                                            <a href="#phenotypeStats" class="col-sm-4">
+                                                <i class="fal fa-chart-line mb-1 text-dark" style="font-size: 5em;"
+                                                   data-toggle="tooltip"
+                                                   data-placement="top"></i>
+                                                <span class="page-nav-link">Phenotype stats</span>
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-lg-4 justify-content-center text-center text-primary"
-                                     style="font-size: 2.5em; font-weight: bolder; line-height: 1.0;">
-                                    <!--div class="row no-gutters">
-                                        <div class="col-4"><i class="fal fa-dna"></i></div>
-                                        <div class="col-4"><i class="fal fa-venus"></i></div>
-                                        <div class="col-4"><i class="fal fa-mars"></i></div>
-                                    </div-->
-                                    <div class="row no-gutters mt-3">
-                                        <div class="col-4">
-                                            <div><span id="percentageOfGenes">0</span><span id="percentageOfGenesSign">%</span></div>
-                                            <div style="font-size: small; font-weight: lighter;">of tested genes</div>
+                                    <div class="col-lg-4 justify-content-center text-center text-primary"
+                                         style="font-size: 2.5em; font-weight: bolder; line-height: 1.0;">
+                                        <!--div class="row no-gutters">
+                                            <div class="col-4"><i class="fal fa-dna"></i></div>
+                                            <div class="col-4"><i class="fal fa-venus"></i></div>
+                                            <div class="col-4"><i class="fal fa-mars"></i></div>
+                                        </div-->
+                                        <div class="row no-gutters mt-3">
+                                            <div class="col-4">
+                                                <div><span id="percentageOfGenes">0</span><span id="percentageOfGenesSign">%</span></div>
+                                                <div style="font-size: small; font-weight: lighter;">of tested genes</div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div id="numberOfSignificantGenes">0</div>
+                                                <div style="font-size: small; font-weight: lighter;">significant genes</div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div id="numberOfGenes">0</div>
+                                                <div style="font-size: small; font-weight: lighter;">tested genes</div>
+                                            </div>
+                                                <%--div class="col-4">
+                                                    <div><span id="percentageOfFemales">0</span><span id="percentageOfFemalesSign">%</span></div>
+                                                    <div style="font-size: small; font-weight: lighter;">of tested females</div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div><span id="percentageOfMales">0</span><span id="percentageOfMalesSign">%</span></div>
+                                                    <div style="font-size: small; font-weight: lighter;">of tested males</div>
+                                                </div--%>
                                         </div>
-                                        <div class="col-4">
-                                            <div id="numberOfSignificantGenes">0</div>
-                                            <div style="font-size: small; font-weight: lighter;">significant genes</div>
-                                        </div>
-                                        <div class="col-4">
-                                            <div id="numberOfGenes">0</div>
-                                            <div style="font-size: small; font-weight: lighter;">tested genes</div>
-                                        </div>
-                                        <%--div class="col-4">
-                                            <div><span id="percentageOfFemales">0</span><span id="percentageOfFemalesSign">%</span></div>
-                                            <div style="font-size: small; font-weight: lighter;">of tested females</div>
-                                        </div>
-                                        <div class="col-4">
-                                            <div><span id="percentageOfMales">0</span><span id="percentageOfMalesSign">%</span></div>
-                                            <div style="font-size: small; font-weight: lighter;">of tested males</div>
+                                            <%--div class="row no-gutters text-center text-info mt-5">
+                                                <div class="col-4">
+                                                    <div id="numberOfGenes">0</div>
+                                                    <div style="font-size: small; font-weight: lighter;">tested genes</div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div id="numberOfSignificantGenes">0</div>
+                                                    <div style="font-size: small; font-weight: lighter;">significant genes</div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <div id="numberOfMeasumeasurements">0</div>
+                                                    <div style="font-size: small; font-weight: lighter;">measurement types</div>
+                                                </div>
+                                            </div>
                                         </div--%>
                                     </div>
-                                    <%--div class="row no-gutters text-center text-info mt-5">
-                                        <div class="col-4">
-                                            <div id="numberOfGenes">0</div>
-                                            <div style="font-size: small; font-weight: lighter;">tested genes</div>
-                                        </div>
-                                        <div class="col-4">
-                                            <div id="numberOfSignificantGenes">0</div>
-                                            <div style="font-size: small; font-weight: lighter;">significant genes</div>
-                                        </div>
-                                        <div class="col-4">
-                                            <div id="numberOfMeasumeasurements">0</div>
-                                            <div style="font-size: small; font-weight: lighter;">measurement types</div>
-                                        </div>
+                                    <div class="row no-gutters mt-5">
+                                        <h4 id="genesAssociations">IMPC Gene variants with ${phenotype.getMpTerm()}</h4>
+                                        <jsp:include page="phenotypes_gene_variant_frag.jsp"></jsp:include>
                                     </div>
-                                </div--%>
+                                </div>
                             </div>
-                            <div class="row no-gutters mt-5">
-                                <h4 id="genesAssociations">IMPC Gene variants with ${phenotype.getMpTerm()}</h4>
-                                <jsp:include page="phenotypes_gene_variant_frag.jsp"></jsp:include>
-                            </div>
+
                         </div>
-                    </div>
                 </div>
             </div>
             </div>
         </c:if>
 
         <div class="container">
-            <div class="row">
-                <div class="col-12 no-gutters">
+            <div class="row pb-2">
+                <div class="col-12 col-md-12">
                     <h3 id="phenotypeProcedures"><i class="fas fa-tasks"></i>&nbsp;The way we measure</h3>
                 </div>
             </div>
         </div>
-        <div class="container single single--no-side">
-            <div class="row">
-                <div class="col-12 white-bg">
+        <div class="container white-bg-small">
+            <div class="row pb-5">
+                <div class="col-12 col-md-12">
+                    <div class="pre-content clear-bg">
                     <div class="page-content pt-5 pb-5">
+                        <div class="container p-0 p-md-2">
                         <jsp:include page="phenotypes_summary_frag.jsp"/>
+                        </div>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -194,18 +201,22 @@
         <c:if test="${genePercentage.getDisplay()}">
 
             <div class="container">
-                <div class="row">
-                    <div class="col-12 no-gutters">
+                <div class="row pb-2">
+                    <div class="col-12 col-md-12">
                         <h3 id="phenotypeStats"><i class="fas fa-chart-line"></i>&nbsp;Phenotype associations stats</h3>
                     </div>
                 </div>
             </div>
 
-            <div class="container single single--no-side">
-                <div class="row">
-                    <div class="col-12 white-bg">
+            <div class="container white-bg-small">
+                <div class="row pb-5">
+                    <div class="col-12 col-md-12">
+                        <div class="pre-content clear-bg">
                         <div class="page-content pt-5 pb-5">
+                            <div class="container p-0 p-md-2">
                             <jsp:include page="phenotypes_ass_stats_frag.jsp"/>
+                        </div>
+                        </div>
                         </div>
                     </div>
                 </div>

@@ -19,7 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
-import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField.Count;
@@ -29,20 +28,17 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
-import org.mousephenotype.cda.db.pojo.*;
+import org.mousephenotype.cda.db.pojo.GenesSecondaryProject;
 import org.mousephenotype.cda.db.repositories.GenesSecondaryProjectRepository;
-import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.dto.AggregateCountXY;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.generic.util.JSONRestUtil;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.dto.*;
-import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
-import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
+import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
 import org.mousephenotype.cda.solr.web.dto.PhenotypeCallSummaryDTO;
-import org.mousephenotype.cda.solr.web.dto.PhenotypeTableRowAnatomyPage;
-import org.mousephenotype.cda.utilities.HttpProxy;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,25 +46,26 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.validation.constraints.NotNull;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static java.util.Map.Entry.comparingByKey;
+
+@Service
+@Named("genotype-phenotype-service")
 public class GenotypePhenotypeService extends BasicService implements WebStatus {
 
     private final       Logger logger            = LoggerFactory.getLogger(this.getClass());
-    public static final double P_VALUE_THRESHOLD = 0.0001;
 
     protected ImpressService                  impressService;
     protected SolrClient                      genotypePhenotypeCore;
@@ -113,9 +110,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
 
         try {
             QueryResponse response = genotypePhenotypeCore.query(query);
-            TreeMap<String, Long> res = new TreeMap<>();
-            res.putAll(getFacets(response).get(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME));
-            return res;
+            return new TreeMap<>(getFacets(response).get(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME));
         } catch (SolrServerException | IOException e) {
             e.printStackTrace();
         }
@@ -135,76 +130,25 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
 
         return genotypePhenotypeCore.query(query).getResults().getNumFound();
     }
-
-    /**
-     * @since 2016/07/04
-     * @author ilinca
-     * @param anatomyId
-     * @return
-     * @throws SolrServerException, IOException
-     */
-    public List<GenotypePhenotypeDTO> getPhenotypesForAnatomy(String anatomyId) 
-    throws SolrServerException, IOException {
-    	
-    	SolrQuery query = new SolrQuery();
-    	query.setRows(Integer.MAX_VALUE);
-    	query.setQuery(GenotypePhenotypeDTO.ANATOMY_TERM_ID + ":\"" + anatomyId + "\" OR " + 
-    				GenotypePhenotypeDTO.INTERMEDIATE_ANATOMY_TERM_ID + ":\"" + anatomyId + "\" OR " +  
-    				GenotypePhenotypeDTO.TOP_LEVEL_ANATOMY_TERM_ID + ":\"" + anatomyId + "\"");
-    	
-    	query.setFields(GenotypePhenotypeDTO.MP_TERM_ID, GenotypePhenotypeDTO.MP_TERM_NAME, GenotypePhenotypeDTO.P_VALUE,
-    			GenotypePhenotypeDTO.MARKER_ACCESSION_ID, GenotypePhenotypeDTO.MARKER_SYMBOL, GenotypePhenotypeDTO.SEX,
-    			GenotypePhenotypeDTO.ZYGOSITY);
-    	
-    	return genotypePhenotypeCore.query(query).getBeans(GenotypePhenotypeDTO.class);
-    	    	
-    }
-    
-    public Collection<PhenotypeTableRowAnatomyPage> getCollapsedPhenotypesForAnatomy(String anatomyId, String baseUrl) 
-    throws SolrServerException, IOException {
-    	
-    	Map<String, PhenotypeTableRowAnatomyPage> res = new HashMap<>();
-    	List<GenotypePhenotypeDTO> phenotypes = getPhenotypesForAnatomy(anatomyId);
-    	
-    	for (GenotypePhenotypeDTO call : phenotypes){
-    		
-    		PhenotypeTableRowAnatomyPage row = new PhenotypeTableRowAnatomyPage();
-    		if (res.containsKey(call.getMpTermId())){
-    			row  = res.get(call.getMpTermId());
-    		} else {
-    			row.setPhenotypeTerm(new BasicBean(call.getMpTermId(), call.getMpTermName()));
-    		}
-    		MarkerBean gene = new MarkerBean();
-    		gene.setAccessionId(call.getMarkerAccessionId());
-    		gene.setSymbol(call.getMarkerSymbol());
-    		//System.out.println("call allename="+call.getAlleleName());
-    		//gene.setName(call.getAlleleName());
-    		row.addGenes(gene);
-    		res.put(call.getMpTermId(), row);
-    		
-    	}
-    	return res.values();    	
-    }
-    
     
     public List<String[]> getHitsDistributionByProcedure(List<String> resourceName)
-    throws SolrServerException, IOException , InterruptedException, ExecutionException {
+    throws SolrServerException, IOException {
 
         return getHitsDistributionBySomething(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID, resourceName);
     }
 
     public List<String[]> getHitsDistributionByParameter(List<String> resourceName)
-    throws SolrServerException, IOException , InterruptedException, ExecutionException {
+    throws SolrServerException, IOException  {
 
         return getHitsDistributionBySomething(GenotypePhenotypeDTO.PARAMETER_STABLE_ID, resourceName);
     }
 
 
     public Map<String, Long> getHitsDistributionBySomethingNoIds(String fieldToDistributeBy, List<String> resourceName, ZygosityType zygosity, int facetMincount, Double maxPValue)
-    throws SolrServerException, IOException , InterruptedException, ExecutionException {
+    throws SolrServerException, IOException  {
 
         Map<String, Long>  res = new HashMap<>();
-        Long time = System.currentTimeMillis();
+        long time = System.currentTimeMillis();
         SolrQuery q = new SolrQuery();
 
         if (resourceName != null){
@@ -285,7 +229,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
 
 
     public Map<String, List<String>> getMpTermByGeneMap(List<String> geneSymbols, String facetPivot, List<String> resourceName)
-        throws SolrServerException, IOException , InterruptedException, ExecutionException {
+        throws SolrServerException, IOException {
 
         Map<String, List<String>> mpTermsByGene = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
@@ -311,7 +255,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
                 String mpTerm = pivot.getValue().toString();
 
                 if( ! mpTermsByGene.containsKey(mpTerm)) {
-                    mpTermsByGene.put(mpTerm, new ArrayList<String>());
+                    mpTermsByGene.put(mpTerm, new ArrayList<>());
                 }
 
                 for (PivotField genePivot : pivot.getPivot()){
@@ -327,10 +271,10 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
     }
 
     private List<String[]> getHitsDistributionBySomething(String field, List<String> resourceName)
-        throws SolrServerException, IOException , InterruptedException, ExecutionException {
+        throws SolrServerException, IOException {
 
         List<String[]>  res = new ArrayList<>();
-        Long time = System.currentTimeMillis();
+        long time = System.currentTimeMillis();
         String pivotFacet = "";
         SolrQuery q = new SolrQuery();
 
@@ -382,10 +326,6 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
 
     /**
      * Returns a list of a all colonies
-     *
-     * @param phenotypeResourceName
-     * @return
-     * @throws SolrServerException, IOException
      */
     public List<GenotypePhenotypeDTO> getAllMPByPhenotypingCenterAndColonies(String phenotypeResourceName)
         throws SolrServerException, IOException  {
@@ -434,7 +374,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
     public List<String> getGenesAssocByParamAndMp(String parameterStableId, String phenotype_id)
         throws SolrServerException, IOException  {
 
-        List<String> res = new ArrayList<String>();
+        List<String> res = new ArrayList<>();
         SolrQuery query = new SolrQuery().setQuery("(" + GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + phenotype_id + "\" OR " + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\""
             + phenotype_id + "\" OR " + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + phenotype_id + "\") AND ("
             + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.B6N_STRAINS, "\" OR " + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"") + "\") AND "
@@ -443,8 +383,8 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         query.set("group", true);
         List<Group> groups = genotypePhenotypeCore.query(query).getGroupResponse().getValues().get(0).getValues();
         for (Group gr : groups) {
-            if ( ! res.contains((String) gr.getGroupValue())) {
-                res.add((String) gr.getGroupValue());
+            if ( ! res.contains(gr.getGroupValue())) {
+                res.add(gr.getGroupValue());
             }
         }
         return res;
@@ -465,10 +405,10 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         solrQuery.setQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":*");
         solrQuery.setRows(1000000);
         solrQuery.setFields(GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
-        QueryResponse rsp = null;
+        QueryResponse rsp;
         rsp = genotypePhenotypeCore.query(solrQuery);
         SolrDocumentList res = rsp.getResults();
-        HashSet<String> allGenes = new HashSet<String>();
+        HashSet<String> allGenes = new HashSet<>();
         for (SolrDocument doc : res) {
             allGenes.add((String) doc.getFieldValue(GenotypePhenotypeDTO.MARKER_ACCESSION_ID));
         }
@@ -492,7 +432,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         solrQuery.setFields(GenotypePhenotypeDTO.MP_TERM_ID);
         QueryResponse rsp = genotypePhenotypeCore.query(solrQuery);
         SolrDocumentList res = rsp.getResults();
-        HashSet<String> allPhenotypes = new HashSet<String>();
+        HashSet<String> allPhenotypes = new HashSet<>();
         for (SolrDocument doc : res) {
             allPhenotypes.add((String) doc.getFieldValue(GenotypePhenotypeDTO.MP_TERM_ID));
         }
@@ -515,12 +455,10 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         solrQuery.setFields(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID);
         QueryResponse rsp = genotypePhenotypeCore.query(solrQuery);
         SolrDocumentList res = rsp.getResults();
-        HashSet<String> allTopLevelPhenotypes = new HashSet<String>();
+        HashSet<String> allTopLevelPhenotypes = new HashSet<>();
         for (SolrDocument doc : res) {
             List<String> ids = getListFromCollection(doc.getFieldValues(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID));
-            for (String id : ids) {
-                allTopLevelPhenotypes.add(id);
-            }
+            allTopLevelPhenotypes.addAll(ids);
         }
 
         return allTopLevelPhenotypes;
@@ -541,61 +479,20 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         solrQuery.setFields(GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID);
         QueryResponse rsp = genotypePhenotypeCore.query(solrQuery);
         SolrDocumentList res = rsp.getResults();
-        HashSet<String> allIntermediateLevelPhenotypes = new HashSet<String>();
+        HashSet<String> allIntermediateLevelPhenotypes = new HashSet<>();
         for (SolrDocument doc : res) {
             List<String> ids = getListFromCollection(doc.getFieldValues(GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID));
-            for (String id : ids) {
-                allIntermediateLevelPhenotypes.add(id);
-            }
+            allIntermediateLevelPhenotypes.addAll(ids);
         }
 
         return allIntermediateLevelPhenotypes;
     }
 
 
-    /*
-     * Methods used by PhenotypeSummaryDAO
-     */
-    public SolrDocumentList getPhenotypesForTopLevelTerm(String gene, String mpID, ZygosityType zygosity)
-        throws SolrServerException, IOException  {
-
-        String query;
-        if (gene.equalsIgnoreCase("*")) {
-            query = GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":" + gene + " AND ";
-        } else {
-            query = GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\" AND ";
-
-        }
-
-        SolrQuery solrQuery = new SolrQuery();
-        solrQuery.setQuery(query + "(" + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpID + "\" OR " + GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + mpID + "\")");
-        solrQuery.setRows(1000000);
-        solrQuery.setSort(StatisticalResultDTO.P_VALUE, ORDER.asc);
-        solrQuery.setFields(GenotypePhenotypeDTO.P_VALUE, GenotypePhenotypeDTO.SEX, GenotypePhenotypeDTO.ZYGOSITY, GenotypePhenotypeDTO.MARKER_ACCESSION_ID, GenotypePhenotypeDTO.MARKER_SYMBOL,
-        		GenotypePhenotypeDTO.MP_TERM_ID, GenotypePhenotypeDTO.MP_TERM_NAME, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
-        
-
-        if (zygosity != null) {
-            solrQuery.setFilterQueries(GenotypePhenotypeDTO.ZYGOSITY + ":" + zygosity.getName());
-        }
-        
-        SolrDocumentList result = genotypePhenotypeCore.query(solrQuery).getResults();
-               
-        return result;
-    }
-
-    public SolrDocumentList getPhenotypes(String gene)
-    throws SolrServerException, IOException  {
-
-        SolrDocumentList result = runQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"");
-        return result;
-    }
-
-    
     public List<GenotypePhenotypeDTO> getAllGenotypePhenotypes(List<String> resourceName) 
     throws SolrServerException, IOException  {
 
-        SolrQuery query = new SolrQuery().setRows(1000000);
+        SolrQuery query = new SolrQuery().setRows(Integer.MAX_VALUE);
        
         if (resourceName != null){
             query.setQuery(StatisticalResultDTO.RESOURCE_NAME + ":(" + StringUtils.join(resourceName, " OR ") + ")");
@@ -606,51 +503,11 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         return genotypePhenotypeCore.query(query).getBeans(GenotypePhenotypeDTO.class);
 
     }
-    
-    
-    public Set<String> getAllGenotypePhenotypesForGene(String markerAccession) 
-    throws SolrServerException, IOException  {
 
-        Set <String> alleles = new HashSet<>();
-        SolrQuery query = new SolrQuery().setRows(Integer.MAX_VALUE);
-        query.setQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + markerAccession + "\"");
-        query.setFields(GenotypePhenotypeDTO.ALLELE_ACCESSION_ID);
-        List<GenotypePhenotypeDTO> results = genotypePhenotypeCore.query(query).getBeans(GenotypePhenotypeDTO.class);
-        
-        for ( GenotypePhenotypeDTO doc : results){
-        	alleles.add(doc.getAlleleAccessionId());
-        }
-        
-        return alleles;
-    }
-
-    
-    public List<GenotypePhenotypeDTO> getPhenotypeDTOs(String gene) 
-    throws SolrServerException, IOException  {
-        SolrQuery query = new SolrQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"")
-            .setRows(Integer.MAX_VALUE);
-
-        return genotypePhenotypeCore.query(query).getBeans(GenotypePhenotypeDTO.class);
-
-    }
-
-    private SolrDocumentList runQuery(String q)
-        throws SolrServerException, IOException  {
-
-        SolrQuery solrQuery = new SolrQuery().setQuery(q);
-        solrQuery.setRows(1000000);
-        QueryResponse rsp = null;
-        rsp = genotypePhenotypeCore.query(solrQuery);
-        return rsp.getResults();
-    }
 
     
     /**
-     * 
-     * @param gene
-     * @param zyg
-     * @return HashMap topLevelTerms <mp_id, mp_name>
-     * @throws SolrServerException, IOException
+     * Get map of top level MP terms for supplied gene and zygosity
      */
     public Map<String, String> getTopLevelMPTerms(String gene, ZygosityType zyg)
         throws SolrServerException, IOException  {
@@ -707,63 +564,6 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
      * End of Methods for PhenotypeSummaryDAO
      */
 
-    /*
-     * Methods for PipelineSolrImpl
-     */
-    public Parameter getParameterByStableId(String paramStableId, String queryString)
-        throws IOException, URISyntaxException, JSONException {
-
-        String solrUrl = SolrUtils.getBaseURL(genotypePhenotypeCore) + "/select/?q=" + GenotypePhenotypeDTO.PARAMETER_STABLE_ID + ":\"" + paramStableId + "\"&rows=10000000&version=2.2&start=0&indent=on&wt=json";
-        if (queryString.startsWith("&")) {
-            solrUrl += queryString;
-        } else {// add an ampersand parameter splitter if not one as we need
-            // one to add to the already present solr query string
-            solrUrl += "&" + queryString;
-        }
-        return createParameter(solrUrl);
-    }
-
-    private Parameter createParameter(String url)
-        throws IOException, URISyntaxException, JSONException {
-
-        Parameter parameter = new Parameter();
-        JSONObject results;
-        results = JSONRestUtil.getResults(url);
-
-        JSONArray docs = results.getJSONObject("response").getJSONArray("docs");
-        for (int i = 0; i < docs.length(); i++) {
-            Object doc = docs.get(i);
-            JSONObject paramDoc = (JSONObject) doc;
-            String isDerivedInt = paramDoc.getString("parameter_derived");
-            boolean derived = false;
-            if (isDerivedInt.equals("true")) {
-                derived = true;
-            }
-            parameter.setDerivedFlag(derived);
-            parameter.setName(paramDoc.getString(GenotypePhenotypeDTO.PARAMETER_NAME));
-            // we need to set is derived in the solr core!
-            // pipeline core parameter_derived field
-            parameter.setStableId(paramDoc.getString("" + GenotypePhenotypeDTO.PARAMETER_STABLE_ID + ""));
-            if (paramDoc.has(GenotypePhenotypeDTO.PROCEDURE_STABLE_KEY)) {
-                parameter.setStableKey(Integer.parseInt(paramDoc.getString(GenotypePhenotypeDTO.PROCEDURE_STABLE_KEY)));
-            }
-
-        }
-        return parameter;
-    }
-
-    /*
-     * Methods used by PhenotypeCallSummarySolrImpl
-     */
-    public List<? extends StatisticalResult> getStatsResultFor(String accession, String parameterStableId, ObservationType observationType, String strainAccession, String alleleAccession)
-        throws IOException, URISyntaxException, JSONException {
-
-        String solrUrl = SolrUtils.getBaseURL(genotypePhenotypeCore);// "http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
-        solrUrl += "/select/?q=" + GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + accession + "\"" + "&fq=" + GenotypePhenotypeDTO.PARAMETER_STABLE_ID + ":" + parameterStableId + "&fq=" + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + strainAccession + "\"" + "&fq=" + GenotypePhenotypeDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"&rows=10000000&version=2.2&start=0&indent=on&wt=json";
-        //		System.out.println("solr url for stats results=" + solrUrl);
-        List<? extends StatisticalResult> statisticalResult = this.createStatsResultFromSolr(solrUrl, observationType);
-        return statisticalResult;
-    }
 
     /**
      * Returns a PhenotypeFacetResult object given a phenotyping center and a
@@ -771,24 +571,18 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
      *
      * @param phenotypingCenter a short name for a phenotyping center
      * @param pipelineStableId a stable pipeline id
-     * @return a PhenotypeFacetResult instance containing a list of
-     * PhenotypeCallSummary objects.
-     * @throws IOException
-     * @throws URISyntaxException
-     * @throws SolrServerException, IOException
+     * @return a PhenotypeFacetResult instance containing a list of PhenotypeCallSummary objects.
      */
     public PhenotypeFacetResult getPhenotypeFacetResultByPhenotypingCenterAndPipeline(String phenotypingCenter, String pipelineStableId)
-        throws IOException, URISyntaxException, SolrServerException, JSONException {
+        throws IOException, URISyntaxException, JSONException {
 
         String solrUrl = SolrUtils.getBaseURL(genotypePhenotypeCore);// "http://wwwdev.ebi.ac.uk/mi/solr/genotype-phenotype";
-        //		System.out.println("SOLR URL = " + solrUrl);
 
         solrUrl += "/select/?q=" + GenotypePhenotypeDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"" + "&fq=" + GenotypePhenotypeDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId + "&facet=true" + "&facet.field=" + GenotypePhenotypeDTO.RESOURCE_FULLNAME + "&facet.field=" + GenotypePhenotypeDTO.PROCEDURE_NAME + "&facet.field=" + GenotypePhenotypeDTO.MARKER_SYMBOL + "&facet.field=" + GenotypePhenotypeDTO.MP_TERM_NAME + "&sort=p_value%20asc" + "&rows=10000000&version=2.2&start=0&indent=on&wt=json";
-        //		System.out.println("SOLR URL = " + solrUrl);
         return this.createPhenotypeResultFromSolrResponse(solrUrl);
     }
 
-    public PhenotypeFacetResult getMPByGeneAccessionAndFilter(String accId, List<String> topLevelMpTermName, List<String> resourceFullname)
+    public PhenotypeFacetResult getMPByGeneAccessionAndFilter(String accId, List<String> topLevelMpTermName)
     throws IOException, URISyntaxException, JSONException {
 
         String solrUrl = SolrUtils.getBaseURL(genotypePhenotypeCore) + "/select?";
@@ -800,7 +594,6 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         q.setFacetMinCount(1);
         q.setFacetLimit(-1);
         q.addFacetField(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
-        //q.addFacetField(GenotypePhenotypeDTO.RESOURCE_FULLNAME);
         q.set("wt", "json");
         q.setSort(GenotypePhenotypeDTO.P_VALUE, ORDER.asc);
                  
@@ -813,15 +606,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         return createPhenotypeResultFromSolrResponse(solrUrl);
     }
 
-
     public PhenotypeFacetResult getMPCallByMPAccessionAndFilter(String phenotype_id, List<String> procedureName, List<String> markerSymbol, List<String> mpTermName)
-            throws IOException, URISyntaxException, JSONException {
-
-        return getMPCallByMPAccessionAndFilter(phenotype_id, procedureName, markerSymbol, mpTermName, null);
-    }
-
-
-    public PhenotypeFacetResult getMPCallByMPAccessionAndFilter(String phenotype_id, List<String> procedureName, List<String> markerSymbol, List<String> mpTermName, Map<String, Synonym> synonyms)
     throws IOException, URISyntaxException, JSONException {
 
         String url = SolrUtils.getBaseURL(genotypePhenotypeCore) + "/select/?";
@@ -861,54 +646,35 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         
         url += q;
         
-        return createPhenotypeResultFromSolrResponse(url, synonyms);
+        return createPhenotypeResultFromSolrResponse(url);
 
     }
     /**
      * Get a list of gene symbols for this phenotype
-     * @param phenotype_id
-     * @return
-     * @throws IOException
-     * @throws URISyntaxException
-     * @throws SolrServerException
      */
     public List<String> getGenesForMpId(String phenotype_id)
-    	    throws IOException, URISyntaxException, SolrServerException {
-    		List<String>results=new ArrayList<>();
-    	        String url = SolrUtils.getBaseURL(genotypePhenotypeCore) + "/select/?";
-    	        SolrQuery q = new SolrQuery();
-    	        
-    	        q.setQuery("*:*");
-    	        q.addFilterQuery("(" + GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + phenotype_id + "\" OR " + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + phenotype_id + 
-    	        		"\" OR " + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + phenotype_id + "\")");
-    	        q.setRows(10000000);
-    	        q.setFacet(true);
-    	        q.setFacetMinCount(1);
-    	        q.setFacetLimit(-1);
-    	        //q.addFacetField(GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
-    	        q.addFacetField(GenotypePhenotypeDTO.MARKER_SYMBOL);
-    	       // q.addFacetField(GenotypePhenotypeDTO.MP_TERM_NAME );
-    	        q.set("wt", "json");
-    	        q.setSort(GenotypePhenotypeDTO.P_VALUE, ORDER.asc);
-    	        q.setFields(GenotypePhenotypeDTO.MARKER_SYMBOL);
-//    	        q.setFields(GenotypePhenotypeDTO.MP_TERM_NAME, GenotypePhenotypeDTO.MP_TERM_ID, GenotypePhenotypeDTO.MPATH_TERM_NAME, GenotypePhenotypeDTO.MPATH_TERM_ID, GenotypePhenotypeDTO.EXTERNAL_ID,
-//    	        		GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID, GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME, GenotypePhenotypeDTO.ALLELE_SYMBOL, 
-//    	        		GenotypePhenotypeDTO.PHENOTYPING_CENTER, GenotypePhenotypeDTO.ALLELE_ACCESSION_ID, GenotypePhenotypeDTO.MARKER_SYMBOL,
-//    	        		GenotypePhenotypeDTO.MARKER_ACCESSION_ID, GenotypePhenotypeDTO.PHENOTYPING_CENTER, GenotypePhenotypeDTO.ZYGOSITY, 
-//    	        		GenotypePhenotypeDTO.SEX, GenotypePhenotypeDTO.LIFE_STAGE_NAME, GenotypePhenotypeDTO.RESOURCE_NAME, GenotypePhenotypeDTO.PARAMETER_STABLE_ID, GenotypePhenotypeDTO.PARAMETER_NAME,
-//    	        		GenotypePhenotypeDTO.PIPELINE_STABLE_ID, GenotypePhenotypeDTO.PROJECT_NAME, GenotypePhenotypeDTO.PROJECT_EXTERNAL_ID,
-//    	        		GenotypePhenotypeDTO.P_VALUE, GenotypePhenotypeDTO.EFFECT_SIZE, GenotypePhenotypeDTO.PROCEDURE_STABLE_ID,
-//    	        		GenotypePhenotypeDTO.PROCEDURE_NAME, GenotypePhenotypeDTO.PIPELINE_NAME);
-    	       
-    	        
-    	        
-    	        QueryResponse response = genotypePhenotypeCore.query(q);
-    	        for( Count facet : response.getFacetField(GenotypePhenotypeDTO.MARKER_SYMBOL).getValues()){
-    	        	//System.out.println("facet="+facet.getName());
-    	        	results.add(facet.getName());
-    	        }
-    	        return results;
-    	    }
+            throws IOException, SolrServerException {
+        List<String> results = new ArrayList<>();
+        SolrQuery q = new SolrQuery();
+
+        q.setQuery("*:*");
+        q.addFilterQuery("(" + GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + phenotype_id + "\" OR " + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + phenotype_id +
+                "\" OR " + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + phenotype_id + "\")");
+        q.setRows(10000000);
+        q.setFacet(true);
+        q.setFacetMinCount(1);
+        q.setFacetLimit(-1);
+        q.addFacetField(GenotypePhenotypeDTO.MARKER_SYMBOL);
+        q.set("wt", "json");
+        q.setSort(GenotypePhenotypeDTO.P_VALUE, ORDER.asc);
+        q.setFields(GenotypePhenotypeDTO.MARKER_SYMBOL);
+
+        QueryResponse response = genotypePhenotypeCore.query(q);
+        for (Count facet : response.getFacetField(GenotypePhenotypeDTO.MARKER_SYMBOL).getValues()) {
+            results.add(facet.getName());
+        }
+        return results;
+    }
 
     public List<GenotypePhenotypeDTO> getGenotypePhenotypeFor(String markerAccession, String parameterStableId, String strainAccession, String alleleAccession, Set<ZygosityType> zygosity, String phenotypingCenter, Set<SexType> sex)
             throws SolrServerException, IOException {
@@ -935,6 +701,9 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
 
         if (sex != null) {
             String sexes = sex.stream().map(SexType::getName).collect(Collectors.joining(" OR "));
+            if(sexes.equalsIgnoreCase("female OR male") || sexes.equalsIgnoreCase("male OR female")){
+                sexes="female OR male OR both";//to account for where entries in solr have used both instead of female and male sexes e.g. threei data has some
+            }
             query.addFilterQuery(GenotypePhenotypeDTO.SEX + ":(" + sexes + ")");
         }
 
@@ -950,78 +719,8 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         return genotypePhenotypeCore.query(query).getBeans(GenotypePhenotypeDTO.class);
     }
 
-
-    private List<? extends StatisticalResult> createStatsResultFromSolr(String url, ObservationType observationType)
-        throws IOException, URISyntaxException, JSONException {
-
-        // need some way of determining what type of data and therefor what type
-        // of stats result object to create default to unidimensional for now
-        List<StatisticalResult> results = new ArrayList<>();
-
-        JSONObject resultsj;
-        resultsj = JSONRestUtil.getResults(url);
-        JSONArray docs = resultsj.getJSONObject("response").getJSONArray("docs");
-
-        if (observationType == ObservationType.unidimensional) {
-            for (int i = 0; i < docs.length(); i++) {
-                Object doc = docs.get(i);
-                UnidimensionalResult unidimensionalResult = new UnidimensionalResult();
-                JSONObject phen = (JSONObject) doc;
-                String pValue = phen.getString(GenotypePhenotypeDTO.P_VALUE);
-                String sex = phen.getString(GenotypePhenotypeDTO.SEX);
-                String zygosity = phen.getString(GenotypePhenotypeDTO.ZYGOSITY);
-                String effectSize = phen.getString(GenotypePhenotypeDTO.EFFECT_SIZE);
-                String phenoCallSummaryId = phen.getString(GenotypePhenotypeDTO.ID);
-
-                if (pValue != null) {
-                    unidimensionalResult.setId(Long.parseLong(phenoCallSummaryId));
-                    // one id for each document and for each sex
-                    unidimensionalResult.setpValue(Double.valueOf(pValue));
-                    unidimensionalResult.setZygosityType(ZygosityType.valueOf(zygosity));
-                    unidimensionalResult.setEffectSize(new Double(effectSize));
-                    unidimensionalResult.setSexType(SexType.valueOf(sex));
-                }
-                results.add(unidimensionalResult);
-            }
-            return results;
-        }
-
-        if (observationType == ObservationType.categorical) {
-
-            for (int i = 0; i < docs.length(); i++) {
-                Object doc = docs.get(i);
-                CategoricalResult catResult = new CategoricalResult();
-                JSONObject phen = (JSONObject) doc;
-                String pValue = phen.getString(GenotypePhenotypeDTO.P_VALUE);
-                String sex = phen.getString(GenotypePhenotypeDTO.SEX);
-                String zygosity = phen.getString(GenotypePhenotypeDTO.ZYGOSITY);
-                String effectSize = phen.getString(GenotypePhenotypeDTO.EFFECT_SIZE);
-                String phenoCallSummaryId = phen.getString(GenotypePhenotypeDTO.ID);
-
-                catResult.setId(Long.parseLong(phenoCallSummaryId));
-                // one id for each document and for each sex
-                catResult.setpValue(Double.valueOf(pValue));
-                catResult.setZygosityType(ZygosityType.valueOf(zygosity));
-                catResult.setEffectSize(new Double(Double.valueOf(effectSize)));
-                catResult.setSexType(SexType.valueOf(sex));
-                results.add(catResult);
-            }
-
-            return results;
-        }
-
-        return results;
-    }
-
-
-    public PhenotypeFacetResult createPhenotypeResultFromSolrResponse(String url)
-            throws IOException, URISyntaxException, JSONException {
-        return createPhenotypeResultFromSolrResponse(url, null);
-    }
-
-
     // Returns status of operation in PhenotypeFacetResult.status. Query it for errors and warnings.
-    public PhenotypeFacetResult createPhenotypeResultFromSolrResponse(String url, Map<String, Synonym> synonyms)
+    public PhenotypeFacetResult createPhenotypeResultFromSolrResponse(String url)
     throws IOException, URISyntaxException, JSONException {
 
         PhenotypeFacetResult facetResult = new PhenotypeFacetResult();
@@ -1033,13 +732,11 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         for (int i = 0; i < docs.length(); i++) {
             Object doc = docs.get(i);
             try {
-                PhenotypeCallSummaryDTO call = createSummaryCall(doc, synonyms);
+                PhenotypeCallSummaryDTO call = createSummaryCall(doc);
                 if ((call.getStatus().hasErrors()) || call.getStatus().hasWarnings()) {
                     facetResult.getStatus().add(call.getStatus());
                 }
-                if (call != null) {
-                    list.add(call);
-                }
+                list.add(call);
             } catch (Exception e) {
                 // Catch errors so that at least the data without issues displays
                 facetResult.addErrorCode(e.getMessage());
@@ -1081,22 +778,14 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
      * symbol AND {@code summary} is not null, the synonyms are searched for a mgiAccessionId and, if found, used. If
      * {@code synonyms} is null or the gene marker symbol is not found in the synonyms, a warning is returned and an
      * empty {@link PhenotypeCallSummaryDTO} is returned
-     *
-     * @param doc
-     * @param synonyms if not null, contains a full list of {@link Synonym} instances to search for mgiAccessionId.
-     * @return
-     * @throws Exception
      */
-    public PhenotypeCallSummaryDTO createSummaryCall(Object doc, Map<String, Synonym> synonyms)
+    public PhenotypeCallSummaryDTO createSummaryCall(Object doc)
     throws Exception{
 
         JSONObject              phen = (JSONObject) doc;
         JSONArray               topLevelMpTermNames;
         JSONArray               topLevelMpTermIDs;
         PhenotypeCallSummaryDTO sum;
-        if (synonyms == null) {
-            synonyms = new HashMap<>();             // If synonyms is null, create an empty one to avoid NPE.
-        }
 
         try {
             sum = new PhenotypeCallSummaryDTO();
@@ -1130,7 +819,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
                     topLevelMpTermIDs.put(phen.getString(GenotypePhenotypeDTO.MP_TERM_ID));
                 }
 
-                List<BasicBean> topLevelPhenotypeTerms = new ArrayList<BasicBean>();
+                List<BasicBean> topLevelPhenotypeTerms = new ArrayList<>();
                 for (int i = 0; i < topLevelMpTermNames.length(); i ++) {
                     BasicBean toplevelTerm = new BasicBean();
                     toplevelTerm.setName(topLevelMpTermNames.getString(i));
@@ -1187,12 +876,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
                     gene.setAccessionId(phen.getString(GenotypePhenotypeDTO.MARKER_ACCESSION_ID));
                 }
                 else {
-                    Synonym syn = synonyms.get(gene.getSymbol());
-                    if (syn != null) {
-                        gene.setAccessionId(syn.getAccessionId());
-                    } else {
-                        sum.getStatus().addWarning(gene.getSymbol() + " has no accession id");
-                    }
+                    sum.getStatus().addWarning(gene.getSymbol() + " has no accession id");
                 }
 
 	            sum.setGene(gene);
@@ -1227,15 +911,14 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
             if (phen.has(GenotypePhenotypeDTO.RESOURCE_NAME)) {
                 String provider = phen.getString(GenotypePhenotypeDTO.RESOURCE_NAME);
                 datasource.setName(provider);
-                sum.setDatasource(datasource);
             }
             else {
                 sum.getStatus().addWarning(sum.getgId() + " has no resource name");
                 datasource.setName("");
-                sum.setDatasource(datasource);
             }
-	
-	        ImpressBaseDTO parameter = new ParameterDTO();
+            sum.setDatasource(datasource);
+
+            ImpressBaseDTO parameter = new ParameterDTO();
 	        if (phen.has(GenotypePhenotypeDTO.PARAMETER_STABLE_ID)) {
 	            parameter.setStableId(phen.getString(GenotypePhenotypeDTO.PARAMETER_STABLE_ID));
 	            parameter.setName(phen.getString((GenotypePhenotypeDTO.PARAMETER_NAME)));
@@ -1283,7 +966,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
                 sum.setColonyId(phen.getString(GenotypePhenotypeDTO.COLONY_ID));
             }
         } catch (Exception e){
-        	String errorCode = "";
+        	String errorCode;
         	
         		errorCode = "#18";
    
@@ -1295,53 +978,6 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
     
         return sum;
     }
-
-    
-    /**
-     * @param mpTermName
-     * @param resource
-     * @return map <colony_id, occurences>
-     */
-    public Map<String, Long> getAssociationsDistribution(String mpTermName, String resource) {
-
-        String query = GenotypePhenotypeDTO.MP_TERM_NAME + ":\"" + mpTermName + "\"";
-        if (resource != null) {
-            query += " AND " + GenotypePhenotypeDTO.RESOURCE_NAME + ":" + resource;
-        }
-
-        SolrQuery q = new SolrQuery();
-        q.setQuery(query);
-        q.setFacet(true);
-        q.setFacetMinCount(1);
-        q.addFacetField(GenotypePhenotypeDTO.COLONY_ID);
-
-        try {
-            return (getFacets(genotypePhenotypeCore.query(q))).get(GenotypePhenotypeDTO.COLONY_ID);
-        } catch (SolrServerException | IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    
-    public Set<String> getFertilityAssociatedMps() {
-
-        SolrQuery q = new SolrQuery();
-        q.setQuery(GenotypePhenotypeDTO.PARAMETER_STABLE_ID + ":*_FER_*");
-        q.setFacet(true);
-        q.setFacetMinCount(1);
-        q.addFacetField(GenotypePhenotypeDTO.MP_TERM_NAME);
-
-        try {
-            return (getFacets(genotypePhenotypeCore.query(q))).get(GenotypePhenotypeDTO.MP_TERM_NAME).keySet();
-        } catch (SolrServerException | IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
 
     public SolrQuery buildQuery(String geneAccession, List<String> procedureName, List<String> alleleSymbol, List<String> phenotypingCenter,
                                 List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, Integer rows, List<String> sex, List<String> zygosities,
@@ -1363,19 +999,19 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
                     + StringUtils.join(phenotypingCenter, "\" OR \"") + "\")");
         }
         if (mpTermId != null) {
-            query.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-                    + StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-                    + StatisticalResultDTO.MP_TERM_ID_OPTIONS + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-                    + StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-                    + StatisticalResultDTO.FEMALE_TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"")
-                    + "\") OR " + StatisticalResultDTO.FEMALE_MP_TERM_ID + ":(\""
-                    + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-                    + StatisticalResultDTO.FEMALE_INTERMEDIATE_MP_TERM_ID + ":(\""
-                    + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-                    + StatisticalResultDTO.MALE_TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"")
-                    + "\") OR " + StatisticalResultDTO.MALE_INTERMEDIATE_MP_TERM_ID + ":(\""
-                    + StringUtils.join(mpTermId, "\" OR \"") + "\") OR " + StatisticalResultDTO.MALE_MP_TERM_ID + ":(\""
-                    + StringUtils.join(mpTermId, "\" OR \"") + "\")");
+            query.addFilterQuery(GenotypePhenotypeDTO.MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
+                    + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
+                   // + StatisticalResultDTO.MP_TERM_ID_OPTIONS + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
+                    + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\")");
+                  //  + GenotypePhenotypeDTO.FEMALE_TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"")
+                    //+ "\") OR " + StatisticalResultDTO.FEMALE_MP_TERM_ID + ":(\""
+                   // + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
+                   // + GenotypePhenotypeDTO.FEMALE_INTERMEDIATE_MP_TERM_ID + ":(\""
+                   // + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
+//                    + GenotypePhenotypeDTO.MALE_TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"")
+//                    + "\") OR " + GenotypePhenotypeDTO.MALE_INTERMEDIATE_MP_TERM_ID + ":(\""
+//                    + StringUtils.join(mpTermId, "\" OR \"") + "\") OR " + GenotypePhenotypeDTO.MALE_MP_TERM_ID + ":(\""
+//                    + StringUtils.join(mpTermId, "\" OR \"") + "\")");
         }
         if (pipelineName != null) {
             query.addFilterQuery(
@@ -1439,47 +1075,6 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
     /*
      * End of method for PhenotypeCallSummarySolrImpl
      */
-    public GeneRowForHeatMap getResultsForGeneHeatMap(String accession, GenomicFeature gene, List<BasicBean> xAxisBeans, Map<String, List<String>> geneToTopLevelMpMap) {
-
-        GeneRowForHeatMap row = new GeneRowForHeatMap(accession);
-        if (gene != null) {
-            row.setSymbol(gene.getSymbol());
-        } else {
-            System.err.println("error no symbol for gene " + accession);
-        }
-
-        Map<String, HeatMapCell> xAxisToCellMap = new HashMap<>();
-        for (BasicBean xAxisBean : xAxisBeans) {
-            HeatMapCell cell = new HeatMapCell();
-
-            if (geneToTopLevelMpMap.containsKey(accession)) {
-
-                List<String> mps = geneToTopLevelMpMap.get(accession);
-                // cell.setLabel("No Phenotype Detected");
-                if (mps != null &&  ! mps.isEmpty()) {
-                    if (mps.contains(xAxisBean.getId())) {
-                        cell.setxAxisKey(xAxisBean.getId());
-                        cell.setLabel("Data Available");
-                        cell.addStatus("Data Available");
-                    } else {
-                        cell.addStatus("No MP");
-                    }
-                } else {
-                    // System.err.println("mps are null or empty");
-                    cell.addStatus("No MP");
-                }
-            } else {
-                // if no doc found for the gene then no data available
-                cell.addStatus("No Data Available");
-            }
-            xAxisToCellMap.put(xAxisBean.getId(), cell);
-        }
-        row.setXAxisToCellMap(xAxisToCellMap);
-
-        System.out.println("---ROW " + row);
-
-        return row;
-    }
 
     public SolrClient getSolrServer() {
         return genotypePhenotypeCore;
@@ -1487,39 +1082,6 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
 
     public HttpSolrClient getHttpSolrClient() {
         return SolrUtils.getHttpSolrServer(genotypePhenotypeCore);
-    }
-
-    
-    /**
-     * @author ilinca
-     * @since 2016/07/07
-     * @return CSV string of facet values (mp,gene,colony,phenCenter,sex,zyg,param,pVal). At the moment of writing used to compare calls from EBI to DCC
-     * @throws SolrServerException, IOException
-     * @throws URISyntaxException 
-     * @throws IOException 
-     * @throws MalformedURLException 
-     */
-    public String getTabbedCallSummary() 
-    throws MalformedURLException, IOException, URISyntaxException{
-    //	http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/genotype-phenotype/select?q=resource_name:IMPC&facet=true&facet.mincount=1&facet.pivot=mp_term_name,marker_symbol,colony_id,phenotyping_center,sex,zygosity,parameter_stable_id,p_value&facet.limit=-1&facet.mincount=1&wt=xslt&tr=pivot.xsl
-    		
-    	SolrQuery q = new SolrQuery();
-    	q.setQuery(GenotypePhenotypeDTO.RESOURCE_NAME + ":IMPC");
-    	q.addFilterQuery("-" + GenotypePhenotypeDTO.ASSERTION_TYPE + ":manual");
-    	q.setFacet(true);
-    	q.setFacetLimit(-1)
-    		.setFacetMinCount(1)
-    		.addFacetPivotField(GenotypePhenotypeDTO.MP_TERM_ID + "," + GenotypePhenotypeDTO.MARKER_SYMBOL + "," + 
-    			GenotypePhenotypeDTO.COLONY_ID + "," + GenotypePhenotypeDTO.PHENOTYPING_CENTER + "," + GenotypePhenotypeDTO.SEX + "," + 
-    			GenotypePhenotypeDTO.ZYGOSITY + "," + GenotypePhenotypeDTO.PARAMETER_STABLE_ID + "," + GenotypePhenotypeDTO.P_VALUE);
-    	q.set("wt", "xslt").set("tr", "pivot.xsl");
-    	
-    	HttpProxy proxy = new HttpProxy();
-		System.out.println("Solr ULR for getTabbedCallSummary " + SolrUtils.getBaseURL(genotypePhenotypeCore) + "/select?" + q);
-
-		String content = proxy.getContent(new URL(SolrUtils.getBaseURL(genotypePhenotypeCore) + "/select?" + q));
-
-        return content;
     }
 
 
@@ -1531,22 +1093,22 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
      * @param topLevelMpTerms the mp terms are used with AND. If not null returns data for genes that have ALL phenotypes in the passed list.
      * @param idg Option to get data only for IDG. Set to false or null if you want all data.
      * @param idgClass one of [GPCRs, Ion Channels, Ion Channels]
-     * @return
+     * @return A JSONObject representing the pietropy matrix
      */
-    public JSONObject getPleiotropyMatrix(List<String> topLevelMpTerms, Boolean idg, String idgClass) throws IOException, SolrServerException, JSONException {
-
-
+    public JSONObject getPleiotropyMatrix(List<String> topLevelMpTerms, Boolean idg, String idgClass) {
         try {
 
-            SolrQuery query = getPleiotropyQuery(topLevelMpTerms, idg, idgClass);
+            Set<GenotypePhenotypeDTO> pleiotropyGenes = getPleiotropyGenes(topLevelMpTerms, idg, idgClass);
+            Set<String> topLevelMpTermNames = pleiotropyGenes
+                    .stream()
+                    .map(GenotypePhenotypeDTO::getTopLevelMpTermName)
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toSet());
 
-            QueryResponse queryResponse = genotypePhenotypeCore.query(query, SolrRequest.METHOD.POST);
-            Set<String> facets = getFacets(queryResponse).get(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME).keySet();
-
-            Map<String, Set<String>> genesByTopLevelMp = new HashMap<>(); // <mp, <genes>>
-            Integer[][] matrix = new Integer[facets.size()][facets.size()];
+            Map<String, Set<String>> genesByTopLevelMp = new HashMap<>(); // <mp, [genes]>
+            Integer[][] matrix = new Integer[topLevelMpTermNames.size()][topLevelMpTermNames.size()];
             // initialize labels -> needed to keep track of order for the matrix cells
-            List<String>  matrixLabels = facets.stream().collect(Collectors.toList());
+            List<String>  matrixLabels = new ArrayList<>(topLevelMpTermNames);
 
             // Fill matrix with 0s
             for (int i = 0; i < matrixLabels.size(); i++) {
@@ -1556,12 +1118,15 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
                 genesByTopLevelMp.put(matrixLabels.get(i), new HashSet<>());
             }
 
-
-            Map<String, List<String>> facetPivotResults = getFacetPivotResults(queryResponse, query.get("facet.pivot")); // <gene, <top_level_mps>>
+            Map<String, Set<String>> facetPivotResults = new HashMap<>(); // <gene, <top_level_mps>>
+            for (GenotypePhenotypeDTO dto : pleiotropyGenes) {
+                facetPivotResults.putIfAbsent(dto.getMarkerAccessionId(), new HashSet<>());
+                facetPivotResults.get(dto.getMarkerAccessionId()).addAll(dto.getTopLevelMpTermName());
+            }
 
             // Count genes associated to each pair of top-level mps. Gene count not g-p doc count, nor allele.
             for (String gene : facetPivotResults.keySet()) {
-                List<String> mpTerms = facetPivotResults.get(gene);
+                Set<String> mpTerms = facetPivotResults.get(gene);
                 for (int i = 0; i < matrixLabels.size(); i++){
                     String mpI = matrixLabels.get(i);
                     if (mpTerms.contains(mpI)) {
@@ -1600,84 +1165,124 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
 
             return result;
 
-        } catch (SolrServerException | SQLException | IOException | JSONException e) {
+        } catch (SolrServerException | IOException | JSONException e) {
             e.printStackTrace();
         }
 
         return new JSONObject();
     }
 
-    public String getPleiotropyDownload(List<String> topLevelMpTerms, Boolean idg, String idgClass) throws IOException, SolrServerException, SQLException {
+    public String getPleiotropyDownload(List<String> topLevelMpTerms, Boolean idg, String idgClass) throws IOException, SolrServerException {
 
-        //SolrQuery query = getBiologicalSystemPleiotropyDownloadQuery(topLevelMpTerms,idg, idgClass, biologicalSystem);
-        SolrQuery query = getPleiotropyQuery(topLevelMpTerms,idg, idgClass);
-        query.add("wt", "xslt");
-        query.add("tr", "pivot.xsl");
+        Set<GenotypePhenotypeDTO> pleiotropyGenes = getPleiotropyGenes(topLevelMpTerms, idg, idgClass);
+        Map<PleiotropyExportRow, AtomicInteger> data = new HashMap<>();
 
-        HttpURLConnection connection = (HttpURLConnection) new URL(SolrUtils.getBaseURL(genotypePhenotypeCore) + "/select?" + query).openConnection();
-        System.out.println("download query="+SolrUtils.getBaseURL(genotypePhenotypeCore) + "/select?" + query);
-        BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        for (GenotypePhenotypeDTO dto : pleiotropyGenes) {
+            for (String term : dto.getTopLevelMpTermName()) {
+                PleiotropyExportRow newRow = new PleiotropyExportRow(dto.getMarkerAccessionId(), dto.getMarkerSymbol(), term);
+                data.putIfAbsent(newRow, new AtomicInteger(0));
+                data.get(newRow).incrementAndGet();
+            }
+        }
 
-        // Return list of genes, uniue entrie only. The splitting is based on the order of pivot facets.
-        return br.lines().collect(Collectors.joining("\n"));
+        // Return list of genes, unique entries only. The splitting is based on the order of pivot facets.
+        return data.entrySet().stream().sorted(comparingByKey()).map(x -> String.join(",", Arrays.asList(
+                x.getKey().accessionId,
+                x.getKey().symbol,
+                x.getKey().topLevelMp,
+                x.getValue().toString())))
+                .collect(Collectors.joining("\n"));
+    }
 
+    static class PleiotropyExportRow implements Comparable<PleiotropyExportRow> {
+        String accessionId;
+        String symbol;
+        String topLevelMp;
+
+        public PleiotropyExportRow(String accessionId, String symbol, String topLevelMp) {
+            this.accessionId = accessionId;
+            this.symbol = symbol;
+            this.topLevelMp = topLevelMp;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            PleiotropyExportRow that = (PleiotropyExportRow) o;
+            return accessionId.equals(that.accessionId) &&
+                    symbol.equals(that.symbol) &&
+                    topLevelMp.equals(that.topLevelMp);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(accessionId, symbol, topLevelMp);
+        }
+
+
+        @Override
+        public int compareTo(PleiotropyExportRow o) {
+            return this.symbol.compareTo(o.symbol);
+        }
     }
 
     /**
-     * The query differs depending on topLevelMpTerms. If at least one term is passed, we need to find out the list of
-     * genes that have the required phenotypes and use them in the query. We can't use the list of MP terms themselves
-     * as t will filter out the other phenotype associations for the genese we're interested in.
-     * @param topLevelMpTerms
-     * @author ilinca
-     * @return Solr query for g-p associations of genes that have all phenotypes passed in topLevelMpTerms.
-     * @throws IOException
-     * @throws SolrServerException
+     * The set of associations differs depending on topLevelMpTerms. If at least one term is passed, we need to
+     * filter the list of genes that have the required phenotypes. We can't use the list of MP terms themselves
+     * as it will filter out the other phenotype associations for the genes we're interested in.
+     *
+     * @param topLevelMpTerms The list of terms to filter for, or null for all terms
+     * @param idg True indicating filter in IDG genes only
+     * @param idgClass The class of IDG genes, e.g., Kinase, Ion channel, etc.
+     * @return Set of genotype to phenotype associations for genes that have all top level phenotypes
+     *         passed in topLevelMpTerms.
      */
-    private SolrQuery getPleiotropyQuery(List<String> topLevelMpTerms, Boolean idg, String idgClass) throws IOException, SolrServerException, SQLException {
+    @Cacheable("pleiotropy")
+    public Set<GenotypePhenotypeDTO> getPleiotropyGenes(List<String> topLevelMpTerms, Boolean idg, String idgClass) throws IOException, SolrServerException {
 
-        String pivot = GenotypePhenotypeDTO.MARKER_SYMBOL  + "," + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME;
+        final List<String> fieldList = Arrays.asList(
+                GenotypePhenotypeDTO.MARKER_ACCESSION_ID,
+                GenotypePhenotypeDTO.MARKER_SYMBOL,
+                GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+
         SolrQuery query = new SolrQuery()
-                .setQuery("*:*")
-                .setFacet(true)
-                .setFacetLimit(-1);
-        query.add("facet.pivot", pivot);
-        query.addFacetField(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
+                .setQuery(GenotypePhenotypeDTO.MP_TERM_ID + ":*")
+                .setRows(Integer.MAX_VALUE)
+                .setFields(String.join(",", fieldList));
 
-        if ( idg != null && idg){
-            Set<GenesSecondaryProject> projectBeans = genesSecondaryProjectRepository.getAllBySecondaryProjectIdAndGroupLabel("idg", idgClass);
-            query.addFilterQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":(\"" + projectBeans.stream().map(gene -> {return gene.getMgiGeneAccessionId();}).collect(Collectors.joining("\" OR \"")) + "\")");
+        Set<GenotypePhenotypeDTO> genotypePhenotypeDTOS = new HashSet<>(
+                genotypePhenotypeCore
+                .query(query)
+                .getBeans(GenotypePhenotypeDTO.class));
+
+        // Filter for IDG genes if idg is true
+        if ( idg != null && idg ){
+
+            // If the idgClass has not been set, get all genes for the idg project, else filter for the class specified
+            Set<GenesSecondaryProject> idgGenes =
+                    idgClass == null ?
+                            genesSecondaryProjectRepository.getAllBySecondaryProjectId("idg") :
+                            genesSecondaryProjectRepository.getAllBySecondaryProjectIdAndGroupLabel("idg", idgClass);
+            Set<String> idgGeneIds = idgGenes
+                    .stream()
+                    .map(GenesSecondaryProject::getMgiGeneAccessionId)
+                    .collect(Collectors.toSet());
+            genotypePhenotypeDTOS = genotypePhenotypeDTOS
+                    .stream()
+                    .filter(x -> idgGeneIds.contains(x.getMarkerAccessionId()))
+                    .collect(Collectors.toSet());
         }
 
+        // Deal with top level MP terms if set
         if (topLevelMpTerms != null) {
-
-            // We want data for genes that have ALL top level phenotypes in the list
-            String interimPivot = GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
-            SolrQuery interimQuery = new SolrQuery()
-                    .setFacet(true)
-                    .setFacetLimit(-1)
-                    .setQuery("*:*")
-                    .addFilterQuery(topLevelMpTerms.stream().collect(Collectors.joining("\" OR \"", GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + ":(\"", "\")")));
-            interimQuery.add("facet.pivot", interimPivot);
-
-            // Filter out the pivot facets for un-wanted MP top level terms. We can get other top levels in the facets due to multiple parents.
-            Map<String, Set<String>> genesByMpTopLevel = getFacetPivotResultsKeepCount(genotypePhenotypeCore.query(interimQuery), interimPivot).entrySet().stream()
-                    .filter(entry -> topLevelMpTerms.contains(entry.getKey()))
-                    .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue().keySet()));
-
-            // Instantiate commonGenes with itself as it will work as identity on first set intersection (intersection of same sets)
-            Set<String> commonGenes = genesByMpTopLevel.values().iterator().next();
-            // Keep only genes that are present in all top level mp groups
-            commonGenes = genesByMpTopLevel.values().stream()
-                    .reduce(commonGenes, (a, b) -> {
-                        a.retainAll(b);
-                        return a;
-                    });
-
-            query.addFilterQuery(commonGenes.stream().collect(Collectors.joining(" OR ", GenotypePhenotypeDTO.MARKER_SYMBOL + ":(", ")")));
-
+            genotypePhenotypeDTOS = genotypePhenotypeDTOS
+                    .stream()
+                    .filter(gene -> gene.getTopLevelMpTermId().containsAll(topLevelMpTerms))
+                    .collect(Collectors.toSet());
         }
 
-        return query;
+        return genotypePhenotypeDTOS;
     }
 
 
@@ -1701,7 +1306,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
 
     }
 
-    private JSONObject addJitter(Double x, Double y, Set<String> existingPoints, JSONObject obj) throws JSONException {
+    private void addJitter(Double x, Double y, Set<String> existingPoints, JSONObject obj) throws JSONException {
 
         String s = x + "_" + y;
         if (!existingPoints.contains(s)){
@@ -1720,46 +1325,17 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
                 x -= 0.05;
             } else if (existingPoints.size()%6 == 4) {
                 y -= 0.05;
-            } else if (existingPoints.size()%6 == 5) {
+            } else {
                 x -= 0.05;
                 y -= 0.05;
             }
             addJitter(x, y, existingPoints, obj);
         }
-        return obj;
     }
 
-    /**
-     * @author ilinca
-     * @since 2016/07/05
-     * @param anatomyId
-     * @return Number of genes in g-p core for anatomy term given.
-     * @throws SolrServerException, IOException
-     */
-    public Integer getGenesByAnatomy(String anatomyId)
-            throws SolrServerException, IOException, JSONException {
-
-        SolrQuery query = new SolrQuery();
-        query.setQuery("(" + GenotypePhenotypeDTO.ANATOMY_TERM_ID + ":\"" + anatomyId + "\" OR " +
-                               GenotypePhenotypeDTO.INTERMEDIATE_ANATOMY_TERM_ID + ":\"" + anatomyId + "\" OR " +
-                               GenotypePhenotypeDTO.TOP_LEVEL_ANATOMY_TERM_ID + ":\"" + anatomyId + "\")")
-                .setRows(0)
-                .add("group", "true")
-                .add("group.field", GenotypePhenotypeDTO.MARKER_ACCESSION_ID)
-                .add("group.ngroups", "true")
-                .add("wt","json");
-
-        JSONObject groups = new JSONObject(genotypePhenotypeCore.query(query).getResponse().get("grouped").toString().replaceAll("=", ":"));
-
-        return groups.getJSONObject(GenotypePhenotypeDTO.MARKER_ACCESSION_ID).getInt("ngroups");
-    }
 
     /**
-     *
-     * @param mpId
      * @param filterOnAccessions list of marker accessions to restrict the results by e.g. for the hearing page we only want results for the 67 genes for the paper
-     * @return
-     * @throws JSONException
      */
     public JSONArray getTopLevelPhenotypeIntersection(String mpId, Set<String> filterOnAccessions) throws JSONException {
 
@@ -1775,21 +1351,23 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
 
         try {
             QueryResponse response = genotypePhenotypeCore.query(query);
-            Map<String,Long> countByGene = getFacets(response).get(GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
-            Map<String,List<String>>  geneAccSymbol = getFacetPivotResults(response,pivot);
+            Map<String, Long> countByGene = getFacets(response).get(GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
+            Map<String, List<String>> geneAccSymbol = getFacetPivotResults(response, pivot);
 
             Set<String> jitter = new HashSet<>();
             JSONArray array = new JSONArray();
-            for (String markerAcc: countByGene.keySet()){
+            for (String markerAcc : countByGene.keySet()) {
                 JSONObject obj = new JSONObject();
-                Double y = new Double(countByGene.get(markerAcc));
-                Double x = (getDocumentCountByMgiGeneAccessionId().get(markerAcc) - y);
-                obj = addJitter(x, y, jitter, obj);
                 obj.accumulate("markerAcc", markerAcc);
                 obj.accumulate("markerSymbol", geneAccSymbol.get(markerAcc).get(0));
-                if(filterOnAccessions!=null && filterOnAccessions.contains(markerAcc)){
+
+                Double y = new Double(countByGene.get(markerAcc));
+                Double x = (getDocumentCountByMgiGeneAccessionId().get(markerAcc) - y);
+                addJitter(x, y, jitter, obj);
+
+                if (filterOnAccessions != null && filterOnAccessions.contains(markerAcc)) {
                     array.put(obj);
-                }else if(filterOnAccessions==null){
+                } else if (filterOnAccessions == null) {
                     array.put(obj);
                 }
             }
@@ -1799,9 +1377,55 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         } catch (SolrServerException | IOException e) {
             e.printStackTrace();
         }
+
         return null;
     }
 
+
+
+    public Map<CombinedObservationKey, ExperimentsDataTableRow> getAllDataRecords(String geneAccession, List<String> procedureName , List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, String graphBaseUrl)
+            throws NumberFormatException, SolrServerException, IOException {
+
+        Map<CombinedObservationKey, ExperimentsDataTableRow> results = new HashMap<>();
+
+        SolrQuery query = buildQuery(geneAccession, procedureName,alleleSymbol, phenotypingCenter, pipelineName, procedureStableIds, resource, mpTermId, null, null, null, null, null, null, null, null);
+        List<GenotypePhenotypeDTO> solrResults = genotypePhenotypeCore.query(query).getBeans(GenotypePhenotypeDTO.class);
+
+        for (GenotypePhenotypeDTO dto : solrResults) {
+            ExperimentsDataTableRow row = getRowFromDto(dto, graphBaseUrl);
+            results.put(row.getCombinedKey(), row);
+        }
+
+        return results;
+
+    }
+
+    private ExperimentsDataTableRow getRowFromDto(GenotypePhenotypeDTO dto, String graphBaseUrl)
+            throws UnsupportedEncodingException {
+
+        MarkerBean allele = new MarkerBean();
+        allele.setAccessionId(dto.getAlleleAccessionId());
+        allele.setSymbol(dto.getAlleleSymbol());
+
+        MarkerBean gene = new MarkerBean();
+        gene.setAccessionId(dto.getMarkerAccessionId());
+        gene.setSymbol(dto.getMarkerSymbol());
+
+        ImpressBaseDTO procedure  = new ImpressBaseDTO(null, Long.parseLong(dto.getProcedureStableKey()), dto.getProcedureStableId(), dto.getProcedureName());
+        ImpressBaseDTO parameter = new ImpressBaseDTO(null, Long.parseLong(dto.getParameterStableKey()), dto.getParameterStableId(), dto.getParameterName());
+        ImpressBaseDTO pipeline = new ImpressBaseDTO(null,Long.parseLong( dto.getPipelineStableKey()), dto.getPipelineStableId(), dto.getPipelineName());
+
+        ZygosityType zygosity = dto.getZygosity() != null ? ZygosityType.valueOf(dto.getZygosity()) : ZygosityType.not_applicable;
+        ExperimentsDataTableRow row = new ExperimentsDataTableRow(dto.getPhenotypingCenter(), dto.getStatisticalMethod(),
+                "Success", allele, gene, zygosity,
+                pipeline, procedure, parameter, graphBaseUrl, dto.getP_value(), null,
+                null, dto.getEffectSize(), null);
+        row.setLifeStageName(dto.getLifeStageName());
+        row.setLifeStageAcc(dto.getLifeStageAcc());
+        row.setPhenotypeTerm(new BasicBean(dto.getMpTermId(), dto.getMpTermName()));
+        row.setSignificant(Boolean.TRUE);
+        return row;
+    }
 
     // IMPLEMENTATIONS
 

@@ -860,7 +860,7 @@ System.out.println("redirect:" + baseUrl + "/search");
     }
 
     private String getBaseUrl(HttpServletRequest request) {
-        logger.info("Getting baseUrl for request {}, baseUrl is {}", request.getRequestURL().toString(), request.getAttribute("baseUrl").toString());
+        logger.debug("Getting baseUrl for request {}, baseUrl is {}", request.getRequestURL().toString(), request.getAttribute("baseUrl").toString());
         return request.getAttribute("baseUrl").toString();
     }
 

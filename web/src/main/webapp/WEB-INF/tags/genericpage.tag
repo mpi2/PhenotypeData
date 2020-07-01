@@ -68,14 +68,15 @@
 
 <%--    <script type='text/javascript' src="${baseUrl}/js/general/toggle.js?v=${version}" async></script>--%>
     <script type="text/javascript" src="${baseUrl}/js/head.min.js?v=${version}" async></script>
-    <script type='text/javascript' src='${baseUrl}/js/buffaloZoo.js' async></script>
+    <script type='text/javascript' src='${baseUrl}/js/buffaloZoo.js?v=${version}' async></script>
     <script type="text/javascript" src="${baseUrl}/js/default.js?v=${version}" async></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.css" async/>
     <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.js" async></script>
 
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
      replaced with below as unable to get his due to CORS or licence?-->
-     
+
+    <link rel="stylesheet" href="${cmsBaseUrl}/wp-content/themes/impc/css/styles.css?version=20200213">
     <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" media='all'/>
     <link href="${baseUrl}/css/impc-icons.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" type="text/css" href="https://ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css">
@@ -155,31 +156,33 @@
 
 <main id="main" class="main" role="main">
 
-    <div class="single-header">
-        <img src="${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-150x150.png"
-             srcset="${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-300x62.png 300w, ${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-768x158.png 768w, ${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-1024x210.png 1024w, ${cmsBaseUrl}/wp-content/uploads/2019/02/understanding.png 1440w"
-             sizes="100%"/>
+    <div class="container-fluid">
+        <div class="single-header">
+            <img src="${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-150x150.png"
+                 srcset="${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-300x62.png 300w, ${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-768x158.png 768w, ${cmsBaseUrl}/wp-content/uploads/2019/02/understanding-1024x210.png 1024w, ${cmsBaseUrl}/wp-content/uploads/2019/02/understanding.png 1440w"
+                 sizes="100%"/>
 
-        <div class="container">
-            <div class="row text-center">
-                <div class="col-12 col-md-8 offset-md-2">
-                    <div class="portal-search pb-5 mb-5 mt-5">
-                        <div class="portal-search__tabs">
-                            <a id="geneSearchTab" data-type="gene" class="portalTab portalTabSearchPage left-shadow <c:if test="${param.type != 'phenotype'}">active</c:if>" href="${baseUrl}/search">Genes</a>
-                            <a id="phenotypeSearchTab" data-type="pheno" class=" portalTab portalTabSearchPage right-shadow <c:if test="${param.type == 'phenotype'}">active</c:if>" href="${baseUrl}/search?type=phenotype">Phenotypes</a>
-                        </div>
-                        <div class="portal-search__inputs">
-                            <form id="searchForm" action="${baseUrl}/search">
-                                <input id="searchTerm" name="term" class="portal-search__input" value="${term}" placeholder="Search the data..." type="text"/>
-                                <button id="searchIcon" type="submit"><i class="fas fa-search"></i></button>
-                                <input id="searchType" type="hidden" name="type" value="${type}">
-                                <div id="searchLoader" class="lds-ring">
-                                    <div></div>
-                                    <div></div>
-                                    <div></div>
-                                    <div></div>
-                                </div>
-                            </form>
+            <div class="container">
+                <div class="row text-center justify-content-md-center">
+                    <div class="col-12 col-md-8">
+                        <div class="portal-search pb-5 mb-5 mt-5">
+                            <div class="portal-search__tabs">
+                                <a id="geneSearchTab" data-type="gene" class="portalTab left-shadow <c:if test="${param.type != 'phenotype'}">active</c:if>" href="${baseUrl}/search">Genes</a>
+                                <a id="phenotypeSearchTab" data-type="pheno" class=" portalTab right-shadow <c:if test="${param.type == 'phenotype'}">active</c:if>" href="${baseUrl}/search?type=phenotype">Phenotypes</a>
+                            </div>
+                            <div class="portal-search__inputs">
+                                <form id="searchForm" action="${baseUrl}/search">
+                                    <input id="searchTerm" name="term" class="portal-search__input" value="${term}" placeholder="Search All 6440 Knockout Data..." type="text"/>
+                                    <button id="searchIcon" type="submit"><i class="fas fa-search"></i></button>
+                                    <input id="searchType" type="hidden" name="type" value="${type}">
+                                    <div id="searchLoader" class="lds-ring">
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>

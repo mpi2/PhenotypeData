@@ -313,36 +313,6 @@ public class OntologyParserTest {
         assertTrue(maBrain.contains("MA:0000168"));
     }
 
-
-    @Test
-    public void testPrefixCheck() throws OWLOntologyCreationException, OWLOntologyStorageException, SQLException, IOException {
-
-        Set<String> wantedIds = new HashSet<>();
-        wantedIds.add("HP:0001892");
-
-        ontologyParser = new OntologyParser(owlpath + "/hp.owl", "HP", null, wantedIds);
-
-        assertTrue( ! ontologyParser.getTermsInSlim().contains("UPHENO:0001002"));
-    }
-
-    @Test
-    public void testTopLevelsForHp() throws OWLOntologyCreationException, OWLOntologyStorageException, SQLException, IOException {
-
-        Set<String> wantedIds = new HashSet<>();
-        wantedIds.add("HP:0001892");
-        wantedIds.add("HP:0001477");
-        wantedIds.add("HP:0000164");
-        wantedIds.add("HP:0006202"); // child of HP:0001495
-
-        ontologyParser = new OntologyParser(owlpath + "/hp.owl", "HP", OntologyParserFactory.TOP_LEVEL_HP_TERMS, wantedIds);
-
-        assertTrue(ontologyParser.getOntologyTerm("HP:0001892").getTopLevelIds().size() > 0);
-        assertTrue(ontologyParser.getOntologyTerm("HP:0001495").getTopLevelIds().size() > 0);
-        assertTrue(ontologyParser.getOntologyTerm("HP:0000164").getTopLevelIds().size() > 0);
-        assertTrue(ontologyParser.getOntologyTerm("HP:0001477").getTopLevelIds().size() > 0);
-        assertTrue(ontologyParser.getOntologyTerm("HP:0001477").getTopLevelIds().contains("HP:0000478"));
-    }
-
     public class OntologyParserExtended extends OntologyParser {
 
         public OntologyParserExtended(String pathToOwlFile, String prefix, Collection<String> topLevelIds, Set<String> wantedIds)

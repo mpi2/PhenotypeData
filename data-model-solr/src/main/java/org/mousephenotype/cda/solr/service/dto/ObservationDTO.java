@@ -18,6 +18,8 @@ package org.mousephenotype.cda.solr.service.dto;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.beans.Field;
 import org.mousephenotype.cda.enumerations.ObservationType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
+import org.mousephenotype.cda.utilities.LifeStageMapper;
 
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
@@ -162,7 +164,7 @@ public class ObservationDTO extends ObservationDTOBase {
      * @return string representation of the date the experiment was performed
      */
     public String getDateOfExperimentString() {
-        return new SimpleDateFormat(EXPORT_DATE_PATTERN).format(dateOfExperiment);
+        return dateOfExperiment != null ? new SimpleDateFormat(EXPORT_DATE_PATTERN).format(dateOfExperiment) : "-";
     }
 
     public String getDateOfBirthString() {
@@ -195,6 +197,25 @@ public class ObservationDTO extends ObservationDTOBase {
                 + " , metadata :" + this.getMetadataGroup()
                 + " , productionCenter :" + this.getProductionCenter()
                 + " ]";
+    }
+
+
+    public CombinedObservationKey getCombinedKey() {
+        return new CombinedObservationKey(
+                getAlleleSymbol(),
+                getAlleleAccession(),
+                getGeneSymbol(),
+                getGeneAccession(),
+                getParameterStableId(),
+                getParameterName(),
+                getProcedureStableId(),
+                getProcedureName(),
+                getPipelineStableId(),
+                getPipelineName(),
+                ZygosityType.valueOf(getZygosity()),
+                getPhenotypingCenter(),
+                LifeStageMapper.getLifeStage(getParameterStableId(), getDevelopmentalStageName())
+        );
     }
 
     /**

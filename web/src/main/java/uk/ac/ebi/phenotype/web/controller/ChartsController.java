@@ -19,8 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.json.JSONException;
-import org.mousephenotype.cda.db.pojo.CategoricalResult;
+import org.mousephenotype.cda.dto.LifeStage;
 import org.mousephenotype.cda.enumerations.EmbryoViability;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
@@ -30,11 +29,13 @@ import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.mousephenotype.cda.solr.web.dto.EmbryoViability_DTO;
 import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
+import org.mousephenotype.cda.utilities.LifeStageMapper;
 import org.mousephenotype.cda.web.ChartType;
 import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,12 +43,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import uk.ac.ebi.phenotype.chart.*;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.error.ParameterNotFoundException;
-import uk.ac.ebi.phenotype.web.dao.StatisticsService;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
@@ -82,22 +84,21 @@ public class ChartsController {
     @Value("${solr_url}")
     public String SOLR_URL;
 
-    private StatisticsService statsService;
 
     @Inject
     public ChartsController(
-    		CategoricalChartAndTableProvider categoricalChartAndTableProvider,
-			TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider,
-			UnidimensionalChartAndTableProvider continousChartAndTableProvider,
-			ScatterChartAndTableProvider scatterChartAndTableProvider,
-			AbrChartAndTableProvider abrChartAndTableProvider,
-			ViabilityChartAndDataProvider viabilityChartAndDataProvider,
-			ExperimentService experimentService,
-			StatisticalResultService srService,
-			GeneService geneService,
-			ImpressService impressService,
-			ImageService imageService,
-			GenotypePhenotypeService gpService
+    		@NotNull CategoricalChartAndTableProvider categoricalChartAndTableProvider,
+			@NotNull TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider,
+			@NotNull UnidimensionalChartAndTableProvider continousChartAndTableProvider,
+			@NotNull ScatterChartAndTableProvider scatterChartAndTableProvider,
+			@NotNull AbrChartAndTableProvider abrChartAndTableProvider,
+			@NotNull ViabilityChartAndDataProvider viabilityChartAndDataProvider,
+			@NotNull ExperimentService experimentService,
+			@NotNull GeneService geneService,
+			@NotNull ImpressService impressService,
+			@NotNull ImageService imageService,
+			@NotNull @Named("statistical-result-service") StatisticalResultService srService,
+			@NotNull @Named("genotype-phenotype-service") GenotypePhenotypeService gpService
 	) {
         this.categoricalChartAndTableProvider = categoricalChartAndTableProvider;
         this.timeSeriesChartAndTableProvider = timeSeriesChartAndTableProvider;
@@ -223,29 +224,13 @@ public class ChartsController {
 			return "redirect:" + url;
 		}
 
-		// TODO need to check we don't have more than one accession and one
-		// parameter throw and exception if we do
-		// get the parameter object from the stable id
-		ParameterDTO parameter = impressService.getParameterByStableId(parameterStableId);
-		model.addAttribute("parameter", parameter);
-
-		//3i procedures with at least some headline images associated
-		if (parameter.getStableId().startsWith("MGP_BMI") || parameter.getStableId().startsWith("MGP_MLN") || parameter.getStableId().startsWith("MGP_IMM")) {
-			addFlowCytometryImages(accession, model, parameter);
-		}
-
-		String       metadata     = null;
-		List<String> metadataList = null;
-
-		String          xUnits                  = parameter.getUnitX();
-		ObservationType observationTypeForParam = parameter.getObservationType();
-		List<String>    genderList              = getParamsAsList(gender);
-
 		// Use the first phenotyping center passed in (ignore the others?)
 		// should only now be one center at this stage for one graph/experiment
 		// TODO put length check and exception here
 		// List<String> phenotypingCenters = getParamsAsList(phenotypingCenter);
 
+		String       metadata     = null;
+		List<String> metadataList = null;
 		String metaDataGroupString = null;
 		if (metadataGroup != null && !metadataGroup.equals(DEFAULT_NONE)) {
 			metaDataGroupString = metadataGroup;
@@ -259,72 +244,56 @@ public class ChartsController {
 			log.debug("pipe stable id=" + pipelineStableId);
 			pipeline = impressService.getPipeline(pipelineStableId);
 			model.addAttribute("pipeline", pipeline);
-			model.addAttribute("pipelineUrl", impressService.getPipelineUrlByStableId(pipeline.getStableId()));
+			model.addAttribute("pipelineUrl", impressService.getPipelineUrlByStableKey(pipeline.getStableKey()));
 		}
 
 		model.addAttribute("phenotypingCenter", phenotypingCenter);
 
-		ExperimentDTO experiment = null;
+		ExperimentDTO experiment;
 
 		GeneDTO gene = geneService.getGeneById(accession[0]);
 		model.addAttribute("gene", gene);
-		boolean testBoth           = false;//change to look at old chart with current code
-		boolean statsServiceResult = true;
 
-		//get experiment object from the new rest service as a temporary measure we can convert to an experiment object and then we don't have to rewrite the chart code?? and easy to test if experiment objects are the same??
-		System.out.println("Get data from new rest service");
-		long startTime = System.currentTimeMillis();
+		long startTimeSolr = System.currentTimeMillis();
 
-		try {
-			if (false) { // New stats service is not implemented in production yet!
-				experiment = statsService.getSpecificExperimentDTOFromRest(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession);
-			}
-		} catch (Exception e) {
-			// Any exception with new service should fail gracefully to the old method
-			log.debug("Error using statsService.getSpecificExperimentDTOFromRest", e);
-		}
+		List<String> genderList = getParamsAsList(gender);
+		experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
 
-		long endTime   = System.currentTimeMillis();
-		long timeTaken = endTime - startTime;
-		System.out.println("time taken to get experiment=" + timeTaken);
-//
-		if (experiment == null || testBoth) {
-			System.err.println("no experiment found using stats service falling back to solr");
-			long startTimeSolr = System.currentTimeMillis();
+		long endTimeSolr   = System.currentTimeMillis();
+		long timeTakenSolr = endTimeSolr - startTimeSolr;
+		System.out.println("solr time taken to get experiment=" + timeTakenSolr);
 
-			experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
-			statsServiceResult = false;
-			//model.addAttribute("solrExperiment", experiment);
-			//System.out.println("solr experiment="+experiment);
-			long endTimeSolr   = System.currentTimeMillis();
-			long timeTakenSolr = endTimeSolr - startTimeSolr;
-			System.out.println("solr time taken to get experiment=" + timeTakenSolr);
-		}
+		ProcedureDTO proc;
+		ParameterDTO parameter = null;
 
-		model.addAttribute("statsServiceResult", statsServiceResult);//tell the interface where we got the data from  - temp measure for testing
-
-		ProcedureDTO proc = null;
 		if (experiment != null) {
-			proc = impressService.getProcedureByStableId(experiment.getProcedureStableId());
+			proc = impressService.getProcedureByStableId(experiment.getPipelineStableId(), experiment.getProcedureStableId());
 
 			String procedureUrl = "";
 			String parameterUrl = "";
 			if (proc != null) {
 				//procedureDescription = String.format("<a href=\"%s\">%s</a>", is.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()),  "Procedure: "+ proc.getName());
-				procedureUrl = impressService.getProcedureUrlByKey(proc.getStableKey().toString());
+				procedureUrl = impressService.getProcedureUrlByStableKeyAndPipelineStableKey(proc.getStableKey(), pipeline.getStableKey());
 				model.addAttribute("procedureUrl", procedureUrl);
 			}
+
+			parameter = impressService.getParameterByPipelineProcedureParameterStableKey(pipeline.getStableKey(), proc.getStableKey(), parameterStableId);
+			model.addAttribute("parameter", parameter);
+
+			//3i procedures with at least some headline images associated
+			if (parameter.getStableId().startsWith("MGP_BMI") || parameter.getStableId().startsWith("MGP_MLN") || parameter.getStableId().startsWith("MGP_IMM")) {
+				addFlowCytometryImages(accession, model, parameter);
+			}
+
+			String          xUnits                  = parameter.getUnitX();
+			ObservationType observationTypeForParam = parameter.getObservationType();
+
 			if (parameter.getStableKey() != null) {
-				//title = String.format("<a href=\"%s\">%s</a>", is.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey()),  "Parameter: "+ parameter.getName());
 				parameterUrl = impressService.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(), parameter.getStableKey());
 				model.addAttribute("parameterUrl", parameterUrl);
 			}
 			model.addAttribute("alleleSymbol", experiment.getAlleleSymobl());
 			setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
-			if (pipeline == null) {
-				// if we don't already have the pipeline from the url params get it via the experiment returned
-				pipeline = impressService.getPipeline(experiment.getPipelineStableId());
-			}
 
 			if (experiment.getMetadataGroup() != null) {
 				metadata = experiment.getMetadataHtml();
@@ -361,7 +330,7 @@ public class ChartsController {
 						case UNIDIMENSIONAL_BOX_PLOT:
 
 							try {
-								unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, ChartType.UNIDIMENSIONAL_BOX_PLOT, false, xUnits);
+								unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, xUnits);
 							} catch (JSONException e) {
 								e.printStackTrace();
 							}
@@ -374,7 +343,7 @@ public class ChartsController {
 
 						case CATEGORICAL_STACKED_COLUMN:
 
-							categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, accession[0], experimentNumber);
+							categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, experimentNumber);
 							model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
 							break;
 
@@ -482,63 +451,44 @@ public class ChartsController {
 		Integer numberMaleControlMice   = 0;
 
 		if (unidimensionalChartDataSet != null) {
-			List<UnidimensionalStatsObject> statsObjects = unidimensionalChartDataSet.getStatsObjects();
-			for (UnidimensionalStatsObject so : statsObjects) {
-				if (so.getSexType() == SexType.female) {
-					if (so.getLine().equals("Control")) {
-						numberFemaleControlMice = so.getSampleSize();
-					} else {
-						numberFemaleMutantMice = so.getSampleSize();
-					}
-				} else if (so.getSexType() == SexType.male) {
-					if (so.getLine().equals("Control")) {
-						numberMaleControlMice = so.getSampleSize();
-					} else {
-						numberMaleMutantMice = so.getSampleSize();
-					}
-				}
-			}
+
+			// Count each specimen only once, no matter how many time's it's been measured
+			final Set<ObservationDTO> mutants = unidimensionalChartDataSet.getExperiment().getMutants();
+			final Set<ObservationDTO> controls = unidimensionalChartDataSet.getExperiment().getControls();
+			numberFemaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			numberMaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			numberFemaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			numberMaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+
 		}
 
 		if (categoricalResultAndChart != null) {
-			final List<CategoricalResult> statsResults = categoricalResultAndChart.getStatsResults();
+/*			final List<CategoricalResult> statsResults = categoricalResultAndChart.getStatsResults();
 			for (CategoricalResult cr : statsResults) {
 				numberFemaleControlMice = cr.getFemaleControls();
 				numberFemaleMutantMice = cr.getFemaleMutants();
 				numberMaleControlMice = cr.getMaleControls();
 				numberMaleMutantMice = cr.getMaleMutants();
-			}
+			}*/
+
+			final Set<ObservationDTO> mutants = categoricalResultAndChart.getExperiment().getMutants();
+			final Set<ObservationDTO> controls = categoricalResultAndChart.getExperiment().getControls();
+			numberFemaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			numberMaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			numberFemaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			numberMaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
 		}
 
 		if (seriesParameterChartData != null) {
-			final ExperimentDTO       e        = seriesParameterChartData.getExperiment();
-			final Set<ObservationDTO> controls = e.getControls();
-			final Set<ObservationDTO> mutants  = e.getMutants();
 
-			// Count each specimen only once, not matter how many time's it's been measured
-			Set<String> specimensSeen = new HashSet<>();
+			// Count each specimen only once, no matter how many time's it's been measured
+			final Set<ObservationDTO> controls = seriesParameterChartData.getExperiment().getControls();
+			final Set<ObservationDTO> mutants  = seriesParameterChartData.getExperiment().getMutants();
+			numberFemaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			numberMaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			numberFemaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			numberMaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
 
-			for (ObservationDTO o : controls) {
-				if (!specimensSeen.contains(o.getExternalSampleId())) {
-					specimensSeen.add(o.getExternalSampleId());
-					if (SexType.valueOf(o.getSex()) == SexType.female) {
-						numberFemaleControlMice += 1;
-					} else if (SexType.valueOf(o.getSex()) == SexType.male) {
-						numberMaleControlMice += 1;
-					}
-				}
-			}
-
-			for (ObservationDTO o : mutants) {
-				if (!specimensSeen.contains(o.getExternalSampleId())) {
-					specimensSeen.add(o.getExternalSampleId());
-					if (SexType.valueOf(o.getSex()) == SexType.female) {
-						numberFemaleMutantMice += 1;
-					} else if (SexType.valueOf(o.getSex()) == SexType.male) {
-						numberMaleMutantMice += 1;
-					}
-				}
-			}
 		}
 		
 		model.addAttribute("numberFemaleMutantMice", numberFemaleMutantMice);
@@ -574,9 +524,34 @@ public class ChartsController {
 					gpList.addAll(addGpList);
 				}
 			}
+			//for line level parameters such as viability
+			if (org.mousephenotype.cda.common.Constants.viabilityParameters.contains(parameterStableId)) {
+				for (String param : org.mousephenotype.cda.common.Constants.viabilityParameters) {
+					List<GenotypePhenotypeDTO> addGpList = gpService.getGenotypePhenotypeFor(
+							gene.getMgiAccessionId(),
+							param,
+							experiment.getStrain(),
+							experiment.getAlleleAccession(),
+							experiment.getZygosities(),
+							experiment.getOrganisation(),
+							null);//dont' filter out sex based as line level parameters this causes issues with associated phenotype dipslay on chart
+					gpList.addAll(addGpList);
+				}
+			}
 			List<String> phenotypeTerms = gpList.stream().map(GenotypePhenotypeDTO::getMpTermName).distinct().collect(Collectors.toList());
 			model.addAttribute("phenotypes", phenotypeTerms);
 		}
+
+
+
+		LifeStage parameterLifeStage = LifeStageMapper.getLifeStage(parameterStableId);
+
+		List<LifeStage> postnatalLifeStages = Arrays.asList(LifeStage.EARLY_ADULT, LifeStage.MIDDLE_AGED_ADULT, LifeStage.LATE_ADULT);
+
+		Boolean isPostnatal = postnatalLifeStages.contains(parameterLifeStage);
+
+		model.addAttribute("isPostnatal", isPostnatal);
+		model.addAttribute("lifeStage", LifeStageMapper.getLifeStage(parameterStableId).getName());
 
 		return "chart";
 	}
@@ -584,7 +559,7 @@ public class ChartsController {
 
 	private void addFlowCytometryImages(String[] accession, Model model, ParameterDTO parameter)
 			throws SolrServerException, IOException {
-		System.out.println("flow cytomerty for 3i detected get headline images");
+		log.debug("flow cytomerty for 3i detected get headline images");
 		//lets get the 3i headline images
 		//example query http://ves-hx-d8.ebi.ac.uk:8986/solr/impc_images/select?q=parameter_stable_id:MGP_IMM_233_001
 		//or maybe we need to filter by parameter association first based no the initial parameter
@@ -709,13 +684,34 @@ public class ChartsController {
             allParameters = StringUtils.join(pNames, ", ");
 
         }// end of gene iterations
-        log.info(allGraphUrlSet.size() + " chart links.");
-        model.addAttribute("allGraphUrlSet", allGraphUrlSet);
+        log.debug(allGraphUrlSet.size() + " chart links.");
+        List allUrls=putEarlyAdultViabilityFirst(allGraphUrlSet);//we want early adult viability first if  present rather than embryo viability data
+        model.addAttribute("allGraphUrlSet", allUrls);
         model.addAttribute("allParameters", allParameters);
         return "stats";
     }
 
 
+
+	private List<String> putEarlyAdultViabilityFirst(Set<String> urlsSet) {
+		//if we have the main early adult viability chart we want to show that top
+		//so reorder here
+		List<String> urlsList=new ArrayList<>();
+		urlsList.addAll(urlsSet);
+		Iterator urlsIt=urlsList.iterator();
+		String viaUrl="";
+		while(urlsIt.hasNext()){
+			String tempUrl=(String)urlsIt.next();
+			if(tempUrl.contains("_VIA_001_001")){
+				viaUrl=new String(tempUrl);
+				urlsIt.remove();
+			}
+		}
+		if(!viaUrl.isEmpty()) {
+			urlsList.add(0, viaUrl);
+		}
+		return urlsList;
+	}
     /**
      * Convenience method that just changes an array [] to a more modern LIst (I
      * hate arrays! :) )

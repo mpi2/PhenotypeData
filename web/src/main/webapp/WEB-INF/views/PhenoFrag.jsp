@@ -90,7 +90,7 @@
             </td>
             <td data-value="${phenotype.allele.symbol}">
                 <a href="${phenotype.getEvidenceLink().url}">
-                <span><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></span>
+                <span style="white-space: nowrap"><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></span>
                 </a>
 
             </td>
@@ -105,7 +105,7 @@
 
 
             <td data-value="${phenotype.prValueAsString}">
-                <a href="${phenotype.getEvidenceLink().url}"><t:formatScientific>${phenotype.prValueAsString}</t:formatScientific></a></td>
+                <a href="${phenotype.getEvidenceLink().url}" style="white-space: nowrap"><t:formatScientific>${phenotype.prValueAsString}</t:formatScientific></a></td>
 
         </tr>
     </c:forEach>

@@ -30,7 +30,6 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -126,7 +125,7 @@ public class AbrChartAndTableProvider {
 						data.get(ChartUtils.getLabel(ZygosityType.valueOf(z),  SexType.female)).add(emptyObj);
 					}
 				}
-    		} catch (SolrServerException | IOException | URISyntaxException | SpecificExperimentException e) {
+    		} catch (SolrServerException | IOException | SpecificExperimentException e) {
 				e.printStackTrace();
 			}
     	}

@@ -60,6 +60,7 @@ import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -86,7 +87,6 @@ public class GenesController {
     private final ExpressionService        expressionService;
     private final GeneService              geneService;
     private final StatisticalResultService statisticalResultService;
-    private final GenotypePhenotypeService genotypePhenotypeService;
     private final OrderService             orderService;
     private final ImpressService           impressService;
     private final WebDao                   phenoDigm2Dao;
@@ -100,7 +100,20 @@ public class GenesController {
     private PharosService pharosService;
 
     @Inject
-    public GenesController(PhenotypeCallSummarySolr phenotypeCallSummaryService, PhenotypeSummaryDAO phenSummary, ImagesSolrDao imagesSolrDao, ObservationService observationService, SolrIndex solrIndex, SolrIndex2 solrIndex2, WebDao phenoDigm2Dao, ImageService imageService, ExpressionService expressionService, RegisterInterestUtils riUtils, GeneService geneService, ImpressService impressService, GenotypePhenotypeService genotypePhenotypeService, OrderService orderService, StatisticalResultService statisticalResultService) {
+    public GenesController(PhenotypeCallSummarySolr phenotypeCallSummaryService,
+                           PhenotypeSummaryDAO phenSummary,
+                           ImagesSolrDao imagesSolrDao,
+                           ObservationService observationService,
+                           SolrIndex solrIndex,
+                           SolrIndex2 solrIndex2,
+                           WebDao phenoDigm2Dao,
+                           ImageService imageService,
+                           ExpressionService expressionService,
+                           RegisterInterestUtils riUtils,
+                           GeneService geneService,
+                           ImpressService impressService,
+                           OrderService orderService,
+                           @Named("statistical-result-service") StatisticalResultService statisticalResultService) {
         this.phenotypeCallSummaryService = phenotypeCallSummaryService;
         this.phenSummary = phenSummary;
         this.imagesSolrDao = imagesSolrDao;
@@ -113,7 +126,6 @@ public class GenesController {
         this.riUtils = riUtils;
         this.geneService = geneService;
         this.impressService = impressService;
-        this.genotypePhenotypeService = genotypePhenotypeService;
         this.orderService = orderService;
         this.statisticalResultService = statisticalResultService;
     }
@@ -174,13 +186,17 @@ public class GenesController {
             throws URISyntaxException, GenomicFeatureNotFoundException, IOException, SQLException, SolrServerException {
 
         String debug = request.getParameter("debug");
-        LOGGER.info("#### genesAllele2: debug: " + debug);
         boolean d = debug != null && debug.equals("true");
         if (d) {
             model.addAttribute("debug", "true");
         }
 
-        processGeneRequest(acc, model, request);
+        try {
+            processGeneRequest(acc, model, request);
+        } catch (Exception e) {
+            String term = acc.substring(0, Math.min(acc.length(), 11));
+            return "redirect:/search?term=" + term + "&type=gene";
+        }
 
         response.setHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
         response.setHeader("Pragma", "no-cache");
@@ -261,6 +277,7 @@ public class GenesController {
         try {
 
             phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
+            System.out.println(phenotypeSummaryObjects);
             mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
             mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
             if (!mpGroupsSignificant.keySet().contains("mortality/aging") && viabilityCalls.size() > 0) {
@@ -360,7 +377,7 @@ public class GenesController {
         model.addAttribute("attemptRegistered", geneService.checkAttemptRegistered(acc));
         model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
         model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
-        model.addAttribute("allMeasurementsNumber", statisticalResultService.getPvaluesByAlleleAndPhenotypingCenterAndPipelineCount(acc, null, null, null, null, null, null, null, null));
+        model.addAttribute("allMeasurementsNumber", observationService.getAllDataCount(acc));
         model.addAttribute("measurementsChartNumber", statisticalResultService.getParameterCountByGene(acc));
         model.addAttribute("phenotypeGroups", phenotypeGroups);
         model.addAttribute("phenotypeGroupIcons", phenotypeGroupIcons);
@@ -799,7 +816,7 @@ public class GenesController {
     private void processDisease(String acc, Model model) {
 
         // fetch diseases that are linked to a gene via annotations/curation
-        LOGGER.info(String.format("%s - getting gene-disease associations for gene ", acc));
+        LOGGER.debug(String.format("%s - getting gene-disease associations for gene ", acc));
         List<GeneDiseaseAssociation> geneAssociations = phenoDigm2Dao.getGeneToDiseaseAssociations(acc);
 
         // fetch just the ids, and encode them into an array
@@ -817,7 +834,7 @@ public class GenesController {
 
         // fetch models that have this gene
         List<DiseaseModelAssociation> modelAssociations = phenoDigm2Dao.getGeneToDiseaseModelAssociations(acc);
-        LOGGER.info("Found " + modelAssociations.size()+ " associations");
+        LOGGER.debug("Found " + modelAssociations.size()+ " associations");
 
         // create a js object representation of the models        
         String modelAssocsJsArray = "[]";

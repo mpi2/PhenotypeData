@@ -131,6 +131,9 @@ ADD CONSTRAINT center_specimen_specimen_pk FOREIGN KEY (specimen_pk) REFERENCES 
 ALTER TABLE specimen
 ADD CONSTRAINT specimen_statuscode_pk FOREIGN KEY (statuscode_pk) REFERENCES statuscode (pk);
 
+ALTER TABLE center ADD INDEX center_pipeline_project (centerId, pipeline, project);
+ALTER TABLE center ADD UNIQUE KEY center_pipeline_project_unique (centerId, pipeline, project);
+
 /*
 ALTER TABLE chromosomalAlteration
 ADD CONSTRAINT chromosomalAlteration_chromosome_added_pk FOREIGN KEY (chromosome_added_pk) REFERENCES chromosome (pk),

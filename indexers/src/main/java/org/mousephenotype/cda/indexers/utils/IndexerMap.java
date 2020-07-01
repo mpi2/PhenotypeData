@@ -27,6 +27,7 @@ import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.service.dto.SangerImageDTO;
+import org.mousephenotype.cda.utilities.MpCsvReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,10 +36,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This class encapsulates the code and data necessary to represent all of the
@@ -53,16 +51,18 @@ public class IndexerMap {
 
     private static final Logger logger = LoggerFactory.getLogger(IndexerMap.class);
 
-    private static Map<String, List<Map<String, String>>> mpToHpTermsMap  = null;
-    private static Map<String, List<SangerImageDTO>>      sangerImagesMap = null;
-    private static Map<String, List<AlleleDTO>>           allelesMap      = null;
-    private static List<AlleleDTO>                        alleles         = null;
-    private static Map<Long, ImpressBaseDTO>              pipelineMap     = null;
-    private static Map<Long, ImpressBaseDTO>              procedureMap    = null;
-    private static Map<Long, ParameterDTO>                parameterMap    = null;
-    private static Map<Long, OrganisationBean>            organisationMap = null;
-    private static Map<String, Map<String, List<String>>> maUberonEfoMap  = null;
-    private static DmddRestData                           dmddRestData;
+    protected static Map<String, Set<String>>               mpToHpTermsMap  = null;     // made protected so cacheing can be tested.
+    private static   Map<String, List<SangerImageDTO>>      sangerImagesMap = null;
+    private static   Map<String, List<AlleleDTO>>           allelesMap      = null;
+    private static   List<AlleleDTO>                        alleles         = null;
+    private static   Map<Long, ImpressBaseDTO>              pipelineMap     = null;
+    private static   Map<Long, ImpressBaseDTO>              procedureMap    = null;
+    private static   Map<Long, ParameterDTO>                parameterMap    = null;
+    private static   Map<Long, OrganisationBean>            organisationMap = null;
+    private static   Map<String, Map<String, List<String>>> maUberonEfoMap  = null;
+    private static   DmddRestData                           dmddRestData;
+
+    public static final String MP_HP_CSV_FILENAME = "impc_search_index.csv";
     
 
     // PUBLIC METHODS
@@ -153,22 +153,53 @@ public class IndexerMap {
     }
 
     /**
-     * Returns a cached map of all mp terms to hp terms, indexed by mp id.
+     * Returns a cached map of all mp terms to hp term names, indexed by mp id. The
+     * data source is the monarch mp-hp csv mapping file that replaced an old
+     * OntologyParser service that depended on the unreliable creation of the
+     * mp-hp.owl ontology.
      *
-     * @param phenodigm_core a valid solr connection
-     * @return a cached map of all mp terms to hp terms, indexed by mp id.
+     * @param mpHpCsvPath the fully-qualified path to the impc_search_index.csv ontology mapping file provided by Monarch
+     * @return a cached map of each mp term and its corresponding list of hp terms as provided by Monarch
      *
      * @throws IndexerException
      */
-    public static Map<String, List<Map<String, String>>> getMpToHpTerms(SolrClient phenodigm_core) throws IndexerException {
+    public static Map<String, Set<String>> getMpToHpTerms(String mpHpCsvPath) throws IndexerException {
+
         if (mpToHpTermsMap == null) {
+
+            // As of 05-May-2020 there were just under 13,000 mp-hp terms in the latest impc_search_index.csv from Monarch.
+            mpToHpTermsMap = new HashMap<>(20000);
+
             try {
-                mpToHpTermsMap = SolrUtils.populateMpToHpTermsMap(phenodigm_core);
-            }catch (SolrServerException | IOException e) {
-                throw new IndexerException("Unable to query phenodigm_core in SolrUtils.populateMpToHpTermsMap()", e);
+                // The Monarch input file format has 2 columns we use: 'phenotype' and 'value'.
+                // Get the column numbers from the heading (first) row.
+
+                MpCsvReader reader = new MpCsvReader(mpHpCsvPath);
+                List<String> row = reader.read();
+                final String PHENOTYPE = "phenotype";
+                final String VALUE = "value";
+                int mpIdCol = row.indexOf(PHENOTYPE);
+                int nameCol = row.indexOf(VALUE);
+                if (mpIdCol < 0)  throw new IndexerException("Required heading " + PHENOTYPE + " is missing.");
+                if (nameCol < 0)  throw new IndexerException("Required heading " + VALUE + " is missing.");
+
+                while ((row = reader.read()) != null) {
+                    Set<String> terms = mpToHpTermsMap.get(row.get(mpIdCol));
+                    if (terms == null) {
+                        terms = new HashSet<>();
+                        mpToHpTermsMap.put(row.get(mpIdCol), terms);
+                    }
+                    terms.add(row.get(nameCol));
+                }
+
+            } catch (IOException e) {
+
+                throw new IndexerException("Unable to parse mp-hp term file " + mpHpCsvPath, e);
             }
+
+            logger.info(" Added {} unique mp-hp terms from impc_search_index.csv", mpToHpTermsMap.size());
         }
-        logger.debug(" mpToHpTermsMap size = " + mpToHpTermsMap.size());
+
         return mpToHpTermsMap;
     }
 

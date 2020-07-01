@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<centreSpecimenSet xmlns="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/specimen">
+    <centre centreID="Ucd">
+        <mouse DOB="2015-03-12" colonyID="ET8295" isBaseline="false" strainID="strain_5_xml" specimenID="ET8295-113" gender="female" zygosity="homozygous" litterId="ET8295_20150312" pipeline="UCD_001" productionCentre="Crl" phenotypingCentre="Ucd" project="DTCC"/>
+    </centre>
+</centreSpecimenSet>

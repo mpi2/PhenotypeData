@@ -86,7 +86,7 @@ public class PhenotypedColonyLoaderFunctionalTest {
             }
         }
 
-        final int EXPECTED_COLONY_COUNT = 7;
+        final int EXPECTED_COLONY_COUNT = 9;
         assertTrue( "Expected " + EXPECTED_COLONY_COUNT + " colonies. Found " + colonyCount, colonyCount == EXPECTED_COLONY_COUNT);
     }
 }
