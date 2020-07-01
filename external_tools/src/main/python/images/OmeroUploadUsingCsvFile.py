@@ -1,18 +1,18 @@
 """
     Upload images to omero database.
 
-    This script queries solr for records that have download paths. For each
-    download path it checks whether it already exists in Omero. If it does not
-    then it checks whether it exists in the IMPC file system. If present
-    in the file system it is uploaded to Omero.
+    This version of OmeroUpload uses a csv file to get the download paths -
+    as opposed to querying the solr database. For each download path it 
+    checks whether it already exists in Omero. If it does not then it 
+    checks whether it exists in the IMPC file system. If present in the
+    file system it is uploaded to Omero.
 """
 import os
 import sys
 import argparse
-import requests
-import json
 import glob
 import logging
+import csv
 
 import psycopg2
 
@@ -26,14 +26,11 @@ def main(argv):
     parser.add_argument('-d', '--rootDestinationDir', dest='rootDestinationDir',
                         help='Root directory for destination files were downloaded to'
     )
-    parser.add_argument('-s', '--solrRoot', dest='solrRoot',
-                        help='Root of the url of the solr service to use'
+    parser.add_argument('-i', '--input-file', dest='inputFilePath',
+                        help='Path to CSV file contiaining images info'
     )
     parser.add_argument('-o', '--omeroHost', dest='omeroHost',
                         help='Hostname for server hosting omero instance'
-    )
-    parser.add_argument('-fq', '--solrFilterQuery', dest='solrFilterQuery', default=None,
-                        help='Filter to apply to solr query. If not supplied uses hardcoded standard filter'
     )
     parser.add_argument('--omeroDbUser', dest='omeroDbUser', 
                         help='name of the omero postgres database')
@@ -98,18 +95,11 @@ def main(argv):
             logger.error("Could not read application properties file for profile " + args.profile)
             logger.error("Error was: " + str(e))
             return
-
     try:
         root_dir = args.rootDestinationDir if args.rootDestinationDir<>None else omeroProps['rootdestinationdir']
-        solrRoot = args.solrRoot if args.solrRoot <> None else omeroProps['solrurl']
         omeroHost = args.omeroHost if args.omeroHost<>None else omeroProps['omerohost']
     except Exception as e:
         logger.exception("Could not assign some properties expected as command line arguments or in application.properties file - did you specify the right profile? Error message was: " + str(e))
-
-    solrFilterQuery = args.solrFilterQuery
-    if solrFilterQuery is None:
-        # Default query to get all records of interest from Solr
-        solrFilterQuery = """experiment/select?q=observation_type:image_record&fq=(download_file_path:(*mousephenotype.org*%20OR%20*images/3i*)%20AND%20-download_file_path:*.mov%20AND%20-download_file_path:*.fcs%20AND%20-download_file_path:*.bz2%20AND%20-download_file_path:*.nrrd)&rows=10000000&wt=json&fl=download_file_path,pipeline_stable_id,procedure_stable_id,parameter_stable_id,production_center,phenotyping_center"""
 
     try:    
         omeroPort = omeroProps['omeroport']
@@ -124,38 +114,63 @@ def main(argv):
     # Other values needed within this script.
     splitString = 'impc/'
     # Assuming files to exclude is taken care of in solrquery
-    files_to_exclude = ['.fcs','.mov','.bz2']
+    files_to_exclude = ['.fcs','.mov','.bz2','.nrrd']
     # Upload whole dir if it contains more than this number of files
     load_whole_dir_threshold = 300
 
     logger.info("running main intelligent omero upload method")
     logger.info('rootDestinationDir is "' + root_dir + '"')
     
-    # Get records from Solr
-    solr_query_url = solrRoot + solrFilterQuery
-    logger.info("Querying solr with the following query" + solrFilterQuery)
-    solr_json = json.loads(requests.get(solr_query_url).text)
-    solr_recs = solr_json['response']['docs']
-    logger.info("Number of records returned from Solr: " + str(len(solr_recs)))
 
-    solr_directory_to_filenames_map = {}
-    for rec in solr_recs:
-        # On 03/12/2019 got a key error for phenotyping centre. This should
-        # not happen, but occurred when downloading the images. Added a
-        # similar fix as to downloadimages.py
-        try:
-            fname = os.path.split(rec['download_file_path'])[-1]
-            key = os.path.join(rec['phenotyping_center'],rec['pipeline_stable_id'],rec['procedure_stable_id'],rec['parameter_stable_id'],fname)
-            solr_directory_to_filenames_map[key] = rec['download_file_path']
-        except KeyError as e:
-            msg = "Key " + str(e)+  " not returned by solr - not uploading"
-            if rec.has_key('download_file_path'): 
-                msg += " " + rec['download_file_path']
-            else:
-                msg += " unspecified filename (no download_file_path)!"
-            print msg
-            continue
+    # Get records from the CSV file
+    # Assume rows  headings are as follows:
+    #     0 - observation_id
+    #     1 - download_file_path
+    #     2 - phenotyping_center
+    #     3 - pipeline_stable_id
+    #     4 - procedure_stable_id
+    #     5 - datasource_name
+    #     6 - parameter_stable_id
 
+    csv_directory_to_filenames_map = {}
+    n_from_csv_file = 0
+    with open(args.inputFilePath, 'r') as fid:
+        csv_reader = csv.reader(fid)
+
+        # Skip header
+        csv_reader.next()
+
+        for row in csv_reader:
+            download_file_path=row[1].lower()
+            if download_file_path.find('mousephenotype.org') < 0 or \
+                    download_file_path.endswith('.mov') or \
+                    download_file_path.endswith('.fcs') or \
+                    download_file_path.endswith('.nrrd') or \
+                    download_file_path.endswith('.bz2'):
+                continue
+
+            phenotyping_center = row[2]
+            pipeline_stable_id = row[3]
+            procedure_stable_id = row[4]
+            parameter_stable_id = row[6]
+            if len(phenotyping_center) == 0 or \
+               len(pipeline_stable_id) == 0 or \
+               len(procedure_stable_id) == 0 or \
+               len(parameter_stable_id) == 0:
+            
+                print "Did not receive a required field - " + \
+                      "phenotyping_center='" + phenotyping_center + \
+                      "', pipeline_stable_id='" + pipeline_stable_id + \
+                      "', procedure_stable_id='" + procedure_stable_id + \
+                      "', parameter_stable_id='" + parameter_stable_id + \
+                      "' - not uploading: " + download_file_path
+                continue
+            fname = os.path.split(download_file_path)[-1]
+            key = os.path.join(phenotyping_center,pipeline_stable_id,procedure_stable_id,parameter_stable_id,fname)
+            csv_directory_to_filenames_map[key] = download_file_path
+            n_from_csv_file += 1
+    logger.info("Number of uploadable records returned from CSV file: " + str(n_from_csv_file))
+            
     # Get images from Omero
     # Sometimes omero on the server throws an ICE memory limit exception. In that case go directly
     # via postgres. This may return more records than going via omero, but that should not
@@ -208,23 +223,17 @@ def main(argv):
         conn.close()
         omero_annotation_list = omeroS.getAnnotationsAlreadyInOmero()
         
-        
-        
     #omero_annotation_list = omeroS.getAnnotationsAlreadyInOmero()
     logger.info("Number of annotations from omero = " + str(len(omero_annotation_list)))
     omero_file_list.extend(omero_annotation_list)
     omero_dir_list = list(set([os.path.split(f)[0] for f in omero_file_list]))
-
-
     # Get the files in NFS
     list_nfs_filenames = []
     os.path.walk(root_dir, add_to_list, list_nfs_filenames)
     list_nfs_filenames = [f.split(root_dir)[-1] for f in list_nfs_filenames]
     logger.info("Number of files from NFS = " + str(len(list_nfs_filenames)))
-
-
     # Modified to carry out case-insensitive comparisons.
-    set_solr_filenames = set([k.lower() for k in solr_directory_to_filenames_map.keys()])
+    set_csv_filenames = set([k.lower() for k in csv_directory_to_filenames_map.keys()])
     set_omero_filenames = set([f.lower() for f in omero_file_list])
     dict_nfs_filenames = {}
     for f in list_nfs_filenames:
@@ -233,7 +242,7 @@ def main(argv):
         dict_nfs_filenames[f.lower()] = f
     set_nfs_filenames = set(dict_nfs_filenames.keys())
 
-    files_to_upload = set_solr_filenames - set_omero_filenames
+    files_to_upload = set_csv_filenames - set_omero_filenames
     files_to_upload_available = files_to_upload.intersection(set_nfs_filenames)
     files_to_upload_unavailable = files_to_upload - files_to_upload_available
 

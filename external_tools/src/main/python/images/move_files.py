@@ -21,9 +21,6 @@ parser.add_argument('-s', dest='splitString',
 parser.add_argument('-r', dest='replacementString',
                     help='String to replace the split string with'
 )                    
-parser.add_argument('-d', dest='destDirBase', required=True,
-                    help='Path to the base of the destination dir'
-)                    
 
 args = parser.parse_args()
 
