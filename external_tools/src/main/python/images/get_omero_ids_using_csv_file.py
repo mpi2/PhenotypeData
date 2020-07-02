@@ -155,13 +155,14 @@ def main(argv):
                 procedure_stable_id = row[4]
                 parameter_stable_id = row[6]
                 imagename = os.path.split(download_file_path)[-1]
+                image_nfs_path = os.path.join(root_dir, project_name,pipeline_stable_id,procedure_stable_id,parameter_stable_id,imagename)
 
                 dataset_name = "-".join([project_name, pipeline_stable_id, procedure_stable_id, parameter_stable_id])
 
                 try:
                     project_ids = project_dict[project_name].keys()
                 except KeyError as e:
-                    message = "Could not get project details for image " + imagename + " in dataset " + dataset_name + ". KeyError was: " + str(e)
+                    message = "ERROR: Could not get project details for image " + imagename + " in dataset " + dataset_name + ". KeyError was: " + str(e)
                     print message
                     row.append("-1")
                     csv_writer.writerow(row)
@@ -182,21 +183,20 @@ def main(argv):
                     try:
                         dataset_ids = project_dict[project_name][project_id][dataset_name]
                     except KeyError as e:
-                        error_message += "Could not get dataset details for image " + imagename + " in dataset " + dataset_name + ". KeyError was: " + str(e) + "\n"
+                        error_message += "ERROR: Could not get dataset details for image " + imagename + " in dataset " + dataset_name + ". KeyError was: " + str(e) + "\n"
                         continue
                     
                     for dataset_id in dataset_ids:
                         if imagename.endswith('pdf'):
-                            image_nfs_path = os.path.join("/",root_dir, project_name,pipeline_stable_id,procedure_stable_id,parameter_stable_id)
+                            image_nfs_dir = os.path.join("/",root_dir, project_name,pipeline_stable_id,procedure_stable_id,parameter_stable_id)
                             query = "SELECT a.id FROM annotation a " + \
                                     "INNER JOIN datasetannotationlink dsal ON " +\
                                     "a.id=dsal.child " + \
                                     "INNER JOIN originalfile of ON a.file=of.id " + \
                                     "WHERE dsal.parent=" + str(dataset_id) + \
-                                    " AND of.path='" + image_nfs_path + "'" + \
+                                    " AND of.path='" + image_nfs_dir + "'" + \
                                     " AND of.name='" + imagename + "'"
                         else:
-                            image_nfs_path = os.path.join(root_dir, project_name,pipeline_stable_id,procedure_stable_id,parameter_stable_id,imagename)
                             query = "SELECT i.id FROM image i INNER JOIN " + \
                                 "datasetimagelink dsil ON i.id=dsil.child " + \
                                 "INNER JOIN filesetentry fse ON " + \
@@ -207,14 +207,18 @@ def main(argv):
                         pg_cur.execute(query)
                         omero_ids = pg_cur.fetchall()
                         n_omero_ids = len(omero_ids)
-                        if n_omero_ids != 1:
-                            error_message += "Got " + str(n_omero_ids) + " instead of 1. Not updating omero_id for " + image_nfs_path + "\n"
-
+                        if n_omero_ids == 0:
+                            error_message += "ERROR: Got 0 omero_ids instead of 1. Not updating omero_id for " + image_nfs_path + "\n"
+                        elif n_omero_ids > 1:
+                            error_message = "WARNING: Got " + str(n_omero_ids) + " omero_ids instead of 1 - using last in list for " + image_nfs_path + "\n"
+                            omero_id = omero_ids[-1][0]
+                            omero_ids_obtained += 1
+                            break
                         else:
                             # We have found a valid omero_id - exit the loop
+                            error_message = ""
                             omero_id = omero_ids[0][0]
                             omero_ids_obtained += 1
-                            error_message = ""
                             break
                    
                     # If we have a valid omero ID this record has been
