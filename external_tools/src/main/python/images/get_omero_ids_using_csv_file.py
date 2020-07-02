@@ -159,46 +159,73 @@ def main(argv):
                 dataset_name = "-".join([project_name, pipeline_stable_id, procedure_stable_id, parameter_stable_id])
 
                 try:
-                    project_id = project_dict[project_name]['id']
-                    dataset_id = project_dict[project_name]['datasets'][dataset_name]['id']
+                    project_ids = project_dict[project_name].keys()
                 except KeyError as e:
-                    message = "Could not get details for " + image_nfs_path + ". KeyError was: " + str(e)
+                    message = "Could not get project details for image " + imagename + " in dataset " + dataset_name + ". KeyError was: " + str(e)
                     print message
                     row.append("-1")
                     csv_writer.writerow(row)
                     continue
+                
+                # In the following loop we search for the omero ID using the
+                # project name and dataset name. This is complicated by
+                # some project names and/or dataset names being duplicated
+                # in omero. We therefore map the project names and dataset
+                # names to their respective keys and loop through both 
+                # project ids and dataset ids. We exit
+                # the loop(s) once a valid omero_id has been found.
+                omero_id = -1
+                error_message = ""
+                for project_id in project_ids:
+                    # If we cannot find the project ID we don't even bother 
+                    # going further.
+                    try:
+                        dataset_ids = project_dict[project_name][project_id][dataset_name]
+                    except KeyError as e:
+                        error_message += "Could not get dataset details for image " + imagename + " in dataset " + dataset_name + ". KeyError was: " + str(e) + "\n"
+                        continue
+                    
+                    for dataset_id in dataset_ids:
+                        if imagename.endswith('pdf'):
+                            image_nfs_path = os.path.join("/",root_dir, project_name,pipeline_stable_id,procedure_stable_id,parameter_stable_id)
+                            query = "SELECT a.id FROM annotation a " + \
+                                    "INNER JOIN datasetannotationlink dsal ON " +\
+                                    "a.id=dsal.child " + \
+                                    "INNER JOIN originalfile of ON a.file=of.id " + \
+                                    "WHERE dsal.parent=" + str(dataset_id) + \
+                                    " AND of.path='" + image_nfs_path + "'" + \
+                                    " AND of.name='" + imagename + "'"
+                        else:
+                            image_nfs_path = os.path.join(root_dir, project_name,pipeline_stable_id,procedure_stable_id,parameter_stable_id,imagename)
+                            query = "SELECT i.id FROM image i INNER JOIN " + \
+                                "datasetimagelink dsil ON i.id=dsil.child " + \
+                                "INNER JOIN filesetentry fse ON " + \
+                                "i.fileset=fse.fileset " + \
+                                "WHERE dsil.parent=" + str(dataset_id) + \
+                                " AND fse.clientpath='" + image_nfs_path + \
+                                "' AND i.name='" + imagename + "'"
+                        pg_cur.execute(query)
+                        omero_ids = pg_cur.fetchall()
+                        n_omero_ids = len(omero_ids)
+                        if n_omero_ids != 1:
+                            error_message += "Got " + str(n_omero_ids) + " instead of 1. Not updating omero_id for " + image_nfs_path + "\n"
 
-                if imagename.endswith('pdf'):
-                    image_nfs_path = os.path.join("/",root_dir, project_name,pipeline_stable_id,procedure_stable_id,parameter_stable_id)
-                    query = "SELECT a.id FROM annotation a " + \
-                            "INNER JOIN datasetannotationlink dsal ON " +\
-                            "a.id=dsal.child " + \
-                            "INNER JOIN originalfile of ON a.file=of.id " + \
-                            "WHERE dsal.parent=" + str(dataset_id) + \
-                            " AND of.path='" + image_nfs_path + "'" + \
-                            " AND of.name='" + imagename + "'"
-                else:
-                    image_nfs_path = os.path.join(root_dir, project_name,pipeline_stable_id,procedure_stable_id,parameter_stable_id,imagename)
-                    query = "SELECT i.id FROM image i INNER JOIN " + \
-                        "datasetimagelink dsil ON i.id=dsil.child " + \
-                        "INNER JOIN filesetentry fse ON " + \
-                        "i.fileset=fse.fileset " + \
-                        "WHERE dsil.parent=" + str(dataset_id) + \
-                        " AND fse.clientpath='" + image_nfs_path + \
-                        "' AND i.name='" + imagename + "'"
-                pg_cur.execute(query)
-                omero_id = pg_cur.fetchall()
-                n_omero_ids = len(omero_id)
-                if n_omero_ids != 1:
-                    print "Got " + str(n_omero_ids) + " instead of 1. Not updating omero_id for " + image_nfs_path
+                        else:
+                            # We have found a valid omero_id - exit the loop
+                            omero_id = omero_ids[0][0]
+                            omero_ids_obtained += 1
+                            error_message = ""
+                            break
+                   
+                    # If we have a valid omero ID this record has been
+                    # successfully processed - move to next one
+                    if omero_id != -1:
+                        break
 
-                    row.append("-1")
-                    csv_writer.writerow(row)
-                    continue
-
-                row.append(str(omero_id[0][0]))
+                if len(error_message) > 0:
+                    print error_message
+                row.append(str(omero_id))
                 csv_writer.writerow(row)
-                omero_ids_obtained += 1
                     
     
     psqlConn.close()
@@ -221,16 +248,19 @@ def get_project_and_dataset_ids(psqlConn):
     for project_id, project_name in projects:
         if len(project_name) > 0:
             if project_dict.has_key(project_name):
-                raise Exception
-            project_dict[project_name] = {'id':project_id}
+                project_dict[project_name][project_id] = {}
+            else:
+                project_dict[project_name] = {project_id: {},}
             query = "Select ds.id, ds.name from dataset ds inner join projectdatasetlink pdsl on ds.id=pdsl.child where pdsl.parent="+str(project_id)
             pg_cur.execute(query)
             datasets = pg_cur.fetchall()        
-            project_dict[project_name]['datasets'] = {}
+            #project_dict[project_name]['datasets'] = {}
             for dataset_id, dataset_name in datasets:
-                if project_dict[project_name]['datasets'].has_key(dataset_name):
-                    raise Exception
-                project_dict[project_name]['datasets'][dataset_name] = {'id': dataset_id }
+                if project_dict[project_name][project_id].has_key(dataset_name):
+                    project_dict[project_name][project_id][dataset_name].append(dataset_id)
+                else:
+                    project_dict[project_name][project_id][dataset_name] = [dataset_id,]
+
     return project_dict
 
 if __name__ == "__main__":
