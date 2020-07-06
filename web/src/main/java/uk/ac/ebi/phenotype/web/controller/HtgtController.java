@@ -16,46 +16,19 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.FacetField;
-import org.apache.solr.client.solrj.response.FacetField.Count;
-import org.apache.solr.client.solrj.response.Group;
-import org.apache.solr.client.solrj.response.QueryResponse;
-import org.apache.solr.common.SolrDocumentList;
-import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.bean.ExpressionImagesBean;
-import org.mousephenotype.cda.solr.generic.util.PhenotypeCallSummarySolr;
-import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
-import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.service.*;
-import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.mousephenotype.cda.solr.web.dto.*;
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.ac.ebi.phenodigm2.Disease;
-import uk.ac.ebi.phenodigm2.DiseaseModelAssociation;
-import uk.ac.ebi.phenodigm2.GeneDiseaseAssociation;
-import uk.ac.ebi.phenodigm2.WebDao;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
-import uk.ac.ebi.phenotype.generic.util.RegisterInterestUtils;
-import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
-import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
-import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
-import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryType;
 import uk.ac.ebi.phenotype.service.PharosService;
-import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -65,11 +38,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Controller
 public class HtgtController {
@@ -79,9 +49,8 @@ public class HtgtController {
 
 
     private final GeneService              geneService;
-    private final StatisticalResultService statisticalResultService;
     private final OrderService             orderService;
-    private final ImpressService           impressService;
+    private final HtgtService htgtService;
 
     @Resource(name = "globalConfiguration")
     Map<String, String> config;
@@ -92,15 +61,12 @@ public class HtgtController {
 
     @Inject
     public HtgtController(
-                          ImageService imageService,
-                          GeneService geneService,
-                          ImpressService impressService,
-                          OrderService orderService,
-                          @Named("statistical-result-service") StatisticalResultService statisticalResultService) {
+            GeneService geneService,
+            OrderService orderService,
+            @Named("statistical-result-service") StatisticalResultService statisticalResultService, HtgtService htgtService) {
         this.geneService = geneService;
-        this.impressService = impressService;
         this.orderService = orderService;
-        this.statisticalResultService = statisticalResultService;
+        this.htgtService = htgtService;
     }
 
     @PostConstruct
@@ -143,7 +109,7 @@ public class HtgtController {
         }
 
 
-            processGeneRequest(design_id, model, request);
+            processHtgtRequest(design_id, model, request);
 
         response.setHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
         response.setHeader("Pragma", "no-cache");
@@ -154,18 +120,19 @@ public class HtgtController {
 
 
 
-    private void processGeneRequest(String acc, Model model, HttpServletRequest request)
+    private void processHtgtRequest(String designId, Model model, HttpServletRequest request)
             throws GenomicFeatureNotFoundException, URISyntaxException, IOException, SQLException, SolrServerException {
         int numberOfTopLevelMpTermsWithStatisticalResult = 0;
-        GeneDTO gene = geneService.getGeneById(acc);
-
+        GeneDTO gene = geneService.getGeneById(designId);
+        String designs=htgtService.getDesigns(designId);
+        System.out.println("calling process htgt");
         if (gene == null) {
-            LOGGER.warn("Gene object from solr for " + acc + " can't be found.");
-            throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
+            LOGGER.warn("Gene object from solr for " + designId + " can't be found.");
+            throw new GenomicFeatureNotFoundException("Gene " + designId + " can't be found.", designId);
         }
 
         model.addAttribute("gene",gene);
-
+    model.addAttribute("designs", designs);
     }
 
 

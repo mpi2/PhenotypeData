@@ -98,39 +98,39 @@
                 </noscript>
 
                 <div class="col-12 no-gutters">
-                    <h2 style="float: left" class="mb-0">Gene: ${gene.markerSymbol}</h2>
+                    <h2 style="float: left" class="mb-0">High Throughput Gene Targeting ${gene.markerSymbol}</h2>
                     <h2>
-                        <c:choose>
-                            <c:when test="${isFollowing}">
-                                <c:set var="followText" value="Unfollow"/>
-                                <c:set var="activeClass" value="btn-outline-secondary"/>
-                                <c:set var="activeIconClass" value="fa-user-minus"/>
-                            </c:when>
-                            <c:otherwise>
-                                <c:set var="followText" value="Follow"/>
-                                <c:set var="activeClass" value="btn-primary"/>
-                                <c:set var="activeIconClass" value="fa-user-plus"/>
-                            </c:otherwise>
-                        </c:choose>
-                        <c:choose>
-                            <c:when test="${isLoggedIn }">
-                                <form action="${baseUrl}/update-gene-registration" method="POST" id="follow-form">
-                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-                                    <input type="hidden" name="geneAccessionId" value="${acc}" />
-                                    <input type="hidden" name="target" value="${baseUrl}/genes/${acc}" />
-                                    <button type="submit" style="float: right" class="btn ${activeClass}">
-                                        <i class="fas ${activeIconClass}"></i>
-                                        <span>${followText}</span>
-                                    </button>
-                                </form>
-                            </c:when>
-                            <c:otherwise>
-                                <a href="${baseUrl}/rilogin?target=${baseUrl}/genes/${acc}"
-                                   class="btn btn-primary"
-                                   style="float: right"
-                                   title="Log in to My genes">Log in to follow</a>
-                            </c:otherwise>
-                        </c:choose>
+<%--                        <c:choose>--%>
+<%--                            <c:when test="${isFollowing}">--%>
+<%--                                <c:set var="followText" value="Unfollow"/>--%>
+<%--                                <c:set var="activeClass" value="btn-outline-secondary"/>--%>
+<%--                                <c:set var="activeIconClass" value="fa-user-minus"/>--%>
+<%--                            </c:when>--%>
+<%--                            <c:otherwise>--%>
+<%--                                <c:set var="followText" value="Follow"/>--%>
+<%--                                <c:set var="activeClass" value="btn-primary"/>--%>
+<%--                                <c:set var="activeIconClass" value="fa-user-plus"/>--%>
+<%--                            </c:otherwise>--%>
+<%--                        </c:choose>--%>
+<%--                        <c:choose>--%>
+<%--                            <c:when test="${isLoggedIn }">--%>
+<%--                                <form action="${baseUrl}/update-gene-registration" method="POST" id="follow-form">--%>
+<%--                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>--%>
+<%--                                    <input type="hidden" name="geneAccessionId" value="${acc}" />--%>
+<%--                                    <input type="hidden" name="target" value="${baseUrl}/genes/${acc}" />--%>
+<%--                                    <button type="submit" style="float: right" class="btn ${activeClass}">--%>
+<%--                                        <i class="fas ${activeIconClass}"></i>--%>
+<%--                                        <span>${followText}</span>--%>
+<%--                                    </button>--%>
+<%--                                </form>--%>
+<%--                            </c:when>--%>
+<%--                            <c:otherwise>--%>
+<%--                                <a href="${baseUrl}/rilogin?target=${baseUrl}/genes/${acc}"--%>
+<%--                                   class="btn btn-primary"--%>
+<%--                                   style="float: right"--%>
+<%--                                   title="Log in to My genes">Log in to follow</a>--%>
+<%--                            </c:otherwise>--%>
+<%--                        </c:choose>--%>
                         <a href="${cmsBaseUrl}/help/gene-page/" target="_blank">
                             <i class="fa fa-question-circle" style="float: right; color: #212529; padding-right: 10px;"></i></a>
                     </h2>
@@ -143,7 +143,17 @@
                 <div class="col-12 col-md-12">
                     <div class="pre-content clear-bg">
                         <div class="page-content people py-5 white-bg">
-                            <jsp:include page="genesPhenotypeAssociation_frag.jsp"/>
+
+<%--                            <jsp:include page="genesPhenotypeAssociation_frag.jsp"/>--%>
+                            <div class="container-fluid">
+                                <div class="row flex-xl-nowrap pb-5">
+                                    <div class="col-lg-8">
+                                        ${designs}
+                                    </div>
+                                </div>
+                            </div>
+
+
                         </div>
                     </div>
                 </div>
