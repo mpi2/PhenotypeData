@@ -139,10 +139,7 @@ def main(argv):
                 rows_processed += 1
                 if rows_processed % 1000 == 0:
                     print "Processed " + str(rows_processed) + " of " + str_n_rows
-                # KB 06/07/2020 commenting out lower as does not work with 
-                # 3i images
-                #download_file_path=row[1].lower()
-                download_file_path=row[1]
+                download_file_path=row[1].lower()
                 if (download_file_path.find('mousephenotype.org') < 0 and \
                     download_file_path.find('file:') < 0) or \
                         download_file_path.endswith('.mov') or \
@@ -207,15 +204,15 @@ def main(argv):
                                 "datasetimagelink dsil ON i.id=dsil.child " + \
                                 "INNER JOIN filesetentry fse ON " + \
                                 "i.fileset=fse.fileset " + \
-                                "WHERE i.name='" + imagename + "'"
+                                "WHERE LOWER(i.name)='" + imagename + "'"
                         else:
                             query = "SELECT i.id FROM image i INNER JOIN " + \
                                 "datasetimagelink dsil ON i.id=dsil.child " + \
                                 "INNER JOIN filesetentry fse ON " + \
                                 "i.fileset=fse.fileset " + \
                                 "WHERE dsil.parent=" + str(dataset_id) + \
-                                " AND fse.clientpath='" + image_nfs_path + \
-                                "' AND i.name='" + imagename + "'"
+                                " AND LOWER(fse.clientpath)=LOWER('" + image_nfs_path + \
+                                "') AND LOWER(i.name)='" + imagename + "'"
 
                         pg_cur.execute(query)
                         omero_ids = pg_cur.fetchall()
