@@ -43,19 +43,7 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
-        </dependency>
-
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -69,7 +57,6 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-config</artifactId>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -82,9 +69,7 @@
                     <!-- Don't fail if there are no runnable tests -->
                     <failIfNoTests>false</failIfNoTests>
                 </configuration>
-
             </plugin>
         </plugins>
     </build>
-
 </project>

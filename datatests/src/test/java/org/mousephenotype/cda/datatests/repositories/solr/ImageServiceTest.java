@@ -175,9 +175,6 @@ public class ImageServiceTest {
         assertTrue(message, ! failed);
     }
 
-    // FIXME FIXME FIXME This test fails as of 03-Apr-2019, so I'm disabling it as there isn't any obvious failure observed here. Will research later.
-    // FIXME FIXME FIXME 15-Apr-2019 (mrelac) Why is the ImageService querying with unknown field 'parameter_association_value'?
-    @Ignore
     @Test
     public void testGetComparisonViewerMethodsWithExpression() throws IOException, SolrServerException {
 

@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.mousephenotype.cda.datatests.repositories.solr;
+package uk.ac.ebi.phenotype.service.gp;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -46,7 +46,7 @@ import static org.junit.Assert.assertTrue;
  */
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {RepositorySolrTestConfig.class})
+@SpringBootTest(classes = {GenotypePhenotypeServiceTestConfig.class})
 public class GenotypePhenotypeServiceTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -62,7 +62,7 @@ public class GenotypePhenotypeServiceTest {
 
     @Autowired
     private MpService mpService;
-    
+
 
     @Test
     public void testGetAssociationsCount() {
@@ -81,7 +81,6 @@ public class GenotypePhenotypeServiceTest {
         }
     }
 
-
     @Test
     public void testAllGPGenesInGeneCore()
             throws SolrServerException, IOException {
@@ -92,7 +91,7 @@ public class GenotypePhenotypeServiceTest {
         Set<String> gGenes      = geneService.getAllGenes();
         Set<String> knownToMiss = new HashSet<>();  // Ignore these genes because they only have legacy phenotype data.
         knownToMiss.add("MGI:3688249"); // For bug MPII-1493, Ostes
-//        knownToMiss.add("MGI:1861674"); // For bug https://www.ebi.ac.uk/panda/jira/browse/MPII-1783? Nespas
+        knownToMiss.add("MGI:1861674"); // For bug https://www.ebi.ac.uk/panda/jira/browse/MPII-1783? Nespas
 
         Collection res = CollectionUtils.subtract(gpGenes, gGenes);
         res = CollectionUtils.subtract(res, knownToMiss);

@@ -473,26 +473,15 @@ public class GeneIndexer extends AbstractIndexer implements CommandLineRunner {
                                 gene.getTopLevelMpTerm().addAll(mp.getTopLevelMpTerm());
                             }
 
-                            if (mp.getTopLevelMpTermSynonym() != null) {
-                                gene.getTopLevelMpTermSynonym().addAll(mp.getTopLevelMpTermSynonym());
-                            }
 
                             if (mp.getIntermediateMpId() != null) {
                                 gene.getIntermediateMpId().addAll(mp.getIntermediateMpId());
                                 gene.getIntermediateMpTerm().addAll(mp.getIntermediateMpTerm());
                             }
 
-                            if (mp.getIntermediateMpTermSynonym() != null) {
-                                gene.getIntermediateMpTermSynonym().addAll(mp.getIntermediateMpTermSynonym());
-                            }
-
                             if (mp.getChildMpId() != null) {
                                 gene.getChildMpId().addAll(mp.getChildMpId());
                                 gene.getChildMpTerm().addAll(mp.getChildMpTerm());
-                            }
-
-                            if (mp.getChildMpTermSynonym() != null) {
-                                gene.getChildMpTermSynonym().addAll(mp.getChildMpTermSynonym());
                             }
 
                             if (mp.getInferredMaId() != null) {

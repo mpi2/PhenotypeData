@@ -17,9 +17,6 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.ObservationService;
@@ -30,6 +27,9 @@ import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.web.dto.AllelePageDTO;
 import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -88,34 +88,15 @@ public class ExperimentsController {
             @RequestParam(required = false, value = "resource") ArrayList<String> resource,
             Model model,
             HttpServletRequest request)
-            throws IOException, SolrServerException {
+            throws IOException, SolrServerException, JSONException {
 
         Set<ExperimentsDataTableRow> experimentRows = new HashSet<>();
         int rows = 0;
         String graphBaseUrl = request.getAttribute("baseUrl").toString();
 
         // JM and JW Decided to get observations first as a whole set and then replace with SR result rows where appropriate
-        Set<ExperimentsDataTableRow> experimentRowsFromObservations = observationService.getAllPhenotypesFromObservationsByGeneAccession(geneAccession);
+        Map<CombinedObservationKey, ExperimentsDataTableRow> srResult = getCombinedObservationKeyExperimentsDataTableRowMap(geneAccession, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, procedureName, mpTermId, resource, experimentRows, graphBaseUrl);
 
-        Map<CombinedObservationKey, ExperimentsDataTableRow> srResult = srService.getAllDataRecords(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl);
-        Map<CombinedObservationKey, ExperimentsDataTableRow> gpResult = gpService.getAllDataRecords(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl);
-        Map<CombinedObservationKey, ExperimentsDataTableRow> observationsMap = experimentRowsFromObservations.stream().collect(Collectors.toMap(ExperimentsDataTableRow::getCombinedKey, row -> row));
-        Set<CombinedObservationKey> intersection = observationsMap.keySet();
-        intersection.retainAll(srResult.keySet());
-        for(CombinedObservationKey obs : intersection) {
-            observationsMap.get(obs).setStatus(srResult.get(obs).getStatus());
-            observationsMap.get(obs).setpValue(srResult.get(obs).getpValue());
-            observationsMap.get(obs).setEvidenceLink(srResult.get(obs).getEvidenceLink());
-            if (gpResult.get(obs) != null) {
-                observationsMap.get(obs).setPhenotypeTerm(gpResult.get(obs).getPhenotypeTerm());
-            }
-        }
-
-        if(mpTermId != null && mpTermId.size() > 0) {
-            experimentRows.addAll(intersection.stream().map(key -> observationsMap.get(key)).collect(Collectors.toSet()));
-        } else {
-            experimentRows.addAll(experimentRowsFromObservations);
-        }
 
         JSONArray experimentRowsJson = new JSONArray();
         experimentRows.stream().forEach(experimentsDataTableRow -> {
@@ -165,9 +146,72 @@ public class ExperimentsController {
                 e.printStackTrace();
             }
         });
+
+
+        //sort
+
+        JSONArray sortedJsonArray = new JSONArray();
+
+        List<JSONObject> jsonValues = new ArrayList<JSONObject>();
+        for (int i = 0; i < experimentRowsJson.length(); i++) {
+            jsonValues.add(experimentRowsJson.getJSONObject(i));
+        }
+        Collections.sort( jsonValues, new Comparator<JSONObject>() {
+            //You can change "Name" with "ID" if you want to sort by ID
+            private static final String KEY_NAME = ObservationDTO.PROCEDURE_NAME;
+
+            @Override
+            public int compare(JSONObject a, JSONObject b) {
+                String valA = new String();
+                String valB = new String();
+
+                try {
+                    valA = (String) a.get(KEY_NAME);
+                    valB = (String) b.get(KEY_NAME);
+                }
+                catch (JSONException e) {
+                    //do something
+                }
+
+                return valA.compareTo(valB);
+                //if you want to change the sort order, simply use the following:
+                //return -valA.compareTo(valB);
+            }
+        });
+
+        for (int i = 0; i < experimentRowsJson.length(); i++) {
+            sortedJsonArray.put(jsonValues.get(i));
+        }
+
         model.addAttribute("rows", experimentRows.size());
-        model.addAttribute("allData", experimentRowsJson.toString().replace("'", "\\'"));
+        model.addAttribute("allData", sortedJsonArray.toString().replace("'", "\\'"));
         return "experimentsTableFrag";
+    }
+
+    private Map<CombinedObservationKey, ExperimentsDataTableRow> getCombinedObservationKeyExperimentsDataTableRowMap(@RequestParam(required = true, value = "geneAccession") String geneAccession, @RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol, @RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter, @RequestParam(required = false, value = "pipelineName") List<String> pipelineName, @RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId, @RequestParam(required = false, value = "procedureName") List<String> procedureName, @RequestParam(required = false, value = "mpTermId") List<String> mpTermId, @RequestParam(required = false, value = "resource") ArrayList<String> resource, Set<ExperimentsDataTableRow> experimentRows, String graphBaseUrl) throws IOException, SolrServerException {
+        Set<ExperimentsDataTableRow> experimentRowsFromObservations = observationService.getAllPhenotypesFromObservationsByGeneAccession(geneAccession);
+
+        Map<CombinedObservationKey, ExperimentsDataTableRow> srResult = srService.getAllDataRecords(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl);
+        Map<CombinedObservationKey, ExperimentsDataTableRow> gpResult = gpService.getAllDataRecords(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl);
+        Map<CombinedObservationKey, ExperimentsDataTableRow> observationsMap = experimentRowsFromObservations.stream().collect(Collectors.toMap(ExperimentsDataTableRow::getCombinedKey, row -> row));
+        Set<CombinedObservationKey> intersection = observationsMap.keySet();
+        System.out.println("observations map="+observationsMap);
+        intersection.retainAll(srResult.keySet());
+        for(CombinedObservationKey obs : intersection) {
+            observationsMap.get(obs).setStatus(srResult.get(obs).getStatus());
+            observationsMap.get(obs).setpValue(srResult.get(obs).getpValue());
+            observationsMap.get(obs).setEvidenceLink(srResult.get(obs).getEvidenceLink());
+            if (gpResult.get(obs) != null) {
+                observationsMap.get(obs).setPhenotypeTerm(gpResult.get(obs).getPhenotypeTerm());
+            }
+        }
+
+        if(mpTermId != null && mpTermId.size() > 0) {
+            experimentRows.addAll(intersection.stream().map(key -> observationsMap.get(key)).collect(Collectors.toSet()));
+        } else {
+            experimentRows.addAll(experimentRowsFromObservations);
+        }
+        return srResult;
     }
 
 
@@ -193,6 +237,15 @@ public class ExperimentsController {
         Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
         String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
         experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
+        //remove any trace of viability data from chart as we decided as a group in ticket #184
+        //experimentRows.remove("IMPC_VIA_001_001");
+        Map<String, List<ExperimentsDataTableRow>> experimentRowsToFilter=new HashMap<>();//need
+        for(Iterator<String> iterator= experimentRows.keySet().iterator(); iterator.hasNext();){
+            String key=iterator.next();
+            if(key.contains("_VIA_")){//remove any viability data from chart as often no p values - was a group decision JW.
+                iterator.remove();//using the iterator directly resolves any concurrent modification exceptions
+            }
+        }
         Map<String, Object> chartData = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
         model.addAttribute("chart", chartData.get("chart"));
         model.addAttribute("count", chartData.get("count"));

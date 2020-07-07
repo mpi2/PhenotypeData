@@ -21,7 +21,6 @@
 package org.mousephenotype.cda.indexers.manager;
 
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.indexers.IndexerManager;
@@ -33,8 +32,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.sql.SQLException;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
@@ -427,7 +424,6 @@ public class IndexerManagerTest {
      * Expected results: STATUS_VALIDATION_ERROR.
      */
     @Test
-//@Ignore
     public void testStaticAllAndDaily() throws Exception {
         String testName = "testStaticAllAndDaily";
         System.out.println("-------------------" + testName + "-------------------");
@@ -734,200 +730,4 @@ public class IndexerManagerTest {
         String[] actualCores = indexerManager.getCores().toArray(new String[0]);
         assertArrayEquals(IndexerManager.dailyCoresArray, actualCores);
     }
-
-    /**
-     * Test invoking static main with --cores=ma --nodeps --deploy
-     *
-     * Expected results: ma core to be created, built, and deployed.
-     */
-    @Test
-    @Ignore
-    public void testStaticBuildAndDeploy() throws Exception {
-        String testName = "testStaticBuildAndDeploy";
-        System.out.println("-------------------" + testName + "-------------------");
-        String[] args = {"--cores=ma", "--nodeps"};
-        System.out.println("Command line = " + StringUtils.join(args, ","));
-        int retVal = indexerManager.mainReturnsStatus(args);
-
-        switch (retVal) {
-            case IndexerManager.STATUS_OK:
-                break;
-
-            default:
-                fail("Expected STATUS_OK");
-                break;
-        }
-    }
-
-
-    /************************************************************************************************/
-    /*    THE FOLLOWING TESTS ARE NOT EXPECTED TO GENERATE EXCEPTIONS. THEY TEST THE BUILDING OF    */
-    /*    THE CORES. SOME CORES TAKE A LONG TIME TO BUILD, SO ONLY CORES WITH A SHORT BUILD TIME    */
-    /*    WILL BE INCLUDED HERE.                                                                    */
-    /************************************************************************************************/
-
-
-    /**
-     * Test invoking static main specifying single core, using the nodeps option.
-     *
-     * Expected results: The specified core to be built.
-     */
-    @Ignore
-    @Test
-    public void testStaticBuildSingleCoreNodeps() throws Exception {
-        String testName = "testStaticBuildSingleCoreNodeps";
-        System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[]{"--cores=anatomy", "--nodeps"};
-        System.out.println("Command line = " + StringUtils.join(args, ","));
-        int retVal = indexerManager.mainReturnsStatus(args);
-
-        switch (retVal) {
-            case IndexerManager.STATUS_OK:
-                break;
-
-            default:
-                fail("Expected STATUS_OK but found " + IndexerManager.getStatusCodeName(retVal));
-        }
-    }
-
-    /**
-     * Test invoking IndexerManager instance specifying a single core, using
-     * the nodeps option.
-     *
-     * Expected results: The specified core to be built.
-     * @throws SQLException
-     */
-    @Ignore
-    @Test
-    public void testInstanceBuildSingleCoreNodeps() throws Exception {
-        String testName = "testInstanceBuildSingleCoreNodeps";
-        System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[]{"--cores=anatomy", "--nodeps"};
-        System.out.println("Command line = " + StringUtils.join(args, ","));
-
-        // Determine which cores to build.
-        try {
-            indexerManager.initialise(args);
-        } catch (IndexerException ie) {
-            fail(ie.getLocalizedMessage());
-        }
-
-        String[] actualCores   = indexerManager.getCores().toArray(new String[0]);
-        String[] expectedCores = new String[]{IndexerManager.ANATOMY_CORE};
-        assertArrayEquals(expectedCores, actualCores);
-
-        // Initialise, validate, and build the cores.
-        try {
-            indexerManager.run();
-        } catch (IndexerException ie) {
-            fail(ie.getLocalizedMessage());
-        }
-    }
-
-    /**
-     * Test invoking static main specifying multiple cores, using the nodeps option.
-     *
-     * Expected results: The specified cores to be built.
-     */
-    @Ignore
-    @Test
-    public void testStaticBuildMultipleCoresNodeps() throws Exception {
-        String testName = "testStaticBuildMultipleCoresNodeps";
-        System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[]{"--cores=anatomy,anatomy", "--nodeps"};
-        System.out.println("Command line = " + StringUtils.join(args, ","));
-        int retVal = indexerManager.mainReturnsStatus(args);
-
-        switch (retVal) {
-            case IndexerManager.STATUS_OK:
-                break;
-
-            default:
-                fail("Expected STATUS_OK but found " + IndexerManager.getStatusCodeName(retVal));
-        }
-    }
-
-
-    /**
-     * Test invoking IndexerManager instance specifying multiple cores, using
-     * the nodeps option.
-     *
-     * Expected results: All of the specified cores built.
-     * @throws SQLException
-     */
-    // 11-Jan-2018 (mrelac) This test passes but takes a couple of minutes to run, so it is @Ignored for now.
-    @Ignore
-    @Test
-    public void testInstanceBuildMultipleCoresNodeps() throws Exception {
-        String testName = "testInstanceBuildMultipleCoresNodeps";
-        System.out.println("-------------------" + testName + "-------------------");
-        String[] args = new String[]{"--cores=anatomy,anatomy", "--nodeps"};
-        System.out.println("Command line = " + StringUtils.join(args, ","));
-
-        // Determine which cores to build.
-        try {
-            indexerManager.initialise(args);
-        } catch (IndexerException ie) {
-            fail(ie.getLocalizedMessage());
-        }
-
-        String[] actualCores   = indexerManager.getCores().toArray(new String[0]);
-        String[] expectedCores = new String[]{IndexerManager.ANATOMY_CORE, IndexerManager.ANATOMY_CORE};
-        assertArrayEquals(expectedCores, actualCores);
-
-        // Initialise, validate, and build the cores.
-        try {
-            indexerManager.run();
-        } catch (IndexerException ie) {
-            fail(ie.getLocalizedMessage());
-        }
-    }
-
-    /**
-     * Build daily cores. NOTE: This test is not meant to be run with the
-     * test suite, as it takes a long time to complete. It is here to permit
-     * building core(s) quickly and easily.
-     *
-     * Expected results: The specified cores to be built.
-     */
-//     @Test
-//     public void testStaticBuildDailyCores() {
-//        String testName = "testStaticBuildDailyCores";
-//        System.out.println("-------------------" + testName + "-------------------");
-//        String[] args = new String[] { "--cores=ma,mp,disease", "--nodeps" };
-//        System.out.println("Command line = " + StringUtils.join(args, ","));
-//        int retVal =  indexerManager.mainReturnsStatus(args);
-//
-//        switch (retVal) {
-//            case IndexerManager.STATUS_OK:
-//                break;
-//
-//            default:
-//                fail("Expected STATUS_OK but found " + IndexerManager.getStatusCodeName(retVal));
-//        }
-//     }
-
-//     /**
-//      * Build all cores. NOTE: This test is not meant to be run with the
-//      * test suite, as it takes a long time to complete. It is here to permit
-//      * building core(s) quickly and easily.
-//      *
-//      * Expected results: The specified cores to be built.
-//      */
-//     @Test
-//     public void testStaticBuildCores() {
-//        String testName = "testStaticBuildCores";
-//        System.out.println("-------------------" + testName + "-------------------");
-//        String[] args = new String[] { "--cores=experiment" };
-//        logger.info("Command line = " + StringUtils.join(args, ","));
-//        int retVal =  indexerManager.mainReturnsStatus(args);
-//
-//        switch (retVal) {
-//            case IndexerManager.STATUS_OK:
-//                break;
-//
-//            default:
-//                fail("Expected STATUS_OK but found " + IndexerManager.getStatusCodeName(retVal));
-//        }
-//     }
 }

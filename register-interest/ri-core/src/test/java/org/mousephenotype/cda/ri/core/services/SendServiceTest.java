@@ -1,10 +1,8 @@
 package org.mousephenotype.cda.ri.core.services;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.ri.BaseTest;
 import org.mousephenotype.cda.ri.core.entities.Gene;
 import org.mousephenotype.cda.ri.core.entities.SmtpParameters;
 import org.mousephenotype.cda.ri.core.entities.Summary;
@@ -42,16 +40,15 @@ public class SendServiceTest extends BaseTest {
     }
 
 
-    // This test causes an actual e-mail to be sent. Unignore only to debug the send infrastructure.
-    @Ignore
+    // This test causes an actual e-mail to be sent. Uncomment only to debug the send infrastructure.
     @Test
     public void testSendMechanism() {
 
-        try {
-            sendService.sendSummary(summary, "test subject", "test content", false, smtpParameters);
-        } catch (Exception e) {
-            System.out.println(e);
-            e.printStackTrace();
-        }
+//        try {
+//            sendService.sendSummary(summary, "test subject", "test content", false, smtpParameters);
+//        } catch (Exception e) {
+//            System.out.println(e);
+//            e.printStackTrace();
+//        }
     }
 }

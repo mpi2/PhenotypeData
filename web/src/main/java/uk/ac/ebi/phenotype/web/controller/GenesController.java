@@ -277,6 +277,7 @@ public class GenesController {
         try {
 
             phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
+            System.out.println(phenotypeSummaryObjects);
             mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
             mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
             if (!mpGroupsSignificant.keySet().contains("mortality/aging") && viabilityCalls.size() > 0) {

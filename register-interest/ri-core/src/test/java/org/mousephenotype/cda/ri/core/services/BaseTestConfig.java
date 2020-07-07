@@ -14,7 +14,7 @@
  *  License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.ri;
+package org.mousephenotype.cda.ri.core.services;
 
 import org.mousephenotype.cda.ri.core.entities.SmtpParameters;
 import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
@@ -42,7 +42,7 @@ public class BaseTestConfig {
         return new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
                 .ignoreFailedDrops(true)
-                .setName("ri")
+                .generateUniqueName(true)
                 .build();
     }
 

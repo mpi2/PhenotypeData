@@ -16,15 +16,11 @@
 
 package org.mousephenotype.cda.owl;
 
-import org.apache.solr.client.solrj.SolrClient;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.configurationprocessor.json.JSONException;
 import uk.ac.manchester.cs.owl.owlapi.OWLObjectPropertyImpl;
 
 import javax.sql.DataSource;
@@ -35,23 +31,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-/**
- * Created by ilinca on 29/03/2017.
- */
-/**
- * pdsimplify: This class refers to old Phenodigm objects or db
- */
+
 public class OntologyParserFactory {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private String owlpath;
     private DataSource komp2DataSource;
-
-    @Autowired
-    @Qualifier("phenodigmCore")
-    SolrClient phenodigmCore;
-
 
     public OntologyParserFactory(DataSource komp2DataSource, String owlpath){
 
@@ -75,14 +61,9 @@ public class OntologyParserFactory {
             "MA:0000010", "MA:0000012", "MA:0000014", "MA:0000016", "MA:0000017", "MA:0000325", "MA:0000326", "MA:0000327",
             "MA:0002411", "MA:0002418", "MA:0002431", "MA:0002711", "MA:0002887", "MA:0002405"));
 
-    public static final List<String> TREE_TOP_LEVEL_MA_TERMS = new ArrayList<>(Arrays.asList("MA:0002433", "MA:0002450", "MA:0000003",
-            "MA:0003001", "MA:0003002"));
-
     public static final Set<String> TOP_LEVEL_EMAPA_TERMS = new HashSet<>(Arrays.asList("EMAPA:16104", "EMAPA:16192", "EMAPA:16246",
             "EMAPA:16405", "EMAPA:16469", "EMAPA:16727", "EMAPA:16748", "EMAPA:16840", "EMAPA:17524", "EMAPA:31858"));
 
-    public static final List<String> TREE_TOP_LEVEL_EMAPA_TERMS = new ArrayList<>(Arrays.asList("EMAPA:16039", "EMAPA:36040", "EMAPA:36037",
-            "EMAPA:36031", "EMAPA:16042", "EMAPA:35949", "EMAPA:16103", "EMAPA:35868"));
 
     public static final Set<String> TOP_LEVEL_HP_TERMS = new HashSet<>(Arrays.asList( "HP:0002086","HP:0045027","HP:0001871","HP:0001939","HP:0001574","HP:0001608",
             "HP:0001626","HP:0025354","HP:0001507","HP:0025142","HP:0001197","HP:0003549",
@@ -115,20 +96,6 @@ public class OntologyParserFactory {
         return new OntologyParser(owlpath + "/uberon.owl", "UBERON", null, null);
     }
 
-    public OntologyParser getMaParserWithTreeJson() throws OWLOntologyStorageException, IOException, SQLException, OWLOntologyCreationException, JSONException {
-
-        OntologyParser parser = getMaParser();
-        parser.fillJsonTreePath("MA:0002405", "/data/anatomy/", null, TREE_TOP_LEVEL_MA_TERMS, true); // postnatal mouse
-        return parser;
-    }
-
-    public OntologyParser getEmapaParserWithTreeJson() throws OWLOntologyStorageException, IOException, SQLException, OWLOntologyCreationException, JSONException {
-
-        OntologyParser parser = getEmapaParser();
-        parser.fillJsonTreePath("EMAPA:25765", "/data/anatomy/", null, TREE_TOP_LEVEL_EMAPA_TERMS, true); // mouse
-        return parser;
-    }
-
     protected Set<String> getMaWantedIds() throws SQLException, OWLOntologyCreationException, OWLOntologyStorageException, IOException {
 
         Set<String> wantedIds = new HashSet<>();
@@ -157,7 +124,7 @@ public class OntologyParserFactory {
 
     }
 
-    protected Set<String> getEmapaWantedIds() throws SQLException, OWLOntologyCreationException, OWLOntologyStorageException, IOException {
+    protected Set<String> getEmapaWantedIds() throws SQLException, IOException {
 
         Set<String> wantedIds = new HashSet<>();
         Set<String> emapIds = new HashSet<>();

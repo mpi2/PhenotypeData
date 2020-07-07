@@ -4,7 +4,7 @@
 
 <div id="phChart">
     <c:if test="${chart != null}">
-        <p class="alert alert-info w-100 mt-2">Mouseover the data points for more information. Click and drag to zoom the chart. Click on the legends to disable/enable data.</p>
+        <p class="alert alert-info w-100 mt-2">Mouseover the data points for more information. Click and drag to zoom the chart. Click on the legends to disable/enable data. This chart shows only the most significant p-values, please check the table view to see all available data.</p>
         <button id="checkAll" class="btn btn-sm btn-outline-success"><i class="fa fa-check" aria-hidden="true"></i> Select all</button>
         <button id="uncheckAll" class="btn btn-sm btn-outline-danger"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</button>
         <div id="chartDiv"></div>
@@ -13,7 +13,7 @@
         <script type="text/javascript" async>${chart}</script>
     </c:if>
     <c:if test="${chart == null}">
-        <p class="alert alert-warning w-100 mt-2">Statistical analisys has not been perform on any of the selected systems. Check the table view to see the raw data.</p>
+        <p class="alert alert-warning w-100 mt-2">System does not have p-values available, but please check the table view to see all available data.</p>
     </c:if>
 </div>
 <script>

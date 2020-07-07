@@ -15,7 +15,6 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import org.json.JSONObject;
 import org.mousephenotype.cda.db.pojo.MetaInfo;
 import org.mousephenotype.cda.db.repositories.AnalyticsPvalueDistributionRepository;
 import org.mousephenotype.cda.db.repositories.AnalyticsSignificantCallsProceduresRepository;
@@ -31,6 +30,7 @@ import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -150,7 +150,7 @@ public class ReleaseController {
 	public ResponseEntity<String> getJsonReleaseInformation() {
 
 		Map<String, String> metaInfo = getMetaInfo();
-		JSONObject json = new JSONObject(metaInfo);
+		JSONObject          json     = new JSONObject(metaInfo);
 		return new ResponseEntity<>(json.toString(), createResponseHeaders(), HttpStatus.OK);
 	}
 

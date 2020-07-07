@@ -85,14 +85,6 @@ public class ParameterDTO  extends ImpressBaseDTO{
 		this.unitX = unitX;
 	}
 
-	public String getDatatype() {
-		return dataType;
-	}
-
-	public void setDatatype(String datatype) {
-		this.dataType = datatype;
-	}
-
 	public String getEmapId() {
 		return emapId;
 	}
