@@ -193,77 +193,90 @@
                                 <c:forEach var="gene" items="${genes}">
                                     <div class="search-result">
                                         <div class="row">
-                                            <div class="col-12 col-md-6">
-                                                <a href="${baseUrl}/genes/${gene.mgiAccessionId}"><h4>${gene.markerSymbol}</h4></a>
+                                            <div class="col-12 col-md-7">
+                                                <a  href="${baseUrl}/genes/${gene.mgiAccessionId}"><h3>${gene.markerSymbol}</h3></a>
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <dl class="row">
+                                                            <dt class="col-sm-3">Name:</dt>
+                                                            <dd class="col-sm-9">${gene.markerName}</dd>
+
+<%--                                                            <dt class="col-sm-3">Human orthologs:</dt>--%>
+<%--                                                            <dd class="col-sm-9"><c:forEach var="orth" items="${gene.humanGeneSymbol}" varStatus="loop">${orth}<c:if test="${!loop.last}">, </c:if></c:forEach></dd>--%>
+
+                                                            <dt class="col-sm-3">Synonyms:</dt>
+                                                            <dd class="col-sm-9"><c:forEach var="syn" items="${gene.markerSynonym}" varStatus="loop">${syn}<c:if test="${!loop.last}">,</c:if></c:forEach></dd>
+                                                         </dl>
+
+                                                        <div class="row justify-content-between">
+                                                            <a href="${baseUrl}/genes/${gene.mgiAccessionId}#phenotypesTab" class="btn btn-primary"><i class="fas fa-chart-bar"></i> View data</a>
+                                                            <a href="${baseUrl}/genes/${gene.mgiAccessionId}#order" class="btn btn-info text-white"><i class="fas fa-chart-bar"></i> Order mice</a>
+
+                                                                <form action="${baseUrl}/update-gene-registration"
+                                                                                     method="POST"
+                                                                                     class="follow-form"
+                                                                                     id="follow-form-${fn:replace(gene.mgiAccessionId, ":", "")}">
+                                                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                                                <input type="hidden" name="geneAccessionId" value="${gene.mgiAccessionId}" />
+                                                                <input type="hidden" name="target" value="${baseUrl}/rilogin?target=${baseUrl}/search?term=${term}&type=${type}&page=${currentPage}" />
+
+                                                                <c:choose>
+                                                                    <c:when test="${not empty isLoggedIn and isLoggedIn}">
+                                                                        <c:choose>
+                                                                            <c:when test="${isFollowing[gene.mgiAccessionId]}">
+                                                                                <button
+                                                                                        title="You are following ${gene.markerSymbol}. Click to stop following."
+                                                                                        class="btn btn-light"
+                                                                                        type="submit"
+                                                                                        style="float: right;">
+                                                                                    <i class="fas fa-user-minus"></i>
+                                                                                    <span>Unfollow</span>
+                                                                                </button>
+                                                                            </c:when>
+                                                                            <c:otherwise>
+                                                                                <button
+                                                                                        title="Click to follow ${gene.markerSymbol}"
+                                                                                        class="btn btn-dark"
+                                                                                        type="submit"
+                                                                                        style="float: right">
+                                                                                    <i class="fas fa-user-plus"></i>
+                                                                                    <span>Follow</span>
+                                                                                </button>
+                                                                            </c:otherwise>
+                                                                        </c:choose>
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        <a
+                                                                                href="${baseUrl}/rilogin?target=${baseUrl}/search?term=${term}&type=${type}&page=${currentPage}"
+                                                                                title="Log in to My genes"
+                                                                                class="btn btn-dark"
+                                                                                style="float: right;">
+                                                                            Log in to follow
+                                                                        </a>
+                                                                    </c:otherwise>
+                                                                </c:choose>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
                                             </div>
 
-                                            <div class="col-12 col-md-6">
-                                                <form action="${baseUrl}/update-gene-registration"
-                                                      method="POST"
-                                                      class="follow-form"
-                                                      id="follow-form-${fn:replace(gene.mgiAccessionId, ":", "")}">
-                                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                                                    <input type="hidden" name="geneAccessionId" value="${gene.mgiAccessionId}" />
-                                                    <input type="hidden" name="target" value="${baseUrl}/rilogin?target=${baseUrl}/search?term=${term}&type=${type}&page=${currentPage}" />
-
-                                                    <c:choose>
-                                                        <c:when test="${not empty isLoggedIn and isLoggedIn}">
-                                                            <c:choose>
-                                                                <c:when test="${isFollowing[gene.mgiAccessionId]}">
-                                                                    <button
-                                                                            title="You are following ${gene.markerSymbol}. Click to stop following."
-                                                                            class="btn btn-outline-secondary"
-                                                                            type="submit"
-                                                                            style="float: right;">
-                                                                        <i class="fas fa-user-minus"></i>
-                                                                        <span>Unfollow</span>
-                                                                    </button>
-                                                                </c:when>
-                                                                <c:otherwise>
-                                                                    <button
-                                                                            title="Click to follow ${gene.markerSymbol}"
-                                                                            class="btn btn-primary"
-                                                                            type="submit"
-                                                                            style="float: right">
-                                                                        <i class="fas fa-user-plus"></i>
-                                                                        <span>Follow</span>
-                                                                    </button>
-                                                                </c:otherwise>
-                                                            </c:choose>
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                            <a
-                                                                    href="${baseUrl}/rilogin?target=${baseUrl}/search?term=${term}&type=${type}&page=${currentPage}"
-                                                                    title="Log in to My genes"
-                                                                    class="btn btn-primary"
-                                                                    style="float: right;">
-                                                                Log in to follow
-                                                            </a>
-                                                        </c:otherwise>
-                                                    </c:choose>
-                                                </form>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-12 col-md-6">
-                                                <p><b>Name: </b>${gene.markerName}<br>
-                                                    <b>Human orthologs: </b>
-                                                    <c:forEach var="orth" items="${gene.humanGeneSymbol}" varStatus="loop">${orth}<c:if test="${!loop.last}">, </c:if></c:forEach><br>
-                                                    <b>Synonyms: </b>
-                                                    <c:forEach var="syn" items="${gene.markerSynonym}" varStatus="loop">
-                                                        ${syn}<c:if test="${!loop.last}">,</c:if>
-                                                    </c:forEach>
-                                                </p>
-                                            </div>
-
-                                            <div class="col-12 col-md-6">
-                                                <p><b>Status:</b><br/>
+                                            <div class="col-12 col-md-5">
+                                                <div class="container">
+                                                <div class="card card-body bg-light">
+                                                    <div class="">
+                                                        <p class="float-right"><i class="fas fa-question-circle" data-toggle="tooltip" data-placement="bottom" title="These statuses are a way to show how close we are to having phenotype data available."></i></p>
+                                                    <b>Production Status:</b><br/>
                                                     <c:if test="${fn:trim(gene.latestEsCellStatus) != ''}">${gene.latestEsCellStatus}<br></c:if>
                                                     <c:if test="${fn:trim(gene.latestMouseStatus) != ''}">${gene.latestMouseStatus}<br></c:if>
                                                     <c:if test="${fn:trim(gene.latestPhenotypeStatus) != ''}">${gene.latestPhenotypeStatus}</c:if>
-                                                </p>
+                                                    </div>
+                                                </div>
+                                                </div>
                                             </div>
                                         </div>
+
                                     </div>
                                 </c:forEach>
 
