@@ -17,21 +17,50 @@ public interface ReferenceRepository extends MongoRepository<Publication, Object
 
     int countAllByStatusIs(String status);
 
-    @Query("{$and: [{$or: [{title: {$regex : ?0 }}, {abstractText: {$regex : ?0 }}, {authorString: {$regex : ?0 }}]}, {status: 'reviewed'}]}")
+    final String reviewedContainsQuery =
+      " {$and: "
+      +  "["
+      +    "{$or: "
+      +      "["
+      +        "{title:                  {$regex : ?0, '$options' : 'i' }},"
+      +        "{abstractText:           {$regex : ?0, '$options' : 'i' }},"
+      +        "{authorString:           {$regex : ?0, '$options' : 'i' }},"
+      +        "{'alleles.alleleSymbol': {$regex : ?0, '$options' : 'i' }},"
+      +        "{'alleles.geneSymbol':   {$regex : ?0, '$options' : 'i' }}"
+      +      "]"
+      +    "},"
+      +   "{status: 'reviewed'}"
+      +  "]"
+    + " }";
+    @Query(reviewedContainsQuery)
     Page<Publication> findReviewedContains(String filter, Pageable pageable);
 
-    @CountQuery("{$and: [{$or: [{title: {$regex : ?0 }}, {abstractText: {$regex : ?0 }}, {authorString: {$regex : ?0 }}]}, {status: 'reviewed'}]}")
+    @CountQuery(reviewedContainsQuery)
     int countReviewedContains(String filter);
-
 
     Page<Publication> findAllByStatusIsAndConsortiumPaperIsTrue(String reviewed, Pageable pageable);
 
     int countAllByStatusIsAndConsortiumPaperIsTrue(String status);
 
-    @Query("{$and: [{$or: [{title: {$regex : ?0 }}, {abstractText: {$regex : ?0 }}, {authorString: {$regex : ?0 }}]}, {status: 'reviewed', consortiumPaper: true}]}")
+    final String reviewedConsortiumPaperQuery =
+        " {$and: "
+          +  "["
+          +    "{$or: "
+          +      "["
+          +        "{title:                  {$regex : ?0, '$options' : 'i' }},"
+          +        "{abstractText:           {$regex : ?0, '$options' : 'i' }},"
+          +        "{authorString:           {$regex : ?0, '$options' : 'i' }},"
+          +        "{'alleles.alleleSymbol': {$regex : ?0, '$options' : 'i' }},"
+          +        "{'alleles.geneSymbol':   {$regex : ?0, '$options' : 'i' }}"
+          +      "]"
+          +    "},"
+          +   "{status: 'reviewed', consortiumPaper: true}"
+          +  "]"
+      + " }";
+    @Query(reviewedConsortiumPaperQuery)
     Page<Publication> findReviewedConsortiumPaperIsTrueContains(String filter, Pageable pageable);
 
-    @CountQuery("{$and: [{$or: [{title: {$regex : ?0 }}, {abstractText: {$regex : ?0 }}, {authorString: {$regex : ?0 }}]}, {status: 'reviewed', consortiumPaper: true}]}")
+    @CountQuery(reviewedConsortiumPaperQuery)
     int countReviewedAndConsortiumPaperIsTrueContains(String filter);
 
     Page<Publication> findDistinctByStatusEqualsAndGrantsList_AgencyIs(String status, String agency, Pageable pageable);
@@ -39,10 +68,25 @@ public interface ReferenceRepository extends MongoRepository<Publication, Object
     @CountQuery("{ 'grantsList.agency': ?0, status: 'reviewed'}")
     int countDistinctByGrantsList_AgencyIs(String agency);
 
-    @Query("{$and: [{$or: [{title: {$regex : ?1 }}, {abstractText: {$regex : ?1 }}, {authorString: {$regex : ?1 }}]}, {status: 'reviewed', 'grantsList.agency': ?0}]}")
+    final String agencyFilteredQuery =
+        " {$and: "
+            +  "["
+            +    "{$or: "
+            +      "["
+            +        "{title:                  {$regex : ?1, '$options' : 'i' }},"
+            +        "{abstractText:           {$regex : ?1, '$options' : 'i' }},"
+            +        "{authorString:           {$regex : ?1, '$options' : 'i' }},"
+            +        "{'alleles.alleleSymbol': {$regex : ?1, '$options' : 'i' }},"
+            +        "{'alleles.geneSymbol':   {$regex : ?1, '$options' : 'i' }}"
+            +      "]"
+            +    "},"
+            +   "{status: 'reviewed', 'grantsList.agency': ?0}"
+            +  "]"
+      + " }";
+    @Query(agencyFilteredQuery)
     Page<Publication> findByAgencyFiltered(String agency, String filter, Pageable pageable);
 
-    @CountQuery("{$and: [{$or: [{title: {$regex : ?1 }}, {abstractText: {$regex : ?1 }}, {authorString: {$regex : ?1 }}]}, {status: 'reviewed', 'grantsList.agency': ?0}]}")
+    @CountQuery(agencyFilteredQuery)
     int countByAgencyFiltered(String agency, String filter);
 
     @Query("{$and: [{meshHeadingList: {'$regex' : ?0, '$options' : 'i'}}, {status: 'reviewed'}]}")
@@ -51,9 +95,24 @@ public interface ReferenceRepository extends MongoRepository<Publication, Object
     @CountQuery("{$and: [{meshHeadingList: {'$regex' : ?0, '$options' : 'i'}}, {status: 'reviewed'}]}")
     int countDistinctByMeshHeadingListContains(String mesh);
 
-    @Query("{$and: [{$or: [{title: {$regex : ?1 }}, {abstractText: {$regex : ?1 }}, {authorString: {$regex : ?1 }}]}, {status: 'reviewed', meshHeadingList: {'$regex' : ?0, '$options' : 'i'}}]}")
+    final String meshtermFilteredQuery =
+        " {$and: "
+           +  "["
+           +    "{$or: "
+           +      "["
+           +        "{title:                  {$regex : ?1, '$options' : 'i' }},"
+           +        "{abstractText:           {$regex : ?1, '$options' : 'i' }},"
+           +        "{authorString:           {$regex : ?1, '$options' : 'i' }},"
+           +        "{'alleles.alleleSymbol': {$regex : ?1, '$options' : 'i' }},"
+           +        "{'alleles.geneSymbol':   {$regex : ?1, '$options' : 'i' }}"
+           +      "]"
+           +    "},"
+           +   "{status: 'reviewed', meshHeadingList: {'$regex' : ?0, '$options' : 'i'}}"
+           +  "]"
+      + " }";
+    @Query(meshtermFilteredQuery)
     Page<Publication> findByMeshtermFiltered(String meshTerm, String filter, Pageable pageable);
 
-    @CountQuery("{$and: [{$or: [{title: {$regex : ?1 }}, {abstractText: {$regex : ?1 }}, {authorString: {$regex : ?1 }}]}, {status: 'reviewed', meshHeadingList: {'$regex' : ?0, '$options' : 'i'}}]}")
+    @CountQuery(meshtermFilteredQuery)
     int countByMeshtermFiltered(String meshTerm, String filter);
 }
