@@ -57,7 +57,6 @@ public class HtgtController {
 
     private String cmsBaseUrl;
 
-    private PharosService pharosService;
 
     @Inject
     public HtgtController(
@@ -73,7 +72,7 @@ public class HtgtController {
     private void postConstruct() {
 
         cmsBaseUrl = config.get("cmsBaseUrl");
-        pharosService = new PharosService();
+
     }
 
     HttpProxy proxy = new HttpProxy();
@@ -94,13 +93,12 @@ public class HtgtController {
 
 
     @RequestMapping("/htgt/{design_id}")
-    public String genes(@PathVariable String design_id,
-                        @RequestParam(value = "heatmap", required = false, defaultValue = "false") Boolean showHeatmap,
+    public String genes(@PathVariable int design_id,
                         Model model,
                         HttpServletRequest request,
                         HttpServletResponse response,
                         RedirectAttributes attributes)
-            throws URISyntaxException, GenomicFeatureNotFoundException, IOException, SQLException, SolrServerException {
+            throws URISyntaxException,IOException, SQLException, SolrServerException {
 
         String debug = request.getParameter("debug");
         boolean d = debug != null && debug.equals("true");
@@ -120,19 +118,13 @@ public class HtgtController {
 
 
 
-    private void processHtgtRequest(String designId, Model model, HttpServletRequest request)
-            throws GenomicFeatureNotFoundException, URISyntaxException, IOException, SQLException, SolrServerException {
+    private void processHtgtRequest(int designId, Model model, HttpServletRequest request)
+    {
         int numberOfTopLevelMpTermsWithStatisticalResult = 0;
-        GeneDTO gene = geneService.getGeneById(designId);
-        String designs=htgtService.getDesigns(designId);
+        //GeneDTO gene = geneService.getGeneById(designId);
+        List<Design> designs=htgtService.getDesigns(designId);
         System.out.println("calling process htgt");
-        if (gene == null) {
-            LOGGER.warn("Gene object from solr for " + designId + " can't be found.");
-            throw new GenomicFeatureNotFoundException("Gene " + designId + " can't be found.", designId);
-        }
-
-        model.addAttribute("gene",gene);
-    model.addAttribute("designs", designs);
+        model.addAttribute("designs", designs);
     }
 
 
