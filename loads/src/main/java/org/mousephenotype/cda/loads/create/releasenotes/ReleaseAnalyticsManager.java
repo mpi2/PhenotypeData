@@ -3,6 +3,7 @@ package org.mousephenotype.cda.loads.create.releasenotes;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.loads.common.CommandLineUtils;
 import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
@@ -52,20 +53,13 @@ public class ReleaseAnalyticsManager implements CommandLineRunner {
     public static final String ALLELE_NOMENCLATURE = "^[^<]+<([^\\(]+)\\(([^\\)]+)\\)([^>]+)>";
     public static final String TARGETED_ALLELE_CLASS_1 = "^tm(\\d+)([a-z]{0,1})";
 
-    // Data type contants
-    public static final String UNIDIMENSIONAL_DATATYPE = "unidimensional";
-    public static final String TIME_SERIES_DATATYPE = "time_series";
-    public static final String TEXT_DATATYPE = "text";
-    public static final String CATEGORICAL_DATATYPE = "categorical";
-    public static final String IMAGE_RECORD_DATATYPE = "image_record";
-
     public static final String[] dataTypes = new String[]{
 
-            CATEGORICAL_DATATYPE,
-            UNIDIMENSIONAL_DATATYPE,
-            TIME_SERIES_DATATYPE,
-            TEXT_DATATYPE,
-            IMAGE_RECORD_DATATYPE
+            Constants.CATEGORICAL_DATATYPE,
+            Constants.UNIDIMENSIONAL_DATATYPE,
+            Constants.TIME_SERIES_DATATYPE,
+            Constants.TEXT_DATATYPE,
+            Constants.IMAGE_RECORD_DATATYPE
 
     };
 
