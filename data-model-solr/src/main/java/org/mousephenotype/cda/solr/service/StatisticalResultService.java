@@ -996,7 +996,8 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         solrQuery.setSort(StatisticalResultDTO.P_VALUE, ORDER.asc);
         solrQuery.addFilterQuery(StringUtils.join(Arrays.asList(StatisticalResultDTO.MP_TERM_ID + ":*", StatisticalResultDTO.FEMALE_MP_TERM_ID + ":*", StatisticalResultDTO.MALE_MP_TERM_ID + ":*"), " OR "));
         solrQuery.addFilterQuery(StatisticalResultDTO.STATUS + ":Success");
-        solrQuery.setFields(StatisticalResultDTO.P_VALUE, StatisticalResultDTO.SEX, StatisticalResultDTO.ZYGOSITY,
+        solrQuery.setFields(StatisticalResultDTO.P_VALUE, StatisticalResultDTO.FEMALE_KO_EFFECT_P_VALUE, StatisticalResultDTO.MALE_KO_EFFECT_P_VALUE,
+                StatisticalResultDTO.DATA_TYPE, StatisticalResultDTO.SEX, StatisticalResultDTO.ZYGOSITY,
                 StatisticalResultDTO.MARKER_ACCESSION_ID, StatisticalResultDTO.MARKER_SYMBOL,
                 StatisticalResultDTO.MP_TERM_ID, StatisticalResultDTO.MP_TERM_NAME,
                 StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID, StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME,
