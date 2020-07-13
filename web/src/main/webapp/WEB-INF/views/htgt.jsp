@@ -136,16 +136,16 @@
                             <table id="diseases_by_phenotype"
                                    class="table tablesorter disease hidden-xs"
                                    style="width:100%">
-                                <tr><th>Type</th><th>start</th><th>stop</th><th>sequence</th></tr>
+                                <tr><th>Type</th><th>start</th><th>stop</th><th>sequence</th><th>assembly</th><th>chr</th><th>strand</th></tr>
                             <c:forEach varStatus="index" items="${designs}" var="design">
                                 <tr>
-                                    <td><c:out value="${design.featureType}"/></td><td><c:out value="${design.oligoStart}"/></td><td><c:out value="${design.oligoStop}"/></td><td><c:out value="${design.oligoSequence}"/></td>
+                                    <td><c:out value="${design.featureType}"/></td><td><c:out value="${design.oligoStart}"/></td><td><c:out value="${design.oligoStop}"/></td><td><c:out value="${design.oligoSequence}"/></td><td><c:out value="${design.assembly}"/><td><c:out value="${design.chr}"/></td><td><c:out value="${design.strand}"/></td>
                                 </tr>
                             </c:forEach>
 
                             </table>
 
-                            ${designs}
+<%--                            ${designs}--%>
                         </div>
                     </div>
                 </div>
