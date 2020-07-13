@@ -169,6 +169,7 @@
                             <div class="portal-search__tabs">
                                 <a id="geneSearchTab" data-type="gene" class="portalTab left-shadow <c:if test="${param.type != 'phenotype'}">active</c:if>" href="${baseUrl}/search">Genes</a>
                                 <a id="phenotypeSearchTab" data-type="pheno" class=" portalTab right-shadow <c:if test="${param.type == 'phenotype'}">active</c:if>" href="${baseUrl}/search?type=phenotype">Phenotypes</a>
+                                <a id="everythingElseSearchTab" data-type="other" class=" portalTab right-shadow" href="${cmsBaseUrl}/?s=">Everything Else</a>
                             </div>
                             <div class="portal-search__inputs">
                                 <form id="searchForm" action="${baseUrl}/search">
