@@ -152,18 +152,6 @@
             </div>
         </div>
 
-        <div class="container white-bg-small">
-            <div class="row pb-5">
-                <div class="col-12 col-md-12">
-                    <div class="pre-content clear-bg">
-                        <div class="page-content people py-5 white-bg">
-                            list of oligos here
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
 
 
