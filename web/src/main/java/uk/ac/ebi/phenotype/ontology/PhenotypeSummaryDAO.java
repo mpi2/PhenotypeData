@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenotype.ontology;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.MpService;
@@ -91,7 +92,20 @@ public class PhenotypeSummaryDAO  {
 
 	
 	private boolean isSignificant (StatisticalResultDTO res){
-		return res.getSignificant() != null ? res.getSignificant() : false;
+		boolean significant =  res.getSignificant() != null ? res.getSignificant() : false;
+
+		// For Categorical data
+		// If either of the sex specific (one sex only) tests are significant, but the combined sexes test
+		// is not significant, we need to check each sex independently.  If either of the sexes are significant by
+		// themselves, a phenotype call will have been made for that sex, even though the overall (combined) result
+		// is not significant.
+		if (res.getDataType().equals(Constants.CATEGORICAL_DATATYPE) && !significant) {
+			if (res.getFemaleKoEffectPValue() < Constants.P_VALUE_THRESHOLD || res.getMaleKoEffectPValue() < Constants.P_VALUE_THRESHOLD) {
+				significant = true;
+			}
+		}
+
+		return significant;
 	}
 
 
