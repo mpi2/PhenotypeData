@@ -89,7 +89,7 @@
                                         <div>
                                             <h4>Data access</h4>
                                             <ul class="mt-0">
-                                                <li>Ftp site:&nbsp;<a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/release-${metaInfo['data_release_version']}">ftp://ftp.ebi.ac.uk/pub/databases/impc/release-${metaInfo['data_release_version']}</a></li>
+                                                <li>Ftp interface:&nbsp;<a href="https://www.mousephenotype.org/help/non-programmatic-data-access">ftp</a></li>
                                                 <li>RESTful interfaces:&nbsp;<a href="https://www.mousephenotype.org/help/programmatic-data-access">APIs</a></li>
                                             </ul>
                                         </div>
@@ -114,7 +114,7 @@
                                     <div class="col-12">
                                         <h2 class="title pb-3" id="data_reports">Data Reports</h2>
                                         <div class="col-12">
-                                            <h3>Lines and Specimens</h3>
+                                            <h3>Total Number of Lines and Specimens in DR ${metaInfo["data_release_version"]}</h3>
                                             <table class="table table-striped">
                                                 <thead>
                                                 <tr>
@@ -188,7 +188,7 @@
 
                                 <div class="row mt-5">
                                     <div class="col-12">
-                                        <h2 class="title" id="section-associations"> Status </h2>
+                                        <h2 class="title" id="section-associations">Production Status </h2>
                                         <div class="row">
                                             <div class="col-12">
                                                 <h4>Overall</h4>
