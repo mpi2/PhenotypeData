@@ -150,7 +150,7 @@
                                     <td style="text-align: center;">${es_cell['es_cell_clone']}</td>
                                     <td style="text-align: center;">${es_cell['es_cell_strain']}</td>
                                     <td style="text-align: center;">${es_cell['parental_cell_line']}</td>
-                                    <td style="text-align: center;"><a class="hasTooltip" href="${baseUrl}/htgt/${es_cell['ikmc_project_id']}">${es_cell['ikmc_project_id']}</a></td>
+                                    <td style="text-align: center;"><a class="hasTooltip" href="${baseUrl}/designs/${es_cell['ikmc_project_id']}">${es_cell['ikmc_project_id']}</a></td>
 
                                     <td>
 
@@ -225,7 +225,7 @@
                                             <td style="text-align: center;">${targeting_vector['targeting_vector']}</td>
                                             <td style="text-align: center;">${targeting_vector['cassette']}</td>
                                             <td style="text-align: center;">${targeting_vector['backbone']}</td>
-                                            <td style="text-align: center;" > <a class="hasTooltip" href="${baseUrl}/htgt/${targeting_vector['ikmc_project_id']}">${targeting_vector['ikmc_project_id']}</a></td>
+                                            <td style="text-align: center;" > <a class="hasTooltip" href="${baseUrl}/designs/${targeting_vector['ikmc_project_id']}">${targeting_vector['ikmc_project_id']}</a></td>
                                             <td>
                                                 <c:forEach var="order" items="${targeting_vector['orders']}" varStatus="ordersx">
                                                     <a class="btn btn-outline-primary" href="${order['url']}"> <i

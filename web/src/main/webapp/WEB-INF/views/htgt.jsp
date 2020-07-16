@@ -111,6 +111,11 @@
 
 <%--                            <jsp:include page="genesPhenotypeAssociation_frag.jsp"/>--%>
                             <div class="container-fluid">
+                                <div>
+                                    <c:if test="${gene != null}">
+                                        &nbsp;&raquo; <a href="${baseUrl}/search">Genes</a> &raquo; <a href="${baseUrl}/genes/${gene.mgiAccessionId}">${gene.markerSymbol}</a> &raquo; design
+                                    </c:if>
+                                </div>
                                 <div class="row flex-xl-nowrap pb-5">
 
                                     <img src="${baseUrl}/img/target_design_trimmed.png" style="width: 100%;  height: auto;"/>

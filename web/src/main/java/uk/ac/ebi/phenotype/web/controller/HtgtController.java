@@ -92,22 +92,24 @@ public class HtgtController {
      */
 
 
-    @RequestMapping("/htgt/{design_id}")
+    @RequestMapping("/designs/{design_id}")
     public String genes(@PathVariable int design_id,
+                        @RequestParam(required = false, value = "accession") String acc,
                         Model model,
                         HttpServletRequest request,
                         HttpServletResponse response,
                         RedirectAttributes attributes)
             throws URISyntaxException,IOException, SQLException, SolrServerException {
 
-        String debug = request.getParameter("debug");
-        boolean d = debug != null && debug.equals("true");
-        if (d) {
-            model.addAttribute("debug", "true");
+        GeneDTO gene=null;
+        if(acc!=null && !acc.isEmpty()) {
+            gene = geneService.getGeneById(acc);
+            System.out.println("gene ikmc id="+ gene);
         }
-
-
-            processHtgtRequest(design_id, model, request);
+        if(gene!=null){
+            model.addAttribute("gene", gene);
+        }
+        processHtgtRequest(design_id, model, request);
 
         response.setHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
         response.setHeader("Pragma", "no-cache");
