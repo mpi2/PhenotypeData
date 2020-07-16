@@ -826,45 +826,67 @@ public class GeneService extends BasicService implements WebStatus{
 	 */
 	public List<GeneDTO> getGenesByMgiIds(List<String> mgiIds, String ... fields) throws SolrServerException, IOException {
 
+		Set<GeneDTO> genes = new HashSet<>();
+
 		if (mgiIds == null) return new ArrayList<>();
 		List<String> quotedMgiIds =  mgiIds.stream()
 				.map(x->String.format("\"%s\"", x))
 				.collect(Collectors.toList());
 
-		SolrQuery query = new SolrQuery()
-				.setQuery(GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(quotedMgiIds, ",") + ")")
-				.setRows(mgiIds.size());
+		SolrQuery solrQuery = new SolrQuery()
+				.setRows(PARTITION_SIZE * 2);
 
 		if (fields != null) {
-			query.setFields(fields);
+			solrQuery.setFields(fields);
 		}
 
-		QueryResponse response = geneCore.query(query, METHOD.POST);
+		// Partition the set of gene symbold into groups of PARTITION_SIZE so as not to overwhelm solr with OR fields
+		Iterators.partition(quotedMgiIds.iterator(), PARTITION_SIZE).forEachRemaining(batch ->
+		{
+			solrQuery.setQuery(GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(batch, ",") + ")");
 
-		List<GeneDTO> genes = new ArrayList<>();
-		if (response.getResults().getNumFound() > 0) {
-			genes = response.getBeans(GeneDTO.class);
-		}
+			List<GeneDTO> geneDTOS;
+			try {
+				geneDTOS = geneCore.query(solrQuery, METHOD.POST).getBeans(GeneDTO.class);
+			} catch (SolrServerException | IOException e) {
+				log.error("Error getting results for subset of genes symbols", e);
+				return;
+			}
 
-		return genes;
+			genes.addAll(geneDTOS);
+
+		});
+
+		return new ArrayList<>(genes);
 	}
 	
 	// supports multiple symbols or synonyms
 	public List<GeneDTO> getGeneByGeneSymbolsOrGeneSynonyms(List<String> symbols) throws SolrServerException, IOException {
-		List<GeneDTO> genes = new ArrayList<>();
-		
-		String symbolsStr = StringUtils.join(symbols, "\",\"");  // ["bla1","bla2"]
+		Set<GeneDTO> genes = new HashSet<>();
 
 		SolrQuery solrQuery = new SolrQuery()
-			.setQuery(GeneDTO.MARKER_SYMBOL_LOWERCASE + ":(" + symbolsStr + ") OR " + GeneDTO.MARKER_SYNONYM_LOWERCASE + ":(" + symbolsStr + ")")
-			.setRows(symbols.size())
-			.setFields(GeneDTO.MGI_ACCESSION_ID,GeneDTO.MARKER_SYMBOL);
+				.setRows(PARTITION_SIZE * 2);
 
-		QueryResponse rsp = geneCore.query(solrQuery, METHOD.POST);
-		if (rsp.getResults().getNumFound() > 0) {
-			genes = rsp.getBeans(GeneDTO.class);
-		}
-		return genes;
+		// Partition the set of gene symbold into groups of PARTITION_SIZE so as not to overwhelm solr with OR fields
+		Iterators.partition(symbols.iterator(), PARTITION_SIZE).forEachRemaining(symbolBatch ->
+		{
+			String symbolsStr = StringUtils.join(symbolBatch, "\",\"");  // ["bla1","bla2"]
+			String geneQuery = GeneDTO.MARKER_SYMBOL_LOWERCASE + ":(" + symbolsStr + ") OR " + GeneDTO.MARKER_SYNONYM_LOWERCASE + ":(" + symbolsStr + ")";
+			solrQuery.setQuery(geneQuery);
+
+			List<GeneDTO> geneDTOS;
+			try {
+				geneDTOS = geneCore.query(solrQuery, METHOD.POST).getBeans(GeneDTO.class);
+			} catch (SolrServerException | IOException e) {
+				log.error("Error getting results for subset of genes symbols", e);
+				return;
+			}
+
+			genes.addAll(geneDTOS);
+
+		});
+
+		return new ArrayList<>(genes);
 	}
 		
 	
