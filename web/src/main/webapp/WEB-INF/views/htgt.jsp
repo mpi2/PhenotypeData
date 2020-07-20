@@ -92,7 +92,7 @@
 
 
                 <div class="col-12 no-gutters">
-                    <h2 style="float: left" class="mb-0">High Throughput Gene Targeting Design Id: ${designs[0].designId}</h2>
+                    <h2 style="float: left" class="mb-0">High Throughput Gene Targeting Design Id: ${designId}</h2>
                     <h2>
 
                         <a href="${cmsBaseUrl}/help/gene-page/" target="_blank">
@@ -117,8 +117,13 @@
                                     </c:if>
                                 </div>
                                 <div class="row flex-xl-nowrap pb-5">
+                                    <c:if test="${designs == null || fn:length(designs) eq 0}">
+                                       <p> No IKMC designs were found for this design id : ${designId}</p>
+                                    </c:if>
+                                    <c:if test="${designs != null && fn:length(designs) != 0}">
+                                        <img src="${baseUrl}/img/target_design_trimmed.png" style="width: 100%;  height: auto;"/>
+                                    </c:if>
 
-                                    <img src="${baseUrl}/img/target_design_trimmed.png" style="width: 100%;  height: auto;"/>
 
                                 </div>
                             </div>
@@ -130,16 +135,17 @@
             </div>
         </div>
 
+        <c:if test="${designs != null && fn:length(designs) != 0}">
         <div class="container white-bg-small">
             <div class="row pb-5">
                 <div class="col-12 col-md-12">
                     <h3>Oligos</h3>
                     <div class="pre-content clear-bg">
                         <div class="page-content people py-5 white-bg">
-                            <div>Design Id: ${designs[0].designId}</div>
+                            <div>Design Id: ${designId}</div>
 
-                            <table id="diseases_by_phenotype"
-                                   class="table tablesorter disease hidden-xs"
+                            <table id="designs"
+                                   class="table"
                                    style="width:100%">
                                 <tr><th>Type</th><th>start</th><th>stop</th><th>sequence</th><th>assembly</th><th>chr</th><th>strand</th></tr>
                             <c:forEach varStatus="index" items="${designs}" var="design">
@@ -156,6 +162,7 @@
                 </div>
             </div>
         </div>
+    </c:if>
 
 
 

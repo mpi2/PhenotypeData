@@ -338,6 +338,7 @@ public class AllelesController {
         model.addAttribute("other_available_alleles_with_mice", constructs.get("other_alleles_with_mice"));
         model.addAttribute("other_available_alleles_with_es_cells", constructs.get("other_alleles_with_es_cells"));
         model.addAttribute("title", constructs.get("title"));
+        model.addAttribute("accession", acc);
 
 
         if (model.containsAttribute("show_header")) {

@@ -127,6 +127,7 @@ public class HtgtController {
         List<Design> designs=htgtService.getDesigns(designId);
         System.out.println("calling process htgt");
         model.addAttribute("designs", designs);
+        model.addAttribute("designId", designId);
     }
 
 
