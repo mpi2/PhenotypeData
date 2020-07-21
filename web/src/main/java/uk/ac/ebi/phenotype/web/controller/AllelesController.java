@@ -15,6 +15,9 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
+import org.apache.commons.collections.map.HashedMap;
+import org.mousephenotype.cda.solr.service.Design;
+import org.mousephenotype.cda.solr.service.HtgtService;
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -38,17 +42,24 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class AllelesController {
 
     private final Logger log = LoggerFactory.getLogger(AllelesController.class);
 
-    @Autowired
     SolrIndex2 solrIndex2;
+
+    private final HtgtService htgtService;
+
+    private static final Map<Integer, Boolean> ikmcDesignMap=new HashedMap();
+
+    @Inject
+    public AllelesController(SolrIndex2 solrIndex2,HtgtService htgtService) {
+        this.htgtService = htgtService;
+        this.solrIndex2=solrIndex2;
+    }
 
 
     @RequestMapping("/alleles/{acc}")
@@ -322,10 +333,35 @@ public class AllelesController {
         	pipeline="cre";
         }
         constructs = solrIndex2.getAlleleProductInfo(pipeline, allele_identifier, d);
-
         if (constructs == null) {
             log.info("return empty data");
             return view;
+        }
+
+        System.out.println("constructs="+constructs);
+        ArrayList<Map<String,String>> vectorArray = (ArrayList) constructs.get("targeting_vectors");
+        System.out.println("vectors="+vectorArray.toString());
+
+        Set<Integer> ikmcDesignMapForRow=new HashSet();
+        for(Map<String,String> vector: vectorArray){
+            String idString=vector.get("ikmc_project_id");
+            System.out.println("vector="+idString);
+            Integer ikmcProjectId=Integer.parseInt(idString);
+            if(ikmcDesignMap.containsKey(ikmcProjectId)){
+                if(ikmcDesignMap.get(ikmcProjectId)){
+                    ikmcDesignMapForRow.add(ikmcProjectId);
+                };
+            }else{
+                List<Design> designs = htgtService.getDesigns(Integer.parseInt(idString));
+                Boolean isLink=false;
+                if(designs.size()>0){
+                   isLink=true;
+                   ikmcDesignMapForRow.add(ikmcProjectId);
+                }
+                ikmcDesignMap.put(ikmcProjectId, isLink);//store true and false so we don't need to check again for another request if we know it's false
+
+            }
+
         }
 
         model.addAttribute("mice", constructs.get("mice"));
@@ -339,6 +375,7 @@ public class AllelesController {
         model.addAttribute("other_available_alleles_with_es_cells", constructs.get("other_alleles_with_es_cells"));
         model.addAttribute("title", constructs.get("title"));
         model.addAttribute("accession", acc);
+        model.addAttribute("ikmcDesignMapForRow", ikmcDesignMapForRow);
 
 
         if (model.containsAttribute("show_header")) {

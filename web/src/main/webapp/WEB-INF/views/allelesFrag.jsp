@@ -225,7 +225,12 @@
                                             <td style="text-align: center;">${targeting_vector['targeting_vector']}</td>
                                             <td style="text-align: center;">${targeting_vector['cassette']}</td>
                                             <td style="text-align: center;">${targeting_vector['backbone']}</td>
-                                            <td style="text-align: center;" > <a class="hasTooltip" href="${baseUrl}/designs/${targeting_vector['ikmc_project_id']}?accession=${accessionId}">${targeting_vector['ikmc_project_id']}</a></td>
+                                            <td style="text-align: center;" >
+<%--                                                result=${ikmcDesignMapForRow}--%>
+                                                <a class="hasTooltip" href="${baseUrl}/designs/${targeting_vector['ikmc_project_id']}?accession=${accessionId}">
+                                                    ${targeting_vector['ikmc_project_id']}
+                                            </a>
+                                            </td>
                                             <td>
                                                 <c:forEach var="order" items="${targeting_vector['orders']}" varStatus="ordersx">
                                                     <a class="btn btn-outline-primary" href="${order['url']}"> <i

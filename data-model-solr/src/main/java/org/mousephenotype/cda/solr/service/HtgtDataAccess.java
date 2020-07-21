@@ -9,7 +9,8 @@ import java.util.Collections;
 @Service
 public class HtgtDataAccess {
 RestTemplate restTemplate=new RestTemplate();
-    private String dataUrl="https://www.gentar.org/htgt/console";//data url for graphQl endpoint set up by RW
+
+private String dataUrl="https://www.gentar.org/htgt/console";//data url for graphQl endpoint set up by RW
 
     DesignsResponse getDesigns(int designId){
         //String query = "\n    query Topology($duration: Duration!) {\n      getGlobalTopology(duration: $duration) {\n        nodes {\n          id\n          name\n          type\n          isReal\n        }\n        calls {\n          id\n          source\n          target\n          callType\n          detectPoint\n        }\n      }\n    }\n  ";
