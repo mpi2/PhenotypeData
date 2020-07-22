@@ -150,7 +150,7 @@
                                     <td style="text-align: center;">${es_cell['es_cell_clone']}</td>
                                     <td style="text-align: center;">${es_cell['es_cell_strain']}</td>
                                     <td style="text-align: center;">${es_cell['parental_cell_line']}</td>
-                                    <td style="text-align: center;"><a class="hasTooltip" href="${baseUrl}/designs/${es_cell['ikmc_project_id']}?accession=${accession}">${es_cell['ikmc_project_id']}</a></td>
+                                    <td style="text-align: center;">${es_cell['ikmc_project_id']}</td>
 
                                     <td>
 
@@ -226,10 +226,15 @@
                                             <td style="text-align: center;">${targeting_vector['cassette']}</td>
                                             <td style="text-align: center;">${targeting_vector['backbone']}</td>
                                             <td style="text-align: center;" >
-<%--                                                result=${ikmcDesignMapForRow}--%>
-                                                <a class="hasTooltip" href="${baseUrl}/designs/${targeting_vector['ikmc_project_id']}?accession=${accessionId}">
+                                                   <c:set var="ikmc_id" value="${targeting_vector['ikmc_project_id']}"></c:set>
+                                              <c:if test="${ikmcDesignMapForRow[ikmc_id]}">
+                                                     <a class="hasTooltip" href="${baseUrl}/designs/${targeting_vector['ikmc_project_id']}?accession=${accession}">
+                                                    </c:if>
+
                                                     ${targeting_vector['ikmc_project_id']}
+                                                        <c:if test="${ikmcDesignMapForRow[ikmc_id]}">
                                             </a>
+                                                </c:if>
                                             </td>
                                             <td>
                                                 <c:forEach var="order" items="${targeting_vector['orders']}" varStatus="ordersx">
