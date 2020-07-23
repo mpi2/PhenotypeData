@@ -155,7 +155,15 @@
                     </div>
 
                     <div class="pre-content pr-md-25">
-                        <h2>${fn:toUpperCase(fn:substring(type, 0, 1))}${fn:toLowerCase(fn:substring(type, 1,fn:length(type)))} search results</h2>
+
+                        <c:choose>
+                            <c:when test = "${fn:startsWith(type, 'pheno')}">
+                                <h2>Phenotype search results</h2>
+                            </c:when>
+                            <c:otherwise>
+                                <h2>Gene search results</h2>
+                            </c:otherwise>
+                        </c:choose>
 
                         <div class="page-content pb-5">
 
