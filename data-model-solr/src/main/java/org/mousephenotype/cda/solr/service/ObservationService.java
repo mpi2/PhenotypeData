@@ -1191,11 +1191,11 @@ public class ObservationService extends BasicService implements WebStatus {
         query.setRows(0);
         query.setFacetMinCount(1);
         query.setFacetLimit(100000);
-        query.addFacetField(ObservationDTO.BIOLOGICAL_SAMPLE_ID);
+        query.addFacetField(ObservationDTO.SPECIMEN_ID);
 
         logger.info(SolrUtils.getBaseURL(experimentCore) + "/select?" + query);
 
-        return getFacets(experimentCore.query(query)).get(ObservationDTO.BIOLOGICAL_SAMPLE_ID).keySet();
+        return getFacets(experimentCore.query(query)).get(ObservationDTO.SPECIMEN_ID).keySet();
     }
 
 
@@ -1216,7 +1216,7 @@ public class ObservationService extends BasicService implements WebStatus {
                 ObservationDTO.ALLELE_ACCESSION_ID,
                 ObservationDTO.ALLELE_SYMBOL,
                 ObservationDTO.BIOLOGICAL_SAMPLE_GROUP,
-                ObservationDTO.BIOLOGICAL_SAMPLE_ID,
+                ObservationDTO.SPECIMEN_ID,
                 ObservationDTO.COLONY_ID,
                 ObservationDTO.DATA_POINT,
                 ObservationDTO.DATE_OF_EXPERIMENT,
@@ -1237,7 +1237,7 @@ public class ObservationService extends BasicService implements WebStatus {
         query.setRows(5000);
         query.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
         query.setFilterQueries(ObservationDTO.PROCEDURE_STABLE_ID + ":" + procedureStableId);
-        query.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_ID + ":" + biologicalSampleId);
+        query.setQuery(ObservationDTO.SPECIMEN_ID + ":" + biologicalSampleId);
 
         return experimentCore.query(query).getBeans(ObservationDTO.class);
     }

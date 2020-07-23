@@ -228,7 +228,7 @@ public class ObservationDTO extends ObservationDTOBase {
 	        + ", procedure=" + procedureGroup
                 + ", parameterId=" + parameterId
                 + ", phenotypingCenterId=" + phenotypingCenterId
-                + ", biologicalModelId=" + biologicalModelId
+                + ", biologicalModelId=" + specimenId
                 + ", zygosity=" + zygosity
                 + ", sex=" + sex
                 + ", group=" + group

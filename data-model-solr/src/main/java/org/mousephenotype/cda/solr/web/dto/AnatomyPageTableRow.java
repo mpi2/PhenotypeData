@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.StringJoiner;
 
 
-public class AnatomyPageTableRow extends DataTableRow{
+public class AnatomyPageTableRow {} /*{
 
 
 	String expression;
@@ -67,7 +67,7 @@ public class AnatomyPageTableRow extends DataTableRow{
         this.setPhenotypingCenter(observation.getPhenotypingCenter());
 
         List<OntologyTerm> anatomyTerms = new ArrayList<>();
-        
+
 		if (observation instanceof ImageDTO) {
 			ImageDTO imageDTO = (ImageDTO) observation;
 			for (int i = 0; i < imageDTO.getAnatomyId().size(); i++) {
@@ -100,14 +100,14 @@ public class AnatomyPageTableRow extends DataTableRow{
 			System.out.println("odd expression value for row="+this);
 		}
     }
-    
-   
+
+
 
 
     public String getAnatomyWithLinks(String baseUrl){
-    	
+
     	StringBuilder links = new StringBuilder();
-    	
+
     	if (anatomy != null && anatomy.size() > 0){
 	    	links = new StringBuilder("<a href=\"" + baseUrl + "/anatomy/");
 	    	for (int i = 0; i < anatomy.size(); i++){
@@ -127,7 +127,7 @@ public class AnatomyPageTableRow extends DataTableRow{
 		//System.out.println("building evidence link");
     	String url = baseUrl + "/imageComparator?";
         url +=ImageDTO.ANATOMY_ID + "=" + anatomyId;
-       
+
 
     	if (getGene().getSymbol()!= null){
     		url += "&acc="+ this.getGene().getAccessionId();
@@ -264,10 +264,10 @@ public class AnatomyPageTableRow extends DataTableRow{
 		return this.getGene().getSymbol()+tab+this.getAllele().getSymbol()+tab+geneAccession+tab+expression +tab+ anatomyString + tab+ anatomyLinkString +tab+ this.getZygosity().getShortName()+tab+this.getSexes()+tab
 				+ this.getParameter().getName() + tab+ this.getPhenotypingCenter()+tab+numberOfImages+tab+ imageUrl;
 	}
-	
-	
+
+
 	public static String getTabbedHeader(){
     	return "Gene Symbol\tMGI Accession\tMGI Allele\tExpression\tAnatomy\tAnatomy URLs\tZygosity\tSex\tProcedure Name\tPhenotyping Center\tNumber of Images\tImage Link";
     }
-	
-}
+
+}*/

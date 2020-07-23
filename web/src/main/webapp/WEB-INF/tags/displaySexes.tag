@@ -6,7 +6,7 @@
 
             <c:set var="containsBoth" value="false"/>
             <c:forEach var="sex" items="${sexes}"><c:set var="count" value="${count + 1}" scope="page"/>
-            	<c:if test="${sex=='both'}">
+            	<c:if test="${sex=='not_considered'}">
             		<c:set var="containsBoth" value="true"/>
             	</c:if>
             </c:forEach>

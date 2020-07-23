@@ -140,7 +140,7 @@ public class ExpressionService extends BasicService {
 		solrQuery.setRows(100000);
 		solrQuery.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
 
-		QueryResponse response = impcImagesCore.query(solrQuery);
+		QueryResponse response = experimentCore.query(solrQuery);
 		return response;
 	}
 
@@ -549,79 +549,6 @@ public class ExpressionService extends BasicService {
 
 	}
 
-	
-	public List<AnatomyPageTableRow> getLacZDataForAnatomy(String anatomyId,List<String> anatomyTerms, List<String> phenotypingCenter,
-		List<String> procedure, List<String> paramAssoc, String baseUrl)
-					throws SolrServerException, IOException  {
-		Map<String, AnatomyPageTableRow> res = new HashMap<>();
-		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=*:*&fq=(anatomy_id:%22MA:0000031%22%20OR%20intermediate_anatomy_id:%22MA:0000031%22%20OR%20selected_top_level_anatomy_id:%22MA0000031%22)
-		SolrQuery query = new SolrQuery();
-		query.setQuery("*:*");
-		if (anatomyId != null) {
-			query.addFilterQuery("(" + ObservationDTO.ANATOMY_ID + ":\"" + anatomyId + "\" OR "
-					+ ObservationDTO.INTERMEDIATE_ANATOMY_ID + ":\"" + anatomyId + "\" OR "
-					+ ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID + ":\"" + anatomyId + "\")");
-		}
-
-		query.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":*LacZ")
-				.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"")
-				.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"experimental\"")
-				.addFilterQuery("(" + ObservationDTO.CATEGORY + ":\"no expression\" OR " + ObservationDTO.CATEGORY
-						+ ":\"expression\"" + ")") // only have expressed and
-													// not expressed ingnore
-													// ambiguous and no tissue
-				.setRows(Integer.MAX_VALUE).setFields(ObservationDTO.SEX, ObservationDTO.ALLELE_SYMBOL,
-						ObservationDTO.ALLELE_ACCESSION_ID, ObservationDTO.ZYGOSITY, ObservationDTO.ANATOMY_ID,
-						ObservationDTO.ANATOMY_TERM, ObservationDTO.PROCEDURE_STABLE_ID, ObservationDTO.DATASOURCE_NAME,
-						// ObservationDTO.PARAMETER_ASSOCIATION_VALUE,
-						ObservationDTO.GENE_SYMBOL, ObservationDTO.GENE_ACCESSION_ID, ObservationDTO.PARAMETER_NAME,
-						ObservationDTO.PARAMETER_STABLE_ID, ObservationDTO.PROCEDURE_NAME,
-						ObservationDTO.PHENOTYPING_CENTER, ObservationDTO.INTERMEDIATE_ANATOMY_ID,
-						ObservationDTO.INTERMEDIATE_ANATOMY_TERM, ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_ID,
-						ObservationDTO.SELECTED_TOP_LEVEL_ANATOMY_TERM, ObservationDTO.CATEGORY)
-				.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
-
-		if (anatomyTerms != null) {
-			query.addFilterQuery(ObservationDTO.ANATOMY_TERM + ":\""
-					+ StringUtils.join(anatomyTerms, "\" OR " + ObservationDTO.ANATOMY_TERM + ":\"") + "\"");
-		}
-		if (phenotypingCenter != null) {
-			query.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\""
-					+ StringUtils.join(phenotypingCenter, "\" OR " + ObservationDTO.PHENOTYPING_CENTER + ":\"") + "\"");
-		}
-		if (procedure != null) {
-			query.addFilterQuery(ObservationDTO.PROCEDURE_NAME + ":\""
-					+ StringUtils.join(procedure, "\" OR " + ObservationDTO.PROCEDURE_NAME + ":\"") + "\"");
-		}
-		 if (paramAssoc != null) {
-		 query.addFilterQuery(ObservationDTO.CATEGORY
-		 + ":\""
-		 + StringUtils.join(paramAssoc, "\" OR "
-		 + ObservationDTO.CATEGORY + ":\"")
-		 + "\"");
-		 }
-
-		List<ObservationDTO> response = experimentCore.query(query).getBeans(ObservationDTO.class);
-		for (ObservationDTO observation : response) {
-
-			// for (String expressionValue :
-			// observation.getDistinctParameterAssociationsValue()) {
-			String expressionValue = observation.getCategory();
-
-			AnatomyPageTableRow row = new AnatomyPageTableRow(observation, anatomyId, baseUrl, expressionValue);
-			if (res.containsKey(row.getKey())) {
-				row = res.get(row.getKey());
-				row.addSex(observation.getSex());
-				// row.addImage();
-			}
-			res.put(row.getKey(), row);
-
-			// }
-		}
-
-		return new ArrayList<>(res.values());
-
-	}
 
 	/**
 	 * @author ilinca

@@ -55,15 +55,14 @@ public class PhenotypeSummaryDAO  {
 		String resume = "";
 
 		// Collect the sexes from the significant documents
-		Set<String> sexes = resp.stream()
+		Set<SexType> sexes = resp.stream()
 				.filter(this::isSignificant)
-				.map(x -> x.getPhenotypeSex() != null ? x.getPhenotypeSex() : Arrays.asList(x.getSex()))
-				.flatMap(Collection::stream)
+				.map(x -> SexType.valueOf(x.getSex()))
 				.collect(Collectors.toSet());
 
 		String sex = null;
 
-		if (sexes.size() == 2) {
+		if (sexes.size() == 2 || sexes.contains(SexType.not_considered)) {
 			sex = "both sexes";
 		} else if (sexes.contains(SexType.female) && !sexes.contains(SexType.male)) {
 			sex = SexType.female.toString();

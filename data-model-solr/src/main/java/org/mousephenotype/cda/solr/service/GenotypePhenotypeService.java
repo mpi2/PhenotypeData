@@ -950,10 +950,14 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
 	
 	        if (phen.has(GenotypePhenotypeDTO.P_VALUE)) {
 	            sum.setpValue(new Float(phen.getString(GenotypePhenotypeDTO.P_VALUE)));
-	            sum.setEffectSize(new Float(phen.getString(GenotypePhenotypeDTO.EFFECT_SIZE)));
 	        }
-	        
-	        ImpressBaseDTO procedure = new ImpressBaseDTO();
+
+            if (phen.has(GenotypePhenotypeDTO.EFFECT_SIZE)) {
+                sum.setEffectSize(new Float(phen.getString(GenotypePhenotypeDTO.EFFECT_SIZE)));
+            }
+
+
+            ImpressBaseDTO procedure = new ImpressBaseDTO();
 	        if (phen.has(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID)) {
 	            procedure.setStableId(phen.getString(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID));
 	            procedure.setName(phen.getString(GenotypePhenotypeDTO.PROCEDURE_NAME));
@@ -1411,8 +1415,8 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         gene.setAccessionId(dto.getMarkerAccessionId());
         gene.setSymbol(dto.getMarkerSymbol());
 
-        ImpressBaseDTO procedure  = new ImpressBaseDTO(null, Long.parseLong(dto.getProcedureStableKey()), dto.getProcedureStableId(), dto.getProcedureName());
-        ImpressBaseDTO parameter = new ImpressBaseDTO(null, Long.parseLong(dto.getParameterStableKey()), dto.getParameterStableId(), dto.getParameterName());
+        ImpressBaseDTO procedure  = new ImpressBaseDTO(null, Long.parseLong(dto.getProcedureStableKey().get(0)), dto.getProcedureStableId().get(0), dto.getProcedureName());
+        ImpressBaseDTO parameter = new ImpressBaseDTO(null, Long.parseLong(dto.getParameterStableKey().get(0)), dto.getParameterStableId(), dto.getParameterName());
         ImpressBaseDTO pipeline = new ImpressBaseDTO(null,Long.parseLong( dto.getPipelineStableKey()), dto.getPipelineStableId(), dto.getPipelineName());
 
         ZygosityType zygosity = dto.getZygosity() != null ? ZygosityType.valueOf(dto.getZygosity()) : ZygosityType.not_applicable;

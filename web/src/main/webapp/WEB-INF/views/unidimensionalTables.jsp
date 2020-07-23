@@ -14,7 +14,7 @@
         </c:if>
 
         <%-- Display result of a mixed model calculation --%>
-        <!-- Statistical Result docId: ${data.result.dbId} -->
+        <%-- Statistical Result docId: ${data.result.id} --%>
 
         <div class="row">
             <div class="col-md-12">
@@ -52,12 +52,12 @@
                                 <tbody>
                                 <tr>
                                     <td class="pvalue"><t:formatScientific>${data.result.genotypeEffectPValue }</t:formatScientific></td>
-                                    <td class="effect"><t:formatScientific>${data.result.genotypeParameterEstimate}</t:formatScientific></td>
+                                    <td class="effect"><t:formatScientific>${data.result.genotypeEffectParameterEstimate}</t:formatScientific></td>
                                     <td>
-                                        <c:if test="${data.result.genotypeStandardErrorEstimate!=null}">
+                                        <c:if test="${data.result.genotypeEffectStderrEstimate!=null}">
                                             &#177;
                                         </c:if>
-                                        <t:formatScientific>${data.result.genotypeStandardErrorEstimate}</t:formatScientific></td>
+                                        <t:formatScientific>${data.result.genotypeEffectStderrEstimate}</t:formatScientific></td>
                                 </tr>
                                 </c:when>
                                 <c:when

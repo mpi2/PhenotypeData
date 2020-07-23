@@ -166,7 +166,7 @@ public class ExperimentService{
                 experiment.setStrain(observation.getStrain());
             }
             if (experiment.getExperimentalBiologicalModelId() == null) {
-                experiment.setExperimentalBiologicalModelId(observation.getBiologicalModelId());
+                experiment.setExperimentalBiologicalModelId(observation.getSpecimenId());
             }
              if (experiment.getAlleleAccession() == null) {
                 experiment.setAlleleAccession(observation.getAlleleAccession());
@@ -396,7 +396,7 @@ public class ExperimentService{
                 experiment.getControls().addAll(controls);
 
                 if (experiment.getControlBiologicalModelId() == null && controls.size() > 0) {
-                    experiment.setControlBiologicalModelId(controls.get(0).getBiologicalModelId());
+                    experiment.setControlBiologicalModelId(controls.get(0).getSpecimenId());
                 }
 
                 // Flag all the experiments that don't have control data

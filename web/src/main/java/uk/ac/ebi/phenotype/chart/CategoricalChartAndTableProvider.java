@@ -140,7 +140,7 @@ public class CategoricalChartAndTableProvider {
 					StatisticalResultDTO tempStatsResult = null;
 					for (StatisticalResultDTO result : statsResults) {
 						if(result.getSex() != null && SexType.valueOf(result.getSex()).equals(SexType.both)){
-							categoricalResultAndCharts.setCombinedPValue(result.getpValue());
+							categoricalResultAndCharts.setCombinedPValue(result.getPValue());
 						}
 						if (result.getZygosity() != null && result.getSex() != null) {
 							if (ZygosityType.valueOf(result.getZygosity()).equals(zType) && SexType.valueOf(result.getSex()).equals(sexType)) {
@@ -154,8 +154,8 @@ public class CategoricalChartAndTableProvider {
 
 					// //TODO get multiple p values when necessary
 					// System.err.println("ERROR WE NEED to change the code to handle multiple p values and max effect!!!!!!!!");
-					if (tempStatsResult != null && tempStatsResult.getpValue() != null) {
-						expCatData.setpValue(tempStatsResult.getpValue());
+					if (tempStatsResult != null && tempStatsResult.getPValue() != null) {
+						expCatData.setpValue(tempStatsResult.getPValue());
 						if (tempStatsResult.getEffectSize() != null) {
 							expCatData.setMaxEffect(tempStatsResult.getEffectSize());
 						}

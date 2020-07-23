@@ -617,8 +617,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 							doc.addIntermediateAnatomyTermName(maTerm.getIntermediateNames());
 						}
 						if (maTerm.getTopLevelIds() != null) {
-							doc.addTopLevelAnatomyTermId(maTerm.getTopLevelIds());
-							doc.addTopLevelAnatomyTermName(maTerm.getTopLevelNames());
+//							doc.addTopLevelAnatomyTermId(maTerm.getTopLevelIds());
+//							doc.addTopLevelAnatomyTermName(maTerm.getTopLevelNames());
 						}
 					}else{
 						logger.info("MA term is null for id:"+doc.getMpTermId());
@@ -646,8 +646,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 						doc.addIntermediateAnatomyTermName(maTerm.getIntermediateNames());
 					}
 					if (maTerm.getTopLevelIds() != null) {
-						doc.addTopLevelAnatomyTermId(maTerm.getTopLevelIds());
-						doc.addTopLevelAnatomyTermName(maTerm.getTopLevelNames());
+//						doc.addTopLevelAnatomyTermId(maTerm.getTopLevelIds());
+//						doc.addTopLevelAnatomyTermName(maTerm.getTopLevelNames());
 					}
 				}else{
 					logger.info("maTerm is null when looking for anatomyIdsForAncestors id:"+id);

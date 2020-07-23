@@ -385,7 +385,7 @@ public class GenesController {
             model.addAttribute("hasVignette", true);
         }
         // add in the disease predictions from phenodigm              
-        processDisease(acc, model);
+//        processDisease(acc, model);
 
         model.addAttribute("countIKMCAlleles", countIKMCAlleles);
         LOGGER.debug("CHECK IKMC allele error : " + ikmcError);
@@ -486,7 +486,6 @@ public class GenesController {
         HashMap<Integer, DataTableRow> phenotypes = new HashMap<>();
 
         for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
-
             DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), cmsBaseUrl);
 
             // Collapse rows on sex	and p-value		
