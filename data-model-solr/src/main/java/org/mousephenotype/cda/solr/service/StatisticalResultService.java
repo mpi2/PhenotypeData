@@ -547,6 +547,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
     }
 
 
+
     private int getBin(List<Double> bins, Double valueToBin) {
 
         for (Double upperBound : bins) {
@@ -916,9 +917,6 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         List<StatisticalResultDTO> solrResults = statisticalResultCore.query(query).getBeans(StatisticalResultDTO.class);
 
         for (StatisticalResultDTO statResult : solrResults) {
-            if(statResult.getParameterStableId().equals("IMPC_DXA_010_001")){
-                System.out.println(statResult.getParameterStableId());
-            }
             if (statResult.getSignificant()) {
                 switch (statResult.getSex()) {
                     case "female":
@@ -1007,6 +1005,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         solrQuery.addFilterQuery(StatisticalResultDTO.STATUS + ":Successful");
         solrQuery.setFields(StatisticalResultDTO.P_VALUE, StatisticalResultDTO.MALE_KO_EFFECT_P_VALUE, StatisticalResultDTO.FEMALE_KO_EFFECT_P_VALUE, StatisticalResultDTO.SEX, StatisticalResultDTO.ZYGOSITY,
                 StatisticalResultDTO.MARKER_ACCESSION_ID, StatisticalResultDTO.MARKER_SYMBOL,
+                StatisticalResultDTO.DATA_TYPE,
                 StatisticalResultDTO.MP_TERM_ID, StatisticalResultDTO.MP_TERM_NAME,
                 StatisticalResultDTO.MP_TERM_ID_OPTIONS, StatisticalResultDTO.MP_TERM_NAME_OPTIONS,
                 StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID, StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME,

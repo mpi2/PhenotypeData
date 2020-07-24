@@ -178,7 +178,7 @@ public class ExperimentService{
 
             // includeResults variable skips the results when gathering
             // experiments for calculating the results (performance)
-            if (experiment.getResults() == null && experiment.getExperimentalBiologicalModelId() != null && includeResults) {
+            if (experiment.getResults() == null && includeResults) {
 
                 String phenCenter = observation.getPhenotypingCenter();
                 ObservationType statisticalType = experiment.getObservationType();

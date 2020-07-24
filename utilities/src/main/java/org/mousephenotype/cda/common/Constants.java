@@ -10,6 +10,14 @@ import java.util.Set;
  */
 public class Constants {
 
+
+    // Data type contants
+    public static final String UNIDIMENSIONAL_DATATYPE = "unidimensional";
+    public static final String TIME_SERIES_DATATYPE = "time_series";
+    public static final String TEXT_DATATYPE = "text";
+    public static final String CATEGORICAL_DATATYPE = "categorical";
+    public static final String IMAGE_RECORD_DATATYPE = "image_record";
+
     // IMPC default p-value threshold used to indicate significance
     public static final double P_VALUE_THRESHOLD = 0.0001;
 

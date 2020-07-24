@@ -191,12 +191,12 @@ public class GenesController {
             model.addAttribute("debug", "true");
         }
 
-        try {
+//        try {
             processGeneRequest(acc, model, request);
-        } catch (Exception e) {
-            String term = acc.substring(0, Math.min(acc.length(), 11));
-            return "redirect:/search?term=" + term + "&type=gene";
-        }
+//        } catch (Exception e) {
+//            String term = acc.substring(0, Math.min(acc.length(), 11));
+//            return "redirect:/search?term=" + term + "&type=gene";
+//        }
 
         response.setHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
         response.setHeader("Pragma", "no-cache");
