@@ -151,7 +151,7 @@ public class ImageDTO extends ObservationDTO {
     private String fullResolutionFilePath;
 
     @Field(OMERO_ID)
-    private int omeroId;
+    private String omeroId;
 
     @Field(DOWNLOAD_URL)
     private String downloadUrl;
