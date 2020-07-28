@@ -226,13 +226,19 @@
                                             <td style="text-align: center;">${targeting_vector['cassette']}</td>
                                             <td style="text-align: center;">${targeting_vector['backbone']}</td>
                                             <td style="text-align: center;" >
-                                                   <c:set var="ikmc_id" value="${targeting_vector['ikmc_project_id']}"></c:set>
-                                              <c:if test="${ikmcDesignMapForRow[ikmc_id]}">
-                                                     <a class="hasTooltip" href="${baseUrl}/designs/${targeting_vector['ikmc_project_id']}?accession=${accession}">
+                                                   <c:set var="design_id" value="${targeting_vector['design_id']}"></c:set>
+                                              <c:if test="${ikmcDesignMapForRow[design_id]}">
+                                                     <a class="hasTooltip" href="${baseUrl}/designs/${design_id}?accession=${accession}">
                                                     </c:if>
 
                                                     ${targeting_vector['ikmc_project_id']}
-                                                        <c:if test="${ikmcDesignMapForRow[ikmc_id]}">
+                                                        <span>
+                <c:if test="${not empty targeting_vector['design_oligos_url']}">
+                    <a href="${targeting_vector['design_oligos_url']}" target="_blank"><i
+                            class="fa fa-external-link-square fa-lg"></i></a>
+                </c:if>
+            </span>
+                                                        <c:if test="${ikmcDesignMapForRow[design_id]}">
                                             </a>
                                                 </c:if>
                                             </td>
