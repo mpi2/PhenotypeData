@@ -36,9 +36,9 @@ public class LifeStageMapper {
             return LifeStage.E15_5;
         } else if (E18_5_PROCEDURES.stream().anyMatch(parameterStableId::contains)) {
             return LifeStage.E18_5;
-        } else if (developmentalStageName.equals("Early adult")) {
+        } else if (developmentalStageName != null && developmentalStageName.equals("Early adult")) {
             return LifeStage.EARLY_ADULT;
-        } else if (!developmentalStageName.equals("postnatal")) {
+        } else if (developmentalStageName != null && !developmentalStageName.equals("postnatal")) {
             return LifeStage.valueOf(developmentalStageName);
         }else{
             return LifeStage.EARLY_ADULT;

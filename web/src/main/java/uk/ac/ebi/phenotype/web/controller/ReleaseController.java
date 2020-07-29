@@ -132,10 +132,10 @@ public class ReleaseController {
 			// The front end will check for the key
 			// "unique_mouse_model_disease_associations" in the map,
 			// If not there, do not display the count
-			final Integer diseaseAssociationCount = phenodigmService.getDiseaseAssociationCount();
-			if (diseaseAssociationCount != null) {
-				metaInfo.put("unique_mouse_model_disease_associations", diseaseAssociationCount.toString());
-			}
+//			final Integer diseaseAssociationCount = phenodigmService.getDiseaseAssociationCount();
+//			if (diseaseAssociationCount != null) {
+//				metaInfo.put("unique_mouse_model_disease_associations", diseaseAssociationCount.toString());
+//			}
 
 			synchronized (this) {
 				cachedMetaInfo = metaInfo;

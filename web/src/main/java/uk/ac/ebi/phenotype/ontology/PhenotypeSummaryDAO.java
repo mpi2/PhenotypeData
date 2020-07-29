@@ -46,7 +46,7 @@ public class PhenotypeSummaryDAO  {
 	}
 
 	public String getSexesRepresentationForPhenotypesSet(List<StatisticalResultDTO> resp) {
-		
+
 		// Collect the sexes from the significant documents
 		Set<String> sexes = resp.stream()
 				.filter(this::isSignificant)
@@ -56,7 +56,7 @@ public class PhenotypeSummaryDAO  {
 
 		String sex = null;
 
-		if (sexes.size() == 2) {
+		if (sexes.size() == 2 || sexes.contains(SexType.not_considered.getName())) {
 			sex = "both sexes";
 		} else if (sexes.contains(SexType.female.getName()) && !sexes.contains(SexType.male.getName())) {
 			sex = SexType.female.toString();

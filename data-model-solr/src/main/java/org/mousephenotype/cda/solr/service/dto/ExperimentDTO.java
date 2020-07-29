@@ -48,8 +48,8 @@ public class ExperimentDTO {
     private Set<ObservationDTO> hemizygoteMutants;
 
     private Set<ObservationDTO> controls;
-    private Long                controlBiologicalModelId;
-    private Long                experimentalBiologicalModelId;
+    private String                controlBiologicalModelId;
+    private String                experimentalBiologicalModelId;
     private Set<ObservationDTO> maleControls;
     private Set<ObservationDTO> femaleControls;
     private String              alleleAccession;
@@ -221,20 +221,20 @@ public class ExperimentDTO {
         this.observationType = observationType;
     }
 
-    public Long getControlBiologicalModelId() {
+    public String getControlBiologicalModelId() {
         return controlBiologicalModelId;
     }
 
-    public void setControlBiologicalModelId(Long controlBiologicalModelId) {
+    public void setControlBiologicalModelId(String controlBiologicalModelId) {
         this.controlBiologicalModelId = controlBiologicalModelId;
     }
 
-    public Long getExperimentalBiologicalModelId() {
+    public String getExperimentalBiologicalModelId() {
         return experimentalBiologicalModelId;
     }
 
     public void setExperimentalBiologicalModelId(
-            Long experimentalBiologicalModelId) {
+            String experimentalBiologicalModelId) {
         this.experimentalBiologicalModelId = experimentalBiologicalModelId;
     }
 

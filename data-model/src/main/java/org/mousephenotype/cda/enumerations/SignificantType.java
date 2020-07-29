@@ -15,6 +15,10 @@
  *******************************************************************************/
 package org.mousephenotype.cda.enumerations;
 
+import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public enum SignificantType {
 	none("No significant change"),
 	cannot_classify("Can not differentiate genders"),
@@ -25,10 +29,24 @@ public enum SignificantType {
 	male_greater("Different effect size, males greater"),
 	different_directions("Female and male different directions"),
 	one_genotype_tested("If phenotype is significant it is for the one genotype tested"),
-	one_sex_tested("If phenotype is significant it is for the one sex tested")
+	one_sex_tested("If phenotype is significant it is for the one sex tested"),
+	significant("Significant")
 	;
 
 	private final String text;
+	private static final HashMap<SignificantType, String> tag_patterns = new HashMap<>();
+
+	static {
+		tag_patterns.put(none, "(Not significant.*)|(.*no significant change)|(.*significant in combined dataset only.*)");
+		tag_patterns.put(one_sex_tested, "With phenotype threshold value 1e-04 - significant for the sex \\(.*\\) tested \\(.*\\)");
+		tag_patterns.put(male_only, "With phenotype threshold value 1e-04 - significant in males.*");
+		tag_patterns.put(male_greater, "With phenotype threshold value 1e-04 - different size as males greater");
+		tag_patterns.put(female_only, "With phenotype threshold value 1e-04 - significant in females.*");
+		tag_patterns.put(female_greater, "With phenotype threshold value 1e-04 - different size as females greater");
+		tag_patterns.put(different_directions, "With phenotype threshold value 1e-04 - different direction for the sexes");
+		tag_patterns.put(both_equally, "(With phenotype threshold value 1e-04 - both sexes equally) | (With phenotype threshold value 1e-04 - cannot classify effect \\[Interaction pvalue = .*, Genotype Female pvalue = .* Genotype Male pvalue = .*\\]) | (With phenotype threshold value 1e-04 - regardless of gender) | (With phenotype threshold value 1e-04 - significant in males \\(.*\\) and females \\(.*\\) datasets) | (With phenotype threshold value 1e-04 - significant in males \\(.*\\), females \\(.*\\) and in combined dataset \\(.*\\))|(With phenotype threshold value 1e-04 - significant in males, females and in combined dataset)");
+	}
+
 	SignificantType(String text) {
 		this.text = text;
 	}
@@ -56,43 +74,15 @@ public enum SignificantType {
 		return null;
 	}
 
-	public static SignificantType getValue(String databaseSignificanceType){
+	public static SignificantType getValue(String databaseSignificanceType, Boolean isSignificant){
 
-		switch (databaseSignificanceType) {
-
-			case "No significant change":
-				return none;
-
-			case "Both genders equally":
-			case "If phenotype is significant - both sexes equally":
-				return both_equally;
-
-			case "If phenotype is significant - different direction for the sexes":
-			case "Female and male different directions":
-				return different_directions;
-
-			case "If phenotype is significant - different size as females greater":
-				return female_greater;
-
-			case "If phenotype is significant - different size as males greater":
-				return male_greater;
-
-			case "If phenotype is significant - females only":
-			case "Female only":
-				return female_only;
-
-			case "If phenotype is significant - males only":
-			case "Male only":
-				return male_only;
-
-			case "If phenotype is significant it is for the one genotype tested":
-				return one_genotype_tested;
-
-			case "If phenotype is significant it is for the one sex tested":
-				return one_sex_tested;
-
+		for(SignificantType type : tag_patterns.keySet()){
+			Pattern pattern = Pattern.compile(tag_patterns.get(type));
+			Matcher matcher = pattern.matcher(databaseSignificanceType);
+			if(matcher.matches()){
+				return type == none && isSignificant ? significant : type;
+			}
 		}
-
 		return null;
 	}
 

@@ -24,7 +24,7 @@ package org.mousephenotype.cda.enumerations;
  */
 
 public enum ZygosityType {
-	
+
 	homozygote,
 	heterozygote,
 	hemizygote,

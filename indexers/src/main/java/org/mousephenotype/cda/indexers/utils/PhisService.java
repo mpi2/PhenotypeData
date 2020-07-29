@@ -215,7 +215,7 @@ public class PhisService {
 			}
 
 			if(pImage.getExperimentGroup() != null){
-				image.setExperimentId(Long.parseLong(pImage.getExperimentGroup()));
+				image.setExperimentId(pImage.getExperimentGroup());
 			}
 
 			if(pImage.getZygosity() != null && pImage.getZygosity().size() >= 1){

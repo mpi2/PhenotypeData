@@ -28,6 +28,7 @@ public enum SexType {
     male("male"),
     not_applicable("not applicable"),
     no_data("no data"),
+    not_considered("not_considered"),
     both("both");
 
     private final String name;
@@ -52,8 +53,9 @@ public enum SexType {
                 return SexType.not_applicable;
             case "no data":
                 return SexType.no_data;
+            case "not_considered":
             case "both":
-                return SexType.both;
+                return SexType.not_considered;
             default:
                 throw new IllegalArgumentException("No enum constant " + SexType.class + "." + displayName);
         }

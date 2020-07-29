@@ -59,7 +59,7 @@ import java.util.*;
  * @author ilinca
  */
 @EnableAutoConfiguration
-public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRunner {
+public class ImpcImagesIndexer  {} /*{
 
 	@Value("classpath:uberonEfoMa_mappings.txt")
 	org.springframework.core.io.Resource anatomogramResource;
@@ -404,12 +404,12 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		return phisImages;
 	}
 
-	/**
+	*//**
 	 * Hopefully all secondary project images will come via PHIS this method should encapsulate all data sources from PHIS and other sources
 	 * @return
 	 * @throws SolrServerException
 	 * @throws IOException
-	 */
+	 *//*
 	private List<ImageDTO> populateSecondaryProjectImages(RunStatus runStatus) throws SolrServerException, IOException {
 		//observation_ids are stored as solr id field and so we need to make sure no conflict
 		//need to query the experiment core to make sure we allocate numbers over what we already have
@@ -441,13 +441,13 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 	}
 
 
-	/**
+	*//**
 	 * Get the image urls from the db using the download_path from Harwell for
 	 * images that have an omero_id that should have already bean set by the
 	 * python scripts that update the impc_images dev.
 	 *
 	 * @throws IndexerException
-	 */
+	 *//*
 	private Map<String, ImageBean> populateImageUrls() throws IndexerException {
 
 		Map<String, ImageBean> imageBeansMap = new HashMap<>();
@@ -685,4 +685,4 @@ public class ImpcImagesIndexer extends AbstractIndexer implements CommandLineRun
 		logger.debug(" paramToMa size = " + paramToEmapa.size());
 		return paramToEmapa;
 	}
-}
+}*/

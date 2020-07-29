@@ -216,7 +216,7 @@ public class PhenotypeCenterAllService extends BasicService {
 				bean.setGeneSymbol(dto.getMarkerSymbol());
 				bean.setAlleleAccessionId(dto.getAlleleAccessionId());
 				bean.setAlleleSymbol(dto.getAlleleSymbol());
-				bean.setProcedureStableId(dto.getProcedureStableId());
+				bean.setProcedureStableId(dto.getProcedureStableId().get(0));
 				bean.setParameterStableId(dto.getParameterStableId());
 				bean.setTopLevelMpTermId(dto.getTopLevelMpTermId());
 				bean.setMpTermId(dto.getMpTermId());
