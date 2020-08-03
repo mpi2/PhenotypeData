@@ -28,6 +28,7 @@ import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -57,6 +58,8 @@ public class ImpcGafReport extends AbstractReport {
     @Inject
     public ImpcGafReport(
             @NotNull GeneService geneService,
+
+            @Qualifier("genotype-phenotype-service")
             @NotNull GenotypePhenotypeService genotypePhenotypeService,
             @NotNull MetaInfoRepository metaInfoRepository,
             @NotNull ObservationService observationService)
