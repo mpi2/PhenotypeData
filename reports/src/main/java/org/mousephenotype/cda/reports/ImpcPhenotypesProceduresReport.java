@@ -89,7 +89,7 @@ public class ImpcPhenotypesProceduresReport extends AbstractReport {
             if ( ! matrixProceduresSet.containsKey(rowKey)) {
                 matrixProceduresSet.put(rowKey, new HashSet<>());
             }
-            matrixProceduresSet.get(rowKey).add(result.getProcedureStableId());
+            matrixProceduresSet.get(rowKey).addAll(result.getProcedureStableId());
 
             if ( ! matrixValues.containsKey(rowKey)) {
                 matrixValues.put(rowKey, new HashMap<>());
