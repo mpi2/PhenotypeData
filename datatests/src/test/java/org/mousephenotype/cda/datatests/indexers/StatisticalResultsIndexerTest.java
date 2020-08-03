@@ -476,7 +476,7 @@ public class StatisticalResultsIndexerTest implements ApplicationContextAware {
 
                 // Wilcoxon and fisher's exact results
                 if (result.getStatus().equals("Success") && result.getNullTestPValue() == null) {
-                    if (result.getpValue() <= Constants.P_VALUE_THRESHOLD) {
+                    if (result.getPValue() <= Constants.P_VALUE_THRESHOLD) {
                         assert (result.getSignificant());
                     } else {
                         assert (!result.getSignificant());

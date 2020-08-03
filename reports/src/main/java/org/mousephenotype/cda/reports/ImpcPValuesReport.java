@@ -82,7 +82,7 @@ public class ImpcPValuesReport extends AbstractReport {
             i++;
 
             String parameter = result.getParameterName() + "(" + result.getParameterStableId() + ")";
-            Double pvalue = result.getpValue();
+            Double pvalue = result.getPValue();
             RowKey rowKey = new RowKey(result);
 
             if ( ! matrixValues.containsKey(rowKey)) {
