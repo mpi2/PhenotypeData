@@ -98,19 +98,19 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
 
         try {
             for (Group group: groups) {
-                IpGTTStats stats;
-                stats = new IpGTTStats(group);
-
-                String[] row = { stats.geneSymbol, stats.geneAccessionId, stats.alleleSymbol, stats.colony,  stats.phenotypingCenter, stats.firstDate, stats.lastDate,
-                        "" + stats.getMean(SexType.male, null), "" + stats.getMedian(SexType.male, null), "" + stats.getSD(SexType.male, null), "" + stats.getN(SexType.male, null),
-                        "" + stats.getMean(SexType.male, ZygosityType.homozygote), "" + stats.getMedian(SexType.male, ZygosityType.homozygote), "" + stats.getSD(SexType.male, ZygosityType.homozygote), "" + stats.getN(SexType.male, ZygosityType.homozygote),
-                        "" + stats.getMean(SexType.male, ZygosityType.heterozygote), "" + stats.getMedian(SexType.male, ZygosityType.heterozygote), "" + stats.getSD(SexType.male, ZygosityType.heterozygote), "" + stats.getN(SexType.male, ZygosityType.heterozygote),
-                        "" + stats.getMean(SexType.male, ZygosityType.hemizygote), "" + stats.getMedian(SexType.male, ZygosityType.hemizygote), "" + stats.getSD(SexType.male, ZygosityType.hemizygote), "" + stats.getN(SexType.male, ZygosityType.hemizygote),
-                        "" + stats.getMean(SexType.female, null), "" + stats.getMedian(SexType.female, null), "" + stats.getSD(SexType.female, null), "" + stats.getN(SexType.female, null),
-                        "" + stats.getMean(SexType.female, ZygosityType.homozygote), "" + stats.getMedian(SexType.female, ZygosityType.homozygote), "" + stats.getSD(SexType.female, ZygosityType.homozygote), "" + stats.getN(SexType.female, ZygosityType.homozygote),
-                        "" + stats.getMean(SexType.female, ZygosityType.heterozygote), "" + stats.getMedian(SexType.female, ZygosityType.heterozygote), "" + stats.getSD(SexType.female, ZygosityType.heterozygote), "" + stats.getN(SexType.female, ZygosityType.heterozygote),
-                };
-                rows.add(row);
+                IpGTTStats stats  = new IpGTTStats(group);
+                if (stats != null) {
+                    String[] row = {stats.geneSymbol, stats.geneAccessionId, stats.alleleSymbol, stats.colony, stats.phenotypingCenter, stats.firstDate, stats.lastDate,
+                                    "" + stats.getMean(SexType.male, null), "" + stats.getMedian(SexType.male, null), "" + stats.getSD(SexType.male, null), "" + stats.getN(SexType.male, null),
+                                    "" + stats.getMean(SexType.male, ZygosityType.homozygote), "" + stats.getMedian(SexType.male, ZygosityType.homozygote), "" + stats.getSD(SexType.male, ZygosityType.homozygote), "" + stats.getN(SexType.male, ZygosityType.homozygote),
+                                    "" + stats.getMean(SexType.male, ZygosityType.heterozygote), "" + stats.getMedian(SexType.male, ZygosityType.heterozygote), "" + stats.getSD(SexType.male, ZygosityType.heterozygote), "" + stats.getN(SexType.male, ZygosityType.heterozygote),
+                                    "" + stats.getMean(SexType.male, ZygosityType.hemizygote), "" + stats.getMedian(SexType.male, ZygosityType.hemizygote), "" + stats.getSD(SexType.male, ZygosityType.hemizygote), "" + stats.getN(SexType.male, ZygosityType.hemizygote),
+                                    "" + stats.getMean(SexType.female, null), "" + stats.getMedian(SexType.female, null), "" + stats.getSD(SexType.female, null), "" + stats.getN(SexType.female, null),
+                                    "" + stats.getMean(SexType.female, ZygosityType.homozygote), "" + stats.getMedian(SexType.female, ZygosityType.homozygote), "" + stats.getSD(SexType.female, ZygosityType.homozygote), "" + stats.getN(SexType.female, ZygosityType.homozygote),
+                                    "" + stats.getMean(SexType.female, ZygosityType.heterozygote), "" + stats.getMedian(SexType.female, ZygosityType.heterozygote), "" + stats.getSD(SexType.female, ZygosityType.heterozygote), "" + stats.getN(SexType.female, ZygosityType.heterozygote),
+                                    };
+                    rows.add(row);
+                }
             }
         }catch (Exception e) {
             e.printStackTrace();
@@ -139,19 +139,24 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
 
 
         public IpGTTStats(Group group) throws NumberFormatException, SolrServerException, IOException, URISyntaxException {
-
             SolrDocumentList docList = group.getResult();
             colony = group.getGroupValue();
             SolrDocument doc = docList.get(0);
-            phenotypingCenter = doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER).toString();
-            alleleSymbol = doc.getFieldValue(ObservationDTO.ALLELE_SYMBOL).toString();
-            geneSymbol = doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString();
-            geneAccessionId = doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID).toString();
-            firstDate = doc.getFieldValue(ObservationDTO.DATE_OF_EXPERIMENT).toString();
-            lastDate = docList.get(docList.size()-1).getFieldValue(ObservationDTO.DATE_OF_EXPERIMENT).toString();
+            phenotypingCenter = SolrUtils.getFieldValue(doc, ObservationDTO.PHENOTYPING_CENTER);
+            alleleSymbol = SolrUtils.getFieldValue(doc, ObservationDTO.ALLELE_SYMBOL);
+            geneAccessionId = SolrUtils.getFieldValue(doc, ObservationDTO.GENE_ACCESSION_ID);
+            geneSymbol = SolrUtils.getFieldValue(doc, ObservationDTO.GENE_SYMBOL);
+            firstDate = SolrUtils.getFieldValue(doc, ObservationDTO.DATE_OF_EXPERIMENT);
+            lastDate = SolrUtils.getFieldValue(docList.get(docList.size()-1), ObservationDTO.DATE_OF_EXPERIMENT);
             datapoints = new HashMap<>();
             stats = new HashMap<>();
 
+            if ((colony == null) || (phenotypingCenter == null) || (alleleSymbol == null) || (geneSymbol == null)
+                    || (geneAccessionId == null) || (firstDate == null) || (lastDate == null)) {
+                log.warn("Missing required data for colony::phenotypingCenter::alleleSymbol::geneAccessionId::geneSymbol::firstDate::lastDate",
+                         colony, phenotypingCenter, alleleSymbol, geneAccessionId, geneSymbol, firstDate, lastDate);
+                return;
+            }
 
             List<String> zygosities = new ArrayList<>();
             List<String> sexes = new ArrayList<>();
