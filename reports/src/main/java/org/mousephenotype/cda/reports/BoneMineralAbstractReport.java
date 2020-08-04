@@ -95,10 +95,11 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
     public List<String[]> getBmpIpgttStats(List<Group> groups){
 
         List<String[]> rows = new ArrayList<>();
-
+        Set<String> missingGroupData = new HashSet<>();
+        Set<String> missingParamData = new HashSet<>();
         try {
             for (Group group: groups) {
-                IpGTTStats stats  = new IpGTTStats(group);
+                IpGTTStats stats  = new IpGTTStats(group, missingGroupData, missingParamData);
                 if (stats != null) {
                     String[] row = {stats.geneSymbol, stats.geneAccessionId, stats.alleleSymbol, stats.colony, stats.phenotypingCenter, stats.firstDate, stats.lastDate,
                                     "" + stats.getMean(SexType.male, null), "" + stats.getMedian(SexType.male, null), "" + stats.getSD(SexType.male, null), "" + stats.getN(SexType.male, null),
@@ -114,6 +115,21 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
             }
         }catch (Exception e) {
             e.printStackTrace();
+        }
+
+
+        if ( ! missingGroupData.isEmpty()) {
+            log.warn("Missing required group data for colony::phenotypingCenter::alleleSymbol::geneAccessionId::geneSymbol::firstDate::lastDate");
+            missingGroupData
+                    .stream()
+                    .forEach(message -> log.info("  {}", message));
+        }
+
+        if ( ! missingParamData.isEmpty()) {
+            log.warn("Missing required pipeline/parameter data for center::pipeline::parameter::gene::allele::strain");
+            missingParamData
+                .stream()
+                .forEach(message -> log.info("  {}", message));
         }
 
         return rows;
@@ -138,7 +154,7 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
         HashMap<String, HashMap<String, DescriptiveStatistics>> stats;
 
 
-        public IpGTTStats(Group group) throws NumberFormatException, SolrServerException, IOException, URISyntaxException {
+        private IpGTTStats(Group group, Set<String> missingGroupData, Set<String> missingParamData) throws NumberFormatException, SolrServerException, IOException, URISyntaxException {
             SolrDocumentList docList = group.getResult();
             colony = group.getGroupValue();
             SolrDocument doc = docList.get(0);
@@ -153,8 +169,10 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
 
             if ((colony == null) || (phenotypingCenter == null) || (alleleSymbol == null) || (geneSymbol == null)
                     || (geneAccessionId == null) || (firstDate == null) || (lastDate == null)) {
-                log.warn("Missing required data for colony::phenotypingCenter::alleleSymbol::geneAccessionId::geneSymbol::firstDate::lastDate",
-                         colony, phenotypingCenter, alleleSymbol, geneAccessionId, geneSymbol, firstDate, lastDate);
+                String message = colony + "::" + phenotypingCenter + "::" + alleleSymbol + "::" + geneSymbol + "::"
+                        + geneAccessionId + "::" + firstDate + "::" + lastDate;
+                missingGroupData.add(message);
+
                 return;
             }
 
@@ -183,10 +201,8 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
                     datapoints.get(sex).put("WT", new ArrayList<>());
                     stats.get(sex).put("WT", new DescriptiveStatistics());
                 }
-
             }
 
-            Set<String> missing = new HashSet<>();
             for (String sex : sexes) {
                 String center = SolrUtils.getFieldValue(doc, ObservationDTO.PHENOTYPING_CENTER);
                 String pipeline = SolrUtils.getFieldValue(doc, ObservationDTO.PIPELINE_STABLE_ID);
@@ -197,7 +213,7 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
                 if ((center == null) || (pipeline == null) || (parameter == null) || (geneAcc == null)
                    || (alleleAcc == null) || (strainAcc == null)) {
                     String message = center + "::" + pipeline + "::" + parameter + "::" + geneAcc + "::" + alleleAcc + "::" + strainAcc;
-                    missing.add(message);
+                    missingParamData.add(message);
                     continue;
                 }
 
@@ -218,13 +234,6 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
                         stats.get(sex).get("WT").addValue(Double.parseDouble("" + obs.getDataPoint()));
                     }
                 }
-            }
-
-            if ( ! missing.isEmpty()) {
-                log.warn("Missing required data for center::pipeline::parameter::gene::allele::strain");
-                missing
-                    .stream()
-                    .forEach(message -> log.info("  {}", message));
             }
         }
 
