@@ -164,7 +164,7 @@ public class PhenotypeHitsReport extends AbstractReport {
             }
 
             result.add(new ArrayList<>(table));
-            csvWriter.writeAllMulti(result);
+            csvWriter.writeRowsMulti(result);
 
         } catch (SolrServerException | IOException  e) {
             throw new ReportException("Exception closing csvWriter: " + e.getLocalizedMessage());

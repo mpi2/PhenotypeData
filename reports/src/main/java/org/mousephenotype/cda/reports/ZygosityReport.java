@@ -243,7 +243,7 @@ public class ZygosityReport extends AbstractReport {
                 }
             }
 
-            csvWriter.writeAll(result);
+            csvWriter.writeRowsOfArray(result);
 
         } catch (SolrServerException | IOException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());

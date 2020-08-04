@@ -132,7 +132,7 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 	        	}
 	        }
 
-	        csvWriter.writeAll(result);
+	        csvWriter.writeRowsOfArray(result);
 	        try {
 	            csvWriter.close();
 	        } catch (IOException e) {

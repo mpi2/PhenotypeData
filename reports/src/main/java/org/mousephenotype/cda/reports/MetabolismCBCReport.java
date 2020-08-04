@@ -88,7 +88,7 @@ public class MetabolismCBCReport extends AbstractReport {
 
         long start = System.currentTimeMillis();
 
-        csvWriter.writeNext(header);
+        csvWriter.write(header);
 
         int count = 0;
 
@@ -100,7 +100,7 @@ public class MetabolismCBCReport extends AbstractReport {
                 if (iBiologicalSampleId != null) {
                     List<ObservationDTO> mouseInfoDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_CBC_*", iBiologicalSampleId);
                     List<ObservationDTO> mouseInfoInsulinDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_INS_*", iBiologicalSampleId);
-                    csvWriter.writeRow(createReportRow(mouseInfoDTOs, mouseInfoInsulinDTOs));
+                    csvWriter.write(createReportRow(mouseInfoDTOs, mouseInfoInsulinDTOs));
                     if (++count % 10000 == 0)
                         log.debug(new Date().toString() + ": " + count + " records written.");
                 }

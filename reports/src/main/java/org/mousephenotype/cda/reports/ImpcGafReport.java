@@ -97,7 +97,7 @@ public class ImpcGafReport extends AbstractReport {
                 "With (or) From", "Aspect", "DB Object Name", "DB Object Synonym (|Synonym)", "DB Object Type", "Taxon(|taxon)",
                 "Date", "Assigned By", "Annotation Extension", "Gene Product Form ID"});
 
-        csvWriter.writeRow(headerParams);
+        csvWriter.write(headerParams);
 
         try {
 
@@ -157,7 +157,7 @@ public class ImpcGafReport extends AbstractReport {
 
                 });
 
-                csvWriter.writeRow(row);
+                csvWriter.write(row);
             }
 
         } catch (SolrServerException | IOException e) {

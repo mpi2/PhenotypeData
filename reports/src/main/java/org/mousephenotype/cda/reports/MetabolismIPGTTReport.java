@@ -83,7 +83,7 @@ public class MetabolismIPGTTReport extends AbstractReport {
 
         long start = System.currentTimeMillis();
 
-        csvWriter.writeNext(header);
+        csvWriter.write(header);
 
         int count = 0;
 
@@ -94,7 +94,7 @@ public class MetabolismIPGTTReport extends AbstractReport {
                 Integer lBiologicalSampleId = commonUtils.tryParseInt(biologicalSampleId);
                 if (lBiologicalSampleId != null) {
                     List<ObservationDTO> mouseInfoDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_IPG_*", lBiologicalSampleId);
-                    csvWriter.writeRow(createReportRow(mouseInfoDTOs));
+                    csvWriter.write(createReportRow(mouseInfoDTOs));
                     if (++count % 1000 == 0)
                         log.debug(new Date().toString() + ": " + count + " records written.");
                 }

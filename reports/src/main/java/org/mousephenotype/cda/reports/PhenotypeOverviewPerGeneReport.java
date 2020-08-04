@@ -157,7 +157,7 @@ public class PhenotypeOverviewPerGeneReport extends AbstractReport {
                     });
         }
 
-        csvWriter.writeAll(result);
+        csvWriter.writeRowsOfArray(result);
 
         try {
             csvWriter.close();

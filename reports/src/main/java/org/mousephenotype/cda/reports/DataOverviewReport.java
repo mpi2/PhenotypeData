@@ -179,7 +179,7 @@ public class DataOverviewReport extends AbstractReport {
         }
 
         result.add(mpTable);
-        csvWriter.writeAllMulti(result);
+        csvWriter.writeRowsMulti(result);
 
         try {
             csvWriter.close();

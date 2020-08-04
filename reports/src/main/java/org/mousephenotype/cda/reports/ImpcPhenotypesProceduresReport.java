@@ -113,7 +113,7 @@ public class ImpcPhenotypesProceduresReport extends AbstractReport {
         List<String> header = new ArrayList<>();
         header.addAll(Arrays.asList("Genotype", "Colony Id", "Gene Symbol", "MGI Gene Id", ", Zygosity", "Center", "Significant", "Procedures Complete"));
 
-        csvWriter.writeRow(header);
+        csvWriter.write(header);
 
         i=0;
         start = System.currentTimeMillis();
@@ -142,7 +142,7 @@ public class ImpcPhenotypesProceduresReport extends AbstractReport {
             // Add count of procedures for this rowKey has been tested
             row.add(String.valueOf(matrixProceduresSet.get(rowKey).size()));
 
-            csvWriter.writeRow(row);
+            csvWriter.write(row);
         }
 
         try {

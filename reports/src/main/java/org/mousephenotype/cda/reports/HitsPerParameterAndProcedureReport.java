@@ -83,7 +83,7 @@ public class HitsPerParameterAndProcedureReport extends AbstractReport {
 
             result.add(parameters);
             result.add(procedures);
-            csvWriter.writeAllMulti(result);
+            csvWriter.writeRowsMulti(result);
 
         } catch (SolrServerException | IOException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());

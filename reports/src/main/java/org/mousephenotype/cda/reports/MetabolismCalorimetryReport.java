@@ -128,7 +128,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
 
         long start = System.currentTimeMillis();
 
-        csvWriter.writeNext(header);
+        csvWriter.write(header);
         int count = 0;
 
         try {
@@ -138,7 +138,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
                 Integer lBiologicalSampleId = commonUtils.tryParseInt(biologicalSampleId);
                 if (lBiologicalSampleId != null) {
                     List<ObservationDTO> mouseInfoDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_CAL_*", lBiologicalSampleId);
-                    csvWriter.writeRow(createReportRow(mouseInfoDTOs));
+                    csvWriter.write(createReportRow(mouseInfoDTOs));
                     if (++count % 10000 == 0)
                         log.debug("  " + count + " records written.");
                 }
