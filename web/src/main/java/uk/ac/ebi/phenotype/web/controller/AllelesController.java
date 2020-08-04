@@ -345,7 +345,6 @@ public class AllelesController {
         Map<String, Boolean> ikmcDesignMapForRow=new HashMap();
         for(Map<String,String> vector: vectorArray){
             String idString=vector.get("design_id");
-            System.out.println("design id="+idString);
             Integer designId=Integer.parseInt(idString);
             if(ikmcDesignMap.containsKey(designId)){
                 if(ikmcDesignMap.get(designId)){
