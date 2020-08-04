@@ -338,9 +338,7 @@ public class AllelesController {
             return view;
         }
 
-        System.out.println("constructs="+constructs);
         ArrayList<Map<String,String>> vectorArray = (ArrayList) constructs.get("targeting_vectors");
-        System.out.println("vectors="+vectorArray.toString());
 
         Map<String, Boolean> ikmcDesignMapForRow=new HashMap();
         for(Map<String,String> vector: vectorArray){
