@@ -71,7 +71,7 @@ public class ProcedureCompletenessAllReport extends AbstractReport {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }
 
-        csvWriter.writeAll(result);
+        csvWriter.writeRowsOfArray(result);
 
         try {
             csvWriter.close();

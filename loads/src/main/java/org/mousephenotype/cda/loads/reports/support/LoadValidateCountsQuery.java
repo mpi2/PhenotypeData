@@ -17,7 +17,6 @@
 package org.mousephenotype.cda.loads.reports.support;
 
 import org.mousephenotype.cda.db.utilities.SqlUtils;
-import org.mousephenotype.cda.reports.support.MpCSVWriter;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.utilities.RunStatus;
 import org.slf4j.Logger;

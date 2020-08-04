@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.reports.support;
+package org.mousephenotype.cda.loads.reports.support;
 
 import com.opencsv.CSVWriter;
 
@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Created by mrelac on 24/07/2015.
  */
-// TODO - These should be migrated to data-model and integrated with MpCsvWriter.
+// TODO - These should be migrated to data-model and integrated with MpCsvWriter. Or better yet, deleted when ETL is permanent.
 @Deprecated
 public class MpCSVWriter extends CSVWriter {
 

@@ -82,7 +82,7 @@ public class ImpcPValuesReport extends AbstractReport {
             i++;
 
             String parameter = result.getParameterName() + "(" + result.getParameterStableId() + ")";
-            Double pvalue = result.getpValue();
+            Double pvalue = result.getPValue();
             RowKey rowKey = new RowKey(result);
 
             if ( ! matrixValues.containsKey(rowKey)) {
@@ -115,7 +115,7 @@ public class ImpcPValuesReport extends AbstractReport {
         header.addAll(Arrays.asList("Genotype", "Colony Id", "Gene Symbol", "MGI Gene Id", "Center"));
         header.addAll(sortedParameters);
 
-        csvWriter.writeRow(header);
+        csvWriter.write(header);
 
         i=0;
         start = System.currentTimeMillis();
@@ -139,7 +139,7 @@ public class ImpcPValuesReport extends AbstractReport {
                 }
             }
 
-            csvWriter.writeRow(row);
+            csvWriter.write(row);
         }
 
         try {

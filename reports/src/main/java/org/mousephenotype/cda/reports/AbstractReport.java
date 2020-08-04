@@ -17,10 +17,10 @@
 package org.mousephenotype.cda.reports;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.mousephenotype.cda.reports.support.MpCSVWriter;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.reports.support.ReportParser;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.MpCsvWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +39,9 @@ import java.util.List;
 public abstract class AbstractReport {
 
     protected PropertiesConfiguration applicationProperties;
-    protected CommonUtils             commonUtils         = new CommonUtils();
-    protected MpCSVWriter             csvWriter;
-    protected final ReportFormat      defaultReportFormat = ReportFormat.csv;
+    protected       CommonUtils  commonUtils         = new CommonUtils();
+    protected       MpCsvWriter  csvWriter;
+    protected final ReportFormat defaultReportFormat = ReportFormat.csv;
     protected final Logger            log                 = LoggerFactory.getLogger(this.getClass());
     protected ReportFormat            reportFormat;
     protected File                    targetFile;
@@ -131,7 +131,7 @@ public abstract class AbstractReport {
         this.targetFile = new File(Paths.get(parser.getTargetDirectory(), targetFilename).toAbsolutePath().toString());
         try {
             FileWriter fileWriter = new FileWriter(targetFile.getAbsoluteFile());
-            this.csvWriter = new MpCSVWriter(fileWriter, reportFormat.getSeparator());
+            this.csvWriter = new MpCsvWriter(targetFile.getAbsolutePath(), false, reportFormat.getSeparator());
         } catch (IOException e) {
             throw new ReportException("Exception opening FileWriter: " + e.getLocalizedMessage());
         }

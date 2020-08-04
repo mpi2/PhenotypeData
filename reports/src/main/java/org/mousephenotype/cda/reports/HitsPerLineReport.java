@@ -28,6 +28,7 @@ import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.beans.Introspector;
@@ -48,6 +49,7 @@ public class HitsPerLineReport extends AbstractReport {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
+    @Qualifier("genotype-phenotype-service")
     GenotypePhenotypeService genotypePhenotypeService;
 
     @Autowired
@@ -161,7 +163,7 @@ public class HitsPerLineReport extends AbstractReport {
             }
 
             result.add(zygosityTable);
-            csvWriter.writeAllMulti(result);
+            csvWriter.writeRowsMulti(result);
 
         } catch (SolrServerException | IOException e) {
             e.printStackTrace();

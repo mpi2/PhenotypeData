@@ -81,7 +81,7 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
             throw new ReportException("Exception in observationService.getDatapointsByColony. Reason: " + e.getLocalizedMessage());
         }
 
-        csvWriter.writeAll(report);
+        csvWriter.writeRowsOfArray(report);
 
         try {
             csvWriter.close();

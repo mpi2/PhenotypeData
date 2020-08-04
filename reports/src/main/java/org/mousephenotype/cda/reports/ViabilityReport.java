@@ -127,22 +127,22 @@ public class ViabilityReport extends AbstractReport {
             conflictingRow.addAll(conflictingSet);
 
             // Write summary section.
-            csvWriter.writeRow(Arrays.asList(new String[] {  "Phenotype", "# Genes*", "Gene Symbols"  }));
+            csvWriter.write(Arrays.asList(new String[] {  "Phenotype", "# Genes*", "Gene Symbols"  }));
             csvWriter.writeRows(summaryGrid);
 
-            csvWriter.writeNext(Constants.EMPTY_ROW);
+            csvWriter.write(Constants.EMPTY_ROW);
 
             // Write conflicting section.
-            csvWriter.writeRow(Arrays.asList(new String[] { "* includes conflicting data. Conflicting data are genes that appear in more than one viability category." }));
-            csvWriter.writeRow(conflictingRow);
+            csvWriter.write(Arrays.asList(new String[] { "* includes conflicting data. Conflicting data are genes that appear in more than one viability category." }));
+            csvWriter.write(conflictingRow);
 
-            csvWriter.writeNext(Constants.EMPTY_ROW);
-            csvWriter.writeNext(Constants.EMPTY_ROW);
-            csvWriter.writeNext(Constants.EMPTY_ROW);
+            csvWriter.write(Constants.EMPTY_ROW);
+            csvWriter.write(Constants.EMPTY_ROW);
+            csvWriter.write(Constants.EMPTY_ROW);
 
             // Build and write detail section.
-            csvWriter.writeRow(Arrays.asList(new String[] { "List of genes that result in a lethal, subviable or viable phenotype. A gene may appear more than once if there are results for different colonies or for different alleles." }));
-            csvWriter.writeRow(Arrays.asList(new String[] { "Gene Symbol", "Gene Accession Id", "Allele Symbol", "Allele Accession Id", "Phenotyping Centre", "Colony Id", "Sex", "Zygosity", "Phenotype", "Comment" } ));
+            csvWriter.write(Arrays.asList(new String[] { "List of genes that result in a lethal, subviable or viable phenotype. A gene may appear more than once if there are results for different colonies or for different alleles." }));
+            csvWriter.write(Arrays.asList(new String[] { "Gene Symbol", "Gene Accession Id", "Allele Symbol", "Allele Accession Id", "Phenotyping Centre", "Colony Id", "Sex", "Zygosity", "Phenotype", "Comment" } ));
             details = data.getData();
             details.sort(Comparator
                     .comparing(ObservationDTO::getGeneSymbol)
@@ -169,7 +169,7 @@ public class ViabilityReport extends AbstractReport {
                 }
                 row.add(comment);
 
-                csvWriter.writeRow(row);
+                csvWriter.write(row);
             }
 
         } catch (Exception e) {

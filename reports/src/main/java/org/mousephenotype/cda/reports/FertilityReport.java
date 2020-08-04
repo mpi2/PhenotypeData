@@ -126,26 +126,26 @@ public class FertilityReport extends AbstractReport {
             conflictingMales.retainAll(malesInfertile);
 
             // Write summary section.
-            csvWriter.writeRow(Arrays.asList(new String[] { "Phenotype", "# Genes*", "Gene Symbols"  }));
+            csvWriter.write(Arrays.asList(new String[] { "Phenotype", "# Genes*", "Gene Symbols"  }));
 
-            csvWriter.writeRow(buildList("Both fertile", bothFertile));
-            csvWriter.writeRow(buildList("Both infertile", bothInfertile));
-            csvWriter.writeRow(buildList("Females fertile", femalesFertile));
-            csvWriter.writeRow(buildList("Females infertile", femalesInfertile));
-            csvWriter.writeRow(buildList("Males fertile", malesFertile));
-            csvWriter.writeRow(buildList("Males infertile", malesInfertile));
+            csvWriter.write(buildList("Both fertile", bothFertile));
+            csvWriter.write(buildList("Both infertile", bothInfertile));
+            csvWriter.write(buildList("Females fertile", femalesFertile));
+            csvWriter.write(buildList("Females infertile", femalesInfertile));
+            csvWriter.write(buildList("Males fertile", malesFertile));
+            csvWriter.write(buildList("Males infertile", malesInfertile));
 
-            csvWriter.writeNext(Constants.EMPTY_ROW);
+            csvWriter.write(Constants.EMPTY_ROW);
 
              // Write conflicting section.
-            csvWriter.writeRow(buildList("Conflicting females", conflictingFemales));
-            csvWriter.writeRow(buildList("Conflicting males", conflictingMales));
-            csvWriter.writeRow(Arrays.asList(new String[] { "* includes conflicting data. Conflicting data are genes that appear in more than one fertility category." } ));
+            csvWriter.write(buildList("Conflicting females", conflictingFemales));
+            csvWriter.write(buildList("Conflicting males", conflictingMales));
+            csvWriter.write(Arrays.asList(new String[] { "* includes conflicting data. Conflicting data are genes that appear in more than one fertility category." } ));
 
-            csvWriter.writeNext(Constants.EMPTY_ROW);
+            csvWriter.write(Constants.EMPTY_ROW);
 
             // Write detail section.
-            csvWriter.writeRow(Arrays.asList(new String[] { "Gene Symbol", "Gene Accession Id", "Allele Symbol", "Allele Accession Id", "Phenotyping Centre", "Colony Id", "Sex", "Zygosity", "Phenotype", "Comment" } ));//            allTable.add(header);
+            csvWriter.write(Arrays.asList(new String[] { "Gene Symbol", "Gene Accession Id", "Allele Symbol", "Allele Accession Id", "Phenotyping Centre", "Colony Id", "Sex", "Zygosity", "Phenotype", "Comment" } ));//            allTable.add(header);
             for ( SolrDocument doc : response.getResults()) {
                 String category = doc.getFieldValue(ObservationDTO.CATEGORY).toString();
                 String geneSymbol = doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString();
@@ -166,7 +166,7 @@ public class FertilityReport extends AbstractReport {
                     row.add("Conflicting Data");
                 }
 
-                csvWriter.writeRow(row);
+                csvWriter.write(row);
             }
 
         } catch (SolrServerException | IOException e) {

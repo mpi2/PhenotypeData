@@ -624,7 +624,7 @@ public class ImpressService extends BasicService implements WebStatus {
 
 		ParameterDTO param = new ParameterDTO();
 		SolrQuery query = new SolrQuery()
-				.setQuery(ImpressDTO.PARAMETER_STABLE_ID + ":" + stableId )
+				.setQuery(ImpressDTO.PARAMETER_STABLE_ID + ":" + stableId + " " + ImpressDTO.OBSERVATION_TYPE + ":*")
 				.setFields(ImpressDTO.PARAMETER_NAME,
 						ImpressDTO.PARAMETER_ID,
 						ImpressDTO.PARAMETER_STABLE_KEY,

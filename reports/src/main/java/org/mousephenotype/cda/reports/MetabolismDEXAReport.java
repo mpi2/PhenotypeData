@@ -77,7 +77,7 @@ public class MetabolismDEXAReport extends AbstractReport {
 
         long start = System.currentTimeMillis();
 
-        csvWriter.writeNext(header);
+        csvWriter.write(header);
 
         int count = 0;
         
@@ -88,7 +88,7 @@ public class MetabolismDEXAReport extends AbstractReport {
                 Integer lBiologicalSampleId = commonUtils.tryParseInt(biologicalSampleId);
                 if (lBiologicalSampleId != null) {
                     List<ObservationDTO> mouseInfoDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_DXA_*", lBiologicalSampleId);
-                    csvWriter.writeRow(createReportRow(mouseInfoDTOs));
+                    csvWriter.write(createReportRow(mouseInfoDTOs));
                     if (++count % 10000 == 0)
                         log.debug(new Date().toString() + ": " + count + " records written.");
                 }
@@ -129,7 +129,6 @@ public class MetabolismDEXAReport extends AbstractReport {
         }
 
         String externalSampleId = mouseInfoDTOs.get(0).getExternalSampleId();
-        String biologicalSampleId = mouseInfoDTOs.get(0).getBiologicalSampleId().toString();
 
         // Build the output row.
         retVal.add(externalSampleId);
@@ -146,7 +145,7 @@ public class MetabolismDEXAReport extends AbstractReport {
         List<Float> data = mouseInfoMap.get("IMPC_DXA_001_001");
         if (data != null) {
             if (data.size() > 1) {
-                log.debug("Multiple values found for simple parameter IMPC_DXA_001_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
+                log.debug("Multiple values found for simple parameter IMPC_DXA_001_001 for externalSampleId " + externalSampleId);
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
                 retVal.add(Constants.NO_INFORMATION_AVAILABLE);
@@ -160,7 +159,7 @@ public class MetabolismDEXAReport extends AbstractReport {
         data = mouseInfoMap.get("IMPC_DXA_002_001");
         if (data != null) {
             if (data.size() > 1) {
-                log.debug("Multiple values found for simple parameter IMPC_DXA_002_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
+                log.debug("Multiple values found for simple parameter IMPC_DXA_002_001 for externalSampleId " + externalSampleId);
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
                 retVal.add(Constants.NO_INFORMATION_AVAILABLE);
@@ -174,7 +173,7 @@ public class MetabolismDEXAReport extends AbstractReport {
         data = mouseInfoMap.get("IMPC_DXA_003_001");
         if (data != null) {
             if (data.size() > 1) {
-                log.debug("Multiple values found for simple parameter IMPC_DXA_003_001 for biologicalSampleId " + biologicalSampleId + " (" + externalSampleId + ")");
+                log.debug("Multiple values found for simple parameter IMPC_DXA_003_001 for externalSampleId " + externalSampleId);
                 retVal.add(DATA_ERROR);
             } else if (data.isEmpty()) {
                 retVal.add(Constants.NO_INFORMATION_AVAILABLE);

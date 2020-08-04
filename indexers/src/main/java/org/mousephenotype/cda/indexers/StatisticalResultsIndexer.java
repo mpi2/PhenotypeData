@@ -319,24 +319,20 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
         if (ParameterConstants.source3iProcedurePrefixes.contains(procedurePrefix)) {
             // Override the resource for the 3i procedures
-            doc.setResourceId(resourceMap.get(RESOURCE_3I).id);
             doc.setResourceName(resourceMap.get(RESOURCE_3I).shortName);
             doc.setResourceFullname(resourceMap.get(RESOURCE_3I).name);
         } else {
-            doc.setResourceId(r.getLong("resource_id"));
             doc.setResourceName(r.getString("resource_name"));
             doc.setResourceFullname(r.getString("resource_fullname"));
         }
 
         doc.setProjectId(r.getLong("project_id"));
-        doc.setProjectName(r.getString("project_name"));
         doc.setPhenotypingCenter(r.getString("phenotyping_center"));
         doc.setControlBiologicalModelId(r.getLong("control_id"));
         doc.setMutantBiologicalModelId(r.getLong("experimental_id"));
         doc.setZygosity(r.getString("experimental_zygosity"));
         doc.setDependentVariable(r.getString("dependent_variable"));
         doc.setExternalDbId(r.getLong("external_db_id"));
-        doc.setDbId(r.getLong("db_id"));
         doc.setOrganisationId(r.getLong("organisation_id"));
         doc.setPhenotypingCenterId(r.getLong("phenotyping_center_id"));
 
@@ -409,17 +405,14 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
         doc.setDocId(docId);
         doc.setDataType(r.getString("data_type"));
-        doc.setResourceId(r.getLong("resource_id"));
         doc.setResourceName(r.getString("resource_name"));
         doc.setResourceFullname(r.getString("resource_fullname"));
         doc.setProjectId(r.getLong("project_id"));
-        doc.setProjectName(r.getString("project_name"));
         doc.setPhenotypingCenter(r.getString("phenotyping_center"));
         doc.setMutantBiologicalModelId(r.getLong("biological_model_id"));
         doc.setZygosity(r.getString("experimental_zygosity"));
         doc.setDependentVariable(r.getString("dependent_variable"));
         doc.setExternalDbId(r.getLong("external_db_id"));
-        doc.setDbId(r.getLong("db_id"));
         doc.setPhenotypingCenterId(r.getLong("phenotyping_center_id"));
 
         doc.setStatisticalMethod("Supplied as data");
@@ -550,7 +543,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
         Double p_value = r.getDouble("p_value");
         if (!r.wasNull() && doc.getMpTermId()!=null) {
-            doc.setpValue(p_value);
+            doc.setPValue(p_value);
         }
 
         Double effect_size = r.getDouble("effect_size");
@@ -835,12 +828,8 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         doc.setPipelineStableKey(pipelineMap.get(r.getLong("pipeline_id")).getStableKey());
         doc.setPipelineName(pipelineMap.get(r.getLong("pipeline_id")).getName());
         doc.setPipelineStableId(pipelineMap.get(r.getLong("pipeline_id")).getStableId());
-        doc.setProcedureId(procedureMap.get(r.getLong("procedure_id")).getId());
-        doc.setProcedureStableKey(procedureMap.get(r.getLong("procedure_id")).getStableKey());
         doc.setProcedureName(procedureMap.get(r.getLong("procedure_id")).getName());
-        doc.setProcedureStableId(procedureMap.get(r.getLong("procedure_id")).getStableId());
         doc.setParameterId(parameterMap.get(r.getLong("parameter_id")).getId());
-        doc.setParameterStableKey(parameterMap.get(r.getLong("parameter_id")).getStableKey());
         doc.setParameterName(parameterMap.get(r.getLong("parameter_id")).getName());
         doc.setParameterStableId(parameterMap.get(r.getLong("parameter_id")).getStableId());
 
@@ -1205,12 +1194,9 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         private StatisticalResultDTO parseCategoricalResult(ResultSet r) throws SQLException {
 
             StatisticalResultDTO doc = parseResultCommonFields(r);
-            if (sexesMap.containsKey("categorical-" + doc.getDbId())) {
-                doc.setPhenotypeSex(sexesMap.get("categorical-" + doc.getDbId()));
-            }
+
 
             doc.setSex(r.getString("sex"));
-            doc.setpValue(r.getDouble("categorical_p_value"));
 
             doc.setEffectSize(r.getDouble("categorical_effect_size"));
 
@@ -1234,7 +1220,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             doc.setCategories(new ArrayList<>(categories));
 
             if (! doc.getStatus().equals("Success")) {
-                doc.setpValue(1.0);
+                doc.setPValue(1.0);
                 doc.setEffectSize(0.0);
             }
 
@@ -1316,9 +1302,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
         private StatisticalResultDTO parseUnidimensionalResult(ResultSet r) throws SQLException {
 
             StatisticalResultDTO doc = parseResultCommonFields(r);
-            if (sexesMap.containsKey("unidimensional-" + doc.getDbId())) {
-                doc.setPhenotypeSex(sexesMap.get("unidimensional-" + doc.getDbId()));
-            }
+
 
             // Index the mean fields
             doc.setMaleControlMean(r.getDouble("male_control_mean"));
@@ -1351,7 +1335,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 pv = 1.0;
             }
 
-            doc.setpValue(pv);
+            doc.setPValue(pv);
 
             setSignificantFlag(SIGNIFICANCE_THRESHOLD, doc);
 
@@ -1472,9 +1456,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             List<Double> mins = new ArrayList<>();
 
             StatisticalResultDTO doc = parseResultCommonFields(r);
-            if (sexesMap.containsKey("rrplus-" + doc.getDbId())) {
-                doc.setPhenotypeSex(sexesMap.get("rrplus-" + doc.getDbId()));
-            }
+
 
             // Index the mean fields
             doc.setMaleControlMean(r.getDouble("male_control_mean"));
@@ -1500,7 +1482,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                 doc.setGenotypePvalueLowNormalVsHigh(pvalue);
 
                 doc.setNullTestPValue(Math.min(doc.getGenotypePvalueLowNormalVsHigh(), doc.getGenotypePvalueLowVsNormalHigh()));
-                doc.setpValue(doc.getNullTestPValue());
+                doc.setPValue(doc.getNullTestPValue());
                 mins.add(pvalue);
 
                 String genotypeEffectSize = r.getString("genotype_parameter_estimate");
@@ -1580,7 +1562,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             }
 
             Double minimumPvalue = Collections.min(mins);
-            doc.setpValue(minimumPvalue);
+            doc.setPValue(minimumPvalue);
             setSignificantFlag(SIGNIFICANCE_THRESHOLD, doc);
 
             // If not already set, ensure that the document has all possible top level MP terms defined
@@ -1592,7 +1574,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
 
 
             if (! doc.getStatus().equals("Success")) {
-                doc.setpValue(1.0);
+                doc.setPValue(1.0);
                 doc.setEffectSize(0.0);
             }
 
@@ -1634,7 +1616,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             // Wilcoxon test.  Choose the most significant pvalue from the sexes, already tcalculated and stored
             // in the Pvalue field of the doc
 
-            if (doc.getpValue() <= pValueThreshold) {
+            if (doc.getPValue() <= pValueThreshold) {
                 doc.setSignificant(true);
             } else {
                 doc.setSignificant(false);
@@ -1644,7 +1626,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
             // Fisher's exact test.  Choose the most significant pvalue from the sexes, already tcalculated and stored
             // in the Pvalue field of the doc
 
-            if (doc.getpValue() <= pValueThreshold) {
+            if (doc.getPValue() <= pValueThreshold) {
                 doc.setSignificant(true);
             } else {
                 doc.setSignificant(false);
@@ -1708,7 +1690,7 @@ public class StatisticalResultsIndexer extends AbstractIndexer implements Comman
                     doc.setCategories(Collections.singletonList(r.getString("category")));
                     r.getString("p_value");
                     if (r.wasNull()) {
-                        doc.setpValue(1.0);
+                        doc.setPValue(1.0);
                         doc.setEffectSize(0.0);
                     }
                     docs.add(doc);
