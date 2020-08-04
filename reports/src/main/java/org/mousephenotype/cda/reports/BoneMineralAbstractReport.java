@@ -35,10 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Base class for Bone Mineral Density (Bmd) reports.
@@ -184,7 +181,8 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
 
             }
 
-            for (String sex : sexes){
+            Set<String> missing = new HashSet<>();
+            for (String sex : sexes) {
                 String center = SolrUtils.getFieldValue(doc, ObservationDTO.PHENOTYPING_CENTER);
                 String pipeline = SolrUtils.getFieldValue(doc, ObservationDTO.PIPELINE_STABLE_ID);
                 String parameter = SolrUtils.getFieldValue(doc, ObservationDTO.PARAMETER_STABLE_ID);
@@ -193,10 +191,11 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
                 String strainAcc = SolrUtils.getFieldValue(doc, ObservationDTO.STRAIN_ACCESSION_ID);
                 if ((center == null) || (pipeline == null) || (parameter == null) || (geneAcc == null)
                    || (alleleAcc == null) || (strainAcc == null)) {
-                    log.warn("Missing required data for center::pipeline::parameter::gene::allele::strain \"" +
-                             "{}::{}::{}::{}::{}::{}. Skipping...", center, pipeline, parameter, geneAcc, alleleAcc, strainAcc);
+                    String message = center + "::" + pipeline + "::" + parameter + "::" + geneAcc + "::" + alleleAcc + "::" + strainAcc;
+                    missing.add(message);
                     continue;
                 }
+
                 List<ExperimentDTO> experiments = experimentService.getExperimentDTO(
                         parameter,
                         pipeline,
@@ -214,6 +213,13 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
                         stats.get(sex).get("WT").addValue(Double.parseDouble("" + obs.getDataPoint()));
                     }
                 }
+            }
+
+            if ( ! missing.isEmpty()) {
+                log.warn("Missing required data for center::pipeline::parameter::gene::allele::strain");
+                missing
+                    .stream()
+                    .forEach(message -> log.info("  {}", message));
             }
         }
 
