@@ -194,8 +194,7 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
                 if ((center == null) || (pipeline == null) || (parameter == null) || (geneAcc == null)
                    || (alleleAcc == null) || (strainAcc == null)) {
                     log.warn("Missing required data for center::pipeline::parameter::gene::allele::strain \"" +
-                                     "{}::{}::{}::{}::{}::{}", center, pipeline, parameter, geneAcc,
-                             alleleAcc, strainAcc);
+                             "{}::{}::{}::{}::{}::{}", center, pipeline, parameter, geneAcc, alleleAcc, strainAcc);
                 }
                 List<ExperimentDTO> experiments = experimentService.getExperimentDTO(
                         parameter,

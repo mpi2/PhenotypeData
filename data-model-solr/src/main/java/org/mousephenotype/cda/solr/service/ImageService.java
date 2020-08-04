@@ -279,8 +279,18 @@ public class ImageService extends BasicService implements WebStatus {
                         ImageDTO.PARAMETER_STABLE_ID
                 );
         final List<ImageDTO> imageDTOs = impcImagesCore.query(query).getBeans(ImageDTO.class);
+
+        // Warn of any null parameterStableId values
+        imageDTOs
+                .forEach(dto -> {
+                    if (dto.getParameterStableId() == null) {
+                        logger.warn("Null parameterStableId for {}", dto.toString());
+                    }
+                });
+
         return imageDTOs
                 .stream()
+                .filter(dto -> dto.getParameterStableId() != null)
                 .collect(Collectors.groupingBy(
                         ImageDTO::getGeneSymbol,
                         Collectors.mapping(ImageDTO::getParameterStableId, Collectors.toSet())));

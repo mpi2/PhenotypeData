@@ -112,7 +112,8 @@ public class PhenotypeOverviewPerGeneReport extends AbstractReport {
                 } else if ((gp.getMpTermName() != null) && ( ! gp.getMpTermName().isEmpty())) {
                     geneToPhenotypes.get(gp.getMarkerSymbol()).add(gp.getMpTermName());
                 } else {
-                    throw new ReportException("PhenotypeOverviewPerGeneReport: Can't find a non-null/empty term");
+                    logger.error("GenotypePhenotypeDTO term is null or empty for document {}. Not added.", gp.getId());
+                    continue;
                 }
 
                 geneSymbolToId.put(gp.getMarkerSymbol(), gp.getMarkerAccessionId());
