@@ -22,10 +22,8 @@ private String dataUrl="https://www.gentar.org/htgt/console";//data url for grap
         GraphQLQuery topologyQuery = new GraphQLQuery();
 // Use a singletonMap to retain the object name
 //topologyQuery.setVariables(Collections.singletonMap("duration", duration));
-        System.out.println("query="+query);
         topologyQuery.setQuery(query);
         ResponseEntity<DesignsResponse> designsResponse = restTemplate.postForEntity("https://www.gentar.org/htgt/v1/graphql", topologyQuery, DesignsResponse.class);
-        System.out.println(designsResponse);
         return designsResponse.getBody();
     }
 

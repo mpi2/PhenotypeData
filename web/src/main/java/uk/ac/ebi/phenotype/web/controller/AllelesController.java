@@ -338,27 +338,24 @@ public class AllelesController {
             return view;
         }
 
-        System.out.println("constructs="+constructs);
         ArrayList<Map<String,String>> vectorArray = (ArrayList) constructs.get("targeting_vectors");
-        System.out.println("vectors="+vectorArray.toString());
 
         Map<String, Boolean> ikmcDesignMapForRow=new HashMap();
         for(Map<String,String> vector: vectorArray){
-            String idString=vector.get("ikmc_project_id");
-            System.out.println("vector="+idString);
-            Integer ikmcProjectId=Integer.parseInt(idString);
-            if(ikmcDesignMap.containsKey(ikmcProjectId)){
-                if(ikmcDesignMap.get(ikmcProjectId)){
-                    ikmcDesignMapForRow.put(String.valueOf(ikmcProjectId), ikmcDesignMap.get(ikmcProjectId));
+            String idString=vector.get("design_id");
+            Integer designId=Integer.parseInt(idString);
+            if(ikmcDesignMap.containsKey(designId)){
+                if(ikmcDesignMap.get(designId)){
+                    ikmcDesignMapForRow.put(String.valueOf(designId), ikmcDesignMap.get(designId));
                 };
             }else{
                 List<Design> designs = htgtService.getDesigns(Integer.parseInt(idString));
                 Boolean isLink=false;
                 if(designs.size()>0){
                    isLink=true;
-                   ikmcDesignMapForRow.put(String.valueOf(ikmcProjectId), true);
+                   ikmcDesignMapForRow.put(String.valueOf(designId), true);
                 }
-                ikmcDesignMap.put(ikmcProjectId, isLink);//store true and false so we don't need to check again for another request if we know it's false
+                ikmcDesignMap.put(designId, isLink);//store true and false so we don't need to check again for another request if we know it's false
 
             }
 

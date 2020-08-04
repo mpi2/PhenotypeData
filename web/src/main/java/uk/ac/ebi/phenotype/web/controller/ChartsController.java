@@ -87,7 +87,7 @@ public class ChartsController {
 
     @Inject
     public ChartsController(
-    		@NotNull CategoricalChartAndTableProvider categoricalChartAndTableProvider,
+			@NotNull CategoricalChartAndTableProvider categoricalChartAndTableProvider,
 			@NotNull TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider,
 			@NotNull UnidimensionalChartAndTableProvider continousChartAndTableProvider,
 			@NotNull ScatterChartAndTableProvider scatterChartAndTableProvider,
@@ -99,7 +99,7 @@ public class ChartsController {
 			@NotNull ImageService imageService,
 			@NotNull @Named("statistical-result-service") StatisticalResultService srService,
 			@NotNull @Named("genotype-phenotype-service") GenotypePhenotypeService gpService
-	) {
+			) {
         this.categoricalChartAndTableProvider = categoricalChartAndTableProvider;
         this.timeSeriesChartAndTableProvider = timeSeriesChartAndTableProvider;
         this.continousChartAndTableProvider = continousChartAndTableProvider;
@@ -112,7 +112,7 @@ public class ChartsController {
         this.impressService = impressService;
         this.imageService=imageService;
         this.gpService = gpService;
-    }
+	}
 
     /**
      * Runs when the request missing an accession ID. This redirects to the
@@ -539,7 +539,10 @@ public class ChartsController {
 				}
 			}
 			List<String> phenotypeTerms = gpList.stream().map(GenotypePhenotypeDTO::getMpTermName).distinct().collect(Collectors.toList());
+			//for links to phenotype pages we need the MP_ID
+			List<String> phenotypeIds = gpList.stream().map(GenotypePhenotypeDTO::getMpTermId).distinct().collect(Collectors.toList());
 			model.addAttribute("phenotypes", phenotypeTerms);
+			model.addAttribute("phenotypeIds", phenotypeIds);
 		}
 
 

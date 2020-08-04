@@ -19,7 +19,6 @@ public class HtgtService {
     }
     public List<Design> getDesigns(int designId){
         DesignsResponse designsResponse = htgtDataAccess.getDesigns(designId);
-        System.out.println("oligos size="+designsResponse.getData().getOligos());
         return designsResponse.getData().getOligos();
 
     }
