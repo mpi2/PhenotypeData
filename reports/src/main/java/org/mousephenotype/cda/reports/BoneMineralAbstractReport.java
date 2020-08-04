@@ -24,6 +24,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.reports.support.ReportException;
+import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
@@ -184,17 +185,29 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
             }
 
             for (String sex : sexes){
+                String center = SolrUtils.getFieldValue(doc, ObservationDTO.PHENOTYPING_CENTER);
+                String pipeline = SolrUtils.getFieldValue(doc, ObservationDTO.PIPELINE_STABLE_ID);
+                String parameter = SolrUtils.getFieldValue(doc, ObservationDTO.PARAMETER_STABLE_ID);
+                String geneAcc = SolrUtils.getFieldValue(doc, ObservationDTO.GENE_ACCESSION_ID);
+                String alleleAcc = SolrUtils.getFieldValue(doc, ObservationDTO.ALLELE_ACCESSION_ID);
+                String strainAcc = SolrUtils.getFieldValue(doc, ObservationDTO.STRAIN_ACCESSION_ID);
+                if ((center == null) || (pipeline == null) || (parameter == null) || (geneAcc == null)
+                   || (alleleAcc == null) || (strainAcc == null)) {
+                    log.warn("Missing required data for center::pipeline::parameter::gene::allele::strain \"" +
+                                     "{}::{}::{}::{}::{}::{}", center, pipeline, parameter, geneAcc,
+                             alleleAcc, strainAcc);
+                }
                 List<ExperimentDTO> experiments = experimentService.getExperimentDTO(
-                        doc.getFieldValue(ObservationDTO.PARAMETER_STABLE_ID).toString(),
-                        doc.getFieldValue(ObservationDTO.PIPELINE_STABLE_ID).toString(),
-                        doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID).toString(),
+                        parameter,
+                        pipeline,
+                        geneAcc,
                         SexType.valueOf(sex),
-                        doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER).toString(),
+                        center,
                         zygosities,
-                        doc.getFieldValue(ObservationDTO.STRAIN_ACCESSION_ID).toString(),
+                        strainAcc,
                         null,
                         Boolean.FALSE,
-                        doc.getFieldValue(ObservationDTO.ALLELE_ACCESSION_ID).toString());
+                        alleleAcc);
                 for (ExperimentDTO exp: experiments){
                     for (ObservationDTO obs: exp.getControls()){
                         datapoints.get(sex).get("WT").add((Float)obs.getDataPoint());
