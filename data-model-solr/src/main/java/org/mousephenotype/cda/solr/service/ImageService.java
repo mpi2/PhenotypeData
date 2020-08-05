@@ -283,6 +283,9 @@ public class ImageService extends BasicService implements WebStatus {
         // Warn of any null parameterStableId values
         imageDTOs
                 .forEach(dto -> {
+                    if (dto.getGeneSymbol() == null) {
+                        logger.warn("Null geneSymbol for {}", dto.toString());
+                    }
                     if (dto.getParameterStableId() == null) {
                         logger.warn("Null parameterStableId for {}", dto.toString());
                     }
@@ -290,6 +293,7 @@ public class ImageService extends BasicService implements WebStatus {
 
         return imageDTOs
                 .stream()
+                .filter(dto -> dto.getGeneSymbol() != null)
                 .filter(dto -> dto.getParameterStableId() != null)
                 .collect(Collectors.groupingBy(
                         ImageDTO::getGeneSymbol,
