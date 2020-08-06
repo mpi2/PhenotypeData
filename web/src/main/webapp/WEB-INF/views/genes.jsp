@@ -427,7 +427,7 @@
                         <div class="page-content pt-3 pb-5">
                             <div class="container p-0 p-md-2">
                                 <div class="row justify-content-end pb-1">
-                                    <div class="float-right"><a href="${cmsBaseUrl}/help/gene-page/images/" target="_blank"><i
+                                    <div class="float-right"><a href="${cmsBaseUrl}/data-visualization/gene-pages/associated-images/" target="_blank"><i
                                             class="fa fa-question-circle" style="font-size: xx-large"></i></a></div>
                                 </div>
                                 <div class="row">
