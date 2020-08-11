@@ -95,10 +95,19 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
 
             Map<String, Map<String, Set<ObservationDTO>>> validatedDtosByColony =
                 getValidatedColonyData(dtosByColony);
+            List<List<String>> matrix = new ArrayList<>();
             for (Map<String, Set<ObservationDTO>> colonyStrainData : validatedDtosByColony.values()) {
-                List<String> row = buildColonyOutputRow(colonyStrainData);
-                csvWriter.write(row);
+                matrix.add(buildColonyOutputRow(colonyStrainData));
+
+
+//                List<String> row = buildColonyOutputRow(colonyStrainData);
+//                csvWriter.write(row);
             }
+
+            matrix
+                .stream()
+                .sorted(Comparator
+                            .comparing(Comparator.comparing()))
 
             if ( ! missingData.isEmpty()) {
                 logErrors(missingData, missingData.size() + " rows missing required report data:");
