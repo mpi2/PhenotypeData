@@ -1,5 +1,6 @@
 package org.mousephenotype.cda.solr.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -10,7 +11,8 @@ import java.util.Collections;
 public class HtgtDataAccess {
 RestTemplate restTemplate=new RestTemplate();
 
-private String dataUrl="https://www.gentar.org/htgt/console";//data url for graphQl endpoint set up by RW
+@Value("${ikmc_oligo_design_url}")
+private String dataUrl;//="https://www.gentar.org/htgt/v1/graphql";//data url for graphQl endpoint set up by RW
 
     DesignsResponse getDesigns(int designId){
         //String query = "\n    query Topology($duration: Duration!) {\n      getGlobalTopology(duration: $duration) {\n        nodes {\n          id\n          name\n          type\n          isReal\n        }\n        calls {\n          id\n          source\n          target\n          callType\n          detectPoint\n        }\n      }\n    }\n  ";
@@ -23,7 +25,8 @@ private String dataUrl="https://www.gentar.org/htgt/console";//data url for grap
 // Use a singletonMap to retain the object name
 //topologyQuery.setVariables(Collections.singletonMap("duration", duration));
         topologyQuery.setQuery(query);
-        ResponseEntity<DesignsResponse> designsResponse = restTemplate.postForEntity("https://www.gentar.org/htgt/v1/graphql", topologyQuery, DesignsResponse.class);
+        System.out.println("oligo url set to="+dataUrl);
+        ResponseEntity<DesignsResponse> designsResponse = restTemplate.postForEntity(dataUrl, topologyQuery, DesignsResponse.class);
         return designsResponse.getBody();
     }
 
