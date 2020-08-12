@@ -59,7 +59,8 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
         " Background Strain Accession Id",
         " Colony Id",
         " Phenotyping Center",
-        " Parameter",
+        " Parameter Name",
+        " Parameter Id",
         " First Experiment Date",
         " Last Experiment Date",
         " Mean WT Male", " Median WT Male", " SD WT Male", " N WT Male",
@@ -92,7 +93,7 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
          */
         try {
             Map<String, Map<String, Set<ObservationDTO>>> dtosByColony =
-                observationService.getDataPointsByCompositeColony_strainKey(resources, parameter);
+                observationService.getDataPointsByColony(resources, parameter);
 
             Map<String, Map<String, Set<ObservationDTO>>> validatedDtosByColony =
                 getValidatedColonyData(dtosByColony);
@@ -180,6 +181,7 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
                 || (dto.getColonyId() == null)
                 || (dto.getPhenotypingCenter() == null)
                 || (dto.getPipelineStableId() == null)
+                || (dto.getParameterName() == null)
                 || (dto.getParameterStableId() == null)) {
                 notNull = false;
                 String message = buildMessage(dto);
@@ -204,6 +206,7 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
             && (dtos.stream().allMatch(d -> d.getColonyId().equals(dto.getColonyId())))
             && (dtos.stream().allMatch(d -> d.getPhenotypingCenter().equals(dto.getPhenotypingCenter())))
             && (dtos.stream().allMatch(d -> d.getPipelineStableId().equals(dto.getPipelineStableId())))
+            && (dtos.stream().allMatch(d -> d.getParameterName().equals(dto.getParameterName())))
             && (dtos.stream().allMatch(d -> d.getParameterStableId().equals(dto.getParameterStableId())))) {
             colonyFieldsMatch = true;
         } else {
@@ -256,6 +259,7 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
         row.add(data.getStrainAccessionId());
         row.add(data.getColonyId());
         row.add(data.getPhenotypingCenter());
+        row.add(data.getParameterName());
         row.add(data.getParameterStableId());
         row.add(super.formatDate(firstExperimentDate));
         row.add(super.formatDate(lastExperimentDate));
@@ -265,7 +269,7 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
             for (String zygosity : new String[]{"WT", "homozygote", "heterozygote", "hemizygote"}) {
 
                 if (sex.equalsIgnoreCase("female") && zygosity.equalsIgnoreCase("hemizygote")) {
-                    // Skip female hemizygous
+                    // Skip female hemizygote
                 } else {
                     Set<ObservationDTO> colonyData =
                         (zygosity.equalsIgnoreCase("WT") ? colonyDataControl : colonyDataExperimental);
@@ -277,13 +281,10 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
                         .filter(ds -> ds.getZygosity().equalsIgnoreCase(zygosity.equalsIgnoreCase("WT") ? ds.getZygosity() : zygosity))
                         .filter(ds -> ds.getSex().equalsIgnoreCase(sex))
                         .filter(ds -> ds.getDataPoint() != null)
-                        .map(o -> {
-                            return o.getDataPoint() == null ? -1 : o.getDataPoint().doubleValue();
-                        })
+                        .map(o -> o.getDataPoint().doubleValue())
                         .collect(Collectors.toList());
 
-                    // Null data has a value of -1
-                    if (values.isEmpty() || values.contains(-1)) {
+                    if (values.isEmpty()) {
                         row.add(AbstractReport.NO_DATA);
                         row.add(AbstractReport.NO_DATA);
                         row.add(AbstractReport.NO_DATA);

@@ -168,7 +168,7 @@ public class ObservationService extends BasicService implements WebStatus {
         return map;
     }
 
-    public Map<String, Map<String, Set<ObservationDTO>>> getDataPointsByCompositeColony_strainKey(List<String> resourceName, String parameterStableId)
+    public Map<String, Map<String, Set<ObservationDTO>>> getDataPointsByColony(List<String> resourceName, String parameterStableId)
             throws SolrServerException, IOException {
 
         SolrQuery query = new SolrQuery();
@@ -185,11 +185,11 @@ public class ObservationService extends BasicService implements WebStatus {
         query.setFields(ObservationDTO.DATA_POINT, ObservationDTO.ZYGOSITY, ObservationDTO.SEX, ObservationDTO.DATE_OF_EXPERIMENT,
                     ObservationDTO.ALLELE_SYMBOL, ObservationDTO.GENE_SYMBOL, ObservationDTO.COLONY_ID, ObservationDTO.ALLELE_ACCESSION_ID,
                     ObservationDTO.PIPELINE_STABLE_ID, ObservationDTO.PHENOTYPING_CENTER, ObservationDTO.GENE_ACCESSION_ID, ObservationDTO.STRAIN_ACCESSION_ID,
-                    ObservationDTO.STRAIN_NAME, ObservationDTO.PARAMETER_STABLE_ID, ObservationDTO.PHENOTYPING_CENTER_ID,
+                    ObservationDTO.STRAIN_NAME, ObservationDTO.PARAMETER_NAME, ObservationDTO.PARAMETER_STABLE_ID, ObservationDTO.PHENOTYPING_CENTER_ID,
                     ObservationDTO.BIOLOGICAL_SAMPLE_GROUP);
         query.setRows(Integer.MAX_VALUE);
 
-        logger.info("Query: getDataPointsByCompositeColony_strainKey() " + SolrUtils.getBaseURL(experimentCore) + "/select?" + query);
+        logger.info("Query: getDataPointsByColony() " + SolrUtils.getBaseURL(experimentCore) + "/select?" + query);
 
         List<ObservationDTO> dtoList =  experimentCore.query(query).getBeans(ObservationDTO.class);
 
