@@ -16,35 +16,32 @@
 
 package org.mousephenotype.cda.reports;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.response.Group;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
-import org.mousephenotype.cda.enumerations.SexType;
-import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.reports.support.ReportException;
-import org.mousephenotype.cda.solr.SolrUtils;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.ObservationService;
-import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Base class for Bone Mineral Density (Bmd) reports.
- *
+ * <p>
  * Created by mrelac on 28/07/2015.
  */
 public abstract class BoneMineralAbstractReport extends AbstractReport {
 
     protected Logger log = LoggerFactory.getLogger(this.getClass());
+
+    private final Set<String> missingData    = new HashSet<>();
+    private final Set<String> mismatchedData = new HashSet<>();
 
     @Autowired
     ExperimentService experimentService;
@@ -52,244 +49,283 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
     @Autowired
     ObservationService observationService;
 
-
-     protected String[] header = {
-            "Gene Symbol", "MGI Gene Id", "Allele Symbol", "Colony Id", "Phenotyping Center", "First Date", "Last Date",
-            "Mean WT Male", "Median WT Male", "SD WT Male", "N WT Male",
-            "Mean HOM Male", "Median HOM Male", "SD HOM Male", "N HOM Male",
-            "Mean HET Male", "Median HET Male", "SD HET Male", "N HET Male",
-            "Mean HEM Male", "Median HEM Male", "SD HEM Male", "N HEM Male",
-            "Mean WT Female", "Median WT Female", "SD WT Female", "N WT Female",
-            "Mean HOM Female", "Median HOM Female", "SD HOM Female", "N HOM Female",
-            "Mean HET Female", "Median HET Female", "SD HET Female", "N HET Female"
+    // The prefixed spaces have a side effect that the heading comes first when sorting.
+    protected String[] header = {
+        " Gene Symbol",
+        " Gene Accession Id",
+        " Allele Symbol",
+        " Allele Accession Id",
+        " Background Strain Name",
+        " Background Strain Accession Id",
+        " Colony Id",
+        " Phenotyping Center",
+        " Parameter Name",
+        " Parameter Id",
+        " First Experiment Date",
+        " Last Experiment Date",
+        " Mean WT Male", " Median WT Male", " SD WT Male", " N WT Male",
+        " Mean HOM Male", " Median HOM Male", " SD HOM Male", " N HOM Male",
+        " Mean HET Male", " Median HET Male", " SD HET Male", " N HET Male",
+        " Mean HEM Male", " Median HEM Male", " SD HEM Male", " N HEM Male",
+        " Mean WT Female", " Median WT Female", " SD WT Female", " N WT Female",
+        " Mean HOM Female", " Median HOM Female", " SD HOM Female", " N HOM Female",
+        " Mean HET Female", " Median HET Female", " SD HET Female", " N HET Female"
     };
+
 
     public BoneMineralAbstractReport() {
         super();
     }
 
     public void run(String parameter) throws ReportException {
-        List<String[]> report = new ArrayList<>();
 
-        report.add(header);
+        csvWriter.write(header);
 
+        /*
+         * Steps:
+         * 1. Gather the data without grouping
+         * 2. Validate all colony data, logging and filtering out required missing fields
+         * 3. Order by gene symbol
+         * 4. Compute values for each set of validated colony data
+         * 5. Sort by: geneSymbol, alleleSymbol, StrainName, phenotypingCenter
+         * 6. Write out the rows
+         * 7. Log any errors
+         */
         try {
-            report.addAll(getBmpIpgttStats(observationService.getDatapointsByColony(resources, parameter, "experimental")));
-        } catch (SolrServerException | IOException e) {
-            throw new ReportException("Exception in observationService.getDatapointsByColony. Reason: " + e.getLocalizedMessage());
-        }
+            Map<String, Map<String, Set<ObservationDTO>>> dtosByColony =
+                observationService.getDataPointsByColony(resources, parameter);
 
-        csvWriter.writeRowsOfArray(report);
+            Map<String, Map<String, Set<ObservationDTO>>> validatedDtosByColony =
+                getValidatedColonyData(dtosByColony);
+            List<List<String>> matrix = new ArrayList<>();
+            for (Map<String, Set<ObservationDTO>> colonyStrainData : validatedDtosByColony.values()) {
+                matrix.add(buildColonyOutputRow(colonyStrainData));
+            }
 
-        try {
+            // Sort by: geneSymbol (0), alleleSymbol (2), strainName (4), center (7)
+            matrix = matrix
+                .stream()
+                .sorted(Comparator.comparing((List<String> l) -> l.get(0))
+                .thenComparing((l) -> l.get(2))
+                .thenComparing((l) -> l.get(4))
+                .thenComparing((l) -> l.get(7)))
+                .collect(Collectors.toList());
+
+            csvWriter.writeRows(matrix);
+
+            if ( ! missingData.isEmpty()) {
+                logErrors(missingData, missingData.size() + " rows missing required report data:");
+            }
+
+            if ( ! mismatchedData.isEmpty()) {
+                logErrors(mismatchedData,
+                          mismatchedData.size() +
+                              " rows of mismatched data. Any rows here indicate the data is split and a new row should be output:");
+            }
+
             csvWriter.close();
-        } catch (IOException e) {
-            throw new ReportException("Exception closing csvWriter: " + e.getLocalizedMessage());
+
+        } catch (SolrServerException | IOException e) {
+            throw new ReportException("Report creation failed. Reason: " + e.getLocalizedMessage());
         }
+    }
+
+    void logErrors(Set<String> errors, String errorExplanation) {
+        System.out.println();
+        log.warn(errorExplanation);
+        System.out.println();
+        System.out.println("geneSymbol::geneAccessionId::alleleSymbol::alleleAccessionId::strainSymbol::" +
+                               "strainAccessionId::colony::center::pipeline::parameter");
+        errors
+            .stream()
+            .forEach(message -> {
+                System.out.println("  " + message);
+            });
+    }
+
+    /**
+     * Validates colony data
+     *
+     * @param allColonyObservations colony data map for all colonies, keyed by colonyId
+     * @return a map of all validated colony data (with invalid colony entries removed)
+     */
+    private Map<String, Map<String, Set<ObservationDTO>>> getValidatedColonyData(
+        Map<String, Map<String, Set<ObservationDTO>>> allColonyObservations) {
+        Map<String, Map<String, Set<ObservationDTO>>> validatedColonyData = new HashMap<>();
+
+        for (Map.Entry<String, Map<String, Set<ObservationDTO>>> colonyObservations : allColonyObservations.entrySet()) {
+            String              colonyKey                           = colonyObservations.getKey();
+            Set<ObservationDTO> colonyObservationExperimentalValues = colonyObservations.getValue().get("experimental");
+            if (colonyObservationExperimentalValues != null) {
+                if (colonyFieldsNotNull(colonyObservationExperimentalValues)) {
+                    validatedColonyData.put(colonyKey, colonyObservations.getValue());
+                    colonyFieldsMatch(colonyObservationExperimentalValues);
+                }
+            }
+        }
+
+        return validatedColonyData;
+    }
+
+    //  Required: colonyId, phenotypingCenter, strainAccessionId, strainName, pipelineStableId, parameterStableId,
+    //            geneAccessionId, geneSymbol, alleleSymbol
+    private boolean colonyFieldsNotNull(Set<ObservationDTO> dtos) {
+        boolean notNull = true;
+        for (ObservationDTO dto : dtos) {
+            if ((dto.getGeneSymbol() == null)
+                || (dto.getGeneAccession() == null)
+                || (dto.getAlleleSymbol() == null)
+                || (dto.getAlleleAccession() == null)
+                || (dto.getStrainName() == null)
+                || (dto.getStrainAccessionId() == null)
+                || (dto.getColonyId() == null)
+                || (dto.getPhenotypingCenter() == null)
+                || (dto.getPipelineStableId() == null)
+                || (dto.getParameterName() == null)
+                || (dto.getParameterStableId() == null)) {
+                notNull = false;
+                String message = buildMessage(dto);
+                missingData.add(message);
+            }
+        }
+
+        return notNull;
+    }
+
+    // Return true if colony fields for the given dtos match; false otherwise
+    private boolean colonyFieldsMatch(Set<ObservationDTO> dtos) {
+        boolean colonyFieldsMatch;
+
+        ObservationDTO dto = dtos.iterator().next();
+        if ((dtos.stream().allMatch(d -> d.getGeneSymbol().equals(dto.getGeneSymbol())))
+            && (dtos.stream().allMatch(d -> d.getGeneAccession().equals(dto.getGeneAccession())))
+            && (dtos.stream().allMatch(d -> d.getAlleleSymbol().equals(dto.getAlleleSymbol())))
+            && (dtos.stream().allMatch(d -> d.getAlleleAccession().equals(dto.getAlleleAccession())))
+            && (dtos.stream().allMatch(d -> d.getStrainName().equals(dto.getStrainName())))
+            && (dtos.stream().allMatch(d -> d.getStrainAccessionId().equals(dto.getStrainAccessionId())))
+            && (dtos.stream().allMatch(d -> d.getColonyId().equals(dto.getColonyId())))
+            && (dtos.stream().allMatch(d -> d.getPhenotypingCenter().equals(dto.getPhenotypingCenter())))
+            && (dtos.stream().allMatch(d -> d.getPipelineStableId().equals(dto.getPipelineStableId())))
+            && (dtos.stream().allMatch(d -> d.getParameterName().equals(dto.getParameterName())))
+            && (dtos.stream().allMatch(d -> d.getParameterStableId().equals(dto.getParameterStableId())))) {
+            colonyFieldsMatch = true;
+        } else {
+            colonyFieldsMatch = false;
+            String message = buildMessage(dto);
+            mismatchedData.add(message);
+        }
+
+        return colonyFieldsMatch;
+    }
+
+    private String buildMessage(ObservationDTO dto) {
+        String n = "<null>";
+        String result =
+            (dto.getGeneSymbol() == null ? n : dto.getGeneSymbol()) + "::" +
+                (dto.getGeneAccession() == null ? n : dto.getGeneAccession()) + "::" +
+                (dto.getAlleleSymbol() == null ? n : dto.getAlleleSymbol()) + "::" +
+                (dto.getAlleleAccession() == null ? n : dto.getAlleleAccession()) + "::" +
+                (dto.getStrainName() == null ? n : dto.getStrainName()) + "::" +
+                (dto.getStrainAccessionId() == null ? n : dto.getStrainAccessionId()) + "::" +
+                (dto.getColonyId() == null ? n : dto.getColonyId()) + "::" +
+                (dto.getPhenotypingCenter() == null ? n : dto.getPhenotypingCenter()) + "::" +
+                (dto.getPipelineStableId() == null ? n : dto.getPipelineStableId()) + "::" +
+                (dto.getParameterStableId() == null ? n : dto.getParameterStableId());
+
+        return result;
     }
 
 
     // PRIVATE METHODS
 
 
-    public List<String[]> getBmpIpgttStats(List<Group> groups){
+    private List<String> buildColonyOutputRow(Map<String, Set<ObservationDTO>> colonyDataAllGroups) {
+        List<String>        row                    = new ArrayList<>();
+        Set<ObservationDTO> colonyDataControl      = colonyDataAllGroups.get("control");
+        Set<ObservationDTO> colonyDataExperimental = colonyDataAllGroups.get("experimental");
+        Date firstExperimentDate = colonyDataExperimental
+            .stream()
+            .map(ObservationDTO::getDateOfExperiment).min(Date::compareTo).get();
+        Date lastExperimentDate = colonyDataExperimental
+            .stream()
+            .map(ObservationDTO::getDateOfExperiment).max(Date::compareTo).get();
 
-        List<String[]> rows = new ArrayList<>();
-        Set<String> missingGroupData = new HashSet<>();
-        Set<String> missingParamData = new HashSet<>();
-        try {
-            for (Group group: groups) {
-                IpGTTStats stats  = new IpGTTStats(group, missingGroupData, missingParamData);
-                if (stats != null) {
-                    String[] row = {stats.geneSymbol, stats.geneAccessionId, stats.alleleSymbol, stats.colony, stats.phenotypingCenter, stats.firstDate, stats.lastDate,
-                                    "" + stats.getMean(SexType.male, null), "" + stats.getMedian(SexType.male, null), "" + stats.getSD(SexType.male, null), "" + stats.getN(SexType.male, null),
-                                    "" + stats.getMean(SexType.male, ZygosityType.homozygote), "" + stats.getMedian(SexType.male, ZygosityType.homozygote), "" + stats.getSD(SexType.male, ZygosityType.homozygote), "" + stats.getN(SexType.male, ZygosityType.homozygote),
-                                    "" + stats.getMean(SexType.male, ZygosityType.heterozygote), "" + stats.getMedian(SexType.male, ZygosityType.heterozygote), "" + stats.getSD(SexType.male, ZygosityType.heterozygote), "" + stats.getN(SexType.male, ZygosityType.heterozygote),
-                                    "" + stats.getMean(SexType.male, ZygosityType.hemizygote), "" + stats.getMedian(SexType.male, ZygosityType.hemizygote), "" + stats.getSD(SexType.male, ZygosityType.hemizygote), "" + stats.getN(SexType.male, ZygosityType.hemizygote),
-                                    "" + stats.getMean(SexType.female, null), "" + stats.getMedian(SexType.female, null), "" + stats.getSD(SexType.female, null), "" + stats.getN(SexType.female, null),
-                                    "" + stats.getMean(SexType.female, ZygosityType.homozygote), "" + stats.getMedian(SexType.female, ZygosityType.homozygote), "" + stats.getSD(SexType.female, ZygosityType.homozygote), "" + stats.getN(SexType.female, ZygosityType.homozygote),
-                                    "" + stats.getMean(SexType.female, ZygosityType.heterozygote), "" + stats.getMedian(SexType.female, ZygosityType.heterozygote), "" + stats.getSD(SexType.female, ZygosityType.heterozygote), "" + stats.getN(SexType.female, ZygosityType.heterozygote),
-                                    };
-                    rows.add(row);
-                }
-            }
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
+        ObservationDTO data = colonyDataExperimental.iterator().next();
+        row.add(data.getGeneSymbol());
+        row.add(data.getGeneAccession());
+        row.add(data.getAlleleSymbol());
+        row.add(data.getAlleleAccession());
+        row.add(data.getStrainName());
+        row.add(data.getStrainAccessionId());
+        row.add(data.getColonyId());
+        row.add(data.getPhenotypingCenter());
+        row.add(data.getParameterName());
+        row.add(data.getParameterStableId());
+        row.add(super.formatDate(firstExperimentDate));
+        row.add(super.formatDate(lastExperimentDate));
 
+        // Remap null dataPoint values to -1, then show NO_DATA for those values in the report.
+        for (String sex : new String[]{"male", "female"}) {
+            for (String zygosity : new String[]{"WT", "homozygote", "heterozygote", "hemizygote"}) {
 
-        if ( ! missingGroupData.isEmpty()) {
-            log.warn("Missing required group data for colony::phenotypingCenter::alleleSymbol::geneAccessionId::geneSymbol::firstDate::lastDate");
-            missingGroupData
-                    .stream()
-                    .forEach(message -> log.info("  {}", message));
-        }
+                if (sex.equalsIgnoreCase("female") && zygosity.equalsIgnoreCase("hemizygote")) {
+                    // Skip female hemizygote
+                } else {
+                    Set<ObservationDTO> colonyData =
+                        (zygosity.equalsIgnoreCase("WT") ? colonyDataControl : colonyDataExperimental);
+                    if (colonyData == null)
+                        colonyData = new HashSet<>();
 
-        if ( ! missingParamData.isEmpty()) {
-            log.warn("Missing required pipeline/parameter data for center::pipeline::parameter::gene::allele::strain");
-            missingParamData
-                .stream()
-                .forEach(message -> log.info("  {}", message));
-        }
+                    List<Double> values = colonyData
+                        .stream()
+                        .filter(ds -> ds.getZygosity().equalsIgnoreCase(zygosity.equalsIgnoreCase("WT") ? ds.getZygosity() : zygosity))
+                        .filter(ds -> ds.getSex().equalsIgnoreCase(sex))
+                        .filter(ds -> ds.getDataPoint() != null)
+                        .map(o -> o.getDataPoint().doubleValue())
+                        .collect(Collectors.toList());
 
-        return rows;
-    }
+                    if (values.isEmpty()) {
+                        row.add(AbstractReport.NO_DATA);
+                        row.add(AbstractReport.NO_DATA);
+                        row.add(AbstractReport.NO_DATA);
+                        row.add(AbstractReport.NO_DATA);
+                    } else {
+                        DescriptiveStatistics ds = new DescriptiveStatistics(
+                            ArrayUtils.toPrimitive(values.toArray(new Double[0])));
 
+                        Double d = ds.getMean();
+                        row.add(d.isInfinite() || d.isNaN() ? AbstractReport.NO_DATA : d.toString());
 
-    // PROTECTED CLASSES
+                        d = getMedian(values);
+                        row.add(d.isInfinite() || d.isNaN() ? AbstractReport.NO_DATA : d.toString());
 
+                        d = ds.getStandardDeviation();
+                        row.add(d.isInfinite() || d.isNaN() ? AbstractReport.NO_DATA : d.toString());
 
-
-    protected class IpGTTStats {
-
-        String geneSymbol;
-        String geneAccessionId;
-        String alleleSymbol;
-        String colony;
-        String firstDate;
-        String lastDate;
-        String phenotypingCenter;
-        // < sex, <zygosity, <datapoints>>>
-        HashMap<String, HashMap<String, List<Float>>> datapoints;
-        HashMap<String, HashMap<String, DescriptiveStatistics>> stats;
-
-
-        private IpGTTStats(Group group, Set<String> missingGroupData, Set<String> missingParamData) throws NumberFormatException, SolrServerException, IOException, URISyntaxException {
-            SolrDocumentList docList = group.getResult();
-            colony = group.getGroupValue();
-            SolrDocument doc = docList.get(0);
-            phenotypingCenter = SolrUtils.getFieldValue(doc, ObservationDTO.PHENOTYPING_CENTER);
-            alleleSymbol = SolrUtils.getFieldValue(doc, ObservationDTO.ALLELE_SYMBOL);
-            geneAccessionId = SolrUtils.getFieldValue(doc, ObservationDTO.GENE_ACCESSION_ID);
-            geneSymbol = SolrUtils.getFieldValue(doc, ObservationDTO.GENE_SYMBOL);
-            firstDate = SolrUtils.getFieldValue(doc, ObservationDTO.DATE_OF_EXPERIMENT);
-            lastDate = SolrUtils.getFieldValue(docList.get(docList.size()-1), ObservationDTO.DATE_OF_EXPERIMENT);
-            datapoints = new HashMap<>();
-            stats = new HashMap<>();
-
-            if ((colony == null) || (phenotypingCenter == null) || (alleleSymbol == null) || (geneSymbol == null)
-                    || (geneAccessionId == null) || (firstDate == null) || (lastDate == null)) {
-                String message = colony + "::" + phenotypingCenter + "::" + alleleSymbol + "::" + geneSymbol + "::"
-                        + geneAccessionId + "::" + firstDate + "::" + lastDate;
-                missingGroupData.add(message);
-
-                return;
-            }
-
-            List<String> zygosities = new ArrayList<>();
-            List<String> sexes = new ArrayList<>();
-
-            for (SolrDocument d : docList){
-                String sex = d.getFieldValue(ObservationDTO.SEX).toString();
-                String zyg = d.getFieldValue(ObservationDTO.ZYGOSITY).toString();
-                if (!datapoints.containsKey(sex)) {
-                    datapoints.put(sex, new HashMap<>());
-                    stats.put(sex, new HashMap<>());
-                }
-                if (!datapoints.get(sex).containsKey(zyg)){
-                    datapoints.get(sex).put(zyg, new ArrayList<>());
-                    stats.get(sex).put(zyg, new DescriptiveStatistics());
-                }
-                datapoints.get(sex).get(zyg).add((Float)d.getFieldValue(ObservationDTO.DATA_POINT));
-                stats.get(sex).get(zyg).addValue(Double.parseDouble("" + d.getFieldValue(ObservationDTO.DATA_POINT)));
-
-                if (!zygosities.contains(zyg)){
-                    zygosities.add(zyg);
-                }
-                if (!sexes.contains(sex)){
-                    sexes.add(sex);
-                    datapoints.get(sex).put("WT", new ArrayList<>());
-                    stats.get(sex).put("WT", new DescriptiveStatistics());
-                }
-            }
-
-            for (String sex : sexes) {
-                String center = SolrUtils.getFieldValue(doc, ObservationDTO.PHENOTYPING_CENTER);
-                String pipeline = SolrUtils.getFieldValue(doc, ObservationDTO.PIPELINE_STABLE_ID);
-                String parameter = SolrUtils.getFieldValue(doc, ObservationDTO.PARAMETER_STABLE_ID);
-                String geneAcc = SolrUtils.getFieldValue(doc, ObservationDTO.GENE_ACCESSION_ID);
-                String alleleAcc = SolrUtils.getFieldValue(doc, ObservationDTO.ALLELE_ACCESSION_ID);
-                String strainAcc = SolrUtils.getFieldValue(doc, ObservationDTO.STRAIN_ACCESSION_ID);
-                if ((center == null) || (pipeline == null) || (parameter == null) || (geneAcc == null)
-                   || (alleleAcc == null) || (strainAcc == null)) {
-                    String message = center + "::" + pipeline + "::" + parameter + "::" + geneAcc + "::" + alleleAcc + "::" + strainAcc;
-                    missingParamData.add(message);
-                    continue;
-                }
-
-                List<ExperimentDTO> experiments = experimentService.getExperimentDTO(
-                        parameter,
-                        pipeline,
-                        geneAcc,
-                        SexType.valueOf(sex),
-                        center,
-                        zygosities,
-                        strainAcc,
-                        null,
-                        Boolean.FALSE,
-                        alleleAcc);
-                for (ExperimentDTO exp: experiments){
-                    for (ObservationDTO obs: exp.getControls()){
-                        datapoints.get(sex).get("WT").add((Float)obs.getDataPoint());
-                        stats.get(sex).get("WT").addValue(Double.parseDouble("" + obs.getDataPoint()));
+                        row.add(new Double(ds.getN()).toString());
                     }
                 }
             }
         }
 
-        public Double getMean(SexType sex, ZygosityType zyg){
-
-            String zygosity = (zyg != null) ? zyg.getName() : "WT";
-            if (stats.containsKey(sex.getName()) && stats.get(sex.getName()).containsKey(zygosity)){
-                return stats.get(sex.getName()).get(zygosity).getMean();
-            }
-            return null;
-        }
-
-        public Double getSD(SexType sex, ZygosityType zyg){
-
-            String zygosity = (zyg != null) ? zyg.getName() : "WT";
-            if (stats.containsKey(sex.getName()) && stats.get(sex.getName()).containsKey(zygosity)){
-                return stats.get(sex.getName()).get(zygosity).getStandardDeviation();
-            }
-            return null;
-        }
-
-        public Integer getN(SexType sex, ZygosityType zyg){
-
-            String zygosity = (zyg != null) ? zyg.getName() : "WT";
-            if (datapoints.containsKey(sex.getName()) && datapoints.get(sex.getName()).containsKey(zygosity)){
-                return datapoints.get(sex.getName()).get(zygosity).size();
-            }
-            return null;
-        }
-
-        public Float getMedian(SexType sex, ZygosityType zyg){
-
-            String zygosity = (zyg != null) ? zyg.getName() : "WT";
-            if (datapoints.containsKey(sex.getName()) && datapoints.get(sex.getName()).containsKey(zygosity)){
-                return getMedian(datapoints.get(sex.getName()).get(zygosity));
-            }
-            return null;
-        }
-
-        private Float getMedian(List<Float> list){
-
-            Float median = (float)0.0;
-            int middle = list.size()/2;
-            Collections.sort(list);
-
-            if ( list.size() == 0){
-                return null;
-            }
-            if (list.size() % 2 == 0){
-                median = (list.get(middle - 1) + list.get(middle)) /2;
-            }else {
-                median = list.get(middle);
-            }
-
-            return median;
-        }
+        return row;
     }
 
+    private Double getMedian(List<Double> doubles) {
+
+        Double       median;
+        int          middle = doubles.size() / 2;
+        Collections.sort(doubles);
+
+        if (doubles.isEmpty()) {
+            return Double.NaN;
+        }
+        if (doubles.size() % 2 == 0) {
+            median = (doubles.get(middle - 1) + doubles.get(middle)) / 2;
+        } else {
+            median = doubles.get(middle);
+        }
+
+        return median;
+    }
 }

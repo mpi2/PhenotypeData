@@ -91,6 +91,8 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
     @Value("${paBaseUrl}")
     private String paBaseUrl;
 
+    @Value("${ikmc_oligo_design_url}")
+    private String ikmcOligoDesignUrl;
 
     @Bean(name = "globalConfiguration")
     public Map<String, String> getGlobalConfig() {
@@ -106,6 +108,7 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
         map.put("googleAnalytics", googleAnalytics);
         map.put("liveSite", liveSite);
         map.put("paBaseUrl", paBaseUrl);
+        map.put("ikmcOligoDesignUrl",ikmcOligoDesignUrl );
         return map;
     }
 
