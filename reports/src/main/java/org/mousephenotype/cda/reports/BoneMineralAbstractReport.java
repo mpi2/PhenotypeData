@@ -85,9 +85,10 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
          * 1. Gather the data without grouping
          * 2. Validate all colony data, logging and filtering out required missing fields
          * 3. Order by gene symbol
-         * 4. For each set of validated colony data:
-         *    A. Compute values and write row
-         * 5. Log any errors
+         * 4. Compute values for each set of validated colony data
+         * 5. Sort by: geneSymbol, alleleSymbol, StrainName, phenotypingCenter
+         * 6. Write out the rows
+         * 7. Log any errors
          */
         try {
             Map<String, Map<String, Set<ObservationDTO>>> dtosByColony =
@@ -98,16 +99,18 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
             List<List<String>> matrix = new ArrayList<>();
             for (Map<String, Set<ObservationDTO>> colonyStrainData : validatedDtosByColony.values()) {
                 matrix.add(buildColonyOutputRow(colonyStrainData));
-
-
-//                List<String> row = buildColonyOutputRow(colonyStrainData);
-//                csvWriter.write(row);
             }
 
-            matrix
+            // Sort by: geneSymbol (0), alleleSymbol (2), strainName (4), center (7)
+            matrix = matrix
                 .stream()
-                .sorted(Comparator
-                            .comparing(Comparator.comparing()))
+                .sorted(Comparator.comparing((List<String> l) -> l.get(0))
+                .thenComparing((l) -> l.get(2))
+                .thenComparing((l) -> l.get(4))
+                .thenComparing((l) -> l.get(7)))
+                .collect(Collectors.toList());
+
+            csvWriter.writeRows(matrix);
 
             if ( ! missingData.isEmpty()) {
                 logErrors(missingData, missingData.size() + " rows missing required report data:");
