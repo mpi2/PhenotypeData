@@ -158,8 +158,8 @@ for phenotyping_center in phenotyping_centers:
             "source ~/conda_setup.sh\n",
             "conda activate /nfs/production3/komp2/web/image_qc/code/python3\n",
             "export QT_QPA_PLATFORM='offscreen'\n",
-            f"python {code_dir}/qc_apply_all_sites_model.py -m {args.model_path} -o {args.output_dir}/{output_stem} -p -1 -d {dir_base} --parameter-stable-id {parameter_stable_id} --site-name {phenotyping_center_ns}\n",
-            f"python {code_dir}/create_montage_to_display_classes.py -i {args.output_dir}/{output_stem}/{output_stem}_processed.csv -o {args.output_dir}/{output_stem}/",
+            f"python {code_dir}/qc_apply_all_sites_model.py -m {args.model_path} -o {args.output_dir} -p -1 -d {dir_base} --parameter-stable-id {parameter_stable_id} --site-name {phenotyping_center_ns}\n",
+            f"python {code_dir}/create_montage_to_display_classes.py -i {args.output_dir}/{output_stem}_processed.csv -o {args.output_dir}/{output_stem}/",
         ]
         with open(output_filepath, 'wt') as fid:
             fid.writelines(output)
