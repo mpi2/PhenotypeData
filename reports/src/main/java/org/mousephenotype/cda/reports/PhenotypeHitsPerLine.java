@@ -44,7 +44,7 @@ import java.util.Map;
  * Created by mrelac on 24/07/2015.
  */
 @Component
-public class HitsPerLineReport extends AbstractReport {
+public class PhenotypeHitsPerLine extends AbstractReport {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -55,7 +55,7 @@ public class HitsPerLineReport extends AbstractReport {
     @Autowired
     StatisticalResultService statisticalResultService;
 
-    public HitsPerLineReport() {
+    public PhenotypeHitsPerLine() {
         super();
     }
 

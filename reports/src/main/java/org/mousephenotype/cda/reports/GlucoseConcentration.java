@@ -19,32 +19,28 @@ package org.mousephenotype.cda.reports;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.reports.support.ReportException;
-import org.mousephenotype.cda.solr.service.PhenotypeCenterProcedureCompletenessService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.beans.Introspector;
-import java.io.IOException;
 import java.util.List;
 
 /**
- * Procedure Completeness report.
+ * Bone Mineral Stats (Fasted blood glucose concentration) report.
  *
- * Created by mrelac on 24/07/2015.
+ * Created by mrelac on 28/07/2015.
  */
 @Component
-public class ProcedureCompletenessImpcReport extends AbstractReport {
+@Deprecated
+public class GlucoseConcentration extends AbstractColonyStatisticsByParameter {
 
-    protected Logger                                      logger = LoggerFactory.getLogger(this.getClass());
-    private   PhenotypeCenterProcedureCompletenessService phenotypeCenterProcedureCompletenessService;
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    public static final String parameter = "IMPC_IPG_010_001";
 
-    public ProcedureCompletenessImpcReport(
-            PhenotypeCenterProcedureCompletenessService phenotypeCenterProcedureCompletenessService
-    ) {
+    public GlucoseConcentration() {
         super();
-        this.phenotypeCenterProcedureCompletenessService = phenotypeCenterProcedureCompletenessService;
     }
 
     @Override
@@ -56,27 +52,14 @@ public class ProcedureCompletenessImpcReport extends AbstractReport {
 
         List<String> errors = parser.validate(parser.parse(args));
         if ( ! errors.isEmpty()) {
-            logger.error("ProcedureCompletenessReport parser validation error: " + StringUtils.join(errors, "\n"));
+            logger.error("BmdStatsGlucoseConcentrationColonyStatisticsByParameter parser validation error: " + StringUtils.join(errors, "\n"));
             return;
         }
         initialise(args);
 
         long start = System.currentTimeMillis();
 
-        List<String[]> result;
-        try {
-            result = phenotypeCenterProcedureCompletenessService.getCentersProgressByStrainCsv();
-        } catch (Exception e) {
-            throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
-        }
-
-        csvWriter.writeRowsOfArray(result);
-
-        try {
-            csvWriter.close();
-        } catch (IOException e) {
-            throw new ReportException("Exception closing csvWriter: " + e.getLocalizedMessage());
-        }
+        super.run(parameter);
 
         log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
     }

@@ -37,7 +37,7 @@ import java.util.*;
  * Created by mrelac on 28/07/2015.
  */
 @Component
-public class MetabolismIPGTTReport extends AbstractReport {
+public class MetabolismIPGTT extends AbstractReport {
 
     @Autowired
     ExperimentService experimentService;
@@ -63,7 +63,7 @@ public class MetabolismIPGTTReport extends AbstractReport {
             ,"Metadata"
     };
 
-    public MetabolismIPGTTReport() {
+    public MetabolismIPGTT() {
         super();
     }
 

@@ -39,14 +39,14 @@ import java.util.TreeMap;
  * Created by mrelac on 24/07/2015.
  */
 @Component
-public class PhenotypeHitsReport extends AbstractReport {
+public class PhenotypeHitsPerTopLevelMPTerm extends AbstractReport {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     StatisticalResultService statisticalResultService;
 
-    public PhenotypeHitsReport() {
+    public PhenotypeHitsPerTopLevelMPTerm() {
         super();
     }
 

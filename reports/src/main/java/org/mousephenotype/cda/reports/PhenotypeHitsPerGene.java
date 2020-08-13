@@ -41,7 +41,7 @@ import java.util.*;
  * Created by mrelac on 24/07/2015.
  */
 @Component
-public class PhenotypeOverviewPerGeneReport extends AbstractReport {
+public class PhenotypeHitsPerGene extends AbstractReport {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
     private List<GenotypePhenotypeDTO> missingGPTerms = new ArrayList<>();
@@ -56,7 +56,7 @@ public class PhenotypeOverviewPerGeneReport extends AbstractReport {
     @Autowired
     GeneService geneService;
 
-    public PhenotypeOverviewPerGeneReport() {
+    public PhenotypeHitsPerGene() {
         super();
     }
 

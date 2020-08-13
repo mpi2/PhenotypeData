@@ -36,7 +36,8 @@ import java.util.stream.Collectors;
  * <p>
  * Created by mrelac on 28/07/2015.
  */
-public abstract class BoneMineralAbstractReport extends AbstractReport {
+@Deprecated
+public abstract class AbstractColonyStatisticsByParameter extends AbstractReport {
 
     protected Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -73,7 +74,7 @@ public abstract class BoneMineralAbstractReport extends AbstractReport {
     };
 
 
-    public BoneMineralAbstractReport() {
+    public AbstractColonyStatisticsByParameter() {
         super();
     }
 

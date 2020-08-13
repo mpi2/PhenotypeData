@@ -37,7 +37,7 @@ import java.util.*;
  * Created by mrelac on 28/07/2015.
  */
 @Component
-public class MetabolismCBCReport extends AbstractReport {
+public class MetabolismCBC extends AbstractReport {
 
     @Autowired
     ExperimentService experimentService;
@@ -68,7 +68,7 @@ public class MetabolismCBCReport extends AbstractReport {
             ,"INS Metadata"
     };
 
-    public MetabolismCBCReport() {
+    public MetabolismCBC() {
         super();
     }
 

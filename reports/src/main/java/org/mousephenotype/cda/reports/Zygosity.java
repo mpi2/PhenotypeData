@@ -47,7 +47,7 @@ import java.util.*;
  * Created by mrelac on 24/07/2015.
  */
 @Component
-public class ZygosityReport extends AbstractReport {
+public class Zygosity extends AbstractReport {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -67,7 +67,7 @@ public class ZygosityReport extends AbstractReport {
 
     public static final String[] EMPTY_ROW = new String[]{""};
 
-    public ZygosityReport() {
+    public Zygosity() {
         super();
     }
 
