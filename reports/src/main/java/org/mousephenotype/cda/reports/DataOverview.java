@@ -43,7 +43,7 @@ import java.util.Set;
  * Created by mrelac on 24/07/2015.
  */
 @Component
-public class DataOverviewReport extends AbstractReport {
+public class DataOverview extends AbstractReport {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -57,7 +57,7 @@ public class DataOverviewReport extends AbstractReport {
     @Autowired
     ObservationService observationService;
 
-    public DataOverviewReport() {
+    public DataOverview() {
         super();
     }
 

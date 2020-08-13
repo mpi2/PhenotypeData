@@ -45,6 +45,7 @@ import java.util.*;
  * Created by mrelac on 08/02/2016.
  */
 @Component
+@Deprecated
 public class ImpcGafReport extends AbstractReport {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());

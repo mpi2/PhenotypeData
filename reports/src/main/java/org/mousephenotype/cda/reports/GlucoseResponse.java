@@ -32,13 +32,14 @@ import java.util.List;
  * Created by mrelac on 28/07/2015.
  */
 @Component
-public class BmdStatsGlucoseResponseReport extends BoneMineralAbstractReport {
+@Deprecated
+public class GlucoseResponse extends AbstractColonyStatisticsByParameter {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static final String parameter = "IMPC_IPG_012_001";
 
-    public BmdStatsGlucoseResponseReport() {
+    public GlucoseResponse() {
         super();
     }
 
@@ -51,7 +52,7 @@ public class BmdStatsGlucoseResponseReport extends BoneMineralAbstractReport {
 
         List<String> errors = parser.validate(parser.parse(args));
         if ( ! errors.isEmpty()) {
-            logger.error("BmdStatsGlucoseResponseReport parser validation error: " + StringUtils.join(errors, "\n"));
+            logger.error("BmdStatsGlucoseResponseColonyStatisticsByParameter parser validation error: " + StringUtils.join(errors, "\n"));
             return;
         }
         initialise(args);

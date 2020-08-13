@@ -37,13 +37,13 @@ import java.util.*;
  * Created by mrelac on 24/07/2015.
  */
 @Component
-public class ImpcPValuesReport extends AbstractReport {
+public class ImpcPValues extends AbstractReport {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     StatisticalResultService statisticalResultService;
 
-    public ImpcPValuesReport() {
+    public ImpcPValues() {
         super();
     }
 

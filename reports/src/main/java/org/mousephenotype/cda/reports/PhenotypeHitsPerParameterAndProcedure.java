@@ -38,7 +38,7 @@ import java.util.List;
  * Created by mrelac on 24/07/2015.
  */
 @Component
-public class HitsPerParameterAndProcedureReport extends AbstractReport {
+public class PhenotypeHitsPerParameterAndProcedure extends AbstractReport {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -46,7 +46,7 @@ public class HitsPerParameterAndProcedureReport extends AbstractReport {
     @Qualifier("genotype-phenotype-service")
     GenotypePhenotypeService genotypePhenotypeService;
 
-    public HitsPerParameterAndProcedureReport() {
+    public PhenotypeHitsPerParameterAndProcedure() {
         super();
     }
 
