@@ -37,14 +37,17 @@ import java.util.stream.Collectors;
  *
  * Created by mrelac on 24/07/2015.
  */
+
+// Not in public report set as of 13-Aug-2020
 @Component
-public class ImpcPhenotypesProceduresReport extends AbstractReport {
+@Deprecated
+public class ImpcPhenotypesProcedures extends AbstractReport {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     StatisticalResultService statisticalResultService;
 
-    public ImpcPhenotypesProceduresReport() {
+    public ImpcPhenotypesProcedures() {
         super();
     }
 

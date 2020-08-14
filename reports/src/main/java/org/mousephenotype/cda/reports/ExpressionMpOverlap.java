@@ -24,7 +24,8 @@ import java.util.*;
  * @since 2016/02/25
  */
 @Component
-public class ExpressionMpOverlapReport extends AbstractReport {
+@Deprecated
+public class ExpressionMpOverlap extends AbstractReport {
 
 	protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -49,7 +50,7 @@ public class ExpressionMpOverlapReport extends AbstractReport {
 
 	private Map<String, AnatomyDTO> anatomyMap = new HashMap<>();
 
-	public ExpressionMpOverlapReport() {
+	public ExpressionMpOverlap() {
 		super();
 	}
 

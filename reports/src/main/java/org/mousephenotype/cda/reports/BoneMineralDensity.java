@@ -32,13 +32,14 @@ import java.util.List;
  * Created by mrelac on 28/07/2015.
  */
 @Component
-public class BmdStatsReport extends BoneMineralAbstractReport {
+@Deprecated
+public class BoneMineralDensity extends AbstractColonyStatisticsByParameter {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static final String parameter = "IMPC_DXA_004_001";
 
-    public BmdStatsReport() {
+    public BoneMineralDensity() {
         super();
     }
 
@@ -51,7 +52,7 @@ public class BmdStatsReport extends BoneMineralAbstractReport {
 
         List<String> errors = parser.validate(parser.parse(args));
         if ( ! errors.isEmpty()) {
-            logger.error("BmdStatsReport parser validation error: " + StringUtils.join(errors, "\n"));
+            logger.error("BmdStatsColonyStatisticsByParameter parser validation error: " + StringUtils.join(errors, "\n"));
             return;
         }
         initialise(args);

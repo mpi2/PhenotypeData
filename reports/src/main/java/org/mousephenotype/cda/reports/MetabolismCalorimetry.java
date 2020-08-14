@@ -37,7 +37,7 @@ import java.util.*;
  * Created by mrelac on 28/07/2015.
  */
 @Component
-public class MetabolismCalorimetryReport extends AbstractReport {
+public class MetabolismCalorimetry extends AbstractReport {
 
     @Autowired
     ExperimentService experimentService;
@@ -108,7 +108,7 @@ public class MetabolismCalorimetryReport extends AbstractReport {
 
     public static final String RER_DATA_PARAMETER = "rerDataParameter";
 
-    public MetabolismCalorimetryReport() {
+    public MetabolismCalorimetry() {
         super();
     }
 

@@ -44,96 +44,97 @@ public class ReportsManager implements CommandLineRunner {
 
 
     @Autowired
-    private LaczExpressionReport lacZExpressionReport;
+    private LaczExpression lacZExpression;
 
     @Autowired
-    private BmdStatsGlucoseConcentrationReport bmdStatsGlucoseConcentrationReport;
+    private GlucoseConcentration bmdStatsGlucoseConcentrationReport;
 
     @Autowired
-    private BmdStatsGlucoseResponseReport bmdStatsGlucoseResponseReport;
+    private GlucoseResponse bmdStatsGlucoseResponseReport;
 
     @Autowired
-    private DataOverviewReport dataOverviewReport;
+    private DataOverview dataOverview;
 
     @Autowired
-    private BmdStatsReport bmdStatsReport;
+    private BoneMineralDensity bmdStatsReport;
 
     @Autowired
-    private FertilityReport fertilityReport;
+    private Fertility fertility;
 
     @Autowired
-    private HitsPerLineReport hitsPerLineReport;
+    private PhenotypeHitsPerLine phenotypeHitsPerLine;
 
     @Autowired
-    private HitsPerParameterAndProcedureReport hitsPerParameterAndProcedureReport;
+    private PhenotypeHitsPerParameterAndProcedure phenotypeHitsPerParameterAndProcedure;
 
     @Autowired
     private ImpcGafReport impcGafReport;
 
     @Autowired
-    private ImpcPValuesReport impcPValuesReport;
+    private ImpcPValues impcPValues;
 
     @Autowired
-    private ImpcPhenotypesProceduresReport impcPhenotypesProceduresReport;
+    private ImpcPhenotypesProcedures impcPhenotypesProcedures;
 
     @Autowired
-    private MetabolismCalorimetryReport metabolismCalorimetryReport;
+    private MetabolismCalorimetry metabolismCalorimetry;
 
     @Autowired
-    private MetabolismCBCReport metabolismCBCReport;
+    private MetabolismCBC metabolismCBC;
 
     @Autowired
-    private MetabolismDEXAReport metabolismDEXAReport;
+    private MetabolismDEXA metabolismDEXA;
 
     @Autowired
-    private MetabolismIPGTTReport metabolismIPGTTReport;
+    private MetabolismIPGTT metabolismIPGTT;
 
     @Autowired
-    private PhenotypeHitsReport phenotypeHitsReport;
+    private PhenotypeHitsPerTopLevelMPTerm phenotypeHitsPerTopLevelMPTerm;
 
     @Autowired
-    private PhenotypeOverviewPerGeneReport phenotypeOverviewPerGeneReport;
+    private PhenotypeHitsPerGene phenotypeHitsPerGene;
 
     @Autowired
-    private ProcedureCompletenessImpcReport procedureCompletenessImpcReport;
+    private ProcedureCompletenessImpc procedureCompletenessImpc;
 
     @Autowired
-    private ProcedureCompletenessAllReport procedureCompletenessAllReport;
+    private ProcedureCompletenessAll procedureCompletenessAll;
 
     @Autowired
-    private ViabilityReport viabilityReport;
+    private Viability viability;
 
     @Autowired
-    private ZygosityReport zygosityReport;
+    private Zygosity zygosity;
 
 
     private ReportsManagerParser parser = new ReportsManagerParser();
     private static final Logger log = LoggerFactory.getLogger(ReportsManager.class);
     public enum ReportType {
-        BMD_STATS("bmdStats", "BMD stats (Bone Mineral Content, excluding skull) report"),
-        BMD_STATS_GLUCOSE_CONCENTRATION("bmdStatsGlucoseConcentration", "lpGTT stats (Fasted blood glucose concentration) report"),
-        BMD_STATS_GLUCOSE_RESPONSE("bmdStatsGlucoseResponse", "lpGTT stats (Area under the curve glucose response) report"),
-        DATA_OVERVIEW("dataOverview", "Data overview report"),
-        PHENOTYPE_HITS("phenotypeHits", "Distribution of phenotype hits report"),
-        FERTILITY("fertility", "Fertility report"),
-        HITS_PER_LINE("hitsPerLine", "Hits per line report"),
-        HITS_PER_PARAMETER_AND_PROCEDURE("hitsPerParameterAndProcedure", "Hits per parameter and procedure report"),
-        IMPC_GAF("impcGaf", "IMPC GAF report"),
-        IMPC_P_VALUES("impcPValues", "IMPC p-values report"),
-        IMPC_PHENOTYPES_PROCEDURES("impcSignificantPhenotypesProcedures", "IMPC significant phenotypes by procedures complete report"),
-        LACZ_EXPRESSION("laczExpression", "Lacz expression report"),
+        BONE_MINERAL_DENSITY("boneMineralDensity", "Bone Mineral Density statistics (Bone Mineral Content, excluding skull)"),
+        DATA_OVERVIEW("dataOverview", "Data overview"),
+        FERTILITY("fertility", "Fertility"),
+        GLUCOSE_CONCENTRATION("glucoseConcentration", "lpGTT stats (Fasted blood glucose concentration)"),
+        GLUCOSE_RESPONSE("glucoseResponse", "lpGTT stats (Area under the curve glucose response)"),
+        IMPC_GAF("impcGaf", "IMPC GAF"),
+        IMPC_PHENOTYPES_PROCEDURES("impcPhenotypesProcedures", "IMPC significant phenotypes by procedures complete"),
+        IMPC_P_VALUES("impcPValues", "IMPC p-values"),
+        LACZ_EXPRESSION("laczExpression", "Lacz expression"),
         METABOLISM_CALORIMETRY("metabolismCalorimetry", "Metabolism calorimetry"),
         METABOLISM_CBC("metabolismCBC", "Metabolism CBC"),
         METABOLISM_DEXA("metabolismDEXA", "Metabolism DEXA"),
         METABOLISM_IPGTT("metabolismIPGTT", "Metabolism IPGTT"),
-        PHENOTYPE_OVERVIEW_PER_GENE("phenotypeOverviewPerGene", "Phenotype overview per gene report"),
-        PROCEDURE_COMPLETENESS_IMPC("procedureCompletenessImpc", "Procedure completeness for IMPC data source report"),
-        PROCEDURE_COMPLETENESS_ALL("procedureCompletenessAll", "Procedure completeness for All data sources report"),
-        VIABILITY("viability", "Viability report"),
-        LACZMPOVERLAP("laczmpoverlap", "Lacz and MP call overlap report"),
-        ZYGOSITY("zygosity", "Zygosity report"),
-        EBIDCC("ebidcc", "EBI-DCC call comparison report"),
-        IDR("idr", "IDR report");
+        PHENOTYPE_HITS_PER_LINE("phenotypeHitsPerLine", "Phenotype hits per line"),
+        PHENOTYPE_HITS_PER_PARAMETER_AND_PROCEDURE("phenotypeHitsPerParameterAndProcedure", "Hits per parameter and procedure"),
+        PHENOTYPE_HITS_PER_TOP_LEVEL_MP_TERM("phenotypeHitsPerTopLevelMPTerm", "Distribution of phenotype hits"),
+
+        PHENOTYPE_OVERVIEW_PER_GENE("phenotypeOverviewPerGene", "Phenotype overview per gene"),
+        PROCEDURE_COMPLETENESS_IMPC("procedureCompletenessImpc", "Procedure completeness for IMPC data source"),
+        PROCEDURE_COMPLETENESS_ALL("procedureCompletenessAll", "Procedure completeness for All data sources"),
+        VIABILITY("viability", "Viability"),
+        LACZMPOVERLAP("laczmpoverlap", "Lacz and MP call overlap"),
+        ZYGOSITY("zygosity", "Zygosity"),
+        EBIDCC("ebidcc", "EBI-DCC call comparison"),
+        IDR("idr", "IDR");
 
         String tag;
         String description;
@@ -223,69 +224,69 @@ public class ReportsManager implements CommandLineRunner {
             try {
                 switch (reportType) {
 
-                    case BMD_STATS:
+                    case BONE_MINERAL_DENSITY:
                         bmdStatsReport.run(args);
                         file = bmdStatsReport.targetFile;
                         break;
 
-                    case BMD_STATS_GLUCOSE_CONCENTRATION:
+                    case GLUCOSE_CONCENTRATION:
                         bmdStatsGlucoseConcentrationReport.run(args);
                         file = bmdStatsGlucoseConcentrationReport.targetFile;
                         break;
 
-                    case BMD_STATS_GLUCOSE_RESPONSE:
+                    case GLUCOSE_RESPONSE:
                         bmdStatsGlucoseResponseReport.run(args);
                         file = bmdStatsGlucoseResponseReport.targetFile;
                         break;
 
                     case DATA_OVERVIEW:
-                        dataOverviewReport.run(args);
-                        file = dataOverviewReport.targetFile;
+                        dataOverview.run(args);
+                        file = dataOverview.targetFile;
                         break;
 
-                    case PHENOTYPE_HITS:
-                        phenotypeHitsReport.run(args);
-                        file = phenotypeHitsReport.targetFile;
+                    case PHENOTYPE_HITS_PER_TOP_LEVEL_MP_TERM:
+                        phenotypeHitsPerTopLevelMPTerm.run(args);
+                        file = phenotypeHitsPerTopLevelMPTerm.targetFile;
                         break;
 
                     case FERTILITY:
-                        fertilityReport.run(args);
-                        file = fertilityReport.targetFile;
+                        fertility.run(args);
+                        file = fertility.targetFile;
                         break;
 
-                    case HITS_PER_LINE:
-                        hitsPerLineReport.run(args);
-                        file = hitsPerLineReport.targetFile;
+                    case PHENOTYPE_HITS_PER_LINE:
+                        phenotypeHitsPerLine.run(args);
+                        file = phenotypeHitsPerLine.targetFile;
                         break;
 
-                    case HITS_PER_PARAMETER_AND_PROCEDURE:
-                        hitsPerParameterAndProcedureReport.run(args);
-                        file = hitsPerParameterAndProcedureReport.targetFile;
+                    case PHENOTYPE_HITS_PER_PARAMETER_AND_PROCEDURE:
+                        phenotypeHitsPerParameterAndProcedure.run(args);
+                        file = phenotypeHitsPerParameterAndProcedure.targetFile;
                         break;
 
                     case LACZ_EXPRESSION:
-                        lacZExpressionReport.run(args);
-                        file = lacZExpressionReport.targetFile;
+                        lacZExpression.run(args);
+                        file = lacZExpression.targetFile;
                         break;
 
                     case METABOLISM_CALORIMETRY:
-                        metabolismCalorimetryReport.run(args);
-                        file = metabolismCalorimetryReport.targetFile;
+                        metabolismCalorimetry.run(args);
+                        file = metabolismCalorimetry.targetFile;
                         break;
 
                     case METABOLISM_CBC:
-                        metabolismCBCReport.run(args);
-                        file = metabolismCBCReport.targetFile;
+                        metabolismCBC.run(args);
+                        file = metabolismCBC.targetFile;
                         break;
 
                     case METABOLISM_DEXA:
-                        metabolismDEXAReport.run(args);
-                        file = metabolismDEXAReport.targetFile;
+                        metabolismDEXA.run(args);
+                        file = metabolismDEXA.targetFile;
                         break;
 
                     case METABOLISM_IPGTT:
-                        metabolismIPGTTReport.run(args);
-                        file = metabolismIPGTTReport.targetFile;
+                        metabolismIPGTT.run(args);
+                        file = metabolismIPGTT.targetFile;
                         break;
 
                     case IMPC_GAF:
@@ -294,38 +295,38 @@ public class ReportsManager implements CommandLineRunner {
                         break;
 
                     case IMPC_P_VALUES:
-                        impcPValuesReport.run(args);
-                        file = impcPValuesReport.targetFile;
+                        impcPValues.run(args);
+                        file = impcPValues.targetFile;
                         break;
 
                     case IMPC_PHENOTYPES_PROCEDURES:
-                        impcPhenotypesProceduresReport.run(args);
-                        file = impcPhenotypesProceduresReport.targetFile;
+                        impcPhenotypesProcedures.run(args);
+                        file = impcPhenotypesProcedures.targetFile;
                         break;
 
                     case PHENOTYPE_OVERVIEW_PER_GENE:
-                        phenotypeOverviewPerGeneReport.run(args);
-                        file = phenotypeOverviewPerGeneReport.targetFile;
+                        phenotypeHitsPerGene.run(args);
+                        file = phenotypeHitsPerGene.targetFile;
                         break;
 
                     case PROCEDURE_COMPLETENESS_IMPC:
-                        procedureCompletenessImpcReport.run(args);
-                        file = procedureCompletenessImpcReport.targetFile;
+                        procedureCompletenessImpc.run(args);
+                        file = procedureCompletenessImpc.targetFile;
                         break;
 
                     case PROCEDURE_COMPLETENESS_ALL:
-                        procedureCompletenessAllReport.run(args);
-                        file = procedureCompletenessAllReport.targetFile;
+                        procedureCompletenessAll.run(args);
+                        file = procedureCompletenessAll.targetFile;
                         break;
 
                     case VIABILITY:
-                        viabilityReport.run(args);
-                        file = viabilityReport.targetFile;
+                        viability.run(args);
+                        file = viability.targetFile;
                         break;
 
                     case ZYGOSITY:
-                        zygosityReport.run(args);
-                        file = zygosityReport.targetFile;
+                        zygosity.run(args);
+                        file = zygosity.targetFile;
                         break;
 
 //                    case IDR:

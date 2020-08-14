@@ -38,7 +38,7 @@ import java.util.*;
  * Created by mrelac on 24/07/2015.
  */
 @Component
-public class ViabilityReport extends AbstractReport {
+public class Viability extends AbstractReport {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -48,7 +48,7 @@ public class ViabilityReport extends AbstractReport {
     @Autowired
     GeneService geneService;
 
-    public ViabilityReport() {
+    public Viability() {
         super();
     }
 

@@ -558,7 +558,9 @@ public class ObservationDTOBase {
 
 	/**
      * @return the strainAccessionId
+	 * Use @Field(STRAIN_ACCESSION_ID) strainAccessionId instead
      */
+	@Deprecated
     public String getStrain() {
         return strainAccessionId;
     }

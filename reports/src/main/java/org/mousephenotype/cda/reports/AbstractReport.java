@@ -28,7 +28,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -50,6 +55,7 @@ public abstract class AbstractReport {
     protected ReportParser            parser              = new ReportParser();
 
     protected static final String DATA_ERROR = "DATA ERROR";
+    public static final String NO_DATA = "NO DATA";
 
     public abstract String getDefaultFilename();
 
@@ -167,5 +173,14 @@ public abstract class AbstractReport {
         log.info("Target directory: " + parser.getTargetDirectory());
         log.info("Report format:    " + reportFormat);
         log.info("Properties targetFile:  " + (parser.getApplicationProperties() == null ? "<omitted>" : parser.getApplicationProperties().getURL().toString()));
+    }
+
+    public String formatDate(LocalDateTime date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return (date == null ? "" : date.format(formatter));
+    }
+
+    public String formatDate(Date date) {
+        return date == null ? "" : formatDate(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
     }
 }

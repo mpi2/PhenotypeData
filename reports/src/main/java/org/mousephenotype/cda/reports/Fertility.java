@@ -40,7 +40,7 @@ import java.util.*;
  * Created by mrelac on 24/07/2015.
  */
 @Component
-public class FertilityReport extends AbstractReport {
+public class Fertility extends AbstractReport {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -50,7 +50,7 @@ public class FertilityReport extends AbstractReport {
     public static final String MALE_FERTILITY_PARAMETER = "IMPC_FER_001_001";
     public static final String FEMALE_FERTILITY_PARAMETER = "IMPC_FER_019_001";
 
-    public FertilityReport() {
+    public Fertility() {
         super();
     }
 

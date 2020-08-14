@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  * Created by mrelac on 24/07/2015.
  */
 @Component
-public class LaczExpressionReport extends AbstractReport {
+public class LaczExpression extends AbstractReport {
 
     protected Logger       logger = LoggerFactory.getLogger(this.getClass());
     protected String       reportsHostname;
@@ -56,8 +56,8 @@ public class LaczExpressionReport extends AbstractReport {
     public String imageCollectionLinkBase = "https://www.mousephenotype.org/data";
 
     @Inject
-    public LaczExpressionReport(@NotNull ImageService imageService,
-                                @NotNull ExpressionService expressionService) {
+    public LaczExpression(@NotNull ImageService imageService,
+                          @NotNull ExpressionService expressionService) {
         super();
         this.imageService = imageService;
         this.expressionService = expressionService;

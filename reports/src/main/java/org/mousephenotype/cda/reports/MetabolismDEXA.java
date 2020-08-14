@@ -37,7 +37,7 @@ import java.util.*;
  * Created by mrelac on 28/07/2015.
  */
 @Component
-public class MetabolismDEXAReport extends AbstractReport {
+public class MetabolismDEXA extends AbstractReport {
 
     @Autowired
     ExperimentService experimentService;
@@ -57,7 +57,7 @@ public class MetabolismDEXAReport extends AbstractReport {
             ,"Metadata"
     };
 
-    public MetabolismDEXAReport() {
+    public MetabolismDEXA() {
         super();
     }
 

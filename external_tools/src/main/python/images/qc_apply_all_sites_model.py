@@ -9,6 +9,7 @@
 """
 
 import os
+import re
 import argparse
 import numpy as np
 import torch
@@ -59,17 +60,29 @@ processed_output_path = os.path.join(args.output_dir,site_name+"_"+parameter_sta
 mis_classified_output_path = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+"_misclassified.csv")
 unable_to_read_output_path = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+"_unable_to_read.csv")
 
-
 # Dict to map parameter_stable_ids to expected_class
+#parameter_to_class_map = {
+#    'IMPC_XRY_051_001' : 1,
+#    'IMPC_XRY_049_001' : 2,
+#    'IMPC_XRY_034_001' : 3,
+#    'IMPC_XRY_048_001' : 4,
+#    'IMPC_XRY_050_001' : 5,
+#    'IMPC_XRY_052_001' : 6,
+#}
+
+# Because of inclusion of LA need to make mapping more general
 parameter_to_class_map = {
-    'IMPC_XRY_051_001' : 1,
-    'IMPC_XRY_049_001' : 2,
-    'IMPC_XRY_034_001' : 3,
-    'IMPC_XRY_048_001' : 4,
-    'IMPC_XRY_050_001' : 5,
-    'IMPC_XRY_052_001' : 6,
+    '_XRY_051_001' : 1,
+    '_XRY_049_001' : 2,
+    '_XRY_034_001' : 3,
+    '_XRY_048_001' : 4,
+    '_XRY_050_001' : 5,
+    '_XRY_052_001' : 6,
 }
-expected_class = parameter_to_class_map[parameter_stable_id]
+regex = re.compile('(_XRY_0[0-9]{2}_001)')
+parameter_id_stem = matches.findall(parameter_stable_id)[0]
+expected_class = parameter_to_class_map[parameter_id_stem]
+
 # In[3]:
 
 
