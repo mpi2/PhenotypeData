@@ -120,14 +120,14 @@ for i in range(0, len(results), 2): # stride=2 as we have center,count
 
 # Create directories for files
 output_dir_stem = os.path.join(args.output_base_dir,'output')
-if not os.path.isdir(output_dir):
-    os.path.makedir(output_dir)
+if not os.path.isdir(output_dir_stem):
+    os.mkdir(output_dir_stem)
 jobs_dir = os.path.join(args.output_base_dir,'jobs')
 if not os.path.isdir(jobs_dir):
-    os.path.makedir(jobs_dir)
+    os.mkdir(jobs_dir)
 logs_dir = os.path.join(args.output_base_dir,'logs')
 if not os.path.isdir(logs_dir):
-    os.path.makedir(logs_dir)
+    os.mkdir(logs_dir)
 
 # For each center for each parameter
 #   1) Generate list of files to process
@@ -162,7 +162,7 @@ for phenotyping_center in phenotyping_centers:
         if args.create_site_parameter_dirs:
             output_dir = os.path.join(output_dir_stem, output_stem)
             if not os.path.isdir(output_dir):
-                os.path.mkdir(output_dir):
+                os.mkdir(output_dir)
         else:
             output_dir = output_dir_stem
         output_filepath = os.path.join(output_dir, output_filename)
