@@ -762,13 +762,6 @@ public class StatisticalResultDTO {
     }
 
 
-    public void addAnatomyTermId(String anatomyTermId){
-		if (this.anatomyTermId == null){
-			this.anatomyTermId = new ArrayList<>();
-		}
-		this.anatomyTermId.add(anatomyTermId);
-	}
-
     public void addAnatomyTermName(String anatomyTermName){
 		if (this.anatomyTermName == null){
 			this.anatomyTermName = new ArrayList<>();
