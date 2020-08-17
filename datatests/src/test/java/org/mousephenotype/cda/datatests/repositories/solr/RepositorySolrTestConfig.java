@@ -162,7 +162,7 @@ public class RepositorySolrTestConfig {
 
     @Bean
     public ImageService imageService() {
-        return new ImageService(impcImagesCore());
+        return new ImageService(impcImagesCore(), statisticalResultCore());
     }
 
     @Bean

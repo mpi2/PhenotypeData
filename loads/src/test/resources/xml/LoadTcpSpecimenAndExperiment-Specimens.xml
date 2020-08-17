@@ -1,7 +1,0 @@
-<centreSpecimenSet xmlns="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/specimen">
-    <centre centreID="Tcp">
-        <mouse DOB="2013-11-12" isBaseline="true" strainID="MGI:2683688" specimenID="B6NC_31172_069402" gender="female" zygosity="wild type" litterId="5187" pipeline="TCP_001" productionCentre="Tcp" phenotypingCentre="Tcp" project="NorCOMM2"/>
-        <mouse DOB="2014-06-05" isBaseline="true" strainID="MGI:2683688" specimenID="B6NC_46853_163447" gender="female" zygosity="wild type" litterId="7813" pipeline="TCP_001" productionCentre="Tcp" phenotypingCentre="Tcp" project="NorCOMM2"/>
-        <mouse DOB="2016-11-11" colonyID="TCPR0445_ACXM" isBaseline="false" strainID="MGI:2683688" specimenID="ACXM_86_500386" gender="female" zygosity="heterozygous" litterId="18063" pipeline="TCP_001" productionCentre="Tcp" phenotypingCentre="Tcp" project="DTCC"/>
-    </centre>
-</centreSpecimenSet>

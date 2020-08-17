@@ -2,6 +2,7 @@ package org.mousephenotype.cda.datatests.repositories.solr;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mousephenotype.cda.solr.repositories.GenotypePhenotypeRepository;
@@ -102,21 +103,16 @@ public class StatisticalResultTest {
 			list.stream().limit(NUM_TO_TEST).forEach(x -> logger.debug("Marker {}, Phenotype {}, Sex {}", x.getMarkerAccessionId(), x.getMpTermName(), x.getSex()));
 			assertTrue(list.size() > 0);
 
-			list.stream().limit(NUM_TO_TEST).forEach(x -> {
-				List<StatisticalResultDTO> list1 = statisticalResultRepository.findByMarkerAccessionIdAndParameterStableIdAndProcedureStableIdAndPhenotypeSexInAndMpTermIdOptionsIn(x.getMarkerAccessionId(), x.getParameterStableId(), x.getProcedureStableId(), x.getSex(), x.getMpTermId());
+			list.stream().limit(NUM_TO_TEST)
+				.forEach(x -> {
+				List<StatisticalResultDTO> list1 = statisticalResultRepository
+					.findByMarkerAccessionIdAndParameterStableIdAndProcedureStableIdAndPhenotypeSexInAndMpTermIdOptionsIn(
+						x.getMarkerAccessionId(), x.getParameterStableId(), x.getProcedureStableId().get(0), x.getSex(), x.getMpTermId());
 				if (list1.size() == 0) {
 					String substring = StringUtils.join(Arrays.asList(x.getMarkerAccessionId(), x.getParameterStableId(), x.getProcedureStableId(), x.getSex(), x.getMpTermId()), ", ");
 					Assert.fail("Genotype phenotype result for " + substring + ", which has no statistical-results entry");
 				}
 			});
 		}
-	}
-
-	// FIXME Please fix or delete.
-	@Test
-	public void testGetDistinctPipelineAlleleCenterListByGeneAccession() {
-
-		statisticalResultRepository.findByParameterStableId(null);
-
 	}
 }

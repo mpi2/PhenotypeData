@@ -80,7 +80,7 @@ parameter_to_class_map = {
     '_XRY_052_001' : 6,
 }
 regex = re.compile('(_XRY_0[0-9]{2}_001)')
-parameter_id_stem = matches.findall(parameter_stable_id)[0]
+parameter_id_stem = regex.findall(parameter_stable_id)[0]
 expected_class = parameter_to_class_map[parameter_id_stem]
 
 # In[3]:

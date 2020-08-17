@@ -63,7 +63,7 @@ public class ImpcPValues extends AbstractReport {
 
         long start = System.currentTimeMillis();
 
-        List<StatisticalResultDTO> resultDtoList = new ArrayList<>();
+        List<StatisticalResultDTO> resultDtoList;
 
         try {
             resultDtoList = statisticalResultService.getImpcPvalues();
