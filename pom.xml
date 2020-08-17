@@ -27,7 +27,6 @@
         <module>reports</module>
         <module>register-interest</module>
         <module>tests</module>
-        <module>thirdparty_loads</module>
         <module>datatests</module>
         <module>utilities</module>
         <module>web-db</module>
