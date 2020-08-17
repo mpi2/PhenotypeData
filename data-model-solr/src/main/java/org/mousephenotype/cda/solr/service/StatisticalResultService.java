@@ -431,7 +431,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         query.setQuery("-" + StatisticalResultDTO.STATISTICAL_METHOD + ":Wilcoxon*"); // Decided to omit Wilcoxon because it does not adjust for batch or center effect and the value for genotyope effect does not have the same meaning as for the other values.
         query.addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":\"" +
                 StringUtils.join(parameters.stream().map(ParameterDTO::getStableId).collect(Collectors.toList()), "\" OR " + StatisticalResultDTO.PARAMETER_STABLE_ID + ":\"") + "\"");
-        query.addFilterQuery(StatisticalResultDTO.STATUS + ":Success");
+        query.addFilterQuery(StatisticalResultDTO.STATUS + ":Successful");
 
         query.addField(StatisticalResultDTO.GENOTYPE_EFFECT_PARAMETER_ESTIMATE);
         query.addField(StatisticalResultDTO.MARKER_ACCESSION_ID);
@@ -1159,7 +1159,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
                             HeatMapCell cell = row.getXAxisToCellMap().containsKey(mp) ? row.getXAxisToCellMap().get(mp) : new HeatMapCell(mp, HeatMapCell.THREE_I_NO_DATA);
                             if (doc.getFieldValue(StatisticalResultDTO.SIGNIFICANT) != null && doc.getFieldValue(StatisticalResultDTO.SIGNIFICANT).toString().equalsIgnoreCase("true")) {
                                 cell.addStatus(HeatMapCell.THREE_I_DEVIANCE_SIGNIFICANT);
-                            } else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")) {
+                            } else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Successful")) {
                                 cell.addStatus(HeatMapCell.THREE_I_DATA_ANALYSED_NOT_SIGNIFICANT);
                             } else {
                                 cell.addStatus(HeatMapCell.THREE_I_COULD_NOT_ANALYSE);
@@ -1220,7 +1220,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
                     cell.setxAxisKey(doc.get(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString());
                     if (doc.getFieldValue(StatisticalResultDTO.P_VALUE) != null && Double.parseDouble(doc.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) < 0.0001) {
                         cell.addStatus(HeatMapCell.THREE_I_DEVIANCE_SIGNIFICANT);
-                    } else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")) {
+                    } else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Successful")) {
                         cell.addStatus(HeatMapCell.THREE_I_DATA_ANALYSED_NOT_SIGNIFICANT);
                     } else {
                         cell.addStatus(HeatMapCell.THREE_I_COULD_NOT_ANALYSE);
@@ -1304,7 +1304,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
     public List<StatisticalResultDTO> getImpcPvalues() throws SolrServerException, IOException {
         SolrQuery q = new SolrQuery("*:*")
-                .addFilterQuery(StatisticalResultDTO.STATUS + ":Success")
+                .addFilterQuery(StatisticalResultDTO.STATUS + ":Successful")
                 .addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(IMPC OR 3i)")
                 .addField(StatisticalResultDTO.ALLELE_SYMBOL)
                 .addField(StatisticalResultDTO.COLONY_ID)
@@ -1323,7 +1323,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
     public List<StatisticalResultDTO> getImpcPvaluesAndMpTerms() throws SolrServerException, IOException {
         SolrQuery q = new SolrQuery("*:*")
-                .addFilterQuery(StatisticalResultDTO.STATUS + ":Success")
+                .addFilterQuery(StatisticalResultDTO.STATUS + ":Successful")
                 .addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(IMPC OR 3i)")
                 .addField(StatisticalResultDTO.ALLELE_SYMBOL)
                 .addField(StatisticalResultDTO.COLONY_ID)
