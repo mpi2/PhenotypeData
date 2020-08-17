@@ -36,12 +36,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.mousephenotype.cda</groupId>
-            <artifactId>indexers</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
         </dependency>
