@@ -47,16 +47,16 @@ public class ReportsManager implements CommandLineRunner {
     private LaczExpression lacZExpression;
 
     @Autowired
-    private GlucoseConcentration bmdStatsGlucoseConcentrationReport;
+    private GlucoseConcentration glucoseConcentration;
 
     @Autowired
-    private GlucoseResponse bmdStatsGlucoseResponseReport;
+    private GlucoseResponse glucoseResponse;
 
     @Autowired
     private DataOverview dataOverview;
 
     @Autowired
-    private BoneMineralDensity bmdStatsReport;
+    private BoneMineralDensity boneMineralDensity;
 
     @Autowired
     private Fertility fertility;
@@ -72,9 +72,6 @@ public class ReportsManager implements CommandLineRunner {
 
     @Autowired
     private ImpcPValues impcPValues;
-
-    @Autowired
-    private ImpcPhenotypesProcedures impcPhenotypesProcedures;
 
     @Autowired
     private MetabolismCalorimetry metabolismCalorimetry;
@@ -115,26 +112,21 @@ public class ReportsManager implements CommandLineRunner {
         FERTILITY("fertility", "Fertility"),
         GLUCOSE_CONCENTRATION("glucoseConcentration", "lpGTT stats (Fasted blood glucose concentration)"),
         GLUCOSE_RESPONSE("glucoseResponse", "lpGTT stats (Area under the curve glucose response)"),
-        IMPC_GAF("impcGaf", "IMPC GAF"),
-        IMPC_PHENOTYPES_PROCEDURES("impcPhenotypesProcedures", "IMPC significant phenotypes by procedures complete"),
+//        IMPC_GAF("impcGaf", "IMPC GAF"),
         IMPC_P_VALUES("impcPValues", "IMPC p-values"),
         LACZ_EXPRESSION("laczExpression", "Lacz expression"),
         METABOLISM_CALORIMETRY("metabolismCalorimetry", "Metabolism calorimetry"),
         METABOLISM_CBC("metabolismCBC", "Metabolism CBC"),
         METABOLISM_DEXA("metabolismDEXA", "Metabolism DEXA"),
         METABOLISM_IPGTT("metabolismIPGTT", "Metabolism IPGTT"),
+        PHENOTYPE_HITS_PER_GENE("phenotypeHitsPerGene", "Phenotype hits per gene"),
         PHENOTYPE_HITS_PER_LINE("phenotypeHitsPerLine", "Phenotype hits per line"),
         PHENOTYPE_HITS_PER_PARAMETER_AND_PROCEDURE("phenotypeHitsPerParameterAndProcedure", "Hits per parameter and procedure"),
         PHENOTYPE_HITS_PER_TOP_LEVEL_MP_TERM("phenotypeHitsPerTopLevelMPTerm", "Distribution of phenotype hits"),
-
-        PHENOTYPE_OVERVIEW_PER_GENE("phenotypeOverviewPerGene", "Phenotype overview per gene"),
-        PROCEDURE_COMPLETENESS_IMPC("procedureCompletenessImpc", "Procedure completeness for IMPC data source"),
         PROCEDURE_COMPLETENESS_ALL("procedureCompletenessAll", "Procedure completeness for All data sources"),
+        PROCEDURE_COMPLETENESS_IMPC("procedureCompletenessImpc", "Procedure completeness for IMPC data source"),
         VIABILITY("viability", "Viability"),
-        LACZMPOVERLAP("laczmpoverlap", "Lacz and MP call overlap"),
-        ZYGOSITY("zygosity", "Zygosity"),
-        EBIDCC("ebidcc", "EBI-DCC call comparison"),
-        IDR("idr", "IDR");
+        ZYGOSITY("zygosity", "Zygosity");
 
         String tag;
         String description;
@@ -225,18 +217,18 @@ public class ReportsManager implements CommandLineRunner {
                 switch (reportType) {
 
                     case BONE_MINERAL_DENSITY:
-                        bmdStatsReport.run(args);
-                        file = bmdStatsReport.targetFile;
+                        boneMineralDensity.run(args);
+                        file = boneMineralDensity.targetFile;
                         break;
 
                     case GLUCOSE_CONCENTRATION:
-                        bmdStatsGlucoseConcentrationReport.run(args);
-                        file = bmdStatsGlucoseConcentrationReport.targetFile;
+                        glucoseConcentration.run(args);
+                        file = glucoseConcentration.targetFile;
                         break;
 
                     case GLUCOSE_RESPONSE:
-                        bmdStatsGlucoseResponseReport.run(args);
-                        file = bmdStatsGlucoseResponseReport.targetFile;
+                        glucoseResponse.run(args);
+                        file = glucoseResponse.targetFile;
                         break;
 
                     case DATA_OVERVIEW:
@@ -289,22 +281,17 @@ public class ReportsManager implements CommandLineRunner {
                         file = metabolismIPGTT.targetFile;
                         break;
 
-                    case IMPC_GAF:
-                        impcGafReport.run(args);
-                        file = impcGafReport.targetFile;
-                        break;
+//                    case IMPC_GAF:
+//                        impcGafReport.run(args);
+//                        file = impcGafReport.targetFile;
+//                        break;
 
                     case IMPC_P_VALUES:
                         impcPValues.run(args);
                         file = impcPValues.targetFile;
                         break;
 
-                    case IMPC_PHENOTYPES_PROCEDURES:
-                        impcPhenotypesProcedures.run(args);
-                        file = impcPhenotypesProcedures.targetFile;
-                        break;
-
-                    case PHENOTYPE_OVERVIEW_PER_GENE:
+                    case PHENOTYPE_HITS_PER_GENE:
                         phenotypeHitsPerGene.run(args);
                         file = phenotypeHitsPerGene.targetFile;
                         break;
@@ -328,16 +315,6 @@ public class ReportsManager implements CommandLineRunner {
                         zygosity.run(args);
                         file = zygosity.targetFile;
                         break;
-
-//                    case IDR:
-//                        idrReport.run(args);
-//                        file = idrReport.targetFile;
-//                        break;
-//                    case LACZMPOVERLAP: // This is not ready for users, used internally only, at the moment.
-//                    	laczMpReport.run(args);
-//                    	file = laczMpReport.targetFile;
-//                    	break;
-                   
                 }
 
                 String fqFilename = (file != null ? file.getAbsolutePath() : "<unknown>");
@@ -366,7 +343,6 @@ public class ReportsManager implements CommandLineRunner {
               "[[[[--" + ReportsManagerParser.REPORTS_ARG          + "]=report1],report2], ...]"
             , "   [--" + ReportsManagerParser.TARGET_DIRECTORY_ARG + "=target_directory]"
             , "   [--" + ReportsManagerParser.REPORT_FORMAT_ARG    + "={csv | tsv}]"
-//            , "   [--" + ReportsManagerParser.PROPERTIES_FILE_ARG  + "=properties_file]"
             , "   [--" + ReportsManagerParser.PREFIX_ARG           + "=prefix]"
             , "   [--" + ReportsManagerParser.HELP_ARG             + "]"
         };
@@ -374,7 +350,6 @@ public class ReportsManager implements CommandLineRunner {
               "Default is all reports"
             , "Default is " + ReportsManagerParser.DEFAULT_TARGET_DIRECTORY
             , "Default is " + ReportsManagerParser.DEFAULT_REPORT_FORMAT
-//            , "Default is " + ReportsManagerParser.DEFAULT_PROPERTIES_FILE
             , "Default is none"
             , ""
         };
