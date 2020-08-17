@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<centreSpecimenSet xmlns="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/specimen">
-    <centre centreID="Wtsi">
-        <mouse DOB="2015-01-12" colonyID="MGNY" isBaseline="true" strainID="MGI:2159965" specimenID="2025748" gender="male" zygosity="wild type" litterId="355761" pipeline="MGP_001" productionCentre="Wtsi" phenotypingCentre="Wtsi" project="MGP"/>
-    </centre>
-    <centre centreID="J">
-        <mouse DOB="2009-09-01" isBaseline="true" strainID="MGI:3056279" specimenID="C10837" gender="male" zygosity="wild type" litterId="20131202" pipeline="JAX_001" productionCentre="J" phenotypingCentre="J" project="JAX"/>
-    </centre>
-</centreSpecimenSet>

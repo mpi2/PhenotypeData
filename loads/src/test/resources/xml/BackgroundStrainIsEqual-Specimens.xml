@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns2:centreSpecimenSet xmlns="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/procedure" xmlns:ns2="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/specimen">
-    <ns2:centre centreID="Wtsi">
-        <ns2:mouse DOB="2007-12-16" colonyID="clone 1_10035" isBaseline="false" strainID="129/SvEv" specimenID="19603_WTSI" gender="female" zygosity="homozygous" litterId="unknown" pipeline="ESLIM_001" productionCentre="Wtsi" phenotypingCentre="Wtsi" project="Eumodic" />
-        <ns2:mouse DOB="2007-11-05" colonyID="baseline_0" isBaseline="true" strainID="129/SvEv" specimenID="14819_WTSI" gender="male" zygosity="homozygous" litterId="unknown" pipeline="ESLIM_001" productionCentre="Wtsi" phenotypingCentre="Wtsi" project="Eumodic"/>
-        </ns2:centre>
-</ns2:centreSpecimenSet>

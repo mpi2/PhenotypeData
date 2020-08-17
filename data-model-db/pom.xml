@@ -77,6 +77,7 @@
                 <configuration>
                     <!-- Don't fail if there are no runnable tests -->
                     <failIfNoTests>false</failIfNoTests>
+                    <skipTests>true</skipTests>
                 </configuration>
 
             </plugin>

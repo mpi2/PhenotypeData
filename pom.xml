@@ -24,14 +24,11 @@
         <module>data-model</module>
         <module>data-model-db</module>
         <module>data-model-solr</module>
-        <module>indexers</module>
-        <module>loads</module>
         <module>reports</module>
         <module>register-interest</module>
         <module>tests</module>
         <module>thirdparty_loads</module>
         <module>datatests</module>
-        <module>api</module>
         <module>utilities</module>
         <module>web-db</module>
     </modules>

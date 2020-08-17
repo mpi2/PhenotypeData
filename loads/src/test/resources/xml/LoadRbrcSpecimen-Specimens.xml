@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns2:centreSpecimenSet xmlns="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/procedure" xmlns:ns2="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/specimen">
-    <ns2:centre centreID="Rbrc">
-        <ns2:mouse DOB="2013-08-22" isBaseline="true" strainID="MGI:2164831" specimenID="JMC300001301" gender="female" zygosity="homozygous" litterId="90269" pipeline="IMPC_001" productionCentre="Rbrc" phenotypingCentre="Rbrc" project="RIKEN BRC"/>
-    </ns2:centre>
-</ns2:centreSpecimenSet>
