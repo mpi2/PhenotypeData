@@ -19,6 +19,7 @@ package org.mousephenotype.cda.reports;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.slf4j.Logger;
@@ -29,7 +30,6 @@ import org.springframework.stereotype.Component;
 
 import java.beans.Introspector;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -66,24 +66,26 @@ public class PhenotypeHitsPerParameterAndProcedure extends AbstractReport {
 
         long start = System.currentTimeMillis();
 
-        //Columns:
-        //	parameter name | parameter stable id | number of significant hits
-
-        List<List<String[]>> result = new ArrayList<>();
         try {
-            List<String[]> parameters = new ArrayList<>();
-            String[] headerParams  ={"Parameter Id", "Parameter Name", "# Significant Hits"};
-            parameters.add(headerParams);
-            parameters.addAll(genotypePhenotypeService.getHitsDistributionByParameter(resources));
+            String[] parametersHeading  ={
+                "Parameter Id",
+                "Parameter Name",
+                "Gene Symbols",
+                "Gene Accession Ids",
+                "# Significant Hits"};
+            csvWriter.write(parametersHeading);
+            csvWriter.writeRowsOfArray(genotypePhenotypeService.getHitsDistributionByParameter(resources));
 
-            List<String[]> procedures = new ArrayList<>();
-            String[] headerProcedures  ={"Procedure Id", "Procedure Name", "# Significant Hits"};
-            procedures.add(headerProcedures);
-            procedures.addAll(genotypePhenotypeService.getHitsDistributionByProcedure(resources));
+            csvWriter.write(Constants.EMPTY_ROW);
 
-            result.add(parameters);
-            result.add(procedures);
-            csvWriter.writeRowsMulti(result);
+            String[] proceduresHeading  = {
+                "Procedure Id",
+                "Procedure Name",
+                "Gene Symbols",
+                "Gene Accession Ids",
+                "# Significant Hits"};
+            csvWriter.write(proceduresHeading);
+            csvWriter.writeRowsOfArray(genotypePhenotypeService.getHitsDistributionByProcedure(resources));
 
         } catch (SolrServerException | IOException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());

@@ -80,7 +80,11 @@ public class PhenotypeHitsPerLine extends AbstractReport {
         List<List<String[]>> result = new ArrayList<>();
         try {
             List<String[]> zygosityTable = new ArrayList<>();
-            String[] headerParams  ={"# Hits", "# Colonies With This Many HOM Hits", "# Colonies With This Many HET Hits", "# Colonies With This Many Calls"};
+            String[] headerParams  ={
+                "# Hits",
+                "# Colonies With This Many HOM Hits",
+                "# Colonies With This Many HET Hits",
+                "# Colonies With This Many Unspecified Zygosity Hits"};
             zygosityTable.add(headerParams);
 
             Map<String, Long> homsMap = genotypePhenotypeService.getHitsDistributionBySomethingNoIds(GenotypePhenotypeDTO.COLONY_ID, resources, ZygosityType.homozygote, 1, Constants.P_VALUE_THRESHOLD);

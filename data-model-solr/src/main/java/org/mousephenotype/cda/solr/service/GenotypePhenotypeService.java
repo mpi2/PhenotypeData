@@ -283,6 +283,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         } else if (field.equals(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID)){
             pivotFacet =  GenotypePhenotypeDTO.PROCEDURE_STABLE_ID + "," + StatisticalResultDTO.PROCEDURE_NAME;
         }
+        pivotFacet = pivotFacet + "," + GenotypePhenotypeDTO.MARKER_SYMBOL + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
 
         if (resourceName != null){
             q.setQuery(GenotypePhenotypeDTO.RESOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + GenotypePhenotypeDTO.RESOURCE_NAME + ":"));
@@ -299,10 +300,18 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
 
         for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
             if (pivot.getPivot() != null){
-                String id = pivot.getValue().toString();
-                String name = pivot.getPivot().get(0).getValue().toString();
+                String parameterId = pivot.getValue().toString();
+                String parameterName = pivot.getPivot().get(0).getValue().toString();
                 int count = pivot.getPivot().get(0).getCount();
-                String[] row = {id, name, Integer.toString(count)};
+                List<String> geneSymbols = new ArrayList<>();
+                List<String> geneAccs = new ArrayList<>();
+                for (int i = 0; i < pivot.getPivot().get(0).getPivot().size(); i++) {
+                    geneSymbols.add(pivot.getPivot().get(0).getPivot().get(i).getValue().toString());
+                    geneAccs.add(pivot.getPivot().get(0).getPivot().get(i).getPivot().get(0).getValue().toString());
+                }
+                String genes = StringUtils.join(geneSymbols, "|");
+                String accs = StringUtils.join(geneAccs, "|");
+                String[] row = {parameterId, parameterName, genes, accs, Integer.toString(count)};
                 res.add(row);
             }
         }
