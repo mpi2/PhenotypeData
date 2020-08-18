@@ -128,11 +128,14 @@ public class ImpcPValues extends AbstractReport {
 
         csvWriter.write(heading);
 
-        // Sort by geneSymbol
+        // Sort by: geneSymbol (0), alleleSymbol (2), strainName (4), center (7)
         matrixValues = matrixValues.entrySet()
             .stream()
             .sorted(Map.Entry.comparingByKey(
-                Comparator.comparing((RowKey rk) -> rk.geneSymbol)))
+                Comparator.comparing((RowKey rk) -> rk.geneSymbol)
+                    .thenComparing(rk -> rk.alleleSymbol)
+                    .thenComparing(rk -> rk.strainName)
+                    .thenComparing(rk -> rk.phenotypingCenter)))
             .collect(Collectors.toMap(
                 Map.Entry::getKey,
                 Map.Entry::getValue,
