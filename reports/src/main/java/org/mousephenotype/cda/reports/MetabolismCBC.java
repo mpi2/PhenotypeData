@@ -46,26 +46,36 @@ public class MetabolismCBC extends AbstractReport {
     ObservationService observationService;
 
     private String[] header = new String[] {
-             "Mouse Id", "Sample Type", "Gene Symbol", "MGI Gene Id", "Allele Symbol", "Zygosity"
-            ,"Sex", "Colony Id", "Phenotyping Center", "Metadata Group"
+        "Gene Symbol",
+        "Gene Accession Id",
+        "Allele Symbol",
+        "Allele Accession Id",
+        "Background Strain Name",
+        "Background Strain Accession Id",
+        "Colony Id",
+        "Phenotyping Center",
+        "Mouse Id",
+        "Sample Type",
+        "Zygosity",
+        "Sex",
+        "Metadata Group",
 
-            ,"Total cholesterol IMPC_CBC_015_001"
-            ,"HDL-cholesterol IMPC_CBC_016_001"
-            ,"Triglycerides IMPC_CBC_017_001"
-            ,"Glucose IMPC_CBC_018_001"
-            ,"Fructosamine IMPC_CBC_020_001"
-            ,"LDL-cholesterol IMPC_CBC_025_001"
-            ,"Free fatty acids IMPC_CBC_026_001"
-            ,"Glycerol IMPC_CBC_027_001"
-            ,"C-reactive protein IMPC_CBC_032_001"
-            ,"Glycosilated hemoglobin A1c (HbA1c) IMPC_CBC_052_001"
-            ,"Thyroxine IMPC_CBC_053_001"
+        "Total cholesterol IMPC_CBC_015_001",
+        "HDL-cholesterol IMPC_CBC_016_001",
+        "Triglycerides IMPC_CBC_017_001",
+        "Glucose IMPC_CBC_018_001",
+        "Fructosamine IMPC_CBC_020_001",
+        "LDL-cholesterol IMPC_CBC_025_001",
+        "Free fatty acids IMPC_CBC_026_001",
+        "Glycerol IMPC_CBC_027_001",
+        "C-reactive protein IMPC_CBC_032_001",
+        "Glycosilated hemoglobin A1c (HbA1c) IMPC_CBC_052_001",
+        "Thyroxine IMPC_CBC_053_001",
 
-            ,"Insulin IMPC_INS_001_001"
+        "Insulin IMPC_INS_001_001",
 
-            // metadata
-            ,"CBC Metadata"
-            ,"INS Metadata"
+        "CBC Metadata",
+        "INS Metadata"
     };
 
     public MetabolismCBC() {
@@ -93,17 +103,13 @@ public class MetabolismCBC extends AbstractReport {
         int count = 0;
 
         try {
-            Collection<String> biologicalSampleIds = observationService.getMetabolismReportBiologicalSampleIds("IMPC_CBC_*");
-            for (String biologicalSampleId : biologicalSampleIds) {
-//if (count >= 1000) break;
-                Integer iBiologicalSampleId = commonUtils.tryParseInt(biologicalSampleId);
-                if (iBiologicalSampleId != null) {
-                    List<ObservationDTO> mouseInfoDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_CBC_*", iBiologicalSampleId);
-                    List<ObservationDTO> mouseInfoInsulinDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_INS_*", iBiologicalSampleId);
-                    csvWriter.write(createReportRow(mouseInfoDTOs, mouseInfoInsulinDTOs));
-                    if (++count % 10000 == 0)
-                        log.debug(new Date().toString() + ": " + count + " records written.");
-                }
+            Collection<String> sampleIds = observationService.getMetabolismReportBiologicalSampleIds("IMPC_CBC_*");
+            for (String sampleId : sampleIds) {
+                List<ObservationDTO> mouseInfoDTOs        = observationService.getMetabolismReportBiologicalSampleId("IMPC_CBC_*", sampleId);
+                List<ObservationDTO> mouseInfoInsulinDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_INS_*", sampleId);
+                csvWriter.write(createReportRow(mouseInfoDTOs, mouseInfoInsulinDTOs));
+                if (++count % 10000 == 0)
+                    log.debug(new Date().toString() + ": " + count + " records written.");
             }
 
             csvWriter.close();
@@ -161,15 +167,18 @@ public class MetabolismCBC extends AbstractReport {
 
         String externalSampleId = mouseInfoDTOs.get(0).getExternalSampleId().toString();
         // Build the output row.
-        retVal.add(mouseInfoDTOs.get(0).getExternalSampleId());
-        retVal.add(mouseInfoDTOs.get(0).getGroup());
         retVal.add(mouseInfoDTOs.get(0).getGeneSymbol());
         retVal.add(mouseInfoDTOs.get(0).getGeneAccession());
         retVal.add(mouseInfoDTOs.get(0).getAlleleSymbol());
-        retVal.add(mouseInfoDTOs.get(0).getZygosity());
-        retVal.add(mouseInfoDTOs.get(0).getSex());
+        retVal.add(mouseInfoDTOs.get(0).getAlleleAccession());
+        retVal.add(mouseInfoDTOs.get(0).getStrainName());
+        retVal.add(mouseInfoDTOs.get(0).getStrainAccessionId());
         retVal.add(mouseInfoDTOs.get(0).getColonyId());
         retVal.add(mouseInfoDTOs.get(0).getPhenotypingCenter());
+        retVal.add(mouseInfoDTOs.get(0).getExternalSampleId());
+        retVal.add(mouseInfoDTOs.get(0).getGroup());
+        retVal.add(mouseInfoDTOs.get(0).getZygosity());
+        retVal.add(mouseInfoDTOs.get(0).getSex());
         retVal.add(mouseInfoDTOs.get(0).getMetadataGroup());
 
         List<Float> data = mouseInfoMap.get("IMPC_CBC_015_001");

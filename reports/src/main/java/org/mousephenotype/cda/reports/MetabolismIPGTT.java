@@ -46,21 +46,31 @@ public class MetabolismIPGTT extends AbstractReport {
     ObservationService observationService;
 
     private String[] header = new String[] {
-             "Mouse Id", "Sample Type", "Gene Symbol", "MGI Gene Id", "Allele Symbol", "Zygosity"
-            ,"Sex", "Colony Id", "Phenotyping Center", "Metadata Group"
+        "Gene Symbol",
+        "Gene Accession Id",
+        "Allele Symbol",
+        "Allele Accession Id",
+        "Background Strain Name",
+        "Background Strain Accession Id",
+        "Colony Id",
+        "Phenotyping Center",
+        "Mouse Id",
+        "Sample Type",
+        "Zygosity",
+        "Sex",
+        "Metadata Group",
 
-            ,"Body Weight IMPC_IPG_001_001"
+        "Body Weight IMPC_IPG_001_001",
 
-            ,"Blood glucose concentration - time point 0 IMPC_IPG_002_001"
-            ,"Blood glucose concentration - time point 15 IMPC_IPG_002_001"
-            ,"Blood glucose concentration - time point 30 IMPC_IPG_002_001"
-            ,"Blood glucose concentration - time point 60 IMPC_IPG_002_001"
-            ,"Blood glucose concentration - time point 120 IMPC_IPG_002_001"
+        "Blood glucose concentration - time point 0 IMPC_IPG_002_001",
+        "Blood glucose concentration - time point 15 IMPC_IPG_002_001",
+        "Blood glucose concentration - time point 30 IMPC_IPG_002_001",
+        "Blood glucose concentration - time point 60 IMPC_IPG_002_001",
+        "Blood glucose concentration - time point 120 IMPC_IPG_002_001",
 
-            ,"Fasted blood glucose concentration IMPC_IPG_010_001"
+        "Fasted blood glucose concentration IMPC_IPG_010_001",
 
-            // metadata
-            ,"Metadata"
+        "Metadata"
     };
 
     public MetabolismIPGTT() {
@@ -88,16 +98,12 @@ public class MetabolismIPGTT extends AbstractReport {
         int count = 0;
 
         try {
-            Collection<String> biologicalSampleIds = observationService.getMetabolismReportBiologicalSampleIds("IMPC_IPG_*");
-            for (String biologicalSampleId : biologicalSampleIds) {
-//if (count >= 1000) break;
-                Integer lBiologicalSampleId = commonUtils.tryParseInt(biologicalSampleId);
-                if (lBiologicalSampleId != null) {
-                    List<ObservationDTO> mouseInfoDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_IPG_*", lBiologicalSampleId);
-                    csvWriter.write(createReportRow(mouseInfoDTOs));
-                    if (++count % 1000 == 0)
-                        log.debug(new Date().toString() + ": " + count + " records written.");
-                }
+            Collection<String> sampleIds = observationService.getMetabolismReportBiologicalSampleIds("IMPC_IPG_*");
+            for (String sampleId : sampleIds) {
+                List<ObservationDTO> mouseInfoDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_IPG_*", sampleId);
+                csvWriter.write(createReportRow(mouseInfoDTOs));
+                if (++count % 1000 == 0)
+                    log.debug(new Date().toString() + ": " + count + " records written.");
             }
 
             csvWriter.close();
@@ -217,15 +223,18 @@ public class MetabolismIPGTT extends AbstractReport {
         }
 
         // Build the output row.
-        retVal.add(mouseInfoDTOs.get(0).getExternalSampleId());
-        retVal.add(mouseInfoDTOs.get(0).getGroup());
         retVal.add(mouseInfoDTOs.get(0).getGeneSymbol());
         retVal.add(mouseInfoDTOs.get(0).getGeneAccession());
         retVal.add(mouseInfoDTOs.get(0).getAlleleSymbol());
-        retVal.add(mouseInfoDTOs.get(0).getZygosity());
-        retVal.add(mouseInfoDTOs.get(0).getSex());
+        retVal.add(mouseInfoDTOs.get(0).getAlleleAccession());
+        retVal.add(mouseInfoDTOs.get(0).getStrainName());
+        retVal.add(mouseInfoDTOs.get(0).getStrainAccessionId());
         retVal.add(mouseInfoDTOs.get(0).getColonyId());
         retVal.add(mouseInfoDTOs.get(0).getPhenotypingCenter());
+        retVal.add(mouseInfoDTOs.get(0).getExternalSampleId());
+        retVal.add(mouseInfoDTOs.get(0).getGroup());
+        retVal.add(mouseInfoDTOs.get(0).getZygosity());
+        retVal.add(mouseInfoDTOs.get(0).getSex());
         retVal.add(mouseInfoDTOs.get(0).getMetadataGroup());
 
         Float[] data = mouseInfoMap.get("IMPC_IPG_001_001");

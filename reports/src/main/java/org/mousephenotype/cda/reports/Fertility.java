@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 import java.beans.Introspector;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Fertility report.
@@ -126,7 +127,7 @@ public class Fertility extends AbstractReport {
             conflictingMales.retainAll(malesInfertile);
 
             // Write summary section.
-            csvWriter.write(Arrays.asList(new String[] { "Phenotype", "# Genes*", "Gene Symbols"  }));
+            csvWriter.write(Arrays.asList("Phenotype", "# Genes*", "Gene Symbols"));
 
             csvWriter.write(buildList("Both fertile", bothFertile));
             csvWriter.write(buildList("Both infertile", bothInfertile));
@@ -145,7 +146,22 @@ public class Fertility extends AbstractReport {
             csvWriter.write(Constants.EMPTY_ROW);
 
             // Write detail section.
-            csvWriter.write(Arrays.asList(new String[] { "Gene Symbol", "Gene Accession Id", "Allele Symbol", "Allele Accession Id", "Phenotyping Centre", "Colony Id", "Sex", "Zygosity", "Phenotype", "Comment" } ));//            allTable.add(header);
+            String[] detailHeading = {
+                "Gene Symbol",
+                "Gene Accession Id",
+                "Allele Symbol",
+                "Allele Accession Id",
+                "Background Strain Name",
+                "Background Strain Accession Id",
+                "Colony Id",
+                "Phenotyping Center",
+                "Zygosity",
+                "Sex",
+                "Phenotype",
+                "Comment"
+            };
+            csvWriter.write(Arrays.asList(detailHeading));
+            List<List<String>> matrix = new ArrayList<>();
             for ( SolrDocument doc : response.getResults()) {
                 String category = doc.getFieldValue(ObservationDTO.CATEGORY).toString();
                 String geneSymbol = doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString();
@@ -155,10 +171,12 @@ public class Fertility extends AbstractReport {
                 row.add(doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID) != null ? doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID).toString() : "");
                 row.add(doc.getFieldValue(ObservationDTO.ALLELE_SYMBOL) != null ? doc.getFieldValue(ObservationDTO.ALLELE_SYMBOL).toString() : "");
                 row.add(doc.getFieldValue(ObservationDTO.ALLELE_ACCESSION_ID) != null ? doc.getFieldValue(ObservationDTO.ALLELE_ACCESSION_ID).toString() : "");
-                row.add(doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER) != null ? doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER).toString() : "");
+                row.add(doc.getFieldValue(ObservationDTO.STRAIN_NAME) != null ? doc.getFieldValue(ObservationDTO.STRAIN_NAME).toString() : "");
+                row.add(doc.getFieldValue(ObservationDTO.STRAIN_ACCESSION_ID) != null ? doc.getFieldValue(ObservationDTO.STRAIN_ACCESSION_ID).toString() : "");
                 row.add(doc.getFieldValue(ObservationDTO.COLONY_ID) != null ? doc.getFieldValue(ObservationDTO.COLONY_ID).toString() : "");
-                row.add(doc.getFieldValue(ObservationDTO.SEX) != null ? doc.getFieldValue(ObservationDTO.SEX).toString() : "");
+                row.add(doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER) != null ? doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER).toString() : "");
                 row.add(doc.getFieldValue(ObservationDTO.ZYGOSITY) != null ? doc.getFieldValue(ObservationDTO.ZYGOSITY).toString() : "");
+                row.add(doc.getFieldValue(ObservationDTO.SEX) != null ? doc.getFieldValue(ObservationDTO.SEX).toString() : "");
 
                 row.add(category);
 
@@ -166,8 +184,19 @@ public class Fertility extends AbstractReport {
                     row.add("Conflicting Data");
                 }
 
-                csvWriter.write(row);
+                matrix.add(row);
             }
+
+            // Sort by: geneSymbol (0), alleleSymbol (2), strainName (4), center (7)
+            matrix = matrix
+                .stream()
+                .sorted(Comparator.comparing((List<String> l) -> l.get(0))
+                            .thenComparing((l) -> l.get(2))
+                            .thenComparing((l) -> l.get(4))
+                            .thenComparing((l) -> l.get(7)))
+                .collect(Collectors.toList());
+
+            csvWriter.writeRows(matrix);
 
         } catch (SolrServerException | IOException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
