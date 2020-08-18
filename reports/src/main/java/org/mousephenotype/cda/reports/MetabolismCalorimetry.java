@@ -45,65 +45,76 @@ public class MetabolismCalorimetry extends AbstractReport {
     @Autowired
     ObservationService observationService;
 
-    private String[] header = new String[] {
-             "Mouse Id", "Sample Type", "Gene Symbol", "MGI Gene Id", "Allele", "Zygosity"
-            ,"Sex", "Colony Id", "Phenotyping Center", "Metadata Group"
+    private String[] header = {
+        "Gene Symbol",
+        "Gene Accession Id",
+        "Allele Symbol",
+        "Allele Accession Id",
+        "Background Strain Name",
+        "Background Strain Accession Id",
+        "Colony Id",
+        "Phenotyping Center",
+        "Mouse Id",
+        "Sample Type",
+        "Zygosity",
+        "Sex",
+        "Metadata Group",
 
-            ,"Body weight before experiment IMPC_CAL_001_001"
-            ,"Body weight after experiment IMPC_CAL_002_001"
+        "Body weight before experiment IMPC_CAL_001_001",
+        "Body weight after experiment IMPC_CAL_002_001",
 
-            ,"Oxygen consumption min IMPC_CAL_003_001"
-            ,"Oxygen consumption max IMPC_CAL_003_001"
-            ,"Oxygen consumption mean IMPC_CAL_003_001"
-            ,"Oxygen consumption count IMPC_CAL_003_001"
+        "Oxygen consumption min IMPC_CAL_003_001",
+        "Oxygen consumption max IMPC_CAL_003_001",
+        "Oxygen consumption mean IMPC_CAL_003_001",
+        "Oxygen consumption count IMPC_CAL_003_001",
 
-            ,"Carbon dioxide production min IMPC_CAL_004_001"
-            ,"Carbon dioxide production max IMPC_CAL_004_001"
-            ,"Carbon dioxide production mean IMPC_CAL_004_001"
-            ,"Carbon dioxide production count IMPC_CAL_004_001"
+        "Carbon dioxide production min IMPC_CAL_004_001",
+        "Carbon dioxide production max IMPC_CAL_004_001",
+        "Carbon dioxide production mean IMPC_CAL_004_001",
+        "Carbon dioxide production count IMPC_CAL_004_001",
 
-            ,"Heat production (metabolic rate) min IMPC_CAL_005_001"
-            ,"Heat production (metabolic rate) max IMPC_CAL_005_001"
-            ,"Heat production (metabolic rate) mean IMPC_CAL_005_001"
-            ,"Heat production (metabolic rate) count IMPC_CAL_005_001"
+        "Heat production (metabolic rate) min IMPC_CAL_005_001",
+        "Heat production (metabolic rate) max IMPC_CAL_005_001",
+        "Heat production (metabolic rate) mean IMPC_CAL_005_001",
+        "Heat production (metabolic rate) count IMPC_CAL_005_001",
 
-            ,"Ambulatory activity (no. of beam cuts) min IMPC_CAL_006_001"
-            ,"Ambulatory activity (no. of beam cuts) max IMPC_CAL_006_001"
-            ,"Ambulatory activity (no. of beam cuts) mean IMPC_CAL_006_001"
-            ,"Ambulatory activity (no. of beam cuts) count IMPC_CAL_006_001"
+        "Ambulatory activity (no. of beam cuts) min IMPC_CAL_006_001",
+        "Ambulatory activity (no. of beam cuts) max IMPC_CAL_006_001",
+        "Ambulatory activity (no. of beam cuts) mean IMPC_CAL_006_001",
+        "Ambulatory activity (no. of beam cuts) count IMPC_CAL_006_001",
 
-            ,"Total activity (no. of fine movement + no. of beam cuts) min IMPC_CAL_007_001"
-            ,"Total activity (no. of fine movement + no. of beam cuts) max IMPC_CAL_007_001"
-            ,"Total activity (no. of fine movement + no. of beam cuts) mean IMPC_CAL_007_001"
-            ,"Total activity (no. of fine movement + no. of beam cuts) count IMPC_CAL_007_001"
+        "Total activity (no. of fine movement + no. of beam cuts) min IMPC_CAL_007_001",
+        "Total activity (no. of fine movement + no. of beam cuts) max IMPC_CAL_007_001",
+        "Total activity (no. of fine movement + no. of beam cuts) mean IMPC_CAL_007_001",
+        "Total activity (no. of fine movement + no. of beam cuts) count IMPC_CAL_007_001",
 
-            ,"Total food intake IMPC_CAL_008_001"
+        "Total food intake IMPC_CAL_008_001",
 
-            ,"Cumulative food intake min IMPC_CAL_009_001"
-            ,"Cumulative food intake max IMPC_CAL_009_001"
-            ,"Cumulative food intake mean IMPC_CAL_009_001"
-            ,"Cumulative food intake count IMPC_CAL_009_001"
+        "Cumulative food intake min IMPC_CAL_009_001",
+        "Cumulative food intake max IMPC_CAL_009_001",
+        "Cumulative food intake mean IMPC_CAL_009_001",
+        "Cumulative food intake count IMPC_CAL_009_001",
 
-            ,"Respiratory Exchange Ratio IMPC_CAL_017_001"
+        "Respiratory Exchange Ratio IMPC_CAL_017_001",
 
-            ,"Total water intake IMPC_CAL_021_001"
+        "Total water intake IMPC_CAL_021_001",
 
-            ,"Cumulative water intake min IMPC_CAL_022_001"
-            ,"Cumulative water intake max IMPC_CAL_022_001"
-            ,"Cumulative water intake mean IMPC_CAL_022_001"
-            ,"Cumulative water intake count IMPC_CAL_022_001"
+        "Cumulative water intake min IMPC_CAL_022_001",
+        "Cumulative water intake max IMPC_CAL_022_001",
+        "Cumulative water intake mean IMPC_CAL_022_001",
+        "Cumulative water intake count IMPC_CAL_022_001",
 
-            ,"Respiratory Exchange Ratio series min IMPC_CAL_042_001"
-            ,"Respiratory Exchange Ratio series max IMPC_CAL_042_001"
-            ,"Respiratory Exchange Ratio series mean IMPC_CAL_042_001"
-            ,"Respiratory Exchange Ratio series count IMPC_CAL_042_001"
+        "Respiratory Exchange Ratio series min IMPC_CAL_042_001",
+        "Respiratory Exchange Ratio series max IMPC_CAL_042_001",
+        "Respiratory Exchange Ratio series mean IMPC_CAL_042_001",
+        "Respiratory Exchange Ratio series count IMPC_CAL_042_001",
 
-            ,"Respiratory Exchange Ratio Derived min"
-            ,"Respiratory Exchange Ratio Derived max"
-            ,"Respiratory Exchange Ratio Derived mean"
-            ,"Respiratory Exchange Ratio Derived count"
+        "Respiratory Exchange Ratio Derived min",
+        "Respiratory Exchange Ratio Derived max",
+        "Respiratory Exchange Ratio Derived mean",
+        "Respiratory Exchange Ratio Derived count",
 
-            ,"Metadata"
+        "Metadata"
     };
 
     public static final String RER_DATA_PARAMETER = "rerDataParameter";
@@ -132,16 +143,12 @@ public class MetabolismCalorimetry extends AbstractReport {
         int count = 0;
 
         try {
-            Collection<String> biologicalSampleIds = observationService.getMetabolismReportBiologicalSampleIds("IMPC_CAL_*");
-            for (String biologicalSampleId : biologicalSampleIds) {
-
-                Integer lBiologicalSampleId = commonUtils.tryParseInt(biologicalSampleId);
-                if (lBiologicalSampleId != null) {
-                    List<ObservationDTO> mouseInfoDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_CAL_*", lBiologicalSampleId);
-                    csvWriter.write(createReportRow(mouseInfoDTOs));
-                    if (++count % 10000 == 0)
-                        log.debug("  " + count + " records written.");
-                }
+            Collection<String> sampleIds = observationService.getMetabolismReportBiologicalSampleIds("IMPC_CAL_*");
+            for (String sampleId : sampleIds) {
+                List<ObservationDTO> dtos = observationService.getMetabolismReportBiologicalSampleId("IMPC_CAL_*", sampleId);
+                csvWriter.write(createReportRow(dtos));
+                if (++count % 10000 == 0)
+                    log.debug("  " + count + " records written.");
             }
 
             csvWriter.close();
@@ -298,19 +305,21 @@ public class MetabolismCalorimetry extends AbstractReport {
         }
 
         // Build the output row.
-        retVal.add(mouseInfoDTOs.get(0).getExternalSampleId());
-        retVal.add(mouseInfoDTOs.get(0).getGroup());
         retVal.add(mouseInfoDTOs.get(0).getGeneSymbol());
         retVal.add(mouseInfoDTOs.get(0).getGeneAccession());
         retVal.add(mouseInfoDTOs.get(0).getAlleleSymbol());
-        retVal.add(mouseInfoDTOs.get(0).getZygosity());
-        retVal.add(mouseInfoDTOs.get(0).getSex());
+        retVal.add(mouseInfoDTOs.get(0).getAlleleAccession());
+        retVal.add(mouseInfoDTOs.get(0).getStrainName());
+        retVal.add(mouseInfoDTOs.get(0).getStrainAccessionId());
         retVal.add(mouseInfoDTOs.get(0).getColonyId());
         retVal.add(mouseInfoDTOs.get(0).getPhenotypingCenter());
+        retVal.add(mouseInfoDTOs.get(0).getExternalSampleId());
+        retVal.add(mouseInfoDTOs.get(0).getGroup());
+        retVal.add(mouseInfoDTOs.get(0).getZygosity());
+        retVal.add(mouseInfoDTOs.get(0).getSex());
         retVal.add(mouseInfoDTOs.get(0).getMetadataGroup());
 
         String externalSampleId = mouseInfoDTOs.get(0).getExternalSampleId();
-
         CalorimetryData calorimetryData = mouseInfoMap.get("IMPC_CAL_001_001");
         if (calorimetryData != null) {
             if (calorimetryData.count > 1) {

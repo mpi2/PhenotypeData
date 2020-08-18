@@ -1209,13 +1209,13 @@ public class ObservationService extends BasicService implements WebStatus {
      * Returns a list of <code>ObservationDTO</code> observations for the specified procedureStableId and biologicalSampleId.
           *
      * @param procedureStableId the procedure stable id (e.g. "IMPC_CAL_*" or "IMPC_IPP_*")
-     * @param biologicalSampleId the biological sample id (mouse id) of the desired mouse
+     * @param sampleId the biological sample id (mouse id) of the desired mouse
      *
      * @return a list of <code>ObservationDTO</code> calorimetry results for the specified mouse.
      *
      * @throws SolrServerException, IOException
      */
-    public List<ObservationDTO> getMetabolismReportBiologicalSampleId(String procedureStableId, Integer biologicalSampleId) throws SolrServerException, IOException  {
+    public List<ObservationDTO> getMetabolismReportBiologicalSampleId(String procedureStableId, String sampleId) throws SolrServerException, IOException  {
         SolrQuery query = new SolrQuery();
 
         query.setFields(
@@ -1237,13 +1237,15 @@ public class ObservationService extends BasicService implements WebStatus {
                 ObservationDTO.PHENOTYPING_CENTER,
                 ObservationDTO.PROCEDURE_STABLE_ID,
                 ObservationDTO.SEX,
+                ObservationDTO.STRAIN_NAME,
+                ObservationDTO.STRAIN_ACCESSION_ID,
                 ObservationDTO.TIME_POINT,
                 ObservationDTO.WEIGHT,
                 ObservationDTO.ZYGOSITY);
         query.setRows(5000);
         query.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
         query.setFilterQueries(ObservationDTO.PROCEDURE_STABLE_ID + ":" + procedureStableId);
-        query.setQuery(ObservationDTO.SPECIMEN_ID + ":" + biologicalSampleId);
+        query.setQuery(ObservationDTO.SPECIMEN_ID + ":" + sampleId);
 
         return experimentCore.query(query).getBeans(ObservationDTO.class);
     }

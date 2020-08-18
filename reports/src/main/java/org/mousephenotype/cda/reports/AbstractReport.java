@@ -55,7 +55,6 @@ public abstract class AbstractReport {
     protected ReportParser            parser              = new ReportParser();
 
     protected static final String DATA_ERROR = "DATA ERROR";
-    public static final String NO_DATA = "NO DATA";
 
     public abstract String getDefaultFilename();
 

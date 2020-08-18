@@ -19,6 +19,7 @@ package org.mousephenotype.cda.reports;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.ObservationService;
@@ -286,22 +287,22 @@ public abstract class AbstractColonyStatisticsByParameter extends AbstractReport
                         .collect(Collectors.toList());
 
                     if (values.isEmpty()) {
-                        row.add(AbstractReport.NO_DATA);
-                        row.add(AbstractReport.NO_DATA);
-                        row.add(AbstractReport.NO_DATA);
-                        row.add(AbstractReport.NO_DATA);
+                        row.add(Constants.NO_INFORMATION_AVAILABLE);
+                        row.add(Constants.NO_INFORMATION_AVAILABLE);
+                        row.add(Constants.NO_INFORMATION_AVAILABLE);
+                        row.add(Constants.NO_INFORMATION_AVAILABLE);
                     } else {
                         DescriptiveStatistics ds = new DescriptiveStatistics(
                             ArrayUtils.toPrimitive(values.toArray(new Double[0])));
 
                         Double d = ds.getMean();
-                        row.add(d.isInfinite() || d.isNaN() ? AbstractReport.NO_DATA : d.toString());
+                        row.add(d.isInfinite() || d.isNaN() ? Constants.NO_INFORMATION_AVAILABLE : d.toString());
 
                         d = getMedian(values);
-                        row.add(d.isInfinite() || d.isNaN() ? AbstractReport.NO_DATA : d.toString());
+                        row.add(d.isInfinite() || d.isNaN() ? Constants.NO_INFORMATION_AVAILABLE : d.toString());
 
                         d = ds.getStandardDeviation();
-                        row.add(d.isInfinite() || d.isNaN() ? AbstractReport.NO_DATA : d.toString());
+                        row.add(d.isInfinite() || d.isNaN() ? Constants.NO_INFORMATION_AVAILABLE : d.toString());
 
                         row.add(new Double(ds.getN()).toString());
                     }

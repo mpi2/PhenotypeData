@@ -46,15 +46,25 @@ public class MetabolismDEXA extends AbstractReport {
     ObservationService observationService;
 
     private String[] header = new String[] {
-             "Mouse Id", "Sample Type", "Gene Symbol", "MGI Gene Id", "Allele Symbol", "Zygosity"
-            ,"Sex", "Colony Id", "Phenotyping Center", "Metadata Group"
+        "Gene Symbol",
+        "Gene Accession Id",
+        "Allele Symbol",
+        "Allele Accession Id",
+        "Background Strain Name",
+        "Background Strain Accession Id",
+        "Colony Id",
+        "Phenotyping Center",
+        "Mouse Id",
+        "Sample Type",
+        "Zygosity",
+        "Sex",
+        "Metadata Group",
 
-            ,"Body weight IMPC_DXA_001_001"
-            ,"Fat mass IMPC_DXA_002_001"
-            ,"Lean mass IMPC_DXA_003_001"
+        "Body weight IMPC_DXA_001_001",
+        "Fat mass IMPC_DXA_002_001",
+        "Lean mass IMPC_DXA_003_001",
 
-            // metadata
-            ,"Metadata"
+        "Metadata"
     };
 
     public MetabolismDEXA() {
@@ -80,18 +90,14 @@ public class MetabolismDEXA extends AbstractReport {
         csvWriter.write(header);
 
         int count = 0;
-        
+
         try {
-            Collection<String> biologicalSampleIds = observationService.getMetabolismReportBiologicalSampleIds("IMPC_DXA_*");
-            for (String biologicalSampleId : biologicalSampleIds) {
-//if (count >= 1000) break;
-                Integer lBiologicalSampleId = commonUtils.tryParseInt(biologicalSampleId);
-                if (lBiologicalSampleId != null) {
-                    List<ObservationDTO> mouseInfoDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_DXA_*", lBiologicalSampleId);
-                    csvWriter.write(createReportRow(mouseInfoDTOs));
-                    if (++count % 10000 == 0)
-                        log.debug(new Date().toString() + ": " + count + " records written.");
-                }
+            Collection<String> sampleIds = observationService.getMetabolismReportBiologicalSampleIds("IMPC_DXA_*");
+            for (String sampleId : sampleIds) {
+                List<ObservationDTO> mouseInfoDTOs = observationService.getMetabolismReportBiologicalSampleId("IMPC_DXA_*", sampleId);
+                csvWriter.write(createReportRow(mouseInfoDTOs));
+                if (++count % 10000 == 0)
+                    log.debug(new Date().toString() + ": " + count + " records written.");
             }
 
             csvWriter.close();
@@ -131,15 +137,18 @@ public class MetabolismDEXA extends AbstractReport {
         String externalSampleId = mouseInfoDTOs.get(0).getExternalSampleId();
 
         // Build the output row.
-        retVal.add(externalSampleId);
-        retVal.add(mouseInfoDTOs.get(0).getGroup());
         retVal.add(mouseInfoDTOs.get(0).getGeneSymbol());
         retVal.add(mouseInfoDTOs.get(0).getGeneAccession());
         retVal.add(mouseInfoDTOs.get(0).getAlleleSymbol());
-        retVal.add(mouseInfoDTOs.get(0).getZygosity());
-        retVal.add(mouseInfoDTOs.get(0).getSex());
+        retVal.add(mouseInfoDTOs.get(0).getAlleleAccession());
+        retVal.add(mouseInfoDTOs.get(0).getStrainName());
+        retVal.add(mouseInfoDTOs.get(0).getStrainAccessionId());
         retVal.add(mouseInfoDTOs.get(0).getColonyId());
         retVal.add(mouseInfoDTOs.get(0).getPhenotypingCenter());
+        retVal.add(mouseInfoDTOs.get(0).getExternalSampleId());
+        retVal.add(mouseInfoDTOs.get(0).getGroup());
+        retVal.add(mouseInfoDTOs.get(0).getZygosity());
+        retVal.add(mouseInfoDTOs.get(0).getSex());
         retVal.add(mouseInfoDTOs.get(0).getMetadataGroup());
 
         List<Float> data = mouseInfoMap.get("IMPC_DXA_001_001");
