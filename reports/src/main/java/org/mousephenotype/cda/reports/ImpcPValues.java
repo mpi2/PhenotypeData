@@ -111,11 +111,20 @@ public class ImpcPValues extends AbstractReport {
 
         log.trace(" Parameter: " + org.apache.commons.lang3.StringUtils.join(sortedParameters, "\n Parameter: "));
 
-        List<String> header = new ArrayList<>();
-        header.addAll(Arrays.asList("Genotype", "Colony Id", "Gene Symbol", "MGI Gene Id", "Center"));
-        header.addAll(sortedParameters);
+        List<String> heading = new ArrayList<>();
+        heading.addAll(Arrays.asList(
+            "Gene Symbol",
+            "Gene Accession Id",
+            "Allele Symbol",
+            "Allele Accession Id",
+            "Background Strain Name",
+            "Background Strain Accession Id",
+            "Colony Id",
+            "Phenotyping Center",
+            "Genotype"));
+        heading.addAll(sortedParameters);
 
-        csvWriter.write(header);
+        csvWriter.write(heading);
 
         i=0;
         start = System.currentTimeMillis();
@@ -124,11 +133,15 @@ public class ImpcPValues extends AbstractReport {
             i++;
 
             List<String> row = new ArrayList<>();
-            row.add(rowKey.genotype);
-            row.add(rowKey.colonyId);
             row.add(rowKey.geneSymbol);
-            row.add(rowKey.mgiAccessionId);
-            row.add(rowKey.center);
+            row.add(rowKey.geneAccessionId);
+            row.add(rowKey.alleleSymbol);
+            row.add(rowKey.alleleAccessionId);
+            row.add(rowKey.strainName);
+            row.add(rowKey.strainAccessionId);
+            row.add(rowKey.colonyId);
+            row.add(rowKey.phenotypingCenter);
+            row.add(rowKey.genotype);
 
             for (String param : sortedParameters) {
                 if (matrixValues.get(rowKey).containsKey(param)) {
@@ -152,29 +165,41 @@ public class ImpcPValues extends AbstractReport {
     }
 
     private class RowKey {
-        String genotype;
-        String colonyId;
         String geneSymbol;
-        String mgiAccessionId;
-        String center;
+        String geneAccessionId;
+        String alleleSymbol;
+        String alleleAccessionId;
+        String strainName;
+        String strainAccessionId;
+        String colonyId;
+        String phenotypingCenter;
+        String genotype;
 
         public RowKey(StatisticalResultDTO result) {
-            this.genotype = result.getAlleleSymbol() + "-" + result.getZygosity();
-            this.colonyId = result.getColonyId();
             this.geneSymbol = result.getMarkerSymbol();
-            this.mgiAccessionId = result.getMarkerAccessionId();
-            this.center = result.getPhenotypingCenter();
+            this.geneAccessionId = result.getMarkerAccessionId();
+            this.alleleSymbol = result.getAlleleSymbol();
+            this.alleleAccessionId = result.getAlleleAccessionId();
+            this.strainName = result.getStrainName();
+            this.strainAccessionId = result.getStrainAccessionId();
+            this.colonyId = result.getColonyId();
+            this.phenotypingCenter = result.getPhenotypingCenter();
+            this.genotype = result.getAlleleSymbol() + "-" + result.getZygosity();
         }
 
         @Override
         public String toString() {
             return "RowKey{" +
-                    "genotype='" + genotype + '\'' +
-                    ", colonyId='" + colonyId + '\'' +
-                    ", geneSymbol='" + geneSymbol + '\'' +
-                    ", mgiAccessionId='" + mgiAccessionId + '\'' +
-                    ", center='" + center + '\'' +
-                    '}';
+                "geneSymbol='" + geneSymbol + '\'' +
+                ", geneAccessionId='" + geneAccessionId + '\'' +
+                ", alleleSymbol='" + alleleSymbol + '\'' +
+                ", alleleAccessionId='" + alleleAccessionId + '\'' +
+                ", strainName='" + strainName + '\'' +
+                ", strainAccessionId='" + strainAccessionId + '\'' +
+                ", colonyId='" + colonyId + '\'' +
+                ", phenotypingCenter='" + phenotypingCenter + '\'' +
+                ", genotype='" + genotype + '\'' +
+                '}';
         }
 
         @Override
@@ -188,7 +213,7 @@ public class ImpcPValues extends AbstractReport {
             if (colonyId != null ? !colonyId.equals(rowKey.colonyId) : rowKey.colonyId != null) return false;
             if (geneSymbol != null ? !geneSymbol.equals(rowKey.geneSymbol) : rowKey.geneSymbol != null)
                 return false;
-            return !(center != null ? !center.equals(rowKey.center) : rowKey.center != null);
+            return !(phenotypingCenter != null ? !phenotypingCenter.equals(rowKey.phenotypingCenter) : rowKey.phenotypingCenter != null);
 
         }
 
@@ -197,8 +222,8 @@ public class ImpcPValues extends AbstractReport {
             int result = genotype != null ? genotype.hashCode() : 0;
             result = 31 * result + (colonyId != null ? colonyId.hashCode() : 0);
             result = 31 * result + (geneSymbol != null ? geneSymbol.hashCode() : 0);
-            result = 31 * result + (mgiAccessionId != null ? mgiAccessionId.hashCode() : 0);
-            result = 31 * result + (center != null ? center.hashCode() : 0);
+            result = 31 * result + (geneAccessionId != null ? geneAccessionId.hashCode() : 0);
+            result = 31 * result + (phenotypingCenter != null ? phenotypingCenter.hashCode() : 0);
             return result;
         }
     }

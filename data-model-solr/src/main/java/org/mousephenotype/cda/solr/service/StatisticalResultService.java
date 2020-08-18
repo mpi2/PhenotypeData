@@ -1304,40 +1304,48 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
     public List<StatisticalResultDTO> getImpcPvalues() throws SolrServerException, IOException {
         SolrQuery q = new SolrQuery("*:*")
-                .addFilterQuery(StatisticalResultDTO.STATUS + ":Successful")
-                .addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(IMPC OR 3i)")
-                .addField(StatisticalResultDTO.ALLELE_SYMBOL)
-                .addField(StatisticalResultDTO.COLONY_ID)
-                .addField(StatisticalResultDTO.MARKER_SYMBOL)
-                .addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
-                .addField(StatisticalResultDTO.ZYGOSITY)
-                .addField(StatisticalResultDTO.PHENOTYPING_CENTER)
-                .addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
-                .addField(StatisticalResultDTO.PARAMETER_NAME)
-                .addField(StatisticalResultDTO.P_VALUE)
-                .setRows(Integer.MAX_VALUE)
-                .setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
+            .addField(StatisticalResultDTO.MARKER_SYMBOL)
+            .addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
+            .addField(StatisticalResultDTO.ALLELE_SYMBOL)
+            .addField(StatisticalResultDTO.ALLELE_ACCESSION_ID)
+            .addField(StatisticalResultDTO.STRAIN_NAME)
+            .addField(StatisticalResultDTO.STRAIN_ACCESSION_ID)
+            .addField(StatisticalResultDTO.COLONY_ID)
+            .addField(StatisticalResultDTO.PHENOTYPING_CENTER)
+            .addField(StatisticalResultDTO.ZYGOSITY)
+            .addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
+            .addField(StatisticalResultDTO.PARAMETER_NAME)
+            .addField(StatisticalResultDTO.P_VALUE)
+
+            .addFilterQuery(StatisticalResultDTO.STATUS + ":Successful")
+            .addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(IMPC OR 3i)")
+            .setRows(Integer.MAX_VALUE)
+            .setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
 
         return statisticalResultCore.query(q).getBeans(StatisticalResultDTO.class);
     }
 
     public List<StatisticalResultDTO> getImpcPvaluesAndMpTerms() throws SolrServerException, IOException {
         SolrQuery q = new SolrQuery("*:*")
-                .addFilterQuery(StatisticalResultDTO.STATUS + ":Successful")
-                .addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(IMPC OR 3i)")
-                .addField(StatisticalResultDTO.ALLELE_SYMBOL)
-                .addField(StatisticalResultDTO.COLONY_ID)
-                .addField(StatisticalResultDTO.MARKER_SYMBOL)
-                .addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
-                .addField(StatisticalResultDTO.ZYGOSITY)
-                .addField(StatisticalResultDTO.MP_TERM_NAME)
-                .addField(StatisticalResultDTO.PHENOTYPING_CENTER)
-                .addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
-                .addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
-                .addField(StatisticalResultDTO.PARAMETER_NAME)
-                .addField(StatisticalResultDTO.P_VALUE)
-                .setRows(Integer.MAX_VALUE)
-                .setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
+            .addField(StatisticalResultDTO.MARKER_SYMBOL)
+            .addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
+            .addField(StatisticalResultDTO.ALLELE_SYMBOL)
+            .addField(StatisticalResultDTO.ALLELE_ACCESSION_ID)
+            .addField(StatisticalResultDTO.STRAIN_NAME)
+            .addField(StatisticalResultDTO.STRAIN_ACCESSION_ID)
+            .addField(StatisticalResultDTO.COLONY_ID)
+            .addField(StatisticalResultDTO.PHENOTYPING_CENTER)
+            .addField(StatisticalResultDTO.ZYGOSITY)
+            .addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
+            .addField(StatisticalResultDTO.PARAMETER_NAME)
+            .addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
+            .addField(StatisticalResultDTO.P_VALUE)
+            .addField(StatisticalResultDTO.MP_TERM_NAME)
+
+            .addFilterQuery(StatisticalResultDTO.STATUS + ":Successful")
+            .addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(IMPC OR 3i)")
+            .setRows(Integer.MAX_VALUE)
+            .setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
 
         return statisticalResultCore.query(q).getBeans(StatisticalResultDTO.class);
     }
