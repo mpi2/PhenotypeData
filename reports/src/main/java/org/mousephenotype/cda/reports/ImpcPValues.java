@@ -19,6 +19,7 @@ package org.mousephenotype.cda.reports;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Component;
 import java.beans.Introspector;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * IMPC P-Value report.
@@ -126,6 +128,16 @@ public class ImpcPValues extends AbstractReport {
 
         csvWriter.write(heading);
 
+        // Sort by geneSymbol
+        matrixValues = matrixValues.entrySet()
+            .stream()
+            .sorted(Map.Entry.comparingByKey(
+                Comparator.comparing((RowKey rk) -> rk.geneSymbol)))
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                Map.Entry::getValue,
+                (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+
         i=0;
         start = System.currentTimeMillis();
         for (RowKey rowKey : matrixValues.keySet()) {
@@ -145,10 +157,12 @@ public class ImpcPValues extends AbstractReport {
 
             for (String param : sortedParameters) {
                 if (matrixValues.get(rowKey).containsKey(param)) {
-                    String value = (matrixValues.get(rowKey).get(param) == null ? "" : matrixValues.get(rowKey).get(param).toString());
+                    String value = (matrixValues.get(rowKey).get(param) == null
+                        ? Constants.NO_INFORMATION_AVAILABLE
+                        : matrixValues.get(rowKey).get(param).toString());
                     row.add(value);
                 } else {
-                    row.add("");
+                    row.add(Constants.NO_INFORMATION_AVAILABLE);
                 }
             }
 
