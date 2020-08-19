@@ -135,18 +135,16 @@ public class PhenotypeHitsPerLine extends AbstractReport {
                     }
                 }
             }
-            int tempI = 0;
+
             for (String colony: allMap.keySet()){
                 if (allNoHits.containsKey(colony)){
                     allNoHits.remove(colony);
                 }
                 long count = allMap.get(colony);
                 if (allRes.containsKey(count)){
-                    tempI++;
                     allRes.put(count, allRes.get(count) + 1);
                 } else {
                     allRes.put(count, 1);
-                    tempI++;
                     if (count > maxHitsPerColony){
                         maxHitsPerColony = count;
                     }
@@ -179,6 +177,8 @@ public class PhenotypeHitsPerLine extends AbstractReport {
             throw new ReportException("Exception closing csvWriter: " + e.getLocalizedMessage());
         }
 
-        log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
+        log.info(String.format(
+            "Finished. %s rows written in %s",
+            result.size(), commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
 }

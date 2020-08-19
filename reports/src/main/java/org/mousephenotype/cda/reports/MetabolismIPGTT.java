@@ -112,7 +112,9 @@ public class MetabolismIPGTT extends AbstractReport {
             throw new ReportException("Exception in MetabolismIPGTTReport. Reason: " + e.getLocalizedMessage());
         }
 
-        log.info(String.format("Finished. " + count + " records written in " + commonUtils.msToHms(System.currentTimeMillis() - start)));
+        log.info(String.format(
+            "Finished. %s rows written in %s",
+            count, commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
 
     /**

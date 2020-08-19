@@ -78,6 +78,8 @@ public class ProcedureCompletenessImpc extends AbstractReport {
             throw new ReportException("Exception closing csvWriter: " + e.getLocalizedMessage());
         }
 
-        log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
+        log.info(String.format(
+            "Finished. %s rows written in %s",
+            result.size(), commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
 }

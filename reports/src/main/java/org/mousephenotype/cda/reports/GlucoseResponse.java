@@ -61,6 +61,8 @@ public class GlucoseResponse extends AbstractColonyStatisticsByParameter {
 
         super.run(parameter);
 
-        log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
+        log.info(String.format(
+            "Finished. %s rows written in %s",
+            count, commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
 }

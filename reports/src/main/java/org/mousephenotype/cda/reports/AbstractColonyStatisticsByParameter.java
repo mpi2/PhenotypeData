@@ -44,6 +44,7 @@ public abstract class AbstractColonyStatisticsByParameter extends AbstractReport
 
     private final Set<String> missingData    = new HashSet<>();
     private final Set<String> mismatchedData = new HashSet<>();
+    protected int count = 0;
 
     @Autowired
     ExperimentService experimentService;
@@ -114,7 +115,7 @@ public abstract class AbstractColonyStatisticsByParameter extends AbstractReport
                 .collect(Collectors.toList());
 
             csvWriter.writeRows(matrix);
-
+            count = matrix.size();
             if ( ! missingData.isEmpty()) {
                 logErrors(missingData, missingData.size() + " rows missing required report data:");
             }

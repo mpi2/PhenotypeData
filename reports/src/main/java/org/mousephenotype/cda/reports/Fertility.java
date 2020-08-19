@@ -69,6 +69,7 @@ public class Fertility extends AbstractReport {
         }
         initialise(args);
 
+        int count = 0;
         long start = System.currentTimeMillis();
 
         try {
@@ -197,6 +198,7 @@ public class Fertility extends AbstractReport {
                 .collect(Collectors.toList());
 
             csvWriter.writeRows(matrix);
+            count = matrix.size();
 
         } catch (SolrServerException | IOException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
@@ -208,7 +210,9 @@ public class Fertility extends AbstractReport {
             throw new ReportException("Exception closing csvWriter: " + e.getLocalizedMessage());
         }
 
-        log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
+        log.info(String.format(
+            "Finished. %s rows written in %s",
+            count, commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
 
     private List<String> buildList(String label, Set<String> genes) {

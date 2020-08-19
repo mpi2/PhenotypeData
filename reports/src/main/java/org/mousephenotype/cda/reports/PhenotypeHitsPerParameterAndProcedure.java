@@ -64,6 +64,7 @@ public class PhenotypeHitsPerParameterAndProcedure extends AbstractReport {
         }
         initialise(args);
 
+        int count;
         long start = System.currentTimeMillis();
 
         try {
@@ -85,7 +86,9 @@ public class PhenotypeHitsPerParameterAndProcedure extends AbstractReport {
                 "Gene Accession Ids",
                 "# Significant Hits"};
             csvWriter.write(proceduresHeading);
-            csvWriter.writeRowsOfArray(genotypePhenotypeService.getHitsDistributionByProcedure(resources));
+            List<String[]> results = genotypePhenotypeService.getHitsDistributionByProcedure(resources);
+            csvWriter.writeRowsOfArray(results);
+            count = results.size();
 
         } catch (SolrServerException | IOException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
@@ -97,6 +100,8 @@ public class PhenotypeHitsPerParameterAndProcedure extends AbstractReport {
             throw new ReportException("Exception closing csvWriter: " + e.getLocalizedMessage());
         }
 
-        log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
+        log.info(String.format(
+            "Finished. %s rows written in %s",
+            count, commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
 }

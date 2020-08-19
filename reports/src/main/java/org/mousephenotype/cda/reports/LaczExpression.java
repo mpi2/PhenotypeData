@@ -101,7 +101,9 @@ public class LaczExpression extends AbstractReport {
             throw new ReportException("Exception closing csvWriter: " + e.getLocalizedMessage());
         }
 
-        log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
+        log.info(String.format(
+            "Finished. %s rows written in %s",
+            results.size(), commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
 
     protected void initialise(String[] args) throws ReportException {

@@ -65,6 +65,7 @@ public class Viability extends AbstractReport {
         }
         initialise(args);
 
+        int count = 0;
         long start = System.currentTimeMillis();
 
         try {
@@ -170,6 +171,7 @@ public class Viability extends AbstractReport {
                 row.add(comment);
 
                 csvWriter.write(row);
+                count++;
             }
 
         } catch (Exception e) {
@@ -183,6 +185,8 @@ public class Viability extends AbstractReport {
             throw new ReportException("Exception closing csvWriter: " + e.getLocalizedMessage());
         }
 
-        log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
+        log.info(String.format(
+            "Finished. %s detail rows written in %s",
+            count, commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
 }

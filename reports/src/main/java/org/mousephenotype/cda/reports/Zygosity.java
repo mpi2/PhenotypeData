@@ -40,6 +40,7 @@ import javax.validation.constraints.NotNull;
 import java.beans.Introspector;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Zygosity report.
@@ -93,9 +94,10 @@ public class Zygosity extends AbstractReport {
         Map<GeneCenterZygosity, List<String>> data = new HashMap<>();
         Map<GeneCenterZygosity, List<String>> viabilityData = new HashMap<>();
 
-        String[] headerParams = {"MP Term", "Zygosity", "# Genes", "Gene Symbol (MGI Gene Id)"};
+        String[] headerParams = {"MP Term", "Zygosity", "# Genes", "Gene Symbol (Gene Accession Id)"};
         result.add(headerParams);
 
+        int mpTermCount = 0;
         try {
 
             // Get the list of phenotype calls
@@ -156,11 +158,11 @@ public class Zygosity extends AbstractReport {
                     }
                 }
 
-                String[] row = {mpSymbol, zygosity, Integer.toString(mps.get(k).size()), StringUtils.join(mpsSet, "::")};
+                String[] row = {mpSymbol, zygosity, Integer.toString(mps.get(k).size()), StringUtils.join(mpsSet, "|")};
                 result.add(row);
+                mpTermCount++;
             }
 
-            result.add(EMPTY_ROW);
             result.add(EMPTY_ROW);
 
             // Get the viability data from the experiment core directly
@@ -185,7 +187,7 @@ public class Zygosity extends AbstractReport {
                 viabilityData.get(g).add(obs.getCategory());
             }
 
-            String[] resetHeaderParams = {"Gene Symbol", "MGI Gene Id", "Center", "Viability", "Hom", "Het", "Hemi", "Gene Page URL"};
+            String[] resetHeaderParams = {"Gene Symbol", "Gene Accession Id", "Phenotyping Center", "Viability", "Hom", "Het", "Hemi", "Gene Page URL"};
             result.add(resetHeaderParams);
 
             Set<String> geneSymbols = new HashSet<>();
@@ -243,6 +245,11 @@ public class Zygosity extends AbstractReport {
                 }
             }
 
+            result = result
+                .stream()
+                .sorted(Comparator.comparing((String[] l) -> l[0]))
+                .collect(Collectors.toList());
+
             csvWriter.writeRowsOfArray(result);
 
         } catch (SolrServerException | IOException e) {
@@ -255,7 +262,9 @@ public class Zygosity extends AbstractReport {
             throw new ReportException("Exception closing csvWriter: " + e.getLocalizedMessage());
         }
 
-        log.info(String.format("Finished. [%s]", commonUtils.msToHms(System.currentTimeMillis() - start)));
+        log.info(String.format(
+            "Finished. %s MP term rows written and %s Gene rows written in %s",
+            mpTermCount, result.size(), commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
 
 

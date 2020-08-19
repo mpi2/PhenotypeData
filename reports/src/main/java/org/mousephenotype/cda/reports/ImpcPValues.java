@@ -105,7 +105,9 @@ public class ImpcPValues extends AbstractReport {
             allParameters.add(parameter.replace("\r\n", " ").replace("\n", " "));
         }
 
-        log.info(String.format("%s records processed [%s]", i, commonUtils.msToHms(System.currentTimeMillis() - start)));
+        log.info(String.format(
+            "Finished. %s rows written in %s",
+            i, commonUtils.msToHms(System.currentTimeMillis() - start)));
 
         List<String> sortedParameters = new ArrayList<>(allParameters);
         Collections.sort(sortedParameters);
