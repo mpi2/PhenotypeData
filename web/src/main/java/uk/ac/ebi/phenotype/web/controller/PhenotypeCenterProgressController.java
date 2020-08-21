@@ -28,7 +28,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
 
-
+// FIXME FIXME FIXME
+// 21-08-2020 (mrelac) This endpoint doesn't work, and I can find no access through the PA menu system.
+// If it *did* work, as currently implemented, it would likely take a long time to complete, so it's not useful.
+// Can we remove this entire controller class?
+@Deprecated
 @Controller
 public class PhenotypeCenterProgressController {
 
@@ -37,7 +41,11 @@ public class PhenotypeCenterProgressController {
 	}
 
 	PhenotypeCenterProcedureCompletenessService phenotypeCenterProcedureCompletenessService;
-
+	// FIXME FIXME FIXME
+    // 21-08-2020 (mrelac) This endpoint doesn't work, and I can find no access through the PA menu system.
+    // If it *did* work, as currently implemented, it would likely take a long time to complete, so it's not useful.
+    // Can we remove this entire controller class?
+	@Deprecated
 	@RequestMapping("/centerProgress")
 	public String showPhenotypeCenterProgress(Model model){
 		processPhenotypeCenterProgress(model);
@@ -51,6 +59,12 @@ public class PhenotypeCenterProgressController {
 	 * @throws IOException
 	 * @author tudose, mrelac
 	 */
+
+    // FIXME FIXME FIXME
+    // 21-08-2020 (mrelac) This endpoint doesn't work, and I can find no access through the PA menu system.
+    // If it *did* work, as currently implemented, it would likely take a long time to complete, so it's not useful.
+    // Can we remove this entire controller class?
+	@Deprecated
 	@RequestMapping("/reports/centerProgressCsv")
 	@ResponseBody
 	public void showPhenotypeCenterProgressCsv(HttpServletResponse response)  {
