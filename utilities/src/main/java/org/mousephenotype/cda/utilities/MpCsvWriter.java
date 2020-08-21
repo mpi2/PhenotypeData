@@ -112,6 +112,16 @@ public class MpCsvWriter implements AutoCloseable {
         writer = null;
     }
 
+    public void closeQuietly() {
+        try {
+            writer.close();
+        } catch(IOException e) {
+            logger.error("Close failed: {}", e.getLocalizedMessage());
+        }
+        fqFilename = null;
+        writer = null;
+    }
+
     private String expandFilename(String csvFilename) {
         Path path = Paths.get(csvFilename);
         File file = path.toFile();
