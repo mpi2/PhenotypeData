@@ -25,6 +25,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  *
  * @author jwarren
@@ -34,7 +36,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class DocumentationController {
 
     @RequestMapping("/{page}")
-    public String documentation(@PathVariable String page){
-        return "documentation/"+page;
+    public String documentation(@PathVariable String page, HttpServletRequest request){
+
+        String helpBase = (request.getAttribute("cmsBaseUrl").toString().startsWith("http")) ?
+                request.getAttribute("cmsBaseUrl").toString() :
+                request.getScheme() + "://" + request.getAttribute("cmsBaseUrl");
+
+        if (page.equalsIgnoreCase("data-access-api-genotype-phenotype")) {
+            return "redirect:" + helpBase + "/help/programmatic-data-access/phenotype-calls/";
+        } else if (page.equalsIgnoreCase("data-access-api-statistical-result")) {
+            return "redirect:" + helpBase + "/help/programmatic-data-access/statistical-results/";
+        }
+        return "documentation/" + page;
     }
 }
