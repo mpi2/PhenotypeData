@@ -31,6 +31,7 @@ import org.mousephenotype.cda.solr.web.dto.SimpleOntoTerm;
 import org.mousephenotype.cda.web.WebStatus;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -212,6 +213,7 @@ public class MpService extends BasicService implements WebStatus{
 		return allPhenotypes;
 	}
 
+	@Cacheable("topLevelPhenotypes")
     public Set<BasicBean> getAllTopLevelPhenotypesAsBasicBeans() throws SolrServerException, IOException{
 
 		SolrQuery solrQuery = new SolrQuery();

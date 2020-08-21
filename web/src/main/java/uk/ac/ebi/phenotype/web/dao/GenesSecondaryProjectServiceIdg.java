@@ -32,6 +32,7 @@ import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -132,6 +133,7 @@ public class GenesSecondaryProjectServiceIdg implements GenesSecondaryProjectSer
 	}
 
 	@Override
+	@Cacheable("topLevelPhenotypesXAxis")
 	public List<BasicBean> getXAxisForHeatMap() throws IOException, SolrServerException {
 
 		List<BasicBean> mp = new ArrayList<>();

@@ -52,7 +52,7 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
 
 	public String getHumanSymbolToString() {
 		if(humanSymbol==null) {
-			System.err.println("human geneSymbol is null");
+			System.err.println("human geneSymbol is null for gene: " + accession);
 			return "No Human Symbol";
 		
 		}else {
