@@ -33,7 +33,16 @@ import java.util.List;
  *
  * Created by mrelac on 24/07/2015.
  */
+
+/**
+ * 21-08-2020 (mrelac)
+ *   After meeting with Violeta and Jeremy we decided this report should be removed.
+ *   We now have better ways to gather the information this report was created for.
+ *   Some inaccuracies and incompleteness detected in this file
+ *   prompted the creation of the ProcedureCompletenessAll report, which supersedes this report.
+ */
 @Component
+@Deprecated
 public class ProcedureCompletenessImpc extends AbstractReport {
 
     protected Logger                                      logger = LoggerFactory.getLogger(this.getClass());

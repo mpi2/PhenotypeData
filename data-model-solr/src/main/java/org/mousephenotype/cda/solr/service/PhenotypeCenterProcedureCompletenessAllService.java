@@ -341,7 +341,7 @@ public class PhenotypeCenterProcedureCompletenessAllService extends BasicService
 
         if ( ! nullRequiredFields.isEmpty()) {
             logger.error("{} missing required fields were skipped.", nullRequiredFields.size());
-            System.out.println("lifeStageName::zygosity::colonyId::parameterStableId::status");
+            System.out.println("colonyId::zygosity::lifeStageName::parameterStableId::status");
             nullRequiredFields
                 .stream()
                 .forEach(System.out::println);
