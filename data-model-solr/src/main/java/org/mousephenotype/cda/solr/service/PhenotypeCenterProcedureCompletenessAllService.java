@@ -81,6 +81,7 @@ public class PhenotypeCenterProcedureCompletenessAllService extends BasicService
     private final String PERSIST_PATH = null;
 //    private final String PERSIST_PATH = "/Users/mrelac/persistedData/";
 
+    Set<String> nullRequiredFields = new HashSet<>();
 
 	/**
 	 * @author mrelac
@@ -146,6 +147,22 @@ public class PhenotypeCenterProcedureCompletenessAllService extends BasicService
             logger.debug(df.format(new Date()) + ": Processing center '" + center + "' - Start.");
 
             for (ProcedureCompletenessDTO dto : dtos) {
+
+                // 21-08-2020 (mrelac) With the new ETL process, sometimes phenotypeCenterAllServiceBean.getLifeStageName() is null,
+                // which throws a hard-to-find NPE further below.
+                // For now, capture these errors, log them, and skip the dto.
+                List<String> nullFields =
+                    dataByCenter
+                    .stream()
+                    .filter(x -> (x.getLifeStageName() == null) || (x.getZygosity() == null) || x.getColonyId() == null)
+                    .map(x -> x.getColonyId() + "::" + x.getZygosity() + "::" + x.getLifeStageName()
+                        + "::" + x.getParameterStableId() + "::" + x.getStatus())
+                    .collect(Collectors.toList());
+
+                if ( ! nullFields.isEmpty()) {
+                    nullRequiredFields.addAll(nullFields);
+                    continue;
+                }
 
                 // Filter data by lifeStageName, zygosity, and colonyId.
                 List<PhenotypeCenterAllServiceBean> rowData =
@@ -320,6 +337,14 @@ public class PhenotypeCenterProcedureCompletenessAllService extends BasicService
             }
 
             logger.debug(df.format(new Date()) + ": Processing center '" + center + "' - End. " + centerRowCount + " rows added.");
+        }
+
+        if ( ! nullRequiredFields.isEmpty()) {
+            logger.error("{} missing required fields were skipped.", nullRequiredFields.size());
+            System.out.println("lifeStageName::zygosity::colonyId::parameterStableId::status");
+            nullRequiredFields
+                .stream()
+                .forEach(System.out::println);
         }
 
         if ( ! missingMpTerms.isEmpty()) {
