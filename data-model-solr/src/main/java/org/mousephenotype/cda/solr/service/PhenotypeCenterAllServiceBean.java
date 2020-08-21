@@ -24,19 +24,21 @@ import java.util.List;
  */
 public class PhenotypeCenterAllServiceBean implements Serializable {
 
+    private String       geneSymbol;
+    private String       geneAccessionId;
+    private String       alleleSymbol;
+    private String       alleleAccessionId;
+    private String       strainName;
+    private String       strainAccessionId;
     private String       colonyId;
     private String       zygosity;
-    private String       geneAccessionId;
-    private String       geneSymbol;
-    private String       alleleAccessionId;
-    private String       alleleSymbol;
+    private String       lifeStageName;
     private String       procedureStableId;
     private String       parameterStableId;
     private List<String> topLevelMpTermId;
     private String       mpTermId;
-    private String       lifeStageName;
 
-    private PhenotypeCenterProcedureCompletenessAllService.STATUSES status;
+    private ProcedureCompletenessAllService.STATUSES status;
 
 
     public PhenotypeCenterAllServiceBean() {
@@ -131,11 +133,47 @@ public class PhenotypeCenterAllServiceBean implements Serializable {
         this.lifeStageName = lifeStageName;
     }
 
-    public PhenotypeCenterProcedureCompletenessAllService.STATUSES getStatus() {
+    public String getStrainName() {
+        return strainName;
+    }
+
+    public void setStrainName(String strainName) {
+        this.strainName = strainName;
+    }
+
+    public String getStrainAccessionId() {
+        return strainAccessionId;
+    }
+
+    public void setStrainAccessionId(String strainAccessionId) {
+        this.strainAccessionId = strainAccessionId;
+    }
+
+    public ProcedureCompletenessAllService.STATUSES getStatus() {
         return status;
     }
 
     public void setStatus(String status) {
-        this.status = PhenotypeCenterProcedureCompletenessAllService.STATUSES.getStatus(status);
+        this.status = ProcedureCompletenessAllService.STATUSES.getStatus(status);
+    }
+
+    @Override
+    public String toString() {
+        return "PhenotypeCenterAllServiceBean{" +
+            "geneSymbol='" + geneSymbol + '\'' +
+            ", geneAccessionId='" + geneAccessionId + '\'' +
+            ", alleleSymbol='" + alleleSymbol + '\'' +
+            ", alleleAccessionId='" + alleleAccessionId + '\'' +
+            ", strainName='" + strainName + '\'' +
+            ", strainAccessionId='" + strainAccessionId + '\'' +
+            ", colonyId='" + colonyId + '\'' +
+            ", zygosity='" + zygosity + '\'' +
+            ", lifeStageName='" + lifeStageName + '\'' +
+            ", procedureStableId='" + procedureStableId + '\'' +
+            ", parameterStableId='" + parameterStableId + '\'' +
+            ", topLevelMpTermId=" + topLevelMpTermId +
+            ", mpTermId='" + mpTermId + '\'' +
+            ", status=" + status +
+            '}';
     }
 }

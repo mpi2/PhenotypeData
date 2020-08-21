@@ -9,6 +9,9 @@
 
 *.iml
 
+# 21-08-2020 (mrelac) Don't save .run configurations in git as they often contain user-specific settings.
+*.run
+
 ## Directory-based project format:
 .idea/
 # if you remove the above rule, at least ignore the following:
