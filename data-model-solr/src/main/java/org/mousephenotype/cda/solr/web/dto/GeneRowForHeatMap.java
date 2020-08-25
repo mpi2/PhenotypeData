@@ -106,6 +106,10 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
 		return miceProduced;
 	}
 
+    public String getMiceProducedPlain() {
+		return this.statusStringForExport(miceProduced).replace("<br>", " ");
+	}
+
 	public void setMiceProduced(String miceProduced) {
 		this.miceProduced = miceProduced;
 	}
@@ -156,12 +160,13 @@ public class GeneRowForHeatMap implements Comparable<GeneRowForHeatMap>{
 	private static final Pattern TAG_REGEX = Pattern.compile("<span>(.+?)</span>");
 
 	private static List<String> getTagValues(final String str) {
-	    final List<String> tagValues = new ArrayList<String>();
+	    final List<String> tagValues = new ArrayList<>();
 	    final Matcher matcher = TAG_REGEX.matcher(str);
 	    while (matcher.find()) {
-	        tagValues.add(matcher.group(1));
+	        tagValues.add(matcher.group(1).replace("<i class='icon icon-species icon-mouse'></i>", "Mice"));
 	    }
-	    return tagValues;
+
+		return tagValues;
 	}
 	
     

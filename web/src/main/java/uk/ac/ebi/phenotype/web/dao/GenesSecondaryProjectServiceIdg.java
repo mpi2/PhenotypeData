@@ -82,6 +82,7 @@ public class GenesSecondaryProjectServiceIdg implements GenesSecondaryProjectSer
 
 
 	@Override
+	@Cacheable("topLevelPhenotypesGeneRows")
 	public List<GeneRowForHeatMap> getGeneRowsForHeatMap(HttpServletRequest request) throws SolrServerException, IOException, SQLException {
 
 		List<GeneRowForHeatMap> geneRows = new ArrayList<>();
