@@ -34,17 +34,16 @@ import java.util.Set;
 
 
 /**
- *
  * @author jwarren
  */
 public interface GenesSecondaryProjectService {
 
-	enum SecondaryProjectIds {
+    enum SecondaryProjectIds {
         IDG,
         threeI
     }
 
-    Set<GenesSecondaryProject> getAccessionsBySecondaryProjectId(String projectId)throws SQLException;
+    Set<GenesSecondaryProject> getAccessionsBySecondaryProjectId(String projectId) throws SQLException;
 
     List<GeneRowForHeatMap> getGeneRowsForHeatMap(HttpServletRequest request) throws SolrServerException, IOException, SQLException;
 
