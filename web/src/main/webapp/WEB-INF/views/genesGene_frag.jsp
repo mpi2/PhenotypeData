@@ -65,7 +65,7 @@
             <div class="align-middle font-weight-bold">Viability</div>
         </div>
         <div class="col-12 col-md-10 align-middle">
-            <t:viabilityButton callList="${viabilityCalls}" link=""></t:viabilityButton>
+            <t:viabilityButton callList="${viabilityCalls}" geneAcc="${gene.mgiAccessionId}" ></t:viabilityButton>
         </div>
     </div>
 </c:if>
