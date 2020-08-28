@@ -91,7 +91,7 @@ public class ProcedureCompletenessService extends BasicService {
         };
 
         SolrQuery query = new SolrQuery()
-            .setQuery("marker_symbol:" + geneSymbol)
+            .setQuery("marker_symbol:" + "\"" + geneSymbol + "\"")
             .setFields(fields)
             .setRows(Integer.MAX_VALUE);
 
