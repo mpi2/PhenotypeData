@@ -1,34 +1,22 @@
-package org.mousephenotype.cda.reports.support;
+package org.mousephenotype.cda.reports2;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.mousephenotype.cda.db.PrimaryDataSource;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.*;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
 
 import javax.sql.DataSource;
 
-/**
- * ReportType bean configuration
- */
-
 @Configuration
-@EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
-@ComponentScan(basePackages = {"org.mousephenotype.cda.db", "org.mousephenotype.cda.solr.service"},
-		excludeFilters = {
-				@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {
-						PrimaryDataSource.class
-				})})
-@EnableAutoConfiguration
 public class ReportsConfig {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -160,6 +148,7 @@ public class ReportsConfig {
 	////////////
 	// Services
 	///////////
+
 
 	////////
 	// Other

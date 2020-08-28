@@ -92,12 +92,6 @@ public class ReportsManager implements CommandLineRunner {
     private PhenotypeHitsPerGene phenotypeHitsPerGene;
 
     @Autowired
-    private ProcedureCompletenessImpc procedureCompletenessImpc;
-
-    @Autowired
-    private ProcedureCompletenessAll procedureCompletenessAll;
-
-    @Autowired
     private Viability viability;
 
     @Autowired
@@ -294,16 +288,6 @@ public class ReportsManager implements CommandLineRunner {
                     case PHENOTYPE_HITS_PER_GENE:
                         phenotypeHitsPerGene.run(args);
                         file = phenotypeHitsPerGene.targetFile;
-                        break;
-
-                    case PROCEDURE_COMPLETENESS_IMPC:
-                        procedureCompletenessImpc.run(args);
-                        file = procedureCompletenessImpc.targetFile;
-                        break;
-
-                    case PROCEDURE_COMPLETENESS_ALL:
-                        procedureCompletenessAll.run(args);
-                        file = procedureCompletenessAll.targetFile;
                         break;
 
                     case VIABILITY:
