@@ -650,10 +650,21 @@
 
 
         <%-- Block augmenting/filling phenodigm tables --%>
-        <script type="text/javascript">
-            var curatedDiseases = ${curatedDiseases};
-            var modelAssociations = ${modelAssociations}; // this object name is required in phenodigm2.js
-        </script>
+        <c:if test="${curatedDiseases != null && modelAssociations!= null}">
+            <script type="text/javascript">
+                var curatedDiseases = ${curatedDiseases};
+                var modelAssociations = ${modelAssociations}; // this object name is required in phenodigm2.js
+            </script>
+        </c:if>
+        <%-- Block augmenting/filling phenodigm tables --%>
+        <c:if test="${curatedDiseases == null || modelAssociations== null}">
+            <script type="text/javascript">
+                var curatedDiseases = [];
+                var modelAssociations = []; // this object name is required in phenodigm2.js
+            </script>
+        </c:if>
+
+
         <script type="text/javascript">
             // disease tables drive by phenodigm core
 
@@ -733,6 +744,7 @@
                         window.location = row._data['link'];
                     }
                 });
+
                 $('#histopathPhenotypesTable').on('click-row.bs.table', function (e, row) {
                     if (row._data['link']) {
                         window.location = row._data['link'];

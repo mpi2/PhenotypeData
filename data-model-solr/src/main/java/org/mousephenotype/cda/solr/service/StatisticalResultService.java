@@ -21,7 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.random.EmpiricalDistribution;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -56,6 +55,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -1106,7 +1106,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
     public HashMap<String, GeneRowForHeatMap> getSecondaryProjectMapForGeneList(Set<String> geneAccessions1, List<BasicBean> topLevelMps) {
 
         HashMap<String, GeneRowForHeatMap> geneRowMap = new HashMap<>(); // <geneAcc, row>
-        Iterators.partition(geneAccessions1.iterator(), 50).forEachRemaining(geneAccessions ->
+        Iterators.partition(geneAccessions1.iterator(), 100).forEachRemaining(geneAccessions ->
         {
 
             SolrQuery q = new SolrQuery()
@@ -1121,35 +1121,33 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
                     .setRows(Integer.MAX_VALUE)
                     .setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
 
-            q.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":*"); // Ignore MPATH or other types of associations
-            q.add("group", "true");
-            q.add("group.field", StatisticalResultDTO.MARKER_ACCESSION_ID);
-            q.set("group.limit", Integer.MAX_VALUE);
+            q.addFilterQuery(StatisticalResultDTO.MP_TERM_ID_OPTIONS + ":*"); // Ignore MPATH or other types of associations
 
-            logger.info("getSecondaryProjectMapForGeneList Statistical result query: " + ((HttpSolrClient) statisticalResultCore).getBaseURL() + "/select?" + q.getQuery());
-            GroupCommand groups;
+            List<StatisticalResultDTO> results;
             try {
-                groups = statisticalResultCore.query(q, SolrRequest.METHOD.POST).getGroupResponse().getValues().get(0);
+                results = statisticalResultCore.query(q, SolrRequest.METHOD.POST).getBeans(StatisticalResultDTO.class);
             } catch (SolrServerException | IOException e) {
                 e.printStackTrace();
                 return;
             }
 
-            for (Group group : groups.getValues()) {
-                // Each group contains data for a different gene
-                String geneAcc = group.getGroupValue();
-                SolrDocumentList docs = group.getResult();
-                GeneRowForHeatMap row = new GeneRowForHeatMap(geneAcc, docs.get(0).getFieldValue(StatisticalResultDTO.MARKER_SYMBOL).toString(), topLevelMps); // Fill row with default values for all mp top levels
+            // Collect the documents by gene
+            Map<String, List<StatisticalResultDTO>> geneMap = results.stream().collect(Collectors.groupingBy(StatisticalResultDTO::getMarkerAccessionId, Collectors.mapping(Function.identity(), Collectors.toList())));
 
-                for (SolrDocument doc : docs) {
-                    List<String> currentTopLevelMps = (ArrayList<String>) doc.get(StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME);
+            for (String geneAcc : geneMap.keySet()) {
+                // Fill row with default values for all mp top levels
+                GeneRowForHeatMap row = new GeneRowForHeatMap(geneAcc, geneMap.get(geneAcc).get(0).getMarkerSymbol(), topLevelMps);
+
+                // Collect
+                for (StatisticalResultDTO result : geneMap.get(geneAcc)) {
+                    List<String> currentTopLevelMps = result.getTopLevelMpTermName();
 
                     // The current top level might be null, because the actual term is already a top level,
                     // check the associated mp term to see, and add it if it's already top-level
                     if (currentTopLevelMps == null) {
-                        if (topLevelMps.stream().anyMatch(x -> x.getName().equals(doc.getFieldValue(StatisticalResultDTO.MP_TERM_NAME).toString()))) {
+                        if (topLevelMps.stream().anyMatch(x -> x.getName().equals(result.getMpTermName()))) {
                             currentTopLevelMps = new ArrayList<>();
-                            currentTopLevelMps.add(doc.getFieldValue(StatisticalResultDTO.MP_TERM_NAME).toString());
+                            currentTopLevelMps.add(result.getMpTermName());
                         }
                     }
 
@@ -1157,19 +1155,20 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
                     if (currentTopLevelMps != null) {
                         for (String mp : currentTopLevelMps) {
                             HeatMapCell cell = row.getXAxisToCellMap().containsKey(mp) ? row.getXAxisToCellMap().get(mp) : new HeatMapCell(mp, HeatMapCell.THREE_I_NO_DATA);
-                            if (doc.getFieldValue(StatisticalResultDTO.SIGNIFICANT) != null && doc.getFieldValue(StatisticalResultDTO.SIGNIFICANT).toString().equalsIgnoreCase("true")) {
+                            if (result.getSignificant() != null && result.getSignificant()) {
                                 cell.addStatus(HeatMapCell.THREE_I_DEVIANCE_SIGNIFICANT);
-                            } else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Successful")) {
+                            } else if (result.getStatus().equalsIgnoreCase("Successful")) {
                                 cell.addStatus(HeatMapCell.THREE_I_DATA_ANALYSED_NOT_SIGNIFICANT);
-                            } else {
+                            } else if (result.getStatus().equalsIgnoreCase("NotProcessed")) {
                                 cell.addStatus(HeatMapCell.THREE_I_COULD_NOT_ANALYSE);
                             }
-
                             row.add(cell);
                         }
                     }
                 }
+
                 geneRowMap.put(geneAcc, row);
+
             }
         });
 

@@ -283,11 +283,12 @@ public class ObservationService extends BasicService implements WebStatus {
             throws SolrServerException, IOException {
 
         SolrQuery query = new SolrQuery();
-        query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_001_001");
+        query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":(" + String.join(" OR ", Constants.adultViabilityParameters) + ")");
         query.setFilterQueries(ObservationDTO.GENE_ACCESSION_ID + ":\"" + acc + "\"");
         query.addField(ObservationDTO.GENE_SYMBOL);
         query.addField(ObservationDTO.GENE_ACCESSION_ID);
         query.addField(ObservationDTO.CATEGORY);
+        query.addField(ObservationDTO.TEXT_VALUE);
         query.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
         query.setRows(100000);
 
@@ -295,8 +296,19 @@ public class ObservationService extends BasicService implements WebStatus {
 
         HashSet<String> viabilityCategories = new HashSet<>();
 
-        for (SolrDocument doc : experimentCore.query(query).getResults()) {
-            viabilityCategories.add(doc.getFieldValue(ObservationDTO.CATEGORY).toString());
+        final List<ObservationDTO> viabilityObservations = experimentCore.query(query).getBeans(ObservationDTO.class);
+        for (ObservationDTO observation : viabilityObservations) {
+            if (observation.getCategory() != null) {
+                viabilityCategories.add(observation.getCategory());
+            } else if (observation.getTextValue() != null) {
+                String viaText = null;
+                try {
+                    viaText = new JSONObject(observation.getTextValue()).getString("outcome");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                viabilityCategories.add(viaText);
+            }
         }
 
         return viabilityCategories;

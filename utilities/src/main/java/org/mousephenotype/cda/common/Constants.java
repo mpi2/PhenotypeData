@@ -29,12 +29,15 @@ public class Constants {
 
     public static final List<String> viabilityParameters = Arrays.asList(
             "IMPC_VIA_001_001", "IMPC_VIA_002_001", "IMPC_EVL_001_001",
-            "IMPC_EVM_001_001", "IMPC_EVP_001_001", "IMPC_EVO_001_001");
+            "IMPC_EVM_001_001", "IMPC_EVP_001_001", "IMPC_EVO_001_001",
+            "IMPC_VIA_063_001", "IMPC_VIA_064_001", "IMPC_VIA_065_001",
+            "IMPC_VIA_066_001", "IMPC_VIA_067_001");
 
     // 03-Aug-2017 (mrelac) Do not include IMPC_VIA_002_001 in this list unless you want duplicate genes that qualify for both
     // IMPC_VIA_001_001 and IMPC_VIA_002_001 (see gene_symbol App or Ctsd, for example)
     public static final List<String> adultViabilityParameters = Arrays.asList(
-            "IMPC_VIA_001_001");
+            "IMPC_VIA_001_001", "IMPC_VIA_063_001", "IMPC_VIA_064_001",
+            "IMPC_VIA_065_001", "IMPC_VIA_066_001", "IMPC_VIA_067_001");
 
 
     public static final List<String> weightParameters = Arrays.asList(
