@@ -95,7 +95,14 @@ public class ProcedureCompletenessService extends BasicService {
             .setFields(fields)
             .setRows(Integer.MAX_VALUE);
 
-        QueryResponse    response = srCore.query(query);
+        QueryResponse response;
+        try {
+            response = srCore.query(query);
+        } catch(Exception e) {
+            logger.warn("ProcedureCompletenessService: solr query failed: {}", query);
+            e.printStackTrace();
+            throw e;
+        }
         return response.getBeans(StatisticalResultDTO.class);
     }
 }
