@@ -191,8 +191,8 @@ public class ProcedureCompleteness implements CommandLineRunner {
         Statuses notProcessed = new Statuses(byStatus.get("NotProcessed"));
 
         if (success.procStatusSet.isEmpty()) {
-            row.add(Constants.NO_DATA);
-            row.add(Constants.NO_DATA);
+            row.add(Constants.NONE);
+            row.add(Constants.NONE);
             row.add("0");
             row.add(notProcessed.procStatus.name);
             row.add(notProcessed.procStatus.id);
@@ -201,24 +201,24 @@ public class ProcedureCompleteness implements CommandLineRunner {
             row.add(success.procStatus.name);
             row.add(success.procStatus.id);
             row.add(Integer.toString(success.procStatusSet.size()));
-            row.add(Constants.NO_DATA);
-            row.add(Constants.NO_DATA);
+            row.add(Constants.NONE);
+            row.add(Constants.NONE);
             row.add("0");
         }
 
-        row.add(success.parmStatusSet.isEmpty() ? Constants.NO_DATA : success.parmStatus.name);
-        row.add(success.parmStatusSet.isEmpty() ? Constants.NO_DATA : success.parmStatus.id);
+        row.add(success.parmStatusSet.isEmpty() ? Constants.NONE : success.parmStatus.name);
+        row.add(success.parmStatusSet.isEmpty() ? Constants.NONE : success.parmStatus.id);
         row.add(success.parmStatusSet.isEmpty() ? "0" : Integer.toString(success.parmStatusSet.size()));
-        row.add(notProcessed.parmStatusSet.isEmpty() ? Constants.NO_DATA : notProcessed.parmStatus.name);
-        row.add(notProcessed.parmStatusSet.isEmpty() ? Constants.NO_DATA : notProcessed.parmStatus.id);
+        row.add(notProcessed.parmStatusSet.isEmpty() ? Constants.NONE : notProcessed.parmStatus.name);
+        row.add(notProcessed.parmStatusSet.isEmpty() ? Constants.NONE : notProcessed.parmStatus.id);
         row.add(notProcessed.parmStatusSet.isEmpty() ? "0" : Integer.toString(notProcessed.parmStatusSet.size()));
 
-        row.add(success.tlmpStatusSet.isEmpty() ? Constants.NO_DATA : success.tlmpStatus.name);
-        row.add(success.tlmpStatusSet.isEmpty() ? Constants.NO_DATA : success.tlmpStatus.id);
+        row.add(success.tlmpStatusSet.isEmpty() ? Constants.NONE : success.tlmpStatus.name);
+        row.add(success.tlmpStatusSet.isEmpty() ? Constants.NONE : success.tlmpStatus.id);
         row.add(success.tlmpStatusSet.isEmpty() ? "0" : Integer.toString(success.tlmpStatusSet.size()));
 
-        row.add(success.mpStatusSet.isEmpty() ? Constants.NO_DATA : success.mpStatus.name);
-        row.add(success.mpStatusSet.isEmpty() ? Constants.NO_DATA : success.mpStatus.id);
+        row.add(success.mpStatusSet.isEmpty() ? Constants.NONE : success.mpStatus.name);
+        row.add(success.mpStatusSet.isEmpty() ? Constants.NONE : success.mpStatus.id);
         row.add(success.mpStatusSet.isEmpty() ? "0" : Integer.toString(success.mpStatusSet.size()));
 
         return row;

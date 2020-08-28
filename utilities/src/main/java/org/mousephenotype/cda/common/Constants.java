@@ -57,7 +57,7 @@ public class Constants {
 
     // Displayable messages
     public static final String[] EMPTY_ROW                = new String[]{""};
-    public static final String   NO_DATA                  = "No data";
+    public static final String   NONE                     = "None";
     public static final String   NO_INFORMATION_AVAILABLE = "No information available";
     public static final String   IMAGE_COMING_SOON        = "Image coming soon<br>";
 
