@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.dto.LifeStage;
 import org.mousephenotype.cda.enumerations.EmbryoViability;
 import org.mousephenotype.cda.enumerations.ObservationType;
@@ -31,7 +32,6 @@ import org.mousephenotype.cda.solr.web.dto.EmbryoViability_DTO;
 import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
 import org.mousephenotype.cda.utilities.LifeStageMapper;
 import org.mousephenotype.cda.web.ChartType;
-import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -157,6 +157,7 @@ public class ChartsController {
                          @RequestParam(required = false, value = "metadata_group") String[] metadataGroup,
                          @RequestParam(required = false, value = "chart_type") ChartType chartType,
                          @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds,
+                         @RequestParam(required = false, value = "procedure_stable_id") String[] procedureStableIds,
                          @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession,
                          @RequestParam(required = false, value = "pageTitle") String pageTitle,
                          @RequestParam(required = false, value = "pageLinkBack") String pageLinkBack,
@@ -176,7 +177,7 @@ public class ChartsController {
 
             model.addAttribute("pageTitle", pageTitle);
 
-            return createCharts(accessionsParams, pipelineStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, chartType, alleleAccession);
+            return createCharts(accessionsParams, pipelineStableIds, procedureStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, chartType, alleleAccession);
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -190,12 +191,13 @@ public class ChartsController {
                         @RequestParam(required = false, value = "strain_accession_id") String strain,
                         @RequestParam(required = false, value = "allele_accession_id") String alleleAccession,
                         @RequestParam(required = false, value = "metadata_group", defaultValue = DEFAULT_NONE) String metadataGroup,
+						@RequestParam(required = false, value = "pipeline_stable_id") String pipelineStableId,
+						@RequestParam(required = false, value = "procedure_stable_id") String procedureStableId,
                         @RequestParam(required = false, value = "parameter_stable_id") String parameterStableId,
                         @RequestParam(required = false, value = "gender") String[] gender,
                         @RequestParam(required = false, value = "zygosity") String[] zygosity,
                         @RequestParam(required = false, value = "phenotyping_center") String phenotypingCenter,
                         @RequestParam(required = false, value = "strategy") String[] strategies,
-                        @RequestParam(required = false, value = "pipeline_stable_id") String pipelineStableId,
                         @RequestParam(required = false, value = "chart_type") ChartType chartType,
                         @RequestParam(required = false, value = "chart_only", defaultValue = "false") boolean chartOnly,
                         @RequestParam(required = false, value = "standAlone") boolean standAlone,
@@ -209,7 +211,7 @@ public class ChartsController {
 		}
 
 		if (!parameterStableId.equals("")) {
-			boolean isDerivedBodyWeight = TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId);
+			boolean isDerivedBodyWeight = Constants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId);
 			model.addAttribute("isDerivedBodyWeight", isDerivedBodyWeight);
 		}
 
@@ -256,8 +258,21 @@ public class ChartsController {
 
 		long startTimeSolr = System.currentTimeMillis();
 
-		List<String> genderList = getParamsAsList(gender);
-		experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
+		if (zygosity.length != 1) {
+			log.warn("More than one zygosity specified", String.join(", ", zygosity));
+		}
+
+		experiment = experimentService.getSpecificExperimentDTO(
+				pipelineStableId,
+				procedureStableId,
+				parameterStableId,
+				alleleAccession,
+				phenotypingCenter,
+				zygosity[0],
+				strain,
+				metaDataGroupString
+		);
+		experiment = experimentService.setUrls(experiment, parameterStableId, pipelineStableId, gene.getMgiAccessionId(), Arrays.asList(zygosity), phenotypingCenter, strain, metadataGroup, alleleAccession, SOLR_URL);
 
 		long endTimeSolr   = System.currentTimeMillis();
 		long timeTakenSolr = endTimeSolr - startTimeSolr;
@@ -292,8 +307,8 @@ public class ChartsController {
 				parameterUrl = impressService.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(), parameter.getStableKey());
 				model.addAttribute("parameterUrl", parameterUrl);
 			}
-			model.addAttribute("alleleSymbol", experiment.getAlleleSymobl());
-			setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
+			model.addAttribute("alleleSymbol", experiment.getAlleleSymbol());
+			setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymbol());
 
 			if (experiment.getMetadataGroup() != null) {
 				metadata = experiment.getMetadataHtml();
@@ -512,7 +527,7 @@ public class ChartsController {
 			// If we are displaying a chart for IPGTT, check all possible derived terms associated to IPG procedure
 			// and add any significant results to the MP terms that are associated to this data
 			if (parameterStableId.equalsIgnoreCase("IMPC_IPG_002_001")) {
-				for (String param : TimeSeriesConstants.IMPC_IPG_002_001) {
+				for (String param : Constants.IMPC_IPG_002_001) {
 					List<GenotypePhenotypeDTO> addGpList = gpService.getGenotypePhenotypeFor(
 							gene.getMgiAccessionId(),
 							param,
@@ -610,7 +625,7 @@ public class ChartsController {
     }
 
     
-    private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter,
+    private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] procedureStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter,
     			String[] strains, String[] metadataGroup, String[] zygosity, Model model, ChartType chartType, String[] alleleAccession)
             throws SolrServerException, IOException, GenomicFeatureNotFoundException, ParameterNotFoundException, URISyntaxException {
 
@@ -623,6 +638,7 @@ public class ChartsController {
         List<String> strainsList = getParamsAsList(strains);
         List<String> metadataGroups = getParamsAsList(metadataGroup);
         List<String> pipelineStableIds = getParamsAsList(pipelineStableIdsArray);
+        List<String> procedureStableIds = getParamsAsList(procedureStableIdsArray);
         List<String> alleleAccessions = getParamsAsList(alleleAccession);
 
         // add sexes explicitly here so graphs urls are created separately
@@ -676,10 +692,19 @@ public class ChartsController {
                 	continue;
                 }
                 pNames.add(StringUtils.capitalize(parameter.getName()) + " (" + parameter.getStableId() + ")");
-				// instead of an experiment list here we need just the outline
-                // of the experiments - how many, observation types
-                Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId, parameter, pipelineStableIds, zyList, phenotypingCentersList,
-                								strainsList, metadataGroups, chartType, alleleAccessions);
+
+                Set<String> graphUrlsForParam = graphUtils.getGraphUrls(
+						pipelineStableIds,
+						procedureStableIds,
+						parameter.getStableId(),
+						geneId,
+						alleleAccessions,
+						zyList,
+						strainsList,
+						phenotypingCentersList,
+						metadataGroups
+						);
+
                 allGraphUrlSet.addAll(graphUrlsForParam);
 
             }// end of parameterId iterations
@@ -724,7 +749,7 @@ public class ChartsController {
      */
     private List<String> getParamsAsList(String[] parameterIds) {
 
-        List<String> paramIds = new ArrayList<String>();
+        List<String> paramIds = new ArrayList<>();
         if (parameterIds != null) {
             paramIds.addAll(Arrays.stream(parameterIds).collect(Collectors.toSet()));
         }

@@ -15,7 +15,8 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
-import lombok.*;
+import lombok.Data;
+import lombok.ToString;
 import org.apache.solr.client.solrj.beans.Field;
 import org.mousephenotype.cda.enumerations.SignificantType;
 import org.springframework.data.annotation.Id;
@@ -96,6 +97,7 @@ public class StatisticalResultDTO {
     public final static String CONTROL_SELECTION_METHOD = "control_selection_method";
     public final static String DEPENDENT_VARIABLE = "dependent_variable";
     public final static String METADATA_GROUP = "metadata_group";
+    public final static String METADATA = "metadata";
 
     public final static String CONTROL_BIOLOGICAL_MODEL_ID = "control_biological_model_id";
     public final static String MUTANT_BIOLOGICAL_MODEL_ID = "mutant_biological_model_id";
@@ -114,6 +116,7 @@ public class StatisticalResultDTO {
     public final static String STATUS = "status";
     public final static String ADDITIONAL_INFORMATION = "additional_information";
     public final static String RAW_OUTPUT = "raw_output";
+    public final static String RAW_DATA = "raw_data";
     public final static String P_VALUE = "p_value";
     public final static String EFFECT_SIZE = "effect_size";
 
@@ -387,6 +390,9 @@ public class StatisticalResultDTO {
     @Field(METADATA_GROUP)
     private String metadataGroup;
 
+    @Field(METADATA)
+    private List<String> metadata;
+
     @Field(CONTROL_BIOLOGICAL_MODEL_ID)
     private Long controlBiologicalModelId;
 
@@ -431,6 +437,10 @@ public class StatisticalResultDTO {
 
     @Field(ADDITIONAL_INFORMATION)
     private String additionalInformation;
+
+    @Field(RAW_DATA)
+    @ToString.Exclude
+    private String rawData;
 
     @Field(RAW_OUTPUT)
     private String rawOutput;

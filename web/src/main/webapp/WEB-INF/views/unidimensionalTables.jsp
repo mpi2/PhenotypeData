@@ -24,7 +24,7 @@
 
                 <c:if test="${data.result.statisticalMethod!=null and data.result.statisticalMethod!='Wilcoxon rank sum test with continuity correction' and data.result.statisticalMethod!='Reference Ranges Plus framework'}">
 
-                    <c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificance!=null}">
+                    <c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificant!=null}">
 
 
                             <h4> Results of statistical analysis  </h4>
@@ -249,7 +249,7 @@
 
                             <c:set var="data" value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
 
-                            <c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificance!=null}">
+                            <c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificant!=null}">
 
                                 <c:if test="${data.result.statisticalMethod!=null}">
                                     <h4> Statistical method  </h4>

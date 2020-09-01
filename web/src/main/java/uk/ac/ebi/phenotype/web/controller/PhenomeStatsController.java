@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.solr.generic.util.PhenotypeFacetResult;
 import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -25,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import uk.ac.ebi.phenotype.chart.ColorCodingPalette;
-import uk.ac.ebi.phenotype.chart.Constants;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
 
 import javax.inject.Named;
@@ -60,13 +60,13 @@ public class PhenomeStatsController {
                 results.getPhenotypeCallSummaries(),
                 ColorCodingPalette.NB_COLOR_MAX,
                 1,
-                Constants.SIGNIFICANT_P_VALUE);
+                Constants.P_VALUE_THRESHOLD);
 
         // generate a chart
         String chart = phenomeChartProvider.generatePhenomeChartByPhenotype(
                 results.getPhenotypeCallSummaries(),
                 phenotypingCenter,
-                Constants.SIGNIFICANT_P_VALUE);
+                Constants.P_VALUE_THRESHOLD);
 
         model.addAttribute("phenotypeCalls", results.getPhenotypeCallSummaries());
         model.addAttribute("palette", colorCoding.getPalette());

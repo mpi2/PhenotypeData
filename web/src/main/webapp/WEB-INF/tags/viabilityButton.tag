@@ -5,6 +5,7 @@
 
 <%@ tag import="java.util.List" %>
 <%@ tag import="java.util.ArrayList" %>
+<%@ tag import="org.apache.commons.text.WordUtils" %>
 
 <%@ attribute name="callList" required="true" type="java.util.Set"%>
 <%@ attribute name="geneAcc" required="true" type="java.lang.String"%>
@@ -23,35 +24,30 @@
 <c:set var="via_href" value="${baseUrl}/charts?accession=${geneAcc}&${VIABILITY_LINK}" />
 
 <c:if test="${callList.size() == 1}">
-	<!--<a class="status done" href="${geneAcc}">	-->
 	<c:forEach var="call" items="${callList}" varStatus="loop">
-		<%--<span class="left">${call.replaceAll("Homozygous - ","Hom<br/>")}</span>--%>
-		<c:if test="${fn:contains(call, 'Lethal') || fn:contains(call, 'lethal')}">
-			<a class="badge badge-danger" style="font-size: 80%;" href="<c:out value='${via_href}'/>">${call}</a>
+		<c:if test="${fn:contains(fn:toLowerCase(call), 'lethal')}">
+			<a class="badge badge-danger" style="font-size: 80%;" href="<c:out value='${via_href}'/>">${WordUtils.capitalizeFully(call)}</a>
 		</c:if>
-		<c:if test="${fn:contains(call, 'Subviable')}">
-			<a class="badge badge-warning" style="font-size: 80%;" href="<c:out value='${via_href}'/>">${call}</a>
+		<c:if test="${fn:contains(fn:toLowerCase(call), 'subviable')}">
+			<a class="badge badge-warning" style="font-size: 80%;" href="<c:out value='${via_href}'/>">${WordUtils.capitalizeFully(call)}</a>
 		</c:if>
-		<c:if test="${fn:contains(call, 'Viable') || fn:contains(call, 'no viability phenotype detected')}">
-			<a class="badge badge-success" style="font-size: 80%;" href="<c:out value='${via_href}'/>">${call}</a>
+		<c:if test="${fn:contains(call, 'Viable')}">
+			<a class="badge badge-success" style="font-size: 80%;" href="<c:out value='${via_href}'/>">${WordUtils.capitalizeFully(call)}</a>
 		</c:if>
 	</c:forEach>
 	<!--</a> -->
 </c:if>
 
 <c:if test="${callList.size() > 1}">
-	<!--<a  href="${link}" class="status done" title="Conflicting calls were made for this gene. For details refer to the associations table on the gene page.">-->
-	<!-- span  class="status done" title="Conflicting calls were made for this gene. For details refer to the associations table on the gene page."-->
 	<c:forEach var="call" items="${callList}" varStatus="loop">
-		<%--<span class="left">${call.replaceAll("Homozygous - ","Hom<br/>")}</span>--%>
-		<c:if test="${fn:contains(call, 'Lethal') || fn:contains(call, 'lethal')}">
-			<a class="badge badge-danger" style="font-size: 80%;" href="<c:out value='${via_href}'/>">${call}</a>
+		<c:if test="${fn:contains(fn:toLowerCase(call), 'lethal')}">
+			<a class="badge badge-danger" style="font-size: 80%;" href="<c:out value='${via_href}'/>">${WordUtils.capitalizeFully(call)}</a>
 		</c:if>
-		<c:if test="${fn:contains(call, 'Subviable')}">
-			<a class="badge badge-warning" style="font-size: 80%;" href="<c:out value='${via_href}'/>">${call}</a>
+		<c:if test="${fn:contains(fn:toLowerCase(call), 'subviable')}">
+			<a class="badge badge-warning" style="font-size: 80%;" href="<c:out value='${via_href}'/>">${WordUtils.capitalizeFully(call)}</a>
 		</c:if>
-		<c:if test="${fn:contains(call, 'Viable') || fn:contains(call, 'no viability phenotype detected')}">
-			<a class="badge badge-success" style="font-size: 80%;" href="<c:out value='${via_href}'/>">${call}</a>
+		<c:if test="${fn:contains(call, 'Viable')}">
+			<a class="badge badge-success" style="font-size: 80%;" href="<c:out value='${via_href}'/>">${WordUtils.capitalizeFully(call)}</a>
 		</c:if>
 	</c:forEach>
 	<!--/span-->

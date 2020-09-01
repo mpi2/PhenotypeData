@@ -273,8 +273,8 @@ public class ImpressService extends BasicService implements WebStatus {
 
 			ImpressDTO imd = response.getBeans(ImpressDTO.class).get(0);
 
-			procedure.setStableId(imd.getProcedureStableId().toString());
-			procedure.setName(imd.getProcedureName().toString());
+			procedure.setStableId(imd.getProcedureStableId());
+			procedure.setName(imd.getProcedureName());
 			procedure.setStableKey(imd.getProcedureStableKey());
 			return procedure;
 

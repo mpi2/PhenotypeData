@@ -84,6 +84,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
             String acc,
             String parameterStableId,
             List<String> pipelineStableIds,
+            List<String> procedureStableIds,
             List<String> zyList,
             List<String> phenotypingCentersList,
             List<String> strainsParams,
@@ -99,7 +100,10 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         if ((parameterStableId != null) && (!parameterStableId.trim().isEmpty())) {
             query.addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + parameterStableId);
         }
-        if (pipelineStableIds != null & pipelineStableIds.size() > 0) {
+        if (procedureStableIds != null && procedureStableIds.size() > 0) {
+            query.addFilterQuery(procedureStableIds.stream().collect(Collectors.joining(" OR ", StatisticalResultDTO.PROCEDURE_STABLE_ID + ":(", ")")));
+        }
+        if (pipelineStableIds != null && pipelineStableIds.size() > 0) {
             query.addFilterQuery(pipelineStableIds.stream().collect(Collectors.joining(" OR ", StatisticalResultDTO.PIPELINE_STABLE_ID + ":(", ")")));
         }
         if (zyList != null && zyList.size() > 0) {
@@ -119,16 +123,17 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         }
         query.setFacet(true);
 
-        // If you add/change order of pivots, make sure you do the same in the for loops below
-        String pivotFacet = StatisticalResultDTO.PIPELINE_STABLE_ID + "," +
-                StatisticalResultDTO.ZYGOSITY + "," +
+        String pivotFacet = StatisticalResultDTO.PIPELINE_STABLE_ID + ",";
+        if (procedureStableIds != null) {
+            pivotFacet += StatisticalResultDTO.PROCEDURE_STABLE_ID + ",";
+        }
+        pivotFacet += StatisticalResultDTO.ZYGOSITY + "," +
                 StatisticalResultDTO.PHENOTYPING_CENTER + "," +
                 StatisticalResultDTO.STRAIN_ACCESSION_ID + "," +
                 StatisticalResultDTO.ALLELE_ACCESSION_ID;
-        //pivot needs to have metadata_group irrespective of if it's included in filter or not as we want seperate experiments based on the metadata
+        //pivot needs to have metadata_group irrespective of if it's included in filter or not as we want separate experiments based on the metadata
         pivotFacet += "," + StatisticalResultDTO.METADATA_GROUP;
 
-        //}
         query.add("facet.pivot", pivotFacet);
 
         query.setFacetLimit(-1);
@@ -850,6 +855,48 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         return null;
     }
 
+    /**
+     * Get the result for a set of allele strain phenotypeCenter, pipeline, parameter, metadata, zygosity, sex
+     */
+    public List<StatisticalResultDTO> getStatisticalResult(
+            String pipelineStableId,
+            String procedureStableId,
+            String parameterStableId,
+            String alleleAccession,
+            String phenotypingCenter,
+            String metadataGroup,
+            String strain,
+            String zygosity) throws IOException, SolrServerException {
+
+        SolrQuery query = new SolrQuery()
+                .setQuery("*:*")
+                .addFilterQuery(StatisticalResultDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"")
+                .addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"")
+                .addFilterQuery(StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId)
+                .addFilterQuery(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" + procedureStableId)
+                .addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + parameterStableId)
+                .addFilterQuery(StatisticalResultDTO.ZYGOSITY + ":" + zygosity)
+                .setRows(100);
+
+        if (strain != null) {
+            query.addFilterQuery(StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + strain + "\"");
+        }
+
+        // Filter by metadata group if supplied
+        if (metadataGroup != null) {
+            if (metadataGroup.isEmpty()) {
+                // This is normally used to deal with parameters that are derived from several
+                // other parameters from different procedures where a single metadata group is
+                // not definitive.  In that case, the metadata group is set to empty string.
+                query.addFilterQuery(StatisticalResultDTO.METADATA_GROUP + ":\"\"");
+            } else {
+                query.addFilterQuery(StatisticalResultDTO.METADATA_GROUP + ":" + metadataGroup);
+            }
+        }
+
+        List<StatisticalResultDTO> solrResults = statisticalResultCore.query(query).getBeans(StatisticalResultDTO.class);
+        return new ArrayList<>(solrResults);
+    }
 
     /**
      * Get the result for a set of allele strain phenotypeCenter, pipeline, parameter, metadata, zygosity, sex

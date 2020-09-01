@@ -9,13 +9,12 @@ import org.mousephenotype.cda.solr.service.dto.MarkerBean;
  */
 public class PhenotypeCallUniquePropertyBean {
 	private Integer project;
+	private ImpressBaseDTO pipeline;
 	private ImpressBaseDTO procedure;
 	private ImpressBaseDTO parameter;
-	private ImpressBaseDTO pipeline;
 	private MarkerBean allele;
 	private String gId;//phenoDCCs internal id that doesn't represent a gene id as they are different for the same mgi gene accession
 	private String phenotypingCenter;
-	
 
 	public PhenotypeCallUniquePropertyBean(){
 		
@@ -26,9 +25,9 @@ public class PhenotypeCallUniquePropertyBean {
 			ImpressBaseDTO pipeline, MarkerBean allele) {
 		super();
 		this.project = project;
+		this.pipeline = pipeline;
 		this.procedure = procedure;
 		this.parameter = parameter;
-		this.pipeline = pipeline;
 		this.allele = allele;
 	}
 
