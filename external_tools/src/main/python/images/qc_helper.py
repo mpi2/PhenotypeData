@@ -14,6 +14,9 @@ def readDicom(im_path):
     
     im = sitk.ReadImage(im_path)
     im = sitk.GetArrayFromImage(im)
+    # Handle issue that some png images have an alpha layer -> 4 planes
+    if im.ndim == 3 and im.shape[2] > 3:
+        im = im[:,:,:3]
     return np.squeeze((im.astype(np.float)*255./im.max()).astype(np.uint8))
 
 # Crop input image into a square.
@@ -90,7 +93,7 @@ class ImageLabelDataset(Dataset):
     
 
     
-    def __init__(self, imdetails, labels, path_column, label_column, root_dir=None, transform=None):
+    def __init__(self, imdetails, labels, path_column='imagename', label_column='verified_classlabel', root_dir=None, transform=None):
         """
         Args:
             imdetails (pandas dataframe): Dataframe with at least two 
@@ -176,3 +179,131 @@ class ImageDataset(Dataset):
             image = self.transform(image)
         
         return  image, im_name
+
+
+def parse_model_desc(model_desc_path):
+    """Parse a model description file for building DL models for QC
+    
+    Parameters
+    ----------
+    model_desc_path : str - Path to json file containing info (see example below)
+
+    returns
+    -------
+    model_info : dict - Dictionary of all contents in the file
+    label_map : Ordered dict - Map of labels (keys) to descriptions. An
+                               ordered dict is used so the indicies of the
+                               keys relate to the output of the model.
+    files_to_process : dict - Dictionary of files to process for each class
+
+    Example
+    -------
+    Example contents of model description (json) file:
+    {
+        "model_description": "hind_leg_hip",
+        "model_dir": "/home/kola/temp/",
+        "model_fname": "bcm_all_structures_model.pt",
+        "n_per_class": 100,
+        "n_epochs": 2,
+        "batch_size": 32,
+        "num_workers": 0,
+        "learning_rate": 0.01,
+        "classes": {
+                "head_dorsal": {
+                        "index": 0,
+                        "class": 1,
+                        "parameter_stable_id": "IMPC_XRY_051_001",
+                        "training_images": {
+                            "1": "/home/kola/temp/BCM_IMPC_XRY_051_001.csv"
+                        }
+                },
+                 "forepaw": {
+                        "index": 1,
+                        "class": 2,
+                        "parameter_stable_id": "IMPC_XRY_049_001",
+                        "training_images": {
+                            "1": "/home/kola/temp/BCM_IMPC_XRY_049_001.csv"
+                        }
+                }
+        }
+    }
+
+    When creating single structure (binary) models there are just a positive
+    and a negative class and the classes part of the above example will be
+    something like:
+    "classes": {
+                "hind_leg_hip": {
+                        "index": 0,
+                        "class": 6,
+                        "parameter_stable_id": "IMPC_XRY_052_001",
+                        "training_images": {
+                            "1": "hind_leg_and_hip.csv"
+                        }
+                },
+                "not_hind_leg_hip": {
+                        "index": 1,
+                        "class": -3,
+                        "parameter_stable_id": "",
+                        "training_images": {
+                            "1": "forepaw.csv",
+                            "2": "skull_dorsal.csv",
+                            "3": "whole_body_lateral.csv",
+                            "4": "whole_body_dorsal.csv"
+                        }
+                }
+    }
+    """
+
+    from collections import OrderedDict
+    import json
+
+
+    with open(model_desc_path) as fid:
+        model_info = json.load(fid)
+
+    # Need to enumerate classes to get label_map and files_to_process
+    label_map = OrderedDict()
+    files_to_process = {}
+    for key, value in model_info['classes'].items():
+        label_map[value['class']] = key
+        files_to_process[key] = list(value['training_images'].values())
+
+    return model_info, label_map, files_to_process
+
+
+def unit_scaling(im):
+    """Scale image to range [0,1]
+
+    Accepts a numpy array from pytorch's .numpy.copy() function and
+    scales the values to between 0 and 1. This utitlity function is 
+    needed because after applying mean/sd normalisation some pixel values
+    are below zero and displaying the images does not look good.
+
+    Unusually there does not seem to be a function in pytorch for 
+    normalising to between 0 and 1. And the MinMaxScalars in sklearn seem
+    to apply to single dimensions - not geared for image data.
+
+    Parameters
+    ----------
+    im : numpy array - expected to be z,x,y i.e. first dim contains whole
+         images
+
+
+    returns
+    -------
+    im : rescaled version of image with pixel values in [0,1] (done inplace
+         for efficiency)
+
+    """
+    import numpy as np
+
+    if im.ndim == 3:
+        for i in np.arange(3):
+            im[i,:,:] -= np.min(im[i,:,:])
+            im[i,:,:] /= np.max(im[i,:,:])
+    elif im.ndim == 2:
+        im -= np.min(im)
+        im /= np.max(im)
+
+    return im
+
