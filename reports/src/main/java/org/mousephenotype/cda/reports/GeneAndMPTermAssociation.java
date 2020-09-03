@@ -44,12 +44,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Zygosity report.
+ * GeneAndMPTermAssociation report.
  *
  * Created by mrelac on 24/07/2015.
  */
 @Component
-public class Zygosity extends AbstractReport {
+public class GeneAndMPTermAssociation extends AbstractReport {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private Map<String, String> geneAccessionIdByGeneSymbol = new HashMap<>();
 
@@ -67,7 +67,7 @@ public class Zygosity extends AbstractReport {
     @Value("${cms_base_url}")
     protected String cmsBaseUrl;
 
-    public Zygosity() {
+    public GeneAndMPTermAssociation() {
         super();
     }
 

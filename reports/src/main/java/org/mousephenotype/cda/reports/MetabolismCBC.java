@@ -36,6 +36,7 @@ import java.util.*;
  *
  * Created by mrelac on 28/07/2015.
  */
+@Deprecated
 @Component
 public class MetabolismCBC extends AbstractReport {
 
