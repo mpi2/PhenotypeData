@@ -95,7 +95,9 @@ df_testing = im_details.loc[~im_details.index.isin(df_validation.index)]
 
 # Create transforms and dataset
 im_size = 224
-data_transform = transforms.Compose([ transforms.ToTensor(),
+data_transform = transforms.Compose([ transforms.Lambda(lambda im: helper.crop_to_square(im)),
+                                      transforms.Resize(im_size),
+                                      transforms.ToTensor(),
                                       transforms.Normalize((0.48527132, 0.46777139, 0.39808026), (0.26461128, 0.25852081, 0.26486896))])
 
 training_dataset = helper.ImageLabelDataset(df_training, labels=label_map, path_column="imagename",
@@ -139,7 +141,7 @@ for idx in np.arange(20):
     plt.imshow(np.transpose(im, (1, 2, 0)))
     ax.set_title(label_map[labels[idx].numpy()+1])
 
-figure_output_path = os.path.join(model_info['model_dir'],os.path.splitext(model_info['model_fname'])[0]+"sample_data.png")
+figure_output_path = os.path.join(model_info['model_dir'],os.path.splitext(model_info['model_fname'])[0]+"_sample_data.png")
 plt.savefig(figure_output_path)
 plt.close(fig)
 
