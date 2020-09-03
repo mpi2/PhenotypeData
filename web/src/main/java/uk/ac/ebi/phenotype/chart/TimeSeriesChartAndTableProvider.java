@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenotype.chart;
 
 import org.apache.commons.lang3.text.WordUtils;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.dto.DiscreteTimePoint;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -23,7 +24,6 @@ import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
-import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
@@ -82,7 +82,7 @@ public class TimeSeriesChartAndTableProvider {
 					Float discreteTimePoint = control.getDiscretePoint();
 
 					// Ensure the timepoint is valid
-					if (discreteTimePoint >= 0 || !TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameter.getStableId())) {
+					if (discreteTimePoint >= 0 || !Constants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameter.getStableId())) {
 						controlDataPoints.add(new DiscreteTimePoint(discreteTimePoint, dataPoint));
 					}
 				}
@@ -118,7 +118,7 @@ public class TimeSeriesChartAndTableProvider {
 						Float discreteTimePoint = expDto.getDiscretePoint();
 
 						// Ensure the timepoint is valid
-						if (!TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameter.getStableId()) || discreteTimePoint > 0) {
+						if (!Constants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameter.getStableId()) || discreteTimePoint > 0) {
 							mutantData.add(new DiscreteTimePoint(discreteTimePoint, dataPoint));
 						}
 					}
@@ -137,7 +137,7 @@ public class TimeSeriesChartAndTableProvider {
 			//System.out.println("Body weight curve?"+ parameter.getName()+" xUnit="+ parameter.getUnitX()+" yUnit="+parameter.getUnitY());
 			String xAxisLabel =parameter.getUnitX();
 			String yAxisLabel=parameter.getUnitY();
-			if(TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameter.getStableId())){
+			if(Constants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameter.getStableId())){
 				xAxisLabel= "Age - rounded to nearest week";
 				yAxisLabel= "Mass (g)";
 			}

@@ -80,6 +80,9 @@ public class CategoricalChartAndTableProvider {
 			categoricalResultAndCharts.setStatsResults(statsResults);
 			CategoricalSet controlSet = new CategoricalSet();
 			controlSet.setName(WordUtils.capitalize(sexType.name()) + " Control");
+			if (sexType.equals(SexType.not_considered)) {
+				controlSet.setName(WordUtils.capitalize("Control"));
+			}
 			controlSet.setSexType(sexType);
 
 			for (String category : categories) {
@@ -88,6 +91,9 @@ public class CategoricalChartAndTableProvider {
 				}
 				CategoricalDataObject controlCatData = new CategoricalDataObject();
 				controlCatData.setName(WordUtils.capitalize(sexType.name()) + " Control");
+				if (sexType.equals(SexType.not_considered)) {
+					controlSet.setName(WordUtils.capitalize("Control"));
+				}
 				controlCatData.setCategory(category);
 				long controlCount = 0;
 				
@@ -95,7 +101,7 @@ public class CategoricalChartAndTableProvider {
 					// get the attributes of this data point
 					SexType docSexType = SexType.valueOf(control.getSex());
 					String categoString = control.getCategory();
-					if (categoString.equals(category) && docSexType.equals(sexType)) {
+					if (categoString.equals(category) && (docSexType.equals(sexType) || sexType.equals(SexType.not_considered))) {
 						controlCount++;
 					}
 				}
@@ -109,6 +115,9 @@ public class CategoricalChartAndTableProvider {
 				CategoricalSet zTypeSet = new CategoricalSet();
 				// hold the data for each bar on graph hom, normal, abnormal
 				zTypeSet.setName(WordUtils.capitalize(sexType.name()) + " " + WordUtils.capitalize(zType.name()));
+				if (sexType.equals(SexType.not_considered)) {
+					zTypeSet.setName(WordUtils.capitalize(WordUtils.capitalize(zType.name()) + " Mutant"));
+				}
 				for (String category : categories) {
 					if (category.equals("imageOnly")){
 						continue;
@@ -122,13 +131,12 @@ public class CategoricalChartAndTableProvider {
 					for (ObservationDTO expDto : expObservationsSet) {
 
 						// get the attributes of this data point
-						SexType docSexType = SexType.valueOf(expDto
-						.getSex());
+						SexType docSexType = SexType.valueOf(expDto.getSex());
 						String categoString = expDto.getCategory();
 						//System.out.println("mutant category string="+categoString);
 						// get docs that match the criteria and add
 						// 1 for each that does
-						if (categoString.equals(category) && docSexType.equals(sexType)) {
+						if (categoString.equals(category) && (docSexType.equals(sexType) || sexType.equals(SexType.not_considered))) {
 							mutantCount++;
 						}
 					}
@@ -139,7 +147,7 @@ public class CategoricalChartAndTableProvider {
 					expCatData.setCount(mutantCount);
 					StatisticalResultDTO tempStatsResult = null;
 					for (StatisticalResultDTO result : statsResults) {
-						if(result.getSex() != null && SexType.valueOf(result.getSex()).equals(SexType.both)){
+						if(result.getSex() != null && (SexType.valueOf(result.getSex()).equals(SexType.both)) || SexType.valueOf(result.getSex()).equals(SexType.not_considered)){
 							categoricalResultAndCharts.setCombinedPValue(result.getPValue());
 						}
 						if (result.getZygosity() != null && result.getSex() != null) {

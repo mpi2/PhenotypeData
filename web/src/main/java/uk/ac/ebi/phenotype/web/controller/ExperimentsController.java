@@ -17,6 +17,7 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.ObservationService;
@@ -35,7 +36,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import uk.ac.ebi.phenotype.chart.Constants;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
@@ -129,6 +129,7 @@ public class ExperimentsController {
                 experimentRowJson.put(ObservationDTO.ALLELE_ACCESSION_ID, experimentsDataTableRow.getAllele().getAccessionId());
                 experimentRowJson.put(ObservationDTO.GENE_ACCESSION_ID, experimentsDataTableRow.getGene().getAccessionId());
                 experimentRowJson.put(ObservationDTO.PHENOTYPING_CENTER, experimentsDataTableRow.getPhenotypingCenter());
+                experimentRowJson.put(ObservationDTO.PROCEDURE_STABLE_ID, experimentsDataTableRow.getProcedure().getStableId());
                 experimentRowJson.put(ObservationDTO.PIPELINE_STABLE_ID, experimentsDataTableRow.getPipeline().getStableId());
                 experimentRowJson.put(ObservationDTO.PROCEDURE_NAME, experimentsDataTableRow.getProcedure().getName());
                 experimentRowJson.put(ObservationDTO.PARAMETER_STABLE_ID, experimentsDataTableRow.getParameter().getStableId());
@@ -246,7 +247,7 @@ public class ExperimentsController {
                 iterator.remove();//using the iterator directly resolves any concurrent modification exceptions
             }
         }
-        Map<String, Object> chartData = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
+        Map<String, Object> chartData = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.P_VALUE_THRESHOLD, allelePageDTO.getParametersByProcedure());
         model.addAttribute("chart", chartData.get("chart"));
         model.addAttribute("count", chartData.get("count"));
         return "experimentsChartFrag";
@@ -277,7 +278,7 @@ public class ExperimentsController {
             rows += list.size();
         }
 
-        Map<String, Object> chart = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
+        Map<String, Object> chart = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.P_VALUE_THRESHOLD, allelePageDTO.getParametersByProcedure());
         //top level mp names often are not in same order as ids so this mehod if used for getting name from id is wrong. SR indexer needs fixing.
         Map<String, String> phenotypeTopLevels = srService.getTopLevelMPTerms(geneAccession, null);
         List<MpDTO> mpTerms = new ArrayList<>();

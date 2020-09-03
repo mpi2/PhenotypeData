@@ -708,7 +708,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
             query.addFilterQuery(GenotypePhenotypeDTO.PARAMETER_STABLE_ID + ":\"" + parameterStableId + "\"");
         }
 
-        if (sex != null) {
+        if (sex != null && sex.size() > 0) {
             String sexes = sex.stream().map(SexType::getName).collect(Collectors.joining(" OR "));
             if(sexes.equalsIgnoreCase("female OR male") || sexes.equalsIgnoreCase("male OR female")){
                 sexes="female OR male OR both";//to account for where entries in solr have used both instead of female and male sexes e.g. threei data has some
@@ -966,10 +966,13 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
             }
 
 
-            ImpressBaseDTO procedure = new ImpressBaseDTO();
 	        if (phen.has(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID)) {
-	            procedure.setStableId(phen.getString(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID));
-	            procedure.setName(phen.getString(GenotypePhenotypeDTO.PROCEDURE_NAME));
+	            // There should not ever be more than 1 procedure in the list
+                final JSONArray jsonProcedureStableIds = phen.getJSONArray(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID);
+                final String jsonProcedureName = phen.getString(GenotypePhenotypeDTO.PROCEDURE_NAME);
+                ImpressBaseDTO procedure = new ImpressBaseDTO();
+                procedure.setStableId(jsonProcedureStableIds.getString(0));
+                procedure.setName(jsonProcedureName);
 	            sum.setProcedure(procedure);
 	        } else {
                 sum.getStatus().addError("procedure_stable_id");

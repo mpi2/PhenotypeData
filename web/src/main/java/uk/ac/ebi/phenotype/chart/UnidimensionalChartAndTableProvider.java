@@ -79,7 +79,6 @@ public class UnidimensionalChartAndTableProvider {
 			List<List<Float>> rawData = new ArrayList<>();
 			List<Float> dataFloats = new ArrayList<>();
 			for (ObservationDTO control : experiment.getControls(sexType)) {
-
 				Float dataPoint = control.getDataPoint();
 				dataFloats.add(dataPoint);
 			}
@@ -118,7 +117,7 @@ public class UnidimensionalChartAndTableProvider {
 		ProcedureDTO proc = impressService.getProcedureByStableId(experiment.getProcedureStableId()) ;
 		String procedureDescription = "";
 		if (proc != null) {
-			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Long)proc.getStableKey()).toString()),  "Procedure: "+ proc.getName());
+			procedureDescription = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey((proc.getStableKey()).toString()),  "Procedure: "+ proc.getName());
 		}
 		if (parameter.getStableKey() != null) {
 			title = String.format("<a href=\"%s\">%s</a>", impressService.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(),parameter.getStableKey()),  "Parameter: "+ parameter.getName());
@@ -174,7 +173,9 @@ public class UnidimensionalChartAndTableProvider {
 			PercentileComputation pc = new PercentileComputation(listOfFloats);
 
 			List<Float> wt1 = new ArrayList<>();
-			if (listOfFloats.size() > 0) {
+			if (listOfFloats.size() < 1) {
+				continue;
+			} else {
 				double Q1 = ChartUtils.getDecimalAdjustedFloat(pc.getLowerQuartile(), decimalPlaces);
 				double Q3 = ChartUtils.getDecimalAdjustedFloat(pc.getUpperQuartile(), decimalPlaces);
 				double IQR = Q3 - Q1;

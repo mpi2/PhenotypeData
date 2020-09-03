@@ -40,7 +40,7 @@ public class ExperimentDTO {
     private Set<SexType>                      sexes;
     private ControlStrategy                   controlSelectionStrategy;
     private List<StatisticalResultDTO>        results;
-    private String                            alleleSymobl;
+    private String                            alleleSymbol;
     private String                            geneticBackgtround;
 
     private Set<ObservationDTO> homozygoteMutants;
@@ -88,7 +88,7 @@ public class ExperimentDTO {
 				+ ", procedureName=" + procedureName + ", pipelineStableId=" + pipelineStableId + ", observationType="
 				+ observationType + ", organisation=" + organisation + ", strain=" + strain + ", geneMarker="
 				+ geneMarker + ", zygosities=" + zygosities + ", sexes=" + sexes + ", controlSelectionStrategy="
-				+ controlSelectionStrategy + ", results=" + results + ", alleleSymobl=" + alleleSymobl
+				+ controlSelectionStrategy + ", results=" + results + ", alleleSymobl=" + alleleSymbol
 				+ ", geneticBackgtround=" + geneticBackgtround + ", homozygoteMutants=" + homozygoteMutants
 				+ ", heterozygoteMutants=" + heterozygoteMutants + ", hemizygoteMutants=" + hemizygoteMutants
 				+ ", controls=" + controls + ", controlBiologicalModelId=" + controlBiologicalModelId
@@ -120,13 +120,13 @@ public class ExperimentDTO {
 	}
 
 
-	public String getAlleleSymobl() {
-		return alleleSymobl;
+	public String getAlleleSymbol() {
+		return alleleSymbol;
 	}
 
 
-	public void setAlleleSymobl(String alleleSymobl) {
-		this.alleleSymobl = alleleSymobl;
+	public void setAlleleSymbol(String alleleSymbol) {
+		this.alleleSymbol = alleleSymbol;
 	}
 
 
@@ -204,7 +204,7 @@ public class ExperimentDTO {
         }
 
         for (ObservationDTO mutant : mutantsDtos) {
-            if (sex == null || sex.equals(SexType.valueOf(mutant.getSex()))) {
+            if (sex == null || sex.equals(SexType.not_considered) || sex.equals(SexType.valueOf(mutant.getSex()))) {
                 mutantDtosForSex.add(mutant);
             }
         }
