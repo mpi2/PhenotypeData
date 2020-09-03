@@ -250,16 +250,21 @@ public class ObservationService extends BasicService implements WebStatus {
     }
 
     public List<ObservationDTO> getObservationsByParameterStableId(String parameterStableId) throws SolrServerException, IOException {
-
         SolrQuery query = new SolrQuery();
         query.setQuery(String.format("%s:\"%s\"", ObservationDTO.PARAMETER_STABLE_ID, parameterStableId));
+        query.setFields(
+            ObservationDTO.DATASOURCE_NAME,
+            ObservationDTO.GENE_SYMBOL,
+            ObservationDTO.GENE_ACCESSION_ID,
+            ObservationDTO.ZYGOSITY,
+            ObservationDTO.PHENOTYPING_CENTER,
+            ObservationDTO.CATEGORY);
         query.setRows(Integer.MAX_VALUE);
         query.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
         logger.info("getObservationsByParameterStableId Url: " + SolrUtils.getBaseURL(experimentCore) + "/select?" + query);
 
         return experimentCore.query(query).getBeans(ObservationDTO.class);
     }
-
 
     public long getNumberOfDocuments(List<String> resourceName, boolean experimentalOnly)
             throws SolrServerException, IOException {

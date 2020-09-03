@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.GeneService;
@@ -49,8 +50,8 @@ import java.util.stream.Collectors;
  */
 @Component
 public class Zygosity extends AbstractReport {
-
-    protected Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Map<String, String> geneAccessionIdByGeneSymbol = new HashMap<>();
 
     @Autowired
     GeneService geneService;
@@ -66,8 +67,6 @@ public class Zygosity extends AbstractReport {
     @Value("${cms_base_url}")
     protected String cmsBaseUrl;
 
-    public static final String[] EMPTY_ROW = new String[]{""};
-
     public Zygosity() {
         super();
     }
@@ -77,39 +76,42 @@ public class Zygosity extends AbstractReport {
         return Introspector.decapitalize(ClassUtils.getShortClassName(this.getClass()));
     }
 
-    public void run(String[] args) throws ReportException {
+    Map<String, String> loadGeneAccessionIdByGeneSymbolMap() throws ReportException {
+        try {
+            List<GeneDTO> dto = geneService.getAllGeneDTOs();
+            return dto.stream().collect(Collectors.toMap(GeneDTO::getMarkerSymbol, GeneDTO::getMgiAccessionId));
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ReportException(e);
+        }
+    }
 
+    public void run(String[] args) throws ReportException {
         List<String> errors = parser.validate(parser.parse(args));
         if ( ! errors.isEmpty()) {
             logger.error("ZygosityReport parser validation error: " + StringUtils.join(errors, "\n"));
             return;
         }
         initialise(args);
-
+        geneAccessionIdByGeneSymbol = loadGeneAccessionIdByGeneSymbolMap();
         long start = System.currentTimeMillis();
+        int count = 0;
 
         List<String[]> result = new ArrayList<>();
         Map<Pair<String, ZygosityType>, Set<String>> mps = new TreeMap<>();
-
         Map<GeneCenterZygosity, List<String>> data = new HashMap<>();
         Map<GeneCenterZygosity, List<String>> viabilityData = new HashMap<>();
+        String[] phenotypeZygosityHeading = {"MP Term", "Zygosity", "# Genes", "Gene Symbol (Gene Accession Id)"};
+        result.add(phenotypeZygosityHeading);
 
-        String[] headerParams = {"MP Term", "Zygosity", "# Genes", "Gene Symbol (Gene Accession Id)"};
-        result.add(headerParams);
-
-        int mpTermCount = 0;
         try {
-
             // Get the list of phenotype calls
             List<GenotypePhenotypeDTO> gps = genotypePhenotypeService.getAllGenotypePhenotypes(resources);
-
             for (GenotypePhenotypeDTO gp : gps) {
-
                 // Exclude Viability calls from the counts of genes by zygosity
                 if (gp.getParameterStableId().contains("VIA")) {
                     continue;
                 }
-
                 // Exclude LacZ calls
                 if (gp.getParameterStableId().contains("ALZ")) {
                     continue;
@@ -125,7 +127,7 @@ public class Zygosity extends AbstractReport {
                 for (String mp : topLevelMpTermName) {
                     Pair<String, ZygosityType> k = new ImmutablePair<>(mp, zygosity);
                     if (!mps.containsKey(k)) {
-                        mps.put(k, new HashSet<String>());
+                        mps.put(k, new HashSet<>());
                     }
                     mps.get(k).add(symbol);
                 }
@@ -146,36 +148,31 @@ public class Zygosity extends AbstractReport {
                 final String mpSymbol = k.getLeft();
                 final String zygosity = k.getRight().getName();
 
-
                 Set<String> mpsSet = new HashSet<>();
                 for (String gene : mps.get(k)) {
-                    GeneDTO geneDTO = geneService.getGeneByGeneSymbolWithLimitedFields(gene);
-
-                    if ((geneDTO != null) && (geneDTO.getMgiAccessionId() != null) && ( ! geneDTO.getMgiAccessionId().isEmpty())) {
-                        mpsSet.add(gene + "(" + geneDTO.getMgiAccessionId() + ")");
-                    } else {
-                        mpsSet.add(gene);
-                    }
+                    String acc = geneAccessionIdByGeneSymbol.get(gene);
+                    mpsSet.add(gene + (acc == null ? "" : "(" + acc + ")"));
                 }
 
                 String[] row = {mpSymbol, zygosity, Integer.toString(mps.get(k).size()), StringUtils.join(mpsSet, "|")};
                 result.add(row);
-                mpTermCount++;
             }
 
-            result.add(EMPTY_ROW);
+            result.add(Constants.EMPTY_ROW);
+            String[] geneZygosityHeading = {"Gene Symbol", "Gene Accession Id", "Phenotyping Center", "Viability", "Hom", "Het", "Hemi", "Gene Page URL"};
+            result.add(geneZygosityHeading);
+            count += result.size();
+            csvWriter.writeRowsOfArray(result);
+            result.clear();
 
             // Get the viability data from the experiment core directly
             for (ObservationDTO obs : observationService.getObservationsByParameterStableId("IMPC_VIA_001_001")) {
-
-
                 // Skip records that are not for the resources we are interested in
-                if (!resources.contains(obs.getDataSourceName())) {
+                if ( ! resources.contains(obs.getDataSourceName())) {
                     continue;
                 }
 
                 String symbol = obs.getGeneSymbol();
-
                 GeneCenterZygosity g = new GeneCenterZygosity();
                 g.setGeneSymbol(symbol);
                 g.setZygosity(ZygosityType.valueOf(obs.getZygosity()));
@@ -186,9 +183,6 @@ public class Zygosity extends AbstractReport {
 
                 viabilityData.get(g).add(obs.getCategory());
             }
-
-            String[] resetHeaderParams = {"Gene Symbol", "Gene Accession Id", "Phenotyping Center", "Viability", "Hom", "Het", "Hemi", "Gene Page URL"};
-            result.add(resetHeaderParams);
 
             Set<String> geneSymbols = new HashSet<>();
             for (GeneCenterZygosity g : data.keySet()) {
@@ -202,15 +196,9 @@ public class Zygosity extends AbstractReport {
             }
 
             for (String geneSymbol : geneSymbols) {
-
-                GeneDTO gene = geneService.getGeneByGeneSymbolWithLimitedFields(geneSymbol);
-
                 for (String center : centers) {
-
                     boolean include = false;
-
                     List<String> via = new ArrayList<>();
-
                     GeneCenterZygosity candidate = new GeneCenterZygosity();
                     candidate.setPhenotypeCenter(center);
                     candidate.setGeneSymbol(geneSymbol);
@@ -231,15 +219,16 @@ public class Zygosity extends AbstractReport {
                     include = (viabilityData.containsKey(candidate) || data.containsKey(candidate)) ? true : include;
 
                     String geneLink = "";
-                    if (gene != null) {
-                        geneLink = cmsBaseUrl + "/data/genes/" + gene.getMgiAccessionId();
+                    String acc = geneAccessionIdByGeneSymbol.get(geneSymbol);
+                    acc = (acc == null ? "" : acc.trim());
+                    if ( ! acc.isEmpty()) {
+                        geneLink = cmsBaseUrl + "/data/genes/" + acc;
                         if (geneLink.startsWith("//")) {
                             geneLink = "http:" + geneLink;
                         }
                     }
 
-                    String mgiGeneId = ((gene != null) && (gene.getMgiAccessionId() != null) ? gene.getMgiAccessionId() : "");
-                    String[] row = {geneSymbol, mgiGeneId, center, StringUtils.join(via, ": "), homCount, hetCount, hemiCount, geneLink};
+                    String[] row = {geneSymbol, acc, center, StringUtils.join(via, ": "), homCount, hetCount, hemiCount, geneLink};
                     if (include)
                         result.add(row);
                 }
@@ -251,20 +240,17 @@ public class Zygosity extends AbstractReport {
                 .collect(Collectors.toList());
 
             csvWriter.writeRowsOfArray(result);
+            count += result.size();
 
         } catch (SolrServerException | IOException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }
 
-        try {
-            csvWriter.close();
-        } catch (IOException e) {
-            throw new ReportException("Exception closing csvWriter: " + e.getLocalizedMessage());
-        }
+        csvWriter.closeQuietly();
 
         log.info(String.format(
-            "Finished. %s MP term rows written and %s Gene rows written in %s",
-            mpTermCount, result.size(), commonUtils.msToHms(System.currentTimeMillis() - start)));
+            "Finished. %s rows written in %s",
+            count, commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
 
 
@@ -276,55 +262,39 @@ public class Zygosity extends AbstractReport {
         private String phenotypeCenter;
         private ZygosityType zygosity;
 
-
         public String getGeneSymbol() {
-
             return geneSymbol;
         }
 
-
         public void setGeneSymbol(String geneSymbol) {
-
             this.geneSymbol = geneSymbol;
         }
 
-
         public String getPhenotypeCenter() {
-
             return phenotypeCenter;
         }
 
-
         public void setPhenotypeCenter(String phenotypeCenter) {
-
             this.phenotypeCenter = phenotypeCenter;
         }
 
-
         public ZygosityType getZygosity() {
-
             return zygosity;
         }
 
-
         public void setZygosity(ZygosityType zygosity) {
-
             this.zygosity = zygosity;
         }
 
-
         @Override
         public boolean equals(Object o) {
-
             if (this == o) {
                 return true;
             }
             if (!(o instanceof GeneCenterZygosity)) {
                 return false;
             }
-
             GeneCenterZygosity that = (GeneCenterZygosity) o;
-
             if (geneSymbol != null ? !geneSymbol.equals(that.geneSymbol) : that.geneSymbol != null) {
                 return false;
             }
@@ -332,13 +302,10 @@ public class Zygosity extends AbstractReport {
                 return false;
             }
             return zygosity == that.zygosity;
-
         }
-
 
         @Override
         public int hashCode() {
-
             int result = geneSymbol != null ? geneSymbol.hashCode() : 0;
             result = 31 * result + (phenotypeCenter != null ? phenotypeCenter.hashCode() : 0);
             result = 31 * result + (zygosity != null ? zygosity.hashCode() : 0);
