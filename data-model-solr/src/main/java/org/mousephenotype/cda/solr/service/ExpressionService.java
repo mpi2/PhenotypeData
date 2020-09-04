@@ -1128,34 +1128,32 @@ public class ExpressionService extends BasicService {
 	}
 
 	/**
-	 *
-	 * @param mgiAccession
-	 *            if mgi accesion null assume a request for control data
-	 * @param fields
 	 * @return
 	 * @throws SolrServerException, IOException
 	 */
 	public List<ObservationDTO> getCategoricalAdultLacZDataForReport() throws SolrServerException, IOException  {
-
 		SolrQuery solrQuery = new SolrQuery()
 		.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"" + "experimental" + "\"")
 		.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\"")
 		.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"")
-		.setFields(ObservationDTO.GENE_SYMBOL
-				, ObservationDTO.GENE_ACCESSION_ID
-				, ObservationDTO.CATEGORY
-				, ObservationDTO.ALLELE_SYMBOL
-				, ObservationDTO.COLONY_ID
-				, ObservationDTO.EXTERNAL_SAMPLE_ID
-				, ObservationDTO.ZYGOSITY
-				, ObservationDTO.SEX
-				, ObservationDTO.PARAMETER_NAME
-				, ObservationDTO.PARAMETER_STABLE_ID
-				, ObservationDTO.GENE_ACCESSION_ID
-				, ObservationDTO.PHENOTYPING_CENTER)
+		.setFields(
+			ObservationDTO.GENE_SYMBOL,
+			ObservationDTO.GENE_ACCESSION_ID,
+			ObservationDTO.ALLELE_SYMBOL,
+			ObservationDTO.ALLELE_ACCESSION_ID,
+			ObservationDTO.STRAIN_NAME,
+			ObservationDTO.STRAIN_ACCESSION_ID,
+			ObservationDTO.CATEGORY,
+			ObservationDTO.COLONY_ID,
+			ObservationDTO.EXTERNAL_SAMPLE_ID,
+			ObservationDTO.ZYGOSITY,
+			ObservationDTO.SEX,
+			ObservationDTO.PARAMETER_NAME,
+			ObservationDTO.PARAMETER_STABLE_ID,
+			ObservationDTO.GENE_ACCESSION_ID,
+			ObservationDTO.PHENOTYPING_CENTER)
 		.setRows(Integer.MAX_VALUE);
 
 		return experimentCore.query(solrQuery).getBeans(ObservationDTO.class);
 	}
-
 }

@@ -129,21 +129,18 @@ public class Fertility extends AbstractReport {
 
             // Write summary section.
             csvWriter.write(Arrays.asList("Phenotype", "# Genes*", "Gene Symbols"));
-
             csvWriter.write(buildList("Both fertile", bothFertile));
             csvWriter.write(buildList("Both infertile", bothInfertile));
             csvWriter.write(buildList("Females fertile", femalesFertile));
             csvWriter.write(buildList("Females infertile", femalesInfertile));
             csvWriter.write(buildList("Males fertile", malesFertile));
             csvWriter.write(buildList("Males infertile", malesInfertile));
-
             csvWriter.write(Constants.EMPTY_ROW);
 
              // Write conflicting section.
             csvWriter.write(buildList("Conflicting females", conflictingFemales));
             csvWriter.write(buildList("Conflicting males", conflictingMales));
             csvWriter.write(Arrays.asList(new String[] { "* includes conflicting data. Conflicting data are genes that appear in more than one fertility category." } ));
-
             csvWriter.write(Constants.EMPTY_ROW);
 
             // Write detail section.
@@ -162,6 +159,9 @@ public class Fertility extends AbstractReport {
                 "Comment"
             };
             csvWriter.write(Arrays.asList(detailHeading));
+
+            count += 13;    // Sum of rows written above
+
             List<List<String>> matrix = new ArrayList<>();
             for ( SolrDocument doc : response.getResults()) {
                 String category = doc.getFieldValue(ObservationDTO.CATEGORY).toString();
@@ -198,7 +198,7 @@ public class Fertility extends AbstractReport {
                 .collect(Collectors.toList());
 
             csvWriter.writeRows(matrix);
-            count = matrix.size();
+            count += matrix.size();
 
         } catch (SolrServerException | IOException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());

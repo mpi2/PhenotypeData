@@ -36,6 +36,7 @@ import java.util.*;
  *
  * Created by mrelac on 28/07/2015.
  */
+@Deprecated
 @Component
 public class MetabolismCalorimetry extends AbstractReport {
 
@@ -138,9 +139,9 @@ public class MetabolismCalorimetry extends AbstractReport {
         initialise(args);
 
         long start = System.currentTimeMillis();
-
-        csvWriter.write(header);
         int count = 0;
+        csvWriter.write(header);
+        count++;
 
         try {
             Collection<String> sampleIds = observationService.getMetabolismReportBiologicalSampleIds("IMPC_CAL_*");

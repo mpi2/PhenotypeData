@@ -29,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.beans.Introspector;
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -94,7 +93,7 @@ public class Viability extends AbstractReport {
             // Build conflicting data section.
             Set<String> conflictingSet = new TreeSet<>();
             Map<String, List<ObservationDTO>> genesMap = new HashMap<>();
-            List<ObservationDTO> details = data.getData();
+            List<ObservationDTO> details = data.getViabilityReportData();
             for (ObservationDTO detail : details) {
                 List<ObservationDTO> oList = genesMap.get(detail.getGeneSymbol());
                 if (oList == null) {
@@ -130,26 +129,39 @@ public class Viability extends AbstractReport {
             // Write summary section.
             csvWriter.write(Arrays.asList(new String[] {  "Phenotype", "# Genes*", "Gene Symbols"  }));
             csvWriter.writeRows(summaryGrid);
-
             csvWriter.write(Constants.EMPTY_ROW);
+            count += 2 + summaryGrid.size();
 
             // Write conflicting section.
             csvWriter.write(Arrays.asList(new String[] { "* includes conflicting data. Conflicting data are genes that appear in more than one viability category." }));
             csvWriter.write(conflictingRow);
-
             csvWriter.write(Constants.EMPTY_ROW);
-            csvWriter.write(Constants.EMPTY_ROW);
-            csvWriter.write(Constants.EMPTY_ROW);
+            count += 3;
 
             // Build and write detail section.
             csvWriter.write(Arrays.asList(new String[] { "List of genes that result in a lethal, subviable or viable phenotype. A gene may appear more than once if there are results for different colonies or for different alleles." }));
-            csvWriter.write(Arrays.asList(new String[] { "Gene Symbol", "Gene Accession Id", "Allele Symbol", "Allele Accession Id", "Phenotyping Centre", "Colony Id", "Sex", "Zygosity", "Phenotype", "Comment" } ));
-            details = data.getData();
+            csvWriter.write(Arrays.asList(
+                "Gene Symbol",
+                "Gene Accession Id",
+                "Allele Symbol",
+                "Allele Accession Id",
+                "Background Strain Name",
+                "Background Strain Accession Id",
+                "Colony Id",
+                "Phenotyping Center",
+                "Zygosity",
+                "Sex",
+                "Phenotype",
+                "Comment"));
+            count += 2;
+            details = data.getViabilityReportData();
             details.sort(Comparator
-                    .comparing(ObservationDTO::getGeneSymbol)
-                    .thenComparing(ObservationDTO::getAlleleSymbol)
-                    .thenComparing(ObservationDTO::getZygosity)
-                    .thenComparing(ObservationDTO::getCategory));
+                 .comparing(ObservationDTO::getGeneSymbol)
+                 .thenComparing(ObservationDTO::getAlleleSymbol)
+                 .thenComparing(ObservationDTO::getStrainName)
+                 .thenComparing(ObservationDTO::getZygosity)
+                 .thenComparing(ObservationDTO::getSex)
+                 .thenComparing(ObservationDTO::getCategory));
 
             for (ObservationDTO detail : details) {
                 List<String> row = new ArrayList<>();
@@ -157,10 +169,12 @@ public class Viability extends AbstractReport {
                 row.add(detail.getGeneAccession());
                 row.add(detail.getAlleleSymbol());
                 row.add(detail.getAlleleAccession());
-                row.add(detail.getPhenotypingCenter());
+                row.add(detail.getStrainName());
+                row.add(detail.getStrainAccessionId());
                 row.add(detail.getColonyId());
-                row.add(detail.getSex());
+                row.add(detail.getPhenotypingCenter());
                 row.add(detail.getZygosity());
+                row.add(detail.getSex());
                 row.add(detail.getCategory());
                 String comment = "";
                 if ((detail.getGeneSymbol() != null) && ( ! detail.getGeneSymbol().trim().isEmpty())) {
@@ -175,15 +189,10 @@ public class Viability extends AbstractReport {
             }
 
         } catch (Exception e) {
-
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }
 
-        try {
-            csvWriter.close();
-        } catch (IOException e) {
-            throw new ReportException("Exception closing csvWriter: " + e.getLocalizedMessage());
-        }
+        csvWriter.closeQuietly();
 
         log.info(String.format(
             "Finished. %s detail rows written in %s",

@@ -19,6 +19,7 @@ package org.mousephenotype.cda.reports;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.ImageService;
@@ -141,7 +142,7 @@ public class DataOverview extends AbstractReport {
             String mpTopLevelGenePivot = GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
             Map<String, List<String>> topLevelMpTermByGeneMapAll = genotypePhenotypeService.getMpTermByGeneMap(genesAll, mpTopLevelGenePivot, resources);
             Map<String, List<String>> topLevelMpTermByGeneMapComplete = genotypePhenotypeService.getMpTermByGeneMap(genesComplete, mpTopLevelGenePivot, resources);
-
+            mpTable.add(Constants.EMPTY_ROW);
             String[] headerTopLevel = {"Top Level MP term", "# associated genes with >= 1 procedure done", "% associated genes of all genes with >= 1 procedure done", "# associated genes with >= 13 procedures done", "% associated genes of all genes with >= 13 procedures done"};
             mpTable.add(headerTopLevel);
             for(String mpTerm : topLevelMpTermByGeneMapAll.keySet()) {
@@ -188,7 +189,7 @@ public class DataOverview extends AbstractReport {
         }
 
         log.info(String.format(
-            "Finished. %s rows written in %s",
-            result.size(), commonUtils.msToHms(System.currentTimeMillis() - start)));
+            "Finished. %s rows written in %s", result.stream().mapToInt(List::size).sum(),
+            commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
 }

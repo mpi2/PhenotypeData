@@ -250,16 +250,21 @@ public class ObservationService extends BasicService implements WebStatus {
     }
 
     public List<ObservationDTO> getObservationsByParameterStableId(String parameterStableId) throws SolrServerException, IOException {
-
         SolrQuery query = new SolrQuery();
         query.setQuery(String.format("%s:\"%s\"", ObservationDTO.PARAMETER_STABLE_ID, parameterStableId));
+        query.setFields(
+            ObservationDTO.DATASOURCE_NAME,
+            ObservationDTO.GENE_SYMBOL,
+            ObservationDTO.GENE_ACCESSION_ID,
+            ObservationDTO.ZYGOSITY,
+            ObservationDTO.PHENOTYPING_CENTER,
+            ObservationDTO.CATEGORY);
         query.setRows(Integer.MAX_VALUE);
         query.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
         logger.info("getObservationsByParameterStableId Url: " + SolrUtils.getBaseURL(experimentCore) + "/select?" + query);
 
         return experimentCore.query(query).getBeans(ObservationDTO.class);
     }
-
 
     public long getNumberOfDocuments(List<String> resourceName, boolean experimentalOnly)
             throws SolrServerException, IOException {
@@ -446,10 +451,8 @@ public class ObservationService extends BasicService implements WebStatus {
             logger.info("ViabilityData Url: " + SolrUtils.getBaseURL(experimentCore) + "/select?" + query);
         }
 
-        public List<ObservationDTO> getData() {
-
+        public List<ObservationDTO> getViabilityReportData() {
             List<ObservationDTO> list = new ArrayList<>();
-
             try {
                 if (response == null) {
                     response = experimentCore.query(query);
@@ -460,27 +463,32 @@ public class ObservationService extends BasicService implements WebStatus {
 
                     String geneSymbol = (doc.getFieldValue(ObservationDTO.GENE_SYMBOL) == null ? "" : doc.getFieldValue(ObservationDTO.GENE_SYMBOL).toString());
                     String geneAccessionId = (doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID) == null ? "" : doc.getFieldValue(ObservationDTO.GENE_ACCESSION_ID).toString());
-                    String colonyId = (doc.getFieldValue(ObservationDTO.COLONY_ID) == null ? "" : doc.getFieldValue(ObservationDTO.COLONY_ID).toString());
-                    String phenotypingCenter = (doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER) == null ? "" : doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER).toString());
-                    String sex = (doc.getFieldValue(ObservationDTO.SEX) == null ? "" : doc.getFieldValue(ObservationDTO.SEX).toString());
-                    String category = doc.getFieldValue(ObservationDTO.CATEGORY).toString();
-                    String[] parts = category.split("-");
-                    String zygosity = parts.length > 0 ? parts[0] : "";
-                    String phenotype = parts.length > 1 ? parts[1] : "";
                     String alleleSymbol = (doc.getFieldValue(ObservationDTO.ALLELE_SYMBOL) == null ? "" : doc.getFieldValue(ObservationDTO.ALLELE_SYMBOL).toString());
                     Object alleleAccessionValue = doc.getFieldValue(ObservationDTO.ALLELE_ACCESSION_ID);
                     String alleleAccession = ((alleleAccessionValue != null) && (alleleAccessionValue.toString().trim().toUpperCase().startsWith("MGI:")) ? alleleAccessionValue.toString().trim() : "-");
+                    String strainName = (doc.getFieldValue(ObservationDTO.STRAIN_NAME) == null ? "" : doc.getFieldValue(ObservationDTO.STRAIN_NAME).toString());
+                    String strainAccessionId = (doc.getFieldValue(ObservationDTO.STRAIN_ACCESSION_ID) == null ? "" : doc.getFieldValue(ObservationDTO.STRAIN_ACCESSION_ID).toString());
+                    String colonyId = (doc.getFieldValue(ObservationDTO.COLONY_ID) == null ? "" : doc.getFieldValue(ObservationDTO.COLONY_ID).toString());
+                    String phenotypingCenter = (doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER) == null ? "" : doc.getFieldValue(ObservationDTO.PHENOTYPING_CENTER).toString());
+                    Object o = doc.getFieldValue(ObservationDTO.CATEGORY);
+                    String category = (o == null ? "MISSING" : o.toString());
+                    String[] parts = category.split("-");
+                    String zygosity = parts.length > 0 ? parts[0] : "";
+                    String sex = (doc.getFieldValue(ObservationDTO.SEX) == null ? "" : doc.getFieldValue(ObservationDTO.SEX).toString());
+                    String phenotype = parts.length > 1 ? parts[1] : "";
 
                     ObservationDTO observationDTO = new ObservationDTO();
                     observationDTO.setGeneSymbol(geneSymbol);
                     observationDTO.setGeneAccession(geneAccessionId);
-                    observationDTO.setPhenotypingCenter(phenotypingCenter);
-                    observationDTO.setColonyId(colonyId);
-                    observationDTO.setSex(sex);
-                    observationDTO.setZygosity(zygosity);
-                    observationDTO.setCategory(phenotype);
                     observationDTO.setAlleleSymbol(alleleSymbol);
                     observationDTO.setAlleleAccession(alleleAccession);
+                    observationDTO.setStrainName(strainName);
+                    observationDTO.setStrainAccessionId(strainAccessionId);
+                    observationDTO.setColonyId(colonyId);
+                    observationDTO.setPhenotypingCenter(phenotypingCenter);
+                    observationDTO.setZygosity(zygosity);
+                    observationDTO.setSex(sex);
+                    observationDTO.setCategory(phenotype);
 
                     list.add(observationDTO);
                 }
@@ -543,13 +551,15 @@ public class ObservationService extends BasicService implements WebStatus {
             if ((maxRows != null) && (maxRows > 0)){
                 query.addField(ObservationDTO.GENE_SYMBOL);
                 query.addField(ObservationDTO.GENE_ACCESSION_ID);
-                query.addField(ObservationDTO.PHENOTYPING_CENTER);
-                query.addField(ObservationDTO.COLONY_ID);
-                query.addField(ObservationDTO.CATEGORY);
-                query.addField(ObservationDTO.SEX);
-                query.addField(ObservationDTO.ZYGOSITY);
                 query.addField(ObservationDTO.ALLELE_SYMBOL);
                 query.addField(ObservationDTO.ALLELE_ACCESSION_ID);
+                query.addField(ObservationDTO.STRAIN_NAME);
+                query.addField(ObservationDTO.STRAIN_ACCESSION_ID);
+                query.addField(ObservationDTO.COLONY_ID);
+                query.addField(ObservationDTO.PHENOTYPING_CENTER);
+                query.addField(ObservationDTO.ZYGOSITY);
+                query.addField(ObservationDTO.SEX);
+                query.addField(ObservationDTO.CATEGORY);
                 query.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
             }
 
@@ -621,7 +631,7 @@ public class ObservationService extends BasicService implements WebStatus {
         query.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
         query.setRows(Integer.MAX_VALUE);
 
-        logger.info("getData Url: " + SolrUtils.getBaseURL(experimentCore) + "/select?" + query);
+        logger.info("getViabilityReportData Url: " + SolrUtils.getBaseURL(experimentCore) + "/select?" + query);
 
         return experimentCore.query(query);
     }
