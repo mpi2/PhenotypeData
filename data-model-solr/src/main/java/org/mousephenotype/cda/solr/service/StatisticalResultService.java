@@ -1362,13 +1362,15 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
             .addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
             .addField(StatisticalResultDTO.PARAMETER_NAME)
             .addField(StatisticalResultDTO.P_VALUE)
+            .setRows(Integer.MAX_VALUE);
 
-            .addFilterQuery(StatisticalResultDTO.STATUS + ":Successful")
-            .addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(IMPC OR 3i)")
-            .setRows(Integer.MAX_VALUE)
-            .setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
-
-        return statisticalResultCore.query(q).getBeans(StatisticalResultDTO.class);
+         List<StatisticalResultDTO> results = statisticalResultCore.query(q).getBeans(StatisticalResultDTO.class)
+             .stream()
+             .filter(dto -> dto.getStatus().equalsIgnoreCase("Successful"))
+             .filter(dto -> dto.getResourceName().equalsIgnoreCase("IMPC")
+                 || dto.getResourceName().equalsIgnoreCase("3i"))
+             .collect(Collectors.toList());
+         return results;
     }
 
     public List<StatisticalResultDTO> getImpcPvaluesAndMpTerms() throws SolrServerException, IOException {
