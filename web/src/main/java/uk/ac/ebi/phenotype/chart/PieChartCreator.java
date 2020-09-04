@@ -15,12 +15,12 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
+import org.mousephenotype.cda.enumerations.ZygosityType;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.mousephenotype.cda.enumerations.ZygosityType;
 
 
 public class PieChartCreator {
@@ -39,13 +39,13 @@ String pieChart="";
 				if(entry.getKey().contains("WT")){
 					colors.add(map.get("WT"));
 				}
-				if(entry.getKey().contains("Homozygous")){
+				if(entry.getKey().contains("Homozyg")){
 					colors.add(map.get(ZygosityType.homozygote.name()));
 				}
-				if(entry.getKey().contains("Heterozygous")){
+				if(entry.getKey().contains("Heterozyg")){
 					colors.add(map.get(ZygosityType.heterozygote.name()));
 				}
-				if(entry.getKey().contains("Hemizygous")){
+				if(entry.getKey().contains("Hemizyg")){
 					colors.add(map.get(ZygosityType.hemizygote.name()));
 				}
 				
