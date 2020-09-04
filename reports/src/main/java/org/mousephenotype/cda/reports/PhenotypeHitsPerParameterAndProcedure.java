@@ -30,6 +30,8 @@ import org.springframework.stereotype.Component;
 
 import java.beans.Introspector;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -64,31 +66,35 @@ public class PhenotypeHitsPerParameterAndProcedure extends AbstractReport {
         }
         initialise(args);
 
-        int count;
+        int count = 0;
         long start = System.currentTimeMillis();
 
+        List<String[]> rows;
+
+        List<String> heading = Arrays.asList(
+            "Parameter Id",
+            "Parameter Name",
+            "Gene Symbols",
+            "Gene Accession Ids",
+            "# Significant Hits");
+
         try {
-            String[] parametersHeading  ={
-                "Parameter Id",
-                "Parameter Name",
-                "Gene Symbols",
-                "Gene Accession Ids",
-                "# Significant Hits"};
-            csvWriter.write(parametersHeading);
-            csvWriter.writeRowsOfArray(genotypePhenotypeService.getHitsDistributionByParameter(resources));
-
+            csvWriter.write(heading);
+            rows = genotypePhenotypeService.getHitsDistributionByParameter(resources);
+            csvWriter.writeRowsOfArray(rows);
             csvWriter.write(Constants.EMPTY_ROW);
+            count += 2 + rows.size();
 
-            String[] proceduresHeading  = {
+            heading = Arrays.asList(
                 "Procedure Id",
                 "Procedure Name",
                 "Gene Symbols",
                 "Gene Accession Ids",
-                "# Significant Hits"};
-            csvWriter.write(proceduresHeading);
-            List<String[]> results = genotypePhenotypeService.getHitsDistributionByProcedure(resources);
-            csvWriter.writeRowsOfArray(results);
-            count = results.size();
+                "# Significant Hits");
+            csvWriter.write(heading);
+            rows = genotypePhenotypeService.getHitsDistributionByProcedure(resources);
+            csvWriter.writeRowsOfArray(rows);
+            count += 1 + rows.size();
 
         } catch (SolrServerException | IOException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());

@@ -75,8 +75,6 @@ public class PhenotypeHitsPerLine extends AbstractReport {
 
         long start = System.currentTimeMillis();
 
-        // TODO refactor to pivot facet on zygosity, colony_id (this order) => 1 call instead of 2
-        //Columns:		parameter name | parameter stable id | number of significant hits
         List<List<String[]>> result = new ArrayList<>();
         try {
             List<String[]> zygosityTable = new ArrayList<>();
