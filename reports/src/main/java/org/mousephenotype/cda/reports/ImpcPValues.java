@@ -93,15 +93,11 @@ public class ImpcPValues extends AbstractReport {
 
             if (!matrixValues.get(rowKey).containsKey(parameter)) {
                 matrixValues.get(rowKey).put(parameter, pvalue);
-
             } else if (pvalue != null && matrixValues.get(rowKey).get(parameter) != null && pvalue < matrixValues.get(rowKey).get(parameter)) {
                 matrixValues.get(rowKey).put(parameter, pvalue);
-
             } else {
                 matrixValues.get(rowKey).putIfAbsent(parameter, null);
-
             }
-
             allParameters.add(parameter.replace("\r\n", " ").replace("\n", " "));
         }
 

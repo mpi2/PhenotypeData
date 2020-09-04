@@ -159,7 +159,16 @@ public class GeneAndMPTermAssociation extends AbstractReport {
             }
 
             result.add(Constants.EMPTY_ROW);
-            String[] geneZygosityHeading = {"Gene Symbol", "Gene Accession Id", "Phenotyping Center", "Viability", "Hom", "Het", "Hemi", "Gene Page URL"};
+
+            String[] geneZygosityHeading = {
+                "Gene Symbol",
+                "Gene Accession Id",
+                "Phenotyping Center",
+                "Viability",
+                "Hom",
+                "Het",
+                "Hemi",
+                "Gene Page URL"};
             result.add(geneZygosityHeading);
             count += result.size();
             csvWriter.writeRowsOfArray(result);
