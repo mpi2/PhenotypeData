@@ -179,6 +179,6 @@ public class PhenotypeHitsPerLine extends AbstractReport {
 
         log.info(String.format(
             "Finished. %s rows written in %s",
-            result.size(), commonUtils.msToHms(System.currentTimeMillis() - start)));
+            result.get(0).size(), commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
 }
