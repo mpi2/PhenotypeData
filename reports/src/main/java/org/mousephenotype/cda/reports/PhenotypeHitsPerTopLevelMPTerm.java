@@ -19,6 +19,7 @@ package org.mousephenotype.cda.reports;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.slf4j.Logger;
@@ -28,10 +29,7 @@ import org.springframework.stereotype.Component;
 
 import java.beans.Introspector;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Phenotype Hits report.
@@ -65,21 +63,20 @@ public class PhenotypeHitsPerTopLevelMPTerm extends AbstractReport {
         initialise(args);
 
         long start = System.currentTimeMillis();
-
-        List<List<String[]>> result = new ArrayList<>();
+        int count = 0;
 
         Float pVal = (float) 0.0001;
         TreeMap<String, Long> significant = statisticalResultService.getDistributionOfAnnotationsByMPTopLevel(resources, pVal);
         TreeMap<String, Long> all = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         all.putAll(statisticalResultService.getDistributionOfAnnotationsByMPTopLevel(resources, null));
 
-        List<String[]> table = new ArrayList<>();
-        String[] header = new String[4];
-        header[0] = "Top Level MP Term";
-        header[1] = "No. Significant Calls";
-        header[2] = "No. Not Significant Calls";
-        header[3] = "% Significant Calls";
-        table.add(header);
+        List<String[]> rows = new ArrayList<>();
+
+        List<String> heading = Arrays.asList(
+            "Top Level MP Term",
+            "# Significant Calls",
+            "# Not Significant Calls",
+            "% Significant Calls");
 
         for (String mp : all.keySet()){
             if (!mp.equalsIgnoreCase("reproductive system phenotype")){ // line data is not in statistical result core yet
@@ -94,19 +91,21 @@ public class PhenotypeHitsPerTopLevelMPTerm extends AbstractReport {
                 row[2] = Long.toString(notSignificant);
                 float percentage =  100 * ((float)sign / (float)all.get(mp));
                 row[3] = (Float.toString(percentage));
-                table.add(row);
+                rows.add(row);
             }
         }
 
-        result.add(new ArrayList<>(table));
+        csvWriter.write(heading);
+        csvWriter.writeRowsOfArray(rows);
+        csvWriter.write(Constants.EMPTY_ROW);
+        count += 2 + rows.size();
 
-        table = new ArrayList<>();
-        String[] headerLines = new String[4];
-        headerLines[0] = "Top Level MP Term";
-        headerLines[1] = "Lines Associated";
-        headerLines[2] = "Lines Tested";
-        headerLines[3] = "% Lines Associated";
-        table.add(headerLines);
+        rows.clear();
+        heading = Arrays.asList(
+            "Top Level MP Term",
+            "Lines Associated",
+            "Lines Tested",
+            "% Lines Associated");
 
         try {
             Map<String, List<String>> genesSignificantMp = statisticalResultService.getDistributionOfLinesByMPTopLevel(resources, pVal);
@@ -125,22 +124,24 @@ public class PhenotypeHitsPerTopLevelMPTerm extends AbstractReport {
                     row[2] = Integer.toString(genesAllMp.get(mp).size());
                     float percentage =  100 * ((float)sign / (float)genesAllMp.get(mp).size());
                     row[3] = (Float.toString(percentage));
-                    table.add(row);
+                    rows.add(row);
                 }
             }
         } catch (SolrServerException | IOException e) {
             throw new ReportException("Exception creating " + this.getClass().getCanonicalName() + ". Reason: " + e.getLocalizedMessage());
         }
 
-        result.add(new ArrayList<>(table));
+        csvWriter.write(heading);
+        csvWriter.writeRowsOfArray(rows);
+        csvWriter.write(Constants.EMPTY_ROW);
+        count += 2 + rows.size();
 
-        table = new ArrayList<>();
-        String[] headerGenes = new String[4];
-        headerGenes[0] = "Top Level MP Term";
-        headerGenes[1] = "Genes Associated";
-        headerGenes[2] = "Genes Tested";
-        headerGenes[3] = "% Associated";
-        table.add(headerGenes);
+        rows.clear();
+        heading = Arrays.asList(
+            "Top Level MP Term",
+            "Genes Associated",
+            "Genes Tested",
+            "% Genes Associated");
 
         try {
             Map<String, List<String>> genesSignificantMp = statisticalResultService.getDistributionOfGenesByMPTopLevel(resources, pVal);
@@ -159,12 +160,13 @@ public class PhenotypeHitsPerTopLevelMPTerm extends AbstractReport {
                     row[2] = Integer.toString(genesAllMp.get(mp).size());
                     float percentage =  100 * ((float)sign / (float)genesAllMp.get(mp).size());
                     row[3] = (Float.toString(percentage));
-                    table.add(row);
+                    rows.add(row);
                 }
             }
 
-            result.add(new ArrayList<>(table));
-            csvWriter.writeRowsMulti(result);
+            csvWriter.write(heading);
+            csvWriter.writeRowsOfArray(rows);
+            count += 1 + rows.size();
 
         } catch (SolrServerException | IOException  e) {
             throw new ReportException("Exception closing csvWriter: " + e.getLocalizedMessage());
@@ -178,6 +180,6 @@ public class PhenotypeHitsPerTopLevelMPTerm extends AbstractReport {
 
         log.info(String.format(
             "Finished. %s rows written in %s",
-            result.size(), commonUtils.msToHms(System.currentTimeMillis() - start)));
+            count, commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
 }
