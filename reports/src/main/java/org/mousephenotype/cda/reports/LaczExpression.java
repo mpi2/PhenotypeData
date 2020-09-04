@@ -33,10 +33,7 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.beans.Introspector;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -72,27 +69,30 @@ public class LaczExpression extends AbstractReport {
 
         List<String> errors = parser.validate(parser.parse(args));
         if ( ! errors.isEmpty()) {
-            logger.error("LaczExpressionReport parser validation error: " + StringUtils.join(errors, "\n"));
+            logger.error("LaczExpression parser validation error: " + StringUtils.join(errors, "\n"));
             return;
         }
         initialise(args);
-
-
         PropertySource ps = new SimpleCommandLinePropertySource(args);
         if (ps.containsProperty(IMAGE_COLLECTION_LINK_BASE_KEY)) {
             imageCollectionLinkBase = ps.getProperty(IMAGE_COLLECTION_LINK_BASE_KEY).toString();
-
             throw new ReportException("Required reports_hostname parameter is missing. Format is like http://www.mousephenotype.org.");
         }
 
         long start = System.currentTimeMillis();
-
-//        List<List<String>> results = imageService.getLaczExpressionSpreadsheet(imageCollectionLinkBase);
-
+        // Sort by: geneSymbol (0), alleleSymbol (2), strainName (4), zygosity (8), sex (9)
         final List<ObservationDTO> data = expressionService.getCategoricalAdultLacZDataForReport();
         final Map<String, Set<String>> imageAvailable = imageService.getLaczImagesAvailable();
+        final List<List<String>> results = getLaczExpressionSpreadsheet(data, imageAvailable)
 
-        final List<List<String>> results = getLaczExpressionSpreadsheet(data, imageAvailable);
+            .stream()
+            .sorted(Comparator.comparing((List<String> l) -> l.get(0))
+                        .thenComparing((l) -> l.get(2))
+                        .thenComparing((l) -> l.get(4))
+                        .thenComparing((l) -> l.get(8))
+                        .thenComparing((l) -> l.get(9)))
+            .collect(Collectors.toList());
+
         csvWriter.writeRows(results);
 
         try {
@@ -103,18 +103,15 @@ public class LaczExpression extends AbstractReport {
 
         log.info(String.format(
             "Finished. %s rows written in %s",
-            results.size(), commonUtils.msToHms(System.currentTimeMillis() - start)));
+            1 + results.size(), commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
 
     protected void initialise(String[] args) throws ReportException {
         super.initialise(args);
     }
 
-
     public List<List<String>> getLaczExpressionSpreadsheet(List<ObservationDTO> data, Map<String, Set<String>> imageAvailable) {
-
         List<List<String>> result = new ArrayList<>();
-
         final List<String> allParameters = data
                 .stream()
                 .map(ObservationDTO::getParameterName)
@@ -122,20 +119,23 @@ public class LaczExpression extends AbstractReport {
                 .sorted()
                 .collect(Collectors.toList());
 
-        List<String> header = new ArrayList<>();
-        header.add("Gene Symbol");
-        header.add("MGI Gene Id");
-        header.add("Allele Symbol");
-        header.add("Colony Id");
-        header.add("Biological Sample Id");
-        header.add("Zygosity");
-        header.add("Sex");
-        header.add("Phenotyping Centre");
-        header.addAll(allParameters);
-        header.add("LacZ Images Wholemount");
-        header.add("LacZ Images Section");
+        List<String> heading = new ArrayList<>();
+        heading.add("Gene Symbol");
+        heading.add("Gene Accession Id");
+        heading.add("Allele Symbol");
+        heading.add("Allele Accession Id");
+        heading.add("Background Strain Name");
+        heading.add("Background Strain Accession Id");
+        heading.add("Colony Id");
+        heading.add("External Sample Id");
+        heading.add("Zygosity");
+        heading.add("Sex");
+        heading.add("Phenotyping Center");
+        heading.addAll(allParameters);
+        heading.add("LacZ Images Wholemount");
+        heading.add("LacZ Images Section");
 
-        result.add(header);
+        csvWriter.write(heading);
 
         // Create map of specimen ID -> [List of observation DTOs] to facilitate generating the report
         final Map<String, List<ObservationDTO>> specimens = data
@@ -151,6 +151,9 @@ public class LaczExpression extends AbstractReport {
             row.add(specimenData.getGeneSymbol());
             row.add(specimenData.getGeneAccession());
             row.add(specimenData.getAlleleSymbol());
+            row.add(specimenData.getAlleleAccession());
+            row.add(specimenData.getStrainName());
+            row.add(specimenData.getStrainAccessionId());
             row.add(specimenData.getColonyId());
             row.add(specimenData.getExternalSampleId());
             row.add(specimenData.getZygosity());

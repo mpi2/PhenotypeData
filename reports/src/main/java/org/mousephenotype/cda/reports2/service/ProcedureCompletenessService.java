@@ -37,7 +37,7 @@ import java.util.List;
 public class ProcedureCompletenessService extends BasicService {
 
     private final Logger     logger = LoggerFactory.getLogger(this.getClass());
-    private       SolrClient srCore;
+    private final SolrClient srCore;
 
     @Inject
     public ProcedureCompletenessService(

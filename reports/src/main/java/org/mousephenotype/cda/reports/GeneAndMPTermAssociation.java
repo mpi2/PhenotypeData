@@ -93,8 +93,8 @@ public class GeneAndMPTermAssociation extends AbstractReport {
             return;
         }
         initialise(args);
-        geneAccessionIdByGeneSymbol = loadGeneAccessionIdByGeneSymbolMap();
         long start = System.currentTimeMillis();
+        geneAccessionIdByGeneSymbol = loadGeneAccessionIdByGeneSymbolMap();
         int count = 0;
 
         List<String[]> result = new ArrayList<>();
