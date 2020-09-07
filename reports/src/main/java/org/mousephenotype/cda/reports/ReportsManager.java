@@ -108,7 +108,7 @@ public class ReportsManager implements CommandLineRunner {
 //        GLUCOSE_CONCENTRATION("glucoseConcentration", "lpGTT stats (Fasted blood glucose concentration)"),
 //        GLUCOSE_RESPONSE("glucoseResponse", "lpGTT stats (Area under the curve glucose response)"),
 //        IMPC_GAF("impcGaf", "IMPC GAF"),
-        IMPC_P_VALUES("impcPValues", "IMPC p-values"),
+//        IMPC_P_VALUES("impcPValues", "IMPC p-values"),
         LACZ_EXPRESSION("laczExpression", "Lacz expression"),
 //        METABOLISM_CALORIMETRY("metabolismCalorimetry", "Metabolism calorimetry"),
 //        METABOLISM_CBC("metabolismCBC", "Metabolism CBC"),
@@ -240,10 +240,10 @@ public class ReportsManager implements CommandLineRunner {
                         file = geneAndMPTermAssociation.targetFile;
                         break;
 
-                    case IMPC_P_VALUES:
-                        impcPValues.run(args);
-                        file = impcPValues.targetFile;
-                        break;
+//                    case IMPC_P_VALUES:
+//                        impcPValues.run(args);
+//                        file = impcPValues.targetFile;
+//                        break;
 
                     case LACZ_EXPRESSION:
                         lacZExpression.run(args);
