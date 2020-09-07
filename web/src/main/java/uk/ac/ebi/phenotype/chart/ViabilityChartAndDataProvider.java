@@ -15,50 +15,53 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.chart;
 
+import org.apache.commons.lang3.text.WordUtils;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.web.dto.EmbryoViability_DTO;
+import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
+import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.text.WordUtils;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
-import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
-import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
-import org.mousephenotype.cda.solr.web.dto.EmbryoViability_DTO;
-import org.springframework.stereotype.Service;
-
 @Service
 public class ViabilityChartAndDataProvider {
 
 
-	public ViabilityDTO doViabilityData(ParameterDTO parameter, ViabilityDTO viabilityDTO) {
+	public ViabilityDTO doViabilityData(ViabilityDTO viabilityDTO, String parameterStableId) {
+
+		viabilityDTO.setParameterStableId(parameterStableId);
+
 		//we need 3 sets of data for the 3 graphs
 		Map<String, ObservationDTO> paramStableIdToObservation = viabilityDTO.getParamStableIdToObservation();
 		List<ObservationDTO> totals=new ArrayList<>();
-		totals.add(paramStableIdToObservation.get(ViabilityDTO.totalPupsWt));
-		totals.add(paramStableIdToObservation.get(ViabilityDTO.totalPupsHom));
-		totals.add(paramStableIdToObservation.get(ViabilityDTO.totalPupsHet));
+		totals.add(paramStableIdToObservation.get(viabilityDTO.getTotalPupsWt()));
+		totals.add(paramStableIdToObservation.get(viabilityDTO.getTotalPupsHom()));
+		totals.add(paramStableIdToObservation.get(viabilityDTO.getTotalPupsHet()));
 
 		List<ObservationDTO> male=new ArrayList<>();
-		male.add(paramStableIdToObservation.get(ViabilityDTO.totalMaleWt));
-		male.add(paramStableIdToObservation.get(ViabilityDTO.totalMaleHom));
-		male.add(paramStableIdToObservation.get(ViabilityDTO.totalMaleHet));
+		male.add(paramStableIdToObservation.get(viabilityDTO.getTotalMaleWt()));
+		male.add(paramStableIdToObservation.get(viabilityDTO.getTotalMaleHom()));
+		male.add(paramStableIdToObservation.get(viabilityDTO.getTotalMaleHet()));
 
 
 		List<ObservationDTO> female=new ArrayList<>();
 
 
-		female.add(paramStableIdToObservation.get(ViabilityDTO.totalFemaleWt));
-		female.add(paramStableIdToObservation.get(ViabilityDTO.totalFemaleHom));
-		female.add(paramStableIdToObservation.get(ViabilityDTO.totalFemaleHet));
+		female.add(paramStableIdToObservation.get(viabilityDTO.getTotalFemaleWt()));
+		female.add(paramStableIdToObservation.get(viabilityDTO.getTotalFemaleHom()));
+		female.add(paramStableIdToObservation.get(viabilityDTO.getTotalFemaleHet()));
 
 		Map<String, Integer> totalLabelToNumber = new LinkedHashMap<>();
-		for(ObservationDTO ob:totals){
-			if(Math.round(ob.getDataPoint())>0){
-		totalLabelToNumber.put(WordUtils.capitalize(ob.getParameterName()), Math.round(ob.getDataPoint()));
+		for (ObservationDTO ob : totals) {
+			if (Math.round(ob.getDataPoint()) > 0) {
+				totalLabelToNumber.put(WordUtils.capitalize(ob.getParameterName()), Math.round(ob.getDataPoint()));
 			}
 		}
-		String totalChart = PieChartCreator.getPieChart(totalLabelToNumber, "totalChart", "Total Counts (Male and Female)", "", ChartColors.getZygosityColorMap());
+		String totalChart = PieChartCreator.getPieChart(totalLabelToNumber, "totalChart-"+parameterStableId, "Total Counts (Male and Female)", "", ChartColors.getZygosityColorMap());
 		viabilityDTO.setTotalChart(totalChart);
 
 		Map<String, Integer> maleLabelToNumber = new LinkedHashMap<>();
@@ -67,7 +70,7 @@ public class ViabilityChartAndDataProvider {
 			maleLabelToNumber.put(WordUtils.capitalize(ob.getParameterName()), Math.round(ob.getDataPoint()));
 			}
 		}
-		String maleChart = PieChartCreator.getPieChart(maleLabelToNumber, "maleChart", "Male Counts", "", ChartColors.getZygosityColorMap());
+		String maleChart = PieChartCreator.getPieChart(maleLabelToNumber, "maleChart-"+parameterStableId, "Male Counts", "", ChartColors.getZygosityColorMap());
 		viabilityDTO.setMaleChart(maleChart);
 
 		Map<String, Integer> femaleLabelToNumber = new LinkedHashMap<>();
@@ -76,7 +79,7 @@ public class ViabilityChartAndDataProvider {
 			femaleLabelToNumber.put(WordUtils.capitalize(ob.getParameterName()), Math.round(ob.getDataPoint()));
 			}
 		}
-		String femaleChart = PieChartCreator.getPieChart(femaleLabelToNumber, "femaleChart", "Female Counts", "", ChartColors.getZygosityColorMap());
+		String femaleChart = PieChartCreator.getPieChart(femaleLabelToNumber, "femaleChart-"+parameterStableId, "Female Counts", "", ChartColors.getZygosityColorMap());
 		viabilityDTO.setFemaleChart(femaleChart);
 		return viabilityDTO;
 	}

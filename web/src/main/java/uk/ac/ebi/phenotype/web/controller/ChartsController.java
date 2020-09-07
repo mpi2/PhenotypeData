@@ -386,13 +386,28 @@ public class ChartsController {
 			model.addAttribute("emptyExperiment", true);
 		}
 
-		if (parameterStableId.startsWith("IMPC_VIA_")) {
+		if (procedureStableId.equals("IMPC_VIA_001")) {
+			if (parameterStableId.startsWith("IMPC_VIA_")) {
+
+				// IMPC VIA 001
+
+				// Its a viability outcome param which means its a line level query
+				// so we don't use the normal experiment query in experiment service
+				ViabilityDTO viability = experimentService.getSpecificViabilityVersion1ExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession);
+				ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(viability, parameterStableId);
+				model.addAttribute("viabilityDTO", viabilityDTO);
+			}
+		} else if (procedureStableId.equals("IMPC_VIA_002")) {
+
+			// IMPC VIA 002
+
 			// Its a viability outcome param which means its a line level query
 			// so we don't use the normal experiment query in experiment service
-			ViabilityDTO viability    = experimentService.getSpecificViabilityExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession);
-			ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, viability);
+			ViabilityDTO viability = experimentService.getSpecificViabilityVersion2ExperimentDTO(parameterStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession);
+			ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(viability, parameterStableId);
 			model.addAttribute("viabilityDTO", viabilityDTO);
 		}
+
 
 		if (parameterStableId.startsWith("IMPC_EVL_")) {
 			// Its an E9.5 embryonic viability outcome param which means its a line level query
