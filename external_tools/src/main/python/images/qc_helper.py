@@ -13,11 +13,12 @@ def readDicom(im_path):
     import SimpleITK as sitk
     
     im = sitk.ReadImage(im_path)
-    im = sitk.GetArrayFromImage(im)
+    im = np.squeeze(sitk.GetArrayFromImage(im))
     # Handle issue that some png images have an alpha layer -> 4 planes
     if im.ndim == 3 and im.shape[2] > 3:
         im = im[:,:,:3]
-    return np.squeeze((im.astype(np.float)*255./im.max()).astype(np.uint8))
+    im = im.astype(np.float)*255./im.max()
+    return im.astype(np.uint8)
 
 # Crop input image into a square.
 #   Assume object of interest is in the centre of the image and perform
