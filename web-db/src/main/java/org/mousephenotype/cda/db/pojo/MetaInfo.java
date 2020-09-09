@@ -44,6 +44,12 @@ public class MetaInfo {
 
     private String description;
 
+    public MetaInfo(String key, String value, String description) {
+        this.propertyKey = key;
+        this.propertyValue = value;
+        this.description = description;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

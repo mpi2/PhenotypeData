@@ -790,6 +790,33 @@ public class ObservationService extends BasicService implements WebStatus {
 
     }
 
+    /**
+     * Return a map of center to pipeline stable ids
+     */
+    public Map<String, List<String>> getPipelineByCenter(List<String> resourceName)
+            throws SolrServerException, IOException  {
+
+        final String pivot = StringUtils.join(Arrays.asList(ObservationDTO.PIPELINE_STABLE_ID, ObservationDTO.PHENOTYPING_CENTER), ",");
+
+        SolrQuery query = new SolrQuery()
+                .addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
+                .setRows(0)
+                .setFacet(true)
+                .setFacetMinCount(1)
+                .setFacetLimit(-1)
+                .addFacetPivotField(pivot);
+
+        if (resourceName != null){
+            query.setQuery(ObservationDTO.DATASOURCE_NAME + ":(" + StringUtils.join(resourceName, " OR ") + ")");
+        }else {
+            query.setQuery("*:*");
+        }
+
+        QueryResponse response = experimentCore.query(query);
+
+        return getFacetPivotResults(response, pivot);
+
+    }
 
     /**
      * Return a list of a triplets of pipeline stable id, phenotyping center and
