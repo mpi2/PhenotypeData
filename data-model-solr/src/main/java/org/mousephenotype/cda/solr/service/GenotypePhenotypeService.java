@@ -906,11 +906,17 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
 
 
 	        String sex = phen.getString(GenotypePhenotypeDTO.SEX);
-	
-	        SexType sexType = SexType.valueOf(sex);
-	        sum.setSex(sexType);
 
+	try {
+        SexType sexType = SexType.getByDisplayName(sex);
+        sum.setSex(sexType);
 
+    }catch (Exception e
+
+    ){
+	    e.printStackTrace();
+        System.out.println("sex is |"+sex+"|");
+    };
             if( phen.has(GenotypePhenotypeDTO.LIFE_STAGE_NAME)) {
                 String lifeStageName = phen.getString(GenotypePhenotypeDTO.LIFE_STAGE_NAME);
                 sum.setLifeStageName(lifeStageName);
