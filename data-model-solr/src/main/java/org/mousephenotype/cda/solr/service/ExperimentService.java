@@ -27,9 +27,7 @@ import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
-import org.mousephenotype.cda.solr.web.dto.EmbryoViability_DTO;
-import org.mousephenotype.cda.solr.web.dto.FertilityDTO;
-import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
+import org.mousephenotype.cda.solr.web.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -467,7 +465,7 @@ public class ExperimentService{
             // Tree sets to keep "female" before "male" and "hetero" before
             // "hom"
             experiment.setSexes(new TreeSet<>());
-            if (result.getSex()!=null) {
+            if (result.getSex() != null) {
                 experiment.getSexes().add(SexType.valueOf(result.getSex()));
             } else {
                 if (result.getFemaleMutantCount() != null && result.getFemaleMutantCount() > 0) {
@@ -509,55 +507,57 @@ public class ExperimentService{
             String output;
             String b64 = result.getRawData();
 
-            try (GZIPInputStream gzis = new GZIPInputStream(new ByteArrayInputStream(Base64.decodeBase64(b64)))) {
-                output = IOUtils.toString(gzis, "UTF-8");
-            } catch(IOException e) {
-                LOG.error("Failed to unzip content for result", result, e);
-                continue;
-            }
-
-            // Each element has the structure:
-            // {
-            //    "biological_sample_group": <String> [BiologicalSampleType enum]
-            //    "date_of_experiment": <String> [ISO8601 date formatted string]
-            //    "external_sample_id": <String>
-            //    "specimen_sex": <String> [SexType enum]
-            //    "body_weight": <Double>
-            //    "data_point": <Double> [null when categorical]
-            //    "category": <String> [null when not categorical
-            //  }
-            List<MinimalObservationDto> minObservations = Arrays.asList(
-                    new Gson().fromJson(output, MinimalObservationDto[].class));
-
-            List<ObservationDTO> observations = minObservations.stream().map(x -> {
-                ObservationDTO o = new ObservationDTO();
-                o.setExternalSampleId(x.getExternalSampleId());
-                o.setSex(x.getSex());
-                o.setGroup(x.getBiologicalSampleGroup());
-                o.setDateOfExperiment(x.getDateOfExperiment());
-                o.setCategory(x.getCategory());
-                o.setDataPoint(x.getDataPoint()!=null?x.getDataPoint().floatValue():null);
-                o.setWeight(x.getBodyWeight()!=null?x.getBodyWeight().floatValue():null);
-                return o;
-            }).collect(Collectors.toList());
-
-            final Set<ObservationDTO> controls = observations.stream().filter(x -> x.getGroup().equals(BiologicalSampleType.control.toString())).collect(Collectors.toSet());
-            final Set<ObservationDTO> mutants = observations.stream().filter(x -> x.getGroup().equals(BiologicalSampleType.experimental.toString())).collect(Collectors.toSet());
-
-            experiment.setControls(controls);
-            switch (ZygosityType.valueOf(result.getZygosity())) {
-                case homozygote:
-                    experiment.setHomozygoteMutants(mutants);
-                    break;
-                case heterozygote:
-                    experiment.setHeterozygoteMutants(mutants);
-                    break;
-                case hemizygote:
-                    experiment.setHemizygoteMutants(mutants);
-                    break;
-                default:
-                    LOG.error("No zygosity type found for result", result);
+            if (b64 != null) {
+                try (GZIPInputStream gzis = new GZIPInputStream(new ByteArrayInputStream(Base64.decodeBase64(b64)))) {
+                    output = IOUtils.toString(gzis, "UTF-8");
+                } catch (IOException e) {
+                    LOG.error("Failed to unzip content for result", result, e);
                     continue;
+                }
+
+                // Each element has the structure:
+                // {
+                //    "biological_sample_group": <String> [BiologicalSampleType enum]
+                //    "date_of_experiment": <String> [ISO8601 date formatted string]
+                //    "external_sample_id": <String>
+                //    "specimen_sex": <String> [SexType enum]
+                //    "body_weight": <Double>
+                //    "data_point": <Double> [null when categorical]
+                //    "category": <String> [null when not categorical
+                //  }
+                List<MinimalObservationDto> minObservations = Arrays.asList(
+                        new Gson().fromJson(output, MinimalObservationDto[].class));
+
+                List<ObservationDTO> observations = minObservations.stream().map(x -> {
+                    ObservationDTO o = new ObservationDTO();
+                    o.setExternalSampleId(x.getExternalSampleId());
+                    o.setSex(x.getSex());
+                    o.setGroup(x.getBiologicalSampleGroup());
+                    o.setDateOfExperiment(x.getDateOfExperiment());
+                    o.setCategory(x.getCategory());
+                    o.setDataPoint(x.getDataPoint() != null ? x.getDataPoint().floatValue() : null);
+                    o.setWeight(x.getBodyWeight() != null ? x.getBodyWeight().floatValue() : null);
+                    return o;
+                }).collect(Collectors.toList());
+
+                final Set<ObservationDTO> controls = observations.stream().filter(x -> x.getGroup().equals(BiologicalSampleType.control.toString())).collect(Collectors.toSet());
+                final Set<ObservationDTO> mutants = observations.stream().filter(x -> x.getGroup().equals(BiologicalSampleType.experimental.toString())).collect(Collectors.toSet());
+
+                experiment.setControls(controls);
+                switch (ZygosityType.valueOf(result.getZygosity())) {
+                    case homozygote:
+                        experiment.setHomozygoteMutants(mutants);
+                        break;
+                    case heterozygote:
+                        experiment.setHeterozygoteMutants(mutants);
+                        break;
+                    case hemizygote:
+                        experiment.setHemizygoteMutants(mutants);
+                        break;
+                    default:
+                        LOG.error("No zygosity type found for result", result);
+                        continue;
+                }
             }
         }
 
@@ -602,12 +602,12 @@ public class ExperimentService{
      * @throws URISyntaxException
      * @throws SpecificExperimentException
      */
-    public ViabilityDTO getSpecificViabilityExperimentDTO(String parameterStableId, String pipelineStableId, String acc, String phenotypingCenter, String strain, String metadataGroup, String alleleAccession) throws SolrServerException, IOException , URISyntaxException, SpecificExperimentException {
-        ViabilityDTO viabilityDTO=new ViabilityDTO();
+    public ViabilityDTO getSpecificViabilityVersion1ExperimentDTO(String parameterStableId, String pipelineStableId, String acc, String phenotypingCenter, String strain, String metadataGroup, String alleleAccession) throws SolrServerException, IOException , URISyntaxException, SpecificExperimentException {
+        ViabilityDTO viabilityDTO=new ViabilityDTOVersion1();
         Map<String, ObservationDTO> paramStableIdToObservation = new HashMap<>();
+
         //for viability we don't need to filter on Sex or Zygosity
         List<ObservationDTO> observations = observationService.getExperimentObservationsBy(parameterStableId, pipelineStableId, acc, null, phenotypingCenter, strain, null, metadataGroup, alleleAccession);
-        ObservationDTO outcomeObservation = observations.get(0);
         viabilityDTO.setCategory(observations.get(0).getCategory());
         for(int i=3;i<15; i++){
             String formatted = String.format("%02d",i);
@@ -617,6 +617,49 @@ public class ExperimentService{
                 System.err.println("More than one observation found for a viability request!!!");
             }
             paramStableIdToObservation.put(param,observationsForCounts.get(0));
+        }
+        viabilityDTO.setParamStableIdToObservation(paramStableIdToObservation);
+        return viabilityDTO;
+    }
+
+    /**
+     * Should only return 1 experimentDTO - returns null if none and exception
+     * if more than 1 - used by ajax charts
+     *
+     * @param acc
+     * @param strain
+     * @param metadataGroup
+     * @return
+     */
+    public ViabilityDTO getSpecificViabilityVersion2ExperimentDTO(String parameterStableId, String acc, String phenotypingCenter, String strain, String metadataGroup, String alleleAccession) throws SolrServerException, IOException {
+        ViabilityDTO viabilityDTO=new ViabilityDTOVersion2();
+        Map<String, ObservationDTO> paramStableIdToObservation = new HashMap<>();
+
+        //for viability we don't need to filter on Sex or Zygosity
+        List<ObservationDTO> observations = observationService.getExperimentObservationsBy(parameterStableId, null, acc, null, phenotypingCenter, strain, null, metadataGroup, alleleAccession);
+        Map<String, String> textValue = new Gson().fromJson(observations.get(0).getTextValue(), Map.class);
+        String category = textValue.get("outcome");
+
+        viabilityDTO.setCategory(category);
+
+        // The supporting viability parameters for IMPRESS version 2 range from 49 - 62 (inclusive)
+        for(int i=49;i<63; i++){
+
+            if (i==55 || i==56) {
+                // Skip for now
+                // IMPC_VIA_055_001 = hemi males, IMPC_VIA_056_001 anygous females
+                continue;
+            }
+
+            String formatted = String.format("%03d",i);
+            String param="IMPC_VIA_"+formatted+"_001";
+            List<ObservationDTO> observationsForCounts = observationService.getViabilityData(param, null, acc, null, phenotypingCenter, strain, null, metadataGroup, alleleAccession);
+            if(observationsForCounts != null) {
+                if (observationsForCounts.size() > 1) {
+                    System.err.println("More than one observation found for a viability request: " + param);
+                }
+                paramStableIdToObservation.put(param, observationsForCounts.get(0));
+            }
         }
         viabilityDTO.setParamStableIdToObservation(paramStableIdToObservation);
         return viabilityDTO;
@@ -786,7 +829,7 @@ public class ExperimentService{
 
 	public Collection<? extends String> getChartPivots(String accessionAndParam, String acc, String parameter,
 			List<String> pipelineStableIds, List<String> zyList, List<String> phenotypingCentersList,
-			List<String> strainsParams, List<String> metaDataGroup, List<String> alleleAccession) throws IOException, SolrServerException {
-		return observationService.getChartPivots(accessionAndParam, acc, parameter, pipelineStableIds, zyList, phenotypingCentersList, strainsParams, metaDataGroup, alleleAccession);
+			List<String> strainsParams, List<String> metaDataGroup, List<String> alleleAccession, List<String>procedureStableIds) throws IOException, SolrServerException {
+		return observationService.getChartPivots(accessionAndParam, acc, parameter, pipelineStableIds, zyList, phenotypingCentersList, strainsParams, metaDataGroup, alleleAccession, procedureStableIds);
 	}
 }

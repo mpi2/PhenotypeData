@@ -1517,13 +1517,14 @@ public class ObservationService extends BasicService implements WebStatus {
     }
 
     public Set<String> getChartPivots(String baseUrl, String acc, String parameter, List<String> pipelineStableIds, List<String> zyList, List<String> phenotypingCentersList,
-			  List<String> strainsParams, List<String> metaDataGroup, List<String> alleleAccession) throws IOException, SolrServerException {
+			  List<String> strainsParams, List<String> metaDataGroup, List<String> alleleAccession, List<String> procedureStableIds) throws IOException, SolrServerException {
 
         String pivotFacet = StatisticalResultDTO.PIPELINE_STABLE_ID + "," +
                 StatisticalResultDTO.ZYGOSITY + "," +
                 StatisticalResultDTO.PHENOTYPING_CENTER + "," +
                 StatisticalResultDTO.STRAIN_ACCESSION_ID + "," +
-                StatisticalResultDTO.ALLELE_ACCESSION_ID;
+                StatisticalResultDTO.ALLELE_ACCESSION_ID + "," +
+                StatisticalResultDTO.PROCEDURE_STABLE_ID;
         if (metaDataGroup != null && metaDataGroup.size() > 0) {
             pivotFacet += "," + StatisticalResultDTO.METADATA_GROUP;
         }
@@ -1557,6 +1558,10 @@ public class ObservationService extends BasicService implements WebStatus {
         }
         if (alleleAccession != null && alleleAccession.size() > 0) {
             query.addFilterQuery(alleleAccession.stream().collect(Collectors.joining("\" OR \"", StatisticalResultDTO.ALLELE_ACCESSION_ID + ":(\"", "\")")));
+        }
+        //now need unique procedure stable ids since these are not lumped together anymore by stats pipeline? - JW
+        if (procedureStableIds != null && procedureStableIds.size() > 0) {
+            query.addFilterQuery(procedureStableIds.stream().collect(Collectors.joining("\" OR \"", StatisticalResultDTO.PROCEDURE_STABLE_ID + ":(\"", "\")")));
         }
 
         Set<String> resultParametersForCharts = new HashSet<>();

@@ -67,6 +67,7 @@ public class PhenotypeHitsPerGene extends AbstractReport {
 
     public void run(String[] args) throws ReportException {
 
+        boolean hasErrors = false;
         List<String> errors = parser.validate(parser.parse(args));
         if ( ! errors.isEmpty()) {
             logger.error("PhenotypeOverviewPerGeneReport parser validation error: " + StringUtils.join(errors, "\n"));
@@ -112,7 +113,8 @@ public class PhenotypeHitsPerGene extends AbstractReport {
                 } else if ((gp.getMpTermName() != null) && ( ! gp.getMpTermName().isEmpty())) {
                     geneToPhenotypes.get(gp.getMarkerSymbol()).add(gp.getMpTermName());
                 } else {
-                    logger.error("GenotypePhenotypeDTO term is null or empty for document {}. Not added.", gp.getId());
+                    hasErrors = true;
+                    logger.error("GenotypePhenotypeDTO term is null or empty for g-p core doc_id {}. Not added.", gp.getId());
                     continue;
                 }
 
@@ -159,15 +161,14 @@ public class PhenotypeHitsPerGene extends AbstractReport {
         }
 
         csvWriter.writeRowsOfArray(result);
-
-        try {
-            csvWriter.close();
-        } catch (IOException e) {
-            throw new ReportException("Exception closing csvWriter: " + e.getLocalizedMessage());
-        }
+        csvWriter.closeQuietly();
 
         log.info(String.format(
             "Finished. %s rows written in %s",
             result.size(), commonUtils.msToHms(System.currentTimeMillis() - start)));
+
+        if (hasErrors) {
+            throw new ReportException();
+        }
     }
 }

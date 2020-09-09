@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
  * Created by mrelac on 24/07/2015.
  */
 @Component
+@Deprecated
 public class ImpcPValues extends AbstractReport {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -64,6 +65,7 @@ public class ImpcPValues extends AbstractReport {
         initialise(args);
 
         long start = System.currentTimeMillis();
+        int count = 0;
 
         List<StatisticalResultDTO> resultDtoList;
 
@@ -78,11 +80,7 @@ public class ImpcPValues extends AbstractReport {
         Map<RowKey, Map<String, Double>> matrixValues = new HashMap<>();
         Set<String> allParameters = new HashSet<>();
 
-        Integer i = 0 ;
         for (StatisticalResultDTO result : resultDtoList) {
-
-            i++;
-
             String parameter = result.getParameterName() + "(" + result.getParameterStableId() + ")";
             Double pvalue = result.getPValue();
             RowKey rowKey = new RowKey(result);
@@ -100,10 +98,6 @@ public class ImpcPValues extends AbstractReport {
             }
             allParameters.add(parameter.replace("\r\n", " ").replace("\n", " "));
         }
-
-        log.info(String.format(
-            "Finished. %s rows written in %s",
-            i, commonUtils.msToHms(System.currentTimeMillis() - start)));
 
         List<String> sortedParameters = new ArrayList<>(allParameters);
         Collections.sort(sortedParameters);
@@ -125,6 +119,7 @@ public class ImpcPValues extends AbstractReport {
         heading.addAll(sortedParameters);
 
         csvWriter.write(heading);
+        count++;
 
         // Sort by: geneSymbol (0), alleleSymbol (2), strainName (4), center (7)
         matrixValues = matrixValues.entrySet()
@@ -139,12 +134,7 @@ public class ImpcPValues extends AbstractReport {
                 Map.Entry::getValue,
                 (oldValue, newValue) -> oldValue, LinkedHashMap::new));
 
-        i=0;
-        start = System.currentTimeMillis();
         for (RowKey rowKey : matrixValues.keySet()) {
-
-            i++;
-
             List<String> row = new ArrayList<>();
             row.add(rowKey.geneSymbol);
             row.add(rowKey.geneAccessionId);
@@ -168,15 +158,14 @@ public class ImpcPValues extends AbstractReport {
             }
 
             csvWriter.write(row);
+            count++;
         }
 
-        try {
-            csvWriter.close();
-        } catch (IOException e) {
-            throw new ReportException("Exception closing csvWriter: " + e.getLocalizedMessage());
-        }
+        csvWriter.closeQuietly();
 
-        log.info(String.format("Finished. %s rowKey records processed [%s]", i, commonUtils.msToHms(System.currentTimeMillis() - start)));
+        log.info(String.format(
+            "Finished. %s detail rows written in %s",
+            count, commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
 
     private class RowKey {

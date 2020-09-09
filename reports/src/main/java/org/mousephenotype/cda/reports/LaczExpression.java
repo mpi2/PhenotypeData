@@ -19,6 +19,7 @@ package org.mousephenotype.cda.reports;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.ExpressionService;
 import org.mousephenotype.cda.solr.service.ImageService;
@@ -173,18 +174,18 @@ public class LaczExpression extends AbstractReport {
                             .distinct()
                             .collect(Collectors.joining(", "));
                     if (expression.isEmpty()) {
-                        row.add("");
+                        row.add(Constants.NO_DATA);
                     } else {
                         row.add(expression);
                     }
                 } else {
-                    row.add("");
+                    row.add(Constants.NO_DATA);
                 }
             }
 
             String gene = specimenData.getGeneSymbol();
 
-            String wholemountUrl = ""; // default is empty
+            String wholemountUrl = Constants.NO_DATA; // default is empty
             if (imageAvailable.containsKey(gene) && imageAvailable.get(gene).contains(ExpressionService.WHOLEMOUNT_PARAMETER_STABLE_ID)) {
                 wholemountUrl = String.format("%s/imageComparator?acc=%s&parameter_stable_id=%s",
                         imageCollectionLinkBase,
@@ -193,7 +194,7 @@ public class LaczExpression extends AbstractReport {
             }
             row.add(wholemountUrl);
 
-            String sectionUrl = ""; // default is empty
+            String sectionUrl = Constants.NO_DATA; // default is empty
             if (imageAvailable.containsKey(gene) && imageAvailable.get(gene).contains(ExpressionService.SECTION_PARAMETER_STABLE_ID)) {
                 sectionUrl = String.format("%s/imageComparator?acc=%s&parameter_stable_id=%s",
                         imageCollectionLinkBase,

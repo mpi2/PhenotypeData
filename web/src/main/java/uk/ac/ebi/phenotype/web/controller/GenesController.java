@@ -385,7 +385,7 @@ public class GenesController {
             model.addAttribute("hasVignette", true);
         }
         // add in the disease predictions from phenodigm              
-//        processDisease(acc, model);
+        processDisease(acc, model);
 
         model.addAttribute("countIKMCAlleles", countIKMCAlleles);
         LOGGER.debug("CHECK IKMC allele error : " + ikmcError);

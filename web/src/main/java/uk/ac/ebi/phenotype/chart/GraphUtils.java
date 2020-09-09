@@ -76,13 +76,13 @@ public class GraphUtils {
         }
 
         // if bodywieght we don't have stats results so can't use the srService to pivot and have to use experiment service instead
-        if (Constants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId)) {
-            urls.addAll(experimentService.getChartPivots(accessionAndParam, markerAccession, parameterStableId, pipelineStableIds, zygosities, phenotypingCenters,
-                    backgroundStrains, metaDataGroups, alleleAccessions));
-        } else {
+//        if (Constants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId)) {
+//           urls.addAll(experimentService.getChartPivots(accessionAndParam, markerAccession, parameterStableId, pipelineStableIds, zygosities, phenotypingCenters,
+//                   backgroundStrains, metaDataGroups, alleleAccessions, procedureStableIds));
+//        } else {
             urls.addAll(srService.getChartPivots(accessionAndParam, markerAccession, parameterStableId, pipelineStableIds, procedureStableIds, zygosities, phenotypingCenters,
                     backgroundStrains, metaDataGroups, alleleAccessions));
-        }
+        //}
 
         //need to add flag for this optional step -e.g. filterBySR=false
         List<String> dummyGenderList = new ArrayList<>();
@@ -118,7 +118,7 @@ public class GraphUtils {
 
     public Set<String> getGraphUrls(String acc,
                                     ParameterDTO parameter, List<String> pipelineStableIds, List<String> zyList, List<String> phenotypingCentersList,
-                                    List<String> strainsParams, List<String> metaDataGroup, ChartType chartType, List<String> alleleAccession)
+                                    List<String> strainsParams, List<String> metaDataGroup, ChartType chartType, List<String> alleleAccession, List<String> procedureStableIds)
             throws SolrServerException, IOException, URISyntaxException {
 
         // each url should be unique and so we use a set
@@ -150,7 +150,7 @@ public class GraphUtils {
         // if bodywieght we don't have stats results so can't use the srService to pivot and have to use experiment service instead
         if (Constants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId)) {
             urls.addAll(experimentService.getChartPivots(accessionAndParam, acc, parameter.getStableId(), pipelineStableIds, zyList, phenotypingCentersList,
-                    strainsParams, metaDataGroup, alleleAccession));
+                    strainsParams, metaDataGroup, alleleAccession, procedureStableIds));
         } else {
             urls.addAll(srService.getChartPivots(accessionAndParam, acc, parameterStableId, pipelineStableIds, null, zyList, phenotypingCentersList,
                     strainsParams, metaDataGroup, alleleAccession));
