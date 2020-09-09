@@ -786,7 +786,7 @@ public class ExperimentService{
 
 	public Collection<? extends String> getChartPivots(String accessionAndParam, String acc, String parameter,
 			List<String> pipelineStableIds, List<String> zyList, List<String> phenotypingCentersList,
-			List<String> strainsParams, List<String> metaDataGroup, List<String> alleleAccession) throws IOException, SolrServerException {
-		return observationService.getChartPivots(accessionAndParam, acc, parameter, pipelineStableIds, zyList, phenotypingCentersList, strainsParams, metaDataGroup, alleleAccession);
+			List<String> strainsParams, List<String> metaDataGroup, List<String> alleleAccession, List<String>procedureStableIds) throws IOException, SolrServerException {
+		return observationService.getChartPivots(accessionAndParam, acc, parameter, pipelineStableIds, zyList, phenotypingCentersList, strainsParams, metaDataGroup, alleleAccession, procedureStableIds);
 	}
 }
