@@ -266,9 +266,107 @@ def parse_model_desc(model_desc_path):
     files_to_process = {}
     for key, value in model_info['classes'].items():
         label_map[value['class']] = key
-        files_to_process[key] = list(value['training_images'].values())
+        files_to_process[value['class']] = list(value['training_images'].values())
 
     return model_info, label_map, files_to_process
+
+def read_files_to_process(files_to_process, label_map, n_per_class, random_state=0):
+    """Read files to process into dataframe
+
+    Read the files to process and extracts image paths and label values for
+    each example. We assume the files to process are csv and contain at 
+    least two columns
+        1) imagename - path to image
+        2) verified_classlabel - label to associate with image
+    If the verified_classlabel is different from the label in the label
+    map, that in the label map will be used and a warning printed. This is 
+    legitimate when building structure specific models where we use the 
+    label "-3" for the structures we are not interested in. "-3" was chosen
+    as we use "-1" to indicate images that cannot be read and "-2" for
+    images that although they can be read have some issue - e.g. have
+    no mouse in the image.
+
+    Parameters
+    ----------
+    files_to_process: dict - key is label, value is list of paths to 
+                             files to process.
+    label_map: Ordered dict - Keys are labels and values are the 
+                              descriptions of the labels
+    n_per_class: int - number of examples to take from the class
+    random_state: int - seed for randomising choice of examples
+
+    Returns
+    -------
+    df_im_details: pandas dataframe - examples to process and their labels
+    """
+
+    import pandas as pd
+    import numpy as np
+
+    im_details = None
+    for label, file_paths in files_to_process.items():
+        df_temp = _read_files_to_process(file_paths, n_per_class, random_state)
+        # Set all the verified_classlabels to the label for this class
+        df_temp['verified_classlabel'] = label
+        if im_details is None:
+            im_details = df_temp
+        else:
+            im_details = pd.concat((im_details, df_temp))
+    
+    # Re-index to make indicies monotonic and unique
+    im_details = im_details.set_index(keys=np.arange(len(im_details)))
+    return im_details
+
+
+def _read_files_to_process(file_paths, n_per_class, random_state):
+    """Local function to read in files to process
+
+    """
+    import pandas as pd
+    import numpy as np
+
+    # If we have one file only just read and randomly sample it.
+    if len(file_paths) == 1:
+        return pd.read_csv(file_paths[0]).sample(n=n_per_class, random_state=random_state)
+
+    # For more than one file we want to make up the number of examples
+    # to be as evenly distributed from each file as possible.
+    list_file_contents = []
+    list_n_per_file = []
+
+    for file_path in file_paths:
+        list_file_contents.append(pd.read_csv(file_path))
+        list_n_per_file.append(len(list_file_contents[-1]))
+
+    n_files = len(list_file_contents)
+    n_examples_per_file = n_per_class // n_files
+
+    # Iteratively training set. Try to balance out examples from each file
+    # by including all examples from files with below the average needed
+    # then recalculating the average
+    im_details = None
+    while np.min(list_n_per_file) < n_examples_per_file:
+        index = list_n_per_file.index(np.min(list_n_per_file))
+        if im_details is None:
+            im_details = list_file_contents[index].copy()
+        else:
+            im_details = pd.concat((im_details, list_file_contents[index]))
+        list_n_per_file.pop(index);
+        list_file_contents.pop(index);
+        if len(list_file_contents) == 0:
+            break
+            
+        n_examples_per_file = (n_per_class - len(im_details))//len(list_file_contents)
+    
+    # Sample rest of negative training set from negative classes that have more than the average number of
+    # negative examples per class needed
+    for df_temp in list_file_contents:
+        if im_details is None:
+            im_details = df_temp.sample(n=n_examples_per_file, random_state=random_state)
+        else:
+            im_details = pd.concat((im_details, df_temp.sample(n=n_examples_per_file, random_state=random_state)))
+
+    return im_details
 
 
 def unit_scaling(im):

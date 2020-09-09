@@ -1348,8 +1348,10 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         return results.getGroupResponse().getValues().get(0).getValues();
     }
 
+    Set<String> nullFilterFields = new TreeSet<>();
     public List<StatisticalResultDTO> getImpcPvalues() throws SolrServerException, IOException {
         SolrQuery q = new SolrQuery("*:*")
+            .addField(StatisticalResultDTO.DOCUMENT_ID)
             .addField(StatisticalResultDTO.MARKER_SYMBOL)
             .addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
             .addField(StatisticalResultDTO.ALLELE_SYMBOL)
@@ -1362,15 +1364,37 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
             .addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
             .addField(StatisticalResultDTO.PARAMETER_NAME)
             .addField(StatisticalResultDTO.P_VALUE)
+            .setRows(Integer.MAX_VALUE);
 
-            .addFilterQuery(StatisticalResultDTO.STATUS + ":Successful")
-            .addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(IMPC OR 3i)")
-            .setRows(Integer.MAX_VALUE)
-            .setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
+        List<StatisticalResultDTO> results = statisticalResultCore.query(q).getBeans(StatisticalResultDTO.class);
 
-        return statisticalResultCore.query(q).getBeans(StatisticalResultDTO.class);
+        // Log null filter fields, then remove them. Failing to remove them causes NPE.
+        nullFilterFields = results
+            .stream()
+            .filter(dto -> (dto.getStatus() == null) || dto.getResourceName() == null)
+            .map(StatisticalResultDTO::getDocId)
+            .collect(Collectors.toSet());
+
+        results = results
+            .stream()
+            .filter(dto -> dto.getStatus() != null)
+            .filter(dto -> dto.getResourceName() != null)
+            .filter(dto -> dto.getStatus().equalsIgnoreCase("Successful"))
+            .filter(dto -> dto.getResourceName().equalsIgnoreCase("IMPC")
+                || dto.getResourceName().equalsIgnoreCase("3i"))
+            .collect(Collectors.toList());
+
+        if ( ! nullFilterFields.isEmpty()) {
+            logger.warn("Null filter fields by type and Solr doc id:");
+            nullFilterFields.stream().forEachOrdered(s -> System.out.println(s));
+        }
+
+        return results;
     }
 
+    // This service is used only by an old, deprecated report: ImpcPhenotypesProcedures.
+    // It is identical to getImpcPvalues() except with the addition of PROCEDURE_STABLE_ID
+    @Deprecated
     public List<StatisticalResultDTO> getImpcPvaluesAndMpTerms() throws SolrServerException, IOException {
         SolrQuery q = new SolrQuery("*:*")
             .addField(StatisticalResultDTO.MARKER_SYMBOL)

@@ -1,5 +1,27 @@
 """ Train a model
 
+Train a QC model of x-ray images. A description file is needed for the 
+model parameters, however, the following are assumed. The files containing
+information of the images to use are csv files which must have at least the
+following two columns:
+    1) imagename - full path to the image
+    2) verified_classlabel - integer between 1 and 6 for class of image.
+        The classes are:
+            1	IMPC_XRY_051_001    Skull Dorso Ventral Orientation
+            2	IMPC_XRY_049_001    Forepaw 
+            3	IMPC_XRY_034_001    Whole Body Dorso Ventral
+            4	IMPC_XRY_048_001    Whole Body Lateral Orientation
+            5	IMPC_XRY_050_001    Skull Lateral Orientation
+            6	IMPC_XRY_052_001    Hind Leg and Hip
+
+Example of a csv file:
+    imagename,verified_classlabel
+    /home/kola/temp/train/whole_body_dorsal/1000077.png,3
+    /home/kola/temp/train/forepaw/1002327.png,2
+    /home/kola/temp/train/hind_leg_hip/100335.png,6
+
+For example of a model description file see qc_helper.parse_model_desc 
+documentation
 """
 
 import os
@@ -68,22 +90,8 @@ num_workers= model_info['num_workers']
 ########################################################################
 # Load images into dataframes
 # Throws an error if n_per_class not met
+im_details = helper.read_files_to_process(files_to_process, label_map, model_info['n_per_class'],0)
 
-# Convert the files to process to a list as we are building model of all
-# structures
-f = []
-[f.extend(f2) for f2 in list(files_to_process.values())];
-files_to_process = f
-
-df_temp = pd.read_csv(files_to_process[0])
-im_details = df_temp.sample(n=n_per_class, random_state=0)
-
-for f in files_to_process[1:]:
-    df_temp = pd.read_csv(f)
-    im_details = pd.concat((im_details, df_temp.sample(n=n_per_class, random_state=0)))
-
-# Re-index to make monotonic and unique
-im_details = im_details.set_index(keys=np.arange(len(im_details)))
 # Split into training, test and validation
 # Randomly split training (60%), validation (20%) and testing (20%)
 df_training = im_details.sample(frac=0.6, random_state=0)
@@ -95,7 +103,9 @@ df_testing = im_details.loc[~im_details.index.isin(df_validation.index)]
 
 # Create transforms and dataset
 im_size = 224
-data_transform = transforms.Compose([ transforms.ToTensor(),
+data_transform = transforms.Compose([ transforms.Lambda(lambda im: helper.crop_to_square(im)),
+                                      transforms.Resize(im_size),
+                                      transforms.ToTensor(),
                                       transforms.Normalize((0.48527132, 0.46777139, 0.39808026), (0.26461128, 0.25852081, 0.26486896))])
 
 training_dataset = helper.ImageLabelDataset(df_training, labels=label_map, path_column="imagename",
@@ -130,16 +140,17 @@ test_loader = torch.utils.data.DataLoader(testing_dataset,
 dataiter = iter(train_loader)
 images, labels, im_paths = dataiter.next()
 images = images.numpy().copy()
+labels = labels.numpy().copy()
 
 # plot the images in the batch, along with the corresponding labels
 fig = plt.figure(figsize=(25, 4))
-for idx in np.arange(20):
-    ax = fig.add_subplot(2, 20/2, idx+1, xticks=[], yticks=[])
+for idx in np.arange(batch_size):
+    ax = fig.add_subplot(2, batch_size/2, idx+1, xticks=[], yticks=[])
     im = helper.unit_scaling(images[idx])
     plt.imshow(np.transpose(im, (1, 2, 0)))
-    ax.set_title(label_map[labels[idx].numpy()+1])
+    ax.set_title(label_map[classes[labels[idx]]])
 
-figure_output_path = os.path.join(model_info['model_dir'],os.path.splitext(model_info['model_fname'])[0]+"sample_data.png")
+figure_output_path = os.path.join(model_info['model_dir'],os.path.splitext(model_info['model_fname'])[0]+"_sample_data.png")
 plt.savefig(figure_output_path)
 plt.close(fig)
 
