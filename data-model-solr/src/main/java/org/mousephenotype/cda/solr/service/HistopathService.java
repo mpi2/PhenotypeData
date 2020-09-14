@@ -72,9 +72,9 @@ public class HistopathService {
                 if (obs.getObservationType().equalsIgnoreCase("categorical")) {
                     row.addCategoricalParam(parameter, obs.getCategory());
                     if (parameter.getName().contains("Significance")) {
-//								System.out.println(parameter+" "+ obs.getCategory());
-                        row.addSignficiance(parameter, obs.getCategory());
-                        row.setSignficant();
+								System.out.println(parameter+" "+ obs.getCategory());
+                        row.addSignficance(parameter, obs.getCategory());
+                        System.out.println("added significance"+ parameter + obs.getCategory());
 
                     }
                     if (parameter.getName().contains("Severity")) {
@@ -122,7 +122,7 @@ public class HistopathService {
             rows.add(row);
             row.setParameterNames(parameterNames);
         }
-
+System.out.println(rows);
         return rows;
 
     }
