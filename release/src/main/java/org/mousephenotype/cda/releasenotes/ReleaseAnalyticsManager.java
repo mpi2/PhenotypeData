@@ -27,7 +27,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
@@ -43,10 +42,22 @@ public class ReleaseAnalyticsManager implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(ReleaseAnalyticsManager.class);
 
-    public final List<String> INCLUDED_RESOURCE = Arrays.asList("IMPC");
+    public final List<String> INCLUDED_RESOURCE = Collections.singletonList("IMPC");
+    private String DATA_RELEASE_VERSION;
+    private String DATA_RELEASE_DATE;
+    private String PHENSTAT_VERSION;
+    private String DATA_RELEASE_DESCRIPTION;
+
+    // Patterns for regular expressions to determin allele details
+    public static final String ALLELE_NOMENCLATURE = "^[^<]+<([^\\(]+)\\(([^\\)]+)\\)([^>]+)>";
+    public static final String TARGETED_ALLELE_CLASS_1 = "^tm(\\d+)([a-z]{0,1})";
+    public static final String TARGETED_ALLELE_CLASS_2 = "^em(\\d+)([a-z]{0,1})";
+    private final Pattern allelePattern = Pattern.compile(ALLELE_NOMENCLATURE);
+    private final Pattern targetedClass1Pattern = Pattern.compile(TARGETED_ALLELE_CLASS_1);
+    private final Pattern targetedClass2Pattern = Pattern.compile(TARGETED_ALLELE_CLASS_2);
+
     private final Set<MetaInfo> dataReleaseFacts = new HashSet<>();
     private final Set<AnalyticsSignificantCallsProcedures> significantProcedures = new HashSet<>();
-
 
     @Value("${git.branch}")
     private String gitBranch;
@@ -64,7 +75,7 @@ public class ReleaseAnalyticsManager implements CommandLineRunner {
             @NotNull MetaInfoRepository metaInfoRepository,
             @NotNull MetaHistoryRepository metaHistoryRepository,
             @NotNull AnalyticsSignificantCallsProceduresRepository analyticsSignificantCallsProceduresRepository
-    ) throws SQLException {
+    ) {
         this.observationService = observationService;
         this.genotypePhenotypeService = genotypePhenotypeService;
         this.metaInfoRepository = metaInfoRepository;
@@ -133,19 +144,6 @@ public class ReleaseAnalyticsManager implements CommandLineRunner {
     }
 
 
-    //
-    // DATA RELEASE INFORMATION
-    //
-    private String DATA_RELEASE_VERSION;
-    private String DATA_RELEASE_DATE;
-    private String PHENSTAT_VERSION;
-    private String DATA_RELEASE_DESCRIPTION;
-
-    // Patterns for regular expressions
-    public static final String ALLELE_NOMENCLATURE = "^[^<]+<([^\\(]+)\\(([^\\)]+)\\)([^>]+)>";
-    public static final String TARGETED_ALLELE_CLASS_1 = "^tm(\\d+)([a-z]{0,1})";
-    public static final String TARGETED_ALLELE_CLASS_2 = "^em(\\d+)([a-z]{0,1})";
-
 
     /**
      * Facts about the data release.
@@ -165,20 +163,6 @@ public class ReleaseAnalyticsManager implements CommandLineRunner {
         dataReleaseFacts.add(new MetaInfo("statistically_significant_threshold", "1x10-4", "Statistical significance threshold used to define a significant difference from the null hypothesis"));
 
     }
-
-
-
-
-    Pattern allelePattern = Pattern.compile(ALLELE_NOMENCLATURE);
-    Pattern targetedClass1Pattern = Pattern.compile(TARGETED_ALLELE_CLASS_1);
-    Pattern targetedClass2Pattern = Pattern.compile(TARGETED_ALLELE_CLASS_2);
-
-    Map<String, Integer>          alleleTypes      = new HashMap<>();
-    Map<String, Integer>          vectorProjects   = new HashMap<>();
-    Map<String, Integer>          phenotypedLines  = new HashMap<>();
-    Map<String, Integer>          mutantSpecimens  = new HashMap<>();
-    Map<String, Integer>          controlSpecimens = new HashMap<>();
-    Map<String, List<String>>     centerPipelines  = new HashMap<>();
 
 
     public void populateSignificanceCalls(List<GenotypePhenotypeDTO> allGenotypePhenotypes) {
@@ -241,6 +225,12 @@ public class ReleaseAnalyticsManager implements CommandLineRunner {
 
     public void populateMetaInfo() throws IOException, SolrServerException {
 
+        Map<String, Integer> alleleTypes = new HashMap<>();
+        Map<String, Integer> vectorProjects = new HashMap<>();
+        Map<String, Integer> mutantSpecimens = new HashMap<>();
+        Map<String, Integer> controlSpecimens = new HashMap<>();
+
+
         // number of significant calls
         final List<GenotypePhenotypeDTO> impcPhenotypeCalls = genotypePhenotypeService.getAllGenotypePhenotypes(INCLUDED_RESOURCE);
         int significantCalls = impcPhenotypeCalls.size();
@@ -267,7 +257,7 @@ public class ReleaseAnalyticsManager implements CommandLineRunner {
 
         final Map<String, Set<String>> coloniesByPhenotypingCenter = observationService.getColoniesByPhenotypingCenter(INCLUDED_RESOURCE, null);
         logger.info("Total mutant colonies for centers:\t" + Arrays.toString(coloniesByPhenotypingCenter.entrySet().toArray()));
-        phenotypedLines = coloniesByPhenotypingCenter.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, x->x.getValue().size()));
+        Map<String, Integer> phenotypedLines = coloniesByPhenotypingCenter.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, x -> x.getValue().size()));
 
         dataReleaseFacts.add(new MetaInfo("phenotyped_lines_centers", String.join(", ", (phenotypedLines.keySet())), "Comma separated list of centers having submitted complete phenotype data"));
 
@@ -284,6 +274,7 @@ public class ReleaseAnalyticsManager implements CommandLineRunner {
                 correctSet.put(center, datapointsByPhenotypingCenterAndSampleGroup.get(center).get(sampleGroup));
             }
         }
+
         logger.info("Total counts of mutants/controls by center:\t" + Arrays.toString(datapointsByPhenotypingCenterAndSampleGroup.entrySet().toArray()));
         for (String center : phenotypedLines.keySet()) {
             dataReleaseFacts.add(new MetaInfo("control_specimens_" + center, controlSpecimens.get(center).toString(), "Number of control specimens with phenotype data from " + center));
@@ -294,16 +285,15 @@ public class ReleaseAnalyticsManager implements CommandLineRunner {
         // List pipeline per center
         final Map<String, List<String>> pipelineByCenter = observationService.getPipelineByCenter(INCLUDED_RESOURCE);
         logger.info("Pipelines by centers:\t" + Arrays.toString(pipelineByCenter.entrySet().toArray()));
-        centerPipelines = pipelineByCenter.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, x->new ArrayList<>(x.getValue())));
+        Map<String, List<String>> centerPipelines = pipelineByCenter.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, x -> new ArrayList<>(x.getValue())));
         for (String center : centerPipelines.keySet()) {
             dataReleaseFacts.add(new MetaInfo("phenotype_pipelines_" + center, String.join(", ", (centerPipelines.get(center))), "Comma separated list of phenotype pipeline for center " + center));
         }
 
-
         // Targeted allele type, check tm1a, tm1b, etc...
         final Set<String> alleles = observationService.getAllAlleleSymbolsByResource(INCLUDED_RESOURCE, true);
         logger.info("Total allele symbols:\t" + alleles.size());
-        alleles.forEach(this::getAlleleType);
+        alleles.forEach(x -> getAlleleType(x, vectorProjects, alleleTypes));
 
         logger.info("Vector projects:\t" + Arrays.toString(vectorProjects.entrySet().toArray()));
         dataReleaseFacts.add(new MetaInfo("mouse_knockout_programs", String.join(", ", (vectorProjects.keySet())), "Comma separated list of mouse knockout programs having contributed to IMPC"));
@@ -316,7 +306,6 @@ public class ReleaseAnalyticsManager implements CommandLineRunner {
         for (String alleleType : alleleTypes.keySet()) {
             dataReleaseFacts.add(new MetaInfo("targeted_allele_type_" + alleleType, alleleTypes.get(alleleType).toString(), "Number of " + alleleType + " alleles"));
         }
-
 
         // Data types
         final Map<String, Long> dataPointCountByType = observationService.getDataPointCountByType(INCLUDED_RESOURCE);
@@ -331,7 +320,7 @@ public class ReleaseAnalyticsManager implements CommandLineRunner {
     }
 
 
-    protected void getAlleleType(String allele) {
+    protected void getAlleleType(String allele, Map<String, Integer> vectorProjects, Map<String, Integer> alleleTypes) {
 
         if (allele == null) {
             logger.info("Found null allele symbol");

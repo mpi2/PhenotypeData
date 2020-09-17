@@ -658,10 +658,64 @@ public class ObservationService extends BasicService implements WebStatus {
         return experimentCore.query(query);
     }
 
+    /**
+     * Returns a list of centers by biological sample group by count of specimen IDs in the experiment core
+     * restricted by resourceName if supplied
+     *
+     * @param resourceName
+     * @return a Map Phenotyping_Center => Sample_Type => Count of unique specimen IDs
+     */
     public Map<String, Map<String, Integer>> getDatapointsByPhenotypingCenterAndSampleGroup(List<String> resourceName) throws IOException, SolrServerException {
 
-        SolrQuery q = new SolrQuery();
-        String pivotFacet = ObservationDTO.PHENOTYPING_CENTER + "," + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP;
+        Set<String> centers = this.getAllPhenotypingCenters(resourceName);
+
+        Map<String, Map<String, Integer>> specimens = new HashMap<>();
+
+        // For each center
+        for (String center : centers) {
+
+            // Get specimens
+            SolrQuery q = new SolrQuery();
+            String pivotFacet = ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + "," + ObservationDTO.EXTERNAL_SAMPLE_ID;
+
+            if (resourceName != null) {
+                q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+            } else {
+                q.setQuery("*:*");
+            }
+
+            q.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + center + "\"");
+            q.addFacetPivotField(pivotFacet);
+            q.setFacet(true);
+            q.setFacetLimit(-1);
+            q.setFacetMinCount(1);
+            q.setRows(0);
+
+            final Map<String, List<String>> counts = getFacetPivotResults(experimentCore.query(q), pivotFacet);
+            Map<String, Integer> specimenCountsBySampleGroup = new HashMap<>();
+            for (String sampleGroup : counts.keySet()) {
+                specimenCountsBySampleGroup.put(sampleGroup, counts.get(sampleGroup).size());
+            }
+            specimens.put(center, specimenCountsBySampleGroup);
+        }
+
+        return specimens;
+    }
+
+    /**
+     * Return a list of all centers that have data in the experiment core restricted by resourceName if supplied
+     *
+     * @param resourceName The resource to filter centers in
+     * @return Set of String representing the centers
+     */
+    public Set<String> getAllPhenotypingCenters(List<String> resourceName) throws IOException, SolrServerException {
+
+        SolrQuery q = new SolrQuery()
+            .addFacetField(ObservationDTO.PHENOTYPING_CENTER)
+            .setFacet(true)
+            .setFacetLimit(-1)
+            .setFacetMinCount(1)
+            .setRows(0);
 
         if (resourceName != null) {
             q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
@@ -669,13 +723,7 @@ public class ObservationService extends BasicService implements WebStatus {
             q.setQuery("*:*");
         }
 
-        q.addFacetPivotField(pivotFacet);
-        q.setFacet(true);
-        q.setFacetLimit(-1);
-        q.setFacetMinCount(1);
-        q.setRows(0);
-
-        return getFacetPivotResultsKeepCount(experimentCore.query(q), pivotFacet);
+        return getFacets(experimentCore.query(q)).get(ObservationDTO.PHENOTYPING_CENTER).keySet();
     }
 
     public Map<String, Set<String>> getColoniesByPhenotypingCenter(List<String> resourceName, ZygosityType zygosity) {
