@@ -318,9 +318,9 @@ public class ReleaseAnalyticsManager implements CommandLineRunner {
         dataReleaseFacts.add(new MetaInfo("datapoint_types", String.join(", ", (dataPointCountByType.keySet())), "Types for measured data"));
         for (String observationType : dataPointCountByType.keySet()) {
             dataReleaseFacts.add(new MetaInfo(observationType + "_datapoints_QC_passed", dataPointCountByType.get(observationType).toString(), "Total number of " + observationType + " datapoints that passed QC"));
-            dataReleaseFacts.add(new MetaInfo(observationType + "_datapoints_QC_failed", "-", "Total number of " + observationType + " datapoints that failed QC"));
-            dataReleaseFacts.add(new MetaInfo(observationType + "_datapoints_QC_failed_no_status_code", "-", "Total number of " + observationType + " datapoints that failed QC"));
-            dataReleaseFacts.add(new MetaInfo(observationType + "_datapoints_issues", "-", "Total number of " + observationType + " datapoints that have issues"));
+            dataReleaseFacts.add(new MetaInfo(observationType + "_datapoints_QC_failed", "0", "Total number of " + observationType + " datapoints that failed QC"));
+            dataReleaseFacts.add(new MetaInfo(observationType + "_datapoints_QC_failed_no_status_code", "0", "Total number of " + observationType + " datapoints that failed QC"));
+            dataReleaseFacts.add(new MetaInfo(observationType + "_datapoints_issues", "0", "Total number of " + observationType + " datapoints that have issues"));
         }
 
     }
