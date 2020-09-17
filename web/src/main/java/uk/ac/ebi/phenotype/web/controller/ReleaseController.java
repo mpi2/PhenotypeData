@@ -49,6 +49,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @Controller
@@ -172,30 +173,33 @@ public class ReleaseController {
 		Map<String, String> metaInfo = getMetaInfo();
 
 		/*
-		 * What are the different Phenotyping centers?
+		 * Phenotyping centers?
 		 */
-
 		String sCenters = metaInfo.get("phenotyped_lines_centers");
-		String[] phenotypingCenters = sCenters.split(",");
+		List<String> phenotypingCenters = Stream.of(sCenters.split(","))
+				.map(String::trim)
+				.collect(Collectors.toList());
 
 		/*
 		 * Data types
 		 */
-
 		String sDataTypes = metaInfo.get("datapoint_types");
-		String[] dataTypes = sDataTypes.split(",");
+		List<String> dataTypes = Stream.of(sDataTypes.split(","))
+				.map(String::trim)
+				.collect(Collectors.toList());
 
 		/*
 		 * QC types
 		 */
-		String[] qcTypes = new String[] { "QC_passed" };
+		List<String> qcTypes = Arrays.asList("QC_passed");
 
 		/*
 		 * Targeted allele types
 		 */
-
 		String sAlleleTypes = metaInfo.get("targeted_allele_types");
-		String[] alleleTypes = sAlleleTypes.split(",");
+		List<String> alleleTypes = Stream.of(sAlleleTypes.split(","))
+				.map(String::trim)
+				.collect(Collectors.toList());
 
 		/*
 		 * Helps to generate graphs
@@ -238,8 +242,7 @@ public class ReleaseController {
 		 */
 		List<String> allDataReleaseVersions = metaHisoryRepository.getAllDataReleaseVersionsCastAsc();
 
-		String[] trendsVariables = new String[] { "statistically_significant_calls", "phenotyped_genes",
-				"phenotyped_lines" };
+		List<String> trendsVariables = Arrays.asList("statistically_significant_calls", "phenotyped_genes", "phenotyped_lines" );
 		Map<String, List<AggregateCountXY>> trendsMap = new HashMap<>();
 		for (String trendsVariable : trendsVariables) {
 			trendsMap.put(trendsVariable, getHistoricalData(trendsVariable));
@@ -250,7 +253,7 @@ public class ReleaseController {
 				"trendsChart", null, null);
 
 		Map<String, List<AggregateCountXY>> datapointsTrendsMap = new HashMap<>();
-		String[]                            status              = new String[] { "QC_passed", "QC_failed", "issues" };
+		List<String> status = Arrays.asList("QC_passed");
 
 		for (String dataType : dataTypes) {
 			for (String s : status) {
