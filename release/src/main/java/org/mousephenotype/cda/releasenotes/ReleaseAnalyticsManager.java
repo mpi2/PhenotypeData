@@ -111,24 +111,25 @@ public class ReleaseAnalyticsManager implements CommandLineRunner {
         populateMetaInfoWithMPTerms(allGenotypePhenotypes);
         populateSignificanceCalls(allGenotypePhenotypes);
 
-        // Persist all facts to the database
-        metaInfoRepository.deleteAll();
-        metaInfoRepository.saveAll(dataReleaseFacts);
+        // Show all facts about the data release
         logger.info("\n\n\n\nFACTS\n");
         dataReleaseFacts.forEach(x -> logger.info(String.valueOf(x)));
 
-        // Persist all facts to meta history
         metaHistoryRepository.deleteAllByDataReleaseVersion(DATA_RELEASE_VERSION);
         Set<MetaHistory> history = dataReleaseFacts.stream()
                 .map(x -> new MetaHistory(x, DATA_RELEASE_VERSION))
                 .collect(Collectors.toSet());
-        metaHistoryRepository.saveAll(history);
 
-        // Persist all facts to the database
         analyticsSignificantCallsProceduresRepository.deleteAll();
-        analyticsSignificantCallsProceduresRepository.saveAll(significantProcedures);
         logger.info("\n\n\n\nSIGNIFICANT PROCEDURES\n");
         significantProcedures.forEach(x -> logger.info(String.valueOf(x)));
+
+        // Persist all facts to the database
+        metaInfoRepository.deleteAll();
+        metaInfoRepository.saveAll(dataReleaseFacts);
+        metaHistoryRepository.saveAll(history);
+        analyticsSignificantCallsProceduresRepository.saveAll(significantProcedures);
+
     }
 
 
@@ -243,6 +244,10 @@ public class ReleaseAnalyticsManager implements CommandLineRunner {
         // number of significant calls
         final List<GenotypePhenotypeDTO> impcPhenotypeCalls = genotypePhenotypeService.getAllGenotypePhenotypes(INCLUDED_RESOURCE);
         int significantCalls = impcPhenotypeCalls.size();
+
+        // Include expression "hits"
+        significantCalls += observationService.getSignificantEmbryoExpressionCount(INCLUDED_RESOURCE);
+
         logger.info("Significant phenotype calls:\t" + significantCalls);
         dataReleaseFacts.add(new MetaInfo("statistically_significant_calls", Integer.toString(significantCalls), "Number of statistically significant calls"));
 

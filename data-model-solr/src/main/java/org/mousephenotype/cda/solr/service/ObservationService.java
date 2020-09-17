@@ -207,6 +207,26 @@ public class ObservationService extends BasicService implements WebStatus {
         return dtoMap;
     }
 
+    public Integer getSignificantEmbryoExpressionCount(List<String> resourceName) throws IOException, SolrServerException {
+
+        long start = System.currentTimeMillis();
+        SolrQuery query = new SolrQuery()
+                .setQuery(ObservationDTO.PROCEDURE_STABLE_ID + ":*_ELZ* AND " + ObservationDTO.CATEGORY + ":expression")
+                .setFields(ObservationDTO.COLONY_ID,
+                        ObservationDTO.EXTERNAL_SAMPLE_ID,
+                        ObservationDTO.PARAMETER_STABLE_ID,
+                        ObservationDTO.CATEGORY,
+                        ObservationDTO.SEX
+                )
+                .setRows(0);
+
+        logger.info("get Significant Embryo Expression" + SolrUtils.getBaseURL(experimentCore) + "/select?" + query);
+        logger.info("  Timing: Starting solr query: " + (System.currentTimeMillis() - start));
+        final Long numFound = experimentCore.query(query).getResults().getNumFound();
+
+        return numFound.intValue();
+    }
+
     public List<String> getGenesWithMoreProcedures(int minProcedureCount, List<String> resourceName)
             throws SolrServerException, IOException {
 
@@ -382,6 +402,8 @@ public class ObservationService extends BasicService implements WebStatus {
 
         return new HashSet<>(alleleZygParameterStableIdToRows);
     }
+
+
 
 
     public Integer getAllDataCount(String acc) throws IOException, SolrServerException {
