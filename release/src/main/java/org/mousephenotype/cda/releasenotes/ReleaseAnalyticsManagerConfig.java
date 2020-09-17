@@ -18,27 +18,31 @@ package org.mousephenotype.cda.releasenotes;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.mousephenotype.cda.db.HibernateConfig;
+import org.mousephenotype.cda.db.PrimaryDataSource;
+import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
 
+import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 
 @Configuration
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
 @EntityScan("org.mousephenotype.cda.db.pojo")
-@ComponentScan(basePackages = {
-        "org.mousephenotype.cda.releasenotes",
-        "org.mousephenotype.cda.db",
-        "org.mousephenotype.cda.solr"})
+@ComponentScan(basePackages = {"org.mousephenotype.cda.releasenotes", "org.mousephenotype.cda.db", "org.mousephenotype.cda.solr"},
+        excludeFilters = {
+            @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {
+                    PrimaryDataSource.class,
+                    HibernateConfig.class
+        })})
 public class ReleaseAnalyticsManagerConfig {
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -46,6 +50,21 @@ public class ReleaseAnalyticsManagerConfig {
     @NotNull
     @Value("${internal_solr_url}")
     private String internalSolrUrl;
+
+    // komp2
+    @Value("${datasource.komp2.jdbc-url}")
+    private String komp2Url;
+    @Value("${datasource.komp2.username}")
+    private String komp2Uername;
+    @Value("${datasource.komp2.password}")
+    private String komp2Password;
+    @Bean
+    @Primary
+    public DataSource komp2DataSource() {
+        System.out.println("SqlUtils.getConfiguredDatasource("+komp2Url+", "+komp2Uername+", "+komp2Password+")");
+        return SqlUtils.getConfiguredDatasource(komp2Url, komp2Uername, komp2Password);
+    }
+
 
     // Required for spring-data-solr repositories
     @Bean

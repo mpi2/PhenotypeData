@@ -188,7 +188,7 @@ public class ReleaseController {
 		/*
 		 * QC types
 		 */
-		String[] qcTypes = new String[] { "QC_passed", "QC_failed", "issues" };
+		String[] qcTypes = new String[] { "QC_passed" };
 
 		/*
 		 * Targeted allele types

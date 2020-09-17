@@ -21,9 +21,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
+@Transactional
 public interface MetaHistoryRepository extends CrudRepository<MetaHistory, Long> {
+
+    void deleteAllByDataReleaseVersion(String dataReleaseVersion);
 
     String getAllDataReleaseVersionsCastAscQuery =
             "SELECT DISTINCT new java.lang.String(dataReleaseVersion) FROM org.mousephenotype.cda.db.pojo.MetaHistory ORDER BY CAST(dataReleaseVersion as float) ASC";
@@ -35,7 +39,6 @@ public interface MetaHistoryRepository extends CrudRepository<MetaHistory, Long>
             "SELECT DISTINCT new java.lang.String(dataReleaseVersion) FROM org.mousephenotype.cda.db.pojo.MetaHistory ORDER BY CAST(dataReleaseVersion as float) DESC";
     @Query(value = getAllDataReleaseVersionsCastDescQuery)
     <T> List<T> getAllDataReleaseVersionsCastDesc();
-
 
     String getAllDataReleaseVersionsLessThanSpecifiedQuery =
             "SELECT DISTINCT new java.lang.String(dataReleaseVersion)"

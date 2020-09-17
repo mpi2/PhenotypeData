@@ -8,7 +8,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
 /**
- * Spring boot application that will run the configured CommandLineRunner classes
+ * Spring boot application that will run the ReleaseAnalyticsManager
  */
 @SpringBootApplication
 public class Application {
