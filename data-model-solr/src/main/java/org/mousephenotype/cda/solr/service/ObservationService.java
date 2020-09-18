@@ -432,9 +432,8 @@ public class ObservationService extends BasicService implements WebStatus {
         logger.info("  Timing: Starting solr query: " + (System.currentTimeMillis() - start));
         final List<ObservationDTO> beans = experimentCore.query(query).getBeans(ObservationDTO.class);
 
-        Set<CombinedObservationKey> rows = beans.stream().map(ObservationDTO::getCombinedKey).collect(Collectors.toSet());
+        return new Long(beans.stream().parallel().map(ObservationDTO::getCombinedKey).distinct().count()).intValue();
 
-        return rows.size();
     }
 
     public String getGeneAccFromAlleleAcc(String acc) throws IOException, SolrServerException {
