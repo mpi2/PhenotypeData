@@ -499,7 +499,7 @@ public class ExperimentService{
             experiment.setParameterStableId(result.getParameterStableId());
 
             experiment.setOrganisation(result.getPhenotypingCenter());
-            experiment.setStrain(result.getStrainName());
+            experiment.setStrain(result.getStrainAccessionId());
 
             experiment.setResults(Collections.singletonList(result));
 
