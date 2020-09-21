@@ -34,6 +34,24 @@ public class CategoricalResultAndCharts {
 	private String organisation="placeHolder";
 	
 	private Double combinedPValue;//male and female controls and experimental data combined to get an overall p value
+	private Double malePValue;
+	private Double femalePValue;
+
+	public Double getMalePValue() {
+		return malePValue;
+	}
+
+	public void setMalePValue(Double malePValue) {
+		this.malePValue = malePValue;
+	}
+
+	public Double getFemalePValue() {
+		return femalePValue;
+	}
+
+	public void setFemalePValue(Double femalePValue) {
+		this.femalePValue = femalePValue;
+	}
 
 	public Double getCombinedPValue() {
 		return combinedPValue;

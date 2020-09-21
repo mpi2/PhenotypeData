@@ -27,12 +27,12 @@
                             <dl class="alert alert-success">
 									<dt>Combined Male and Female P value</dt>
 									<dd><t:formatScientific>${categoricalResultAndChart.combinedPValue}</t:formatScientific></dd>
-									
-									<%-- <dt>Males only</dt>
-									<dd>${categoricalResultAndChart.malePValue}</dd>
-									
+
+									<dt>Males only</dt>
+									<dd><t:formatScientific>${categoricalResultAndChart.malePValue}</t:formatScientific></dd>
+
 									<dt>Females only</dt>
-									<dd>${categoricalResultAndChart.femalePValue}</dd> --%>
+									<dd><t:formatScientific>${categoricalResultAndChart.femalePValue}</t:formatScientific></dd>
 							</dl> 
 					</c:if>
 					

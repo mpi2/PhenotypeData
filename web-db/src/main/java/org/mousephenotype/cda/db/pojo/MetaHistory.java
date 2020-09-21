@@ -19,10 +19,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
@@ -33,7 +30,7 @@ import java.util.Objects;
 @Builder
 public class MetaHistory {
 
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long   id;
 
     @Column(name = "property_key")
@@ -44,6 +41,12 @@ public class MetaHistory {
 
     @Column(name = "data_release_version")
     private String dataReleaseVersion;
+
+    public MetaHistory(MetaInfo metaInfo, String dataReleaseVersion) {
+        this.propertyKey = metaInfo.getPropertyKey();
+        this.propertyValue = metaInfo.getPropertyValue();
+        this.dataReleaseVersion = dataReleaseVersion;
+    }
 
     @Override
     public boolean equals(Object o) {

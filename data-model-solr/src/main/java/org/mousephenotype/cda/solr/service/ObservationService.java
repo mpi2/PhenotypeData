@@ -207,6 +207,26 @@ public class ObservationService extends BasicService implements WebStatus {
         return dtoMap;
     }
 
+    public Integer getSignificantEmbryoExpressionCount(List<String> resourceName) throws IOException, SolrServerException {
+
+        long start = System.currentTimeMillis();
+        SolrQuery query = new SolrQuery()
+                .setQuery(ObservationDTO.PROCEDURE_STABLE_ID + ":*_ELZ* AND " + ObservationDTO.CATEGORY + ":expression")
+                .setFields(ObservationDTO.COLONY_ID,
+                        ObservationDTO.EXTERNAL_SAMPLE_ID,
+                        ObservationDTO.PARAMETER_STABLE_ID,
+                        ObservationDTO.CATEGORY,
+                        ObservationDTO.SEX
+                )
+                .setRows(0);
+
+        logger.info("get Significant Embryo Expression" + SolrUtils.getBaseURL(experimentCore) + "/select?" + query);
+        logger.info("  Timing: Starting solr query: " + (System.currentTimeMillis() - start));
+        final Long numFound = experimentCore.query(query).getResults().getNumFound();
+
+        return numFound.intValue();
+    }
+
     public List<String> getGenesWithMoreProcedures(int minProcedureCount, List<String> resourceName)
             throws SolrServerException, IOException {
 
@@ -384,6 +404,8 @@ public class ObservationService extends BasicService implements WebStatus {
     }
 
 
+
+
     public Integer getAllDataCount(String acc) throws IOException, SolrServerException {
 
         long start = System.currentTimeMillis();
@@ -410,9 +432,8 @@ public class ObservationService extends BasicService implements WebStatus {
         logger.info("  Timing: Starting solr query: " + (System.currentTimeMillis() - start));
         final List<ObservationDTO> beans = experimentCore.query(query).getBeans(ObservationDTO.class);
 
-        Set<CombinedObservationKey> rows = beans.stream().map(ObservationDTO::getCombinedKey).collect(Collectors.toSet());
+        return new Long(beans.stream().parallel().map(ObservationDTO::getCombinedKey).distinct().count()).intValue();
 
-        return rows.size();
     }
 
     public String getGeneAccFromAlleleAcc(String acc) throws IOException, SolrServerException {
@@ -636,6 +657,74 @@ public class ObservationService extends BasicService implements WebStatus {
         return experimentCore.query(query);
     }
 
+    /**
+     * Returns a list of centers by biological sample group by count of specimen IDs in the experiment core
+     * restricted by resourceName if supplied
+     *
+     * @param resourceName
+     * @return a Map Phenotyping_Center => Sample_Type => Count of unique specimen IDs
+     */
+    public Map<String, Map<String, Integer>> getDatapointsByPhenotypingCenterAndSampleGroup(List<String> resourceName) throws IOException, SolrServerException {
+
+        Set<String> centers = this.getAllPhenotypingCenters(resourceName);
+
+        Map<String, Map<String, Integer>> specimens = new HashMap<>();
+
+        // For each center
+        for (String center : centers) {
+
+            // Get specimens
+            SolrQuery q = new SolrQuery();
+            String pivotFacet = ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + "," + ObservationDTO.EXTERNAL_SAMPLE_ID;
+
+            if (resourceName != null) {
+                q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+            } else {
+                q.setQuery("*:*");
+            }
+
+            q.addFilterQuery(ObservationDTO.PHENOTYPING_CENTER + ":\"" + center + "\"");
+            q.addFacetPivotField(pivotFacet);
+            q.setFacet(true);
+            q.setFacetLimit(-1);
+            q.setFacetMinCount(1);
+            q.setRows(0);
+
+            final Map<String, List<String>> counts = getFacetPivotResults(experimentCore.query(q), pivotFacet);
+            Map<String, Integer> specimenCountsBySampleGroup = new HashMap<>();
+            for (String sampleGroup : counts.keySet()) {
+                specimenCountsBySampleGroup.put(sampleGroup, counts.get(sampleGroup).size());
+            }
+            specimens.put(center, specimenCountsBySampleGroup);
+        }
+
+        return specimens;
+    }
+
+    /**
+     * Return a list of all centers that have data in the experiment core restricted by resourceName if supplied
+     *
+     * @param resourceName The resource to filter centers in
+     * @return Set of String representing the centers
+     */
+    public Set<String> getAllPhenotypingCenters(List<String> resourceName) throws IOException, SolrServerException {
+
+        SolrQuery q = new SolrQuery()
+            .addFacetField(ObservationDTO.PHENOTYPING_CENTER)
+            .setFacet(true)
+            .setFacetLimit(-1)
+            .setFacetMinCount(1)
+            .setRows(0);
+
+        if (resourceName != null) {
+            q.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+        } else {
+            q.setQuery("*:*");
+        }
+
+        return getFacets(experimentCore.query(q)).get(ObservationDTO.PHENOTYPING_CENTER).keySet();
+    }
+
     public Map<String, Set<String>> getColoniesByPhenotypingCenter(List<String> resourceName, ZygosityType zygosity) {
 
         Map<String, Set<String>> res = new HashMap<>();
@@ -790,6 +879,33 @@ public class ObservationService extends BasicService implements WebStatus {
 
     }
 
+    /**
+     * Return a map of center to pipeline stable ids
+     */
+    public Map<String, List<String>> getPipelineByCenter(List<String> resourceName)
+            throws SolrServerException, IOException  {
+
+        final String pivot = StringUtils.join(Arrays.asList(ObservationDTO.PHENOTYPING_CENTER, ObservationDTO.PIPELINE_STABLE_ID), ",");
+
+        SolrQuery query = new SolrQuery()
+                .addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":experimental")
+                .setRows(0)
+                .setFacet(true)
+                .setFacetMinCount(1)
+                .setFacetLimit(-1)
+                .addFacetPivotField(pivot);
+
+        if (resourceName != null){
+            query.setQuery(ObservationDTO.DATASOURCE_NAME + ":(" + StringUtils.join(resourceName, " OR ") + ")");
+        }else {
+            query.setQuery("*:*");
+        }
+
+        QueryResponse response = experimentCore.query(query);
+
+        return getFacetPivotResults(response, pivot);
+
+    }
 
     /**
      * Return a list of a triplets of pipeline stable id, phenotyping center and
@@ -1228,6 +1344,31 @@ public class ObservationService extends BasicService implements WebStatus {
         return getFacets(experimentCore.query(query)).get(ObservationDTO.SPECIMEN_ID).keySet();
     }
 
+    /**
+     * Returns a Map that represents facets counts by observation_type:
+     * observation_type =>
+     *      CATEGORICAL => xxx
+     *      UNIDIMENSIONAL => yyy
+     *      ...
+     */
+    public Map<String, Long> getDataPointCountByType(List<String> resourceName) throws SolrServerException, IOException {
+
+        SolrQuery query = new SolrQuery()
+        .setQuery("*:*")
+        .setRows(0)
+        .setFacetMinCount(1)
+        .setFacetLimit(Integer.MAX_VALUE)
+        .addFacetField(ObservationDTO.OBSERVATION_TYPE);
+
+        if (resourceName != null){
+            query.setQuery(ObservationDTO.DATASOURCE_NAME + ":(" + StringUtils.join(resourceName, " OR ") + ")");
+        }
+
+        logger.debug(SolrUtils.getBaseURL(experimentCore) + "/select?" + query);
+
+        return getFacets(experimentCore.query(query)).get(ObservationDTO.OBSERVATION_TYPE);
+    }
+
 
     /**
      * Returns a list of <code>ObservationDTO</code> observations for the specified procedureStableId and biologicalSampleId.
@@ -1332,6 +1473,35 @@ public class ObservationService extends BasicService implements WebStatus {
         }
 
         return colonyIds;
+    }
+
+
+    public Set<String> getAllAlleleSymbolsByResource(List<String> resources, boolean experimentalOnly) throws IOException, SolrServerException {
+
+        Set<String> alleles = new HashSet<>();
+
+        for( String resource : resources) {
+
+            SolrQuery solrQuery = new SolrQuery();
+            solrQuery.setQuery(ObservationDTO.DATASOURCE_NAME + ":" + resource);
+
+            if (experimentalOnly) {
+                solrQuery.addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + BiologicalSampleType.experimental);
+            }
+
+            solrQuery.addField(ObservationDTO.ALLELE_SYMBOL);
+            solrQuery.setRows(Integer.MAX_VALUE);
+            solrQuery.add("group", "true")
+                    .add("group.field", ObservationDTO.ALLELE_SYMBOL)
+                    .add("group.limit", Integer.toString(1))
+                    .add("group.main", "true");
+
+            logger.info("associated colony id solr query: " + solrQuery);
+            alleles.addAll(experimentCore.query(solrQuery).getBeans(ObservationDTO.class).stream().map(ObservationDTOBase::getAlleleSymbol).collect(Collectors.toSet()));
+
+        }
+
+        return alleles;
     }
 
 

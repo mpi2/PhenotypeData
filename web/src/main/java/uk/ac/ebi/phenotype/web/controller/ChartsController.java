@@ -273,6 +273,12 @@ public class ChartsController {
 				metaDataGroupString
 		);
 		experiment = experimentService.setUrls(experiment, parameterStableId, pipelineStableId, gene.getMgiAccessionId(), Arrays.asList(zygosity), phenotypingCenter, strain, metadataGroup, alleleAccession, SOLR_URL);
+		
+		Set<SexType> sexes = new HashSet<>(Arrays.asList(SexType.male, SexType.female));
+		if (! experiment.getSexes().contains(SexType.not_considered)) {
+			sexes = experiment.getSexes();
+		}
+		experiment.setSexes(sexes);
 
 		long endTimeSolr   = System.currentTimeMillis();
 		long timeTakenSolr = endTimeSolr - startTimeSolr;

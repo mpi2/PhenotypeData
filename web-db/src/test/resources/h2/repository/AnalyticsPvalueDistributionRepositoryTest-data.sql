@@ -5,7 +5,8 @@ CREATE TABLE analytics_pvalue_distribution (
     statistical_method varchar(200) NOT NULL,
     pvalue_bin         float        NOT NULL,
     interval_scale     float        NOT NULL,
-    pvalue_count       int(10)      NOT NULL
+    pvalue_count       int(10)      NOT NULL,
+    PRIMARY KEY(id)
 );
 
 
