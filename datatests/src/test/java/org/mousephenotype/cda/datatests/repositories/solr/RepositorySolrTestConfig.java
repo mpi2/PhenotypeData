@@ -80,6 +80,13 @@ public class RepositorySolrTestConfig {
         return new HttpSolrClient.Builder(internalSolrUrl + "/gene").build();
     }
 
+    // essentialgene
+    @Bean(name = "essentialGeneCore")
+    HttpSolrClient essentialGeneCore() {
+        return new HttpSolrClient.Builder(internalSolrUrl + "/essentialgenes").build();
+    }
+
+
     // genotype-phenotype
     @Bean(name = "genotypePhenotypeCore")
     HttpSolrClient genotypePhenotypeCore() {
@@ -153,6 +160,11 @@ public class RepositorySolrTestConfig {
     @Bean
     public GeneService geneService() {
         return new GeneService(geneCore());
+    }
+
+    @Bean
+    public EssentialGeneService essentialGeneService() {
+        return new EssentialGeneService(essentialGeneCore());
     }
 
     @Bean

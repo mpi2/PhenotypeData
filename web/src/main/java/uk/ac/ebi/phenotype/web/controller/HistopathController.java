@@ -121,8 +121,6 @@ public class HistopathController {
 				}
 			}
 			parameterNames.addAll(row.getParameterNames());
-			
-			
 		}
 
 		// Collections.sort(histopathRows, new HistopathAnatomyComparator());

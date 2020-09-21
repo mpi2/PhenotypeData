@@ -25,8 +25,8 @@ package org.mousephenotype.cda.datatests.repositories.solr;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.EssentialGeneService;
+import org.mousephenotype.cda.solr.service.dto.EssentialGeneDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,20 +39,20 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {RepositorySolrTestConfig.class})
-public class GeneServiceTest {
+public class EssentialGeneServiceTest {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	private GeneService geneService;
+	private EssentialGeneService essentialGeneService;
 
 
 	@Test
 	public void testGetGeneById() throws SolrServerException, IOException {
 		String mgiId = "MGI:1929293";
-		GeneDTO gene = geneService.getGeneById(mgiId);
+		EssentialGeneDTO gene = essentialGeneService.getGeneByMgiId(mgiId);
 		logger.info("Gene symbol is: " + gene.getMarkerSymbol());
-		logger.info("Didn't retreive human gene symbol. Proof: " + gene.getHumanGeneSymbol());
+		logger.info("mgiAccessionId: " + gene.getMgiAccession());
 		assertTrue("Expected gene but was null", gene != null);
 	}
 }

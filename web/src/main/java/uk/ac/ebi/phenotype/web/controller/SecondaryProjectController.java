@@ -58,6 +58,8 @@ public class SecondaryProjectController {
 
         if (id.equalsIgnoreCase(GenesSecondaryProjectService.SecondaryProjectIds.IDG.name())) {
             try {
+                //for IDG now we are going to get the list of gene accessions from the essential genes core
+
                 Set<GenesSecondaryProject> secondaryProjects = idg.getAccessionsBySecondaryProjectId(id);
                 Set<String> accessions = secondaryProjects
                         .stream()
