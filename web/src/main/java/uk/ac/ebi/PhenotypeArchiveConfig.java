@@ -119,8 +119,11 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
 
         registry.addInterceptor(deploymentInterceptor);
-        registry.addInterceptor(new PerClientRateLimitInterceptor()).addPathPatterns("/genes/**");
-        registry.addInterceptor(new PerClientRateLimitInterceptor()).addPathPatterns("/charts/**");
+
+        if (getGlobalConfig().get("liveSite").equalsIgnoreCase("true")) {
+            registry.addInterceptor(new PerClientRateLimitInterceptor()).addPathPatterns("/genes/**");
+            registry.addInterceptor(new PerClientRateLimitInterceptor()).addPathPatterns("/charts/**");
+        }
     }
 
     @Override
