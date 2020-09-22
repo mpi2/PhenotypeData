@@ -126,7 +126,6 @@ public class HistopathController {
 		}
 
 		// Collections.sort(histopathRows, new HistopathAnatomyComparator());
-
 		model.addAttribute("histopathRows", histopathRowsFiltered);
 		//model.addAttribute("extSampleIdToObservations", abnormalObservationsOnly);
 		model.addAttribute("parameterNames", parameterNames);

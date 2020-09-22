@@ -8,6 +8,7 @@
     then modified into its current form
 """
 
+import sys
 import os
 import re
 import argparse
@@ -49,12 +50,27 @@ parser.add_argument(
     default="/nfs/nobackup/spot/machine_learning/impc_mouse_xrays/quality_control_all_sites/model_transfer.pt",
     help="Path to model to use for predictions"
 )
+parser.add_argument(
+    '-n', '--n-classes', dest='n_classes', type=int,
+    default=6, help="Number of classes the model outputs"
+)
+parser.add_argument(
+    '-v', '--model-version', dest='model_version', type=int,
+    default=1, help="Version of model 1 -> no softmax layer, or 2"
+)
 
 args = parser.parse_args()
 print_every = args.print_every
 site_name = args.site_name;
 parameter_stable_id = args.parameter_stable_id
 dir_base = args.dir_base
+model_version = args.model_version
+n_classes = args.n_classes
+
+if model_version != 1 and model_version != 2:
+    print("Model version must be 1 or 2. - Exiting")
+    sys.exit(-1)
+    
 to_process = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+".txt")
 processed_output_path = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+"_processed.csv")
 mis_classified_output_path = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+"_misclassified.csv")
@@ -103,7 +119,7 @@ import qc_helper as helper
 
 
 classes = parameter_to_class_map.values()
-n_classes = len(classes)
+#n_classes = len(classes)
 
 # Read in metadata
 imdetails = pd.read_csv(to_process)
@@ -152,6 +168,9 @@ for param in model_transfer.features.parameters():
 num_features = model_transfer.classifier[6].in_features
 features = list(model_transfer.classifier.children())[:-1]
 features.extend([nn.Linear(num_features, n_classes)])
+if model_version == 2:
+    features.extend([nn.Softmax(dim=1)])
+
 model_transfer.classifier = nn.Sequential(*features)
     
 # Load our learnt weights
@@ -167,6 +186,7 @@ print("Configured model from: " + args.model_path)
 # Apply the model to qc images
 n_images = len(dataset)
 predictions = np.ones([n_images,],np.byte) * -1
+class_scores = np.zeros([n_images,], np.float)
 mis_classifieds = []
 unable_to_read = []
 
@@ -178,16 +198,19 @@ for i in range(n_images):
 
         output = model_transfer(image.unsqueeze(0))
         output =np.squeeze(output.data.cpu().numpy())
-        predictions[i] = np.argwhere(output == output.max())[0]+1
+        index = np.argwhere(output == output.max())[0]
+        predictions[i] = index+1
+        class_scores[i] = output[index]
     
         if predictions[i] != expected_class:
-            mis_classifieds.append((i,imdetails['imagename'][i],predictions[i]))
+            mis_classifieds.append((i,imdetails['imagename'][i],predictions[i], class_scores[i]))
         if print_every > 0 and i%print_every == 0:
             print(f"Iteration {i}")
             print("Number of misclassifieds: {0}".format(len(mis_classifieds)))
             # Also save predictions in case job crashes
             processed_output_path_temp = "{0}_{1:05d}".format(processed_output_path,i)
             imdetails['classlabel'] = predictions
+            imdetails['classscore'] = class_scores
             imdetails.to_csv(processed_output_path_temp, index=False)
     except Exception as e:
         print("An error occured")
@@ -196,14 +219,16 @@ for i in range(n_images):
 
 # Save the new dataframe
 imdetails['classlabel'] = predictions
-imdetails.to_csv(processed_output_path, index=False)
+imdetails['classscore'] = class_scores
+imdetails = imdetails.astype({'classscore': 'float64'})
+imdetails.to_csv(processed_output_path, index=False, float_format='%.2f')
 print("Saved processed images to " + processed_output_path)
 
 # Save misclassifieds
 if len(mis_classifieds) > 0:
-    mis_classifieds_df = pd.DataFrame(columns=('index','imagepath','expected','predicted'))
-    for i, (index, im_path, predicted) in enumerate(mis_classifieds):
-        mis_classifieds_df.loc[i] = [index, im_path, expected_class, predicted]
+    mis_classifieds_df = pd.DataFrame(columns=('index','imagepath','expected','predicted','classscore'))
+    for i, (index, im_path, predicted, class_score) in enumerate(mis_classifieds):
+        mis_classifieds_df.loc[i] = [index, im_path, expected_class, predicted, class_score]
     mis_classifieds_df.to_csv(mis_classified_output_path, index=False)
     print("Saved misclassified images to " + mis_classified_output_path)
 

@@ -78,7 +78,6 @@ public class TimeSeriesChartAndTableProvider {
 
 				if (SexType.valueOf(docGender).equals(sex)) {
 					Float dataPoint = control.getDataPoint();
-					logger.debug("data value=" + dataPoint);
 					Float discreteTimePoint = control.getDiscretePoint();
 
 					// Ensure the timepoint is valid

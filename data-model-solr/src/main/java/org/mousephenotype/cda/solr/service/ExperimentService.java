@@ -499,7 +499,7 @@ public class ExperimentService{
             experiment.setParameterStableId(result.getParameterStableId());
 
             experiment.setOrganisation(result.getPhenotypingCenter());
-            experiment.setStrain(result.getStrainName());
+            experiment.setStrain(result.getStrainAccessionId());
 
             experiment.setResults(Collections.singletonList(result));
 
@@ -523,7 +523,9 @@ public class ExperimentService{
                 //    "specimen_sex": <String> [SexType enum]
                 //    "body_weight": <Double>
                 //    "data_point": <Double> [null when categorical]
-                //    "category": <String> [null when not categorical
+                //    "category": <String> [null when not categorical]
+                //    "time_point": <String> [null when not time_series, iso8601 otherwise]
+                //    "discrete_point": <String> [null when not time_series, float otherwise]
                 //  }
                 List<MinimalObservationDto> minObservations = Arrays.asList(
                         new Gson().fromJson(output, MinimalObservationDto[].class));
@@ -536,6 +538,7 @@ public class ExperimentService{
                     o.setDateOfExperiment(x.getDateOfExperiment());
                     o.setCategory(x.getCategory());
                     o.setDataPoint(x.getDataPoint() != null ? x.getDataPoint().floatValue() : null);
+                    o.setDiscretePoint(x.getDiscreteTimePoint() != null ? x.getDiscreteTimePoint().floatValue() : null);
                     o.setWeight(x.getBodyWeight() != null ? x.getBodyWeight().floatValue() : null);
                     return o;
                 }).collect(Collectors.toList());
@@ -576,6 +579,8 @@ public class ExperimentService{
         //   "body_weight": 21.0,
         //   "data_point": 187.39,
         //   "category": null
+        //   "time_point: null
+        //   "discrete_point: null
         // },
         // { ... },
         // ]
@@ -586,6 +591,8 @@ public class ExperimentService{
         @SerializedName("specimen_sex") String sex;
         @SerializedName("category") String category;
         @SerializedName("data_point") Double dataPoint;
+        @SerializedName("time_point") String timePoint;
+        @SerializedName("discrete_point") Double discreteTimePoint;
         @SerializedName("body_weight") Double bodyWeight;
     }
     
@@ -829,7 +836,7 @@ public class ExperimentService{
 
 	public Collection<? extends String> getChartPivots(String accessionAndParam, String acc, String parameter,
 			List<String> pipelineStableIds, List<String> zyList, List<String> phenotypingCentersList,
-			List<String> strainsParams, List<String> metaDataGroup, List<String> alleleAccession) throws IOException, SolrServerException {
-		return observationService.getChartPivots(accessionAndParam, acc, parameter, pipelineStableIds, zyList, phenotypingCentersList, strainsParams, metaDataGroup, alleleAccession);
+			List<String> strainsParams, List<String> metaDataGroup, List<String> alleleAccession, List<String>procedureStableIds) throws IOException, SolrServerException {
+		return observationService.getChartPivots(accessionAndParam, acc, parameter, pipelineStableIds, zyList, phenotypingCentersList, strainsParams, metaDataGroup, alleleAccession, procedureStableIds);
 	}
 }

@@ -711,7 +711,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         if (sex != null && sex.size() > 0) {
             String sexes = sex.stream().map(SexType::getName).collect(Collectors.joining(" OR "));
             if(sexes.equalsIgnoreCase("female OR male") || sexes.equalsIgnoreCase("male OR female")){
-                sexes="female OR male OR both";//to account for where entries in solr have used both instead of female and male sexes e.g. threei data has some
+                sexes="female OR male OR both OR not_considered";//to account for where entries in solr have used both instead of female and male sexes e.g. threei data has some
             }
             query.addFilterQuery(GenotypePhenotypeDTO.SEX + ":(" + sexes + ")");
         }
@@ -906,11 +906,17 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
 
 
 	        String sex = phen.getString(GenotypePhenotypeDTO.SEX);
-	
-	        SexType sexType = SexType.valueOf(sex);
-	        sum.setSex(sexType);
 
+	try {
+        SexType sexType = SexType.getByDisplayName(sex);
+        sum.setSex(sexType);
 
+    }catch (Exception e
+
+    ){
+	    e.printStackTrace();
+        System.out.println("sex is |"+sex+"|");
+    };
             if( phen.has(GenotypePhenotypeDTO.LIFE_STAGE_NAME)) {
                 String lifeStageName = phen.getString(GenotypePhenotypeDTO.LIFE_STAGE_NAME);
                 sum.setLifeStageName(lifeStageName);

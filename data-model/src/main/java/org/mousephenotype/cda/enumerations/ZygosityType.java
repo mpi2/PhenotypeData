@@ -28,6 +28,7 @@ public enum ZygosityType {
 	homozygote,
 	heterozygote,
 	hemizygote,
+	anzygote,
 	not_applicable;
 	
 	public String getName(){
