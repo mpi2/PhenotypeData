@@ -101,8 +101,7 @@ public class ProcedureCompletenessService extends BasicService {
         } catch(Exception e) {
             logger.warn("ProcedureCompletenessService: solr query failed: {}", query);
             e.printStackTrace();
-//            throw e;
-            return new ArrayList<StatisticalResultDTO>();
+            return new ArrayList<>();
         }
         return response.getBeans(StatisticalResultDTO.class);
     }
