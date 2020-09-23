@@ -106,7 +106,7 @@ public class ReleaseController {
 	 * Force update meta info cache every fifteen minutes
 	 */
 	@Scheduled(cron = "0 0/15 * * * *")
-	private void updateCacheTimer() {
+	void updateCacheTimer() {
 		logger.info("Cache timeout expired. Clearing metadata cache");
 		cachedMetaInfo = null;
 		getMetaInfo();
