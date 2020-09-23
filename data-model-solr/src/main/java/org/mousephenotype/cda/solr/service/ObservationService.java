@@ -43,6 +43,7 @@ import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.web.dto.CategoricalDataObject;
 import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
 import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
+import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +66,7 @@ import java.util.stream.Collectors;
 public class ObservationService extends BasicService implements WebStatus {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final CommonUtils commonUtils = new CommonUtils();
 
     protected SolrClient experimentCore;
 
