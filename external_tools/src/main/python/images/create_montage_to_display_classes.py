@@ -44,10 +44,15 @@ output_dir = args.output_dir
 if not os.path.isdir(output_dir):
     os.mkdir(output_dir)
 
+sort_column = ['classscore', 'index',]
 
 for label in class_labels:
-    ind = np.nonzero(classes == label)
-    print("Number of images of class: " + str(label) + " = " + str(len(ind[0])))
+    df_class = im_details.loc[im_details[args.label_column]==label]
+    #if sort_column is not None:
+    #    df_class = df_class.sort_values(by=sort_column, axis='index')
+    df_class = df_class.rename_axis('index').sort_values(by=sort_column, axis='index')
+
+    print("Number of images of class: " + str(label) + " = " + str(len(df_class)))
     # We do not want to process the label -1 as it is for unreadable images
     if label < 0:
         print("Not processing images of this class as its label is less than 0")
@@ -58,7 +63,8 @@ for label in class_labels:
     n_cols = args.n_cols
     n_subplots = n_rows * n_cols
     fig = plt.figure()
-    for counter,i in enumerate(ind[0]):
+    counter = -1
+    for counter, (i, row) in enumerate(df_class.iterrows()):
         if counter > 0 and counter%n_subplots == 0:
             fig_path = "class_{0}_{1:06d}.png".format(label,counter)
             fig_path = os.path.join(output_dir, fig_path)
@@ -67,7 +73,7 @@ for label in class_labels:
             plt.clf()
         counter1 = (counter%n_subplots) + 1
         ax = plt.subplot(n_rows,n_cols,counter1)
-        im_path = im_details['imagename'][i]
+        im_path = row['imagename']
 
         # Prevent crash if image cannot be read
         try:
@@ -79,11 +85,18 @@ for label in class_labels:
         im = sitk.GetArrayFromImage(im)
         im = np.squeeze(im)
         ax.imshow(im)
-        ax.set_title(str(i),{'fontsize': 5},pad=0.0)
+        if sort_column is not None:
+            title = "{0:>5d} ({1:1.2f})".format(i, row[sort_column[0]])
+            ax.set_title(title, {'fontsize': 5},pad=0.0)
+        else:
+            ax.set_title(str(i),{'fontsize': 5},pad=0.0)
         ax.axis('off')
-    fig_path = "class_{0}_{1:03d}.png".format(label,counter)
-    fig_path = os.path.join(output_dir, fig_path)
-    plt.draw()
-    plt.savefig(fig_path)
-    print(f"Saved figure to {fig_path}")
+
+    # Plot any remaining figures
+    if counter >= 0:
+        fig_path = "class_{0}_{1:06d}.png".format(label,counter)
+        fig_path = os.path.join(output_dir, fig_path)
+        plt.draw()
+        plt.savefig(fig_path)
+        print(f"Saved figure to {fig_path}")
     plt.clf()
