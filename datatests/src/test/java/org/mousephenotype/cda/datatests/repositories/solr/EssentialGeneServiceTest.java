@@ -34,6 +34,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertTrue;
 
@@ -49,10 +51,46 @@ public class EssentialGeneServiceTest {
 
 	@Test
 	public void testGetGeneById() throws SolrServerException, IOException {
-		String mgiId = "MGI:1929293";
+		String mgiId = "MGI:1098687";//Aak1
+
+		List<EssentialGeneDTO> essentialGeneDTOS = essentialGeneService.getGeneListByMgiId(mgiId);
+		for(EssentialGeneDTO geneDTO: essentialGeneDTOS) {
+			logger.info("Gene symbol is: " + geneDTO.getMarkerSymbol());
+			logger.info("mgiAccessionId: " + geneDTO.getMgiAccession());
+			logger.info("idgChr: " + geneDTO.getIdgChr());
+			logger.info("idgFamily: " + geneDTO.getIdgFamily());
+			logger.info("idgIDL: " + geneDTO.getIdgIdl());
+			logger.info("idgSymbol: " + geneDTO.getIdgSymbol());
+			logger.info("uniprot acc: " + geneDTO.getIdgUniprotAcc());
+			logger.info("===================");
+		}
+
 		EssentialGeneDTO gene = essentialGeneService.getGeneByMgiId(mgiId);
-		logger.info("Gene symbol is: " + gene.getMarkerSymbol());
+		logger.info("single Gene symbol is: " + gene.getMarkerSymbol());
 		logger.info("mgiAccessionId: " + gene.getMgiAccession());
+		logger.info("idgChr: " + gene.getIdgChr());
+		logger.info("idgFamily: " + gene.getIdgFamily());
+		logger.info("idgIDL: " + gene.getIdgIdl());
+		logger.info("idgSymbol: " + gene.getIdgSymbol());
+		logger.info("uniprot acc: " + gene.getIdgUniprotAcc());
+		logger.info("===================");
 		assertTrue("Expected gene but was null", gene != null);
+	}
+
+	@Test
+	public void testGetAllIdgGeneList() throws IOException, SolrServerException {
+		List<EssentialGeneDTO> idgGeneDTOS = essentialGeneService.getAllIdgGeneList();
+		logger.info("idgGenes size="+idgGeneDTOS.size());
+
+//		for(EssentialGeneDTO geneDTO: idgGeneDTOS) {
+//			logger.info("Gene symbol is: " + geneDTO.getMarkerSymbol());
+//			logger.info("mgiAccessionId: " + geneDTO.getMgiAccession());
+//			logger.info("idgChr: " + geneDTO.getIdgChr());
+//			logger.info("idgFamily: " + geneDTO.getIdgFamily());
+//			logger.info("idgIDL: " + geneDTO.getIdgIdl());
+//			logger.info("idgSymbol: " + geneDTO.getIdgSymbol());
+//			logger.info("uniprot acc: " + geneDTO.getIdgUniprotAcc());
+//			logger.info("===================");
+//		}
 	}
 }
