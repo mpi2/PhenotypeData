@@ -16,6 +16,11 @@
 package org.mousephenotype.cda.solr.service;
 
 import com.google.common.collect.Iterators;
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
+import lombok.Data;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -25,7 +30,10 @@ import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.dto.LifeStage;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.imits.StatusConstants;
+import org.mousephenotype.cda.solr.service.dto.CombinedObservationKey;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
@@ -36,17 +44,19 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 
 @Service
 public class GeneService extends BasicService implements WebStatus{
 
-	private static final Logger log = LoggerFactory.getLogger(GeneService.class);
+	private static final Logger logger = LoggerFactory.getLogger(GeneService.class);
 	public static final int PARTITION_SIZE = 50;
 
 	private SolrClient geneCore;
@@ -69,6 +79,109 @@ public class GeneService extends BasicService implements WebStatus{
 		public final static String CENTRE_WTSI = "WSI";
 		public final static String PHENOTYPE_STATUS_COMPLETE = "Phenotyping Complete";
 		public final static String PHENOTYPE_STATUS_STARTED = "Phenotyping Started";
+	}
+
+	public Integer getAllDataCount(String geneAccessionId) throws IOException, SolrServerException {
+
+		// Default count of datasets associated with this gene is 0
+		Integer count = 0;
+
+		SolrQuery query = new SolrQuery();
+		query.setQuery(GeneDTO.MGI_ACCESSION_ID + ":\"" +geneAccessionId+ "\"");
+		final List<GeneDTO> geneDTOs = geneCore.query(query).getBeans(GeneDTO.class);
+
+		if (geneDTOs.size() != 1) throw new RuntimeException("Multiple gene documents found for "+ geneAccessionId);
+
+		// Get the raw data from the result
+		String output;
+		String b64 = geneDTOs.get(0).getDatasetsRawData();
+
+		if (b64 != null) {
+			try (GZIPInputStream gzis = new GZIPInputStream(new ByteArrayInputStream(Base64.decodeBase64(b64)))) {
+				output = IOUtils.toString(gzis, "UTF-8");
+			} catch (IOException e) {
+				logger.error("Failed to unzip content for result", geneDTOs.get(0), e);
+				return count;
+			}
+
+			// Each element has the structure:
+			// {
+			//   "allele_symbol": String
+			//   "allele_accession_id": String
+			//   "gene_symbol": String
+			//   "gene_accession_id": String
+			//   "parameter_stable_id": String
+			//   "parameter_name": String
+			//   "procedure_stable_id": String
+			//   "procedure_name": String
+			//   "pipeline_stable_id": String
+			//   "pipeline_name": String
+			//   "zygosity": String
+			//   "phenotyping_center": String
+			//   "life_stage_name": String
+			// }
+			List<GeneService.MinimalGeneDataset> datasetsJson = Arrays.asList(
+					new Gson().fromJson(output, GeneService.MinimalGeneDataset[].class));
+
+			List<CombinedObservationKey> datasets = datasetsJson.stream().map(x -> new CombinedObservationKey(
+					x.getAlleleSymbol(),
+					x.getAlleleAccessionID(),
+					x.getGeneSymbol(),
+					x.getGeneAccessionID(),
+					x.getParameterStableID(),
+					x.getParameterName(),
+					x.getProcedureStableID(),
+					x.getProcedureName(),
+					x.getPipelineStableID(),
+					x.getPipelineName(),
+					ZygosityType.valueOf(x.getZygosity()),
+					x.getPhenotypingCenter(),
+					LifeStage.getByDisplayName(x.getLifeStageName())
+			)).collect(Collectors.toList());
+
+			count = datasets.size();
+
+		}
+
+
+		return count;
+	}
+
+	@Data
+	private class MinimalGeneDataset {
+
+		//[
+		// {
+		//   "allele_symbol":
+		//   "allele_accession_id":
+		//   "gene_symbol":
+		//   "gene_accession_id":
+		//   "parameter_stable_id":
+		//   "parameter_name":
+		//   "procedure_stable_id":
+		//   "procedure_name":
+		//   "pipeline_stable_id":
+		//   "pipeline_name":
+		//   "zygosity":
+		//   "phenotyping_center":
+		//   "life_stage_name":
+		// },
+		// { ... },
+		//]
+
+		@SerializedName("allele_symbol") String alleleSymbol;
+		@SerializedName("allele_accession_id") String alleleAccessionID;
+		@SerializedName("gene_symbol") String geneSymbol;
+		@SerializedName("gene_accession_id") String geneAccessionID;
+		@SerializedName("parameter_stable_id") String parameterStableID;
+		@SerializedName("parameter_name") String parameterName;
+		@SerializedName("procedure_stable_id") String procedureStableID;
+		@SerializedName("procedure_name") String procedureName;
+		@SerializedName("pipeline_stable_id") String pipelineStableID;
+		@SerializedName("pipeline_name") String pipelineName;
+		@SerializedName("zygosity") String zygosity;
+		@SerializedName("phenotyping_center") String phenotypingCenter;
+		@SerializedName("life_stage_name") String lifeStageName;
 	}
 
 	/**
@@ -103,7 +216,7 @@ public class GeneService extends BasicService implements WebStatus{
 			allGenes.add((String) doc.getFieldValue(GeneDTO.MGI_ACCESSION_ID));
 		}
 
-		log.debug("getGenesByLatestPhenotypeStatusAndProductionCentre: solrQuery = "
+		logger.debug("getGenesByLatestPhenotypeStatusAndProductionCentre: solrQuery = "
 				+ queryString);
 		return allGenes;
 	}
@@ -141,7 +254,7 @@ public class GeneService extends BasicService implements WebStatus{
 			allGenes.add((String) doc.getFieldValue(GeneDTO.MGI_ACCESSION_ID));
 		}
 
-		log.debug("getGenesByLatestPhenotypeStatusAndPhenotypeCentre: solrQuery = "
+		logger.debug("getGenesByLatestPhenotypeStatusAndPhenotypeCentre: solrQuery = "
 				+ queryString);
 		return allGenes;
 	}
@@ -305,8 +418,8 @@ public class GeneService extends BasicService implements WebStatus{
 				}	*/
 			}			
 		} catch (Exception e) {
-			log.error("Error getting phenotyping status");
-			log.error(e.getLocalizedMessage());
+			logger.error("Error getting phenotyping status");
+			logger.error(e.getLocalizedMessage());
 		}
 			
 		if ( toExport ){
@@ -347,8 +460,8 @@ public class GeneService extends BasicService implements WebStatus{
 			}
 		}
 		catch (Exception e) {
-			log.error("Error getting ES cell");
-			log.error(e.getLocalizedMessage());
+			logger.error("Error getting ES cell");
+			logger.error(e.getLocalizedMessage());
 			e.printStackTrace();
 		}
 
@@ -420,8 +533,8 @@ public class GeneService extends BasicService implements WebStatus{
 				}
 			}
 		} catch (Exception e) {
-			log.error("Error getting ES cell/Mice status");
-			log.error(e.getLocalizedMessage());
+			logger.error("Error getting ES cell/Mice status");
+			logger.error(e.getLocalizedMessage());
 
 		}
 
@@ -537,7 +650,7 @@ public class GeneService extends BasicService implements WebStatus{
 			order = checkOrderProducts(doc);
 
 		} catch (Exception e) {
-			log.error("Error getting ES cell/Mice status");
+			logger.error("Error getting ES cell/Mice status");
 			e.printStackTrace();
 		}
 
@@ -573,8 +686,8 @@ public class GeneService extends BasicService implements WebStatus{
 			}
 		}
 		catch (Exception e) {
-			log.error("Error getting ES cell/Mice status");
-			log.error(e.getLocalizedMessage());
+			logger.error("Error getting ES cell/Mice status");
+			logger.error(e.getLocalizedMessage());
 			e.printStackTrace();
 		}
 
@@ -729,8 +842,8 @@ public class GeneService extends BasicService implements WebStatus{
 			}
 		} 
 		catch (Exception e) {
-			log.error("Error getting ES cell/Mice status");
-			log.error(e.getLocalizedMessage());
+			logger.error("Error getting ES cell/Mice status");
+			logger.error(e.getLocalizedMessage());
 		}
 		
 		if ( toExport ){
@@ -849,7 +962,7 @@ public class GeneService extends BasicService implements WebStatus{
 			try {
 				geneDTOS = geneCore.query(solrQuery, METHOD.POST).getBeans(GeneDTO.class);
 			} catch (SolrServerException | IOException e) {
-				log.error("Error getting results for subset of genes symbols", e);
+				logger.error("Error getting results for subset of genes symbols", e);
 				return;
 			}
 
@@ -878,7 +991,7 @@ public class GeneService extends BasicService implements WebStatus{
 			try {
 				geneDTOS = geneCore.query(solrQuery, METHOD.POST).getBeans(GeneDTO.class);
 			} catch (SolrServerException | IOException e) {
-				log.error("Error getting results for subset of genes symbols", e);
+				logger.error("Error getting results for subset of genes symbols", e);
 				return;
 			}
 
@@ -944,7 +1057,7 @@ public class GeneService extends BasicService implements WebStatus{
 					res.put(c.getName(), new AtomicLong(c.getCount()));
 				}
 			} catch (SolrServerException | IOException e) {
-				log.warn("Exception getting gene solr facet query " + solrQuery.toQueryString() + "\n response for getStatusCount \n", e);
+				logger.warn("Exception getting gene solr facet query " + solrQuery.toQueryString() + "\n response for getStatusCount \n", e);
 			}
 		} else {
 
@@ -962,7 +1075,7 @@ public class GeneService extends BasicService implements WebStatus{
 						res.get(c.getName()).addAndGet(c.getCount());
 					}
 				} catch (SolrServerException | IOException e) {
-					log.warn("Exception getting gene solr facet query " + solrQuery.toQueryString() + "\n response for getStatusCount \n", e);
+					logger.warn("Exception getting gene solr facet query " + solrQuery.toQueryString() + "\n response for getStatusCount \n", e);
 				}
 			});
 		}
@@ -985,7 +1098,7 @@ public class GeneService extends BasicService implements WebStatus{
         solrQuery.setFilterQueries(GeneDTO.MGI_ACCESSION_ID + ":(" + geneId.replace(":", "\\:") + ")");
         solrQuery.setRows(100000);
         solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID, GeneDTO.LATEST_PROJECT_STATUS);
-        log.info("server query is: {}", solrQuery.toString());
+        logger.info("server query is: {}", solrQuery.toString());
         QueryResponse rsp   = geneCore.query(solrQuery);
         List<GeneDTO> genes = rsp.getBeans(GeneDTO.class);
         for (GeneDTO gene : genes) {
