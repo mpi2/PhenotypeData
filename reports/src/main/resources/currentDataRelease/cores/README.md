@@ -1,7 +1,9 @@
 #Description
 This directory contains gzipped `.gz` files
             of all of the SOLR cores that were used
-            to make the data release.
+            to make the data release.  _NOTE: these
+            results are created from a snapshot of
+            the current data for every new data release._
 
 ##Core descriptions
 - `allele` - Allele details including associated gene,
