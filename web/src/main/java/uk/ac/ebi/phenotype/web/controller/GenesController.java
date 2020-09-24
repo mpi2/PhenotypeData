@@ -74,7 +74,7 @@ import java.util.stream.Collectors;
 @Controller
 public class GenesController {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(GenesController.class);
+    private final Logger logger = LoggerFactory.getLogger(GenesController.class);
     private static final int numberOfImagesToDisplay = 5;
 
     private final PhenotypeSummaryDAO phenSummary;
@@ -244,7 +244,7 @@ public class GenesController {
         GeneDTO gene = geneService.getGeneById(acc);
 
         if (gene == null) {
-            LOGGER.warn("Gene object from solr for " + acc + " can't be found.");
+            logger.warn("Gene object from solr for " + acc + " can't be found.");
             throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
         }
 
@@ -280,14 +280,14 @@ public class GenesController {
             System.out.println(phenotypeSummaryObjects);
             mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
             mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
-            if (!mpGroupsSignificant.keySet().contains("mortality/aging") && viabilityCalls.size() > 0) {
+            if (!mpGroupsSignificant.containsKey("mortality/aging") && viabilityCalls.size() > 0) {
                 //if mortality aging is not significant we need to test if it's been tested or not
                 mpGroupsNotSignificant.put("mortality/aging", "mpTermId=MP:0010768");
             }
 
             for (String str : mpGroupsSignificant.keySet()) {
                 // str: top level term name
-                if (mpGroupsNotSignificant.keySet().contains(str)) {
+                if (mpGroupsNotSignificant.containsKey(str)) {
                     mpGroupsNotSignificant.remove(str);
                 }
             }
@@ -315,7 +315,7 @@ public class GenesController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            LOGGER.error("ERROR: ", e);
+            logger.error("ERROR: ", e);
         }
 
         // Register Interest setup
@@ -346,7 +346,7 @@ public class GenesController {
 
         } catch (SolrServerException | IOException e) {
             e.printStackTrace();
-            LOGGER.info("images solr not available");
+            logger.info("images solr not available");
             model.addAttribute("imageErrors", "Something is wrong Images are not being returned when normally they would");
         }
 
@@ -363,7 +363,7 @@ public class GenesController {
             e.printStackTrace();
         }
 
-        List<GenePageTableRow> rowsForPhenotypeTable = processPhenotypes(acc, model, null, null, request);
+        processPhenotypes(acc, model, null, null, request);
 
         model.addAttribute("viabilityCalls", viabilityCalls);
         model.addAttribute("phenotypeSummaryObjects", phenotypeSummaryObjects);
@@ -377,7 +377,8 @@ public class GenesController {
         model.addAttribute("attemptRegistered", geneService.checkAttemptRegistered(acc));
         model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);
         model.addAttribute("notsignificantTopLevelMpGroups", mpGroupsNotSignificant);
-        model.addAttribute("allMeasurementsNumber", observationService.getAllDataCount(acc));
+        model.addAttribute("allMeasurementsNumber", geneService.getAllDataCount(acc));
+
         model.addAttribute("measurementsChartNumber", statisticalResultService.getParameterCountByGene(acc));
         model.addAttribute("phenotypeGroups", phenotypeGroups);
         model.addAttribute("phenotypeGroupIcons", phenotypeGroupIcons);
@@ -388,8 +389,8 @@ public class GenesController {
         processDisease(acc, model);
 
         model.addAttribute("countIKMCAlleles", countIKMCAlleles);
-        LOGGER.debug("CHECK IKMC allele error : " + ikmcError);
-        LOGGER.debug("CHECK IKMC allele found : " + countIKMCAlleles);
+        logger.debug("CHECK IKMC allele error : " + ikmcError);
+        logger.debug("CHECK IKMC allele found : " + countIKMCAlleles);
 
         //process ardering section
         List<OrderTableRow> orderRows = orderService.getOrderTableRows(acc, null, false);
@@ -477,7 +478,7 @@ public class GenesController {
             model.addAttribute("phenoFacets", sortPhenFacets(phenoFacets));
 
         } catch (JSONException e) {
-            LOGGER.error("ERROR GETTING PHENOTYPE LIST");
+            logger.error("ERROR GETTING PHENOTYPE LIST");
             e.printStackTrace();
             phenotypeList = new ArrayList<>();
         }
@@ -590,13 +591,13 @@ public class GenesController {
 
         QueryResponse solrExpressionR = imagesSolrDao.getExpressionFacetForGeneAccession(acc);
         if (solrExpressionR == null) {
-            LOGGER.error("no response from solr data source for acc=" + acc);
+            logger.error("no response from solr data source for acc=" + acc);
             return;
         }
 
         List<FacetField> expressionfacets = solrExpressionR.getFacetFields();
         if (expressionfacets == null) {
-            LOGGER.info("no expression facets from solr data source for acc=" + acc);
+            logger.info("no expression facets from solr data source for acc=" + acc);
             return;
         }
 
@@ -629,13 +630,13 @@ public class GenesController {
 
         QueryResponse solrR = imagesSolrDao.getExperimentalFacetForGeneAccession(acc);
         if (solrR == null) {
-            LOGGER.error("no response from solr data source for acc=" + acc);
+            logger.error("no response from solr data source for acc=" + acc);
             return;
         }
 
         List<FacetField> facets = solrR.getFacetFields();
         if (facets == null) {
-            LOGGER.error("no facets from solr data source for acc=" + acc);
+            logger.error("no facets from solr data source for acc=" + acc);
             return;
         }
 
@@ -748,7 +749,7 @@ public class GenesController {
         GeneDTO gene = geneService.getGeneById(acc);
         model.addAttribute("geneDTO", gene);
         if (gene == null) {
-            LOGGER.warn("Gene object from solr for " + acc + " can't be found.");
+            logger.warn("Gene object from solr for " + acc + " can't be found.");
             throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
         }
 
@@ -815,7 +816,7 @@ public class GenesController {
     private void processDisease(String acc, Model model) {
 
         // fetch diseases that are linked to a gene via annotations/curation
-        LOGGER.debug(String.format("%s - getting gene-disease associations for gene ", acc));
+        logger.debug(String.format("%s - getting gene-disease associations for gene ", acc));
         List<GeneDiseaseAssociation> geneAssociations = phenoDigm2Dao.getGeneToDiseaseAssociations(acc);
 
         // fetch just the ids, and encode them into an array
@@ -833,7 +834,7 @@ public class GenesController {
 
         // fetch models that have this gene
         List<DiseaseModelAssociation> modelAssociations = phenoDigm2Dao.getGeneToDiseaseModelAssociations(acc);
-        LOGGER.debug("Found " + modelAssociations.size()+ " associations");
+        logger.debug("Found " + modelAssociations.size()+ " associations");
 
         // create a js object representation of the models        
         String modelAssocsJsArray = "[]";

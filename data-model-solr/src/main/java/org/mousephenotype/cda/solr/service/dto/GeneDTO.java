@@ -175,7 +175,9 @@ public class GeneDTO {
 	public static final String CHR_end = "chr_end";
 	public static final String IS_IDG_GENE ="is_idg_gene";
 	public static final String IS_UMASS_GENE ="is_umass_gene";
-	
+
+	public static final String DATASETS_RAW_DATA ="datasets_raw_data";
+
 	
 	@Field(EMBRYO_ANALYSIS_URL)
 	private String embryoAnalysisUrl;
@@ -218,10 +220,20 @@ public class GeneDTO {
 		isUmassGene = umassGene;
 	}
 
-
+	@Field(DATASETS_RAW_DATA)
+	private String datasetsRawData;
+	public String getDatasetsRawData() { return datasetsRawData; }
+	public void setDatasetsRawData(String datasetsRawData) { this.datasetsRawData = datasetsRawData; }
 
 	@Field(VEGA_IDS)
 	private List<String> vegaIds;
+
+	@Field(NCBI_IDS)
+	private List<String> ncbiIds;
+
+	@Field(CCDS_IDS)
+	private List<String> ccdsIds;
+
 	public List<String> getVegaIds() {
 		return vegaIds;
 	}
@@ -246,10 +258,6 @@ public class GeneDTO {
 		this.ccdsIds = ccdsIds;
 	}
 
-	@Field(NCBI_IDS)
-	private List<String> ncbiIds;
-	@Field(CCDS_IDS)
-	private List<String> ccdsIds;
 
 
 	@Field(SEQ_REGION_ID)

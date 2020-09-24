@@ -961,6 +961,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         Map<String, List<ExperimentsDataTableRow>> results = new HashMap<>();
 
         SolrQuery query = buildQuery(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableIds, resource, mpTermId, null, null, null, null, null, null, null, null);
+        query.add("fl", "*,raw_data:[value v=\"\"]");
         List<StatisticalResultDTO> solrResults = statisticalResultCore.query(query).getBeans(StatisticalResultDTO.class);
 
         for (StatisticalResultDTO statResult : solrResults) {
