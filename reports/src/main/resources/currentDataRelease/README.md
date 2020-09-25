@@ -9,9 +9,6 @@ package), as well as general-use and purpose-built
  results are created from a snapshot of the current
  data for every new data release._
 
-
-
-
 ##Subdirectories
 - cores   - This directory contains a single gzipped `.gz` file
             containing all of all of the SOLR cores that were
@@ -27,3 +24,4 @@ package), as well as general-use and purpose-built
    amalgamation of the prior `csv` and `reports` directories.
 - docker  - A ready to run docker image of the IMPC web portal
   and API
+  

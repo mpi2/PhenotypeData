@@ -1,9 +1,9 @@
 #Description
 This directory contains gzipped `.gz` files
-            of all of the SOLR cores that were used
-            to make the data release.  _NOTE: these
-            results are created from a snapshot of
-            the current data for every new data release._
+   of all of the SOLR cores that were used
+   to make the data release.  _NOTE: these
+   results are created from a snapshot of
+   the current data for every new data release._
 
 ##Core descriptions
 - `allele` - Allele details including associated gene,
@@ -23,12 +23,11 @@ This directory contains gzipped `.gz` files
 - `mgi-phenotype` - mgi allele to gene information
 - `mp` - Mammalian phenotype term information
 - `orthology_mapping` - Further batch query support for
-                        filtering by support count
+      filtering by support count
 - `phenodigm` - mouse to human disease mapping
 - `pipeline` - Pipeline information
 - `product` - Product information
-- `statistical-result` - Statical result analysis
-                         details. _NOTE: starting 
-                         with data release 12.0,
-                         this core, which used to be
-                         small, has grown considerably._
+- `statistical-result` - 
+     Statical result analysis details. _NOTE: starting 
+     with data release 12.0, this core, which used to be
+     small, has grown considerably._
