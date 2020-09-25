@@ -1,4 +1,4 @@
-#Description
+# Description
 This directory contains data release information for
 all data releases. Included are: all the genotype to
 phenotype associations using the Mammalian Phenotype

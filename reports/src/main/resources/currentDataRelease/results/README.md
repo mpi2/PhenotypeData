@@ -1,9 +1,9 @@
-#Description
+# Description
 This directory contains data results as a set of reports. _NOTE:
 these results are created from a snapshot of the current
 data for every new data release._
 
-##Report descriptions
+## Report descriptions
 - `dataOverview` - Overview of data in the current data release
 - `fertility` - Fertile or infertile phenotype for males and females,
       by mouse line
@@ -24,7 +24,7 @@ data for every new data release._
 - `viability` - Viability phenotypes, by mouse line
 - `zygosity` - For each MP term, genes that are significant
 
-##Report filename mapping
+## Report filename mapping
 Beginning with data release 12.0, the `reports` directory is
 called `results` and the contents of the old `csv` directory
 have been rolled into the new `results` directory. Some old reports

@@ -1,4 +1,4 @@
-#Description
+# Description
 This directory contains data release information for
 data release DATA_RELEASE_NUMBER. Included are: 
 all the genotype to phenotype associations using the
@@ -9,7 +9,7 @@ package), as well as general-use and purpose-built
  results are created from a snapshot of the current
  data for every new data release._
 
-##Subdirectories
+## Subdirectories
 - cores   - This directory contains a single gzipped `.gz` file
             containing all of all of the SOLR cores that were
              used to make the data release

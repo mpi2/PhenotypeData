@@ -1,11 +1,11 @@
-#Description
+# Description
 This directory contains gzipped `.gz` files
    of all of the SOLR cores that were used
    to make the data release.  _NOTE: these
    results are created from a snapshot of
    the current data for every new data release._
 
-##Core descriptions
+## Core descriptions
 - `allele` - Allele details including associated gene,
              latest statuses, and chromosome information
 - `allele2` - Further allele details including feature
