@@ -32,6 +32,7 @@ import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.web.WebStatus;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -619,6 +620,7 @@ public class ImpressService extends BasicService implements WebStatus {
 	 * @since 2015/08/20
 	 * @param stableId
 	 */
+	@Cacheable("parameterByStableId")
 	public ParameterDTO getParameterByStableId(String stableId)
 	throws SolrServerException, IOException  {
 

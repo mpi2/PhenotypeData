@@ -34,5 +34,6 @@ public enum ObservationType {
 	text_series,
 	metadata,
 	text,
-	line
+	line,
+	embryo
 }
