@@ -25,10 +25,12 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.db.pojo.GenesSecondaryProject;
 import org.mousephenotype.cda.db.repositories.GenesSecondaryProjectRepository;
+import org.mousephenotype.cda.solr.service.EssentialGeneService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
+import org.mousephenotype.cda.solr.service.dto.EssentialGeneDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
@@ -59,6 +61,7 @@ public class GenesSecondaryProjectServiceIdg implements GenesSecondaryProjectSer
 
 	private GenesSecondaryProjectRepository genesSecondaryProjectRepository;
 	private GeneService                     geneService;
+	private EssentialGeneService			essentialGeneService;
 	private MpService                       mpService;
 	private StatisticalResultService        statisticalResultService;
 
@@ -66,19 +69,43 @@ public class GenesSecondaryProjectServiceIdg implements GenesSecondaryProjectSer
 	public GenesSecondaryProjectServiceIdg(
 			@NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository,
 			@NotNull GeneService geneService,
+			@NotNull EssentialGeneService essentialGeneService,
 			@NotNull MpService mpService,
 			@NotNull StatisticalResultService statisticalResultService)
 	{
 		this.genesSecondaryProjectRepository = genesSecondaryProjectRepository;
 		this.geneService = geneService;
+		this.essentialGeneService=essentialGeneService;
 		this.mpService = mpService;
 		this.statisticalResultService = statisticalResultService;
 	}
 
 	@Override
 	public Set<GenesSecondaryProject> getAccessionsBySecondaryProjectId(String projectId) throws SQLException {
+		Set<GenesSecondaryProject> newSet=this.getAllBySecondaryProjectId();
+		 //genesSecondaryProjectRepository.getAllBySecondaryProjectId(projectId);
+		return newSet;
+	}
 
-		return genesSecondaryProjectRepository.getAllBySecondaryProjectId(projectId);
+	private Set<GenesSecondaryProject> getAllBySecondaryProjectId(){
+		HashSet<GenesSecondaryProject> infos = new HashSet();
+		try {
+			List<EssentialGeneDTO> geneList = essentialGeneService.getAllIdgGeneList();
+
+			for(EssentialGeneDTO gene:geneList){
+				GenesSecondaryProject info=new GenesSecondaryProject();
+				info.setGroupLabel(gene.getIdgFamily());
+				info.setMgiGeneAccessionId(gene.getMgiAccession());
+				info.setSecondaryProjectId(gene.getIdgIdl());
+				infos.add(info);
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+		return infos;
 	}
 
 
@@ -91,7 +118,7 @@ public class GenesSecondaryProjectServiceIdg implements GenesSecondaryProjectSer
 		String geneUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 
 		// get a list of mgi geneAccessionIds for the project - which will be the row headers
-		Set<GenesSecondaryProject> projectBeans = genesSecondaryProjectRepository.getAllBySecondaryProjectId("idg");
+		Set<GenesSecondaryProject> projectBeans = this.getAllBySecondaryProjectId();
 
 		Set<String>accessions = projectBeans
 				   .stream()
@@ -101,7 +128,14 @@ public class GenesSecondaryProjectServiceIdg implements GenesSecondaryProjectSer
 
 		Map<String, String> accessionToGroupLabelMap = projectBeans
 				.stream()
-				.collect(Collectors.toMap(GenesSecondaryProject::getMgiGeneAccessionId, GenesSecondaryProject::getGroupLabel));
+				.collect(Collectors.toMap(GenesSecondaryProject::getMgiGeneAccessionId, GenesSecondaryProject::getGroupLabel,
+						(groupLabel1, groupLabel2) -> {
+							System.out.println("duplicate key found!"+ groupLabel1+ " "+groupLabel2);
+							if(groupLabel1.equalsIgnoreCase(groupLabel2)){
+								return groupLabel1;
+							}else {
+								return groupLabel1 + " " + groupLabel2;
+							}}));
 
 		List<SolrDocument> geneToMouseStatus = geneService.getProductionStatusForGeneSet(accessions, null);
 		Map<String, GeneRowForHeatMap> rows = statisticalResultService.getSecondaryProjectMapForGeneList(accessions, parameters);
