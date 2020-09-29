@@ -20,6 +20,9 @@ from torchvision import datasets, models, transforms
 import torch.nn as nn
 import pandas as pd
 
+# Import helper functions
+import qc_helper as helper
+
 # Parameters for this run
 parser = argparse.ArgumentParser(
     description = "Apply quality control model to X-ray images"
@@ -58,6 +61,10 @@ parser.add_argument(
     '-v', '--model-version', dest='model_version', type=int,
     default=1, help="Version of model 1 -> no softmax layer, or 2"
 )
+parser.add_argument(
+    '--output-filename', dest='output_filename',
+    help="Name to use for output file base. If not specified the site name a nd parameter stable ID are concatenated"
+)
 
 args = parser.parse_args()
 print_every = args.print_every
@@ -65,16 +72,28 @@ site_name = args.site_name;
 parameter_stable_id = args.parameter_stable_id
 dir_base = args.dir_base
 model_version = args.model_version
-n_classes = args.n_classes
 
 if model_version != 1 and model_version != 2:
     print("Model version must be 1 or 2. - Exiting")
     sys.exit(-1)
-    
+
+# File containing description of the model and all inputs needed
+model_info, label_map, files_to_process = helper.parse_model_desc(args.model_path)
+classes = list(label_map.keys())
+n_classes = len(classes)
+
 to_process = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+".txt")
-processed_output_path = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+"_processed.csv")
-mis_classified_output_path = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+"_misclassified.csv")
-unable_to_read_output_path = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+"_unable_to_read.csv")
+
+# Create the output file names using argument if supplied or from site
+# name and parameter stable ID if --output-filename parameter not supplied
+if args.output_filename is None:
+    output_filename = site_name+"_"+parameter_stable_id
+else:
+    output_filename = args.output_filename
+
+processed_output_path = os.path.join(args.output_dir,output_filename+"_processed.csv")
+mis_classified_output_path = os.path.join(args.output_dir,output_filename+"_misclassified.csv")
+unable_to_read_output_path = os.path.join(args.output_dir,output_filename+"_unable_to_read.csv")
 
 # Dict to map parameter_stable_ids to expected_class
 #parameter_to_class_map = {
@@ -113,12 +132,7 @@ else:
 
 # In[4]:
 
-
-# Import helper functions
-import qc_helper as helper
-
-
-classes = parameter_to_class_map.values()
+#classes = parameter_to_class_map.values()
 #n_classes = len(classes)
 
 # Read in metadata
@@ -174,14 +188,15 @@ if model_version == 2:
 model_transfer.classifier = nn.Sequential(*features)
     
 # Load our learnt weights
+model_path = os.path.join(model_info['model_dir'],model_info['model_fname'])
 if use_cuda:
     model_transfer = model_transfer.cuda()
-    model_transfer.load_state_dict(torch.load(args.model_path))
+    model_transfer.load_state_dict(torch.load(model_path))
 else:
-    model_transfer.load_state_dict(torch.load(args.model_path, map_location='cpu'))
+    model_transfer.load_state_dict(torch.load(model_path, map_location='cpu'))
     
 
-print("Configured model from: " + args.model_path)
+print("Configured model from: " + model_path)
 
 # Apply the model to qc images
 n_images = len(dataset)
@@ -199,7 +214,8 @@ for i in range(n_images):
         output = model_transfer(image.unsqueeze(0))
         output =np.squeeze(output.data.cpu().numpy())
         index = np.argwhere(output == output.max())[0]
-        predictions[i] = index+1
+        #predictions[i] = index+1
+        predictions[i] = classes[index[0]]
         class_scores[i] = output[index]
     
         if predictions[i] != expected_class:
