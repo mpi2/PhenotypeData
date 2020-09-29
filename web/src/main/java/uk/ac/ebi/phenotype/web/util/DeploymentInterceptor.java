@@ -59,7 +59,7 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 
 		Map<String, Object> requestConfig = new HashMap<>();
 		requestConfig.put("releaseVersion", dataReleaseVersionManager.getReleaseVersion());
-		requestConfig.put("version", "v3.4.9");
+		requestConfig.put("version", "v4.0.0");
 
 		// Map the global config values into the request configuration
 		config.keySet().forEach(key -> {
