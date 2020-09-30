@@ -287,23 +287,23 @@ public class ImpressService extends BasicService implements WebStatus {
 	}
 
 
+	@Cacheable("procedureByStableId")
 	public ProcedureDTO getProcedureByStableId(String procedureStableId) {
 
 		ProcedureDTO procedure = new ProcedureDTO();
 		try {
 			SolrQuery query = new SolrQuery()
 				.setQuery(ImpressDTO.PROCEDURE_STABLE_ID + ":" + procedureStableId)
+				.setRows(1)
 				.setFields(ImpressDTO.PROCEDURE_ID,
 						ImpressDTO.PROCEDURE_NAME,
 						ImpressDTO.PROCEDURE_STABLE_ID,
 						ImpressDTO.PROCEDURE_STABLE_KEY);
 
-			QueryResponse response = pipelineCore.query(query);
+			ImpressDTO imd = pipelineCore.query(query).getBeans(ImpressDTO.class).get(0);
 
-			ImpressDTO imd = response.getBeans(ImpressDTO.class).get(0);
-
-			procedure.setStableId(imd.getProcedureStableId().toString());
-			procedure.setName(imd.getProcedureName().toString());
+			procedure.setStableId(imd.getProcedureStableId());
+			procedure.setName(imd.getProcedureName());
 			procedure.setStableKey(imd.getProcedureStableKey());
 			return procedure;
 

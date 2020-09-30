@@ -156,7 +156,7 @@ public class RepositorySolrTestConfig {
     }
     @Bean
     public GeneService geneService() {
-        return new GeneService(geneCore());
+        return new GeneService(geneCore(), impressService());
     }
 
     @Bean
