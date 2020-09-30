@@ -139,7 +139,7 @@ public class GenesSecondaryProjectServiceIdg implements GenesSecondaryProjectSer
 
 		List<SolrDocument> geneToMouseStatus = geneService.getProductionStatusForGeneSet(accessions, null);
 		Map<String, GeneRowForHeatMap> rows = statisticalResultService.getSecondaryProjectMapForGeneList(accessions, parameters);
-
+//this takes ages this loop and need optimising - can cache the rows or try optimizing the query to solr
 		for (SolrDocument doc : geneToMouseStatus) {
 
 			// get a data structure with the gene accession, parameter associated with a value or status ie. not phenotyped, not significant

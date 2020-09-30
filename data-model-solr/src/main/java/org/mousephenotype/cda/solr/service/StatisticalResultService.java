@@ -1173,6 +1173,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
             List<StatisticalResultDTO> results;
             try {
+                //this is currently the very slow bit, 8 calls to this method which each take many seconds to respond... probably because of raw data even though that field is not populated in the DTO
                 results = statisticalResultCore.query(q, SolrRequest.METHOD.POST).getBeans(StatisticalResultDTO.class);
             } catch (SolrServerException | IOException e) {
                 e.printStackTrace();

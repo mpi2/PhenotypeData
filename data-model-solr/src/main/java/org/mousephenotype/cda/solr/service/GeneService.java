@@ -878,7 +878,7 @@ public class GeneService extends BasicService implements WebStatus{
 		GeneDTO.LATEST_ES_CELL_STATUS, GeneDTO.LATEST_PHENOTYPE_STATUS,	GeneDTO.LEGACY_PHENOTYPE_STATUS ,GeneDTO.HAS_QC, GeneDTO.TOP_LEVEL_MP_TERM);
 
 		QueryResponse rsp = geneCore.query(solrQuery, METHOD.POST);
-
+System.out.println("returning production status results "+rsp.getResults().getNumFound());
 		return rsp.getResults();
 	}
 	
