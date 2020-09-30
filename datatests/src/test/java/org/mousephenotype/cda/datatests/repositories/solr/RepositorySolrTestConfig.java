@@ -147,9 +147,13 @@ public class RepositorySolrTestConfig {
 
     @Bean
     public ExpressionService expressionService() {
-        return new ExpressionService(experimentCore(), impcImagesCore(), anatomyService(), impressService());
+        return new ExpressionService(experimentCore(), impcImagesCore(), anatomyService(), expressionServiceLacz(), impressService());
     }
 
+    @Bean
+    public ExpressionServiceLacz expressionServiceLacz() {
+        return new ExpressionServiceLacz(experimentCore());
+    }
     @Bean
     public GeneService geneService() {
         return new GeneService(geneCore());
