@@ -34,8 +34,6 @@ public class ExpressionServiceLacz {
     public QueryResponse getCategoricalAdultLacZData(String mgiAccession, boolean embryo, String... fields)
             throws SolrServerException, IOException {
 
-        System.out.println("    -------  categoricalLaczData CACHE NOT HIT for values:");
-        System.out.println("    -------  mgiAccession: "+mgiAccession + ", embryo: "+embryo + ", fields: " + fields);
         // e.g.
         // http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession_id:%22MGI:1351668%22&facet=true&facet.field=parameter_name&facet.mincount=1&fq=(procedure_name:%22Adult%20LacZ%22)&rows=10000
         SolrQuery solrQuery = new SolrQuery();
