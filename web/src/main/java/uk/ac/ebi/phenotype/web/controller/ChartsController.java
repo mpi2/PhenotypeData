@@ -281,6 +281,10 @@ public class ChartsController {
 		}
 		experiment.setSexes(sexes);
 
+		if (experiment.getSexes().isEmpty()) {
+			experiment.setSexes(Collections.singleton(SexType.not_considered));
+		}
+
 		long endTimeSolr   = System.currentTimeMillis();
 		long timeTakenSolr = endTimeSolr - startTimeSolr;
 		System.out.println("solr time taken to get experiment=" + timeTakenSolr);
@@ -510,10 +514,20 @@ public class ChartsController {
 
 			final Set<ObservationDTO> mutants = categoricalResultAndChart.getExperiment().getMutants();
 			final Set<ObservationDTO> controls = categoricalResultAndChart.getExperiment().getControls();
-			numberFemaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
-			numberMaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
-			numberFemaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
-			numberMaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			if (mutants != null) {
+				numberFemaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+				numberMaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			} else {
+				numberFemaleMutantMice = 0;
+				numberMaleMutantMice = 0;
+			}
+			if (controls != null) {
+				numberFemaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+				numberMaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			} else {
+				numberFemaleControlMice = 0;
+				numberMaleControlMice = 0;
+			}
 		}
 
 		if (seriesParameterChartData != null) {

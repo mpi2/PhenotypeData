@@ -96,14 +96,19 @@ public class CategoricalChartAndTableProvider {
 				}
 				controlCatData.setCategory(category);
 				long controlCount = 0;
-				
-				for (ObservationDTO control : experiment.getControls()) {
-					// get the attributes of this data point
-					SexType docSexType = SexType.valueOf(control.getSex());
-					String categoString = control.getCategory();
-					if (categoString.equals(category) && (docSexType.equals(sexType) || sexType.equals(SexType.not_considered))) {
-						controlCount++;
+
+				// Embryo parameters do not generally have controls
+				if (experiment.getControls() != null) {
+					for (ObservationDTO control : experiment.getControls()) {
+						// get the attributes of this data point
+						SexType docSexType = SexType.valueOf(control.getSex());
+						String categoString = control.getCategory();
+						if (categoString.equals(category) && (docSexType.equals(sexType) || sexType.equals(SexType.not_considered))) {
+							controlCount++;
+						}
 					}
+				} else {
+					controlCount = 0;
 				}
 				controlCatData.setCount(controlCount);
 				controlSet.add(controlCatData);

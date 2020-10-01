@@ -1045,12 +1045,17 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
             query = StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"";
         }
 
+        query += " AND " + StatisticalResultDTO.STATUS + ":Successful";
+        query += " AND (" + StringUtils.join(Arrays.asList(StatisticalResultDTO.MP_TERM_ID + ":*", StatisticalResultDTO.MP_TERM_ID_OPTIONS + ":*"), " OR ") + ")";
+
+        if (zygosity != null) {
+            query += " AND " + StatisticalResultDTO.ZYGOSITY + ":" + zygosity.getName();
+        }
+
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery(query);
         solrQuery.setRows(Integer.MAX_VALUE);
         //solrQuery.setSort(StatisticalResultDTO.P_VALUE, ORDER.asc);
-        solrQuery.addFilterQuery(StringUtils.join(Arrays.asList(StatisticalResultDTO.MP_TERM_ID + ":*", StatisticalResultDTO.MP_TERM_ID_OPTIONS + ":*"), " OR "));
-        solrQuery.addFilterQuery(StatisticalResultDTO.STATUS + ":Successful");
         solrQuery.setFields(StatisticalResultDTO.P_VALUE, StatisticalResultDTO.MALE_KO_EFFECT_P_VALUE, StatisticalResultDTO.FEMALE_KO_EFFECT_P_VALUE, StatisticalResultDTO.SEX, StatisticalResultDTO.ZYGOSITY,
                 StatisticalResultDTO.MARKER_ACCESSION_ID, StatisticalResultDTO.MARKER_SYMBOL,
                 StatisticalResultDTO.DATA_TYPE,
@@ -1060,9 +1065,6 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
                 StatisticalResultDTO.PHENOTYPE_SEX, StatisticalResultDTO.RESOURCE_NAME,
                 StatisticalResultDTO.PROCEDURE_STABLE_ID, StatisticalResultDTO.SIGNIFICANT);
 
-        if (zygosity != null) {
-            solrQuery.addFilterQuery(StatisticalResultDTO.ZYGOSITY + ":" + zygosity.getName());
-        }
         logger.debug(solrQuery.toQueryString());
         List<StatisticalResultDTO> dtos = statisticalResultCore.query(solrQuery).getBeans(StatisticalResultDTO.class);
 

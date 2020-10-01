@@ -70,8 +70,23 @@ public class ExperimentsDataTableRow extends DataTableRow{
 	 * @param maleMutantCount
 	 * @throws UnsupportedEncodingException
 	 */
-	public ExperimentsDataTableRow(	String phenotypingCenter, String statisticalMethod, String status, MarkerBean allele,  MarkerBean gene, ZygosityType zygosity, ImpressBaseDTO pipeline, ImpressBaseDTO procedure, ImpressBaseDTO parameter, String graphBaseUrl, Double pValue, Integer femaleMutantCount, Integer maleMutantCount, Double effectSize, String metadataGroup)
-	throws UnsupportedEncodingException{
+	public ExperimentsDataTableRow(
+			String phenotypingCenter,
+			String statisticalMethod,
+			String status,
+			MarkerBean allele,
+			MarkerBean gene,
+			ZygosityType zygosity,
+			ImpressBaseDTO pipeline,
+			ImpressBaseDTO procedure,
+			ImpressBaseDTO parameter,
+			String graphBaseUrl,
+			Double pValue,
+			Integer femaleMutantCount,
+			Integer maleMutantCount,
+			Double effectSize,
+			String metadataGroup)
+	{
 		
 		this.statisticalMethod = statisticalMethod;
 		this.maleMutantCount = maleMutantCount;

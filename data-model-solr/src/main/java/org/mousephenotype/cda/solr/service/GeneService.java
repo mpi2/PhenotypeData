@@ -33,8 +33,8 @@ import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.dto.LifeStage;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.imits.StatusConstants;
-import org.mousephenotype.cda.solr.service.dto.CombinedObservationKey;
-import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.*;
+import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,13 +60,16 @@ public class GeneService extends BasicService implements WebStatus{
 	public static final int PARTITION_SIZE = 50;
 
 	private SolrClient geneCore;
+	private ImpressService impressService;
 
 
 	@Inject
-    public GeneService(SolrClient geneCore)
+    public GeneService(SolrClient geneCore,
+					   ImpressService impressService)
 	{
 		super();
     	this.geneCore = geneCore;
+    	this.impressService = impressService;
 	}
 
 	public GeneService() {
@@ -148,7 +151,7 @@ public class GeneService extends BasicService implements WebStatus{
 	}
 
 	@Data
-	private class MinimalGeneDataset {
+	public class MinimalGeneDataset {
 
 		//[
 		// {
@@ -165,6 +168,10 @@ public class GeneService extends BasicService implements WebStatus{
 		//   "zygosity":
 		//   "phenotyping_center":
 		//   "life_stage_name":
+		//   "significance":
+		//   "p_value":
+		//   "phenotype_term_id":
+		//   "phenotype_term_name":
 		// },
 		// { ... },
 		//]
@@ -182,7 +189,99 @@ public class GeneService extends BasicService implements WebStatus{
 		@SerializedName("zygosity") String zygosity;
 		@SerializedName("phenotyping_center") String phenotypingCenter;
 		@SerializedName("life_stage_name") String lifeStageName;
+		@SerializedName("significance") String significance;
+		@SerializedName("p_value") String pValue;
+		@SerializedName("phenotype_term_id") String phenotypeTermId;
+		@SerializedName("phenotype_term_name") String phenotypeTermName;
+
 	}
+
+
+	public Set<ExperimentsDataTableRow> getAllData(String geneAccessionId) throws IOException, SolrServerException {
+
+		SolrQuery query = new SolrQuery()
+				.setQuery(GeneDTO.MGI_ACCESSION_ID + ":\"" +geneAccessionId+ "\"");
+		final List<GeneDTO> geneDTOs = geneCore.query(query).getBeans(GeneDTO.class);
+
+		if (geneDTOs.size() != 1) throw new RuntimeException("Multiple gene documents found for "+ geneAccessionId);
+
+		// Get the raw data from the result
+		String output;
+		String b64 = geneDTOs.get(0).getDatasetsRawData();
+
+		if (b64 != null) {
+			try (GZIPInputStream gzis = new GZIPInputStream(new ByteArrayInputStream(Base64.decodeBase64(b64)))) {
+				output = IOUtils.toString(gzis, "UTF-8");
+			} catch (IOException e) {
+				logger.error("Failed to unzip content for result", geneDTOs.get(0), e);
+				return null;
+			}
+
+			// Each element has the structure:
+			// {
+			//   "allele_symbol": String
+			//   "allele_accession_id": String
+			//   "gene_symbol": String
+			//   "gene_accession_id": String
+			//   "parameter_stable_id": String
+			//   "parameter_name": String
+			//   "procedure_stable_id": String
+			//   "procedure_name": String
+			//   "pipeline_stable_id": String
+			//   "pipeline_name": String
+			//   "zygosity": String
+			//   "phenotyping_center": String
+			//   "life_stage_name": String
+			//   "significance": String
+			//   "p_value": String
+			//   "phenotype_term_id": String
+			//   "phenotype_term_name": String
+			// }
+			List<GeneService.MinimalGeneDataset> datasetsJson = Arrays.asList(
+					new Gson().fromJson(output, GeneService.MinimalGeneDataset[].class));
+
+			return datasetsJson.stream().map(x -> {
+				MarkerBean allele = new MarkerBean(x.getAlleleAccessionID(), x.getAlleleSymbol());
+				MarkerBean gene = new MarkerBean(x.getGeneAccessionID(), x.getGeneSymbol());
+				ImpressBaseDTO pipeline = new ImpressBaseDTO(null, null, x.getPipelineStableID(), x.getPipelineName());
+
+				// TODO: Remove after the procedure name is added to the gene solr core dataset_raw_data
+				final String procedureName = (x.getProcedureName()!= null) ? x.getProcedureName() : impressService.getProcedureByStableId(x.getProcedureStableID()).getName();
+
+				ImpressBaseDTO procedure = new ImpressBaseDTO(null, null, x.getProcedureStableID(), procedureName);
+				ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, x.getParameterStableID(), x.getParameterName());
+				Double pValue = (x.getPValue() != null) ? Double.parseDouble(x.getPValue()) : null;
+
+				BasicBean phenotypeTerm = new BasicBean(x.getPhenotypeTermId(), x.getPhenotypeTermName());
+
+				ExperimentsDataTableRow row = new ExperimentsDataTableRow(
+						x.getPhenotypingCenter(),
+						null, // Statistical method
+						null, // Status
+						allele,
+						gene,
+						ZygosityType.valueOf(x.getZygosity()),
+						pipeline,
+						procedure,
+						parameter,
+						null,
+						pValue,
+						null, // Female mutant count
+						null, // Male mutant count
+						null, // Effect size
+						null // Metadata group
+				);
+				row.setPhenotypeTerm(phenotypeTerm);
+				return row;
+			}).collect(Collectors.toSet());
+
+		}
+
+
+		return new HashSet<>();
+	}
+
+
 
 	/**
 	 * Return all genes in the gene core matching latestPhenotypeStatus and

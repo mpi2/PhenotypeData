@@ -11,17 +11,17 @@ package), as well as general-use and purpose-built
 
 ## Subdirectories
 - cores   - This directory contains a single gzipped `.gz` file
-            containing all of all of the SOLR cores that were
-             used to make the data release
+  containing all of all of the SOLR cores that were
+  used to make the data release
 
 - mysql   - This is a mysqldump of the IMPC database, created
-    at release time. _NOTE: beginning with data release 12.0,
-     the database is significantly smaller_
+  at release time. _NOTE: beginning with data release 12.0,
+  the database is significantly smaller_
 
 - results - This is collection of reports containing
   statistically processed IMPC data, generated at release
   time. As of data release 12.0, this directory is an
-   amalgamation of the prior `csv` and `reports` directories.
+  amalgamation of the prior `csv` and `reports` directories.
 - docker  - A ready to run docker image of the IMPC web portal
   and API
   
