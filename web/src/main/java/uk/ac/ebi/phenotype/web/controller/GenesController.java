@@ -191,12 +191,14 @@ public class GenesController {
             model.addAttribute("debug", "true");
         }
 
-//        try {
+        // 2020-10-02 (mrelac) Catch this exception and redirect to the 'gene not found' page.
+        //                     Failing to catch inserts a long stack trace in the log file.
+        try {
             processGeneRequest(acc, model, request);
-//        } catch (Exception e) {
-//            String term = acc.substring(0, Math.min(acc.length(), 11));
-//            return "redirect:/search?term=" + term + "&type=gene";
-//        }
+        } catch (Exception e) {
+            String term = acc.substring(0, Math.min(acc.length(), 11));
+            return "redirect:/search?term=" + term + "&type=gene";
+        }
 
         response.setHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
         response.setHeader("Pragma", "no-cache");
