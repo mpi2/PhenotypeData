@@ -41,7 +41,7 @@ parser.add_argument(
     help='Base directory for location of images'
 )
 parser.add_argument(
-    '-p', '--print-every', dest='print_every', default=500, type=int,
+    '-p', '--print-every', dest='print_every', default=-1, type=int,
     help='Number of iterations before printing prediction stats note that this also saves the predictions up to this point which is useful incase the program crashes. Use -1 to prevent printing anything.'
 )
 parser.add_argument(
@@ -49,17 +49,8 @@ parser.add_argument(
     help='Directory to read and write files associated with prediction'
 )
 parser.add_argument(
-    '-m', '--model-path', dest='model_path',
-    default="/nfs/nobackup/spot/machine_learning/impc_mouse_xrays/quality_control_all_sites/model_transfer.pt",
-    help="Path to model to use for predictions"
-)
-parser.add_argument(
-    '-n', '--n-classes', dest='n_classes', type=int,
-    default=6, help="Number of classes the model outputs"
-)
-parser.add_argument(
-    '-v', '--model-version', dest='model_version', type=int,
-    default=1, help="Version of model 1 -> no softmax layer, or 2"
+    '-m', '--model-path', dest='model_path', required=True,
+    help="Path to json file describing model to use for predictions. Must be in same dir as model and have same name as model - only with .json ext whilst model has .pt extension"
 )
 parser.add_argument(
     '--output-filename', dest='output_filename',
@@ -71,16 +62,23 @@ print_every = args.print_every
 site_name = args.site_name;
 parameter_stable_id = args.parameter_stable_id
 dir_base = args.dir_base
-model_version = args.model_version
-
-if model_version != 1 and model_version != 2:
-    print("Model version must be 1 or 2. - Exiting")
-    sys.exit(-1)
 
 # File containing description of the model and all inputs needed
 model_info, label_map, files_to_process = helper.parse_model_desc(args.model_path)
+
 classes = list(label_map.keys())
 n_classes = len(classes)
+
+# Set model version
+try:
+    model_version = model_info['model_version']
+except KeyError as e:
+    print(f'Key {str(e)} not present - could not get model_version. Exiting')
+    sys.exit(-1)
+
+if model_version != 1 and model_version != 2:
+    print(f"Model version must be 1 or 2 (value read = {model_version}) - Exiting")
+    sys.exit(-1)
 
 to_process = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+".txt")
 
@@ -129,11 +127,6 @@ if not use_cuda:
 else:
     print('CUDA is available!  Training on GPU ...')
 
-
-# In[4]:
-
-#classes = parameter_to_class_map.values()
-#n_classes = len(classes)
 
 # Read in metadata
 imdetails = pd.read_csv(to_process)

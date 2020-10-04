@@ -187,7 +187,9 @@ def parse_model_desc(model_desc_path):
     
     Parameters
     ----------
-    model_desc_path : str - Path to json file containing info (see example below)
+    model_desc_path : str - Path to json file containing info (see example 
+                            below. Both model (.pt) and info (.json) files
+                            must be in the same directory)
 
     returns
     -------
@@ -202,8 +204,8 @@ def parse_model_desc(model_desc_path):
     Example contents of model description (json) file:
     {
         "model_description": "hind_leg_hip",
-        "model_dir": "/home/kola/temp/",
         "model_fname": "bcm_all_structures_model.pt",
+        "model_version": 2,
         "n_per_class": 100,
         "n_epochs": 2,
         "batch_size": 32,
@@ -268,6 +270,9 @@ def parse_model_desc(model_desc_path):
     for key, value in model_info['classes'].items():
         label_map[value['class']] = key
         files_to_process[value['class']] = list(value['training_images'].values())
+
+    # Add model directory (obtained from model_desc_path)
+    model_info['model_dir'] = os.path.dirname(model_desc_path)
 
     return model_info, label_map, files_to_process
 

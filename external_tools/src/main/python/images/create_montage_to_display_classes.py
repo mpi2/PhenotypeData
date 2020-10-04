@@ -63,22 +63,44 @@ n_rows = len(all_structures)
 
 single_structures = {}
 
-label_column = args.label_column
-for f in input_paths[1:]:
-    df = pd.read_csv(f)
-    if len(df) != n_rows:
-        print("Did not get expected number of rows ({n_rows}) from file {f}. Number of rows should be same as all structures model ({input_paths[0]}). Exiting")
-    classes = df[label_column]
-    class_labels = np.array(list(set(classes)))
-    class_index = np.nonzero(class_labels >= 0)[0]
-    if len(class_index) != 1:
-        print(f"File {f} does NOT contain exactly one label greater than zero. Labels = {class_labels}. Exiting")
-        sys.exit(-1)
-    class_label = class_labels[class_index[0]]
-    if class_label in df.keys():
-        print(f"class_label for positive examples ({class_label}) in {f} has already been used. Exiting")
-    single_structures[class_label] = df.copy()
+# If more than one model - the others are single structure models. Get
+# labels from names of the single structure models
+structure_label_map = {
+    "head_dorsal": 1,
+    "forepaw": 2,
+    "whole_body_dorsal": 3,
+    "whole_body_lateral": 4,
+    "head_lateral": 5,
+    "hind_leg_hip": 6,
+}
+for input_path in input_paths[1:]:
+    for structure in structure_label_map.keys():
+        if input_path.find(structure) >= 0:
+            class_label = structure_label_map[structure]
+            if class_label in single_structures.keys():
+                print(f"class_label for positive examples ({class_label}) in {input_path} has already been used. Exiting")
+                sys.exit(-1)
+            single_structures[class_label] = pd.read_csv(input_path)
 
+                
+            
+#for f in input_paths[1:]:
+#    df = pd.read_csv(f)
+#    if len(df) != n_rows:
+#        print("Did not get expected number of rows ({n_rows}) from file {f}. Number of rows should be same as all structures model ({input_paths[0]}). Exiting")
+#    classes = df[label_column]
+#    class_labels = np.array(list(set(classes)))
+#    class_index = np.nonzero(class_labels >= 0)[0]
+#    if len(class_index) != 1:
+#        print(f"File {f} does NOT contain exactly one label greater than zero. Labels = {class_labels}. Exiting")
+#        sys.exit(-1)
+#    class_label = class_labels[class_index[0]]
+#    if class_label in single_structures.keys():
+#        print(f"class_label for positive examples ({class_label}) in {f} has already been used. Exiting")
+#        sys.exit(-1)
+#    single_structures[class_label] = df.copy()
+
+label_column = args.label_column
 classes = all_structures[label_column]
 class_labels = list(set(classes))
 n_labels = len(class_labels)
