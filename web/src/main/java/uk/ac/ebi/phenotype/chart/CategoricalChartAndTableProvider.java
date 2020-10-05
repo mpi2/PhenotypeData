@@ -101,7 +101,7 @@ public class CategoricalChartAndTableProvider {
 				if (experiment.getControls() != null) {
 					for (ObservationDTO control : experiment.getControls()) {
 						// get the attributes of this data point
-						SexType docSexType = SexType.valueOf(control.getSex());
+						SexType docSexType = SexType.getByDisplayName(control.getSex());
 						String categoString = control.getCategory();
 						if (categoString.equals(category) && (docSexType.equals(sexType) || sexType.equals(SexType.not_considered))) {
 							controlCount++;
