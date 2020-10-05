@@ -1121,6 +1121,15 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         try {
 
             Set<GenotypePhenotypeDTO> pleiotropyGenes = getPleiotropyGenes(topLevelMpTerms, idg, idgClass);
+//            for(GenotypePhenotypeDTO dto: pleiotropyGenes){
+//                System.out.println("pleiotropyGene="+dto.getTopLevelMpTermName());
+//                if(dto.getTopLevelMpTermName()==null){
+//                    System.out.println(dto);
+//                }
+//            }
+
+
+
             Set<String> topLevelMpTermNames = pleiotropyGenes
                     .stream()
                     .map(GenotypePhenotypeDTO::getTopLevelMpTermName)
@@ -1269,7 +1278,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
                 GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
 
         SolrQuery query = new SolrQuery()
-                .setQuery(GenotypePhenotypeDTO.MP_TERM_ID + ":*")
+                .setQuery(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + ":*")
                 .setRows(Integer.MAX_VALUE)
                 .setFields(String.join(",", fieldList));
 
