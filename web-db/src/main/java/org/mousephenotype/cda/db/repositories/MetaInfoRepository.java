@@ -17,9 +17,15 @@
 package org.mousephenotype.cda.db.repositories;
 
 import org.mousephenotype.cda.db.pojo.MetaInfo;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 public interface MetaInfoRepository extends CrudRepository<MetaInfo, Long> {
 
     MetaInfo findByPropertyKey(String propertyKey);
+
+    @Cacheable("dataReleaseGeneCount")
+    @Query("from MetaInfo WHERE propertyKey='phenotyped_genes'")
+    MetaInfo getDataReleaseGeneCount();
 }
