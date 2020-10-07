@@ -24,23 +24,28 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.db.pojo.GenesSecondaryProject;
 import org.mousephenotype.cda.dto.LifeStage;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.imits.StatusConstants;
 import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
+import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
+import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -48,6 +53,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -761,12 +767,109 @@ public class GeneService extends BasicService implements WebStatus{
 		return res;
 	}
 
+	/**
+	 * Generates a map of buttons for ES Cell and Mice status
+	 * @param doc a SOLR Document
+	 * @return
+	 */
+	public static Map<String, String> getStatusFromDTO(GeneDTO doc, String url) {
+
+		String miceStatus = "";
+		String esCellStatusHTMLRepresentation = "";
+		String phenotypingStatusHTMLRepresentation = "";
+		Boolean order = false;
+
+		try {
+
+			// Get the HTML representation of the Mouse Production status
+			List<String> alleleNames = doc.getAlleleName();
+			List<String> mouseStatus = doc.getMouseStatus();
+			miceStatus = getDetailedMouseProductionStatusButtons(alleleNames, mouseStatus, url);
+
+			// Get the HTML representation of the ES Cell status
+			String esStatus = (doc.getLatestEsCellStatus() != null) ? doc.getLatestEsCellStatus() : null ;
+			esCellStatusHTMLRepresentation = getEsCellStatus(esStatus, url, false);
+
+			// Get the HTML representation of the phenotyping status
+			String statusField = (doc.getLatestPhenotypeStatus() != null) ? doc.getLatestPhenotypeStatus() : null ;
+
+			Integer legacyPhenotypeStatus = (Integer) doc.getLegacy_phenotype_status();
+
+			Integer hasQc = Integer.getInteger("" +doc.getHasQc());
+			phenotypingStatusHTMLRepresentation = getPhenotypingStatus(statusField, hasQc, legacyPhenotypeStatus, url, false, false);
+
+			// Order flag is separated from HTML generation code
+			order = checkOrderProducts(doc);
+
+		} catch (Exception e) {
+			logger.error("Error getting ES cell/Mice status");
+			e.printStackTrace();
+		}
+
+		HashMap<String, String> res = new HashMap<>();
+		res.put("productionIcons", esCellStatusHTMLRepresentation + miceStatus);
+		res.put("phenotypingIcons", phenotypingStatusHTMLRepresentation);
+		res.put("orderPossible", order.toString());
+
+		return res;
+	}
+
 
 	public static boolean checkOrderProducts(SolrDocument doc) {
 
 		return checkOrderMice(doc) || checkOrderESCells(doc);
 	}
+	public static boolean checkOrderProducts(GeneDTO doc) {
 
+		return checkOrderMice(doc) || checkOrderESCells(doc);
+	}
+
+	public static boolean checkOrderESCells(GeneDTO doc) {
+
+		String status = null;
+		boolean order = false;
+
+		try {
+			final String field = GeneDTO.LATEST_ES_CELL_STATUS;
+			if ( doc.getLatestEsCellStatus() !=null ){
+
+				status = doc.getLatestEsCellStatus();
+
+				if ( status.equals(StatusConstants.IMPC_ES_CELL_STATUS_PRODUCTION_DONE) ){
+					order = true;
+				}
+			}
+		}
+		catch (Exception e) {
+			logger.error("Error getting ES cell/Mice status");
+			logger.error(e.getLocalizedMessage());
+			e.printStackTrace();
+		}
+
+		return order;
+	}
+
+	public static boolean checkOrderMice(GeneDTO doc) {
+
+		boolean order = false;
+
+		if (doc.getMouseStatus()!=null) {
+
+			List<String> mouseStatus = doc.getMouseStatus();
+			for (int i = 0; i < mouseStatus.size(); i++) {
+
+				String mouseStatusStr = mouseStatus.get(i);
+				if (mouseStatusStr.equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_DONE)) {
+
+					order = true;
+					break;
+				}
+			}
+		}
+
+		return order;
+
+	}
 
 	public static boolean checkOrderESCells(SolrDocument doc) {
 
@@ -960,7 +1063,7 @@ public class GeneService extends BasicService implements WebStatus{
 	 * @return Returns SolrDocument because that;s what the method to produce the status icons gets.
 	 * @throws SolrServerException, IOException
 	 */
-	public List<SolrDocument> getProductionStatusForGeneSet(Set<String> geneIds, Set<String> humanGeneSymbols)
+	public List<GeneDTO> getProductionStatusForGeneSet(Set<String> geneIds, Set<String> humanGeneSymbols)
 	throws SolrServerException, IOException {
 			
 		SolrQuery solrQuery = new SolrQuery();
@@ -974,11 +1077,20 @@ public class GeneService extends BasicService implements WebStatus{
 		solrQuery.setRows(Integer.MAX_VALUE);
 
 		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID , GeneDTO.HUMAN_GENE_SYMBOL ,GeneDTO.MARKER_SYMBOL ,GeneDTO.ALLELE_NAME ,GeneDTO.MOUSE_STATUS ,
-		GeneDTO.LATEST_ES_CELL_STATUS, GeneDTO.LATEST_PHENOTYPE_STATUS,	GeneDTO.LEGACY_PHENOTYPE_STATUS ,GeneDTO.HAS_QC, GeneDTO.TOP_LEVEL_MP_TERM);
+		GeneDTO.LATEST_ES_CELL_STATUS, GeneDTO.LATEST_PHENOTYPE_STATUS,	GeneDTO.LEGACY_PHENOTYPE_STATUS ,GeneDTO.HAS_QC, GeneDTO.TOP_LEVEL_MP_TERM)
+				.addField(GeneDTO.SIGNIFICANT_TOP_LEVEL_MP_TERMS)
+				.addField(GeneDTO.NOT_SIGNIFICANT_TOP_LEVEL_MP_TERMS)
+				//.addField(GeneDTO.MP_TERM_NAME)
+				.addField(GeneDTO.MARKER_SYMBOL)
+				.addField(GeneDTO.STATUS)
+				//.addField(GeneDTO.NOTSIGNIFICANT)
+				.setRows(Integer.MAX_VALUE)
+				.setSort(GeneDTO.MARKER_SYMBOL, SolrQuery.ORDER.asc);
+		//);//, GeneDTO.SIGNIFICANT_TOP_LEVEL_MP_TERMS, GeneDTO.NOT_SIGNIFICANT_TOP_LEVEL_MP_TERMS);
 
-		QueryResponse rsp = geneCore.query(solrQuery, METHOD.POST);
-System.out.println("returning production status results "+rsp.getResults().getNumFound());
-		return rsp.getResults();
+		return geneCore.query(solrQuery, METHOD.POST).getBeans(GeneDTO.class);
+		//System.out.println("returning production status results "+rsp.getResults().getNumFound());
+		//return rsp.getResults();
 	}
 	
 
@@ -1206,4 +1318,87 @@ System.out.println("returning production status results "+rsp.getResults().getNu
 
         return latestProjectStatus;
     }
+
+	@Cacheable("geneRowCache")
+	public HashMap<String, GeneRowForHeatMap> getSecondaryProjectMapForGeneList(List<GeneDTO> genes, List<BasicBean> topLevelMps, String geneUrl, Set<GenesSecondaryProject> projectBeans) {
+		System.out.println("calling get secondary project gene list");
+		HashMap<String, GeneRowForHeatMap> geneRowMap = new HashMap<>(); // <geneAcc, row>
+
+		Map<String, String> accessionToGroupLabelMap = projectBeans
+				.stream()
+				.collect(Collectors.toMap(GenesSecondaryProject::getMgiGeneAccessionId, GenesSecondaryProject::getGroupLabel,
+						(groupLabel1, groupLabel2) -> {
+							System.out.println("duplicate key found!"+ groupLabel1+ " "+groupLabel2);
+							if(groupLabel1.equalsIgnoreCase(groupLabel2)){
+								return groupLabel1;
+							}else {
+								return groupLabel1 + " " + groupLabel2;
+							}}));
+
+			// Collect the documents by gene
+			//Map<String, List<GeneDTO>> geneMap = results.stream().collect(Collectors.groupingBy(GeneDTO::getMgiAccessionId, Collectors.mapping(Function.identity(), Collectors.toList())));
+
+			for (GeneDTO gene : genes) {
+				// Fill row with default values for all mp top levels
+				GeneRowForHeatMap row = new GeneRowForHeatMap(gene.getMgiAccessionId(), gene.getMarkerSymbol(), topLevelMps);
+
+				// Collect
+				//for (GeneDTO result : geneMap.get(geneAcc)) {
+					List<String> currentTopLevelMps = gene.getSignificantTopLevelMpTerms();
+
+				// get a data structure with the gene accession, parameter associated with a value or status ie. not phenotyped, not significant
+				String accession = gene.getMgiAccessionId();
+				row.setHumanSymbol(gene.getHumanGeneSymbol());
+				// Mouse production status
+
+				Map<String, String> prod =  GeneService.getStatusFromDTO(gene, geneUrl);
+				String prodStatusIcons = prod.get("productionIcons") + prod.get("phenotypingIcons");
+				prodStatusIcons = prodStatusIcons.equals("") ? "No" : prodStatusIcons;
+				row.setMiceProduced(prodStatusIcons);
+				if (row.getMiceProduced().equals("Neither production nor phenotyping status available ")) {//note the space on the end - why we should have enums
+					for (HeatMapCell cell : row.getXAxisToCellMap().values()) {
+						cell.addStatus(HeatMapCell.THREE_I_NO_DATA); // set all the cells to No Data Available
+					}
+				}
+				if(accessionToGroupLabelMap.containsKey(accession)){
+					row.setGroupLabel(accessionToGroupLabelMap.get(accession));
+				}
+
+					// The current top level might be null, because the actual term is already a top level,
+					// check the associated mp term to see, and add it if it's already top-level
+//					if (currentTopLevelMps == null) {
+//						if (topLevelMps.stream().anyMatch(x -> x.getName().equals(gene.getSignificantTopLevelMpTerms()))) {
+//							currentTopLevelMps = new ArrayList<>();
+//							currentTopLevelMps.add(gene.getSignificantTopLevelMpTerms());
+//						}
+//					}
+
+					// The term might have been annotated to "mammalian phenotype" which doesn't have an icon in the grid.  Skip it
+					if (topLevelMps != null) {
+						for (BasicBean bean : topLevelMps) {
+							String mp=bean.getName();
+							HeatMapCell cell = row.getXAxisToCellMap().containsKey(mp) ? row.getXAxisToCellMap().get(mp) : new HeatMapCell(mp, HeatMapCell.THREE_I_NO_DATA);
+							if (gene.getSignificantTopLevelMpTerms() != null && gene.getSignificantTopLevelMpTerms().contains(mp)) {
+								cell.addStatus(HeatMapCell.THREE_I_DEVIANCE_SIGNIFICANT);
+							}
+							else if (gene.getNotSignificantTopLevelMpTerms() !=null && gene.getNotSignificantTopLevelMpTerms().contains(mp)) {
+								cell.addStatus(HeatMapCell.THREE_I_DATA_ANALYSED_NOT_SIGNIFICANT);
+							}
+							//now we just have the same significance options as on the gene page so not a could not analyse option?
+//							else if () {
+//								cell.addStatus(HeatMapCell.THREE_I_COULD_NOT_ANALYSE);
+//							}
+							row.add(cell);
+						}
+					}
+		//		}
+
+				geneRowMap.put(gene.getMgiAccessionId(), row);
+
+			}
+
+
+		return geneRowMap;
+	}
+
 }

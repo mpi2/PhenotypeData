@@ -126,45 +126,34 @@ public class GenesSecondaryProjectServiceIdg implements GenesSecondaryProjectSer
 				.collect(Collectors.toSet());
 
 
-		Map<String, String> accessionToGroupLabelMap = projectBeans
-				.stream()
-				.collect(Collectors.toMap(GenesSecondaryProject::getMgiGeneAccessionId, GenesSecondaryProject::getGroupLabel,
-						(groupLabel1, groupLabel2) -> {
-							System.out.println("duplicate key found!"+ groupLabel1+ " "+groupLabel2);
-							if(groupLabel1.equalsIgnoreCase(groupLabel2)){
-								return groupLabel1;
-							}else {
-								return groupLabel1 + " " + groupLabel2;
-							}}));
-
-		List<SolrDocument> geneToMouseStatus = geneService.getProductionStatusForGeneSet(accessions, null);
-		Map<String, GeneRowForHeatMap> rows = statisticalResultService.getSecondaryProjectMapForGeneList(accessions, parameters);
-//this takes ages this loop and need optimising - can cache the rows or try optimizing the query to solr
-		for (SolrDocument doc : geneToMouseStatus) {
-
-			// get a data structure with the gene accession, parameter associated with a value or status ie. not phenotyped, not significant
-			String accession = doc.get(GeneDTO.MGI_ACCESSION_ID).toString();
-			GeneRowForHeatMap row = rows.containsKey(accession) ? rows.get(accession) : new GeneRowForHeatMap(accession, doc.get(GeneDTO.MARKER_SYMBOL).toString() , parameters);
-			row.setHumanSymbol((ArrayList<String>)doc.get(GeneDTO.HUMAN_GENE_SYMBOL));
-			// Mouse production status
-			Map<String, String> prod =  GeneService.getStatusFromDoc(doc, geneUrl);
-			String prodStatusIcons = prod.get("productionIcons") + prod.get("phenotypingIcons");
-			prodStatusIcons = prodStatusIcons.equals("") ? "No" : prodStatusIcons;
-			row.setMiceProduced(prodStatusIcons);
-			if (row.getMiceProduced().equals("Neither production nor phenotyping status available ")) {//note the space on the end - why we should have enums
-				for (HeatMapCell cell : row.getXAxisToCellMap().values()) {
-					cell.addStatus(HeatMapCell.THREE_I_NO_DATA); // set all the cells to No Data Available
-				}
-			}
-			if(accessionToGroupLabelMap.containsKey(accession)){
-				row.setGroupLabel(accessionToGroupLabelMap.get(accession));
-			}
-			geneRows.add(row);
-		}
-
-		Collections.sort(geneRows);
-
-		return geneRows;
+		List<GeneDTO> geneToMouseStatus = geneService.getProductionStatusForGeneSet(accessions, null);
+		Map<String, GeneRowForHeatMap> rows = geneService.getSecondaryProjectMapForGeneList(geneToMouseStatus, parameters, geneUrl, projectBeans);
+////this takes ages this loop and need optimising - can cache the rows or try optimizing the query to solr
+//		for (GeneDTO doc : geneToMouseStatus) {
+//
+//			// get a data structure with the gene accession, parameter associated with a value or status ie. not phenotyped, not significant
+//			String accession = doc.get(GeneDTO.MGI_ACCESSION_ID).toString();
+//			GeneRowForHeatMap row = rows.containsKey(accession) ? rows.get(accession) : new GeneRowForHeatMap(accession, doc.get(GeneDTO.MARKER_SYMBOL).toString() , parameters);
+//			row.setHumanSymbol((ArrayList<String>)doc.get(GeneDTO.HUMAN_GENE_SYMBOL));
+//			// Mouse production status
+//			Map<String, String> prod =  GeneService.getStatusFromDoc(doc, geneUrl);
+//			String prodStatusIcons = prod.get("productionIcons") + prod.get("phenotypingIcons");
+//			prodStatusIcons = prodStatusIcons.equals("") ? "No" : prodStatusIcons;
+//			row.setMiceProduced(prodStatusIcons);
+//			if (row.getMiceProduced().equals("Neither production nor phenotyping status available ")) {//note the space on the end - why we should have enums
+//				for (HeatMapCell cell : row.getXAxisToCellMap().values()) {
+//					cell.addStatus(HeatMapCell.THREE_I_NO_DATA); // set all the cells to No Data Available
+//				}
+//			}
+//			if(accessionToGroupLabelMap.containsKey(accession)){
+//				row.setGroupLabel(accessionToGroupLabelMap.get(accession));
+//			}
+//			geneRows.add(row);
+//		}
+//
+//		Collections.sort(geneRows);
+return rows.values().stream()
+		.collect(Collectors.toList());
 	}
 
 	@Override
@@ -177,4 +166,6 @@ public class GenesSecondaryProjectServiceIdg implements GenesSecondaryProjectSer
 
 		return mp;
 	}
+
+
 }

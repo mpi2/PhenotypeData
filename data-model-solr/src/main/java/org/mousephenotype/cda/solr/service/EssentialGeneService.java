@@ -86,7 +86,7 @@ public class EssentialGeneService extends BasicService implements WebStatus {
     public List<EssentialGeneDTO> getAllIdgGeneList( String ...fields) throws IOException, SolrServerException {
         List<EssentialGeneDTO>idgGeneDTOS = null;
         SolrQuery solrQuery = new SolrQuery()
-                .setQuery("idg_family:Kinase OR idg_family:IC OR idg_family:GPCR OR idg_family:oGPCR OR idg_family:Enzyme").setRows(10);//Integer.MAX_VALUE);//hopefully this gets all the idg results which here is 125147 found instead of 235817 entries for all - changed to idg_family???
+                .setQuery("idg_family:Kinase OR idg_family:IC OR idg_family:GPCR").setRows(Integer.MAX_VALUE);//Integer.MAX_VALUE);//hopefully this gets all the idg results which here is 125147 found instead of 235817 entries for all - changed to idg_family???
         if(fields != null){
             solrQuery.setFields(fields);
         }

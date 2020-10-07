@@ -1154,7 +1154,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
     @Cacheable("geneRowCache")
     public HashMap<String, GeneRowForHeatMap> getSecondaryProjectMapForGeneList(Set<String> geneAccessions1, List<BasicBean> topLevelMps) {
-
+        System.out.println("calling get secondary project gene list");
         HashMap<String, GeneRowForHeatMap> geneRowMap = new HashMap<>(); // <geneAcc, row>
         Iterators.partition(geneAccessions1.iterator(), 100).forEachRemaining(geneAccessions ->
         {
