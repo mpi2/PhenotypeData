@@ -1328,7 +1328,6 @@ public class GeneService extends BasicService implements WebStatus{
 				.stream()
 				.collect(Collectors.toMap(GenesSecondaryProject::getMgiGeneAccessionId, GenesSecondaryProject::getGroupLabel,
 						(groupLabel1, groupLabel2) -> {
-							System.out.println("duplicate key found!"+ groupLabel1+ " "+groupLabel2);
 							if(groupLabel1.equalsIgnoreCase(groupLabel2)){
 								return groupLabel1;
 							}else {

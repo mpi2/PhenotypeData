@@ -21,15 +21,11 @@
         <tr>
             <td>
                 <div class="table_legend_color hm-significant">&nbsp;</div>
-                <div class="table_legend_key">Deviance Significant</div>
+                <div class="table_legend_key">Significant</div>
             </td>
             <td>
                 <div class="table_legend_color hm-not-significant">&nbsp;</div>
-                <div class="table_legend_key">Data analysed, no significant call</div>
-            </td>
-            <td>
-                <div class="table_legend_color hm-not-analysed">&nbsp;</div>
-                <div class="table_legend_key">Could not analyse</div>
+                <div class="table_legend_key">Not Significant</div>
             </td>
             <td>
                 <div class="table_legend_color hm-no-data">&nbsp;</div>

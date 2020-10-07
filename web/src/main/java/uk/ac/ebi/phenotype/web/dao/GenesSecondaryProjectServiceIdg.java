@@ -152,8 +152,10 @@ public class GenesSecondaryProjectServiceIdg implements GenesSecondaryProjectSer
 //		}
 //
 //		Collections.sort(geneRows);
-return rows.values().stream()
-		.collect(Collectors.toList());
+		geneRows=rows.values().stream()
+				.collect(Collectors.toList());
+		Collections.sort(geneRows);
+		return geneRows;
 	}
 
 	@Override
