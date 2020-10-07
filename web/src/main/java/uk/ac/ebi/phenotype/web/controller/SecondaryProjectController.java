@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.mousephenotype.cda.db.pojo.GenesSecondaryProject;
+import org.mousephenotype.cda.solr.service.EssentialGeneService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.slf4j.Logger;
@@ -41,14 +42,17 @@ public class SecondaryProjectController {
     private final Logger logger = LoggerFactory.getLogger(SecondaryProjectController.class);
 
     private GeneService geneService;
+    //private EssentialGeneService essentialGeneService;
     private UnidimensionalChartAndTableProvider chartProvider;
     private GenesSecondaryProjectService idg;
 
     public SecondaryProjectController(
             @NotNull GeneService geneService,
+            //@NotNull EssentialGeneService essentialGeneService,
             @NotNull UnidimensionalChartAndTableProvider chartProvider,
             @NotNull @Qualifier("idg") GenesSecondaryProjectService idg) {
         this.geneService = geneService;
+        //this.essentialGeneService=essentialGeneService;
         this.chartProvider = chartProvider;
         this.idg = idg;
     }
@@ -58,6 +62,8 @@ public class SecondaryProjectController {
 
         if (id.equalsIgnoreCase(GenesSecondaryProjectService.SecondaryProjectIds.IDG.name())) {
             try {
+                //for IDG now we are going to get the list of gene accessions from the essential genes core
+
                 Set<GenesSecondaryProject> secondaryProjects = idg.getAccessionsBySecondaryProjectId(id);
                 Set<String> accessions = secondaryProjects
                         .stream()

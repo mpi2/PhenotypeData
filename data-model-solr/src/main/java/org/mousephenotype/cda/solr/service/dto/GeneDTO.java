@@ -165,6 +165,8 @@ public class GeneDTO {
 	public static final String SEQ_REGION_END = "seq_region_end";
 	public static final String XREF = "xref";
 	public static final String XREF_ACC = "xref_acc";
+	public static final String SIGNIFICANT_TOP_LEVEL_MP_TERMS = "significant_top_level_mp_terms";
+	public static final String NOT_SIGNIFICANT_TOP_LEVEL_MP_TERMS = "not_significant_top_level_mp_terms";
 	private static final String VEGA_IDS = "vega_id";
 	private static final String NCBI_IDS = "ncbi_id";
 	private static final String CCDS_IDS = "ccds_id";
@@ -500,6 +502,28 @@ public class GeneDTO {
 
 	@Field(P_VALUE)
 	List<Float> p_value;
+
+	public List<String> getSignificantTopLevelMpTerms() {
+		return significantTopLevelMpTerms;
+	}
+
+	public void setSignificantTopLevelMpTerms(List<String> significantTopLevelMpTerms) {
+		this.significantTopLevelMpTerms = significantTopLevelMpTerms;
+	}
+
+	public List<String> getNotSignificantTopLevelMpTerms() {
+		return notSignificantTopLevelMpTerms;
+	}
+
+	public void setNotSignificantTopLevelMpTerms(List<String> notSignificantTopLevelMpTerms) {
+		this.notSignificantTopLevelMpTerms = notSignificantTopLevelMpTerms;
+	}
+
+	@Field(SIGNIFICANT_TOP_LEVEL_MP_TERMS)
+	List<String> significantTopLevelMpTerms;
+
+	@Field(NOT_SIGNIFICANT_TOP_LEVEL_MP_TERMS)
+	List<String> notSignificantTopLevelMpTerms;
 
 	@Field(MP_ID)
 	List<String> mpId;

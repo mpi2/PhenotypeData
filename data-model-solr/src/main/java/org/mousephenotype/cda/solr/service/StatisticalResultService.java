@@ -1154,7 +1154,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
     @Cacheable("geneRowCache")
     public HashMap<String, GeneRowForHeatMap> getSecondaryProjectMapForGeneList(Set<String> geneAccessions1, List<BasicBean> topLevelMps) {
-
+        System.out.println("calling get secondary project gene list");
         HashMap<String, GeneRowForHeatMap> geneRowMap = new HashMap<>(); // <geneAcc, row>
         Iterators.partition(geneAccessions1.iterator(), 100).forEachRemaining(geneAccessions ->
         {
@@ -1175,6 +1175,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
             List<StatisticalResultDTO> results;
             try {
+                //this is currently the very slow bit, 8 calls to this method which each take many seconds to respond... probably because of raw data even though that field is not populated in the DTO
                 results = statisticalResultCore.query(q, SolrRequest.METHOD.POST).getBeans(StatisticalResultDTO.class);
             } catch (SolrServerException | IOException e) {
                 e.printStackTrace();
