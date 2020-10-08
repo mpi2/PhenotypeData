@@ -262,7 +262,7 @@ public class GeneService extends BasicService implements WebStatus{
 
 				ExperimentsDataTableRow row = new ExperimentsDataTableRow(
 						x.getPhenotypingCenter(),
-						null, // Statistical method
+						x.getSignificance(), // Statistical method
 						null, // Status
 						allele,
 						gene,

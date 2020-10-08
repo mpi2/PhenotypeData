@@ -866,17 +866,29 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
             String phenotypingCenter,
             String metadataGroup,
             String strain,
-            String zygosity) throws IOException, SolrServerException {
+            List<String> zygosities) throws IOException, SolrServerException {
 
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*")
                 .addFilterQuery(StatisticalResultDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"")
-                .addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"")
-                .addFilterQuery(StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId)
-                .addFilterQuery(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" + procedureStableId)
                 .addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + parameterStableId)
-                .addFilterQuery(StatisticalResultDTO.ZYGOSITY + ":" + zygosity)
                 .setRows(100);
+
+        if (phenotypingCenter != null) {
+            query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"");
+        }
+
+        if (pipelineStableId != null) {
+            query.addFilterQuery(StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId);
+        }
+
+        if (procedureStableId != null) {
+            query.addFilterQuery(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" + procedureStableId);
+        }
+
+        if (zygosities != null) {
+            query.addFilterQuery(StatisticalResultDTO.ZYGOSITY + ":(" + String.join(" OR ",  zygosities) + ")");
+        }
 
         if (strain != null) {
             query.addFilterQuery(StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + strain + "\"");

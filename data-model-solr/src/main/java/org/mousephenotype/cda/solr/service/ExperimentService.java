@@ -25,6 +25,7 @@ import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.enumerations.*;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTOBase;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.mousephenotype.cda.solr.web.dto.*;
@@ -38,7 +39,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -48,10 +51,11 @@ import java.util.zip.GZIPInputStream;
  */
 
 @Service
-public class ExperimentService{
+public class ExperimentService {
 
     private final Logger  LOG          = LoggerFactory.getLogger(this.getClass());
     private final Integer MIN_CONTROLS = 6;
+    public static final int PARTITION_SIZE = 50;
 
     private ObservationService       observationService;
     private StatisticalResultService statisticalResultService;
@@ -71,7 +75,8 @@ public class ExperimentService{
     public ExperimentService() {
 
     }
-    
+
+
     /*
      * Bringing this method back so we don't need stats results to show charts
      */
@@ -80,347 +85,66 @@ public class ExperimentService{
     	        return observationService.getExperimentKeys(mgiAccession, parameterStableIds, pipelineStableIds, phenotypingCenter, strain, metaDataGroup, alleleAccession);
     	    }
 
+
+
     /**
      * Get the experiment DTO for the supplied data
      *
      * @param pipelineStableId the pipeline to get the experiment for
      * @param parameterStableId the parameter to get the experiment for
-     * @param geneAccession the gene to get experiment for
-     * @param sex null for both sexes
      * @param zygosities null for any zygosity
      * @param strain null for any strain
      * @return list of experiment objects
      */
 
-    public List<ExperimentDTO> getExperimentDTO(String parameterStableId, String pipelineStableId, String geneAccession,
-                                                SexType sex, String phenotypingCenter, List<String> zygosities, String strain, String metaDataGroup,
-                                                Boolean includeResults, String alleleAccession)
+    public List<ExperimentDTO> getExperimentDTO(String parameterStableId, String pipelineStableId,
+                                                String phenotypingCenter, List<String> zygosities, String strain, String metaDataGroup,
+                                                String alleleAccession)
             throws SolrServerException, IOException {
 
-        List<ObservationDTO> observations = observationService.getExperimentObservationsBy(parameterStableId, pipelineStableId, geneAccession, zygosities, phenotypingCenter, strain, sex, metaDataGroup, alleleAccession);
         Map<String, ExperimentDTO> experimentsMap = new HashMap<>();
 
-        for (ObservationDTO observation : observations) {
+        // Find all S-R results for this set
+        List<StatisticalResultDTO> statisticalResults = statisticalResultService.getStatisticalResult(pipelineStableId, null, parameterStableId, alleleAccession, phenotypingCenter, metaDataGroup, strain, zygosities);
 
-            // collect all the strains, organisations, sexes, and zygosities
-            // combinations of the mutants to get the controls later
+        Set<ObservationDTO> allObservations = new HashSet<>();
 
-            // Experiment KEY is a combination of
-            // - organisation
-            // - strain
-            // - parameter
-            // - pipeline
-            // - allele
-            // - meatdata group
-            ExperimentDTO experiment;
+        for (StatisticalResultDTO result : statisticalResults) {
 
-            String experimentKey = observation.getKey();
+            // For each S-R result, get experiment
+            ExperimentDTO dto = getSpecificExperimentDTO(pipelineStableId, result.getProcedureStableId().get(0), parameterStableId, alleleAccession, phenotypingCenter, result.getZygosity(), result.getStrainAccessionId(), result.getMetadataGroup());
 
-            if (experimentsMap.containsKey(experimentKey)) {
-                experiment = experimentsMap.get(experimentKey);
-            } else {
-                experiment = new ExperimentDTO();
-                experiment.setExperimentId(experimentKey);
-                experiment.setObservationType(ObservationType.valueOf(observation.getObservationType()));
-                experiment.setHomozygoteMutants(new HashSet<ObservationDTO>());
-                experiment.setHeterozygoteMutants(new HashSet<ObservationDTO>());
-                experiment.setHemizygoteMutants(new HashSet<ObservationDTO>());
+            // Fully populate the observation DTOs for those experiments from the Minimal Observations in the SR core
+            Set<String> foundSamples = allObservations.stream().map(ObservationDTOBase::getExternalSampleId).collect(Collectors.toSet());
 
-                // Tree sets to keep "female" before "male" and "hetero" before
-                // "hom"
-                experiment.setSexes(new TreeSet<SexType>());
-                experiment.setZygosities(new TreeSet<ZygosityType>());
-            }
+            allObservations.addAll(
+                    observationService.inflateObservations(
+                        Stream.of(dto.getMutants(), dto.getControls())
+                                .flatMap(Collection::stream)
+                                .filter(x -> !foundSamples.contains(x.getExternalSampleId()))
+                                .map(ObservationDTOBase::getExternalSampleId)
+                                .collect(Collectors.toList()),
+                        parameterStableId,
+                        phenotypingCenter
+            ));
 
-            if (experiment.getMetadata() == null) {
-                experiment.setMetadata(observation.getMetadata());
-            }
+            Map<String, ObservationDTO> observationByExternalSampleId = allObservations.stream().collect(Collectors.toMap(ObservationDTOBase::getExternalSampleId, Function.identity()));
+            dto.setControls(dto.getControls().stream().map(x -> observationByExternalSampleId.get(x.getExternalSampleId())).collect(Collectors.toSet()));
+            dto.setHemizygoteMutants(dto.getHemizygoteMutants().stream().map(x -> observationByExternalSampleId.get(x.getExternalSampleId())).collect(Collectors.toSet()));
+            dto.setHomozygoteMutants(dto.getHomozygoteMutants().stream().map(x -> observationByExternalSampleId.get(x.getExternalSampleId())).collect(Collectors.toSet()));
+            dto.setHeterozygoteMutants(dto.getHeterozygoteMutants().stream().map(x -> observationByExternalSampleId.get(x.getExternalSampleId())).collect(Collectors.toSet()));
 
-            if (observation.getAlleleSymbol() != null){
-                experiment.setAlleleSymbol(observation.getAlleleSymbol());
-            }
-            if (observation.getGeneticBackground()  != null){
-                experiment.setGeneticBackgtround(observation.getGeneticBackground());
-            }
-
-            if (experiment.getMetadataGroup() == null) {
-                // LOG.debug("metaDataGroup in observation="+observation.getMetadataGroup());
-                experiment.setMetadataGroup(observation.getMetadataGroup());
-            }
-
-            if (experiment.getGeneMarker() == null) {
-                experiment.setGeneMarker(observation.getGeneSymbol());
-            }
-
-            if (experiment.getParameterStableId() == null) {
-                experiment.setParameterStableId(observation.getParameterStableId());
-            }
-
-            if (experiment.getPipelineStableId() == null) {
-                LOG.debug("setting pipelinestabl=" + observation.getPipelineStableId());
-                experiment.setPipelineStableId(observation.getPipelineStableId());
-            }
-
-            if (experiment.getOrganisation() == null) {
-                experiment.setOrganisation(observation.getPhenotypingCenter());
-            }
-
-            if (experiment.getStrain() == null) {
-                experiment.setStrain(observation.getStrain());
-            }
-
-            if (experiment.getExperimentalBiologicalModelId() == null) {
-                experiment.setExperimentalBiologicalModelId(observation.getSpecimenId());
-            }
-
-            if (experiment.getAlleleAccession() == null) {
-                experiment.setAlleleAccession(observation.getAlleleAccession());
-            }
-
-
-            experiment.getZygosities().add(ZygosityType.valueOf(observation.getZygosity()));
-            experiment.getSexes().add(SexType.valueOf(observation.getSex()));
-
-            // includeResults variable skips the results when gathering
-            // experiments for calculating the results (performance)
-            if (experiment.getResults() == null && includeResults) {
-
-                String phenCenter = observation.getPhenotypingCenter();
-                ObservationType statisticalType = experiment.getObservationType();
-                ZygosityType zygosity = ZygosityType.valueOf(observation.getZygosity());
-
-                List<StatisticalResultDTO> results = statisticalResultService.getStatisticalResult(alleleAccession, strain, phenCenter, pipelineStableId, parameterStableId, metaDataGroup, zygosity, sex, statisticalType);
-                experiment.setResults(results);
-            }
-
-            if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.heterozygote)) {
-                experiment.getHeterozygoteMutants().add(observation);
-            } else if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.homozygote)) {
-                experiment.getHomozygoteMutants().add(observation);
-            } else if (ZygosityType.valueOf(observation.getZygosity()).equals(ZygosityType.hemizygote)) {
-                experiment.getHemizygoteMutants().add(observation);
-            }
-
-            experiment.setProcedureStableId(observation.getProcedureStableId());
-            experiment.setProcedureName(observation.getProcedureName());
-
-            experimentsMap.put(experimentKey, experiment);
+            String key = Stream.of(dto.getControls(), dto.getMutants()).flatMap(Collection::stream).map(ObservationDTO::getKey).collect(Collectors.toList()).get(0);
+            experimentsMap.put(key, dto);
 
         }
+        // Sort by p-value
 
-        // Set to record the experiments that don't have control data
-        Set<String> noControls = new HashSet<>();
-
-        // TODO: Update control selection strategy based on recommendation of
-        // stats working group
-
-        // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-        // CONTROL SELECTION
-        // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-        // Loop over all the experiments for which we found mutant data
-        // to gather the control data
-
-        for (String key : experimentsMap.keySet()) {
-
-            // If the requester filtered based on organisation, then the
-            // organisationId parameter will not be null and we can use that,
-            // otherwise we need to determine the organisation for this
-            // experiment and use that
-
-            ExperimentDTO experiment = experimentsMap.get(key);
-
-            if (experiment.getControls() == null) {
-
-                experiment.setControls(new HashSet<ObservationDTO>());
-
-                // ======================================
-                // CONTROL GROUP SELECTION STRATEGY
-                //
-                // Per meeting 2014-01-21
-                // - Categorical data
-                // Use all control data (broken up by metadata splits)
-                // - Unidimensional data
-                // Use concurrent controls when appropriate
-                // Concurrent means all collected on the same day (ALL
-                // male/female controls/mutants)
-                //
-                // Per discussion with Terry 2014-03-24
-                // - Categorical data
-                // No change
-                // - Unidimensional data
-                // Use concurrent controls when appropriate
-                // Concurrent means all collected on the same day (ALL
-                // male/female controls/mutants)
-                // Else, use all appropriate data for controls
-                // ======================================
-
-                List<ObservationDTO> controls = new ArrayList<ObservationDTO>();
-
-                if (experiment.getObservationType().equals(ObservationType.categorical)) {
-                    // ======================================
-                    // CATEGORICAL CONTROL SELECTION
-                    // ======================================
-
-                    // Use all appropriate controls for categorical data
-                    experiment.setControlSelectionStrategy(ControlStrategy.baseline_all);
-
-                    if (experiment.getSexes() != null) {
-
-                        for (SexType s : SexType.values()) {
-                            if (!experiment.getSexes().contains(s)) {
-                                continue;
-                            }
-
-                            controls.addAll(observationService.getAllControlsBySex(parameterStableId, experiment.getStrain(), phenotypingCenter, null, s.toString(), experiment.getMetadataGroup()));
-
-                        }
-
-                    } else {
-
-                        controls.addAll(observationService.getAllControlsBySex(parameterStableId, experiment.getStrain(), phenotypingCenter, null, null, experiment.getMetadataGroup()));
-
-                    }
-
-                } else {
-                    // ======================================
-                    // UNIDIMENSIONAL/TIMESERIES CONTROL SELECTION
-                    // ======================================
-
-                    // Default to using all controls
-                    experiment.setControlSelectionStrategy(ControlStrategy.baseline_all);
-
-                    // Find the dates of the experiments
-                    Set<String> allBatches = new HashSet<String>();
-                    Date experimentDate = new Date(0L);
-                    for (ObservationDTO o : experiment.getMutants()) {
-
-                        //put a null pointer check here as for viability data has none and chart fails
-                        if(o.getDateOfExperiment()!=null) {
-                            allBatches.add(o.getDateOfExperiment().getYear() + "-" + o.getDateOfExperiment().getMonth() + "-" + o.getDateOfExperiment().getDate());
-                            if (o.getDateOfExperiment().after(experimentDate)) {
-                                experimentDate = o.getDateOfExperiment();
-                            }
-                        }
-                        if (phenotypingCenter == null) {
-                            phenotypingCenter = o.getPhenotypingCenter();
-                        }
-
-
-
-                    }
-                    LOG.debug("Number of batches: " + allBatches.size());
-
-                    // If there is only 1 batch, the selection strategy is to
-                    // try to use concurrent controls. If there is more than one
-                    // batch, we default to all controls
-                    experiment.setControlSelectionStrategy(ControlStrategy.baseline_all);
-
-                    //
-                    // If one sex specified
-                    //
-                    if (experiment.getSexes() != null && experiment.getSexes().size() < 2) {
-
-                        for (SexType s : SexType.values()) {
-
-                            if (!experiment.getSexes().contains(s)) {
-                                continue;
-                            }
-
-                            if (allBatches.size() == 1) {
-
-                                // If we have enough control data in the same
-                                // batch (same day) for this sex, then use
-                                // concurrent controls
-
-                                List<ObservationDTO> potentialControls = observationService.getConcurrentControlsBySex(parameterStableId, experiment.getStrain(), phenotypingCenter, experimentDate, s.name(), experiment.getMetadataGroup());
-                                LOG.debug("Number of potential controls for sex: " + s.name() + ": " + potentialControls.size());
-
-                                if (potentialControls.size() >= MIN_CONTROLS) {
-
-                                    controls = potentialControls;
-                                    experiment.setControlSelectionStrategy(ControlStrategy.concurrent);
-                                    LOG.debug("Setting concurrent controls for sex: " + s.name());
-
-                                } else {
-
-                                    controls = observationService.getAllControlsBySex(parameterStableId, experiment.getStrain(), phenotypingCenter, null, s.name(), experiment.getMetadataGroup());
-                                    LOG.debug("Using baseline controls for sex: " + s.name() + ", num controls: " + controls.size());
-
-                                }
-
-                            } else {
-
-                                controls = observationService.getAllControlsBySex(parameterStableId, experiment.getStrain(), phenotypingCenter, null, s.name(), experiment.getMetadataGroup());
-                                LOG.debug("Using baseline controls for sex: " + s.name() + ", num controls: " + controls.size());
-                            }
-                        }
-
-                    } else {
-
-                        //
-                        // Processing both sexes
-                        //
-
-                        if (allBatches.size() == 1) {
-
-                            List<ObservationDTO> potentialMaleControls = observationService.getConcurrentControlsBySex(parameterStableId, experiment.getStrain(), phenotypingCenter, experimentDate, SexType.male.name(), experiment.getMetadataGroup());
-                            List<ObservationDTO> potentialFemaleControls = observationService.getConcurrentControlsBySex(parameterStableId, experiment.getStrain(), phenotypingCenter, experimentDate, SexType.female.name(), experiment.getMetadataGroup());
-
-                            LOG.debug("Number of potential controls for males: " + potentialMaleControls.size());
-                            LOG.debug("Number of potential controls for females: " + potentialFemaleControls.size());
-
-                            // Only if BOTH counts of male and
-                            // female controls are equal or more than
-                            // MIN_CONTROLS
-                            // do we do concurrent controls
-
-                            if (potentialMaleControls.size() >= MIN_CONTROLS && potentialFemaleControls.size() >= MIN_CONTROLS) {
-
-                                controls = potentialMaleControls;
-                                controls.addAll(potentialFemaleControls);
-                                experiment.setControlSelectionStrategy(ControlStrategy.concurrent);
-                                LOG.debug("Setting concurrent controls");
-
-                            } else {
-
-                                controls = observationService.getAllControlsBySex(parameterStableId, experiment.getStrain(), phenotypingCenter, null, null, experiment.getMetadataGroup());
-                                LOG.debug("Using baseline controls, num controls: " + controls.size());
-
-                            }
-
-                        } else {
-
-                            controls = observationService.getAllControlsBySex(parameterStableId, experiment.getStrain(), phenotypingCenter, null, null, experiment.getMetadataGroup());
-                            LOG.debug("Using baseline controls, num controls: " + controls.size());
-                        }
-
-                    }
-
-                } // End control selection
-
-                experiment.getControls().addAll(controls);
-
-                if (experiment.getControlBiologicalModelId() == null && controls.size() > 0) {
-                    experiment.setControlBiologicalModelId(controls.get(0).getSpecimenId());
-                }
-
-                // Flag all the experiments that don't have control data
-                if (controls.size() < 1) {
-                    noControls.add(key);
-                }
-            }
-        }
-
-        // had to comment this out as we have phenotype calls from the pheno
-        // summary table that are for graphs with no control data
-        // so if we take those out then there appears to be no reason to have a
-        // graph link.
-        // for(String key : noControls) {
-        // experimentsMap.remove(key);
-        // }
 
         return new ArrayList<>(experimentsMap.values());
     }
+
+
     /**
      * Get the experiment DTO for the supplied data
      *
@@ -447,7 +171,7 @@ public class ExperimentService{
 
 
         List<StatisticalResultDTO> results = new ArrayList<>();
-        results.addAll(statisticalResultService.getStatisticalResult(pipelineStableId, procedureStableId, parameterStableId, alleleAccession, phenotypingCenter, metadataGroup, strain, zygosity));
+        results.addAll(statisticalResultService.getStatisticalResult(pipelineStableId, procedureStableId, parameterStableId, alleleAccession, phenotypingCenter, metadataGroup, strain, Collections.singletonList(zygosity)));
 
         for (StatisticalResultDTO result : results) {
 
@@ -540,6 +264,14 @@ public class ExperimentService{
                     o.setDataPoint(x.getDataPoint() != null ? x.getDataPoint().floatValue() : null);
                     o.setDiscretePoint(x.getDiscreteTimePoint() != null ? x.getDiscreteTimePoint().floatValue() : null);
                     o.setWeight(x.getBodyWeight() != null ? x.getBodyWeight().floatValue() : null);
+                    o.setAlleleAccession(result.getAlleleAccessionId());
+                    o.setStrainAccessionId(result.getStrainAccessionId());
+                    o.setPhenotypingCenter(result.getPhenotypingCenter());
+                    o.setParameterStableId(result.getParameterStableId());
+                    o.setPipelineStableId(result.getPipelineStableId());
+                    o.setZygosity(result.getZygosity());
+                    o.setMetadataGroup(result.getMetadataGroup());
+                    o.setProductionCenter(result.getProductionCenter());
                     return o;
                 }).collect(Collectors.toList());
 
@@ -745,31 +477,19 @@ public class ExperimentService{
      * @throws URISyntaxException
      * @throws SpecificExperimentException
      */
+   	@Deprecated
     public ExperimentDTO getSpecificExperimentDTO(String parameterStableId, String pipelineStableId, String acc, List<String> genderList, List<String> zyList, String phenotypingCenter, String strain, String metadataGroup, String alleleAccession, String ebiMappedSolrUrl)
     throws SolrServerException, IOException, SpecificExperimentException {
 
     	List<ExperimentDTO> experimentList;
-        boolean includeResults = true;
 
-        // if gender list is size 2 assume both sexes so no filter needed
-        if (genderList.isEmpty() || genderList.size() == 2) {
-
-            // if zygosity list is size 3 then no filter needed either
-            if (zyList.isEmpty() || zyList.size() == 3) {
-                experimentList = this.getExperimentDTO(parameterStableId, pipelineStableId, acc, null, phenotypingCenter, null, strain, metadataGroup, includeResults, alleleAccession);
-            } else {
-                experimentList = this.getExperimentDTO(parameterStableId, pipelineStableId, acc, null, phenotypingCenter, zyList, strain, metadataGroup, includeResults, alleleAccession);
-            }
-
+        // if zygosity list is size 3 then no filter needed either
+        if (zyList.isEmpty() || zyList.size() == 3) {
+            experimentList = this.getExperimentDTO(parameterStableId, pipelineStableId, phenotypingCenter, null, strain, metadataGroup, alleleAccession);
         } else {
-            String gender = genderList.get(0);
-            if (zyList.isEmpty() || zyList.size() == 3) {
-                experimentList = this.getExperimentDTO(parameterStableId, pipelineStableId, acc, SexType.valueOf(gender), phenotypingCenter, null, strain, metadataGroup, includeResults, alleleAccession);
-            } else {
-                experimentList = this.getExperimentDTO(parameterStableId, pipelineStableId, acc, SexType.valueOf(gender), phenotypingCenter, zyList, strain, metadataGroup, includeResults, alleleAccession);
-            }
-
+            experimentList = this.getExperimentDTO(parameterStableId, pipelineStableId, phenotypingCenter, zyList, strain, metadataGroup, alleleAccession);
         }
+
         if (experimentList.isEmpty()) {
             return null;// return null if no experiments
         }

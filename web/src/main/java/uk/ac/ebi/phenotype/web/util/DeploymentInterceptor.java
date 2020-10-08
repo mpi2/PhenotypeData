@@ -15,6 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.util;
 
+import org.mousephenotype.cda.db.repositories.MetaInfoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,9 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 
 	@Autowired
 	DataReleaseVersionManager dataReleaseVersionManager;
+
+	@Autowired
+	MetaInfoRepository metaInfoRepository;
 
 	@Resource(name = "globalConfiguration")
 	private Map<String, String> config;
@@ -60,6 +64,7 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 		Map<String, Object> requestConfig = new HashMap<>();
 		requestConfig.put("releaseVersion", dataReleaseVersionManager.getReleaseVersion());
 		requestConfig.put("version", "v4.0.0");
+		requestConfig.put("data_release_genes", metaInfoRepository.getDataReleaseGeneCount().getPropertyValue());
 
 		// Map the global config values into the request configuration
 		config.keySet().forEach(key -> {

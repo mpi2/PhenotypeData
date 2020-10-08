@@ -65,6 +65,7 @@ import java.util.stream.Collectors;
 @Service
 public class ObservationService extends BasicService implements WebStatus {
 
+    private static final int PARTITION_SIZE = 50;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final CommonUtils commonUtils = new CommonUtils();
 
@@ -82,6 +83,38 @@ public class ObservationService extends BasicService implements WebStatus {
         super();
     }
 
+    Set<ObservationDTO> inflateObservations(List<String> externalSampleIds, String parameterStableId, String phenotypingCenter) {
+
+        Set<ObservationDTO> observations = new HashSet<>();
+
+        SolrQuery solrQuery = new SolrQuery()
+                .setRows(PARTITION_SIZE * 2);
+
+        // Partition the set of externalSampleIds into groups of PARTITION_SIZE so as not to overwhelm solr with OR fields
+        Iterators.partition(externalSampleIds.iterator(), PARTITION_SIZE).forEachRemaining(obs ->
+        {
+
+            String quotedSamples = StringUtils.join(obs.stream().map(x -> "\"" + x + "\"").collect(Collectors.toList()), " OR ");  // ["bla1","bla2"]
+            String obsQuery = ObservationDTO.EXTERNAL_SAMPLE_ID + ":(" + quotedSamples + ")";
+            obsQuery += " AND " + ObservationDTO.PARAMETER_STABLE_ID + ":" + parameterStableId;
+            obsQuery += " AND " + ObservationDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"";
+            solrQuery.setQuery(obsQuery);
+
+            List<ObservationDTO> observationDTOs;
+            try {
+                observationDTOs = experimentCore.query(solrQuery, SolrRequest.METHOD.POST).getBeans(ObservationDTO.class);
+            } catch (SolrServerException | IOException e) {
+                logger.error("Error getting results for subset of external sample IDs: " + obs, e);
+                return;
+            }
+
+            observations.addAll(observationDTOs);
+
+        });
+        return observations;
+
+    }
+
 
     /**
      * Return true if the marker has bodyweight data
@@ -94,6 +127,27 @@ public class ObservationService extends BasicService implements WebStatus {
 
         QueryResponse response = experimentCore.query(query);
         return response.getBeans(ExperimentDTO.class).size() > 0;
+    }
+
+    /**
+     * Return all alleles associated with the gene
+     */
+    public List<String> getAllelesForGene(String markerAccessionId) throws IOException, SolrServerException {
+
+        SolrQuery solrQuery = new SolrQuery()
+                .setQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + markerAccessionId + "\"")
+                .addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + BiologicalSampleType.experimental)
+                .addField(ObservationDTO.ALLELE_ACCESSION_ID)
+                .setRows(Integer.MAX_VALUE);
+        solrQuery.add("group", "true")
+                .add("group.field", ObservationDTO.ALLELE_ACCESSION_ID)
+                .add("group.limit", Integer.toString(1))
+                .add("group.main", "true");
+
+        logger.info("associated colony id solr query: " + solrQuery);
+
+        Set<String> alleles = new HashSet<>(experimentCore.query(solrQuery).getBeans(ObservationDTO.class).stream().map(ObservationDTOBase::getAlleleAccession).collect(Collectors.toSet()));
+        return new ArrayList<>(alleles);
     }
 
     /**
