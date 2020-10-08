@@ -38,7 +38,10 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import uk.ac.ebi.phenotype.service.BatchQueryForm;
 import uk.ac.ebi.phenotype.util.SolrUtilsWeb;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
@@ -99,7 +102,6 @@ public class FileExportController {
 	 *
 	 */
 	@ResponseBody
-	@CrossOrigin(origins = {"http://localhost:4200", "https://wwwdev.ebi.ac.uk/"})
 	@RequestMapping(value = "/exportraw", method = RequestMethod.GET, produces = "text/plain")
 	public String getExperimentalData(
 			@RequestParam(value = "phenotyping_center", required = true) String phenotypingCenter, // assume required in code
@@ -126,8 +128,8 @@ public class FileExportController {
 			strainAccession = observationService.getStrainNameFromStrainAcc(strainParameter);
 		}
 
-		String[] alleleArray = {alleleAcc};
-		String[] geneArray = {geneAcc};
+		List<String> alleleArray = Collections.singletonList(alleleAcc);
+		List<String> geneArray = Collections.singletonList(geneAcc);
 		String[] parameterArray = {parameterStableId};
 		String[] strainArray = {strainAccession};
 		String[] centerArray = {phenotypingCenter};
@@ -208,13 +210,13 @@ public class FileExportController {
 			@RequestParam(value = "fileType", required = true) String fileType,
 			@RequestParam(value = "fileName", required = true) String fileName,
 			@RequestParam(value = "legacyOnly", required = false, defaultValue = "false") Boolean legacyOnly,
-			@RequestParam(value = "allele_accession_id", required = false) String[] allele,
+			@RequestParam(value = "allele_accession_id", required = false) List<String> allele,
 			@RequestParam(value = "rowStart", required = false) Integer rowStart,
 			@RequestParam(value = "length", required = false) Integer length,
 			@RequestParam(value = "panel", required = false) String panelName,
 			@RequestParam(value = "mpId", required = false) String mpId,
 			@RequestParam(value = "mpTerm", required = false) String mpTerm,
-			@RequestParam(value = "mgiGeneId", required = false) String[] mgiGeneId,
+			@RequestParam(value = "mgiGeneId", required = false) List<String> mgiGeneId,
 			// parameterStableId should be filled for graph data export
 			@RequestParam(value = "parameterStableId", required = false) String[] parameterStableId,
 			// zygosities should be filled for graph data export
@@ -259,7 +261,7 @@ public class FileExportController {
 			}
 		}
 
-		List<String> dataRows = new ArrayList<String>();
+		List<String> dataRows = new ArrayList<>();
 		// Default to exporting 10 rows
 		length = length != null ? length : 10;
 		panelName = panelName == null ? "" : panelName;
@@ -273,7 +275,13 @@ public class FileExportController {
 			}
 
 			if (solrCoreName.equalsIgnoreCase("experiment")) {
-				dataRows = getDataRowsForExperiment(allele, mgiGeneId, parameterStableId, zygosities, strains, sex, phenotypingCenter, pipelineStableId);
+				List<String> alleles = allele;
+				if (allele == null || alleles.size()<1) {
+					for (String gene :  mgiGeneId) {
+						alleles.addAll(observationService.getAllelesForGene(gene));
+					}
+				}
+				dataRows = getDataRowsForExperiment(alleles, mgiGeneId, parameterStableId, zygosities, strains, sex, phenotypingCenter, pipelineStableId);
 			} else {
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart,
 						length, showImgView);
@@ -286,8 +294,8 @@ public class FileExportController {
 		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName, filters);
 	}
 
-	private List<String> getDataRowsForExperiment(String[] allele,
-												  String[] mgiGeneId,
+	private List<String> getDataRowsForExperiment(List<String> allele,
+												  List<String> mgiGeneId,
 												  String[] parameterStableId,
 												  String[] zygosities,
 												  String[] strains,
@@ -309,13 +317,13 @@ public class FileExportController {
 
 
 	public List<String> composeExperimentDataExportRows(String[] parameterArray,
-														String[] geneAccessionArray,
-														String[] alleleArray,
+														List<String> genes,
+														List<String> alleles,
 														String gender,
 														String[] centerArray,
 														String[] zygosityArray,
 														String[] strainArray, String[] pipelineArray)
-			throws SolrServerException, IOException , URISyntaxException, SQLException {
+			throws SolrServerException, IOException , SQLException {
 
 		List<String> rows = new ArrayList<>();
 
@@ -323,35 +331,29 @@ public class FileExportController {
 		// Recast all variables to java types for easy iteration
 		//
 
-		SexType sex = (gender != null) ? SexType.valueOf(gender) : null;
 		List<String> centers = (centerArray != null && centerArray.length != 0) ? Arrays.asList(centerArray) : Collections.singletonList(null);
 		List<String> pipelines = (pipelineArray != null && pipelineArray.length != 0) ? Arrays.asList(pipelineArray) : Collections.singletonList(null);
 		List<String> parameters = (parameterArray != null && parameterArray.length != 0) ? Arrays.asList(parameterArray) : Collections.singletonList(null);
-		List<String> genes = (geneAccessionArray != null && geneAccessionArray.length != 0) ? Arrays.asList(geneAccessionArray) : Collections.singletonList(null);
-		List<String> alleles = (alleleArray != null && alleleArray.length != 0) ? Arrays.asList(alleleArray) : Collections.singletonList(null);
 		List<String> strains = (strainArray != null && strainArray.length != 0) ? Arrays.asList(strainArray) : Collections.singletonList(null);
 
 		// Zygosities
 		List<String> zygosities = (zygosityArray != null && zygosityArray.length != 0) ? Arrays.asList(zygosityArray) : null;
 
 
-		for (String parameter: parameters) {
-			for (String gene : genes) {
-				for (String center : centers) {
-					for (String pipeline : pipelines) {
-						for (String strain : strains) {
-							for (String allele : alleles) {
+		for (String parameter : parameters) {
+			for (String center : centers) {
+				for (String pipeline : pipelines) {
+					for (String strain : strains) {
+						for (String allele : alleles) {
 
-								List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(
-										parameter, pipeline, gene, sex,
-										center, zygosities, strain, null, false, allele);
+							List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(
+									parameter, pipeline,
+									center, zygosities, strain, null, allele);
 
-								if (experimentList.size() > 0) {
-									for (ExperimentDTO experiment : experimentList) {
-										rows.addAll(experiment.getTabbedToString());
-									}
+							if (experimentList.size() > 0) {
+								for (ExperimentDTO experiment : experimentList) {
+									rows.addAll(experiment.getTabbedToString());
 								}
-
 							}
 						}
 					}
