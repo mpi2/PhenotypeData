@@ -5,9 +5,17 @@ import org.apache.solr.client.solrj.beans.Field;
 public class EssentialGeneDTO {
     public static final String MARKER_SYMBOL="mg_symbol";
     public static final String MGI_ACCESSION="mg_mgi_gene_acc_id";
+    public static final String HUMAN_GENE_SYMBOL="hg_symbol";
 
     @Field(MARKER_SYMBOL)
     private String markerSymbol;
+
+    public void setHumanGeneSymbol(String humanGeneSymbol) {
+        this.humanGeneSymbol = humanGeneSymbol;
+    }
+
+    @Field(HUMAN_GENE_SYMBOL)
+    private String humanGeneSymbol;
 
     public void setMarkerSymbol(String markerSymbol) {
         this.markerSymbol = markerSymbol;
@@ -107,5 +115,8 @@ public class EssentialGeneDTO {
 
     public void setMgiAccession(String mgiAccession) {
         this.mgiAccession = mgiAccession;
+    }
+    public String getHumanGeneSymbol() {
+        return this.humanGeneSymbol;
     }
 }

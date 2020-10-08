@@ -52,7 +52,7 @@ public class GenesSecondaryProjectRepositoryTest {
         }
         assertTrue(genesMap.size() == 359);
 
-        GenesSecondaryProject expectedGene = new GenesSecondaryProject("MGI:2685341", "idg", "GPCRs");
+        GenesSecondaryProject expectedGene = new GenesSecondaryProject("MGI:2685341", "idg", "GPCRs","HumanGeneSymbol");
         GenesSecondaryProject actualGene = genesMap.get("MGI:2685341");
         assertEquals(expectedGene, actualGene);
     }
@@ -67,7 +67,7 @@ public class GenesSecondaryProjectRepositoryTest {
         }
         assertTrue(genesMap.size() == 127);
 
-        GenesSecondaryProject expectedGene = new GenesSecondaryProject("MGI:2443413", "idg", "Kinases");
+        GenesSecondaryProject expectedGene = new GenesSecondaryProject("MGI:2443413", "idg", "Kinases", "HumanGeneSymbol");
         GenesSecondaryProject actualGene = genesMap.get("MGI:2443413");
         assertEquals(expectedGene, actualGene);
     }
@@ -82,7 +82,7 @@ public class GenesSecondaryProjectRepositoryTest {
         }
         assertTrue(genesMap.size() > 127);
 
-        GenesSecondaryProject expectedGene = new GenesSecondaryProject("MGI:2443413", "idg", "Kinases");
+        GenesSecondaryProject expectedGene = new GenesSecondaryProject("MGI:2443413", "idg", "Kinases", "HumanGeneSymbol");
         GenesSecondaryProject actualGene = genesMap.get("MGI:2443413");
         assertEquals(expectedGene, actualGene);
     }
