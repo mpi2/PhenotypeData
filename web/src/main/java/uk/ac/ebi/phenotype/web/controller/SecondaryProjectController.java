@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import org.mousephenotype.cda.db.pojo.GenesSecondaryProject;
 import org.mousephenotype.cda.solr.service.EssentialGeneService;
 import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.GenesSecondaryProjectServiceIdg;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,17 +43,15 @@ public class SecondaryProjectController {
     private final Logger logger = LoggerFactory.getLogger(SecondaryProjectController.class);
 
     private GeneService geneService;
-    //private EssentialGeneService essentialGeneService;
     private UnidimensionalChartAndTableProvider chartProvider;
-    private GenesSecondaryProjectService idg;
+    private GenesSecondaryProjectServiceIdg idg;
 
     public SecondaryProjectController(
             @NotNull GeneService geneService,
             //@NotNull EssentialGeneService essentialGeneService,
             @NotNull UnidimensionalChartAndTableProvider chartProvider,
-            @NotNull @Qualifier("idg") GenesSecondaryProjectService idg) {
+            @NotNull @Qualifier("idg") GenesSecondaryProjectServiceIdg idg) {
         this.geneService = geneService;
-        //this.essentialGeneService=essentialGeneService;
         this.chartProvider = chartProvider;
         this.idg = idg;
     }
@@ -60,11 +59,10 @@ public class SecondaryProjectController {
     @RequestMapping(value = "/secondaryproject/{id}", method = RequestMethod.GET)
     public String loadSecondaryProjectPage(@PathVariable String id, Model model) {
 
-        if (id.equalsIgnoreCase(GenesSecondaryProjectService.SecondaryProjectIds.IDG.name())) {
-            try {
+
                 //for IDG now we are going to get the list of gene accessions from the essential genes core
 
-                Set<GenesSecondaryProject> secondaryProjects = idg.getAccessionsBySecondaryProjectId(id);
+                Set<GenesSecondaryProject> secondaryProjects = idg.getAllBySecondaryProjectId();
                 Set<String> accessions = secondaryProjects
                         .stream()
                         .map(GenesSecondaryProject::getMgiGeneAccessionId)
@@ -98,15 +96,11 @@ public class SecondaryProjectController {
                 model.addAttribute("idgGeneCount", accessions.size());
                 model.addAttribute("idgPercent", String.format("%.1f", ((withData / Float.valueOf(total))*100)));
 
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            return "idg";
-        } else if (id.equalsIgnoreCase(GenesSecondaryProjectService.SecondaryProjectIds.threeI.name()) || id.equalsIgnoreCase("3I")) {
-            return "threeI";
-        }
 
-        return "";
+            return "idg";
+
+
+
     }
 
 }

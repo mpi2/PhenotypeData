@@ -48,7 +48,7 @@ public class GenotypePhenotypeServiceTestConfig {
 
     @Autowired
     @Lazy
-    private GenesSecondaryProjectRepository genesSecondaryProjectRepository;
+    private GenesSecondaryProjectServiceIdg genesSecondaryProjectRepository;
 
 
 

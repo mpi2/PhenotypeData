@@ -19,21 +19,14 @@
  * and open the template in the editor.
  */
 
-package uk.ac.ebi.phenotype.web.dao;
+package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.db.pojo.GenesSecondaryProject;
-import org.mousephenotype.cda.db.repositories.GenesSecondaryProjectRepository;
-import org.mousephenotype.cda.solr.service.EssentialGeneService;
-import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.MpService;
-import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.EssentialGeneDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
-import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -51,43 +44,29 @@ import java.util.stream.Collectors;
  * @author jwarren
  */
 @Service("idg")
-public class GenesSecondaryProjectServiceIdg implements GenesSecondaryProjectService {
+public class GenesSecondaryProjectServiceIdg  {
 
 	public static final String DEVIANCE_COLOR      = "rgb(191, 75, 50)";
 	public static final String COULD_NOT_ANALYSE   = "rgb(230, 242, 246)";
 	public static final String NO_SIGNIFICANT_CALL = "rgb(247, 157, 70)";
 	public static final String NO_DATA             = "rgb(119, 119, 119)";
 
-
-	private GenesSecondaryProjectRepository genesSecondaryProjectRepository;
 	private GeneService                     geneService;
 	private EssentialGeneService			essentialGeneService;
 	private MpService                       mpService;
-	private StatisticalResultService        statisticalResultService;
 
 	@Inject
 	public GenesSecondaryProjectServiceIdg(
-			@NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository,
 			@NotNull GeneService geneService,
 			@NotNull EssentialGeneService essentialGeneService,
-			@NotNull MpService mpService,
-			@NotNull StatisticalResultService statisticalResultService)
+			@NotNull MpService mpService)
 	{
-		this.genesSecondaryProjectRepository = genesSecondaryProjectRepository;
 		this.geneService = geneService;
 		this.essentialGeneService=essentialGeneService;
 		this.mpService = mpService;
-		this.statisticalResultService = statisticalResultService;
 	}
 
-	@Override
-	public Set<GenesSecondaryProject> getAccessionsBySecondaryProjectId(String projectId) throws SQLException {
-		Set<GenesSecondaryProject> newSet=this.getAllBySecondaryProjectId();
-		 //genesSecondaryProjectRepository.getAllBySecondaryProjectId(projectId);
-		return newSet;
-	}
-
-	private Set<GenesSecondaryProject> getAllBySecondaryProjectId(){
+	public Set<GenesSecondaryProject> getAllBySecondaryProjectId(){
 		HashSet<GenesSecondaryProject> infos = new HashSet();
 		try {
 			List<EssentialGeneDTO> geneList = essentialGeneService.getAllIdgGeneList();
@@ -109,8 +88,30 @@ public class GenesSecondaryProjectServiceIdg implements GenesSecondaryProjectSer
 		return infos;
 	}
 
+	public Set<GenesSecondaryProject> getAllBySecondaryProjectIdAndGroupLabel(String groupLabel){
+		HashSet<GenesSecondaryProject> infos = new HashSet();
+		try {
+			List<EssentialGeneDTO> geneList = essentialGeneService.getAllIdgGeneListByGroupLabel(groupLabel);
 
-	@Override
+			for(EssentialGeneDTO gene:geneList){
+				GenesSecondaryProject info=new GenesSecondaryProject();
+				info.setGroupLabel(gene.getIdgFamily());
+				info.setMgiGeneAccessionId(gene.getMgiAccession());
+				info.setSecondaryProjectId(gene.getIdgIdl());
+				info.setHumanGeneSymbol(gene.getHumanGeneSymbol());
+				infos.add(info);
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+		return infos;
+	}
+
+
+
 	@Cacheable("topLevelPhenotypesGeneRows")
 	public List<GeneRowForHeatMap> getGeneRowsForHeatMap(HttpServletRequest request) throws SolrServerException, IOException, SQLException {
 
@@ -135,7 +136,7 @@ public class GenesSecondaryProjectServiceIdg implements GenesSecondaryProjectSer
 		return geneRows;
 	}
 
-	@Override
+
 	@Cacheable("topLevelPhenotypesXAxis")
 	public List<BasicBean> getXAxisForHeatMap() throws IOException, SolrServerException {
 

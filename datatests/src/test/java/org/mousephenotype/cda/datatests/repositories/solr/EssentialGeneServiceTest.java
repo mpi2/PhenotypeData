@@ -25,6 +25,7 @@ package org.mousephenotype.cda.datatests.repositories.solr;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mousephenotype.cda.db.pojo.GenesSecondaryProject;
 import org.mousephenotype.cda.solr.service.EssentialGeneService;
 import org.mousephenotype.cda.solr.service.dto.EssentialGeneDTO;
 import org.slf4j.Logger;
@@ -34,9 +35,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
@@ -92,5 +97,11 @@ public class EssentialGeneServiceTest {
 //			logger.info("uniprot acc: " + geneDTO.getIdgUniprotAcc());
 //			logger.info("===================");
 //		}
+	}
+
+	@Test
+	public void getAllBySecondaryProjectIdAndGroupLabel() throws IOException, SolrServerException {
+		List<EssentialGeneDTO> genes = essentialGeneService.getAllIdgGeneListByGroupLabel("Kinase");
+		assert(genes.size()> 127);
 	}
 }

@@ -73,7 +73,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
     public StatisticalResultService(
             @NotNull ImpressService impressService,
             @NotNull SolrClient genotypePhenotypeCore,
-            @NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository,
+            @NotNull GenesSecondaryProjectServiceIdg genesSecondaryProjectRepository,
             @NotNull SolrClient statisticalResultCore) {
         super(impressService, genotypePhenotypeCore, genesSecondaryProjectRepository);
         this.statisticalResultCore = statisticalResultCore;

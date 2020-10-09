@@ -69,14 +69,14 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
 
     protected ImpressService                  impressService;
     protected SolrClient                      genotypePhenotypeCore;
-    protected GenesSecondaryProjectRepository genesSecondaryProjectRepository;
+    protected GenesSecondaryProjectServiceIdg genesSecondaryProjectRepository;
 
 
     @Inject
     public GenotypePhenotypeService(
             @NotNull ImpressService impressService,
             @NotNull @Qualifier("genotypePhenotypeCore") SolrClient genotypePhenotypeCore,
-            @NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository)
+            @NotNull GenesSecondaryProjectServiceIdg genesSecondaryProjectRepository)
     {
         super();
         this.impressService = impressService;
@@ -1293,8 +1293,8 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
             // If the idgClass has not been set, get all genes for the idg project, else filter for the class specified
             Set<GenesSecondaryProject> idgGenes =
                     idgClass == null ?
-                            genesSecondaryProjectRepository.getAllBySecondaryProjectId("idg") :
-                            genesSecondaryProjectRepository.getAllBySecondaryProjectIdAndGroupLabel("idg", idgClass);
+                            genesSecondaryProjectRepository.getAllBySecondaryProjectId() :
+                            genesSecondaryProjectRepository.getAllBySecondaryProjectIdAndGroupLabel(idgClass);
             Set<String> idgGeneIds = idgGenes
                     .stream()
                     .map(GenesSecondaryProject::getMgiGeneAccessionId)

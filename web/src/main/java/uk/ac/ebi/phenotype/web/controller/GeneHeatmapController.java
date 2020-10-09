@@ -18,6 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import com.opencsv.CSVWriter;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.solr.service.GenesSecondaryProjectServiceIdg;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
@@ -53,11 +54,8 @@ public class GeneHeatmapController {
 
     @Autowired
     @Qualifier("idg")
-	private GenesSecondaryProjectService idgGenesSecondaryProjectService;
+	private GenesSecondaryProjectServiceIdg idgGenesSecondaryProjectService;
 
-    @Autowired
-    @Qualifier("threeI")
-	private GenesSecondaryProject3IImpl threeISecondaryProjectDAO;
 
     @Autowired
     StatisticalResultService srService;
@@ -77,17 +75,16 @@ public class GeneHeatmapController {
                 Model model,
                 HttpServletRequest request) throws SolrServerException, IOException, SQLException {
 
-		if (project.equalsIgnoreCase("idg")) {
+
 
 			Long                         time                         = System.currentTimeMillis();
-			GenesSecondaryProjectService genesSecondaryProjectService = this.getSecondaryProjectDao(project);
-			List<GeneRowForHeatMap>      geneRows                     = genesSecondaryProjectService.getGeneRowsForHeatMap(request);
-			List<BasicBean>              xAxisBeans                   = genesSecondaryProjectService.getXAxisForHeatMap();
+			List<GeneRowForHeatMap>      geneRows                     = idgGenesSecondaryProjectService.getGeneRowsForHeatMap(request);
+			List<BasicBean>              xAxisBeans                   = idgGenesSecondaryProjectService.getXAxisForHeatMap();
 		    model.addAttribute("geneRows", geneRows);
 		    model.addAttribute("xAxisBeans", xAxisBeans);
 			System.out.println("HeatMap: Getting the data took " + (System.currentTimeMillis() - time) + "ms");
 			
-		}
+
         return "geneHeatMap";
 	}
 
@@ -106,9 +103,9 @@ public class GeneHeatmapController {
 			HttpServletRequest request) throws SolrServerException, IOException, SQLException {
 
 
-		GenesSecondaryProjectService genesSecondaryProjectService = this.getSecondaryProjectDao(project);
-		List<GeneRowForHeatMap> geneRows = genesSecondaryProjectService.getGeneRowsForHeatMap(request);
-		List<BasicBean> xAxisBeans = genesSecondaryProjectService.getXAxisForHeatMap();
+
+		List<GeneRowForHeatMap> geneRows = idgGenesSecondaryProjectService.getGeneRowsForHeatMap(request);
+		List<BasicBean> xAxisBeans = idgGenesSecondaryProjectService.getXAxisForHeatMap();
 		model.addAttribute("geneRows", geneRows);
 		model.addAttribute("xAxisBeans", xAxisBeans);
 
@@ -165,32 +162,6 @@ public class GeneHeatmapController {
 
 	}
 
-	@RequestMapping("/threeIMap")
-	@Cacheable("geneHeatMapCache")
-	public String getThreeIMap(Model model, HttpServletRequest request)
-			throws SolrServerException, IOException, SQLException {
-
-		System.out.println("calling heatmap controller method for 3i");
-		String                       project                      ="threeI";
-		Long                         time                         = System.currentTimeMillis();
-	    List<BasicBean>              xAxisBeans                   = srService.getProceduresForDataSource("3i"); //procedures
-		GenesSecondaryProjectService genesSecondaryProjectService = this.getSecondaryProjectDao(project);
-		List<GeneRowForHeatMap>      geneRows                     = genesSecondaryProjectService.getGeneRowsForHeatMap(request);
-	    model.addAttribute("geneRows", geneRows);
-	    model.addAttribute("xAxisBeans", xAxisBeans);
-		System.out.println("HeatMap: Getting the data took " + (System.currentTimeMillis() - time) + "ms");
-	    return "threeIMap";
-	}
-
-	private GenesSecondaryProjectService getSecondaryProjectDao(String project) {
-		if(project.equalsIgnoreCase(GenesSecondaryProjectService.SecondaryProjectIds.IDG.name())){
-			return idgGenesSecondaryProjectService;
-		}
-		if(project.equalsIgnoreCase(GenesSecondaryProjectService.SecondaryProjectIds.threeI.name())){
-			return threeISecondaryProjectDAO;
-		}
-		return null;
-	}
 	
 
 
