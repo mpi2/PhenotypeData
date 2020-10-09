@@ -144,10 +144,30 @@ public class ObservationService extends BasicService implements WebStatus {
                 .add("group.limit", Integer.toString(1))
                 .add("group.main", "true");
 
-        logger.info("associated colony id solr query: " + solrQuery);
+        logger.debug("getAllelesForGene solr query: " + solrQuery);
 
         Set<String> alleles = new HashSet<>(experimentCore.query(solrQuery).getBeans(ObservationDTO.class).stream().map(ObservationDTOBase::getAlleleAccession).collect(Collectors.toSet()));
         return new ArrayList<>(alleles);
+    }
+    /**
+     * Return all strains associated with the gene
+     */
+    public List<String> getStrainsForGene(String markerAccessionId) throws IOException, SolrServerException {
+
+        SolrQuery solrQuery = new SolrQuery()
+                .setQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + markerAccessionId + "\"")
+                .addFilterQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":" + BiologicalSampleType.experimental)
+                .addField(ObservationDTO.STRAIN_ACCESSION_ID)
+                .setRows(Integer.MAX_VALUE);
+        solrQuery.add("group", "true")
+                .add("group.field", ObservationDTO.STRAIN_ACCESSION_ID)
+                .add("group.limit", Integer.toString(1))
+                .add("group.main", "true");
+
+        logger.debug("getStrainsForGene solr query: " + solrQuery);
+
+        Set<String> strains = new HashSet<>(experimentCore.query(solrQuery).getBeans(ObservationDTO.class).stream().map(ObservationDTOBase::getStrainAccessionId).collect(Collectors.toSet()));
+        return new ArrayList<>(strains);
     }
 
     /**

@@ -98,6 +98,7 @@ public class GenesController {
     private String cmsBaseUrl;
 
     private PharosService pharosService;
+    SearchGeneService searchGeneService;
 
     @Inject
     public GenesController(PhenotypeCallSummarySolr phenotypeCallSummaryService,
@@ -113,7 +114,8 @@ public class GenesController {
                            GeneService geneService,
                            ImpressService impressService,
                            OrderService orderService,
-                           @Named("statistical-result-service") StatisticalResultService statisticalResultService) {
+                           @Named("statistical-result-service") StatisticalResultService statisticalResultService,
+                           SearchGeneService searchGeneService) {
         this.phenotypeCallSummaryService = phenotypeCallSummaryService;
         this.phenSummary = phenSummary;
         this.imagesSolrDao = imagesSolrDao;
@@ -128,6 +130,7 @@ public class GenesController {
         this.impressService = impressService;
         this.orderService = orderService;
         this.statisticalResultService = statisticalResultService;
+        this.searchGeneService = searchGeneService;
     }
 
     @PostConstruct
@@ -162,11 +165,11 @@ public class GenesController {
         Enumeration<String> s = request.getHeaderNames();
 
         while (s.hasMoreElements()) {
-            String header = (String) s.nextElement();
+            String header = s.nextElement();
             Enumeration<String> headers = request.getHeaders(header);
 
             while (headers.hasMoreElements()) {
-                String actualHeader = (String) headers.nextElement();
+                String actualHeader = headers.nextElement();
             }
         }
 
@@ -181,9 +184,7 @@ public class GenesController {
                         @RequestParam(value = "heatmap", required = false, defaultValue = "false") Boolean showHeatmap,
                         Model model,
                         HttpServletRequest request,
-                        HttpServletResponse response,
-                        RedirectAttributes attributes)
-            throws URISyntaxException, GenomicFeatureNotFoundException, IOException, SQLException, SolrServerException {
+                        HttpServletResponse response) throws IOException, SolrServerException {
 
         String debug = request.getParameter("debug");
         boolean d = debug != null && debug.equals("true");
@@ -196,8 +197,23 @@ public class GenesController {
         try {
             processGeneRequest(acc, model, request);
         } catch (Exception e) {
-            String term = acc.substring(0, Math.min(acc.length(), 11));
-            return "redirect:/search?term=" + term + "&type=gene";
+            logger.error("processGeneRequest(acc, model, request) exception: " + e.getLocalizedMessage());
+
+            List<String> geneSuggestions = new ArrayList<>();
+            QueryResponse geneSuggestionResponse;
+            geneSuggestionResponse = searchGeneService.searchSuggestions(acc, 6);
+
+            if(geneSuggestionResponse != null){
+                geneSuggestions.addAll(geneSuggestionResponse
+                        .getBeans(GeneDTO.class)
+                        .stream()
+                        .map(GeneDTO::getMarkerSymbol)
+                        .collect(Collectors.toList()));
+
+            }
+
+            model.addAttribute("geneSuggestions", geneSuggestions);
+            return "identifierError";
         }
 
         response.setHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");

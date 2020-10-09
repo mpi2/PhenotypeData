@@ -104,9 +104,8 @@
                         </tr>
                         <tr>
                             <td>Associated Phenotype</td>
-                            <c:if test="${phenotypes != null && phenotypes.size() >= 1}"><td><c:forEach var="phenotype" items="${phenotypes}" varStatus="mpIndex"><div><a class="font-weight-bold" href="${baseUrl}/phenotypes/${phenotypeIds[mpIndex.index]}">${phenotype}</a></div></c:forEach></td></c:if>
-                            <c:if test="${(phenotypes == null || phenotypes.size() < 1) && viabilityDTO==null}"><td class="font-weight-bold">No significant association</td></c:if>
-                            <c:if test="${viabilityDTO!=null}"><td class="font-weight-bold">${viabilityDTO.category}</td></c:if>
+                            <c:if test="${phenotypes != null && phenotypes.size() >= 1}"><td><c:forEach var="phenotype" items="${phenotypes}" varStatus="mpIndex"><div><a class="font-weight-bold" href="${baseUrl}/phenotypes/${phenotypeIds[mpIndex.index]}">${phenotype}</a></div></c:forEach>${viabilityDTO.category}</td></c:if>
+                            <c:if test="${(phenotypes == null || phenotypes.size() < 1) && viabilityDTO==null}"><td class="font-weight-bold">No significant association, ${viabilityDTO.category}</td></c:if>
                         </tr>
                         <tr>
                             <td>Testing protocol</td>

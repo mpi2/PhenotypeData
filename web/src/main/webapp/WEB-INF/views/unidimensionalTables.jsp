@@ -29,8 +29,14 @@
                             <h4>Results of statistical analysis</h4>
 
                             <dl class="alert alert-success">
-                                <dt>P value</dt>
+                                <dt>Genotype P value</dt>
                                 <dd><t:formatScientific>${data.result.genotypeEffectPValue}</t:formatScientific></dd>
+
+                                <dt>Genotype*Female P value</dt>
+                                <dd><t:formatScientific>${data.result.femaleKoEffectPValue}</t:formatScientific></dd>
+
+                                <dt>Genotype*Male P value</dt>
+                                <dd><t:formatScientific>${data.result.maleKoEffectPValue}</t:formatScientific></dd>
 
                                 <dt>Classification</dt>
                                 <dd>${data.result.classificationTag}</dd>

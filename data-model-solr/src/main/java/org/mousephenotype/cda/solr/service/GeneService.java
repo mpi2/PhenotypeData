@@ -24,7 +24,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrRequest.METHOD;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.FacetField.Count;
@@ -53,7 +52,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -278,6 +276,7 @@ public class GeneService extends BasicService implements WebStatus{
 						null // Metadata group
 				);
 				row.setPhenotypeTerm(phenotypeTerm);
+				row.setLifeStageName(x.getLifeStageName());
 				return row;
 			}).collect(Collectors.toSet());
 

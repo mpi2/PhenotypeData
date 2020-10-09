@@ -112,7 +112,7 @@ public class FileExportController {
 			@RequestParam(value = "allele_accession", required = false) String alleleAccession,
 			@RequestParam(value = "sex", required = false) String[] sexesParameter,
 			@RequestParam(value = "zygosity", required = false) String[] zygositiesParameter,
-			@RequestParam(value = "strain", required = false) String strainParameter
+			@RequestParam(value = "strain", required = false) List<String> strains
 	) throws SolrServerException, IOException, URISyntaxException, SQLException {
 
 		String sex = (sexesParameter != null && sexesParameter.length > 1) ? SexType.valueOf(sexesParameter[0]).getName() : "null";
@@ -123,19 +123,13 @@ public class FileExportController {
 		String alleleAcc = alleleAccessionId;
 		String geneAcc = observationService.getGeneAccFromAlleleAcc(alleleAccessionId);
 
-		String strainAccession = null;
-		if (strainParameter != null) {
-			strainAccession = observationService.getStrainNameFromStrainAcc(strainParameter);
-		}
-
 		List<String> alleleArray = Collections.singletonList(alleleAcc);
 		List<String> geneArray = Collections.singletonList(geneAcc);
 		String[] parameterArray = {parameterStableId};
-		String[] strainArray = {strainAccession};
 		String[] centerArray = {phenotypingCenter};
 		String[] pipelineArray = {pipelineStableId};
 
-		List<String> dataRowsForExperiment = getDataRowsForExperiment(alleleArray, geneArray, parameterArray, zygositiesParameter, strainArray, sex, centerArray, pipelineArray);
+		List<String> dataRowsForExperiment = getDataRowsForExperiment(alleleArray, geneArray, parameterArray, zygositiesParameter, strains, sex, centerArray, pipelineArray);
 
 
 		// Update the header rows to have more PhenStat friendly names
@@ -222,7 +216,7 @@ public class FileExportController {
 			// zygosities should be filled for graph data export
 			@RequestParam(value = "zygosity", required = false) String[] zygosities,
 			// strains should be filled for graph data export
-			@RequestParam(value = "strains", required = false) String[] strains,
+			@RequestParam(value = "strains", required = false) List<String> strains,
 			@RequestParam(value = "geneSymbol", required = false) String geneSymbol,
 			@RequestParam(value = "solrCoreName", required = false) String solrCoreName,
 			@RequestParam(value = "params", required = false) String solrFilters,
@@ -276,12 +270,20 @@ public class FileExportController {
 
 			if (solrCoreName.equalsIgnoreCase("experiment")) {
 				List<String> alleles = allele;
-				if (allele == null || alleles.size()<1) {
+				if (allele == null || allele.size()<1) {
+					// Allele not specified, get all alleles for this gene
 					for (String gene :  mgiGeneId) {
 						alleles.addAll(observationService.getAllelesForGene(gene));
 					}
 				}
-				dataRows = getDataRowsForExperiment(alleles, mgiGeneId, parameterStableId, zygosities, strains, sex, phenotypingCenter, pipelineStableId);
+				List<String> strainIds = strains;
+				if (strains == null || strains.size()<1) {
+					// Background strain not specified, get all strains for this gene
+					for (String gene :  mgiGeneId) {
+						strainIds.addAll(observationService.getStrainsForGene(gene));
+					}
+				}
+				dataRows = getDataRowsForExperiment(alleles, mgiGeneId, parameterStableId, zygosities, strainIds, sex, phenotypingCenter, pipelineStableId);
 			} else {
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart,
 						length, showImgView);
@@ -298,7 +300,7 @@ public class FileExportController {
 												  List<String> mgiGeneId,
 												  String[] parameterStableId,
 												  String[] zygosities,
-												  String[] strains,
+												  List<String> strains,
 												  String sex,
 												  String[] phenotypingCenter,
 												  String[] pipelineStableId) throws SolrServerException, IOException, URISyntaxException, SQLException {
@@ -309,20 +311,17 @@ public class FileExportController {
             phenotypingCenter[i] = phenotypingCenter[i].replaceAll("%20", " ");
         }
 
-		String s = (sex.equalsIgnoreCase("null")) ? null : sex;
-		dataRows = composeExperimentDataExportRows(parameterStableId, mgiGeneId, allele, s, phenotypingCenter, zygosities, strains, pipelineStableId);
+		dataRows = composeExperimentDataExportRows(parameterStableId, allele, phenotypingCenter, zygosities, strains, pipelineStableId);
 
 		return dataRows;
 	}
 
 
 	public List<String> composeExperimentDataExportRows(String[] parameterArray,
-														List<String> genes,
 														List<String> alleles,
-														String gender,
 														String[] centerArray,
 														String[] zygosityArray,
-														String[] strainArray, String[] pipelineArray)
+														List<String> strains, String[] pipelineArray)
 			throws SolrServerException, IOException , SQLException {
 
 		List<String> rows = new ArrayList<>();
@@ -334,13 +333,12 @@ public class FileExportController {
 		List<String> centers = (centerArray != null && centerArray.length != 0) ? Arrays.asList(centerArray) : Collections.singletonList(null);
 		List<String> pipelines = (pipelineArray != null && pipelineArray.length != 0) ? Arrays.asList(pipelineArray) : Collections.singletonList(null);
 		List<String> parameters = (parameterArray != null && parameterArray.length != 0) ? Arrays.asList(parameterArray) : Collections.singletonList(null);
-		List<String> strains = (strainArray != null && strainArray.length != 0) ? Arrays.asList(strainArray) : Collections.singletonList(null);
 
 		// Zygosities
 		List<String> zygosities = (zygosityArray != null && zygosityArray.length != 0) ? Arrays.asList(zygosityArray) : null;
 
 
-		for (String parameter : parameters) {
+		for (String parameter : new HashSet<>(parameters)) {
 			for (String center : centers) {
 				for (String pipeline : pipelines) {
 					for (String strain : strains) {
