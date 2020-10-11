@@ -29,6 +29,7 @@ import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.service.dto.GeneTopLevelMpTerms;
 import org.mousephenotype.cda.solr.web.dto.*;
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
@@ -69,6 +70,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Controller
@@ -192,7 +194,7 @@ public class GenesController {
             model.addAttribute("debug", "true");
         }
 
-        // 2020-10-02 (mrelac) Catch this exception and redirect to the 'gene not found' page.
+        // 2020-10-02 (mrelac) Catch this exception and display the 'identifierError' page.  Also provide suggestions.
         //                     Failing to catch inserts a long stack trace in the log file.
         try {
             processGeneRequest(acc, model, request);
@@ -215,9 +217,6 @@ public class GenesController {
             model.addAttribute("geneSuggestions", geneSuggestions);
             return "identifierError";
         }
-
-        response.setHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
-        response.setHeader("Pragma", "no-cache");
 
         return "genes";
     }
@@ -258,7 +257,7 @@ public class GenesController {
 
     private void processGeneRequest(String acc, Model model, HttpServletRequest request)
             throws GenomicFeatureNotFoundException, URISyntaxException, IOException, SQLException, SolrServerException {
-        int numberOfTopLevelMpTermsWithStatisticalResult = 0;
+
         GeneDTO gene = geneService.getGeneById(acc);
 
         if (gene == null) {
@@ -284,7 +283,7 @@ public class GenesController {
          * Phenotype Summary
          */
         Map<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects = null;
-        Map<String, String> mpGroupsSignificant = new HashMap<>(); // <group, linktToAllData>
+        Map<String, String> mpGroupsSignificant = new HashMap<>();
         Map<String, String> mpGroupsNotSignificant = new HashMap<>();
 
         String prodStatusIcons = "Production status not available.";
@@ -294,31 +293,21 @@ public class GenesController {
 
         try {
 
-            phenotypeSummaryObjects = phenSummary.getSummaryObjectsByZygosity(acc);
-            System.out.println(phenotypeSummaryObjects);
-            mpGroupsSignificant = getGroups(true, phenotypeSummaryObjects);
-            mpGroupsNotSignificant = getGroups(false, phenotypeSummaryObjects);
-            if (!mpGroupsSignificant.containsKey("mortality/aging") && viabilityCalls.size() > 0) {
-                //if mortality aging is not significant we need to test if it's been tested or not
-                mpGroupsNotSignificant.put("mortality/aging", "mpTermId=MP:0010768");
-            }
+            // Get the lists of significant and not significant top level MP terms
+            GeneTopLevelMpTerms geneTopLevelMpTerms = geneService.getTopLevelMpTerms(gene);
 
-            for (String str : mpGroupsSignificant.keySet()) {
-                // str: top level term name
-                if (mpGroupsNotSignificant.containsKey(str)) {
-                    mpGroupsNotSignificant.remove(str);
-                }
-            }
-
-            if (mpGroupsSignificant.containsKey("NA") && (mpGroupsSignificant.get("NA") == null || mpGroupsSignificant.get("NA").equalsIgnoreCase("null"))) {
-                mpGroupsSignificant.remove("NA");
-            }
-
-            // add number of top level terms
-            for (ZygosityType zyg : phenotypeSummaryObjects.keySet()) {
-                numberOfTopLevelMpTermsWithStatisticalResult += phenotypeSummaryObjects.get(zyg).getTotalPhenotypesNumber();
-            }
-            model.addAttribute("numberOfTopLevelMpTermsWithStatisticalResult", numberOfTopLevelMpTermsWithStatisticalResult);
+            mpGroupsSignificant = geneTopLevelMpTerms.getSignificantTopLevelMpTerms().stream()
+                    .map(PhenotypeSummaryType::getGroup)
+                    .collect(Collectors.toMap(
+                            Function.identity(), //key
+                            value -> "true", //value
+                            (existing, replacement) -> existing));
+            mpGroupsNotSignificant = geneTopLevelMpTerms.getNotSignificantTopLevelMpTerms().stream()
+                    .map(PhenotypeSummaryType::getGroup)
+                    .collect(Collectors.toMap(
+                            Function.identity(),
+                            value -> "false",
+                            (existing, replacement) -> existing));
 
             String genePageUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
             Map<String, String> status = geneService.getProductionStatus(acc, genePageUrl);
@@ -423,44 +412,14 @@ public class GenesController {
 
 
     /**
-     * @author ilinca
-     * @since 2015/10/09
-     * @param significant
-     * @param phenotypeSummaryObjects
-     * @return
-     */
-    public Map<String, String> getGroups(boolean significant, Map<ZygosityType, PhenotypeSummaryBySex> phenotypeSummaryObjects) {
-
-        Map<String, String> mpGroups = new HashMap<>();
-
-        for (PhenotypeSummaryBySex summary : phenotypeSummaryObjects.values()) {
-            for (PhenotypeSummaryType phen : summary.getBothPhenotypes(significant)) {
-                mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
-            }
-            for (PhenotypeSummaryType phen : summary.getMalePhenotypes(significant)) {
-                mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
-            }
-            for (PhenotypeSummaryType phen : summary.getFemalePhenotypes(significant)) {
-                mpGroups.put(phen.getGroup(), phen.getTopLevelIds());
-            }
-        }
-
-        return mpGroups;
-    }
-
-    /**
-     * @throws IOException
-     * @throws SolrServerException, IOException
+     * Return the phenotypes section of the gene page
      */
     @RequestMapping("/genesPhenoFrag/{acc}")
     public String genesPhenoFrag(@PathVariable String acc,
                                  @RequestParam(required = false, value = "top_level_mp_term_name") List<String> topLevelMpTermName,
                                  @RequestParam(required = false, value = "resource_fullname") List<String> resourceFullname,
                                  Model model, HttpServletRequest request, RedirectAttributes attributes)
-            throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
-
-        // Pass on any query string after the
-        String queryString = request.getQueryString();
+            throws URISyntaxException, IOException, SolrServerException {
 
         processPhenotypes(acc, model, topLevelMpTermName, resourceFullname, request);
 

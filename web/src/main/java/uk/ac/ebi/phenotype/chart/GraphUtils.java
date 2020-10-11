@@ -89,7 +89,7 @@ public class GraphUtils {
 
         if (urls.size() == 0) {
             //try getting urls anyway if no Statistical Result - need this for 3i data only currently
-            urls = this.getGraphUrlsOld(markerAccession, parameterStableId, pipelineStableIds, dummyGenderList, zygosities, phenotypingCenters, backgroundStrains, metaDataGroups, chartType, alleleAccessions);
+            urls = this.getGraphUrlsOld(markerAccession, parameterStableId, procedureStableIds, pipelineStableIds, dummyGenderList, zygosities, phenotypingCenters, backgroundStrains, metaDataGroups, chartType, alleleAccessions);
         }
 
         if (parameterStableId.equalsIgnoreCase("IMPC_IPG_002_001")) {
@@ -161,7 +161,7 @@ public class GraphUtils {
 
         if (urls.size() == 0) {
             //try getting urls anyway if no Statistical Result - need this for 3i data only currently
-            urls = this.getGraphUrlsOld(acc, parameterStableId, pipelineStableIds, dummyGenderList, zyList, phenotypingCentersList, strainsParams, metaDataGroup, chartType, alleleAccession);
+            urls = this.getGraphUrlsOld(acc, parameterStableId, procedureStableIds, pipelineStableIds, dummyGenderList, zyList, phenotypingCentersList, strainsParams, metaDataGroup, chartType, alleleAccession);
         }
 
         if (parameterStableId.equalsIgnoreCase("IMPC_IPG_002_001")) {
@@ -190,12 +190,13 @@ System.out.println("urls="+urls);
 
 
     public Set<String> getGraphUrlsOld(String acc,
-                                       String parameterStableId, List<String> pipelineStableIds, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList,
+                                       String parameterStableId, List<String> procedureStableIds, List<String> pipelineStableIds, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList,
                                        List<String> strainsParams, List<String> metaDataGroup, ChartType chartType, List<String> alleleAccession)
             throws SolrServerException, IOException {
         log.debug("no charts returned - using old method");
+
         // each url should be unique and so we use a set
-        Set<String>               urls                 = new LinkedHashSet<String>();
+        Set<String>               urls                 = new LinkedHashSet<>();
         Map<String, List<String>> keyList              = experimentService.getExperimentKeys(acc, parameterStableId, pipelineStableIds, phenotypingCentersList, strainsParams, metaDataGroup, alleleAccession);
         List<String>              centersList          = keyList.get(ObservationDTO.PHENOTYPING_CENTER);
         List<String>              strains              = keyList.get(ObservationDTO.STRAIN_ACCESSION_ID);
@@ -210,7 +211,7 @@ System.out.println("urls="+urls);
 
         String genderString = "";
         for (String sex : genderList) {
-            genderString += seperator + "gender=" + sex;
+            genderString += "gender=" + sex;
         }
             chartType = getDefaultChartType(parameterStableId);
 
@@ -233,28 +234,40 @@ System.out.println("urls="+urls);
 
         for (String zyg : zyList) {
             for (String pipeStableId : pipelineStableIdStrings) {
-                for (String center : centersList) {
-                    try {
-                        // encode the phenotype center to get around harwell spaces
-                        center = URLEncoder.encode(center, "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                    for (String strain : strains) {
-                        // one allele accession for each graph url created as
-                        // part of unique key- pielineStableId as well?????
-                        for (String alleleAcc : alleleAccessionStrings) {
-                            String alleleAccessionString = "&" + ObservationDTO.ALLELE_ACCESSION_ID + "=" + alleleAcc;
-                            if (metaDataGroupStrings != null) {
-                                for (String metaGroup : metaDataGroupStrings) {
-                                    urls.add(accessionAndParam + alleleAccessionString + "&zygosity=" + zyg + genderString + seperator + ObservationDTO.PHENOTYPING_CENTER
-                                            + "=" + center + "" + seperator + ObservationDTO.STRAIN_ACCESSION_ID + "=" + strain + seperator + ObservationDTO.PIPELINE_STABLE_ID + "="
-                                            + pipeStableId + seperator + ObservationDTO.METADATA_GROUP + "=" + metaGroup);
+                for (String procStableId : procedureStableIds) {
+                    for (String center : centersList) {
+                        try {
+                            // encode the phenotype center to account for spaces in the name
+                            center = URLEncoder.encode(center, "UTF-8");
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                        for (String strain : strains) {
+                            // one allele accession for each graph url created as
+                            for (String alleleAcc : alleleAccessionStrings) {
+                                String alleleAccessionString = "&" + ObservationDTO.ALLELE_ACCESSION_ID + "=" + alleleAcc;
+                                if (metaDataGroupStrings != null) {
+                                    for (String metaGroup : metaDataGroupStrings) {
+                                        urls.add(accessionAndParam +
+                                                alleleAccessionString + seperator +
+                                                "zygosity=" + zyg + seperator +
+                                                genderString + seperator +
+                                                ObservationDTO.PHENOTYPING_CENTER + "=" + center + "" + seperator +
+                                                ObservationDTO.STRAIN_ACCESSION_ID + "=" + strain + seperator +
+                                                ObservationDTO.PROCEDURE_STABLE_ID + "=" + procStableId + seperator +
+                                                ObservationDTO.PIPELINE_STABLE_ID + "=" + pipeStableId + seperator +
+                                                ObservationDTO.METADATA_GROUP + "=" + metaGroup);
+                                    }
+                                } else {
+                                    // if metadataGroup is null then don't add it to the request
+                                    urls.add(accessionAndParam + alleleAccessionString + seperator +
+                                            "zygosity=" + zyg + seperator +
+                                            genderString + seperator +
+                                            ObservationDTO.PHENOTYPING_CENTER + "=" + center + seperator +
+                                            ObservationDTO.STRAIN_ACCESSION_ID + "=" + strain + seperator +
+                                            ObservationDTO.PROCEDURE_STABLE_ID + "=" + procStableId + seperator +
+                                            ObservationDTO.PIPELINE_STABLE_ID + "=" + pipeStableId);
                                 }
-                            } else {
-                                // if metadataGroup is null then don't add it to the request
-                                urls.add(accessionAndParam + alleleAccessionString + "&zygosity=" + zyg + genderString + seperator + ObservationDTO.PHENOTYPING_CENTER + "="
-                                        + center + seperator + ObservationDTO.STRAIN_ACCESSION_ID + "=" + strain + seperator + ObservationDTO.PIPELINE_STABLE_ID + "=" + pipeStableId);
                             }
                         }
                     }

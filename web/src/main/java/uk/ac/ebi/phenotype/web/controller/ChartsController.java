@@ -276,7 +276,7 @@ public class ChartsController {
 		experiment.setMarkerAccession(gene.getMgiAccessionId());
 
 		Set<SexType> sexes = new HashSet<>(Arrays.asList(SexType.male, SexType.female));
-		if (! experiment.getSexes().contains(SexType.not_considered)) {
+		if (experiment.getSexes() != null && ! experiment.getSexes().contains(SexType.not_considered)) {
 			sexes = experiment.getSexes();
 		}
 		experiment.setSexes(sexes);
@@ -293,12 +293,13 @@ public class ChartsController {
 		ParameterDTO parameter = null;
 
 		if (experiment != null) {
-			proc = impressService.getProcedureByStableId(experiment.getPipelineStableId(), experiment.getProcedureStableId());
+			String pipe = (experiment.getPipelineStableId()!= null) ? experiment.getPipelineStableId() : pipelineStableId;
+			String procStableId = (experiment.getProcedureStableId()!= null) ? experiment.getProcedureStableId() : procedureStableId;
+			proc = impressService.getProcedureByStableId(pipe, procStableId);
 
 			String procedureUrl = "";
 			String parameterUrl = "";
 			if (proc != null) {
-				//procedureDescription = String.format("<a href=\"%s\">%s</a>", is.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()),  "Procedure: "+ proc.getName());
 				procedureUrl = impressService.getProcedureUrlByStableKeyAndPipelineStableKey(proc.getStableKey(), pipeline.getStableKey());
 				model.addAttribute("procedureUrl", procedureUrl);
 			}
@@ -694,8 +695,7 @@ public class ChartsController {
         String allParameters = "";
 
         // All ABR parameters are displayed on the same chart so we don't want to duplicate an identical chart for every ABR parameter
-        List<String> abrParameters =  new ArrayList<>();
-        abrParameters.addAll(paramIds);
+		List<String> abrParameters = new ArrayList<>(paramIds);
         abrParameters.retainAll(Constants.ABR_PARAMETERS);
         if (abrParameters.size() > 1){
             for (int i = 1; i < abrParameters.size(); i++) { // remove all ABR params but the first one

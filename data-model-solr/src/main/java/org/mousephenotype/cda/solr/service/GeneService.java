@@ -200,11 +200,31 @@ public class GeneService extends BasicService implements WebStatus{
 
 	}
 
+	public GeneTopLevelMpTerms getTopLevelMpTerms(GeneDTO gene) {
+
+		return new GeneTopLevelMpTerms(gene.getSignificantTopLevelMpTerms(), gene.getNotSignificantTopLevelMpTerms());
+	}
+
+
+	public GeneTopLevelMpTerms getTopLevelMpTerms(String geneAccessionId) throws IOException, SolrServerException {
+
+		SolrQuery query = new SolrQuery()
+				.setQuery(GeneDTO.MGI_ACCESSION_ID + ":\"" +geneAccessionId+ "\"")
+				.setFields(GeneDTO.SIGNIFICANT_TOP_LEVEL_MP_TERMS, GeneDTO.NOT_SIGNIFICANT_TOP_LEVEL_MP_TERMS);
+		final List<GeneDTO> geneDTOs = geneCore.query(query).getBeans(GeneDTO.class);
+
+		if (geneDTOs.size() != 1) throw new RuntimeException("Multiple gene documents found for "+ geneAccessionId);
+
+		GeneDTO gene = geneDTOs.get(0);
+
+		return new GeneTopLevelMpTerms(gene.getSignificantTopLevelMpTerms(), gene.getNotSignificantTopLevelMpTerms());
+	}
 
 	public Set<ExperimentsDataTableRow> getAllData(String geneAccessionId) throws IOException, SolrServerException {
 
 		SolrQuery query = new SolrQuery()
-				.setQuery(GeneDTO.MGI_ACCESSION_ID + ":\"" +geneAccessionId+ "\"");
+				.setQuery(GeneDTO.MGI_ACCESSION_ID + ":\"" +geneAccessionId+ "\"")
+				.setFields(GeneDTO.DATASETS_RAW_DATA);
 		final List<GeneDTO> geneDTOs = geneCore.query(query).getBeans(GeneDTO.class);
 
 		if (geneDTOs.size() != 1) throw new RuntimeException("Multiple gene documents found for "+ geneAccessionId);
