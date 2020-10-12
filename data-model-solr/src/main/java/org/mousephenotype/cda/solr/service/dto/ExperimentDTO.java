@@ -212,7 +212,7 @@ public class ExperimentDTO {
         }
 
         for (ObservationDTO mutant : mutantsDtos) {
-            if (sex == null || sex.equals(SexType.not_considered) || sex.equals(SexType.valueOf(mutant.getSex()))) {
+            if (sex == null || sex.equals(SexType.not_considered) || sex.equals(SexType.getByDisplayName(mutant.getSex()))) {
                 mutantDtosForSex.add(mutant);
             }
         }

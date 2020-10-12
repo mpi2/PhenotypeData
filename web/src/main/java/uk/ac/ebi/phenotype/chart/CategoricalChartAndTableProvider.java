@@ -18,7 +18,6 @@ package uk.ac.ebi.phenotype.chart;
 import org.apache.commons.lang3.text.WordUtils;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
@@ -32,8 +31,6 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -42,27 +39,19 @@ public class CategoricalChartAndTableProvider {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-	private final ImpressService impressService;
-
-	@Inject
-	public CategoricalChartAndTableProvider(ImpressService impressService) {
-		this.impressService = impressService;
-	}
-
-
 	/**
 	 * return a list of categorical result and chart objects - one for each
 	 * ExperimentDTO
 	 */
-	public CategoricalResultAndCharts doCategoricalData(ExperimentDTO experiment, ParameterDTO parameter,
-														String numberString)
-	throws SQLException {
+	public CategoricalResultAndCharts doCategoricalData(
+			ExperimentDTO experiment,
+			ParameterDTO parameter,
+			String numberString) {
 
 		logger.debug("running categorical data");
 		
 			List<String> categories = parameter.getCategories();
-			//System.out.println("categories===="+categories);
-			
+
 			//for the IMPC_EYE_092_001 derived parameter hack the categories to match the SR core????
 			if(parameter.getStableId().equals("IMPC_EYE_092_001")){
 				categories=new ArrayList<>();
@@ -107,8 +96,6 @@ public class CategoricalChartAndTableProvider {
 							controlCount++;
 						}
 					}
-				} else {
-					controlCount = 0;
 				}
 				controlCatData.setCount(controlCount);
 				controlSet.add(controlCatData);
@@ -136,9 +123,8 @@ public class CategoricalChartAndTableProvider {
 					for (ObservationDTO expDto : expObservationsSet) {
 
 						// get the attributes of this data point
-						SexType docSexType = SexType.valueOf(expDto.getSex());
+						SexType docSexType = SexType.getByDisplayName(expDto.getSex());
 						String categoString = expDto.getCategory();
-						//System.out.println("mutant category string="+categoString);
 						// get docs that match the criteria and add
 						// 1 for each that does
 						if (categoString.equals(category) && (docSexType.equals(sexType) || sexType.equals(SexType.not_considered))) {
@@ -152,13 +138,13 @@ public class CategoricalChartAndTableProvider {
 					expCatData.setCount(mutantCount);
 					StatisticalResultDTO tempStatsResult = null;
 					for (StatisticalResultDTO result : statsResults) {
-						if(result.getSex() != null && (SexType.valueOf(result.getSex()).equals(SexType.both) || SexType.valueOf(result.getSex()).equals(SexType.not_considered))){
+						if(result.getSex() != null && (SexType.getByDisplayName(result.getSex()).equals(SexType.both) || SexType.getByDisplayName(result.getSex()).equals(SexType.not_considered))){
 							categoricalResultAndCharts.setCombinedPValue(result.getPValue());
 						}
 						categoricalResultAndCharts.setFemalePValue(result.getFemaleKoEffectPValue());
 						categoricalResultAndCharts.setMalePValue(result.getMaleKoEffectPValue());
 						if (result.getZygosity() != null && result.getSex() != null) {
-							if (ZygosityType.valueOf(result.getZygosity()).equals(zType) && SexType.valueOf(result.getSex()).equals(sexType)) {
+							if (ZygosityType.getByDisplayName(result.getZygosity()).equals(zType) && SexType.getByDisplayName(result.getSex()).equals(sexType)) {
 								expCatData.setResult(result);
 								result.setSex(sexType.getName());
 								result.setZygosity(zType.getName());
@@ -167,8 +153,6 @@ public class CategoricalChartAndTableProvider {
 						}
 					}
 
-					// //TODO get multiple p values when necessary
-					// System.err.println("ERROR WE NEED to change the code to handle multiple p values and max effect!!!!!!!!");
 					if (tempStatsResult != null && tempStatsResult.getPValue() != null) {
 						expCatData.setpValue(tempStatsResult.getPValue());
 						if (tempStatsResult.getEffectSize() != null) {

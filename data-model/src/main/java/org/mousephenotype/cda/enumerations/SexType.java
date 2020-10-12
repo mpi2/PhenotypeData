@@ -52,7 +52,9 @@ public enum SexType {
             case "not applicable":
                 return SexType.not_applicable;
             case "no data":
+            case "no_data":
                 return SexType.no_data;
+            case "not considered":
             case "not_considered":
             case "both":
                 return SexType.not_considered;

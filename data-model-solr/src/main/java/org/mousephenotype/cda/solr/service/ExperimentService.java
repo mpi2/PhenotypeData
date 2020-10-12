@@ -190,7 +190,7 @@ public class ExperimentService {
             // "hom"
             experiment.setSexes(new TreeSet<>());
             if (result.getSex() != null) {
-                experiment.getSexes().add(SexType.valueOf(result.getSex()));
+                experiment.getSexes().add(SexType.getByDisplayName(result.getSex()));
             } else {
                 if (result.getFemaleMutantCount() != null && result.getFemaleMutantCount() > 0) {
                     experiment.getSexes().add(SexType.female);

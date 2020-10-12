@@ -16,7 +16,6 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.common.Constants;
@@ -52,7 +51,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -327,72 +325,66 @@ public class ChartsController {
 				metadataList = experiment.getMetadata();
 			}
 
-			try {
+			if (chartType != null) {
 
-				if (chartType != null) {
+				ScatterChartAndData scatterChartAndData;
 
-					ScatterChartAndData scatterChartAndData;
+				switch (chartType) {
 
-					switch (chartType) {
+					case UNIDIMENSIONAL_SCATTER_PLOT:
 
-						case UNIDIMENSIONAL_SCATTER_PLOT:
+						scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, null, null, parameter, experimentNumber);
+						model.addAttribute("scatterChartAndData", scatterChartAndData);
 
-							scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, null, null, parameter, experimentNumber);
-							model.addAttribute("scatterChartAndData", scatterChartAndData);
-
-							if (observationTypeForParam.equals(ObservationType.unidimensional)) {
-								List<UnidimensionalStatsObject> unidimenStatsObjects = scatterChartAndData.getUnidimensionalStatsObjects();
-								unidimensionalChartDataSet = new UnidimensionalDataSet();
-								unidimensionalChartDataSet.setStatsObjects(unidimenStatsObjects);
-								model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
-							}
-							break;
-
-						case UNIDIMENSIONAL_ABR_PLOT:
-
-							seriesParameterChartData = abrChartAndTableProvider.getAbrChartAndData(experiment, parameter, "abrChart" + experimentNumber, SOLR_URL);
-							model.addAttribute("abrChart", seriesParameterChartData.getChart());
-							break;
-
-						case UNIDIMENSIONAL_BOX_PLOT:
-
-							try {
-								unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, xUnits);
-							} catch (JSONException e) {
-								e.printStackTrace();
-							}
+						if (observationTypeForParam.equals(ObservationType.unidimensional)) {
+							List<UnidimensionalStatsObject> unidimenStatsObjects = scatterChartAndData.getUnidimensionalStatsObjects();
+							unidimensionalChartDataSet = new UnidimensionalDataSet();
+							unidimensionalChartDataSet.setStatsObjects(unidimenStatsObjects);
 							model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+						}
+						break;
 
-							scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, unidimensionalChartDataSet.getMin(), unidimensionalChartDataSet.getMax(), parameter, experimentNumber);
-							model.addAttribute("scatterChartAndData", scatterChartAndData);
+					case UNIDIMENSIONAL_ABR_PLOT:
 
-							break;
+						seriesParameterChartData = abrChartAndTableProvider.getAbrChartAndData(experiment, parameter, "abrChart" + experimentNumber, SOLR_URL);
+						model.addAttribute("abrChart", seriesParameterChartData.getChart());
+						break;
 
-						case CATEGORICAL_STACKED_COLUMN:
+					case UNIDIMENSIONAL_BOX_PLOT:
 
-							categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, experimentNumber);
-							model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
-							break;
+						try {
+							unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, xUnits);
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+						model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
 
-						case TIME_SERIES_LINE:
+						scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, unidimensionalChartDataSet.getMin(), unidimensionalChartDataSet.getMax(), parameter, experimentNumber);
+						model.addAttribute("scatterChartAndData", scatterChartAndData);
 
-							seriesParameterChartData = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber);
-							model.addAttribute("timeSeriesChartsAndTable", seriesParameterChartData);
-							break;
+						break;
 
-						default:
+					case CATEGORICAL_STACKED_COLUMN:
 
-							log.error("Unknown how to display graph for observation type: " + observationTypeForParam);
-							break;
-					}
-				} else {
-					log.error("chart type is null");
+						categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, experimentNumber);
+						model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
+						break;
+
+					case TIME_SERIES_LINE:
+
+						seriesParameterChartData = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber);
+						model.addAttribute("timeSeriesChartsAndTable", seriesParameterChartData);
+						break;
+
+					default:
+
+						log.error("Unknown how to display graph for observation type: " + observationTypeForParam);
+						break;
 				}
-
-			} catch (SQLException e) {
-				log.error(ExceptionUtils.getStackTrace(e));
-				statsError = true;
+			} else {
+				log.error("chart type is null");
 			}
+
 		} else {
 			System.out.println("empty experiment");
 			model.addAttribute("emptyExperiment", true);
