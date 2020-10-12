@@ -291,8 +291,8 @@ public class ChartsController {
 		ParameterDTO parameter = null;
 
 		if (experiment != null) {
-			String pipe = (experiment.getPipelineStableId()!= null) ? experiment.getPipelineStableId() : pipelineStableId;
-			String procStableId = (experiment.getProcedureStableId()!= null) ? experiment.getProcedureStableId() : procedureStableId;
+			String pipe = (experiment.getPipelineStableId() != null) ? experiment.getPipelineStableId() : pipelineStableId;
+			String procStableId = (experiment.getProcedureStableId() != null) ? experiment.getProcedureStableId() : procedureStableId;
 			proc = impressService.getProcedureByStableId(pipe, procStableId);
 
 			String procedureUrl = "";
@@ -310,7 +310,7 @@ public class ChartsController {
 				addFlowCytometryImages(accession, model, parameter);
 			}
 
-			String          xUnits                  = parameter.getUnitX();
+			String xUnits = parameter.getUnitX();
 			ObservationType observationTypeForParam = parameter.getObservationType();
 
 			if (parameter.getStableKey() != null) {
@@ -325,69 +325,71 @@ public class ChartsController {
 				metadataList = experiment.getMetadata();
 			}
 
-			if (chartType != null) {
 
-				ScatterChartAndData scatterChartAndData;
+			// Do not treat these procedures as standard charts
+			List<String> notDefault = Arrays.asList("IMPC_EVL_", "IMPC_EVM_", "IMPC_EVO_", "IMPC_EVP_", "IMPC_VIA_");
+			if (notDefault.stream().noneMatch(parameterStableId::startsWith)) {
 
-				switch (chartType) {
+				if (chartType != null) {
 
-					case UNIDIMENSIONAL_SCATTER_PLOT:
+					ScatterChartAndData scatterChartAndData;
 
-						scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, null, null, parameter, experimentNumber);
-						model.addAttribute("scatterChartAndData", scatterChartAndData);
+					switch (chartType) {
 
-						if (observationTypeForParam.equals(ObservationType.unidimensional)) {
-							List<UnidimensionalStatsObject> unidimenStatsObjects = scatterChartAndData.getUnidimensionalStatsObjects();
-							unidimensionalChartDataSet = new UnidimensionalDataSet();
-							unidimensionalChartDataSet.setStatsObjects(unidimenStatsObjects);
+						case UNIDIMENSIONAL_SCATTER_PLOT:
+
+							scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, null, null, parameter, experimentNumber);
+							model.addAttribute("scatterChartAndData", scatterChartAndData);
+
+							if (observationTypeForParam.equals(ObservationType.unidimensional)) {
+								List<UnidimensionalStatsObject> unidimenStatsObjects = scatterChartAndData.getUnidimensionalStatsObjects();
+								unidimensionalChartDataSet = new UnidimensionalDataSet();
+								unidimensionalChartDataSet.setStatsObjects(unidimenStatsObjects);
+								model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+							}
+							break;
+
+						case UNIDIMENSIONAL_ABR_PLOT:
+
+							seriesParameterChartData = abrChartAndTableProvider.getAbrChartAndData(experiment, parameter, "abrChart" + experimentNumber, SOLR_URL);
+							model.addAttribute("abrChart", seriesParameterChartData.getChart());
+							break;
+
+						case UNIDIMENSIONAL_BOX_PLOT:
+
+							try {
+								unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, xUnits);
+							} catch (JSONException e) {
+								e.printStackTrace();
+							}
 							model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
-						}
-						break;
 
-					case UNIDIMENSIONAL_ABR_PLOT:
+							scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, unidimensionalChartDataSet.getMin(), unidimensionalChartDataSet.getMax(), parameter, experimentNumber);
+							model.addAttribute("scatterChartAndData", scatterChartAndData);
 
-						seriesParameterChartData = abrChartAndTableProvider.getAbrChartAndData(experiment, parameter, "abrChart" + experimentNumber, SOLR_URL);
-						model.addAttribute("abrChart", seriesParameterChartData.getChart());
-						break;
+							break;
 
-					case UNIDIMENSIONAL_BOX_PLOT:
+						case CATEGORICAL_STACKED_COLUMN:
 
-						try {
-							unidimensionalChartDataSet = continousChartAndTableProvider.doUnidimensionalData(experiment, experimentNumber, parameter, xUnits);
-						} catch (JSONException e) {
-							e.printStackTrace();
-						}
-						model.addAttribute("unidimensionalChartDataSet", unidimensionalChartDataSet);
+							categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, experimentNumber);
+							model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
+							break;
 
-						scatterChartAndData = scatterChartAndTableProvider.doScatterData(experiment, unidimensionalChartDataSet.getMin(), unidimensionalChartDataSet.getMax(), parameter, experimentNumber);
-						model.addAttribute("scatterChartAndData", scatterChartAndData);
+						case TIME_SERIES_LINE:
 
-						break;
+							seriesParameterChartData = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber);
+							model.addAttribute("timeSeriesChartsAndTable", seriesParameterChartData);
+							break;
 
-					case CATEGORICAL_STACKED_COLUMN:
+						default:
 
-						categoricalResultAndChart = categoricalChartAndTableProvider.doCategoricalData(experiment, parameter, experimentNumber);
-						model.addAttribute("categoricalResultAndChart", categoricalResultAndChart);
-						break;
-
-					case TIME_SERIES_LINE:
-
-						seriesParameterChartData = timeSeriesChartAndTableProvider.doTimeSeriesData(experiment, parameter, experimentNumber);
-						model.addAttribute("timeSeriesChartsAndTable", seriesParameterChartData);
-						break;
-
-					default:
-
-						log.error("Unknown how to display graph for observation type: " + observationTypeForParam);
-						break;
+							log.error("Unknown how to display graph for observation type: " + observationTypeForParam);
+							break;
+					}
+				} else {
+					log.error("chart type is null");
 				}
-			} else {
-				log.error("chart type is null");
 			}
-
-		} else {
-			System.out.println("empty experiment");
-			model.addAttribute("emptyExperiment", true);
 		}
 
 		if (procedureStableId.equals("IMPC_VIA_001")) {
@@ -544,14 +546,41 @@ public class ChartsController {
 		model.addAttribute("numberMice", totalSamples);
 
 		if (experiment != null) {
-			List<GenotypePhenotypeDTO> gpList = gpService.getGenotypePhenotypeFor(
-					gene.getMgiAccessionId(),
-					experiment.getParameterStableId(),
-					experiment.getStrain(),
-					experiment.getAlleleAccession(),
-					experiment.getZygosities(),
-					experiment.getOrganisation(),
-					experiment.getSexes());
+			List<GenotypePhenotypeDTO> gpList = new ArrayList<>();
+
+			if (experiment.getParameterStableId() != null) {
+				List<GenotypePhenotypeDTO> addGpList = gpService.getGenotypePhenotypeFor(
+						gene.getMgiAccessionId(),
+						experiment.getParameterStableId(),
+						experiment.getStrain(),
+						experiment.getAlleleAccession(),
+						experiment.getZygosities(),
+						experiment.getOrganisation(),
+						experiment.getSexes());
+				gpList.addAll(addGpList);
+			}
+
+			// If we are displaying a chart for Embryo viability, check all possible associated terms
+			// and add any significant results to the MP terms that are associated to this data
+			if (Stream.of("IMPC_EVL_", "IMPC_EVM_", "IMPC_EVO_", "IMPC_EVP_", "IMPC_VIA_").anyMatch(parameterStableId::startsWith)) {
+				
+				EmbryoViability v = EmbryoViability.E9_5;
+				if (parameterStableId.contains("EVM")) v = EmbryoViability.E12_5;
+				if (parameterStableId.contains("EVO")) v = EmbryoViability.E14_5;
+				if (parameterStableId.contains("EVP")) v = EmbryoViability.E18_5;
+
+				for (String param : v.parameterList) {
+					List<GenotypePhenotypeDTO> addGpList = gpService.getGenotypePhenotypeFor(
+							gene.getMgiAccessionId(),
+							param,
+							experiment.getStrain(),
+							experiment.getAlleleAccession(),
+							experiment.getZygosities(),
+							experiment.getOrganisation(),
+							experiment.getSexes());
+					gpList.addAll(addGpList);
+				}
+			}
 
 			// If we are displaying a chart for IPGTT, check all possible derived terms associated to IPG procedure
 			// and add any significant results to the MP terms that are associated to this data
@@ -568,6 +597,7 @@ public class ChartsController {
 					gpList.addAll(addGpList);
 				}
 			}
+
 			//for line level parameters such as viability
 			if (org.mousephenotype.cda.common.Constants.viabilityParameters.contains(parameterStableId)) {
 				for (String param : org.mousephenotype.cda.common.Constants.viabilityParameters) {
