@@ -1333,6 +1333,15 @@ public class GeneService extends BasicService implements WebStatus{
 								return groupLabel1 + " " + groupLabel2;
 							}}));
 
+		Map<String, String> accessionToHumanSymbol=projectBeans.stream().collect(Collectors.toMap(GenesSecondaryProject::getMgiGeneAccessionId, GenesSecondaryProject::getHumanGeneSymbol,
+				(humanGene1,humanGene2)->{
+			if(humanGene1.equals(humanGene2)){
+				return humanGene1;
+			}else{
+				return humanGene1+" "+humanGene2;
+			}
+				}));
+
 			// Collect the documents by gene
 			//Map<String, List<GeneDTO>> geneMap = results.stream().collect(Collectors.groupingBy(GeneDTO::getMgiAccessionId, Collectors.mapping(Function.identity(), Collectors.toList())));
 
@@ -1340,13 +1349,12 @@ public class GeneService extends BasicService implements WebStatus{
 				// Fill row with default values for all mp top levels
 				GeneRowForHeatMap row = new GeneRowForHeatMap(gene.getMgiAccessionId(), gene.getMarkerSymbol(), topLevelMps);
 
-				// Collect
-				//for (GeneDTO result : geneMap.get(geneAcc)) {
-					List<String> currentTopLevelMps = gene.getSignificantTopLevelMpTerms();
-
 				// get a data structure with the gene accession, parameter associated with a value or status ie. not phenotyped, not significant
 				String accession = gene.getMgiAccessionId();
-				row.setHumanSymbol(gene.getHumanGeneSymbol());
+				String humanSymbol=accessionToHumanSymbol.get(accession);
+				List<String>humanSymbols=new ArrayList<>();
+				humanSymbols.add(humanSymbol);
+				row.setHumanSymbol(humanSymbols);
 				// Mouse production status
 
 				Map<String, String> prod =  GeneService.getStatusFromDTO(gene, geneUrl);
