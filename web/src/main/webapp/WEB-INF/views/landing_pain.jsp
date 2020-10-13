@@ -6,7 +6,7 @@
 
 <t:genericpage-landing>
 
-	<jsp:attribute name="title">Pain landing page | IMPC Phenotype Information</jsp:attribute>
+	<jsp:attribute name="title">Pain</jsp:attribute>
     <jsp:attribute name="pagename">Pain</jsp:attribute>
     <jsp:attribute name="breadcrumb">Pain</jsp:attribute>
 

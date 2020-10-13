@@ -500,38 +500,40 @@
                                 </div>
                                 <div class="row d-lg-flex d-none">
                                     <div class="col-12">
+                                        <ul class="mx-5 mb-5 mt-0">
+                                            <li>The disease models module displays the analysis of phenotypic similarity between mouse and human.  This can:
+                                                <ul>
+                                                    <li>provide insight into the fidelity of the mouse knockout to a "solved" human disease,</li>
+                                                    <li>suggest candidate genes for unsolved human diseases,</li>
+                                                    <li>indicate possible genetic interactions between genes.</li>
+                                                </ul></li>
+                                            <li>Phenodigm calculates similarity scores by comparing the IMPC mouse phenotypes to the clinical descriptions of human disease. Scores are weighted by the number and uniqueness of matches between mouse and human phenotype ontologies. The overall score is normalized to 100 as the best score.</li>
+                                            <li>The tab "By Phenotypic Similarity" derives from a global analysis of similarity between mouse and human diseases and syndromes, (using information from OMIM, Orphanet, and DECIPHER)</li>
+                                            <li>The tab "By Annotation and Orthology" includes only those cases where mutation(s) in the orthologous human gene cause disease, thereby measure phenotype similarity between mutations in the mouse and human gene.</li>
+                                            <li>To understand what expanding a row shows, <a href="${cmsBaseUrl}/help/data-visualization/gene-pages/disease-models/" target="_blank">visit documentation for disease models</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="row d-lg-flex d-none">
+                                    <div class="col-12">
                                         <ul class="nav nav-tabs" id="diseasesTab" role="tablist">
                                             <li class="nav-item">
-                                                <a class="nav-link active" id="byAnnotation-tab" data-toggle="tab"
-                                                   href="#byAnnotation"
-                                                   role="tab" aria-controls="byAnnotation-tab" aria-selected="false">By
-                                                    Annotation and
-                                                    Orthology (<span id="diseases_by_annotation_count">0</span>)</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="nav-link" id="byPhenotype-tab" data-toggle="tab"
+                                                <a class="nav-link active" id="byPhenotype-tab" data-toggle="tab"
                                                    href="#byPhenotype"
                                                    role="tab" aria-controls="byPhenotype-tab" aria-selected="false">By
                                                     phenotypic
                                                     Similarity (<span id="diseases_by_phenotype_count">0</span>)</a>
                                             </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" id="byAnnotation-tab" data-toggle="tab"
+                                                   href="#byAnnotation"
+                                                   role="tab" aria-controls="byAnnotation-tab" aria-selected="false">By
+                                                    Annotation and
+                                                    Orthology (<span id="diseases_by_annotation_count">0</span>)</a>
+                                            </li>
                                         </ul>
                                         <div class="tab-content mt-2" id="diseasesTabContent">
-                                            <div class="tab-pane fade show active" id="byAnnotation" role="tabpanel"
-                                                 aria-labelledby="byAnnotation-tab">
-                                                <c:choose>
-                                                    <c:when test="${!hasModelsByOrthology}">
-                                                        <div class="alert alert-warning mt-3">
-                                                            No associations by disease annotation and gene orthology found.
-                                                        </div>
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <table id="diseases_by_annotation"
-                                                               class="table tablesorter disease" style="width:100%"></table>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                            </div>
-                                            <div class="tab-pane fade" id="byPhenotype" role="tabpanel"
+                                            <div class="tab-pane fade show active" id="byPhenotype" role="tabpanel"
                                                  aria-labelledby="byPhenotype-tab">
                                                 <c:choose>
                                                     <c:when test="${empty modelAssociations}">
@@ -540,9 +542,30 @@
                                                         </div>
                                                     </c:when>
                                                     <c:otherwise>
+                                                        <ul class="mx-5">
+                                                            <li>A best match (high Phenodigm score) may occur with an orphan or "unsolved" disease, and this suggests the mouse gene as a candidate for the human disorder.</li>
+                                                            <li>It is important to note that a mouse knockout may also have a high scoring match to a “solved” human genetic disease associated with a different gene. A genocopy suggests that the two genes may interact in a physiological pathway or network.</li>
+                                                        </ul>
                                                         <table id="diseases_by_phenotype"
                                                                class="table tablesorter disease hidden-xs"
                                                                style="width:100%"></table>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </div>
+                                            <div class="tab-pane fade" id="byAnnotation" role="tabpanel"
+                                                 aria-labelledby="byAnnotation-tab">
+                                                <c:choose>
+                                                    <c:when test="${!hasModelsByOrthology}">
+                                                        <div class="alert alert-warning mt-3">
+                                                            No associations by disease annotation and gene orthology found.
+                                                        </div>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <ul class="mx-5">
+                                                            <li>This is a subset of the By Phenotypic Similarity tab.  In some cases, mutation(s) in the orthologous human gene are known to cause disease. For these, similarity analysis between the mouse phenotype and that genetic disease(s) is presented.</li>
+                                                        </ul>
+                                                        <table id="diseases_by_annotation"
+                                                               class="table tablesorter disease" style="width:100%"></table>
                                                     </c:otherwise>
                                                 </c:choose>
                                             </div>
