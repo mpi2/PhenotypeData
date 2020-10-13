@@ -6,7 +6,7 @@
 
 <t:genericpage-landing>
 
-    <jsp:attribute name="title">${pageTitle} landing page | IMPC Phenotype Information</jsp:attribute>
+    <jsp:attribute name="title">${pageTitle}</jsp:attribute>
 	<jsp:attribute name="pagename">${pageTitle}</jsp:attribute>
 	<jsp:attribute name="breadcrumb">${systemName}</jsp:attribute>
 

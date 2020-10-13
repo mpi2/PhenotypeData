@@ -4,7 +4,7 @@
 
 <t:genericpage-landing>
 
-    <jsp:attribute name="title">IMPC Embryo Landing Page</jsp:attribute>
+    <jsp:attribute name="title">IMPC Embryo </jsp:attribute>
     <jsp:attribute name="pagename">IMPC Embryo Data</jsp:attribute>
     <jsp:attribute name="breadcrumb">Embryo</jsp:attribute>
 

@@ -230,8 +230,8 @@
                             <div class="search-result">
                                 <div class="row">
                                     <div class="col-12 col-md-6">
-                                        <h3><a href="${baseUrl}/genes/${gene.mgiAccessionId}">${gene.markerSymbol}</a></h3>
-                                        <dl class="row mb-0">
+                                        <h3 class="mb-4"><a href="${baseUrl}/genes/${gene.mgiAccessionId}">${gene.markerSymbol}</a></h3>
+                                        <dl class="row mb-3">
                                             <dt class="col-sm-3">Name:</dt>
                                             <dd class="col-sm-9">${gene.markerName}</dd>
                                             <dt class="col-sm-3">Synonyms:</dt>

@@ -6,7 +6,7 @@
 
 <t:genericpage-landing>
 
-	<jsp:attribute name="title">Conservation landing page | IMPC Phenotype Information</jsp:attribute>
+	<jsp:attribute name="title">Conservation</jsp:attribute>
 	<jsp:attribute name="pagename">Translating to other species</jsp:attribute>
 	<jsp:attribute name="breadcrumb">Conservation</jsp:attribute>
 

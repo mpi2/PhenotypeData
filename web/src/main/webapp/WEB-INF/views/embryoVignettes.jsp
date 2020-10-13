@@ -4,7 +4,7 @@
 
 <t:genericpage-landing>
 
-    <jsp:attribute name="title">IMPC Embryo Landing Page</jsp:attribute>
+    <jsp:attribute name="title">IMPC Embryo</jsp:attribute>
     <jsp:attribute name="pagename">Embryo Vignettes</jsp:attribute>
     <jsp:attribute name="breadcrumb">Embryo Vignettes</jsp:attribute>
     <jsp:attribute name="bodyTag"><body  class="phenotype-node no-sidebars small-header"></jsp:attribute>
