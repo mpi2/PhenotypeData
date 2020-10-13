@@ -53,6 +53,7 @@ public class ExperimentDTO {
     private Set<ObservationDTO> maleControls;
     private Set<ObservationDTO> femaleControls;
     private String              alleleAccession;
+    private String              markerAccession;
 
     private String statisticalResultUrl;
     private String genotypePhenotypeUrl;
@@ -93,7 +94,7 @@ public class ExperimentDTO {
 				+ ", heterozygoteMutants=" + heterozygoteMutants + ", hemizygoteMutants=" + hemizygoteMutants
 				+ ", controls=" + controls + ", controlBiologicalModelId=" + controlBiologicalModelId
 				+ ", experimentalBiologicalModelId=" + experimentalBiologicalModelId + ", maleControls=" + maleControls
-				+ ", femaleControls=" + femaleControls + ", alleleAccession=" + alleleAccession
+				+ ", femaleControls=" + femaleControls + ", alleleAccession=" + alleleAccession + ", markerAccession=" + markerAccession
 				+ ", statisticalResultUrl=" + statisticalResultUrl + ", genotypePhenotypeUrl=" + genotypePhenotypeUrl
 				+ ", DataPhenStatFormatUrl=" + DataPhenStatFormatUrl + "]";
 	}
@@ -129,8 +130,15 @@ public class ExperimentDTO {
 		this.alleleSymbol = alleleSymbol;
 	}
 
+    public String getMarkerAccession() {
+        return markerAccession;
+    }
 
-	public String getGeneticBackgtround() {
+    public void setMarkerAccession(String markerAccession) {
+        this.markerAccession = markerAccession;
+    }
+
+    public String getGeneticBackgtround() {
 		return geneticBackgtround;
 	}
 
@@ -204,7 +212,7 @@ public class ExperimentDTO {
         }
 
         for (ObservationDTO mutant : mutantsDtos) {
-            if (sex == null || sex.equals(SexType.not_considered) || sex.equals(SexType.valueOf(mutant.getSex()))) {
+            if (sex == null || sex.equals(SexType.not_considered) || sex.equals(SexType.getByDisplayName(mutant.getSex()))) {
                 mutantDtosForSex.add(mutant);
             }
         }

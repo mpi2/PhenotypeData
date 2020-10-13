@@ -19,19 +19,14 @@
  * and open the template in the editor.
  */
 
-package uk.ac.ebi.phenotype.web.dao;
+package org.mousephenotype.cda.solr.service;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.common.SolrDocument;
 import org.mousephenotype.cda.db.pojo.GenesSecondaryProject;
-import org.mousephenotype.cda.db.repositories.GenesSecondaryProjectRepository;
-import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.MpService;
-import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
+import org.mousephenotype.cda.solr.service.dto.EssentialGeneDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
-import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -49,40 +44,74 @@ import java.util.stream.Collectors;
  * @author jwarren
  */
 @Service("idg")
-public class GenesSecondaryProjectServiceIdg implements GenesSecondaryProjectService {
+public class GenesSecondaryProjectServiceIdg  {
 
 	public static final String DEVIANCE_COLOR      = "rgb(191, 75, 50)";
 	public static final String COULD_NOT_ANALYSE   = "rgb(230, 242, 246)";
 	public static final String NO_SIGNIFICANT_CALL = "rgb(247, 157, 70)";
 	public static final String NO_DATA             = "rgb(119, 119, 119)";
 
-
-	private GenesSecondaryProjectRepository genesSecondaryProjectRepository;
 	private GeneService                     geneService;
+	private EssentialGeneService			essentialGeneService;
 	private MpService                       mpService;
-	private StatisticalResultService        statisticalResultService;
 
 	@Inject
 	public GenesSecondaryProjectServiceIdg(
-			@NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository,
 			@NotNull GeneService geneService,
-			@NotNull MpService mpService,
-			@NotNull StatisticalResultService statisticalResultService)
+			@NotNull EssentialGeneService essentialGeneService,
+			@NotNull MpService mpService)
 	{
-		this.genesSecondaryProjectRepository = genesSecondaryProjectRepository;
 		this.geneService = geneService;
+		this.essentialGeneService=essentialGeneService;
 		this.mpService = mpService;
-		this.statisticalResultService = statisticalResultService;
 	}
 
-	@Override
-	public Set<GenesSecondaryProject> getAccessionsBySecondaryProjectId(String projectId) throws SQLException {
+	public Set<GenesSecondaryProject> getAllBySecondaryProjectId(){
+		HashSet<GenesSecondaryProject> infos = new HashSet();
+		try {
+			List<EssentialGeneDTO> geneList = essentialGeneService.getAllIdgGeneList();
 
-		return genesSecondaryProjectRepository.getAllBySecondaryProjectId(projectId);
+			for(EssentialGeneDTO gene:geneList){
+				GenesSecondaryProject info=new GenesSecondaryProject();
+				info.setGroupLabel(gene.getIdgFamily());
+				info.setMgiGeneAccessionId(gene.getMgiAccession());
+				info.setSecondaryProjectId(gene.getIdgIdl());
+				info.setHumanGeneSymbol(gene.getHumanGeneSymbol());
+				infos.add(info);
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+		return infos;
+	}
+
+	public Set<GenesSecondaryProject> getAllBySecondaryProjectIdAndGroupLabel(String groupLabel){
+		HashSet<GenesSecondaryProject> infos = new HashSet();
+		try {
+			List<EssentialGeneDTO> geneList = essentialGeneService.getAllIdgGeneListByGroupLabel(groupLabel);
+
+			for(EssentialGeneDTO gene:geneList){
+				GenesSecondaryProject info=new GenesSecondaryProject();
+				info.setGroupLabel(gene.getIdgFamily());
+				info.setMgiGeneAccessionId(gene.getMgiAccession());
+				info.setSecondaryProjectId(gene.getIdgIdl());
+				info.setHumanGeneSymbol(gene.getHumanGeneSymbol());
+				infos.add(info);
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+		return infos;
 	}
 
 
-	@Override
+
 	@Cacheable("topLevelPhenotypesGeneRows")
 	public List<GeneRowForHeatMap> getGeneRowsForHeatMap(HttpServletRequest request) throws SolrServerException, IOException, SQLException {
 
@@ -91,7 +120,7 @@ public class GenesSecondaryProjectServiceIdg implements GenesSecondaryProjectSer
 		String geneUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 
 		// get a list of mgi geneAccessionIds for the project - which will be the row headers
-		Set<GenesSecondaryProject> projectBeans = genesSecondaryProjectRepository.getAllBySecondaryProjectId("idg");
+		Set<GenesSecondaryProject> projectBeans = this.getAllBySecondaryProjectId();
 
 		Set<String>accessions = projectBeans
 				   .stream()
@@ -99,41 +128,15 @@ public class GenesSecondaryProjectServiceIdg implements GenesSecondaryProjectSer
 				.collect(Collectors.toSet());
 
 
-		Map<String, String> accessionToGroupLabelMap = projectBeans
-				.stream()
-				.collect(Collectors.toMap(GenesSecondaryProject::getMgiGeneAccessionId, GenesSecondaryProject::getGroupLabel));
-
-		List<SolrDocument> geneToMouseStatus = geneService.getProductionStatusForGeneSet(accessions, null);
-		Map<String, GeneRowForHeatMap> rows = statisticalResultService.getSecondaryProjectMapForGeneList(accessions, parameters);
-
-		for (SolrDocument doc : geneToMouseStatus) {
-
-			// get a data structure with the gene accession, parameter associated with a value or status ie. not phenotyped, not significant
-			String accession = doc.get(GeneDTO.MGI_ACCESSION_ID).toString();
-			GeneRowForHeatMap row = rows.containsKey(accession) ? rows.get(accession) : new GeneRowForHeatMap(accession, doc.get(GeneDTO.MARKER_SYMBOL).toString() , parameters);
-			row.setHumanSymbol((ArrayList<String>)doc.get(GeneDTO.HUMAN_GENE_SYMBOL));
-			// Mouse production status
-			Map<String, String> prod =  GeneService.getStatusFromDoc(doc, geneUrl);
-			String prodStatusIcons = prod.get("productionIcons") + prod.get("phenotypingIcons");
-			prodStatusIcons = prodStatusIcons.equals("") ? "No" : prodStatusIcons;
-			row.setMiceProduced(prodStatusIcons);
-			if (row.getMiceProduced().equals("Neither production nor phenotyping status available ")) {//note the space on the end - why we should have enums
-				for (HeatMapCell cell : row.getXAxisToCellMap().values()) {
-					cell.addStatus(HeatMapCell.THREE_I_NO_DATA); // set all the cells to No Data Available
-				}
-			}
-			if(accessionToGroupLabelMap.containsKey(accession)){
-				row.setGroupLabel(accessionToGroupLabelMap.get(accession));
-			}
-			geneRows.add(row);
-		}
-
+		List<GeneDTO> geneToMouseStatus = geneService.getProductionStatusForGeneSet(accessions, null);
+		Map<String, GeneRowForHeatMap> rows = geneService.getSecondaryProjectMapForGeneList(geneToMouseStatus, parameters, geneUrl, projectBeans);
+		geneRows=rows.values().stream()
+				.collect(Collectors.toList());
 		Collections.sort(geneRows);
-
 		return geneRows;
 	}
 
-	@Override
+
 	@Cacheable("topLevelPhenotypesXAxis")
 	public List<BasicBean> getXAxisForHeatMap() throws IOException, SolrServerException {
 
@@ -143,4 +146,6 @@ public class GenesSecondaryProjectServiceIdg implements GenesSecondaryProjectSer
 
 		return mp;
 	}
+
+
 }

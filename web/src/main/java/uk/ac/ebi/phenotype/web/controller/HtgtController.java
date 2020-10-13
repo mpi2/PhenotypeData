@@ -16,9 +16,10 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.solr.service.*;
+import org.mousephenotype.cda.solr.service.Design;
+import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.HtgtService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
-import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -26,57 +27,29 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
-import uk.ac.ebi.phenotype.service.PharosService;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.*;
+import java.util.List;
 
 @Controller
 public class HtgtController {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(HtgtController.class);
-    private static final int numberOfImagesToDisplay = 5;
+    private final Logger logger = LoggerFactory.getLogger(HtgtController.class);
 
 
-    private final GeneService              geneService;
-    private final OrderService             orderService;
+    private final GeneService geneService;
     private final HtgtService htgtService;
-
-    @Resource(name = "globalConfiguration")
-    Map<String, String> config;
-
-    private String cmsBaseUrl;
 
 
     @Inject
     public HtgtController(
             GeneService geneService,
-            OrderService orderService,
-            @Named("statistical-result-service") StatisticalResultService statisticalResultService, HtgtService htgtService) {
+            HtgtService htgtService) {
         this.geneService = geneService;
-        this.orderService = orderService;
         this.htgtService = htgtService;
     }
-
-    @PostConstruct
-    private void postConstruct() {
-
-        cmsBaseUrl = config.get("cmsBaseUrl");
-
-    }
-
-    HttpProxy proxy = new HttpProxy();
-
 
     /**
      * Runs when the request missing an accession ID. This redirects to the
@@ -87,49 +60,25 @@ public class HtgtController {
         return "redirect:/search";
     }
 
-    /**
-     * Prints out the request object
-     */
-
-
     @RequestMapping("/designs/{design_id}")
-    public String genes(@PathVariable int design_id,
+    public String genes(@PathVariable Integer designId,
                         @RequestParam(required = false, value = "accession") String acc,
                         Model model,
-                        HttpServletRequest request,
-                        HttpServletResponse response,
-                        RedirectAttributes attributes)
-            throws URISyntaxException,IOException, SQLException, SolrServerException {
+                        HttpServletRequest request)
+            throws IOException, SolrServerException {
 
-        GeneDTO gene=null;
-        if(acc!=null && !acc.isEmpty()) {
+        GeneDTO gene = null;
+        if (acc != null && !acc.isEmpty()) {
             gene = geneService.getGeneById(acc);
-            System.out.println("gene ikmc id="+ gene);
+            logger.debug("gene ikmc id=" + gene);
         }
-        if(gene!=null){
+        if (gene != null) {
             model.addAttribute("gene", gene);
         }
-        processHtgtRequest(design_id, model, request);
-
-        response.setHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
-        response.setHeader("Pragma", "no-cache");
+        List<Design> designs = htgtService.getDesigns(designId);
+        model.addAttribute("designs", designs);
+        model.addAttribute("designId", designId);
 
         return "htgt";
     }
-
-
-
-
-    private void processHtgtRequest(int designId, Model model, HttpServletRequest request)
-    {
-        int numberOfTopLevelMpTermsWithStatisticalResult = 0;
-        //GeneDTO gene = geneService.getGeneById(designId);
-        List<Design> designs=htgtService.getDesigns(designId);
-        System.out.println("calling process htgt");
-        model.addAttribute("designs", designs);
-        model.addAttribute("designId", designId);
-    }
-
-
-
 }

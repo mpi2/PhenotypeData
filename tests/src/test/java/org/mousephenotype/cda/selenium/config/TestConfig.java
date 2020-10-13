@@ -17,7 +17,6 @@
 package org.mousephenotype.cda.selenium.config;
 
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.mousephenotype.cda.db.repositories.GenesSecondaryProjectRepository;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.selenium.exception.TestException;
 import org.mousephenotype.cda.solr.service.*;
@@ -62,17 +61,6 @@ public class TestConfig {
     private void initialise() throws TestException {
         logParameters();
     }
-
-
-    private GenesSecondaryProjectRepository genesSecondaryProjectRepository;
-
-    @Inject
-    public TestConfig(
-            @NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository)
-    {
-        this.genesSecondaryProjectRepository = genesSecondaryProjectRepository;
-    }
-
 
     private void logParameters()  throws TestException {
         logger.info("dataSource.komp2.jdbc-url: " + datasourceKomp2Url);
@@ -181,7 +169,7 @@ public class TestConfig {
 
     @Bean
     public GeneService geneService() {
-        return new GeneService(geneCore());
+        return new GeneService(geneCore(), impressService());
     }
 
     @Bean
@@ -197,11 +185,6 @@ public class TestConfig {
     @Bean
     public ObservationService observationService() {
         return new ObservationService(experimentCore());
-    }
-
-    @Bean
-    public GenotypePhenotypeService genotypePhenotypeService() {
-        return new GenotypePhenotypeService(impressService(), genotypePhenotypeCore(), genesSecondaryProjectRepository);
     }
 
 

@@ -1,10 +1,11 @@
 DROP TABLE IF EXISTS analytics_significant_calls_procedures;
 CREATE TABLE analytics_significant_calls_procedures (
-    id                  INT(10) PRIMARY KEY NOT NULL,
+    id                  INT(10) NOT NULL AUTO_INCREMENT,
     significant_calls   BIGINT(21)          NOT NULL,
     phenotyping_center  VARCHAR(255),
     procedure_stable_id VARCHAR(40),
-    procedure_name      VARCHAR(200)
+    procedure_name      VARCHAR(200),
+    PRIMARY KEY(id)
 );
 INSERT INTO analytics_significant_calls_procedures
     (id, significant_calls, phenotyping_center, procedure_stable_id, procedure_name)

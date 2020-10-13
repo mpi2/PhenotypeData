@@ -16,7 +16,6 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.mousephenotype.cda.common.Constants;
@@ -52,7 +51,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -273,6 +271,17 @@ public class ChartsController {
 				metaDataGroupString
 		);
 		experiment = experimentService.setUrls(experiment, parameterStableId, pipelineStableId, gene.getMgiAccessionId(), Arrays.asList(zygosity), phenotypingCenter, strain, metadataGroup, alleleAccession, SOLR_URL);
+		experiment.setMarkerAccession(gene.getMgiAccessionId());
+
+		Set<SexType> sexes = new HashSet<>(Arrays.asList(SexType.male, SexType.female));
+		if (experiment.getSexes() != null && ! experiment.getSexes().contains(SexType.not_considered)) {
+			sexes = experiment.getSexes();
+		}
+		experiment.setSexes(sexes);
+
+		if (experiment.getSexes().isEmpty()) {
+			experiment.setSexes(Collections.singleton(SexType.not_considered));
+		}
 
 		long endTimeSolr   = System.currentTimeMillis();
 		long timeTakenSolr = endTimeSolr - startTimeSolr;
@@ -282,12 +291,13 @@ public class ChartsController {
 		ParameterDTO parameter = null;
 
 		if (experiment != null) {
-			proc = impressService.getProcedureByStableId(experiment.getPipelineStableId(), experiment.getProcedureStableId());
+			String pipe = (experiment.getPipelineStableId() != null) ? experiment.getPipelineStableId() : pipelineStableId;
+			String procStableId = (experiment.getProcedureStableId() != null) ? experiment.getProcedureStableId() : procedureStableId;
+			proc = impressService.getProcedureByStableId(pipe, procStableId);
 
 			String procedureUrl = "";
 			String parameterUrl = "";
 			if (proc != null) {
-				//procedureDescription = String.format("<a href=\"%s\">%s</a>", is.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()),  "Procedure: "+ proc.getName());
 				procedureUrl = impressService.getProcedureUrlByStableKeyAndPipelineStableKey(proc.getStableKey(), pipeline.getStableKey());
 				model.addAttribute("procedureUrl", procedureUrl);
 			}
@@ -300,7 +310,7 @@ public class ChartsController {
 				addFlowCytometryImages(accession, model, parameter);
 			}
 
-			String          xUnits                  = parameter.getUnitX();
+			String xUnits = parameter.getUnitX();
 			ObservationType observationTypeForParam = parameter.getObservationType();
 
 			if (parameter.getStableKey() != null) {
@@ -315,7 +325,10 @@ public class ChartsController {
 				metadataList = experiment.getMetadata();
 			}
 
-			try {
+
+			// Do not treat these procedures as standard charts
+			List<String> notDefault = Arrays.asList("IMPC_EVL_", "IMPC_EVM_", "IMPC_EVO_", "IMPC_EVP_", "IMPC_VIA_");
+			if (notDefault.stream().noneMatch(parameterStableId::startsWith)) {
 
 				if (chartType != null) {
 
@@ -376,14 +389,7 @@ public class ChartsController {
 				} else {
 					log.error("chart type is null");
 				}
-
-			} catch (SQLException e) {
-				log.error(ExceptionUtils.getStackTrace(e));
-				statsError = true;
 			}
-		} else {
-			System.out.println("empty experiment");
-			model.addAttribute("emptyExperiment", true);
 		}
 
 		if (procedureStableId.equals("IMPC_VIA_001")) {
@@ -503,10 +509,20 @@ public class ChartsController {
 
 			final Set<ObservationDTO> mutants = categoricalResultAndChart.getExperiment().getMutants();
 			final Set<ObservationDTO> controls = categoricalResultAndChart.getExperiment().getControls();
-			numberFemaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
-			numberMaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
-			numberFemaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
-			numberMaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			if (mutants != null) {
+				numberFemaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+				numberMaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			} else {
+				numberFemaleMutantMice = 0;
+				numberMaleMutantMice = 0;
+			}
+			if (controls != null) {
+				numberFemaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+				numberMaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			} else {
+				numberFemaleControlMice = 0;
+				numberMaleControlMice = 0;
+			}
 		}
 
 		if (seriesParameterChartData != null) {
@@ -530,14 +546,41 @@ public class ChartsController {
 		model.addAttribute("numberMice", totalSamples);
 
 		if (experiment != null) {
-			List<GenotypePhenotypeDTO> gpList = gpService.getGenotypePhenotypeFor(
-					gene.getMgiAccessionId(),
-					experiment.getParameterStableId(),
-					experiment.getStrain(),
-					experiment.getAlleleAccession(),
-					experiment.getZygosities(),
-					experiment.getOrganisation(),
-					experiment.getSexes());
+			List<GenotypePhenotypeDTO> gpList = new ArrayList<>();
+
+			if (experiment.getParameterStableId() != null) {
+				List<GenotypePhenotypeDTO> addGpList = gpService.getGenotypePhenotypeFor(
+						gene.getMgiAccessionId(),
+						experiment.getParameterStableId(),
+						experiment.getStrain(),
+						experiment.getAlleleAccession(),
+						experiment.getZygosities(),
+						experiment.getOrganisation(),
+						experiment.getSexes());
+				gpList.addAll(addGpList);
+			}
+
+			// If we are displaying a chart for Embryo viability, check all possible associated terms
+			// and add any significant results to the MP terms that are associated to this data
+			if (Stream.of("IMPC_EVL_", "IMPC_EVM_", "IMPC_EVO_", "IMPC_EVP_", "IMPC_VIA_").anyMatch(parameterStableId::startsWith)) {
+				
+				EmbryoViability v = EmbryoViability.E9_5;
+				if (parameterStableId.contains("EVM")) v = EmbryoViability.E12_5;
+				if (parameterStableId.contains("EVO")) v = EmbryoViability.E14_5;
+				if (parameterStableId.contains("EVP")) v = EmbryoViability.E18_5;
+
+				for (String param : v.parameterList) {
+					List<GenotypePhenotypeDTO> addGpList = gpService.getGenotypePhenotypeFor(
+							gene.getMgiAccessionId(),
+							param,
+							experiment.getStrain(),
+							experiment.getAlleleAccession(),
+							experiment.getZygosities(),
+							experiment.getOrganisation(),
+							experiment.getSexes());
+					gpList.addAll(addGpList);
+				}
+			}
 
 			// If we are displaying a chart for IPGTT, check all possible derived terms associated to IPG procedure
 			// and add any significant results to the MP terms that are associated to this data
@@ -554,6 +597,7 @@ public class ChartsController {
 					gpList.addAll(addGpList);
 				}
 			}
+
 			//for line level parameters such as viability
 			if (org.mousephenotype.cda.common.Constants.viabilityParameters.contains(parameterStableId)) {
 				for (String param : org.mousephenotype.cda.common.Constants.viabilityParameters) {
@@ -673,8 +717,7 @@ public class ChartsController {
         String allParameters = "";
 
         // All ABR parameters are displayed on the same chart so we don't want to duplicate an identical chart for every ABR parameter
-        List<String> abrParameters =  new ArrayList<>();
-        abrParameters.addAll(paramIds);
+		List<String> abrParameters = new ArrayList<>(paramIds);
         abrParameters.retainAll(Constants.ABR_PARAMETERS);
         if (abrParameters.size() > 1){
             for (int i = 1; i < abrParameters.size(); i++) { // remove all ABR params but the first one

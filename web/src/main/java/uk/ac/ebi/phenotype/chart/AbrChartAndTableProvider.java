@@ -23,7 +23,10 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.ImpressService;
-import org.mousephenotype.cda.solr.service.dto.*;
+import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
+import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
@@ -52,7 +55,7 @@ public class AbrChartAndTableProvider {
 	@Autowired
 	ImpressService impressService;
 
-	public ChartData getAbrChartAndData(ExperimentDTO experiment,	ParameterDTO parameter, String chartId, String solrURL) throws IOException, SolrServerException {
+	public ChartData getAbrChartAndData(ExperimentDTO experiment, ParameterDTO parameter, String chartId, String solrURL) throws IOException, SolrServerException {
 
 		ChartData chartData = new ChartData();
 
@@ -62,7 +65,7 @@ public class AbrChartAndTableProvider {
 
 		chartData.setChart(getChart(
 				experiment.getPipelineStableId(),
-				experiment.getMutants().stream().map(ObservationDTOBase::getGeneAccession).findFirst().orElseThrow(NullPointerException::new),
+				experiment.getMarkerAccession(),
 				experiment.getSexes().stream().map(SexType::getName).collect(Collectors.toList()),
 				experiment.getZygosities().stream().map(ZygosityType::getName).collect(Collectors.toList()),
 				experiment.getOrganisation(),
@@ -76,15 +79,25 @@ public class AbrChartAndTableProvider {
 		return chartData;
 	}
 
-	public String getChart(String pipelineStableId, String acc, List<String> genderList, List<String> zyList,
-			String phenotypingCenter, String strain, String metadataGroup, String alleleAccession, String chartId, String ebiMappedSolrUrl) throws SolrServerException, IOException {
+	public String getChart(
+			String pipelineStableId,
+			String acc,
+			List<String> genderList,
+			List<String> zyList,
+			String phenotypingCenter,
+			String strain,
+			String metadataGroup,
+			String alleleAccession,
+			String chartId,
+			String ebiMappedSolrUrl
+	) throws SolrServerException, IOException {
 
     	Map<String, ArrayList<UnidimensionalStatsObject>> data = new HashMap<>(); // <control/experim, ArrayList<dataToPlot>>
-    	data.put(ChartUtils.getLabel(null, SexType.female), new ArrayList<UnidimensionalStatsObject>() );
-    	data.put(ChartUtils.getLabel(null,  SexType.male), new ArrayList<UnidimensionalStatsObject>() );
+    	data.put(ChartUtils.getLabel(null, SexType.female), new ArrayList<>() );
+    	data.put(ChartUtils.getLabel(null,  SexType.male), new ArrayList<>() );
     	for (String zygosity: zyList){
-        	data.put(ChartUtils.getLabel(ZygosityType.valueOf(zygosity), SexType.male), new ArrayList<UnidimensionalStatsObject>() );
-        	data.put(ChartUtils.getLabel(ZygosityType.valueOf(zygosity), SexType.female), new ArrayList<UnidimensionalStatsObject>() );
+        	data.put(ChartUtils.getLabel(ZygosityType.valueOf(zygosity), SexType.male), new ArrayList<>() );
+        	data.put(ChartUtils.getLabel(ZygosityType.valueOf(zygosity), SexType.female), new ArrayList<>() );
     	}
 
 		UnidimensionalStatsObject emptyObj = new UnidimensionalStatsObject();

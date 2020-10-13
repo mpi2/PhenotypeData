@@ -72,7 +72,7 @@ public class SearchGeneService {
         String search = keyword.isEmpty() ? "*:*" : keyword.replaceAll("\\s", "") + "~" + distance;
 
         final SolrQuery query = new SolrQuery(search);
-        query.add("qf", GeneDTO.MARKER_SYMBOL);
+        query.add("qf", GeneDTO.MARKER_SYMBOL + " " + GeneDTO.MGI_ACCESSION_ID);
         query.setFields(GeneDTO.MARKER_SYMBOL);
         query.setRows(3);
         query.setSort("score", SolrQuery.ORDER.desc);

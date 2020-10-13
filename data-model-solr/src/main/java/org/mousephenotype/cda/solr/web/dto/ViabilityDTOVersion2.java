@@ -23,6 +23,7 @@ public class ViabilityDTOVersion2 extends ViabilityDTO {
 
     private final String totalMalePups = "IMPC_VIA_061_001";
     private final String totalMaleWt = "IMPC_VIA_049_001";
+    private final String totalMaleHem = "IMPC_VIA_055_001";
     private final String totalMaleHom = "IMPC_VIA_053_001";
     private final String totalMaleHet = "IMPC_VIA_051_001";
 
@@ -30,6 +31,7 @@ public class ViabilityDTOVersion2 extends ViabilityDTO {
     private final String totalFemaleWt = "IMPC_VIA_050_001";
     private final String totalFemaleHom = "IMPC_VIA_054_001";
     private final String totalFemaleHet = "IMPC_VIA_052_001";
+    private final String totalFemaleAnz = "IMPC_VIA_056_001";
 
     @Override public String getTotalPups() { return totalPups; }
     @Override public String getTotalPupsWt() { return totalPupsWt; }
@@ -43,4 +45,6 @@ public class ViabilityDTOVersion2 extends ViabilityDTO {
     @Override public String getTotalFemaleWt() { return totalFemaleWt; }
     @Override public String getTotalMaleWt() { return totalMaleWt; }
     @Override public String getTotalFemaleHom() { return totalFemaleHom; }
+    public String getTotalMaleHem() { return totalMaleHem; }
+    public String getTotalFemaleAnz() { return totalFemaleAnz; }
 }

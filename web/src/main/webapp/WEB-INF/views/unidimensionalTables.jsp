@@ -26,15 +26,20 @@
 
                     <c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificant!=null}">
 
-
-                            <h4> Results of statistical analysis  </h4>
+                            <h4>Results of statistical analysis</h4>
 
                             <dl class="alert alert-success">
-                                <dt>P value</dt>
-                                <dd><t:formatScientific>${data.result.nullTestPValue}</t:formatScientific></dd>
+                                <dt>Genotype P value</dt>
+                                <dd><t:formatScientific>${data.result.genotypeEffectPValue}</t:formatScientific></dd>
+
+                                <dt>Genotype*Female P value</dt>
+                                <dd><t:formatScientific>${data.result.femaleKoEffectPValue}</t:formatScientific></dd>
+
+                                <dt>Genotype*Male P value</dt>
+                                <dd><t:formatScientific>${data.result.maleKoEffectPValue}</t:formatScientific></dd>
 
                                 <dt>Classification</dt>
-                                <dd>${data.result.significantType.text}</dd>
+                                <dd>${data.result.classificationTag}</dd>
 
                             </dl>
 

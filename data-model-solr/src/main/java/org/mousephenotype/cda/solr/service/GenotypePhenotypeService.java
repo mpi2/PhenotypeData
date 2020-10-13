@@ -29,7 +29,6 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
 import org.mousephenotype.cda.db.pojo.GenesSecondaryProject;
-import org.mousephenotype.cda.db.repositories.GenesSecondaryProjectRepository;
 import org.mousephenotype.cda.dto.AggregateCountXY;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -69,14 +68,14 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
 
     protected ImpressService                  impressService;
     protected SolrClient                      genotypePhenotypeCore;
-    protected GenesSecondaryProjectRepository genesSecondaryProjectRepository;
+    protected GenesSecondaryProjectServiceIdg genesSecondaryProjectRepository;
 
 
     @Inject
     public GenotypePhenotypeService(
             @NotNull ImpressService impressService,
             @NotNull @Qualifier("genotypePhenotypeCore") SolrClient genotypePhenotypeCore,
-            @NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository)
+            @NotNull GenesSecondaryProjectServiceIdg genesSecondaryProjectRepository)
     {
         super();
         this.impressService = impressService;
@@ -711,7 +710,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         if (sex != null && sex.size() > 0) {
             String sexes = sex.stream().map(SexType::getName).collect(Collectors.joining(" OR "));
             if(sexes.equalsIgnoreCase("female OR male") || sexes.equalsIgnoreCase("male OR female")){
-                sexes="female OR male OR both";//to account for where entries in solr have used both instead of female and male sexes e.g. threei data has some
+                sexes="female OR male OR both OR not_considered";//to account for where entries in solr have used both instead of female and male sexes e.g. threei data has some
             }
             query.addFilterQuery(GenotypePhenotypeDTO.SEX + ":(" + sexes + ")");
         }
@@ -1121,6 +1120,15 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         try {
 
             Set<GenotypePhenotypeDTO> pleiotropyGenes = getPleiotropyGenes(topLevelMpTerms, idg, idgClass);
+//            for(GenotypePhenotypeDTO dto: pleiotropyGenes){
+//                System.out.println("pleiotropyGene="+dto.getTopLevelMpTermName());
+//                if(dto.getTopLevelMpTermName()==null){
+//                    System.out.println(dto);
+//                }
+//            }
+
+
+
             Set<String> topLevelMpTermNames = pleiotropyGenes
                     .stream()
                     .map(GenotypePhenotypeDTO::getTopLevelMpTermName)
@@ -1269,7 +1277,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
                 GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
 
         SolrQuery query = new SolrQuery()
-                .setQuery(GenotypePhenotypeDTO.MP_TERM_ID + ":*")
+                .setQuery(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + ":*")
                 .setRows(Integer.MAX_VALUE)
                 .setFields(String.join(",", fieldList));
 
@@ -1284,8 +1292,8 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
             // If the idgClass has not been set, get all genes for the idg project, else filter for the class specified
             Set<GenesSecondaryProject> idgGenes =
                     idgClass == null ?
-                            genesSecondaryProjectRepository.getAllBySecondaryProjectId("idg") :
-                            genesSecondaryProjectRepository.getAllBySecondaryProjectIdAndGroupLabel("idg", idgClass);
+                            genesSecondaryProjectRepository.getAllBySecondaryProjectId() :
+                            genesSecondaryProjectRepository.getAllBySecondaryProjectIdAndGroupLabel(idgClass);
             Set<String> idgGeneIds = idgGenes
                     .stream()
                     .map(GenesSecondaryProject::getMgiGeneAccessionId)

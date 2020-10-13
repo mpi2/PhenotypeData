@@ -21,10 +21,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "analytics_significant_calls_procedures")
@@ -34,8 +31,15 @@ import javax.persistence.Table;
 @Builder
 public class AnalyticsSignificantCallsProcedures {
 
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long    id;
+
+    public AnalyticsSignificantCallsProcedures(String phenotypingCenter, String procedureStableId, String procedureName, long significantCalls) {
+        this.phenotypingCenter = phenotypingCenter;
+        this.procedureStableId = procedureStableId;
+        this.procedureName = procedureName;
+        this.significantCalls = significantCalls;
+    }
 
     @Column(name = "significant_calls")
     private long significantCalls;

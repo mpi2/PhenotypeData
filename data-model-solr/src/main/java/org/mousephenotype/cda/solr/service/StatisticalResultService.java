@@ -31,7 +31,6 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
-import org.mousephenotype.cda.db.repositories.GenesSecondaryProjectRepository;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -73,7 +72,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
     public StatisticalResultService(
             @NotNull ImpressService impressService,
             @NotNull SolrClient genotypePhenotypeCore,
-            @NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository,
+            @NotNull GenesSecondaryProjectServiceIdg genesSecondaryProjectRepository,
             @NotNull SolrClient statisticalResultCore) {
         super(impressService, genotypePhenotypeCore, genesSecondaryProjectRepository);
         this.statisticalResultCore = statisticalResultCore;
@@ -866,17 +865,29 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
             String phenotypingCenter,
             String metadataGroup,
             String strain,
-            String zygosity) throws IOException, SolrServerException {
+            List<String> zygosities) throws IOException, SolrServerException {
 
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*")
                 .addFilterQuery(StatisticalResultDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"")
-                .addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"")
-                .addFilterQuery(StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId)
-                .addFilterQuery(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" + procedureStableId)
                 .addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + parameterStableId)
-                .addFilterQuery(StatisticalResultDTO.ZYGOSITY + ":" + zygosity)
                 .setRows(100);
+
+        if (phenotypingCenter != null) {
+            query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"");
+        }
+
+        if (pipelineStableId != null) {
+            query.addFilterQuery(StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId);
+        }
+
+        if (procedureStableId != null) {
+            query.addFilterQuery(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" + procedureStableId);
+        }
+
+        if (zygosities != null) {
+            query.addFilterQuery(StatisticalResultDTO.ZYGOSITY + ":(" + String.join(" OR ",  zygosities) + ")");
+        }
 
         if (strain != null) {
             query.addFilterQuery(StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + strain + "\"");
@@ -961,6 +972,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         Map<String, List<ExperimentsDataTableRow>> results = new HashMap<>();
 
         SolrQuery query = buildQuery(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableIds, resource, mpTermId, null, null, null, null, null, null, null, null);
+        query.add("fl", "*,raw_data:[value v=\"\"]");
         List<StatisticalResultDTO> solrResults = statisticalResultCore.query(query).getBeans(StatisticalResultDTO.class);
 
         for (StatisticalResultDTO statResult : solrResults) {
@@ -1044,12 +1056,17 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
             query = StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"";
         }
 
+        query += " AND " + StatisticalResultDTO.STATUS + ":Successful";
+        query += " AND (" + StringUtils.join(Arrays.asList(StatisticalResultDTO.MP_TERM_ID + ":*", StatisticalResultDTO.MP_TERM_ID_OPTIONS + ":*"), " OR ") + ")";
+
+        if (zygosity != null) {
+            query += " AND " + StatisticalResultDTO.ZYGOSITY + ":" + zygosity.getName();
+        }
+
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery(query);
         solrQuery.setRows(Integer.MAX_VALUE);
         //solrQuery.setSort(StatisticalResultDTO.P_VALUE, ORDER.asc);
-        solrQuery.addFilterQuery(StringUtils.join(Arrays.asList(StatisticalResultDTO.MP_TERM_ID + ":*", StatisticalResultDTO.MP_TERM_ID_OPTIONS + ":*"), " OR "));
-        solrQuery.addFilterQuery(StatisticalResultDTO.STATUS + ":Successful");
         solrQuery.setFields(StatisticalResultDTO.P_VALUE, StatisticalResultDTO.MALE_KO_EFFECT_P_VALUE, StatisticalResultDTO.FEMALE_KO_EFFECT_P_VALUE, StatisticalResultDTO.SEX, StatisticalResultDTO.ZYGOSITY,
                 StatisticalResultDTO.MARKER_ACCESSION_ID, StatisticalResultDTO.MARKER_SYMBOL,
                 StatisticalResultDTO.DATA_TYPE,
@@ -1059,9 +1076,6 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
                 StatisticalResultDTO.PHENOTYPE_SEX, StatisticalResultDTO.RESOURCE_NAME,
                 StatisticalResultDTO.PROCEDURE_STABLE_ID, StatisticalResultDTO.SIGNIFICANT);
 
-        if (zygosity != null) {
-            solrQuery.addFilterQuery(StatisticalResultDTO.ZYGOSITY + ":" + zygosity.getName());
-        }
         logger.debug(solrQuery.toQueryString());
         List<StatisticalResultDTO> dtos = statisticalResultCore.query(solrQuery).getBeans(StatisticalResultDTO.class);
 
@@ -1151,7 +1165,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
     @Cacheable("geneRowCache")
     public HashMap<String, GeneRowForHeatMap> getSecondaryProjectMapForGeneList(Set<String> geneAccessions1, List<BasicBean> topLevelMps) {
-
+        System.out.println("calling get secondary project gene list");
         HashMap<String, GeneRowForHeatMap> geneRowMap = new HashMap<>(); // <geneAcc, row>
         Iterators.partition(geneAccessions1.iterator(), 100).forEachRemaining(geneAccessions ->
         {
@@ -1172,6 +1186,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
             List<StatisticalResultDTO> results;
             try {
+                //this is currently the very slow bit, 8 calls to this method which each take many seconds to respond... probably because of raw data even though that field is not populated in the DTO
                 results = statisticalResultCore.query(q, SolrRequest.METHOD.POST).getBeans(StatisticalResultDTO.class);
             } catch (SolrServerException | IOException e) {
                 e.printStackTrace();

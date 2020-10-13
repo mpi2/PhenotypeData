@@ -19,10 +19,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
@@ -33,7 +30,7 @@ import java.util.Objects;
 @Builder
 public class MetaInfo {
 
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "property_key")
@@ -43,6 +40,12 @@ public class MetaInfo {
     private String propertyValue;
 
     private String description;
+
+    public MetaInfo(String key, String value, String description) {
+        this.propertyKey = key;
+        this.propertyValue = value;
+        this.description = description;
+    }
 
     @Override
     public boolean equals(Object o) {

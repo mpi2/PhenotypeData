@@ -29,6 +29,12 @@
             <artifactId>opencsv</artifactId>
         </dependency>
 
+        <!-- For command line option parsing -->
+        <dependency>
+            <groupId>net.sf.jopt-simple</groupId>
+            <artifactId>jopt-simple</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

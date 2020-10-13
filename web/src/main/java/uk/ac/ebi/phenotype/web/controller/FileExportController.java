@@ -38,7 +38,10 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import uk.ac.ebi.phenotype.service.BatchQueryForm;
 import uk.ac.ebi.phenotype.util.SolrUtilsWeb;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
@@ -99,7 +102,6 @@ public class FileExportController {
 	 *
 	 */
 	@ResponseBody
-	@CrossOrigin(origins = {"http://localhost:4200", "https://wwwdev.ebi.ac.uk/"})
 	@RequestMapping(value = "/exportraw", method = RequestMethod.GET, produces = "text/plain")
 	public String getExperimentalData(
 			@RequestParam(value = "phenotyping_center", required = true) String phenotypingCenter, // assume required in code
@@ -110,7 +112,7 @@ public class FileExportController {
 			@RequestParam(value = "allele_accession", required = false) String alleleAccession,
 			@RequestParam(value = "sex", required = false) String[] sexesParameter,
 			@RequestParam(value = "zygosity", required = false) String[] zygositiesParameter,
-			@RequestParam(value = "strain", required = false) String strainParameter
+			@RequestParam(value = "strain", required = false) List<String> strains
 	) throws SolrServerException, IOException, URISyntaxException, SQLException {
 
 		String sex = (sexesParameter != null && sexesParameter.length > 1) ? SexType.valueOf(sexesParameter[0]).getName() : "null";
@@ -121,19 +123,13 @@ public class FileExportController {
 		String alleleAcc = alleleAccessionId;
 		String geneAcc = observationService.getGeneAccFromAlleleAcc(alleleAccessionId);
 
-		String strainAccession = null;
-		if (strainParameter != null) {
-			strainAccession = observationService.getStrainNameFromStrainAcc(strainParameter);
-		}
-
-		String[] alleleArray = {alleleAcc};
-		String[] geneArray = {geneAcc};
+		List<String> alleleArray = Collections.singletonList(alleleAcc);
+		List<String> geneArray = Collections.singletonList(geneAcc);
 		String[] parameterArray = {parameterStableId};
-		String[] strainArray = {strainAccession};
 		String[] centerArray = {phenotypingCenter};
 		String[] pipelineArray = {pipelineStableId};
 
-		List<String> dataRowsForExperiment = getDataRowsForExperiment(alleleArray, geneArray, parameterArray, zygositiesParameter, strainArray, sex, centerArray, pipelineArray);
+		List<String> dataRowsForExperiment = getDataRowsForExperiment(alleleArray, geneArray, parameterArray, zygositiesParameter, strains, sex, centerArray, pipelineArray);
 
 
 		// Update the header rows to have more PhenStat friendly names
@@ -208,19 +204,19 @@ public class FileExportController {
 			@RequestParam(value = "fileType", required = true) String fileType,
 			@RequestParam(value = "fileName", required = true) String fileName,
 			@RequestParam(value = "legacyOnly", required = false, defaultValue = "false") Boolean legacyOnly,
-			@RequestParam(value = "allele_accession_id", required = false) String[] allele,
+			@RequestParam(value = "allele_accession_id", required = false) List<String> allele,
 			@RequestParam(value = "rowStart", required = false) Integer rowStart,
 			@RequestParam(value = "length", required = false) Integer length,
 			@RequestParam(value = "panel", required = false) String panelName,
 			@RequestParam(value = "mpId", required = false) String mpId,
 			@RequestParam(value = "mpTerm", required = false) String mpTerm,
-			@RequestParam(value = "mgiGeneId", required = false) String[] mgiGeneId,
+			@RequestParam(value = "mgiGeneId", required = false) List<String> mgiGeneId,
 			// parameterStableId should be filled for graph data export
 			@RequestParam(value = "parameterStableId", required = false) String[] parameterStableId,
 			// zygosities should be filled for graph data export
 			@RequestParam(value = "zygosity", required = false) String[] zygosities,
 			// strains should be filled for graph data export
-			@RequestParam(value = "strains", required = false) String[] strains,
+			@RequestParam(value = "strains", required = false) List<String> strains,
 			@RequestParam(value = "geneSymbol", required = false) String geneSymbol,
 			@RequestParam(value = "solrCoreName", required = false) String solrCoreName,
 			@RequestParam(value = "params", required = false) String solrFilters,
@@ -259,7 +255,7 @@ public class FileExportController {
 			}
 		}
 
-		List<String> dataRows = new ArrayList<String>();
+		List<String> dataRows = new ArrayList<>();
 		// Default to exporting 10 rows
 		length = length != null ? length : 10;
 		panelName = panelName == null ? "" : panelName;
@@ -273,7 +269,21 @@ public class FileExportController {
 			}
 
 			if (solrCoreName.equalsIgnoreCase("experiment")) {
-				dataRows = getDataRowsForExperiment(allele, mgiGeneId, parameterStableId, zygosities, strains, sex, phenotypingCenter, pipelineStableId);
+				List<String> alleles = allele;
+				if (allele == null || allele.size()<1) {
+					// Allele not specified, get all alleles for this gene
+					for (String gene :  mgiGeneId) {
+						alleles.addAll(observationService.getAllelesForGene(gene));
+					}
+				}
+				List<String> strainIds = strains;
+				if (strains == null || strains.size()<1) {
+					// Background strain not specified, get all strains for this gene
+					for (String gene :  mgiGeneId) {
+						strainIds.addAll(observationService.getStrainsForGene(gene));
+					}
+				}
+				dataRows = getDataRowsForExperiment(alleles, mgiGeneId, parameterStableId, zygosities, strainIds, sex, phenotypingCenter, pipelineStableId);
 			} else {
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart,
 						length, showImgView);
@@ -286,11 +296,11 @@ public class FileExportController {
 		FileExportUtils.writeOutputFile(response, dataRows, fileType, fileName, filters);
 	}
 
-	private List<String> getDataRowsForExperiment(String[] allele,
-												  String[] mgiGeneId,
+	private List<String> getDataRowsForExperiment(List<String> allele,
+												  List<String> mgiGeneId,
 												  String[] parameterStableId,
 												  String[] zygosities,
-												  String[] strains,
+												  List<String> strains,
 												  String sex,
 												  String[] phenotypingCenter,
 												  String[] pipelineStableId) throws SolrServerException, IOException, URISyntaxException, SQLException {
@@ -301,21 +311,18 @@ public class FileExportController {
             phenotypingCenter[i] = phenotypingCenter[i].replaceAll("%20", " ");
         }
 
-		String s = (sex.equalsIgnoreCase("null")) ? null : sex;
-		dataRows = composeExperimentDataExportRows(parameterStableId, mgiGeneId, allele, s, phenotypingCenter, zygosities, strains, pipelineStableId);
+		dataRows = composeExperimentDataExportRows(parameterStableId, allele, phenotypingCenter, zygosities, strains, pipelineStableId);
 
 		return dataRows;
 	}
 
 
 	public List<String> composeExperimentDataExportRows(String[] parameterArray,
-														String[] geneAccessionArray,
-														String[] alleleArray,
-														String gender,
+														List<String> alleles,
 														String[] centerArray,
 														String[] zygosityArray,
-														String[] strainArray, String[] pipelineArray)
-			throws SolrServerException, IOException , URISyntaxException, SQLException {
+														List<String> strains, String[] pipelineArray)
+			throws SolrServerException, IOException , SQLException {
 
 		List<String> rows = new ArrayList<>();
 
@@ -323,35 +330,28 @@ public class FileExportController {
 		// Recast all variables to java types for easy iteration
 		//
 
-		SexType sex = (gender != null) ? SexType.valueOf(gender) : null;
 		List<String> centers = (centerArray != null && centerArray.length != 0) ? Arrays.asList(centerArray) : Collections.singletonList(null);
 		List<String> pipelines = (pipelineArray != null && pipelineArray.length != 0) ? Arrays.asList(pipelineArray) : Collections.singletonList(null);
 		List<String> parameters = (parameterArray != null && parameterArray.length != 0) ? Arrays.asList(parameterArray) : Collections.singletonList(null);
-		List<String> genes = (geneAccessionArray != null && geneAccessionArray.length != 0) ? Arrays.asList(geneAccessionArray) : Collections.singletonList(null);
-		List<String> alleles = (alleleArray != null && alleleArray.length != 0) ? Arrays.asList(alleleArray) : Collections.singletonList(null);
-		List<String> strains = (strainArray != null && strainArray.length != 0) ? Arrays.asList(strainArray) : Collections.singletonList(null);
 
 		// Zygosities
 		List<String> zygosities = (zygosityArray != null && zygosityArray.length != 0) ? Arrays.asList(zygosityArray) : null;
 
 
-		for (String parameter: parameters) {
-			for (String gene : genes) {
-				for (String center : centers) {
-					for (String pipeline : pipelines) {
-						for (String strain : strains) {
-							for (String allele : alleles) {
+		for (String parameter : new HashSet<>(parameters)) {
+			for (String center : centers) {
+				for (String pipeline : pipelines) {
+					for (String strain : strains) {
+						for (String allele : alleles) {
 
-								List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(
-										parameter, pipeline, gene, sex,
-										center, zygosities, strain, null, false, allele);
+							List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(
+									parameter, pipeline,
+									center, zygosities, strain, null, allele);
 
-								if (experimentList.size() > 0) {
-									for (ExperimentDTO experiment : experimentList) {
-										rows.addAll(experiment.getTabbedToString());
-									}
+							if (experimentList.size() > 0) {
+								for (ExperimentDTO experiment : experimentList) {
+									rows.addAll(experiment.getTabbedToString());
 								}
-
 							}
 						}
 					}

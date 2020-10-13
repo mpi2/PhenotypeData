@@ -28,14 +28,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.ac.ebi.phenotype.chart.ChartColors;
 import uk.ac.ebi.phenotype.chart.ChartUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,30 +46,22 @@ public class BaselineChartsController {
 	ImpressService impressService;
 
 	public BaselineChartsController(){
-
 	}
 
 	@RequestMapping(value="/baselineCharts/{phenotype_id}", method=RequestMethod.GET)
 	public String getGraph(
 		@PathVariable String phenotype_id,
 		@RequestParam(required = true, value = "parameter_id") String parameterStableId,
-		Model model,
-		HttpServletRequest request,
-		RedirectAttributes attributes) throws SolrServerException, IOException , URISyntaxException, SQLException{
-		System.out.println("calling baselineCharts");
+		Model model) throws SolrServerException, IOException {
 
-		//Map<String, List<Float>> centerToPointsMapForParameter= observationService.getCenterToPointsMapForParameter(parameterStableId);
 		List<FieldStatsInfo> baselinesForParameter = os.getStatisticsForParameterFromCenter(parameterStableId, null);
 		String baseLineChart=this.generateBaselineChartBoxStyle(parameterStableId,baselinesForParameter);
-		//List<FieldStatsInfo> baselinesForParameter = observationService.getStatisticsForParameterFromCenter(parameterStableId, null);
-		//String baselineBarChart=this.generateBaselineChartBarStyle(parameterStableId, baselinesForParameter);
 		model.addAttribute("baselineChart", baseLineChart);
 		return "baselineChart";
 	}
 	
 	private String generateBaselineChartBoxStyle(String parameterStableId, List<FieldStatsInfo> baselinesForParameter) throws SolrServerException, IOException {
 		ParameterDTO parameter=impressService.getParameterByStableId(parameterStableId);
-		//String procedureName = parameter.getProcedures().iterator().next().getName();
 		System.out.println("procedure names="+parameter.getProcedureNames());
 		
 		String yAxisTitle=parameter.getUnitX();
@@ -97,15 +85,13 @@ public class BaselineChartsController {
 				yMax=(Double)baseLine.getMax();
 			}
 			boxColumn.add(Double.toString(ChartUtils.getDecimalAdjustedDouble((Double)baseLine.getMin(), decimalPlaces)));
-			double lower = (double)baseLine.getMean()-(double)baseLine.getStddev();
+			double lower = (double)baseLine.getMean()- baseLine.getStddev();
 			boxColumn.add(Double.toString(ChartUtils.getDecimalAdjustedDouble((Double)lower, decimalPlaces)));
 			boxColumn.add(Double.toString(ChartUtils.getDecimalAdjustedDouble((Double)baseLine.getMean(), decimalPlaces)));
-			double upper = (double)baseLine.getMean()+(double)baseLine.getStddev();
+			double upper = (double)baseLine.getMean()+ baseLine.getStddev();
 			boxColumn.add(Double.toString(ChartUtils.getDecimalAdjustedDouble((Double)upper, decimalPlaces)));
 			boxColumn.add(Double.toString(ChartUtils.getDecimalAdjustedDouble((Double)baseLine.getMax(), decimalPlaces)));
-			//System.out.println(baseLine.getMin()+ " " +baseLine.getGenotypeEffect()+" "+baseLine.getMax());
 			boxColumns.add(boxColumn);
-			//System.out.println("boxColumn="+boxColumn);
 		}
 		
 		
@@ -114,12 +100,7 @@ public class BaselineChartsController {
 		 String seriesData="{"
 			 		+ " name: 'Observations',"
 			 		+ " data:"
-			 		+ boxColumns 
-//			 		+ " ["
-//			 		+ " [760, 801, 848, 895, 965],"
-//			 		+ " [733, 853, 939, 980, 1080],"
-//			 		+ " [714, 762, 817, 870, 918],"
-//			 		+ " [834, 836, 864, 882, 910] ]"
+			 		+ boxColumns
 			 		+ ","
 			 		+ " tooltip: {"
 			 		+ " headerFormat: '<em>Experiment No {point.key}</em><br/>'"
@@ -151,7 +132,7 @@ public class BaselineChartsController {
 					+ "         } "
 					+ "     }, "
 					+ " }, \n"
-					+ " plotOptions: {" + "series:" + "{ groupPadding: 0.25, pointPadding: -0.5 }" + "},"
+					+ " plotOptions: { series: { pointWidth:20, groupPadding: 0.25, pointPadding: -0.5 } },"
 					+ " yAxis: {  " + "max: " + yMax + ",  min: " + yMin + "," + " labels: { },title: { text: '" + yAxisTitle + "' }, tickAmount: 5 }, "
 					+ "\n series: [" + seriesData + "] });";
 
@@ -174,7 +155,6 @@ public class BaselineChartsController {
 
 	private String generateBaselineChartBarStyle(String parameterStableId, List<FieldStatsInfo> baselinesForParameter) throws SolrServerException, IOException {
 		ParameterDTO parameter=impressService.getParameterByStableId(parameterStableId);
-		//String procedureName = parameter.getProcedures().iterator().next().getName();
 		System.out.println("procedure names="+parameter.getProcedureNames());
 		
 		String yAxisTitle=parameter.getUnitX();

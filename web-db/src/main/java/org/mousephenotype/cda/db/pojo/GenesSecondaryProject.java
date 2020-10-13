@@ -45,6 +45,9 @@ public class GenesSecondaryProject {
 	@Column(name = "group_label")
 	private String groupLabel;
 
+	@Column(name = "hg_symbol")
+	private String humanGeneSymbol;
+
 	public GenesSecondaryProject(String mgiGeneAccessionId) {
 		this.mgiGeneAccessionId = mgiGeneAccessionId;
 	}
