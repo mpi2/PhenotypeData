@@ -61,6 +61,10 @@ parser.add_argument(
     '-s', '--structures', dest='structures', required=True,
     help='comma separated list of structures whose models will be applied'
 )
+parser.add_argument(
+    '-u', '--user-email', dest='user_email', default='kola@ebi.ac.uk',
+    help='email to which notification of LSF jobs will be sent.'
+)
 
 args = parser.parse_args()
 print_every = args.print_every
@@ -77,23 +81,27 @@ for structure in args.structures.split(","):
     model_desc_fname = "_".join([site_name_lc, structure, "model.json"])
     model_desc_path = os.path.join(model_dir_base, site_name_lc, model_desc_fname)
     output_dir = os.path.join(args.output_base_dir, site_name_uc+"_"+parameter_stable_id) 
-    #command = f'bsub -M 10000 -R  "rusage[mem=10000]" -J {job_name}' + \
-    #          f"bash -c 'source ~/conda_setup.sh; conda activate " + \
+    # Uncomment for Jenkins
+    #command = f"bash -c 'source ~/conda_setup.sh; conda activate " + \
     #          "/nfs/production3/komp2/web/image_qc/code/python3;" + \
     #          f"python {code_path} --site-name {site_name_uc} " + \
     #          f"--parameter-stable-id {parameter_stable_id} -p -1 " + \
     #          f"-o {output_dir} -m {model_desc_path} " + \
-    #          f"--output-filename {output_filename}"
-    command = f"bash -c 'source ~/conda_setup.sh; conda activate " + \
-              "/nfs/production3/komp2/web/image_qc/code/python3;" + \
+    #          f"--output-filename {output_filename}'"
+    command = f"bash -c 'source activate pytorch_cuda92;" + \
               f"python {code_path} --site-name {site_name_uc} " + \
               f"--parameter-stable-id {parameter_stable_id} -p -1 " + \
               f"-o {output_dir} -m {model_desc_path} " + \
               f"--output-filename {output_filename}'"
-    print(command)
-        # Submit to LSF
-        #submit_command = f'ssh tc_mi01@{args.cluster_login_node} "bsub -M 15000 -R  \\"rusage[mem=15000]\\" -q {args.queue_name} -J IMPC_qc_images_{output_stem}_{postfix} -o {logs_dir}/{output_stem}.out -e {logs_dir}/{output_stem}.err {output_filepath}"'
-    submit_command = f'ssh tc_mi01@{args.cluster_login_node} "bsub -M 15000 -R  \\"rusage[mem=15000]\\" -J {job_name} {command}"'
+    #print(command)
+
+    # Uncomment line below for use by Jenkins
+    # Still need to add -o and -e ( -o {logs_dir}/{output_stem}.out -e {logs_dir}/{output_stem}.err {output_filepath} )
+    #submit_command = f'ssh tc_mi01@{args.cluster_login_node} "bsub -u {args.user_email} -M 15000 -R  \\"rusage[mem=15000]\\" -J {job_name} {command}"'
+
+    # Submit command below for my user name as I was having issues
+    # running the commands to save images on /nfs/nobackup
+    submit_command = f'bsub -M 10000 -R  "rusage[mem=10000]" -J {job_name} {command}'
     print(submit_command)
     retval = os.system(submit_command)
     if retval == 0:
