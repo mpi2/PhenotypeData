@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class AbrChartAndTableProvider {
@@ -108,15 +109,55 @@ public class AbrChartAndTableProvider {
     	String procedureUrl = null;
     	String unit = impressService.getParameterByStableId(Constants.ABR_PARAMETERS.get(1)).getUnitX();
 
-    	for (String parameterStableId : Constants.ABR_PARAMETERS){
+//    	for (String parameterStableId : Constants.ABR_PARAMETERS){
+//
+//    		ParameterDTO parameter = impressService.getParameterByStableId(parameterStableId);
+//    		try {
+//    			ExperimentDTO experiment = es.getSpecificExperimentDTO(parameterStableId, pipelineStableId, acc, genderList, zyList, phenotypingCenter, strain, metadataGroup, alleleAccession, ebiMappedSolrUrl);
+//
+//    			if (experiment != null){
+//			    	zygosities = experiment.getZygosities();
+//			    	Set<SexType> sexes = experiment.getSexes();
+//					if (procedureUrl == null){
+//						ProcedureDTO proc = impressService.getProcedureByStableId(experiment.getProcedureStableId()) ;
+//						if (proc != null) {
+//							procedureUrl = String.format("<a href=\"%s\">%s</a>", impressService.getProcedureUrlByKey(((Long)proc.getStableKey()).toString()), proc.getName());
+//						}
+//					}
+//					for (SexType sex : sexes){
+//						UnidimensionalStatsObject tempMeans = getMeans( sex, null, experiment);
+//						String tempLabel = ChartUtils.getLabel(null, sex);
+//						ArrayList<UnidimensionalStatsObject> tempData = data.get(tempLabel);
+//						tempData.add(tempMeans);
+//						for (ZygosityType z : zygosities){
+//							data.get(ChartUtils.getLabel(z, sex)).add(getMeans(sex, z, experiment));
+//						}
+//					}
+//				}
+//				else {
+//					emptyObj.setLabel(parameter.getName());
+//			    	data.get(ChartUtils.getLabel(null,  SexType.female)).add(emptyObj);
+//			    	data.get(ChartUtils.getLabel(null,  SexType.male)).add(emptyObj);
+//					for (String z : zyList){
+//						data.get(ChartUtils.getLabel(ZygosityType.valueOf(z),  SexType.male)).add(emptyObj);
+//						data.get(ChartUtils.getLabel(ZygosityType.valueOf(z),  SexType.female)).add(emptyObj);
+//					}
+//				}
+//    		} catch (SolrServerException | IOException | SpecificExperimentException e) {
+//				e.printStackTrace();
+//			}
+//    	}
 
-    		ParameterDTO parameter = impressService.getParameterByStableId(parameterStableId);
-    		try {
-    			ExperimentDTO experiment = es.getSpecificExperimentDTO(parameterStableId, pipelineStableId, acc, genderList, zyList, phenotypingCenter, strain, metadataGroup, alleleAccession, ebiMappedSolrUrl);
-
+		for (String parameterStableId : Constants.ABR_PARAMETERS){
+			ExperimentDTO lastExperiment = null;
+			for (String zygosity : zyList){
+				ParameterDTO parameter = impressService.getParameterByStableId(parameterStableId);
+				ExperimentDTO experiment = es.getSpecificExperimentDTO(pipelineStableId, "IMPC_ABR_002", parameterStableId,  alleleAccession, phenotypingCenter, zygosity, strain, metadataGroup);
+				lastExperiment = experiment;
+				zygosities = experiment.getZygosities();
     			if (experiment != null){
-			    	zygosities = experiment.getZygosities();
 			    	Set<SexType> sexes = experiment.getSexes();
+			    	sexes = sexes.size() == 1 && sexes.contains(SexType.not_considered) ? Stream.of(SexType.male, SexType.female).collect(Collectors.toSet()) : sexes;
 					if (procedureUrl == null){
 						ProcedureDTO proc = impressService.getProcedureByStableId(experiment.getProcedureStableId()) ;
 						if (proc != null) {
@@ -124,25 +165,28 @@ public class AbrChartAndTableProvider {
 						}
 					}
 					for (SexType sex : sexes){
-						data.get(ChartUtils.getLabel(null, sex)).add(getMeans( sex, null, experiment));
-						for (ZygosityType z : zygosities){
-							data.get(ChartUtils.getLabel(z, sex)).add(getMeans(sex, z, experiment));
-						}
+						UnidimensionalStatsObject tempMeans = getMeans( sex, ZygosityType.getByDisplayName(zygosity), experiment);
+						String tempLabel = ChartUtils.getLabel(ZygosityType.getByDisplayName(zygosity), sex);
+						ArrayList<UnidimensionalStatsObject> tempData = data.get(tempLabel);
+						tempData.add(tempMeans);
 					}
 				}
 				else {
 					emptyObj.setLabel(parameter.getName());
 			    	data.get(ChartUtils.getLabel(null,  SexType.female)).add(emptyObj);
 			    	data.get(ChartUtils.getLabel(null,  SexType.male)).add(emptyObj);
-					for (String z : zyList){
-						data.get(ChartUtils.getLabel(ZygosityType.valueOf(z),  SexType.male)).add(emptyObj);
-						data.get(ChartUtils.getLabel(ZygosityType.valueOf(z),  SexType.female)).add(emptyObj);
-					}
+					data.get(ChartUtils.getLabel(ZygosityType.valueOf(zygosity),  SexType.male)).add(emptyObj);
 				}
-    		} catch (SolrServerException | IOException | SpecificExperimentException e) {
-				e.printStackTrace();
 			}
-    	}
+			Set<SexType> sexes = lastExperiment.getSexes();
+			sexes = sexes.size() == 1 && sexes.contains(SexType.not_considered) ? Stream.of(SexType.male, SexType.female).collect(Collectors.toSet()) : sexes;
+			for (SexType sex : sexes){
+				UnidimensionalStatsObject tempMeans = getMeans( sex, null, lastExperiment);
+				String tempLabel = ChartUtils.getLabel(null, sex);
+				ArrayList<UnidimensionalStatsObject> tempData = data.get(tempLabel);
+				tempData.add(tempMeans);
+			}
+		}
 
 		return getCustomChart(data, procedureUrl, unit, zygosities, chartId);
 	}

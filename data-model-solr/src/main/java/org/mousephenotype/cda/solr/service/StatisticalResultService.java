@@ -212,7 +212,8 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
         q.addField(StatisticalResultDTO.MARKER_SYMBOL);
         q.addField(StatisticalResultDTO.MARKER_ACCESSION_ID);
-        q.addFilterQuery(StatisticalResultDTO.P_VALUE + ":[* TO *]");
+        // Temporary fix to include RR+ data on measurement charts
+        q.addFilterQuery(StatisticalResultDTO.P_VALUE + ":[* TO *] OR " + StatisticalResultDTO.STATISTICAL_METHOD + ":Reference*");
         q.setFacet(true);
         q.setFacetLimit(-1);
         q.setFacetMinCount(1);
@@ -551,7 +552,6 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
     }
 
 
-
     private int getBin(List<Double> bins, Double valueToBin) {
 
         for (Double upperBound : bins) {
@@ -886,7 +886,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         }
 
         if (zygosities != null) {
-            query.addFilterQuery(StatisticalResultDTO.ZYGOSITY + ":(" + String.join(" OR ",  zygosities) + ")");
+            query.addFilterQuery(StatisticalResultDTO.ZYGOSITY + ":(" + String.join(" OR ", zygosities) + ")");
         }
 
         if (strain != null) {
@@ -976,6 +976,12 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         List<StatisticalResultDTO> solrResults = statisticalResultCore.query(query).getBeans(StatisticalResultDTO.class);
 
         for (StatisticalResultDTO statResult : solrResults) {
+
+            // Temporary fix to display RR plus p-values
+            if (statResult.getStatisticalMethod() != null && statResult.getStatisticalMethod().contains("Reference Range Plus")) {
+                ArrayList<Double> pValues = (ArrayList<Double>) Stream.of(statResult.getGenotypePvalueLowNormalVsHigh(), statResult.getGenotypePvalueLowVsNormalHigh(), statResult.getFemalePvalueLowNormalVsHigh(), statResult.getFemalePvalueLowVsNormalHigh(),  statResult.getMalePvalueLowNormalVsHigh(), statResult.getMalePvalueLowVsNormalHigh() ).collect(Collectors.toList());
+                statResult.setPValue(Collections.min(pValues));
+            }
             if (statResult.getSignificant()) {
                 switch (statResult.getSex()) {
                     case "female":
@@ -1364,42 +1370,43 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
     }
 
     Set<String> nullFilterFields = new TreeSet<>();
+
     public List<StatisticalResultDTO> getImpcPvalues() throws SolrServerException, IOException {
         SolrQuery q = new SolrQuery("*:*")
-            .addField(StatisticalResultDTO.DOCUMENT_ID)
-            .addField(StatisticalResultDTO.MARKER_SYMBOL)
-            .addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
-            .addField(StatisticalResultDTO.ALLELE_SYMBOL)
-            .addField(StatisticalResultDTO.ALLELE_ACCESSION_ID)
-            .addField(StatisticalResultDTO.STRAIN_NAME)
-            .addField(StatisticalResultDTO.STRAIN_ACCESSION_ID)
-            .addField(StatisticalResultDTO.COLONY_ID)
-            .addField(StatisticalResultDTO.PHENOTYPING_CENTER)
-            .addField(StatisticalResultDTO.ZYGOSITY)
-            .addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
-            .addField(StatisticalResultDTO.PARAMETER_NAME)
-            .addField(StatisticalResultDTO.P_VALUE)
-            .setRows(Integer.MAX_VALUE);
+                .addField(StatisticalResultDTO.DOCUMENT_ID)
+                .addField(StatisticalResultDTO.MARKER_SYMBOL)
+                .addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
+                .addField(StatisticalResultDTO.ALLELE_SYMBOL)
+                .addField(StatisticalResultDTO.ALLELE_ACCESSION_ID)
+                .addField(StatisticalResultDTO.STRAIN_NAME)
+                .addField(StatisticalResultDTO.STRAIN_ACCESSION_ID)
+                .addField(StatisticalResultDTO.COLONY_ID)
+                .addField(StatisticalResultDTO.PHENOTYPING_CENTER)
+                .addField(StatisticalResultDTO.ZYGOSITY)
+                .addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
+                .addField(StatisticalResultDTO.PARAMETER_NAME)
+                .addField(StatisticalResultDTO.P_VALUE)
+                .setRows(Integer.MAX_VALUE);
 
         List<StatisticalResultDTO> results = statisticalResultCore.query(q).getBeans(StatisticalResultDTO.class);
 
         // Log null filter fields, then remove them. Failing to remove them causes NPE.
         nullFilterFields = results
-            .stream()
-            .filter(dto -> (dto.getStatus() == null) || dto.getResourceName() == null)
-            .map(StatisticalResultDTO::getDocId)
-            .collect(Collectors.toSet());
+                .stream()
+                .filter(dto -> (dto.getStatus() == null) || dto.getResourceName() == null)
+                .map(StatisticalResultDTO::getDocId)
+                .collect(Collectors.toSet());
 
         results = results
-            .stream()
-            .filter(dto -> dto.getStatus() != null)
-            .filter(dto -> dto.getResourceName() != null)
-            .filter(dto -> dto.getStatus().equalsIgnoreCase("Successful"))
-            .filter(dto -> dto.getResourceName().equalsIgnoreCase("IMPC")
-                || dto.getResourceName().equalsIgnoreCase("3i"))
-            .collect(Collectors.toList());
+                .stream()
+                .filter(dto -> dto.getStatus() != null)
+                .filter(dto -> dto.getResourceName() != null)
+                .filter(dto -> dto.getStatus().equalsIgnoreCase("Successful"))
+                .filter(dto -> dto.getResourceName().equalsIgnoreCase("IMPC")
+                        || dto.getResourceName().equalsIgnoreCase("3i"))
+                .collect(Collectors.toList());
 
-        if ( ! nullFilterFields.isEmpty()) {
+        if (!nullFilterFields.isEmpty()) {
             logger.warn("Null filter fields by type and Solr doc id:");
             nullFilterFields.stream().forEachOrdered(s -> System.out.println(s));
         }
@@ -1412,25 +1419,25 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
     @Deprecated
     public List<StatisticalResultDTO> getImpcPvaluesAndMpTerms() throws SolrServerException, IOException {
         SolrQuery q = new SolrQuery("*:*")
-            .addField(StatisticalResultDTO.MARKER_SYMBOL)
-            .addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
-            .addField(StatisticalResultDTO.ALLELE_SYMBOL)
-            .addField(StatisticalResultDTO.ALLELE_ACCESSION_ID)
-            .addField(StatisticalResultDTO.STRAIN_NAME)
-            .addField(StatisticalResultDTO.STRAIN_ACCESSION_ID)
-            .addField(StatisticalResultDTO.COLONY_ID)
-            .addField(StatisticalResultDTO.PHENOTYPING_CENTER)
-            .addField(StatisticalResultDTO.ZYGOSITY)
-            .addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
-            .addField(StatisticalResultDTO.PARAMETER_NAME)
-            .addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
-            .addField(StatisticalResultDTO.P_VALUE)
-            .addField(StatisticalResultDTO.MP_TERM_NAME)
+                .addField(StatisticalResultDTO.MARKER_SYMBOL)
+                .addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
+                .addField(StatisticalResultDTO.ALLELE_SYMBOL)
+                .addField(StatisticalResultDTO.ALLELE_ACCESSION_ID)
+                .addField(StatisticalResultDTO.STRAIN_NAME)
+                .addField(StatisticalResultDTO.STRAIN_ACCESSION_ID)
+                .addField(StatisticalResultDTO.COLONY_ID)
+                .addField(StatisticalResultDTO.PHENOTYPING_CENTER)
+                .addField(StatisticalResultDTO.ZYGOSITY)
+                .addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
+                .addField(StatisticalResultDTO.PARAMETER_NAME)
+                .addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
+                .addField(StatisticalResultDTO.P_VALUE)
+                .addField(StatisticalResultDTO.MP_TERM_NAME)
 
-            .addFilterQuery(StatisticalResultDTO.STATUS + ":Successful")
-            .addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(IMPC OR 3i)")
-            .setRows(Integer.MAX_VALUE)
-            .setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
+                .addFilterQuery(StatisticalResultDTO.STATUS + ":Successful")
+                .addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(IMPC OR 3i)")
+                .setRows(Integer.MAX_VALUE)
+                .setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
 
         return statisticalResultCore.query(q).getBeans(StatisticalResultDTO.class);
     }
