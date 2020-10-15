@@ -464,6 +464,10 @@ public class GenesController {
         HashMap<Integer, DataTableRow> phenotypes = new HashMap<>();
 
         for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
+            // Temporary fix for ABR data
+            if(pcs.getProcedure() != null && pcs.getProcedure().getStableId().contains("ABR")) {
+                pcs.setpValue(statisticalResultService.resolveAbrPValue(pcs.getGene().getAccessionId(), pcs.getPipeline().getStableId(), pcs.getProcedure().getStableId(), pcs.getParameter().getStableId(), pcs.getColonyId(), pcs.getSex().getName()));
+            }
             DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), cmsBaseUrl);
 
             // Collapse rows on sex	and p-value		

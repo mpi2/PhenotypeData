@@ -19,9 +19,9 @@
             var name = value.split('|')[1];
             var significance = value.split('|')[2];
             var icon = value.split('|')[3];
-            val.push(mpTerm);
+            val.push(name);
             var color = significance === 'significant' ? 'badge-primary' : 'badge-info';
-            legend += '<span class="badge badge-pill filter-badge ' + color + ' mr-1"><i class="badge-icon ' + icon + '"></i> ' + name + ' <i class="close-badge fas fa-times" onclick="removeOption(\''+ filterName +'\',\'' + value +'\')"></i></span>';
+            legend += '<span class="badge badge-pill filter-badge ' + color + ' mr-1"><i class="badge-icon ' + icon + '"></i> ' + name.replace(/pehnotype/g, "") + ' <i class="close-badge fas fa-times" onclick="removeOption(\''+ filterName +'\',\'' + value +'\')"></i></span>';
         });
         legend = legend === '' ? ' all phenotypes' : legend;
         $('#ph' + filterName + 'DataTitle').html(legend);
@@ -35,7 +35,7 @@
             "                    </div>");
         $('#phenotypesTab').scrollTop();
         $.ajax({
-            url: baseUrl + '/experiments' + filterName + 'Frag?geneAccession=' + '${gene.mgiAccessionId}' + '&' + val.join('&'),
+            url: baseUrl + '/experiments' + filterName + 'Frag?geneAccession=' + '${gene.mgiAccessionId}' + '&mpTerm=' + val.join(','),
             type: 'GET',
             success: function (data) {
                 $(content_id).html(data);
@@ -395,14 +395,14 @@
                             <optgroup label="Significant">
                                 <c:forEach var="i" begin="0" end="20">
                                     <c:if test="${not empty significantTopLevelMpGroups.get(phenotypeGroups[i])}">
-                                        <option title="1 item selected" value="${significantTopLevelMpGroups.get(phenotypeGroups[i])}|${fn:replace(phenotypeGroups[i], 'phenotype', '')}|significant|${phenotypeGroupIcons[i]}" data-icon="${phenotypeGroupIcons[i]}">${fn:replace(phenotypeGroups[i], 'phenotype', '')}</option>
+                                        <option title="1 item selected" value="${significantTopLevelMpGroups.get(phenotypeGroups[i])}|${phenotypeGroups[i]}|significant|${phenotypeGroupIcons[i]}" data-icon="${phenotypeGroupIcons[i]}">${fn:replace(phenotypeGroups[i], 'phenotype', '')}</option>
                                     </c:if>
                                 </c:forEach>
                             </optgroup>
                             <optgroup label="Not significant">
                                 <c:forEach var="i" begin="0" end="20">
                                     <c:if test="${not empty notsignificantTopLevelMpGroups.get(phenotypeGroups[i])}">
-                                        <option title="1 item selected" value="${notsignificantTopLevelMpGroups.get(phenotypeGroups[i])}|${fn:replace(phenotypeGroups[i], 'phenotype', '')}|nonsignificant|${phenotypeGroupIcons[i]}" data-icon="${phenotypeGroupIcons[i]}">${fn:replace(phenotypeGroups[i], 'phenotype', '')}</option>
+                                        <option title="1 item selected" value="${notsignificantTopLevelMpGroups.get(phenotypeGroups[i])}|${phenotypeGroups[i]}|nonsignificant|${phenotypeGroupIcons[i]}" data-icon="${phenotypeGroupIcons[i]}">${fn:replace(phenotypeGroups[i], 'phenotype', '')}</option>
                                     </c:if>
                                 </c:forEach>
                             </optgroup>
@@ -433,14 +433,14 @@
                                 <optgroup label="Significant">
                                     <c:forEach var="i" begin="0" end="20">
                                         <c:if test="${not empty significantTopLevelMpGroups.get(phenotypeGroups[i])}">
-                                            <option title="1 item selected" value="${significantTopLevelMpGroups.get(phenotypeGroups[i])}|${fn:replace(phenotypeGroups[i], 'phenotype', '')}|significant|${phenotypeGroupIcons[i]}" data-icon="${phenotypeGroupIcons[i]}">${fn:replace(phenotypeGroups[i], 'phenotype', '')}</option>
+                                            <option title="1 item selected" value="${significantTopLevelMpGroups.get(phenotypeGroups[i])}|${fn:replace(phenotypeGroups[i], ' phenotype', '')}|significant|${phenotypeGroupIcons[i]}" data-icon="${phenotypeGroupIcons[i]}">${fn:replace(phenotypeGroups[i], 'phenotype', '')}</option>
                                         </c:if>
                                     </c:forEach>
                                 </optgroup>
                                 <optgroup label="Not significant">
                                     <c:forEach var="i" begin="0" end="20">
                                         <c:if test="${not empty notsignificantTopLevelMpGroups.get(phenotypeGroups[i])}">
-                                            <option title="1 item selected" value="${notsignificantTopLevelMpGroups.get(phenotypeGroups[i])}|${fn:replace(phenotypeGroups[i], 'phenotype', '')}|nonsignificant|${phenotypeGroupIcons[i]}" data-icon="${phenotypeGroupIcons[i]}">${fn:replace(phenotypeGroups[i], 'phenotype', '')}</option>
+                                            <option title="1 item selected" value="${notsignificantTopLevelMpGroups.get(phenotypeGroups[i])}|${fn:replace(phenotypeGroups[i], ' phenotype', '')}|nonsignificant|${phenotypeGroupIcons[i]}" data-icon="${phenotypeGroupIcons[i]}">${fn:replace(phenotypeGroups[i], 'phenotype', '')}</option>
                                         </c:if>
                                     </c:forEach>
                                 </optgroup>

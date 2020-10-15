@@ -275,7 +275,6 @@ public class GeneService extends BasicService implements WebStatus{
 				ImpressBaseDTO procedure = new ImpressBaseDTO(null, null, x.getProcedureStableID(), procedureName);
 				ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, x.getParameterStableID(), x.getParameterName());
 				Double pValue = (x.getPValue() != null) ? Double.parseDouble(x.getPValue()) : null;
-
 				BasicBean phenotypeTerm = new BasicBean(x.getPhenotypeTermId(), x.getPhenotypeTermName());
 
 				ExperimentsDataTableRow row = new ExperimentsDataTableRow(

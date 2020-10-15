@@ -966,12 +966,12 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
     }
 
 
-    public Map<String, List<ExperimentsDataTableRow>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> procedureName, List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, String graphBaseUrl)
+    public Map<String, List<ExperimentsDataTableRow>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> procedureName, List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermNames, String graphBaseUrl)
             throws NumberFormatException, SolrServerException, IOException {
 
         Map<String, List<ExperimentsDataTableRow>> results = new HashMap<>();
 
-        SolrQuery query = buildQuery(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableIds, resource, mpTermId, null, null, null, null, null, null, null, null);
+        SolrQuery query = buildQuery(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableIds, resource, mpTermNames, null, null, null, null, null, null, null, null);
         query.add("fl", "*,raw_data:[value v=\"\"]");
         List<StatisticalResultDTO> solrResults = statisticalResultCore.query(query).getBeans(StatisticalResultDTO.class);
 
@@ -1002,6 +1002,26 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
         return results;
 
+    }
+
+    // Temporary fix for ABR data
+    public Double resolveAbrPValue(String geneAccession, String pipelineStableId, String procedureStableId, String parameterStableId, String colonyId, String sex) {
+        sex = sex.equals("not_considered") ? "*" : sex;
+        Double pValue = 0.0;
+        SolrQuery query = new SolrQuery();
+        query.setRows(1);
+        query.setQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + geneAccession + "\" AND " + StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId + " AND " + StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" + procedureStableId + " AND " + StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + parameterStableId + " AND " + StatisticalResultDTO.COLONY_ID + ":" + colonyId + " AND " + StatisticalResultDTO.PHENOTYPE_SEX + ":" + sex);
+        try {
+            List<StatisticalResultDTO> solrResults = statisticalResultCore.query(query).getBeans(StatisticalResultDTO.class);
+            StatisticalResultDTO statResult = solrResults.get(0);
+            ArrayList<Double> pValues = (ArrayList<Double>) Stream.of(statResult.getGenotypePvalueLowNormalVsHigh(), statResult.getGenotypePvalueLowVsNormalHigh(), statResult.getFemalePvalueLowNormalVsHigh(), statResult.getFemalePvalueLowVsNormalHigh(),  statResult.getMalePvalueLowNormalVsHigh(), statResult.getMalePvalueLowVsNormalHigh() ).collect(Collectors.toList());
+            pValue = Collections.min(pValues);
+        } catch (SolrServerException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return pValue;
     }
 
     public Map<CombinedObservationKey, ExperimentsDataTableRow> getAllDataRecords(String geneAccession, List<String> procedureName, List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, String graphBaseUrl)
@@ -1443,7 +1463,8 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
     }
 
     public Integer getParameterCountByGene(String acc) throws IOException, SolrServerException {
-        SolrQuery query = new SolrQuery("p_value:[* TO *] AND marker_accession_id:\"" + acc + "\"");
+        // Temporary change to fix ABR data
+        SolrQuery query = new SolrQuery("("+ StatisticalResultDTO.P_VALUE + ":[* TO *] OR " +  StatisticalResultDTO.PROCEDURE_STABLE_ID + ":*ABR*) AND " + StatisticalResultDTO.MARKER_ACCESSION_ID +":\"" + acc + "\" AND -parameter_stable_id:*VIA*");
         query.add("group", "true");
         query.add("group.ngroups", "true");
         query.add("group.field", StatisticalResultDTO.PARAMETER_NAME);
