@@ -155,6 +155,7 @@ public class ReleaseAnalyticsManager implements CommandLineRunner {
         dataReleaseFacts.add(new MetaInfo("statistical_packages", "OpenStats", "BioConductor Statistical package used to compute genotype to phenotype significant associations"));
         dataReleaseFacts.add(new MetaInfo("PhenStat_release_version", PHENSTAT_VERSION, "Version of statistical pipeline used to analyse phenotype data"));
         dataReleaseFacts.add(new MetaInfo("PhenStat_repository", "https://github.com/mpi2/OpenStats","GitHub repository for statistical pipeline code"));
+        dataReleaseFacts.add(new MetaInfo("PhenStat_repository_doc_url", "https://www.biorxiv.org/content/10.1101/2020.05.13.091157v1","A Robust and Scalable Software Package for Reproducible Analysis of High-Throughput Phenotypic Data"));
         dataReleaseFacts.add(new MetaInfo("code_release_version", gitBranch, "Code used to build the database and to run the portal"));
         dataReleaseFacts.add(new MetaInfo("code_repository", "https://github.com/mpi2/PhenotypeData", "GitHub repository for the mouse phenotype portal"));
         dataReleaseFacts.add(new MetaInfo("ftp_site", "ftp://ftp.ebi.ac.uk/pub/databases/impc/release-" + DATA_RELEASE_VERSION, "Location of latest release data on FTP site"));

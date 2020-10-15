@@ -1,28 +1,28 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"	pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="t" tagdir="/WEB-INF/tags"%>
-<%@ taglib prefix='fn' uri='http://java.sun.com/jsp/jstl/functions'%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
+<%@ taglib prefix='fn' uri='http://java.sun.com/jsp/jstl/functions' %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <t:genericpage>
 
-	<jsp:attribute name="title">IMPC Data Release ${metaInfo["data_release_version"]} Notes</jsp:attribute>
-	<jsp:attribute name="breadcrumb">&nbsp;&raquo; Release Notes</jsp:attribute>
-	<jsp:attribute name="header">
+    <jsp:attribute name="title">IMPC Data Release ${metaInfo["data_release_version"]} Notes</jsp:attribute>
+    <jsp:attribute name="breadcrumb">&nbsp;&raquo; Release Notes</jsp:attribute>
+    <jsp:attribute name="header">
 
 		<script type="text/javascript">
-			var cmsBaseUrl = '${cmsBaseUrl}';
-		</script>
+            var cmsBaseUrl = '${cmsBaseUrl}';
+        </script>
 
         <script type="text/javascript">
-		    $(document).ready(function() {
+            $(document).ready(function () {
 
                 // bubble popup for brief panel documentation
                 $.fn.qTip({
                     'pageName': 'phenome',
                     'tip': 'top right',
                     'corner': 'right top'
-                }); 
+                });
             });
         </script>
 
@@ -33,10 +33,10 @@
 
 	</jsp:attribute>
 
-	<jsp:attribute name="bodyTag"><body class="no-sidebars small-header"></jsp:attribute>
-	<jsp:attribute name="addToFooter" />
+    <jsp:attribute name="bodyTag"><body class="no-sidebars small-header"></jsp:attribute>
+    <jsp:attribute name="addToFooter"/>
 
-	<jsp:body>
+    <jsp:body>
 
         <div class="container data-heading">
             <div class="row">
@@ -66,7 +66,11 @@
                                             <h4>Statistical Package</h4>
                                             <ul class="mt-0">
                                                 <li>${metaInfo["statistical_packages"]}</li>
-                                                <li>Version:&nbsp;${metaInfo["PhenStat_release_version"]}</li>
+                                                <li>Version:&nbsp
+                                                    <a href="${metaInfo["PhenStat_repository_doc_url"]}">
+                                                            ${metaInfo["PhenStat_release_version"]}
+                                                    </a>
+                                                </li>
                                             </ul>
                                         </div>
                                         <div>
@@ -104,7 +108,7 @@
 
                                             <div class="well">
                                                 <strong>Release notes:</strong>
-                                                ${metaInfo["data_release_notes"]}
+                                                    ${metaInfo["data_release_notes"]}
                                             </div>
                                         </div>
                                     </div>
@@ -117,57 +121,57 @@
                                             <h3>Total Number of Lines and Specimens in DR ${metaInfo["data_release_version"]}</h3>
                                             <table class="table table-striped">
                                                 <thead>
-                                                <tr>
-                                                    <th class="headerSort">Phenotyping Center</th>
-                                                    <th class="headerSort">Mutant Lines</th>
-                                                    <th class="headerSort">Baseline Mice</th>
-                                                    <th class="headerSort">Mutant Mice</th>
-                                                </tr>
+                                                    <tr>
+                                                        <th class="headerSort">Phenotyping Center</th>
+                                                        <th class="headerSort">Mutant Lines</th>
+                                                        <th class="headerSort">Baseline Mice</th>
+                                                        <th class="headerSort">Mutant Mice</th>
+                                                    </tr>
                                                 </thead>
                                                 <tbody>
-                                                <c:forEach var="center" items="${phenotypingCenters}">
+                                                    <c:forEach var="center" items="${phenotypingCenters}">
                                                     <c:set var="phenotyped_lines" value="phenotyped_lines_${center}"/>
                                                     <c:set var="control_specimens" value="control_specimens_${center}"/>
                                                     <c:set var="mutant_specimens" value="mutant_specimens_${center}"/>
-                                                    <tr>
-                                                        <td>${center}</td>
+                                                        <tr>
+                                                            <td>${center}</td>
                                                         <td><fmt:formatNumber type="number" maxFractionDigits="3" value="${metaInfo[phenotyped_lines]}"/></td>
                                                         <td><fmt:formatNumber type="number" maxFractionDigits="3" value="${metaInfo[control_specimens]}"/></td>
                                                         <td><fmt:formatNumber type="number" maxFractionDigits="3" value="${metaInfo[mutant_specimens]}"/></td>
-                                                    </tr>
-                                                </c:forEach>
+                                                        </tr>
+                                                    </c:forEach>
                                                 </tbody>
                                             </table>
 
                                             <h3>Experimental Data and Quality Checks</h3>
                                             <table class="table table-striped">
                                                 <thead>
-                                                <tr>
-                                                    <th class="headerSort">Data Type</th>
-                                                    <c:forEach var="qcType" items="${qcTypes}">
-                                                        <th class="headerSort">${fn:replace(qcType, '_', ' ')}</th>
-                                                    </c:forEach>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                <c:forEach var="dataType" items="${dataTypes}">
                                                     <tr>
-                                                        <td>${fn:replace(dataType, '_', ' ')}</td>
+                                                        <th class="headerSort">Data Type</th>
                                                         <c:forEach var="qcType" items="${qcTypes}">
-                                                            <c:set var="qcKey" value="${dataType}_datapoints_${qcType}"/>
-                                                            <c:set var="qcValue" value="${metaInfo[qcKey]}"/>
-                                                            <td>
-                                                                <c:choose>
-                                                                    <c:when test="${qcValue != null && qcValue != ''}">
-                                                                        <fmt:formatNumber type="number" maxFractionDigits="3" value="${qcValue}"/>
-                                                                        <c:if test="${qcType != 'QC_passed'}"><sup>*</sup></c:if>
-                                                                    </c:when>
-                                                                    <c:otherwise>0</c:otherwise>
-                                                                </c:choose>
-                                                            </td>
+                                                            <th class="headerSort">${fn:replace(qcType, '_', ' ')}</th>
                                                         </c:forEach>
                                                     </tr>
-                                                </c:forEach>
+                                                </thead>
+                                                <tbody>
+                                                    <c:forEach var="dataType" items="${dataTypes}">
+                                                        <tr>
+                                                            <td>${fn:replace(dataType, '_', ' ')}</td>
+                                                            <c:forEach var="qcType" items="${qcTypes}">
+                                                            <c:set var="qcKey" value="${dataType}_datapoints_${qcType}"/>
+                                                                <c:set var="qcValue" value="${metaInfo[qcKey]}"/>
+                                                                <td>
+                                                                    <c:choose>
+                                                                        <c:when test="${qcValue != null && qcValue != ''}">
+                                                                        <fmt:formatNumber type="number" maxFractionDigits="3" value="${qcValue}"/>
+                                                                            <c:if test="${qcType != 'QC_passed'}"><sup>*</sup></c:if>
+                                                                        </c:when>
+                                                                        <c:otherwise>0</c:otherwise>
+                                                                    </c:choose>
+                                                                </td>
+                                                            </c:forEach>
+                                                        </tr>
+                                                    </c:forEach>
                                                 </tbody>
                                             </table>
                                             <p><sup>*</sup>&nbsp;Excluded from statistical analysis.</p>
