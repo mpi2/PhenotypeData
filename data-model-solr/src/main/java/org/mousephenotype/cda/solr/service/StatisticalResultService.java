@@ -966,12 +966,12 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
     }
 
 
-    public Map<String, List<ExperimentsDataTableRow>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> procedureName, List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, String graphBaseUrl)
+    public Map<String, List<ExperimentsDataTableRow>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> procedureName, List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermNames, String graphBaseUrl)
             throws NumberFormatException, SolrServerException, IOException {
 
         Map<String, List<ExperimentsDataTableRow>> results = new HashMap<>();
 
-        SolrQuery query = buildQuery(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableIds, resource, mpTermId, null, null, null, null, null, null, null, null);
+        SolrQuery query = buildQuery(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableIds, resource, mpTermNames, null, null, null, null, null, null, null, null);
         query.add("fl", "*,raw_data:[value v=\"\"]");
         List<StatisticalResultDTO> solrResults = statisticalResultCore.query(query).getBeans(StatisticalResultDTO.class);
 
@@ -1443,7 +1443,8 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
     }
 
     public Integer getParameterCountByGene(String acc) throws IOException, SolrServerException {
-        SolrQuery query = new SolrQuery("p_value:[* TO *] AND marker_accession_id:\"" + acc + "\"");
+        // Temporary change to fix ABR data
+        SolrQuery query = new SolrQuery("("+ StatisticalResultDTO.P_VALUE + ":[* TO *] OR " +  StatisticalResultDTO.PROCEDURE_STABLE_ID + ":*ABR*) AND " + StatisticalResultDTO.MARKER_ACCESSION_ID +":\"" + acc + "\" AND -parameter_stable_id:*VIA*");
         query.add("group", "true");
         query.add("group.ngroups", "true");
         query.add("group.field", StatisticalResultDTO.PARAMETER_NAME);

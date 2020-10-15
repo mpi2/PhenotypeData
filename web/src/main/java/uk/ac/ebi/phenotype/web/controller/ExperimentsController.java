@@ -218,7 +218,7 @@ public class ExperimentsController {
             @RequestParam(required = false, value = "pipelineName") List<String> pipelineName,
             @RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId,
             @RequestParam(required = false, value = "procedureName") List<String> procedureName,
-            @RequestParam(required = false, value = "mpTermId") List<String> mpTermId,
+            @RequestParam(required = false, value = "mpTerm") List<String> mpTermNames,
             @RequestParam(required = false, value = "resource") ArrayList<String> resource,
             Model model,
             HttpServletRequest request)
@@ -227,7 +227,7 @@ public class ExperimentsController {
         AllelePageDTO allelePageDTO = srService.getAllelesInfo(geneAccession, null, null, null, null, null, null, null);
         Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
         String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
-        experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
+        experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermNames, graphBaseUrl));
         //remove any trace of viability data from chart as we decided as a group in ticket #184
         //experimentRows.remove("IMPC_VIA_001_001");
         Map<String, List<ExperimentsDataTableRow>> experimentRowsToFilter=new HashMap<>();//need

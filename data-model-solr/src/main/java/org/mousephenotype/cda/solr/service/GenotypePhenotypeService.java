@@ -16,6 +16,7 @@
 package org.mousephenotype.cda.solr.service;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.analysis.function.Cos;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
@@ -1001,7 +1002,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
     }
 
     public SolrQuery buildQuery(String geneAccession, List<String> procedureName, List<String> alleleSymbol, List<String> phenotypingCenter,
-                                List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, Integer rows, List<String> sex, List<String> zygosities,
+                                List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermNames, Integer rows, List<String> sex, List<String> zygosities,
                                 String strain, String parameterStableId, String pipelineStableId, String metadataGroup, String alleleAccessionId){
 
         SolrQuery query = new SolrQuery();
@@ -1019,11 +1020,15 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
             query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":(\""
                     + StringUtils.join(phenotypingCenter, "\" OR \"") + "\")");
         }
-        if (mpTermId != null) {
-            query.addFilterQuery(GenotypePhenotypeDTO.MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-                    + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
+        if (mpTermNames != null && mpTermNames.size() > 0) {
+            ArrayList<String> mpTermNamesSplit = new ArrayList<>();
+            for(String mpTermName : mpTermNames) {
+                mpTermNamesSplit.addAll(new ArrayList<>(Arrays.asList(mpTermName.split(" or "))));
+            }
+            query.addFilterQuery(GenotypePhenotypeDTO.MP_TERM_NAME + ":(\"" + StringUtils.join(mpTermNamesSplit, "\" OR \"") + "\") OR "
+                    + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + ":(\"" + StringUtils.join(mpTermNamesSplit, "\" OR \"") + "\") OR "
                    // + StatisticalResultDTO.MP_TERM_ID_OPTIONS + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-                    + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\")");
+                    + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_NAME + ":(\"" + StringUtils.join(mpTermNamesSplit, "\" OR \"") + "\")");
                   //  + GenotypePhenotypeDTO.FEMALE_TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"")
                     //+ "\") OR " + StatisticalResultDTO.FEMALE_MP_TERM_ID + ":(\""
                    // + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
