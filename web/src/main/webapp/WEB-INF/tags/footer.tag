@@ -81,7 +81,7 @@
             <div class="col-12 col-md-6 text-right">
                 <h6>
                     <a href="https://www.mousephenotype.org/data/release">
-                        <small>Access Data Release <span id="data-no">${metaInfo["data_release_version"]}</span> Data</small>
+                        <small>Access Data Release <span id="data-no">${releaseVersion}</span> Data</small>
                     </a>
                 </h6>
                 <div class="menu-footer-access-container">
