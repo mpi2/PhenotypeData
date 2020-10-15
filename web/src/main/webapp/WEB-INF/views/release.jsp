@@ -67,7 +67,7 @@
                                             <ul class="mt-0">
                                                 <li>${metaInfo["statistical_packages"]}</li>
                                                 <li>Version:&nbsp
-                                                    <a href="${metaInfo["PhenStat_repository_doc_url"]}">
+                                                    <a href="https://www.mousephenotype.org/help/data-analysis/statistical-analysis/">
                                                             ${metaInfo["PhenStat_release_version"]}
                                                     </a>
                                                 </li>
@@ -77,7 +77,11 @@
                                             <h4>Genome Assembly</h4>
                                             <ul class="mt-0">
                                                 <li>${metaInfo["species"]}</li>
-                                                <li>Version:&nbsp${metaInfo["genome_assembly_version"]}</li>
+                                                <li>Version:&nbsp
+                                                    <a href="http://www.informatics.jax.org">
+                                                        ${metaInfo["genome_assembly_version"]}
+                                                    </a>
+                                                </li>
                                             </ul>
                                         </div>
                                     </div>
@@ -149,7 +153,7 @@
                                                     <tr>
                                                         <th class="headerSort">Data Type</th>
                                                         <c:forEach var="qcType" items="${qcTypes}">
-                                                            <th class="headerSort">${fn:replace(qcType, '_', ' ')}</th>
+                                                            <th class="headerSort">${fn:replace(qcType, '_', ' ')} datapoints</th>
                                                         </c:forEach>
                                                     </tr>
                                                 </thead>
