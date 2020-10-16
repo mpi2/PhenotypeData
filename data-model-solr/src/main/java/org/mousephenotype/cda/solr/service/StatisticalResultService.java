@@ -979,8 +979,10 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
             // Temporary fix to display RR plus p-values
             if (statResult.getStatisticalMethod() != null && statResult.getStatisticalMethod().contains("Reference Range Plus")) {
-                ArrayList<Double> pValues = (ArrayList<Double>) Stream.of(statResult.getGenotypePvalueLowNormalVsHigh(), statResult.getGenotypePvalueLowVsNormalHigh(), statResult.getFemalePvalueLowNormalVsHigh(), statResult.getFemalePvalueLowVsNormalHigh(),  statResult.getMalePvalueLowNormalVsHigh(), statResult.getMalePvalueLowVsNormalHigh() ).collect(Collectors.toList());
-                statResult.setPValue(Collections.min(pValues));
+                List<Double> pValues = Stream.of(statResult.getGenotypePvalueLowNormalVsHigh(), statResult.getGenotypePvalueLowVsNormalHigh(), statResult.getFemalePvalueLowNormalVsHigh(), statResult.getFemalePvalueLowVsNormalHigh(),  statResult.getMalePvalueLowNormalVsHigh(), statResult.getMalePvalueLowVsNormalHigh() ).collect(Collectors.toList());
+                pValues = pValues.stream().filter(Objects::nonNull).collect(Collectors.toList());
+                Double pValue = pValues.size() > 0 ? Collections.min(pValues) : 0.0;
+                statResult.setPValue(pValue);
             }
             if (statResult.getSignificant()) {
                 switch (statResult.getSex()) {
@@ -1014,8 +1016,9 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         try {
             List<StatisticalResultDTO> solrResults = statisticalResultCore.query(query).getBeans(StatisticalResultDTO.class);
             StatisticalResultDTO statResult = solrResults.get(0);
-            ArrayList<Double> pValues = (ArrayList<Double>) Stream.of(statResult.getGenotypePvalueLowNormalVsHigh(), statResult.getGenotypePvalueLowVsNormalHigh(), statResult.getFemalePvalueLowNormalVsHigh(), statResult.getFemalePvalueLowVsNormalHigh(),  statResult.getMalePvalueLowNormalVsHigh(), statResult.getMalePvalueLowVsNormalHigh() ).collect(Collectors.toList());
-            pValue = Collections.min(pValues);
+            List<Double> pValues = Stream.of(statResult.getGenotypePvalueLowNormalVsHigh(), statResult.getGenotypePvalueLowVsNormalHigh(), statResult.getFemalePvalueLowNormalVsHigh(), statResult.getFemalePvalueLowVsNormalHigh(),  statResult.getMalePvalueLowNormalVsHigh(), statResult.getMalePvalueLowVsNormalHigh() ).collect(Collectors.toList());
+            pValues = pValues.stream().filter(Objects::nonNull).collect(Collectors.toList());
+            pValue = pValues.size() > 0 ? Collections.min(pValues) : 0.0;
         } catch (SolrServerException e) {
             e.printStackTrace();
         } catch (IOException e) {
