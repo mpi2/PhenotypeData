@@ -153,7 +153,9 @@
                                                     <tr>
                                                         <th class="headerSort">Data Type</th>
                                                         <c:forEach var="qcType" items="${qcTypes}">
-                                                            <th class="headerSort">${fn:replace(qcType, '_', ' ')} datapoints</th>
+                                                            <th class="headerSort">${fn:replace(
+                                                                fn:replace(qcType, 'passed', 'Passed')
+                                                            , '_', ' ')} Data Points</th>
                                                         </c:forEach>
                                                     </tr>
                                                 </thead>
