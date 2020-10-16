@@ -240,7 +240,7 @@
                                             More charts and status information are available from our mouse tracking services
                                             <a href="https://www.mousephenotype.org/imits/">iMits</a>
                                             and
-                                            <a href="https://www.gentar.org/">GenTaR</a>
+                                            <a href="https://www.gentar.org/">GenTaR</a>.
                                         </p>
 
                                     </div>
