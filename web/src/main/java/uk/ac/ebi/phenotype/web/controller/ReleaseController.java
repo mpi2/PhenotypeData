@@ -15,6 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
+import org.mousephenotype.cda.db.pojo.AnalyticsSignificantCallsProcedures;
 import org.mousephenotype.cda.db.pojo.MetaInfo;
 import org.mousephenotype.cda.db.repositories.AnalyticsPvalueDistributionRepository;
 import org.mousephenotype.cda.db.repositories.AnalyticsSignificantCallsProceduresRepository;
@@ -209,7 +210,9 @@ public class ReleaseController {
 		List<AggregateCountXY> callBeans = getAllProcedurePhenotypeCalls();
 
 		String callProcedureChart = chartsProvider.generateAggregateCountByProcedureChart(callBeans,
-				"Phenotype calls per procedure", "Center by center", "Number of phenotype calls", "calls",
+				"Number of Phenotype Calls by Procedure",
+				"Further categorized by Early and Late Adult",
+				"Number of phenotype calls", "calls",
 				"callProcedureChart", "checkAllPhenCalls", "uncheckAllPhenCalls");
 
 		Map<String, List<String>> statisticalMethods =
@@ -409,18 +412,41 @@ public class ReleaseController {
 
 
 	private List<AggregateCountXY> getAllProcedurePhenotypeCalls() {
+		Iterable<AnalyticsSignificantCallsProcedures> all = analyticsSignificantCallsProceduresRepository.findAll();
+		List<AggregateCountXY> la =
+			StreamSupport
+			.stream(all.spliterator(), false)
+			.filter(ascp -> ascp.getProcedureStableId().contains("LA_"))
+			.map(ascp -> new AggregateCountXY(
+				Math.toIntExact(ascp.getSignificantCalls()),
+				ascp.getProcedureName(),
+				"procedure",
+				null,
+				"Late Adult",
+				"nb of calls",
+				null))
+			.collect(Collectors.toList());
 
-		return
-				StreamSupport
-						.stream(analyticsSignificantCallsProceduresRepository.findAll().spliterator(), false)
-						.map(ascp -> new AggregateCountXY(
-								Math.toIntExact(ascp.getSignificantCalls()),
-								ascp.getProcedureStableId(),
-								"procedure",
-								null,
-								ascp.getPhenotypingCenter(),
-								"nb of calls",
-								null))
-						.collect(Collectors.toList());
+		List<AggregateCountXY> ea =
+			StreamSupport
+				.stream(all.spliterator(), false)
+				.filter(ascp -> ! ascp.getProcedureStableId().contains("LA_"))
+				.map(ascp -> new AggregateCountXY(
+					Math.toIntExact(ascp.getSignificantCalls()),
+					ascp.getProcedureName(),
+					"procedure",
+					null,
+					"Early Adult",
+					"nb of calls",
+					null))
+				.collect(Collectors.toList());
+
+		ea.addAll(la);
+		ea = ea
+			.stream()
+			.sorted(Comparator.comparing(AggregateCountXY::getxValue))
+			.collect(Collectors.toList());
+
+		return ea;
 	}
 }
