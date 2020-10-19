@@ -249,7 +249,7 @@ public class ReleaseController {
 		}
 
 		String trendsChart = chartsProvider.generateHistoryTrendsChart(trendsMap, allDataReleaseVersions,
-				"Genes/Mutant Lines/MP Calls", "Release by Release", "Genes/Mutant Lines", "Phenotype Calls", true,
+				"Genes/Mutant Lines/MP Calls", "By Data Release", "Genes/Mutant Lines", "Phenotype Calls", true,
 				"trendsChart", null, null);
 
 		Map<String, List<AggregateCountXY>> datapointsTrendsMap = new HashMap<>();
@@ -264,7 +264,7 @@ public class ReleaseController {
 		}
 
 		String datapointsTrendsChart = chartsProvider.generateHistoryTrendsChart(datapointsTrendsMap, allDataReleaseVersions,
-				"Data points", "", "Data points", null, false, "datapointsTrendsChart", "checkAllDataPoints",
+				"Data Points by Data Release", "", "Data Points", null, false, "datapointsTrendsChart", "checkAllDataPoints",
 				"uncheckAllDataPoints");
 
 		TreeMap<String, TreeMap<String, Long>> annotationDistribution = new TreeMap<>();
@@ -276,7 +276,7 @@ public class ReleaseController {
 								   statisticalResultService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.hemizygote, null));
 		String annotationDistributionChart = chartsProvider.generateAggregateCountByProcedureChart(
 				statisticalResultService.getAggregateCountXYBean(annotationDistribution),
-				"Distribution of Phenotype Associations in IMPC", "", "Number of genotype-phenotype associations",
+				"Distribution of Phenotype Associations by Top-level MP Term", "", "Number of genotype-phenotype associations",
 				" lines", "distribution", null, null);
 
 		Set<String> allPhenotypingCenters = allele2Service.getFacets(Allele2DTO.LATEST_PHENOTYPING_CENTRE);
