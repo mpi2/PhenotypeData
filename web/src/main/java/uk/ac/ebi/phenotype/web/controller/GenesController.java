@@ -296,18 +296,23 @@ public class GenesController {
             // Get the lists of significant and not significant top level MP terms
             GeneTopLevelMpTerms geneTopLevelMpTerms = geneService.getTopLevelMpTerms(gene);
 
-            mpGroupsSignificant = geneTopLevelMpTerms.getSignificantTopLevelMpTerms().stream()
-                    .map(PhenotypeSummaryType::getGroup)
-                    .collect(Collectors.toMap(
-                            Function.identity(), //key
-                            value -> "true", //value
-                            (existing, replacement) -> existing));
-            mpGroupsNotSignificant = geneTopLevelMpTerms.getNotSignificantTopLevelMpTerms().stream()
-                    .map(PhenotypeSummaryType::getGroup)
-                    .collect(Collectors.toMap(
-                            Function.identity(),
-                            value -> "false",
-                            (existing, replacement) -> existing));
+            if(geneTopLevelMpTerms.getSignificantTopLevelMpTerms() != null) {
+                mpGroupsSignificant = geneTopLevelMpTerms.getSignificantTopLevelMpTerms().stream()
+                        .map(PhenotypeSummaryType::getGroup)
+                        .collect(Collectors.toMap(
+                                Function.identity(), //key
+                                value -> "true", //value
+                                (existing, replacement) -> existing));
+            }
+
+            if(geneTopLevelMpTerms.getNotSignificantTopLevelMpTerms() != null) {
+                mpGroupsNotSignificant = geneTopLevelMpTerms.getNotSignificantTopLevelMpTerms().stream()
+                        .map(PhenotypeSummaryType::getGroup)
+                        .collect(Collectors.toMap(
+                                Function.identity(),
+                                value -> "false",
+                                (existing, replacement) -> existing));
+            }
 
             String genePageUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
             Map<String, String> status = geneService.getProductionStatus(acc, genePageUrl);
