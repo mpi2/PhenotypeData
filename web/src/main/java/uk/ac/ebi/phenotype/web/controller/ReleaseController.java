@@ -29,6 +29,7 @@ import org.mousephenotype.cda.solr.service.PhenodigmService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.LifeStageMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -419,17 +420,20 @@ public class ReleaseController {
 					Math.toIntExact(ascp.getSignificantCalls()),
 					ascp.getProcedureName(),
 					"procedure",
-					null,
+					ascp.getProcedureStableId(),
 					getAllProcedurePhenotypeCallsYvalue(ascp),
 					"nb of calls",
 					null))
 				.collect(Collectors.toList());
 
-		// Sort by Embryo (alphabetic)
+		// Sort by Embryo (life stage, then procedure alphabetic)
 		List<AggregateCountXY> embryoData = data
 		    .stream()
 			.filter((ac -> ac.getyValue().equalsIgnoreCase("Embryo")))
-			.sorted(Comparator.comparing(AggregateCountXY::getxValue))
+			.sorted(
+				Comparator.comparing((AggregateCountXY axy) -> LifeStageMapper.getLifeStage(axy.getxAttribute()).ordinal())
+				.thenComparing(AggregateCountXY::getxValue)
+			)
 			.collect(Collectors.toList());
 
 		// Sort by everything NOT Embryo (alphabetic)
@@ -439,8 +443,7 @@ public class ReleaseController {
 			.sorted(Comparator.comparing(AggregateCountXY::getxValue))
 			.collect(Collectors.toList());
 		embryoData.addAll(nonEmbryoData);
-		data = embryoData;
-		return data;
+		return embryoData;
 	}
 
 	private String getAllProcedurePhenotypeCallsYvalue(AnalyticsSignificantCallsProcedures ascp) {
