@@ -1,4 +1,4 @@
-package uk.ac.ebi.phenotype.web.dao;
+package uk.ac.ebi.phenotype.web.dto;
 
 import java.util.Date;
 
