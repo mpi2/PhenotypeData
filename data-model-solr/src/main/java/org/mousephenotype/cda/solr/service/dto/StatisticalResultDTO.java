@@ -438,10 +438,6 @@ public class StatisticalResultDTO {
     @Field(ADDITIONAL_INFORMATION)
     private String additionalInformation;
 
-    @Field(RAW_DATA)
-    @ToString.Exclude
-    private String rawData;
-
     @Field(RAW_OUTPUT)
     private String rawOutput;
 

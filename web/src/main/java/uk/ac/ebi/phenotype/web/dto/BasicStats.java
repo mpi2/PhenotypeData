@@ -1,4 +1,4 @@
-package uk.ac.ebi.phenotype.web.dao;
+package uk.ac.ebi.phenotype.web.dto;
 
 public class BasicStats {
 	int count;

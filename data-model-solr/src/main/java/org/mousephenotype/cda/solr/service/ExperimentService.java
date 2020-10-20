@@ -23,10 +23,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.enumerations.*;
-import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTOBase;
-import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+import org.mousephenotype.cda.solr.repositories.StatisticalRawDataRepository;
+import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.mousephenotype.cda.solr.web.dto.*;
 import org.slf4j.Logger;
@@ -60,16 +58,20 @@ public class ExperimentService {
     private ObservationService       observationService;
     private StatisticalResultService statisticalResultService;
     private GenotypePhenotypeService genotypePhenotypeService;
+    private StatisticalRawDataRepository statisticalRawDataRepository;
 
     @Inject
     public ExperimentService(
             ObservationService observationService,
             @Named("statistical-result-service") StatisticalResultService statisticalResultService,
-            @Named("genotype-phenotype-service") GenotypePhenotypeService genotypePhenotypeService)
+            @Named("genotype-phenotype-service") GenotypePhenotypeService genotypePhenotypeService,
+            StatisticalRawDataRepository statisticalRawDataRepository)
+
     {
         this.observationService = observationService;
         this.statisticalResultService = statisticalResultService;
         this.genotypePhenotypeService = genotypePhenotypeService;
+        this.statisticalRawDataRepository = statisticalRawDataRepository;
     }
 
     public ExperimentService() {
@@ -229,7 +231,7 @@ public class ExperimentService {
 
             // Get the raw data from the result
             String output;
-            String b64 = result.getRawData();
+            String b64 = this.statisticalRawDataRepository.findStatisticalRawDataDTOByDocId(result.getDocId()).getRawData();
 
             if (b64 != null) {
                 try (GZIPInputStream gzis = new GZIPInputStream(new ByteArrayInputStream(Base64.decodeBase64(b64)))) {
