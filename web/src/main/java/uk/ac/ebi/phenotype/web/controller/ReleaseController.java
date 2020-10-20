@@ -17,12 +17,10 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import org.mousephenotype.cda.db.pojo.AnalyticsSignificantCallsProcedures;
 import org.mousephenotype.cda.db.pojo.MetaInfo;
-import org.mousephenotype.cda.db.repositories.AnalyticsPvalueDistributionRepository;
 import org.mousephenotype.cda.db.repositories.AnalyticsSignificantCallsProceduresRepository;
 import org.mousephenotype.cda.db.repositories.MetaHistoryRepository;
 import org.mousephenotype.cda.db.repositories.MetaInfoRepository;
 import org.mousephenotype.cda.dto.AggregateCountXY;
-import org.mousephenotype.cda.dto.UniqueDatatypeAndStatisticalMethod;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.Allele2Service;
 import org.mousephenotype.cda.solr.service.PhenodigmService;
@@ -73,7 +71,6 @@ public class ReleaseController {
 
 
 	private Allele2Service                                allele2Service;
-	private AnalyticsPvalueDistributionRepository         analyticsPvalueDistributionRepository;
 	private AnalyticsSignificantCallsProceduresRepository analyticsSignificantCallsProceduresRepository;
 	private UnidimensionalChartAndTableProvider           chartProvider;
 	private MetaHistoryRepository                         metaHisoryRepository;
@@ -85,7 +82,6 @@ public class ReleaseController {
 	@Inject
 	public ReleaseController(
 			@NotNull Allele2Service allele2Service,
-			@NotNull AnalyticsPvalueDistributionRepository analyticsPvalueDistributionRepository,
 			@NotNull AnalyticsSignificantCallsProceduresRepository analyticsSignificantCallsProceduresRepository,
 			@NotNull UnidimensionalChartAndTableProvider chartProvider,
 			@NotNull MetaHistoryRepository metaHisoryRepository,
@@ -94,7 +90,6 @@ public class ReleaseController {
 			@NotNull StatisticalResultService statisticalResultService)
 	{
 		this.allele2Service = allele2Service;
-		this.analyticsPvalueDistributionRepository = analyticsPvalueDistributionRepository;
 		this.analyticsSignificantCallsProceduresRepository = analyticsSignificantCallsProceduresRepository;
 		this.chartProvider = chartProvider;
 		this.metaHisoryRepository = metaHisoryRepository;
@@ -216,31 +211,6 @@ public class ReleaseController {
 				"Number of phenotype calls", "calls",
 				"callProcedureChart", "checkAllPhenCalls", "uncheckAllPhenCalls");
 
-		Map<String, List<String>> statisticalMethods =
-				analyticsPvalueDistributionRepository.getAllStatisticalMethods(UniqueDatatypeAndStatisticalMethod.class)
-						.stream()
-						.collect(
-								Collectors.groupingBy(
-										UniqueDatatypeAndStatisticalMethod::getDatatype,
-										Collectors.mapping(
-												UniqueDatatypeAndStatisticalMethod::getStatisticalMethod,
-												Collectors.toList())));
-
-		/*
-		 * Generate pValue distribution graph for all methods
-		 */
-		Map<String, String> distributionCharts = new HashMap<>();
-
-		for (String dataType : statisticalMethods.keySet()) {
-			for (String statisticalMethod : statisticalMethods.get(dataType)) {
-				List<AggregateCountXY> distribution = getAggregates(dataType, statisticalMethod);
-				String chart = chartsProvider.generateAggregateCountByProcedureChart(distribution,
-																					 "P-value distribution", statisticalMethod, "Frequency", "",
-																					 statisticalMethodsShortName.get(statisticalMethod) + "Chart", "xxx", "xxx");
-				distributionCharts.put(statisticalMethodsShortName.get(statisticalMethod) + "Chart", chart);
-			}
-		}
-
 		/*
 		 * Get Historical trends release by release
 		 */
@@ -320,10 +290,8 @@ public class ReleaseController {
 		model.addAttribute("dataTypes", dataTypes);
 		model.addAttribute("qcTypes", qcTypes);
 		model.addAttribute("alleleTypes", alleleTypes);
-		model.addAttribute("statisticalMethods", statisticalMethods);
 		model.addAttribute("statisticalMethodsShortName", statisticalMethodsShortName);
 		model.addAttribute("callProcedureChart", callProcedureChart);
-		model.addAttribute("distributionCharts", distributionCharts);
 		model.addAttribute("trendsChart", trendsChart);
 		model.addAttribute("datapointsTrendsChart", datapointsTrendsChart);
 		model.addAttribute("annotationDistributionChart", annotationDistributionChart);
@@ -390,24 +358,6 @@ public class ReleaseController {
 						aggregate.getDataReleaseVersion(),
 						aggregate.getDataReleaseVersion(),
 						null))
-		.collect(Collectors.toList());
-	}
-
-
-	private List<AggregateCountXY> getAggregates(String dataType, String statisticalMethod) {
-
-		return analyticsPvalueDistributionRepository.getAllByDatatypeAndStatisticalMethodOrderByPvalueBinAsc(dataType, statisticalMethod)
-				.stream()
-				.map(dist -> {
-					return new AggregateCountXY(
-							dist.getPvalueCount(),
-							Double.toString(dist.getPvalueBin()),
-							"p-value",
-							null,
-							dist.getStatisticalMethod(),
-							dist.getStatisticalMethod(),
-							null);
-				})
 		.collect(Collectors.toList());
 	}
 
