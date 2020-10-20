@@ -15,6 +15,7 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
+import org.mousephenotype.cda.db.pojo.AnalyticsSignificantCallsProcedures;
 import org.mousephenotype.cda.db.pojo.MetaInfo;
 import org.mousephenotype.cda.db.repositories.AnalyticsPvalueDistributionRepository;
 import org.mousephenotype.cda.db.repositories.AnalyticsSignificantCallsProceduresRepository;
@@ -209,7 +210,9 @@ public class ReleaseController {
 		List<AggregateCountXY> callBeans = getAllProcedurePhenotypeCalls();
 
 		String callProcedureChart = chartsProvider.generateAggregateCountByProcedureChart(callBeans,
-				"Phenotype calls per procedure", "Center by center", "Number of phenotype calls", "calls",
+				"Number of Phenotype Calls by Procedure",
+				"Further categorized by Embryo, Late Adult, and Early Adult",
+				"Number of phenotype calls", "calls",
 				"callProcedureChart", "checkAllPhenCalls", "uncheckAllPhenCalls");
 
 		Map<String, List<String>> statisticalMethods =
@@ -249,7 +252,7 @@ public class ReleaseController {
 		}
 
 		String trendsChart = chartsProvider.generateHistoryTrendsChart(trendsMap, allDataReleaseVersions,
-				"Genes/Mutant Lines/MP Calls", "Release by Release", "Genes/Mutant Lines", "Phenotype Calls", true,
+				"Genes/Mutant Lines/MP Calls", "By Data Release", "Genes/Mutant Lines", "Phenotype Calls", true,
 				"trendsChart", null, null);
 
 		Map<String, List<AggregateCountXY>> datapointsTrendsMap = new HashMap<>();
@@ -264,7 +267,7 @@ public class ReleaseController {
 		}
 
 		String datapointsTrendsChart = chartsProvider.generateHistoryTrendsChart(datapointsTrendsMap, allDataReleaseVersions,
-				"Data points", "", "Data points", null, false, "datapointsTrendsChart", "checkAllDataPoints",
+				"Data Points by Data Release", "", "Data Points", null, false, "datapointsTrendsChart", "checkAllDataPoints",
 				"uncheckAllDataPoints");
 
 		TreeMap<String, TreeMap<String, Long>> annotationDistribution = new TreeMap<>();
@@ -276,7 +279,7 @@ public class ReleaseController {
 								   statisticalResultService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.hemizygote, null));
 		String annotationDistributionChart = chartsProvider.generateAggregateCountByProcedureChart(
 				statisticalResultService.getAggregateCountXYBean(annotationDistribution),
-				"Distribution of Phenotype Associations in IMPC", "", "Number of genotype-phenotype associations",
+				"Distribution of Phenotype Associations by Top-level MP Term", "", "Number of genotype-phenotype associations",
 				" lines", "distribution", null, null);
 
 		Set<String> allPhenotypingCenters = allele2Service.getFacets(Allele2DTO.LATEST_PHENOTYPING_CENTRE);
@@ -407,20 +410,49 @@ public class ReleaseController {
 		.collect(Collectors.toList());
 	}
 
-
 	private List<AggregateCountXY> getAllProcedurePhenotypeCalls() {
+		Iterable<AnalyticsSignificantCallsProcedures> all = analyticsSignificantCallsProceduresRepository.findAll();
+		List<AggregateCountXY> data =
+			StreamSupport
+				.stream(all.spliterator(), false)
+				.map(ascp -> new AggregateCountXY(
+					Math.toIntExact(ascp.getSignificantCalls()),
+					ascp.getProcedureName(),
+					"procedure",
+					null,
+					getAllProcedurePhenotypeCallsYvalue(ascp),
+					"nb of calls",
+					null))
+				.collect(Collectors.toList());
 
-		return
-				StreamSupport
-						.stream(analyticsSignificantCallsProceduresRepository.findAll().spliterator(), false)
-						.map(ascp -> new AggregateCountXY(
-								Math.toIntExact(ascp.getSignificantCalls()),
-								ascp.getProcedureStableId(),
-								"procedure",
-								null,
-								ascp.getPhenotypingCenter(),
-								"nb of calls",
-								null))
-						.collect(Collectors.toList());
+		// Sort by Embryo (alphabetic)
+		List<AggregateCountXY> embryoData = data
+		    .stream()
+			.filter((ac -> ac.getyValue().equalsIgnoreCase("Embryo")))
+			.sorted(Comparator.comparing(AggregateCountXY::getxValue))
+			.collect(Collectors.toList());
+
+		// Sort by everything NOT Embryo (alphabetic)
+		List<AggregateCountXY> nonEmbryoData = data
+			.stream()
+			.filter((ac -> ! ac.getyValue().equalsIgnoreCase("Embryo")))
+			.sorted(Comparator.comparing(AggregateCountXY::getxValue))
+			.collect(Collectors.toList());
+		embryoData.addAll(nonEmbryoData);
+		data = embryoData;
+		return data;
+	}
+
+	private String getAllProcedurePhenotypeCallsYvalue(AnalyticsSignificantCallsProcedures ascp) {
+		if  ((ascp.getProcedureName().contains("E9.5"))
+			|| (ascp.getProcedureName().contains("E12.5"))
+			|| (ascp.getProcedureName().contains("E15.5"))
+			|| (ascp.getProcedureName().contains("E18.5"))) {
+			return "Embryo";
+		} else if (ascp.getProcedureStableId().contains("LA_")) {
+			return "Late Adult";
+		} else {
+			return "Early Adult";
+		}
 	}
 }
