@@ -211,7 +211,7 @@ public class ReleaseController {
 
 		String callProcedureChart = chartsProvider.generateAggregateCountByProcedureChart(callBeans,
 				"Number of Phenotype Calls by Procedure",
-				"Further categorized by Early and Late Adult",
+				"Further categorized by Embryo, Late Adult, and Early Adult",
 				"Number of phenotype calls", "calls",
 				"callProcedureChart", "checkAllPhenCalls", "uncheckAllPhenCalls");
 
@@ -410,43 +410,49 @@ public class ReleaseController {
 		.collect(Collectors.toList());
 	}
 
-
 	private List<AggregateCountXY> getAllProcedurePhenotypeCalls() {
 		Iterable<AnalyticsSignificantCallsProcedures> all = analyticsSignificantCallsProceduresRepository.findAll();
-		List<AggregateCountXY> la =
-			StreamSupport
-			.stream(all.spliterator(), false)
-			.filter(ascp -> ascp.getProcedureStableId().contains("LA_"))
-			.map(ascp -> new AggregateCountXY(
-				Math.toIntExact(ascp.getSignificantCalls()),
-				ascp.getProcedureName(),
-				"procedure",
-				null,
-				"Late Adult",
-				"nb of calls",
-				null))
-			.collect(Collectors.toList());
-
-		List<AggregateCountXY> ea =
+		List<AggregateCountXY> data =
 			StreamSupport
 				.stream(all.spliterator(), false)
-				.filter(ascp -> ! ascp.getProcedureStableId().contains("LA_"))
 				.map(ascp -> new AggregateCountXY(
 					Math.toIntExact(ascp.getSignificantCalls()),
 					ascp.getProcedureName(),
 					"procedure",
 					null,
-					"Early Adult",
+					getAllProcedurePhenotypeCallsYvalue(ascp),
 					"nb of calls",
 					null))
 				.collect(Collectors.toList());
 
-		ea.addAll(la);
-		ea = ea
-			.stream()
+		// Sort by Embryo (alphabetic)
+		List<AggregateCountXY> embryoData = data
+		    .stream()
+			.filter((ac -> ac.getyValue().equalsIgnoreCase("Embryo")))
 			.sorted(Comparator.comparing(AggregateCountXY::getxValue))
 			.collect(Collectors.toList());
 
-		return ea;
+		// Sort by everything NOT Embryo (alphabetic)
+		List<AggregateCountXY> nonEmbryoData = data
+			.stream()
+			.filter((ac -> ! ac.getyValue().equalsIgnoreCase("Embryo")))
+			.sorted(Comparator.comparing(AggregateCountXY::getxValue))
+			.collect(Collectors.toList());
+		embryoData.addAll(nonEmbryoData);
+		data = embryoData;
+		return data;
+	}
+
+	private String getAllProcedurePhenotypeCallsYvalue(AnalyticsSignificantCallsProcedures ascp) {
+		if  ((ascp.getProcedureName().contains("E9.5"))
+			|| (ascp.getProcedureName().contains("E12.5"))
+			|| (ascp.getProcedureName().contains("E15.5"))
+			|| (ascp.getProcedureName().contains("E18.5"))) {
+			return "Embryo";
+		} else if (ascp.getProcedureStableId().contains("LA_")) {
+			return "Late Adult";
+		} else {
+			return "Early Adult";
+		}
 	}
 }
