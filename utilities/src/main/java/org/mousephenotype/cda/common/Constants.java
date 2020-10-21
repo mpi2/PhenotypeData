@@ -24,6 +24,12 @@ public class Constants {
     public static final String SIGNIFICANT_P_VALUE_TEXT = "1.00x10-4";
     public static final String MINUS_LOG10_HTML = "-Log<sub>10</sub>";
 
+    // IMPC_VIA_002 viability outcome parameters
+    public static final String HOM_VIABILITY_MALE_ID   = "IMPC_VIA_063_001";
+    public static final String HOM_VIABILITY_FEMALE_ID = "IMPC_VIA_064_001";
+    public static final String HET_VIABILITY_ALL_ID    = "IMPC_VIA_066_001";
+    public static final String HOM_VIABILITY_ALL_ID    = "IMPC_VIA_067_001";
+
     // Brackets denote optional components Single quotes denote literal characters.
     public static final String DATETIME_FORMAT_OPTIONAL_MILLISECONDS = "yyyy-MM-dd['T'][' ']HH:mm:ss[.SSS]['Z']";
 
