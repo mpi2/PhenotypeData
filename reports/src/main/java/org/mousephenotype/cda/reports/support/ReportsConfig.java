@@ -14,6 +14,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
+import org.springframework.data.solr.repository.config.EnableSolrRepositories;
 
 import javax.sql.DataSource;
 
@@ -23,6 +24,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
+@EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
 @ComponentScan(basePackages = {"org.mousephenotype.cda.db", "org.mousephenotype.cda.solr.service"},
 		excludeFilters = {
 				@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {
@@ -78,10 +80,10 @@ public class ReportsConfig {
 		return new HttpSolrClient.Builder(internalSolrUrl + "/anatomy").build();
 	}
 
-	// autosuggest
-	@Bean(name = "autosuggestCore")
-	HttpSolrClient autosuggestCore() {
-		return new HttpSolrClient.Builder(internalSolrUrl + "/autosuggest").build();
+	// essentialgenes
+	@Bean(name = "essentialGeneCore")
+	HttpSolrClient essentialgenes() {
+		return new HttpSolrClient.Builder(internalSolrUrl + "/essentialgenes").build();
 	}
 
 	// experiment

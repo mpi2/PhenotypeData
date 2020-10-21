@@ -118,23 +118,30 @@ public class Viability extends AbstractReport {
             List<ObservationDTO> v1Dtos = results.get("IMPC_VIA_001");
             observationsByCompositeKey = getObservationsByCompositeKey(v1Dtos);
             for (Set<ObservationDTO> observationByCompositeKey : observationsByCompositeKey.values()) {
-                // Group by unique category, then use any observation in that set.
+                // For each set, look for any category value. If found, use it.
                 ObservationDTO dto = observationByCompositeKey
                     .stream()
                     .filter(d -> ((d.getCategory() != null) && ( ! d.getCategory().isEmpty())))
-                    .collect(Collectors.toList()).get(0);
-                data.add(createViabilityReportRow(dto, getCountsByParameterStableId(observationByCompositeKey)));
+                    .findAny().orElse(null);
+                if (dto != null) {
+                    data.add(createViabilityReportRow(dto, getCountsByParameterStableId(observationByCompositeKey)));
+                }
             }
 
             List<ObservationDTO> v2Dtos = results.get("IMPC_VIA_002");
             observationsByCompositeKey = getObservationsByCompositeKey(v2Dtos);
             for (Set<ObservationDTO> observationByCompositeKey : observationsByCompositeKey.values()) {
-                // Group by unique textValue, then use any observation in that set.
+                // For each set, look for a text_value for parameter 'Homozygous males viability' (IMPC_VIA_067_001).
+                // There may be 0 (e.g. null) or 1 (findAny()).
                 ObservationDTO dto = observationByCompositeKey
                     .stream()
-                    .filter(d -> ((d.getTextValue() != null) && ( ! d.getTextValue().isEmpty())))
-                    .collect(Collectors.toList()).get(0);
-                data.add(createViabilityReportRow(dto, getCountsByParameterStableId(observationByCompositeKey)));
+                    .filter(d -> ((d.getTextValue() != null)
+                        && ( ! d.getTextValue().isEmpty())
+                        && (d.getParameterStableId().equalsIgnoreCase(Constants.HOM_VIABILITY_ALL_ID))))
+                    .findAny().orElse(null);
+                if (dto != null) {
+                    data.add(createViabilityReportRow(dto, getCountsByParameterStableId(observationByCompositeKey)));
+                }
             }
         } catch (IOException | SolrServerException e) {
             throw new ReportException(e);
