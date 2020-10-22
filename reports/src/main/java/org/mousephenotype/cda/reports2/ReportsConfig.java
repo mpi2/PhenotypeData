@@ -5,6 +5,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
+import org.mousephenotype.cda.solr.service.MpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -148,6 +149,10 @@ public class ReportsConfig {
 	////////////
 	// Services
 	///////////
+	@Bean
+	public MpService mpService() {
+    	return new MpService(mpCore());
+	}
 
 
 	////////
