@@ -17,11 +17,14 @@
 package org.mousephenotype.cda.reports2;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.reports2.service.ProcedureCompletenessService;
 import org.mousephenotype.cda.reports2.support.ReportUtils;
 import org.mousephenotype.cda.reports2.support.Separator;
+import org.mousephenotype.cda.solr.service.MpService;
+import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.MpCsvWriter;
@@ -54,15 +57,18 @@ import java.util.stream.Collectors;
 // seems to prevent the warning.
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class,
                                   HibernateJpaAutoConfiguration.class})
-public class ProcedureCompleteness implements CommandLineRunner {
+public class ProcedureCompletenessAndPhenotypeHits implements CommandLineRunner {
 
     private Logger                       logger          = LoggerFactory.getLogger(this.getClass());
     private ProcedureCompletenessService procedureCompletenessService;
+    private MpService                    mpService;
     private CommonUtils                  commonUtils     = new CommonUtils();
     private Separator                    separator       = Separator.csv;
-    private String                       simpleClassName = ClassUtils.getUserClass(ProcedureCompleteness.class).getSimpleName();
+    private String                       simpleClassName = ClassUtils.getUserClass(ProcedureCompletenessAndPhenotypeHits.class).getSimpleName();
     private String                       reportName;
     private MpCsvWriter                  writer;
+
+    Map<String, MpDTO> mpToTopLevelMp;
 
     private final String[] heading = {
         "Gene Symbol",
@@ -94,14 +100,20 @@ public class ProcedureCompleteness implements CommandLineRunner {
         "Top-level MP Accession Id: Successful",
         "Top-level MP Count: Successful",
 
-        "MP Name: Successful",
-        "MP Accession Id: Successful",
-        "MP Count: Successful"
+        "Top-level MP Name: Significant",
+        "Top-level MP Accession Id: Significant",
+        "Top-level MP Count: Significant",
+
+        "MP Name: Significant",
+        "MP Accession Id: Significant",
+        "MP Count: Significant"
     };
 
     @Inject
-    public ProcedureCompleteness(ProcedureCompletenessService procedureCompletenessService) throws ReportException {
+    public ProcedureCompletenessAndPhenotypeHits(ProcedureCompletenessService procedureCompletenessService,
+                                                 MpService mpService) throws ReportException {
         this.procedureCompletenessService = procedureCompletenessService;
+        this.mpService = mpService;
     }
 
     @Override
@@ -153,7 +165,7 @@ public class ProcedureCompleteness implements CommandLineRunner {
 
     public static void main(String args[]) {
 
-        ConfigurableApplicationContext context = new SpringApplicationBuilder(ProcedureCompleteness.class)
+        ConfigurableApplicationContext context = new SpringApplicationBuilder(ProcedureCompletenessAndPhenotypeHits.class)
             .web(WebApplicationType.NONE)
             .bannerMode(Banner.Mode.OFF)
             .logStartupInfo(false)
@@ -217,6 +229,10 @@ public class ProcedureCompleteness implements CommandLineRunner {
         row.add(success.tlmpStatusSet.isEmpty() ? Constants.NONE : success.tlmpStatus.id);
         row.add(success.tlmpStatusSet.isEmpty() ? "0" : Integer.toString(success.tlmpStatusSet.size()));
 
+        row.add(success.tlmpSignificantStatusSet.isEmpty() ? Constants.NONE : success.tlmpSignificantStatus.name);
+        row.add(success.tlmpSignificantStatusSet.isEmpty() ? Constants.NONE : success.tlmpSignificantStatus.id);
+        row.add(success.tlmpSignificantStatusSet.isEmpty() ? "0" : Integer.toString(success.tlmpSignificantStatusSet.size()));
+
         row.add(success.mpStatusSet.isEmpty() ? Constants.NONE : success.mpStatus.name);
         row.add(success.mpStatusSet.isEmpty() ? Constants.NONE : success.mpStatus.id);
         row.add(success.mpStatusSet.isEmpty() ? "0" : Integer.toString(success.mpStatusSet.size()));
@@ -228,18 +244,21 @@ public class ProcedureCompleteness implements CommandLineRunner {
         public final IdName parmStatus;
         public final IdName procStatus;
         public final IdName tlmpStatus;
+        public final IdName tlmpSignificantStatus;
         public final IdName mpStatus;
 
-        public final Set<IdName> parmStatusSet = new TreeSet<>();
-        public final Set<IdName> procStatusSet = new TreeSet<>();
-        public final Set<IdName> tlmpStatusSet = new TreeSet<>();
-        public final Set<IdName> mpStatusSet   = new TreeSet<>();
+        public final Set<IdName> parmStatusSet            = new TreeSet<>();
+        public final Set<IdName> procStatusSet            = new TreeSet<>();
+        public final Set<IdName> tlmpStatusSet            = new TreeSet<>();
+        public final Set<IdName> tlmpSignificantStatusSet = new TreeSet<>();
+        public final Set<IdName> mpStatusSet              = new TreeSet<>();
 
         public Statuses(List<StatisticalResultDTO> dtos) {
             if (dtos == null) {
                 parmStatus = null;
                 procStatus = null;
                 tlmpStatus = null;
+                tlmpSignificantStatus = null;
                 mpStatus = null;
             } else {
                 dtos
@@ -251,6 +270,14 @@ public class ProcedureCompleteness implements CommandLineRunner {
                         }
                         if (d.getMpTermName() != null) {
                             mpStatusSet.add(new IdName(d.getMpTermName(), d.getMpTermId()));
+                            MpDTO tlmpDto = mpToTopLevelMp.get(d.getMpTermId());
+                            // Skip terms with no top-level. They are already top-level and have null top level mp terms
+                            if ((tlmpDto != null) && (tlmpDto.getTopLevelMpTerm() != null)) {
+                                for (int i = 0; i < tlmpDto.getTopLevelMpTerm().size(); i++) {
+                                    tlmpSignificantStatusSet.add(new IdName(tlmpDto.getTopLevelMpTerm().get(i),
+                                                                            tlmpDto.getTopLevelMpId().get(i)));
+                                }
+                            }
                         }
                         if (d.getTopLevelMpTermName() != null) {
                             for (int i = 0; i < d.getTopLevelMpTermName().size(); i++) {
@@ -263,6 +290,7 @@ public class ProcedureCompleteness implements CommandLineRunner {
                 parmStatus = new IdName(parmStatusSet);
                 procStatus = new IdName(procStatusSet);
                 tlmpStatus = new IdName(tlmpStatusSet);
+                tlmpSignificantStatus = new IdName(tlmpSignificantStatusSet);
                 mpStatus = new IdName(mpStatusSet);
             }
         }
@@ -326,7 +354,8 @@ public class ProcedureCompleteness implements CommandLineRunner {
         File targetFile = new File(Paths.get(targetDir, reportName).toAbsolutePath().toString());
         try {
             writer = new MpCsvWriter(targetFile.getAbsolutePath(), false, separator.getSeparator());
-        } catch (IOException e) {
+            mpToTopLevelMp = mpService.getMpToTopLevelMp();
+        } catch (IOException | SolrServerException e) {
             throw new ReportException(e);
         }
 

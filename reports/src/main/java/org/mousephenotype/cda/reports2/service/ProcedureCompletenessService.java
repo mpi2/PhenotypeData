@@ -66,7 +66,7 @@ public class ProcedureCompletenessService extends BasicService {
         return geneIds ;
     }
 
-    public List<StatisticalResultDTO> getGeneData(String geneSymbol) throws SolrServerException, IOException {
+    public List<StatisticalResultDTO> getGeneData(String geneSymbol) {
 
         final String[] fields = {
             StatisticalResultDTO.MARKER_SYMBOL,
