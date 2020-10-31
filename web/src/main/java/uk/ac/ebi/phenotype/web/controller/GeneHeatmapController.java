@@ -24,7 +24,6 @@ import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 import org.mousephenotype.cda.solr.web.dto.HeatMapCell;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -33,8 +32,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import uk.ac.ebi.phenotype.web.dao.GenesSecondaryProject3IImpl;
-import uk.ac.ebi.phenotype.web.dao.GenesSecondaryProjectService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -53,39 +50,33 @@ import java.util.stream.Collectors;
 public class GeneHeatmapController {
 
     @Autowired
-    @Qualifier("idg")
 	private GenesSecondaryProjectServiceIdg idgGenesSecondaryProjectService;
-
 
     @Autowired
     StatisticalResultService srService;
 
 
 	/**
-         *
-         * @param project is the external project for example a secondary screen e.g. IDG or 3I
-         * @param model
-         * @param request
-         * @return
-	 * @throws SolrServerException, IOException
-         */
+	 * @param project is the external project for example a secondary screen e.g. IDG or 3I
+	 * @param model
+	 * @param request
+	 * @return
+	 * @throws SolrServerException
+	 */
 	@RequestMapping("/geneHeatMap")
 	@Cacheable("geneHeatMapCache")
 	public String getHeatmapJS(@RequestParam(value = "project") String project,
-                Model model,
-                HttpServletRequest request) throws SolrServerException, IOException, SQLException {
+							   Model model,
+							   HttpServletRequest request) throws SolrServerException, IOException {
 
+		Long time = System.currentTimeMillis();
+		List<GeneRowForHeatMap> geneRows = idgGenesSecondaryProjectService.getGeneRowsForHeatMap(request);
+		List<BasicBean> xAxisBeans = idgGenesSecondaryProjectService.getXAxisForHeatMap();
+		model.addAttribute("geneRows", geneRows);
+		model.addAttribute("xAxisBeans", xAxisBeans);
+		System.out.println("HeatMap: Getting the data took " + (System.currentTimeMillis() - time) + "ms");
 
-
-			Long                         time                         = System.currentTimeMillis();
-			List<GeneRowForHeatMap>      geneRows                     = idgGenesSecondaryProjectService.getGeneRowsForHeatMap(request);
-			List<BasicBean>              xAxisBeans                   = idgGenesSecondaryProjectService.getXAxisForHeatMap();
-		    model.addAttribute("geneRows", geneRows);
-		    model.addAttribute("xAxisBeans", xAxisBeans);
-			System.out.println("HeatMap: Getting the data took " + (System.currentTimeMillis() - time) + "ms");
-			
-
-        return "geneHeatMap";
+		return "geneHeatMap";
 	}
 
 
@@ -161,9 +152,5 @@ public class GeneHeatmapController {
 				.body(responseText);
 
 	}
-
-	
-
-
 
 }
