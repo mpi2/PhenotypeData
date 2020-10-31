@@ -331,10 +331,10 @@ public class GeneService extends BasicService implements WebStatus{
 		solrQuery.setQuery(queryString);
 		solrQuery.setRows(1000000);
 		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID);
-		QueryResponse rsp = null;
+		QueryResponse rsp;
 		rsp = geneCore.query(solrQuery);
 		SolrDocumentList res = rsp.getResults();
-		HashSet<String> allGenes = new HashSet<String>();
+		Set<String> allGenes = new HashSet<>();
 		for (SolrDocument doc : res) {
 			allGenes.add((String) doc.getFieldValue(GeneDTO.MGI_ACCESSION_ID));
 		}

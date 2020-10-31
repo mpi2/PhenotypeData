@@ -34,118 +34,85 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Service
+public class GenesSecondaryProjectServiceIdg {
 
-/**
- *
- * @author jwarren
- */
-@Service("idg")
-public class GenesSecondaryProjectServiceIdg  {
+    public static final String DEVIANCE_COLOR = "rgb(191, 75, 50)";
+    public static final String COULD_NOT_ANALYSE = "rgb(230, 242, 246)";
+    public static final String NO_SIGNIFICANT_CALL = "rgb(247, 157, 70)";
+    public static final String NO_DATA = "rgb(119, 119, 119)";
 
-	public static final String DEVIANCE_COLOR      = "rgb(191, 75, 50)";
-	public static final String COULD_NOT_ANALYSE   = "rgb(230, 242, 246)";
-	public static final String NO_SIGNIFICANT_CALL = "rgb(247, 157, 70)";
-	public static final String NO_DATA             = "rgb(119, 119, 119)";
+    private GeneService geneService;
+    private EssentialGeneService essentialGeneService;
+    private MpService mpService;
 
-	private GeneService                     geneService;
-	private EssentialGeneService			essentialGeneService;
-	private MpService                       mpService;
+    @Inject
+    public GenesSecondaryProjectServiceIdg(
+            @NotNull GeneService geneService,
+            @NotNull EssentialGeneService essentialGeneService,
+            @NotNull MpService mpService) {
+        this.geneService = geneService;
+        this.essentialGeneService = essentialGeneService;
+        this.mpService = mpService;
+    }
 
-	@Inject
-	public GenesSecondaryProjectServiceIdg(
-			@NotNull GeneService geneService,
-			@NotNull EssentialGeneService essentialGeneService,
-			@NotNull MpService mpService)
-	{
-		this.geneService = geneService;
-		this.essentialGeneService=essentialGeneService;
-		this.mpService = mpService;
-	}
+    public Set<GenesSecondaryProject> getAllBySecondaryProjectId() throws IOException, SolrServerException {
+        Set<GenesSecondaryProject> infos = new HashSet<>();
+        List<EssentialGeneDTO> geneList = essentialGeneService.getAllIdgGeneList().stream()
+                .filter(x -> x.getMgiAccession() != null)
+                .collect(Collectors.toList());
 
-	public Set<GenesSecondaryProject> getAllBySecondaryProjectId(){
-		HashSet<GenesSecondaryProject> infos = new HashSet();
-		try {
-			List<EssentialGeneDTO> geneList = essentialGeneService.getAllIdgGeneList();
+        for (EssentialGeneDTO gene : geneList) {
+            GenesSecondaryProject info = new GenesSecondaryProject();
+            info.setGroupLabel(gene.getIdgFamily());
+            info.setMgiGeneAccessionId(gene.getMgiAccession());
+            info.setSecondaryProjectId(gene.getIdgIdl());
+            info.setHumanGeneSymbol(gene.getHumanGeneSymbol());
+            infos.add(info);
+        }
 
-			for(EssentialGeneDTO gene:geneList){
-				GenesSecondaryProject info=new GenesSecondaryProject();
-				info.setGroupLabel(gene.getIdgFamily());
-				info.setMgiGeneAccessionId(gene.getMgiAccession());
-				info.setSecondaryProjectId(gene.getIdgIdl());
-				info.setHumanGeneSymbol(gene.getHumanGeneSymbol());
-				infos.add(info);
-			}
+        return infos;
+    }
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (SolrServerException e) {
-			e.printStackTrace();
-		}
-		return infos;
-	}
-
-	public Set<GenesSecondaryProject> getAllBySecondaryProjectIdAndGroupLabel(String groupLabel){
-		HashSet<GenesSecondaryProject> infos = new HashSet();
-		try {
-			List<EssentialGeneDTO> geneList = essentialGeneService.getAllIdgGeneListByGroupLabel(groupLabel);
-
-			for(EssentialGeneDTO gene:geneList){
-				GenesSecondaryProject info=new GenesSecondaryProject();
-				info.setGroupLabel(gene.getIdgFamily());
-				info.setMgiGeneAccessionId(gene.getMgiAccession());
-				info.setSecondaryProjectId(gene.getIdgIdl());
-				info.setHumanGeneSymbol(gene.getHumanGeneSymbol());
-				infos.add(info);
-			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (SolrServerException e) {
-			e.printStackTrace();
-		}
-		return infos;
-	}
+    public Set<GenesSecondaryProject> getAllBySecondaryProjectIdAndGroupLabel(String groupLabel)
+            throws IOException, SolrServerException {
+        return getAllBySecondaryProjectId().stream()
+                .filter(x -> x.getGroupLabel().equalsIgnoreCase(groupLabel))
+                .collect(Collectors.toSet());
+    }
 
 
+    @Cacheable("topLevelPhenotypesGeneRows")
+    public List<GeneRowForHeatMap> getGeneRowsForHeatMap(HttpServletRequest request) throws SolrServerException, IOException {
 
-	@Cacheable("topLevelPhenotypesGeneRows")
-	public List<GeneRowForHeatMap> getGeneRowsForHeatMap(HttpServletRequest request) throws SolrServerException, IOException, SQLException {
+        List<BasicBean> parameters = this.getXAxisForHeatMap();
+        String geneUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 
-		List<GeneRowForHeatMap> geneRows = new ArrayList<>();
-		List<BasicBean> parameters = this.getXAxisForHeatMap();
-		String geneUrl =  request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
+        // get a list of mgi geneAccessionIds for the project - which will be the row headers
+        Set<GenesSecondaryProject> projectBeans = this.getAllBySecondaryProjectId();
 
-		// get a list of mgi geneAccessionIds for the project - which will be the row headers
-		Set<GenesSecondaryProject> projectBeans = this.getAllBySecondaryProjectId();
-
-		Set<String>accessions = projectBeans
-				   .stream()
-				.map(GenesSecondaryProject::getMgiGeneAccessionId)
-				.collect(Collectors.toSet());
+        Set<String> accessions = projectBeans
+                .stream()
+                .map(GenesSecondaryProject::getMgiGeneAccessionId)
+                .collect(Collectors.toSet());
 
 
-		List<GeneDTO> geneToMouseStatus = geneService.getProductionStatusForGeneSet(accessions, null);
-		Map<String, GeneRowForHeatMap> rows = geneService.getSecondaryProjectMapForGeneList(geneToMouseStatus, parameters, geneUrl, projectBeans);
-		geneRows=rows.values().stream()
-				.collect(Collectors.toList());
-		Collections.sort(geneRows);
-		return geneRows;
-	}
+        List<GeneDTO> geneToMouseStatus = geneService.getProductionStatusForGeneSet(accessions, null);
+        Map<String, GeneRowForHeatMap> rows = geneService.getSecondaryProjectMapForGeneList(geneToMouseStatus, parameters, geneUrl, projectBeans);
+        List<GeneRowForHeatMap> geneRows = new ArrayList<>(rows.values());
+        Collections.sort(geneRows);
+        return geneRows;
+    }
 
 
-	@Cacheable("topLevelPhenotypesXAxis")
-	public List<BasicBean> getXAxisForHeatMap() throws IOException, SolrServerException {
-
-		List<BasicBean> mp = new ArrayList<>();
-		Set<BasicBean> topLevelPhenotypes = mpService.getAllTopLevelPhenotypesAsBasicBeans();
-		mp.addAll(topLevelPhenotypes);
-
-		return mp;
-	}
+    @Cacheable("topLevelPhenotypesXAxis")
+    public List<BasicBean> getXAxisForHeatMap() throws IOException, SolrServerException {
+        Set<BasicBean> topLevelPhenotypes = mpService.getAllTopLevelPhenotypesAsBasicBeans();
+        return new ArrayList<>(topLevelPhenotypes);
+    }
 
 
 }
