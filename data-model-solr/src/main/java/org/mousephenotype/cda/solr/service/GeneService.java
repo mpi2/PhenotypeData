@@ -230,39 +230,11 @@ public class GeneService extends BasicService implements WebStatus{
 		if (geneDTOs.size() != 1) throw new RuntimeException("Multiple gene documents found for "+ geneAccessionId);
 
 		// Get the raw data from the result
-		String output;
 		String b64 = geneDTOs.get(0).getDatasetsRawData();
 
 		if (b64 != null) {
-			try (GZIPInputStream gzis = new GZIPInputStream(new ByteArrayInputStream(Base64.decodeBase64(b64)))) {
-				output = IOUtils.toString(gzis, "UTF-8");
-			} catch (IOException e) {
-				logger.error("Failed to unzip content for result", geneDTOs.get(0), e);
-				return null;
-			}
 
-			// Each element has the structure:
-			// {
-			//   "allele_symbol": String
-			//   "allele_accession_id": String
-			//   "gene_symbol": String
-			//   "gene_accession_id": String
-			//   "parameter_stable_id": String
-			//   "parameter_name": String
-			//   "procedure_stable_id": String
-			//   "procedure_name": String
-			//   "pipeline_stable_id": String
-			//   "pipeline_name": String
-			//   "zygosity": String
-			//   "phenotyping_center": String
-			//   "life_stage_name": String
-			//   "significance": String
-			//   "p_value": String
-			//   "phenotype_term_id": String
-			//   "phenotype_term_name": String
-			// }
-			List<GeneService.MinimalGeneDataset> datasetsJson = Arrays.asList(
-					new Gson().fromJson(output, GeneService.MinimalGeneDataset[].class));
+			List<GeneService.MinimalGeneDataset> datasetsJson = unwrapGeneMinimalDataset(b64);
 
 			return datasetsJson.stream().map(x -> {
 				MarkerBean allele = new MarkerBean(x.getAlleleAccessionID(), x.getAlleleSymbol());
@@ -301,10 +273,43 @@ public class GeneService extends BasicService implements WebStatus{
 
 		}
 
-
 		return new HashSet<>();
 	}
 
+	// Each element has the structure:
+	// {
+	//   "allele_symbol": String
+	//   "allele_accession_id": String
+	//   "gene_symbol": String
+	//   "gene_accession_id": String
+	//   "parameter_stable_id": String
+	//   "parameter_name": String
+	//   "procedure_stable_id": String
+	//   "procedure_name": String
+	//   "pipeline_stable_id": String
+	//   "pipeline_name": String
+	//   "zygosity": String
+	//   "phenotyping_center": String
+	//   "life_stage_name": String
+	//   "significance": String
+	//   "p_value": String
+	//   "phenotype_term_id": String
+	//   "phenotype_term_name": String
+	// }
+	public static List<GeneService.MinimalGeneDataset> unwrapGeneMinimalDataset (String data) {
+
+		List<GeneService.MinimalGeneDataset> genes = new ArrayList<>();
+		if (data != null) {
+			try (GZIPInputStream gzis = new GZIPInputStream(new ByteArrayInputStream(Base64.decodeBase64(data)))) {
+				String output = IOUtils.toString(gzis, "UTF-8");
+				genes = Arrays.asList(new Gson().fromJson(output, GeneService.MinimalGeneDataset[].class));
+			} catch (IOException e) {
+				logger.error("Failed to gunzip content", e);
+			}
+		}
+
+		return genes;
+	}
 
 
 	/**

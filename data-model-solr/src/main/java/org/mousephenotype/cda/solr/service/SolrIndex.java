@@ -217,6 +217,7 @@ public class SolrIndex {
 		}
 		else if ( dataTypeName.equals("ensembl") || dataTypeName.contains("marker_symbol")){
 			server = getSolrServer("gene");
+			fllist += ",datasets_raw_data";
 		}
 		else {
 			server = getSolrServer(dataTypeName);
