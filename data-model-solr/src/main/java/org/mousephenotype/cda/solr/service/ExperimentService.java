@@ -254,26 +254,29 @@ public class ExperimentService {
                 List<MinimalObservationDto> minObservations = Arrays.asList(
                         new Gson().fromJson(output, MinimalObservationDto[].class));
 
-                List<ObservationDTO> observations = minObservations.stream().map(x -> {
-                    ObservationDTO o = new ObservationDTO();
-                    o.setExternalSampleId(x.getExternalSampleId());
-                    o.setSex(x.getSex());
-                    o.setGroup(x.getBiologicalSampleGroup());
-                    o.setDateOfExperiment(x.getDateOfExperiment());
-                    o.setCategory(x.getCategory());
-                    o.setDataPoint(x.getDataPoint() != null ? x.getDataPoint().floatValue() : null);
-                    o.setDiscretePoint(x.getDiscreteTimePoint() != null ? x.getDiscreteTimePoint().floatValue() : null);
-                    o.setWeight(x.getBodyWeight() != null ? x.getBodyWeight().floatValue() : null);
-                    o.setAlleleAccession(result.getAlleleAccessionId());
-                    o.setStrainAccessionId(result.getStrainAccessionId());
-                    o.setPhenotypingCenter(result.getPhenotypingCenter());
-                    o.setParameterStableId(result.getParameterStableId());
-                    o.setPipelineStableId(result.getPipelineStableId());
-                    o.setZygosity(result.getZygosity());
-                    o.setMetadataGroup(result.getMetadataGroup());
-                    o.setProductionCenter(result.getProductionCenter());
-                    return o;
-                }).collect(Collectors.toList());
+                List<ObservationDTO> observations = minObservations.stream()
+                    .filter(x -> (x.getDataPoint()!=null || x.getCategory()!=null) )
+                    .map(x -> {
+                        ObservationDTO o = new ObservationDTO();
+                        o.setExternalSampleId(x.getExternalSampleId());
+                        o.setSex(x.getSex());
+                        o.setGroup(x.getBiologicalSampleGroup());
+                        o.setDateOfExperiment(x.getDateOfExperiment());
+                        o.setCategory(x.getCategory());
+                        o.setDataPoint(x.getDataPoint() != null ? x.getDataPoint().floatValue() : null);
+                        o.setDiscretePoint(x.getDiscreteTimePoint() != null ? x.getDiscreteTimePoint().floatValue() : null);
+                        o.setWeight(x.getBodyWeight() != null ? x.getBodyWeight().floatValue() : null);
+                        o.setAlleleAccession(result.getAlleleAccessionId());
+                        o.setStrainAccessionId(result.getStrainAccessionId());
+                        o.setPhenotypingCenter(result.getPhenotypingCenter());
+                        o.setParameterStableId(result.getParameterStableId());
+                        o.setPipelineStableId(result.getPipelineStableId());
+                        o.setZygosity(result.getZygosity());
+                        o.setMetadataGroup(result.getMetadataGroup());
+                        o.setProductionCenter(result.getProductionCenter());
+                        return o;
+                    })
+                    .collect(Collectors.toList());
 
                 final Set<ObservationDTO> controls = observations.stream().filter(x -> x.getGroup().equals(BiologicalSampleType.control.toString())).collect(Collectors.toSet());
                 final Set<ObservationDTO> mutants = observations.stream().filter(x -> x.getGroup().equals(BiologicalSampleType.experimental.toString())).collect(Collectors.toSet());

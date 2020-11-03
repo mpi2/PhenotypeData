@@ -109,7 +109,7 @@ public class UnidimensionalChartAndTableProvider {
 			genderAndRawDataMap.put(sexType, rawData);
 		}
 
-		List<UnidimensionalStatsObject> unidimensionalStatsObject = createUnidimensionalStatsObjects(experiment, parameter);
+		List<UnidimensionalStatsObject> unidimensionalStatsObject = createUnidimensionalStatsObjects(experiment);
 		List<UnidimensionalStatsObject> unidimensionalStatsObjects = new ArrayList<>(unidimensionalStatsObject);
 		Map <String, Float> boxMinMax = ChartUtils.getMinMaxXAxis(chartsSeriesElementsList, experiment);
 		chartAndTable = processChartData(chartId, boxMinMax.get("min"), boxMinMax.get("max"), parameter, experiment, yAxisTitle, chartsSeriesElementsList);
@@ -136,7 +136,7 @@ public class UnidimensionalChartAndTableProvider {
 	}
 
 
-	public List<UnidimensionalStatsObject> createUnidimensionalStatsObjects(ExperimentDTO experiment, ParameterDTO parameter) {
+	public List<UnidimensionalStatsObject> createUnidimensionalStatsObjects(ExperimentDTO experiment) {
 
 		return produceUnidimensionalStatsData(experiment);
 	}
@@ -451,17 +451,17 @@ public class UnidimensionalChartAndTableProvider {
 	}
 
 
-	private static UnidimensionalStatsObject generateStats(ExperimentDTO experiment, UnidimensionalStatsObject tempStatsObject, Set<ObservationDTO> mutants, ZygosityType zygosity, SexType sexType) {
+	private static UnidimensionalStatsObject generateStats(ExperimentDTO experiment, UnidimensionalStatsObject tempStatsObject, Set<ObservationDTO> specimens, ZygosityType zygosity, SexType sexType) {
 
-		tempStatsObject.setSampleSize(mutants.size());
+		tempStatsObject.setSampleSize(specimens.size());
 		// do the stats to get mean and SD
 		// Get a DescriptiveStatistics instance
 		DescriptiveStatistics stats = new DescriptiveStatistics();
 		// Add the data
-		for (ObservationDTO mutantObservationDTO : mutants) {
-			stats.addValue(mutantObservationDTO.getDataPoint());
+		for (ObservationDTO specimen : specimens) {
+			stats.addValue(specimen.getDataPoint());
 		}
-		if (mutants.size() > 0) {
+		if (specimens.size() > 0) {
 			int decimalPlaces = ChartUtils.getDecimalPlaces(experiment);
 			Float mean = ChartUtils.getDecimalAdjustedFloat((float) stats.getMean(), decimalPlaces);
 			Float sd = ChartUtils.getDecimalAdjustedFloat((float) stats.getStandardDeviation(), decimalPlaces);
@@ -471,7 +471,7 @@ public class UnidimensionalChartAndTableProvider {
 				tempStatsObject.setZygosity(zygosity);
 			}
 
-			// Set Control vs Not control based on passed in zygosity
+			// Set Control vs Not control based on passed in zygosityFrom Hexdump
 			tempStatsObject.setLine(zygosity == null ? "Control" : "Not control");
 
 			if (sexType != null) {
