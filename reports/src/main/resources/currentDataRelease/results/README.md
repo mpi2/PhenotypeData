@@ -5,8 +5,7 @@ data for every new data release._
 
 ## Report descriptions
 - `dataOverview` - Overview of data in the current data release
-- `fertility` - Fertile or infertile phenotype for males and females,
-      by mouse line
+- `fertility` - Fertile or infertile phenotype for males and females, by mouse line
 - `genotype-phenotype-assertions-3I`   - MP calls for all current 3I lines
 - `genotype-phenotype-assertions-ALL`  - MP calls for all current lines
 - `genotype-phenotype-assertions-EUROPHENOME` - MP calls for all legacy
@@ -16,8 +15,7 @@ data for every new data release._
      Wellcome Trust Sanger Institute lines
 - `laczExpression` - lacZ expression
 - `phenotypeHitsPerLine` - Phentoype hits per gene
-- `phenotypeHitsPerParameterAndProcedure` - Phenotype hits per parameter
-     and procedure
+- `phenotypeHitsPerParameterAndProcedure` - Phenotype hits per parameter and procedure
 - `phenotypeHitsPerTopLevelMPTerm` - Phenotype hits per top level MP term
 - `procedureCompleteness` - Procedure completeness, IMPC and legacy data
 - `statistical-results-ALL`  - Statistical results snapshot of  all
