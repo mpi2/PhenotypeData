@@ -16,12 +16,12 @@ data for every new data release._
 - mysql   - This directory contains a gzipped `.gz` file
   containing a mysqldump of the IMPC database, created
   at release time. _NOTE: beginning with data release 12.0,
-  the database is significantly smaller_
+  the database is significantly smaller._
 
 - results - This directory contains a set of gzipped `.gz`
   report files containing statistically processed IMPC data,
   generated at release time. As of data release 12.0, this
-  directory is an combination of the prior `csv` and `reports`
+  directory is a combination of the prior `csv` and `reports`
   directories.
 - docker  - For the past several releases, we have included a
   ready-to-run docker image  of the IMPC web portal and API.

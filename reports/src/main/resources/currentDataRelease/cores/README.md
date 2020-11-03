@@ -27,7 +27,8 @@ This directory contains gzipped `.gz` files
 - `phenodigm` - mouse to human disease mapping
 - `pipeline` - Pipeline information
 - `product` - Product information
-- `statistical-result` - 
-  Statical result analysis details. _NOTE: starting 
-  with data release 12.0, this core, which used to be
-  small, has grown considerably._
+- `statistical-result` - Statical result analysis details
+- `statistical-raw-data` - Statical result raw data, a string,
+   keyed by the statistical-result doc_id, containing only the
+   raw data.
+ _NOTE: this core is very large._

@@ -20,7 +20,8 @@ data for every new data release._
      and procedure
 - `phenotypeHitsPerTopLevelMPTerm` - Phenotype hits per top level MP term
 - `procedureCompleteness` - Procedure completeness, IMPC and legacy data
-- `statistical-results-ALL`  - Statistical results snapshot
+- `statistical-results-ALL`  - Statistical results snapshot of  all
+     statistical results with status:Successful
 - `viability` - Viability phenotypes, by mouse line
 - `zygosity` - For each MP term, genes that are significant
 
