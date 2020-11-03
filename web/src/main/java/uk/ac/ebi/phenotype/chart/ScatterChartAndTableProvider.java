@@ -216,7 +216,7 @@ public class ScatterChartAndTableProvider {
 
 		List<UnidimensionalStatsObject> unidimensionalStatsObjects;
 		if(experiment.getObservationType().equals(ObservationType.unidimensional)) {
-			unidimensionalStatsObjects = unidimensionalChartAndTableProvider.createUnidimensionalStatsObjects(experiment, parameter);
+			unidimensionalStatsObjects = unidimensionalChartAndTableProvider.createUnidimensionalStatsObjects(experiment);
 			scatterChartAndData.setUnidimensionalStatsObjects(unidimensionalStatsObjects);
 		}
 		return scatterChartAndData;
