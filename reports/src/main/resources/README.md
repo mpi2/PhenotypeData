@@ -26,8 +26,8 @@ To go directly to the top of all data releases, ordered from
 oldest to newest, please navigate to:
 ftp://ftp.ebi.ac.uk/pub/databases/impc/all-data-releases/
 
-The mapping of the old reports to the new reports may be found here:
- ftp://ftp.ebi.ac.uk/pub/databases/impc/all-data-releases/latest/results/README.txt
+The mapping of the old reports to the new reports may be found here:  
+ ftp://ftp.ebi.ac.uk/pub/databases/impc/all-data-releases/latest/results/README.txt  
  ftp://ftp.ebi.ac.uk/pub/databases/impc/all-data-releases/latest/results/README.md
 
 The reports in the results folder are purpose-built reports
