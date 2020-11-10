@@ -13,16 +13,19 @@ NOTE: The `latest` link previously at this top level has been
  
 Snapshots of the entire dataset captured at the time of data
 release are available for bulk download via this FTP portal.
+
 Starting with DR12, we have changed the structure of the FTP
 site in order to accommodate requests made by our users.
 
-To go directly to the latest release fileset, please navigate to:
+To find the latest data release data and reports, please navigate to:
+ftp://ftp.ebi.ac.uk/pub/databases/impc/all-data-releases/latest/results/.
+The README file in that directory describes the content of each report 
+and specifies the mapping of the old reports to the new reports.
+
+To find the top of the latest data release, please navigate to:
 ftp://ftp.ebi.ac.uk/pub/databases/impc/all-data-releases/latest/
 
-To go directly to the latest release results, please navigate to:
-ftp://ftp.ebi.ac.uk/pub/databases/impc/all-data-releases/latest/results/
-
-To go directly to the top of all data releases, ordered from
+To find the top of all data releases, ordered from
 oldest to newest, please navigate to:
 ftp://ftp.ebi.ac.uk/pub/databases/impc/all-data-releases/
 
