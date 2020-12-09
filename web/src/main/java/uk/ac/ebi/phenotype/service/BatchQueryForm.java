@@ -14,6 +14,8 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.join;
@@ -92,6 +94,7 @@ public class BatchQueryForm {
                 datasetsRawData = GeneService.unwrapGeneMinimalDataset(doc.get("datasets_raw_data").toString());
                 significantPhenotypes = datasetsRawData.stream()
                         .filter(x -> x.getSignificance().equalsIgnoreCase("Significant"))
+                        .sorted(Comparator.comparing(GeneService.MinimalGeneDataset::getPhenotypeTermId))
                         .collect(Collectors.toList());
             }
 
@@ -117,7 +120,7 @@ public class BatchQueryForm {
                     if (doc.containsKey("latest_phenotype_status")
                             && doc.getFieldValue("latest_phenotype_status").equals("Phenotyping Complete")
                             && datasetsRawData.size() > 0
-                            && field.startsWith("mp_")
+                            && (field.startsWith("mp_") ||  field.equals("p_value"))
                             && ! field.equals("mp_term_definition") ){
 
                         String val = "";
@@ -133,6 +136,11 @@ public class BatchQueryForm {
                                     .map(GeneService.MinimalGeneDataset::getPhenotypeTermName)
                                     .distinct()
                                     .collect(Collectors.joining(", "));
+                        }  else if(field.equalsIgnoreCase("p_value")) {
+                            Map<String, GeneService.MinimalGeneDataset> mostSignificants = significantPhenotypes.stream()
+                                    .collect(Collectors.toMap(GeneService.MinimalGeneDataset::getPhenotypeTermId, Function.identity(),
+                                            BinaryOperator.minBy(Comparator.comparing(GeneService.MinimalGeneDataset::getPValue))));
+                            val = mostSignificants.values().stream().map(GeneService.MinimalGeneDataset::getPValue).map(String::valueOf).collect(Collectors.joining(", "));
                         }
                         rowData.add(val);
                     }

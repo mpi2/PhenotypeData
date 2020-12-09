@@ -194,8 +194,8 @@ public class ExperimentService {
             // Tree sets to keep "female" before "male" and "hetero" before
             // "hom"
             experiment.setSexes(new TreeSet<>());
-            if (result.getSex() != null) {
-                experiment.getSexes().add(SexType.getByDisplayName(result.getSex()));
+            if (result.getPhenotypeSex() != null) {
+                experiment.getSexes().addAll(result.getPhenotypeSex().stream().map(SexType::getByDisplayName).collect(Collectors.toList()));
             } else {
                 if (result.getFemaleMutantCount() != null && result.getFemaleMutantCount() > 0) {
                     experiment.getSexes().add(SexType.female);

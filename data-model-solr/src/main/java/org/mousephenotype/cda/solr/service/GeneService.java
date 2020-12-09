@@ -194,7 +194,7 @@ public class GeneService extends BasicService implements WebStatus{
 		@SerializedName("phenotyping_center") String phenotypingCenter;
 		@SerializedName("life_stage_name") String lifeStageName;
 		@SerializedName("significance") String significance;
-		@SerializedName("p_value") String pValue;
+		@SerializedName("p_value") Double pValue;
 		@SerializedName("phenotype_term_id") String phenotypeTermId;
 		@SerializedName("phenotype_term_name") String phenotypeTermName;
 
@@ -246,7 +246,7 @@ public class GeneService extends BasicService implements WebStatus{
 
 				ImpressBaseDTO procedure = new ImpressBaseDTO(null, null, x.getProcedureStableID(), procedureName);
 				ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, x.getParameterStableID(), x.getParameterName());
-				Double pValue = (x.getPValue() != null) ? Double.parseDouble(x.getPValue()) : null;
+				Double pValue = x.getPValue();
 				BasicBean phenotypeTerm = new BasicBean(x.getPhenotypeTermId(), x.getPhenotypeTermName());
 
 				ExperimentsDataTableRow row = new ExperimentsDataTableRow(

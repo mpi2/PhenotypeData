@@ -101,6 +101,7 @@ public class DataTableController {
 			Model model) throws IOException, SolrServerException, JSONException {
 
 		String content = null;
+		fllist += ",datasets_raw_data";
 
 		String oriDataTypeName = dataTypeName;
 		List<String> queryIds = Arrays.asList(idlist.split(","));
