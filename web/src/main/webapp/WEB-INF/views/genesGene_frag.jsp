@@ -32,14 +32,14 @@
                 <c:if test='${fn:length(gene.markerSynonym) gt 1}'>
 
                         <c:forEach var="synonym" items="${gene.markerSynonym}" varStatus="loop">
-                            <span class="badge badge-info">${synonym}</span>
+                            blah<span class="badge badge-info">${synonym}</span>
                         </c:forEach>
 
                 </c:if>
                 <c:if test='${fn:length(gene.markerSynonym) == 1}'>
 
                     <c:forEach var="synonym" items="${gene.markerSynonym}" varStatus="loop">
-                        ${synonym}
+                        blah<t:formatAllele>${synonym}</t:formatAllele>
                         <%--<c:if test="${!loop.last}">,&nbsp;</c:if>--%>
                     </c:forEach>
 

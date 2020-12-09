@@ -72,12 +72,12 @@
                     <div class="col-9 align-middle text-sm-left">
                         <c:if test='${fn:length(gene.markerSynonym) gt 1}'>
                             <c:forEach var="synonym" items="${gene.markerSynonym}" varStatus="loop">
-                                <span>${synonym}</span>
+                                <span><t:formatAllele>${synonym}</t:formatAllele></span>
                             </c:forEach>
                         </c:if>
                         <c:if test='${fn:length(gene.markerSynonym) == 1}'>
                             <c:forEach var="synonym" items="${gene.markerSynonym}" varStatus="loop">
-                                <span>${synonym}</span>
+                                <span><t:formatAllele>${synonym}</t:formatAllele></span>
                                 <c:if test="${!loop.last}">,&nbsp;</c:if>
                             </c:forEach>
                         </c:if>
