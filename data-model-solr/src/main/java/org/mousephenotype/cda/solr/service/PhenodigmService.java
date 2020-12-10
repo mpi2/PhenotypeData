@@ -39,6 +39,7 @@ public class PhenodigmService implements WebStatus {
 	// Disease sources. When modifying these, please modify getAllDiseases() accordingly.
 	public static final class DiseaseField {
 		public final static String DISEASE_ID = "disease_id";
+		public final static String DISEASE_TERM = "disease_term";
 		public final static String DISEASE_SOURCE = "disease_source";
 		public final static String DISEASE_SOURCE_DECIPHER = "DECIPHER";
 		public final static String DISEASE_SOURCE_OMIM = "OMIM";
@@ -59,6 +60,48 @@ public class PhenodigmService implements WebStatus {
 		}
 
 		return results;
+	}
+
+
+	/**
+	 * @return all diseases from the disease core.
+	 * @throws SolrServerException, IOException
+	 */
+	public Set<String> getDiseaseIdsByGene(String geneId) throws SolrServerException, IOException  {
+		Set<String> results = new HashSet<String>();
+
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery("marker_id:\"" + geneId + "\"");
+		solrQuery.setFields("disease_id", "disease_term");
+		solrQuery.setRows(1000000);
+		QueryResponse rsp = phenodigmCore.query(solrQuery);
+		SolrDocumentList res = rsp.getResults();
+		HashSet<String> allDiseases = new HashSet<String>();
+		for (SolrDocument doc : res) {
+			allDiseases.add((String) doc.getFieldValue(PhenodigmService.DiseaseField.DISEASE_ID));
+		}
+		return allDiseases;
+	}
+
+
+	/**
+	 * @return all diseases from the disease core.
+	 * @throws SolrServerException, IOException
+	 */
+	public Set<String> getDiseaseTermsByGene(String geneId) throws SolrServerException, IOException  {
+		Set<String> results = new HashSet<String>();
+
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery("marker_id:\"" + geneId + "\"");
+		solrQuery.setFields("disease_id", "disease_term");
+		solrQuery.setRows(1000000);
+		QueryResponse rsp = phenodigmCore.query(solrQuery);
+		SolrDocumentList res = rsp.getResults();
+		HashSet<String> allDiseases = new HashSet<String>();
+		for (SolrDocument doc : res) {
+			allDiseases.add((String) doc.getFieldValue(DiseaseField.DISEASE_TERM));
+		}
+		return allDiseases;
 	}
 
 

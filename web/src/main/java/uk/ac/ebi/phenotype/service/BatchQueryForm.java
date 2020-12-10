@@ -1,18 +1,24 @@
 package uk.ac.ebi.phenotype.service;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.MpService;
+import org.mousephenotype.cda.solr.service.PhenodigmService;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.DiseaseDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.util.*;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -34,7 +40,7 @@ public class BatchQueryForm {
     private String hostName;
     private String baseUrl;
 
-    public BatchQueryForm(String mode, HttpServletRequest request, SolrDocumentList results, String fllist, String dataType, List<String> queryIds) throws JSONException {
+    public BatchQueryForm(String mode, HttpServletRequest request, SolrDocumentList results, String fllist, String dataType, List<String> queryIds, MpService mpService, PhenodigmService phenodigmService) throws JSONException, IOException, SolrServerException {
 
         Map<String, String> qidMap = new HashMap<>();
         // users query id(s)
@@ -101,6 +107,7 @@ public class BatchQueryForm {
             //System.out.println("doc: "+doc.toString());
 
             List<String> rowData = new ArrayList<String>();
+            HashMap<String, MpDTO> mpTerms = new HashMap<>();
             int count = 0;
             for (String field : checkedFields){
                 count++;
@@ -120,8 +127,7 @@ public class BatchQueryForm {
                     if (doc.containsKey("latest_phenotype_status")
                             && doc.getFieldValue("latest_phenotype_status").equals("Phenotyping Complete")
                             && datasetsRawData.size() > 0
-                            && (field.startsWith("mp_") ||  field.equals("p_value"))
-                            && ! field.equals("mp_term_definition") ){
+                            && (field.startsWith("mp_") ||  field.equals("p_value") || field.startsWith("hp_"))){
 
                         String val = "";
                         // Unwrap the significant phenotypes from the datasets_raw_data field and populate the
@@ -136,9 +142,45 @@ public class BatchQueryForm {
                                     .map(GeneService.MinimalGeneDataset::getPhenotypeTermName)
                                     .distinct()
                                     .collect(Collectors.joining(", "));
+                        }  else if (field.equalsIgnoreCase("mp_term_definition")) {
+                            List<String> definitions = new ArrayList<>();
+                            for (String mpId : significantPhenotypes.stream().map(GeneService.MinimalGeneDataset::getPhenotypeTermId).distinct().collect(Collectors.toList())) {
+                                MpDTO mp = null;
+                                if(mpTerms.containsKey(mpId)) {
+                                    mp = mpTerms.get(mpId);
+                                } else {
+                                    mp = mpService.getPhenotype(mpId);
+                                    mpTerms.put(mpId, mp);
+                                }
+                                String mpTermDefinition = mp.getMpDefinition();
+                                if(mpTermDefinition != null) {
+                                    definitions.add(mpTermDefinition);
+                                } else {
+                                    definitions.add("N/A");
+                                }
+                            }
+                            val = definitions.stream().collect(Collectors.joining(" | "));
+                        } else if (field.equalsIgnoreCase("mp_term_synonym")) {
+                            List<String> synonyms = new ArrayList<>();
+                            for (String mpId : significantPhenotypes.stream().map(GeneService.MinimalGeneDataset::getPhenotypeTermId).distinct().collect(Collectors.toList())) {
+                                MpDTO mp = null;
+                                if(mpTerms.containsKey(mpId)) {
+                                    mp = mpTerms.get(mpId);
+                                } else {
+                                    mp = mpService.getPhenotype(mpId);
+                                    mpTerms.put(mpId, mp);
+                                }
+                                List<String> mpTermSynonyms = mp.getMpTermSynonym();
+                                if(mpTermSynonyms != null) {
+                                    synonyms.add(mpTermSynonyms.stream().collect(Collectors.joining(", ") ));
+                                } else {
+                                    synonyms.add("N/A");
+                                }
+                            }
+                            val = synonyms.stream().collect(Collectors.joining(" | "));
                         }  else if(field.equalsIgnoreCase("p_value")) {
                             Map<String, GeneService.MinimalGeneDataset> mostSignificants = significantPhenotypes.stream()
-                                    .collect(Collectors.toMap(GeneService.MinimalGeneDataset::getPhenotypeTermId, Function.identity(),
+                                    .collect(Collectors.toMap(GeneService.MinimalGeneDataset::getPhenotypeTermName, Function.identity(),
                                             BinaryOperator.minBy(Comparator.comparing(GeneService.MinimalGeneDataset::getPValue))));
                             val = mostSignificants.values().stream().map(GeneService.MinimalGeneDataset::getPValue).map(String::valueOf).collect(Collectors.joining(", "));
                         }
@@ -149,6 +191,11 @@ public class BatchQueryForm {
                             && field.startsWith("mp_")
                             && ! field.equals("mp_term_definition") ){
                         String val = "no abnormal phenotype detected";
+                        rowData.add(val);
+                    } else if(field.startsWith("disease_")) {
+                        String mgiAcc = (String) doc.getFieldValue("mgi_accession_id");
+                        Set<String> diseases = field.equalsIgnoreCase("disease_id") ? phenodigmService.getDiseaseIdsByGene(mgiAcc) : phenodigmService.getDiseaseTermsByGene(mgiAcc);
+                        String val = String.join(", ", diseases.stream().filter(Objects::nonNull).collect(Collectors.toList()));
                         rowData.add(val);
                     }
                     else {

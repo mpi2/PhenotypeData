@@ -73,6 +73,7 @@ public class FileExportController {
 
 	private final GeneService geneService;
 	private final MpService mpService;
+	private final PhenodigmService phenodigmService;
 	private final ExperimentService experimentService;
 	private final SolrIndex solrIndex;
 	private final SolrUtilsWeb solrUtilsWeb;
@@ -86,7 +87,8 @@ public class FileExportController {
 			ExperimentService experimentService,
 			SolrIndex solrIndex,
 			SolrUtilsWeb solrUtilsWeb,
-			ObservationService observationService
+			ObservationService observationService,
+			PhenodigmService phenodigmService
 
 	) {
 		this.geneService = geneService;
@@ -95,6 +97,7 @@ public class FileExportController {
 		this.solrIndex = solrIndex;
 		this.solrUtilsWeb = solrUtilsWeb;
 		this.observationService = observationService;
+		this.phenodigmService = phenodigmService;
 	}
 
 	/**
@@ -1134,7 +1137,7 @@ public class FileExportController {
 	}
 
 	private List<String> composeBatchQueryDataTableRows(List<QueryResponse> solrResponses, String dataTypeName,
-														String gridFields, HttpServletRequest request, List<String> queryIds) throws JSONException {
+														String gridFields, HttpServletRequest request, List<String> queryIds) throws JSONException, IOException, SolrServerException {
 
 		SolrDocumentList results = new SolrDocumentList();
 
@@ -1143,7 +1146,7 @@ public class FileExportController {
 		}
 
 		String mode = "export";
-		BatchQueryForm form = new BatchQueryForm(mode, request, results, gridFields, dataTypeName, queryIds);
+		BatchQueryForm form = new BatchQueryForm(mode, request, results, gridFields, dataTypeName, queryIds, mpService, phenodigmService);
 		//System.out.println(form.rows);
 
 		return form.rows;
