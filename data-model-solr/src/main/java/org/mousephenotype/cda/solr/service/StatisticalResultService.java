@@ -1012,7 +1012,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         Double pValue = 0.0;
         SolrQuery query = new SolrQuery();
         query.setRows(1);
-        query.setQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + geneAccession + "\" AND " + StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId + " AND " + StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" + procedureStableId + " AND " + StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + parameterStableId + " AND " + StatisticalResultDTO.COLONY_ID + ":" + colonyId + " AND " + StatisticalResultDTO.PHENOTYPE_SEX + ":" + sex);
+        query.setQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + geneAccession + "\" AND " + StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId + " AND " + StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" + procedureStableId + " AND " + StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + parameterStableId + " AND " + StatisticalResultDTO.COLONY_ID + ":\"" + colonyId + "\" AND " + StatisticalResultDTO.PHENOTYPE_SEX + ":" + sex);
         try {
             List<StatisticalResultDTO> solrResults = statisticalResultCore.query(query).getBeans(StatisticalResultDTO.class);
             StatisticalResultDTO statResult = solrResults.get(0);
