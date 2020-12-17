@@ -30,12 +30,14 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
+import org.springframework.data.solr.repository.config.EnableSolrRepositories;
 
 import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 
 @Configuration
-@EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories", "org.mousephenotype.cda.solr.repositories"})
+@EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
+@EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
 @EntityScan("org.mousephenotype.cda.db.pojo")
 @ComponentScan(basePackages = {"org.mousephenotype.cda.releasenotes", "org.mousephenotype.cda.db", "org.mousephenotype.cda.solr"},
         excludeFilters = {
