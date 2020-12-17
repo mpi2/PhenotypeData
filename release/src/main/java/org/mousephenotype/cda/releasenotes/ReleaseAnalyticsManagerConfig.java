@@ -35,7 +35,7 @@ import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 
 @Configuration
-@EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
+@EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories", "org.mousephenotype.cda.solr.repositories"})
 @EntityScan("org.mousephenotype.cda.db.pojo")
 @ComponentScan(basePackages = {"org.mousephenotype.cda.releasenotes", "org.mousephenotype.cda.db", "org.mousephenotype.cda.solr"},
         excludeFilters = {
