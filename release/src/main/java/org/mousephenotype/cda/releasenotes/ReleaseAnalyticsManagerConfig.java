@@ -99,6 +99,11 @@ public class ReleaseAnalyticsManagerConfig {
         return new HttpSolrClient.Builder(internalSolrUrl + "/statistical-result").build();
     }
 
+    @Bean(name = "essentialGeneCore")
+    HttpSolrClient getEssentialGenesCore() {
+        return new HttpSolrClient.Builder(internalSolrUrl + "/essentialgenes").build();
+    }
+
     @Bean(name = "sangerImagesCore")
     HttpSolrClient getSangerImagesCore() {
         return new HttpSolrClient.Builder(internalSolrUrl + "/images").build();
