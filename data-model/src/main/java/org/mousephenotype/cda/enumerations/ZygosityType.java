@@ -24,10 +24,11 @@ package org.mousephenotype.cda.enumerations;
  */
 
 public enum ZygosityType {
-	
+
 	homozygote,
 	heterozygote,
 	hemizygote,
+	anzygote,
 	not_applicable;
 	
 	public String getName(){
@@ -40,6 +41,23 @@ public enum ZygosityType {
 			return "N/A";
 		} else {
 			return this.toString().substring(0, 3).toUpperCase();
+		}
+	}
+
+	public static ZygosityType getByDisplayName(String displayName) {
+		switch (displayName) {
+			case "homozygote":
+				return ZygosityType.homozygote;
+			case "heterozygote":
+				return ZygosityType.heterozygote;
+			case "hemizygote":
+				return ZygosityType.hemizygote;
+			case "anzygote":
+				return ZygosityType.anzygote;
+			case "not applicable":
+				return ZygosityType.not_applicable;
+			default:
+				throw new IllegalArgumentException("No enum constant " + SexType.class + "." + displayName);
 		}
 	}
 

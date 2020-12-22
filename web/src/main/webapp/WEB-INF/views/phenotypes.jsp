@@ -83,7 +83,7 @@
 
                                                         <c:forEach var="synonym" items="${phenotype.getMpTermSynonym()}"
                                                                    varStatus="loop">
-                                                            <span>${synonym}<c:if test="${!loop.last}">,&nbsp;</c:if></span>
+                                                            <span><t:formatAllele>${synonym}</t:formatAllele><c:if test="${!loop.last}">,&nbsp;</c:if></span>
                                                             <c:if test="${!loop.last}">,&nbsp;</c:if>
                                                         </c:forEach>
                                                     </c:if>

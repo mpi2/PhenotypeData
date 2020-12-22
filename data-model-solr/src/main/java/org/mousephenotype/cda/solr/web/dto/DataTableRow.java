@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.web.dto;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.BasicBean;
@@ -26,7 +25,10 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  *
@@ -294,12 +296,12 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 		this.evidenceLink = link;
 	}
 
-	public void buildEvidenceLink(String baseGraphUrl) throws UnsupportedEncodingException {
+	public void buildEvidenceLink(String baseGraphUrl) {
 
 		this.evidenceLink = buildEvidenceUrl(baseGraphUrl);
 	}
 
-	public EvidenceLink buildEvidenceUrl(String baseUrl) throws UnsupportedEncodingException {
+	public EvidenceLink buildEvidenceUrl(String baseUrl) {
 
 		String url = baseUrl;
 		EvidenceLink evidenceLink = new EvidenceLink();
@@ -335,7 +337,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 			} else {
 
 				url = getChartPageUrlPostQc(baseUrl, gene.getAccessionId(), this.getAlleleIds(), null, zygosity,
-						this.getParameterStableIds(), this.getPipelineStableIds(), this.getPhenotypingCenters());
+						this.getParameterStableIds(), this.getProcedureStableIds(), this.getPipelineStableIds(), this.getPhenotypingCenters());
 				evidenceLink.setAlt("Graph");
 				evidenceLink.setIconType(EvidenceLink.IconType.GRAPH);
 
@@ -399,7 +401,19 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 		}
 		return pipes;
 	}
-	
+
+	private Set<String> getProcedureStableIds() {
+		Set<String> procedureStableIds = new TreeSet<>();
+		if (this.phenotypeCallUniquePropertyBeans.isEmpty() && this.getProcedure()!=null) {
+			procedureStableIds.add(this.getProcedure().getStableId());
+		} else {
+			for (PhenotypeCallUniquePropertyBean propBean : this.phenotypeCallUniquePropertyBeans) {
+				procedureStableIds.add(propBean.getProcedure().getStableId());
+			}
+		}
+		return procedureStableIds;
+	}
+
 	/**
 	 * This method is set up primarily for debug as not used anywhere other than display of procedures used in a phenotype row on gene page
 	 * @return
@@ -625,7 +639,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 	}
 
 	public static String getChartPageUrlPostQc(String baseUrl, String geneAcc, Set<String> alleleAccs,
-			Set<String> metadataGroup, ZygosityType zygosity, Set<String> parameterStableIds,
+			Set<String> metadataGroup, ZygosityType zygosity, Set<String> parameterStableIds, Set<String> procedureStableIds,
 			Set<String> pipelineStableIds, Set<String> phenotypingCenters) {
 		String url = baseUrl;
 		url += "/charts?accession=" + geneAcc;
@@ -655,7 +669,16 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 				url += "&pipeline_stable_id=" + pipelineStableId;
 			}
 		}
-		if (phenotypingCenters != null) {
+		if (procedureStableIds != null) {
+			for (String procedureStableId : procedureStableIds) {
+				url += "&procedure_stable_id=" + procedureStableId;
+			}
+		}
+		if (parameterStableIds != null) {
+			for (String parameterStableId : parameterStableIds) {
+				url += "&parameter_stable_id=" + parameterStableId;
+			}
+		}		if (phenotypingCenters != null) {
 			for (String phenotypingCenter : phenotypingCenters) {
 				url += "&phenotyping_center=" + phenotypingCenter;
 			}

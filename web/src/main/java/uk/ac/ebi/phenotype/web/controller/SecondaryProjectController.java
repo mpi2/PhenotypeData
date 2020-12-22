@@ -15,12 +15,13 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
+import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.pojo.GenesSecondaryProject;
 import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.GenesSecondaryProjectServiceIdg;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,10 +29,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import uk.ac.ebi.phenotype.chart.PieChartCreator;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
-import uk.ac.ebi.phenotype.web.dao.GenesSecondaryProjectService;
 
 import javax.validation.constraints.NotNull;
-import java.sql.SQLException;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,23 +42,25 @@ public class SecondaryProjectController {
 
     private GeneService geneService;
     private UnidimensionalChartAndTableProvider chartProvider;
-    private GenesSecondaryProjectService idg;
+    private GenesSecondaryProjectServiceIdg idg;
 
     public SecondaryProjectController(
             @NotNull GeneService geneService,
+            //@NotNull EssentialGeneService essentialGeneService,
             @NotNull UnidimensionalChartAndTableProvider chartProvider,
-            @NotNull @Qualifier("idg") GenesSecondaryProjectService idg) {
+            @NotNull GenesSecondaryProjectServiceIdg idg) {
         this.geneService = geneService;
         this.chartProvider = chartProvider;
         this.idg = idg;
     }
 
     @RequestMapping(value = "/secondaryproject/{id}", method = RequestMethod.GET)
-    public String loadSecondaryProjectPage(@PathVariable String id, Model model) {
+    public String loadSecondaryProjectPage(@PathVariable String id, Model model) throws IOException, SolrServerException {
 
-        if (id.equalsIgnoreCase(GenesSecondaryProjectService.SecondaryProjectIds.IDG.name())) {
-            try {
-                Set<GenesSecondaryProject> secondaryProjects = idg.getAccessionsBySecondaryProjectId(id);
+
+                //for IDG now we are going to get the list of gene accessions from the essential genes core
+
+                Set<GenesSecondaryProject> secondaryProjects = idg.getAllBySecondaryProjectId();
                 Set<String> accessions = secondaryProjects
                         .stream()
                         .map(GenesSecondaryProject::getMgiGeneAccessionId)
@@ -92,15 +94,11 @@ public class SecondaryProjectController {
                 model.addAttribute("idgGeneCount", accessions.size());
                 model.addAttribute("idgPercent", String.format("%.1f", ((withData / Float.valueOf(total))*100)));
 
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            return "idg";
-        } else if (id.equalsIgnoreCase(GenesSecondaryProjectService.SecondaryProjectIds.threeI.name()) || id.equalsIgnoreCase("3I")) {
-            return "threeI";
-        }
 
-        return "";
+            return "idg";
+
+
+
     }
 
 }

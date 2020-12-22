@@ -56,10 +56,8 @@
                             Embryo phenotype data can be accessed through:
                         </p>
                             <ul>
-                        <li><a href="${baseUrl}/embryo_heatmap">Embryo
-                            Viewer</a></li>
-                        <li>FTP site or REST API (see the documentation <a
-                                href="${cmsBaseUrl}/help/data-access/">here</a>)</li>
+                        <li><a href="${baseUrl}/embryo_imaging">Embryo Data for Every Lethal Gene</a></li>
+                                <li><a href="${cmsBaseUrl}/help/non-programmatic-data-access/">FTP site</a> or <a href="${cmsBaseUrl}/help/non-programmatic-data-access/">REST API</a></li>
                         <li><a
                                 href="${baseUrl}/embryo/vignettes">Embryo Vignettes page</a></li>
                     </ul>

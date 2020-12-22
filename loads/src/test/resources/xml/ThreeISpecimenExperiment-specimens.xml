@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns2:centreSpecimenSet xmlns="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/procedure" xmlns:ns2="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/specimen" xmlns:ns3="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/tracker/submission" xmlns:ns4="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/tracker/validation">
-    <ns2:centre centreID="Wtsi">
-        <ns2:mouse DOB="2010-08-27" colonyID="MAIL" isBaseline="false" strainID="MGI:5446362" specimenID="611714" gender="female" zygosity="homozygous" litterId="105944" pipeline="MGP_001" productionCentre="Wtsi" phenotypingCentre="Wtsi" project="ToBeLoadedFromIMITS"/>
-        <ns2:mouse DOB="2010-08-27" colonyID="MAIL2" isBaseline="false" strainID="MGI:5446362" specimenID="6117142" gender="female" zygosity="homozygous" litterId="1059442" pipeline="MGP_001" productionCentre="Wtsi" phenotypingCentre="Wtsi" project="CRICK"/>
-    </ns2:centre>
-</ns2:centreSpecimenSet>

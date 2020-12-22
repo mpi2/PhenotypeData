@@ -14,7 +14,7 @@
         </c:if>
 
         <%-- Display result of a mixed model calculation --%>
-        <!-- Statistical Result docId: ${data.result.dbId} -->
+        <%-- Statistical Result docId: ${data.result.id} --%>
 
         <div class="row">
             <div class="col-md-12">
@@ -24,17 +24,22 @@
 
                 <c:if test="${data.result.statisticalMethod!=null and data.result.statisticalMethod!='Wilcoxon rank sum test with continuity correction' and data.result.statisticalMethod!='Reference Ranges Plus framework'}">
 
-                    <c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificance!=null}">
+                    <c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificant!=null}">
 
-
-                            <h4> Results of statistical analysis  </h4>
+                            <h4>Results of statistical analysis</h4>
 
                             <dl class="alert alert-success">
-                                <dt>P value</dt>
-                                <dd><t:formatScientific>${data.result.nullTestPValue}</t:formatScientific></dd>
+                                <dt>Genotype P value</dt>
+                                <dd><t:formatScientific>${data.result.genotypeEffectPValue}</t:formatScientific></dd>
+
+                                <dt>Genotype*Female P value</dt>
+                                <dd><t:formatScientific>${data.result.femaleKoEffectPValue}</t:formatScientific></dd>
+
+                                <dt>Genotype*Male P value</dt>
+                                <dd><t:formatScientific>${data.result.maleKoEffectPValue}</t:formatScientific></dd>
 
                                 <dt>Classification</dt>
-                                <dd>${data.result.significantType.text}</dd>
+                                <dd>${data.result.classificationTag}</dd>
 
                             </dl>
 
@@ -52,12 +57,12 @@
                                 <tbody>
                                 <tr>
                                     <td class="pvalue"><t:formatScientific>${data.result.genotypeEffectPValue }</t:formatScientific></td>
-                                    <td class="effect"><t:formatScientific>${data.result.genotypeParameterEstimate}</t:formatScientific></td>
+                                    <td class="effect"><t:formatScientific>${data.result.genotypeEffectParameterEstimate}</t:formatScientific></td>
                                     <td>
-                                        <c:if test="${data.result.genotypeStandardErrorEstimate!=null}">
+                                        <c:if test="${data.result.genotypeEffectStderrEstimate!=null}">
                                             &#177;
                                         </c:if>
-                                        <t:formatScientific>${data.result.genotypeStandardErrorEstimate}</t:formatScientific></td>
+                                        <t:formatScientific>${data.result.genotypeEffectStderrEstimate}</t:formatScientific></td>
                                 </tr>
                                 </c:when>
                                 <c:when
@@ -249,7 +254,7 @@
 
                             <c:set var="data" value="${unidimensionalChartDataSet.statsObjects[1]}"></c:set>
 
-                            <c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificance!=null}">
+                            <c:if test="${data.result.blupsTest!=null or data.result.interceptEstimate!=null or data.result.varianceSignificant!=null}">
 
                                 <c:if test="${data.result.statisticalMethod!=null}">
                                     <h4> Statistical method  </h4>

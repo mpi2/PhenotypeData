@@ -40,7 +40,7 @@ public class ExperimentDTO {
     private Set<SexType>                      sexes;
     private ControlStrategy                   controlSelectionStrategy;
     private List<StatisticalResultDTO>        results;
-    private String                            alleleSymobl;
+    private String                            alleleSymbol;
     private String                            geneticBackgtround;
 
     private Set<ObservationDTO> homozygoteMutants;
@@ -48,11 +48,12 @@ public class ExperimentDTO {
     private Set<ObservationDTO> hemizygoteMutants;
 
     private Set<ObservationDTO> controls;
-    private Long                controlBiologicalModelId;
-    private Long                experimentalBiologicalModelId;
+    private String                controlBiologicalModelId;
+    private String                experimentalBiologicalModelId;
     private Set<ObservationDTO> maleControls;
     private Set<ObservationDTO> femaleControls;
     private String              alleleAccession;
+    private String              markerAccession;
 
     private String statisticalResultUrl;
     private String genotypePhenotypeUrl;
@@ -88,12 +89,12 @@ public class ExperimentDTO {
 				+ ", procedureName=" + procedureName + ", pipelineStableId=" + pipelineStableId + ", observationType="
 				+ observationType + ", organisation=" + organisation + ", strain=" + strain + ", geneMarker="
 				+ geneMarker + ", zygosities=" + zygosities + ", sexes=" + sexes + ", controlSelectionStrategy="
-				+ controlSelectionStrategy + ", results=" + results + ", alleleSymobl=" + alleleSymobl
+				+ controlSelectionStrategy + ", results=" + results + ", alleleSymobl=" + alleleSymbol
 				+ ", geneticBackgtround=" + geneticBackgtround + ", homozygoteMutants=" + homozygoteMutants
 				+ ", heterozygoteMutants=" + heterozygoteMutants + ", hemizygoteMutants=" + hemizygoteMutants
 				+ ", controls=" + controls + ", controlBiologicalModelId=" + controlBiologicalModelId
 				+ ", experimentalBiologicalModelId=" + experimentalBiologicalModelId + ", maleControls=" + maleControls
-				+ ", femaleControls=" + femaleControls + ", alleleAccession=" + alleleAccession
+				+ ", femaleControls=" + femaleControls + ", alleleAccession=" + alleleAccession + ", markerAccession=" + markerAccession
 				+ ", statisticalResultUrl=" + statisticalResultUrl + ", genotypePhenotypeUrl=" + genotypePhenotypeUrl
 				+ ", DataPhenStatFormatUrl=" + DataPhenStatFormatUrl + "]";
 	}
@@ -120,17 +121,24 @@ public class ExperimentDTO {
 	}
 
 
-	public String getAlleleSymobl() {
-		return alleleSymobl;
+	public String getAlleleSymbol() {
+		return alleleSymbol;
 	}
 
 
-	public void setAlleleSymobl(String alleleSymobl) {
-		this.alleleSymobl = alleleSymobl;
+	public void setAlleleSymbol(String alleleSymbol) {
+		this.alleleSymbol = alleleSymbol;
 	}
 
+    public String getMarkerAccession() {
+        return markerAccession;
+    }
 
-	public String getGeneticBackgtround() {
+    public void setMarkerAccession(String markerAccession) {
+        this.markerAccession = markerAccession;
+    }
+
+    public String getGeneticBackgtround() {
 		return geneticBackgtround;
 	}
 
@@ -204,7 +212,7 @@ public class ExperimentDTO {
         }
 
         for (ObservationDTO mutant : mutantsDtos) {
-            if (sex == null || sex.equals(SexType.valueOf(mutant.getSex()))) {
+            if (sex == null || sex.equals(SexType.not_considered) || sex.equals(SexType.getByDisplayName(mutant.getSex()))) {
                 mutantDtosForSex.add(mutant);
             }
         }
@@ -221,20 +229,20 @@ public class ExperimentDTO {
         this.observationType = observationType;
     }
 
-    public Long getControlBiologicalModelId() {
+    public String getControlBiologicalModelId() {
         return controlBiologicalModelId;
     }
 
-    public void setControlBiologicalModelId(Long controlBiologicalModelId) {
+    public void setControlBiologicalModelId(String controlBiologicalModelId) {
         this.controlBiologicalModelId = controlBiologicalModelId;
     }
 
-    public Long getExperimentalBiologicalModelId() {
+    public String getExperimentalBiologicalModelId() {
         return experimentalBiologicalModelId;
     }
 
     public void setExperimentalBiologicalModelId(
-            Long experimentalBiologicalModelId) {
+            String experimentalBiologicalModelId) {
         this.experimentalBiologicalModelId = experimentalBiologicalModelId;
     }
 

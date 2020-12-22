@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns2:centreSpecimenSet xmlns="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/procedure"
-                       xmlns:ns2="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/specimen"
-                       xmlns:ns3="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/tracker/submission"
-                       xmlns:ns4="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/tracker/validation">
-    <ns2:centre centreID="Wtsi">
-        <ns2:mouse DOB="2014-11-10" colonyID="MMNA" isBaseline="false" strainID="NonStringNonNumericValue" specimenID="1976280" gender="male" zygosity="homozygous" litterId="346471" pipeline="DSS_001" productionCentre="Wtsi" phenotypingCentre="Wtsi" project="ToBeLoadedFromIMITS"/>
-    </ns2:centre>
-</ns2:centreSpecimenSet>

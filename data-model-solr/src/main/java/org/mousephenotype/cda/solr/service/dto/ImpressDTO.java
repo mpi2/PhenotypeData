@@ -74,17 +74,14 @@ public class ImpressDTO {
 	public static final String INCREASED_MP_TERM = "increased_mp_term";
 	public static final String DECREASED_MP_TERM = "decreased_mp_term";
 
-	public static final String MA_ID = "ma_id";
-	public static final String MA_TERM = "ma_term";
+	public static final String MOUSE_ANATOMY_ID = "mouse_anatomy_id";
+	public static final String MOUSE_ANATOMY_TERM = "mouse_anatomy_term";
 	public static final String INFERRED_MA_ID = MpDTO.INFERRED_MA_ID;
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_ID = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_ID;
 	public static final String INFERRED_SELECTED_TOP_LEVEL_MA_TERM = MpDTO.INFERRED_SELECTED_TOP_LEVEL_MA_TERM;
 
-	public static final String EMAP_ID = "emap_id";
-	public static final String EMAP_TERM = "emap_term";
-
-	public static final String ANATOMY_ID = "anatomy_id";
-	public static final String ANATOMY_TERM = "anatomy_term";
+	public static final String EMBRYO_ANATOMY_ID = "embryo_anatomy_id";
+	public static final String EMBRYO_ANATOMY_TERM = "embryo_anatomy_term";
 
 	@Field(INCREASED_MP_ID)
 	List<String> increasedMpId;
@@ -238,42 +235,20 @@ public class ImpressDTO {
 	@Field(INFERRED_SELECTED_TOP_LEVEL_MA_ID)
 	private List<String> inferredSelectedTopLevelMaId;
 
-	@Field(MA_ID)
+	@Field(MOUSE_ANATOMY_ID)
 	private String maId;
 
-	@Field(MA_TERM)
+	@Field(MOUSE_ANATOMY_TERM)
 	private String maTerm;
 
-	@Field(EMAP_ID)
+	@Field(EMBRYO_ANATOMY_ID)
 	private String emapId;
 
-	@Field(EMAP_TERM)
+	@Field(EMBRYO_ANATOMY_TERM)
 	private String emapTerm;
-
-	@Field(ANATOMY_ID)
-	private String anatomyId;
-
-	@Field(ANATOMY_TERM)
-	private String anatomyTerm;
 
 	public boolean isHasOptions() {
 		return hasOptions;
-	}
-
-	public String getAnatomyId() {
-		return anatomyId;
-	}
-
-	public void setAnatomyId(String anatomyId) {
-		this.anatomyId = anatomyId;
-	}
-
-	public String getAnatomyTerm() {
-		return anatomyTerm;
-	}
-
-	public void setAnatomyTerm(String anatomyTerm) {
-		this.anatomyTerm = anatomyTerm;
 	}
 
 	public String getEmapId() {
@@ -504,15 +479,13 @@ public class ImpressDTO {
 				Objects.equals(maId, that.maId) &&
 				Objects.equals(maTerm, that.maTerm) &&
 				Objects.equals(emapId, that.emapId) &&
-				Objects.equals(emapTerm, that.emapTerm) &&
-				Objects.equals(anatomyId, that.anatomyId) &&
-				Objects.equals(anatomyTerm, that.anatomyTerm);
+				Objects.equals(emapTerm, that.emapTerm);
 	}
 
 	@Override
 	public int hashCode() {
 
-		return Objects.hash(increasedMpId, abnormalMpId, decreasedMpId, increasedMpTerm, abnormalMpTerm, decreasedMpTerm, catgories, unitX, unitY, increment, metadata, hasOptions, derived, media, annotate, required, description, observationType, level, stage, stageLabel, scheduleKey, parameterId, parameterStableId, parameterName, parameterStableKey, procedureId, procedureStableId, procedureName, procedureStableKey, pipelineId, pipelineStableId, pipelineStableKey, pipelineName, ididid, mpId, mpTerm, mpTermSynonym, topLevelMpId, topLevelMpTerm, topLevelMpTermSynonym, intermediateMpId, intermediateMpTerm, intermediateMpTermSynonym, inferredMaId, selectedTopLevelMaId, inferredSelectedTopLevelMaTerm, inferredSelectedTopLevelMaId, maId, maTerm, emapId, emapTerm, anatomyId, anatomyTerm);
+		return Objects.hash(increasedMpId, abnormalMpId, decreasedMpId, increasedMpTerm, abnormalMpTerm, decreasedMpTerm, catgories, unitX, unitY, increment, metadata, hasOptions, derived, media, annotate, required, description, observationType, level, stage, stageLabel, scheduleKey, parameterId, parameterStableId, parameterName, parameterStableKey, procedureId, procedureStableId, procedureName, procedureStableKey, pipelineId, pipelineStableId, pipelineStableKey, pipelineName, ididid, mpId, mpTerm, mpTermSynonym, topLevelMpId, topLevelMpTerm, topLevelMpTermSynonym, intermediateMpId, intermediateMpTerm, intermediateMpTermSynonym, inferredMaId, selectedTopLevelMaId, inferredSelectedTopLevelMaTerm, inferredSelectedTopLevelMaId, maId, maTerm, emapId, emapTerm);
 	}
 
 	public String getStage() {
@@ -1099,8 +1072,6 @@ public class ImpressDTO {
 				", maTerm='" + maTerm + '\'' +
 				", emapId='" + emapId + '\'' +
 				", emapTerm='" + emapTerm + '\'' +
-				", anatomyId='" + anatomyId + '\'' +
-				", anatomyTerm='" + anatomyTerm + '\'' +
 				'}';
 	}
 

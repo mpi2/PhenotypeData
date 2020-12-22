@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns2:centreSpecimenSet xmlns="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/procedure" xmlns:ns2="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/specimen">
-    <ns2:centre centreID="H">
-        <ns2:mouse DOB="2010-01-03" colonyID="B6.Cg-cub/H_10250" isBaseline="false" strainID="C57BL/6J" specimenID="CUB-J/4.2g_4430784_MRC_Harwell" gender="male" zygosity="homozygous" litterId="unknown" pipeline="ESLIM_001" productionCentre="H" phenotypingCentre="H" project="Eumodic"/>
-    </ns2:centre>
-</ns2:centreSpecimenSet>

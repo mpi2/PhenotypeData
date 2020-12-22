@@ -17,17 +17,20 @@
 package uk.ac.ebi.phenotype.chart;
 
 import org.apache.commons.lang3.StringUtils;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.web.ChartType;
-import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class ChartUtils {
 
@@ -237,13 +240,13 @@ public class ChartUtils {
 
     public static String getPlotParameter(String parameter) {
 
-        if (TimeSeriesConstants.ESLIM_702.contains(parameter)) {
+        if (Constants.ESLIM_702.contains(parameter)) {
             return "ESLIM_022_001_702";
-        } else if (TimeSeriesConstants.ESLIM_701.contains(parameter)) {
+        } else if (Constants.ESLIM_701.contains(parameter)) {
             return "ESLIM_022_001_701";
-        } else if (TimeSeriesConstants.IMPC_BWT.contains(parameter)) {
+        } else if (Constants.IMPC_BWT.contains(parameter)) {
             return "IMPC_BWT_008_001";
-        } else if (TimeSeriesConstants.IMPC_IPG_002_001.contains(parameter)){
+        } else if (Constants.IMPC_IPG_002_001.contains(parameter)){
         	return "IMPC_IPG_002_001";
 
         }
@@ -254,8 +257,8 @@ public class ChartUtils {
 
     public static ChartType getPlotType(String parameter) {
 
-        if (TimeSeriesConstants.ESLIM_702.contains(parameter) || parameter.equals("ESLIM_022_001_702") || TimeSeriesConstants.ESLIM_701.contains(parameter) || parameter.equals("ESLIM_022_001_701")
-                || TimeSeriesConstants.IMPC_BWT.contains(parameter) || parameter.equals("IMPC_BWT_008_001") || parameter.equals("IMPC_IPG_002_001")) {
+        if (Constants.ESLIM_702.contains(parameter) || parameter.equals("ESLIM_022_001_702") || Constants.ESLIM_701.contains(parameter) || parameter.equals("ESLIM_022_001_701")
+                || Constants.IMPC_BWT.contains(parameter) || parameter.equals("IMPC_BWT_008_001") || parameter.equals("IMPC_IPG_002_001")) {
             return ChartType.TIME_SERIES_LINE;
         }
 

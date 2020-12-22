@@ -225,7 +225,22 @@
                                             <td style="text-align: center;">${targeting_vector['targeting_vector']}</td>
                                             <td style="text-align: center;">${targeting_vector['cassette']}</td>
                                             <td style="text-align: center;">${targeting_vector['backbone']}</td>
-                                            <td style="text-align: center;">${targeting_vector['ikmc_project_id']}</td>
+                                            <td style="text-align: center;" >
+                                                    ${targeting_vector['ikmc_project_id']}
+                                                   <c:set var="design_id" value="${targeting_vector['design_id']}"></c:set>
+                                              <c:if test="${ikmcDesignMapForRow[design_id]}">
+                                                     <a class="hasTooltip" href="${baseUrl}/designs/${design_id}?accession=${accession}">
+                                              </c:if>
+                                                        oligo design
+                                                        <span>
+                                                            <c:if test="${not empty targeting_vector['design_oligos_url']}">
+                                                                <a href="${targeting_vector['design_oligos_url']}" target="_blank"></a>
+                                                            </c:if>
+                                                        </span>
+                                                        <c:if test="${ikmcDesignMapForRow[design_id]}">
+                                            </a>
+                                                </c:if>
+                                            </td>
                                             <td>
                                                 <c:forEach var="order" items="${targeting_vector['orders']}" varStatus="ordersx">
                                                     <a class="btn btn-outline-primary" href="${order['url']}"> <i

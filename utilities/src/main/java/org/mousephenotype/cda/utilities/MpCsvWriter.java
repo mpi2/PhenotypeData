@@ -67,6 +67,11 @@ public class MpCsvWriter implements AutoCloseable {
         write(row.toArray(new String[0]));
     }
 
+    public void writeRowsOfArray(List<String[]> data) {
+        data
+            .stream()
+            .forEach(row -> write(row));
+    }
     public void writeRows(List<List<String>> data) {
         data
             .stream()
@@ -103,6 +108,16 @@ public class MpCsvWriter implements AutoCloseable {
 
     public void close() throws IOException {
         writer.close();
+        fqFilename = null;
+        writer = null;
+    }
+
+    public void closeQuietly() {
+        try {
+            writer.close();
+        } catch(IOException e) {
+            logger.error("Close failed: {}", e.getLocalizedMessage());
+        }
         fqFilename = null;
         writer = null;
     }

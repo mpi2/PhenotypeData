@@ -28,10 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.CacheControl;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -56,6 +53,7 @@ import java.util.concurrent.TimeUnit;
         "uk.ac.ebi.phenotype.web.controller"},
         excludeFilters = @ComponentScan.Filter(value = org.mousephenotype.cda.annotations.ComponentScanNonParticipant.class, type = FilterType.ANNOTATION))
 @EnableScheduling
+@EnableAspectJAutoProxy
 public class PhenotypeArchiveConfig implements WebMvcConfigurer {
 
     private static final Logger logger = LoggerFactory.getLogger(PhenotypeArchiveConfig.class);
@@ -91,6 +89,8 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
     @Value("${paBaseUrl}")
     private String paBaseUrl;
 
+    @Value("${ikmc_oligo_design_url}")
+    private String ikmcOligoDesignUrl;
 
     @Bean(name = "globalConfiguration")
     public Map<String, String> getGlobalConfig() {
@@ -106,6 +106,7 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
         map.put("googleAnalytics", googleAnalytics);
         map.put("liveSite", liveSite);
         map.put("paBaseUrl", paBaseUrl);
+        map.put("ikmcOligoDesignUrl",ikmcOligoDesignUrl );
         return map;
     }
 
@@ -116,8 +117,12 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
 
         registry.addInterceptor(deploymentInterceptor);
-        registry.addInterceptor(new PerClientRateLimitInterceptor()).addPathPatterns("/genes/**");
-        registry.addInterceptor(new PerClientRateLimitInterceptor()).addPathPatterns("/charts/**");
+
+        // Enable throttling for live site only
+        if (getGlobalConfig().get("liveSite").equalsIgnoreCase("true")) {
+            registry.addInterceptor(new PerClientRateLimitInterceptor()).addPathPatterns("/genes/**");
+            registry.addInterceptor(new PerClientRateLimitInterceptor()).addPathPatterns("/charts/**");
+        }
     }
 
     @Override

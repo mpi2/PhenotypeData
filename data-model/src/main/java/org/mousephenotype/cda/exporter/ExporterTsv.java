@@ -44,18 +44,21 @@ public class ExporterTsv {
 
         if (headings != null) {
             outputLine
-                    .append(headings)
+                    .append(String.join("\t", headings))
                     .append("\n");
         }
         if (data != null) {
             for (List<String> row : data) {
-                for (String cell : row) {
-                    if (!outputLine.toString().isEmpty()) {
-                        outputLine.append("\t");
-                    }
-                    outputLine.append(cell);
-                }
-                outputLine.append("\n");
+                outputLine
+                        .append(String.join("\t", row))
+                        .append("\n");
+//                for (String cell : row) {
+//                    if (!outputLine.toString().isEmpty()) {
+//                        outputLine.append("\t");
+//                    }
+//                    outputLine.append(cell);
+//                }
+//                outputLine.append("\n");
             }
             output.println(outputLine);
         }

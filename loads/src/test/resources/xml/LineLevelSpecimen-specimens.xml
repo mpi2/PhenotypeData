@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<centreSpecimenSet xmlns="http://www.mousephenotype.org/dcc/exportlibrary/datastructure/core/specimen">
-    <centre centreID="Wtsi">
-        <mouse DOB="2010-02-21" colonyID="MCCU" isBaseline="false" strainID="MGI:5446362" specimenID="464018" gender="male" zygosity="heterozygous" litterId="79820" pipeline="MGP_001" productionCentre="Wtsi" phenotypingCentre="Wtsi" project="MGP Legacy"/>
-    </centre>
-</centreSpecimenSet>

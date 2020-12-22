@@ -16,15 +16,14 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.generic.util.Tools;
-import org.mousephenotype.cda.solr.service.ExpressionService;
-import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.SolrIndex;
+import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
 import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
@@ -72,7 +71,13 @@ public class DataTableController {
 	private GeneService geneService;
 
 	@NotNull @Autowired
-    ExpressionService expressionService;
+	ExpressionService expressionService;
+
+	@NotNull @Autowired
+	private MpService mpService;
+
+	@NotNull @Autowired
+	private PhenodigmService phenodigmService;
 
 	@NotNull @Resource(name = "globalConfiguration")
 	private Map<String, String> config;
@@ -101,6 +106,7 @@ public class DataTableController {
 			Model model) throws IOException, SolrServerException, JSONException {
 
 		String content = null;
+		fllist += ",datasets_raw_data";
 
 		String oriDataTypeName = dataTypeName;
 		List<String> queryIds = Arrays.asList(idlist.split(","));
@@ -138,7 +144,7 @@ public class DataTableController {
 		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
 	}
 
-	public String fetchBatchQueryDataTableJson(HttpServletRequest request, List<QueryResponse> solrResponses, String fllist, String dataTypeName, List<String> queryIds ) throws JSONException {
+	public String fetchBatchQueryDataTableJson(HttpServletRequest request, List<QueryResponse> solrResponses, String fllist, String dataTypeName, List<String> queryIds ) throws JSONException, IOException, SolrServerException {
 
 		SolrDocumentList results = new SolrDocumentList();
 
@@ -147,7 +153,7 @@ public class DataTableController {
 		}
 
 		String         mode = "onPage";
-		BatchQueryForm form = new BatchQueryForm(mode, request, results, fllist, dataTypeName, queryIds);
+		BatchQueryForm form = new BatchQueryForm(mode, request, results, fllist, dataTypeName, queryIds, mpService, phenodigmService);
 		//System.out.println(form.j.toString());
 
 		return form.j.toString();

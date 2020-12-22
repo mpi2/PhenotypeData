@@ -61,10 +61,6 @@
             <div class="pre-content clear-bg">
                         <div class="page-content people py-5 white-bg">
 
-            <c:if test="${viabilityDTO!=null}">
-                <h5>${viabilityDTO.category}</h5>
-            </c:if>
-
             <c:if test="${embryoViabilityDTO!=null}">
                 <h5>${embryoViabilityDTO.proceedureName}</h5>
                 <h5>Outcome: ${embryoViabilityDTO.category}</h5>
@@ -108,8 +104,8 @@
                         </tr>
                         <tr>
                             <td>Associated Phenotype</td>
-                            <c:if test="${phenotypes != null && phenotypes.size() >= 1}"><td><c:forEach var="phenotype" items="${phenotypes}"><div><a class="font-weight-bold" href="${parameterUrl}">${phenotype}</a></div></c:forEach></td></c:if>
-                            <c:if test="${phenotypes == null || phenotypes.size() < 1}"><td class="font-weight-bold">No significant association</td></c:if>
+                            <c:if test="${phenotypes != null && phenotypes.size() >= 1}"><td><c:forEach var="phenotype" items="${phenotypes}" varStatus="mpIndex"><div><a class="font-weight-bold" href="${baseUrl}/phenotypes/${phenotypeIds[mpIndex.index]}">${phenotype}</a></div></c:forEach>${viabilityDTO.category}</td></c:if>
+                            <c:if test="${(phenotypes == null || phenotypes.size() < 1) && viabilityDTO==null}"><td class="font-weight-bold">No significant association, ${viabilityDTO.category}</td></c:if>
                         </tr>
                         <tr>
                             <td>Testing protocol</td>

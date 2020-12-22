@@ -15,11 +15,13 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
+import lombok.*;
 import org.apache.solr.client.solrj.beans.Field;
 
 import java.sql.SQLException;
 import java.util.*;
 
+@Data
 public class ObservationDTOBase {
 
 	public final static String ID = "id";
@@ -33,6 +35,7 @@ public class ObservationDTOBase {
 	public final static String PRODUCTION_CENTER_ID = "production_center_id";
 	public final static String SPECIMEN_PROJECT_NAME = "specimen_project_name";
 	public final static String SPECIMEN_PROJECT_ID = "specimen_project_id";
+	public final static String SPECIMEN_ID = "specimen_id";
 	public final static String LITTER_ID = "litter_id";
 	public final static String GENE_ACCESSION_ID = "gene_accession_id";
 	public final static String GENE_SYMBOL = "gene_symbol";
@@ -40,8 +43,6 @@ public class ObservationDTOBase {
 	public final static String ALLELE_SYMBOL = "allele_symbol";
 	public final static String ZYGOSITY = "zygosity";
 	public final static String SEX = "sex";
-	public final static String BIOLOGICAL_MODEL_ID = "biological_model_id";
-	public final static String BIOLOGICAL_SAMPLE_ID = "biological_sample_id";
 	public final static String BIOLOGICAL_SAMPLE_GROUP = "biological_sample_group";
 	public final static String STRAIN_ACCESSION_ID = "strain_accession_id";
 	public final static String STRAIN_NAME = "strain_name";
@@ -177,7 +178,7 @@ public class ObservationDTOBase {
     protected String geneAccession;
 
     @Field(EXPERIMENT_ID)
-    protected Long experimentId;
+    protected String experimentId;
 
     @Field(PHENOTYPING_CENTER_ID)
     protected Long phenotypingCenterId;
@@ -206,11 +207,8 @@ public class ObservationDTOBase {
     @Field(COLONY_ID)
     protected String colonyId;
 
-    @Field(BIOLOGICAL_SAMPLE_ID)
-    protected Long biologicalSampleId;
-
-    @Field(BIOLOGICAL_MODEL_ID)
-    protected Long biologicalModelId;
+    @Field(SPECIMEN_ID)
+    protected String specimenId;
 
     @Field(ZYGOSITY)
     protected String zygosity;
@@ -355,44 +353,11 @@ public class ObservationDTOBase {
 	
 	@Field(AGE_IN_WEEKS)
 	private Integer ageInWeeks;
-	
 
-
-	public Integer getAgeInDays() {
-		return ageInDays;
-	}
-
-	public void setAgeInDays(Integer ageInDays) {
-		this.ageInDays = ageInDays;
-	}
-
-	public Integer getAgeInWeeks() {
-		return ageInWeeks;
-	}
-
-	public void setAgeInWeeks(Integer ageInWeeks) {
-		this.ageInWeeks = ageInWeeks;
-	}
-
-	public List<String> getAnatomyId() {
-		return anatomyId;
-	}
-
-	public void setAnatomyId(List<String> anatomyId) {
-		this.anatomyId = anatomyId;
-	}
 
 	public void addAnatomyId(List<String> anatomyId) {
 		if (this.anatomyId == null) { this.anatomyId = new ArrayList<>();}
 		this.anatomyId.addAll(anatomyId);
-	}
-
-	public List<String> getAnatomyTerm() {
-		return anatomyTerm;
-	}
-
-	public void setAnatomyTerm(List<String> anatomyTerm) {
-		this.anatomyTerm = anatomyTerm;
 	}
 
 	public void addAnatomyTerm(List<String> anatomyTerm) {
@@ -404,26 +369,11 @@ public class ObservationDTOBase {
 		this.anatomyTerm.addAll(anatomyTerm);
 	}
 
-	public List<String> getAnatomyIdTerm() {
-		return anatomyIdTerm;
-	}
-
-	public void setAnatomyIdTerm(List<String> anatomyIdTerm) {
-		this.anatomyIdTerm = anatomyIdTerm;
-	}
 	public void addAnatomyIdTerm(String anatomyIdTerm) {
 		if (this.anatomyIdTerm == null){
 			this.anatomyIdTerm = new ArrayList<>();
 		}
 		this.anatomyIdTerm.add(anatomyIdTerm);
-	}
-
-	public List<String> getAnatomyTermSynonym() {
-		return anatomyTermSynonym;
-	}
-
-	public void setAnatomyTermSynonym(List<String> anatomyTermSynonym) {
-		this.anatomyTermSynonym = anatomyTermSynonym;
 	}
 
 	public void addAnatomyTermSynonym(String anatomyTermSynonym) {
@@ -441,13 +391,6 @@ public class ObservationDTOBase {
 		} else {
 			this.anatomyTermSynonym = addUnique(this.anatomyTermSynonym, anatomyTermSynonym);
 		}
-	}
-	public List<String> getIntermediateAnatomyId() {
-		return intermediateAnatomyId;
-	}
-
-	public void setIntermediateAnatomyId(List<String> intermediateAnatomyId) {
-		this.intermediateAnatomyId = intermediateAnatomyId;
 	}
 
 	public void addIntermediateAnatomyId(Collection<String> intermediateAnatomyId) {
@@ -469,14 +412,6 @@ public class ObservationDTOBase {
 			}
 		}
 		return toList;
-	}
-
-	public List<String> getIntermediateAnatomyTerm() {
-		return intermediateAnatomyTerm;
-	}
-
-	public void setIntermediateAnatomyTerm(List<String> intermediateAnatomyTerm) {
-		this.intermediateAnatomyTerm = intermediateAnatomyTerm;
 	}
 
 	public void addIntermediateAnatomyTerm(Collection<String> intermediateAnatomyTerm) {
@@ -513,14 +448,6 @@ public class ObservationDTOBase {
 		}
 	}
 
-	public List<String> getIntermediateAnatomyTermSynonym() {
-		return intermediateAnatomyTermSynonym;
-	}
-
-	public void setIntermediateAnatomyTermSynonym(List<String> intermediateAnatomyTermSynonym) {
-		this.intermediateAnatomyTermSynonym = intermediateAnatomyTermSynonym;
-	}
-
 	public void addIntermediateAnatomyTermSynonym(Collection<String> intermediateAnatomyTermSynonym, boolean uniqueOnly) {
 		if (this.intermediateAnatomyTermSynonym == null){
 			this.intermediateAnatomyTermSynonym = new ArrayList<>();
@@ -530,54 +457,6 @@ public class ObservationDTOBase {
 		} else {
 			this.intermediateAnatomyTermSynonym = addUnique(this.intermediateAnatomyTermSynonym, intermediateAnatomyTermSynonym);
 		}
-	}
-
-	public List<String> getTopLevelAnatomyId() {
-		return topLevelAnatomyId;
-	}
-
-	public void setTopLevelAnatomyId(List<String> topLevelAnatomyId) {
-		this.topLevelAnatomyId = topLevelAnatomyId;
-	}
-
-	public List<String> getTopLevelAnatomyTerm() {
-		return topLevelAnatomyTerm;
-	}
-
-	public void setTopLevelAnatomyTerm(List<String> topLevelAnatomyTerm) {
-		this.topLevelAnatomyTerm = topLevelAnatomyTerm;
-	}
-
-	public List<String> getTopLevelAnatomyTermSynonym() {
-		return topLevelAnatomyTermSynonym;
-	}
-
-	public void setTopLevelAnatomyTermSynonym(List<String> topLevelAnatomyTermSynonym) {
-		this.topLevelAnatomyTermSynonym = topLevelAnatomyTermSynonym;
-	}
-
-	public List<String> getSelectedTopLevelAnatomyId() {
-		return selectedTopLevelAnatomyId;
-	}
-
-	public void setSelectedTopLevelAnatomyId(List<String> selectedTopLevelAnatomyId) {
-		this.selectedTopLevelAnatomyId = selectedTopLevelAnatomyId;
-	}
-
-	public List<String> getSelectedTopLevelAnatomyTerm() {
-		return selectedTopLevelAnatomyTerm;
-	}
-
-	public void setSelectedTopLevelAnatomyTerm(List<String> selectedTopLevelAnatomyTerm) {
-		this.selectedTopLevelAnatomyTerm = selectedTopLevelAnatomyTerm;
-	}
-
-	public List<String> getSelectedTopLevelAnatomyTermSynonym() {
-		return selectedTopLevelAnatomyTermSynonym;
-	}
-
-	public void setSelectedTopLevelAnatomyTermSynonym(List<String> selectedTopLevelAnatomyTermSynonym) {
-		this.selectedTopLevelAnatomyTermSynonym = selectedTopLevelAnatomyTermSynonym;
 	}
 
 	public void addSelectedTopLevelAnatomyTerm(Collection<String> selectedTopLevelAnatomyTerm, boolean uniqueOnly) {
@@ -591,26 +470,6 @@ public class ObservationDTOBase {
 
 	public void addSelectedTopLevelAnatomySynonyms(Collection<String> selectedTopLevelAnatomyTermSynonym, boolean uniqueOnly) {
 		this.selectedTopLevelAnatomyTermSynonym = add(this.selectedTopLevelAnatomyTermSynonym, selectedTopLevelAnatomyTermSynonym, uniqueOnly);
-	}
-
-	public Integer getSequenceId() {
-		return sequenceId;
-	}
-
-	public void setSequenceId(Integer sequenceId) {
-		this.sequenceId = sequenceId;
-	}
-
-	public List<String> getSubTermName() {
-		return subTermName;
-	}
-
-	public void setSubTermName(List<String> subTermName) {
-		this.subTermName = subTermName;
-	}
-
-	public List<String> getSubTermId() {
-		return subTermId;
 	}
 
 	public void addSubTermId(String id){
@@ -634,48 +493,6 @@ public class ObservationDTOBase {
 		this.subTermDescription.add(description);
 	}
 
-	public void setSubTermId(List<String> subTermId) {
-		this.subTermId = subTermId;
-	}
-
-	public List<String> getSubTermDescription() {
-		return subTermDescription;
-	}
-
-	public void setSubTermDescription(List<String> subTermDescription) {
-		this.subTermDescription = subTermDescription;
-	}
-
-	public void setTextValue(String textValue) {
-		this.textValue=textValue;
-
-	}
-
-	public String getTextValue() {
-		return textValue;
-	}
-
-
-	public List<String> getParameterAssociationValue() {
-		return parameterAssociationValue;
-	}
-
-
-	public void setParameterAssociationValue(List<String> parameterAssociationValue) {
-		this.parameterAssociationValue = parameterAssociationValue;
-	}
-
-
-	public List<String> getParameterAssociationName() {
-
-		return parameterAssociationName;
-	}
-
-
-	public void setParameterAssociationName(List<String> parameterAssociationName) {
-
-		this.parameterAssociationName = parameterAssociationName;
-	}
 
 	public void addParameterAssociationStableId(String id) {
         if(parameterAssociationStableId == null) {
@@ -711,39 +528,8 @@ public class ObservationDTOBase {
     	return new HashSet(parameterAssociationValue);
     }
 
-    /**
-     * helper methods
-     *
-     * @throws SQLException
-     */
 
-
-    public String getParameterName() {
-        return parameterName;
-    }
-
-    public void setParameterName(String parameterName) {
-        this.parameterName = parameterName;
-    }
-
-    public String getProcedureName() {
-        return this.procedureName;
-    }
-
-    public void setProcedureName(String procedureName) {
-        this.procedureName = procedureName;
-    }
-
-    public String getExternalSampleId() {
-        return externalSampleId;
-    }
-
-    public void setExternalSampleId(String externalSampleId) {
-        this.externalSampleId = externalSampleId;
-    }
-
-
-    public boolean isControl() {
+	public boolean isControl() {
         return this.group.equals("control");
     }
 
@@ -769,236 +555,12 @@ public class ObservationDTOBase {
                 + " ]";
     }
 
-	/**
-	 * end helper methods
-	 */
-	@Override
-	public String toString() {
-		return "ObservationDTOBase{" +
-				"id=" + id +
-				", dataSourceId=" + dataSourceId +
-				", dataSourceName='" + dataSourceName + '\'' +
-				", projectId=" + projectId +
-				", projectName='" + projectName + '\'' +
-				", pipelineName='" + pipelineName + '\'' +
-				", pipelineStableId='" + pipelineStableId + '\'' +
-				", procedureStableId='" + procedureStableId + '\'' +
-				", procedureGroup='" + procedureGroup + '\'' +
-				", parameterStableId='" + parameterStableId + '\'' +
-				", pipelineId=" + pipelineId +
-				", procedureId=" + procedureId +
-				", parameterId=" + parameterId +
-				", strainAccessionId='" + strainAccessionId + '\'' +
-				", strainName='" + strainName + '\'' +
-				", geneticBackground='" + geneticBackground + '\'' +
-				", experimentSourceId='" + experimentSourceId + '\'' +
-				", geneSymbol='" + geneSymbol + '\'' +
-				", geneAccession='" + geneAccession + '\'' +
-				", experimentId=" + experimentId +
-				", phenotypingCenterId=" + phenotypingCenterId +
-				", phenotypingCenter='" + phenotypingCenter + '\'' +
-				", specimenProjectName='" + specimenProjectName + '\'' +
-				", specimenProjectId='" + specimenProjectId + '\'' +
-				", productionCenterId=" + productionCenterId +
-				", productionCenter='" + productionCenter + '\'' +
-				", litterId='" + litterId + '\'' +
-				", observationType='" + observationType + '\'' +
-				", colonyId='" + colonyId + '\'' +
-				", biologicalSampleId=" + biologicalSampleId +
-				", biologicalModelId=" + biologicalModelId +
-				", zygosity='" + zygosity + '\'' +
-				", sex='" + sex + '\'' +
-				", group='" + group + '\'' +
-				", category='" + category + '\'' +
-				", dataPoint=" + dataPoint +
-				", orderIndex=" + orderIndex +
-				", dimension='" + dimension + '\'' +
-				", timePoint='" + timePoint + '\'' +
-				", discretePoint=" + discretePoint +
-				", externalSampleId='" + externalSampleId + '\'' +
-				", parameterName='" + parameterName + '\'' +
-				", procedureName='" + procedureName + '\'' +
-				", metadataGroup='" + metadataGroup + '\'' +
-				", metadata=" + metadata +
-				", alleleAccession='" + alleleAccession + '\'' +
-				", alleleSymbol='" + alleleSymbol + '\'' +
-				", downloadFilePath='" + downloadFilePath + '\'' +
-				", fileType='" + fileType + '\'' +
-				", parameterAssociationStableId=" + parameterAssociationStableId +
-				", parameterAssociationSequenceId=" + parameterAssociationSequenceId +
-				", parameterAssociationDimId=" + parameterAssociationDimId +
-				", parameterAssociationName=" + parameterAssociationName +
-				", parameterAssociationValue=" + parameterAssociationValue +
-				", weightParameterStableId='" + weightParameterStableId + '\'' +
-				", weightDaysOld=" + weightDaysOld +
-				", weight=" + weight +
-				", developmentalStageAcc='" + developmentalStageAcc + '\'' +
-				", developmentalStageName='" + developmentalStageName + '\'' +
-				", textValue='" + textValue + '\'' +
-				", subTermName=" + subTermName +
-				", subTermId=" + subTermId +
-				", subTermDescription=" + subTermDescription +
-				", sequenceId=" + sequenceId +
-				", anatomyId=" + anatomyId +
-				", anatomyTerm=" + anatomyTerm +
-				", anatomyIdTerm=" + anatomyIdTerm +
-				", anatomyTermSynonym=" + anatomyTermSynonym +
-				", intermediateAnatomyId=" + intermediateAnatomyId +
-				", intermediateAnatomyTerm=" + intermediateAnatomyTerm +
-				", intermediateAnatomyTermSynonym=" + intermediateAnatomyTermSynonym +
-				", topLevelAnatomyId=" + topLevelAnatomyId +
-				", topLevelAnatomyTerm=" + topLevelAnatomyTerm +
-				", topLevelAnatomyTermSynonym=" + topLevelAnatomyTermSynonym +
-				", selectedTopLevelAnatomyId=" + selectedTopLevelAnatomyId +
-				", selectedTopLevelAnatomyTerm=" + selectedTopLevelAnatomyTerm +
-				", selectedTopLevelAnatomyTermSynonym=" + selectedTopLevelAnatomyTermSynonym +
-				'}';
-	}
 
 	/**
-     * @return the id
-     */
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * @param id
-     *            the id to set
-     */
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    /**
-     * @return the pipelineName
-     */
-    public String getPipelineName() {
-        return pipelineName;
-    }
-
-    /**
-     * @param pipelineName
-     *            the pipelineName to set
-     */
-    public void setPipelineName(String pipelineName) {
-        this.pipelineName = pipelineName;
-    }
-
-    /**
-     * @return the pipelineStableId
-     */
-    public String getPipelineStableId() {
-        return pipelineStableId;
-    }
-
-    /**
-     * @param pipelineStableId
-     *            the pipelineStableId to set
-     */
-    public void setPipelineStableId(String pipelineStableId) {
-        this.pipelineStableId = pipelineStableId;
-    }
-
-    /**
-     * @return the procedureStableId
-     */
-    public String getProcedureStableId() {
-        return procedureStableId;
-    }
-
-    /**
-     * @param procedureStableId
-     *            the procedureStableId to set
-     */
-    public void setProcedureStableId(String procedureStableId) {
-        this.procedureStableId = procedureStableId;
-    }
-
-
-	public String getProcedureGroup() {
-
-		return procedureGroup;
-	}
-
-
-	public void setProcedureGroup(String procedureGroup) {
-
-		this.procedureGroup = procedureGroup;
-	}
-
-
-	/**
-     * @return the parameterStableId
-     */
-    public String getParameterStableId() {
-        return parameterStableId;
-    }
-
-    /**
-     * @param parameterStableId
-     *            the parameterStableId to set
-     */
-    public void setParameterStableId(String parameterStableId) {
-        this.parameterStableId = parameterStableId;
-    }
-
-	public String getDataType() {
-		return dataType;
-	}
-
-	public void setDataType(String dataType) {
-		this.dataType = dataType;
-	}
-
-	/**
-     * @return the pipelineId
-     */
-    public Long getPipelineId() {
-        return pipelineId;
-    }
-
-    /**
-     * @param pipelineId
-     *            the pipelineId to set
-     */
-    public void setPipelineId(Long pipelineId) {
-        this.pipelineId = pipelineId;
-    }
-
-    /**
-     * @return the procedureId
-     */
-    public Long getProcedureId() {
-        return procedureId;
-    }
-
-    /**
-     * @param procedureId
-     *            the procedureId to set
-     */
-    public void setProcedureId(Long procedureId) {
-        this.procedureId = procedureId;
-    }
-
-    /**
-     * @return the parameterId
-     */
-    public Long getParameterId() {
-        return parameterId;
-    }
-
-    /**
-     * @param parameterId
-     *            the parameterId to set
-     */
-    public void setParameterId(Long parameterId) {
-        this.parameterId = parameterId;
-    }
-
-    /**
      * @return the strainAccessionId
+	 * Use @Field(STRAIN_ACCESSION_ID) strainAccessionId instead
      */
+	@Deprecated
     public String getStrain() {
         return strainAccessionId;
     }
@@ -1011,495 +573,6 @@ public class ObservationDTOBase {
         this.strainAccessionId = strainAccessionId;
     }
 
-    /**
-     * @return the experimentSourceId
-     */
-    public String getExperimentSourceId() {
-        return experimentSourceId;
-    }
-
-    /**
-     * @param experimentSourceId
-     *            the experimentSourceId to set
-     */
-    public void setExperimentSourceId(String experimentSourceId) {
-        this.experimentSourceId = experimentSourceId;
-    }
-
-    /**
-     * @return the geneSymbol
-     */
-    public String getGeneSymbol() {
-        return geneSymbol;
-    }
-
-    /**
-     * @param geneSymbol
-     *            the geneSymbol to set
-     */
-    public void setGeneSymbol(String geneSymbol) {
-        this.geneSymbol = geneSymbol;
-    }
-
-    /**
-     * @return the geneAccession
-     */
-    public String getGeneAccession() {
-        return geneAccession;
-    }
-
-    /**
-     * @param geneAccession
-     *            the geneAccession to set
-     */
-    public void setGeneAccession(String geneAccession) {
-        this.geneAccession = geneAccession;
-    }
-
-    /**
-     * @return the experimentId
-     */
-    public Long getExperimentId() {
-        return experimentId;
-    }
-
-    /**
-     * @param experimentId
-     *            the experimentId to set
-     */
-    public void setExperimentId(Long experimentId) {
-        this.experimentId = experimentId;
-    }
-
-    /**
-     * @return the organisationId
-     */
-    public Long getPhenotypingCenterId() {
-        return phenotypingCenterId;
-    }
-
-	public void setPhenotypingCenterId(Long phenotypingCenterId) {
-		this.phenotypingCenterId = phenotypingCenterId;
-	}
-
-	public Long getProductionCenterId() {
-		return productionCenterId;
-	}
-
-	public void setProductionCenterId(Long productionCenterId) {
-		this.productionCenterId = productionCenterId;
-	}
-
-	public String getProductionCenter() {
-		return productionCenter;
-	}
-
-	public void setProductionCenter(String productionCenter) {
-		this.productionCenter = productionCenter;
-	}
-
-	public String getLitterId() {
-		return litterId;
-	}
-
-	public void setLitterId(String litterId) {
-		this.litterId = litterId;
-	}
-
-	/**
-     * @return the observationType
-     */
-    public String getObservationType() {
-        return observationType;
-    }
-
-    /**
-     * @param observationType
-     *            the observationType to set
-     */
-    public void setObservationType(String observationType) {
-        this.observationType = observationType;
-    }
-
-    /**
-     * @return the organisation
-     */
-    public String getPhenotypingCenter() {
-        return phenotypingCenter;
-    }
-
-    /**
-     * @param phenotypingCenter
-     *            the organisation to set
-     */
-    public void setPhenotypingCenter(String phenotypingCenter) {
-        this.phenotypingCenter = phenotypingCenter;
-    }
-
-
-	public Long getSpecimenProjectId() {
-		return specimenProjectId;
-	}
-
-	public void setSpecimenProjectId(Long specimenProjectId) {
-		this.specimenProjectId = specimenProjectId;
-	}
-
-	public String getSpecimenProjectName() {
-		return specimenProjectName;
-	}
-
-	public void setSpecimenProjectName(String specimenProjectName) {
-		this.specimenProjectName = specimenProjectName;
-	}
-
-	/**
-     * @return the colonyId
-     */
-    public String getColonyId() {
-        return colonyId;
-    }
-
-    /**
-     * @param colonyId
-     *            the colonyId to set
-     */
-    public void setColonyId(String colonyId) {
-        this.colonyId = colonyId;
-    }
-
-
-    /**
-     * @return the biologicalSampleId
-     */
-    public Long getBiologicalSampleId() {
-        return biologicalSampleId;
-    }
-
-    /**
-     * @param biologicalSampleId
-     *            the biologicalSampleId to set
-     */
-    public void setBiologicalSampleId(Long biologicalSampleId) {
-        this.biologicalSampleId = biologicalSampleId;
-    }
-
-    /**
-     * @return the biologicalModelId
-     */
-    public Long getBiologicalModelId() {
-        return biologicalModelId;
-    }
-
-    /**
-     * @param biologicalModelId
-     *            the biologicalModelId to set
-     */
-    public void setBiologicalModelId(Long biologicalModelId) {
-        this.biologicalModelId = biologicalModelId;
-    }
-
-    /**
-     * @return the zygosity
-     */
-    public String getZygosity() {
-        return zygosity;
-    }
-
-    /**
-     * @param zygosity
-     *            the zygosity to set
-     */
-    public void setZygosity(String zygosity) {
-        this.zygosity = zygosity;
-    }
-
-    /**
-     * @return the sex
-     */
-    public String getSex() {
-        return sex;
-    }
-
-    /**
-     * @param sex
-     *            the sex to set
-     */
-    public void setSex(String sex) {
-        this.sex = sex;
-    }
-
-    /**
-     * @return the group
-     */
-    public String getGroup() {
-        return group;
-    }
-
-    /**
-     * @param group
-     *            the group to set
-     */
-    public void setGroup(String group) {
-        this.group = group;
-    }
-
-    /**
-     * @return the category
-     */
-    public String getCategory() {
-        return category;
-    }
-
-    /**
-     * @param category
-     *            the category to set
-     */
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    /**
-     * @return the dataPoint
-     */
-    public Float getDataPoint() {
-        return dataPoint;
-    }
-
-    /**
-     * @param dataPoint
-     *            the dataPoint to set
-     */
-    public void setDataPoint(Float dataPoint) {
-        this.dataPoint = dataPoint;
-    }
-
-    /**
-     * @return the orderIndex
-     */
-    public Integer getOrderIndex() {
-        return orderIndex;
-    }
-
-    /**
-     * @param orderIndex
-     *            the orderIndex to set
-     */
-    public void setOrderIndex(Integer orderIndex) {
-        this.orderIndex = orderIndex;
-    }
-
-    /**
-     * @return the dimension
-     */
-    public String getDimension() {
-        return dimension;
-    }
-
-    /**
-     * @param dimension
-     *            the dimension to set
-     */
-    public void setDimension(String dimension) {
-        this.dimension = dimension;
-    }
-
-    /**
-     * @return the timePoint
-     */
-    public String getTimePoint() {
-        return timePoint;
-    }
-
-    /**
-     * @param timePoint
-     *            the timePoint to set
-     */
-    public void setTimePoint(String timePoint) {
-        this.timePoint = timePoint;
-    }
-
-    /**
-     * @return the discretePoint
-     */
-    public Float getDiscretePoint() {
-        return discretePoint;
-    }
-
-    /**
-     * @param discretePoint
-     *            the discretePoint to set
-     */
-    public void setDiscretePoint(Float discretePoint) {
-        this.discretePoint = discretePoint;
-    }
-
-    /**
-     * @return the metadataGroup
-     */
-    public String getMetadataGroup() {
-        return metadataGroup;
-    }
-
-    /**
-     * @param metadataGroup
-     *            the metadataGroup to set
-     */
-    public void setMetadataGroup(String metadataGroup) {
-        this.metadataGroup = metadataGroup;
-    }
-
-    /**
-     * @return the metadata
-     */
-    public List<String> getMetadata() {
-        return metadata;
-    }
-
-    public String getStrainAccessionId() {
-		return strainAccessionId;
-	}
-
-	public void setStrainAccessionId(String strainAccessionId) {
-		this.strainAccessionId = strainAccessionId;
-	}
-
-	public String getStrainName() {
-		return strainName;
-	}
-
-	public void setStrainName(String strainName) {
-		this.strainName = strainName;
-	}
-
-    public String getGeneticBackground() {
-        return geneticBackground;
-    }
-
-    public void setGeneticBackground(String geneticBackground) {
-        this.geneticBackground = geneticBackground;
-    }
-
-	public String getAllelicComposition() {
-		return allelicComposition;
-	}
-
-	public void setAllelicComposition(String allelicComposition) {
-		this.allelicComposition = allelicComposition;
-	}
-
-	public String getAlleleSymbol() {
-		return alleleSymbol;
-	}
-
-	public void setAlleleSymbol(String alleleSymbol) {
-		this.alleleSymbol = alleleSymbol;
-	}
-
-	/**
-     * @param metadata
-     *            the metadata to set
-     */
-    public void setMetadata(List<String> metadata) {
-        this.metadata = metadata;
-    }
-
-    public String getAlleleAccession() {
-        return this.alleleAccession;
-    }
-
-    public void setAlleleAccession(String alleleAccession) {
-        this.alleleAccession = alleleAccession;
-    }
-
-    public Long getDataSourceId() {
-        return dataSourceId;
-    }
-
-    public void setDataSourceId(Long dataSourceId) {
-        this.dataSourceId = dataSourceId;
-    }
-
-    public String getDataSourceName() {
-        return dataSourceName;
-    }
-
-    public void setDataSourceName(String dataSourceName) {
-        this.dataSourceName = dataSourceName;
-    }
-
-    public Long getProjectId() {
-        return projectId;
-    }
-
-    public String getProjectName() {
-        return projectName;
-    }
-
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
-    }
-
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
-    }
-
-    public String getDownloadFilePath() {
-
-		return downloadFilePath;
-	}
-
-	public void setDownloadFilePath(String downloadFilePath) {
-
-		this.downloadFilePath = downloadFilePath;
-	}
-
-
-    public List<String> getParameterAssociationStableId() {
-
-        return parameterAssociationStableId;
-    }
-
-
-    public void setParameterAssociationStableId(List<String> parameterAssociationStableId) {
-
-        this.parameterAssociationStableId = parameterAssociationStableId;
-    }
-
-
-    public List<String> getParameterAssociationSequenceId() {
-
-        return parameterAssociationSequenceId;
-    }
-
-
-    public void setParameterAssociationSequenceId(List<String> parameterAssociationSequenceId) {
-
-        this.parameterAssociationSequenceId = parameterAssociationSequenceId;
-    }
-
-
-    public List<String> getParameterAssociationDimId() {
-
-        return parameterAssociationDimId;
-    }
-
-
-    public void setParameterAssociationDimId(List<String> parameterAssociationDimId) {
-
-        this.parameterAssociationDimId = parameterAssociationDimId;
-    }
-
-
-    public String getFileType() {
-		return fileType;
-	}
-
-
-	public void setFileType(String fileType) {
-		this.fileType = fileType;
-	}
-
 
 	public void addParameterAssociationValue(String parameterAssValue) {
 		if(this.parameterAssociationValue==null){
@@ -1508,42 +581,6 @@ public class ObservationDTOBase {
 		parameterAssociationValue.add(parameterAssValue);
 
 	}
-
-
-    public String getWeightParameterStableId() {
-
-        return weightParameterStableId;
-    }
-
-
-    public void setWeightParameterStableId(String weightParameterStableId) {
-
-        this.weightParameterStableId = weightParameterStableId;
-    }
-
-
-    public Integer getWeightDaysOld() {
-
-        return weightDaysOld;
-    }
-
-
-    public void setWeightDaysOld(Integer weightDaysOld) {
-
-        this.weightDaysOld = weightDaysOld;
-    }
-
-
-    public Float getWeight() {
-
-        return weight;
-    }
-
-
-    public void setWeight(Float weight) {
-
-        this.weight = weight;
-    }
 
 
 	public void setDevelopmentStageAcc(String developmentalStageAcc) {
@@ -1557,22 +594,6 @@ public class ObservationDTOBase {
 
 	}
 
-
-	public String getDevelopmentalStageAcc() {
-		return developmentalStageAcc;
-	}
-
-	public void setDevelopmentalStageAcc(String developmentalStageAcc) {
-		this.developmentalStageAcc = developmentalStageAcc;
-	}
-
-	public String getDevelopmentalStageName() {
-		return developmentalStageName;
-	}
-
-	public void setDevelopmentalStageName(String developmentalStageName) {
-		this.developmentalStageName = developmentalStageName;
-	}
 
 	protected List<String> add(List<String> to, String what, Boolean uniqueOnly){
 		if (to == null){
@@ -1596,96 +617,4 @@ public class ObservationDTOBase {
 		return to;
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		ObservationDTOBase that = (ObservationDTOBase) o;
-		return Objects.equals(id, that.id) &&
-				Objects.equals(dataSourceId, that.dataSourceId) &&
-				Objects.equals(dataSourceName, that.dataSourceName) &&
-				Objects.equals(projectId, that.projectId) &&
-				Objects.equals(projectName, that.projectName) &&
-				Objects.equals(pipelineName, that.pipelineName) &&
-				Objects.equals(pipelineStableId, that.pipelineStableId) &&
-				Objects.equals(procedureStableId, that.procedureStableId) &&
-				Objects.equals(procedureGroup, that.procedureGroup) &&
-				Objects.equals(parameterStableId, that.parameterStableId) &&
-				Objects.equals(dataType, that.dataType) &&
-				Objects.equals(pipelineId, that.pipelineId) &&
-				Objects.equals(procedureId, that.procedureId) &&
-				Objects.equals(parameterId, that.parameterId) &&
-				Objects.equals(strainAccessionId, that.strainAccessionId) &&
-				Objects.equals(strainName, that.strainName) &&
-				Objects.equals(geneticBackground, that.geneticBackground) &&
-				Objects.equals(allelicComposition, that.allelicComposition) &&
-				Objects.equals(experimentSourceId, that.experimentSourceId) &&
-				Objects.equals(geneSymbol, that.geneSymbol) &&
-				Objects.equals(geneAccession, that.geneAccession) &&
-				Objects.equals(experimentId, that.experimentId) &&
-				Objects.equals(phenotypingCenterId, that.phenotypingCenterId) &&
-				Objects.equals(phenotypingCenter, that.phenotypingCenter) &&
-				Objects.equals(specimenProjectId, that.specimenProjectId) &&
-				Objects.equals(specimenProjectName, that.specimenProjectName) &&
-				Objects.equals(productionCenterId, that.productionCenterId) &&
-				Objects.equals(productionCenter, that.productionCenter) &&
-				Objects.equals(litterId, that.litterId) &&
-				Objects.equals(observationType, that.observationType) &&
-				Objects.equals(colonyId, that.colonyId) &&
-				Objects.equals(biologicalSampleId, that.biologicalSampleId) &&
-				Objects.equals(biologicalModelId, that.biologicalModelId) &&
-				Objects.equals(zygosity, that.zygosity) &&
-				Objects.equals(sex, that.sex) &&
-				Objects.equals(group, that.group) &&
-				Objects.equals(category, that.category) &&
-				Objects.equals(dataPoint, that.dataPoint) &&
-				Objects.equals(orderIndex, that.orderIndex) &&
-				Objects.equals(dimension, that.dimension) &&
-				Objects.equals(timePoint, that.timePoint) &&
-				Objects.equals(discretePoint, that.discretePoint) &&
-				Objects.equals(externalSampleId, that.externalSampleId) &&
-				Objects.equals(parameterName, that.parameterName) &&
-				Objects.equals(procedureName, that.procedureName) &&
-				Objects.equals(metadataGroup, that.metadataGroup) &&
-				Objects.equals(metadata, that.metadata) &&
-				Objects.equals(alleleAccession, that.alleleAccession) &&
-				Objects.equals(alleleSymbol, that.alleleSymbol) &&
-				Objects.equals(downloadFilePath, that.downloadFilePath) &&
-				Objects.equals(fileType, that.fileType) &&
-				Objects.equals(parameterAssociationStableId, that.parameterAssociationStableId) &&
-				Objects.equals(parameterAssociationSequenceId, that.parameterAssociationSequenceId) &&
-				Objects.equals(parameterAssociationDimId, that.parameterAssociationDimId) &&
-				Objects.equals(parameterAssociationName, that.parameterAssociationName) &&
-				Objects.equals(parameterAssociationValue, that.parameterAssociationValue) &&
-				Objects.equals(weightParameterStableId, that.weightParameterStableId) &&
-				Objects.equals(weightDaysOld, that.weightDaysOld) &&
-				Objects.equals(weight, that.weight) &&
-				Objects.equals(developmentalStageAcc, that.developmentalStageAcc) &&
-				Objects.equals(developmentalStageName, that.developmentalStageName) &&
-				Objects.equals(textValue, that.textValue) &&
-				Objects.equals(subTermName, that.subTermName) &&
-				Objects.equals(subTermId, that.subTermId) &&
-				Objects.equals(subTermDescription, that.subTermDescription) &&
-				Objects.equals(sequenceId, that.sequenceId) &&
-				Objects.equals(anatomyId, that.anatomyId) &&
-				Objects.equals(anatomyTerm, that.anatomyTerm) &&
-				Objects.equals(anatomyIdTerm, that.anatomyIdTerm) &&
-				Objects.equals(anatomyTermSynonym, that.anatomyTermSynonym) &&
-				Objects.equals(intermediateAnatomyId, that.intermediateAnatomyId) &&
-				Objects.equals(intermediateAnatomyTerm, that.intermediateAnatomyTerm) &&
-				Objects.equals(intermediateAnatomyTermSynonym, that.intermediateAnatomyTermSynonym) &&
-				Objects.equals(topLevelAnatomyId, that.topLevelAnatomyId) &&
-				Objects.equals(topLevelAnatomyTerm, that.topLevelAnatomyTerm) &&
-				Objects.equals(topLevelAnatomyTermSynonym, that.topLevelAnatomyTermSynonym) &&
-				Objects.equals(selectedTopLevelAnatomyId, that.selectedTopLevelAnatomyId) &&
-				Objects.equals(selectedTopLevelAnatomyTerm, that.selectedTopLevelAnatomyTerm) &&
-				Objects.equals(selectedTopLevelAnatomyTermSynonym, that.selectedTopLevelAnatomyTermSynonym) &&
-				Objects.equals(ageInDays, that.ageInDays) &&
-				Objects.equals(ageInWeeks, that.ageInWeeks);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id, dataSourceId, dataSourceName, projectId, projectName, pipelineName, pipelineStableId, procedureStableId, procedureGroup, parameterStableId, dataType, pipelineId, procedureId, parameterId, strainAccessionId, strainName, geneticBackground, allelicComposition, experimentSourceId, geneSymbol, geneAccession, experimentId, phenotypingCenterId, phenotypingCenter, specimenProjectId, specimenProjectName, productionCenterId, productionCenter, litterId, observationType, colonyId, biologicalSampleId, biologicalModelId, zygosity, sex, group, category, dataPoint, orderIndex, dimension, timePoint, discretePoint, externalSampleId, parameterName, procedureName, metadataGroup, metadata, alleleAccession, alleleSymbol, downloadFilePath, fileType, parameterAssociationStableId, parameterAssociationSequenceId, parameterAssociationDimId, parameterAssociationName, parameterAssociationValue, weightParameterStableId, weightDaysOld, weight, developmentalStageAcc, developmentalStageName, textValue, subTermName, subTermId, subTermDescription, sequenceId, anatomyId, anatomyTerm, anatomyIdTerm, anatomyTermSynonym, intermediateAnatomyId, intermediateAnatomyTerm, intermediateAnatomyTermSynonym, topLevelAnatomyId, topLevelAnatomyTerm, topLevelAnatomyTermSynonym, selectedTopLevelAnatomyId, selectedTopLevelAnatomyTerm, selectedTopLevelAnatomyTermSynonym, ageInDays, ageInWeeks);
-	}
 }

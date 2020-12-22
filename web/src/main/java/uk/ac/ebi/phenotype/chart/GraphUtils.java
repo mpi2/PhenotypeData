@@ -16,6 +16,7 @@
 package uk.ac.ebi.phenotype.chart;
 
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.solr.service.ExperimentService;
 import org.mousephenotype.cda.solr.service.ImpressService;
@@ -23,7 +24,6 @@ import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.web.ChartType;
-import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -54,9 +54,71 @@ public class GraphUtils {
     }
 
 
+    public Set<String> getGraphUrls(
+            List<String> pipelineStableIds,
+            List<String> procedureStableIds,
+            String parameterStableId,
+            String markerAccession,
+            List<String> alleleAccessions,
+            List<String> zygosities,
+            List<String> backgroundStrains,
+            List<String> phenotypingCenters,
+            List<String> metaDataGroups) throws SolrServerException, IOException, URISyntaxException {
+
+        // each url should be unique and so we use a set
+        Set<String> urls = new LinkedHashSet<>();
+        ChartType chartType = getDefaultChartType(parameterStableId);
+
+        String accessionAndParam = String.format("accession=%s&parameter_stable_id=%s&chart_type=%s&", markerAccession, parameterStableId, chartType);
+
+        if (Constants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId)) {
+            metaDataGroups = null; // Dderived serie parameters don't have the same metadata so we have to ignore it for series
+        }
+
+        // if bodywieght we don't have stats results so can't use the srService to pivot and have to use experiment service instead
+//        if (Constants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId)) {
+//           urls.addAll(experimentService.getChartPivots(accessionAndParam, markerAccession, parameterStableId, pipelineStableIds, zygosities, phenotypingCenters,
+//                   backgroundStrains, metaDataGroups, alleleAccessions, procedureStableIds));
+//        } else {
+            urls.addAll(srService.getChartPivots(accessionAndParam, markerAccession, parameterStableId, pipelineStableIds, procedureStableIds, zygosities, phenotypingCenters,
+                    backgroundStrains, metaDataGroups, alleleAccessions));
+        //}
+
+        //need to add flag for this optional step -e.g. filterBySR=false
+        List<String> dummyGenderList = new ArrayList<>();
+
+        if (urls.size() == 0) {
+            //try getting urls anyway if no Statistical Result - need this for 3i data only currently
+            urls = this.getGraphUrlsOld(markerAccession, parameterStableId, procedureStableIds, pipelineStableIds, dummyGenderList, zygosities, phenotypingCenters, backgroundStrains, metaDataGroups, chartType, alleleAccessions);
+        }
+
+        if (parameterStableId.equalsIgnoreCase("IMPC_IPG_002_001")) {
+
+            // Displaying an IPGTT time series parameter.  Also display the plot(s) of all possible
+            // derived parameters (supporting data)
+
+            for (String subParamStableId : Constants.IMPC_IPG_002_001) {
+                ParameterDTO subParam = impressService.getParameterByStableId(subParamStableId);
+                ChartType subChartType = getDefaultChartType(subParam);
+                String subPivotFacet = String.format("accession=%s&parameter_stable_id=%s&chart_type=%s&", markerAccession, subParamStableId, subChartType);
+                urls.addAll(srService.getChartPivots(subPivotFacet, markerAccession, subParamStableId, pipelineStableIds, procedureStableIds, zygosities, phenotypingCenters,
+                        backgroundStrains, metaDataGroups, alleleAccessions));
+
+            }
+        }
+
+        urls.forEach(url -> { log.debug("URL: " + url); });
+
+        return urls;
+    }
+
+
+
+
+
     public Set<String> getGraphUrls(String acc,
                                     ParameterDTO parameter, List<String> pipelineStableIds, List<String> zyList, List<String> phenotypingCentersList,
-                                    List<String> strainsParams, List<String> metaDataGroup, ChartType chartType, List<String> alleleAccession)
+                                    List<String> strainsParams, List<String> metaDataGroup, ChartType chartType, List<String> alleleAccession, List<String> procedureStableIds)
             throws SolrServerException, IOException, URISyntaxException {
 
         // each url should be unique and so we use a set
@@ -78,7 +140,7 @@ public class GraphUtils {
         if (!ChartUtils.getPlotParameter(parameter.getStableId()).equalsIgnoreCase(parameter.getStableId())) {
             parameterStableId = ChartUtils.getPlotParameter(parameter.getStableId());
             chartType = ChartUtils.getPlotType(parameterStableId);
-            if (chartType.equals(ChartType.TIME_SERIES_LINE) && TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId)) {
+            if (chartType.equals(ChartType.TIME_SERIES_LINE) && Constants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId)) {
                 metaDataGroup = null; // Dderived serie parameters don't have the same metadata so we have to ignore it for series
             }
         }
@@ -86,11 +148,11 @@ public class GraphUtils {
         accessionAndParam += seperator + "chart_type=" + chartType + seperator;
 
         // if bodywieght we don't have stats results so can't use the srService to pivot and have to use experiment service instead
-        if (TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId)) {
-            urls.addAll(experimentService.getChartPivots(accessionAndParam, acc, parameter, pipelineStableIds, zyList, phenotypingCentersList,
-                    strainsParams, metaDataGroup, alleleAccession));
+        if (Constants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId)) {
+            urls.addAll(experimentService.getChartPivots(accessionAndParam, acc, parameter.getStableId(), pipelineStableIds, zyList, phenotypingCentersList,
+                    strainsParams, metaDataGroup, alleleAccession, procedureStableIds));
         } else {
-            urls.addAll(srService.getChartPivots(accessionAndParam, acc, parameterStableId, pipelineStableIds, zyList, phenotypingCentersList,
+            urls.addAll(srService.getChartPivots(accessionAndParam, acc, parameterStableId, pipelineStableIds, null, zyList, phenotypingCentersList,
                     strainsParams, metaDataGroup, alleleAccession));
         }
 
@@ -99,7 +161,7 @@ public class GraphUtils {
 
         if (urls.size() == 0) {
             //try getting urls anyway if no Statistical Result - need this for 3i data only currently
-            urls = this.getGraphUrlsOld(acc, parameter, pipelineStableIds, dummyGenderList, zyList, phenotypingCentersList, strainsParams, metaDataGroup, chartType, alleleAccession);
+            urls = this.getGraphUrlsOld(acc, parameterStableId, procedureStableIds, pipelineStableIds, dummyGenderList, zyList, phenotypingCentersList, strainsParams, metaDataGroup, chartType, alleleAccession);
         }
 
         if (parameterStableId.equalsIgnoreCase("IMPC_IPG_002_001")) {
@@ -107,12 +169,12 @@ public class GraphUtils {
             // Displaying an IPGTT time series parameter.  Also display the plot(s) of all possible
             // derived parameters (supporting data)
 
-            for (String subParamStableId : TimeSeriesConstants.IMPC_IPG_002_001) {
+            for (String subParamStableId : Constants.IMPC_IPG_002_001) {
                 ParameterDTO subParam = impressService.getParameterByStableId(subParamStableId);
                 ChartType subChartType = getDefaultChartType(subParam);
                 String subPivotFacet = String.format("accession=%s&parameter_stable_id=%s&chart_type=%s&", acc, subParamStableId, subChartType);
                 urls.addAll(srService.getChartPivots(
-                        subPivotFacet, acc, subParamStableId, pipelineStableIds, zyList,
+                        subPivotFacet, acc, subParamStableId, pipelineStableIds, null, zyList,
                         phenotypingCentersList,
                         strainsParams, metaDataGroup, alleleAccession));
             }
@@ -128,13 +190,14 @@ System.out.println("urls="+urls);
 
 
     public Set<String> getGraphUrlsOld(String acc,
-                                       ParameterDTO parameter, List<String> pipelineStableIds, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList,
+                                       String parameterStableId, List<String> procedureStableIds, List<String> pipelineStableIds, List<String> genderList, List<String> zyList, List<String> phenotypingCentersList,
                                        List<String> strainsParams, List<String> metaDataGroup, ChartType chartType, List<String> alleleAccession)
             throws SolrServerException, IOException {
         log.debug("no charts returned - using old method");
+
         // each url should be unique and so we use a set
-        Set<String>               urls                 = new LinkedHashSet<String>();
-        Map<String, List<String>> keyList              = experimentService.getExperimentKeys(acc, parameter.getStableId(), pipelineStableIds, phenotypingCentersList, strainsParams, metaDataGroup, alleleAccession);
+        Set<String>               urls                 = new LinkedHashSet<>();
+        Map<String, List<String>> keyList              = experimentService.getExperimentKeys(acc, parameterStableId, pipelineStableIds, phenotypingCentersList, strainsParams, metaDataGroup, alleleAccession);
         List<String>              centersList          = keyList.get(ObservationDTO.PHENOTYPING_CENTER);
         List<String>              strains              = keyList.get(ObservationDTO.STRAIN_ACCESSION_ID);
         List<String>              metaDataGroupStrings = keyList.get(ObservationDTO.METADATA_GROUP);
@@ -144,17 +207,16 @@ System.out.println("urls="+urls);
         // for each parameter we want the unique set of urls to make ajax
         // requests for experiments
         String seperator = "&";
-        String parameterStableId = parameter.getStableId();
         String accessionAndParam = "accession=" + acc;
 
         String genderString = "";
         for (String sex : genderList) {
-            genderString += seperator + "gender=" + sex;
+            genderString += "gender=" + sex;
         }
-            chartType = getDefaultChartType(parameter);
+            chartType = getDefaultChartType(parameterStableId);
 
-        if (!ChartUtils.getPlotParameter(parameter.getStableId()).equalsIgnoreCase(parameter.getStableId())) {
-            parameterStableId = ChartUtils.getPlotParameter(parameter.getStableId());
+        if (!ChartUtils.getPlotParameter(parameterStableId).equalsIgnoreCase(parameterStableId)) {
+            parameterStableId = ChartUtils.getPlotParameter(parameterStableId);
             chartType = ChartUtils.getPlotType(parameterStableId);
             if (chartType.equals(ChartType.TIME_SERIES_LINE)) {
                 metaDataGroupStrings = null;
@@ -172,28 +234,40 @@ System.out.println("urls="+urls);
 
         for (String zyg : zyList) {
             for (String pipeStableId : pipelineStableIdStrings) {
-                for (String center : centersList) {
-                    try {
-                        // encode the phenotype center to get around harwell spaces
-                        center = URLEncoder.encode(center, "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                    for (String strain : strains) {
-                        // one allele accession for each graph url created as
-                        // part of unique key- pielineStableId as well?????
-                        for (String alleleAcc : alleleAccessionStrings) {
-                            String alleleAccessionString = "&" + ObservationDTO.ALLELE_ACCESSION_ID + "=" + alleleAcc;
-                            if (metaDataGroupStrings != null) {
-                                for (String metaGroup : metaDataGroupStrings) {
-                                    urls.add(accessionAndParam + alleleAccessionString + "&zygosity=" + zyg + genderString + seperator + ObservationDTO.PHENOTYPING_CENTER
-                                            + "=" + center + "" + seperator + ObservationDTO.STRAIN_ACCESSION_ID + "=" + strain + seperator + ObservationDTO.PIPELINE_STABLE_ID + "="
-                                            + pipeStableId + seperator + ObservationDTO.METADATA_GROUP + "=" + metaGroup);
+                for (String procStableId : procedureStableIds) {
+                    for (String center : centersList) {
+                        try {
+                            // encode the phenotype center to account for spaces in the name
+                            center = URLEncoder.encode(center, "UTF-8");
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+                        for (String strain : strains) {
+                            // one allele accession for each graph url created as
+                            for (String alleleAcc : alleleAccessionStrings) {
+                                String alleleAccessionString = "&" + ObservationDTO.ALLELE_ACCESSION_ID + "=" + alleleAcc;
+                                if (metaDataGroupStrings != null) {
+                                    for (String metaGroup : metaDataGroupStrings) {
+                                        urls.add(accessionAndParam +
+                                                alleleAccessionString + seperator +
+                                                "zygosity=" + zyg + seperator +
+                                                genderString + seperator +
+                                                ObservationDTO.PHENOTYPING_CENTER + "=" + center + "" + seperator +
+                                                ObservationDTO.STRAIN_ACCESSION_ID + "=" + strain + seperator +
+                                                ObservationDTO.PROCEDURE_STABLE_ID + "=" + procStableId + seperator +
+                                                ObservationDTO.PIPELINE_STABLE_ID + "=" + pipeStableId + seperator +
+                                                ObservationDTO.METADATA_GROUP + "=" + metaGroup);
+                                    }
+                                } else {
+                                    // if metadataGroup is null then don't add it to the request
+                                    urls.add(accessionAndParam + alleleAccessionString + seperator +
+                                            "zygosity=" + zyg + seperator +
+                                            genderString + seperator +
+                                            ObservationDTO.PHENOTYPING_CENTER + "=" + center + seperator +
+                                            ObservationDTO.STRAIN_ACCESSION_ID + "=" + strain + seperator +
+                                            ObservationDTO.PROCEDURE_STABLE_ID + "=" + procStableId + seperator +
+                                            ObservationDTO.PIPELINE_STABLE_ID + "=" + pipeStableId);
                                 }
-                            } else {
-                                // if metadataGroup is null then don't add it to the request
-                                urls.add(accessionAndParam + alleleAccessionString + "&zygosity=" + zyg + genderString + seperator + ObservationDTO.PHENOTYPING_CENTER + "="
-                                        + center + seperator + ObservationDTO.STRAIN_ACCESSION_ID + "=" + strain + seperator + ObservationDTO.PIPELINE_STABLE_ID + "=" + pipeStableId);
                             }
                         }
                     }
@@ -204,7 +278,7 @@ System.out.println("urls="+urls);
         return urls;
     }
 
-
+    @Deprecated
     public static ChartType getDefaultChartType(ParameterDTO parameter) {
 
         if (Constants.ABR_PARAMETERS.contains(parameter.getStableId())) {
@@ -242,5 +316,40 @@ System.out.println("urls="+urls);
         }
         return null;
     }
+
+    public ChartType getDefaultChartType(String parameter) throws IOException, SolrServerException {
+
+        if (Constants.ABR_PARAMETERS.contains(parameter)) {
+
+            return ChartType.UNIDIMENSIONAL_ABR_PLOT;
+
+        } else if (Constants.viabilityParameters.contains(parameter)) {
+            return ChartType.PIE;
+
+        } else if (parameter.equals("IMPC_EYE_092_001")) {
+            return ChartType.CATEGORICAL_STACKED_COLUMN;
+
+        } else {
+
+            final ParameterDTO parameterByStableId = impressService.getParameterByStableId(parameter);
+            switch (parameterByStableId.getObservationType()) {
+
+                case unidimensional:
+                    return ChartType.UNIDIMENSIONAL_BOX_PLOT;
+
+                case categorical:
+                    return ChartType.CATEGORICAL_STACKED_COLUMN;
+
+                case time_series:
+                    return ChartType.TIME_SERIES_LINE;
+
+                case text:
+                    return ChartType.TEXT;
+
+            }
+        }
+        return null;
+    }
+
 
 }

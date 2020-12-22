@@ -14,7 +14,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.data.solr.repository.config.EnableSolrRepositories;
 
 import javax.sql.DataSource;
 
@@ -24,6 +24,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
+@EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
 @ComponentScan(basePackages = {"org.mousephenotype.cda.db", "org.mousephenotype.cda.solr.service"},
 		excludeFilters = {
 				@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {
@@ -55,99 +56,6 @@ public class ReportsConfig {
     public DataSource komp2DataSource() {
         return SqlUtils.getConfiguredDatasource(komp2Url, komp2Uername, komp2Password);
     }
-    
-    
-    // cdabase
-	@Value("${datasource.cdabase.compare.current.jdbc-url}")
-	private String urlCdabaseCurrent;
-	@Value("${datasource.cdabase.compare.current.username}")
-	private String usernameCdabaseCurrent;
-	@Value("${datasource.cdabase.compare.current.password}")
-	private String passwordCdabaseCurrent;
-	@Bean
-	public DataSource cdabaseCurrent() {
-		return SqlUtils.getConfiguredDatasource(urlCdabaseCurrent, usernameCdabaseCurrent, passwordCdabaseCurrent);
-	}
-	@Value("${datasource.cdabase.compare.previous.jdbc-url}")
-	private String urlCdabasePrevious;
-	@Value("${datasource.cdabase.compare.previous.username}")
-	private String usernameCdabasePrevious;
-	@Value("${datasource.cdabase.compare.previous.password}")
-	private String passwordCdabasePrevious;
-	@Bean
-	public DataSource cdabasePrevious() {
-		return SqlUtils.getConfiguredDatasource(urlCdabasePrevious, usernameCdabasePrevious, passwordCdabasePrevious);
-	}
-	@Bean(name = "jdbcCdabasePrevious")
-	public JdbcTemplate jdbcCdabasePrevious() {
-		return new JdbcTemplate(cdabasePrevious());
-	}
-	@Bean(name = "jdbcCdabaseCurrent")
-	public JdbcTemplate jdbcCdabaseCurrent() {
-		return new JdbcTemplate(cdabaseCurrent());
-	}
-
-
-	// cda
-	@Value("${datasource.cda.compare.current.jdbc-url}")
-	private String urlCdaCurrent;
-	@Value("${datasource.cda.compare.current.username}")
-	private String usernameCdaCurrent;
-	@Value("${datasource.cda.compare.current.password}")
-	private String passwordCdaCurrent;
-	@Bean
-	public DataSource cdaCurrent() {
-		return SqlUtils.getConfiguredDatasource(urlCdaCurrent, usernameCdaCurrent, passwordCdaCurrent);
-	}
-	@Value("${datasource.cda.compare.previous.jdbc-url}")
-	private String urlCdaPrevious;
-	@Value("${datasource.cda.compare.previous.username}")
-	private String usernameCdaPrevious;
-	@Value("${datasource.cda.compare.previous.password}")
-	private String passwordCdaPrevious;
-	@Bean
-	public DataSource cdaPrevious() {
-		return SqlUtils.getConfiguredDatasource(urlCdaPrevious, usernameCdaPrevious, passwordCdaPrevious);
-	}
-	@Bean(name = "jdbcCdaPrevious")
-	public JdbcTemplate jdbcCdaPrevious() {
-		return new JdbcTemplate(cdaPrevious());
-	}
-	@Bean(name = "jdbcCdaCurrent")
-	public JdbcTemplate jdbcCdaCurrent() {
-		return new JdbcTemplate(cdaCurrent());
-	}
-
-
-	// dcc
-	@Value("${datasource.dcc.compare.current.jdbc-url}")
-	private String urlDccCurrent;
-	@Value("${datasource.dcc.compare.current.username}")
-	private String usernameDccCurrent;
-	@Value("${datasource.dcc.compare.current.password}")
-	private String passwordDccCurrent;
-	@Bean
-	public DataSource dccCurrent() {
-		return SqlUtils.getConfiguredDatasource(urlDccCurrent, usernameDccCurrent, passwordDccCurrent);
-	}
-	@Value("${datasource.dcc.compare.previous.jdbc-url}")
-	private String urlDccPrevious;
-	@Value("${datasource.dcc.compare.previous.username}")
-	private String usernameDccPrevious;
-	@Value("${datasource.dcc.compare.previous.password}")
-	private String passwordDccPrevious;
-	@Bean
-	public DataSource dccPrevious() {
-		return SqlUtils.getConfiguredDatasource(urlDccPrevious, usernameDccPrevious, passwordDccPrevious);
-	}
-	@Bean(name = "jdbcDccPrevious")
-	public JdbcTemplate jdbcDccPrevious() {
-		return new JdbcTemplate(dccPrevious());
-	}
-	@Bean(name = "jdbcDccCurrent")
-	public JdbcTemplate jdbcDccCurrent() {
-		return new JdbcTemplate(dccCurrent());
-	}
 
 
 	/////////////////////////
@@ -172,10 +80,10 @@ public class ReportsConfig {
 		return new HttpSolrClient.Builder(internalSolrUrl + "/anatomy").build();
 	}
 
-	// autosuggest
-	@Bean(name = "autosuggestCore")
-	HttpSolrClient autosuggestCore() {
-		return new HttpSolrClient.Builder(internalSolrUrl + "/autosuggest").build();
+	// essentialgenes
+	@Bean(name = "essentialGeneCore")
+	HttpSolrClient essentialgenes() {
+		return new HttpSolrClient.Builder(internalSolrUrl + "/essentialgenes").build();
 	}
 
 	// experiment
@@ -250,6 +158,10 @@ public class ReportsConfig {
     	return new ImagesSolrJ(sangerImagesCore);
 	}
 
+
+	////////////
+	// Services
+	///////////
 
 	////////
 	// Other

@@ -32,6 +32,7 @@ import org.mousephenotype.cda.solr.service.dto.ProcedureDTO;
 import org.mousephenotype.cda.web.WebStatus;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -273,8 +274,8 @@ public class ImpressService extends BasicService implements WebStatus {
 
 			ImpressDTO imd = response.getBeans(ImpressDTO.class).get(0);
 
-			procedure.setStableId(imd.getProcedureStableId().toString());
-			procedure.setName(imd.getProcedureName().toString());
+			procedure.setStableId(imd.getProcedureStableId());
+			procedure.setName(imd.getProcedureName());
 			procedure.setStableKey(imd.getProcedureStableKey());
 			return procedure;
 
@@ -286,23 +287,23 @@ public class ImpressService extends BasicService implements WebStatus {
 	}
 
 
+	@Cacheable("procedureByStableId")
 	public ProcedureDTO getProcedureByStableId(String procedureStableId) {
 
 		ProcedureDTO procedure = new ProcedureDTO();
 		try {
 			SolrQuery query = new SolrQuery()
 				.setQuery(ImpressDTO.PROCEDURE_STABLE_ID + ":" + procedureStableId)
+				.setRows(1)
 				.setFields(ImpressDTO.PROCEDURE_ID,
 						ImpressDTO.PROCEDURE_NAME,
 						ImpressDTO.PROCEDURE_STABLE_ID,
 						ImpressDTO.PROCEDURE_STABLE_KEY);
 
-			QueryResponse response = pipelineCore.query(query);
+			ImpressDTO imd = pipelineCore.query(query).getBeans(ImpressDTO.class).get(0);
 
-			ImpressDTO imd = response.getBeans(ImpressDTO.class).get(0);
-
-			procedure.setStableId(imd.getProcedureStableId().toString());
-			procedure.setName(imd.getProcedureName().toString());
+			procedure.setStableId(imd.getProcedureStableId());
+			procedure.setName(imd.getProcedureName());
 			procedure.setStableKey(imd.getProcedureStableKey());
 			return procedure;
 
@@ -493,8 +494,8 @@ public class ImpressService extends BasicService implements WebStatus {
 		Map<String,OntologyBean> idToAbnormalMaId=new HashMap<>();
 		List<ImpressDTO> pipelineDtos=null;
 		SolrQuery query = new SolrQuery()
-			.setQuery(ImpressDTO.MA_ID + ":*" )
-			.setFields(ImpressDTO.MA_ID, ImpressDTO.MA_TERM, ImpressDTO.PARAMETER_STABLE_ID).setRows(1000000);
+			.setQuery(ImpressDTO.MOUSE_ANATOMY_ID + ":*" )
+			.setFields(ImpressDTO.MOUSE_ANATOMY_ID, ImpressDTO.MOUSE_ANATOMY_TERM, ImpressDTO.PARAMETER_STABLE_ID).setRows(1000000);
 		QueryResponse response=null;
 
 		try {
@@ -517,8 +518,8 @@ public class ImpressService extends BasicService implements WebStatus {
 		Map<String,OntologyBean> idToAbnormalEmapaId=new HashMap<>();
 		List<ImpressDTO> pipelineDtos=null;
 		SolrQuery query = new SolrQuery()
-			.setQuery(ImpressDTO.ANATOMY_ID + ":*" )
-			.setFields(ImpressDTO.ANATOMY_ID, ImpressDTO.ANATOMY_TERM, ImpressDTO.PARAMETER_STABLE_ID).setRows(1000000);
+			.setQuery(ImpressDTO.EMBRYO_ANATOMY_ID + ":*" )
+			.setFields(ImpressDTO.EMBRYO_ANATOMY_ID, ImpressDTO.EMBRYO_ANATOMY_TERM, ImpressDTO.PARAMETER_STABLE_ID).setRows(1000000);
 		QueryResponse response=null;
 
 		try {
@@ -526,7 +527,7 @@ public class ImpressService extends BasicService implements WebStatus {
 			pipelineDtos = response.getBeans(ImpressDTO.class);
 			for(ImpressDTO pipe:pipelineDtos){
 				if(!idToAbnormalEmapaId.containsKey(pipe.getParameterStableId())){
-					idToAbnormalEmapaId.put(pipe.getParameterStableId(),new OntologyBean(pipe.getAnatomyId(),pipe.getAnatomyTerm()));
+					idToAbnormalEmapaId.put(pipe.getParameterStableId(),new OntologyBean(pipe.getEmapId(),pipe.getEmapTerm()));
 				}
 			}
 		} catch (SolrServerException | IOException e) {
@@ -619,12 +620,13 @@ public class ImpressService extends BasicService implements WebStatus {
 	 * @since 2015/08/20
 	 * @param stableId
 	 */
+	@Cacheable("parameterByStableId")
 	public ParameterDTO getParameterByStableId(String stableId)
 	throws SolrServerException, IOException  {
 
 		ParameterDTO param = new ParameterDTO();
 		SolrQuery query = new SolrQuery()
-				.setQuery(ImpressDTO.PARAMETER_STABLE_ID + ":" + stableId )
+				.setQuery(ImpressDTO.PARAMETER_STABLE_ID + ":" + stableId + " " + ImpressDTO.OBSERVATION_TYPE + ":*")
 				.setFields(ImpressDTO.PARAMETER_NAME,
 						ImpressDTO.PARAMETER_ID,
 						ImpressDTO.PARAMETER_STABLE_KEY,

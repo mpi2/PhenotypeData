@@ -16,9 +16,9 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.dto.LifeStage;
 import org.mousephenotype.cda.enumerations.EmbryoViability;
 import org.mousephenotype.cda.enumerations.ObservationType;
@@ -31,7 +31,6 @@ import org.mousephenotype.cda.solr.web.dto.EmbryoViability_DTO;
 import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
 import org.mousephenotype.cda.utilities.LifeStageMapper;
 import org.mousephenotype.cda.web.ChartType;
-import org.mousephenotype.cda.web.TimeSeriesConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,7 +51,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -87,7 +85,7 @@ public class ChartsController {
 
     @Inject
     public ChartsController(
-    		@NotNull CategoricalChartAndTableProvider categoricalChartAndTableProvider,
+			@NotNull CategoricalChartAndTableProvider categoricalChartAndTableProvider,
 			@NotNull TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider,
 			@NotNull UnidimensionalChartAndTableProvider continousChartAndTableProvider,
 			@NotNull ScatterChartAndTableProvider scatterChartAndTableProvider,
@@ -99,7 +97,7 @@ public class ChartsController {
 			@NotNull ImageService imageService,
 			@NotNull @Named("statistical-result-service") StatisticalResultService srService,
 			@NotNull @Named("genotype-phenotype-service") GenotypePhenotypeService gpService
-	) {
+			) {
         this.categoricalChartAndTableProvider = categoricalChartAndTableProvider;
         this.timeSeriesChartAndTableProvider = timeSeriesChartAndTableProvider;
         this.continousChartAndTableProvider = continousChartAndTableProvider;
@@ -112,7 +110,7 @@ public class ChartsController {
         this.impressService = impressService;
         this.imageService=imageService;
         this.gpService = gpService;
-    }
+	}
 
     /**
      * Runs when the request missing an accession ID. This redirects to the
@@ -157,6 +155,7 @@ public class ChartsController {
                          @RequestParam(required = false, value = "metadata_group") String[] metadataGroup,
                          @RequestParam(required = false, value = "chart_type") ChartType chartType,
                          @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds,
+                         @RequestParam(required = false, value = "procedure_stable_id") String[] procedureStableIds,
                          @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession,
                          @RequestParam(required = false, value = "pageTitle") String pageTitle,
                          @RequestParam(required = false, value = "pageLinkBack") String pageLinkBack,
@@ -176,7 +175,7 @@ public class ChartsController {
 
             model.addAttribute("pageTitle", pageTitle);
 
-            return createCharts(accessionsParams, pipelineStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, chartType, alleleAccession);
+            return createCharts(accessionsParams, pipelineStableIds, procedureStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, chartType, alleleAccession);
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -190,12 +189,13 @@ public class ChartsController {
                         @RequestParam(required = false, value = "strain_accession_id") String strain,
                         @RequestParam(required = false, value = "allele_accession_id") String alleleAccession,
                         @RequestParam(required = false, value = "metadata_group", defaultValue = DEFAULT_NONE) String metadataGroup,
+						@RequestParam(required = false, value = "pipeline_stable_id") String pipelineStableId,
+						@RequestParam(required = false, value = "procedure_stable_id") String procedureStableId,
                         @RequestParam(required = false, value = "parameter_stable_id") String parameterStableId,
                         @RequestParam(required = false, value = "gender") String[] gender,
                         @RequestParam(required = false, value = "zygosity") String[] zygosity,
                         @RequestParam(required = false, value = "phenotyping_center") String phenotypingCenter,
                         @RequestParam(required = false, value = "strategy") String[] strategies,
-                        @RequestParam(required = false, value = "pipeline_stable_id") String pipelineStableId,
                         @RequestParam(required = false, value = "chart_type") ChartType chartType,
                         @RequestParam(required = false, value = "chart_only", defaultValue = "false") boolean chartOnly,
                         @RequestParam(required = false, value = "standAlone") boolean standAlone,
@@ -209,7 +209,7 @@ public class ChartsController {
 		}
 
 		if (!parameterStableId.equals("")) {
-			boolean isDerivedBodyWeight = TimeSeriesConstants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId);
+			boolean isDerivedBodyWeight = Constants.DERIVED_BODY_WEIGHT_PARAMETERS.contains(parameterStableId);
 			model.addAttribute("isDerivedBodyWeight", isDerivedBodyWeight);
 		}
 
@@ -256,8 +256,32 @@ public class ChartsController {
 
 		long startTimeSolr = System.currentTimeMillis();
 
-		List<String> genderList = getParamsAsList(gender);
-		experiment = experimentService.getSpecificExperimentDTO(parameterStableId, pipelineStableId, accession[0], genderList, zyList, phenotypingCenter, strain, metaDataGroupString, alleleAccession, SOLR_URL);
+		if (zygosity.length != 1) {
+			log.warn("More than one zygosity specified", String.join(", ", zygosity));
+		}
+
+		experiment = experimentService.getSpecificExperimentDTO(
+				pipelineStableId,
+				procedureStableId,
+				parameterStableId,
+				alleleAccession,
+				phenotypingCenter,
+				zygosity[0],
+				strain,
+				metaDataGroupString
+		);
+		experiment = experimentService.setUrls(experiment, parameterStableId, pipelineStableId, gene.getMgiAccessionId(), Arrays.asList(zygosity), phenotypingCenter, strain, metadataGroup, alleleAccession, SOLR_URL);
+		experiment.setMarkerAccession(gene.getMgiAccessionId());
+
+		Set<SexType> sexes = new HashSet<>(Arrays.asList(SexType.male, SexType.female));
+		if (experiment.getSexes() != null && ! experiment.getSexes().contains(SexType.not_considered)) {
+			sexes = experiment.getSexes();
+		}
+		experiment.setSexes(sexes);
+
+		if (experiment.getSexes().isEmpty()) {
+			experiment.setSexes(Collections.singleton(SexType.not_considered));
+		}
 
 		long endTimeSolr   = System.currentTimeMillis();
 		long timeTakenSolr = endTimeSolr - startTimeSolr;
@@ -267,12 +291,13 @@ public class ChartsController {
 		ParameterDTO parameter = null;
 
 		if (experiment != null) {
-			proc = impressService.getProcedureByStableId(experiment.getPipelineStableId(), experiment.getProcedureStableId());
+			String pipe = (experiment.getPipelineStableId() != null) ? experiment.getPipelineStableId() : pipelineStableId;
+			String procStableId = (experiment.getProcedureStableId() != null) ? experiment.getProcedureStableId() : procedureStableId;
+			proc = impressService.getProcedureByStableId(pipe, procStableId);
 
 			String procedureUrl = "";
 			String parameterUrl = "";
 			if (proc != null) {
-				//procedureDescription = String.format("<a href=\"%s\">%s</a>", is.getProcedureUrlByKey(((Integer)proc.getStableKey()).toString()),  "Procedure: "+ proc.getName());
 				procedureUrl = impressService.getProcedureUrlByStableKeyAndPipelineStableKey(proc.getStableKey(), pipeline.getStableKey());
 				model.addAttribute("procedureUrl", procedureUrl);
 			}
@@ -285,22 +310,25 @@ public class ChartsController {
 				addFlowCytometryImages(accession, model, parameter);
 			}
 
-			String          xUnits                  = parameter.getUnitX();
+			String xUnits = parameter.getUnitX();
 			ObservationType observationTypeForParam = parameter.getObservationType();
 
 			if (parameter.getStableKey() != null) {
 				parameterUrl = impressService.getParameterUrlByProcedureAndParameterKey(proc.getStableKey(), parameter.getStableKey());
 				model.addAttribute("parameterUrl", parameterUrl);
 			}
-			model.addAttribute("alleleSymbol", experiment.getAlleleSymobl());
-			setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymobl());
+			model.addAttribute("alleleSymbol", experiment.getAlleleSymbol());
+			setTitlesForGraph(model, experiment.getGeneticBackgtround(), experiment.getAlleleSymbol());
 
 			if (experiment.getMetadataGroup() != null) {
 				metadata = experiment.getMetadataHtml();
 				metadataList = experiment.getMetadata();
 			}
 
-			try {
+
+			// Do not treat these procedures as standard charts
+			List<String> notDefault = Arrays.asList("IMPC_EVL_", "IMPC_EVM_", "IMPC_EVO_", "IMPC_EVP_", "IMPC_VIA_");
+			if (notDefault.stream().noneMatch(parameterStableId::startsWith)) {
 
 				if (chartType != null) {
 
@@ -361,23 +389,31 @@ public class ChartsController {
 				} else {
 					log.error("chart type is null");
 				}
-
-			} catch (SQLException e) {
-				log.error(ExceptionUtils.getStackTrace(e));
-				statsError = true;
 			}
-		} else {
-			System.out.println("empty experiment");
-			model.addAttribute("emptyExperiment", true);
 		}
 
-		if (parameterStableId.startsWith("IMPC_VIA_")) {
+		if (procedureStableId.equals("IMPC_VIA_001")) {
+			if (parameterStableId.startsWith("IMPC_VIA_")) {
+
+				// IMPC VIA 001
+
+				// Its a viability outcome param which means its a line level query
+				// so we don't use the normal experiment query in experiment service
+				ViabilityDTO viability = experimentService.getSpecificViabilityVersion1ExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession);
+				ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(viability, parameterStableId);
+				model.addAttribute("viabilityDTO", viabilityDTO);
+			}
+		} else if (procedureStableId.equals("IMPC_VIA_002")) {
+
+			// IMPC VIA 002
+
 			// Its a viability outcome param which means its a line level query
 			// so we don't use the normal experiment query in experiment service
-			ViabilityDTO viability    = experimentService.getSpecificViabilityExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession);
-			ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(parameter, viability);
+			ViabilityDTO viability = experimentService.getSpecificViabilityVersion2ExperimentDTO(parameterStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession);
+			ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(viability, parameterStableId);
 			model.addAttribute("viabilityDTO", viabilityDTO);
 		}
+
 
 		if (parameterStableId.startsWith("IMPC_EVL_")) {
 			// Its an E9.5 embryonic viability outcome param which means its a line level query
@@ -473,10 +509,20 @@ public class ChartsController {
 
 			final Set<ObservationDTO> mutants = categoricalResultAndChart.getExperiment().getMutants();
 			final Set<ObservationDTO> controls = categoricalResultAndChart.getExperiment().getControls();
-			numberFemaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
-			numberMaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
-			numberFemaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
-			numberMaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			if (mutants != null) {
+				numberFemaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+				numberMaleMutantMice = (int) mutants.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			} else {
+				numberFemaleMutantMice = 0;
+				numberMaleMutantMice = 0;
+			}
+			if (controls != null) {
+				numberFemaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.female.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+				numberMaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
+			} else {
+				numberFemaleControlMice = 0;
+				numberMaleControlMice = 0;
+			}
 		}
 
 		if (seriesParameterChartData != null) {
@@ -500,19 +546,30 @@ public class ChartsController {
 		model.addAttribute("numberMice", totalSamples);
 
 		if (experiment != null) {
-			List<GenotypePhenotypeDTO> gpList = gpService.getGenotypePhenotypeFor(
-					gene.getMgiAccessionId(),
-					experiment.getParameterStableId(),
-					experiment.getStrain(),
-					experiment.getAlleleAccession(),
-					experiment.getZygosities(),
-					experiment.getOrganisation(),
-					experiment.getSexes());
+			List<GenotypePhenotypeDTO> gpList = new ArrayList<>();
 
-			// If we are displaying a chart for IPGTT, check all possible derived terms associated to IPG procedure
+			if (experiment.getParameterStableId() != null) {
+				List<GenotypePhenotypeDTO> addGpList = gpService.getGenotypePhenotypeFor(
+						gene.getMgiAccessionId(),
+						experiment.getParameterStableId(),
+						experiment.getStrain(),
+						experiment.getAlleleAccession(),
+						experiment.getZygosities(),
+						experiment.getOrganisation(),
+						experiment.getSexes());
+				gpList.addAll(addGpList);
+			}
+
+			// If we are displaying a chart for Embryo viability, check all possible associated terms
 			// and add any significant results to the MP terms that are associated to this data
-			if (parameterStableId.equalsIgnoreCase("IMPC_IPG_002_001")) {
-				for (String param : TimeSeriesConstants.IMPC_IPG_002_001) {
+			if (Stream.of("IMPC_EVL_", "IMPC_EVM_", "IMPC_EVO_", "IMPC_EVP_", "IMPC_VIA_").anyMatch(parameterStableId::startsWith)) {
+				
+				EmbryoViability v = EmbryoViability.E9_5;
+				if (parameterStableId.contains("EVM")) v = EmbryoViability.E12_5;
+				if (parameterStableId.contains("EVO")) v = EmbryoViability.E14_5;
+				if (parameterStableId.contains("EVP")) v = EmbryoViability.E18_5;
+
+				for (String param : v.parameterList) {
 					List<GenotypePhenotypeDTO> addGpList = gpService.getGenotypePhenotypeFor(
 							gene.getMgiAccessionId(),
 							param,
@@ -524,6 +581,23 @@ public class ChartsController {
 					gpList.addAll(addGpList);
 				}
 			}
+
+			// If we are displaying a chart for IPGTT, check all possible derived terms associated to IPG procedure
+			// and add any significant results to the MP terms that are associated to this data
+			if (parameterStableId.equalsIgnoreCase("IMPC_IPG_002_001")) {
+				for (String param : Constants.IMPC_IPG_002_001) {
+					List<GenotypePhenotypeDTO> addGpList = gpService.getGenotypePhenotypeFor(
+							gene.getMgiAccessionId(),
+							param,
+							experiment.getStrain(),
+							experiment.getAlleleAccession(),
+							experiment.getZygosities(),
+							experiment.getOrganisation(),
+							experiment.getSexes());
+					gpList.addAll(addGpList);
+				}
+			}
+
 			//for line level parameters such as viability
 			if (org.mousephenotype.cda.common.Constants.viabilityParameters.contains(parameterStableId)) {
 				for (String param : org.mousephenotype.cda.common.Constants.viabilityParameters) {
@@ -539,7 +613,10 @@ public class ChartsController {
 				}
 			}
 			List<String> phenotypeTerms = gpList.stream().map(GenotypePhenotypeDTO::getMpTermName).distinct().collect(Collectors.toList());
+			//for links to phenotype pages we need the MP_ID
+			List<String> phenotypeIds = gpList.stream().map(GenotypePhenotypeDTO::getMpTermId).distinct().collect(Collectors.toList());
 			model.addAttribute("phenotypes", phenotypeTerms);
+			model.addAttribute("phenotypeIds", phenotypeIds);
 		}
 
 
@@ -607,7 +684,7 @@ public class ChartsController {
     }
 
     
-    private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter,
+    private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] procedureStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter,
     			String[] strains, String[] metadataGroup, String[] zygosity, Model model, ChartType chartType, String[] alleleAccession)
             throws SolrServerException, IOException, GenomicFeatureNotFoundException, ParameterNotFoundException, URISyntaxException {
 
@@ -620,6 +697,7 @@ public class ChartsController {
         List<String> strainsList = getParamsAsList(strains);
         List<String> metadataGroups = getParamsAsList(metadataGroup);
         List<String> pipelineStableIds = getParamsAsList(pipelineStableIdsArray);
+        List<String> procedureStableIds = getParamsAsList(procedureStableIdsArray);
         List<String> alleleAccessions = getParamsAsList(alleleAccession);
 
         // add sexes explicitly here so graphs urls are created separately
@@ -639,8 +717,7 @@ public class ChartsController {
         String allParameters = "";
 
         // All ABR parameters are displayed on the same chart so we don't want to duplicate an identical chart for every ABR parameter
-        List<String> abrParameters =  new ArrayList<>();
-        abrParameters.addAll(paramIds);
+		List<String> abrParameters = new ArrayList<>(paramIds);
         abrParameters.retainAll(Constants.ABR_PARAMETERS);
         if (abrParameters.size() > 1){
             for (int i = 1; i < abrParameters.size(); i++) { // remove all ABR params but the first one
@@ -673,10 +750,19 @@ public class ChartsController {
                 	continue;
                 }
                 pNames.add(StringUtils.capitalize(parameter.getName()) + " (" + parameter.getStableId() + ")");
-				// instead of an experiment list here we need just the outline
-                // of the experiments - how many, observation types
-                Set<String> graphUrlsForParam = graphUtils.getGraphUrls(geneId, parameter, pipelineStableIds, zyList, phenotypingCentersList,
-                								strainsList, metadataGroups, chartType, alleleAccessions);
+
+                Set<String> graphUrlsForParam = graphUtils.getGraphUrls(
+						pipelineStableIds,
+						procedureStableIds,
+						parameter.getStableId(),
+						geneId,
+						alleleAccessions,
+						zyList,
+						strainsList,
+						phenotypingCentersList,
+						metadataGroups
+						);
+
                 allGraphUrlSet.addAll(graphUrlsForParam);
 
             }// end of parameterId iterations
@@ -721,7 +807,7 @@ public class ChartsController {
      */
     private List<String> getParamsAsList(String[] parameterIds) {
 
-        List<String> paramIds = new ArrayList<String>();
+        List<String> paramIds = new ArrayList<>();
         if (parameterIds != null) {
             paramIds.addAll(Arrays.stream(parameterIds).collect(Collectors.toSet()));
         }

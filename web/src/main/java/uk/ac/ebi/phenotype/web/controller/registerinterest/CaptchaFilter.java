@@ -7,8 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import uk.ac.ebi.phenotype.web.util.CaptchaHttpProxy;
 
@@ -20,8 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Configuration
-@ComponentScan
+@Component
 public class CaptchaFilter extends OncePerRequestFilter {
 
     private final Logger           log              = LoggerFactory.getLogger(this.getClass().getCanonicalName());

@@ -94,6 +94,12 @@ public class SolrServerConfig {
         return new HttpSolrClient.Builder(internalSolrUrl + "/gene").build();
     }
 
+    // essential gene
+    @Bean(name = "essentialGeneCore")
+    HttpSolrClient getEssentialGeneCore() {
+        return new HttpSolrClient.Builder(internalSolrUrl + "/essentialgenes").build();
+    }
+
     // genotype-phenotype
     // TK: this core seems to be used only in the test packages - remove?
     @Bean(name = "genotypePhenotypeCore")

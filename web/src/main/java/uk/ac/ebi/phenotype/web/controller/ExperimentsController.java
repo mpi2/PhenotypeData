@@ -17,9 +17,10 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.mousephenotype.cda.common.Constants;
+import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.MpService;
-import org.mousephenotype.cda.solr.service.ObservationService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.CombinedObservationKey;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
@@ -35,7 +36,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import uk.ac.ebi.phenotype.chart.Constants;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
@@ -59,17 +59,18 @@ public class ExperimentsController {
     private final GenotypePhenotypeService gpService;
     private final StatisticalResultService srService;
     private final MpService mpService;
-    private final ObservationService observationService;
+    private final GeneService geneService;
     private PhenomeChartProvider phenomeChartProvider = new PhenomeChartProvider();
 
     public ExperimentsController(@NotNull @Named("genotype-phenotype-service") GenotypePhenotypeService gpService,
                                  @NotNull @Named("statistical-result-service") StatisticalResultService srService,
                                  @NotNull MpService mpService,
-                                 @NotNull ObservationService observationService) {
+                                 @NotNull GeneService geneService
+                                 ) {
         this.gpService = gpService;
         this.srService = srService;
         this.mpService = mpService;
-        this.observationService = observationService;
+        this.geneService = geneService;
     }
 
     /**
@@ -91,11 +92,10 @@ public class ExperimentsController {
             throws IOException, SolrServerException, JSONException {
 
         Set<ExperimentsDataTableRow> experimentRows = new HashSet<>();
-        int rows = 0;
         String graphBaseUrl = request.getAttribute("baseUrl").toString();
 
-        // JM and JW Decided to get observations first as a whole set and then replace with SR result rows where appropriate
-        Map<CombinedObservationKey, ExperimentsDataTableRow> srResult = getCombinedObservationKeyExperimentsDataTableRowMap(geneAccession, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, procedureName, mpTermId, resource, experimentRows, graphBaseUrl);
+        // Get data from gene core
+        Map<CombinedObservationKey, ExperimentsDataTableRow> srResult = getCombinedObservationKeyExperimentsDataTableRowMap(geneAccession, mpTermId, experimentRows);
 
 
         JSONArray experimentRowsJson = new JSONArray();
@@ -129,6 +129,7 @@ public class ExperimentsController {
                 experimentRowJson.put(ObservationDTO.ALLELE_ACCESSION_ID, experimentsDataTableRow.getAllele().getAccessionId());
                 experimentRowJson.put(ObservationDTO.GENE_ACCESSION_ID, experimentsDataTableRow.getGene().getAccessionId());
                 experimentRowJson.put(ObservationDTO.PHENOTYPING_CENTER, experimentsDataTableRow.getPhenotypingCenter());
+                experimentRowJson.put(ObservationDTO.PROCEDURE_STABLE_ID, experimentsDataTableRow.getProcedure().getStableId());
                 experimentRowJson.put(ObservationDTO.PIPELINE_STABLE_ID, experimentsDataTableRow.getPipeline().getStableId());
                 experimentRowJson.put(ObservationDTO.PROCEDURE_NAME, experimentsDataTableRow.getProcedure().getName());
                 experimentRowJson.put(ObservationDTO.PARAMETER_STABLE_ID, experimentsDataTableRow.getParameter().getStableId());
@@ -188,30 +189,20 @@ public class ExperimentsController {
         return "experimentsTableFrag";
     }
 
-    private Map<CombinedObservationKey, ExperimentsDataTableRow> getCombinedObservationKeyExperimentsDataTableRowMap(@RequestParam(required = true, value = "geneAccession") String geneAccession, @RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol, @RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter, @RequestParam(required = false, value = "pipelineName") List<String> pipelineName, @RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId, @RequestParam(required = false, value = "procedureName") List<String> procedureName, @RequestParam(required = false, value = "mpTermId") List<String> mpTermId, @RequestParam(required = false, value = "resource") ArrayList<String> resource, Set<ExperimentsDataTableRow> experimentRows, String graphBaseUrl) throws IOException, SolrServerException {
-        Set<ExperimentsDataTableRow> experimentRowsFromObservations = observationService.getAllPhenotypesFromObservationsByGeneAccession(geneAccession);
-
-        Map<CombinedObservationKey, ExperimentsDataTableRow> srResult = srService.getAllDataRecords(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl);
-        Map<CombinedObservationKey, ExperimentsDataTableRow> gpResult = gpService.getAllDataRecords(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl);
+    private Map<CombinedObservationKey, ExperimentsDataTableRow> getCombinedObservationKeyExperimentsDataTableRowMap(
+            String geneAccession,
+            List<String> mpTermId,
+            Set<ExperimentsDataTableRow> experimentRows
+    ) throws IOException, SolrServerException {
+        Set<ExperimentsDataTableRow> experimentRowsFromObservations = geneService.getAllData(geneAccession);
         Map<CombinedObservationKey, ExperimentsDataTableRow> observationsMap = experimentRowsFromObservations.stream().collect(Collectors.toMap(ExperimentsDataTableRow::getCombinedKey, row -> row));
-        Set<CombinedObservationKey> intersection = observationsMap.keySet();
-        System.out.println("observations map="+observationsMap);
-        intersection.retainAll(srResult.keySet());
-        for(CombinedObservationKey obs : intersection) {
-            observationsMap.get(obs).setStatus(srResult.get(obs).getStatus());
-            observationsMap.get(obs).setpValue(srResult.get(obs).getpValue());
-            observationsMap.get(obs).setEvidenceLink(srResult.get(obs).getEvidenceLink());
-            if (gpResult.get(obs) != null) {
-                observationsMap.get(obs).setPhenotypeTerm(gpResult.get(obs).getPhenotypeTerm());
-            }
-        }
 
         if(mpTermId != null && mpTermId.size() > 0) {
-            experimentRows.addAll(intersection.stream().map(key -> observationsMap.get(key)).collect(Collectors.toSet()));
+            experimentRows.addAll(experimentRowsFromObservations.stream().filter(x-> mpTermId.contains(x.getPhenotypeTerm().getId())).collect(Collectors.toSet()));
         } else {
             experimentRows.addAll(experimentRowsFromObservations);
         }
-        return srResult;
+        return observationsMap;
     }
 
 
@@ -227,7 +218,7 @@ public class ExperimentsController {
             @RequestParam(required = false, value = "pipelineName") List<String> pipelineName,
             @RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId,
             @RequestParam(required = false, value = "procedureName") List<String> procedureName,
-            @RequestParam(required = false, value = "mpTermId") List<String> mpTermId,
+            @RequestParam(required = false, value = "mpTerm") List<String> mpTermNames,
             @RequestParam(required = false, value = "resource") ArrayList<String> resource,
             Model model,
             HttpServletRequest request)
@@ -236,7 +227,7 @@ public class ExperimentsController {
         AllelePageDTO allelePageDTO = srService.getAllelesInfo(geneAccession, null, null, null, null, null, null, null);
         Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
         String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
-        experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermId, graphBaseUrl));
+        experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermNames, graphBaseUrl));
         //remove any trace of viability data from chart as we decided as a group in ticket #184
         //experimentRows.remove("IMPC_VIA_001_001");
         Map<String, List<ExperimentsDataTableRow>> experimentRowsToFilter=new HashMap<>();//need
@@ -246,7 +237,7 @@ public class ExperimentsController {
                 iterator.remove();//using the iterator directly resolves any concurrent modification exceptions
             }
         }
-        Map<String, Object> chartData = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
+        Map<String, Object> chartData = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.P_VALUE_THRESHOLD, allelePageDTO.getParametersByProcedure());
         model.addAttribute("chart", chartData.get("chart"));
         model.addAttribute("count", chartData.get("count"));
         return "experimentsChartFrag";
@@ -277,7 +268,7 @@ public class ExperimentsController {
             rows += list.size();
         }
 
-        Map<String, Object> chart = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.SIGNIFICANT_P_VALUE, allelePageDTO.getParametersByProcedure());
+        Map<String, Object> chart = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.P_VALUE_THRESHOLD, allelePageDTO.getParametersByProcedure());
         //top level mp names often are not in same order as ids so this mehod if used for getting name from id is wrong. SR indexer needs fixing.
         Map<String, String> phenotypeTopLevels = srService.getTopLevelMPTerms(geneAccession, null);
         List<MpDTO> mpTerms = new ArrayList<>();

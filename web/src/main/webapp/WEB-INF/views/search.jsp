@@ -251,7 +251,7 @@
                                                     <c:forEach var="orth" items="${gene.humanGeneSymbol}" varStatus="loop">${orth}<c:if test="${!loop.last}">, </c:if></c:forEach><br>
                                                     <b>Synonyms: </b>
                                                     <c:forEach var="syn" items="${gene.markerSynonym}" varStatus="loop">
-                                                        ${syn}<c:if test="${!loop.last}">,</c:if>
+                                                        <t:formatAllele>${syn}</t:formatAllele><c:if test="${!loop.last}">,</c:if>
                                                     </c:forEach>
                                                 </p>
                                             </div>

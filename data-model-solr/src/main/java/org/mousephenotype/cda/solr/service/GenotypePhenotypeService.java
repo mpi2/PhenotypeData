@@ -16,6 +16,7 @@
 package org.mousephenotype.cda.solr.service;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.analysis.function.Cos;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
@@ -29,7 +30,6 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
 import org.mousephenotype.cda.db.pojo.GenesSecondaryProject;
-import org.mousephenotype.cda.db.repositories.GenesSecondaryProjectRepository;
 import org.mousephenotype.cda.dto.AggregateCountXY;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -69,14 +69,14 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
 
     protected ImpressService                  impressService;
     protected SolrClient                      genotypePhenotypeCore;
-    protected GenesSecondaryProjectRepository genesSecondaryProjectRepository;
+    protected GenesSecondaryProjectServiceIdg genesSecondaryProjectRepository;
 
 
     @Inject
     public GenotypePhenotypeService(
             @NotNull ImpressService impressService,
             @NotNull @Qualifier("genotypePhenotypeCore") SolrClient genotypePhenotypeCore,
-            @NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository)
+            @NotNull GenesSecondaryProjectServiceIdg genesSecondaryProjectRepository)
     {
         super();
         this.impressService = impressService;
@@ -283,6 +283,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         } else if (field.equals(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID)){
             pivotFacet =  GenotypePhenotypeDTO.PROCEDURE_STABLE_ID + "," + StatisticalResultDTO.PROCEDURE_NAME;
         }
+        pivotFacet = pivotFacet + "," + GenotypePhenotypeDTO.MARKER_SYMBOL + "," + StatisticalResultDTO.MARKER_ACCESSION_ID;
 
         if (resourceName != null){
             q.setQuery(GenotypePhenotypeDTO.RESOURCE_NAME + ":" + StringUtils.join(resourceName, " OR " + GenotypePhenotypeDTO.RESOURCE_NAME + ":"));
@@ -299,10 +300,18 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
 
         for( PivotField pivot : response.getFacetPivot().get(pivotFacet)){
             if (pivot.getPivot() != null){
-                String id = pivot.getValue().toString();
-                String name = pivot.getPivot().get(0).getValue().toString();
+                String parameterId = pivot.getValue().toString();
+                String parameterName = pivot.getPivot().get(0).getValue().toString();
                 int count = pivot.getPivot().get(0).getCount();
-                String[] row = {id, name, Integer.toString(count)};
+                List<String> geneSymbols = new ArrayList<>();
+                List<String> geneAccs = new ArrayList<>();
+                for (int i = 0; i < pivot.getPivot().get(0).getPivot().size(); i++) {
+                    geneSymbols.add(pivot.getPivot().get(0).getPivot().get(i).getValue().toString());
+                    geneAccs.add(pivot.getPivot().get(0).getPivot().get(i).getPivot().get(0).getValue().toString());
+                }
+                String genes = StringUtils.join(geneSymbols, "|");
+                String accs = StringUtils.join(geneAccs, "|");
+                String[] row = {parameterId, parameterName, genes, accs, Integer.toString(count)};
                 res.add(row);
             }
         }
@@ -699,10 +708,10 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
             query.addFilterQuery(GenotypePhenotypeDTO.PARAMETER_STABLE_ID + ":\"" + parameterStableId + "\"");
         }
 
-        if (sex != null) {
+        if (sex != null && sex.size() > 0) {
             String sexes = sex.stream().map(SexType::getName).collect(Collectors.joining(" OR "));
             if(sexes.equalsIgnoreCase("female OR male") || sexes.equalsIgnoreCase("male OR female")){
-                sexes="female OR male OR both";//to account for where entries in solr have used both instead of female and male sexes e.g. threei data has some
+                sexes="female OR male OR both OR not_considered";//to account for where entries in solr have used both instead of female and male sexes e.g. threei data has some
             }
             query.addFilterQuery(GenotypePhenotypeDTO.SEX + ":(" + sexes + ")");
         }
@@ -897,11 +906,17 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
 
 
 	        String sex = phen.getString(GenotypePhenotypeDTO.SEX);
-	
-	        SexType sexType = SexType.valueOf(sex);
-	        sum.setSex(sexType);
 
+	try {
+        SexType sexType = SexType.getByDisplayName(sex);
+        sum.setSex(sexType);
 
+    }catch (Exception e
+
+    ){
+	    e.printStackTrace();
+        System.out.println("sex is |"+sex+"|");
+    };
             if( phen.has(GenotypePhenotypeDTO.LIFE_STAGE_NAME)) {
                 String lifeStageName = phen.getString(GenotypePhenotypeDTO.LIFE_STAGE_NAME);
                 sum.setLifeStageName(lifeStageName);
@@ -950,13 +965,20 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
 	
 	        if (phen.has(GenotypePhenotypeDTO.P_VALUE)) {
 	            sum.setpValue(new Float(phen.getString(GenotypePhenotypeDTO.P_VALUE)));
-	            sum.setEffectSize(new Float(phen.getString(GenotypePhenotypeDTO.EFFECT_SIZE)));
 	        }
-	        
-	        ImpressBaseDTO procedure = new ImpressBaseDTO();
+
+            if (phen.has(GenotypePhenotypeDTO.EFFECT_SIZE)) {
+                sum.setEffectSize(new Float(phen.getString(GenotypePhenotypeDTO.EFFECT_SIZE)));
+            }
+
+
 	        if (phen.has(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID)) {
-	            procedure.setStableId(phen.getString(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID));
-	            procedure.setName(phen.getString(GenotypePhenotypeDTO.PROCEDURE_NAME));
+	            // There should not ever be more than 1 procedure in the list
+                final JSONArray jsonProcedureStableIds = phen.getJSONArray(GenotypePhenotypeDTO.PROCEDURE_STABLE_ID);
+                final String jsonProcedureName = phen.getString(GenotypePhenotypeDTO.PROCEDURE_NAME);
+                ImpressBaseDTO procedure = new ImpressBaseDTO();
+                procedure.setStableId(jsonProcedureStableIds.getString(0));
+                procedure.setName(jsonProcedureName);
 	            sum.setProcedure(procedure);
 	        } else {
                 sum.getStatus().addError("procedure_stable_id");
@@ -980,7 +1002,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
     }
 
     public SolrQuery buildQuery(String geneAccession, List<String> procedureName, List<String> alleleSymbol, List<String> phenotypingCenter,
-                                List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, Integer rows, List<String> sex, List<String> zygosities,
+                                List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermNames, Integer rows, List<String> sex, List<String> zygosities,
                                 String strain, String parameterStableId, String pipelineStableId, String metadataGroup, String alleleAccessionId){
 
         SolrQuery query = new SolrQuery();
@@ -998,11 +1020,15 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
             query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":(\""
                     + StringUtils.join(phenotypingCenter, "\" OR \"") + "\")");
         }
-        if (mpTermId != null) {
-            query.addFilterQuery(GenotypePhenotypeDTO.MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-                    + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
+        if (mpTermNames != null && mpTermNames.size() > 0) {
+            ArrayList<String> mpTermNamesSplit = new ArrayList<>();
+            for(String mpTermName : mpTermNames) {
+                mpTermNamesSplit.addAll(new ArrayList<>(Arrays.asList(mpTermName.split(" or "))));
+            }
+            query.addFilterQuery(GenotypePhenotypeDTO.MP_TERM_NAME + ":(\"" + StringUtils.join(mpTermNamesSplit, "\" OR \"") + "\") OR "
+                    + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + ":(\"" + StringUtils.join(mpTermNamesSplit, "\" OR \"") + "\") OR "
                    // + StatisticalResultDTO.MP_TERM_ID_OPTIONS + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
-                    + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"") + "\")");
+                    + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_NAME + ":(\"" + StringUtils.join(mpTermNamesSplit, "\" OR \"") + "\")");
                   //  + GenotypePhenotypeDTO.FEMALE_TOP_LEVEL_MP_TERM_ID + ":(\"" + StringUtils.join(mpTermId, "\" OR \"")
                     //+ "\") OR " + StatisticalResultDTO.FEMALE_MP_TERM_ID + ":(\""
                    // + StringUtils.join(mpTermId, "\" OR \"") + "\") OR "
@@ -1099,6 +1125,15 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         try {
 
             Set<GenotypePhenotypeDTO> pleiotropyGenes = getPleiotropyGenes(topLevelMpTerms, idg, idgClass);
+//            for(GenotypePhenotypeDTO dto: pleiotropyGenes){
+//                System.out.println("pleiotropyGene="+dto.getTopLevelMpTermName());
+//                if(dto.getTopLevelMpTermName()==null){
+//                    System.out.println(dto);
+//                }
+//            }
+
+
+
             Set<String> topLevelMpTermNames = pleiotropyGenes
                     .stream()
                     .map(GenotypePhenotypeDTO::getTopLevelMpTermName)
@@ -1247,7 +1282,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
                 GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME);
 
         SolrQuery query = new SolrQuery()
-                .setQuery(GenotypePhenotypeDTO.MP_TERM_ID + ":*")
+                .setQuery(GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_NAME + ":*")
                 .setRows(Integer.MAX_VALUE)
                 .setFields(String.join(",", fieldList));
 
@@ -1262,8 +1297,8 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
             // If the idgClass has not been set, get all genes for the idg project, else filter for the class specified
             Set<GenesSecondaryProject> idgGenes =
                     idgClass == null ?
-                            genesSecondaryProjectRepository.getAllBySecondaryProjectId("idg") :
-                            genesSecondaryProjectRepository.getAllBySecondaryProjectIdAndGroupLabel("idg", idgClass);
+                            genesSecondaryProjectRepository.getAllBySecondaryProjectId() :
+                            genesSecondaryProjectRepository.getAllBySecondaryProjectIdAndGroupLabel(idgClass);
             Set<String> idgGeneIds = idgGenes
                     .stream()
                     .map(GenesSecondaryProject::getMgiGeneAccessionId)
@@ -1411,8 +1446,8 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         gene.setAccessionId(dto.getMarkerAccessionId());
         gene.setSymbol(dto.getMarkerSymbol());
 
-        ImpressBaseDTO procedure  = new ImpressBaseDTO(null, Long.parseLong(dto.getProcedureStableKey()), dto.getProcedureStableId(), dto.getProcedureName());
-        ImpressBaseDTO parameter = new ImpressBaseDTO(null, Long.parseLong(dto.getParameterStableKey()), dto.getParameterStableId(), dto.getParameterName());
+        ImpressBaseDTO procedure  = new ImpressBaseDTO(null, Long.parseLong(dto.getProcedureStableKey().get(0)), dto.getProcedureStableId().get(0), dto.getProcedureName());
+        ImpressBaseDTO parameter = new ImpressBaseDTO(null, Long.parseLong(dto.getParameterStableKey().get(0)), dto.getParameterStableId(), dto.getParameterName());
         ImpressBaseDTO pipeline = new ImpressBaseDTO(null,Long.parseLong( dto.getPipelineStableKey()), dto.getPipelineStableId(), dto.getPipelineName());
 
         ZygosityType zygosity = dto.getZygosity() != null ? ZygosityType.valueOf(dto.getZygosity()) : ZygosityType.not_applicable;

@@ -18,7 +18,6 @@ package uk.ac.ebi.phenotype.chart;
 import org.apache.commons.lang3.text.WordUtils;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
@@ -32,8 +31,6 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -42,27 +39,19 @@ public class CategoricalChartAndTableProvider {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-	private final ImpressService impressService;
-
-	@Inject
-	public CategoricalChartAndTableProvider(ImpressService impressService) {
-		this.impressService = impressService;
-	}
-
-
 	/**
 	 * return a list of categorical result and chart objects - one for each
 	 * ExperimentDTO
 	 */
-	public CategoricalResultAndCharts doCategoricalData(ExperimentDTO experiment, ParameterDTO parameter,
-														String numberString)
-	throws SQLException {
+	public CategoricalResultAndCharts doCategoricalData(
+			ExperimentDTO experiment,
+			ParameterDTO parameter,
+			String numberString) {
 
 		logger.debug("running categorical data");
 		
 			List<String> categories = parameter.getCategories();
-			//System.out.println("categories===="+categories);
-			
+
 			//for the IMPC_EYE_092_001 derived parameter hack the categories to match the SR core????
 			if(parameter.getStableId().equals("IMPC_EYE_092_001")){
 				categories=new ArrayList<>();
@@ -80,6 +69,9 @@ public class CategoricalChartAndTableProvider {
 			categoricalResultAndCharts.setStatsResults(statsResults);
 			CategoricalSet controlSet = new CategoricalSet();
 			controlSet.setName(WordUtils.capitalize(sexType.name()) + " Control");
+			if (sexType.equals(SexType.not_considered)) {
+				controlSet.setName(WordUtils.capitalize("Control"));
+			}
 			controlSet.setSexType(sexType);
 
 			for (String category : categories) {
@@ -88,15 +80,21 @@ public class CategoricalChartAndTableProvider {
 				}
 				CategoricalDataObject controlCatData = new CategoricalDataObject();
 				controlCatData.setName(WordUtils.capitalize(sexType.name()) + " Control");
+				if (sexType.equals(SexType.not_considered)) {
+					controlSet.setName(WordUtils.capitalize("Control"));
+				}
 				controlCatData.setCategory(category);
 				long controlCount = 0;
-				
-				for (ObservationDTO control : experiment.getControls()) {
-					// get the attributes of this data point
-					SexType docSexType = SexType.valueOf(control.getSex());
-					String categoString = control.getCategory();
-					if (categoString.equals(category) && docSexType.equals(sexType)) {
-						controlCount++;
+
+				// Embryo parameters do not generally have controls
+				if (experiment.getControls() != null) {
+					for (ObservationDTO control : experiment.getControls()) {
+						// get the attributes of this data point
+						SexType docSexType = SexType.getByDisplayName(control.getSex());
+						String categoString = control.getCategory();
+						if (categoString.equals(category) && (docSexType.equals(sexType) || sexType.equals(SexType.not_considered))) {
+							controlCount++;
+						}
 					}
 				}
 				controlCatData.setCount(controlCount);
@@ -109,6 +107,9 @@ public class CategoricalChartAndTableProvider {
 				CategoricalSet zTypeSet = new CategoricalSet();
 				// hold the data for each bar on graph hom, normal, abnormal
 				zTypeSet.setName(WordUtils.capitalize(sexType.name()) + " " + WordUtils.capitalize(zType.name()));
+				if (sexType.equals(SexType.not_considered)) {
+					zTypeSet.setName(WordUtils.capitalize(WordUtils.capitalize(zType.name()) + " Mutant"));
+				}
 				for (String category : categories) {
 					if (category.equals("imageOnly")){
 						continue;
@@ -122,13 +123,11 @@ public class CategoricalChartAndTableProvider {
 					for (ObservationDTO expDto : expObservationsSet) {
 
 						// get the attributes of this data point
-						SexType docSexType = SexType.valueOf(expDto
-						.getSex());
+						SexType docSexType = SexType.getByDisplayName(expDto.getSex());
 						String categoString = expDto.getCategory();
-						//System.out.println("mutant category string="+categoString);
 						// get docs that match the criteria and add
 						// 1 for each that does
-						if (categoString.equals(category) && docSexType.equals(sexType)) {
+						if (categoString.equals(category) && (docSexType.equals(sexType) || sexType.equals(SexType.not_considered))) {
 							mutantCount++;
 						}
 					}
@@ -139,11 +138,13 @@ public class CategoricalChartAndTableProvider {
 					expCatData.setCount(mutantCount);
 					StatisticalResultDTO tempStatsResult = null;
 					for (StatisticalResultDTO result : statsResults) {
-						if(result.getSex() != null && SexType.valueOf(result.getSex()).equals(SexType.both)){
-							categoricalResultAndCharts.setCombinedPValue(result.getpValue());
+						if(result.getSex() != null && (SexType.getByDisplayName(result.getSex()).equals(SexType.both) || SexType.getByDisplayName(result.getSex()).equals(SexType.not_considered))){
+							categoricalResultAndCharts.setCombinedPValue(result.getPValue());
 						}
+						categoricalResultAndCharts.setFemalePValue(result.getFemaleKoEffectPValue());
+						categoricalResultAndCharts.setMalePValue(result.getMaleKoEffectPValue());
 						if (result.getZygosity() != null && result.getSex() != null) {
-							if (ZygosityType.valueOf(result.getZygosity()).equals(zType) && SexType.valueOf(result.getSex()).equals(sexType)) {
+							if (ZygosityType.getByDisplayName(result.getZygosity()).equals(zType) && SexType.getByDisplayName(result.getSex()).equals(sexType)) {
 								expCatData.setResult(result);
 								result.setSex(sexType.getName());
 								result.setZygosity(zType.getName());
@@ -152,10 +153,8 @@ public class CategoricalChartAndTableProvider {
 						}
 					}
 
-					// //TODO get multiple p values when necessary
-					// System.err.println("ERROR WE NEED to change the code to handle multiple p values and max effect!!!!!!!!");
-					if (tempStatsResult != null && tempStatsResult.getpValue() != null) {
-						expCatData.setpValue(tempStatsResult.getpValue());
+					if (tempStatsResult != null && tempStatsResult.getPValue() != null) {
+						expCatData.setpValue(tempStatsResult.getPValue());
 						if (tempStatsResult.getEffectSize() != null) {
 							expCatData.setMaxEffect(tempStatsResult.getEffectSize());
 						}

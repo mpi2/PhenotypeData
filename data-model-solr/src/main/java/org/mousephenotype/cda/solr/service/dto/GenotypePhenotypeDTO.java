@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
+import lombok.*;
 import org.apache.solr.client.solrj.beans.Field;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.solr.core.mapping.SolrDocument;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+@Data
 @SolrDocument(collection = "genotype-phenotype")
 public class GenotypePhenotypeDTO {
 
@@ -173,7 +175,7 @@ public class GenotypePhenotypeDTO {
     String projectExternalId;
 
     @Field(PROJECT_NAME)
-    String projectName;
+    List<String> projectName;
 
     @Field(PROJECT_FULLNAME)
     String projectFullname;
@@ -203,10 +205,10 @@ public class GenotypePhenotypeDTO {
     String procedureName;
 
     @Field(PROCEDURE_STABLE_ID)
-    String procedureStableId;
+   List<String> procedureStableId;
 
     @Field(PROCEDURE_STABLE_KEY)
-    String procedureStableKey;
+    List<String> procedureStableKey;
 
     @Field(PARAMETER_NAME)
     String parameterName;
@@ -215,7 +217,7 @@ public class GenotypePhenotypeDTO {
     String parameterStableId;
 
     @Field(PARAMETER_STABLE_KEY)
-    String parameterStableKey;
+    List<String> parameterStableKey;
 
     @Field(STATISTICAL_METHOD)
     String statisticalMethod;
@@ -238,44 +240,6 @@ public class GenotypePhenotypeDTO {
     @Field(LIFE_STAGE_NAME)
     String lifeStageName;
 
-    public String getId() {
-
-        return id;
-    }
-
-    public void setId(String id) {
-
-        this.id = id;
-    }
-
-    public Long getOntologyDbId() {
-        return ontologyDbId;
-    }
-
-    public void setOntologyDbId(Long ontologyDbId) {
-        this.ontologyDbId = ontologyDbId;
-    }
-
-    public String getAssertionType() {
-        return assertionType;
-    }
-
-    public void setAssertionType(String assertionType) {
-        this.assertionType = assertionType;
-    }
-
-    public String getAssertionTypeId() {
-        return assertionTypeId;
-    }
-
-    public void setAssertionTypeId(String assertionTypeId) {
-        this.assertionTypeId = assertionTypeId;
-    }
-
-    public List<String> getAnatomyTermId() {
-        return anatomyTermId;
-    }
-
     public void addAnatomyTermId(String anatomyTermId){
         if (this.anatomyTermId == null){
             this.anatomyTermId = new ArrayList<>();
@@ -283,31 +247,11 @@ public class GenotypePhenotypeDTO {
         this.anatomyTermId.add(anatomyTermId);
     }
 
-    public void setAnatomyTermId(List<String> anatomyTermId) {
-        this.anatomyTermId = anatomyTermId;
-    }
-
-    public List<String> getAnatomyTermName() {
-        return anatomyTermName;
-    }
-
-    public void setAnatomyTermName(List<String> anatomyTermName) {
-        this.anatomyTermName = anatomyTermName;
-    }
-
     public void addAnatomyTermName(String anatomyTermName){
         if (this.anatomyTermName == null){
             this.anatomyTermName = new ArrayList<>();
         }
         this.anatomyTermName.add(anatomyTermName);
-    }
-
-    public List<String> getIntermediateAnatomyTermId() {
-        return intermediateAnatomyTermId;
-    }
-
-    public void setIntermediateAnatomyTermId(List<String> intermediateAnatomyTermId) {
-        this.intermediateAnatomyTermId = intermediateAnatomyTermId;
     }
 
     public void addIntermediateAnatomyTermId(String intermediateAnatomyTermId){
@@ -328,14 +272,6 @@ public class GenotypePhenotypeDTO {
         }
     }
 
-    public List<String> getIntermediateAnatomyTermName() {
-        return intermediateAnatomyTermName;
-    }
-
-    public void setIntermediateAnatomyTermName(List<String> intermediateAnatomyTermName) {
-        this.intermediateAnatomyTermName = intermediateAnatomyTermName;
-    }
-
     public void addIntermediateAnatomyTermName(String intermediateAnatomyTermName){
         if (this.intermediateAnatomyTermName == null){
             this.intermediateAnatomyTermName = new ArrayList<>();
@@ -352,14 +288,6 @@ public class GenotypePhenotypeDTO {
                 this.intermediateAnatomyTermName.add(term);
             }
         }
-    }
-
-    public List<String> getTopLevelAnatomyTermId() {
-        return topLevelAnatomyTermId;
-    }
-
-    public void setTopLevelAnatomyTermId(List<String> topLevelAnatomyTermId) {
-        this.topLevelAnatomyTermId = topLevelAnatomyTermId;
     }
 
     public void addTopLevelAnatomyTermId(String topLevelAnatomyTermId){
@@ -380,14 +308,6 @@ public class GenotypePhenotypeDTO {
         }
     }
 
-    public List<String> getTopLevelAnatomyTermName() {
-        return topLevelAnatomyTermName;
-    }
-
-    public void setTopLevelAnatomyTermName(List<String> topLevelAnatomyTermName) {
-        this.topLevelAnatomyTermName = topLevelAnatomyTermName;
-    }
-
     public void addTopLevelAnatomyTermName(String topLevelAnatomyTermName){
         if (this.topLevelAnatomyTermName == null){
             this.topLevelAnatomyTermName = new ArrayList<>();
@@ -406,620 +326,10 @@ public class GenotypePhenotypeDTO {
         }
     }
 
-    public String getLifeStageAcc() {
-        return lifeStageAcc;
-    }
-
-    public String getLifeStageName() {
-        return lifeStageName;
-    }
-
     public String getAssertionTypeID() {
 
         return assertionTypeId;
     }
 
-    public String getMpathTermId() {
-
-        return mpathTermId;
-    }
-
-    public void setMpathTermId(String mpathTermId) {
-
-        this.mpathTermId = mpathTermId;
-    }
-
-    public String getMpathTermName() {
-
-        return mpathTermName;
-    }
-
-    public void setMpathTermName(String mpathTermName) {
-
-        this.mpathTermName = mpathTermName;
-    }
-
-    public String getMpTermId() {
-
-        return mpTermId;
-    }
-
-    public void setMpTermId(String mpTermId) {
-
-        this.mpTermId = mpTermId;
-    }
-
-    public String getMpTermName() {
-
-        return mpTermName;
-    }
-
-    public void setMpTermName(String mpTermName) {
-
-        this.mpTermName = mpTermName;
-    }
-
-    public List<String> getAltMpTermId() {
-
-        return altMpTermId;
-    }
-
-    public void setAltMpTermId(List<String> altMpTermId) {
-
-        this.altMpTermId = altMpTermId;
-    }
-
-    public List<String> getTopLevelMpTermId() {
-
-        return topLevelMpTermId;
-    }
-
-    public void setTopLevelMpTermId(Collection<String> topLevelMpTermId) {
-        if (topLevelMpTermId != null){
-            this.topLevelMpTermId = new ArrayList<>();
-            this.topLevelMpTermId.addAll(topLevelMpTermId);
-        }
-    }
-
-    public List<String> getTopLevelMpTermName() {
-
-        return topLevelMpTermName;
-    }
-
-    public void setTopLevelMpTermName(Collection<String> topLevelMpTermName) {
-        if (topLevelMpTermName != null){
-            this.topLevelMpTermName = new ArrayList<>();
-            this.topLevelMpTermName.addAll(topLevelMpTermName);
-        }
-    }
-
-
-    public List<String> getIntermediateMpTermId() {
-
-        return intermediateMpTermId;
-    }
-
-    public void setIntermediateMpTermId(Collection<String> intermediateMpTermId) {
-
-        if (intermediateMpTermId != null){
-            this.intermediateMpTermId = new ArrayList<>();
-            this.intermediateMpTermId.addAll(intermediateMpTermId);
-        }
-    }
-
-    public List<String> getIntermediateMpTermName() {
-
-        return intermediateMpTermName;
-    }
-
-    public void setIntermediateMpTermName(Collection<String> intermediateMpTermName) {
-        if (intermediateMpTermName != null){
-            this.intermediateMpTermName = new ArrayList<>();
-            this.intermediateMpTermName.addAll(intermediateMpTermName);
-        }
-    }
-
-    public String getMarkerSymbol() {
-
-        return markerSymbol;
-    }
-
-    public void setMarkerSymbol(String markerSymbol) {
-
-        this.markerSymbol = markerSymbol;
-    }
-
-    public String getMarkerAccessionId() {
-
-        return markerAccessionId;
-    }
-
-    public void setMarkerAccessionId(String markerAccessionId) {
-
-        this.markerAccessionId = markerAccessionId;
-    }
-
-    public String getColonyId() {
-
-        return colonyId;
-    }
-
-    public void setColonyId(String colonyId) {
-
-        this.colonyId = colonyId;
-    }
-
-    public String getAlleleName() {
-
-        return alleleName;
-    }
-
-    public void setAlleleName(String alleleName) {
-
-        this.alleleName = alleleName;
-    }
-
-    public String getAlleleSymbol() {
-
-        return alleleSymbol;
-    }
-
-    public void setAlleleSymbol(String alleleSymbol) {
-
-        this.alleleSymbol = alleleSymbol;
-    }
-
-    public String getAlleleAccessionId() {
-
-        return alleleAccessionId;
-    }
-
-    public void setAlleleAccessionId(String alleleAccessionId) {
-
-        this.alleleAccessionId = alleleAccessionId;
-    }
-
-    public String getStrainName() {
-
-        return strainName;
-    }
-
-    public void setStrainName(String strainName) {
-
-        this.strainName = strainName;
-    }
-
-    public String getStrainAccessionId() {
-
-        return strainAccessionId;
-    }
-
-    public void setStrainAccessionId(String strainAccessionId) {
-
-        this.strainAccessionId = strainAccessionId;
-    }
-
-    public String getGeneticBackground() {
-        return geneticBackground;
-    }
-
-    public void setGeneticBackground(String geneticBackground) {
-        this.geneticBackground = geneticBackground;
-    }
-
-    public String getPhenotypingCenter() {
-
-        return phenotypingCenter;
-    }
-
-    public void setPhenotypingCenter(String phenotypingCenter) {
-
-        this.phenotypingCenter = phenotypingCenter;
-    }
-
-    public String getProjectExternalId() {
-
-        return projectExternalId;
-    }
-
-    public void setProjectExternalId(String projectExternalId) {
-
-        this.projectExternalId = projectExternalId;
-    }
-
-    public String getProjectName() {
-
-        return projectName;
-    }
-
-    public void setProjectName(String projectName) {
-
-        this.projectName = projectName;
-    }
-
-    public String getProjectFullname() {
-
-        return projectFullname;
-    }
-
-    public void setProjectFullname(String projectFullname) {
-
-        this.projectFullname = projectFullname;
-    }
-
-    public String getResourceName() {
-
-        return resourceName;
-    }
-
-    public void setResourceName(String resourceName) {
-
-        this.resourceName = resourceName;
-    }
-
-    public String getResourceFullname() {
-
-        return resourceFullname;
-    }
-
-    public void setResourceFullname(String resourceFullname) {
-
-        this.resourceFullname = resourceFullname;
-    }
-
-    public String getSex() {
-
-        return sex;
-    }
-
-    public void setSex(String sex) {
-
-        this.sex = sex;
-    }
-
-    public String getZygosity() {
-
-        return zygosity;
-    }
-
-    public void setZygosity(String zygosity) {
-
-        this.zygosity = zygosity;
-    }
-
-    public String getPipelineName() {
-
-        return pipelineName;
-    }
-
-    public void setPipelineName(String pipelineName) {
-
-        this.pipelineName = pipelineName;
-    }
-
-    public String getPipelineStableId() {
-
-        return pipelineStableId;
-    }
-
-    public void setPipelineStableId(String pipelineStableId) {
-
-        this.pipelineStableId = pipelineStableId;
-    }
-
-    public String getPipelineStableKey() {
-
-        return pipelineStableKey;
-    }
-
-    public void setPipelineStableKey(String pipelineStableKey) {
-
-        this.pipelineStableKey = pipelineStableKey;
-    }
-
-    public String getProcedureName() {
-
-        return procedureName;
-    }
-
-    public void setProcedureName(String procedureName) {
-
-        this.procedureName = procedureName;
-    }
-
-    public String getProcedureStableId() {
-
-        return procedureStableId;
-    }
-
-    public void setProcedureStableId(String procedureStableId) {
-
-        this.procedureStableId = procedureStableId;
-    }
-
-    public String getProcedureStableKey() {
-
-        return procedureStableKey;
-    }
-
-    public void setProcedureStableKey(String procedureStableKey) {
-
-        this.procedureStableKey = procedureStableKey;
-    }
-
-    public String getParameterName() {
-
-        return parameterName;
-    }
-
-    public void setParameterName(String parameterName) {
-
-        this.parameterName = parameterName;
-    }
-
-    public String getParameterStableId() {
-
-        return parameterStableId;
-    }
-
-    public void setParameterStableId(String parameterStableId) {
-
-        this.parameterStableId = parameterStableId;
-    }
-
-    public String getParameterStableKey() {
-
-        return parameterStableKey;
-    }
-
-    public void setParameterStableKey(String parameterStableKey) {
-
-        this.parameterStableKey = parameterStableKey;
-    }
-
-    public String getStatisticalMethod() {
-
-        return statisticalMethod;
-    }
-
-    public void setStatisticalMethod(String statisticalMethod) {
-
-        this.statisticalMethod = statisticalMethod;
-    }
-
-    public String getPercentageChange() {
-
-        return percentageChange;
-    }
-
-    public void setPercentageChange(String percentageChange) {
-
-        this.percentageChange = percentageChange;
-    }
-
-    public Double getP_value() {
-
-        return p_value;
-    }
-
-    public void setP_value(Double p_value) {
-
-        this.p_value = p_value;
-    }
-
-    public Double getEffectSize() {
-
-        return effectSize;
-    }
-
-    public void setEffectSize(Double effectSize) {
-
-        this.effectSize = effectSize;
-    }
-
-    public String getExternalId() {
-
-        return externalId;
-    }
-
-    public void setExternalId(String externalId) {
-
-        this.externalId = externalId;
-    }
-
-    public void setLifeStageAcc(String life_stage_acc) {
-
-        this.lifeStageAcc = life_stage_acc;
-    }
-
-    public void setLifeStageName(String life_stage_name) {
-
-        this.lifeStageName = life_stage_name;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        GenotypePhenotypeDTO that = (GenotypePhenotypeDTO) o;
-
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (ontologyDbId != null ? !ontologyDbId.equals(that.ontologyDbId) : that.ontologyDbId != null)
-            return false;
-        if (assertionType != null ? !assertionType.equals(that.assertionType) : that.assertionType != null)
-            return false;
-        if (assertionTypeId != null ? !assertionTypeId.equals(that.assertionTypeId) : that.assertionTypeId != null)
-            return false;
-        if (mpathTermId != null ? !mpathTermId.equals(that.mpathTermId) : that.mpathTermId != null) return false;
-        if (mpathTermName != null ? !mpathTermName.equals(that.mpathTermName) : that.mpathTermName != null)
-            return false;
-        if (mpTermId != null ? !mpTermId.equals(that.mpTermId) : that.mpTermId != null) return false;
-        if (mpTermName != null ? !mpTermName.equals(that.mpTermName) : that.mpTermName != null) return false;
-        if (topLevelMpTermId != null ? !topLevelMpTermId.equals(that.topLevelMpTermId) : that.topLevelMpTermId != null)
-            return false;
-        if (topLevelMpTermName != null ? !topLevelMpTermName.equals(that.topLevelMpTermName) : that.topLevelMpTermName != null)
-            return false;
-
-        if (intermediateMpTermId != null ? !intermediateMpTermId.equals(that.intermediateMpTermId) : that.intermediateMpTermId != null)
-            return false;
-        if (intermediateMpTermName != null ? !intermediateMpTermName.equals(that.intermediateMpTermName) : that.intermediateMpTermName != null)
-            return false;
-        if (markerSymbol != null ? !markerSymbol.equals(that.markerSymbol) : that.markerSymbol != null) return false;
-        if (markerAccessionId != null ? !markerAccessionId.equals(that.markerAccessionId) : that.markerAccessionId != null)
-            return false;
-        if (colonyId != null ? !colonyId.equals(that.colonyId) : that.colonyId != null) return false;
-        if (alleleName != null ? !alleleName.equals(that.alleleName) : that.alleleName != null) return false;
-        if (alleleSymbol != null ? !alleleSymbol.equals(that.alleleSymbol) : that.alleleSymbol != null) return false;
-        if (alleleAccessionId != null ? !alleleAccessionId.equals(that.alleleAccessionId) : that.alleleAccessionId != null)
-            return false;
-        if (strainName != null ? !strainName.equals(that.strainName) : that.strainName != null) return false;
-        if (strainAccessionId != null ? !strainAccessionId.equals(that.strainAccessionId) : that.strainAccessionId != null)
-            return false;
-        if (geneticBackground != null ? !geneticBackground.equals(that.geneticBackground) : that.geneticBackground != null)
-            return false;
-        if (phenotypingCenter != null ? !phenotypingCenter.equals(that.phenotypingCenter) : that.phenotypingCenter != null)
-            return false;
-        if (projectExternalId != null ? !projectExternalId.equals(that.projectExternalId) : that.projectExternalId != null)
-            return false;
-        if (projectName != null ? !projectName.equals(that.projectName) : that.projectName != null) return false;
-        if (projectFullname != null ? !projectFullname.equals(that.projectFullname) : that.projectFullname != null)
-            return false;
-        if (resourceName != null ? !resourceName.equals(that.resourceName) : that.resourceName != null) return false;
-        if (resourceFullname != null ? !resourceFullname.equals(that.resourceFullname) : that.resourceFullname != null)
-            return false;
-        if (sex != null ? !sex.equals(that.sex) : that.sex != null) return false;
-        if (zygosity != null ? !zygosity.equals(that.zygosity) : that.zygosity != null) return false;
-        if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) return false;
-        if (pipelineStableId != null ? !pipelineStableId.equals(that.pipelineStableId) : that.pipelineStableId != null)
-            return false;
-        if (pipelineStableKey != null ? !pipelineStableKey.equals(that.pipelineStableKey) : that.pipelineStableKey != null)
-            return false;
-        if (procedureName != null ? !procedureName.equals(that.procedureName) : that.procedureName != null)
-            return false;
-        if (procedureStableId != null ? !procedureStableId.equals(that.procedureStableId) : that.procedureStableId != null)
-            return false;
-        if (procedureStableKey != null ? !procedureStableKey.equals(that.procedureStableKey) : that.procedureStableKey != null)
-            return false;
-        if (parameterName != null ? !parameterName.equals(that.parameterName) : that.parameterName != null)
-            return false;
-        if (parameterStableId != null ? !parameterStableId.equals(that.parameterStableId) : that.parameterStableId != null)
-            return false;
-        if (parameterStableKey != null ? !parameterStableKey.equals(that.parameterStableKey) : that.parameterStableKey != null)
-            return false;
-        if (statisticalMethod != null ? !statisticalMethod.equals(that.statisticalMethod) : that.statisticalMethod != null)
-            return false;
-        if (percentageChange != null ? !percentageChange.equals(that.percentageChange) : that.percentageChange != null)
-            return false;
-        if (p_value != null ? !p_value.equals(that.p_value) : that.p_value != null) return false;
-        if (effectSize != null ? !effectSize.equals(that.effectSize) : that.effectSize != null) return false;
-        if (externalId != null ? !externalId.equals(that.externalId) : that.externalId != null) return false;
-        if (lifeStageAcc != null ? !lifeStageAcc.equals(that.lifeStageAcc) : that.lifeStageAcc != null)
-            return false;
-        return !(lifeStageName != null ? !lifeStageName.equals(that.lifeStageName) : that.lifeStageName != null);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (ontologyDbId != null ? ontologyDbId.hashCode() : 0);
-        result = 31 * result + (assertionType != null ? assertionType.hashCode() : 0);
-        result = 31 * result + (assertionTypeId != null ? assertionTypeId.hashCode() : 0);
-        result = 31 * result + (mpathTermId != null ? mpathTermId.hashCode() : 0);
-        result = 31 * result + (mpathTermName != null ? mpathTermName.hashCode() : 0);
-        result = 31 * result + (mpTermId != null ? mpTermId.hashCode() : 0);
-        result = 31 * result + (mpTermName != null ? mpTermName.hashCode() : 0);
-        result = 31 * result + (topLevelMpTermId != null ? topLevelMpTermId.hashCode() : 0);
-        result = 31 * result + (topLevelMpTermName != null ? topLevelMpTermName.hashCode() : 0);
-        result = 31 * result + (intermediateMpTermId != null ? intermediateMpTermId.hashCode() : 0);
-        result = 31 * result + (intermediateMpTermName != null ? intermediateMpTermName.hashCode() : 0);
-        result = 31 * result + (markerSymbol != null ? markerSymbol.hashCode() : 0);
-        result = 31 * result + (markerAccessionId != null ? markerAccessionId.hashCode() : 0);
-        result = 31 * result + (colonyId != null ? colonyId.hashCode() : 0);
-        result = 31 * result + (alleleName != null ? alleleName.hashCode() : 0);
-        result = 31 * result + (alleleSymbol != null ? alleleSymbol.hashCode() : 0);
-        result = 31 * result + (alleleAccessionId != null ? alleleAccessionId.hashCode() : 0);
-        result = 31 * result + (strainName != null ? strainName.hashCode() : 0);
-        result = 31 * result + (strainAccessionId != null ? strainAccessionId.hashCode() : 0);
-        result = 31 * result + (geneticBackground != null ? geneticBackground.hashCode() : 0);
-        result = 31 * result + (phenotypingCenter != null ? phenotypingCenter.hashCode() : 0);
-        result = 31 * result + (projectExternalId != null ? projectExternalId.hashCode() : 0);
-        result = 31 * result + (projectName != null ? projectName.hashCode() : 0);
-        result = 31 * result + (projectFullname != null ? projectFullname.hashCode() : 0);
-        result = 31 * result + (resourceName != null ? resourceName.hashCode() : 0);
-        result = 31 * result + (resourceFullname != null ? resourceFullname.hashCode() : 0);
-        result = 31 * result + (sex != null ? sex.hashCode() : 0);
-        result = 31 * result + (zygosity != null ? zygosity.hashCode() : 0);
-        result = 31 * result + (pipelineName != null ? pipelineName.hashCode() : 0);
-        result = 31 * result + (pipelineStableId != null ? pipelineStableId.hashCode() : 0);
-        result = 31 * result + (pipelineStableKey != null ? pipelineStableKey.hashCode() : 0);
-        result = 31 * result + (procedureName != null ? procedureName.hashCode() : 0);
-        result = 31 * result + (procedureStableId != null ? procedureStableId.hashCode() : 0);
-        result = 31 * result + (procedureStableKey != null ? procedureStableKey.hashCode() : 0);
-        result = 31 * result + (parameterName != null ? parameterName.hashCode() : 0);
-        result = 31 * result + (parameterStableId != null ? parameterStableId.hashCode() : 0);
-        result = 31 * result + (parameterStableKey != null ? parameterStableKey.hashCode() : 0);
-        result = 31 * result + (statisticalMethod != null ? statisticalMethod.hashCode() : 0);
-        result = 31 * result + (percentageChange != null ? percentageChange.hashCode() : 0);
-        result = 31 * result + (p_value != null ? p_value.hashCode() : 0);
-        result = 31 * result + (effectSize != null ? effectSize.hashCode() : 0);
-        result = 31 * result + (externalId != null ? externalId.hashCode() : 0);
-        result = 31 * result + (lifeStageAcc != null ? lifeStageAcc.hashCode() : 0);
-        result = 31 * result + (lifeStageName != null ? lifeStageName.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "GenotypePhenotypeDTO{" +
-                "id=" + id +
-                ", ontologyDbId=" + ontologyDbId +
-                ", assertionType='" + assertionType + '\'' +
-                ", assertionTypeId='" + assertionTypeId + '\'' +
-                ", mpathTermId='" + mpathTermId + '\'' +
-                ", mpathTermName='" + mpathTermName + '\'' +
-                ", mpTermId='" + mpTermId + '\'' +
-                ", mpTermName='" + mpTermName + '\'' +
-                ", topLevelMpTermId=" + topLevelMpTermId +
-                ", topLevelMpTermName=" + topLevelMpTermName +
-                ", intermediateMpTermId=" + intermediateMpTermId +
-                ", intermediateMpTermName=" + intermediateMpTermName +
-                ", markerSymbol='" + markerSymbol + '\'' +
-                ", markerAccessionId='" + markerAccessionId + '\'' +
-                ", colonyId='" + colonyId + '\'' +
-                ", alleleName='" + alleleName + '\'' +
-                ", alleleSymbol='" + alleleSymbol + '\'' +
-                ", alleleAccessionId='" + alleleAccessionId + '\'' +
-                ", strainName='" + strainName + '\'' +
-                ", strainAccessionId='" + strainAccessionId + '\'' +
-                ", geneticBackground='" + geneticBackground + '\'' +
-                ", phenotypingCenter='" + phenotypingCenter + '\'' +
-                ", projectExternalId='" + projectExternalId + '\'' +
-                ", projectName='" + projectName + '\'' +
-                ", projectFullname='" + projectFullname + '\'' +
-                ", resourceName='" + resourceName + '\'' +
-                ", resourceFullname='" + resourceFullname + '\'' +
-                ", sex='" + sex + '\'' +
-                ", zygosity='" + zygosity + '\'' +
-                ", zygosity='" + zygosity + '\'' +
-                ", pipelineName='" + pipelineName + '\'' +
-                ", pipelineStableId='" + pipelineStableId + '\'' +
-                ", pipelineStableKey='" + pipelineStableKey + '\'' +
-                ", procedureName='" + procedureName + '\'' +
-                ", procedureStableId='" + procedureStableId + '\'' +
-                ", procedureStableKey='" + procedureStableKey + '\'' +
-                ", parameterName='" + parameterName + '\'' +
-                ", parameterStableId='" + parameterStableId + '\'' +
-                ", parameterStableKey='" + parameterStableKey + '\'' +
-                ", statisticalMethod='" + statisticalMethod + '\'' +
-                ", percentageChange='" + percentageChange + '\'' +
-                ", p_value=" + p_value +
-                ", effectSize=" + effectSize +
-                ", externalId='" + externalId + '\'' +
-                ", lifeStageAcc='" + lifeStageAcc + '\'' +
-                ", lifeStageName='" + lifeStageName + '\'' +
-                '}';
-    }
 
 }

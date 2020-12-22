@@ -81,56 +81,66 @@
         'HOM': 'homozygote'
     }
     var allData = JSON.parse('${allData}');
-    ///$(document).ready(function () {
-        allData.forEach(function (row) {
-            row.evidence_link = buildLink(row);
-        });
+    var url_string = window.location.href;
+    var url = new URL(url_string);
+    var stage = url.searchParams.get("dataLifeStage");
+    var searchValue = url.searchParams.get("dataSearch");
 
-        $('#allDataTableCount').html(${rows});
-        if (firstDTLoad) {
-            $("#strainPvalues").bootstrapTable({
-                data: allData,
-                onSearch: function (event) {
-                    var searchText = event == '' ? null : event;
-                    $('#allDataTableCount').html($("#strainPvalues").bootstrapTable('getData').length);
-                    window.history.replaceState('', '', updateURLParameter(window.location.href, 'dataSearch', event));
-                },
-                onClickRow: function (row) {
-                    if (row.evidence_link) window.open(row.evidence_link);
-                }
-            });
-            firstDTLoad = false;
-        }
-        $("#stage-selector :input").change(function () {
-                var option = this.id;
-                var selectedLifeStage = '';
-                if (option != 'all') {
-                    if (option != 'embryo') {
-                        $("#strainPvalues").bootstrapTable('filterBy', {life_stage: optionToLifeStage[option]}, {'filterAlgorithm': 'and'});
-                    } else {
-                        $("#strainPvalues").bootstrapTable('filterBy', {life_stage: 'embryo'}, {
-                            'filterAlgorithm': function (row, filters) {
-                                return !!row.life_stage.match(/E\d+\.\d+/);
-                            }
-                        });
-                    }
-                } else {
-                    $("#strainPvalues").bootstrapTable('filterBy', {}, {'filterAlgorithm': 'and'});
-                }
+    ///$(document).ready(function () {
+    allData.forEach(function (row) {
+        row.evidence_link = buildLink(row);
+    });
+
+    $('#allDataTableCount').html(${rows});
+    if (firstDTLoad) {
+        $("#strainPvalues").bootstrapTable({
+            data: allData,
+            onSearch: function (event) {
+                var searchText = event == '' ? null : event;
                 $('#allDataTableCount').html($("#strainPvalues").bootstrapTable('getData').length);
+                if (searchText != searchValue) {
+                    console.log("I'm here");
+                    window.history.replaceState('', '', updateURLParameter(window.location.href, 'dataSearch', searchText));
+                }
+            },
+            onClickRow: function (row) {
+                if (row.evidence_link.startsWith("javascript")) {
+                    console.log(row.evidence_link);
+                    eval(row.evidence_link).click();
+                    eval(row.evidence_link).scrollIntoView();
+                } else {
+                    window.open(row.evidence_link);
+                }
+            }
+        });
+        firstDTLoad = false;
+    }
+    $("#stage-selector :input").change(function () {
+            var option = this.id;
+            var selectedLifeStage = '';
+            if (option != 'all') {
+                if (option != 'embryo') {
+                    $("#strainPvalues").bootstrapTable('filterBy', {life_stage: optionToLifeStage[option]}, {'filterAlgorithm': 'and'});
+                } else {
+                    $("#strainPvalues").bootstrapTable('filterBy', {life_stage: 'embryo'}, {
+                        'filterAlgorithm': function (row, filters) {
+                            return !!row.life_stage.match(/E\d+\.\d+/);
+                        }
+                    });
+                }
+            } else {
+                $("#strainPvalues").bootstrapTable('filterBy', {}, {'filterAlgorithm': 'and'});
+            }
+            $('#allDataTableCount').html($("#strainPvalues").bootstrapTable('getData').length);
+            if (option != stage) {
                 window.history.replaceState('', '', updateURLParameter(window.location.href, 'dataLifeStage', option));
             }
-        );
-
-        var url_string = window.location.href;
-        var url = new URL(url_string);
-        var stage = url.searchParams.get("dataLifeStage");
-        if (stage) $('#' + stage).click();
-
-        var searchValue = url.searchParams.get("dataSearch");
-        if (searchValue) {
-            $("#strainPvalues").bootstrapTable('resetSearch', searchValue);
         }
+    );
+    if (stage) $('#' + stage).click();
+    if (searchValue) {
+        $("#strainPvalues").bootstrapTable('resetSearch', searchValue);
+    }
 
 
     //});
@@ -174,29 +184,31 @@
     function buildLink(row) {
         var baseUrl = "${baseUrl}";
         var link = null;
-        if(row.procedure_name.startsWith("Viability Primary Screen") && row.parameter_stable_id !== "IMPC_VIA_001_001") {
+        if (row.procedure_name.startsWith("Viability Primary Screen") && row.parameter_stable_id !== "IMPC_VIA_001_001") {
             link = null;
-        }
-        else if(row.procedure_name.startsWith("Histopathology")) {
+        } else if (row.procedure_name.startsWith("Embryo LacZ")) {
+            link = "javascript:document.getElementById('_embryo-tab');";
+        } else if (row.procedure_name.startsWith("Histopathology")) {
             link = baseUrl + '/histopath/' + row.gene_accession_id;
 
-            if(row.phenotype_term) {
+            if (row.phenotype_term) {
                 var term = row.phenotype_term.split('-')[0];
                 link = link + '?anatomy="' + term + '"';
             }
-        } else if(row.procedure_name.startsWith("Gross Pathology and Tissue Collectio")) {
+        } else if (row.procedure_name.startsWith("Gross Pathology and Tissue Collectio")) {
             link = baseUrl + '/grosspath/' + row.gene_accession_id + '/' + row.parameter_stable_id;
         }else if(row.parameter_name.toUpperCase().indexOf("image".toUpperCase()) !== -1) {
             link = baseUrl + '/imageComparator?acc=' + row.gene_accession_id + '&parameter_stable_id=' + row.parameter_stable_id;
         } else {
-            link =  baseUrl + "/charts?accession=" + row.gene_accession_id;
+            link = baseUrl + "/charts?accession=" + row.gene_accession_id;
             link += "&allele_accession_id=" + row.allele_accession_id;
+            link += "&pipeline_stable_id=" + row.pipeline_stable_id;
+            link += "&procedure_stable_id=" + row.procedure_stable_id;
             link += "&parameter_stable_id=" + row.parameter_stable_id;
-            if(zygosityMap[row.zygosity]) {
+            if (zygosityMap[row.zygosity]) {
                 link += "&zygosity=" + zygosityMap[row.zygosity];
             }
             link += "&phenotyping_center=" + row.phenotyping_center;
-            link += "&pipeline_stable_id=" + row.pipeline_stable_id;
         }
 
         return link;
@@ -209,7 +221,7 @@
         };
     }
 
-    function updateURLParameter(url, param, paramVal){
+    function updateURLParameter(url, param, paramVal) {
         var newAdditionalURL = "";
         var tempArray = url.split("?");
         var baseURL = tempArray[0];
@@ -217,8 +229,8 @@
         var temp = "";
         if (additionalURL) {
             tempArray = additionalURL.split("&");
-            for (var i=0; i<tempArray.length; i++){
-                if(tempArray[i].split('=')[0] != param){
+            for (var i = 0; i < tempArray.length; i++) {
+                if (tempArray[i].split('=')[0] != param) {
                     newAdditionalURL += temp + tempArray[i];
                     temp = "&";
                 }

@@ -80,6 +80,13 @@ public class RepositorySolrTestConfig {
         return new HttpSolrClient.Builder(internalSolrUrl + "/gene").build();
     }
 
+    // essentialgene
+    @Bean(name = "essentialGeneCore")
+    HttpSolrClient essentialGeneCore() {
+        return new HttpSolrClient.Builder(internalSolrUrl + "/essentialgenes").build();
+    }
+
+
     // genotype-phenotype
     @Bean(name = "genotypePhenotypeCore")
     HttpSolrClient genotypePhenotypeCore() {
@@ -147,12 +154,21 @@ public class RepositorySolrTestConfig {
 
     @Bean
     public ExpressionService expressionService() {
-        return new ExpressionService(experimentCore(), impcImagesCore(), anatomyService(), impressService());
+        return new ExpressionService(experimentCore(), impcImagesCore(), anatomyService(), expressionServiceLacz(), impressService());
     }
 
     @Bean
+    public ExpressionServiceLacz expressionServiceLacz() {
+        return new ExpressionServiceLacz(experimentCore());
+    }
+    @Bean
     public GeneService geneService() {
-        return new GeneService(geneCore());
+        return new GeneService(geneCore(), impressService());
+    }
+
+    @Bean
+    public EssentialGeneService essentialGeneService() {
+        return new EssentialGeneService(essentialGeneCore());
     }
 
     @Bean
@@ -162,7 +178,7 @@ public class RepositorySolrTestConfig {
 
     @Bean
     public ImageService imageService() {
-        return new ImageService(impcImagesCore());
+        return new ImageService(impcImagesCore(), statisticalResultCore());
     }
 
     @Bean

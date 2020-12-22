@@ -162,8 +162,6 @@ public class ImageComparatorController {
 			throws SolrServerException, IOException {
 		String url1="";
 		String url2="";
-		
-		System.out.println("query="+request.getQueryString());
 		String[] urlList = request.getQueryString().split("url=");
 		System.out.println(urlList);
 		if(urlList.length>0){

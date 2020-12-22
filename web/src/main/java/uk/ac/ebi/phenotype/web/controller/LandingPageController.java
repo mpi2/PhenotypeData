@@ -294,14 +294,9 @@ public class LandingPageController {
         	 	model.addAttribute("columnChart2", CmgColumnChart.getColumnChart(cmg_genes, "tier2", "columnChart2", "CMG Tier 2 candidates", ""));
         }
 
-//        model.addAttribute("dataJs", getData(null, null, null, mpDTO.getAccession(), request) + ";");
-
         return "landing_" + page;
-
     }
-    
-    
-    
+
     private ArrayList<JSONObject> GetLatestProjectStatus(ArrayList<JSONObject> cmg_genes_bestphenodigm) throws SolrServerException, IOException, JSONException {
     		for (JSONObject gene : cmg_genes_bestphenodigm) {
     			if (!gene.isNull("mouse_orthologue") && !gene.get("mouse_orthologue").equals("") && !gene.get("mouse_orthologue").equals("-")) {

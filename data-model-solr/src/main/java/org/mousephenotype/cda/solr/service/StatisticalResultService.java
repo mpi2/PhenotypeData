@@ -21,7 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.random.EmpiricalDistribution;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -32,7 +31,6 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
-import org.mousephenotype.cda.db.repositories.GenesSecondaryProjectRepository;
 import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
@@ -56,6 +54,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -73,7 +72,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
     public StatisticalResultService(
             @NotNull ImpressService impressService,
             @NotNull SolrClient genotypePhenotypeCore,
-            @NotNull GenesSecondaryProjectRepository genesSecondaryProjectRepository,
+            @NotNull GenesSecondaryProjectServiceIdg genesSecondaryProjectRepository,
             @NotNull SolrClient statisticalResultCore) {
         super(impressService, genotypePhenotypeCore, genesSecondaryProjectRepository);
         this.statisticalResultCore = statisticalResultCore;
@@ -84,6 +83,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
             String acc,
             String parameterStableId,
             List<String> pipelineStableIds,
+            List<String> procedureStableIds,
             List<String> zyList,
             List<String> phenotypingCentersList,
             List<String> strainsParams,
@@ -99,7 +99,10 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         if ((parameterStableId != null) && (!parameterStableId.trim().isEmpty())) {
             query.addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + parameterStableId);
         }
-        if (pipelineStableIds != null & pipelineStableIds.size() > 0) {
+        if (procedureStableIds != null && procedureStableIds.size() > 0) {
+            query.addFilterQuery(procedureStableIds.stream().collect(Collectors.joining(" OR ", StatisticalResultDTO.PROCEDURE_STABLE_ID + ":(", ")")));
+        }
+        if (pipelineStableIds != null && pipelineStableIds.size() > 0) {
             query.addFilterQuery(pipelineStableIds.stream().collect(Collectors.joining(" OR ", StatisticalResultDTO.PIPELINE_STABLE_ID + ":(", ")")));
         }
         if (zyList != null && zyList.size() > 0) {
@@ -119,16 +122,17 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         }
         query.setFacet(true);
 
-        // If you add/change order of pivots, make sure you do the same in the for loops below
-        String pivotFacet = StatisticalResultDTO.PIPELINE_STABLE_ID + "," +
-                StatisticalResultDTO.ZYGOSITY + "," +
+        String pivotFacet = StatisticalResultDTO.PIPELINE_STABLE_ID + ",";
+        if (procedureStableIds != null) {
+            pivotFacet += StatisticalResultDTO.PROCEDURE_STABLE_ID + ",";
+        }
+        pivotFacet += StatisticalResultDTO.ZYGOSITY + "," +
                 StatisticalResultDTO.PHENOTYPING_CENTER + "," +
                 StatisticalResultDTO.STRAIN_ACCESSION_ID + "," +
                 StatisticalResultDTO.ALLELE_ACCESSION_ID;
-        //pivot needs to have metadata_group irrespective of if it's included in filter or not as we want seperate experiments based on the metadata
+        //pivot needs to have metadata_group irrespective of if it's included in filter or not as we want separate experiments based on the metadata
         pivotFacet += "," + StatisticalResultDTO.METADATA_GROUP;
 
-        //}
         query.add("facet.pivot", pivotFacet);
 
         query.setFacetLimit(-1);
@@ -208,7 +212,8 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
         q.addField(StatisticalResultDTO.MARKER_SYMBOL);
         q.addField(StatisticalResultDTO.MARKER_ACCESSION_ID);
-        q.addFilterQuery(StatisticalResultDTO.P_VALUE + ":[* TO *]");
+        // Temporary fix to include RR+ data on measurement charts
+        q.addFilterQuery(StatisticalResultDTO.P_VALUE + ":[* TO *] OR " + StatisticalResultDTO.STATISTICAL_METHOD + ":Reference*");
         q.setFacet(true);
         q.setFacetLimit(-1);
         q.setFacetMinCount(1);
@@ -431,7 +436,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         query.setQuery("-" + StatisticalResultDTO.STATISTICAL_METHOD + ":Wilcoxon*"); // Decided to omit Wilcoxon because it does not adjust for batch or center effect and the value for genotyope effect does not have the same meaning as for the other values.
         query.addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":\"" +
                 StringUtils.join(parameters.stream().map(ParameterDTO::getStableId).collect(Collectors.toList()), "\" OR " + StatisticalResultDTO.PARAMETER_STABLE_ID + ":\"") + "\"");
-        query.addFilterQuery(StatisticalResultDTO.STATUS + ":Success");
+        query.addFilterQuery(StatisticalResultDTO.STATUS + ":Successful");
 
         query.addField(StatisticalResultDTO.GENOTYPE_EFFECT_PARAMETER_ESTIMATE);
         query.addField(StatisticalResultDTO.MARKER_ACCESSION_ID);
@@ -547,17 +552,18 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
     }
 
 
-
     private int getBin(List<Double> bins, Double valueToBin) {
 
         for (Double upperBound : bins) {
-            if (valueToBin < upperBound) { return bins.indexOf(upperBound); }
+            if (valueToBin < upperBound) {
+                return bins.indexOf(upperBound);
+            }
         }
         return bins.size() - 1;
     }
 
     public StackedBarsData getUnidimensionalData(String parameterStableId, List<String> genes, List<String> strains, String biologicalSample, String[] center, String[] sex)
-            throws SolrServerException, IOException  {
+            throws SolrServerException, IOException {
 
         String urlParams = "";
         SolrQuery query = new SolrQuery().addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + parameterStableId);
@@ -568,17 +574,17 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         }
 
         if (center != null && center.length > 0) {
-            query.addFilterQuery( "(" + ((center.length > 1) ? StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + StringUtils.join(center, "\" OR " + StatisticalResultDTO.PHENOTYPING_CENTER + ":\"") + "\"" : StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + center[0] + "\"") + ")");
+            query.addFilterQuery("(" + ((center.length > 1) ? StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + StringUtils.join(center, "\" OR " + StatisticalResultDTO.PHENOTYPING_CENTER + ":\"") + "\"" : StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + center[0] + "\"") + ")");
             urlParams += "&phenotyping_center=" + StringUtils.join(center, "&phenotyping_center=");
         }
 
         if (sex != null && sex.length == 1) {
-            if (sex[0].equalsIgnoreCase("male")){
-                query.addFilterQuery( StatisticalResultDTO.MALE_CONTROL_COUNT + ":[4 TO 100000]");
-                query.addFilterQuery( StatisticalResultDTO.MALE_MUTANT_COUNT + ":[4 TO 100000]");
+            if (sex[0].equalsIgnoreCase("male")) {
+                query.addFilterQuery(StatisticalResultDTO.MALE_CONTROL_COUNT + ":[4 TO 100000]");
+                query.addFilterQuery(StatisticalResultDTO.MALE_MUTANT_COUNT + ":[4 TO 100000]");
             } else {
-                query.addFilterQuery( StatisticalResultDTO.FEMALE_CONTROL_COUNT + ":[4 TO 100000]");
-                query.addFilterQuery( StatisticalResultDTO.FEMALE_MUTANT_COUNT + ":[4 TO 100000]");
+                query.addFilterQuery(StatisticalResultDTO.FEMALE_CONTROL_COUNT + ":[4 TO 100000]");
+                query.addFilterQuery(StatisticalResultDTO.FEMALE_MUTANT_COUNT + ":[4 TO 100000]");
             }
         }
 
@@ -605,14 +611,14 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
             String sexToDisplay = null;
             OverviewRatio overviewRatio = new OverviewRatio();
 
-            for (SolrDocument doc : resDocs){
+            for (SolrDocument doc : resDocs) {
                 sexToDisplay = getSexToDisplay(sex, sexToDisplay, doc);
                 overviewRatio.add(doc);
             }
 
-            if (sexToDisplay != null){
+            if (sexToDisplay != null) {
                 Double ratio = overviewRatio.getPlotRatio(sexToDisplay);
-                if (ratio != null){
+                if (ratio != null) {
                     genesArray[size] = (String) resDocs.get(0).get(StatisticalResultDTO.MARKER_ACCESSION_ID);
                     geneSymbolArray[size] = (String) resDocs.get(0).get(StatisticalResultDTO.MARKER_SYMBOL);
                     meansArray[size] = ratio;
@@ -631,7 +637,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         List<Double> upperBounds = new ArrayList<>();
         EmpiricalDistribution distribution = new EmpiricalDistribution(binCount);
         if (size > 0) {
-            distribution.load(ArrayUtils.subarray(meansArray, 0, size-1));
+            distribution.load(ArrayUtils.subarray(meansArray, 0, size - 1));
             for (double bound : distribution.getUpperBounds()) {
                 upperBounds.add(bound);
             }
@@ -699,42 +705,38 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         return null;
     }
 
-    private String getSexToDisplay(String[] sex, String oldSexToDisplay, SolrDocument doc){
+    private String getSexToDisplay(String[] sex, String oldSexToDisplay, SolrDocument doc) {
 
         String sexToDisplay = null;
 
-        if (sex != null && sex.length == 1 && oldSexToDisplay == null){
+        if (sex != null && sex.length == 1 && oldSexToDisplay == null) {
             if (sex[0].equalsIgnoreCase(SexType.male.getName())) {
-                sexToDisplay = 	SexType.male.getName();
+                sexToDisplay = SexType.male.getName();
             }
             if (sex[0].equalsIgnoreCase(SexType.female.getName())) {
-                sexToDisplay = 	SexType.female.getName();
+                sexToDisplay = SexType.female.getName();
             }
         }
 
         if (sex == null || sex.length == 0 || sex.length == 2) {
-            if ( doc.containsKey(StatisticalResultDTO.FEMALE_CONTROL_MEAN) && Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString()) > 3 &&
+            if (doc.containsKey(StatisticalResultDTO.FEMALE_CONTROL_MEAN) && Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString()) > 3 &&
                     doc.containsKey(StatisticalResultDTO.FEMALE_MUTANT_MEAN) && Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString()) > 3 &&
                     doc.containsKey(StatisticalResultDTO.MALE_CONTROL_MEAN) && Double.parseDouble(doc.get(StatisticalResultDTO.MALE_CONTROL_COUNT).toString()) > 3 &&
-                    doc.containsKey(StatisticalResultDTO.MALE_MUTANT_MEAN) && Double.parseDouble(doc.get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString()) > 3 ){
+                    doc.containsKey(StatisticalResultDTO.MALE_MUTANT_MEAN) && Double.parseDouble(doc.get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString()) > 3) {
                 sexToDisplay = "both";
-            }
-            else if (doc.containsKey(StatisticalResultDTO.FEMALE_CONTROL_MEAN) &&  Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString()) > 3 &&
-                    doc.containsKey(StatisticalResultDTO.FEMALE_MUTANT_MEAN) &&  Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString()) > 3
-            ){
-                if (oldSexToDisplay != null && (oldSexToDisplay.equalsIgnoreCase(SexType.male.getName()) || oldSexToDisplay.equalsIgnoreCase(SexType.both.getName()) )){
+            } else if (doc.containsKey(StatisticalResultDTO.FEMALE_CONTROL_MEAN) && Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString()) > 3 &&
+                    doc.containsKey(StatisticalResultDTO.FEMALE_MUTANT_MEAN) && Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString()) > 3
+            ) {
+                if (oldSexToDisplay != null && (oldSexToDisplay.equalsIgnoreCase(SexType.male.getName()) || oldSexToDisplay.equalsIgnoreCase(SexType.both.getName()))) {
                     sexToDisplay = "both";
-                }
-                else {
+                } else {
                     sexToDisplay = SexType.female.getName();
                 }
-            }
-            else if (doc.containsKey(StatisticalResultDTO.MALE_CONTROL_MEAN) &&  Double.parseDouble(doc.get(StatisticalResultDTO.MALE_CONTROL_COUNT).toString()) > 3 &&
-                    doc.containsKey(StatisticalResultDTO.MALE_MUTANT_MEAN) &&  Double.parseDouble(doc.get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString()) > 3 ){
-                if (oldSexToDisplay != null && (oldSexToDisplay.equalsIgnoreCase(SexType.female.getName()) || oldSexToDisplay.equalsIgnoreCase(SexType.both.getName()) )){
+            } else if (doc.containsKey(StatisticalResultDTO.MALE_CONTROL_MEAN) && Double.parseDouble(doc.get(StatisticalResultDTO.MALE_CONTROL_COUNT).toString()) > 3 &&
+                    doc.containsKey(StatisticalResultDTO.MALE_MUTANT_MEAN) && Double.parseDouble(doc.get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString()) > 3) {
+                if (oldSexToDisplay != null && (oldSexToDisplay.equalsIgnoreCase(SexType.female.getName()) || oldSexToDisplay.equalsIgnoreCase(SexType.both.getName()))) {
                     sexToDisplay = "both";
-                }
-                else {
+                } else {
                     sexToDisplay = SexType.male.getName();
                 }
             }
@@ -823,7 +825,6 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
     }
 
     /**
-     *
      * @return Map <String, Long> : <top_level_mp_name, number_of_annotations>
      */
     public TreeMap<String, Long> getDistributionOfAnnotationsByMPTopLevel(List<String> resourceName, Float pValueThreshold) {
@@ -853,6 +854,60 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         return null;
     }
 
+    /**
+     * Get the result for a set of allele strain phenotypeCenter, pipeline, parameter, metadata, zygosity, sex
+     */
+    public List<StatisticalResultDTO> getStatisticalResult(
+            String pipelineStableId,
+            String procedureStableId,
+            String parameterStableId,
+            String alleleAccession,
+            String phenotypingCenter,
+            String metadataGroup,
+            String strain,
+            List<String> zygosities) throws IOException, SolrServerException {
+
+        SolrQuery query = new SolrQuery()
+                .setQuery("*:*")
+                .addFilterQuery(StatisticalResultDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"")
+                .addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + parameterStableId)
+                .setRows(100);
+
+        if (phenotypingCenter != null) {
+            query.addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"");
+        }
+
+        if (pipelineStableId != null) {
+            query.addFilterQuery(StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId);
+        }
+
+        if (procedureStableId != null) {
+            query.addFilterQuery(StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" + procedureStableId);
+        }
+
+        if (zygosities != null) {
+            query.addFilterQuery(StatisticalResultDTO.ZYGOSITY + ":(" + String.join(" OR ", zygosities) + ")");
+        }
+
+        if (strain != null) {
+            query.addFilterQuery(StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + strain + "\"");
+        }
+
+        // Filter by metadata group if supplied
+        if (metadataGroup != null) {
+            if (metadataGroup.isEmpty()) {
+                // This is normally used to deal with parameters that are derived from several
+                // other parameters from different procedures where a single metadata group is
+                // not definitive.  In that case, the metadata group is set to empty string.
+                query.addFilterQuery(StatisticalResultDTO.METADATA_GROUP + ":\"\"");
+            } else {
+                query.addFilterQuery(StatisticalResultDTO.METADATA_GROUP + ":" + metadataGroup);
+            }
+        }
+
+        List<StatisticalResultDTO> solrResults = statisticalResultCore.query(query).getBeans(StatisticalResultDTO.class);
+        return new ArrayList<>(solrResults);
+    }
 
     /**
      * Get the result for a set of allele strain phenotypeCenter, pipeline, parameter, metadata, zygosity, sex
@@ -898,28 +953,47 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
         //System.out.println("statistical-result query========: " + query);
 
-		QueryResponse response = statisticalResultCore.query(query);
+        QueryResponse response = statisticalResultCore.query(query);
         List<StatisticalResultDTO> solrResults = response.getBeans(StatisticalResultDTO.class);
 
         if (statisticalType == ObservationType.unidimensional) {
-			results.addAll(solrResults);
+            results.addAll(solrResults);
         } else if (statisticalType == ObservationType.categorical) {
-			results.addAll(solrResults);
+            results.addAll(solrResults);
         }
 
         return results;
     }
 
 
-    public Map<String, List<ExperimentsDataTableRow>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> procedureName, List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, String graphBaseUrl)
+    public Map<String, List<ExperimentsDataTableRow>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> procedureName, List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermNames, String graphBaseUrl)
             throws NumberFormatException, SolrServerException, IOException {
 
         Map<String, List<ExperimentsDataTableRow>> results = new HashMap<>();
 
-        SolrQuery query = buildQuery(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableIds, resource, mpTermId, null, null, null, null, null, null, null, null);
+        SolrQuery query = buildQuery(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableIds, resource, mpTermNames, null, null, null, null, null, null, null, null);
+        query.add("fl", "*,raw_data:[value v=\"\"]");
         List<StatisticalResultDTO> solrResults = statisticalResultCore.query(query).getBeans(StatisticalResultDTO.class);
 
         for (StatisticalResultDTO statResult : solrResults) {
+
+            // Temporary fix to display RR plus p-values
+            if (statResult.getStatisticalMethod() != null && statResult.getStatisticalMethod().contains("Reference Range Plus")) {
+                List<Double> pValues = Stream.of(statResult.getGenotypePvalueLowNormalVsHigh(), statResult.getGenotypePvalueLowVsNormalHigh(), statResult.getFemalePvalueLowNormalVsHigh(), statResult.getFemalePvalueLowVsNormalHigh(),  statResult.getMalePvalueLowNormalVsHigh(), statResult.getMalePvalueLowVsNormalHigh() ).collect(Collectors.toList());
+                pValues = pValues.stream().filter(Objects::nonNull).collect(Collectors.toList());
+                Double pValue = pValues.size() > 0 ? Collections.min(pValues) : 0.0;
+                statResult.setPValue(pValue);
+            }
+            if (statResult.getSignificant()) {
+                switch (statResult.getSex()) {
+                    case "female":
+                        statResult.setPValue(statResult.getFemaleKoEffectPValue());
+                        break;
+                    case "male":
+                        statResult.setPValue(statResult.getMaleKoEffectPValue());
+                        break;
+                }
+            }
 
             if (!results.containsKey(statResult.getParameterStableId())) {
                 results.put(statResult.getParameterStableId(), new ArrayList<>());
@@ -930,6 +1004,27 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
         return results;
 
+    }
+
+    // Temporary fix for ABR data
+    public Double resolveAbrPValue(String geneAccession, String pipelineStableId, String procedureStableId, String parameterStableId, String colonyId, String sex) {
+        sex = sex.equals("not_considered") ? "*" : sex;
+        Double pValue = 0.0;
+        SolrQuery query = new SolrQuery();
+        query.setRows(1);
+        query.setQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + geneAccession + "\" AND " + StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId + " AND " + StatisticalResultDTO.PROCEDURE_STABLE_ID + ":" + procedureStableId + " AND " + StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + parameterStableId + " AND " + StatisticalResultDTO.COLONY_ID + ":\"" + colonyId + "\" AND " + StatisticalResultDTO.PHENOTYPE_SEX + ":" + sex);
+        try {
+            List<StatisticalResultDTO> solrResults = statisticalResultCore.query(query).getBeans(StatisticalResultDTO.class);
+            StatisticalResultDTO statResult = solrResults.get(0);
+            List<Double> pValues = Stream.of(statResult.getGenotypePvalueLowNormalVsHigh(), statResult.getGenotypePvalueLowVsNormalHigh(), statResult.getFemalePvalueLowNormalVsHigh(), statResult.getFemalePvalueLowVsNormalHigh(),  statResult.getMalePvalueLowNormalVsHigh(), statResult.getMalePvalueLowVsNormalHigh() ).collect(Collectors.toList());
+            pValues = pValues.stream().filter(Objects::nonNull).collect(Collectors.toList());
+            pValue = pValues.size() > 0 ? Collections.min(pValues) : 0.0;
+        } catch (SolrServerException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return pValue;
     }
 
     public Map<CombinedObservationKey, ExperimentsDataTableRow> getAllDataRecords(String geneAccession, List<String> procedureName, List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, String graphBaseUrl)
@@ -960,13 +1055,13 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         gene.setAccessionId(dto.getMarkerAccessionId());
         gene.setSymbol(dto.getMarkerSymbol());
 
-        ImpressBaseDTO procedure = new ImpressBaseDTO(null, dto.getProcedureStableKey(), dto.getProcedureStableId(), dto.getProcedureName());
-        ImpressBaseDTO parameter = new ImpressBaseDTO(null, dto.getParameterStableKey(), dto.getParameterStableId(), dto.getParameterName());
+        ImpressBaseDTO procedure = new ImpressBaseDTO(null, dto.getProcedureStableKey().get(0), dto.getProcedureStableId().get(0), dto.getProcedureName());
+        ImpressBaseDTO parameter = new ImpressBaseDTO(null, dto.getParameterStableKey().get(0), dto.getParameterStableId(), dto.getParameterName());
         ImpressBaseDTO pipeline = new ImpressBaseDTO(null, dto.getPipelineStableKey(), dto.getPipelineStableId(), dto.getPipelineName());
         ZygosityType zygosity = dto.getZygosity() != null ? ZygosityType.valueOf(dto.getZygosity()) : ZygosityType.not_applicable;
         ExperimentsDataTableRow row = new ExperimentsDataTableRow(dto.getPhenotypingCenter(), dto.getStatisticalMethod(),
                 dto.getStatus(), allele, gene, zygosity,
-                pipeline, procedure, parameter, graphBaseUrl, dto.getpValue(), dto.getFemaleMutantCount(),
+                pipeline, procedure, parameter, graphBaseUrl, dto.getPValue(), dto.getFemaleMutantCount(),
                 dto.getMaleMutantCount(), dto.getEffectSize(), dto.getMetadataGroup());
         row.setLifeStageName(dto.getLifeStageName());
         row.setLifeStageAcc(dto.getLifeStageAcc());
@@ -990,24 +1085,27 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
             query = StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + gene + "\"";
         }
 
+        query += " AND " + StatisticalResultDTO.STATUS + ":Successful";
+        query += " AND (" + StringUtils.join(Arrays.asList(StatisticalResultDTO.MP_TERM_ID + ":*", StatisticalResultDTO.MP_TERM_ID_OPTIONS + ":*"), " OR ") + ")";
+
+        if (zygosity != null) {
+            query += " AND " + StatisticalResultDTO.ZYGOSITY + ":" + zygosity.getName();
+        }
+
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery(query);
         solrQuery.setRows(Integer.MAX_VALUE);
-        solrQuery.setSort(StatisticalResultDTO.P_VALUE, ORDER.asc);
-        solrQuery.addFilterQuery(StringUtils.join(Arrays.asList(StatisticalResultDTO.MP_TERM_ID + ":*", StatisticalResultDTO.FEMALE_MP_TERM_ID + ":*", StatisticalResultDTO.MALE_MP_TERM_ID + ":*"), " OR "));
-        solrQuery.addFilterQuery(StatisticalResultDTO.STATUS + ":Success");
-        solrQuery.setFields(StatisticalResultDTO.P_VALUE, StatisticalResultDTO.SEX, StatisticalResultDTO.ZYGOSITY,
+        //solrQuery.setSort(StatisticalResultDTO.P_VALUE, ORDER.asc);
+        solrQuery.setFields(StatisticalResultDTO.P_VALUE, StatisticalResultDTO.MALE_KO_EFFECT_P_VALUE, StatisticalResultDTO.FEMALE_KO_EFFECT_P_VALUE, StatisticalResultDTO.SEX, StatisticalResultDTO.ZYGOSITY,
                 StatisticalResultDTO.MARKER_ACCESSION_ID, StatisticalResultDTO.MARKER_SYMBOL,
+                StatisticalResultDTO.DATA_TYPE,
                 StatisticalResultDTO.MP_TERM_ID, StatisticalResultDTO.MP_TERM_NAME,
+                StatisticalResultDTO.MP_TERM_ID_OPTIONS, StatisticalResultDTO.MP_TERM_NAME_OPTIONS,
                 StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID, StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME,
-                StatisticalResultDTO.FEMALE_TOP_LEVEL_MP_TERM_ID, StatisticalResultDTO.FEMALE_TOP_LEVEL_MP_TERM_NAME,
-                StatisticalResultDTO.MALE_TOP_LEVEL_MP_TERM_ID, StatisticalResultDTO.MALE_TOP_LEVEL_MP_TERM_NAME,
                 StatisticalResultDTO.PHENOTYPE_SEX, StatisticalResultDTO.RESOURCE_NAME,
                 StatisticalResultDTO.PROCEDURE_STABLE_ID, StatisticalResultDTO.SIGNIFICANT);
 
-        if (zygosity != null) {
-            solrQuery.addFilterQuery(StatisticalResultDTO.ZYGOSITY + ":" + zygosity.getName());
-        }
+        logger.debug(solrQuery.toQueryString());
         List<StatisticalResultDTO> dtos = statisticalResultCore.query(solrQuery).getBeans(StatisticalResultDTO.class);
 
         for (StatisticalResultDTO dto : dtos) {
@@ -1018,12 +1116,20 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
                         .filter(Objects::nonNull)
                         .flatMap(Collection::stream)
                         .collect(Collectors.toList());
-
+                if (dto.getSignificant()) {
+                    switch (dto.getSex()) {
+                        case "female":
+                            dto.setPValue(dto.getFemaleKoEffectPValue());
+                            break;
+                        case "male":
+                            dto.setPValue(dto.getMaleKoEffectPValue());
+                            break;
+                    }
+                }
                 for (String id : topLevelTermIds) {
                     if (!res.containsKey(id)) {
                         res.put(id, new ArrayList<>());
                     }
-
                     res.get(id).add(dto);
                 }
 
@@ -1088,9 +1194,9 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
     @Cacheable("geneRowCache")
     public HashMap<String, GeneRowForHeatMap> getSecondaryProjectMapForGeneList(Set<String> geneAccessions1, List<BasicBean> topLevelMps) {
-
+        System.out.println("calling get secondary project gene list");
         HashMap<String, GeneRowForHeatMap> geneRowMap = new HashMap<>(); // <geneAcc, row>
-        Iterators.partition(geneAccessions1.iterator(), 50).forEachRemaining(geneAccessions ->
+        Iterators.partition(geneAccessions1.iterator(), 100).forEachRemaining(geneAccessions ->
         {
 
             SolrQuery q = new SolrQuery()
@@ -1105,35 +1211,34 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
                     .setRows(Integer.MAX_VALUE)
                     .setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
 
-            q.addFilterQuery(StatisticalResultDTO.MP_TERM_ID + ":*"); // Ignore MPATH or other types of associations
-            q.add("group", "true");
-            q.add("group.field", StatisticalResultDTO.MARKER_ACCESSION_ID);
-            q.set("group.limit", Integer.MAX_VALUE);
+            q.addFilterQuery(StatisticalResultDTO.MP_TERM_ID_OPTIONS + ":*"); // Ignore MPATH or other types of associations
 
-            logger.info("getSecondaryProjectMapForGeneList Statistical result query: " + ((HttpSolrClient) statisticalResultCore).getBaseURL() + "/select?" + q.getQuery());
-            GroupCommand groups;
+            List<StatisticalResultDTO> results;
             try {
-                groups = statisticalResultCore.query(q, SolrRequest.METHOD.POST).getGroupResponse().getValues().get(0);
+                //this is currently the very slow bit, 8 calls to this method which each take many seconds to respond... probably because of raw data even though that field is not populated in the DTO
+                results = statisticalResultCore.query(q, SolrRequest.METHOD.POST).getBeans(StatisticalResultDTO.class);
             } catch (SolrServerException | IOException e) {
                 e.printStackTrace();
                 return;
             }
 
-            for (Group group : groups.getValues()) {
-                // Each group contains data for a different gene
-                String geneAcc = group.getGroupValue();
-                SolrDocumentList docs = group.getResult();
-                GeneRowForHeatMap row = new GeneRowForHeatMap(geneAcc, docs.get(0).getFieldValue(StatisticalResultDTO.MARKER_SYMBOL).toString(), topLevelMps); // Fill row with default values for all mp top levels
+            // Collect the documents by gene
+            Map<String, List<StatisticalResultDTO>> geneMap = results.stream().collect(Collectors.groupingBy(StatisticalResultDTO::getMarkerAccessionId, Collectors.mapping(Function.identity(), Collectors.toList())));
 
-                for (SolrDocument doc : docs) {
-                    List<String> currentTopLevelMps = (ArrayList<String>) doc.get(StatisticalResultDTO.TOP_LEVEL_MP_TERM_NAME);
+            for (String geneAcc : geneMap.keySet()) {
+                // Fill row with default values for all mp top levels
+                GeneRowForHeatMap row = new GeneRowForHeatMap(geneAcc, geneMap.get(geneAcc).get(0).getMarkerSymbol(), topLevelMps);
+
+                // Collect
+                for (StatisticalResultDTO result : geneMap.get(geneAcc)) {
+                    List<String> currentTopLevelMps = result.getTopLevelMpTermName();
 
                     // The current top level might be null, because the actual term is already a top level,
                     // check the associated mp term to see, and add it if it's already top-level
                     if (currentTopLevelMps == null) {
-                        if (topLevelMps.stream().anyMatch(x -> x.getName().equals(doc.getFieldValue(StatisticalResultDTO.MP_TERM_NAME).toString()))) {
+                        if (topLevelMps.stream().anyMatch(x -> x.getName().equals(result.getMpTermName()))) {
                             currentTopLevelMps = new ArrayList<>();
-                            currentTopLevelMps.add(doc.getFieldValue(StatisticalResultDTO.MP_TERM_NAME).toString());
+                            currentTopLevelMps.add(result.getMpTermName());
                         }
                     }
 
@@ -1141,19 +1246,20 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
                     if (currentTopLevelMps != null) {
                         for (String mp : currentTopLevelMps) {
                             HeatMapCell cell = row.getXAxisToCellMap().containsKey(mp) ? row.getXAxisToCellMap().get(mp) : new HeatMapCell(mp, HeatMapCell.THREE_I_NO_DATA);
-                            if (doc.getFieldValue(StatisticalResultDTO.SIGNIFICANT) != null && doc.getFieldValue(StatisticalResultDTO.SIGNIFICANT).toString().equalsIgnoreCase("true")) {
+                            if (result.getSignificant() != null && result.getSignificant()) {
                                 cell.addStatus(HeatMapCell.THREE_I_DEVIANCE_SIGNIFICANT);
-                            } else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")) {
+                            } else if (result.getStatus().equalsIgnoreCase("Successful")) {
                                 cell.addStatus(HeatMapCell.THREE_I_DATA_ANALYSED_NOT_SIGNIFICANT);
-                            } else {
+                            } else if (result.getStatus().equalsIgnoreCase("NotProcessed")) {
                                 cell.addStatus(HeatMapCell.THREE_I_COULD_NOT_ANALYSE);
                             }
-
                             row.add(cell);
                         }
                     }
                 }
+
                 geneRowMap.put(geneAcc, row);
+
             }
         });
 
@@ -1204,7 +1310,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
                     cell.setxAxisKey(doc.get(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString());
                     if (doc.getFieldValue(StatisticalResultDTO.P_VALUE) != null && Double.parseDouble(doc.getFieldValue(StatisticalResultDTO.P_VALUE).toString()) < 0.0001) {
                         cell.addStatus(HeatMapCell.THREE_I_DEVIANCE_SIGNIFICANT);
-                    } else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Success")) {
+                    } else if (doc.getFieldValue(StatisticalResultDTO.STATUS).toString().equals("Successful")) {
                         cell.addStatus(HeatMapCell.THREE_I_DATA_ANALYSED_NOT_SIGNIFICANT);
                     } else {
                         cell.addStatus(HeatMapCell.THREE_I_COULD_NOT_ANALYSE);
@@ -1286,40 +1392,73 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         return results.getGroupResponse().getValues().get(0).getValues();
     }
 
+    Set<String> nullFilterFields = new TreeSet<>();
+
     public List<StatisticalResultDTO> getImpcPvalues() throws SolrServerException, IOException {
         SolrQuery q = new SolrQuery("*:*")
-                .addFilterQuery(StatisticalResultDTO.STATUS + ":Success")
-                .addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(IMPC OR 3i)")
-                .addField(StatisticalResultDTO.ALLELE_SYMBOL)
-                .addField(StatisticalResultDTO.COLONY_ID)
+                .addField(StatisticalResultDTO.DOCUMENT_ID)
                 .addField(StatisticalResultDTO.MARKER_SYMBOL)
                 .addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
-                .addField(StatisticalResultDTO.ZYGOSITY)
+                .addField(StatisticalResultDTO.ALLELE_SYMBOL)
+                .addField(StatisticalResultDTO.ALLELE_ACCESSION_ID)
+                .addField(StatisticalResultDTO.STRAIN_NAME)
+                .addField(StatisticalResultDTO.STRAIN_ACCESSION_ID)
+                .addField(StatisticalResultDTO.COLONY_ID)
                 .addField(StatisticalResultDTO.PHENOTYPING_CENTER)
+                .addField(StatisticalResultDTO.ZYGOSITY)
                 .addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
                 .addField(StatisticalResultDTO.PARAMETER_NAME)
                 .addField(StatisticalResultDTO.P_VALUE)
-                .setRows(Integer.MAX_VALUE)
-                .setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
+                .setRows(Integer.MAX_VALUE);
 
-        return statisticalResultCore.query(q).getBeans(StatisticalResultDTO.class);
+        List<StatisticalResultDTO> results = statisticalResultCore.query(q).getBeans(StatisticalResultDTO.class);
+
+        // Log null filter fields, then remove them. Failing to remove them causes NPE.
+        nullFilterFields = results
+                .stream()
+                .filter(dto -> (dto.getStatus() == null) || dto.getResourceName() == null)
+                .map(StatisticalResultDTO::getDocId)
+                .collect(Collectors.toSet());
+
+        results = results
+                .stream()
+                .filter(dto -> dto.getStatus() != null)
+                .filter(dto -> dto.getResourceName() != null)
+                .filter(dto -> dto.getStatus().equalsIgnoreCase("Successful"))
+                .filter(dto -> dto.getResourceName().equalsIgnoreCase("IMPC")
+                        || dto.getResourceName().equalsIgnoreCase("3i"))
+                .collect(Collectors.toList());
+
+        if (!nullFilterFields.isEmpty()) {
+            logger.warn("Null filter fields by type and Solr doc id:");
+            nullFilterFields.stream().forEachOrdered(s -> System.out.println(s));
+        }
+
+        return results;
     }
 
+    // This service is used only by an old, deprecated report: ImpcPhenotypesProcedures.
+    // It is identical to getImpcPvalues() except with the addition of PROCEDURE_STABLE_ID
+    @Deprecated
     public List<StatisticalResultDTO> getImpcPvaluesAndMpTerms() throws SolrServerException, IOException {
         SolrQuery q = new SolrQuery("*:*")
-                .addFilterQuery(StatisticalResultDTO.STATUS + ":Success")
-                .addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(IMPC OR 3i)")
-                .addField(StatisticalResultDTO.ALLELE_SYMBOL)
-                .addField(StatisticalResultDTO.COLONY_ID)
                 .addField(StatisticalResultDTO.MARKER_SYMBOL)
                 .addField(StatisticalResultDTO.MARKER_ACCESSION_ID)
-                .addField(StatisticalResultDTO.ZYGOSITY)
-                .addField(StatisticalResultDTO.MP_TERM_NAME)
+                .addField(StatisticalResultDTO.ALLELE_SYMBOL)
+                .addField(StatisticalResultDTO.ALLELE_ACCESSION_ID)
+                .addField(StatisticalResultDTO.STRAIN_NAME)
+                .addField(StatisticalResultDTO.STRAIN_ACCESSION_ID)
+                .addField(StatisticalResultDTO.COLONY_ID)
                 .addField(StatisticalResultDTO.PHENOTYPING_CENTER)
+                .addField(StatisticalResultDTO.ZYGOSITY)
                 .addField(StatisticalResultDTO.PARAMETER_STABLE_ID)
-                .addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
                 .addField(StatisticalResultDTO.PARAMETER_NAME)
+                .addField(StatisticalResultDTO.PROCEDURE_STABLE_ID)
                 .addField(StatisticalResultDTO.P_VALUE)
+                .addField(StatisticalResultDTO.MP_TERM_NAME)
+
+                .addFilterQuery(StatisticalResultDTO.STATUS + ":Successful")
+                .addFilterQuery(StatisticalResultDTO.RESOURCE_NAME + ":(IMPC OR 3i)")
                 .setRows(Integer.MAX_VALUE)
                 .setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
 
@@ -1327,7 +1466,8 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
     }
 
     public Integer getParameterCountByGene(String acc) throws IOException, SolrServerException {
-        SolrQuery query = new SolrQuery("p_value:[* TO *] AND marker_accession_id:\"" + acc + "\"");
+        // Temporary change to fix ABR data
+        SolrQuery query = new SolrQuery("("+ StatisticalResultDTO.P_VALUE + ":[* TO *] OR " +  StatisticalResultDTO.PROCEDURE_STABLE_ID + ":*ABR*) AND " + StatisticalResultDTO.MARKER_ACCESSION_ID +":\"" + acc + "\" AND -parameter_stable_id:*VIA*");
         query.add("group", "true");
         query.add("group.ngroups", "true");
         query.add("group.field", StatisticalResultDTO.PARAMETER_NAME);
@@ -1335,100 +1475,100 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         return result.getGroupResponse().getValues().get(0).getNGroups();
     }
 
-	class OverviewRatio {
-		Double meanFControl;
-		Double meanFMutant;
-		Double meanMControl;
-		Double meanMMutant;
+    class OverviewRatio {
+        Double meanFControl;
+        Double meanFMutant;
+        Double meanMControl;
+        Double meanMMutant;
 
-		Double nFControl;
-		Double nFMutant;
-		Double nMControl;
-		Double nMMutant;
+        Double nFControl;
+        Double nFMutant;
+        Double nMControl;
+        Double nMMutant;
 
-		public OverviewRatio(){
-			meanFControl = (double) 0;
-			meanFMutant = (double) 0;
-			meanMMutant = (double) 0;
-			meanMControl = (double) 0;
+        public OverviewRatio() {
+            meanFControl = (double) 0;
+            meanFMutant = (double) 0;
+            meanMMutant = (double) 0;
+            meanMControl = (double) 0;
 
-			nFControl = (double) 0;
-			nFMutant = (double) 0;
-			nMControl = (double) 0;
-			nMMutant = (double) 0;
-		}
+            nFControl = (double) 0;
+            nFMutant = (double) 0;
+            nMControl = (double) 0;
+            nMMutant = (double) 0;
+        }
 
-		public void add (	Double meanFControl, Double meanFMutant, Double meanMControl, Double meanMMutant, Double nFControl, Double nFMutant, Double nMControl, Double nMMutant){
+        public void add(Double meanFControl, Double meanFMutant, Double meanMControl, Double meanMMutant, Double nFControl, Double nFMutant, Double nMControl, Double nMMutant) {
 
-			this.meanFControl += meanFControl;
-			this.meanFMutant += meanFMutant;
-			this.meanMMutant += meanMMutant;
-			this.meanMControl += meanMControl;
+            this.meanFControl += meanFControl;
+            this.meanFMutant += meanFMutant;
+            this.meanMMutant += meanMMutant;
+            this.meanMControl += meanMControl;
 
-			this.nFControl += nFControl;
-			this.nFMutant += nFMutant;
-			this.nMControl += nMControl;
-			this.nMMutant += nMMutant;
-		}
+            this.nFControl += nFControl;
+            this.nFMutant += nFMutant;
+            this.nMControl += nMControl;
+            this.nMMutant += nMMutant;
+        }
 
-		public void add (SolrDocument doc){
+        public void add(SolrDocument doc) {
 
-			if (doc.containsKey(StatisticalResultDTO.FEMALE_CONTROL_MEAN)){
-				this.meanFControl += Double.parseDouble(doc.getFieldValue(StatisticalResultDTO.FEMALE_CONTROL_MEAN).toString());
-			}
-			if (doc.containsKey(StatisticalResultDTO.FEMALE_MUTANT_MEAN)){
-				this.meanFMutant += Double.parseDouble(doc.getFieldValue(StatisticalResultDTO.FEMALE_MUTANT_MEAN).toString());
-			}
-			if (doc.containsKey(StatisticalResultDTO.MALE_MUTANT_MEAN)){
-				this.meanMMutant += Double.parseDouble(doc.get(StatisticalResultDTO.MALE_MUTANT_MEAN).toString());
-			}
-			if (doc.containsKey(StatisticalResultDTO.MALE_CONTROL_MEAN)){
-				this.meanMControl += Double.parseDouble(doc.get(StatisticalResultDTO.MALE_CONTROL_MEAN).toString());
-			}
-			if (doc.containsKey(StatisticalResultDTO.FEMALE_CONTROL_COUNT)){
-				this.nFControl += Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString());
-			}
-			if (doc.containsKey(StatisticalResultDTO.FEMALE_MUTANT_COUNT)){
-				this.nFMutant += Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString());
-			}
-			if (doc.containsKey(StatisticalResultDTO.MALE_CONTROL_COUNT)){
-				this.nMControl += Double.parseDouble(doc.get(StatisticalResultDTO.MALE_CONTROL_COUNT).toString());
-			}
-			if (doc.containsKey(StatisticalResultDTO.MALE_MUTANT_COUNT)){
-				this.nMMutant += Double.parseDouble(doc.get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString());
-			}
-		}
+            if (doc.containsKey(StatisticalResultDTO.FEMALE_CONTROL_MEAN)) {
+                this.meanFControl += Double.parseDouble(doc.getFieldValue(StatisticalResultDTO.FEMALE_CONTROL_MEAN).toString());
+            }
+            if (doc.containsKey(StatisticalResultDTO.FEMALE_MUTANT_MEAN)) {
+                this.meanFMutant += Double.parseDouble(doc.getFieldValue(StatisticalResultDTO.FEMALE_MUTANT_MEAN).toString());
+            }
+            if (doc.containsKey(StatisticalResultDTO.MALE_MUTANT_MEAN)) {
+                this.meanMMutant += Double.parseDouble(doc.get(StatisticalResultDTO.MALE_MUTANT_MEAN).toString());
+            }
+            if (doc.containsKey(StatisticalResultDTO.MALE_CONTROL_MEAN)) {
+                this.meanMControl += Double.parseDouble(doc.get(StatisticalResultDTO.MALE_CONTROL_MEAN).toString());
+            }
+            if (doc.containsKey(StatisticalResultDTO.FEMALE_CONTROL_COUNT)) {
+                this.nFControl += Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_CONTROL_COUNT).toString());
+            }
+            if (doc.containsKey(StatisticalResultDTO.FEMALE_MUTANT_COUNT)) {
+                this.nFMutant += Double.parseDouble(doc.get(StatisticalResultDTO.FEMALE_MUTANT_COUNT).toString());
+            }
+            if (doc.containsKey(StatisticalResultDTO.MALE_CONTROL_COUNT)) {
+                this.nMControl += Double.parseDouble(doc.get(StatisticalResultDTO.MALE_CONTROL_COUNT).toString());
+            }
+            if (doc.containsKey(StatisticalResultDTO.MALE_MUTANT_COUNT)) {
+                this.nMMutant += Double.parseDouble(doc.get(StatisticalResultDTO.MALE_MUTANT_COUNT).toString());
+            }
+        }
 
 
-		public Double getPlotRatio(String sexToDisplay){
+        public Double getPlotRatio(String sexToDisplay) {
 
-			Double ratio = null;
+            Double ratio = null;
 
-			if (sexToDisplay.equalsIgnoreCase("both") ) {
-				if (nMMutant > 0 && nFMutant > 0){
-					Double totalMutant = nFMutant + nMMutant;
-					Double ratioMale = nMMutant / totalMutant;
-					Double ratioFemale = nFMutant / totalMutant;
-					ratio =  meanFMutant * ratioFemale + meanMMutant * ratioMale;
+            if (sexToDisplay.equalsIgnoreCase("both")) {
+                if (nMMutant > 0 && nFMutant > 0) {
+                    Double totalMutant = nFMutant + nMMutant;
+                    Double ratioMale = nMMutant / totalMutant;
+                    Double ratioFemale = nFMutant / totalMutant;
+                    ratio = meanFMutant * ratioFemale + meanMMutant * ratioMale;
 
-					totalMutant = nFControl	+ nMControl;
-					ratioMale = nMControl / totalMutant;
-					ratioFemale = nFControl / totalMutant;
-					ratio = ratio/(meanFControl * ratioFemale + meanMControl * ratioMale);
-				}
-			} else if (sexToDisplay.equalsIgnoreCase(SexType.male.getName())){
-				if (nMMutant > 0){
-					ratio = meanMMutant / meanMControl;
-				}
-			} else if (sexToDisplay.equalsIgnoreCase(SexType.female.getName())) {
-				if (nFMutant > 0){
-					ratio = meanFMutant / meanFControl;
-				}
-			}
+                    totalMutant = nFControl + nMControl;
+                    ratioMale = nMControl / totalMutant;
+                    ratioFemale = nFControl / totalMutant;
+                    ratio = ratio / (meanFControl * ratioFemale + meanMControl * ratioMale);
+                }
+            } else if (sexToDisplay.equalsIgnoreCase(SexType.male.getName())) {
+                if (nMMutant > 0) {
+                    ratio = meanMMutant / meanMControl;
+                }
+            } else if (sexToDisplay.equalsIgnoreCase(SexType.female.getName())) {
+                if (nFMutant > 0) {
+                    ratio = meanFMutant / meanFControl;
+                }
+            }
 
-			return ratio;
-		}
-	}
+            return ratio;
+        }
+    }
 
 
     /**

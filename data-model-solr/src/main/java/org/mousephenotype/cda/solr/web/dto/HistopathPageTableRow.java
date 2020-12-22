@@ -238,7 +238,7 @@ public void setMpathDiagnosticOntologyBeans(Map<String, List<OntologyBean>> mpat
 		return significance;
 	}
 	
-	public void addSignficiance(ImpressBaseDTO parameter, String category) {
+	public void addSignficance(ImpressBaseDTO parameter, String category) {
 		this.significance.add(new ParameterValueBean(parameter, category));
 		
 	}
@@ -312,8 +312,7 @@ public void setMpathDiagnosticOntologyBeans(Map<String, List<OntologyBean>> mpat
 	
 	private List<SolrDocument> imageList=new ArrayList<>();
 	private Integer sequenceId;
-	private Boolean significant;
-	
+
 	public Integer getSequenceId() {
 		return sequenceId;
 	}
@@ -330,10 +329,7 @@ public void setMpathDiagnosticOntologyBeans(Map<String, List<OntologyBean>> mpat
 	public void setSequenceId(Integer sequenceId) {
 		this.sequenceId=sequenceId;
 	}
-	public void setSignficant() {
-		this.significant=true;
-		
-	}
+
 	
 	
 	

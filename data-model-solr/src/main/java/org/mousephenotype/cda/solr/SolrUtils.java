@@ -436,4 +436,16 @@ public class SolrUtils {
             System.out.println();
         }
     }
+
+    /**
+     * Given a solr document and a field name, returns null if the value is null;
+     * otherwise, returns the field value as a String.
+     * @param doc Solr document
+     * @param fieldName field name
+     * @return field value as String, or null if value is null
+     */
+   public static String getFieldValue(SolrDocument doc, String fieldName) {
+        Object o = doc.getFieldValue(fieldName);
+        return (o == null ? null : o.toString());
+    }
 }

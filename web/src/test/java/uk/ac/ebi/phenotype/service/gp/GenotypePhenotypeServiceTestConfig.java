@@ -18,7 +18,6 @@ package uk.ac.ebi.phenotype.service.gp;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.mousephenotype.cda.db.repositories.GenesSecondaryProjectRepository;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.solr.service.*;
 import org.slf4j.LoggerFactory;
@@ -48,7 +47,7 @@ public class GenotypePhenotypeServiceTestConfig {
 
     @Autowired
     @Lazy
-    private GenesSecondaryProjectRepository genesSecondaryProjectRepository;
+    private GenesSecondaryProjectServiceIdg genesSecondaryProjectRepository;
 
 
 
@@ -84,7 +83,7 @@ public class GenotypePhenotypeServiceTestConfig {
 
     @Bean
     public GeneService geneService() {
-        return new GeneService(geneCore());
+        return new GeneService(geneCore(), impressService());
     }
 
     @Bean

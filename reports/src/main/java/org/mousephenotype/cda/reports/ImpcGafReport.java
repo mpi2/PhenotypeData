@@ -28,6 +28,7 @@ import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -44,6 +45,7 @@ import java.util.*;
  * Created by mrelac on 08/02/2016.
  */
 @Component
+@Deprecated
 public class ImpcGafReport extends AbstractReport {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -57,6 +59,8 @@ public class ImpcGafReport extends AbstractReport {
     @Inject
     public ImpcGafReport(
             @NotNull GeneService geneService,
+
+            @Qualifier("genotype-phenotype-service")
             @NotNull GenotypePhenotypeService genotypePhenotypeService,
             @NotNull MetaInfoRepository metaInfoRepository,
             @NotNull ObservationService observationService)
@@ -94,7 +98,7 @@ public class ImpcGafReport extends AbstractReport {
                 "With (or) From", "Aspect", "DB Object Name", "DB Object Synonym (|Synonym)", "DB Object Type", "Taxon(|taxon)",
                 "Date", "Assigned By", "Annotation Extension", "Gene Product Form ID"});
 
-        csvWriter.writeRow(headerParams);
+        csvWriter.write(headerParams);
 
         try {
 
@@ -154,7 +158,7 @@ public class ImpcGafReport extends AbstractReport {
 
                 });
 
-                csvWriter.writeRow(row);
+                csvWriter.write(row);
             }
 
         } catch (SolrServerException | IOException e) {

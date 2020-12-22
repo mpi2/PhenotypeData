@@ -15,19 +15,19 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
+import org.mousephenotype.cda.db.pojo.AnalyticsSignificantCallsProcedures;
 import org.mousephenotype.cda.db.pojo.MetaInfo;
-import org.mousephenotype.cda.db.repositories.AnalyticsPvalueDistributionRepository;
 import org.mousephenotype.cda.db.repositories.AnalyticsSignificantCallsProceduresRepository;
 import org.mousephenotype.cda.db.repositories.MetaHistoryRepository;
 import org.mousephenotype.cda.db.repositories.MetaInfoRepository;
 import org.mousephenotype.cda.dto.AggregateCountXY;
-import org.mousephenotype.cda.dto.UniqueDatatypeAndStatisticalMethod;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.Allele2Service;
 import org.mousephenotype.cda.solr.service.PhenodigmService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
+import org.mousephenotype.cda.utilities.LifeStageMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -49,6 +49,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @Controller
@@ -70,7 +71,6 @@ public class ReleaseController {
 
 
 	private Allele2Service                                allele2Service;
-	private AnalyticsPvalueDistributionRepository         analyticsPvalueDistributionRepository;
 	private AnalyticsSignificantCallsProceduresRepository analyticsSignificantCallsProceduresRepository;
 	private UnidimensionalChartAndTableProvider           chartProvider;
 	private MetaHistoryRepository                         metaHisoryRepository;
@@ -82,7 +82,6 @@ public class ReleaseController {
 	@Inject
 	public ReleaseController(
 			@NotNull Allele2Service allele2Service,
-			@NotNull AnalyticsPvalueDistributionRepository analyticsPvalueDistributionRepository,
 			@NotNull AnalyticsSignificantCallsProceduresRepository analyticsSignificantCallsProceduresRepository,
 			@NotNull UnidimensionalChartAndTableProvider chartProvider,
 			@NotNull MetaHistoryRepository metaHisoryRepository,
@@ -91,7 +90,6 @@ public class ReleaseController {
 			@NotNull StatisticalResultService statisticalResultService)
 	{
 		this.allele2Service = allele2Service;
-		this.analyticsPvalueDistributionRepository = analyticsPvalueDistributionRepository;
 		this.analyticsSignificantCallsProceduresRepository = analyticsSignificantCallsProceduresRepository;
 		this.chartProvider = chartProvider;
 		this.metaHisoryRepository = metaHisoryRepository;
@@ -105,7 +103,7 @@ public class ReleaseController {
 	 * Force update meta info cache every fifteen minutes
 	 */
 	@Scheduled(cron = "0 0/15 * * * *")
-	private void updateCacheTimer() {
+	void updateCacheTimer() {
 		logger.info("Cache timeout expired. Clearing metadata cache");
 		cachedMetaInfo = null;
 		getMetaInfo();
@@ -132,10 +130,10 @@ public class ReleaseController {
 			// The front end will check for the key
 			// "unique_mouse_model_disease_associations" in the map,
 			// If not there, do not display the count
-			final Integer diseaseAssociationCount = phenodigmService.getDiseaseAssociationCount();
-			if (diseaseAssociationCount != null) {
-				metaInfo.put("unique_mouse_model_disease_associations", diseaseAssociationCount.toString());
-			}
+//			final Integer diseaseAssociationCount = phenodigmService.getDiseaseAssociationCount();
+//			if (diseaseAssociationCount != null) {
+//				metaInfo.put("unique_mouse_model_disease_associations", diseaseAssociationCount.toString());
+//			}
 
 			synchronized (this) {
 				cachedMetaInfo = metaInfo;
@@ -172,30 +170,33 @@ public class ReleaseController {
 		Map<String, String> metaInfo = getMetaInfo();
 
 		/*
-		 * What are the different Phenotyping centers?
+		 * Phenotyping centers?
 		 */
-
 		String sCenters = metaInfo.get("phenotyped_lines_centers");
-		String[] phenotypingCenters = sCenters.split(",");
+		List<String> phenotypingCenters = Stream.of(sCenters.split(","))
+				.map(String::trim)
+				.collect(Collectors.toList());
 
 		/*
 		 * Data types
 		 */
-
 		String sDataTypes = metaInfo.get("datapoint_types");
-		String[] dataTypes = sDataTypes.split(",");
+		List<String> dataTypes = Stream.of(sDataTypes.split(","))
+				.map(String::trim)
+				.collect(Collectors.toList());
 
 		/*
 		 * QC types
 		 */
-		String[] qcTypes = new String[] { "QC_passed", "QC_failed", "issues" };
+		List<String> qcTypes = Arrays.asList("QC_passed");
 
 		/*
 		 * Targeted allele types
 		 */
-
 		String sAlleleTypes = metaInfo.get("targeted_allele_types");
-		String[] alleleTypes = sAlleleTypes.split(",");
+		List<String> alleleTypes = Stream.of(sAlleleTypes.split(","))
+				.map(String::trim)
+				.collect(Collectors.toList());
 
 		/*
 		 * Helps to generate graphs
@@ -205,52 +206,28 @@ public class ReleaseController {
 		List<AggregateCountXY> callBeans = getAllProcedurePhenotypeCalls();
 
 		String callProcedureChart = chartsProvider.generateAggregateCountByProcedureChart(callBeans,
-				"Phenotype calls per procedure", "Center by center", "Number of phenotype calls", "calls",
+				"Number of Phenotype Calls by Procedure",
+				"Further categorized by Embryo, Late Adult, and Early Adult",
+				"Number of phenotype calls", "calls",
 				"callProcedureChart", "checkAllPhenCalls", "uncheckAllPhenCalls");
-
-		Map<String, List<String>> statisticalMethods =
-				analyticsPvalueDistributionRepository.getAllStatisticalMethods(UniqueDatatypeAndStatisticalMethod.class)
-						.stream()
-						.collect(
-								Collectors.groupingBy(
-										UniqueDatatypeAndStatisticalMethod::getDatatype,
-										Collectors.mapping(
-												UniqueDatatypeAndStatisticalMethod::getStatisticalMethod,
-												Collectors.toList())));
-
-		/*
-		 * Generate pValue distribution graph for all methods
-		 */
-		Map<String, String> distributionCharts = new HashMap<>();
-
-		for (String dataType : statisticalMethods.keySet()) {
-			for (String statisticalMethod : statisticalMethods.get(dataType)) {
-				List<AggregateCountXY> distribution = getAggregates(dataType, statisticalMethod);
-				String chart = chartsProvider.generateAggregateCountByProcedureChart(distribution,
-																					 "P-value distribution", statisticalMethod, "Frequency", "",
-																					 statisticalMethodsShortName.get(statisticalMethod) + "Chart", "xxx", "xxx");
-				distributionCharts.put(statisticalMethodsShortName.get(statisticalMethod) + "Chart", chart);
-			}
-		}
 
 		/*
 		 * Get Historical trends release by release
 		 */
 		List<String> allDataReleaseVersions = metaHisoryRepository.getAllDataReleaseVersionsCastAsc();
 
-		String[] trendsVariables = new String[] { "statistically_significant_calls", "phenotyped_genes",
-				"phenotyped_lines" };
+		List<String> trendsVariables = Arrays.asList("statistically_significant_calls", "phenotyped_genes", "phenotyped_lines" );
 		Map<String, List<AggregateCountXY>> trendsMap = new HashMap<>();
 		for (String trendsVariable : trendsVariables) {
 			trendsMap.put(trendsVariable, getHistoricalData(trendsVariable));
 		}
 
 		String trendsChart = chartsProvider.generateHistoryTrendsChart(trendsMap, allDataReleaseVersions,
-				"Genes/Mutant Lines/MP Calls", "Release by Release", "Genes/Mutant Lines", "Phenotype Calls", true,
+				"Genes/Mutant Lines/MP Calls", "By Data Release", "Genes/Mutant Lines", "Phenotype Calls", true,
 				"trendsChart", null, null);
 
 		Map<String, List<AggregateCountXY>> datapointsTrendsMap = new HashMap<>();
-		String[]                            status              = new String[] { "QC_passed", "QC_failed", "issues" };
+		List<String> status = Arrays.asList("QC_passed");
 
 		for (String dataType : dataTypes) {
 			for (String s : status) {
@@ -261,7 +238,7 @@ public class ReleaseController {
 		}
 
 		String datapointsTrendsChart = chartsProvider.generateHistoryTrendsChart(datapointsTrendsMap, allDataReleaseVersions,
-				"Data points", "", "Data points", null, false, "datapointsTrendsChart", "checkAllDataPoints",
+				"Data Points by Data Release", "", "Data Points", null, false, "datapointsTrendsChart", "checkAllDataPoints",
 				"uncheckAllDataPoints");
 
 		TreeMap<String, TreeMap<String, Long>> annotationDistribution = new TreeMap<>();
@@ -273,7 +250,7 @@ public class ReleaseController {
 								   statisticalResultService.getDistributionOfAnnotationsByMPTopLevel(ZygosityType.hemizygote, null));
 		String annotationDistributionChart = chartsProvider.generateAggregateCountByProcedureChart(
 				statisticalResultService.getAggregateCountXYBean(annotationDistribution),
-				"Distribution of Phenotype Associations in IMPC", "", "Number of genotype-phenotype associations",
+				"Distribution of Phenotype Associations by Top-level MP Term", "", "Number of genotype-phenotype associations",
 				" lines", "distribution", null, null);
 
 		Set<String> allPhenotypingCenters = allele2Service.getFacets(Allele2DTO.LATEST_PHENOTYPING_CENTRE);
@@ -313,10 +290,8 @@ public class ReleaseController {
 		model.addAttribute("dataTypes", dataTypes);
 		model.addAttribute("qcTypes", qcTypes);
 		model.addAttribute("alleleTypes", alleleTypes);
-		model.addAttribute("statisticalMethods", statisticalMethods);
 		model.addAttribute("statisticalMethodsShortName", statisticalMethodsShortName);
 		model.addAttribute("callProcedureChart", callProcedureChart);
-		model.addAttribute("distributionCharts", distributionCharts);
 		model.addAttribute("trendsChart", trendsChart);
 		model.addAttribute("datapointsTrendsChart", datapointsTrendsChart);
 		model.addAttribute("annotationDistributionChart", annotationDistributionChart);
@@ -386,38 +361,51 @@ public class ReleaseController {
 		.collect(Collectors.toList());
 	}
 
+	private List<AggregateCountXY> getAllProcedurePhenotypeCalls() {
+		Iterable<AnalyticsSignificantCallsProcedures> all = analyticsSignificantCallsProceduresRepository.findAll();
+		List<AggregateCountXY> data =
+			StreamSupport
+				.stream(all.spliterator(), false)
+				.map(ascp -> new AggregateCountXY(
+					Math.toIntExact(ascp.getSignificantCalls()),
+					ascp.getProcedureName(),
+					"procedure",
+					ascp.getProcedureStableId(),
+					getAllProcedurePhenotypeCallsYvalue(ascp),
+					"nb of calls",
+					null))
+				.collect(Collectors.toList());
 
-	private List<AggregateCountXY> getAggregates(String dataType, String statisticalMethod) {
+		// Sort by Embryo (life stage, then procedure alphabetic)
+		List<AggregateCountXY> embryoData = data
+		    .stream()
+			.filter((ac -> ac.getyValue().equalsIgnoreCase("Embryo")))
+			.sorted(
+				Comparator.comparing((AggregateCountXY axy) -> LifeStageMapper.getLifeStage(axy.getxAttribute()).ordinal())
+				.thenComparing(AggregateCountXY::getxValue)
+			)
+			.collect(Collectors.toList());
 
-		return analyticsPvalueDistributionRepository.getAllByDatatypeAndStatisticalMethodOrderByPvalueBinAsc(dataType, statisticalMethod)
-				.stream()
-				.map(dist -> {
-					return new AggregateCountXY(
-							dist.getPvalueCount(),
-							Double.toString(dist.getPvalueBin()),
-							"p-value",
-							null,
-							dist.getStatisticalMethod(),
-							dist.getStatisticalMethod(),
-							null);
-				})
-		.collect(Collectors.toList());
+		// Sort by everything NOT Embryo (alphabetic)
+		List<AggregateCountXY> nonEmbryoData = data
+			.stream()
+			.filter((ac -> ! ac.getyValue().equalsIgnoreCase("Embryo")))
+			.sorted(Comparator.comparing(AggregateCountXY::getxValue))
+			.collect(Collectors.toList());
+		embryoData.addAll(nonEmbryoData);
+		return embryoData;
 	}
 
-
-	private List<AggregateCountXY> getAllProcedurePhenotypeCalls() {
-
-		return
-				StreamSupport
-						.stream(analyticsSignificantCallsProceduresRepository.findAll().spliterator(), false)
-						.map(ascp -> new AggregateCountXY(
-								Math.toIntExact(ascp.getSignificantCalls()),
-								ascp.getProcedureStableId(),
-								"procedure",
-								null,
-								ascp.getPhenotypingCenter(),
-								"nb of calls",
-								null))
-						.collect(Collectors.toList());
+	private String getAllProcedurePhenotypeCallsYvalue(AnalyticsSignificantCallsProcedures ascp) {
+		if  ((ascp.getProcedureName().contains("E9.5"))
+			|| (ascp.getProcedureName().contains("E12.5"))
+			|| (ascp.getProcedureName().contains("E15.5"))
+			|| (ascp.getProcedureName().contains("E18.5"))) {
+			return "Embryo";
+		} else if (ascp.getProcedureStableId().contains("LA_")) {
+			return "Late Adult";
+		} else {
+			return "Early Adult";
+		}
 	}
 }

@@ -8,7 +8,9 @@
     then modified into its current form
 """
 
+import sys
 import os
+import re
 import argparse
 import numpy as np
 import torch
@@ -17,6 +19,9 @@ import torchvision
 from torchvision import datasets, models, transforms
 import torch.nn as nn
 import pandas as pd
+
+# Import helper functions
+import qc_helper as helper
 
 # Parameters for this run
 parser = argparse.ArgumentParser(
@@ -36,7 +41,7 @@ parser.add_argument(
     help='Base directory for location of images'
 )
 parser.add_argument(
-    '-p', '--print-every', dest='print_every', default=500, type=int,
+    '-p', '--print-every', dest='print_every', default=-1, type=int,
     help='Number of iterations before printing prediction stats note that this also saves the predictions up to this point which is useful incase the program crashes. Use -1 to prevent printing anything.'
 )
 parser.add_argument(
@@ -44,9 +49,12 @@ parser.add_argument(
     help='Directory to read and write files associated with prediction'
 )
 parser.add_argument(
-    '-m', '--model-path', dest='model_path',
-    default="/nfs/nobackup/spot/machine_learning/impc_mouse_xrays/quality_control_all_sites/model_transfer.pt",
-    help="Path to model to use for predictions"
+    '-m', '--model-path', dest='model_path', required=True,
+    help="Path to json file describing model to use for predictions. Must be in same dir as model and have same name as model - only with .json ext whilst model has .pt extension"
+)
+parser.add_argument(
+    '--output-filename', dest='output_filename',
+    help="Name to use for output file base. If not specified the site name a nd parameter stable ID are concatenated"
 )
 
 args = parser.parse_args()
@@ -54,22 +62,60 @@ print_every = args.print_every
 site_name = args.site_name;
 parameter_stable_id = args.parameter_stable_id
 dir_base = args.dir_base
-to_process = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+".txt")
-processed_output_path = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+"_processed.csv")
-mis_classified_output_path = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+"_misclassified.csv")
-unable_to_read_output_path = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+"_unable_to_read.csv")
 
+# File containing description of the model and all inputs needed
+model_info, label_map, files_to_process = helper.parse_model_desc(args.model_path)
+
+classes = list(label_map.keys())
+n_classes = len(classes)
+
+# Set model version
+try:
+    model_version = model_info['model_version']
+except KeyError as e:
+    print(f'Key {str(e)} not present - could not get model_version. Exiting')
+    sys.exit(-1)
+
+if model_version != 1 and model_version != 2:
+    print(f"Model version must be 1 or 2 (value read = {model_version}) - Exiting")
+    sys.exit(-1)
+
+to_process = os.path.join(args.output_dir,site_name+"_"+parameter_stable_id+".txt")
+
+# Create the output file names using argument if supplied or from site
+# name and parameter stable ID if --output-filename parameter not supplied
+if args.output_filename is None:
+    output_filename = site_name+"_"+parameter_stable_id
+else:
+    output_filename = args.output_filename
+
+processed_output_path = os.path.join(args.output_dir,output_filename+"_processed.csv")
+mis_classified_output_path = os.path.join(args.output_dir,output_filename+"_misclassified.csv")
+unable_to_read_output_path = os.path.join(args.output_dir,output_filename+"_unable_to_read.csv")
 
 # Dict to map parameter_stable_ids to expected_class
+#parameter_to_class_map = {
+#    'IMPC_XRY_051_001' : 1,
+#    'IMPC_XRY_049_001' : 2,
+#    'IMPC_XRY_034_001' : 3,
+#    'IMPC_XRY_048_001' : 4,
+#    'IMPC_XRY_050_001' : 5,
+#    'IMPC_XRY_052_001' : 6,
+#}
+
+# Because of inclusion of LA need to make mapping more general
 parameter_to_class_map = {
-    'IMPC_XRY_051_001' : 1,
-    'IMPC_XRY_049_001' : 2,
-    'IMPC_XRY_034_001' : 3,
-    'IMPC_XRY_048_001' : 4,
-    'IMPC_XRY_050_001' : 5,
-    'IMPC_XRY_052_001' : 6,
+    '_XRY_051_001' : 1,
+    '_XRY_049_001' : 2,
+    '_XRY_034_001' : 3,
+    '_XRY_048_001' : 4,
+    '_XRY_050_001' : 5,
+    '_XRY_052_001' : 6,
 }
-expected_class = parameter_to_class_map[parameter_stable_id]
+regex = re.compile('(_XRY_0[0-9]{2}_001)')
+parameter_id_stem = regex.findall(parameter_stable_id)[0]
+expected_class = parameter_to_class_map[parameter_id_stem]
+
 # In[3]:
 
 
@@ -81,16 +127,6 @@ if not use_cuda:
 else:
     print('CUDA is available!  Training on GPU ...')
 
-
-# In[4]:
-
-
-# Import helper functions
-import qc_helper as helper
-
-
-classes = parameter_to_class_map.values()
-n_classes = len(classes)
 
 # Read in metadata
 imdetails = pd.read_csv(to_process)
@@ -139,21 +175,26 @@ for param in model_transfer.features.parameters():
 num_features = model_transfer.classifier[6].in_features
 features = list(model_transfer.classifier.children())[:-1]
 features.extend([nn.Linear(num_features, n_classes)])
+if model_version == 2:
+    features.extend([nn.Softmax(dim=1)])
+
 model_transfer.classifier = nn.Sequential(*features)
     
 # Load our learnt weights
+model_path = os.path.join(model_info['model_dir'],model_info['model_fname'])
 if use_cuda:
     model_transfer = model_transfer.cuda()
-    model_transfer.load_state_dict(torch.load(args.model_path))
+    model_transfer.load_state_dict(torch.load(model_path))
 else:
-    model_transfer.load_state_dict(torch.load(args.model_path, map_location='cpu'))
+    model_transfer.load_state_dict(torch.load(model_path, map_location='cpu'))
     
 
-print("Configured model from: " + args.model_path)
+print("Configured model from: " + model_path)
 
 # Apply the model to qc images
 n_images = len(dataset)
 predictions = np.ones([n_images,],np.byte) * -1
+class_scores = np.zeros([n_images,], np.float)
 mis_classifieds = []
 unable_to_read = []
 
@@ -165,16 +206,20 @@ for i in range(n_images):
 
         output = model_transfer(image.unsqueeze(0))
         output =np.squeeze(output.data.cpu().numpy())
-        predictions[i] = np.argwhere(output == output.max())[0]+1
+        index = np.argwhere(output == output.max())[0]
+        #predictions[i] = index+1
+        predictions[i] = classes[index[0]]
+        class_scores[i] = output[index]
     
         if predictions[i] != expected_class:
-            mis_classifieds.append((i,imdetails['imagename'][i],predictions[i]))
+            mis_classifieds.append((i,imdetails['imagename'][i],predictions[i], class_scores[i]))
         if print_every > 0 and i%print_every == 0:
             print(f"Iteration {i}")
             print("Number of misclassifieds: {0}".format(len(mis_classifieds)))
             # Also save predictions in case job crashes
             processed_output_path_temp = "{0}_{1:05d}".format(processed_output_path,i)
             imdetails['classlabel'] = predictions
+            imdetails['classscore'] = class_scores
             imdetails.to_csv(processed_output_path_temp, index=False)
     except Exception as e:
         print("An error occured")
@@ -183,14 +228,16 @@ for i in range(n_images):
 
 # Save the new dataframe
 imdetails['classlabel'] = predictions
-imdetails.to_csv(processed_output_path, index=False)
+imdetails['classscore'] = class_scores
+imdetails = imdetails.astype({'classscore': 'float64'})
+imdetails.to_csv(processed_output_path, index=False, float_format='%.2f')
 print("Saved processed images to " + processed_output_path)
 
 # Save misclassifieds
 if len(mis_classifieds) > 0:
-    mis_classifieds_df = pd.DataFrame(columns=('index','imagepath','expected','predicted'))
-    for i, (index, im_path, predicted) in enumerate(mis_classifieds):
-        mis_classifieds_df.loc[i] = [index, im_path, expected_class, predicted]
+    mis_classifieds_df = pd.DataFrame(columns=('index','imagepath','expected','predicted','classscore'))
+    for i, (index, im_path, predicted, class_score) in enumerate(mis_classifieds):
+        mis_classifieds_df.loc[i] = [index, im_path, expected_class, predicted, class_score]
     mis_classifieds_df.to_csv(mis_classified_output_path, index=False)
     print("Saved misclassified images to " + mis_classified_output_path)
 

@@ -9,18 +9,18 @@
 	<div class="container">
 		<div class="row">
 
-			<div id="totalChart" class="col-4">	</div>
+			<div id="totalChart-${viabilityDTO.parameterStableId}" class="col-4">	</div>
 			<script type="text/javascript">
 				${viabilityDTO.totalChart}
 			</script>
 
-			<div id="maleChart" class="col-4 "></div>
+			<div id="maleChart-${viabilityDTO.parameterStableId}" class="col-4 "></div>
 			<script type="text/javascript">
 				${viabilityDTO.maleChart}
 			</script>
 
 
-			<div id="femaleChart" class="col-4 "></div>
+			<div id="femaleChart-${viabilityDTO.parameterStableId}" class="col-4 "></div>
 			<script type="text/javascript">
 				${viabilityDTO.femaleChart}
 			</script>
@@ -70,24 +70,24 @@
 						<tbody>
 						<tr>
 							<th>Male and Female</th>
-							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_004_001'].dataPoint}"/></td>
-							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_006_001'].dataPoint}"/></td>
-							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_005_001'].dataPoint}"/></td>
-							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_003_001'].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalPupsWt].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalPupsHom].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalPupsHet].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalPups].dataPoint}"/></td>
 						</tr>
 						<tr>
 							<th>Male</th>
-							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_007_001'].dataPoint}"/></td>
-							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_009_001'].dataPoint}"/></td>
-							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_008_001'].dataPoint}"/></td>
-							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_010_001'].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalMaleWt].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalMaleHom].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalMaleHet].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalMalePups].dataPoint}"/></td>
 						</tr>
 						<tr>
 							<th>Female</th>
-							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_011_001'].dataPoint}"/></td>
-							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_013_001'].dataPoint}"/></td>
-							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_012_001'].dataPoint}"/></td>
-							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation['IMPC_VIA_014_001'].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalFemaleWt].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalFemaleHom].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalFemaleHet].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalFemalePups].dataPoint}"/></td>
 						</tr>
 						</tbody>
 					</table>

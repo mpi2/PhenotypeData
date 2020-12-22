@@ -135,18 +135,19 @@
 
                     <td>
 
-                        <c:if test="${fn:length(histRow.significance) ==0 }">
-                            Not Annotated
-                        </c:if>
+<%--                        <c:if test="${fn:length(histRow.significance) ==0 }">--%>
+<%--                            Not Annotated--%>
+<%--                        </c:if>--%>
                         <c:forEach var="parameter" items="${histRow.significance }">
-                            <c:choose>
-                                <c:when test="${parameter.textValue eq 'Significant'}">
-                                    1
-                                </c:when>
-                                <c:otherwise>
-                                    0
-                                </c:otherwise>
-                            </c:choose>
+                            ${parameter.textValue}
+<%--                            <c:choose>--%>
+<%--                                <c:when test="${parameter.textValue eq 'Significant'}">--%>
+<%--                                    1--%>
+<%--                                </c:when>--%>
+<%--                                <c:otherwise>--%>
+<%--                                    0--%>
+<%--                                </c:otherwise>--%>
+<%--                            </c:choose>--%>
 
                         </c:forEach>
                     </td>

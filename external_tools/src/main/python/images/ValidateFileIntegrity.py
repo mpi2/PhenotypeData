@@ -28,7 +28,7 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--rootDir', dest='rootDir',
                         help='Root directory to start search for images')
     parser.add_argument('-t', '--filetypes', dest='filetypes',
-                        default='jpg,jpeg,tif,tiff,png,dcm',
+                        default='jpg,jpeg,tif,tiff,png,dcm,bmp',
                         help='comma separated list of filetypes to verify')
     parser.add_argument('--logfile-path', dest='logfilePath', default=None,
                         help='path to save logfile')
