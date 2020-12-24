@@ -69,6 +69,7 @@ def main(argv):
 
             if rows_processed > 0 and rows_processed % 1000 == 0:
                 print "Processed " + str(rows_processed) + " of " + str_n_rows
+                sys.stdout.flush()
             omero_id=row[omero_index]
             if int(omero_id) < 0:
                 continue
