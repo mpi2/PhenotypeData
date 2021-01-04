@@ -58,13 +58,9 @@
 
                 <p class="my-0"><b>Significance Score:</b></p>
                 <ul class="my-0">
-                    <li>0 = Not significant (histopathology finding that is interpreted by the
-                        histopathologist to be within normal limits of background strain-related
-                        findings or an incidental finding not related to genotype)
+                    <li>0 = <i>Not significant</i>: Interpreted by the histopathologist to be a finding attributable to background strain (e.g. low-incidence hydrocephalus, microphthalmia) or incidental to mutant phenotype (e.g. hair-induced glossitis, focal hyperplasia, mild mononuclear cell infiltrate).
                     </li>
-                    <li>1 = Significant (histopathology finding that is interpreted by the
-                        histopathologist to not be a background strain-related finding or an incidental
-                        finding)
+                    <li>1 = <i>Significant</i>: Interpreted by the histopathologist as a finding not attributable to background strain and not incidental to mutant phenotype.
                     </li>
                 </ul>
             </div>
