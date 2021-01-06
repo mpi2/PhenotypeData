@@ -1,5 +1,5 @@
 # Description
-This directory contains gzipped `.gz` files
+This directory contains unix tar `.tar` files
    of all of the SOLR cores that were used
    to make the data release.  _NOTE: these
    results are created from a snapshot of
@@ -22,13 +22,13 @@ This directory contains gzipped `.gz` files
 - `impc_images` - Current image information
 - `mgi-phenotype` - mgi allele to gene information
 - `mp` - Mammalian phenotype term information
-- `orthology_mapping` - Further batch query support for
+- `ortholog_mapping` - Further batch query support for
   filtering by support count
 - `phenodigm` - mouse to human disease mapping
 - `pipeline` - Pipeline information
 - `product` - Product information
-- `statistical-result` - Statical result analysis details
 - `statistical-raw-data` - Statical result raw data, a string,
    keyed by the statistical-result doc_id, containing only the
    raw data.
  _NOTE: this core is very large._
+- `statistical-result` - Statical result analysis details
