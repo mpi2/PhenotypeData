@@ -1,5 +1,5 @@
 # Description
-This directory contains unix tar `.tar` files
+This directory contains unix `.tar` files
    of all of the SOLR cores that were used
    to make the data release.  _NOTE: these
    results are created from a snapshot of
