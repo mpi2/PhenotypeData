@@ -446,6 +446,7 @@ public class ImageService extends BasicService implements WebStatus {
             groups.addAll(localGroups);
 
         }
+        groups.forEach(group -> group.getResult().forEach(this::fixPdfUrl));
         return groups;
 
     }
@@ -634,5 +635,13 @@ public class ImageService extends BasicService implements WebStatus {
         }
 
         return zygosityTypes;
+    }
+
+    private SolrDocument fixPdfUrl(SolrDocument impcImageDocument) {
+        if(impcImageDocument.get("file_type").toString().equalsIgnoreCase("application/pdf")) {
+            String omeroId = impcImageDocument.get("omero_id").toString();
+            impcImageDocument.replace("download_url", " http://www.ebi.ac.uk/mi/media/omero/webclient/annotation/" + omeroId);
+        }
+        return impcImageDocument;
     }
 }
