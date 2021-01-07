@@ -45,7 +45,7 @@ public class BatchQueryForm {
         Map<String, String> qidMap = new HashMap<>();
         // users query id(s)
         List<String> queryIdsNoQuotes = new ArrayList<>();
-        for (String id : queryIds){
+        for (String id : queryIds) {
             id = id.replaceAll("\"", "");
             String idlc = id.toLowerCase();
             //System.out.println("search qid: " + id + " --> " + idlc);
@@ -68,14 +68,13 @@ public class BatchQueryForm {
         baseUrl = request.getAttribute("baseUrl").toString();
 
         List<String> checkedFields = null;
-        if (mode.equals("export")){
+        if (mode.equals("export")) {
             String idlink = "id_link";
             fllist = idlink + "," + fllist;
             checkedFields = Arrays.asList(fllist.split(","));
             checkedFields.set(0, checkedFields.get(1));
             checkedFields.set(1, idlink);
-        }
-        else {
+        } else {
             checkedFields = Arrays.asList(fllist.split(","));
         }
 
@@ -102,6 +101,11 @@ public class BatchQueryForm {
                         .filter(x -> x.getSignificance().equalsIgnoreCase("Significant"))
                         .sorted(Comparator.comparing(GeneService.MinimalGeneDataset::getPhenotypeTermId))
                         .collect(Collectors.toList());
+                significantPhenotypes.forEach(m -> {
+                    if(m.getPValue() == null) {
+                        m.setPValue(0.0);
+                    }
+                });
             }
 
             //System.out.println("doc: "+doc.toString());
@@ -109,25 +113,22 @@ public class BatchQueryForm {
             List<String> rowData = new ArrayList<String>();
             HashMap<String, MpDTO> mpTerms = new HashMap<>();
             int count = 0;
-            for (String field : checkedFields){
+            for (String field : checkedFields) {
                 count++;
                 if (doc.containsKey(field)) {
 
                     if (mode.equals("onPage")) {
                         populateCells(rowData, doc, field, dataType);
-                    }
-                    else if (mode.equals("export")){
+                    } else if (mode.equals("export")) {
                         populateExportCells(rowData, doc, field, dataType);
                     }
-                }
-                else if (field.equals("id_link")){
+                } else if (field.equals("id_link")) {
                     continue;
-                }
-                else {
+                } else {
                     if (doc.containsKey("latest_phenotype_status")
                             && doc.getFieldValue("latest_phenotype_status").equals("Phenotyping Complete")
                             && datasetsRawData.size() > 0
-                            && (field.startsWith("mp_") ||  field.equals("p_value") || field.startsWith("hp_"))){
+                            && (field.startsWith("mp_") || field.equals("p_value") || field.startsWith("hp_"))) {
 
                         String val = "";
                         // Unwrap the significant phenotypes from the datasets_raw_data field and populate the
@@ -142,19 +143,18 @@ public class BatchQueryForm {
                                     .map(GeneService.MinimalGeneDataset::getPhenotypeTermName)
                                     .distinct()
                                     .collect(Collectors.joining(", "));
-                        }  else if (field.equalsIgnoreCase("mp_term_definition")) {
+                        } else if (field.equalsIgnoreCase("mp_term_definition")) {
                             List<String> definitions = new ArrayList<>();
                             for (String mpId : significantPhenotypes.stream().map(GeneService.MinimalGeneDataset::getPhenotypeTermId).distinct().collect(Collectors.toList())) {
                                 MpDTO mp = null;
-                                if(mpTerms.containsKey(mpId)) {
+                                if (mpTerms.containsKey(mpId)) {
                                     mp = mpTerms.get(mpId);
                                 } else {
                                     mp = mpService.getPhenotype(mpId);
                                     mpTerms.put(mpId, mp);
                                 }
-                                String mpTermDefinition = mp.getMpDefinition();
-                                if(mpTermDefinition != null) {
-                                    definitions.add(mpTermDefinition);
+                                if (mp != null && mp.getMpDefinition() != null) {
+                                    definitions.add(mp.getMpDefinition());
                                 } else {
                                     definitions.add("N/A");
                                 }
@@ -164,41 +164,43 @@ public class BatchQueryForm {
                             List<String> synonyms = new ArrayList<>();
                             for (String mpId : significantPhenotypes.stream().map(GeneService.MinimalGeneDataset::getPhenotypeTermId).distinct().collect(Collectors.toList())) {
                                 MpDTO mp = null;
-                                if(mpTerms.containsKey(mpId)) {
+                                if (mpTerms.containsKey(mpId)) {
                                     mp = mpTerms.get(mpId);
                                 } else {
                                     mp = mpService.getPhenotype(mpId);
                                     mpTerms.put(mpId, mp);
                                 }
-                                List<String> mpTermSynonyms = mp.getMpTermSynonym();
-                                if(mpTermSynonyms != null) {
-                                    synonyms.add(mpTermSynonyms.stream().collect(Collectors.joining(", ") ));
+                                if (mp != null && mp.getMpTermSynonym() != null) {
+                                    synonyms.add(mp.getMpTermSynonym().stream().collect(Collectors.joining(", ")));
                                 } else {
                                     synonyms.add("N/A");
                                 }
                             }
                             val = synonyms.stream().collect(Collectors.joining(" | "));
-                        }  else if(field.equalsIgnoreCase("p_value")) {
-                            Map<String, GeneService.MinimalGeneDataset> mostSignificants = significantPhenotypes.stream()
-                                    .collect(Collectors.toMap(GeneService.MinimalGeneDataset::getPhenotypeTermName, Function.identity(),
-                                            BinaryOperator.minBy(Comparator.comparing(GeneService.MinimalGeneDataset::getPValue))));
-                            val = mostSignificants.values().stream().map(GeneService.MinimalGeneDataset::getPValue).map(String::valueOf).collect(Collectors.joining(", "));
+                        } else if (field.equalsIgnoreCase("p_value")) {
+                            try{
+                                Map<String, GeneService.MinimalGeneDataset> mostSignificants = significantPhenotypes.stream().filter(d -> d.getPhenotypeTermName() != null)
+                                        .collect(Collectors.toMap(GeneService.MinimalGeneDataset::getPhenotypeTermName, Function.identity(),
+                                                BinaryOperator.minBy(Comparator.comparing(GeneService.MinimalGeneDataset::getPValue))));
+                                val = mostSignificants.values().stream().map(GeneService.MinimalGeneDataset::getPValue).map(String::valueOf).collect(Collectors.joining(", "));
+                            } catch (NullPointerException e) {
+                                System.out.println("Broke the thing");
+                            }
+
                         }
                         rowData.add(val);
-                    }
-                    else if (doc.containsKey("latest_phenotype_status")
+                    } else if (doc.containsKey("latest_phenotype_status")
                             && doc.getFieldValue("latest_phenotype_status").equals("Phenotyping Complete")
                             && field.startsWith("mp_")
-                            && ! field.equals("mp_term_definition") ){
+                            && !field.equals("mp_term_definition")) {
                         String val = "no abnormal phenotype detected";
                         rowData.add(val);
-                    } else if(field.startsWith("disease_")) {
+                    } else if (field.startsWith("disease_")) {
                         String mgiAcc = (String) doc.getFieldValue("mgi_accession_id");
                         Set<String> diseases = field.equalsIgnoreCase("disease_id") ? phenodigmService.getDiseaseIdsByGene(mgiAcc) : phenodigmService.getDiseaseTermsByGene(mgiAcc);
                         String val = String.join(", ", diseases.stream().filter(Objects::nonNull).collect(Collectors.toList()));
                         rowData.add(val);
-                    }
-                    else {
+                    } else {
                         rowData.add(NA);
                     }
                 }
@@ -207,14 +209,13 @@ public class BatchQueryForm {
             // so that we could output result per user's order of search input
             String keystr = doc.getFieldValue(datatypeField.get(dataType)).toString().toLowerCase().replace("[", "").replace("]", "");
 
-            if (! keystr.contains(",")){
+            if (!keystr.contains(",")) {
                 qryIdRow.put(keystr, rowData);
-            }
-            else {
+            } else {
                 // some mouse symbol are mapped to multiple human gene symbol: we only need to fetch the ones that are in user's query
                 //System.out.println("symbol: " +keystr);
                 List<String> keys = Arrays.asList(split(keystr, ","));
-                for( String key : keys) {
+                for (String key : keys) {
                     key = key.trim();
                     if (queryIdsNoQuotes.contains(key)) {
                         qryIdRow.put(key, rowData);
@@ -227,7 +228,7 @@ public class BatchQueryForm {
 
         // ids used in query that have results
         List<String> foundQryIds = new ArrayList<>();
-        for (String qid : qryIdRow.keySet()){
+        for (String qid : qryIdRow.keySet()) {
             //System.out.println("found qid: "+ qid);
             foundQryIds.add(qid.toLowerCase());
         }
@@ -239,11 +240,11 @@ public class BatchQueryForm {
 
         // find index of the field in field list for the dataType
         int fieldIndex = 0;
-        if ( nonFoundIds.size() > 0){
+        if (nonFoundIds.size() > 0) {
             String fname = datatypeField.get(dataType);
             int fc = 0;
-            for(String fn : checkedFields){
-                if (fname.equals(fn)){
+            for (String fn : checkedFields) {
+                if (fname.equals(fn)) {
                     fieldIndex = fc;
                     break;
                 }
@@ -252,9 +253,9 @@ public class BatchQueryForm {
         }
 
         // fill in NA for the fields for the search query not found
-        for (Object nf : nonFoundIds){
+        for (Object nf : nonFoundIds) {
             String nfs = nf.toString();
-            if (! qryIdRow.containsKey(nf)) {
+            if (!qryIdRow.containsKey(nf)) {
                 List<String> rowData = new ArrayList<String>();
                 for (int i = 0; i < checkedFields.size(); i++) {
                     if (i == fieldIndex) {
@@ -264,8 +265,7 @@ public class BatchQueryForm {
                     }
                 }
                 qryIdRow.put(nfs.toLowerCase(), rowData);
-            }
-            else {
+            } else {
                 queryIdsNoQuotes.add(nfs);
             }
         }
@@ -278,8 +278,7 @@ public class BatchQueryForm {
             if (mode.equals("onPage")) {
                 j.getJSONArray("aaData").put(new JSONArray(qryIdRow.get(lcQryId)));
 
-            }
-            else {
+            } else {
                 // export result
                 rows.add(join(qryIdRow.get(lcQryId), "\t"));
             }
@@ -288,27 +287,22 @@ public class BatchQueryForm {
 
     public void populateCells(List<String> rowData, SolrDocument doc, String field, String dataType) {
 
-        String valtype =  doc.getFieldValue(field).getClass().getTypeName();
+        String valtype = doc.getFieldValue(field).getClass().getTypeName();
         String val = doc.getFieldValue(field).toString();
 
-        if (valtype.equals("java.util.ArrayList")){
+        if (valtype.equals("java.util.ArrayList")) {
             rowData.add(val.replace("[", "").replace("]", ""));
-        }
-        else {
-            if ( (dataType.equals("gene") || dataType.equals("ensembl") || dataType.equals("mouse_marker_symbol") || dataType.equals("human_marker_symbol"))
-                    && field.equals("mgi_accession_id") ){
+        } else {
+            if ((dataType.equals("gene") || dataType.equals("ensembl") || dataType.equals("mouse_marker_symbol") || dataType.equals("human_marker_symbol"))
+                    && field.equals("mgi_accession_id")) {
                 rowData.add("<a target='_blank' href='" + baseUrl + "/genes/" + val + "'>" + val + "</a>");
-            }
-            else if ( dataType.equals("mp") && field.equals("mp_id") ){
+            } else if (dataType.equals("mp") && field.equals("mp_id")) {
                 rowData.add("<a target='_blank' href='" + baseUrl + "/phenotypes/" + val + "'>" + val + "</a>");
-            }
-            else if ( dataType.equals("anatomy") && field.equals("anatomy_id") ){
+            } else if (dataType.equals("anatomy") && field.equals("anatomy_id")) {
                 rowData.add("<a target='_blank' href='" + baseUrl + "/anatomy/" + val + "'>" + val + "</a>");
-            }
-            else if ( dataType.equals("disease") && field.equals("disease_id") ){
+            } else if (dataType.equals("disease") && field.equals("disease_id")) {
                 rowData.add("<a target='_blank' href='" + baseUrl + "/disease/" + val + "'>" + val + "</a>");
-            }
-            else {
+            } else {
                 rowData.add(val); // hp and other fields
             }
         }
@@ -316,39 +310,34 @@ public class BatchQueryForm {
 
     public void populateExportCells(List<String> rowData, SolrDocument doc, String field, String dataType) {
 
-        String valtype =  doc.getFieldValue(field).getClass().getTypeName();
+        String valtype = doc.getFieldValue(field).getClass().getTypeName();
         String val = doc.getFieldValue(field).toString();
 
-        if (valtype.equals("java.util.ArrayList")){
+        if (valtype.equals("java.util.ArrayList")) {
             rowData.add(val.replace("[", "").replace("]", ""));
 
-            if ( dataType.equals("hp") && field.equals("hp_id") ){
+            if (dataType.equals("hp") && field.equals("hp_id")) {
                 rowData.add(NA);
             }
-        }
-        else {
-            if ( (dataType.equals("gene") || dataType.equals("ensembl") || dataType.equals("mouse_marker_symbol") || dataType.equals("human_marker_symbol"))
-                && field.equals("mgi_accession_id") ){
+        } else {
+            if ((dataType.equals("gene") || dataType.equals("ensembl") || dataType.equals("mouse_marker_symbol") || dataType.equals("human_marker_symbol"))
+                    && field.equals("mgi_accession_id")) {
                 rowData.add(val);
                 String link = hostName + "/" + baseUrl + "/genes/" + val;
                 rowData.add(link);
-            }
-            else if ( dataType.equals("mp") && field.equals("mp_id") ){
+            } else if (dataType.equals("mp") && field.equals("mp_id")) {
                 rowData.add(val);
                 String link = hostName + "/" + baseUrl + "/phenotypes/" + val;
                 rowData.add(link);
-            }
-            else if ( dataType.equals("anatomy") && field.equals("anatomy_id") ){
+            } else if (dataType.equals("anatomy") && field.equals("anatomy_id")) {
                 rowData.add(val);
                 String link = hostName + "/" + baseUrl + "/anatomy/" + val;
                 rowData.add(link);
-            }
-            else if ( dataType.equals("disease") && field.equals("disease_id") ){
+            } else if (dataType.equals("disease") && field.equals("disease_id")) {
                 rowData.add(val);
                 String link = hostName + "/" + baseUrl + "/disease/" + val;
                 rowData.add(link);
-            }
-            else {
+            } else {
                 rowData.add(val); // other fields
             }
         }
