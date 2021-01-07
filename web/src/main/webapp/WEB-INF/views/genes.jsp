@@ -631,7 +631,7 @@
                         <div class="page-content pt-3 pb-5">
                             <div class="container p-0 p-md-2">
                                 <div class="row justify-content-end">
-                                    <div><a href="${cmsBaseUrl}/help/gene-page/ordering-mice-or-mouse-prodcuts/"><i
+                                    <div><a href="${cmsBaseUrl}/help/gene-page/ordering-mice-or-mouse-products/"><i
                                             class="fa fa-question-circle" style="font-size: xx-large"></i></a></div>
                                 </div>
                                 <div class="row">
