@@ -53,14 +53,27 @@
                     <h2>Accessing Embryo Phenotype Data</h2>
                     <div class="row mb-3">
                         <p>
-                            Embryo phenotype data can be accessed through:
+                            Embryo phenotype data can be accessed in multiple ways:
                         </p>
-                            <ul>
-                        <li><a href="${baseUrl}/embryo_imaging">Embryo Data for Every Lethal Gene</a></li>
-                                <li><a href="${cmsBaseUrl}/help/non-programmatic-data-access/">FTP site</a> or <a href="${cmsBaseUrl}/help/non-programmatic-data-access/">REST API</a></li>
-                        <li><a
-                                href="${baseUrl}/embryo/vignettes">Embryo Vignettes page</a></li>
-                    </ul>
+                        <ul>
+                            <li>
+                            <a href="${baseUrl}/embryo_imaging">Embryo Images: interactive heatmap</a>
+                            A compilation of all our Embryo Images, organised by gene and life stage, with access to the Interactive Embryo Viewer, where you can compare mutants and wild types side by side and rotate 2D and 3D images; we also provide access to our external partners' embryo images.
+                            </li>
+                            <li>
+                                <a href="${baseUrl}/embryo/vignettes">Embryo Vignettes</a>
+                                Showcase of best embryo images with detailed explanations.
+                            </li>
+                            <li>
+                                <a href="${cmsBaseUrl}/help/non-programmatic-data-access/">
+                                From the FTP site, latest release</a>
+                                All our results. Reports need to be filtered by a dedicated column, Life Stage (E9.5, E12.5, E15.5 and E18.5). Please check the README file or see documentation here).
+                            </li>
+                            <li>
+                                Using the REST API (see documenation
+                                <a href="${cmsBaseUrl}/help/non-programmatic-data-access/"> here</a>)
+                            </li>
+                        </ul>
                     </div>
                     <h2>Determining Lethal Lines</h2>
                     <div class="row mb-3">
