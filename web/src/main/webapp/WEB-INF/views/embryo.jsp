@@ -65,13 +65,13 @@
                                 Showcase of best embryo images with detailed explanations.
                             </li>
                             <li>
-                                <a href="${cmsBaseUrl}/help/non-programmatic-data-access/">
+                                <a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/all-data-releases/latest/results/">
                                 From the FTP site, latest release</a>
                                 All our results. Reports need to be filtered by a dedicated column, Life Stage (E9.5, E12.5, E15.5 and E18.5). Please check the README file or see documentation here).
                             </li>
                             <li>
                                 Using the REST API (see documenation
-                                <a href="${cmsBaseUrl}/help/non-programmatic-data-access/"> here</a>)
+                                <a href="https://www.mousephenotype.org/help/programmatic-data-access/"> here</a>)
                             </li>
                         </ul>
                     </div>
