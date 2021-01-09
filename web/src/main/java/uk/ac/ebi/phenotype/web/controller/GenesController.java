@@ -190,10 +190,15 @@ public class GenesController {
 
         // 2020-10-02 (mrelac) Catch this exception and display the 'identifierError' page.  Also provide suggestions.
         //                     Failing to catch inserts a long stack trace in the log file.
+        //                     Prints out the first stack trace frame to assist with identifying the error.
         try {
             processGeneRequest(acc, model, request);
         } catch (Exception e) {
-            logger.error("processGeneRequest(acc, model, request) exception: " + e.getLocalizedMessage());
+            logger.error(
+                    String.format("processGeneRequest(acc, model, request) exception: %s\n%s\n%s",
+                            e.getLocalizedMessage(),
+                            e.getStackTrace()[0],
+                            e.getStackTrace()[1]));
 
             List<String> geneSuggestions = new ArrayList<>();
             QueryResponse geneSuggestionResponse;
