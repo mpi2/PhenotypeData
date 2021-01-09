@@ -5,48 +5,51 @@
 
 <t:genericpage>
 
-    <jsp:attribute name="title">${gene.markerSymbol} - ${gene.markerName}</jsp:attribute>
-    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a
-            href="${baseUrl}/search/gene?kw=*">Genes</a> &raquo; ${gene.markerSymbol}</jsp:attribute>
-    <jsp:attribute name="bodyTag">
-        <body class="page-template page-template-no-sidebar--large page-template-no-sidebar--large-php page page-id-3162 page-child parent-pageid-42">
-    </jsp:attribute>
+    <jsp:attribute name="title">${gene.markerSymbol} Mouse Gene Details | ${gene.markerName}</jsp:attribute>
+    <jsp:attribute name="breadcrumb">&nbsp;&raquo; <a href="${baseUrl}/search/gene?kw=*">Genes</a> &raquo; ${gene.markerSymbol}</jsp:attribute>
+    <jsp:attribute name="bodyTag"><body class="page-template page-template-no-sidebar--large"></jsp:attribute>
 
     <jsp:attribute name="header">
-        		<script type="text/javascript">
-                    var base_url = '${baseUrl}';
-                    var geneId = '${gene.mgiAccessionId}';
-                </script>
-        <script type='text/javascript' src="${baseUrl}/js/general/dropDownExperimentPage.js?v=${version}" async></script>
 
-        <script src="https://code.highcharts.com/highcharts.js"></script>
-        <script src="https://code.highcharts.com/modules/exporting.js"></script>
-
-        <script src="${baseUrl}/js/general/enu.js"></script>
-            <script src="${baseUrl}/js/general/dropdownfilters.js" async></script>
-            <script type="text/javascript" src="${baseUrl}/js/general/allele.js" async></script>
-        <%-- Phenogrid requirements --%>
-        <script type="text/javascript"
-                src="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.min.js?v=${version}" async></script>
-            <link rel="stylesheet" type="text/css"
-                  href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.min.css?v=${version}" async>
-
-        <%-- Phenodigm2 requirements --%>
-        <script src="//d3js.org/d3.v4.min.js"></script>
-            <script type="text/javascript">var impc = {baseUrl: "${baseUrl}"}</script>
-            <script type="text/javascript" src="${baseUrl}/js/vendor/underscore/underscore-1.8.3.min.js"></script>
-            <script type="text/javascript" src="${baseUrl}/js/phenodigm2/phenodigm2.js?v=${version}"></script>
-            <link rel="stylesheet" type="text/css" href="${baseUrl}/css/phenodigm2.css" async>
-        <%-- End of phenodigm2 requirements --%>
-
+        <link rel="canonical" href="https://www.mousephenotype.org/data/genes/${gene.mgiAccessionId}" />
+        <meta name="description" content="Phenotype data for mouse gene ${gene.markerSymbol}. Discover ${gene.markerSymbol}'s significant phenotypes, expression, images, histopathology and more. Data for gene ${gene.markerSymbol} is all freely available for download." />
         <meta name="_csrf" content="${_csrf.token}"/>
         <meta name="_csrf_header" content="${_csrf.headerName}"/>
 
         <script type="text/javascript">
+            var impc = {baseUrl: "${baseUrl}"};
             var gene_id = '${acc}';
             var monarchUrl = '${monarchUrl}';
+            var base_url = '${baseUrl}';
+            var geneId = '${gene.mgiAccessionId}';
+        </script>
 
-            $(document).ready(function () {
+        <script defer type='text/javascript' src="${baseUrl}/js/general/dropDownExperimentPage.js?v=${version}" ></script>
+
+        <script defer type='text/javascript' src="https://code.highcharts.com/highcharts.js"></script>
+        <script defer type='text/javascript' src="https://code.highcharts.com/modules/exporting.js"></script>
+
+        <script defer type='text/javascript' src="${baseUrl}/js/general/enu.js"></script>
+        <script defer type='text/javascript' src="${baseUrl}/js/general/dropdownfilters.js" ></script>
+        <script defer type="text/javascript" src="${baseUrl}/js/general/allele.js" ></script>
+
+        <%-- Phenogrid requirements --%>
+        <script defer type="text/javascript" src="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.min.js?v=${version}" ></script>
+
+        <%-- Load async CSS stylesheet, see https://www.filamentgroup.com/lab/load-css-simpler/ --%>
+        <link rel="preload" type="text/css" href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.min.css?v=${version}" as="style" />
+        <link rel="stylesheet" type="text/css" href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.min.css?v=${version}" media="print" onload="this.media='all'" />
+
+        <%-- Phenodigm2 requirements --%>
+        <script defer type="text/javascript" src="//d3js.org/d3.v4.min.js" ></script>
+        <script defer type="text/javascript" src="${baseUrl}/js/vendor/underscore/underscore-1.8.3.min.js" ></script>
+        <script defer type="text/javascript" src="${baseUrl}/js/phenodigm2/phenodigm2.js?v=${version}" ></script>
+        <link rel="stylesheet" type="text/css" href="${baseUrl}/css/phenodigm2.css" />
+        <%-- End of phenodigm2 requirements --%>
+
+        <script type="text/javascript">
+
+            document.addEventListener("DOMContentLoaded", function () {
                 var heatmap_generated = 0;
                 var expressionTab = 0;
                 var hash = location.hash;
@@ -224,8 +227,8 @@
                 </noscript>
 
                 <div class="col-12 no-gutters">
-                    <h2 style="float: left" class="mb-0">Gene: ${gene.markerSymbol}</h2>
-                    <h2>
+                    <h1 style="float: left" class="h1 m-0"><b>Gene: ${gene.markerSymbol}</b></h1>
+                    <span class="fa-2x">
                         <c:choose>
                             <c:when test="${isFollowing}">
                                 <c:set var="followText" value="Unfollow"/>
@@ -245,21 +248,21 @@
                                     <input type="hidden" name="geneAccessionId" value="${acc}" />
                                     <input type="hidden" name="target" value="${baseUrl}/genes/${acc}" />
                                     <button type="submit" style="float: right" class="btn ${activeClass}">
-                                        <i class="fas ${activeIconClass}"></i>
+                                        <i class="mt-1 fas ${activeIconClass}"></i>
                                         <span>${followText}</span>
                                     </button>
                                 </form>
                             </c:when>
                             <c:otherwise>
                                 <a href="${baseUrl}/rilogin?target=${baseUrl}/genes/${acc}"
-                                   class="btn btn-primary"
+                                   class="mt-1 btn btn-primary"
                                    style="float: right"
                                    title="Log in to My genes">Log in to follow</a>
                             </c:otherwise>
                         </c:choose>
                         <a href="${cmsBaseUrl}/help/gene-page/" target="_blank">
-                            <i class="fa fa-question-circle" style="float: right; color: #212529; padding-right: 10px;"></i></a>
-                    </h2>
+                            <i class="mt-2 fa fa-question-circle" style="float: right; color: #212529; padding-right: 10px;"></i></a>
+                    </span>
                 </div>
             </div>
         </div>
@@ -279,7 +282,7 @@
         <div class="container" id="expression">
             <div class="row pb-2">
                 <div class="col-12 col-md-12">
-                    <h3><i class="icon icon-conceptual icon-expression"></i>&nbsp;Expression</h3>
+                    <h2 class="h2"><b><i class="icon icon-conceptual icon-expression"></i>&nbsp;Expression</b></h2>
                 </div>
             </div>
         </div>
@@ -415,7 +418,7 @@
         <div class="container" id="images">
             <div class="row pb-2">
                 <div class="col-12 col-md-12">
-                    <h3><i class="fal fa-images"></i>&nbsp;Associated Images</h3>
+                    <h2 class="h2"><b><i class="fal fa-images"></i>&nbsp;Associated Images</b></h2>
                 </div>
             </div>
         </div>
@@ -467,7 +470,7 @@
         <div class="container" id="diseases">
             <div class="row pb-2">
                 <div class="col-12 col-md-12">
-                    <h3><i class="fal fa-procedures"></i>&nbsp;Disease Models</h3>
+                    <h2 class="h2"><b><i class="fal fa-procedures"></i>&nbsp;Disease Models</b></h2>
                 </div>
             </div>
         </div>
@@ -618,8 +621,7 @@
         <div class="container" id="order">
             <div class="row pb-2">
                 <div class="col-12 col-md-12">
-                    <h3><i class="fal fa-shopping-cart"></i>&nbsp;Order Mouse and ES Cells</h3>
-
+                    <h2 class="h2"><b><i class="fal fa-shopping-cart"></i>&nbsp;Order Mouse and ES Cells</b></h2>
                 </div>
             </div>
         </div>
@@ -665,7 +667,7 @@
         </c:if>
 
 
-        <script type="text/javascript">
+        <script  type="text/javascript">
             // disease tables drive by phenodigm core
 
             var diseaseModelTotal = 0;
@@ -725,7 +727,7 @@
                 return '<div id="' + alleleName + '"></div>'
             };
 
-            $(document).ready(function () {
+            document.addEventListener("DOMContentLoaded", function () {
                 // create phenodigm tables
                 for (var i = 0; i < diseaseTableConfs.length; i++) {
                     var dTable = diseaseTableConfs[i];

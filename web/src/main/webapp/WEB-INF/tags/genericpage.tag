@@ -25,7 +25,11 @@
     <title><jsp:invoke fragment="title" /> | International Mouse Phenotyping Consortium</title>
     <link rel="profile" href="http://gmpg.org/xfn/11">
     <link rel="pingback" href="${cmsBaseUrl}/xmlrpc.php">
-    <link rel="stylesheet" href="${baseUrl}/css/vendor/fapro/css/all.min.css" />
+
+    <%-- Load async CSS stylesheet, see https://www.filamentgroup.com/lab/load-css-simpler/ --%>
+    <link rel="preload" href="${baseUrl}/css/vendor/fapro/css/all.min.css" as="style"/>
+    <link rel="stylesheet" href="${baseUrl}/css/vendor/fapro/css/all.min.css" media="print" onload="this.media='all'" />
+
     <link rel="apple-touch-icon-precomposed" sizes="57x57" href="${baseUrl}/img/apple-touch-icon-57x57.png" />
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${baseUrl}/img/apple-touch-icon-114x114.png" />
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${baseUrl}/img/apple-touch-icon-72x72.png" />
@@ -51,7 +55,7 @@
 
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.css"/>
 
-    <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.js"></script>
+    <script defer type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.css">
     <script src="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.js"></script>
     <script src="https://unpkg.com/bootstrap-table@1.15.4/dist/extensions/mobile/bootstrap-table-mobile.min.js"></script>
@@ -59,19 +63,23 @@
 
 
 
-    <script
+    <script defer
             src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"
             integrity="sha256-eGE6blurk5sHj+rmkfsGYeKyZx3M4bG+ZlFyA7Kns7E="
             crossorigin="anonymous"></script>
 
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
 
 <%--    <script type='text/javascript' src="${baseUrl}/js/general/toggle.js?v=${version}" async></script>--%>
-    <script type="text/javascript" src="${baseUrl}/js/head.min.js?v=${version}" async></script>
-    <script type='text/javascript' src='${baseUrl}/js/buffaloZoo.js?v=${version}' async></script>
-    <script type="text/javascript" src="${baseUrl}/js/default.js?v=${version}" async></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.css" async/>
-    <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.js" async></script>
+    <script type="text/javascript" src="${baseUrl}/js/head.min.js?v=${version}" defer></script>
+    <script type='text/javascript' src='${baseUrl}/js/buffaloZoo.js?v=${version}' defer></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.css" />
+    <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.js" defer></script>
+    <script type="text/javascript" src="${baseUrl}/js/default.js?v=${version}" defer></script>
 
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
      replaced with below as unable to get his due to CORS or licence?-->
@@ -213,10 +221,10 @@
 
 <jsp:invoke fragment="addToFooter"/>
 
-<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js?v=${version}'></script>
-<script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>
-<script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>
-<script type='text/javascript' src='${baseUrl}/js/documentationConfig.js?v=${version}'></script>
+<script defer type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js?v=${version}'></script>
+<script defer type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>
+<script defer type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>
+<script defer type='text/javascript' src='${baseUrl}/js/documentationConfig.js?v=${version}'></script>
 
 </body>
 
