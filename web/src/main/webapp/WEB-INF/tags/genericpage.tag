@@ -27,8 +27,13 @@
     <link rel="pingback" href="${cmsBaseUrl}/xmlrpc.php">
 
     <%-- Load async CSS stylesheet, see https://www.filamentgroup.com/lab/load-css-simpler/ --%>
-    <link rel="preload" href="${baseUrl}/css/vendor/fapro/css/all.min.css" as="style"/>
-    <link rel="stylesheet" href="${baseUrl}/css/vendor/fapro/css/all.min.css" media="print" onload="this.media='all'" />
+    <link rel="preload" type="text/css" href="${baseUrl}/css/vendor/fapro/css/all.min.css" as="style"/>
+    <link rel="stylesheet" type="text/css" href="${baseUrl}/css/vendor/fapro/css/all.min.css" media="print" onload="this.media='all'" />
+
+    <link rel="preload" type="text/css" href="https://ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css" as="style" />
+    <link rel="stylesheet" type="text/css" href="https://ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css" media="print" onload="this.media='all'" />
+
+    <%-- Finish with async stylesheets --%>
 
     <link rel="apple-touch-icon-precomposed" sizes="57x57" href="${baseUrl}/img/apple-touch-icon-57x57.png" />
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${baseUrl}/img/apple-touch-icon-114x114.png" />
@@ -87,7 +92,6 @@
     <link rel="stylesheet" href="${cmsBaseUrl}/wp-content/themes/impc/css/styles.css?version=20200213">
     <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" media='all'/>
     <link href="${baseUrl}/css/impc-icons.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="https://ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/css/bootstrap-select.min.css">
 
