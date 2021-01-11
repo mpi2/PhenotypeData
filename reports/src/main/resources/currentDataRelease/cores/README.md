@@ -12,23 +12,23 @@ This directory contains unix `.tar` files
   information and gene model ids
 - `anatomy` - Associated anatomy terms such as top-level
   and intermediate anatomy terms and ids
-- `essentialgenes` - batch query support mappings for
+- `essentialgenes` - Batch query support mappings for
   mouse to human orthologs
 - `experiment` - Experiment details and experiment
   observations
 - `gene` - Gene details
 - `genotype-phenotype` - Genotype to phenotype information
-- `images` - legacy image information
+- `images` - Legacy image information
 - `impc_images` - Current image information
-- `mgi-phenotype` - mgi allele to gene information
+- `mgi-phenotype` - MGI allele to gene information
 - `mp` - Mammalian phenotype term information
 - `ortholog_mapping` - Further batch query support for
   filtering by support count
-- `phenodigm` - mouse to human disease mapping
+- `phenodigm` - Mouse to human disease mapping
 - `pipeline` - Pipeline information
 - `product` - Product information
-- `statistical-raw-data` - Statical result raw data, a string,
+- `statistical-raw-data` - Statistical result raw data, a string,
    keyed by the statistical-result doc_id, containing only the
-   raw data.
+   raw data
  _NOTE: this core is very large._
-- `statistical-result` - Statical result analysis details
+- `statistical-result` - Statistical result analysis details
