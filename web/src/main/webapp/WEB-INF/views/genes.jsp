@@ -203,6 +203,16 @@
             <!-- End Google Tag Manager -->
         </c:if>
 
+        <script type="application/ld+json">
+        {
+            "@type": "Gene",
+            "@id": "http://www.informatics.jax.org/marker/${gene.mgiAccessionId}",
+            "identifier": "${gene.mgiAccessionId}",
+            "name": "${gene.markerSymbol}",
+            "description": "Mouse (Mus musculus) gene ${gene.markerName}",
+            "taxonomicRange": "http://purl.obolibrary.org/obo/NCIT_C45247"
+        }
+        </script>
     </jsp:attribute>
 
     <jsp:body>
