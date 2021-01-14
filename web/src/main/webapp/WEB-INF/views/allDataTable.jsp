@@ -56,7 +56,7 @@
             <th data-sortable="true" data-field="allele_symbol" data-formatter="formatAllele">Allele</th>
             <th data-sortable="true" data-field="phenotyping_center">Center</th>
             <th data-sortable="true" data-field="procedure_name" data-sorter="procedureSorter"
-                data-formatter="formatProcedureParameter">Procedure /
+                data-formatter="formatProcedureParameter">Blah Procedure /
                 Parameter
             </th>
             <th data-sortable="true" data-field="life_stage">Life stage</th>
@@ -67,6 +67,20 @@
         </tr>
         </thead>
     </table>
+
+    <div id="export">
+        <p class="textright">
+            Download data as:
+            <a id="tsvDownload"
+               href="${baseUrl}/allDataTable/export/${gene.getMgiAccessionId()}?fileType=tsv&fileName=${gene.markerSymbol}"
+               target="_blank" class="btn btn-outline-primary"><i
+                    class="fa fa-download"></i>&nbsp;TSV</a>
+            <a id="xlsDownload"
+               href="${baseUrl}/allDataTable/export/${gene.getMgiAccessionId()}?fileType=xls&fileName=${gene.markerSymbol}"
+               target="_blank" class="btn btn-outline-primary"><i
+                    class="fa fa-download"></i>&nbsp;XLS</a>
+        </p>
+    </div>
 </div>
 
 <script type="text/javascript">

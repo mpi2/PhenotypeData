@@ -490,7 +490,7 @@
         if (firstTable) {
             $('#all-table').html(placeholderText);
             $.ajax({
-                url: baseUrl + '/experimentsTableFrag?geneAccession=' + '${gene.mgiAccessionId}',
+                url: baseUrl + '/allDataTable?geneAccession=' + '${gene.mgiAccessionId}',
                 type: 'GET',
                 success: function (data) {
                     $('#all-table').html(data);
