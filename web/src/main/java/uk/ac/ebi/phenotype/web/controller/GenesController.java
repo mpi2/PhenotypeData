@@ -31,7 +31,6 @@ import org.mousephenotype.cda.solr.service.dto.BasicBean;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneTopLevelMpTerms;
 import org.mousephenotype.cda.solr.web.dto.*;
-import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -55,7 +54,6 @@ import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryType;
-import uk.ac.ebi.phenotype.service.PharosService;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.annotation.PostConstruct;
@@ -99,7 +97,6 @@ public class GenesController {
 
     private String cmsBaseUrl;
 
-    private PharosService pharosService;
     SearchGeneService searchGeneService;
 
     @Inject
@@ -139,10 +136,7 @@ public class GenesController {
     private void postConstruct() {
 
         cmsBaseUrl = config.get("cmsBaseUrl");
-        pharosService = new PharosService();
     }
-
-    HttpProxy proxy = new HttpProxy();
 
     private static final List<String> genesWithVignettes = Arrays.asList("MGI:1913761", "MGI:97491", "MGI:1922814", "MGI:3039593", "MGI:1915138", "MGI:1915138", "MGI:1195985", "MGI:102806", "MGI:1195985", "MGI:1915138", "MGI:1337104", "MGI:3039593", "MGI:1922814", "MGI:97491", "MGI:1928849", "MGI:2151064", "MGI:104606", "MGI:103226", "MGI:1920939", "MGI:95698", "MGI:1915091", "MGI:1924285", "MGI:1914797", "MGI:1351614", "MGI:2147810");
     private static final List<String> phenotypeGroups = Arrays.asList("mortality/aging", "embryo phenotype", "reproductive system phenotype", "growth/size/body region phenotype", "homeostasis/metabolism phenotype or adipose tissue phenotype", "behavior/neurological phenotype or nervous system phenotype", "cardiovascular system phenotype", "respiratory system phenotype", "digestive/alimentary phenotype or liver/biliary system phenotype", "renal/urinary system phenotype", "limbs/digits/tail phenotype", "skeleton phenotype", "immune system phenotype or hematopoietic system phenotype", "muscle phenotype", "integument phenotype or pigmentation phenotype", "craniofacial phenotype", "hearing/vestibular/ear phenotype", "taste/olfaction phenotype", "endocrine/exocrine gland phenotype", "vision/eye phenotype");
@@ -196,10 +190,15 @@ public class GenesController {
 
         // 2020-10-02 (mrelac) Catch this exception and display the 'identifierError' page.  Also provide suggestions.
         //                     Failing to catch inserts a long stack trace in the log file.
+        //                     Prints out the first stack trace frame to assist with identifying the error.
         try {
             processGeneRequest(acc, model, request);
         } catch (Exception e) {
-            logger.error("processGeneRequest(acc, model, request) exception: " + e.getLocalizedMessage());
+            logger.error(
+                    String.format("processGeneRequest(acc, model, request) exception: %s\n%s\n%s",
+                            e.getLocalizedMessage(),
+                            e.getStackTrace()[0],
+                            e.getStackTrace()[1]));
 
             List<String> geneSuggestions = new ArrayList<>();
             QueryResponse geneSuggestionResponse;
