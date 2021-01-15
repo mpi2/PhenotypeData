@@ -499,6 +499,7 @@
                                     </div>
                                 </div>
                                 <div class="row d-lg-flex d-none">
+                                    <%-- Not ready for release
                                     <div class="col-12">
                                         <ul class="mx-5 mb-5 mt-0">
                                             <li>The disease models module displays the analysis of phenotypic similarity between mouse and human.  This can:
@@ -513,6 +514,7 @@
                                             <li>To understand what expanding a row shows, <a href="${cmsBaseUrl}/help/data-visualization/gene-pages/disease-models/" target="_blank">visit documentation for disease models</a></li>
                                         </ul>
                                     </div>
+                                    --%>
                                 </div>
                                 <div class="row d-lg-flex d-none">
                                     <div class="col-12">
@@ -542,10 +544,12 @@
                                                         </div>
                                                     </c:when>
                                                     <c:otherwise>
+                                                        <%-- Not ready for release
                                                         <ul class="mx-5">
                                                             <li>A best match (high Phenodigm score) may occur with an orphan or "unsolved" disease, and this suggests the mouse gene as a candidate for the human disorder.</li>
                                                             <li>It is important to note that a mouse knockout may also have a high scoring match to a “solved” human genetic disease associated with a different gene. A genocopy suggests that the two genes may interact in a physiological pathway or network.</li>
                                                         </ul>
+                                                        --%>
                                                         <table id="diseases_by_phenotype"
                                                                class="table tablesorter disease hidden-xs"
                                                                style="width:100%"></table>
@@ -561,9 +565,11 @@
                                                         </div>
                                                     </c:when>
                                                     <c:otherwise>
+                                                        <%-- Not ready for release
                                                         <ul class="mx-5">
                                                             <li>This is a subset of the By Phenotypic Similarity tab.  In some cases, mutation(s) in the orthologous human gene are known to cause disease. For these, similarity analysis between the mouse phenotype and that genetic disease(s) is presented.</li>
                                                         </ul>
+                                                        --%>
                                                         <table id="diseases_by_annotation"
                                                                class="table tablesorter disease" style="width:100%"></table>
                                                     </c:otherwise>
