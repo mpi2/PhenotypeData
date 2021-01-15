@@ -26,14 +26,28 @@
     <link rel="profile" href="http://gmpg.org/xfn/11">
     <link rel="pingback" href="${cmsBaseUrl}/xmlrpc.php">
 
+    <%-- --- --%>
     <%-- Load async CSS stylesheet, see https://www.filamentgroup.com/lab/load-css-simpler/ --%>
+    <%-- --- --%>
+
     <link rel="preload" type="text/css" href="${baseUrl}/css/vendor/fapro/css/all.min.css" as="style"/>
     <link rel="stylesheet" type="text/css" href="${baseUrl}/css/vendor/fapro/css/all.min.css" media="print" onload="this.media='all'" />
 
     <link rel="preload" type="text/css" href="https://ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css" as="style" />
     <link rel="stylesheet" type="text/css" href="https://ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css" media="print" onload="this.media='all'" />
 
+    <link rel="preload" type="text/css" href="${baseUrl}/wp-content/themes/impc/css/styles.css?v=${version}" as="style"/>
+    <link rel="stylesheet" type="text/css" href="${cmsBaseUrl}/wp-content/themes/impc/css/styles.css?v=${version}" media="print" onload="this.media='all'" />
+
+    <link rel="preload" type="text/css" href="${baseUrl}/css/default.css" as="style"/>
+    <link rel="stylesheet" type="text/css" href="${baseUrl}/css/default.css" media="print" onload="this.media='all'" />
+
+    <link rel="preload" type="text/css" href="${baseUrl}/css/impc-icons.css" as="style"/>
+    <link rel="stylesheet" type="text/css" href="${baseUrl}/css/impc-icons.css" media="print" onload="this.media='all'" />
+
+    <%-- --- --%>
     <%-- Finish with async stylesheets --%>
+    <%-- --- --%>
 
     <link rel="apple-touch-icon-precomposed" sizes="57x57" href="${baseUrl}/img/apple-touch-icon-57x57.png" />
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${baseUrl}/img/apple-touch-icon-114x114.png" />
@@ -73,25 +87,18 @@
             integrity="sha256-eGE6blurk5sHj+rmkfsGYeKyZx3M4bG+ZlFyA7Kns7E="
             crossorigin="anonymous"></script>
 
-    <script
+    <script defer
             src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
             integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
             crossorigin="anonymous"></script>
 
 <%--    <script type='text/javascript' src="${baseUrl}/js/general/toggle.js?v=${version}" async></script>--%>
-    <script type="text/javascript" src="${baseUrl}/js/head.min.js?v=${version}" defer></script>
-    <script type='text/javascript' src='${baseUrl}/js/buffaloZoo.js?v=${version}' defer></script>
+    <script defer type="text/javascript" src="${baseUrl}/js/head.min.js?v=${version}" ></script>
+    <script defer type='text/javascript' src='${baseUrl}/js/buffaloZoo.js?v=${version}' ></script>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.css" />
     <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.js" defer></script>
     <script type="text/javascript" src="${baseUrl}/js/default.js?v=${version}" defer></script>
-
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
-     replaced with below as unable to get his due to CORS or licence?-->
-
-    <link rel="stylesheet" href="${cmsBaseUrl}/wp-content/themes/impc/css/styles.css?version=20200213">
-    <link href="${baseUrl}/css/default.css" rel="stylesheet" type="text/css" media='all'/>
-    <link href="${baseUrl}/css/impc-icons.css" rel="stylesheet" type="text/css" />
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/css/bootstrap-select.min.css">
 

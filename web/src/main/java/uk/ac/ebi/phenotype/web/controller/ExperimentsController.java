@@ -28,6 +28,8 @@ import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.web.dto.AllelePageDTO;
 import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -54,6 +56,8 @@ import java.util.stream.Collectors;
 
 @Controller
 public class ExperimentsController {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     private final GenotypePhenotypeService gpService;
@@ -116,6 +120,14 @@ System.out.println("calling export on allDataTable in experiments controller");
         return "allDataTable";
     }
 
+    public String mpIdToName(String id) {
+        try {
+            return mpService.getPhenotypeById(id).getMpTerm();
+        } catch (IOException | SolrServerException e) {
+            logger.warn("Error trying to get phenotype for term ", id, e.getMessage());
+        }
+        return null;
+    }
 
     /**
      * Runs when the request missing an accession ID. This redirects to the
@@ -136,9 +148,12 @@ System.out.println("calling export on allDataTable in experiments controller");
             throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
 
         AllelePageDTO allelePageDTO = srService.getAllelesInfo(geneAccession, null, null, null, null, null, null, null);
-        Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
         String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
-        experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermNames, graphBaseUrl));
+
+        // Need to convert MP IDs to MP term names
+        final List<String> mpTermNamesNormalized = mpTermNames.stream().map(x -> x.startsWith("MP:") ? mpIdToName(x) : x).filter(Objects::nonNull).collect(Collectors.toList());
+
+        Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermNamesNormalized, graphBaseUrl));
         //remove any trace of viability data from chart as we decided as a group in ticket #184
         //experimentRows.remove("IMPC_VIA_001_001");
         Map<String, List<ExperimentsDataTableRow>> experimentRowsToFilter=new HashMap<>();//need
@@ -173,8 +188,12 @@ System.out.println("calling export on allDataTable in experiments controller");
         int rows = 0;
         String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 
+        // Need to convert MP IDs to MP term names
+        final List<String> mpTermNamesNormalized = mpTermIds.stream().map(x -> x.startsWith("MP:") ? mpIdToName(x) : x).filter(Objects::nonNull).collect(Collectors.toList());
+
+
         experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName,
-                procedureStableId, resource, mpTermIds, graphBaseUrl));
+                procedureStableId, resource, mpTermNamesNormalized, graphBaseUrl));
         for (List<ExperimentsDataTableRow> list : experimentRows.values()) {
             rows += list.size();
         }
@@ -188,7 +207,6 @@ System.out.println("calling export on allDataTable in experiments controller");
         model.addAttribute("phenotypeFilters", mpTerms);
         model.addAttribute("phenotypes", phenotypeTopLevels);
         model.addAttribute("chart", chart.get("chart"));
-        model.addAttribute("chartData", chart.get("chart").equals(null));
         model.addAttribute("rows", rows);
         model.addAttribute("experimentRows", experimentRows);
         model.addAttribute("allelePageDTO", allelePageDTO);

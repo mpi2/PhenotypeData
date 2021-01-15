@@ -69,6 +69,25 @@ public class MpService extends BasicService implements WebStatus {
     }
 
     /**
+     * Return the phenotype when given the ID of the mp term
+     *
+     * @return Phenotype DTO
+     */
+    @Cacheable("phenotypesById")
+    public MpDTO getPhenotypeById(String id) throws IOException, SolrServerException {
+
+        SolrQuery solrQuery = new SolrQuery()
+                .setQuery(MpDTO.MP_ID + ":\"" + id + "\" OR " + MpDTO.ALT_MP_ID + ":\"" + id + "\"") // this will find current mp id if alt mp id is used
+                .setRows(1);
+        List<MpDTO> mps = mpCore.query(solrQuery).getBeans(MpDTO.class);
+
+        if ( ! mps.isEmpty() ) {
+            return mps.get(0);
+        }
+
+        return null;
+    }
+    /**
      * Return the phenotype
      *
      * @return all genes from the gene core.
