@@ -132,242 +132,303 @@
         });
 
         </script>
+
+        <style>
+            .container-small {
+                max-width: 1000px;
+            }
+            .page-content .search-result p{
+                font-size: 16px;
+            }
+            .alert-light {
+                color: #000;
+                background-color: #f7f7f7;
+                border-color: #f7f7f7;
+            }
+        </style>
+
 	</jsp:attribute>
 
     <jsp:attribute name="addToFooter" />
 
     <jsp:body>
 
-        <div class="container single single--no-side">
-            <div class="row">
-                <div class="col-12 col-md-2 pseudo-padding"></div>
-                <div class="col-12 col-md-8 white-bg">
-                    <div class="pr-md-25">
-                        <div class="breadcrumbs">
-                            <div class="row">
-                                <div class="col-12">
-                                    <p><a href="/">Home</a> <span>></span>
-                                        Portal Search
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="pre-content pr-md-25">
-                        <h2>${fn:toUpperCase(fn:substring(type, 0, 1))}${fn:toLowerCase(fn:substring(type, 1,fn:length(type)))} search results</h2>
 
-                        <div class="page-content pb-5">
 
-                            <c:if test="${numberOfResults != 0}">
-                            <p>Number of results: <span id="numResults">${numberOfResults}</span></p>
-                            </c:if>
-                            <c:if test="${numberOfResults == 0}">
-                                <div>
-                                    <p>No results found for ${type} "${term}".</p>
-                                    <c:if test="${fn:length(phenotypeSuggestions) > 0 || fn:length(geneSuggestions) > 0}">
-                                        <hr />
-                                        Perhaps you were searching for:
-                                        <ul class="my-2">
-                                            <c:forEach var="i" items="${phenotypeSuggestions}">
-                                                <li>
-                                                    <a href="${baseUrl}/search?term=${i}&type=phenotype" aria-controls="suggestion" data-dt-idx="0" tabindex="0" class="">${i}</a>
-                                                </li>
-                                            </c:forEach>
-                                            <c:forEach var="i" items="${geneSuggestions}">
-                                                <li>
-                                                    <a href="${baseUrl}/search?term=${i}&type=gene" aria-controls="suggestion" data-dt-idx="0" tabindex="0" class="">${i}</a>
-                                                </li>
-                                            </c:forEach>
-                                        </ul>
-                                    </c:if>
-                                    <p>This search only looked in our ${type} database.</p>
-                                    <p class="my-3">
-                                        <a class="btn btn-success" href="${cmsBaseUrl}/?s=${term}">Search documentation, news, and blog posts for <b>${term}</b></a>
-                                    </p>
-                                </div>
-                            </c:if>
 
-                            <div id="results">
-
-                                <c:forEach var="gene" items="${genes}">
-                                    <div class="search-result">
-                                        <div class="row">
-                                            <div class="col-12 col-md-6">
-                                                <a href="${baseUrl}/genes/${gene.mgiAccessionId}"><h4>${gene.markerSymbol}</h4></a>
-                                            </div>
-
-                                            <div class="col-12 col-md-6">
-                                                <form action="${baseUrl}/update-gene-registration"
-                                                      method="POST"
-                                                      class="follow-form"
-                                                      id="follow-form-${fn:replace(gene.mgiAccessionId, ":", "")}">
-                                                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                                                    <input type="hidden" name="geneAccessionId" value="${gene.mgiAccessionId}" />
-                                                    <input type="hidden" name="target" value="${baseUrl}/rilogin?target=${baseUrl}/search?term=${term}&type=${type}&page=${currentPage}" />
-
-                                                    <c:choose>
-                                                        <c:when test="${not empty isLoggedIn and isLoggedIn}">
-                                                            <c:choose>
-                                                                <c:when test="${isFollowing[gene.mgiAccessionId]}">
-                                                                    <button
-                                                                            title="You are following ${gene.markerSymbol}. Click to stop following."
-                                                                            class="btn btn-outline-secondary"
-                                                                            type="submit"
-                                                                            style="float: right;">
-                                                                        <i class="fas fa-user-minus"></i>
-                                                                        <span>Unfollow</span>
-                                                                    </button>
-                                                                </c:when>
-                                                                <c:otherwise>
-                                                                    <button
-                                                                            title="Click to follow ${gene.markerSymbol}"
-                                                                            class="btn btn-primary"
-                                                                            type="submit"
-                                                                            style="float: right">
-                                                                        <i class="fas fa-user-plus"></i>
-                                                                        <span>Follow</span>
-                                                                    </button>
-                                                                </c:otherwise>
-                                                            </c:choose>
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                            <a
-                                                                    href="${baseUrl}/rilogin?target=${baseUrl}/search?term=${term}&type=${type}&page=${currentPage}"
-                                                                    title="Log in to My genes"
-                                                                    class="btn btn-primary"
-                                                                    style="float: right;">
-                                                                Log in to follow
-                                                            </a>
-                                                        </c:otherwise>
-                                                    </c:choose>
-                                                </form>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-12 col-md-6">
-                                                <p><b>Name: </b>${gene.markerName}<br>
-                                                    <b>Human orthologs: </b>
-                                                    <c:forEach var="orth" items="${gene.humanGeneSymbol}" varStatus="loop">${orth}<c:if test="${!loop.last}">, </c:if></c:forEach><br>
-                                                    <b>Synonyms: </b>
-                                                    <c:forEach var="syn" items="${gene.markerSynonym}" varStatus="loop">
-                                                        <t:formatAllele>${syn}</t:formatAllele><c:if test="${!loop.last}">,</c:if>
-                                                    </c:forEach>
-                                                </p>
-                                            </div>
-
-                                            <div class="col-12 col-md-6">
-                                                <p><b>Status:</b><br/>
-                                                    <c:if test="${fn:trim(gene.latestEsCellStatus) != ''}">${gene.latestEsCellStatus}<br></c:if>
-                                                    <c:if test="${fn:trim(gene.latestMouseStatus) != ''}">${gene.latestMouseStatus}<br></c:if>
-                                                    <c:if test="${fn:trim(gene.latestPhenotypeStatus) != ''}">${gene.latestPhenotypeStatus}</c:if>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </c:forEach>
-
-                                <c:forEach var="phenotype" items="${phenotypes}">
-                                    <div class="search-result">
-                                        <a href="${baseUrl}/phenotypes/${phenotype.mpId}">
-                                            <h4>${phenotype.mpTerm}</h4></a>
-                                            <c:if test="${phenotype.geneCount == 0}">
-                                            <div class="alert alert-light" role="alert">
-                                                No IMPC genes are currently associated with this phenotype
-                                            </div>
-                                            </c:if>
-                                            <c:if test="${phenotype.geneCount != 0}">
-                                            <div class="alert alert-primary" role="alert">
-                                                ${phenotype.geneCount} gene<c:if test="${phenotype.geneCount != 1}">s</c:if> associated with this phenotype
-                                            </div>
-                                            </c:if>
-                                        <div class="row">
-                                            <div class="col-12 col-md-6"><b>Synonym: </b>
-                                                <c:forEach var="syn" items="${phenotype.mpTermSynonym}" varStatus="loop">
-                                                    ${syn}<c:if test="${!loop.last}">,</c:if>
-                                                </c:forEach><p></p></div>
-                                            <div class="col-12 col-md-6">
-                                                <b>Definition: </b>${phenotype.mpDefinition}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </c:forEach>
-                            </div>
-                        </div>
-
+        <div class="container container-small data-heading">
+            <div class="row row-shadow">
+                <div class="col-12 no-gutters">
+                    <h2 class="mb-0">
                         <c:choose>
-                            <c:when test="${currentPage == 1}">
-                                <c:set var="prevDisplayPage" value="1" />
+                            <c:when test = "${fn:startsWith(type, 'pheno')}">
+                                Phenotype search results<%--c:if test="${fn:length(term) > 0}">: <span class="gene-name">"${term}"</span></c:if--%>
                             </c:when>
                             <c:otherwise>
-                                <c:set var="prevDisplayPage" value="${currentPage-1}" />
+                                Gene Search Results<%--c:if test="${fn:length(term) > 0}">: <span class="gene-name">"${term}"</span></c:if--%>
                             </c:otherwise>
                         </c:choose>
-
-                        <c:choose>
-                            <c:when test="${currentPage == numPages}">
-                                <c:set var="nextDisplayPage" value="${numPages}" />
-                            </c:when>
-                            <c:otherwise>
-                                <c:set var="nextDisplayPage" value="${currentPage+1}" />
-                            </c:otherwise>
-                        </c:choose>
-
-                        <c:if test="${numberOfResults > rows}">
-                        <div class="row justify-content-between">
-                            <div class="col-md-auto my-2">
-                                <p class="">Showing ${start+1} to ${((start + rows) < numberOfResults) ? (start + rows) : numberOfResults} of ${numberOfResults} entries</p>
-                            </div>
-                            <div class="col-md-auto">
-                                <ul class="pagination my-0">
-                                    <c:if test="${currentPage != 1}">
-                                        <li class="paginate_button page-item previous" id="previous">
-                                            <a href="${baseUrl}/search?term=${term}&type=${type}&page=${prevDisplayPage}&rows=${rows}" class="page-link">Previous</a></li>
-                                    </c:if>
-                                    <c:if test="${currentPage == 1}">
-                                        <li class="paginate_button page-item previous disabled" id="previous">
-                                            <a class="page-link disabled">Previous</a></li>
-                                    </c:if>
-
-                                    <li class="paginate_button page-item <c:if test="${currentPage == 1}">active</c:if>">
-                                        <a href="${baseUrl}/search?term=${term}&type=${type}&page=1&rows=${rows}" class="page-link">1</a></li>
-
-                                    <c:if test="${currentPage > 3 }">
-                                        <li class="paginate_button page-item disabled" id="cardio_ellipsis">
-                                            <a href="#" data-dt-idx="2" tabindex="0" class="page-link">...</a></li>
-                                    </c:if>
-
-                                    <c:forEach var="i" begin="${prevDisplayPage}" end="${nextDisplayPage}">
-                                        <c:if test="${i != numPages && i!=1}">
-                                        <li class="paginate_button page-item <c:if test="${currentPage == i}">active</c:if>" id="navigate-${i}">
-                                            <a href="${baseUrl}/search?term=${term}&type=${type}&page=${i}&rows=${rows}" class="page-link">${i}</a></li>
-                                        </c:if>
-                                    </c:forEach>
-
-                                    <c:if test="${currentPage < (numPages-2) && numPages>5 }">
-                                        <li class="paginate_button page-item disabled" id="next_ellipsis">
-                                            <a href="#" class="page-link">...</a></li>
-                                    </c:if>
-
-                                    <li class="paginate_button page-item <c:if test="${currentPage == numPages}">active</c:if>">
-                                        <a href="${baseUrl}/search?term=${term}&type=${type}&page=${numPages}&rows=${rows}" class="page-link">${numPages}</a></li>
-                                    <c:if test="${currentPage != numPages}">
-                                        <li class="paginate_button page-item next" id="next">
-                                            <a href="${baseUrl}/search?term=${term}&type=${type}&page=${nextDisplayPage}&rows=${rows}" class="page-link">Next</a></li>
-                                    </c:if>
-                                    <c:if test="${currentPage == numPages}">
-                                        <li class="paginate_button page-item next disabled" id="next">
-                                            <a class="page-link disabled">Next</a></li>
-                                    </c:if>
-                                </ul>
-                            </div>
-                        </div>
-                        </c:if>
-
-                    </div>
+                    </h2>
                 </div>
             </div>
         </div>
+        <div class="container container-small white-bg-small">
+            <div class="breadcrumbs clear row">
+                <div class="col-12 d-none d-lg-block px-5 pt-5">
+                    <aside>
+                        <a href="https://www.mousephenotype.org/phenodcc/">Home</a>
+                        <span class="fal fa-angle-right"></span>
+                        <strong>Search<c:if test="${fn:length(term) > 0}">: "${term}"</c:if></strong>
+                    </aside>
+                </div>
+                <div class="col-12 d-block d-lg-none px-3 px-md-5 pt-5">
+                    <aside>
+                        <a href="${cmsBaseUrl}"><span class="fal fa-angle-left mr-2"></span> Home</a>
+                    </aside>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-12">
+                <div class="pre-content clear-bg">
+                    <div class="page-content px-0 px-md-5 pb-5 white-bg">
+
+                        <c:if test="${numberOfResults == 0}">
+                            <div>
+                                <p>No results found for ${type} "${term}".</p>
+                                <c:if test="${fn:length(phenotypeSuggestions) > 0 || fn:length(geneSuggestions) > 0}">
+                                    <hr />
+                                    Perhaps you were searching for:
+                                    <ul class="my-2">
+                                        <c:forEach var="i" items="${phenotypeSuggestions}">
+                                            <li>
+                                                <a href="${baseUrl}/search?term=${i}&type=phenotype" aria-controls="suggestion" data-dt-idx="0" tabindex="0" class="">${i}</a>
+                                            </li>
+                                        </c:forEach>
+                                        <c:forEach var="i" items="${geneSuggestions}">
+                                            <li>
+                                                <a href="${baseUrl}/search?term=${i}&type=gene" aria-controls="suggestion" data-dt-idx="0" tabindex="0" class="">${i}</a>
+                                            </li>
+                                        </c:forEach>
+                                    </ul>
+                                </c:if>
+                                <p>This search only looked in our ${type} database.</p>
+                                <p class="my-3">
+                                    <a class="btn btn-success" href="${cmsBaseUrl}/?s=${term}">Search documentation, news, and blog posts for <b>${term}</b></a>
+                                </p>
+                            </div>
+                        </c:if>
+
+                        <c:if test="${numberOfResults != 0}">
+                            <p class="py-0 my-0"><small>Showing ${start+1} to ${((start + rows) < numberOfResults) ? (start + rows) : numberOfResults} of ${numberOfResults} entries</small></p>
+                        </c:if>
+
+                        <div id="results">
+
+                            <c:forEach var="gene" items="${genes}">
+
+                            <div class="search-result">
+                                <div class="row">
+                                    <div class="col-12 col-md-6">
+                                        <h3 class="mb-4"><a href="${baseUrl}/genes/${gene.mgiAccessionId}">${gene.markerSymbol}</a></h3>
+                                        <dl class="row mb-3">
+                                            <dt class="col-sm-3">Name:</dt>
+                                            <dd class="col-sm-9">${gene.markerName}</dd>
+                                            <dt class="col-sm-3">Synonyms:</dt>
+                                            <dd class="col-sm-9"><c:forEach var="syn" items="${gene.markerSynonym}" varStatus="loop">${syn}<c:if test="${!loop.last}">, </c:if></c:forEach></dd>
+                                        </dl>
+
+                                        <c:if test="${fn:contains(fn:toLowerCase(gene.latestEsCellStatus), 'abort')}">
+                                        <p class="text-danger">
+                                            <i class="fas fa-ban"></i>
+                                            <b>Phenotype Production Aborted</b>
+                                        </p>
+                                        </c:if>
+
+                                        <c:if test="${ fn:contains(fn:toLowerCase(gene.latestEsCellStatus), 'not assigned') and fn:length(gene.latestPhenotypeStatus)==0 and fn:length(gene.latestMouseStatus)==0}">
+                                        <p class="text-warning">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            <b>${gene.latestEsCellStatus}</b>
+                                        </p>
+                                        </c:if>
+
+                                        <div>
+                                            <a href="${baseUrl}/genes/${gene.mgiAccessionId}#phenotypesTab" class="btn btn-primary"><i class="far fa-chart-bar fa-sm"></i> View Data</a>
+                                            <a href="${baseUrl}/genes/${gene.mgiAccessionId}#order" class="btn btn-info text-white"><i class="fas fa-shopping-cart fa-sm"></i> Order Mice</a>
+
+                                            <form action="${baseUrl}/update-gene-registration"
+                                                  method="POST"
+                                                  class="follow-form d-inline"
+                                                  id="follow-form-${fn:replace(gene.mgiAccessionId, ":", "")}">
+                                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                                                <input type="hidden" name="geneAccessionId" value="${gene.mgiAccessionId}" />
+                                                <input type="hidden" name="target" value="${baseUrl}/rilogin?target=${baseUrl}/search?term=${term}&type=${type}&page=${currentPage}" />
+
+                                                <c:choose>
+                                                    <c:when test="${not empty isLoggedIn and isLoggedIn}">
+                                                        <c:choose>
+                                                            <c:when test="${isFollowing[gene.mgiAccessionId]}">
+                                                                <button
+                                                                        title="You are following ${gene.markerSymbol}. Click to stop following."
+                                                                        class="btn btn-light"
+                                                                        type="submit">
+                                                                    <i class="fas fa-user-minus"></i>
+                                                                    <span>Unfollow</span>
+                                                                </button>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <button
+                                                                        title="Click to follow ${gene.markerSymbol}"
+                                                                        class="btn btn-dark"
+                                                                        type="submit">
+                                                                    <i class="fas fa-user-plus"></i>
+                                                                    <span>Follow</span>
+                                                                </button>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <a
+                                                                href="${baseUrl}/rilogin?target=${baseUrl}/search?term=${term}&type=${type}&page=${currentPage}"
+                                                                title="Log in to My genes"
+                                                                class="btn btn-dark">
+                                                            Log in to follow
+                                                        </a>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </form>
+                                        </div>
+                                    </div>
+
+
+                                    <c:if test="${ ! fn:contains(fn:toLowerCase(gene.latestEsCellStatus), 'not assigned') or fn:length(gene.latestPhenotypeStatus)>0 or fn:length(gene.latestMouseStatus)>0}">
+
+                                    <div class="col-12 col-md-6">
+                                        <div class="alert alert-light p-4">
+                                            <h6>
+                                                <b>Production Status</b>
+                                                <i class="fas fa-question-circle float-right" data-toggle="tooltip" data-placement="bottom" title="These statuses are a way to indicate how &quot;close&quot; we are from having phenotype data available"></i>
+                                            </h6>
+                                            <c:if test="${fn:trim(gene.latestEsCellStatus) != ''}"><p class="mb-0">${gene.latestEsCellStatus}</p></c:if>
+                                            <c:if test="${fn:trim(gene.latestMouseStatus) != ''}"><p class="mb-0">${gene.latestMouseStatus}</p></c:if>
+                                            <c:if test="${fn:trim(gene.latestPhenotypeStatus) != ''}"><p class="mb-0">${gene.latestPhenotypeStatus}</p></c:if>
+                                        </div>
+                                    </div>
+
+                                    </c:if>
+
+                                </div>
+                            </div>
+
+                            </c:forEach>
+
+                            <c:forEach var="phenotype" items="${phenotypes}">
+                                <div class="search-result">
+                                    <h3><a href="${baseUrl}/phenotypes/${phenotype.mpId}">${phenotype.mpTerm}</a></h3>
+                                    <c:if test="${phenotype.geneCount == 0}">
+                                        <div class="alert alert-light" role="alert">
+                                            No IMPC genes are currently associated with this phenotype
+                                        </div>
+                                    </c:if>
+                                    <c:if test="${phenotype.geneCount != 0}">
+                                        <div class="alert alert-primary" role="alert">
+                                                ${phenotype.geneCount} gene<c:if test="${phenotype.geneCount != 1}">s</c:if> associated with this phenotype
+                                        </div>
+                                    </c:if>
+                                    <div class="row">
+                                        <div class="col-12 col-md-6"><b>Synonym: </b>
+                                            <c:forEach var="syn" items="${phenotype.mpTermSynonym}" varStatus="loop">
+                                                ${syn}<c:if test="${!loop.last}">, </c:if>
+                                            </c:forEach><p></p></div>
+                                        <div class="col-12 col-md-6">
+                                            <b>Definition: </b>${phenotype.mpDefinition}
+                                        </div>
+                                    </div>
+                                </div>
+                            </c:forEach>
+
+                            <c:choose>
+                                <c:when test="${currentPage == 1}">
+                                    <c:set var="prevDisplayPage" value="1" />
+                                </c:when>
+                                <c:otherwise>
+                                    <c:set var="prevDisplayPage" value="${currentPage-1}" />
+                                </c:otherwise>
+                            </c:choose>
+
+                            <c:choose>
+                                <c:when test="${currentPage == numPages}">
+                                    <c:set var="nextDisplayPage" value="${numPages}" />
+                                </c:when>
+                                <c:otherwise>
+                                    <c:set var="nextDisplayPage" value="${currentPage+1}" />
+                                </c:otherwise>
+                            </c:choose>
+
+                            <c:if test="${numberOfResults > rows}">
+                                <div class="row">
+                                    <div class="col mt-3">
+                                        <ul class="pagination my-0 float-right">
+                                            <c:if test="${currentPage != 1}">
+                                                <li class="paginate_button page-item previous" id="previous">
+                                                    <a href="${baseUrl}/search?term=${term}&type=${type}&page=${prevDisplayPage}&rows=${rows}" class="page-link">Previous</a></li>
+                                            </c:if>
+                                            <c:if test="${currentPage == 1}">
+                                                <li class="paginate_button page-item previous disabled" id="previous">
+                                                    <a class="page-link disabled">Previous</a></li>
+                                            </c:if>
+
+                                            <li class="paginate_button page-item <c:if test="${currentPage == 1}">active</c:if>">
+                                                <a href="${baseUrl}/search?term=${term}&type=${type}&page=1&rows=${rows}" class="page-link">1</a></li>
+
+                                            <c:if test="${currentPage > 3 }">
+                                                <li class="paginate_button page-item disabled" id="cardio_ellipsis">
+                                                    <a href="#" data-dt-idx="2" tabindex="0" class="page-link">...</a></li>
+                                            </c:if>
+
+                                            <c:forEach var="i" begin="${prevDisplayPage}" end="${nextDisplayPage}">
+                                                <c:if test="${i != numPages && i!=1}">
+                                                    <li class="paginate_button page-item <c:if test="${currentPage == i}">active</c:if>" id="navigate-${i}">
+                                                        <a href="${baseUrl}/search?term=${term}&type=${type}&page=${i}&rows=${rows}" class="page-link">${i}</a></li>
+                                                </c:if>
+                                            </c:forEach>
+
+                                            <c:if test="${currentPage < (numPages-2) && numPages>5 }">
+                                                <li class="paginate_button page-item disabled" id="next_ellipsis">
+                                                    <a href="#" class="page-link">...</a></li>
+                                            </c:if>
+
+                                            <li class="paginate_button page-item <c:if test="${currentPage == numPages}">active</c:if>">
+                                                <a href="${baseUrl}/search?term=${term}&type=${type}&page=${numPages}&rows=${rows}" class="page-link">${numPages}</a></li>
+                                            <c:if test="${currentPage != numPages}">
+                                                <li class="paginate_button page-item next" id="next">
+                                                    <a href="${baseUrl}/search?term=${term}&type=${type}&page=${nextDisplayPage}&rows=${rows}" class="page-link">Next</a></li>
+                                            </c:if>
+                                            <c:if test="${currentPage == numPages}">
+                                                <li class="paginate_button page-item next disabled" id="next">
+                                                    <a class="page-link disabled">Next</a></li>
+                                            </c:if>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <p class="py-0 my-0 float-right"><small>Showing ${start+1} to ${((start + rows) < numberOfResults) ? (start + rows) : numberOfResults} of ${numberOfResults} entries</small></p>
+
+                            </c:if>
+
+                        </div>
+                    </div>
+
+
+                </div>
+
+
+            </div>
+            </div>
+
+        </div>
+
+
+
 
     </jsp:body>
 

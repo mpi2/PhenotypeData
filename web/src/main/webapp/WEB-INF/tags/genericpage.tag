@@ -37,7 +37,7 @@
     <link rel="stylesheet" type="text/css" href="https://ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css" media="print" onload="this.media='all'" />
 
     <link rel="preload" type="text/css" href="${baseUrl}/wp-content/themes/impc/css/styles.css?v=${version}" as="style"/>
-    <link rel="stylesheet" type="text/css" href="${cmsBaseUrl}/wp-content/themes/impc/css/styles.css?v=${version}" media="print" onload="this.media='all'" />
+    <link rel="stylesheet" type="text/css" href="${cmsBaseUrl}/wp-content/themes/impc/css/styles.css?v=${version}" />
 
     <link rel="preload" type="text/css" href="${baseUrl}/css/default.css" as="style"/>
     <link rel="stylesheet" type="text/css" href="${baseUrl}/css/default.css" media="print" onload="this.media='all'" />
