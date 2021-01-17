@@ -41,7 +41,7 @@
         <link rel="stylesheet" type="text/css" href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.min.css?v=${version}" media="print" onload="this.media='all'" />
 
         <%-- Phenodigm2 requirements --%>
-        <script defer type="text/javascript" src="//d3js.org/d3.v4.min.js" ></script>
+        <script defer type="text/javascript" src="https://d3js.org/d3.v4.min.js" ></script>
         <script defer type="text/javascript" src="${baseUrl}/js/vendor/underscore/underscore-1.8.3.min.js" ></script>
         <script defer type="text/javascript" src="${baseUrl}/js/phenodigm2/phenodigm2.js?v=${version}" ></script>
         <link rel="stylesheet" type="text/css" href="${baseUrl}/css/phenodigm2.css" />
