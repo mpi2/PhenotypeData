@@ -36,7 +36,7 @@
     <link rel="preload" type="text/css" href="https://ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css" as="style" />
     <link rel="stylesheet" type="text/css" href="https://ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css" media="print" onload="this.media='all'" />
 
-    <link rel="preload" type="text/css" href="${baseUrl}/wp-content/themes/impc/css/styles.css?v=${version}" as="style"/>
+    <link rel="preload" type="text/css" href="${cmsBaseUrl}/wp-content/themes/impc/css/styles.css?v=${version}" as="style"/>
     <link rel="stylesheet" type="text/css" href="${cmsBaseUrl}/wp-content/themes/impc/css/styles.css?v=${version}" />
 
     <link rel="preload" type="text/css" href="${baseUrl}/css/default.css" as="style"/>
@@ -68,7 +68,7 @@
     <meta name="msapplication-square150x150logo" content="${baseUrl}/img/mstile-150x150.png" />
     <meta name="msapplication-wide310x150logo" content="${baseUrl}/img/mstile-310x150.png" />
     <meta name="msapplication-square310x310logo" content="${baseUrl}/img/mstile-310x310.png" />
-    <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+    <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
     <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/object-fit-images/3.2.4/ofi.min.js'></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 
