@@ -15,9 +15,12 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
+import com.google.inject.internal.cglib.core.$Constants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.common.Constants;
+import org.mousephenotype.cda.exporter.Exporter;
+import org.mousephenotype.cda.interfaces.Exportable;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.MpService;
@@ -36,10 +39,15 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
+import uk.ac.ebi.phenotype.util.PublicationFetcher;
+import uk.ac.ebi.phenotype.web.dto.AlleleRef;
+import uk.ac.ebi.phenotype.web.dto.Grant;
+import uk.ac.ebi.phenotype.web.dto.Publication;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.inject.Named;
@@ -50,12 +58,13 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
 
 @Controller
-public class ExperimentsController {
+public class ExperimentsController implements Exportable<ExperimentsDataTableRow> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -83,18 +92,14 @@ public class ExperimentsController {
     @RequestMapping("/allDataTable")
     public String getAllDataTable(
             @RequestParam(required = true, value = "geneAccession") String geneAccession,
-            @RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol,
+            //@RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol,
             @RequestParam(required = false, value = "mpTermId") List<String> mpTermId,
             Model model,
             HttpServletRequest request)
             throws IOException, SolrServerException, JSONException {
 
-        ExperimentsTable experimentsTable = new ExperimentsTable(geneAccession, mpTermId, request).invoke();
-        Set<ExperimentsDataTableRow> experimentRows = experimentsTable.getExperimentRows();
-        JSONArray sortedJsonArray = experimentsTable.getSortedJsonArray();
+        Set<ExperimentsDataTableRow> experimentRows = getExperimentsDataTableRows(geneAccession, mpTermId, model, request);
 
-        model.addAttribute("rows", experimentRows.size());
-        model.addAttribute("allData", sortedJsonArray.toString().replace("'", "\\'"));
         return "allDataTable";
     }
 
@@ -102,23 +107,162 @@ public class ExperimentsController {
      * Runs when the request missing an accession ID. This redirects to the
      * search page which defaults to showing all genes in the list
      */
-    @RequestMapping("/allDataTable/export")
-    public String exportAllDataTable(
+    @RequestMapping(value="/allDataTableExport", method = RequestMethod.GET)
+    public void exportAllDataTable(
             @RequestParam(required = true, value = "geneAccession") String geneAccession,
             @RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol,
             @RequestParam(required = false, value = "mpTermId") List<String> mpTermId,
+            @RequestParam(value = "fileType", required = true) String fileType,
+            @RequestParam(value = "fileName", required = true) String fileName,
             Model model,
-            HttpServletRequest request)
+            HttpServletRequest request, HttpServletResponse response)
             throws IOException, SolrServerException, JSONException {
 System.out.println("calling export on allDataTable in experiments controller");
+        Set<ExperimentsDataTableRow> experimentRows = getExperimentsDataTableRows(geneAccession, mpTermId, model, request);
+        List<ExperimentsDataTableRow> rowsList=new ArrayList<>();
+        rowsList.addAll(experimentRows);
+        //experimentRows
+        List<List<String>> matrix = getRows(rowsList);
+        Exporter.export(response, fileType, fileName, getHeading(), matrix);
+    }
+
+    private Set<ExperimentsDataTableRow> getExperimentsDataTableRows(@RequestParam(required = true, value = "geneAccession") String geneAccession, @RequestParam(required = false, value = "mpTermId") List<String> mpTermId, Model model, HttpServletRequest request) throws IOException, SolrServerException, JSONException {
         ExperimentsTable experimentsTable = new ExperimentsTable(geneAccession, mpTermId, request).invoke();
         Set<ExperimentsDataTableRow> experimentRows = experimentsTable.getExperimentRows();
         JSONArray sortedJsonArray = experimentsTable.getSortedJsonArray();
 
         model.addAttribute("rows", experimentRows.size());
         model.addAttribute("allData", sortedJsonArray.toString().replace("'", "\\'"));
-        return "allDataTable";
+        return experimentRows;
     }
+
+//    @RequestMapping(value = "/publicationsExport", method = RequestMethod.GET)
+//    public void exportPublications(
+//            @RequestParam(value = "filter", required = false) String filter,
+//            @RequestParam(value = "fileType", required = true) String fileType,
+//            @RequestParam(value = "fileName", required = true) String fileName,
+//            HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
+//        System.out.println("calling export publications in experiments controller");
+//        PublicationFetcher publicationFetcher = buildPublicationFetcher(agency, filter, publicationTypeName);
+//        fileName = (publicationFetcher.getPublicationType() == PublicationFetcher.PublicationType.ACCEPTED_IMPC_PUBLICATION
+//                ? "all_impc_publications"
+//                : "impc_consortium_publications");
+//        List<Publication> publications = publicationFetcher.getAllPublications();
+//        List<List<String>> matrix = getRows(publications);
+//        Exporter.export(response, fileType, fileName, getHeading(), matrix);
+//    }
+
+    @Override
+    public List<String> getRow(ExperimentsDataTableRow allDataRow) {
+
+        List<String> row = new ArrayList<>();
+        String       geneAccessionId = null;
+        if (allDataRow.getAllele() != null) {
+            row.add(allDataRow.getAllele().getSymbol());
+        }else{
+            row.add(Constants.NO_INFORMATION_AVAILABLE);
+        }
+        if(allDataRow.getPhenotypingCenter()!=null){
+            row.add(allDataRow.getPhenotypingCenter());
+        }else{
+            row.add(Constants.NO_INFORMATION_AVAILABLE);
+        }
+        String procParam=Constants.NO_INFORMATION_AVAILABLE;
+        if(allDataRow.getProcedure()!=null){
+            procParam=allDataRow.getProcedure().getName();
+        }
+        if(allDataRow.getParameter()!=null){
+            procParam.join("/",allDataRow.getParameter().getName());
+        }
+        row.add(procParam);
+        if(allDataRow.getLifeStageName()!=null){
+            row.add(allDataRow.getLifeStageName());
+        }else{
+            row.add(Constants.NO_INFORMATION_AVAILABLE);
+        }
+        if(allDataRow.getZygosity().getName()!=null){
+            row.add(allDataRow.getZygosity().getName());
+        }else{
+            row.add(Constants.NO_INFORMATION_AVAILABLE);
+        }
+        if(allDataRow.getSignificant()!=null){
+            row.add(allDataRow.getSignificant().toString());
+        }else{
+            row.add(Constants.NO_INFORMATION_AVAILABLE);
+        }
+        if(allDataRow.getpValue()!=null) {
+            row.add(allDataRow.getpValue().toString());
+        }else{
+            row.add(Constants.NO_INFORMATION_AVAILABLE);
+        }
+        if(allDataRow.getPhenotypeTerm().getName()!=null){
+            row.add(allDataRow.getPhenotypeTerm().getName());
+        }else{
+            row.add(Constants.NO_INFORMATION_AVAILABLE);
+        }
+//            for (AlleleRef alleleRef : publication.getAlleles()) {
+//                symbols.add(alleleRef.getAlleleSymbol() == null ? Constants.NO_INFORMATION_AVAILABLE : alleleRef.getAlleleSymbol());
+//                accessionIds.add(alleleRef.getAlleleAccessionId() == null ? Constants.NO_INFORMATION_AVAILABLE : alleleRef.getAlleleAccessionId());
+//                if (geneAccessionId == null) {
+//                    geneAccessionId = alleleRef.getGeneAccessionId();
+//                }
+//            }
+//            row.add(StringUtils.join(symbols, "|"));            // MGI allele symbol
+//            row.add(StringUtils.join(accessionIds, "|"));       // MGI allele accession id
+//            row.add(geneAccessionId == null
+//                    ? Constants.NO_INFORMATION_AVAILABLE
+//                    : FULLY_QUALIFIED_GENE_BASE_URL + "/" + geneAccessionId);  // IMPC gene link
+//        } else {
+//            row.add(Constants.NO_INFORMATION_AVAILABLE);
+//            row.add(Constants.NO_INFORMATION_AVAILABLE);
+//            row.add(Constants.NO_INFORMATION_AVAILABLE);
+//        }
+//        row.add(publication.getTitle());                                 // Publication title
+//        row.add(publication.getJournalInfo().getJournal().getTitle());   // Journal
+//        row.add(publication.getPmid());                                  // PMID
+//        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
+//        row.add(f.format(publication.getFirstPublicationDate()));        // Publication date
+//
+//        List<String> grantIds = new ArrayList<>();
+//        List<String> grantAgencies = new ArrayList<>();
+//        if ((publication.getGrantsList() != null) && ( ! publication.getGrantsList().isEmpty())) {
+//            for (Grant grant : publication.getGrantsList()) {
+//                grantIds.add(grant.getGrantId());
+//                grantAgencies.add(grant.getAgency());
+//            }
+//            row.add(StringUtils.join(grantIds, "|"));           // Grant Ids
+//            row.add(StringUtils.join(grantAgencies, "|"));      // Grant agencies
+//        } else {
+//            row.add(Constants.NO_INFORMATION_AVAILABLE);
+//            row.add(Constants.NO_INFORMATION_AVAILABLE);
+//        }
+//        String publicationLink = getFirstEuropePmcPublicationUrl(publication);
+//        row.add((publicationLink == null) || (publicationLink.isEmpty())
+//                ? Constants.NO_INFORMATION_AVAILABLE
+//                : publicationLink);
+//        row.add(publication.isConsortiumPaper() ? "Yes" : "No");          // Is consortium paper
+
+        return row;
+    }
+
+
+    @Override
+    public List<String> getHeading() {
+
+        final List<String> headings = Arrays.asList(new String[] {
+                "Allele",
+                "Center",
+                "Procedure / Parameter",
+                "Life Stage",
+                "Zygosity",
+                "Significant",
+                "P Value",
+                "Phenotype"
+        });
+
+        return headings;
+    }
+
 
     public String mpIdToName(String id) {
         try {
