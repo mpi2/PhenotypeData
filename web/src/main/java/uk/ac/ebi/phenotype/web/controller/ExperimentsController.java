@@ -136,22 +136,6 @@ System.out.println("calling export on allDataTable in experiments controller");
         return experimentRows;
     }
 
-//    @RequestMapping(value = "/publicationsExport", method = RequestMethod.GET)
-//    public void exportPublications(
-//            @RequestParam(value = "filter", required = false) String filter,
-//            @RequestParam(value = "fileType", required = true) String fileType,
-//            @RequestParam(value = "fileName", required = true) String fileName,
-//            HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
-//        System.out.println("calling export publications in experiments controller");
-//        PublicationFetcher publicationFetcher = buildPublicationFetcher(agency, filter, publicationTypeName);
-//        fileName = (publicationFetcher.getPublicationType() == PublicationFetcher.PublicationType.ACCEPTED_IMPC_PUBLICATION
-//                ? "all_impc_publications"
-//                : "impc_consortium_publications");
-//        List<Publication> publications = publicationFetcher.getAllPublications();
-//        List<List<String>> matrix = getRows(publications);
-//        Exporter.export(response, fileType, fileName, getHeading(), matrix);
-//    }
-
     @Override
     public List<String> getRow(ExperimentsDataTableRow allDataRow) {
 
