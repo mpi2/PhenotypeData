@@ -156,6 +156,7 @@
             })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
 
             ga('create', 'UA-23433997-1', 'auto');
+            ga('set', 'anonymizeIp', true);
             ga('send', 'pageview');
         </script>
     </c:if>
