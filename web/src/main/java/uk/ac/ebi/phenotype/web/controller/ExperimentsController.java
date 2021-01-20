@@ -15,7 +15,6 @@
  *******************************************************************************/
 package uk.ac.ebi.phenotype.web.controller;
 
-import com.google.inject.internal.cglib.core.$Constants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.common.Constants;
@@ -44,10 +43,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
-import uk.ac.ebi.phenotype.util.PublicationFetcher;
-import uk.ac.ebi.phenotype.web.dto.AlleleRef;
-import uk.ac.ebi.phenotype.web.dto.Grant;
-import uk.ac.ebi.phenotype.web.dto.Publication;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.inject.Named;
@@ -58,7 +53,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -117,11 +111,12 @@ public class ExperimentsController implements Exportable<ExperimentsDataTableRow
             Model model,
             HttpServletRequest request, HttpServletResponse response)
             throws IOException, SolrServerException, JSONException {
-System.out.println("calling export on allDataTable in experiments controller");
+        System.out.println("calling export on allDataTable in experiments controller");
         Set<ExperimentsDataTableRow> experimentRows = getExperimentsDataTableRows(geneAccession, mpTermId, model, request);
         List<ExperimentsDataTableRow> rowsList=new ArrayList<>();
         rowsList.addAll(experimentRows);
         //experimentRows
+        Collections.sort(rowsList);
         List<List<String>> matrix = getRows(rowsList);
         Exporter.export(response, fileType, fileName, getHeading(), matrix);
     }
@@ -184,47 +179,7 @@ System.out.println("calling export on allDataTable in experiments controller");
         }else{
             row.add(Constants.NO_INFORMATION_AVAILABLE);
         }
-//            for (AlleleRef alleleRef : publication.getAlleles()) {
-//                symbols.add(alleleRef.getAlleleSymbol() == null ? Constants.NO_INFORMATION_AVAILABLE : alleleRef.getAlleleSymbol());
-//                accessionIds.add(alleleRef.getAlleleAccessionId() == null ? Constants.NO_INFORMATION_AVAILABLE : alleleRef.getAlleleAccessionId());
-//                if (geneAccessionId == null) {
-//                    geneAccessionId = alleleRef.getGeneAccessionId();
-//                }
-//            }
-//            row.add(StringUtils.join(symbols, "|"));            // MGI allele symbol
-//            row.add(StringUtils.join(accessionIds, "|"));       // MGI allele accession id
-//            row.add(geneAccessionId == null
-//                    ? Constants.NO_INFORMATION_AVAILABLE
-//                    : FULLY_QUALIFIED_GENE_BASE_URL + "/" + geneAccessionId);  // IMPC gene link
-//        } else {
-//            row.add(Constants.NO_INFORMATION_AVAILABLE);
-//            row.add(Constants.NO_INFORMATION_AVAILABLE);
-//            row.add(Constants.NO_INFORMATION_AVAILABLE);
-//        }
-//        row.add(publication.getTitle());                                 // Publication title
-//        row.add(publication.getJournalInfo().getJournal().getTitle());   // Journal
-//        row.add(publication.getPmid());                                  // PMID
-//        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
-//        row.add(f.format(publication.getFirstPublicationDate()));        // Publication date
-//
-//        List<String> grantIds = new ArrayList<>();
-//        List<String> grantAgencies = new ArrayList<>();
-//        if ((publication.getGrantsList() != null) && ( ! publication.getGrantsList().isEmpty())) {
-//            for (Grant grant : publication.getGrantsList()) {
-//                grantIds.add(grant.getGrantId());
-//                grantAgencies.add(grant.getAgency());
-//            }
-//            row.add(StringUtils.join(grantIds, "|"));           // Grant Ids
-//            row.add(StringUtils.join(grantAgencies, "|"));      // Grant agencies
-//        } else {
-//            row.add(Constants.NO_INFORMATION_AVAILABLE);
-//            row.add(Constants.NO_INFORMATION_AVAILABLE);
-//        }
-//        String publicationLink = getFirstEuropePmcPublicationUrl(publication);
-//        row.add((publicationLink == null) || (publicationLink.isEmpty())
-//                ? Constants.NO_INFORMATION_AVAILABLE
-//                : publicationLink);
-//        row.add(publication.isConsortiumPaper() ? "Yes" : "No");          // Is consortium paper
+
 
         return row;
     }
@@ -430,20 +385,7 @@ System.out.println("calling export on allDataTable in experiments controller");
                         final ExperimentsDataTableRow row = obj.get();
                         srSignificant = row.getSignificant();
                     }
-
-                    // Significant, Not significant, Unable to process, Supplied
-                    String significant = "N/A";
-                    if (experimentsDataTableRow.getStatisticalMethod() != null && experimentsDataTableRow.getStatisticalMethod().toLowerCase().contains("failed")) {
-                        significant = "Unable to process";
-                    } else if (experimentsDataTableRow.getStatisticalMethod() != null && experimentsDataTableRow.getStatisticalMethod().toLowerCase().contains("supplied")) {
-                        significant = "Supplied";
-                    } else if (experimentsDataTableRow.getStatus()!= null && experimentsDataTableRow.getStatus().toLowerCase().contains("not tested (no variation)")) {
-                        significant = "Not significant";
-                    } else if (StringUtils.isNotEmpty(phenotypeTermName)) {
-                            significant = "Significant";
-                    } else if (experimentsDataTableRow.getStatus()!= null && experimentsDataTableRow.getStatus().equals("Success")) {
-                        significant = "Not significant";
-                    }
+                    String significant = getSignificanceStringForTable(experimentsDataTableRow, phenotypeTermName);
 
                     experimentRowJson.put(ObservationDTO.ALLELE_SYMBOL, experimentsDataTableRow.getAllele().getSymbol());
                     experimentRowJson.put(ObservationDTO.ALLELE_ACCESSION_ID, experimentsDataTableRow.getAllele().getAccessionId());
@@ -521,5 +463,22 @@ System.out.println("calling export on allDataTable in experiments controller");
             }
             return observationsMap;
         }
+    }
+
+    private String getSignificanceStringForTable(ExperimentsDataTableRow experimentsDataTableRow, String phenotypeTermName) {
+        // Significant, Not significant, Unable to process, Supplied
+        String significant = "N/A";
+        if (experimentsDataTableRow.getStatisticalMethod() != null && experimentsDataTableRow.getStatisticalMethod().toLowerCase().contains("failed")) {
+            significant = "Unable to process";
+        } else if (experimentsDataTableRow.getStatisticalMethod() != null && experimentsDataTableRow.getStatisticalMethod().toLowerCase().contains("supplied")) {
+            significant = "Supplied";
+        } else if (experimentsDataTableRow.getStatus()!= null && experimentsDataTableRow.getStatus().toLowerCase().contains("not tested (no variation)")) {
+            significant = "Not significant";
+        } else if (StringUtils.isNotEmpty(phenotypeTermName)) {
+                significant = "Significant";
+        } else if (experimentsDataTableRow.getStatus()!= null && experimentsDataTableRow.getStatus().equals("Success")) {
+            significant = "Not significant";
+        }
+        return significant;
     }
 }
