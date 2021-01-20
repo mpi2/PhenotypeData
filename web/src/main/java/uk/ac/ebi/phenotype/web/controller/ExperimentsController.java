@@ -232,9 +232,13 @@ public class ExperimentsController implements Exportable<ExperimentsDataTableRow
 
         AllelePageDTO allelePageDTO = srService.getAllelesInfo(geneAccession, null, null, null, null, null, null, null);
         String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
+        List<String> mpTermNamesNormalized = Collections.emptyList();
 
+
+        if(mpTermNames != null) {
+            mpTermNamesNormalized = mpTermNames.stream().map(x -> x.startsWith("MP:") ? mpIdToName(x) : x).filter(Objects::nonNull).collect(Collectors.toList());
+        }
         // Need to convert MP IDs to MP term names
-        final List<String> mpTermNamesNormalized = mpTermNames.stream().map(x -> x.startsWith("MP:") ? mpIdToName(x) : x).filter(Objects::nonNull).collect(Collectors.toList());
 
         Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermNamesNormalized, graphBaseUrl));
         //remove any trace of viability data from chart as we decided as a group in ticket #184
