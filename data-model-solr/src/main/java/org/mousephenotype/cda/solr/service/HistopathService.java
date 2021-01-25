@@ -285,22 +285,47 @@ System.out.println(rows);
 	private int getIntValueForString(String value) {
 		//[Significant, Not applicable, Not significant, not significant, Significant,
 		// significant ]
-		int significance=4;
+		int significance=0;
+		//value is now returned as a String number from new spark infrastructure so now don't need to convert as below
+
 		switch (value){
+			case "0":
+				significance=0;
+				break;
+			case "1":
+				significance=1;
+				break;
+			case "2":
+				significance=2;
+				break;
+			case "3":
+				significance=3;
+				break;
+			case "4":
+				significance=4;
+				break;
+
+
 			case "No value found":
+				significance=0;
+				break;
 			case "":
 				significance=0;
-			break;
+				break;
 			case "Not applicable":
 				significance=1;
-			break;
+				break;
 			case "Not significant":
+				significance=2;
+				break;
 			case "not significant":
 				significance=2;
-			break;
+				break;
 			case "significant":
 				significance= 4;
+				break;
 		}
+		System.out.println("value="+value+" sig returned="+significance);
 		return significance;
 	}
 
