@@ -676,10 +676,10 @@ public class GenesController {
             String fileType1 = "";
             String fileType2 = "";
             if(group1.getResult().size() > 0) {
-                fileType1 = group1.getResult().get(0).get("file_type").toString();
+                fileType1 =  group1.getResult().get(0).containsKey("file_type") ? group1.getResult().get(0).get("file_type").toString() : "";
             }
             if(group2.getResult().size() > 0) {
-                fileType2 = group2.getResult().get(0).get("file_type").toString();
+                fileType2 = group2.getResult().get(0).containsKey("file_type") ? group2.getResult().get(0).get("file_type").toString() : "";
             }
 
             boolean group1IsImage = !fileType1.contains("octet-stream") && !fileType1.contains("pdf");
