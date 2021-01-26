@@ -464,7 +464,7 @@
                                             <hr>
                                         </c:if>
                                         <c:if test="${not empty solrFacets}">
-                                            <h5>Legacy Phenotype Associated Images</h5>
+                                            <h5 class="mt-5">Legacy Phenotype Associated Images</h5>
                                             <jsp:include page="genesLegacyPhenoAssocImg_frag.jsp"></jsp:include>
                                         </c:if>
                                     </div>
