@@ -81,7 +81,7 @@
                                             <td>${file.biological_sample_group}</td>
                                             <td>${file.procedure_name}</td>
                                             <td>${file.parameter_name}</td>
-                                            <td><a class="btn btn-primary"  target="_blank" href="${file.download_file_path}"><i class="fal fa-download"></i>&nbsp;Download</a></td>
+                                            <td><a class="btn btn-outline-primary"  target="_blank" href="${file.download_file_path}"><i class="fal fa-download"></i>&nbsp;Download</a></td>
                                         </tr>
                                     </c:forEach>
 

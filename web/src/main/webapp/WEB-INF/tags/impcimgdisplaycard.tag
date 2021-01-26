@@ -21,15 +21,15 @@
         <c:if test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
             <!-- if this image is a pdf on the gene page we want to link to a list view of the pdfs for that gene not the image picker -->
             <div class="text-center" >
-                <a href="${href}&mediaType=pdf">
-                    <i class="fas fa-file-pdf" style="font-size: 16px; font-size: 6vw;"></i>
+                <a href="${href}&mediaType=pdf" class="text-dark">
+                    <i class="fas fa-file-pdf" style="font-size: 16px; font-size: 5vw;"></i>
                 </a>
             </div>
         </c:if>
 
         <c:if test="${!fn:containsIgnoreCase(img.download_url, 'annotation') and img.omero_id != '-1'}"> <!-- if has no annotation in string then not a pdf -->
             <div class="card-img-top img-fluid">
-                <a href="${href}">
+                <a href="${href}" class="text-dark">
                     <img <%-- loading="lazy" --%> src="${img.thumbnail_url}" class="card-img-top img-fluid"
                                                   alt="thumbnail"/></a>
             </div>
@@ -43,8 +43,8 @@
     <c:when test="${fn:containsIgnoreCase(img.download_url, 'annotation') and img.omero_id != '-1'}">
         <!-- used pdf images on normal image scrolldown pages -->
         <div class="card-img-top img-fluid text-center">
-            <a href="${img.download_url}">
-                <i class="fas fa-file-pdf" style="font-size: 16px; font-size: 6vw;"></i>
+            <a href="${img.download_url}" class="text-dark">
+                <i class="fas fa-file-pdf" style="font-size: 16px; font-size: 5vw;"></i>
             </a>
         </div>
         <div class="card-body">
@@ -56,8 +56,8 @@
     <c:when test="${fn:containsIgnoreCase(img.download_url, 'annotation') and img.omero_id != '-1'}">
         <!-- used pdf images on normal image scrolldown pages -->
         <div class="card-img-top img-fluid text-center">
-            <a href="${img.download_url}">
-                <i class="fas fa-file-pdf" style="font-size: 16px; font-size: 6vw;"></i>
+            <a href="${img.download_url}" class="text-dark">
+                <i class="fas fa-file-pdf" style="font-size: 16px; font-size: 5vw;"></i>
             </a>
         </div>
         <div class="card-body">
@@ -69,8 +69,8 @@
     <c:when test="${fn:containsIgnoreCase(img.file_type, 'octet-stream') and img.omero_id == '-1'}">
         <!-- used fcs images on normal image scrolldown pages -->
         <div class="card-img-top img-fluid text-center">
-            <a href="${baseUrl}/impcImages/download?acc=${img.gene_accession_id}&parameter_stable_id=${img.parameter_stable_id}">
-                <i class="fas fa-file" style="font-size: 16px; font-size: 6vw;"></i>
+            <a href="${baseUrl}/impcImages/download?acc=${img.gene_accession_id}&parameter_stable_id=${img.parameter_stable_id}" class="text-dark">
+                <i class="fas fa-file" style="font-size: 16px; font-size: 5vw;"></i>
             </a>
         </div>
         <div class="card-body">
