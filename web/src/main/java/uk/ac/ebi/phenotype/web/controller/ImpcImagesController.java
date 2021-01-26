@@ -18,11 +18,8 @@ package uk.ac.ebi.phenotype.web.controller;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -42,6 +39,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 //import Glacier2.CannotCreateSessionException;
 //import Glacier2.PermissionDeniedException;
@@ -131,6 +129,21 @@ public class ImpcImagesController {
 
 		this.sendQueryStringToSolr(request, model);
 		return "impcImages";
+	}
+
+	@RequestMapping("/impcImages/download")
+	public String fileDownload(@RequestParam(required = true, value = "parameter_stable_id") String parameterStableId,
+							   @RequestParam(required = true, value = "acc") String geneAcc, Model model) throws IOException, SolrServerException {
+		QueryResponse response = this.imageService.getImages(geneAcc, parameterStableId, null, 1000, null, null, null, null, null, null, null, null);
+		SolrDocumentList solrDocumentList = response.getResults();
+		solrDocumentList.forEach(d -> d.replace("sex", Arrays.asList(d.get("sex"))));
+		model.addAttribute("parameterName", solrDocumentList.get(0).get("parameter_name"));
+		model.addAttribute("procedureName", solrDocumentList.get(0).get("procedure_name"));
+		model.addAttribute("geneSymbol", solrDocumentList.get(0).get("gene_symbol"));
+		model.addAttribute("geneAcc", geneAcc);
+		model.addAttribute("files", solrDocumentList);
+		return "impcImagesFileDownload";
+
 	}
 
 	private void sendQueryStringToSolr(HttpServletRequest request, Model model)

@@ -16,19 +16,18 @@
 
 <c:choose>
 
-    <c:when test="${not empty href}">
+    <c:when test="${not empty href and img.omero_id != '-1'}">
         <!-- href specified as arg to tag as in the case of gene page to image picker links -->
         <c:if test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
             <!-- if this image is a pdf on the gene page we want to link to a list view of the pdfs for that gene not the image picker -->
-            <div>
+            <div class="text-center" >
                 <a href="${href}&mediaType=pdf">
-                    <img <%-- loading="lazy" --%> src="../${pdfThumbnailUrl}" class="card-img-top img-fluid"
-                                                  alt="PDF thumbnail"/>
+                    <i class="fas fa-file-pdf" style="font-size: 16px; font-size: 6vw;"></i>
                 </a>
             </div>
         </c:if>
 
-        <c:if test="${!fn:containsIgnoreCase(img.download_url, 'annotation') }"> <!-- if has no annotation in string then not a pdf -->
+        <c:if test="${!fn:containsIgnoreCase(img.download_url, 'annotation') and img.omero_id != '-1'}"> <!-- if has no annotation in string then not a pdf -->
             <div class="card-img-top img-fluid">
                 <a href="${href}">
                     <img <%-- loading="lazy" --%> src="${img.thumbnail_url}" class="card-img-top img-fluid"
@@ -41,12 +40,11 @@
 
     </c:when>
 
-    <c:when test="${fn:containsIgnoreCase(img.download_url, 'annotation') }">
+    <c:when test="${fn:containsIgnoreCase(img.download_url, 'annotation') and img.omero_id != '-1'}">
         <!-- used pdf images on normal image scrolldown pages -->
-        <div class="card-img-top img-fluid">
+        <div class="card-img-top img-fluid text-center">
             <a href="${img.download_url}">
-                <img <%-- loading="lazy" --%> src="../${pdfThumbnailUrl}" class="card-img-top img-fluid"
-                                              alt="thumbnail"/>
+                <i class="fas fa-file-pdf" style="font-size: 16px; font-size: 6vw;"></i>
             </a>
         </div>
         <div class="card-body">
@@ -54,6 +52,30 @@
         <c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group}<br/></c:if>
         <c:if test="${not empty img.date_of_experiment}">Exp.date: ${img.date_of_experiment}<br/></c:if>
     </c:when>
+
+    <c:when test="${fn:containsIgnoreCase(img.download_url, 'annotation') and img.omero_id != '-1'}">
+        <!-- used pdf images on normal image scrolldown pages -->
+        <div class="card-img-top img-fluid text-center">
+            <a href="${img.download_url}">
+                <i class="fas fa-file-pdf" style="font-size: 16px; font-size: 6vw;"></i>
+            </a>
+        </div>
+        <div class="card-body">
+        <c:if test="${not empty img.external_sample_id}">sample id: ${img.external_sample_id}<br/></c:if>
+        <c:if test="${not empty img.biological_sample_group}">${img.biological_sample_group}<br/></c:if>
+        <c:if test="${not empty img.date_of_experiment}">Exp.date: ${img.date_of_experiment}<br/></c:if>
+    </c:when>
+
+    <c:when test="${fn:containsIgnoreCase(img.file_type, 'octet-stream') and img.omero_id == '-1'}">
+        <!-- used fcs images on normal image scrolldown pages -->
+        <div class="card-img-top img-fluid text-center">
+            <a href="${baseUrl}/impcImages/download?acc=${img.gene_accession_id}&parameter_stable_id=${img.parameter_stable_id}">
+                <i class="fas fa-file" style="font-size: 16px; font-size: 6vw;"></i>
+            </a>
+        </div>
+        <div class="card-body">
+    </c:when>
+
 
     <c:otherwise>
         <!-- used for lacz expression pages -->

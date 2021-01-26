@@ -17,7 +17,7 @@
             <c:forEach var="doc" items="${group.result}">
             
 	
-                <div class="card" >
+                <div class="card mt-3 pt-2" >
 
                     <c:set var="label" value="${doc.procedure_name}: ${doc.parameter_name}"/>
                     <c:if test="${doc.parameter_name eq 'Images'}">
@@ -45,7 +45,7 @@
                                    value='${baseUrl}/impcImages/images?q=mp_id:"${phenotype.getMpId()}" OR+intermediate_mp_id:"${phenotype.getMpId()}" OR intermediate_mp_term:"${phenotype.getMpId()}" OR top_level_mp_term:"${phenotype.getMpId()}"&fq=parameter_stable_id:${doc.parameter_stable_id}'></c:set>&fq=parameter_stable_id:\"${doc.parameter_stable_id}"&fq=mp_id:"MP:0000807" OR+intermediate_mp_id:"MP:0000807" OR intermediate_mp_term:"MP:0000807" OR top_level_mp_term:"MP:0000807"&group=true&group.field=parameter_stable_id&group
 
                         </c:when> --%>
-                    <c:if test="${doc.omero_id != '0'}"> <!-- omero images and gene or mp ids for comparator -->
+                    <c:if test="${doc.omero_id != '-1'}"> <!-- omero images and gene or mp ids for comparator -->
                         <c:set var="query" value='parameter_stable_id=${doc.parameter_stable_id}'/>
                         <c:if test="${acc!=null}">
                             <c:set var="query" scope="page"

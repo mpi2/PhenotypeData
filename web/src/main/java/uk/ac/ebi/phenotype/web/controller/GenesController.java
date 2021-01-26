@@ -672,6 +672,29 @@ public class GenesController {
                 paramToNumber.put(group.getGroupValue(), Long.toString(group.getResult().getNumFound()));
             }
         }
+        groups.sort((group1, group2) -> {
+            String fileType1 = "";
+            String fileType2 = "";
+            if(group1.getResult().size() > 0) {
+                fileType1 = group1.getResult().get(0).get("file_type").toString();
+            }
+            if(group2.getResult().size() > 0) {
+                fileType2 = group2.getResult().get(0).get("file_type").toString();
+            }
+
+            boolean group1IsImage = !fileType1.contains("octet-stream") && !fileType1.contains("pdf");
+            boolean group2IsImage = !fileType2.contains("octet-stream") && !fileType2.contains("pdf");
+
+            if(group1IsImage && !group2IsImage) {
+                return -1;
+            }
+
+            if(!group1IsImage && group2IsImage) {
+                return 1;
+            }
+
+            return 0;
+        });
         model.addAttribute("paramToNumber", paramToNumber);
         model.addAttribute("impcImageGroups", groups);
 
