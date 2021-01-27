@@ -66,7 +66,7 @@
         <c:if test="${not empty img.date_of_experiment}">Exp.date: ${img.date_of_experiment}<br/></c:if>
     </c:when>
 
-    <c:when test="${(fn:containsIgnoreCase(img.file_type, 'octet-stream') or fn:containsIgnoreCase(img.file_type, 'bin/fcs'))and img.omero_id == '-1'}">
+    <c:when test="${(fn:containsIgnoreCase(img.file_type, 'octet-stream') or fn:containsIgnoreCase(img.file_type, 'fcs'))and img.omero_id == '-1'}">
         <!-- used fcs images on normal image scrolldown pages -->
         <div class="card-img-top img-fluid text-center">
             <a href="${baseUrl}/impcImages/download?acc=${img.gene_accession_id}&parameter_stable_id=${img.parameter_stable_id}" class="text-dark">

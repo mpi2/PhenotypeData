@@ -682,8 +682,8 @@ public class GenesController {
                 fileType2 = group2.getResult().get(0).containsKey("file_type") ? group2.getResult().get(0).get("file_type").toString() : "";
             }
 
-            boolean group1IsImage = !fileType1.contains("octet-stream") && !fileType1.contains("bin/fcs") && !fileType1.contains("pdf");
-            boolean group2IsImage = !fileType2.contains("octet-stream") && !fileType2.contains("bin/fcs") && !fileType2.contains("pdf");
+            boolean group1IsImage = !fileType1.contains("octet-stream") && !fileType1.contains("fcs") && !fileType1.contains("pdf");
+            boolean group2IsImage = !fileType2.contains("octet-stream") && !fileType2.contains("fcs") && !fileType2.contains("pdf");
 
             if(group1IsImage && !group2IsImage) {
                 return -1;
