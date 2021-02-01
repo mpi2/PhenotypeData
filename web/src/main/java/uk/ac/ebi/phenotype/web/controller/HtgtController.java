@@ -61,7 +61,7 @@ public class HtgtController {
     }
 
     @RequestMapping("/designs/{design_id}")
-    public String genes(@PathVariable Integer designId,
+    public String genes(@PathVariable Integer design_id,
                         @RequestParam(required = false, value = "accession") String acc,
                         Model model,
                         HttpServletRequest request)
@@ -75,9 +75,9 @@ public class HtgtController {
         if (gene != null) {
             model.addAttribute("gene", gene);
         }
-        List<Design> designs = htgtService.getDesigns(designId);
+        List<Design> designs = htgtService.getDesigns(design_id);
         model.addAttribute("designs", designs);
-        model.addAttribute("designId", designId);
+        model.addAttribute("designId", design_id);
 
         return "htgt";
     }
