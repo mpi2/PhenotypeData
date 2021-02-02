@@ -50,10 +50,16 @@ parser.add_argument(
     '-t', '--threshold', dest='threshold', default=0.99, type=float,
     help='Threshold between 0 and 1 for accepting classification'
 )
+parser.add_argument(
+    '--testmode', dest='testmode', default=False, action='store_true',
+    help='Flag to run in test mode - images are not loaded and verbose messages printed'
+)
 #all_structures = pd.read_csv('./wtsi_image_class_list.txt')
 
 args = parser.parse_args()
 
+# If running in test mode generate test image
+test_im = np.zeros((128,128), dtype=int)
 # Get the files to process
 input_paths = [os.path.join(args.input_dir, input_file) for input_file in args.input_file.split(",")]
 
@@ -198,14 +204,17 @@ for label in class_labels:
             im_path = row['imagename']
 
             # Prevent crash if image cannot be read
-            try:
-                im = sitk.ReadImage(im_path)
-            except Exception as e:
-                print("Could not read " + im_path + ". Error was:")
-                print(e)
-                continue
-            im = sitk.GetArrayFromImage(im)
-            im = np.squeeze(im)
+            if not args.testmode:
+                try:
+                    im = sitk.ReadImage(im_path)
+                except Exception as e:
+                    print("Could not read " + im_path + ". Error was:")
+                    print(e)
+                    continue
+                im = sitk.GetArrayFromImage(im)
+                im = np.squeeze(im)
+            else:
+                im = test_im
             ax.imshow(im)
             if sort_column is not None:
                 title = "{0:>5d} ({1:1.2f})".format(i, row[sort_column[0]])
