@@ -24,7 +24,7 @@
                         <c:set var="label" value="${doc.procedure_name}"/>
                     </c:if>
 
-                    <c:if test="${doc.omero_id == '0'}"><!-- these are secondary project images so compara image view won't work on them -->
+                    <c:if test="${doc.omero_id == '-1'}"><!-- these are secondary project images so compara image view won't work on them -->
 
                     <c:if test="${acc!=null}">
                         <c:set var="query" value='q=gene_accession_id:"${acc}"'/>
