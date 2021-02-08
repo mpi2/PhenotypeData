@@ -18,6 +18,8 @@ package uk.ac.ebi.phenotype.web.controller;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.common.Constants;
+import org.mousephenotype.cda.exporter.Exporter;
+import org.mousephenotype.cda.interfaces.Exportable;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.MpService;
@@ -28,12 +30,15 @@ import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.web.dto.AllelePageDTO;
 import org.mousephenotype.cda.solr.web.dto.ExperimentsDataTableRow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
@@ -53,7 +58,9 @@ import java.util.stream.Collectors;
 
 
 @Controller
-public class ExperimentsController {
+public class ExperimentsController implements Exportable<ExperimentsDataTableRow> {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     private final GenotypePhenotypeService gpService;
@@ -74,137 +81,136 @@ public class ExperimentsController {
     }
 
     /**
-     * Runs when the request missing an accession ID. This redirects to the
-     * search page which defaults to showing all genes in the list
+     * all data table on the gene page - used to be path /experimentsTableFrag now allDataTable
      */
-    @RequestMapping("/experimentsTableFrag")
-    public String getAlleles(
+    @RequestMapping("/allDataTable")
+    public String getAllDataTable(
             @RequestParam(required = true, value = "geneAccession") String geneAccession,
-            @RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol,
-            @RequestParam(required = false, value = "phenotypingCenter") List<String> phenotypingCenter,
-            @RequestParam(required = false, value = "pipelineName") List<String> pipelineName,
-            @RequestParam(required = false, value = "procedureStableId") List<String> procedureStableId,
-            @RequestParam(required = false, value = "procedureName") List<String> procedureName,
+            //@RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol,
             @RequestParam(required = false, value = "mpTermId") List<String> mpTermId,
-            @RequestParam(required = false, value = "resource") ArrayList<String> resource,
             Model model,
             HttpServletRequest request)
             throws IOException, SolrServerException, JSONException {
 
-        Set<ExperimentsDataTableRow> experimentRows = new HashSet<>();
-        String graphBaseUrl = request.getAttribute("baseUrl").toString();
+        Set<ExperimentsDataTableRow> experimentRows = getExperimentsDataTableRows(geneAccession, mpTermId, model, request);
 
-        // Get data from gene core
-        Map<CombinedObservationKey, ExperimentsDataTableRow> srResult = getCombinedObservationKeyExperimentsDataTableRowMap(geneAccession, mpTermId, experimentRows);
+        return "allDataTable";
+    }
 
+    /**
+     * Runs when the request missing an accession ID. This redirects to the
+     * search page which defaults to showing all genes in the list
+     */
+    @RequestMapping(value="/allDataTableExport", method = RequestMethod.GET)
+    public void exportAllDataTable(
+            @RequestParam(required = true, value = "geneAccession") String geneAccession,
+            @RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol,
+            @RequestParam(required = false, value = "mpTermId") List<String> mpTermId,
+            @RequestParam(value = "fileType", required = true) String fileType,
+            @RequestParam(value = "fileName", required = true) String fileName,
+            Model model,
+            HttpServletRequest request, HttpServletResponse response)
+            throws IOException, SolrServerException, JSONException {
+        System.out.println("calling export on allDataTable in experiments controller");
+        Set<ExperimentsDataTableRow> experimentRows = getExperimentsDataTableRows(geneAccession, mpTermId, model, request);
+        List<ExperimentsDataTableRow> rowsList=new ArrayList<>();
+        rowsList.addAll(experimentRows);
+        //experimentRows
+        Collections.sort(rowsList);
+        List<List<String>> matrix = getRows(rowsList);
+        Exporter.export(response, fileType, fileName, getHeading(), matrix);
+    }
 
-        JSONArray experimentRowsJson = new JSONArray();
-        experimentRows.stream().forEach(experimentsDataTableRow -> {
-            JSONObject experimentRowJson = new JSONObject();
-            try {
-                String phenotypeTermName =  experimentsDataTableRow.getPhenotypeTerm() != null ?  experimentsDataTableRow.getPhenotypeTerm().getName() : null;
-
-                final Optional<ExperimentsDataTableRow> obj = srResult.values().stream().filter(x -> x == experimentsDataTableRow).findFirst();
-                Boolean srSignificant = null;
-                if (obj.isPresent()) {
-                    final ExperimentsDataTableRow row = obj.get();
-                    srSignificant = row.getSignificant();
-                }
-
-                // Significant, Not significant, Unable to process, Supplied
-                String significant = "N/A";
-                if (experimentsDataTableRow.getStatisticalMethod() != null && experimentsDataTableRow.getStatisticalMethod().toLowerCase().contains("failed")) {
-                    significant = "Unable to process";
-                } else if (experimentsDataTableRow.getStatisticalMethod() != null && experimentsDataTableRow.getStatisticalMethod().toLowerCase().contains("supplied")) {
-                    significant = "Supplied";
-                } else if (experimentsDataTableRow.getStatus()!= null && experimentsDataTableRow.getStatus().toLowerCase().contains("not tested (no variation)")) {
-                    significant = "Not significant";
-                } else if (StringUtils.isNotEmpty(phenotypeTermName)) {
-                        significant = "Significant";
-                } else if (experimentsDataTableRow.getStatus()!= null && experimentsDataTableRow.getStatus().equals("Success")) {
-                    significant = "Not significant";
-                }
-
-                experimentRowJson.put(ObservationDTO.ALLELE_SYMBOL, experimentsDataTableRow.getAllele().getSymbol());
-                experimentRowJson.put(ObservationDTO.ALLELE_ACCESSION_ID, experimentsDataTableRow.getAllele().getAccessionId());
-                experimentRowJson.put(ObservationDTO.GENE_ACCESSION_ID, experimentsDataTableRow.getGene().getAccessionId());
-                experimentRowJson.put(ObservationDTO.PHENOTYPING_CENTER, experimentsDataTableRow.getPhenotypingCenter());
-                experimentRowJson.put(ObservationDTO.PROCEDURE_STABLE_ID, experimentsDataTableRow.getProcedure().getStableId());
-                experimentRowJson.put(ObservationDTO.PIPELINE_STABLE_ID, experimentsDataTableRow.getPipeline().getStableId());
-                experimentRowJson.put(ObservationDTO.PROCEDURE_NAME, experimentsDataTableRow.getProcedure().getName());
-                experimentRowJson.put(ObservationDTO.PARAMETER_STABLE_ID, experimentsDataTableRow.getParameter().getStableId());
-                experimentRowJson.put(ObservationDTO.PARAMETER_NAME, experimentsDataTableRow.getParameter().getName());
-                experimentRowJson.put(ObservationDTO.ZYGOSITY, experimentsDataTableRow.getZygosity().getShortName());
-                experimentRowJson.put(StatisticalResultDTO.SIGNIFICANT, significant);
-                experimentRowJson.put("phenotype_term", phenotypeTermName);
-                experimentRowJson.put("female_mutants", experimentsDataTableRow.getFemaleMutantCount());
-                experimentRowJson.put("male_mutants", experimentsDataTableRow.getMaleMutantCount());
-                experimentRowJson.put("life_stage", experimentsDataTableRow.getLifeStageName());
-                experimentRowJson.put("p_value", experimentsDataTableRow.getpValue());
-                experimentRowJson.put("status", experimentsDataTableRow.getStatus());
-                experimentRowsJson.put(experimentRowJson);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        });
-
-
-        //sort
-
-        JSONArray sortedJsonArray = new JSONArray();
-
-        List<JSONObject> jsonValues = new ArrayList<JSONObject>();
-        for (int i = 0; i < experimentRowsJson.length(); i++) {
-            jsonValues.add(experimentRowsJson.getJSONObject(i));
-        }
-        Collections.sort( jsonValues, new Comparator<JSONObject>() {
-            //You can change "Name" with "ID" if you want to sort by ID
-            private static final String KEY_NAME = ObservationDTO.PROCEDURE_NAME;
-
-            @Override
-            public int compare(JSONObject a, JSONObject b) {
-                String valA = new String();
-                String valB = new String();
-
-                try {
-                    valA = (String) a.get(KEY_NAME);
-                    valB = (String) b.get(KEY_NAME);
-                }
-                catch (JSONException e) {
-                    //do something
-                }
-
-                return valA.compareTo(valB);
-                //if you want to change the sort order, simply use the following:
-                //return -valA.compareTo(valB);
-            }
-        });
-
-        for (int i = 0; i < experimentRowsJson.length(); i++) {
-            sortedJsonArray.put(jsonValues.get(i));
-        }
+    private Set<ExperimentsDataTableRow> getExperimentsDataTableRows(@RequestParam(required = true, value = "geneAccession") String geneAccession, @RequestParam(required = false, value = "mpTermId") List<String> mpTermId, Model model, HttpServletRequest request) throws IOException, SolrServerException, JSONException {
+        ExperimentsTable experimentsTable = new ExperimentsTable(geneAccession, mpTermId, request).invoke();
+        Set<ExperimentsDataTableRow> experimentRows = experimentsTable.getExperimentRows();
+        JSONArray sortedJsonArray = experimentsTable.getSortedJsonArray();
 
         model.addAttribute("rows", experimentRows.size());
         model.addAttribute("allData", sortedJsonArray.toString().replace("'", "\\'"));
-        return "experimentsTableFrag";
+        return experimentRows;
     }
 
-    private Map<CombinedObservationKey, ExperimentsDataTableRow> getCombinedObservationKeyExperimentsDataTableRowMap(
-            String geneAccession,
-            List<String> mpTermId,
-            Set<ExperimentsDataTableRow> experimentRows
-    ) throws IOException, SolrServerException {
-        Set<ExperimentsDataTableRow> experimentRowsFromObservations = geneService.getAllData(geneAccession);
-        Map<CombinedObservationKey, ExperimentsDataTableRow> observationsMap = experimentRowsFromObservations.stream().collect(Collectors.toMap(ExperimentsDataTableRow::getCombinedKey, row -> row));
+    @Override
+    public List<String> getRow(ExperimentsDataTableRow allDataRow) {
 
-        if(mpTermId != null && mpTermId.size() > 0) {
-            experimentRows.addAll(experimentRowsFromObservations.stream().filter(x-> mpTermId.contains(x.getPhenotypeTerm().getId())).collect(Collectors.toSet()));
-        } else {
-            experimentRows.addAll(experimentRowsFromObservations);
+        List<String> row = new ArrayList<>();
+        String       geneAccessionId = null;
+        if (allDataRow.getAllele() != null) {
+            row.add(allDataRow.getAllele().getSymbol());
+        }else{
+            row.add(Constants.NO_INFORMATION_AVAILABLE);
         }
-        return observationsMap;
+        if(allDataRow.getPhenotypingCenter()!=null){
+            row.add(allDataRow.getPhenotypingCenter());
+        }else{
+            row.add(Constants.NO_INFORMATION_AVAILABLE);
+        }
+        String procParam=Constants.NO_INFORMATION_AVAILABLE;
+        if(allDataRow.getProcedure()!=null){
+            procParam=allDataRow.getProcedure().getName();
+        }
+        if(allDataRow.getParameter()!=null){
+            procParam.join("/",allDataRow.getParameter().getName());
+        }
+        row.add(procParam);
+        if(allDataRow.getLifeStageName()!=null){
+            row.add(allDataRow.getLifeStageName());
+        }else{
+            row.add(Constants.NO_INFORMATION_AVAILABLE);
+        }
+        if(allDataRow.getZygosity().getName()!=null){
+            row.add(allDataRow.getZygosity().getName());
+        }else{
+            row.add(Constants.NO_INFORMATION_AVAILABLE);
+        }
+        if(allDataRow.getSignificant()!=null){
+            row.add(allDataRow.getSignificant().toString());
+        }else{
+            row.add(Constants.NO_INFORMATION_AVAILABLE);
+        }
+        if(allDataRow.getpValue()!=null) {
+            row.add(allDataRow.getpValue().toString());
+        }else{
+            row.add(Constants.NO_INFORMATION_AVAILABLE);
+        }
+        if(allDataRow.getPhenotypeTerm().getName()!=null){
+            row.add(allDataRow.getPhenotypeTerm().getName());
+        }else{
+            row.add(Constants.NO_INFORMATION_AVAILABLE);
+        }
+
+
+        return row;
     }
 
+
+    @Override
+    public List<String> getHeading() {
+
+        final List<String> headings = Arrays.asList(new String[] {
+                "Allele",
+                "Center",
+                "Procedure / Parameter",
+                "Life Stage",
+                "Zygosity",
+                "Significant",
+                "P Value",
+                "Phenotype"
+        });
+
+        return headings;
+    }
+
+
+    public String mpIdToName(String id) {
+        try {
+            return mpService.getPhenotypeById(id).getMpTerm();
+        } catch (IOException | SolrServerException e) {
+            logger.warn("Error trying to get phenotype for term ", id, e.getMessage());
+        }
+        return null;
+    }
 
     /**
      * Runs when the request missing an accession ID. This redirects to the
@@ -225,9 +231,16 @@ public class ExperimentsController {
             throws KeyManagementException, NoSuchAlgorithmException, URISyntaxException, GenomicFeatureNotFoundException, IOException, SolrServerException {
 
         AllelePageDTO allelePageDTO = srService.getAllelesInfo(geneAccession, null, null, null, null, null, null, null);
-        Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>();
         String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
-        experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermNames, graphBaseUrl));
+        List<String> mpTermNamesNormalized = Collections.emptyList();
+
+
+        if(mpTermNames != null) {
+            mpTermNamesNormalized = mpTermNames.stream().map(x -> x.startsWith("MP:") ? mpIdToName(x) : x).filter(Objects::nonNull).collect(Collectors.toList());
+        }
+        // Need to convert MP IDs to MP term names
+
+        Map<String, List<ExperimentsDataTableRow>> experimentRows = new HashMap<>(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableId, resource, mpTermNamesNormalized, graphBaseUrl));
         //remove any trace of viability data from chart as we decided as a group in ticket #184
         //experimentRows.remove("IMPC_VIA_001_001");
         Map<String, List<ExperimentsDataTableRow>> experimentRowsToFilter=new HashMap<>();//need
@@ -262,8 +275,12 @@ public class ExperimentsController {
         int rows = 0;
         String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 
+        // Need to convert MP IDs to MP term names
+        final List<String> mpTermNamesNormalized = mpTermIds.stream().map(x -> x.startsWith("MP:") ? mpIdToName(x) : x).filter(Objects::nonNull).collect(Collectors.toList());
+
+
         experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName,
-                procedureStableId, resource, mpTermIds, graphBaseUrl));
+                procedureStableId, resource, mpTermNamesNormalized, graphBaseUrl));
         for (List<ExperimentsDataTableRow> list : experimentRows.values()) {
             rows += list.size();
         }
@@ -277,7 +294,6 @@ public class ExperimentsController {
         model.addAttribute("phenotypeFilters", mpTerms);
         model.addAttribute("phenotypes", phenotypeTopLevels);
         model.addAttribute("chart", chart.get("chart"));
-        model.addAttribute("chartData", chart.get("chart").equals(null));
         model.addAttribute("rows", rows);
         model.addAttribute("experimentRows", experimentRows);
         model.addAttribute("allelePageDTO", allelePageDTO);
@@ -332,4 +348,141 @@ public class ExperimentsController {
     }
 
 
+    private class ExperimentsTable {
+        private String geneAccession;
+        private List<String> mpTermId;
+        private HttpServletRequest request;
+        private Set<ExperimentsDataTableRow> experimentRows;
+        private JSONArray sortedJsonArray;
+
+        public ExperimentsTable(String geneAccession, List<String> mpTermId, HttpServletRequest request) {
+            this.geneAccession = geneAccession;
+            this.mpTermId = mpTermId;
+            this.request = request;
+        }
+
+        public Set<ExperimentsDataTableRow> getExperimentRows() {
+            return experimentRows;
+        }
+
+        public JSONArray getSortedJsonArray() {
+            return sortedJsonArray;
+        }
+
+        public ExperimentsTable invoke() throws IOException, SolrServerException, JSONException {
+            experimentRows = new HashSet<>();
+            String graphBaseUrl = request.getAttribute("baseUrl").toString();
+
+            // Get data from gene core
+            Map<CombinedObservationKey, ExperimentsDataTableRow> srResult = getCombinedObservationKeyExperimentsDataTableRowMap(geneAccession, mpTermId, experimentRows);
+
+
+            JSONArray experimentRowsJson = new JSONArray();
+            experimentRows.stream().forEach(experimentsDataTableRow -> {
+                JSONObject experimentRowJson = new JSONObject();
+                try {
+                    String phenotypeTermName =  experimentsDataTableRow.getPhenotypeTerm() != null ?  experimentsDataTableRow.getPhenotypeTerm().getName() : null;
+
+                    final Optional<ExperimentsDataTableRow> obj = srResult.values().stream().filter(x -> x == experimentsDataTableRow).findFirst();
+                    Boolean srSignificant = null;
+                    if (obj.isPresent()) {
+                        final ExperimentsDataTableRow row = obj.get();
+                        srSignificant = row.getSignificant();
+                    }
+                    String significant = getSignificanceStringForTable(experimentsDataTableRow, phenotypeTermName);
+
+                    experimentRowJson.put(ObservationDTO.ALLELE_SYMBOL, experimentsDataTableRow.getAllele().getSymbol());
+                    experimentRowJson.put(ObservationDTO.ALLELE_ACCESSION_ID, experimentsDataTableRow.getAllele().getAccessionId());
+                    experimentRowJson.put(ObservationDTO.GENE_ACCESSION_ID, experimentsDataTableRow.getGene().getAccessionId());
+                    experimentRowJson.put(ObservationDTO.PHENOTYPING_CENTER, experimentsDataTableRow.getPhenotypingCenter());
+                    experimentRowJson.put(ObservationDTO.PROCEDURE_STABLE_ID, experimentsDataTableRow.getProcedure().getStableId());
+                    experimentRowJson.put(ObservationDTO.PIPELINE_STABLE_ID, experimentsDataTableRow.getPipeline().getStableId());
+                    experimentRowJson.put(ObservationDTO.PROCEDURE_NAME, experimentsDataTableRow.getProcedure().getName());
+                    experimentRowJson.put(ObservationDTO.PARAMETER_STABLE_ID, experimentsDataTableRow.getParameter().getStableId());
+                    experimentRowJson.put(ObservationDTO.PARAMETER_NAME, experimentsDataTableRow.getParameter().getName());
+                    experimentRowJson.put(ObservationDTO.ZYGOSITY, experimentsDataTableRow.getZygosity().getShortName());
+                    experimentRowJson.put(StatisticalResultDTO.SIGNIFICANT, significant);
+                    experimentRowJson.put("phenotype_term", phenotypeTermName);
+                    experimentRowJson.put("female_mutants", experimentsDataTableRow.getFemaleMutantCount());
+                    experimentRowJson.put("male_mutants", experimentsDataTableRow.getMaleMutantCount());
+                    experimentRowJson.put("life_stage", experimentsDataTableRow.getLifeStageName());
+                    experimentRowJson.put("p_value", experimentsDataTableRow.getpValue());
+                    experimentRowJson.put("status", experimentsDataTableRow.getStatus());
+                    experimentRowsJson.put(experimentRowJson);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            });
+
+
+            //sort
+
+            sortedJsonArray = new JSONArray();
+
+            List<JSONObject> jsonValues = new ArrayList<JSONObject>();
+            for (int i = 0; i < experimentRowsJson.length(); i++) {
+                jsonValues.add(experimentRowsJson.getJSONObject(i));
+            }
+            Collections.sort( jsonValues, new Comparator<JSONObject>() {
+                //You can change "Name" with "ID" if you want to sort by ID
+                private static final String KEY_NAME = ObservationDTO.PROCEDURE_NAME;
+
+                @Override
+                public int compare(JSONObject a, JSONObject b) {
+                    String valA = new String();
+                    String valB = new String();
+
+                    try {
+                        valA = (String) a.get(KEY_NAME);
+                        valB = (String) b.get(KEY_NAME);
+                    }
+                    catch (JSONException e) {
+                        //do something
+                    }
+
+                    return valA.compareTo(valB);
+                    //if you want to change the sort order, simply use the following:
+                    //return -valA.compareTo(valB);
+                }
+            });
+
+            for (int i = 0; i < experimentRowsJson.length(); i++) {
+                sortedJsonArray.put(jsonValues.get(i));
+            }
+            return this;
+        }
+
+        private Map<CombinedObservationKey, ExperimentsDataTableRow> getCombinedObservationKeyExperimentsDataTableRowMap(
+                String geneAccession,
+                List<String> mpTermId,
+                Set<ExperimentsDataTableRow> experimentRows
+        ) throws IOException, SolrServerException {
+            Set<ExperimentsDataTableRow> experimentRowsFromObservations = geneService.getAllData(geneAccession);
+            Map<CombinedObservationKey, ExperimentsDataTableRow> observationsMap = experimentRowsFromObservations.stream().collect(Collectors.toMap(ExperimentsDataTableRow::getCombinedKey, row -> row));
+
+            if(mpTermId != null && mpTermId.size() > 0) {
+                experimentRows.addAll(experimentRowsFromObservations.stream().filter(x-> mpTermId.contains(x.getPhenotypeTerm().getId())).collect(Collectors.toSet()));
+            } else {
+                experimentRows.addAll(experimentRowsFromObservations);
+            }
+            return observationsMap;
+        }
+    }
+
+    private String getSignificanceStringForTable(ExperimentsDataTableRow experimentsDataTableRow, String phenotypeTermName) {
+        // Significant, Not significant, Unable to process, Supplied
+        String significant = "N/A";
+        if (experimentsDataTableRow.getStatisticalMethod() != null && experimentsDataTableRow.getStatisticalMethod().toLowerCase().contains("failed")) {
+            significant = "Unable to process";
+        } else if (experimentsDataTableRow.getStatisticalMethod() != null && experimentsDataTableRow.getStatisticalMethod().toLowerCase().contains("supplied")) {
+            significant = "Supplied";
+        } else if (experimentsDataTableRow.getStatus()!= null && experimentsDataTableRow.getStatus().toLowerCase().contains("not tested (no variation)")) {
+            significant = "Not significant";
+        } else if (StringUtils.isNotEmpty(phenotypeTermName)) {
+                significant = "Significant";
+        } else if (experimentsDataTableRow.getStatus()!= null && experimentsDataTableRow.getStatus().equals("Success")) {
+            significant = "Not significant";
+        }
+        return significant;
+    }
 }

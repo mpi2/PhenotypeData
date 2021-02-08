@@ -15,6 +15,20 @@ import pandas as pd
 
 from QuerySolr import QuerySolr
 
+# Helper function to change names of sites to standard format
+# For the moment these are UC Davies and MRC Harwell.
+def sanitise_center_name(input_name):
+    name_map = {
+        "UC Davis": "UCD",
+        "UC_Davis": "UCD",
+        "MRC Harwell": "HRWL",
+        "MRC_Harwell": "HRWL",
+    }
+
+    for key, value in name_map.items():
+        input_name = input_name.replace(key, value)
+    return input_name
+
 
 # Parameters for this run
 parser = argparse.ArgumentParser(
@@ -105,7 +119,9 @@ if not os.path.isdir(output_dir_stem):
 
 for phenotyping_center in phenotyping_centers:
     # have version of phenotyping_center with no spaces
-    phenotyping_center_ns = phenotyping_center.replace(' ', '_')
+    #phenotyping_center_ns = phenotyping_center.replace(' ', '_')
+    phenotyping_center_ns = sanitise_center_name(phenotyping_center)
+
     for parameter_stable_id in parameter_stable_ids:
         query = f"select?fl=pipeline_stable_id,procedure_stable_id,download_file_path&q=parameter_stable_id:{parameter_stable_id}%20AND%20phenotyping_center:{phenotyping_center}&rows=10000000"
         query = query.replace(" ","\ ")

@@ -6,7 +6,7 @@
 
 <t:genericpage-landing>
 
-    <jsp:attribute name="title">${pageTitle} landing page | IMPC Phenotype Information</jsp:attribute>
+    <jsp:attribute name="title">${pageTitle}</jsp:attribute>
     <jsp:attribute name="pagename">${pageTitle}</jsp:attribute>
     <jsp:attribute name="breadcrumb">${systemName}</jsp:attribute>
 
@@ -594,7 +594,7 @@
                             <h3>Novel, mild hearing loss</h3>
                             <a href="${baseUrl}/genes/MGI:1933736">Adgrb1<sup>tm2a(EUCOMM)Wtsi</sup></a>
                             <div class="chart" id="Adgrb1"
-                                 graphUrl="${baseUrl}/chart?accession=MGI:1933736&allele_accession_id=MGI:5006776&zygosity=homozygote&parameter_stable_id=IMPC_ABR_004_001&pipeline_stable_id=MGP_001&phenotyping_center=WTSI&chart_only=true&chart_type=UNIDIMENSIONAL_ABR_PLOT">
+                                 graphUrl="${baseUrl}/chart?accession=MGI:1933736&allele_accession_id=MGI:5006776&zygosity=homozygote&parameter_stable_id=IMPC_ABR_004_001&procedure_stable_id=IMPC_ABR_001&pipeline_stable_id=MGP_001&phenotyping_center=WTSI&chart_only=true&chart_type=UNIDIMENSIONAL_ABR_PLOT">
                                 <div id="spinner_tram2">
                                     <i class="fa fa-refresh fa-spin"></i>
                                 </div>
@@ -605,7 +605,7 @@
                             <h3>Known, severe hearing loss</h3>
                             <a href="${baseUrl}/genes/MGI:3583900">Elmod1<sup>tm1b(EUCOMM)Hmgu</sup></a>
                             <div class="chart" id="ush1c"
-                                 graphUrl="${baseUrl}/chart?accession=MGI:3583900&allele_accession_id=MGI:5548895&zygosity=homozygote&parameter_stable_id=IMPC_ABR_004_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell&chart_only=true&chart_type=UNIDIMENSIONAL_ABR_PLOT">
+                                 graphUrl="${baseUrl}/chart?accession=MGI:3583900&allele_accession_id=MGI:5548895&zygosity=homozygote&parameter_stable_id=IMPC_ABR_004_001&procedure_stable_id=IMPC_ABR_001&pipeline_stable_id=HRWL_001&phenotyping_center=MRC%20Harwell&chart_only=true&chart_type=UNIDIMENSIONAL_ABR_PLOT">
                                 <div id="spinner_ush1c">
                                     <i class="fa fa-refresh fa-spin"></i>
                                 </div>
@@ -618,7 +618,7 @@
                             <h3>Novel, high-frequency hearing loss</h3>
                             <a href="${baseUrl}/genes/MGI:1915589">Ccdc88c<sup>tm1b(KOMP)Mbp</sup></a>
                             <div class="chart" id="wdtc1"
-                                 graphUrl="${baseUrl}/chart?accession=MGI:1915589&parameter_stable_id=IMPC_ABR_012_001&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=UCD_001&zygosity=homozygote&phenotyping_center=UC%20Davis&strain_accession_id=MGI:2683688&allele_accession_id=NULL-387FB49D6&chart_only=true">
+                                 graphUrl="${baseUrl}/chart?accession=MGI:1915589&parameter_stable_id=IMPC_ABR_012_001&procedure_stable_id=IMPC_ABR_002&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=UCD_001&zygosity=homozygote&phenotyping_center=UC%20Davis&strain_accession_id=MGI:2683688&allele_accession_id=NOT-RELEASED-387fb49d62&chart_only=true">
                                 <div id="spinner_wdtc1">
                                     <i class="fa fa-refresh fa-spin"></i>
                                 </div>
@@ -629,7 +629,7 @@
                             <h3>Novel, severe hearing loss</h3>
                             <a href="${baseUrl}/genes/MGI:2444708">Zfp719<sup>tm1b(EUCOMM)Wtsi</sup></a>
                             <div class="chart" id="zfp719"
-                                 graphUrl="${baseUrl}/chart?accession=MGI:2444708&parameter_stable_id=IMPC_ABR_012_001&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=MGP_001&zygosity=homozygote&phenotyping_center=WTSI&strain_accession_id=MGI:2159965&allele_accession_id=MGI:5548829&chart_only=true">
+                                 graphUrl="${baseUrl}/chart?accession=MGI:2444708&parameter_stable_id=IMPC_ABR_012_001&procedure_stable_id=IMPC_ABR_001&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=MGP_001&zygosity=homozygote&phenotyping_center=WTSI&strain_accession_id=MGI:2159965&allele_accession_id=MGI:5548829&chart_only=true">
                                 <div id="spinner_zfp719">
                                     <i class="fa fa-refresh fa-spin"></i>
                                 </div>

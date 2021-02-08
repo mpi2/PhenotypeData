@@ -124,7 +124,7 @@ public class SummaryHtmlTable {
         if (currentValue.equals(GeneStatus.MOUSE_PRODUCTION_STARTED)){
             anchor = null;
         } else if (currentValue.equals(GeneStatus.MOUSE_PRODUCED)) {
-            anchor = paBaseUrl + "/search/allele2?kw=\"" + geneWithDecoration.getMgiAccessionId() + "\"";
+            anchor = paBaseUrl + "/genes/" + geneWithDecoration.getMgiAccessionId() + "/#order";
         } else {
             anchor = null;
         }
@@ -140,7 +140,7 @@ public class SummaryHtmlTable {
         if (currentValue.equals(GeneStatus.MOUSE_PRODUCTION_STARTED)) {
             anchor = null;
         } else if (currentValue.equals(GeneStatus.MOUSE_PRODUCED)) {
-            anchor = paBaseUrl + "/search/allele2?kw=\"" + geneWithDecoration.getMgiAccessionId() + "\"";
+            anchor = paBaseUrl + "/genes/" + geneWithDecoration.getMgiAccessionId() + "/#order";
         } else {
             anchor = null;
         }
@@ -155,7 +155,7 @@ public class SummaryHtmlTable {
         currentValue = geneWithDecoration.getRiPhenotypingStatus() == null ? "No" : geneWithDecoration.getRiPhenotypingStatus();
         if (currentValue.equals(GeneStatus.PHENOTYPING_DATA_AVAILABLE)) {
             currentValue = "Yes";
-            anchor = paBaseUrl + "/genes/" + geneWithDecoration.getMgiAccessionId() + "#section-associations";
+            anchor = paBaseUrl + "/genes/" + geneWithDecoration.getMgiAccessionId() + "/#order";
         } else {
             currentValue = "No";
             anchor = null;
@@ -191,7 +191,7 @@ public class SummaryHtmlTable {
 
         sb.append("<" + tag + ">");
         if (escapedAnchor != null) {
-            sb.append("<a href=\"" + escapedAnchor + "\" alt =\"" + escapedAnchor + "\">");
+            sb.append("<a href=\"" + escapedAnchor + "\" alt=\"" + escapedAnchor + "\">");
         }
         sb.append(escapedValue);
         if (escapedAnchor != null) {

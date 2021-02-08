@@ -5,7 +5,7 @@
 
 <t:genericpage>
 
-    <jsp:attribute name="title">Histopath Landing Page</jsp:attribute>
+    <jsp:attribute name="title">Histopath</jsp:attribute>
     <jsp:attribute name="header">
    <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/heatmap.js"></script>

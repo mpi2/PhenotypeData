@@ -12,7 +12,7 @@ import java.io.UnsupportedEncodingException;
  * This class represents a row in the experiments table
  *
  */
-public class ExperimentsDataTableRow extends DataTableRow{
+public class ExperimentsDataTableRow extends DataTableRow {
 
 	String statisticalMethod;
 	String status;
@@ -40,8 +40,10 @@ public class ExperimentsDataTableRow extends DataTableRow{
 
 	@Override
 	public int compareTo(DataTableRow o) {
-		// TODO Auto-generated method stub
-		return 0;
+		//want to compare the procedure parameter string so rows are grouped by this field?
+		String procedureAndParameter=this.getProcedure().getName()+this.getParameter().getName();
+		int comp=procedureAndParameter.compareTo(o.getProcedure().getName()+o.getParameter().getName());
+		return comp;
 	}
 
 	@Override

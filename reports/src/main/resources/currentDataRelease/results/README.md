@@ -6,22 +6,23 @@ data for every new data release._
 ## Report descriptions
 - `dataOverview` - Overview of data in the current data release
 - `fertility` - Fertile or infertile phenotype for males and females, by mouse line
+- `geneAndMPTermAssociation` - For each MP term, genes that are significant
 - `genotype-phenotype-assertions-3I`   - MP calls for all current 3I lines
 - `genotype-phenotype-assertions-ALL`  - MP calls for all current lines
 - `genotype-phenotype-assertions-EUROPHENOME` - MP calls for all legacy
-     EuroPhenome lines
+  EuroPhenome lines
 - `genotype-phenotype-assertions-IMPC` - MP calls for all current IMPC lines
 - `genotype-phenotype-assertions-MGP`  - MP calls for all legacy
-     Wellcome Trust Sanger Institute lines
+  Wellcome Trust Sanger Institute lines
 - `laczExpression` - lacZ expression
-- `phenotypeHitsPerLine` - Phentoype hits per gene
+- `phenotypeHitsPerGene` - Phentoype hits per gene
+- `phenotypeHitsPerLine` - Phentoype hits per line
 - `phenotypeHitsPerParameterAndProcedure` - Phenotype hits per parameter and procedure
 - `phenotypeHitsPerTopLevelMPTerm` - Phenotype hits per top level MP term
-- `procedureCompleteness` - Procedure completeness, IMPC and legacy data
+- `procedureCompletenessAndPhenotypeHits` - Procedure completeness, IMPC and legacy data
 - `statistical-results-ALL`  - Statistical results snapshot of  all
-     statistical results with status:Successful
+  statistical results with status:Successful
 - `viability` - Viability phenotypes, by mouse line
-- `zygosity` - For each MP term, genes that are significant
 
 ## Report filename mapping
 Beginning with data release 12.0, the `reports` directory is
@@ -35,21 +36,22 @@ renamed, and files merged from the old `csv` directory.
 
 | Original Report Name               | Action     | New Report Name                       | 
 | --------------------               | ------     | ---------------                       |
-| dataOverviewReport                 | renamed    | dataOverview                          |
-| fertilityReport                    | renamed    | fertility                             |
 | 3I_genotype_phenotype              | from `.csv`| genotype-phenotype-assertions-3I      |
 | ALL_genotype_phenotype             | from `.csv`| genotype-phenotype-assertions-ALL     |
+| dataOverviewReport                 | renamed    | dataOverview                          |
 | EuroPhenome_genotype_phenotype     | from `.csv`| genotype-phenotype-assertions-EUROPHENOME |
-| IMPC_genotype_phenotype            | from `.csv`| genotype-phenotype-assertions-IMPC    |
-| MGP_genotype_phenotype             | from `.csv`| genotype-phenotype-assertions-MGP     |
-| laczExpressionReport               | renamed    | laczExpression                        |
-| phenotypeOverviewPerGeneReport     | renamed    | phenotypeHitsPerLine                  |
+| fertilityReport                    | renamed    | fertility                             |
+| hitsPerLineReport                  | renamed    | phenotypeHitsPerLine                  |
 | hitsPerParameterAndProcedureReport | renamed    | phenotypeHitsPerParameterAndProcedure |
-| phenotypeHitsReport                | renamed    | phenotypeHitsPerTopLevelMPTerm        |
-| procedureCompletenessAllReport     | renamed    | procedureCompleteness                 |
 | IMPC_ALL_statistical_results       | from `.csv`| statistical-results-ALL               |
+| IMPC_genotype_phenotype            | from `.csv`| genotype-phenotype-assertions-IMPC    |
+| laczExpressionReport               | renamed    | laczExpression                        |
+| MGP_genotype_phenotype             | from `.csv`| genotype-phenotype-assertions-MGP     |
+| phenotypeHitsReport                | renamed    | phenotypeHitsPerTopLevelMPTerm        |
+| phenotypeOverviewPerGeneReport     | renamed    | phenotypeHitsPerGene                  |
+| procedureCompletenessAllReport     | renamed    | procedureCompletenessAndPhenotypeHits |
 | viabilityReport                    | renamed    | viability                             |
-| zygosityReport                     | renamed    | zygosity                              |
+| zygosityReport                     | renamed    | geneAndMPTermAssociation              |
 | ALL_MPATH_genotype_phenotype       | removed    |                                       |
 | bmdStatsGlucoseConcentrationReport | removed    |                                       |
 | bmdStatsGlucoseResponseReport      | removed    |                                       |

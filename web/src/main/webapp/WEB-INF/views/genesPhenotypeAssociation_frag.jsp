@@ -123,15 +123,15 @@
                         <div class="align-middle font-weight-bold pr-2">Other links</div>
                     </div>
                     <div class="col-9 align-middle text-sm-left">
-                        <a target="_blank" class="page-nav-link"
+                        <a target="_blank" rel="noopener" class="page-nav-link"
                            href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}"
                            title="See gene page at JAX" style="font-size: initial; display: inline;">MGI &nbsp;<i class="fas fa-external-link"></i></a>
-                        <a target="_blank" class="page-nav-link"
+                        <a target="_blank" rel="noopener" class="page-nav-link"
                            href="http://www.ensembl.org/Mus_musculus/Gene/Summary?g=${gene.mgiAccessionId}"
                            title="Visualise mouse gene with ensembl genome broswer"
                            style="font-size: initial; display: inline;">Ensembl &nbsp;<i class="fas fa-external-link"></i></a>
                         <c:if test="${gene.isUmassGene}">
-                            <a target="_blank" class="page-nav-link"
+                            <a target="_blank" rel="noopener" class="page-nav-link"
                                href="http://blogs.umass.edu/jmager/${gene.markerSymbol}"
                                title="Visualise mouse gene with ensembl genome broswer"
                                style="font-size: initial; display: inline;">Early Embryo Phenotypes &nbsp;<i class="fas fa-external-link"></i></a>
@@ -490,7 +490,7 @@
         if (firstTable) {
             $('#all-table').html(placeholderText);
             $.ajax({
-                url: baseUrl + '/experimentsTableFrag?geneAccession=' + '${gene.mgiAccessionId}',
+                url: baseUrl + '/allDataTable?geneAccession=' + '${gene.mgiAccessionId}',
                 type: 'GET',
                 success: function (data) {
                     $('#all-table').html(data);

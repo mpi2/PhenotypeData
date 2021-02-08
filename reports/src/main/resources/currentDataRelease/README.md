@@ -10,7 +10,7 @@ results are created from a snapshot of the current
 data for every new data release._
 
 ## Subdirectories
-- cores   - This directory contains a gzipped `.gz` file
+- cores   - This directory contains a unix tar `.tar` file
   for each core.
 
 - mysql   - This directory contains a gzipped `.gz` file
@@ -28,4 +28,3 @@ data for every new data release._
   However, due to the large size of the cores, which are a
   part of the docker image, the docker file may not be created
   or available.
-  
