@@ -56,14 +56,19 @@ for fpath in to_process:
     # Filter out records with wrong parameter IDs
     parameter_id = fname.split('_')[3]
     expected_label = PARAMETER_ID_TO_CLASS_MAP[parameter_id]
-    df = df[(df['verified_classlabel'] != expected_label) & (df['verified_classlabel'] > 0)]
+    df = df[df['verified_classlabel'] != expected_label]
     if len(df) == 0:
         print(f"No incorrectly annotated images for {fname}")
         continue
     df['key'] = df['imagename'].map(lambda s: "".join(s.split('/')[-4:]))
     df.set_index('key', inplace=True)
     df['download_file_path'] = df_urls.loc[df.index]['download_file_path']
-    df['correct_parameter_id'] = df['verified_classlabel'].map(lambda x: "IMPC_XRY_"+CLASS_TO_PARAMETER_ID_MAP[int(x)]+"_001")
+    try:
+        df['correct_parameter_id'] = df['verified_classlabel'].map(lambda x: "IMPC_XRY_"+CLASS_TO_PARAMETER_ID_MAP[int(x)]+"_001")
+    except (ValueError, KeyError,):
+        # Value error deals with NaN, Key error deals with negative labels
+        # Both mean something wrong with reading image or image content
+        df['correct_parameter_id'] = "UKNOWN_PARAMETER_STABLE_ID"
     df.sort_values('correct_parameter_id', inplace=True)
     out_fname = fname[:-4]+"_url.csv"
     out_path = output_base_dir.joinpath(out_fname)
