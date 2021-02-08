@@ -75,8 +75,15 @@ pid = parameter_stable_id.split("_")[-2]
 model_dir_base = args.model_dir_base
 code_path = os.path.join(args.code_dir, "qc_apply_all_sites_model.py")
 
+# If late adult include in job name.
+if parameter_stable_id.find("LA_") >= 0:
+    late_adult = "la_"
+else:
+    late_adult = ""
+
+
 for structure in args.structures.split(","):
-    job_name = f"{site_name_lc}_{pid}_{structure}"
+    job_name = f"{site_name_lc}_{late_adult}{pid}_{structure}"
     output_filename = "_".join([site_name_uc, parameter_stable_id, structure])
     model_desc_fname = "_".join([site_name_lc, structure, "model.json"])
     model_desc_path = os.path.join(model_dir_base, site_name_lc, model_desc_fname)
