@@ -15,13 +15,11 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
-import lombok.*;
+import lombok.Data;
 import org.apache.solr.client.solrj.beans.Field;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 @Data
 public class ImageDTO extends ObservationDTO {
@@ -99,10 +97,6 @@ public class ImageDTO extends ObservationDTO {
     public static final String SYMBOL_GENE = "symbol_gene";
     public static final String SYMBOL = "symbol";
     public static final String SUBTYPE = "subtype";
-    public static final String STATUS = "status";
-    public static final String IMITS_PHENOTYPE_STARTED = SangerImageDTO.IMITS_PHENOTYPE_STARTED;
-    public static final String IMITS_PHENOTYPE_COMPLETE = SangerImageDTO.IMITS_PHENOTYPE_COMPLETE;
-    public static final String IMITS_PHENOTYPE_STATUS = SangerImageDTO.IMITS_PHENOTYPE_STATUS;
     public static final String LEGACY_PHENOTYPE_STATUS = AlleleDTO.LEGACY_PHENOTYPE_STATUS;
     public static final String LATEST_PRODUCTION_CENTRE = SangerImageDTO.LATEST_PRODUCTION_CENTRE;
     public static final String LATEST_PHENOTYPING_CENTRE = SangerImageDTO.LATEST_PHENOTYPING_CENTRE;
