@@ -13,6 +13,15 @@ import argparse
 import pandas as pd
 from qc_mappings import PARAMETER_ID_TO_CLASS_MAP, CLASS_TO_PARAMETER_ID_MAP
 
+# Local function to get parameters using class labels
+def _parameter_from_class(classlabel):
+    try:
+        return "IMPC_XRY_"+CLASS_TO_PARAMETER_ID_MAP[int(classlabel)]+"_001"
+    except (ValueError, KeyError,):
+        return "UNKNOWN_PARAMETER_STABLE_ID"
+    except:
+        return "PARAMETER_MAP_ERROR"
+
 parser = argparse.ArgumentParser(
     description = "Get urls from nfs file paths"
 )
@@ -63,12 +72,8 @@ for fpath in to_process:
     df['key'] = df['imagename'].map(lambda s: "".join(s.split('/')[-4:]))
     df.set_index('key', inplace=True)
     df['download_file_path'] = df_urls.loc[df.index]['download_file_path']
-    try:
-        df['correct_parameter_id'] = df['verified_classlabel'].map(lambda x: "IMPC_XRY_"+CLASS_TO_PARAMETER_ID_MAP[int(x)]+"_001")
-    except (ValueError, KeyError,):
-        # Value error deals with NaN, Key error deals with negative labels
-        # Both mean something wrong with reading image or image content
-        df['correct_parameter_id'] = "UKNOWN_PARAMETER_STABLE_ID"
+    df['correct_parameter_id'] = \
+        df['verified_classlabel'].map(lambda x: _parameter_from_class(x))
     df.sort_values('correct_parameter_id', inplace=True)
     out_fname = fname[:-4]+"_url.csv"
     out_path = output_base_dir.joinpath(out_fname)
