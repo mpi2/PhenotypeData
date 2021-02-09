@@ -14,9 +14,10 @@ import pandas as pd
 from qc_mappings import PARAMETER_ID_TO_CLASS_MAP, CLASS_TO_PARAMETER_ID_MAP
 
 # Local function to get parameters using class labels
-def _parameter_from_class(classlabel):
+def _parameter_from_class(classlabel, prefix="IMPC"):
     try:
-        return "IMPC_XRY_"+CLASS_TO_PARAMETER_ID_MAP[int(classlabel)]+"_001"
+        return prefix + "_XRY_" + \
+            CLASS_TO_PARAMETER_ID_MAP[int(classlabel)]+"_001"
     except (ValueError, KeyError,):
         return "UNKNOWN_PARAMETER_STABLE_ID"
     except:
@@ -27,7 +28,7 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument(
     '-u', '--url-csv-path', dest='url_csv_path', required=True,
-    help='path to csv containing urls. This is normally provided by ' +\
+    help='path to csv containing urls. This is normally provided by ' + \
          'Federico at the start of the data-release'
 )
 parser.add_argument(
@@ -36,7 +37,7 @@ parser.add_argument(
 )
 parser.add_argument(
     '-o', '--output-base-dir', dest='output_base_dir',
-    help='Directory to store output containing mapped csvs. Defauts to ' +\
+    help='Directory to store output containing mapped csvs. Defauts to ' + \
          'input-base-dir if not supplied'
 )
 
@@ -57,6 +58,8 @@ else:
 to_process = [str(p) for p in input_base_dir.glob('**/*structures*processed.csv')]
 for fpath in to_process:
     fname = fpath.split('/')[-1]
+    # Get prefix for parameter_stable_id
+    prefix = fname.split('_')[1]
     df = pd.read_csv(fpath)
     if 'verified_classlabel' not in df.columns:
         print(f"No 'verified classlabel' column in {fname} - not processing")
@@ -73,7 +76,7 @@ for fpath in to_process:
     df.set_index('key', inplace=True)
     df['download_file_path'] = df_urls.loc[df.index]['download_file_path']
     df['correct_parameter_id'] = \
-        df['verified_classlabel'].map(lambda x: _parameter_from_class(x))
+        df['verified_classlabel'].map(lambda x: _parameter_from_class(x,prefix))
     df.sort_values('correct_parameter_id', inplace=True)
     out_fname = fname[:-4]+"_url.csv"
     out_path = output_base_dir.joinpath(out_fname)
