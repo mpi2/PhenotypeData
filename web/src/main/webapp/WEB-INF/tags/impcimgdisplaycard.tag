@@ -76,6 +76,16 @@
         <div class="card-body">
     </c:when>
 
+    <c:when test="${img.omero_id == '-1'}">
+        <!-- used fcs images on normal image scrolldown pages -->
+        <div class="card-img-top img-fluid text-center">
+            <a href="${baseUrl}/impcImages/download?acc=${img.gene_accession_id}&parameter_stable_id=${img.parameter_stable_id}" class="text-dark">
+                <i class="fas fa-file" style="font-size: 16px; font-size: 5vw;"></i>
+            </a>
+        </div>
+        <div class="card-body">
+    </c:when>
+
 
     <c:otherwise>
         <!-- used for lacz expression pages -->

@@ -80,19 +80,7 @@
 
             <dependency>
                 <groupId>org.mousephenotype.cda</groupId>
-                <artifactId>api</artifactId>
-                <version>${phenotypedata.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.mousephenotype.cda</groupId>
                 <artifactId>data-model</artifactId>
-                <version>${phenotypedata.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.mousephenotype.cda</groupId>
-                <artifactId>data-model-db</artifactId>
                 <version>${phenotypedata.version}</version>
             </dependency>
 
@@ -111,24 +99,6 @@
             <dependency>
                 <groupId>org.mousephenotype.cda</groupId>
                 <artifactId>reports</artifactId>
-                <version>${phenotypedata.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.mousephenotype.cda</groupId>
-                <artifactId>indexers</artifactId>
-                <version>${phenotypedata.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.mousephenotype.cda</groupId>
-                <artifactId>loads</artifactId>
-                <version>${phenotypedata.version}</version>
-            </dependency>
-            
-             <dependency>
-                <groupId>org.mousephenotype.cda</groupId>
-                <artifactId>stats-files</artifactId>
                 <version>${phenotypedata.version}</version>
             </dependency>
 

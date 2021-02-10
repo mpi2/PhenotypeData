@@ -1105,7 +1105,9 @@ public class GeneService extends BasicService implements WebStatus{
 				.addField(GeneDTO.NOT_SIGNIFICANT_TOP_LEVEL_MP_TERMS)
 				//.addField(GeneDTO.MP_TERM_NAME)
 				.addField(GeneDTO.MARKER_SYMBOL)
-				.addField(GeneDTO.STATUS)
+				.addField(GeneDTO.LATEST_ES_CELL_STATUS)
+				.addField(GeneDTO.LATEST_MOUSE_STATUS)
+				.addField(GeneDTO.LATEST_PHENOTYPE_STATUS)
 				//.addField(GeneDTO.NOTSIGNIFICANT)
 				.setRows(Integer.MAX_VALUE)
 				.setSort(GeneDTO.MARKER_SYMBOL, SolrQuery.ORDER.asc);

@@ -41,10 +41,6 @@ public class GeneDTO {
 	public static final String MARKER_SYNONYM_LOWERCASE = "marker_synonym_lowercase";
 	public static final String MARKER_TYPE = "marker_type";
 	public static final String ENSEMBL_GENE_ID = "ensembl_gene_id";
-	public static final String IMITS_PHENOTYPE_STARTED = "imits_phenotype_started";
-	public static final String IMITS_PHENOTYPE_COMPLETE = "imits_phenotype_complete";
-	public static final String IMITS_PHENOTYPE_STATUS = "imits_phenotype_status";
-	public static final String STATUS = "status";
 	public static final String LATEST_ES_CELL_STATUS = "latest_es_cell_status";
 	public static final String LATEST_MOUSE_STATUS = "latest_mouse_status";
 	public static final String LATEST_PHENOTYPE_STATUS = "latest_phenotype_status";
@@ -427,18 +423,6 @@ public class GeneDTO {
 
 	@Field(ENSEMBL_GENE_ID)
 	List<String> ensemblGeneIds;
-
-	@Field(IMITS_PHENOTYPE_STARTED)
-	String imitsPhenotypeStarted;
-
-	@Field(IMITS_PHENOTYPE_COMPLETE)
-	String imitsPhenotypeComplete;
-
-	@Field(IMITS_PHENOTYPE_STATUS)
-	String imitsPhenotypeStatus;
-
-	@Field(STATUS)
-	String status;
 
 	@Field(LATEST_ES_CELL_STATUS)
 	String latestEsCellStatus;
@@ -998,53 +982,6 @@ public class GeneDTO {
 		this.ensemblGeneIds = ensemblGeneIds;
 	}
 
-
-	public String getImitsPhenotypeStarted() {
-
-		return imitsPhenotypeStarted;
-	}
-
-
-	public void setImitsPhenotypeStarted(String imitsPhenotypeStarted) {
-
-		this.imitsPhenotypeStarted = imitsPhenotypeStarted;
-	}
-
-
-	public String getImitsPhenotypeComplete() {
-
-		return imitsPhenotypeComplete;
-	}
-
-
-	public void setImitsPhenotypeComplete(String imitsPhenotypeComplete) {
-
-		this.imitsPhenotypeComplete = imitsPhenotypeComplete;
-	}
-
-
-	public String getImitsPhenotypeStatus() {
-
-		return imitsPhenotypeStatus;
-	}
-
-
-	public void setImitsPhenotypeStatus(String imitsPhenotypeStatus) {
-
-		this.imitsPhenotypeStatus = imitsPhenotypeStatus;
-	}
-
-
-	public String getStatus() {
-
-		return status;
-	}
-
-
-	public void setStatus(String status) {
-
-		this.status = status;
-	}
 
 
 	public String getLatestEsCellStatus() {
@@ -2222,13 +2159,6 @@ public class GeneDTO {
 		if (markerType != null ? !markerType.equals(geneDTO.markerType) : geneDTO.markerType != null) return false;
 		if (ensemblGeneIds != null ? !ensemblGeneIds.equals(geneDTO.ensemblGeneIds) : geneDTO.ensemblGeneIds != null)
 			return false;
-		if (imitsPhenotypeStarted != null ? !imitsPhenotypeStarted.equals(geneDTO.imitsPhenotypeStarted) : geneDTO.imitsPhenotypeStarted != null)
-			return false;
-		if (imitsPhenotypeComplete != null ? !imitsPhenotypeComplete.equals(geneDTO.imitsPhenotypeComplete) : geneDTO.imitsPhenotypeComplete != null)
-			return false;
-		if (imitsPhenotypeStatus != null ? !imitsPhenotypeStatus.equals(geneDTO.imitsPhenotypeStatus) : geneDTO.imitsPhenotypeStatus != null)
-			return false;
-		if (status != null ? !status.equals(geneDTO.status) : geneDTO.status != null) return false;
 		if (latestEsCellStatus != null ? !latestEsCellStatus.equals(geneDTO.latestEsCellStatus) : geneDTO.latestEsCellStatus != null)
 			return false;
 		if (latestMouseStatus != null ? !latestMouseStatus.equals(geneDTO.latestMouseStatus) : geneDTO.latestMouseStatus != null)
@@ -2416,10 +2346,6 @@ public class GeneDTO {
 		result = 31 * result + (markerSynonymLowercase != null ? markerSynonymLowercase.hashCode() : 0);
 		result = 31 * result + (markerType != null ? markerType.hashCode() : 0);
 		result = 31 * result + (ensemblGeneIds != null ? ensemblGeneIds.hashCode() : 0);
-		result = 31 * result + (imitsPhenotypeStarted != null ? imitsPhenotypeStarted.hashCode() : 0);
-		result = 31 * result + (imitsPhenotypeComplete != null ? imitsPhenotypeComplete.hashCode() : 0);
-		result = 31 * result + (imitsPhenotypeStatus != null ? imitsPhenotypeStatus.hashCode() : 0);
-		result = 31 * result + (status != null ? status.hashCode() : 0);
 		result = 31 * result + (latestEsCellStatus != null ? latestEsCellStatus.hashCode() : 0);
 		result = 31 * result + (latestMouseStatus != null ? latestMouseStatus.hashCode() : 0);
 		result = 31 * result + (latestPhenotypeStatus != null ? latestPhenotypeStatus.hashCode() : 0);
@@ -2553,10 +2479,6 @@ public class GeneDTO {
 				", markerSynonymLowercase=" + markerSynonymLowercase +
 				", markerType='" + markerType + '\'' +
 				", ensemblGeneIds=" + ensemblGeneIds +
-				", imitsPhenotypeStarted='" + imitsPhenotypeStarted + '\'' +
-				", imitsPhenotypeComplete='" + imitsPhenotypeComplete + '\'' +
-				", imitsPhenotypeStatus='" + imitsPhenotypeStatus + '\'' +
-				", status='" + status + '\'' +
 				", latestEsCellStatus='" + latestEsCellStatus + '\'' +
 				", latestMouseStatus='" + latestMouseStatus + '\'' +
 				", latestPhenotypeStatus='" + latestPhenotypeStatus + '\'' +

@@ -13,7 +13,7 @@
             <%-- ${containsBoth} --%>
              <c:choose>
                 	<c:when test="${containsBoth}">
-                		<span class="bothSexes" style="font-size: 1.8em;"> <i class="fal fa-venus"></i> <i class="fal fa-mars"></i></span>
+                		<span class="bothSexes" style="font-size: 1.8em;"><i class="fal fa-venus"></i>&nbsp;<i class="fal fa-mars"></i></span>
                 	</c:when>
                 	<c:otherwise>
 			                <c:set var="count" value="0" scope="page"/>
