@@ -11,13 +11,11 @@ import org.mousephenotype.cda.solr.service.dto.AnatomyDTO;
 import org.mousephenotype.cda.solr.service.dto.DiseaseDTO;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.BinaryOperator;
@@ -99,6 +97,7 @@ public class BatchQueryForm {
                 datasetsRawData = GeneService.unwrapGeneMinimalDataset(doc.get("datasets_raw_data").toString());
                 significantPhenotypes = datasetsRawData.stream()
                         .filter(x -> x.getSignificance().equalsIgnoreCase("Significant"))
+                        .filter(x -> x.getPhenotypeTermId() != null)
                         .sorted(Comparator.comparing(GeneService.MinimalGeneDataset::getPhenotypeTermId))
                         .collect(Collectors.toList());
                 significantPhenotypes.forEach(m -> {
