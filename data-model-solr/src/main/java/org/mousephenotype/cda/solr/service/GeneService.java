@@ -197,6 +197,7 @@ public class GeneService extends BasicService implements WebStatus{
 		@SerializedName("p_value") Double pValue;
 		@SerializedName("phenotype_term_id") String phenotypeTermId;
 		@SerializedName("phenotype_term_name") String phenotypeTermName;
+		@SerializedName("top_level_phenotype_term_name") Set<String> topLevelPhenotypeTermName;
 
 	}
 
@@ -248,7 +249,8 @@ public class GeneService extends BasicService implements WebStatus{
 				ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, x.getParameterStableID(), x.getParameterName());
 				Double pValue = x.getPValue();
 				BasicBean phenotypeTerm = new BasicBean(x.getPhenotypeTermId(), x.getPhenotypeTermName());
-
+				Set<String> topLevelPhenotypeTermNames=x.getTopLevelPhenotypeTermName();
+				System.out.println("getting top level MP name="+x.getTopLevelPhenotypeTermName());
 				ExperimentsDataTableRow row = new ExperimentsDataTableRow(
 						x.getPhenotypingCenter(),
 						x.getSignificance(), // Statistical method
@@ -295,6 +297,7 @@ public class GeneService extends BasicService implements WebStatus{
 	//   "p_value": String
 	//   "phenotype_term_id": String
 	//   "phenotype_term_name": String
+	//	 "top_level_phenotype_term_name": String
 	// }
 	public static List<GeneService.MinimalGeneDataset> unwrapGeneMinimalDataset (String data) {
 
