@@ -87,7 +87,7 @@ public class ExperimentsController implements Exportable<ExperimentsDataTableRow
     public String getAllDataTable(
             @RequestParam(required = true, value = "geneAccession") String geneAccession,
             //@RequestParam(required = false, value = "alleleSymbol") List<String> alleleSymbol,
-            @RequestParam(required = false, value = "mpTermId") List<String> mpTermId,
+            @RequestParam(required = false, value = "mpTerm") List<String> mpTermId,
             Model model,
             HttpServletRequest request)
             throws IOException, SolrServerException, JSONException {
@@ -460,13 +460,19 @@ public class ExperimentsController implements Exportable<ExperimentsDataTableRow
                 Set<ExperimentsDataTableRow> experimentRows
         ) throws IOException, SolrServerException {
             Set<ExperimentsDataTableRow> experimentRowsFromObservations = geneService.getAllData(geneAccession);
-            Map<CombinedObservationKey, ExperimentsDataTableRow> observationsMap = experimentRowsFromObservations.stream().collect(Collectors.toMap(ExperimentsDataTableRow::getCombinedKey, row -> row));
 
             if(mpTermId != null && mpTermId.size() > 0) {
-                experimentRows.addAll(experimentRowsFromObservations.stream().filter(x-> mpTermId.contains(x.getPhenotypeTerm().getId())).collect(Collectors.toSet()));
+
+                for(ExperimentsDataTableRow row:experimentRowsFromObservations){
+                    System.out.println(row.getPhenotypeTerm().getName()+"top level group term="+row.getTopLevelMpGroups()+ "top level phenotype terms"+row.getTopLevelPhenotypeTerms());
+                }
+
+                //experimentRows.addAll(experimentRowsFromObservations.stream().filter(x-> mpTermId.contains(x.getPhenotypeTerm().getName())).collect(Collectors.toSet()));
             } else {
                 experimentRows.addAll(experimentRowsFromObservations);
             }
+            Map<CombinedObservationKey, ExperimentsDataTableRow> observationsMap = experimentRows.stream().collect(Collectors.toMap(ExperimentsDataTableRow::getCombinedKey, row -> row));
+
             return observationsMap;
         }
     }
