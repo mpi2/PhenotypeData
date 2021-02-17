@@ -7,6 +7,8 @@ import org.mousephenotype.cda.solr.service.dto.MarkerBean;
 import org.mousephenotype.cda.utilities.LifeStageMapper;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This class represents a row in the experiments table
@@ -227,4 +229,16 @@ public class ExperimentsDataTableRow extends DataTableRow {
 				LifeStageMapper.getLifeStage(parameter.getStableId(), lifeStageName)
 		);
 	}
+
+	public Set<String> getTopLevelPhenotypes() {
+		return topLevelPhenotypes;
+	}
+
+	public void setTopLevelPhenotypes(Set<String> topLevelPhenotypes) {
+		this.topLevelPhenotypes = topLevelPhenotypes;
+	}
+
+	private Set<String> topLevelPhenotypes;
+
+
 }

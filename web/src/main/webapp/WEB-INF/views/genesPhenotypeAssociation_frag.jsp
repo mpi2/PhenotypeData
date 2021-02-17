@@ -21,7 +21,7 @@
             var icon = value.split('|')[3];
             val.push(name);
             var color = significance === 'significant' ? 'badge-primary' : 'badge-info';
-            legend += '<span class="badge badge-pill filter-badge ' + color + ' mr-1"><i class="badge-icon ' + icon + '"></i> ' + name.replace(/pehnotype/g, "") + ' <i class="close-badge fas fa-times" onclick="removeOption(\''+ filterName +'\',\'' + value +'\')"></i></span>';
+            legend += '<span class="badge badge-pill filter-badge ' + color + ' mr-1"><i class="badge-icon ' + icon + '"></i> ' + name.replace(/phenotype/g, "") + ' <i class="close-badge fas fa-times" onclick="removeOption(\''+ filterName +'\',\'' + value +'\')"></i></span>';
         });
         legend = legend === '' ? ' all phenotypes' : legend;
         $('#ph' + filterName + 'DataTitle').html(legend);
@@ -35,7 +35,7 @@
             "                    </div>");
         $('#phenotypesTab').scrollTop();
         $.ajax({
-            url: baseUrl + '/experiments' + filterName + 'Frag?geneAccession=' + '${gene.mgiAccessionId}' + '&mpTerm=' + val.join(','),
+            url: baseUrl + '/allData' + filterName + '?geneAccession=' + '${gene.mgiAccessionId}' + '&mpTerm=' + val.join(','),
             type: 'GET',
             success: function (data) {
                 $(content_id).html(data);

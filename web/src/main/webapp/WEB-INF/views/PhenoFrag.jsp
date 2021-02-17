@@ -65,12 +65,9 @@
         <tr title="${!phenotype.getEvidenceLink().getDisplay() ? 'No supporting data supplied.' : ''}" data-toggle="tooltip" data-link="${phenotype.getEvidenceLink().url}" class="${phenotype.getEvidenceLink().getDisplay() ? 'clickableRow' : 'unClickableRow'}">
 
             <td data-value="${phenotype.phenotypeTerm.name}">
-                <a href="${phenotype.getEvidenceLink().url}">
                         ${phenotype.phenotypeTerm.name}
-                </a>
             </td>
             <td class="text-lg-center" style="font-size: 1.25em;" data-value="${phenotype.topLevelMpGroups.first()}">
-                <a href="${phenotype.getEvidenceLink().url}">
                 <span class="row_abnormalities">
                     <c:set var="marginLeftCount" value="0"/>
                     <c:forEach var="topLevelMpGroup" items="${phenotype.topLevelMpGroups}" varStatus="groupCount">
@@ -86,26 +83,28 @@
 
                     </c:forEach>
                 </span>
-                </a>
             </td>
             <td data-value="${phenotype.allele.symbol}">
-                <a href="${phenotype.getEvidenceLink().url}">
                 <span style="white-space: nowrap"><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></span>
-                </a>
-
             </td>
-            <td title="${phenotype.zygosity}" data-value="${phenotype.zygosity}"><a href="${phenotype.getEvidenceLink().url}">${phenotype.zygosity.getShortName()}</a></td>
+            <td title="${phenotype.zygosity}" data-value="${phenotype.zygosity}">
+                        ${phenotype.zygosity.getShortName()}
+            </td>
             <td data-value="${phenotype.sexes}">
-                <a href="${phenotype.getEvidenceLink().url}">
+
                 <c:set var="count" value="0" scope="page"/>
                 <t:displaySexes sexes="${phenotype.sexes}"></t:displaySexes>
-                </a>
             </td>
-            <td data-value="${phenotype.lifeStageName}"><a href="${phenotype.getEvidenceLink().url}">${phenotype.lifeStageName}</a></td>
+            <td data-value="${phenotype.lifeStageName}">
+                        ${phenotype.lifeStageName}
+            </td>
 
 
             <td data-value="${phenotype.prValueAsString}">
-                <a href="${phenotype.getEvidenceLink().url}" style="white-space: nowrap"><t:formatScientific>${phenotype.prValueAsString}</t:formatScientific></a></td>
+
+                    <t:formatScientific>${phenotype.prValueAsString}</t:formatScientific>
+
+            </td>
 
         </tr>
     </c:forEach>

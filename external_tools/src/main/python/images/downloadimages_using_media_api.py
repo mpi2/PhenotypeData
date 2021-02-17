@@ -89,7 +89,7 @@ def runWithMediaApiAsDataSource(rootDestinationDir, finalDestinationDir):
 
     for site, phenotyping_center in sites:
         query_string = "https://api.mousephenotype.org/media/dccUrl/" +\
-            site # + "?start=0&resultsize=2"
+            site + "?status=done" # +"&start=0&resultsize=2"
         print query_string
 
         v = json.loads(requests.get(query_string).text)
