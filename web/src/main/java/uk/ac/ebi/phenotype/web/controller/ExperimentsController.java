@@ -275,9 +275,11 @@ public class ExperimentsController implements Exportable<ExperimentsDataTableRow
         int rows = 0;
         String graphBaseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 
-        // Need to convert MP IDs to MP term names
-        final List<String> mpTermNamesNormalized = mpTermIds.stream().map(x -> x.startsWith("MP:") ? mpIdToName(x) : x).filter(Objects::nonNull).collect(Collectors.toList());
+        List<String> mpTermNamesNormalized = Collections.emptyList();
 
+        if(mpTermIds != null) {
+            mpTermNamesNormalized = mpTermIds.stream().map(x -> x.startsWith("MP:") ? mpIdToName(x) : x).filter(Objects::nonNull).collect(Collectors.toList());
+        }
 
         experimentRows.putAll(srService.getPvaluesByAlleleAndPhenotypingCenterAndPipeline(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName,
                 procedureStableId, resource, mpTermNamesNormalized, graphBaseUrl));
