@@ -238,7 +238,7 @@
                                             <dd class="col-sm-9"><c:forEach var="syn" items="${gene.markerSynonym}" varStatus="loop">${syn}<c:if test="${!loop.last}">, </c:if></c:forEach></dd>
                                         </dl>
 
-                                        <c:if test="${fn:contains(fn:toLowerCase(gene.latestEsCellStatus), 'abort')}">
+                                        <c:if test="${fn:contains(fn:toLowerCase(gene.esCellProductionStatus), 'abort')}">
                                         <p class="text-danger">
                                             <i class="fas fa-ban"></i>
                                             <b>Phenotype Production Aborted</b>
@@ -301,16 +301,16 @@
                                                 <b>Production Status</b>
                                                 <i class="fas fa-question-circle float-right" data-toggle="tooltip" data-placement="bottom" title="These statuses are a way to indicate how &quot;close&quot; we are from having phenotype data available"></i>
                                             </h6>
-                                            <c:if test="${fn:trim(gene.latestEsCellStatus) != '' and !fn:contains(fn:toLowerCase(gene.latestEsCellStatus), 'not assigned')}"><p class="mb-0">${gene.latestEsCellStatus}</p></c:if>
-                                            <c:if test="${fn:trim(gene.latestMouseStatus) != ''}"><p class="mb-0">${gene.latestMouseStatus}</p></c:if>
-                                            <c:if test="${fn:trim(gene.latestPhenotypeStatus) != ''}"><p class="mb-0">${gene.latestPhenotypeStatus}</p></c:if>
-                                            <c:if test="${ fn:contains(fn:toLowerCase(gene.latestEsCellStatus), 'not assigned') and fn:length(gene.latestPhenotypeStatus)==0 and fn:length(gene.latestMouseStatus)==0}">
+                                            <c:if test="${fn:trim(gene.esCellProductionStatus) != '' and !fn:contains(fn:toLowerCase(gene.esCellProductionStatus), 'not assigned')}"><p class="mb-0">${gene.esCellProductionStatus}</p></c:if>
+                                            <c:if test="${fn:trim(gene.mouseProductionStatus) != ''}"><p class="mb-0">${gene.mouseProductionStatus}</p></c:if>
+                                            <c:if test="${fn:trim(gene.phenotypeStatus) != ''}"><p class="mb-0">${gene.phenotypeStatus}</p></c:if>
+                                            <c:if test="${ fn:contains(fn:toLowerCase(gene.esCellProductionStatus), 'not assigned') and fn:length(gene.esCellProductionStatus)==0 and fn:length(gene.esCellProductionStatus)==0}">
                                                 <p>
                                                     <i class="fas fa-exclamation-circle"></i>
-                                                    <b>${gene.latestEsCellStatus}</b>
+                                                    <b>${gene.esCellProductionStatus}</b>
                                                 </p>
                                             </c:if>
-                                            <c:if test="${ fn:length(gene.latestPhenotypeStatus)==0 }">
+                                            <c:if test="${ fn:length(gene.phenotypeStatus)==0 }">
                                                 <p>
                                                     <i class="fas fa-exclamation-circle"></i>
                                                     <b>Phenotyping is currently not planned for a knockout strain of this gene.</b>

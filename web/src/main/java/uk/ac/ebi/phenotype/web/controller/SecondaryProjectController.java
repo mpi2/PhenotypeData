@@ -66,9 +66,9 @@ public class SecondaryProjectController {
                         .map(GenesSecondaryProject::getMgiGeneAccessionId)
                         .collect(Collectors.toSet());
 
-                Map<String, Long> geneStatus = geneService.getStatusCount(accessions, GeneDTO.LATEST_ES_CELL_STATUS);
-                Map<String, Long> mouseStatus = geneService.getStatusCount(accessions, GeneDTO.LATEST_MOUSE_STATUS);
-                Map<String, Long> phenoStatus = geneService.getStatusCount(accessions, GeneDTO.LATEST_PHENOTYPE_STATUS);
+                Map<String, Long> geneStatus = geneService.getStatusCount(accessions, GeneDTO.ES_CELL_PRODUCTION_STATUS);
+                Map<String, Long> mouseStatus = geneService.getStatusCount(accessions, GeneDTO.MOUSE_PRODUCTION_STATUS);
+                Map<String, Long> phenoStatus = geneService.getStatusCount(accessions, GeneDTO.PHENOTYPE_STATUS);
                 Map<String, Long> combinedData = new HashMap<>();
                 combinedData.putAll(geneStatus);
                 combinedData.putAll(mouseStatus);
