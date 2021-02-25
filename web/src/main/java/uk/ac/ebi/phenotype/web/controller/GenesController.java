@@ -267,16 +267,17 @@ public class GenesController {
         /**
          * PRODUCTION STATUS (SOLR)
          */
-        String geneStatus = null;
-        try {
-            geneStatus = solrIndex.getGeneStatus(acc);
-            model.addAttribute("geneStatus", geneStatus);
-            // if gene status is null then the jsp declares a warning message at status div
-        } catch (JSONException | IOException e) {
-            e.printStackTrace();
-        } catch (IndexOutOfBoundsException exception) {
-            throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
-        }
+        String geneStatus = gene.getAssignmentStatus();
+        model.addAttribute("geneStatus", geneStatus);
+//        try {
+//            geneStatus = solrIndex.getGeneStatus(acc);
+//            model.addAttribute("geneStatus", geneStatus);
+//            // if gene status is null then the jsp declares a warning message at status div
+//        } catch (JSONException | IOException e) {
+//            e.printStackTrace();
+//        } catch (IndexOutOfBoundsException exception) {
+//            throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
+//        }
 
         /**
          * Phenotype Summary
@@ -383,7 +384,7 @@ public class GenesController {
         model.addAttribute("request", request);
         model.addAttribute("acc", acc);
         model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
-        boolean phenotypeStarted = geneService.checkPhenotypeStarted(acc);
+        boolean phenotypeStarted = gene.getPhenotypeStatus() != null && gene.getPhenotypeStatus().equals("Phenotyping data available");
         model.addAttribute("phenotypeStarted", phenotypeStarted);
         model.addAttribute("attemptRegistered", geneService.checkAttemptRegistered(acc));
         model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);

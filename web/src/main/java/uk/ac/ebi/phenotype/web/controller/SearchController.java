@@ -129,12 +129,12 @@ public class SearchController {
         boolean isLoggedIn = riUtils.isLoggedIn();
         List<String> followedAccessionIds = riUtils.getGeneAccessionIds();
 
-        // Map gene status from "Phenotype Complete" to "Phenotype data available"
-        genes.forEach(gene -> {
-            if (gene.getLatestPhenotypeStatus() != null && gene.getLatestPhenotypeStatus().equalsIgnoreCase("Phenotyping Complete")) {
-                gene.setLatestPhenotypeStatus("Phenotype data available");
-            }
-        });
+//        // Map gene status from "Phenotype Complete" to "Phenotype data available"
+//        genes.forEach(gene -> {
+//            if (gene.getPhenotypingDataAvailable()) {
+//                gene.setPhenotypeStatus("Phenotype data available");
+//            }
+//        });
 
         // Initialise Register Interest button for each gene
         genes.forEach(gene -> {

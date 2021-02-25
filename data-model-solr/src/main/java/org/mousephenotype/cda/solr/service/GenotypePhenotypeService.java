@@ -16,7 +16,6 @@
 package org.mousephenotype.cda.solr.service;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.math3.analysis.function.Cos;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
@@ -1313,7 +1312,8 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         if (topLevelMpTerms != null) {
             genotypePhenotypeDTOS = genotypePhenotypeDTOS
                     .stream()
-                    .filter(gene -> gene.getTopLevelMpTermId().containsAll(topLevelMpTerms))
+                    .filter(gene -> gene.getTopLevelMpTermName()!= null)
+                    .filter(gene -> gene.getTopLevelMpTermName().containsAll(topLevelMpTerms))
                     .collect(Collectors.toSet());
         }
 

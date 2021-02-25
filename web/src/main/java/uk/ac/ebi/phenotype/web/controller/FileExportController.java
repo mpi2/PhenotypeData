@@ -970,14 +970,16 @@ public class FileExportController {
 
 			data.add(prodStatus);
 
-			String statusField = (doc.has(GeneDTO.LATEST_PHENOTYPE_STATUS)) ? doc.getString(GeneDTO.LATEST_PHENOTYPE_STATUS) : null;
+			String statusField = (doc.has(GeneDTO.PHENOTYPE_STATUS)) ? doc.getString(GeneDTO.PHENOTYPE_STATUS) : null;
 
 			// made this as null by default: don't want to show this for now
 			//Integer legacyPhenotypeStatus = null;
-			Integer legacyPhenotypeStatus = (doc.has(GeneDTO.LEGACY_PHENOTYPE_STATUS)) ? doc.getInt(GeneDTO.LEGACY_PHENOTYPE_STATUS) : null;
+//			Integer legacyPhenotypeStatus = (doc.has(GeneDTO.LEGACY_PHENOTYPE_STATUS)) ? doc.getInt(GeneDTO.LEGACY_PHENOTYPE_STATUS) : null;
+//
+//			Integer hasQc = (doc.has(GeneDTO.HAS_QC)) ? doc.getInt(GeneDTO.HAS_QC) : null;
+//			String phenotypeStatus = GeneService.getPhenotypingStatus(statusField, hasQc, legacyPhenotypeStatus, genePageUrl, toExport, legacyOnly);
 
-			Integer hasQc = (doc.has(GeneDTO.HAS_QC)) ? doc.getInt(GeneDTO.HAS_QC) : null;
-			String phenotypeStatus = GeneService.getPhenotypingStatus(statusField, hasQc, legacyPhenotypeStatus, genePageUrl, toExport, legacyOnly);
+			String phenotypeStatus = (doc.has(GeneDTO.PHENOTYPE_STATUS)) ? doc.getString(GeneDTO.PHENOTYPE_STATUS) : null;
 
 
 			if (phenotypeStatus.isEmpty()) {
