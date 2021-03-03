@@ -44,7 +44,7 @@ public class SearchUrlServiceGene extends SearchUrlService {
     public String bq(String q) {
         return "marker_symbol_lowercase:(" + q + ")^1000"
                 + " marker_symbol_bf:(" + q + ")^100"
-                + " latest_phenotype_status:\"Phenotyping Complete\" ^200";
+                + " phenotype_status:\"Phenotyping Complete\" ^200";
     }
 
     @Override
@@ -56,23 +56,21 @@ public class SearchUrlServiceGene extends SearchUrlService {
                 "marker_name",
                 "marker_type",
                 "human_gene_symbol",
-                "latest_es_cell_status",
-                "latest_production_status",
-                "latest_phenotype_status",
+                "es_cell_status",
+                "production_status",
+                "phenotype_status",
                 "status",
                 "es_cell_status",
                 "mouse_status",
-                "legacy_phenotype_status",
                 "allele_name");
     }
 
     @Override
     public List<String> facetFields() {
-        return Arrays.asList("latest_phenotype_status",
-                "legacy_phenotype_status",
+        return Arrays.asList("phenotype_status",
                 "status",
-                "latest_production_centre",
-                "latest_phenotyping_centre",
+                "production_centre",
+                "phenotyping_centre",
                 "marker_type",
                 "embryo_data_available",
                 "embryo_modalities",

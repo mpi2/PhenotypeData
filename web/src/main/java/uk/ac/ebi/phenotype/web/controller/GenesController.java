@@ -269,15 +269,6 @@ public class GenesController {
          */
         String geneStatus = gene.getAssignmentStatus();
         model.addAttribute("geneStatus", geneStatus);
-//        try {
-//            geneStatus = solrIndex.getGeneStatus(acc);
-//            model.addAttribute("geneStatus", geneStatus);
-//            // if gene status is null then the jsp declares a warning message at status div
-//        } catch (JSONException | IOException e) {
-//            e.printStackTrace();
-//        } catch (IndexOutOfBoundsException exception) {
-//            throw new GenomicFeatureNotFoundException("Gene " + acc + " can't be found.", acc);
-//        }
 
         /**
          * Phenotype Summary
@@ -313,13 +304,6 @@ public class GenesController {
                                 value -> "false",
                                 (existing, replacement) -> existing));
             }
-
-            String genePageUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
-            Map<String, String> status = geneService.getProductionStatus(acc, genePageUrl);
-            prodStatusIcons = (status.get("productionIcons").equalsIgnoreCase("")) ? prodStatusIcons : status.get("productionIcons");
-            prodStatusIcons += (status.get("phenotypingIcons").equalsIgnoreCase("")) ? "" : status.get("phenotypingIcons");
-
-            model.addAttribute("orderPossible", status.get("orderPossible"));
 
             if (observationService.hasBodyWeight(acc)) {
                 model.addAttribute("bodyWeight", true);

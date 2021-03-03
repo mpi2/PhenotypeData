@@ -16,7 +16,6 @@
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
@@ -223,7 +222,7 @@ public class DataTableController {
 
 		String content = fetchDataTableJson(request, json, mode, queryOri, fqOri, iDisplayStart, iDisplayLength, solrParamStr, showImgView, solrCoreName, legacyOnly, evidRank);
 
-		return new ResponseEntity<String>(content, createResponseHeaders(), HttpStatus.CREATED);
+		return new ResponseEntity<>(content, createResponseHeaders(), HttpStatus.CREATED);
 	}
 
 	private HttpHeaders createResponseHeaders() {
@@ -454,77 +453,6 @@ public class DataTableController {
 
 			String prodStatus = geneService.getLatestProductionStatuses(doc, toExport, productLink);
 			rowData.add(prodStatus);
-
-
-			String statusField = (doc.has(GeneDTO.PHENOTYPE_STATUS)) ? doc.getString(GeneDTO.PHENOTYPE_STATUS) : null;
-
-			// made this as null by default: don't want to show this for now
-			//Integer legacyPhenotypeStatus = null;
-//			Integer legacyPhenotypeStatus = (doc.has(GeneDTO.LEGACY_PHENOTYPE_STATUS)) ? doc.getInt(GeneDTO.LEGACY_PHENOTYPE_STATUS) : null;
-//
-//			Integer hasQc = (doc.has(GeneDTO.HAS_QC)) ? doc.getInt(GeneDTO.HAS_QC) : null;
-//			String phenotypeStatusHTMLRepresentation = geneService.getPhenotypingStatus(statusField, hasQc, legacyPhenotypeStatus, geneLink, toExport, legacyOnly);
-//			rowData.add(phenotypeStatusHTMLRepresentation);
-
-			// register of interest
-
-//			boolean loggedIn = false;
-//			try {
-//
-//				loggedIn = riUtils.isLoggedIn();
-//
-//			} catch (Exception e) {
-//				// Nothing to do. If register interest service isn't working, a 500 is thrown. Handle as unauthenticated.
-//			}
-//
-//			String target = paBaseUrl + "/search/gene?" + request.getQueryString();
-//			String formAction;
-//			String formMethod;
-//			String registerIconClass;
-//			String registerButtonText;
-//
-//			CsrfToken csrf = (CsrfToken) request.getAttribute("_csrf");
-//
-//			if (loggedIn) {
-//
-//				List<String> geneAccessionIds = riUtils.getGeneAccessionIds();
-//
-//				formMethod = "POST";
-//
-//				if (geneAccessionIds.contains(mgiId)) {
-//
-//					formAction = paBaseUrl + "/unregistration/gene/" + doc.getString("mgi_accession_id");
-//					registerIconClass = "fa fa-sign-out";
-//					registerButtonText = "Unregister interest";
-//
-//					String unregisterTag = buildRiFormTag(target, formAction, formMethod, registerIconClass, registerButtonText, csrf);
-//
-//					rowData.add(unregisterTag);
-//
-//				} else {
-//
-//					formAction = paBaseUrl + "/registration/gene/" + doc.getString("mgi_accession_id");
-//					registerIconClass = "fa fa-sign-in";
-//					registerButtonText = "Register interest";
-//
-//					String registerTag = buildRiFormTag(target, formAction, formMethod, registerIconClass, registerButtonText, csrf);
-//
-//					rowData.add(registerTag);
-//				}
-//
-//			} else {
-//
-//				// Use Register Interest authenticated endpoint
-//
-//				formAction = paBaseUrl + "/authenticated";
-//				formMethod = "GET";
-//				registerIconClass = "fa fa-sign-in";
-//				registerButtonText = "Login to register interest";
-//
-//				String interestTag = buildRiFormTag(target, formAction, formMethod, registerIconClass, registerButtonText, csrf);
-//
-//				rowData.add(interestTag);
-//			}
 
 			j.getJSONArray("aaData").put(rowData);
 		}

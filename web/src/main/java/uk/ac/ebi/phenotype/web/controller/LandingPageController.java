@@ -269,9 +269,14 @@ public class LandingPageController {
         		
         		model.addAttribute("paramToNumber", paramToNumber);
         		model.addAttribute("impcImageGroups", groups);
-        		model.addAttribute("phenotypeChart", ScatterChartAndTableProvider.getScatterChart("phenotypeChart", genotypePhenotypeService.getTopLevelPhenotypeIntersection(mpDTO.getMpId(), filterOnMarkerAccession),
-						"Number of phenotype associations to " + pageTitle, "Number of associations to other phenotypes",
-																								  "Other phenotype calls: ", pageTitle + " phenotype calls: ", "Gene"));
+        		model.addAttribute("phenotypeChart",
+						ScatterChartAndTableProvider.getScatterChart("phenotypeChart",
+								genotypePhenotypeService.getTopLevelPhenotypeIntersection(mpDTO.getMpId(), filterOnMarkerAccession),
+								"Number of phenotype associations to " + pageTitle,
+								"Number of associations to other phenotypes",
+								"Other phenotype calls: ",
+								pageTitle + " phenotype calls: ",
+								"Gene"));
 	        model.addAttribute("genePercentage", ControllerUtils.getPercentages(mpDTO.getMpId(), statisticalResultService, genotypePhenotypeService));
 	        model.addAttribute("phenotypes", genotypePhenotypeService.getAssociationsCount(mpDTO.getMpId(), resources));
 	        model.addAttribute("mpId", mpDTO.getMpId());

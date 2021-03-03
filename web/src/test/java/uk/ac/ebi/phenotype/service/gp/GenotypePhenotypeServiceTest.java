@@ -20,6 +20,10 @@
 
 package uk.ac.ebi.phenotype.service.gp;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.Test;
@@ -32,6 +36,9 @@ import org.mousephenotype.cda.solr.service.dto.CountTableRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -159,5 +166,47 @@ public class GenotypePhenotypeServiceTest {
         //currently 4056 genes in the gp core are associated to abnormal glucose Homeostasis
         logger.info("geneSymbols size for phenotype is " + geneSymbols.size());
         assertTrue(geneSymbols.size() > 405);
+    }
+
+    @Test
+    public void testGetTopLevelPhenotypeIntersection2() throws JSONException {
+
+        // Test Cardiovascular system
+        String mpId = "MP:0005385";
+
+
+        final JSONArray topLevelPhenotypeIntersectionLocal = genotypePhenotypeService.getTopLevelPhenotypeIntersection(mpId, null);
+
+        List<PlietropyEntry> newList = new ArrayList<>();
+
+        for (int i=0; i<topLevelPhenotypeIntersectionLocal.length(); i++) {
+            JSONObject j = (JSONObject) topLevelPhenotypeIntersectionLocal.get(i);
+            newList.add(new PlietropyEntry(
+                    (String) j.get("markerAcc"),
+                    (String) j.get("markerSymbol"),
+                    (int)Math.round((Double) j.get("x")),
+                    (int)Math.round((Double) j.get("y"))
+            ));
+        }
+
+
+        for (PlietropyEntry entry2 : newList) {
+            if (entry2.getSymbol().equals("Cdk8")) {
+                System.out.println("Found entry\n  "+entry2);
+            }
+        }
+
+
+    }
+
+    @Data
+    @AllArgsConstructor
+    @EqualsAndHashCode
+    @ToString
+    class PlietropyEntry {
+        String acc;
+        String symbol;
+        Integer x;
+        Integer y;
     }
 }

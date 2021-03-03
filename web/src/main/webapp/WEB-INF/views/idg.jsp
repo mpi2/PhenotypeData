@@ -68,80 +68,81 @@
                 </div>
             </div>
 
-<%--            <div class="row">--%>
-<%--                <div class="col-12">--%>
-<%--                    <h2 id="section-associations">IMPC data representation for IDG genes</h2>--%>
-<%--                    <p>--%>
-<%--                        IDG human genes are mapped to mouse orthologs using <a href="${baseUrl}/secondaryproject/idg/mapping">HomoloGene</a>. The--%>
-<%--                        <a href="${cmsBaseUrl}/about-impc/">IMPC consortium</a> is using different <a href="${baseUrl}/documentation/aboutImpc#howdoesimpcwork">complementary--%>
-<%--                        targeting strategies</a> to produce Knockout strains. Mice are produced and submitted to standardised phenotyping pipelines.--%>
-<%--                        Currently ${idgPercent} % of mouse IDG gene have data representation in IMPC, the bar charts and heatmap below capture the--%>
-<%--                        IMPC data representation at different levels. The percentage might increase as we get more data and this page will reflect the change.--%>
-<%--                    </p>--%>
+            <div class="row">
+                <div class="col-12">
+                    <h2 id="section-associations">IMPC data representation for IDG genes</h2>
+                    <p>
+                        IDG human genes are mapped to mouse orthologs using <a href="${baseUrl}/secondaryproject/idg/mapping">HomoloGene</a>. The
+                        <a href="${cmsBaseUrl}/about-impc/">IMPC consortium</a> is using different <a href="${baseUrl}/documentation/aboutImpc#howdoesimpcwork">complementary
+                        targeting strategies</a> to produce Knockout strains. Mice are produced and submitted to standardised phenotyping pipelines.
+                        Currently ${idgPercent} % of mouse IDG gene have data representation in IMPC, the bar charts and heatmap below capture the
+                        IMPC data representation at different levels. The percentage might increase as we get more data and this page will reflect the change.
+                    </p>
 
-<%--                    <div class="row">--%>
-<%--                        <div  class="col-6">--%>
-<%--                           <div id="idgOrthologPie">--%>
-<%--			            		<script type="text/javascript">${idgOrthologPie}</script>--%>
-<%--                            </div>--%>
-<%--                        </div>--%>
-<%--                        <div  class="col-6">--%>
-<%--                            <div id=idgChart>--%>
-<%--			            		<script type="text/javascript">${idgChartTable.getChart()}</script>--%>
-<%--                            </div>--%>
-<%--                        </div>--%>
-<%--                    </div>--%>
+<%--                    <h1>Maintenance</h1>--%>
+<%--                    <p>This page integrating the status of the <strong>IDG</strong> project with the <strong>International Mouse Phenotyping Consortium</strong>--%>
+<%--                        is temporarily down for maintenance.</p>--%>
 
-<%--                    <h4>IMPC IDG data Heat Map</h4>--%>
-<%--                    <p>--%>
-<%--                        The heat map indicates the detailed IDG gene data representation in IMPC, from product availability to phenotypes.--%>
-<%--                        Phenotypes are grouped by biological systems.--%>
-<%--                    </p>--%>
+                    <div class="row">
+                        <div  class="col-6">
+                           <div id="idgOrthologPie">
+			            		<script type="text/javascript">${idgOrthologPie}</script>
+                            </div>
+                        </div>
+                        <div  class="col-6">
+                            <div id=idgChart>
+			            		<script type="text/javascript">${idgChartTable.getChart()}</script>
+                            </div>
+                        </div>
+                    </div>
 
-<%--                    <div id="geneHeatmap" class="geneHeatMap" style="overflow: hidden; overflow-x: auto;"></div>--%>
-<%--                </div>--%>
-<%--            </div>--%>
+                    <h4>IMPC IDG data Heat Map</h4>
+                    <p>
+                        The heat map indicates the detailed IDG gene data representation in IMPC, from product availability to phenotypes.
+                        Phenotypes are grouped by biological systems.
+                    </p>
 
-<%--            <div class="row">--%>
-<%--                <div class="col-12">--%>
-<%--                    <h2 id="section-associations">Phenotype Associations</h2>--%>
-<%--                    <p>The following chord diagrams represent the various biological systems phenotype associations for IDG genes categorized both in all and in each family group. The line thickness is correlated with the strength of the association.--%>
-<%--                        Clicking on chosen phenotype(s) on the diagram allow to select common genes. Corresponding gene lists can be downloaded using the download icon.</p>--%>
+                    <div id="geneHeatmap" class="geneHeatMap" style="overflow: hidden; overflow-x: auto;"></div>
+                </div>
+            </div>
 
-<%--                    <h3>All families</h3>--%>
-<%--                    <div id="chordContainer" class="half"></div>--%>
-<%--                    <svg id="chordDiagramSvg" width="960" height="960"></svg>--%>
-<%--                    <script>--%>
-<%--                        drawChords("chordDiagramSvg", "chordContainer", false, [], true, null, true);--%>
-<%--                    </script>--%>
+            <div class="row">
+                <div class="col-12">
+                    <h2 id="section-associations">Phenotype Associations</h2>
+                    <p>The following chord diagrams represent the various biological systems phenotype associations for IDG genes categorized both in all and in each family group. The line thickness is correlated with the strength of the association.
+                        Clicking on chosen phenotype(s) on the diagram allow to select common genes. Corresponding gene lists can be downloaded using the download icon.</p>
 
-<%--                    <h3>Ion channels</h3>--%>
-<%--                    <div id="chordContainerIonChannels" class="half"></div>--%>
-<%--                    <svg id="chordDiagramSvgIonChannels" width="960" height="960"></svg>--%>
-<%--                    <script>--%>
-<%--                        drawChords("chordDiagramSvgIonChannels", "chordContainerIonChannels", false, [], true, "IC", true);--%>
-<%--                    </script>--%>
+                    <h3>All families</h3>
+                    <div id="chordContainer" class="half"></div>
+                    <svg id="chordDiagramSvg" width="960" height="960"></svg>
+                    <script>
+                        drawChords("chordDiagramSvg", "chordContainer", false, [], true, null, true);
+                    </script>
 
-<%--                    <h3>GPCRs</h3>--%>
-<%--                    <div id="chordContainerGPCRs" class="half"></div>--%>
-<%--                    <svg id="chordDiagramSvgGPCRs" width="960" height="960"></svg>--%>
-<%--                    <script>--%>
-<%--                        drawChords("chordDiagramSvgGPCRs", "chordContainerGPCRs", false, [], true, "GPCR", true);--%>
-<%--                    </script>--%>
+                    <h3>Ion channels</h3>
+                    <div id="chordContainerIonChannels" class="half"></div>
+                    <svg id="chordDiagramSvgIonChannels" width="960" height="960"></svg>
+                    <script>
+                        drawChords("chordDiagramSvgIonChannels", "chordContainerIonChannels", false, [], true, "IC", true);
+                    </script>
+
+                    <h3>GPCRs</h3>
+                    <div id="chordContainerGPCRs" class="half"></div>
+                    <svg id="chordDiagramSvgGPCRs" width="960" height="960"></svg>
+                    <script>
+                        drawChords("chordDiagramSvgGPCRs", "chordContainerGPCRs", false, [], true, "GPCR", true);
+                    </script>
 
 
-<%--                    <h3>Kinases</h3>--%>
-<%--                    <div id="chordContainerKinases" class="half"></div>--%>
-<%--                    <svg id="chordDiagramSvgKinases" width="960" height="960"></svg>--%>
-<%--                    <script>--%>
-<%--                        drawChords("chordDiagramSvgKinases", "chordContainerKinases", false, [], true, "Kinase", true);--%>
-<%--                    </script>--%>
-<%--                </div>--%>
-<%--            </div>--%>
+                    <h3>Kinases</h3>
+                    <div id="chordContainerKinases" class="half"></div>
+                    <svg id="chordDiagramSvgKinases" width="960" height="960"></svg>
+                    <script>
+                        drawChords("chordDiagramSvgKinases", "chordContainerKinases", false, [], true, "Kinase", true);
+                    </script>
+                </div>
+            </div>
 
-        <h1>Maintenance</h1>
-        <p>This page integrating the status of the <strong>IDG</strong> project with the <strong>International Mouse Phenotyping Consortium</strong>
-            is temporarily down for maintenance.</p>
     </jsp:body>
 
 

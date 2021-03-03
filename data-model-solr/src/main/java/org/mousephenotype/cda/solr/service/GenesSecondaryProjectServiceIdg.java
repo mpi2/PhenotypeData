@@ -100,7 +100,7 @@ public class GenesSecondaryProjectServiceIdg {
                 .collect(Collectors.toSet());
 
 
-        List<GeneDTO> geneToMouseStatus = geneService.getProductionStatusForGeneSet(accessions, null);
+        List<GeneDTO> geneToMouseStatus = geneService.getProductionStatusForGeneSet(accessions);
         Map<String, GeneRowForHeatMap> rows = geneService.getSecondaryProjectMapForGeneList(geneToMouseStatus, parameters, geneUrl, projectBeans);
         List<GeneRowForHeatMap> geneRows = new ArrayList<>(rows.values());
         Collections.sort(geneRows);

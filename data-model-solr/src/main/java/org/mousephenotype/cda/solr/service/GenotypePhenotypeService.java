@@ -1368,36 +1368,46 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         }
     }
 
-
     /**
      * @param filterOnAccessions list of marker accessions to restrict the results by e.g. for the hearing page we only want results for the 67 genes for the paper
      */
     public JSONArray getTopLevelPhenotypeIntersection(String mpId, Set<String> filterOnAccessions) throws JSONException {
 
-        String pivot = GenotypePhenotypeDTO.MARKER_ACCESSION_ID + "," + GenotypePhenotypeDTO.MARKER_SYMBOL;
-        SolrQuery query = new SolrQuery();
+        final Map<String, Long> documentCountByMgiGeneAccessionId = getDocumentCountByMgiGeneAccessionId();
+        SolrQuery query = new SolrQuery()
+                .setRows(Integer.MAX_VALUE);
         query.setQuery(mpId == null ? "*:*" : GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " + GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\" OR " + GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\"");
-        query.setRows(0);
-        query.setFacet(true);
-        query.addFacetField(GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
-        query.setFacetLimit(-1);
-        query.setFacetMinCount(1);
-        query.add("facet.pivot", pivot);
 
         try {
-            QueryResponse response = genotypePhenotypeCore.query(query);
-            Map<String, Long> countByGene = getFacets(response).get(GenotypePhenotypeDTO.MARKER_ACCESSION_ID);
-            Map<String, List<String>> geneAccSymbol = getFacetPivotResults(response, pivot);
+            final List<GenotypePhenotypeDTO> dtos = genotypePhenotypeCore.query(query).getBeans(GenotypePhenotypeDTO.class);
+
+            // Data structure definition
+            //   "markerAcc" -> Accession ID of the gene
+            //   "markerSymbol" -> Symbol of the gene
+            //   "y" -> Number of significant phenotypes for this gene
+            //   "x" -> Number of significant phenotypes for this gene for other phenotypes
+
+            final Map<String, Long> countByGene = dtos.stream()
+                    .collect(Collectors.groupingBy(
+                            GenotypePhenotypeDTO::getMarkerAccessionId,
+                            Collectors.counting()));
+
+            Map<String, String> geneAccSymbol = dtos.stream()
+                    .collect(Collectors.toMap(
+                            GenotypePhenotypeDTO::getMarkerAccessionId,
+                            GenotypePhenotypeDTO::getMarkerSymbol,
+                            (x, y) -> x));
+
 
             Set<String> jitter = new HashSet<>();
             JSONArray array = new JSONArray();
-            for (String markerAcc : countByGene.keySet()) {
+            for (String markerAcc : countByGene.keySet().stream().sorted().collect(Collectors.toList())) {
                 JSONObject obj = new JSONObject();
                 obj.accumulate("markerAcc", markerAcc);
-                obj.accumulate("markerSymbol", geneAccSymbol.get(markerAcc).get(0));
+                obj.accumulate("markerSymbol", geneAccSymbol.get(markerAcc));
 
                 Double y = new Double(countByGene.get(markerAcc));
-                Double x = (getDocumentCountByMgiGeneAccessionId().get(markerAcc) - y);
+                Double x = documentCountByMgiGeneAccessionId.get(markerAcc) - y;
                 addJitter(x, y, jitter, obj);
 
                 if (filterOnAccessions != null && filterOnAccessions.contains(markerAcc)) {
@@ -1415,7 +1425,6 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
 
         return null;
     }
-
 
 
     public Map<CombinedObservationKey, ExperimentsDataTableRow> getAllDataRecords(String geneAccession, List<String> procedureName , List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermId, String graphBaseUrl)

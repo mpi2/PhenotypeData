@@ -84,8 +84,8 @@ public class GeneService extends BasicService implements WebStatus{
 	public static final class GeneFieldValue {
 		// on 05-Apr-2019 the WTSI tests started breaking because the DCC renamed WTSI to WSI. Change to WSI here.
 		public final static String CENTRE_WTSI = "WSI";
-		public final static String PHENOTYPE_STATUS_COMPLETE = "Phenotyping Complete";
-		public final static String PHENOTYPE_STATUS_STARTED = "Phenotyping Started";
+		public final static String PHENOTYPE_STATUS_COMPLETE = StatusConstants.PHENOTYPING_DATA_AVAILABLE;
+		public final static String PHENOTYPE_STATUS_STARTED = StatusConstants.PHENOTYPING_STARTED;
 	}
 
 	public Integer getAllDataCount(String geneAccessionId) throws IOException, SolrServerException {
@@ -469,94 +469,27 @@ public class GeneService extends BasicService implements WebStatus{
 	}
 
 
-	// returns ready formatted icons
-	public Map<String, String> getProductionStatus(String geneId, String hostUrl)
-	throws SolrServerException, IOException{
 
-		String geneUrl = hostUrl + "/genes/" + geneId;
-		SolrQuery query = new SolrQuery().setQuery(GeneDTO.MGI_ACCESSION_ID + ":\"" + geneId + "\"");
-		SolrDocument doc = geneCore.query(query).getResults().get(0);
-
-		return getStatusFromDoc(doc, geneUrl);
-	}
-
-	
 	/**
-	 * Get the latest phenotyping status for a document. Modified 2015/08/03 by @author tudose
-	 * 
-     * @Param toExport export if true; false otherwise
-     * @param legacyOnly is legacy only if true; false otherwise
-     *
+	 * Get the latest phenotyping status for a document.
 	 *
 	 * @return the latest status (Complete or Started or Phenotype Attempt
 	 *         Registered) as appropriate for this gene
 	 */
-	public static String  getPhenotypingStatus(String statusField, Integer hasQc, Integer legacyPhenotypeStatus, String genePageUrl,
-	boolean toExport, boolean legacyOnly) {
+	public static String  getPhenotypingStatus(String statusField, String genePageUrl) {
 		
 		String phenotypeStatusHTMLRepresentation = "";
-		String webStatus = "";
-		List<String> statusList = new ArrayList<>();
 
-		try {	
-				
-			if ( legacyOnly ){
-				
-				webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_LEGACY_DATA_AVAILABLE;				
-				if ( toExport ){
-					phenotypeStatusHTMLRepresentation = genePageUrl + "#section-associations" + "|" + webStatus;
-				} else {
-					phenotypeStatusHTMLRepresentation = "<a class='badge badge-warning mr-1' href='" + genePageUrl + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
-				}	
+		if ( statusField != null && !statusField.isEmpty() ) {
+
+			if ( statusField.equals(StatusConstants.PHENOTYPING_STARTED) ||
+					statusField.equals(StatusConstants.PHENOTYPING_DATA_AVAILABLE) ||
+					statusField.equals(StatusConstants.PHENOTYPING_COMPLETE)
+			){
+				phenotypeStatusHTMLRepresentation += "<a class=' badge badge-success mr-1' href='" + genePageUrl + "#section-associations'><span>Phenotype data</span></a>";
 			}
-			else {
-				Boolean hasImpcPhenotypeData = false;
-				if ( statusField != null && !statusField.isEmpty() ) {
-								
-					if ( statusField.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_STARTED) || statusField.equals(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE) ){
-						
-						webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_DATA_AVAILABLE;						
-						if ( toExport ){
-							statusList.add(genePageUrl + "#section-associations" + "|" + webStatus);
-						} else {
-							phenotypeStatusHTMLRepresentation += "<a class=' badge badge-success mr-1' href='" + genePageUrl + "#section-associations'><span>"+webStatus+"</span></a>";
-						}
-						hasImpcPhenotypeData = true;
-					}
-				}
-				// Eg. Akt2, there is no IMPC phenotyping data but there is legacy data -> show it as phenotype data available
-				if ( ! hasImpcPhenotypeData ){
-					if (legacyPhenotypeStatus != null) {
+		}
 
-						//webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_LEGACY_DATA_AVAILABLE;
-						webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_DATA_AVAILABLE;
-						if ( toExport ){
-							statusList.add(genePageUrl + "#section-associations" + "|" + webStatus);
-						} else {
-							phenotypeStatusHTMLRepresentation += "<a class='badge badge-warning mr-1' href='" + genePageUrl + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
-						}
-					}
-				}
-				// don't want to display legacy phenotyping data for now
-				/*if (legacyPhenotypeStatus != null) {
-					
-					webStatus = StatusConstants.WEB_MOUSE_PHENOTYPING_LEGACY_DATA_AVAILABLE;					
-					if ( toExport ){
-						statusList.add(genePageUrl + "#section-associations" + "|" + webStatus);
-					} else {
-						phenotypeStatusHTMLRepresentation += "<a class='badge badge-warning mr-1' href='" + genePageUrl + "#section-associations' title='Click for phenotype associations'><span>"+webStatus+"</span></a>";
-					}			
-				}	*/
-			}			
-		} catch (Exception e) {
-			logger.error("Error getting phenotyping status");
-			logger.error(e.getLocalizedMessage());
-		}
-			
-		if ( toExport ){
-			return StringUtils.join(statusList, "___");
-		}
-		
 		return phenotypeStatusHTMLRepresentation;
 	}
 	
@@ -608,21 +541,20 @@ public class GeneService extends BasicService implements WebStatus{
 	 * Modified 2015/08/03 by @author tudose
 	 * @param mouseStatus
 	 * @param alleleNames
-	 * @param toExport
 	 * @param geneLink
 	 * @return
 	 */
-	public String getMiceProductionStatusButton(List<String>mouseStatus, List<String> alleleNames, boolean toExport, String geneLink){
+	public static String getMiceProductionStatusButton(List<String> mouseStatus, List<String> alleleNames, String geneLink){
 
 		String miceStatus = "";
-		final List<String> exportMiceStatus = new ArrayList<String>();
-		Map<String, String> statusMap = new HashMap<String, String>();
+		final List<String> exportMiceStatus = new ArrayList<>();
+		Map<String, String> statusMap = new HashMap<>();
 
 		try {
 			if ( mouseStatus != null ){
 
 				for ( int i=0; i< mouseStatus.size(); i++ ) {
-					String mouseStatusStr = mouseStatus.get(i).toString();
+					String mouseStatusStr = mouseStatus.get(i);
 
 					if ( !mouseStatusStr.equals("") ) {
 
@@ -635,8 +567,8 @@ public class GeneService extends BasicService implements WebStatus{
 
 					for (int j = 0; j < alleleNames.size(); j++) {
 
-						String alleleName = alleleNames.get(j).toString();
-						if (!alleleName.equals("") && !alleleName.equals("None") && !alleleName.contains("tm1e") && mouseStatus.get(j).toString().equals("")) {
+						String alleleName = alleleNames.get(j);
+						if (!alleleName.equals("") && !alleleName.equals("None") && !alleleName.contains("tm1e") && mouseStatus.get(j).equals("")) {
 							statusMap.put("mice production planned", "yes");
 						}
 					}
@@ -664,63 +596,13 @@ public class GeneService extends BasicService implements WebStatus{
 				}
 			}
 		} catch (Exception e) {
-			logger.error("Error getting ES cell/Mice status");
+			logger.error("getMiceProductionStatusButton Error getting ES cell/Mice status");
 			logger.error(e.getLocalizedMessage());
 
 		}
 
 		return miceStatus;
 
-	}
-
-
-	/**
-	 * Modified 2015/08/03 by @author tudose
-	 * @param alleleNames
-	 * @param mouseStatus
-	 * @param url
-	 * @return
-	 */
-	private static String getDetailedMouseProductionStatusButtons(List<String> alleleNames, List<String> mouseStatus, String url) {
-
-		String miceStatus = "";
-		Pattern tmAlleleNamePattern = Pattern.compile("(tm.*)\\(.+\\).+");
-		Pattern emAlleleNamePattern = Pattern.compile("(em[0-9]+).+");
-
-		// Mice: blue tm1/tm1a/tm1e... mice (depending on how many allele docs)
-		// em1j .. (crispr alleles)
-		if (mouseStatus != null) {
-
-			for (int i = 0; i < mouseStatus.size(); i++) {
-
-				String mouseStatusStr = mouseStatus.get(i).toString();
-				String alleleName = alleleNames.get(i).toString();
-				Matcher tMatcher = tmAlleleNamePattern.matcher(alleleName);
-				Matcher eMatcher = emAlleleNamePattern.matcher(alleleName);
-
-				String alleleType = null;
-				if (tMatcher.find()) {
-					alleleType = tMatcher.group(1);
-				} else if (eMatcher.find()){
-					alleleType = eMatcher.group(1);
-				}
-
-				if (mouseStatusStr.equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_DONE)) {
-
-					if (alleleType != null) {
-						miceStatus += "<a class='badge badge-success mr-1' title='" + StatusConstants.WEB_MOUSE_STATUS_PRODUCTION_DONE + "' href='" + url + "#order2'><span><i class='icon icon-species icon-mouse'></i> " + alleleType + "</span></a>";
-					}
-
-				} else if (mouseStatusStr.equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_IN_PROGRESS)) {
-
-					if (alleleType != null) {
-						miceStatus += "<span class='status inprogress' title='" + StatusConstants.WEB_MOUSE_STATUS_PRODUCTION_IN_PROGRESS + "'><span><i class='icon icon-species icon-mouse'></i> " + alleleType + "</span></span>";
-					}
-				}
-			}
-		}
-
-		return miceStatus;
 	}
 
 
@@ -739,58 +621,10 @@ public class GeneService extends BasicService implements WebStatus{
 
 		List<String> alleleNames = doc.has(GeneDTO.ALLELE_NAME) && !GeneDTO.ALLELE_NAME.equals("") ? getListFromJson(doc.getJSONArray(GeneDTO.ALLELE_NAME)) : null;
 
-		String miceStatus = getMiceProductionStatusButton(mouseStatus, alleleNames, toExport, geneLink);
+		String miceStatus = getMiceProductionStatusButton(mouseStatus, alleleNames, geneLink);
 
 		return esCellStatus + miceStatus;
 
-	}
-
-
-	/**
-	 * Generates a map of buttons for ES Cell and Mice status
-	 * @param doc a SOLR Document
-	 * @return
-	 */
-	public static Map<String, String> getStatusFromDoc(SolrDocument doc, String url) {
-
-		String miceStatus = "";
-		String esCellStatusHTMLRepresentation = "";
-		String phenotypingStatusHTMLRepresentation = "";
-		Boolean order = false;
-
-		try {
-
-			// Get the HTML representation of the Mouse Production status
-			List<String> alleleNames = getListFromCollection(doc.getFieldValues(GeneDTO.ALLELE_NAME));
-			List<String> mouseStatus = getListFromCollection(doc.getFieldValues(GeneDTO.MOUSE_PRODUCTION_STATUS));
-			miceStatus = getDetailedMouseProductionStatusButtons(alleleNames, mouseStatus, url);
-
-			// Get the HTML representation of the ES Cell status
-			String esStatus = (doc.getFieldValue(GeneDTO.ES_CELL_PRODUCTION_STATUS) != null) ? doc.getFieldValue(GeneDTO.ES_CELL_PRODUCTION_STATUS).toString() : null ;
-			esCellStatusHTMLRepresentation = getEsCellStatus(esStatus, url, false);
-
-			// Get the HTML representation of the phenotyping status
-			String statusField = (doc.getFieldValue(GeneDTO.PHENOTYPE_STATUS) != null) ? doc.getFieldValue(GeneDTO.PHENOTYPE_STATUS).toString() : null ;
-
-			Integer legacyPhenotypeStatus = (Integer) doc.getFieldValue(GeneDTO.PHENOTYPE_STATUS);
-
-			Integer hasQc = Integer.getInteger("" +doc.getFieldValue(GeneDTO.HAS_QC));
-			phenotypingStatusHTMLRepresentation = getPhenotypingStatus(statusField, hasQc, legacyPhenotypeStatus, url, false, false);
-
-			// Order flag is separated from HTML generation code
-			order = checkOrderProducts(doc);
-
-		} catch (Exception e) {
-			logger.error("Error getting ES cell/Mice status");
-			e.printStackTrace();
-		}
-
-		HashMap<String, String> res = new HashMap<>();
-		res.put("productionIcons", esCellStatusHTMLRepresentation + miceStatus);
-		res.put("phenotypingIcons", phenotypingStatusHTMLRepresentation);
-		res.put("orderPossible", order.toString());
-
-		return res;
 	}
 
 	/**
@@ -802,37 +636,35 @@ public class GeneService extends BasicService implements WebStatus{
 
 		String miceStatus = "";
 		String esCellStatusHTMLRepresentation = "";
+		String miceStatusHTMLRepresentation = "";
 		String phenotypingStatusHTMLRepresentation = "";
 		Boolean order = false;
 
 		try {
 
-			// Get the HTML representation of the Mouse Production status
-			List<String> alleleNames = doc.getAlleleName();
-			miceStatus = doc.getMouseProductionStatus();
-
 			// Get the HTML representation of the ES Cell status
 			String esStatus = (doc.getEsCellProductionStatus() != null) ? doc.getEsCellProductionStatus() : null ;
-			esCellStatusHTMLRepresentation = getEsCellStatus(esStatus, url, false);
+
+			// Get the HTML representation of the Mouse Production status
+			miceStatus = doc.getMouseProductionStatus()==null ? "" : doc.getMouseProductionStatus();
 
 			// Get the HTML representation of the phenotyping status
-//			String statusField = (doc.getPhenotypeStatus() != null) ? doc.getPhenotypeStatus() : null ;
+			String statusField = (doc.getPhenotypeStatus() != null) ? doc.getPhenotypeStatus() : null ;
 
-//			Integer legacyPhenotypeStatus = (Integer) doc.getLegacy_phenotype_status();
-//
-//			Integer hasQc = Integer.getInteger("" +doc.getHasQc());
-//			phenotypingStatusHTMLRepresentation = getPhenotypingStatus(statusField, hasQc, legacyPhenotypeStatus, url, false, false);
+			esCellStatusHTMLRepresentation = getEsCellStatus(esStatus, url, false);
+			miceStatusHTMLRepresentation = getMiceProductionStatusButton(Collections.singletonList(miceStatus), null, url);
+			phenotypingStatusHTMLRepresentation = getPhenotypingStatus(statusField, url);
 
 			// Order flag is separated from HTML generation code
 			order = checkOrderProducts(doc);
 
 		} catch (Exception e) {
-			logger.error("Error getting ES cell/Mice status");
+			logger.error("getStatusFromDTO Error getting ES cell/Mice status");
 			e.printStackTrace();
 		}
 
 		HashMap<String, String> res = new HashMap<>();
-		res.put("productionIcons", esCellStatusHTMLRepresentation + miceStatus);
+		res.put("productionIcons", esCellStatusHTMLRepresentation + miceStatusHTMLRepresentation);
 		res.put("phenotypingIcons", phenotypingStatusHTMLRepresentation);
 		res.put("orderPossible", order.toString());
 
@@ -866,7 +698,7 @@ public class GeneService extends BasicService implements WebStatus{
 			}
 		}
 		catch (Exception e) {
-			logger.error("Error getting ES cell/Mice status");
+			logger.error("checkOrderESCells (DTO) Error getting ES cell/Mice status");
 			logger.error(e.getLocalizedMessage());
 			e.printStackTrace();
 		}
@@ -878,7 +710,8 @@ public class GeneService extends BasicService implements WebStatus{
 
 		boolean order = false;
 
-		if (doc.getMouseProductionStatus().equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_DONE)) {
+		if (doc.getMouseProductionStatus() != null &&
+				doc.getMouseProductionStatus().equals(StatusConstants.IMPC_MOUSE_STATUS_PRODUCTION_DONE)) {
 			order = true;
 		}
 
@@ -903,7 +736,7 @@ public class GeneService extends BasicService implements WebStatus{
 			}
 		}
 		catch (Exception e) {
-			logger.error("Error getting ES cell/Mice status");
+			logger.error("checkOrderESCells (solr doc) Error getting ES cell/Mice status");
 			logger.error(e.getLocalizedMessage());
 			e.printStackTrace();
 		}
@@ -971,7 +804,7 @@ public class GeneService extends BasicService implements WebStatus{
 				List<String> statuses = getListFromCollection(doc.getFieldValues(GeneDTO.PHENOTYPE_STATUS));
 				for (String status : statuses) {
 
-					if (status.equalsIgnoreCase(StatusConstants.WEB_MOUSE_PHENOTYPING_DATA_AVAILABLE) || status.equalsIgnoreCase(StatusConstants.IMITS_MOUSE_PHENOTYPING_COMPLETE)) {
+					if (status.equalsIgnoreCase(StatusConstants.PHENOTYPING_DATA_AVAILABLE) || status.equalsIgnoreCase(StatusConstants.PHENOTYPING_DATA_AVAILABLE)) {
 						return true;
 					}
 				}
@@ -1059,7 +892,7 @@ public class GeneService extends BasicService implements WebStatus{
 			}
 		} 
 		catch (Exception e) {
-			logger.error("Error getting ES cell/Mice status");
+			logger.error("getProductionStatusForEsCellAndMice Error getting ES cell/Mice status");
 			logger.error(e.getLocalizedMessage());
 		}
 		
@@ -1073,72 +906,57 @@ public class GeneService extends BasicService implements WebStatus{
 	
 	
 	/**
-	 * Get the mouse production status for gene (not allele) for geneHeatMap implementation for idg for each of 300 odd genes
+	 * Get the mouse production status for gene for geneHeatMap implementation for IDG
+	 *
 	 * @param geneIds
-	 * @return Returns SolrDocument because that;s what the method to produce the status icons gets.
+	 * @return Returns GeneDTOs populated with the information required to display the production statuses
 	 * @throws SolrServerException, IOException
 	 */
-	public List<GeneDTO> getProductionStatusForGeneSet(Set<String> geneIds, Set<String> humanGeneSymbols)
+	public List<GeneDTO> getProductionStatusForGeneSet(Set<String> geneIds)
 	throws SolrServerException, IOException {
-			
-		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery("*:*");
+
+		List<GeneDTO> genes = new ArrayList<>();
+
+		SolrQuery solrQuery = new SolrQuery()
+			.setQuery("*:*").setRows(Integer.MAX_VALUE)
+			.setSort(GeneDTO.MARKER_SYMBOL, SolrQuery.ORDER.asc)
+			.setFields(GeneDTO.MGI_ACCESSION_ID,
+				GeneDTO.HUMAN_GENE_SYMBOL,
+				GeneDTO.MARKER_SYMBOL,
+				GeneDTO.ALLELE_NAME,
+				GeneDTO.PHENOTYPE_STATUS,
+				GeneDTO.ES_CELL_PRODUCTION_STATUS,
+				GeneDTO.PHENOTYPE_STATUS,
+				GeneDTO.PHENOTYPE_STATUS,
+				GeneDTO.HAS_QC,
+				GeneDTO.TOP_LEVEL_MP_TERM,
+				GeneDTO.SIGNIFICANT_TOP_LEVEL_MP_TERMS,
+				GeneDTO.NOT_SIGNIFICANT_TOP_LEVEL_MP_TERMS,
+				GeneDTO.MARKER_SYMBOL,
+				GeneDTO.ES_CELL_PRODUCTION_STATUS,
+				GeneDTO.MOUSE_PRODUCTION_STATUS,
+				GeneDTO.PHENOTYPE_STATUS);
+
 		if (geneIds != null) {
-			solrQuery.setFilterQueries(GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneIds, " OR ").replace(":", "\\:") + ")");
+
+			// Partition the set of genes into groups of PARTITION_SIZE so as not to overwhelm solr with OR fields
+
+			Iterators.partition(geneIds.iterator(), PARTITION_SIZE).forEachRemaining(geneAccessionBatch ->
+			{
+				String geneQuery = GeneDTO.MGI_ACCESSION_ID + ":(" + StringUtils.join(geneAccessionBatch, " OR ").replace(":", "\\:") + ")";
+				solrQuery.setQuery(geneQuery);
+
+				try {
+					genes.addAll(geneCore.query(solrQuery).getBeans(GeneDTO.class));
+				} catch (SolrServerException | IOException e) {
+					logger.warn("Exception getting gene solr facet query " + solrQuery.toQueryString() + "\n response for getStatusCount \n", e);
+				}
+			});
+
 		}
-		if (humanGeneSymbols != null){
-			solrQuery.setFilterQueries(GeneDTO.HUMAN_GENE_SYMBOL + ":(" + StringUtils.join(humanGeneSymbols, " OR ")+ ")");
-		}
-		solrQuery.setRows(Integer.MAX_VALUE);
 
-		solrQuery.setFields(GeneDTO.MGI_ACCESSION_ID , GeneDTO.HUMAN_GENE_SYMBOL ,GeneDTO.MARKER_SYMBOL ,GeneDTO.ALLELE_NAME ,GeneDTO.PHENOTYPE_STATUS ,
-		GeneDTO.ES_CELL_PRODUCTION_STATUS, GeneDTO.PHENOTYPE_STATUS,	GeneDTO.PHENOTYPE_STATUS ,GeneDTO.HAS_QC, GeneDTO.TOP_LEVEL_MP_TERM)
-				.addField(GeneDTO.SIGNIFICANT_TOP_LEVEL_MP_TERMS)
-				.addField(GeneDTO.NOT_SIGNIFICANT_TOP_LEVEL_MP_TERMS)
-				//.addField(GeneDTO.MP_TERM_NAME)
-				.addField(GeneDTO.MARKER_SYMBOL)
-				.addField(GeneDTO.ES_CELL_PRODUCTION_STATUS)
-				.addField(GeneDTO.MOUSE_PRODUCTION_STATUS)
-				.addField(GeneDTO.PHENOTYPE_STATUS)
-				//.addField(GeneDTO.NOTSIGNIFICANT)
-				.setRows(Integer.MAX_VALUE)
-				.setSort(GeneDTO.MARKER_SYMBOL, SolrQuery.ORDER.asc);
-		//);//, GeneDTO.SIGNIFICANT_TOP_LEVEL_MP_TERMS, GeneDTO.NOT_SIGNIFICANT_TOP_LEVEL_MP_TERMS);
+		return genes;
 
-		return geneCore.query(solrQuery, METHOD.POST).getBeans(GeneDTO.class);
-		//System.out.println("returning production status results "+rsp.getResults().getNumFound());
-		//return rsp.getResults();
-	}
-	
-
-	
-	/**
-	 * Get the mouse production status for gene (not allele) for geneHeatMap implementation for idg
-	 * @param latestMouseStatus
-	 * @return
-	 */
-	public String getMouseProducedForGene(String latestMouseStatus){
-		//logic taken from allele core which has latest meaning gene level not allele
-		// http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/gene/select?q=*:*&facet.field=latest_mouse_status&facet=true&rows=0
-		
-		 if ( latestMouseStatus .equals( "Chimeras obtained")
-		 || latestMouseStatus .equals( "Micro-injection in progress")
-		 || latestMouseStatus .equals( "Cre Excision Started")
-		 || latestMouseStatus .equals( "Rederivation Complete")
-		 || latestMouseStatus .equals( "Rederivation Started" )){
-			 //latestMouseStatus = "Assigned for Mouse Production and Phenotyping"; // orange
-			 latestMouseStatus = "In Progress"; 
-		 }
-		 else if (latestMouseStatus .equals( "Genotype confirmed")
-		 || latestMouseStatus .equals( "Cre Excision Complete")
-		 || latestMouseStatus .equals( "Phenotype Attempt Registered") ){
-			 //latestMouseStatus = "Mice Produced"; // blue
-			 latestMouseStatus = "Yes"; 
-		 }else{
-			 latestMouseStatus="No";
-		 }
-		 return  latestMouseStatus;
-		 
 	}
 
 
@@ -1377,9 +1195,9 @@ public class GeneService extends BasicService implements WebStatus{
 
 				Map<String, String> prod =  GeneService.getStatusFromDTO(gene, geneUrl);
 				String prodStatusIcons = prod.get("productionIcons") + prod.get("phenotypingIcons");
-				prodStatusIcons = prodStatusIcons.equals("") ? "No" : prodStatusIcons;
+				prodStatusIcons = prodStatusIcons.equals("") ? "-" : prodStatusIcons;
 				row.setMiceProduced(prodStatusIcons);
-				if (row.getMiceProduced().equals("Neither production nor phenotyping status available ")) {//note the space on the end - why we should have enums
+				if (row.getMiceProduced().isEmpty()) {
 					for (HeatMapCell cell : row.getXAxisToCellMap().values()) {
 						cell.addStatus(HeatMapCell.THREE_I_NO_DATA); // set all the cells to No Data Available
 					}

@@ -730,9 +730,9 @@ public class SolrIndex2 {
             gene.put("ncbi_sequence_map" , getKeyValuePairFromArray("ncbi", geneDoc.getJSONArray("sequence_map_links")));
         }
 
-        gene.put("es_cell_status" , getSolrDocProperty(geneDoc, "latest_es_cell_status"));
-        gene.put("mouse_status" , getSolrDocProperty(geneDoc, "latest_mouse_status"));
-        gene.put("phenotyping_status" , getSolrDocProperty(geneDoc, "latest_phenotype_status"));
+        gene.put("es_cell_status" , getSolrDocProperty(geneDoc, "es_cell_status"));
+        gene.put("mouse_status" , getSolrDocProperty(geneDoc, "mouse_status"));
+        gene.put("phenotyping_status" , getSolrDocProperty(geneDoc, "phenotype_status"));
 
         return gene;
     }

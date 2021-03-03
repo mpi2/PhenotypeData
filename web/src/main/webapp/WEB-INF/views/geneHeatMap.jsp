@@ -92,6 +92,7 @@
 </table>
 
 <div id="export">
-    <p class="textright"> <a href="http://ftp.ebi.ac.uk/pub/databases/impc/idg/IDG_file_for_IMPC_webportal.tsv">Download complete IDG data</a>
+    <p class="textright">
+        <a target=_blank" rel="nofollow" href="https://www.ebi.ac.uk/mi/impc/solr/essentialgenes/select?q=mg_mgi_gene_acc_id:*&fq=idg_family:Kinase%20OR%20idg_family:IC%20OR%20idg_family:GPCR&wt=csv&fl=mg_mgi_gene_acc_id,mg_symbol,hgnc_hgnc_acc_id,hgnc_symbol,idg_symbol,idg_family,idg_tdl&rows=500000&sort=mg_symbol%20ASC">Download complete IMPC/IDG data</a>
     </p>
 </div>

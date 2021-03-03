@@ -4,6 +4,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.mousephenotype.cda.solr.imits.StatusConstants;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.mousephenotype.cda.solr.service.PhenodigmService;
@@ -124,8 +125,8 @@ public class BatchQueryForm {
                 } else if (field.equals("id_link")) {
                     continue;
                 } else {
-                    if (doc.containsKey("latest_phenotype_status")
-                            && doc.getFieldValue("latest_phenotype_status").equals("Phenotyping Complete")
+                    if (doc.containsKey("phenotype_status")
+                            && doc.getFieldValue("phenotype_status").equals(StatusConstants.PHENOTYPING_COMPLETE)
                             && datasetsRawData.size() > 0
                             && (field.startsWith("mp_") || field.equals("p_value") || field.startsWith("hp_"))) {
 
@@ -188,8 +189,8 @@ public class BatchQueryForm {
 
                         }
                         rowData.add(val);
-                    } else if (doc.containsKey("latest_phenotype_status")
-                            && doc.getFieldValue("latest_phenotype_status").equals("Phenotyping Complete")
+                    } else if (doc.containsKey("phenotype_status")
+                            && doc.getFieldValue("phenotype_status").equals("Phenotyping Complete")
                             && field.startsWith("mp_")
                             && !field.equals("mp_term_definition")) {
                         String val = "no abnormal phenotype detected";

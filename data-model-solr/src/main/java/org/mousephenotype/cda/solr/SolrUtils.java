@@ -424,7 +424,7 @@ public class SolrUtils {
                 printItemList("imits_phenotype_complete:", dto.getImitsPhenotypeComplete());
                 printItemList("imits_phenotype_status:", dto.getImitsPhenotypeStatus());
 
-                printItemList("latest_phenotype_status:", dto.getLatestPhenotypeStatus());
+                printItemList("phenotype_status:", dto.getLatestPhenotypeStatus());
 
                 logger.info("\tlegacy_phenotype_status:\t" + dto.getLegacyPhenotypeStatus());
                 printItemList("latest_production_centre:", dto.getLatestProductionCentre());

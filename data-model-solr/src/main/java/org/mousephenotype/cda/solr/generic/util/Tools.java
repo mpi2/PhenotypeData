@@ -212,13 +212,12 @@ public class Tools {
 			//mainAttrs.add("human_symbol_synonym");
 			mainAttrs.add("marker_name");
 			mainAttrs.add("marker_type");
-			mainAttrs.add("latest_mouse_status");
-			mainAttrs.add("latest_phenotype_status");
-			mainAttrs.add("legacy_phenotype_status");
-			mainAttrs.add("latest_es_cell_status");
-			mainAttrs.add("latest_project_status");
-			mainAttrs.add("latest_production_centre");
-			mainAttrs.add("latest_phenotyping_centre");
+			mainAttrs.add("mouse_status");
+			mainAttrs.add("phenotype_status");
+			mainAttrs.add("es_cell_status");
+			mainAttrs.add("project_status");
+			mainAttrs.add("production_centre");
+			mainAttrs.add("phenotyping_centre");
 
 			// gene has QC: ie, a record in experiment core
 			additionalInfos.add("ensembl_gene_id");
@@ -260,10 +259,10 @@ public class Tools {
 			mainAttrs.add("latest_mouse_status");
 
 			mainAttrs.add("legacy_phenotype_status");
-			mainAttrs.add("latest_es_cell_status");
-			mainAttrs.add("latest_project_status");
-			mainAttrs.add("latest_production_centre");
-			mainAttrs.add("latest_phenotyping_centre");
+			mainAttrs.add("es_cell_status");
+			mainAttrs.add("project_status");
+			mainAttrs.add("production_centre");
+			mainAttrs.add("phenotyping_centre");
 
 			// gene has QC: ie, a record in experiment core
 			additionalInfos.add("hasQc");
