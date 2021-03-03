@@ -539,7 +539,10 @@ public class ChartsController {
 				}
 			}
 			List<String> phenotypeTerms = gpList.stream().map(GenotypePhenotypeDTO::getMpTermName).distinct().collect(Collectors.toList());
+			//for links to phenotype pages we need the MP_ID
+			List<String> phenotypeIds = gpList.stream().map(GenotypePhenotypeDTO::getMpTermId).distinct().collect(Collectors.toList());
 			model.addAttribute("phenotypes", phenotypeTerms);
+			model.addAttribute("phenotypeIds", phenotypeIds);
 		}
 
 
