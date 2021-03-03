@@ -313,7 +313,8 @@
                                             <c:if test="${ fn:length(gene.phenotypeStatus) == 0 }">
                                                 <p>
                                                     <i class="fas fa-exclamation-circle"></i>
-                                                    <b>Phenotyping is currently not planned for a knockout strain of this gene.</b>
+                                                    <c:if test="${ fn:length(gene.esCellProductionStatus) == 0 and fn:length(gene.mouseProductionStatus) == 0 }"><b>Production and phenotyping are currently not planned for a knockout strain of this gene.</b></c:if>
+                                                    <c:if test="${ fn:length(gene.esCellProductionStatus) > 0 or fn:length(gene.mouseProductionStatus) > 0 }"><b>Phenotyping is currently not planned for a knockout strain of this gene.</b></c:if>
                                                 </p>
                                             </c:if>
                                         </div>

@@ -126,7 +126,7 @@ public class BatchQueryForm {
                     continue;
                 } else {
                     if (doc.containsKey("phenotype_status")
-                            && doc.getFieldValue("phenotype_status").equals(StatusConstants.PHENOTYPING_COMPLETE)
+                            && (doc.getFieldValue("phenotype_status").equals(StatusConstants.PHENOTYPING_DATA_AVAILABLE) || doc.getFieldValue("phenotype_status").equals(StatusConstants.PHENOTYPING_COMPLETE))
                             && datasetsRawData.size() > 0
                             && (field.startsWith("mp_") || field.equals("p_value") || field.startsWith("hp_"))) {
 
@@ -190,7 +190,7 @@ public class BatchQueryForm {
                         }
                         rowData.add(val);
                     } else if (doc.containsKey("phenotype_status")
-                            && doc.getFieldValue("phenotype_status").equals("Phenotyping Complete")
+                            && doc.getFieldValue("phenotype_status").equals(StatusConstants.PHENOTYPING_COMPLETE)
                             && field.startsWith("mp_")
                             && !field.equals("mp_term_definition")) {
                         String val = "no abnormal phenotype detected";
