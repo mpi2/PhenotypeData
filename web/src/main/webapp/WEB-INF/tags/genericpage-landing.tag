@@ -212,8 +212,8 @@
             <div class="col-12 d-none d-lg-block px-5 pt-5">
                 <aside>
                     <a href="/">Home</a> <span class="fal fa-angle-right"></span>
-                    <a href="${cmsBaseUrl}/understanding-the-data/research-highlights/">
-                        Research highlights </a> <span class="fal fa-angle-right"></span>
+                    <a href="${cmsBaseUrl}/understand/data-collections/ ">
+                        IMPC data collctions </a> <span class="fal fa-angle-right"></span>
                     <strong style="text-transform: capitalize"><jsp:invoke fragment="breadcrumb" /></strong>
                 </aside>
             </div>
