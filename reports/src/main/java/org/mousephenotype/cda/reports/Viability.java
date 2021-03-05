@@ -131,13 +131,18 @@ public class Viability extends AbstractReport {
             List<ObservationDTO> v2Dtos = results.get("IMPC_VIA_002");
             observationsByCompositeKey = getObservationsByCompositeKey(v2Dtos);
             for (Set<ObservationDTO> observationByCompositeKey : observationsByCompositeKey.values()) {
-                // For each set, look for a text_value for parameter 'Homozygous males viability' (IMPC_VIA_067_001).
+                // For each set, look for a text_value for parameter:
+                //   'Homozygous males viability' (IMPC_VIA_067_001) OR
+                //   'Hemizygous males viability' (IMPC_VIA_055_001) OR
+                //   'Anzygous females viability' (IMPC_VIA_056_001).
                 // There may be 0 (e.g. null) or 1 (findAny()).
                 ObservationDTO dto = observationByCompositeKey
                     .stream()
                     .filter(d -> ((d.getTextValue() != null)
                         && ( ! d.getTextValue().isEmpty())
-                        && (d.getParameterStableId().equalsIgnoreCase(Constants.HOM_VIABILITY_ALL_ID))))
+                        && ((d.getParameterStableId().equalsIgnoreCase(Constants.HOM_VIABILITY_ALL_ID))
+                        || (d.getParameterStableId().equalsIgnoreCase(Constants.HEM_VIABILITY_MALE_ID))
+                        || (d.getParameterStableId().equalsIgnoreCase(Constants.ANZ_VIABILITY_FEMALE_ID)))))
                     .findAny().orElse(null);
                 if (dto != null) {
                     data.add(createViabilityReportRow(dto, getCountsByParameterStableId(observationByCompositeKey)));

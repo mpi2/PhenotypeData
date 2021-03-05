@@ -25,6 +25,8 @@ public class Constants {
     public static final String MINUS_LOG10_HTML = "-Log<sub>10</sub>";
 
     // IMPC_VIA_002 viability outcome parameters
+    public static final String HEM_VIABILITY_MALE_ID   = "IMPC_VIA_055_001";
+    public static final String ANZ_VIABILITY_FEMALE_ID = "IMPC_VIA_056_001";
     public static final String HOM_VIABILITY_MALE_ID   = "IMPC_VIA_063_001";
     public static final String HOM_VIABILITY_FEMALE_ID = "IMPC_VIA_064_001";
     public static final String HET_VIABILITY_ALL_ID    = "IMPC_VIA_066_001";
