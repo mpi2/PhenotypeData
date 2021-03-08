@@ -140,9 +140,9 @@ public class Viability extends AbstractReport {
                     .stream()
                     .filter(d -> ((d.getTextValue() != null)
                         && ( ! d.getTextValue().isEmpty())
-                        && ((d.getParameterStableId().equalsIgnoreCase(Constants.HOM_VIABILITY_ALL_ID))
+                        && ((d.getParameterStableId().equalsIgnoreCase(Constants.HOM_VIABILITY_ALL_ID)))
                         || (d.getParameterStableId().equalsIgnoreCase(Constants.HEM_VIABILITY_MALE_ID))
-                        || (d.getParameterStableId().equalsIgnoreCase(Constants.ANZ_VIABILITY_FEMALE_ID)))))
+                        || (d.getParameterStableId().equalsIgnoreCase(Constants.ANZ_VIABILITY_FEMALE_ID))))
                     .findAny().orElse(null);
                 if (dto != null) {
                     data.add(createViabilityReportRow(dto, getCountsByParameterStableId(observationByCompositeKey)));

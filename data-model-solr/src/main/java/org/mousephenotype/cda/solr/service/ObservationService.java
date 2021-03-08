@@ -436,11 +436,11 @@ public class ObservationService extends BasicService implements WebStatus {
             .setRows(Integer.MAX_VALUE);
 
         long start = System.currentTimeMillis();
-        logger.info("IMPC_VIA_001 viability observations query started");
-        logger.info("QUERY: {}", query);
-        List<ObservationDTO> dtos = experimentCore.query(query).getBeans(ObservationDTO.class);
-        logger.info("Query ended. Took {}", commonUtils.msToHms(System.currentTimeMillis() - start));
-        results.put("IMPC_VIA_001", dtos);
+//        logger.info("IMPC_VIA_001 viability observations query started");
+//        logger.info("QUERY: {}", query);
+//        List<ObservationDTO> dtos = experimentCore.query(query).getBeans(ObservationDTO.class);
+//        logger.info("Query ended. Took {}", commonUtils.msToHms(System.currentTimeMillis() - start));
+//        results.put("IMPC_VIA_001", dtos);
 
         query = new SolrQuery().setQuery(ObservationDTO.PROCEDURE_STABLE_ID + ":IMPC_VIA_002");
         query = getCommonAddFields(query);

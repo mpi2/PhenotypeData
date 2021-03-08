@@ -422,7 +422,8 @@ public class GeneService extends BasicService implements WebStatus{
 	public List<GeneDTO> getAllGeneDTOs() throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery("*:*");
+//		solrQuery.setQuery("*:*");
+		solrQuery.setQuery(GeneDTO.MARKER_SYMBOL + ":Ap4e1");
 		solrQuery.setRows(Integer.MAX_VALUE);
 		return geneCore.query(solrQuery).getBeans(GeneDTO.class);
 	}
