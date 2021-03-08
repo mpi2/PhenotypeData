@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
-import lombok.*;
+import lombok.Data;
 import org.apache.solr.client.solrj.beans.Field;
 
 import java.util.ArrayList;
@@ -121,7 +121,6 @@ public class GeneDTO {
 	public static final String TEXT = "text";
 	public static final String AUTO_SUGGEST = "auto_suggest";
 	public static final String SELECTED_TOP_LEVEL_MA_TERM = "selected_top_level_ma_term";
-	public static final String MGI_PREDICTED_KNOWN_GENE="mgi_predicted_known_gene";
 	public static final String IMPC_NOVEL_PREDICTED_IN_LOCUS="impc_novel_predicted_in_locus";
 
 	// go term stuff
@@ -167,7 +166,6 @@ public class GeneDTO {
 	public static final String CHR_NAME = "chr_name";
 	public static final String CHR_start = "chr_start";
 	public static final String CHR_end = "chr_end";
-	public static final String IS_IDG_GENE ="is_idg_gene";
 	public static final String IS_UMASS_GENE ="is_umass_gene";
 
 	public static final String DATASETS_RAW_DATA ="datasets_raw_data";
@@ -178,9 +176,6 @@ public class GeneDTO {
 
 	@Field(EMBRYO_ANALYSIS_NAME)
 	private String embryoAnalysisName;
-
-	@Field(IS_IDG_GENE)
-	private Boolean isIdgGene;
 
 	@Field(IS_UMASS_GENE)
 	private Boolean isUmassGene;
@@ -229,15 +224,6 @@ public class GeneDTO {
 
 	@Field(SangerImageDTO.SELECTED_TOP_LEVEL_MA_TERM_SYNONYM)
 	private List<String>selectedTopLevelMaTermSynonym;
-
-	@Field(MGI_PREDICTED_KNOWN_GENE)
-	private List<Boolean>mgiPredictedKnownGene;
-
-	public void setMgiPredictedKnonwGene(List<Boolean> mgiPredictedKnonwGene) {
-
-		this.mgiPredictedKnownGene = mgiPredictedKnonwGene;
-	}
-
 
 	@Field(DATA_TYPE)
 	String dataType;
