@@ -23,10 +23,10 @@ public class PerClientRateLimitInterceptor implements HandlerInterceptor {
     public static final int MAX_SIZE = 50;
 
     // MAX number of gene page requests from one host in a minute
-    public static final long MAX_GENE_PAGE_REQUESTS = 10;
+    public static final long MAX_GENE_PAGE_REQUESTS = 20;
 
     // MIN number of seconds between gene page requests from one host
-    public static final long DELAY_GENE_PAGE_REQUESTS = 2;
+    public static final long DELAY_GENE_PAGE_REQUESTS = 1;
 
 
     private final Map<String, Bucket> buckets = Collections.synchronizedMap(new LinkedHashMap<String, Bucket>(MAX_SIZE + 1, .75F, true) {
