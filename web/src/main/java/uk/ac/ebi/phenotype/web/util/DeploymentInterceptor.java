@@ -78,6 +78,16 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 		requestConfig.put("baseUrl", request.getContextPath());
 		requestConfig.put("isProxied", Boolean.FALSE);
 
+		/**
+		 * Detect if we are on a phenotype page and set a boolean indicating if so.
+		 * This is used to switch the default search tab in the search heading to "phenotype search"
+		 * when on a phenotype page.
+		 */
+		requestConfig.put("isPhenotypePage", Boolean.FALSE);
+		if (request.getRequestURI().contains("/phenotypes/")) {
+			requestConfig.put("isPhenotypePage", Boolean.TRUE);
+		}
+
 		log.debug("mappedHostName = {}. baseUrl before translation = {}", mappedHostname, request.getContextPath());
 
 		// If this webapp is being accessed behind a proxy, the
