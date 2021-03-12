@@ -15,9 +15,6 @@
  ****************************************************************************** */
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +27,16 @@ import uk.ac.ebi.phenodigm2.DiseaseGeneAssociation;
 import uk.ac.ebi.phenodigm2.DiseaseModelAssociation;
 import uk.ac.ebi.phenodigm2.WebDao;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
 /**
  * Controller for disease pages, uses phenodigm2 core
  *
  */
 @Controller
-public class DiseaseController2 {
+public class DiseaseController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
@@ -126,6 +127,6 @@ public class DiseaseController2 {
         model.addAttribute("hasModelsByOrthology", hasModelsByOrthology);
         model.addAttribute("hasModelAssociations", modelAssociations.size() > 0);
 
-        return "disease2";
+        return "disease";
     }
 }
