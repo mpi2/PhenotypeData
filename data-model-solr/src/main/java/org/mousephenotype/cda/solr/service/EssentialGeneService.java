@@ -8,7 +8,6 @@ import org.mousephenotype.cda.solr.service.dto.EssentialGeneDTO;
 import org.mousephenotype.cda.web.WebStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -79,7 +78,7 @@ public class EssentialGeneService extends BasicService implements WebStatus {
         return null;
     }
 
-    @Cacheable("allIdgGeneList")
+//    @Cacheable("allIdgGeneList")
     public List<EssentialGeneDTO> getAllIdgGeneList(String... fields) throws IOException, SolrServerException {
         List<EssentialGeneDTO> idgGeneDTOS;
         SolrQuery solrQuery = new SolrQuery()
@@ -95,7 +94,7 @@ public class EssentialGeneService extends BasicService implements WebStatus {
         if (numberFound > 0) {
             idgGeneDTOS = rsp.getBeans(EssentialGeneDTO.class);
             List<EssentialGeneDTO> distinctIdgList = idgGeneDTOS.stream()
-                    .filter(distinctByKey(x -> x.getIdgSymbol()))
+                    .filter(distinctByKey(EssentialGeneDTO::getHumanGeneSymbol))
                     .collect(Collectors.toList());
             log.debug("distinctIdgList size = " + distinctIdgList.size());
             return distinctIdgList;
