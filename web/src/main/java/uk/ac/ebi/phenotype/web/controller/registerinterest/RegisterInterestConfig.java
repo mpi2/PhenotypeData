@@ -17,11 +17,11 @@
 package uk.ac.ebi.phenotype.web.controller.registerinterest;
 
 import org.mousephenotype.cda.db.utilities.SqlUtils;
-import org.mousephenotype.cda.ri.core.entities.SmtpParameters;
-import org.mousephenotype.cda.ri.core.services.CoreService;
-import org.mousephenotype.cda.ri.core.services.GenerateService;
-import org.mousephenotype.cda.ri.core.services.SendService;
-import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
+import org.mousephenotype.cda.ri.entities.SmtpParameters;
+import org.mousephenotype.cda.ri.services.CoreService;
+import org.mousephenotype.cda.ri.services.GenerateService;
+import org.mousephenotype.cda.ri.services.SendService;
+import org.mousephenotype.cda.ri.utils.RiSqlUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;

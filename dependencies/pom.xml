@@ -98,19 +98,13 @@
 
             <dependency>
                 <groupId>org.mousephenotype.cda</groupId>
+                <artifactId>register-interest</artifactId>
+                <version>${phenotypedata.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mousephenotype.cda</groupId>
                 <artifactId>reports</artifactId>
-                <version>${phenotypedata.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.mousephenotype.cda</groupId>
-                <artifactId>ri-core</artifactId>
-                <version>${phenotypedata.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.mousephenotype.cda</groupId>
-                <artifactId>ri-extract</artifactId>
                 <version>${phenotypedata.version}</version>
             </dependency>
 

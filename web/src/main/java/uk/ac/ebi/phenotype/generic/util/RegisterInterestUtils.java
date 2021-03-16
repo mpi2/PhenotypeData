@@ -16,17 +16,15 @@
 
 package uk.ac.ebi.phenotype.generic.util;
 
-import org.mousephenotype.cda.ri.core.entities.Gene;
-import org.mousephenotype.cda.ri.core.entities.Summary;
-import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
+import org.mousephenotype.cda.ri.entities.Gene;
+import org.mousephenotype.cda.ri.entities.Summary;
+import org.mousephenotype.cda.ri.utils.RiSqlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 

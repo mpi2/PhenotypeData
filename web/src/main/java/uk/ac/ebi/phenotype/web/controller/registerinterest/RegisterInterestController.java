@@ -18,15 +18,15 @@ package uk.ac.ebi.phenotype.web.controller.registerinterest;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.ri.core.entities.Contact;
-import org.mousephenotype.cda.ri.core.entities.ResetCredentials;
-import org.mousephenotype.cda.ri.core.entities.SmtpParameters;
-import org.mousephenotype.cda.ri.core.entities.Summary;
-import org.mousephenotype.cda.ri.core.exceptions.InterestException;
-import org.mousephenotype.cda.ri.core.services.CoreService;
-import org.mousephenotype.cda.ri.core.services.GenerateService;
-import org.mousephenotype.cda.ri.core.utils.EmailUtils;
-import org.mousephenotype.cda.ri.core.utils.RiSqlUtils;
+import org.mousephenotype.cda.ri.entities.Contact;
+import org.mousephenotype.cda.ri.entities.ResetCredentials;
+import org.mousephenotype.cda.ri.entities.SmtpParameters;
+import org.mousephenotype.cda.ri.entities.Summary;
+import org.mousephenotype.cda.ri.exceptions.InterestException;
+import org.mousephenotype.cda.ri.services.CoreService;
+import org.mousephenotype.cda.ri.services.GenerateService;
+import org.mousephenotype.cda.ri.utils.EmailUtils;
+import org.mousephenotype.cda.ri.utils.RiSqlUtils;
 import org.mousephenotype.cda.utilities.DateUtils;
 import org.mousephenotype.cda.utilities.UrlUtils;
 import org.slf4j.Logger;
@@ -101,23 +101,23 @@ public class RegisterInterestController {
 
 
     // Title strings
-    public final static String TITLE_NEW_ACCOUNT_CREATED       = "Account created";
-    public final static String TITLE_ACCOUNT_LOCKED            = "Account locked";
-    public final static String TITLE_ACCOUNT_NOT_DELETED       = "Account not deleted";
-    public final static String TITLE_INVALID_TOKEN             = "Invalid token";
-    public final static String TITLE_INVALID_EMAIL_ADDRESS     = "Invalid e-mail address";
-    public final static String TITLE_PASSWORD_EXPIRED          = "Password expired";
-    public final static String TITLE_INVALID_CREDENTIALS       = "Invalid credentials";
-    public final static String TITLE_PASSWORD_MISMATCH         = "Password mismatch";
-    public final static String TITLE_EMAIL_ADDRESS_MISMATCH    = "e-mail address mismatch";
-    public final static String TITLE_RESET_PASSWORD_FAILED     = "Reset password failed";
-    public final static String TITLE_RESET_PASSWORD_REQUEST    = "Reset password";
-    public final static String TITLE_EMAIL_SENT = "E-mail sent";
-    public final static String TITLE_NEW_ACCOUNT_REQUEST       = "Create new account";
-    public final static String TITLE_PASSWORD_RESET            = "Password Reset";
-    public final static String TITLE_REGISTER_GENE_FAILED      = "Gene registration failed.";
-    public final static String TITLE_UNREGISTER_GENE_FAILED    = "Gene unregistration failed.";
-    public final static String TITLE_SEND_MAIL_FAILED          = "E-mail server error.";
+    public final static String TITLE_NEW_ACCOUNT_CREATED    = "Account created";
+    public final static String TITLE_ACCOUNT_LOCKED         = "Account locked";
+    public final static String TITLE_ACCOUNT_NOT_DELETED    = "Account not deleted";
+    public final static String TITLE_INVALID_TOKEN          = "Invalid token";
+    public final static String TITLE_INVALID_EMAIL_ADDRESS  = "Invalid e-mail address";
+    public final static String TITLE_PASSWORD_EXPIRED       = "Password expired";
+    public final static String TITLE_INVALID_CREDENTIALS    = "Invalid credentials";
+    public final static String TITLE_PASSWORD_MISMATCH      = "Password mismatch";
+    public final static String TITLE_EMAIL_ADDRESS_MISMATCH = "e-mail address mismatch";
+    public final static String TITLE_RESET_PASSWORD_FAILED  = "Reset password failed";
+    public final static String TITLE_RESET_PASSWORD_REQUEST = "Reset password";
+    public final static String TITLE_EMAIL_SENT             = "E-mail sent";
+    public final static String TITLE_NEW_ACCOUNT_REQUEST    = "Create new account";
+    public final static String TITLE_PASSWORD_RESET         = "Password Reset";
+    public final static String TITLE_REGISTER_GENE_FAILED   = "Gene registration failed.";
+    public final static String TITLE_UNREGISTER_GENE_FAILED = "Gene unregistration failed.";
+    public final static String TITLE_SEND_MAIL_FAILED       = "E-mail server error.";
 
     private final Logger      logger     = LoggerFactory.getLogger(this.getClass());
     private       CoreService coreService;
@@ -180,7 +180,7 @@ public class RegisterInterestController {
         if (error != null) {
             sleep(INVALID_PASSWORD_SLEEP_SECONDS);
         }
-        
+
         // If user is already logged in, redirect them to the summary page.
         if (SecurityUtils.isLoggedIn()) {
             return "redirect: " + baseUrl + "/summary";
@@ -239,7 +239,7 @@ public class RegisterInterestController {
 
     @Secured("ROLE_USER")
     @RequestMapping(value = "/update-gene-registration", method = RequestMethod.POST)
-    public ResponseEntity updateRegistration (
+    public ResponseEntity updateRegistration(
             HttpServletRequest request,
             @RequestParam(value = "asynch", defaultValue = "false") Boolean asynch,
             @RequestParam("geneAccessionId") String geneAccessionId,
@@ -281,7 +281,6 @@ public class RegisterInterestController {
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
 
     }
-
 
 
     @Secured("ROLE_USER")
@@ -364,28 +363,28 @@ public class RegisterInterestController {
         }
 
         // Validate e-mail addresses are identical.
-        if ( ! emailAddress.equals(repeatEmailAddress)) {
+        if (!emailAddress.equals(repeatEmailAddress)) {
             String urlParameters = buildUrlParameters(ERR_EMAIL_ADDRESS_MISMATCH, emailAddress,
-                                                      repeatEmailAddress, title);
+                    repeatEmailAddress, title);
             return "redirect: " + baseUrl + "/" + endpoint + urlParameters;
         }
 
         // Validate that it looks like an e-mail address.
-        if ( ! emailUtils.isValidEmailAddress(emailAddress)) {
+        if (!emailUtils.isValidEmailAddress(emailAddress)) {
             String urlParameters = buildUrlParameters(ERR_INVALID_EMAIL_ADDRESS, emailAddress,
-                                                      repeatEmailAddress, title);
+                    repeatEmailAddress, title);
             return "redirect: " + baseUrl + "/" + endpoint + urlParameters;
         }
 
         // Generate and assemble email
         String token = buildToken(emailAddress);
 
-        Contact    contact       = riSqlUtils.getContact(emailAddress);
-        ActionType actualAction  = (contact == null ? ActionType.NEW_ACCOUNT : ActionType.RESET_PASSWORD);
+        Contact    contact      = riSqlUtils.getContact(emailAddress);
+        ActionType actualAction = (contact == null ? ActionType.NEW_ACCOUNT : ActionType.RESET_PASSWORD);
         boolean    accountExists = (contact != null);
 
-        String hostname = request.getAttribute("mappedHostname").toString();
-        String protocol = (hostname.toLowerCase().contains("localhost")) ? "http:" : "https:";
+        String hostname  = request.getAttribute("mappedHostname").toString();
+        String protocol  = (hostname.toLowerCase().contains("localhost")) ? "http:" : "https:";
         String tokenLink = protocol + hostname + baseUrl + "/setPassword?token=" + token + "&action=" + actualAction.toString();
         logger.debug("tokenLink = " + tokenLink);
 
@@ -409,7 +408,7 @@ public class RegisterInterestController {
             if (existingCredentials == null || dateUtils.isExpired(existingCredentials.getCreatedAt(), randomTimeout)) {
 
                 logger.info("Register Interest Credential ({}) either does not exist or the timeout ({} minutes) has expired.  Sending new email.",
-                            (existingCredentials == null ? "Null" : existingCredentials.getToken()), randomTimeout);
+                        (existingCredentials == null ? "Null" : existingCredentials.getToken()), randomTimeout);
 
                 // Insert request to reset_credentials table
                 ResetCredentials resetCredentials = new ResetCredentials(emailAddress, token, new Date());
@@ -444,8 +443,7 @@ public class RegisterInterestController {
             String errorMessage,
             String emailAddress,
             String repeatEmailAddress,
-            String title)
-    {
+            String title) {
         return new StringBuilder()
                 .append("?error=True")
                 .append("&errorMessage=").append(errorMessage)
@@ -484,7 +482,7 @@ public class RegisterInterestController {
 
             sleep(SHORT_SLEEP_SECONDS);
 
-            return "redirect: "+ baseUrl + "/rilogin?error=true&errorMessage=" + ERR_EXPIRED_TOKEN;
+            return "redirect: " + baseUrl + "/rilogin?error=true&errorMessage=" + ERR_EXPIRED_TOKEN;
         }
 
         model.addAttribute("token", token);
@@ -660,7 +658,6 @@ public class RegisterInterestController {
         model.addAttribute("showWhen", true);
         model.addAttribute("showLoginLink", true);
         model.addAttribute("status", "Your account has been deleted.");
-System.out.println("redirect:" + baseUrl + "/search");
         return "redirect:" + baseUrl + "/search";
     }
 
@@ -670,7 +667,6 @@ System.out.println("redirect:" + baseUrl + "/search");
         String baseUrl = getBaseUrl(request);
         return "redirect:" + baseUrl + "/search";
     }
-
 
 
     // PRIVATE METHODS
@@ -725,7 +721,7 @@ System.out.println("redirect:" + baseUrl + "/search");
                 .append("<br />")
                 .append("<br />")
                 .append("This e-mail was sent in response to a request to reset your IMPC Register Interest password. ");
-        
+
         if (accountExists) {
             body
                     .append("<br />")
@@ -740,7 +736,7 @@ System.out.println("redirect:" + baseUrl + "/search");
                     .append("If you made no such request, please ignore this e-mail; otherwise, please click on the link ")
                     .append("below to create your account and set your password.");
         }
-        
+
         body
                 .append("<br />")
                 .append("<br />")

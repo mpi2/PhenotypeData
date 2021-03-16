@@ -26,7 +26,6 @@
 
     <dependencies>
 
-
         <!-- CDA/REGISTER INTEREST DEPENDENCIES -->
 
         <dependency>
@@ -41,7 +40,7 @@
 
         <dependency>
             <groupId>org.mousephenotype.cda</groupId>
-            <artifactId>ri-core</artifactId>
+            <artifactId>register-interest</artifactId>
         </dependency>
 
 
