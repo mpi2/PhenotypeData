@@ -23,32 +23,6 @@
 
 <c:set var="via_href" value="${baseUrl}/charts?accession=${geneAcc}&${VIABILITY_LINK}" />
 
-<c:if test="${callList.size() == 1}">
-	<c:forEach var="call" items="${callList}" varStatus="loop">
-		<c:if test="${fn:contains(fn:toLowerCase(call), 'lethal')}">
-			<a class="badge badge-danger" style="font-size: 80%;" href="<c:out value='${via_href}'/>">${WordUtils.capitalizeFully(call)}</a>
-		</c:if>
-		<c:if test="${fn:contains(fn:toLowerCase(call), 'subviable')}">
-			<a class="badge badge-warning" style="font-size: 80%;" href="<c:out value='${via_href}'/>">${WordUtils.capitalizeFully(call)}</a>
-		</c:if>
-		<c:if test="${fn:contains(call, 'Viable')}">
-			<a class="badge badge-success" style="font-size: 80%;" href="<c:out value='${via_href}'/>">${WordUtils.capitalizeFully(call)}</a>
-		</c:if>
-	</c:forEach>
-	<!--</a> -->
-</c:if>
-
-<c:if test="${callList.size() > 1}">
-	<c:forEach var="call" items="${callList}" varStatus="loop">
-		<c:if test="${fn:contains(fn:toLowerCase(call), 'lethal')}">
-			<a class="badge badge-danger" style="font-size: 80%;" href="<c:out value='${via_href}'/>">${WordUtils.capitalizeFully(call)}</a>
-		</c:if>
-		<c:if test="${fn:contains(fn:toLowerCase(call), 'subviable')}">
-			<a class="badge badge-warning" style="font-size: 80%;" href="<c:out value='${via_href}'/>">${WordUtils.capitalizeFully(call)}</a>
-		</c:if>
-		<c:if test="${fn:contains(call, 'Viable')}">
-			<a class="badge badge-success" style="font-size: 80%;" href="<c:out value='${via_href}'/>">${WordUtils.capitalizeFully(call)}</a>
-		</c:if>
-	</c:forEach>
-	<!--/span-->
+<c:if test="${callList.size() > 0}">
+			<a class="badge badge-success" style="font-size: 80%;" href="<c:out value='${via_href}'/>">Viability Data Available</a>
 </c:if>
