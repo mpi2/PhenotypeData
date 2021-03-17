@@ -20,7 +20,9 @@ import java.util.Date;
 
 /**
  * Created by mrelac on 12/05/2017.
+ * For v2: imits status is not needed. All status info comes from the gene core.
  */
+@Deprecated
 public class ImitsStatus {
     private int pk;
     private String geneStatus;              // This is the impc gene status.

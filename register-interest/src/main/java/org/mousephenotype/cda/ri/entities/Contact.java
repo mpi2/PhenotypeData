@@ -23,6 +23,7 @@ import java.util.Date;
 
 /**
  * Created by mrelac on 12/05/2017.
+ * This entity class maps to the contact table.
  */
 public class Contact {
     private int pk;

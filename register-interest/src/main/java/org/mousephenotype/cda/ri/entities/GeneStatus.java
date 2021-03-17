@@ -20,7 +20,9 @@ import java.util.Date;
 
 /**
  * Created by mrelac on 12/05/2017.
+ * For v2: This entity is not needed, as gene data now comes from the gene core.
  */
+@Deprecated
 public class GeneStatus {
     private int pk;
     private int genePk;

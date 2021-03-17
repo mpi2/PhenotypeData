@@ -20,6 +20,7 @@ import java.util.Date;
 
 /**
  * Created by mrelac on 12/05/2017.
+ * This entity class maps to the contact_gene table.
  */
 public class ContactGene {
     private int pk;

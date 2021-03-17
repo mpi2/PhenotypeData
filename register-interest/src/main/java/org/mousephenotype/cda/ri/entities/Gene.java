@@ -24,7 +24,9 @@ import java.util.Date;
 
 /**
  * Created by mrelac on 12/05/2017.
+ * For v2, remove gene table and this entity. Gene status now comes from gene core.
  */
+@Deprecated
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Gene {
 

@@ -22,6 +22,7 @@ import java.util.Date;
 
 /**
  * Created by mrelac on 12/05/2017.
+ * This entity class maps to the contact_role table.
  */
 public class ContactRole {
     protected int    pk;
