@@ -70,6 +70,13 @@
             <div class="row">
                 <div class="col-12 no-gutters">
                     <h2 class="mb-0">${gene.markerSymbol} data chart</h2>
+                    <c:if test="${isViability}">
+                                <strong>If there are a number of charts below for viability data please note:</strong>
+                        <ul>
+                                <li>data for different alleles measured in different centers correspond to different colonies and thus will be presented separately</li>
+                                <li>phenotype calls are made for abnormal phenotypes</li>
+                        </ul>
+                    </c:if>
                 </div>
             </div>
         </div>
