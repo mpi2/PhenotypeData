@@ -772,6 +772,9 @@ public class ChartsController {
         }// end of gene iterations
         log.debug(allGraphUrlSet.size() + " chart links.");
         List allUrls=putEarlyAdultViabilityFirst(allGraphUrlSet);//we want early adult viability first if  present rather than embryo viability data
+		if(allParameters.contains("VIA_")){//if viability data we want to have a message at the top which comes up on stats.jsp
+			model.addAttribute("isViability", true);
+		}
         model.addAttribute("allGraphUrlSet", allUrls);
         model.addAttribute("allParameters", allParameters);
         return "stats";
