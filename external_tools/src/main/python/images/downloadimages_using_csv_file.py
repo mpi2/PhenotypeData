@@ -68,6 +68,7 @@ def runWithCsvFileAsDataSource(rootDestinationDir, finalDestinationDir, inputFil
 
     notDownloaded = []
     numFound=0
+    numDownloaded=0
 
     # Preset observation ID. This is passed to processFile in the
     # loop below but is not used by the function.
@@ -118,8 +119,12 @@ def runWithCsvFileAsDataSource(rootDestinationDir, finalDestinationDir, inputFil
             downloaded = processFile(observation_id, rootDestinationDir, finalDestinationDir, phenotyping_center,pipeline_stable_id, procedure_stable_id, parameter_stable_id, download_file_path)
             if not downloaded:
                 notDownloaded.append(download_file_path+'\n')
+            else:
+                numDownloaded += 1
         
-    print 'number found in CSV file = '+str(numFound)+' number of images not downloaded = '+str(len(notDownloaded))
+    print 'number found in CSV file = ' + str(numFound)
+    print 'number of images successfully downloaded = ' + str(numDownloaded)
+    print 'number of images not downloaded = ' + str(len(notDownloaded))
 
     return notDownloaded
 
