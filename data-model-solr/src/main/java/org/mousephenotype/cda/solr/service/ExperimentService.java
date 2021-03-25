@@ -392,11 +392,11 @@ public class ExperimentService {
         // The supporting viability parameters for IMPRESS version 2 range from 49 - 62 (inclusive)
         for(int i=49;i<63; i++){
 
-            if (i==55 || i==56) {
+//            if (i==55 || i==56) {
                 // Skip for now
                 // IMPC_VIA_055_001 = hemi males, IMPC_VIA_056_001 anygous females
-                continue;
-            }
+ //               continue;
+//            }
 
             String formatted = String.format("%03d",i);
             String param="IMPC_VIA_"+formatted+"_001";

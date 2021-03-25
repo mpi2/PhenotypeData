@@ -20,6 +20,7 @@ import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.web.dto.EmbryoViability_DTO;
 import org.mousephenotype.cda.solr.web.dto.ViabilityDTO;
+import org.mousephenotype.cda.solr.web.dto.ViabilityDTOVersion2;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -46,7 +47,10 @@ public class ViabilityChartAndDataProvider {
 		male.add(paramStableIdToObservation.get(viabilityDTO.getTotalMaleWt()));
 		male.add(paramStableIdToObservation.get(viabilityDTO.getTotalMaleHom()));
 		male.add(paramStableIdToObservation.get(viabilityDTO.getTotalMaleHet()));
-
+		if(viabilityDTO instanceof ViabilityDTOVersion2){
+			male.add(paramStableIdToObservation.get(((ViabilityDTOVersion2) viabilityDTO).getTotalMaleHem()));
+		System.out.println("adding male hemizgous");
+		}
 
 		List<ObservationDTO> female=new ArrayList<>();
 
@@ -54,6 +58,9 @@ public class ViabilityChartAndDataProvider {
 		female.add(paramStableIdToObservation.get(viabilityDTO.getTotalFemaleWt()));
 		female.add(paramStableIdToObservation.get(viabilityDTO.getTotalFemaleHom()));
 		female.add(paramStableIdToObservation.get(viabilityDTO.getTotalFemaleHet()));
+		if(viabilityDTO instanceof ViabilityDTOVersion2){
+			female.add(paramStableIdToObservation.get(((ViabilityDTOVersion2) viabilityDTO).getTotalFemaleAnz()));
+		}
 
 		Map<String, Integer> totalLabelToNumber = new LinkedHashMap<>();
 		for (ObservationDTO ob : totals) {
