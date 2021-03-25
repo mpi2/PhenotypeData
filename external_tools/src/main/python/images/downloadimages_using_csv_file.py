@@ -68,6 +68,7 @@ def runWithCsvFileAsDataSource(rootDestinationDir, finalDestinationDir, inputFil
 
     notDownloaded = []
     numFound=0
+    numDownloaded=0
 
     # Preset observation ID. This is passed to processFile in the
     # loop below but is not used by the function.
@@ -83,25 +84,38 @@ def runWithCsvFileAsDataSource(rootDestinationDir, finalDestinationDir, inputFil
     #     4 - procedure_stable_id
     #     5 - datasource_name
     #     6 - parameter_stable_id
+
     with open(inputFilePath, 'r') as fid:
         csv_reader = csv.reader(fid)
 
-        # Skip header
-        csv_reader.next()
+        # Row heading order changed 24/03/2021. Best not to assume
+        # Find column with necessary indicies from header
+        header_row = csv_reader.next()
+        try:
+            download_file_path_idx = header_row.index("download_file_path")
+            phenotyping_center_idx = header_row.index("phenotyping_center")
+            pipeline_stable_idx = header_row.index("pipeline_stable_id")
+            procedure_stable_idx = header_row.index("procedure_stable_id")
+            parameter_stable_idx = header_row.index("parameter_stable_id")
+        except ValueError as e:
+            print "Fatal Error:"
+            print str(e), header_row
+            print "Exiting"
+            sys.exit(-1)
 
         for row in csv_reader:
             numFound += 1
-            download_file_path=row[1].lower()
+            download_file_path=row[download_file_path_idx].lower()
             if download_file_path.find('mousephenotype.org') < 0 or \
                     download_file_path.endswith('.mov') or \
                     download_file_path.endswith('.fcs') or \
                     download_file_path.endswith('.bz2'):
                 continue
 
-            phenotyping_center = row[2]
-            pipeline_stable_id = row[3]
-            procedure_stable_id = row[4]
-            parameter_stable_id = row[6]
+            phenotyping_center = row[phenotyping_center_idx]
+            pipeline_stable_id = row[pipeline_stable_idx]
+            procedure_stable_id = row[procedure_stable_idx]
+            parameter_stable_id = row[parameter_stable_idx]
             if len(phenotyping_center) == 0 or \
                len(pipeline_stable_id) == 0 or \
                len(procedure_stable_id) == 0 or \
@@ -118,8 +132,12 @@ def runWithCsvFileAsDataSource(rootDestinationDir, finalDestinationDir, inputFil
             downloaded = processFile(observation_id, rootDestinationDir, finalDestinationDir, phenotyping_center,pipeline_stable_id, procedure_stable_id, parameter_stable_id, download_file_path)
             if not downloaded:
                 notDownloaded.append(download_file_path+'\n')
+            else:
+                numDownloaded += 1
         
-    print 'number found in CSV file = '+str(numFound)+' number of images not downloaded = '+str(len(notDownloaded))
+    print 'number found in CSV file = ' + str(numFound)
+    print 'number of images successfully downloaded = ' + str(numDownloaded)
+    print 'number of images not downloaded = ' + str(len(notDownloaded))
 
     return notDownloaded
 
