@@ -53,7 +53,18 @@
                         <a href="${cmsBaseUrl}/help/quick-guide-to-the-website/chart-page/" target="_blank" ><i class="fa fa-question-circle" style="font-size: xx-large; color: #ce6211;"></i></a>
                     </aside>
                 </div>
+                <c:if test="${isViability}">
+                    <div class="alert alert-warning w-100 my-3">
+                    If there are a number of charts below for viability data please note:
+                    <ul>
+                        <li>data for different alleles measured in different centers correspond to different colonies and thus will be presented separately</li>
+                        <li>phenotype calls are made for abnormal phenotypes</li>
+                    </ul>
+                    </div>
+                </c:if>
             </div>
+
+
 
 
             <div class="row">
