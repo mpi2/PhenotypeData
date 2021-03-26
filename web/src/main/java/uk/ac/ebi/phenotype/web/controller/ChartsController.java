@@ -775,8 +775,6 @@ public class ChartsController {
 		if(allParameters.contains("VIA_")){//if viability data we want to have a message at the top which comes up on stats.jsp
 			model.addAttribute("isViability", true);
 		}
-		System.out.println("allUrlsSet="+allGraphUrlSet);
-		System.out.println("allUrls="+allUrls);
         model.addAttribute("allGraphUrlSet", allUrls);
         model.addAttribute("allParameters", allParameters);
         return "stats";
