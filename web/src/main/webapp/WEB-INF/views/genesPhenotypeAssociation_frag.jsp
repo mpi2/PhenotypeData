@@ -97,7 +97,7 @@
                                                geneAcc="${gene.mgiAccessionId}" />
                         </c:if>
                         <c:if test="${viabilityCalls == null || viabilityCalls.size() <= 0}">
-                            <a class="badge badge-danger" style="font-size: 80%;"/>">No Viability Data Avialable</a>
+                            <a class="badge badge-danger" style="font-size: 80%; color: white">No Viability Data Available</a>
                         </c:if>
                     </div>
                 </div>
