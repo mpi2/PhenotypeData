@@ -49,7 +49,7 @@ public class ViabilityChartAndDataProvider {
 		male.add(paramStableIdToObservation.get(viabilityDTO.getTotalMaleHet()));
 		if(viabilityDTO instanceof ViabilityDTOVersion2){
 			male.add(paramStableIdToObservation.get(((ViabilityDTOVersion2) viabilityDTO).getTotalMaleHem()));
-		System.out.println("adding male hemizgous");
+			totals.add(paramStableIdToObservation.get(((ViabilityDTOVersion2) viabilityDTO).getTotalMaleHem()));
 		}
 
 		List<ObservationDTO> female=new ArrayList<>();
