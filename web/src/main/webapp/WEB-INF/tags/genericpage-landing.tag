@@ -179,7 +179,7 @@
                             </div>
                             <div class="portal-search__inputs">
                                 <form id="searchForm" action="${baseUrl}/search">
-                                    <input id="searchTerm" name="term" class="portal-search__input" value="${term}" placeholder="Search All 6440 Knockout Data..." type="text"/>
+                                    <input id="searchTerm" name="term" class="portal-search__input" value="${term}" placeholder="Search All Knockout Data..." type="text"/>
                                     <button id="searchIcon" type="submit"><i class="fas fa-search"></i></button>
                                     <input id="searchType" type="hidden" name="type" value="${type}">
                                     <div id="searchLoader" class="lds-ring">
@@ -213,7 +213,7 @@
                 <aside>
                     <a href="/">Home</a> <span class="fal fa-angle-right"></span>
                     <a href="${cmsBaseUrl}/understand/data-collections/ ">
-                        IMPC data collctions </a> <span class="fal fa-angle-right"></span>
+                        IMPC data collections </a> <span class="fal fa-angle-right"></span>
                     <strong style="text-transform: capitalize"><jsp:invoke fragment="breadcrumb" /></strong>
                 </aside>
             </div>
