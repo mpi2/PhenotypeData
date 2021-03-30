@@ -92,13 +92,7 @@
                         <div class="align-middle font-weight-bold pr-2">Viability</div>
                     </div>
                     <div class="col-9 align-middle text-sm-left">
-                        <c:if test="${viabilityCalls != null && viabilityCalls.size() > 0}">
-                            <t:viabilityButton callList="${viabilityCalls}"
-                                               geneAcc="${gene.mgiAccessionId}" />
-                        </c:if>
-                        <c:if test="${viabilityCalls == null || viabilityCalls.size() <= 0}">
-                            <a class="badge badge-danger" style="font-size: 80%;"/>">No Viability Data Avialable</a>
-                        </c:if>
+                        <t:viabilityButton callList="${viabilityCalls}" geneAcc="${gene.mgiAccessionId}" />
                     </div>
                 </div>
 
