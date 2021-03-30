@@ -26,7 +26,7 @@ public class MethodProfiler {
         long start = System.currentTimeMillis();
         Object output = pjp.proceed();
         long elapsedTime = System.currentTimeMillis() - start;
-        System.out.println("TIMING==>" + elapsedTime + " ms: " + pjp.getSignature().toString());
+        //System.out.println("TIMING==>" + elapsedTime + " ms: " + pjp.getSignature().toString());
         return output;
     }
 

@@ -169,25 +169,7 @@
         <div class="container">
             <div class="row text-center">
                 <div class="col-12 col-md-8 offset-md-2">
-                    <div class="portal-search pb-5 mb-5 mt-5">
-                        <div class="portal-search__tabs">
-                            <a id="geneSearchTab" data-type="gene" class="portalTab portalTabSearchPage left-shadow <c:if test="${param.type != 'phenotype'}">active</c:if>" href="${baseUrl}/search">Genes</a>
-                            <a id="phenotypeSearchTab" data-type="pheno" class=" portalTab portalTabSearchPage right-shadow <c:if test="${param.type == 'phenotype'}">active</c:if>" href="${baseUrl}/search?type=phenotype">Phenotypes</a>
-                        </div>
-                        <div class="portal-search__inputs">
-                            <form id="searchForm" action="${baseUrl}/search">
-                                <input id="searchTerm" name="term" class="portal-search__input" value="${term}" placeholder="Search All 6440 Knockout Data..." type="text"/>
-                                <button id="searchIcon" type="submit"><i class="fas fa-search"></i></button>
-                                <input id="searchType" type="hidden" name="type" value="${type}">
-                                <div id="searchLoader" class="lds-ring">
-                                    <div></div>
-                                    <div></div>
-                                    <div></div>
-                                    <div></div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+                    <t:searchBox isPhenotypePage="${isPhenotypePage}" baseUrl="${baseUrl}" cmsBaseUrl="${cmsBaseUrl}" type="${type}" ></t:searchBox>
                 </div>
             </div>
         </div>

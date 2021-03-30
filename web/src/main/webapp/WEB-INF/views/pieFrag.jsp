@@ -62,8 +62,9 @@
 						<tr>
 							<th></th>
 							<th>WT</th>
-							<th>Hom</th>
 							<th>Het</th>
+							<th>Hom</th>
+							<th>Hemi</th>
 							<th>Total</th>
 						</tr>
 						</thead>
@@ -71,22 +72,35 @@
 						<tr>
 							<th>Male and Female</th>
 							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalPupsWt].dataPoint}"/></td>
-							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalPupsHom].dataPoint}"/></td>
 							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalPupsHet].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalPupsHom].dataPoint}"/></td>
+<%--							<c:if test="${element['class'].simpleName == 'ViabilityDTOVersion2'}">--%>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalMaleHem].dataPoint}"/></td>
+<%--							</c:if>--%>
+<%--							<c:if test="${element['class'].simpleName == 'ViabilityDTO'}">--%>
+<%--								<td>N/A</td>--%>
+<%--							</c:if>--%>
 							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalPups].dataPoint}"/></td>
 						</tr>
 						<tr>
 							<th>Male</th>
 							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalMaleWt].dataPoint}"/></td>
-							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalMaleHom].dataPoint}"/></td>
 							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalMaleHet].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalMaleHom].dataPoint}"/></td>
+<%--	<c:if test="${element['class'].simpleName == 'ViabilityDTOVersion2'}">--%>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalMaleHem].dataPoint}"/></td>
+<%--	</c:if>--%>
+<%--							<c:if test="${element['class'].simpleName == 'ViabilityDTO'}">--%>
+<%--								<td>N/A</td>--%>
+<%--							</c:if>--%>
 							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalMalePups].dataPoint}"/></td>
 						</tr>
 						<tr>
 							<th>Female</th>
 							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalFemaleWt].dataPoint}"/></td>
-							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalFemaleHom].dataPoint}"/></td>
 							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalFemaleHet].dataPoint}"/></td>
+							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalFemaleHom].dataPoint}"/></td>
+							<td>N/A</td>
 							<td><fmt:formatNumber type="number" pattern="#####" value="${viabilityDTO.paramStableIdToObservation[viabilityDTO.totalFemalePups].dataPoint}"/></td>
 						</tr>
 						</tbody>
