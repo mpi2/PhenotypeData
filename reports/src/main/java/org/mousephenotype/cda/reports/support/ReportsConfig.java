@@ -2,21 +2,19 @@ package org.mousephenotype.cda.reports.support;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.mousephenotype.cda.db.PrimaryDataSource;
-import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
-
-import javax.sql.DataSource;
 
 /**
  * ReportType bean configuration
@@ -25,11 +23,7 @@ import javax.sql.DataSource;
 @Configuration
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
-@ComponentScan(basePackages = {"org.mousephenotype.cda.db", "org.mousephenotype.cda.solr.service"},
-		excludeFilters = {
-				@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = {
-						PrimaryDataSource.class
-				})})
+@ComponentScan(basePackages = {"org.mousephenotype.cda.db", "org.mousephenotype.cda.solr.service"})
 @EnableAutoConfiguration
 public class ReportsConfig {
 
@@ -37,25 +31,6 @@ public class ReportsConfig {
 
 	@Value("${internal_solr_url}")
 	private String internalSolrUrl;
-
-
-	////////////////////////////////
-	// DataSources and JdbcTemplates
-	////////////////////////////////
-
-
-	// komp2
-	@Value("${datasource.komp2.jdbc-url}")
-	private String komp2Url;
-	@Value("${datasource.komp2.username}")
-	private String komp2Uername;
-	@Value("${datasource.komp2.password}")
-	private String komp2Password;
-    @Bean
-    @Primary
-    public DataSource komp2DataSource() {
-        return SqlUtils.getConfiguredDatasource(komp2Url, komp2Uername, komp2Password);
-    }
 
 
 	/////////////////////////

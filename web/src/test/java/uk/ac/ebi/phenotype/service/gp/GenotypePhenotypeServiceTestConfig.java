@@ -18,9 +18,7 @@ package uk.ac.ebi.phenotype.service.gp;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.solr.service.*;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -32,8 +30,6 @@ import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.repository.config.EnableSolrRepositories;
 
-import javax.sql.DataSource;
-
 @Configuration
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
@@ -43,31 +39,9 @@ public class GenotypePhenotypeServiceTestConfig {
     @Value("${internal_solr_url}")
     private String internalSolrUrl;
 
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
-
     @Autowired
     @Lazy
     private GenesSecondaryProjectServiceIdg genesSecondaryProjectRepository;
-
-
-
-    @Value("${datasource.komp2.jdbc-url}")
-    private String komp2Url;
-
-    @Value("${datasource.komp2.username}")
-    private String username;
-
-    @Value("${datasource.komp2.password}")
-    private String password;
-
-    @Bean
-    public DataSource komp2DataSource() {
-
-        DataSource komp2DataSource = SqlUtils.getConfiguredDatasource(komp2Url, username, password);
-
-        return komp2DataSource;
-    }
-
 
     // REQUIRED SERVICES
 

@@ -47,16 +47,7 @@ public class ReportsManager implements CommandLineRunner {
     private LaczExpression lacZExpression;
 
     @Autowired
-    private GlucoseConcentration glucoseConcentration;
-
-    @Autowired
-    private GlucoseResponse glucoseResponse;
-
-    @Autowired
     private DataOverview dataOverview;
-
-    @Autowired
-    private BoneMineralDensity boneMineralDensity;
 
     @Autowired
     private Fertility fertility;
@@ -66,24 +57,6 @@ public class ReportsManager implements CommandLineRunner {
 
     @Autowired
     private PhenotypeHitsPerParameterAndProcedure phenotypeHitsPerParameterAndProcedure;
-
-    @Autowired
-    private ImpcGafReport impcGafReport;
-
-    @Autowired
-    private ImpcPValues impcPValues;
-
-    @Autowired
-    private MetabolismCalorimetry metabolismCalorimetry;
-
-    @Autowired
-    private MetabolismCBC metabolismCBC;
-
-    @Autowired
-    private MetabolismDEXA metabolismDEXA;
-
-    @Autowired
-    private MetabolismIPGTT metabolismIPGTT;
 
     @Autowired
     private PhenotypeHitsPerTopLevelMPTerm phenotypeHitsPerTopLevelMPTerm;
@@ -98,28 +71,17 @@ public class ReportsManager implements CommandLineRunner {
     private GeneAndMPTermAssociation geneAndMPTermAssociation;
 
 
-    private ReportsManagerParser parser = new ReportsManagerParser();
+    private final ReportsManagerParser parser = new ReportsManagerParser();
     private static final Logger log = LoggerFactory.getLogger(ReportsManager.class);
     public enum ReportType {
-//        BONE_MINERAL_DENSITY("boneMineralDensity", "Bone Mineral Density statistics (Bone Mineral Content, excluding skull)"),
         DATA_OVERVIEW("dataOverview", "Data overview"),
         FERTILITY("fertility", "Fertility"),
         GENE_AND_MP_TERM_ASSOCIATION("geneAndMPTermAssociation", "GeneAndMPTermAssociation"),
-//        GLUCOSE_CONCENTRATION("glucoseConcentration", "lpGTT stats (Fasted blood glucose concentration)"),
-//        GLUCOSE_RESPONSE("glucoseResponse", "lpGTT stats (Area under the curve glucose response)"),
-//        IMPC_GAF("impcGaf", "IMPC GAF"),
-//        IMPC_P_VALUES("impcPValues", "IMPC p-values"),
         LACZ_EXPRESSION("laczExpression", "Lacz expression"),
-//        METABOLISM_CALORIMETRY("metabolismCalorimetry", "Metabolism calorimetry"),
-//        METABOLISM_CBC("metabolismCBC", "Metabolism CBC"),
-//        METABOLISM_DEXA("metabolismDEXA", "Metabolism DEXA"),
-//        METABOLISM_IPGTT("metabolismIPGTT", "Metabolism IPGTT"),
         PHENOTYPE_HITS_PER_GENE("phenotypeHitsPerGene", "Phenotype hits per gene"),
         PHENOTYPE_HITS_PER_LINE("phenotypeHitsPerLine", "Phenotype hits per line"),
         PHENOTYPE_HITS_PER_PARAMETER_AND_PROCEDURE("phenotypeHitsPerParameterAndProcedure", "Hits per parameter and procedure"),
         PHENOTYPE_HITS_PER_TOP_LEVEL_MP_TERM("phenotypeHitsPerTopLevelMPTerm", "Distribution of phenotype hits"),
-//        PROCEDURE_COMPLETENESS_ALL("procedureCompletenessAll", "Procedure completeness for All data sources"),
-//        PROCEDURE_COMPLETENESS_IMPC("procedureCompletenessImpc", "Procedure completeness for IMPC data source"),
         VIABILITY("viability", "Viability");
 
         String tag;
@@ -173,7 +135,7 @@ public class ReportsManager implements CommandLineRunner {
         }
     }
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
 
         ConfigurableApplicationContext context = new SpringApplicationBuilder(ReportsManager.class)
                 .web(WebApplicationType.NONE)
@@ -210,21 +172,6 @@ public class ReportsManager implements CommandLineRunner {
             try {
                 switch (reportType) {
 
-//                    case BONE_MINERAL_DENSITY:
-//                        boneMineralDensity.run(args);
-//                        file = boneMineralDensity.targetFile;
-//                        break;
-//
-//                    case GLUCOSE_CONCENTRATION:
-//                        glucoseConcentration.run(args);
-//                        file = glucoseConcentration.targetFile;
-//                        break;
-//
-//                    case GLUCOSE_RESPONSE:
-//                        glucoseResponse.run(args);
-//                        file = glucoseResponse.targetFile;
-//                        break;
-
                     case DATA_OVERVIEW:
                         dataOverview.run(args);
                         file = dataOverview.targetFile;
@@ -239,11 +186,6 @@ public class ReportsManager implements CommandLineRunner {
                         geneAndMPTermAssociation.run(args);
                         file = geneAndMPTermAssociation.targetFile;
                         break;
-
-//                    case IMPC_P_VALUES:
-//                        impcPValues.run(args);
-//                        file = impcPValues.targetFile;
-//                        break;
 
                     case LACZ_EXPRESSION:
                         lacZExpression.run(args);
@@ -269,31 +211,6 @@ public class ReportsManager implements CommandLineRunner {
                         phenotypeHitsPerTopLevelMPTerm.run(args);
                         file = phenotypeHitsPerTopLevelMPTerm.targetFile;
                         break;
-
-//                    case METABOLISM_CALORIMETRY:
-//                        metabolismCalorimetry.run(args);
-//                        file = metabolismCalorimetry.targetFile;
-//                        break;
-//
-//                    case METABOLISM_CBC:
-//                        metabolismCBC.run(args);
-//                        file = metabolismCBC.targetFile;
-//                        break;
-//
-//                    case METABOLISM_DEXA:
-//                        metabolismDEXA.run(args);
-//                        file = metabolismDEXA.targetFile;
-//                        break;
-//
-//                    case METABOLISM_IPGTT:
-//                        metabolismIPGTT.run(args);
-//                        file = metabolismIPGTT.targetFile;
-//                        break;
-
-//                    case IMPC_GAF:
-//                        impcGafReport.run(args);
-//                        file = impcGafReport.targetFile;
-//                        break;
 
                     case VIABILITY:
                         viability.run(args);

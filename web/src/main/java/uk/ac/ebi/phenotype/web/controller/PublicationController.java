@@ -17,7 +17,6 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.common.Constants;
-import org.mousephenotype.cda.exporter.Exporter;
 import org.mousephenotype.cda.interfaces.Exportable;
 import org.mousephenotype.cda.solr.generic.util.Tools;
 import org.mousephenotype.cda.utilities.DisplayPager;
@@ -40,6 +39,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import uk.ac.ebi.phenotype.util.PublicationFetcher;
 import uk.ac.ebi.phenotype.web.dao.ReferenceService;
 import uk.ac.ebi.phenotype.web.dto.*;
+import uk.ac.ebi.phenotype.web.exporter.Exporter;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;

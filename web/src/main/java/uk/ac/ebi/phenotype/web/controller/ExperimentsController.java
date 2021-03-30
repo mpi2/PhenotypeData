@@ -18,7 +18,6 @@ package uk.ac.ebi.phenotype.web.controller;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.common.Constants;
-import org.mousephenotype.cda.exporter.Exporter;
 import org.mousephenotype.cda.interfaces.Exportable;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
@@ -43,6 +42,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import uk.ac.ebi.phenotype.chart.PhenomeChartProvider;
 import uk.ac.ebi.phenotype.error.GenomicFeatureNotFoundException;
+import uk.ac.ebi.phenotype.web.exporter.Exporter;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.inject.Named;
