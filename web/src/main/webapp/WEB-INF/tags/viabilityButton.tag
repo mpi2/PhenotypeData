@@ -19,14 +19,16 @@
         // No viability data, no link and danger-badge
         jspContext.setAttribute("HREF",  "");
         jspContext.setAttribute("TEXT",  "No data available");
-        jspContext.setAttribute("STYLE", "badge-danger");
+        jspContext.setAttribute("BADGE", "badge-danger");
+        jspContext.setAttribute("STYLE", "color: white; font-size: 100%; padding: 5px;");
     } else {
         // Turn badge green and link to viability page
         jspContext.setAttribute("HREF",  hrefSnippet);
         jspContext.setAttribute("TEXT",  "Data available");
-        jspContext.setAttribute("STYLE", "badge-success");
+        jspContext.setAttribute("BADGE", "badge-success");
+        jspContext.setAttribute("STYLE", "font-size: 100%; padding: 5px;");
     }
 %>
 
-<a class="badge ${STYLE}" style="font-size: 100%; padding: 5px;" ${HREF}>${TEXT}</a>
+<a class="badge ${BADGE}" style="${STYLE}" ${HREF}>${TEXT}</a>
 
