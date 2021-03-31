@@ -40,7 +40,6 @@
         var val = [];
         var legend = '';
         $('#systemSelector' + filterName).val().forEach(function (value) {
-            console.log(value, filterName);
             var mpTerm = value.split('|')[0];
             var name = value.split('|')[1];
             var significance = value.split('|')[2];
@@ -118,13 +117,7 @@
                         <div class="align-middle font-weight-bold pr-2">Viability</div>
                     </div>
                     <div class="col-9 align-middle text-sm-left">
-                        <c:if test="${viabilityCalls != null && viabilityCalls.size() > 0}">
-                            <t:viabilityButton callList="${viabilityCalls}"
-                                               geneAcc="${gene.mgiAccessionId}"/>
-                        </c:if>
-                        <c:if test="${viabilityCalls == null || viabilityCalls.size() <= 0}">
-                            <a class="badge badge-danger" style="font-size: 80%; color: white">No Viability Data Available</a>
-                        </c:if>
+                        <t:viabilityButton callList="${viabilityCalls}" geneAcc="${gene.mgiAccessionId}" />
                     </div>
                 </div>
 

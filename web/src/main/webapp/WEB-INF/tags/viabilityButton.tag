@@ -1,28 +1,34 @@
 <%@ tag import="org.mousephenotype.cda.common.Constants" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@ taglib prefix="t" tagdir="/WEB-INF/tags"%>
-
 <%@ tag import="java.util.List" %>
 <%@ tag import="java.util.ArrayList" %>
-<%@ tag import="org.apache.commons.text.WordUtils" %>
 
-<%@ attribute name="callList" required="true" type="java.util.Set"%>
-<%@ attribute name="geneAcc" required="true" type="java.lang.String"%>
-
+<%@ attribute name="callList" required="true" type="java.util.Set" %>
+<%@ attribute name="geneAcc" required="true" type="java.lang.String" %>
 
 <%
-	// Build the gene viability link to include all IMPC viabilty parmeters
-	final List<String> params = new ArrayList<>();
-	for (String p : Constants.adultViabilityParameters) {
-		params.add(String.format("parameter_stable_id=%s", p));
-	}
-	final String VIABILITY_LINK = String.join("&", params);
-	jspContext.setAttribute("VIABILITY_LINK", VIABILITY_LINK);
+    // Build the gene viability link to include all IMPC viability paramFragment
+    final List<String> params = new ArrayList<>();
+    for (String p : Constants.adultViabilityParameters) {
+        params.add(String.format("parameter_stable_id=%s", p));
+    }
+    final String paramFragment = String.join("&", params);
+    final String baseUrl = request.getAttribute("baseUrl").toString();
+    final String hrefSnippet = String.format("href='%s/charts?accession=%s&%s'", baseUrl, geneAcc, paramFragment);
+
+    if (callList.isEmpty()) {
+        // No viability data, no link and danger-badge
+        jspContext.setAttribute("HREF",  "");
+        jspContext.setAttribute("TEXT",  "No data available");
+        jspContext.setAttribute("BADGE", "badge-danger");
+        jspContext.setAttribute("STYLE", "color: white; font-size: 100%; padding: 5px;");
+    } else {
+        // Turn badge green and link to viability page
+        jspContext.setAttribute("HREF",  hrefSnippet);
+        jspContext.setAttribute("TEXT",  "Data available");
+        jspContext.setAttribute("BADGE", "badge-success");
+        jspContext.setAttribute("STYLE", "font-size: 100%; padding: 5px;");
+    }
 %>
 
-<c:set var="via_href" value="${baseUrl}/charts?accession=${geneAcc}&${VIABILITY_LINK}" />
+<a class="badge ${BADGE}" style="${STYLE}" ${HREF}>${TEXT}</a>
 
-<c:if test="${callList.size() > 0}">
-			<a class="badge badge-success" style="font-size: 80%;" href="<c:out value='${via_href}'/>">Viability Data Available</a>
-</c:if>
