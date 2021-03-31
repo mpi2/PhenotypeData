@@ -40,7 +40,7 @@
 
         <c:if test="${ ! chartOnly}">
             <div class="breadcrumbs clear row">
-                <div class="col-10 d-none d-lg-block px-5 pt-5">
+                <div class="col-10 d-none d-lg-block px-3 py-3">
                     <aside>
                         <a href="/">Home</a> <span class="fal fa-angle-right"></span>
                         <a href="${baseUrl}/search">Genes</a> <span class="fal fa-angle-right"></span>
@@ -48,20 +48,11 @@
                             ${parameter.procedureNames[0]} / ${parameter.name}
                     </aside>
                 </div>
-                <div class="col-2 d-none d-lg-block px-5 pt-5">
+                <div class="col-2 d-none d-lg-block px-3 py-3">
                     <aside>
                         <a href="${cmsBaseUrl}/help/quick-guide-to-the-website/chart-page/" target="_blank" ><i class="fa fa-question-circle" style="font-size: xx-large; color: #ce6211;"></i></a>
                     </aside>
                 </div>
-                <c:if test="${isViability}">
-                    <div class="alert alert-warning w-100 my-3">
-                    If there are a number of charts below for viability data please note:
-                    <ul>
-                        <li>data for different alleles measured in different centers correspond to different colonies and thus will be presented separately</li>
-                        <li>phenotype calls are made for abnormal phenotypes</li>
-                    </ul>
-                    </div>
-                </c:if>
             </div>
 
 
@@ -70,7 +61,7 @@
             <div class="row">
                     <div class="col-12 col-md-12">
             <div class="pre-content clear-bg">
-                        <div class="page-content people py-5 white-bg">
+                        <div class="page-content people white-bg">
 
             <c:if test="${embryoViabilityDTO!=null}">
                 <h5>${embryoViabilityDTO.proceedureName}</h5>
@@ -79,56 +70,59 @@
 
 
             <div class="row">
-            <div class="col-md-6">
-                <div class="card w-100">
-                    <div class="card-header">
-                        Description of the experiments performed
+
+                <c:if test="${isViability}">
+                    <div class="alert alert-warning w-100">
+                        <p>If there are a number of charts below for viability data please note:</p>
+                        <ul>
+                            <li>data for different alleles measured in different centers correspond to different colonies and thus will be presented separately</li>
+                            <li>phenotype calls are made for abnormal phenotypes</li>
+                        </ul>
                     </div>
-                    <div class="card-body">
-                        <p>
-        <c:if test="${embryoViabilityDTO==null && viabilityDTO==null}">
-            A <b>${parameter.procedureNames[0]}</b> phenotypic assay was performed on <b>${numberMice} <c:if test="${!isPostnatal}">embryo</c:if><c:if test="${isPostnatal}">mice</c:if></b>. The charts show the results of measuring <b>${parameter.name}</b> in <b>${numberFemaleMutantMice}
+                </c:if>
+
+                <div class="col-12 alert alert-secondary">
+                    Description of the experiments performed
+                </div>
+
+                <div class="col-md-6 border-right border-3">
+                    <p>
+                        <c:if test="${embryoViabilityDTO==null && viabilityDTO==null}">
+                            A <b>${parameter.procedureNames[0]}</b> phenotypic assay was performed on <b>${numberMice} <c:if test="${!isPostnatal}">embryo</c:if><c:if test="${isPostnatal}">mice</c:if></b>. The charts show the results of measuring <b>${parameter.name}</b> in <b>${numberFemaleMutantMice}
                             female</b>, <b>${numberMaleMutantMice} male</b> mutants compared to
                             <b>${numberFemaleControlMice} female</b>, <b>${numberMaleControlMice} male</b> controls.  The
-            mutants are <b>${zygosity}</b> for the <b><t:formatAllele>${alleleSymbol}</t:formatAllele></b> allele.
-        </c:if>
-
-        <c:if test="${embryoViabilityDTO!=null || viabilityDTO!=null}">
-            A <b>${parameter.procedureNames[0]}</b> phenotypic assay was performed on a mutant strain carrying the <b><t:formatAllele>${alleleSymbol}</t:formatAllele></b> allele. The
-            charts below show the proportion of wild type, heterozygous, and homozygous offspring.
-        </c:if>
-                        </p>
-
-                        <c:if test="${numberMice > 500}">
-                            <small>* The high throughput nature of the IMPC means that large control sample sizes may accumulate over a long period of time.  See the <a href="${cmsBaseUrl}/about-impc/animal-welfare">animal welfare guidelines</a> for more information.</small>
+                            mutants are <b>${zygosity}</b> for the <b><t:formatAllele>${alleleSymbol}</t:formatAllele></b> allele.
                         </c:if>
 
-                    </div>
+                        <c:if test="${embryoViabilityDTO!=null || viabilityDTO!=null}">
+                            A <b>${parameter.procedureNames[0]}</b> phenotypic assay was performed on a mutant strain carrying the <b><t:formatAllele>${alleleSymbol}</t:formatAllele></b> allele. The
+                            charts below show the proportion of wild type, heterozygous, and homozygous offspring.
+                        </c:if>
+                    </p>
+
+                    <c:if test="${numberMice > 500}">
+                        <small>* The high throughput nature of the IMPC means that large control sample sizes may accumulate over a long period of time.  See the <a href="${cmsBaseUrl}/about-impc/animal-welfare">animal welfare guidelines</a> for more information.</small>
+                    </c:if>
                 </div>
-            </div>
 
                 <div class="col-md-6">
-                    <table class="table table-striped">
-                        <tr>
-                            <td>Life stage</td>
-                            <td class="font-weight-bold">${lifeStage} <a href="${cmsBaseUrl}/help/standardized-mouse-phenotyping/pipelines/late-adult-and-interval-pipelines/" target="_blank" ><i class="fa fa-question-circle" style="color: #ce6211;"></i></a></td>
-                        </tr>
-                        <tr>
-                            <td>Associated Phenotype</td>
-                            <c:if test="${phenotypes != null && phenotypes.size() >= 1}"><td><c:forEach var="phenotype" items="${phenotypes}" varStatus="mpIndex"><div><a class="font-weight-bold" href="${baseUrl}/phenotypes/${phenotypeIds[mpIndex.index]}">${phenotype}</a></div></c:forEach>${viabilityDTO.category}</td></c:if>
-                            <c:if test="${(phenotypes == null || phenotypes.size() < 1) && viabilityDTO==null}"><td class="font-weight-bold">No significant association, ${viabilityDTO.category}</td></c:if>
-                        </tr>
+                    <table class="table table-borderless table-reduced-padding">
+                        <tbody>
                         <tr>
                             <td>Testing protocol</td>
                             <td><a class="font-weight-bold" href="${procedureUrl}">${parameter.procedureNames[0]}</a></td>
                         </tr>
                         <tr>
-                            <td>Measured value</td>
-                            <td><a class="font-weight-bold" href="${parameterUrl}">${parameter.name}</a></td>
-                        </tr>
-                        <tr>
                             <td>Testing environment</td>
                             <td><a class="font-weight-bold w-100" data-toggle="modal" data-target="#conditions" href="#">Lab conditions and equipment</a></td>
+                        </tr>
+                        <tr>
+                            <td>Measured value</td>
+                            <td class="font-weight-bold">${parameter.name}</td>
+                        </tr>
+                        <tr>
+                            <td>Life stage</td>
+                            <td class="font-weight-bold">${lifeStage} </td>
                         </tr>
                         <tr>
                             <td>Background Strain</td>
@@ -138,19 +132,19 @@
                             <td>Phenotyping center</td>
                             <td class="font-weight-bold">${phenotypingCenter}</td>
                         </tr>
+                        <tr>
+                            <td>Associated Phenotype</td>
+                            <c:if test="${phenotypes != null && phenotypes.size() >= 1}"><td><c:forEach var="phenotype" items="${phenotypes}" varStatus="mpIndex"><div><a class="font-weight-bold" href="${baseUrl}/phenotypes/${phenotypeIds[mpIndex.index]}">${phenotype}</a></div></c:forEach></td></c:if>
+                            <c:if test="${phenotypes == null || phenotypes.size() < 1}"><td>No significant association</td></c:if>
+                        </tr>
+                        </tbody>
                     </table>
-
-
                 </div>
             </div>
 
         </c:if>
 
-<c:if test="${statsServiceResult && ! isLive}">
-	<p class="alert alert-success w-100">
-	Result is from New Statistical Result Service!!! How quick was this???
-	</p>
-</c:if>
+
         <p class="alert alert-info w-100 my-3">
 Mouseover the charts for more information. Click and drag to zoom the chart. Click on the legends to disable/enable data.</p>
 
@@ -191,8 +185,7 @@ Mouseover the charts for more information. Click and drag to zoom the chart. Cli
                     </div>
                 </div>
             </div>
-</div>
-            
+
 
 <script>
     $(function () {
