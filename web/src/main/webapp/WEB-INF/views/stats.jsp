@@ -9,10 +9,28 @@
             href='${baseUrl}/genes/${gene.mgiAccessionId}'>${gene.markerSymbol} blah</a></jsp:attribute>
     <jsp:attribute name="bodyTag"><body  class="chartpage no-sidebars small-header"></jsp:attribute>
     <jsp:attribute name="header">
-			<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
-        	<script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
-        	<script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
-        </jsp:attribute>
+        <script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
+        <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
+        <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
+        <style>
+            .table-borderless > tbody > tr > td,
+            .table-borderless > tbody > tr > th,
+            .table-borderless > tfoot > tr > td,
+            .table-borderless > tfoot > tr > th,
+            .table-borderless > thead > tr > td,
+            .table-borderless > thead > tr > th {
+                border: none !important;
+            }
+            .table-reduced-padding > tbody > tr > td,
+            .table-reduced-padding > tbody > tr > th,
+            .table-reduced-padding > tfoot > tr > td,
+            .table-reduced-padding > tfoot > tr > th,
+            .table-reduced-padding > thead > tr > td,
+            .table-reduced-padding > thead > tr > th {
+                padding: 0.2rem !important;
+            }
+        </style>
+    </jsp:attribute>
 
     <jsp:attribute name="addToFooter">
             <script>
@@ -70,13 +88,6 @@
             <div class="row">
                 <div class="col-12 no-gutters">
                     <h2 class="mb-0">${gene.markerSymbol} data chart</h2>
-                    <c:if test="${isViability}">
-                                <strong>If there are a number of charts below for viability data please note:</strong>
-                        <ul>
-                                <li>data for different alleles measured in different centers correspond to different colonies and thus will be presented separately</li>
-                                <li>phenotype calls are made for abnormal phenotypes</li>
-                        </ul>
-                    </c:if>
                 </div>
             </div>
         </div>

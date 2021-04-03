@@ -28,14 +28,13 @@
     }
 }
 
-@media (min-width: 375px) {
+/*@media (min-width: 375px) {
     .page-nav-link-icon {
         font-size: 2.3em; }
     .portal-search__tabs a {
         width: 170px !important;
-
     }
-}
+}*/
 
 @media (min-width: 768px) {
     .page-nav-link-icon {
