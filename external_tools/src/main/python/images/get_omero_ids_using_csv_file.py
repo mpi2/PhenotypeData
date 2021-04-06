@@ -125,8 +125,22 @@ def main(argv):
         pg_cur = psqlConn.cursor()
         csv_reader = csv.reader(fid)
 
-        # Skip header
+        # Process header
+        # For Omero 5.6.3 (Python3 - use pandas dataframe)
         header = csv_reader.next()
+
+        try:
+            download_file_path_idx = header.index("download_file_path")
+            phenotyping_center_idx = header.index("phenotyping_center")
+            pipeline_stable_idx = header.index("pipeline_stable_id")
+            procedure_stable_idx = header.index("procedure_stable_id")
+            parameter_stable_idx = header.index("parameter_stable_id")
+        except ValueError as e:
+            print "Fatal Error:"
+            print str(e), header
+            print "Exiting"
+            sys.exit(-1)
+
         header += ["omero_id",]
 
         # Get handle for writing updated records
@@ -139,7 +153,7 @@ def main(argv):
                 rows_processed += 1
                 if rows_processed % 1000 == 0:
                     print "Processed " + str(rows_processed) + " of " + str_n_rows
-                download_file_path=row[1].lower()
+                download_file_path=row[download_file_path_idx].lower()
                 if (download_file_path.find('mousephenotype.org') < 0 and \
                     download_file_path.find('file:') < 0) or \
                         download_file_path.endswith('.mov') or \
@@ -151,10 +165,10 @@ def main(argv):
                     csv_writer.writerow(row)
                     continue
 
-                project_name = row[2]
-                pipeline_stable_id = row[3]
-                procedure_stable_id = row[4]
-                parameter_stable_id = row[6]
+                project_name = row[phenotyping_center_idx]
+                pipeline_stable_id = row[pipeline_stable_idx]
+                procedure_stable_id = row[procedure_stable_idx]
+                parameter_stable_id = row[parameter_stable_idx]
                 imagename = os.path.split(download_file_path)[-1]
                 image_nfs_path = os.path.join(root_dir, project_name,pipeline_stable_id,procedure_stable_id,parameter_stable_id,imagename)
 
