@@ -1,18 +1,20 @@
-/** *****************************************************************************
+/**
+ * ****************************************************************************
  * Copyright 2015 EMBL - European Bioinformatics Institute
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
  * either express or implied. See the License for the specific
  * language governing permissions and limitations under the
  * License.
- ****************************************************************************** */
+ * *****************************************************************************
+ */
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.solr.client.solrj.SolrServerException;
@@ -78,19 +80,19 @@ public class GenesController {
     private static final int numberOfImagesToDisplay = 5;
 
     private final PhenotypeSummaryDAO phenSummary;
-    private final ImagesSolrDao            imagesSolrDao;
+    private final ImagesSolrDao imagesSolrDao;
     private final PhenotypeCallSummarySolr phenotypeCallSummaryService;
-    private final ObservationService       observationService;
-    private final SolrIndex                solrIndex;
-    private final SolrIndex2               solrIndex2;
-    private final ImageService             imageService;
-    private final ExpressionService        expressionService;
-    private final GeneService              geneService;
+    private final ObservationService observationService;
+    private final SolrIndex solrIndex;
+    private final SolrIndex2 solrIndex2;
+    private final ImageService imageService;
+    private final ExpressionService expressionService;
+    private final GeneService geneService;
     private final StatisticalResultService statisticalResultService;
-    private final OrderService             orderService;
-    private final ImpressService           impressService;
-    private final WebDao                   phenoDigm2Dao;
-    private final RegisterInterestUtils    riUtils;
+    private final OrderService orderService;
+    private final ImpressService impressService;
+    private final WebDao phenoDigm2Dao;
+    private final RegisterInterestUtils riUtils;
 
     @Resource(name = "globalConfiguration")
     Map<String, String> config;
@@ -204,7 +206,7 @@ public class GenesController {
             QueryResponse geneSuggestionResponse;
             geneSuggestionResponse = searchGeneService.searchSuggestions(acc, 6);
 
-            if(geneSuggestionResponse != null){
+            if (geneSuggestionResponse != null) {
                 geneSuggestions.addAll(geneSuggestionResponse
                         .getBeans(GeneDTO.class)
                         .stream()
@@ -287,7 +289,7 @@ public class GenesController {
             // Get the lists of significant and not significant top level MP terms
             GeneTopLevelMpTerms geneTopLevelMpTerms = geneService.getTopLevelMpTerms(gene);
 
-            if(geneTopLevelMpTerms.getSignificantTopLevelMpTerms() != null) {
+            if (geneTopLevelMpTerms.getSignificantTopLevelMpTerms() != null) {
                 mpGroupsSignificant = geneTopLevelMpTerms.getSignificantTopLevelMpTerms().stream()
                         .map(PhenotypeSummaryType::getGroup)
                         .collect(Collectors.toMap(
@@ -296,9 +298,10 @@ public class GenesController {
                                 (existing, replacement) -> existing));
             }
 
-            if(geneTopLevelMpTerms.getNotSignificantTopLevelMpTerms() != null) {
+            if (geneTopLevelMpTerms.getNotSignificantTopLevelMpTerms() != null) {
+                final Set<String> significant = mpGroupsSignificant.keySet();
                 mpGroupsNotSignificant = geneTopLevelMpTerms.getNotSignificantTopLevelMpTerms().stream()
-                        .map(PhenotypeSummaryType::getGroup)
+                        .map(PhenotypeSummaryType::getGroup).filter(s -> !significant.contains(s))
                         .collect(Collectors.toMap(
                                 Function.identity(),
                                 value -> "false",
@@ -454,7 +457,7 @@ public class GenesController {
 
         for (PhenotypeCallSummaryDTO pcs : phenotypeList) {
             // Temporary fix for ABR data
-            if(pcs.getProcedure() != null && pcs.getProcedure().getStableId().contains("ABR")) {
+            if (pcs.getProcedure() != null && pcs.getProcedure().getStableId().contains("ABR")) {
                 pcs.setpValue(statisticalResultService.resolveAbrPValue(pcs.getGene().getAccessionId(), pcs.getPipeline().getStableId(), pcs.getProcedure().getStableId(), pcs.getParameter().getStableId(), pcs.getColonyId(), pcs.getSex().getName()));
             }
             DataTableRow pr = new GenePageTableRow(pcs, request.getAttribute("baseUrl").toString(), cmsBaseUrl);
@@ -552,7 +555,7 @@ public class GenesController {
     /**
      * Get the first 5 wholemount expression images if available
      *
-     * @param acc the gene to get the images for
+     * @param acc   the gene to get the images for
      * @param model the model to add the images to
      * @throws SolrServerException, IOException
      */
@@ -591,7 +594,7 @@ public class GenesController {
      * Get the first 5 images for aall but the wholemount expression images if
      * available
      *
-     * @param acc the gene to get the images for
+     * @param acc   the gene to get the images for
      * @param model the model to add the images to
      * @throws SolrServerException, IOException
      */
@@ -643,7 +646,7 @@ public class GenesController {
     /**
      * Get the first 5 images for impc experimental images if available
      *
-     * @param acc the gene to get the images for
+     * @param acc   the gene to get the images for
      * @param model the model to add the images to
      * @throws SolrServerException, IOException
      */
@@ -660,21 +663,21 @@ public class GenesController {
         groups.sort((group1, group2) -> {
             String fileType1 = "";
             String fileType2 = "";
-            if(group1.getResult().size() > 0) {
-                fileType1 =  group1.getResult().get(0).containsKey("file_type") ? group1.getResult().get(0).get("file_type").toString() : "";
+            if (group1.getResult().size() > 0) {
+                fileType1 = group1.getResult().get(0).containsKey("file_type") ? group1.getResult().get(0).get("file_type").toString() : "";
             }
-            if(group2.getResult().size() > 0) {
+            if (group2.getResult().size() > 0) {
                 fileType2 = group2.getResult().get(0).containsKey("file_type") ? group2.getResult().get(0).get("file_type").toString() : "";
             }
 
             boolean group1IsImage = !fileType1.contains("octet-stream") && !fileType1.contains("fcs") && !fileType1.contains("pdf");
             boolean group2IsImage = !fileType2.contains("octet-stream") && !fileType2.contains("fcs") && !fileType2.contains("pdf");
 
-            if(group1IsImage && !group2IsImage) {
+            if (group1IsImage && !group2IsImage) {
                 return -1;
             }
 
-            if(!group1IsImage && group2IsImage) {
+            if (!group1IsImage && group2IsImage) {
                 return 1;
             }
 
@@ -688,7 +691,7 @@ public class GenesController {
     /**
      * Get the first 5 wholemount expression images if available
      *
-     * @param acc the gene to get the images for
+     * @param acc   the gene to get the images for
      * @param model the model to add the images to
      * @throws SolrServerException, IOException
      * @throws SQLException
@@ -709,7 +712,7 @@ public class GenesController {
     /**
      * Get the first 5 wholemount expression images if available
      *
-     * @param acc the gene to get the images for
+     * @param acc   the gene to get the images for
      * @param model the model to add the images to
      * @throws SolrServerException, IOException
      * @throws SQLException
@@ -729,7 +732,6 @@ public class GenesController {
         expressionService.getExpressionDataForGene(acc, model, embryoOnly);
 
     }
-
 
 
     /**
@@ -800,10 +802,7 @@ public class GenesController {
     /**
      * Adds disease-related info to the model using the Phenodigm2 core.
      *
-     * @param acc
-     *
-     * Geneid
-     *
+     * @param acc   Geneid
      * @param model
      */
     private void processDisease(String acc, Model model) {
@@ -827,7 +826,7 @@ public class GenesController {
 
         // fetch models that have this gene
         List<DiseaseModelAssociation> modelAssociations = phenoDigm2Dao.getGeneToDiseaseModelAssociations(acc);
-        logger.debug("Found " + modelAssociations.size()+ " associations");
+        logger.debug("Found " + modelAssociations.size() + " associations");
 
         // create a js object representation of the models        
         String modelAssocsJsArray = "[]";
@@ -845,6 +844,6 @@ public class GenesController {
         model.addAttribute("modelAssociations", modelAssocsJsArray);
         model.addAttribute("modelAssociationsNumber", modelAssociations.size());
         model.addAttribute("hasModelsByOrthology", hasModelsByOrthology);
-        model.addAttribute("hasModelAssociations", modelAssociations.size()>0);
+        model.addAttribute("hasModelAssociations", modelAssociations.size() > 0);
     }
 }

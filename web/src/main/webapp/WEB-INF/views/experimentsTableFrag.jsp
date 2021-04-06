@@ -72,11 +72,11 @@
         <p class="textright">
             Download data as:
             <a id="tsvDownload"
-               href="${baseUrl}/allDataTableExport?geneAccession=${param.geneAccession}&fileType=tsv&fileName=${param.geneAccession}"
+               href="${baseUrl}/experiments/export?geneAccession=${param.geneAccession}&fileType=tsv&fileName=${param.geneAccession}"
                target="_blank" class="btn btn-outline-primary"><i
                     class="fa fa-download"></i>&nbsp;TSV</a>
             <a id="xlsDownload"
-               href="${baseUrl}/allDataTableExport?geneAccession=${param.geneAccession}&fileType=xls&fileName=${param.geneAccession}"
+               href="${baseUrl}/experiments/export?geneAccession=${param.geneAccession}&fileType=xls&fileName=${param.geneAccession}"
                target="_blank" class="btn btn-outline-primary"><i
                     class="fa fa-download"></i>&nbsp;XLS</a>
         </p>
