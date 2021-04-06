@@ -7,6 +7,7 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.mousephenotype.cda.solr.service.dto.ObservationDTOBase;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow;
 import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow.ParameterValueBean;
@@ -225,21 +226,31 @@ public class HistopathService {
         ArrayList<String> anatomyList = new ArrayList<>();
 
         List<StatisticalResultDTO> histopathStatsResults = statisticalResultService.getStatisticalResultByDataType("histopathology");
+        List<ObservationDTO> histopathNAObservations = observationService.getNotApplicableHistopathObs();
 
         geneList = (ArrayList<String>) histopathStatsResults.stream().map(StatisticalResultDTO::getMarkerSymbol).filter(Objects::nonNull).distinct().collect(Collectors.toList());
         anatomyList = (ArrayList<String>) histopathStatsResults.stream().map(s -> s.getParameterName().split(" - ")[0]).distinct().collect(Collectors.toList());
         Collections.sort(geneList);
         Collections.sort(anatomyList);
-		Map<String, Map<String, Set<Boolean>>> geneAnatomyValueMap = histopathStatsResults
-				.stream()
-				.filter(s -> s.getMarkerSymbol() != null && s.getParameterName() != null)
-				.collect(
-						groupingBy(
-								StatisticalResultDTO::getMarkerSymbol,
-								groupingBy(s -> s.getParameterName().split(" - ")[0], Collectors.mapping(StatisticalResultDTO::getSignificant, toSet())
-								)
-						)
-				);
+        Map<String, Map<String, Set<Boolean>>> geneAnatomyValueMap = histopathStatsResults
+                .stream()
+                .filter(s -> s.getMarkerSymbol() != null && s.getParameterName() != null)
+                .collect(
+                        groupingBy(
+                                StatisticalResultDTO::getMarkerSymbol,
+                                groupingBy(s -> s.getParameterName().split(" - ")[0], Collectors.mapping(StatisticalResultDTO::getSignificant, toSet())
+                                )
+                        )
+                );
+        Map<String, Set<String>> geneNotApplicableAnatomyMap = histopathNAObservations
+                .stream()
+                .filter(s -> s.getGeneSymbol() != null && s.getParameterName() != null)
+                .collect(
+                        groupingBy(
+                                ObservationDTOBase::getGeneSymbol,
+                                Collectors.mapping(o -> o.getParameterName().split(" - ")[0], toSet())
+                        )
+                );
         List<List<Integer>> rows = new ArrayList<>();
 
         for (String gene : geneList) {
@@ -250,10 +261,12 @@ public class HistopathService {
                 if (geneValuesByAnatomy.containsKey(anatomy)) {
                     boolean significant = geneValuesByAnatomy.get(anatomy).stream().anyMatch(s -> s);
                     significance = significant ? 4 : 2;
+                } else if(geneNotApplicableAnatomyMap.containsKey(gene) && geneNotApplicableAnatomyMap.get(gene).contains(anatomy)) {
+                    significance = 1;
                 }
                 row.add(significance);
             }
-			rows.add(row);
+            rows.add(row);
         }
 
         return new HeatmapData(anatomyList, geneList, rows);
