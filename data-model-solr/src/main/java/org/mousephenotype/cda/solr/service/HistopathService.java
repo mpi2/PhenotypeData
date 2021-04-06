@@ -261,7 +261,7 @@ public class HistopathService {
                 if (geneValuesByAnatomy.containsKey(anatomy)) {
                     boolean significant = geneValuesByAnatomy.get(anatomy).stream().anyMatch(s -> s);
                     significance = significant ? 4 : 2;
-                } else if(geneNotApplicableAnatomyMap.containsKey(gene) && geneNotApplicableAnatomyMap.get(gene).contains(anatomy)) {
+                } else if (geneNotApplicableAnatomyMap.containsKey(gene) && geneNotApplicableAnatomyMap.get(gene).contains(anatomy)) {
                     significance = 1;
                 }
                 row.add(significance);
