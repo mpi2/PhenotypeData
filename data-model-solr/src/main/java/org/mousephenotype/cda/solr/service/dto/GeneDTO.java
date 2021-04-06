@@ -170,6 +170,10 @@ public class GeneDTO {
 
 	public static final String DATASETS_RAW_DATA ="datasets_raw_data";
 
+	public static final String CONDITIONAL_ALLELE_PRODUCTION_STATUS = "conditional_allele_production_status";
+	public static final String CRISPR_ALLELE_PRODUCTION_STATUS = "crispr_allele_production_status";
+	public static final String NULL_ALLELE_PRODUCTION_STATUS = "null_allele_production_status";
+
 	
 	@Field(EMBRYO_ANALYSIS_URL)
 	private String embryoAnalysisUrl;
@@ -548,5 +552,17 @@ public class GeneDTO {
 
 	@Field(EMBRYO_MODALITIES)
 	private List<String> embryoModalities;
+
+	@Field(CONDITIONAL_ALLELE_PRODUCTION_STATUS)
+	private String conditionalAlleleProductionStatus;
+
+	@Field(CRISPR_ALLELE_PRODUCTION_STATUS)
+	private String crisprAlleleProductionStatus;
+
+	@Field(NULL_ALLELE_PRODUCTION_STATUS)
+	private String nullAlleleProductionStatus;
+
+	@Field(PHENOTYPING_DATA_AVAILABLE)
+	private boolean phenotypingDataAvailable;
 
 }

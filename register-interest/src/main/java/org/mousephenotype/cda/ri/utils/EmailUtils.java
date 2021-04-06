@@ -16,8 +16,8 @@
 
 package org.mousephenotype.cda.ri.utils;
 
-import org.mousephenotype.cda.ri.entities.SmtpParameters;
 import org.mousephenotype.cda.ri.exceptions.InterestException;
+import org.mousephenotype.cda.ri.pojo.SmtpParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

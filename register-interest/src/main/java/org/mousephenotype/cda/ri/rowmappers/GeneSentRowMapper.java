@@ -45,23 +45,17 @@ public class GeneSentRowMapper implements RowMapper<GeneSent> {
         GeneSent geneSent = new GeneSent();
 
         geneSent.setPk(rs.getInt("pk"));
-
         geneSent.setAddress(rs.getString("address"));
-        geneSent.setMgiAccessionId(rs.getString("mgi_accession_id"));
-
+        geneSent.setGeneAccessionId(rs.getString("gene_accession_id"));
+        geneSent.setSymbol(rs.getString("symbol"));
         geneSent.setAssignmentStatus(rs.getString("assignment_status"));
-
         geneSent.setConditionalAlleleProductionStatus(rs.getString("conditional_allele_production_status"));
-
+        geneSent.setCrisprAlleleProductionStatus(rs.getString("crispr_allele_production_status"));
         geneSent.setNullAlleleProductionStatus(rs.getString("null_allele_production_status"));
-
-        geneSent.setPhenotypingStatus(rs.getString("phenotyping_status"));
-
+        geneSent.setPhenotypingDataAvailable(rs.getInt("phenotyping_data_available"));
         geneSent.setCreatedAt(new Date(rs.getTimestamp("created_at").getTime()));
-
         Timestamp ts = rs.getTimestamp("sent_at");
         geneSent.setSentAt(ts == null ? null : new Date(ts.getTime()));
-
         geneSent.setUpdatedAt(new Date(rs.getTimestamp("updated_at").getTime()));
 
         return geneSent;

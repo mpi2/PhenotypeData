@@ -23,18 +23,18 @@ import java.util.Date;
  * This entity class maps to the contact_gene table.
  */
 public class ContactGene {
-    private int pk;
-    private int contactPk;
-    private int genePk;
-    private Date createdAt;
-    private Date updatedAt;
+    private int    pk;
+    private int    contactPk;
+    private String geneAccessionId;
+    private Date   createdAt;
+    private Date   updatedAt;
 
     public String buildContactGeneKey() {
-        return Integer.toString(contactPk) + "_" + Integer.toString(genePk);
+        return contactPk + "_" + geneAccessionId;
     }
 
-    public static String buildContactGeneKey(int contactPk, int genePk) {
-        return Integer.toString(contactPk) + "_" + Integer.toString(genePk);
+    public static String buildContactGeneKey(int contactPk, String geneAccessionId) {
+        return contactPk + "_" + geneAccessionId;
     }
 
     public int getPk() {
@@ -53,12 +53,12 @@ public class ContactGene {
         this.contactPk = contactPk;
     }
 
-    public int getGenePk() {
-        return genePk;
+    public String getGeneAccessionId() {
+        return geneAccessionId;
     }
 
-    public void setGenePk(int genePk) {
-        this.genePk = genePk;
+    public void setGeneAccessionId(String geneAccessionId) {
+        this.geneAccessionId = geneAccessionId;
     }
 
     public Date getCreatedAt() {

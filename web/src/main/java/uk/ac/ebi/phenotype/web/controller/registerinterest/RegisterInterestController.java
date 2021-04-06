@@ -20,13 +20,12 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.ri.entities.Contact;
 import org.mousephenotype.cda.ri.entities.ResetCredentials;
-import org.mousephenotype.cda.ri.entities.SmtpParameters;
-import org.mousephenotype.cda.ri.entities.Summary;
 import org.mousephenotype.cda.ri.exceptions.InterestException;
-import org.mousephenotype.cda.ri.services.CoreService;
-import org.mousephenotype.cda.ri.services.GenerateService;
+import org.mousephenotype.cda.ri.pojo.SmtpParameters;
+import org.mousephenotype.cda.ri.pojo.Summary;
+import org.mousephenotype.cda.ri.services.MailService;
+import org.mousephenotype.cda.ri.services.SummaryService;
 import org.mousephenotype.cda.ri.utils.EmailUtils;
-import org.mousephenotype.cda.ri.utils.RiSqlUtils;
 import org.mousephenotype.cda.utilities.DateUtils;
 import org.mousephenotype.cda.utilities.UrlUtils;
 import org.slf4j.Logger;
@@ -119,17 +118,19 @@ public class RegisterInterestController {
     public final static String TITLE_UNREGISTER_GENE_FAILED = "Gene unregistration failed.";
     public final static String TITLE_SEND_MAIL_FAILED       = "E-mail server error.";
 
-    private final Logger      logger     = LoggerFactory.getLogger(this.getClass());
-    private       CoreService coreService;
-    private       DateUtils   dateUtils  = new DateUtils();
-    private       EmailUtils  emailUtils = new EmailUtils();
-    private       UrlUtils    urlUtils   = new UrlUtils();
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private DateUtils  dateUtils  = new DateUtils();
+    private EmailUtils emailUtils = new EmailUtils();
+
+    private UrlUtils urlUtils = new UrlUtils();
 
     // Properties
     private PasswordEncoder passwordEncoder;
     private String          recaptchaPublic;
-    private RiSqlUtils      riSqlUtils;
     private SmtpParameters  smtpParameters;
+    private MailService     mailService;
+    private SummaryService  summaryService;
 
 
     private enum ActionType {
@@ -151,16 +152,16 @@ public class RegisterInterestController {
     @Inject
     public RegisterInterestController(
             PasswordEncoder passwordEncoder,
-            RiSqlUtils riSqlUtils,
-            CoreService coreService,
+            MailService mailService,
             String recaptchaPublic,
-            SmtpParameters smtpParameters
+            SmtpParameters smtpParameters,
+            SummaryService summaryService
     ) {
         this.passwordEncoder = passwordEncoder;
-        this.riSqlUtils = riSqlUtils;
-        this.coreService = coreService;
+        this.mailService = mailService;
         this.recaptchaPublic = recaptchaPublic;
         this.smtpParameters = smtpParameters;
+        this.summaryService = summaryService;
     }
 
     @RequestMapping(value = "/rilogin", method = RequestMethod.GET)
@@ -256,13 +257,11 @@ public class RegisterInterestController {
         }
 
         String followStatus;
-        if (riSqlUtils.getGenesByEmailAddress(SecurityUtils.getPrincipal()).stream().anyMatch(x -> x.getMgiAccessionId().equalsIgnoreCase(geneAccessionId))) {
-            // Gene is already registered for this user -- unregister
-            riSqlUtils.unregisterGene(SecurityUtils.getPrincipal(), geneAccessionId);
+        if (summaryService.isRegisteredForGene(SecurityUtils.getPrincipal(), geneAccessionId))  {
+            summaryService.unregisterGene(SecurityUtils.getPrincipal(), geneAccessionId);
             followStatus = "Not Following";
         } else {
-            // Gene is NOT registered for this user -- register
-            riSqlUtils.registerGene(SecurityUtils.getPrincipal(), geneAccessionId);
+            summaryService.registerGene(SecurityUtils.getPrincipal(), geneAccessionId);
             followStatus = "Following";
         }
 
@@ -288,7 +287,7 @@ public class RegisterInterestController {
     public String summary(ModelMap model,
                           HttpServletResponse response) {
 
-        Summary summary = riSqlUtils.getSummary(SecurityUtils.getPrincipal());
+        Summary summary = summaryService.getSummaryByContact(summaryService.getContact(SecurityUtils.getPrincipal()));
         model.addAttribute("summary", summary);
 
         response.setHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
@@ -379,8 +378,8 @@ public class RegisterInterestController {
         // Generate and assemble email
         String token = buildToken(emailAddress);
 
-        Contact    contact      = riSqlUtils.getContact(emailAddress);
-        ActionType actualAction = (contact == null ? ActionType.NEW_ACCOUNT : ActionType.RESET_PASSWORD);
+        Contact    contact       = summaryService.getContact(emailAddress);
+        ActionType actualAction  = (contact == null ? ActionType.NEW_ACCOUNT : ActionType.RESET_PASSWORD);
         boolean    accountExists = (contact != null);
 
         String hostname  = request.getAttribute("mappedHostname").toString();
@@ -400,7 +399,7 @@ public class RegisterInterestController {
                 throw new InterestException("Skipping email '" + emailAddress + "'.");
             }
 
-            final ResetCredentials existingCredentials = riSqlUtils.getResetCredentialsByEmail(emailAddress);
+            final ResetCredentials existingCredentials = summaryService.getResetCredentialsByEmailAddress(emailAddress);
 
             // To prevent multiple emails being sent too quickly, randomly wait between 1 and 5 minutes before
             // sending another email.
@@ -412,7 +411,7 @@ public class RegisterInterestController {
 
                 // Insert request to reset_credentials table
                 ResetCredentials resetCredentials = new ResetCredentials(emailAddress, token, new Date());
-                riSqlUtils.updateResetCredentials(resetCredentials);
+                summaryService.updateResetCredentials(resetCredentials);
 
                 // Send e-mail
                 emailUtils.sendEmail(message);
@@ -463,7 +462,7 @@ public class RegisterInterestController {
         String baseUrl = getBaseUrl(request);
 
         // Look up email address from reset_credentials table
-        ResetCredentials resetCredentials = riSqlUtils.getResetCredentials(token);
+        ResetCredentials resetCredentials = summaryService.getResetCredentialsByToken(token);
 
         // If not found, redirect to login page.
         if (resetCredentials == null) {
@@ -529,7 +528,7 @@ public class RegisterInterestController {
         }
 
         // Look up email address from reset_credentials table
-        ResetCredentials resetCredentials = riSqlUtils.getResetCredentials(token);
+        ResetCredentials resetCredentials = summaryService.getResetCredentialsByToken(token);
 
         // If not found, return to ri_setPasswordPage page.
         if (resetCredentials == null) {
@@ -545,23 +544,23 @@ public class RegisterInterestController {
 
         String emailAddress = resetCredentials.getAddress();
 
-        Contact contact = riSqlUtils.getContact(emailAddress);
+        Contact contact = summaryService.getContact(emailAddress);
         try {
-
             // If the contact doesn't exist, create a new account; otherwise, just update the password.
             if (contact == null) {
-                riSqlUtils.createAccount(emailAddress, passwordEncoder.encode(newPassword));
-                contact = riSqlUtils.getContact(emailAddress);
+                summaryService.createAccount(emailAddress, passwordEncoder.encode(newPassword));
+                contact = summaryService.getContact(emailAddress);
 
                 // Send welcome e-mail.
-                coreService.generateAndSendWelcome(emailAddress, smtpParameters);
+                boolean inHtml = true;
+                mailService.generateAndSendWelcome(contact);
 
             } else {
-                riSqlUtils.updatePassword(emailAddress, passwordEncoder.encode(newPassword));
+                summaryService.updatePassword(emailAddress, passwordEncoder.encode(newPassword));
             }
 
             // Consume (remove) the reset_credential record.
-            riSqlUtils.deleteResetCredentialsByEmailAddress(emailAddress);
+            summaryService.deleteResetCredentialsByEmailAddress(emailAddress);
 
         } catch (InterestException e) {
 
@@ -629,22 +628,15 @@ public class RegisterInterestController {
             HttpServletResponse response,
             ModelMap model
     ) {
-
         String baseUrl = getBaseUrl(request);
-
         // Redirect attempt to delete anonymousUser account to /search.
         if (SecurityUtils.getPrincipal().equalsIgnoreCase("anonymousUser")) {
             return "redirect: " + baseUrl + "/search";
         }
-
         try {
-
-            riSqlUtils.deleteContact(SecurityUtils.getPrincipal());
-
+            summaryService.deleteContact(SecurityUtils.getPrincipal());
         } catch (InterestException e) {
-
             logger.error("Unable to delete account for {}. Reason: {}", SecurityUtils.getPrincipal(), e.getLocalizedMessage());
-
             return "redirect: " + baseUrl + "/summary?error=" + ERR_ACCOUNT_NOT_DELETED;
         }
 
@@ -765,7 +757,7 @@ public class RegisterInterestController {
 
                 .append("</table>")
                 .append("<br />")
-                .append(GenerateService.getEmailEpilogue(true))
+                .append(mailService.generateEmailEpilogue(true))
                 .append("</html>");
 
         return body.toString();
@@ -828,7 +820,7 @@ public class RegisterInterestController {
 
                 .append("</table>")
                 .append("<br />")
-                .append(GenerateService.getEmailEpilogue(true))
+                .append(mailService.generateEmailEpilogue(true))
                 .append("</html>");
 
         return body.toString();

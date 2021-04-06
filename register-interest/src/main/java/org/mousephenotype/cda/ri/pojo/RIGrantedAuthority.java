@@ -14,13 +14,31 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.ri.entities;
+package org.mousephenotype.cda.ri.pojo;
 
-/*
- * This enum encapsulates all of the available Register Interest roles.
- */
-public enum RIRole {
+import org.springframework.security.core.GrantedAuthority;
 
-    USER,
-    ADMIN
+public class RIGrantedAuthority implements GrantedAuthority {
+
+    private RIRole role;
+
+    public RIGrantedAuthority() {
+        role = RIRole.USER;
+    }
+
+    public RIGrantedAuthority(RIRole role) {
+        this.role = role;
+    }
+
+    @Override
+    public String getAuthority() {
+        return "ROLE_" + role.toString();
+    }
+
+    @Override
+    public String toString() {
+        return "RIGrantedAuthority{" +
+                "role=" + role +
+                '}';
+    }
 }

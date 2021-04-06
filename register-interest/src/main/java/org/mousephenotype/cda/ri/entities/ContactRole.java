@@ -16,6 +16,8 @@
 
 package org.mousephenotype.cda.ri.entities;
 
+import org.mousephenotype.cda.ri.pojo.RIGrantedAuthority;
+import org.mousephenotype.cda.ri.pojo.RIRole;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Date;
@@ -31,7 +33,6 @@ public class ContactRole {
     protected Date   createdAt;
     protected Date   updatedAt;
 
-
     public ContactRole() {
     }
 
@@ -40,13 +41,9 @@ public class ContactRole {
     }
 
 
-
     public GrantedAuthority getAuthority() {
         return new RIGrantedAuthority(role);
     }
-
-
-    // AUTOMATICALLY GENERATED GETTERS AND SETTERS
 
 
     public int getPk() {

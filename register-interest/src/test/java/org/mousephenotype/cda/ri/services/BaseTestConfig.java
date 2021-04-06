@@ -16,8 +16,11 @@
 
 package org.mousephenotype.cda.ri.services;
 
-import org.mousephenotype.cda.ri.entities.SmtpParameters;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.mousephenotype.cda.ri.pojo.SmtpParameters;
 import org.mousephenotype.cda.ri.utils.RiSqlUtils;
+import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.ImpressService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -34,8 +37,10 @@ import javax.sql.DataSource;
 @Configuration
 @ComponentScan(basePackages = { "org.mousephenotype.cda.ri" })
 public class BaseTestConfig {
-
     public static final String PA_BASE_URL = "https://dev.mousephenotype.org/data";
+
+    @Value("${internal_solr_url}")
+    private String internalSolrUrl;
 
     @Bean
     public DataSource riDataSource() {
@@ -44,6 +49,27 @@ public class BaseTestConfig {
                 .ignoreFailedDrops(true)
                 .generateUniqueName(true)
                 .build();
+    }
+
+    @Bean(name = "pipelineCore")
+    HttpSolrClient pipelineCore() {
+        return new HttpSolrClient.Builder(internalSolrUrl + "/pipeline").build();
+    }
+
+    @Bean(name = "geneCore")
+    HttpSolrClient geneCore() {
+        return new HttpSolrClient.Builder(internalSolrUrl + "/gene").build();
+    }
+
+
+    @Bean
+    public ImpressService impressService() {
+        return new ImpressService(pipelineCore());
+    }
+
+    @Bean
+    public GeneService geneService() {
+        return new GeneService(geneCore(), impressService());
     }
 
     @Bean

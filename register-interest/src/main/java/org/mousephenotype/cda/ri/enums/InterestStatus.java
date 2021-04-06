@@ -1,11 +1,11 @@
 /*******************************************************************************
  * Copyright © 2018 EMBL - European Bioinformatics Institute
- * <p/>
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License. You may obtain a copy of the License at
  * http://www.apache.org/licenses/LICENSE-2.0
- * <p/>
+ * <p>
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -14,31 +14,31 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.ri.entities;
+package org.mousephenotype.cda.ri.enums;
 
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.http.HttpStatus;
 
-public class RIGrantedAuthority implements GrantedAuthority {
+public enum InterestStatus {
+    EXISTS,
+    INTERNAL_ERROR,
+    NOT_FOUND,
+    OK
+    ;
 
-    private RIRole role;
+    public HttpStatus toHttpStatus() {
 
-    public RIGrantedAuthority() {
-        role = RIRole.USER;
-    }
+        switch (this) {
+            case EXISTS:
+                return HttpStatus.BAD_REQUEST;
 
-    public RIGrantedAuthority(RIRole role) {
-        this.role = role;
-    }
+            case NOT_FOUND:
+                return HttpStatus.NOT_FOUND;
 
-    @Override
-    public String getAuthority() {
-        return "ROLE_" + role.toString();
-    }
+            case INTERNAL_ERROR:
+                return HttpStatus.INTERNAL_SERVER_ERROR;
 
-    @Override
-    public String toString() {
-        return "RIGrantedAuthority{" +
-                "role=" + role +
-                '}';
+            default:
+                return HttpStatus.OK;
+        }
     }
 }

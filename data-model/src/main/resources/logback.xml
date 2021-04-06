@@ -26,6 +26,8 @@
     <logger name="org.mousephenotype.cda.solr.service"                          level="WARN" />
     <logger name="org.mousephenotype.interest"                                  level="INFO" />
 
+    <logger name="org.mousephenotype.cda.ri"                                    leve="INFO" />
+
     <!-- uncomment this line to see ImageService solr queries -->
     <!--<logger name="org.mousephenotype.cda.solr.service.ImageService"             level="INFO" />-->
 

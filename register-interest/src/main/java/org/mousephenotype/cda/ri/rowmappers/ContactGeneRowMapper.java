@@ -46,7 +46,7 @@ public class ContactGeneRowMapper implements RowMapper<ContactGene> {
         contactGene.setPk(rs.getInt("pk"));
 
         contactGene.setContactPk(rs.getInt("contact_pk"));
-        contactGene.setGenePk(rs.getInt("gene_pk"));
+        contactGene.setGeneAccessionId(rs.getString("gene_accession_id"));
 
         contactGene.setCreatedAt(new Date(rs.getTimestamp("created_at").getTime()));
         contactGene.setUpdatedAt(new Date(rs.getTimestamp("updated_at").getTime()));

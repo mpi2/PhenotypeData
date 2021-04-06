@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.ri.entities;
+package org.mousephenotype.cda.ri.pojo;
 
 public class SmtpParameters {
 

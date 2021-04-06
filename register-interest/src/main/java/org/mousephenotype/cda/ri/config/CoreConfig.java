@@ -17,7 +17,7 @@
 package org.mousephenotype.cda.ri.config;
 
 import org.mousephenotype.cda.db.utilities.SqlUtils;
-import org.mousephenotype.cda.ri.entities.SmtpParameters;
+import org.mousephenotype.cda.ri.pojo.SmtpParameters;
 import org.mousephenotype.cda.ri.utils.RiSqlUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

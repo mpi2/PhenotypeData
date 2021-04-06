@@ -26,9 +26,9 @@ import java.util.Date;
  * This entity class maps to the contact table.
  */
 public class Contact {
-    private int pk;
-
+    private int                          pk;
     private String                       emailAddress;
+    private boolean                      inHtml;
     private boolean                      isAccountLocked;
     private boolean                      isPasswordExpired;
     private String                       password;
@@ -51,6 +51,14 @@ public class Contact {
 
     public void setEmailAddress(String emailAddress) {
         this.emailAddress = emailAddress;
+    }
+
+    public boolean isInHtml() {
+        return inHtml;
+    }
+
+    public void setInHtml(boolean inHtml) {
+        this.inHtml = inHtml;
     }
 
     public boolean isAccountLocked() {
@@ -104,14 +112,15 @@ public class Contact {
     @Override
     public String toString() {
         return "Contact{" +
-                "pk=" + pk +
-                ", emailAddress='" + emailAddress + '\'' +
-                ", isAccountLocked=" + isAccountLocked +
-                ", isPasswordExpired=" + isPasswordExpired +
-                ", password='" + password + '\'' +
-                ", roles=" + roles +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                '}';
+            "pk=" + pk +
+            ", emailAddress='" + emailAddress + '\'' +
+            ", inHtml='" + inHtml + '\'' +
+            ", isAccountLocked=" + isAccountLocked +
+            ", isPasswordExpired=" + isPasswordExpired +
+            ", password='" + password + '\'' +
+            ", roles=" + roles +
+            ", createdAt=" + createdAt +
+            ", updatedAt=" + updatedAt +
+            '}';
     }
 }

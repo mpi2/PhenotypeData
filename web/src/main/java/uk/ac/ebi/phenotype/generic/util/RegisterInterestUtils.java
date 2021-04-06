@@ -16,30 +16,21 @@
 
 package uk.ac.ebi.phenotype.generic.util;
 
-import org.mousephenotype.cda.ri.entities.Gene;
-import org.mousephenotype.cda.ri.entities.Summary;
-import org.mousephenotype.cda.ri.utils.RiSqlUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.mousephenotype.cda.ri.services.SummaryService;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class RegisterInterestUtils {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    private RiSqlUtils riSqlUtils;
+    private SummaryService summaryService;
 
     @Inject
-    public RegisterInterestUtils(RiSqlUtils riSqlUtils) {
-        this.riSqlUtils = riSqlUtils;
+    public RegisterInterestUtils(SummaryService summaryService) {
+        this.summaryService = summaryService;
     }
-
 
     /**
      *
@@ -47,22 +38,11 @@ public class RegisterInterestUtils {
      */
     @Secured("ROLE_USER")
     public List<String> getGeneAccessionIds() {
-
-        Summary summary = riSqlUtils.getSummary(SecurityUtils.getPrincipal());
-
-        List<Gene> genes = summary.getGenes();
-
-        List<String> geneAccessionIds = new ArrayList<>();
-        for (Gene gene : genes) {
-            geneAccessionIds.add(gene.getMgiAccessionId());
-        }
-
-        return geneAccessionIds;
+        return summaryService.getGeneAccessionIds(SecurityUtils.getPrincipal());
     }
 
     @Secured("ROLE_USER")
     public boolean isLoggedIn() {
-
         return SecurityUtils.isLoggedIn();
     }
 }

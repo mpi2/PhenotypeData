@@ -9,6 +9,9 @@
 -- With this change, the gene, gene_status, and imits_status
 -- tables are deleted, replaced by gene core queries.
 
+ALTER TABLE contact
+  ADD COLUMN inHtml INT(11) NULL DEFAULT '1' AFTER `address`;
+
 -- contact_gene:
 -- 1. add gene_accession_id field. It replaces gene_pk.
 -- 2. migrate gene_accession_id field.
@@ -33,17 +36,31 @@ ALTER TABLE contact_gene
 -- 1. standardise mgi_accession_id by renaming to gene_accession_id
 -- 2. add crispr_allele_production_status.
 ALTER TABLE gene_sent
-CHANGE COLUMN mgi_accession_id gene_accession_id VARCHAR(32) NOT NULL,
-ADD COLUMN crispr_allele_production_status VARCHAR(45) NULL DEFAULT NULL
-  AFTER conditional_allele_production_status,
-DROP FOREIGN KEY gene_sent_ibfk_1,
-DROP FOREIGN KEY gene_sent_ibfk_2,
-DROP FOREIGN KEY gene_sent_ibfk_3,
-DROP FOREIGN KEY gene_sent_ibfk_4,
-DROP INDEX assignment_status_fk,
-DROP INDEX conditional_allele_production_status_fk,
-DROP INDEX null_allele_production_status_fk,
-DROP INDEX phenotyping_status_fk;
+  DROP FOREIGN KEY gene_sent_ibfk_1,
+  DROP FOREIGN KEY gene_sent_ibfk_2,
+  DROP FOREIGN KEY gene_sent_ibfk_3,
+  DROP FOREIGN KEY gene_sent_ibfk_4,
+  DROP INDEX assignment_status_fk,
+  DROP INDEX conditional_allele_production_status_fk,
+  DROP INDEX null_allele_production_status_fk,
+  DROP INDEX phenotyping_status_fk,
+  CHANGE COLUMN mgi_accession_id gene_accession_id VARCHAR(32) NOT NULL,
+  ADD COLUMN symbol VARCHAR(100) NOT NULL
+    AFTER gene_accession_id,
+  ADD COLUMN crispr_allele_production_status VARCHAR(64) NULL DEFAULT NULL
+    AFTER conditional_allele_production_status,
+  ADD COLUMN phenotyping_data_available INT(11) NULL DEFAULT NULL
+    AFTER null_allele_production_status;
+
+UPDATE gene_sent
+  SET phenotyping_data_available = 1 WHERE phenotyping_status = 'Phenotyping data available';
+
+ALTER TABLE gene_sent
+  DROP COLUMN phenotyping_status;
+
+UPDATE gene_sent gs
+  JOIN gene g ON g.mgi_accession_id = gs.gene_accession_id
+  SET gs.symbol = g.symbol;
 
 SET FOREIGN_KEY_CHECKS=0;
 

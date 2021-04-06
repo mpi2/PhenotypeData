@@ -16,25 +16,47 @@
 
 package org.mousephenotype.cda.ri.entities;
 
+import org.mousephenotype.cda.ri.pojo.SummaryDetail;
+
 import java.util.Date;
 
 /**
  * Created by mrelac on 12/05/2017.
- * This entity class maps to the gene_sent table.
+ * This entity class maps to the gene_sent table. Since its content is directly related to the
+ * SummaryDetail DTO, a translator is provided.
  */
-public class GeneSent {
-    private int pk;
 
+public class GeneSent {
+    private int    pk;
     private String address;
-    private String mgiAccessionId;
+    private String geneAccessionId;
+    private String symbol;
     private String assignmentStatus;
     private String conditionalAlleleProductionStatus;
+    private String crisprAlleleProductionStatus;
     private String nullAlleleProductionStatus;
-    private String phenotypingStatus;
+    private int    phenotypingDataAvailable;
+    private Date   createdAt;
+    private Date   SentAt;
+    private Date   updatedAt;
 
-    private Date createdAt;
-    private Date SentAt;
-    private Date updatedAt;
+    public GeneSent() { }
+
+    /**
+     *
+     * @return a new SummaryDetail instance from this GeneSent instance
+     */
+    public SummaryDetail toSummaryDetail() {
+        SummaryDetail sd = new SummaryDetail();
+        sd.setGeneAccessionId(this.geneAccessionId);
+        sd.setSymbol(this.symbol);
+        sd.setAssignmentStatus(this.assignmentStatus);
+        sd.setConditionalAlleleProductionStatus(this.conditionalAlleleProductionStatus);
+        sd.setCrisprAlleleProductionStatus(this.crisprAlleleProductionStatus);
+        sd.setNullAlleleProductionStatus(this.nullAlleleProductionStatus);
+        sd.setPhenotypingDataAvailable(this.phenotypingDataAvailable == 1);
+        return sd;
+    }
 
     public int getPk() {
         return pk;
@@ -48,7 +70,6 @@ public class GeneSent {
         return emailAddress + "_" + geneAccessionId;
     }
 
-
     public String getAddress() {
         return address;
     }
@@ -57,12 +78,20 @@ public class GeneSent {
         this.address = address;
     }
 
-    public String getMgiAccessionId() {
-        return mgiAccessionId;
+    public String getGeneAccessionId() {
+        return geneAccessionId;
     }
 
-    public void setMgiAccessionId(String mgiAccessionId) {
-        this.mgiAccessionId = mgiAccessionId;
+    public void setGeneAccessionId(String geneAccessionId) {
+        this.geneAccessionId = geneAccessionId;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
     }
 
     public String getAssignmentStatus() {
@@ -81,6 +110,14 @@ public class GeneSent {
         this.conditionalAlleleProductionStatus = conditionalAlleleProductionStatus;
     }
 
+    public String getCrisprAlleleProductionStatus() {
+        return crisprAlleleProductionStatus;
+    }
+
+    public void setCrisprAlleleProductionStatus(String crisprAlleleProductionStatus) {
+        this.crisprAlleleProductionStatus = crisprAlleleProductionStatus;
+    }
+
     public String getNullAlleleProductionStatus() {
         return nullAlleleProductionStatus;
     }
@@ -89,12 +126,12 @@ public class GeneSent {
         this.nullAlleleProductionStatus = nullAlleleProductionStatus;
     }
 
-    public String getPhenotypingStatus() {
-        return phenotypingStatus;
+    public int getPhenotypingDataAvailable() {
+        return phenotypingDataAvailable;
     }
 
-    public void setPhenotypingStatus(String phenotypingStatus) {
-        this.phenotypingStatus = phenotypingStatus;
+    public void setPhenotypingDataAvailable(int phenotypingDataAvailable) {
+        this.phenotypingDataAvailable = phenotypingDataAvailable;
     }
 
     public Date getCreatedAt() {
@@ -119,5 +156,21 @@ public class GeneSent {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    @Override
+    public String toString() {
+        return "GeneSent{" +
+                "pk=" + pk +
+                ", address='" + address + '\'' +
+                ", geneAccessionId='" + geneAccessionId + '\'' +
+                ", symbol='" + symbol + '\'' +
+                ", assignmentStatus='" + assignmentStatus + '\'' +
+                ", conditionalAlleleProductionStatus='" + conditionalAlleleProductionStatus + '\'' +
+                ", crisprAlleleProductionStatus='" + crisprAlleleProductionStatus + '\'' +
+                ", nullAlleleProductionStatus='" + nullAlleleProductionStatus + '\'' +
+                ", phenotypingDataAvailable='" + phenotypingDataAvailable + '\'' +
+                ", SentAt=" + SentAt +
+                '}';
     }
 }

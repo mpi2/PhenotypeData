@@ -29,7 +29,7 @@ public class ParseUtils {
      * @param o the object to try to convert
      * @return the converted value, if <em>o</em> is a <code>Float or Double</code>; null otherwise
      */
-    public Double tryParseDouble(Object o) {
+    public static Double tryParseDouble(Object o) {
         if (o == null)
             return null;
 
@@ -50,7 +50,7 @@ public class ParseUtils {
      * @param o the object to try to convert
      * @return the converted value, if <em>o</em> is an <code>Integer</code>; null otherwise
      */
-    public Integer tryParseInt(Object o) {
+    public static Integer tryParseInt(Object o) {
         if (o == null)
             return null;
 

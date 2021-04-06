@@ -56,6 +56,11 @@
             <artifactId>utilities</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.mousephenotype.cda</groupId>
+            <artifactId>data-model-solr</artifactId>
+        </dependency>
+
 
         <!-- database -->
         <dependency>

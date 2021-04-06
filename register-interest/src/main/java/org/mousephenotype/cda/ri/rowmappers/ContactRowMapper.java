@@ -42,12 +42,14 @@ public class ContactRowMapper implements RowMapper<Contact> {
     @Override
     public Contact mapRow(ResultSet rs, int rowNum) throws SQLException {
         Contact contact = new Contact();
-
+        Integer intValue;
         contact.setPk(rs.getInt("pk"));
 
         contact.setEmailAddress((rs.getString("address")));
+        intValue = rs.getInt("inHtml");
+        contact.setInHtml((intValue != null) && (intValue > 0 ? true : false));
         contact.setPassword((rs.getString("password")));
-        Integer intValue = rs.getInt("password_expired");
+        intValue = rs.getInt("password_expired");
         contact.setPasswordExpired((intValue != null) && (intValue > 0) ? true : false);
         intValue = rs.getInt("account_locked");
         contact.setAccountLocked((intValue != null) && (intValue > 0) ? true : false);

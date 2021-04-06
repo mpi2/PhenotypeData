@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.ri.entities;
+package org.mousephenotype.cda.ri.pojo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -29,9 +29,19 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Summary {
 
-    protected String emailAddress;
-    protected List<Gene> genes = new ArrayList<>();
+    protected String              emailAddress;
+    private   boolean             inHtml;
+    protected List<SummaryDetail> details = new ArrayList<>();
 
+
+    public Summary() {
+    }
+
+    public Summary(String emailAddress, boolean inHtml, List<SummaryDetail> details) {
+        this.emailAddress = emailAddress;
+        this.inHtml = inHtml;
+        this.details = details;
+    }
 
     public String getEmailAddress() {
         return emailAddress;
@@ -41,19 +51,27 @@ public class Summary {
         this.emailAddress = emailAddress;
     }
 
-    public List<Gene> getGenes() {
-        return genes;
+    public boolean isInHtml() {
+        return inHtml;
     }
 
-    public void setGenes(List<Gene> genes) {
-        this.genes = genes;
+    public void setInHtml(boolean inHtml) {
+        this.inHtml = inHtml;
+    }
+
+    public List<SummaryDetail> getDetails() {
+        return details;
+    }
+
+    public void setDetails(List<SummaryDetail> details) {
+        this.details = details;
     }
 
     @Override
     public String toString() {
         return "Summary{" +
-                "emailAddress='" + emailAddress + '\'' +
-                ", genes=" + genes +
-                '}';
+            "emailAddress='" + emailAddress + '\'' +
+            ", inHtml=" + inHtml +
+            '}';
     }
 }

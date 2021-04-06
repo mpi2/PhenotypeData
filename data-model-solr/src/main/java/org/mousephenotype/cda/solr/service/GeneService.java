@@ -953,6 +953,29 @@ public class GeneService extends BasicService implements WebStatus {
 	}
 
 
+	/**
+	 * Get the Register Interest gene detail fields for all genes in the core
+	 *
+	 * @return the Register Interest gene detail fields for all genes in the core
+	 * @throws SolrServerException, IOException
+	 */
+	public List<GeneDTO> getRegisterInterestGeneDetails()
+			throws SolrServerException, IOException {
+
+		SolrQuery solrQuery = new SolrQuery()
+				.setQuery("*:*").setRows(Integer.MAX_VALUE)
+				.setFields(GeneDTO.MGI_ACCESSION_ID,
+						GeneDTO.MARKER_SYMBOL,
+						GeneDTO.ASSIGNMENT_STATUS,
+						GeneDTO.CONDITIONAL_ALLELE_PRODUCTION_STATUS,
+						GeneDTO.CRISPR_ALLELE_PRODUCTION_STATUS,
+						GeneDTO.NULL_ALLELE_PRODUCTION_STATUS,
+						GeneDTO.PHENOTYPING_DATA_AVAILABLE);
+
+		return geneCore.query(solrQuery).getBeans(GeneDTO.class);
+	}
+
+
 	public GeneDTO getGeneById(String mgiId, String... fields) throws SolrServerException, IOException {
 
 		SolrQuery solrQuery = new SolrQuery()

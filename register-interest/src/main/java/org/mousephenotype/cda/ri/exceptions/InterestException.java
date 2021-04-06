@@ -16,7 +16,7 @@
 
 package org.mousephenotype.cda.ri.exceptions;
 
-import org.mousephenotype.cda.ri.entities.InterestStatus;
+import org.mousephenotype.cda.ri.enums.InterestStatus;
 
 /**
  * Created by mrelac on 24/07/2015.

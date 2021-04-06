@@ -165,104 +165,119 @@
                                         </p>
 
                                         <h4>Username: ${summary.emailAddress}</h4>
+                                    </div>
+                                    <i style="font-size: small">Gene status is refreshed daily. Please refresh your
+                                        browser for the latest status.</i>
+                                    <br/>
+                                    <c:choose>
+                                        <c:when test="${fn:length(summary.details) eq 0}">
+                                            You have not yet registered interest in any genes.
+                                        </c:when>
+                                        <c:when test="${fn:length(summary.details) eq 1}">
+                                            You are currently following this gene:
+                                        </c:when>
+                                        <c:otherwise>
+                                            You are currently following these genes:
+                                        </c:otherwise>
+                                    </c:choose>
 
-                                        <c:choose>
-                                            <c:when test="${fn:length(summary.genes) eq 0}">
-                                                You have not yet registered interest in any genes.
-                                            </c:when>
-                                            <c:when test="${fn:length(summary.genes) eq 1}">
-                                                You are currently following this gene:
-                                            </c:when>
-                                            <c:otherwise>
-                                                You are currrently following these genes:
-                                            </c:otherwise>
-                                        </c:choose>
+                                    <div id="summaryTableDiv" class="pb-4">
+                                        <table id="following" class='table table-bordered'>
+                                            <thead>
+                                            <tr>
+                                                <th>Gene Symbol</th>
+                                                <th>Gene Accession Id</th>
+                                                <th>Assignment Status</th>
+                                                <th>Null Allele Production Status</th>
+                                                <th>Conditional Allele Production Status</th>
+                                                <th>Crispr Allele Production Status</th>
+                                                <th>Phenotyping Data Available</th>
+                                                <th>Action</th>
+                                            </tr>
+                                            </thead>
 
-                                        <div id="summaryTableDiv" class="pb-4">
-                                            <table id="following" class='table table-bordered'>
-                                                <thead>
+                                            <tbody>
+                                            <c:forEach var="gene" items="${summary.details}" varStatus="loop">
                                                 <tr>
-                                                    <th>Gene Symbol</th>
-                                                    <th>Gene Accession Id</th>
-                                                    <th>Assignment Status</th>
-                                                    <th>Null Allele Production Status</th>
-                                                    <th>Conditional Allele Production Status</th>
-                                                    <th>Phenotyping Data Available</th>
-                                                    <th>Action</th>
+                                                    <td>
+                                                        <a href='${baseUrl}/genes/${gene.geneAccessionId}'>${gene.symbol}</a>
+                                                    </td>
+                                                    <td>
+                                                        <a href="http://www.informatics.jax.org/marker/${gene.geneAccessionId}">${gene.geneAccessionId}</a>
+                                                    </td>
+
+                                                    <td>
+                                                        <c:choose>
+                                                            <c:when test="${empty gene.assignmentStatus}">
+                                                                None
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                ${gene.assignmentStatus}
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </td>
+                                                    <td>
+                                                        <c:choose>
+                                                            <c:when test="${empty gene.nullAlleleProductionStatus}">
+                                                                None
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                ${gene.nullAlleleProductionStatus}
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </td>
+                                                    <td>
+                                                        <c:choose>
+                                                            <c:when test="${empty gene.conditionalAlleleProductionStatus}">
+                                                                None
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                ${gene.conditionalAlleleProductionStatus}
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </td>
+                                                    <td>
+                                                        <c:choose>
+                                                            <c:when test="${empty gene.crisprAlleleProductionStatus}">
+                                                                None
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                ${gene.crisprAlleleProductionStatus}
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </td>
+                                                    <td>
+                                                        <c:choose>
+                                                            <c:when test="${empty gene.phenotypingDataAvailable}">
+                                                                No
+                                                            </c:when>
+                                                            <c:when test="${!gene.phenotypingDataAvailable}">
+                                                                No
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                Yes
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </td>
+                                                    <td>
+                                                        <form id="follow-form-${fn:replace(gene.geneAccessionId, ':', '')}"
+                                                              action="${baseUrl}/update-gene-registration"
+                                                              method="POST"
+                                                              class="follow-form">
+                                                            <input type="hidden" name="${_csrf.parameterName}"
+                                                                   value="${_csrf.token}"/>
+                                                            <input type="hidden" name="geneAccessionId"
+                                                                   value="${gene.geneAccessionId}"/>
+                                                            <button class="btn btn-outline-secondary" type="submit">
+                                                                <i class="fas fa-user-minus"></i>
+                                                                <span>Unfollow</span>
+                                                            </button>
+                                                        </form>
+                                                    </td>
                                                 </tr>
-                                                </thead>
-
-                                                <tbody>
-                                                <c:forEach var="gene" items="${summary.genes}" varStatus="loop">
-                                                    <tr>
-                                                        <td>
-                                                            <a href='${baseUrl}/genes/${gene.mgiAccessionId}'>${gene.symbol}</a>
-                                                        </td>
-                                                        <td>
-                                                            <a href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}">${gene.mgiAccessionId}</a>
-                                                        </td>
-
-                                                        <td>
-                                                            <c:choose>
-                                                                <c:when test="${empty gene.riAssignmentStatus}">
-                                                                    None
-                                                                </c:when>
-                                                                <c:otherwise>
-                                                                    ${gene.riAssignmentStatus}
-                                                                </c:otherwise>
-                                                            </c:choose>
-                                                        </td>
-                                                        <td>
-                                                            <c:choose>
-                                                                <c:when test="${empty gene.riNullAlleleProductionStatus}">
-                                                                    None
-                                                                </c:when>
-                                                                <c:otherwise>
-                                                                    ${gene.riNullAlleleProductionStatus}
-                                                                </c:otherwise>
-                                                            </c:choose>
-                                                        </td>
-                                                        <td>
-                                                            <c:choose>
-                                                                <c:when test="${empty gene.riConditionalAlleleProductionStatus}">
-                                                                    None
-                                                                </c:when>
-                                                                <c:otherwise>
-                                                                    ${gene.riConditionalAlleleProductionStatus}
-                                                                </c:otherwise>
-                                                            </c:choose>
-                                                        </td>
-                                                        <td>
-                                                            <c:choose>
-                                                                <c:when test="${gene.riPhenotypingStatus == 'Phenotyping data available'}">
-
-                                                                    <a href='${baseUrl}/genes/${gene.mgiAccessionId}#order'>Yes</a>
-                                                                </c:when>
-                                                                <c:otherwise>
-                                                                    <a href='${baseUrl}/genes/${gene.mgiAccessionId}#order'>No</a>
-                                                                </c:otherwise>
-                                                            </c:choose>
-                                                        </td>
-                                                        <td>
-                                                            <form id="follow-form-${fn:replace(gene.mgiAccessionId, ':', '')}"
-                                                                  action="${baseUrl}/update-gene-registration"
-                                                                  method="POST"
-                                                                  class="follow-form">
-                                                                <input type="hidden" name="${_csrf.parameterName}"
-                                                                       value="${_csrf.token}"/>
-                                                                <input type="hidden" name="geneAccessionId"
-                                                                       value="${gene.mgiAccessionId}"/>
-                                                                <button class="btn btn-outline-secondary" type="submit">
-                                                                    <i class="fas fa-user-minus"></i>
-                                                                    <span>Unfollow</span>
-                                                                </button>
-                                                            </form>
-                                                        </td>
-                                                    </tr>
-                                                </c:forEach>
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                            </c:forEach>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>

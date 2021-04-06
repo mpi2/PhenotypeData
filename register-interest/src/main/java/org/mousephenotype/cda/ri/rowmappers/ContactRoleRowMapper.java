@@ -17,7 +17,7 @@
 package org.mousephenotype.cda.ri.rowmappers;
 
 import org.mousephenotype.cda.ri.entities.ContactRole;
-import org.mousephenotype.cda.ri.entities.RIRole;
+import org.mousephenotype.cda.ri.pojo.RIRole;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
