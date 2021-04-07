@@ -88,15 +88,15 @@ public class HistopathService {
                     }
                 }
                 if (obs.getObservationType().equalsIgnoreCase("ontological")) {
-
                     if (obs.getSubTermName() != null) {
                         for (int i = 0; i < obs.getSubTermId().size(); i++) {
                             //System.out.println("subtermId=" + obs.getSubTermId() + "subtermname="
                             //+ obs.getSubTermName().get(i));
+                            String termName = obs.getSubTermName().get(i);
+                            String termId = obs.getSubTermId().get(i);
+                            String termDesc = i < obs.getSubTermDescription().size() ? obs.getSubTermDescription().get(i) : "";
+                            OntologyBean subOntologyBean = new OntologyBean(termId, termName, termDesc);
 
-                            OntologyBean subOntologyBean = new OntologyBean(obs.getSubTermId().get(i),
-                                    obs.getSubTermName().get(i), obs.getSubTermDescription().get(i));// ,
-                            //obs.getSubTermDescription().get(i));
                             row.addOntologicalParam(parameter, subOntologyBean);
                             if (parameter.getName().contains("MPATH process term")) {
                                 row.addMpathProcessParam(parameter, subOntologyBean);
