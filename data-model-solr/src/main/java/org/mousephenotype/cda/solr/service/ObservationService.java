@@ -589,6 +589,16 @@ public class ObservationService extends BasicService implements WebStatus {
         return null;
     }
 
+    public boolean hasHistopathData(String acc) throws IOException, SolrServerException {
+        SolrQuery query = new SolrQuery()
+                .setQuery(ObservationDTO.PROCEDURE_NAME + ":Histopathology*")
+                .addFilterQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + acc + "\"")
+                .setFields(ObservationDTO.ID)
+                .setRows(1);
+        List<ObservationDTO> beans = experimentCore.query(query).getBeans(ObservationDTO.class);
+        return beans.size() > 0;
+    }
+
 
     public class ViabilityData {
 

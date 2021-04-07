@@ -238,7 +238,7 @@
                             <span class="page-nav-link-muted text-muted">Disease models (0)</span>
                         </span>
                     </c:if>
-                    <c:if test='${rowsForHistopathTable.size() > 0}'>
+                    <c:if test='${rowsForHistopathTable.size() > 0 or hasHistopath}'>
                         <a href="#histopath" class="col">
                             <i class="fal fa-microscope mb-1 text-dark page-nav-link-icon" data-toggle="tooltip"
                                data-placement="top"></i>

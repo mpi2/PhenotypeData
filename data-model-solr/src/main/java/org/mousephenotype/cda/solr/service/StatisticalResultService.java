@@ -918,7 +918,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         SolrQuery query = new SolrQuery()
                 .setQuery("*:*").addFilterQuery(StatisticalResultDTO.DATA_TYPE + ":" + dataType)
                 .setStart(0)
-                .setRows(10000);
+                .setRows(Integer.MAX_VALUE);
         QueryResponse response = statisticalResultCore.query(query);
         List<StatisticalResultDTO> solrResults = response.getBeans(StatisticalResultDTO.class);
 

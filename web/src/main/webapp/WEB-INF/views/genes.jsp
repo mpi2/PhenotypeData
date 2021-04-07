@@ -590,7 +590,7 @@
         </div>
 
 
-        <c:if test="${rowsForHistopathTable.size() > 0}">
+        <c:if test="${rowsForHistopathTable.size() > 0 or hasHistopath}">
             <div class="container" id="histopath">
                 <div class="row pb-2">
                     <div class="col-12 col-md-12">
@@ -609,6 +609,7 @@
                                                                                         style="font-size: xx-large"></i></a>
                                         </div>
                                     </div>
+        <c:if test="${rowsForHistopathTable.size() > 0}">
                                     <div class="row">
                                         <div class="col-12">
                                             <table id="histopathPhenotypesTable" data-toggle="table" data-pagination="true" data-mobile-responsive="true" data-sortable="true">
@@ -649,6 +650,17 @@
                                             </table>
                                         </div>
                                     </div>
+        </c:if>
+        <c:if test="${rowsForHistopathTable.size() == 0 and hasHistopath}">
+            <div class="row">
+                <div class="col-12">
+                    <div class="alert alert-warning" role="alert">
+                        This gene doesn't have any significant Histopathology hits. <a href="${baseUrl}/histopath/${gene.markerSymbol}">Please click here to see the raw data</a>.
+                    </div>
+                </div>
+
+            </div>
+        </c:if>
                                 </div>
                             </div>
                         </div>

@@ -86,7 +86,7 @@ allele = allele.replaceAll("##", "</sup>");
     <c:if test="${not empty img.image_link}"><a href="${img.image_link}" target="_blank">Original Image</a><br/></c:if>
 
                 <c:choose>
-                    <c:when test="${not empty parameterName }"><b>${parameterName}</b><br/>
+                    <c:when test="${not empty parameterName }"><b style="word-wrap: normal">${parameterName}</b><br/>
                         <c:if test="${not empty count}">${count} Images<br/></c:if>
                     </c:when>
 
