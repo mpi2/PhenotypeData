@@ -369,6 +369,27 @@ public class ExperimentService {
         return viabilityDTO;
     }
 
+
+    public ViabilityDTO getViabilityForGeneVersion1ExperimentDTO(String parameterStableId, String pipelineStableId, String acc, String phenotypingCenter, String strain, String metadataGroup, String alleleAccession) throws SolrServerException, IOException , URISyntaxException, SpecificExperimentException {
+        ViabilityDTO viabilityDTO=new ViabilityDTOVersion1();
+        Map<String, ObservationDTO> paramStableIdToObservation = new HashMap<>();
+
+        //for viability we don't need to filter on Sex or Zygosity
+        List<ObservationDTO> observations = observationService.getExperimentObservationsBy(parameterStableId, pipelineStableId, acc, null, phenotypingCenter, strain, null, metadataGroup, alleleAccession);
+        viabilityDTO.setCategory(observations.get(0).getCategory());
+        for(int i=3;i<15; i++){
+            String formatted = String.format("%02d",i);
+            String param="IMPC_VIA_0"+formatted+"_001";
+            List<ObservationDTO> observationsForCounts = observationService.getViabilityData(param, pipelineStableId, acc, null, phenotypingCenter, strain, null, metadataGroup, alleleAccession);
+            if(observationsForCounts.size()>1){
+                System.err.println("More than one observation found for a viability request!!!");
+            }
+            paramStableIdToObservation.put(param,observationsForCounts.get(0));
+        }
+        viabilityDTO.setParamStableIdToObservation(paramStableIdToObservation);
+        return viabilityDTO;
+    }
+
     /**
      * Should only return 1 experimentDTO - returns null if none and exception
      * if more than 1 - used by ajax charts

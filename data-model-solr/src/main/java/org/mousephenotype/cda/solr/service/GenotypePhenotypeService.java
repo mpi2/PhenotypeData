@@ -727,6 +727,28 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
         return genotypePhenotypeCore.query(query).getBeans(GenotypePhenotypeDTO.class);
     }
 
+
+    public List<GenotypePhenotypeDTO> getGenotypePhenotypeForViability(String markerAccession)
+            throws SolrServerException, IOException {
+
+        SolrQuery query = new SolrQuery()
+                .setQuery("*:*")
+                .setRows(Integer.MAX_VALUE);
+
+        if (markerAccession != null) {
+            query.addFilterQuery(GenotypePhenotypeDTO.MARKER_ACCESSION_ID + ":\"" + markerAccession + "\"");
+        }
+
+
+            query.addFilterQuery(GenotypePhenotypeDTO.PARAMETER_STABLE_ID + ":IMPC_VIA_*");
+
+
+
+
+
+        return genotypePhenotypeCore.query(query).getBeans(GenotypePhenotypeDTO.class);
+    }
+
     // Returns status of operation in PhenotypeFacetResult.status. Query it for errors and warnings.
     public PhenotypeFacetResult createPhenotypeResultFromSolrResponse(String url)
     throws IOException, URISyntaxException, JSONException {

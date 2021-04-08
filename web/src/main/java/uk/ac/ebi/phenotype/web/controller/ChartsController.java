@@ -1,18 +1,4 @@
-/*******************************************************************************
- * Copyright 2015 EMBL - European Bioinformatics Institute
- *
- * Licensed under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
- * either express or implied. See the License for the specific
- * language governing permissions and limitations under the
- * License.
- *******************************************************************************/
+
 package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.commons.lang3.StringUtils;
@@ -74,17 +60,17 @@ public class ChartsController {
 	private final ImageService                        imageService;
 	private final ImpressService                      impressService;
 	private final GenotypePhenotypeService            gpService;
-    
-    @Resource(name = "globalConfiguration")
-    private Map<String, String> config;
+
+	@Resource(name = "globalConfiguration")
+	private Map<String, String> config;
 
 
-    @Value("${solr_url}")
-    public String SOLR_URL;
+	@Value("${solr_url}")
+	public String SOLR_URL;
 
 
-    @Inject
-    public ChartsController(
+	@Inject
+	public ChartsController(
 			@NotNull CategoricalChartAndTableProvider categoricalChartAndTableProvider,
 			@NotNull TimeSeriesChartAndTableProvider timeSeriesChartAndTableProvider,
 			@NotNull UnidimensionalChartAndTableProvider continousChartAndTableProvider,
@@ -97,111 +83,111 @@ public class ChartsController {
 			@NotNull ImageService imageService,
 			@NotNull @Named("statistical-result-service") StatisticalResultService srService,
 			@NotNull @Named("genotype-phenotype-service") GenotypePhenotypeService gpService
-			) {
-        this.categoricalChartAndTableProvider = categoricalChartAndTableProvider;
-        this.timeSeriesChartAndTableProvider = timeSeriesChartAndTableProvider;
-        this.continousChartAndTableProvider = continousChartAndTableProvider;
-        this.scatterChartAndTableProvider = scatterChartAndTableProvider;
-        this.abrChartAndTableProvider = abrChartAndTableProvider;
-        this.viabilityChartAndDataProvider = viabilityChartAndDataProvider;
-        this.experimentService = experimentService;
-        this.srService = srService;
-        this.geneService = geneService;
-        this.impressService = impressService;
-        this.imageService=imageService;
-        this.gpService = gpService;
+	) {
+		this.categoricalChartAndTableProvider = categoricalChartAndTableProvider;
+		this.timeSeriesChartAndTableProvider = timeSeriesChartAndTableProvider;
+		this.continousChartAndTableProvider = continousChartAndTableProvider;
+		this.scatterChartAndTableProvider = scatterChartAndTableProvider;
+		this.abrChartAndTableProvider = abrChartAndTableProvider;
+		this.viabilityChartAndDataProvider = viabilityChartAndDataProvider;
+		this.experimentService = experimentService;
+		this.srService = srService;
+		this.geneService = geneService;
+		this.impressService = impressService;
+		this.imageService=imageService;
+		this.gpService = gpService;
 	}
 
-    /**
-     * Runs when the request missing an accession ID. This redirects to the
-     * search page which defaults to showing all genes in the list
-     *
-     * @return string to instruct spring to redirect to the search page
-     */
-    @RequestMapping("/stats")
-    public String rootForward() {
+	/**
+	 * Runs when the request missing an accession ID. This redirects to the
+	 * search page which defaults to showing all genes in the list
+	 *
+	 * @return string to instruct spring to redirect to the search page
+	 */
+	@RequestMapping("/stats")
+	public String rootForward() {
 
-        return "redirect:/search";
-    }
+		return "redirect:/search";
+	}
 
-    /**
-     * This method should take in the parameters and then generate a skeleton
-     * jsp page with urls that can be called by a jquery ajax requests for each
-     * graph div and table div
-     *
-     * @param parameterIds
-     * @param gender
-     * @param zygosity
-     * @param phenotypingCenter
-     * @param strategies
-     * @param accessionsParams
-     * @param model
-     * @return
-     * @throws GenomicFeatureNotFoundException
-     * @throws ParameterNotFoundException
-     * @throws IOException
-     * @throws URISyntaxException
-     * @throws SolrServerException, IOException
-     */
+	/**
+	 * This method should take in the parameters and then generate a skeleton
+	 * jsp page with urls that can be called by a jquery ajax requests for each
+	 * graph div and table div
+	 *
+	 * @param parameterIds
+	 * @param gender
+	 * @param zygosity
+	 * @param phenotypingCenter
+	 * @param strategies
+	 * @param accessionsParams
+	 * @param model
+	 * @return
+	 * @throws GenomicFeatureNotFoundException
+	 * @throws ParameterNotFoundException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 * @throws SolrServerException, IOException
+	 */
 
-    @RequestMapping("/charts")
-    public String charts(@RequestParam(required = false, value = "accession") String[] accessionsParams,
-                         @RequestParam(required = false, value = "parameter_stable_id") String[] parameterIds,
-                         @RequestParam(required = false, value = "gender") String[] gender,
-                         @RequestParam(required = false, value = "zygosity") String[] zygosity,
-                         @RequestParam(required = false, value = "phenotyping_center") String[] phenotypingCenter,
-                         @RequestParam(required = false, value = "strategy") String[] strategies,
-                         @RequestParam(required = false, value = "strain") String[] strains,
-                         @RequestParam(required = false, value = "metadata_group") String[] metadataGroup,
-                         @RequestParam(required = false, value = "chart_type") ChartType chartType,
-                         @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds,
-                         @RequestParam(required = false, value = "procedure_stable_id") String[] procedureStableIds,
-                         @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession,
-                         @RequestParam(required = false, value = "pageTitle") String pageTitle,
-                         @RequestParam(required = false, value = "pageLinkBack") String pageLinkBack,
-                         HttpServletRequest request, HttpServletResponse response,
-                         Model model) {
-        try {
-            if ((accessionsParams != null) && (accessionsParams.length > 0) && (parameterIds != null) && (parameterIds.length > 0)) {
-                for (String parameterStableId : parameterIds) {
-                    if (parameterStableId.contains("_FER_")) {
-                    	System.err.println("We don't have data for fertility so we can't display charts");
-                        String url =  "http:" + request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/genes/" + accessionsParams[0];
-                        return "redirect:" + url;
-                    }
-                }
-            }
-            response.addHeader("Access-Control-Allow-Origin", "*");//allow javascript requests from other domain - note spring way of doing this does not work!!!! as usual!!!
+	@RequestMapping("/charts")
+	public String charts(@RequestParam(required = false, value = "accession") String[] accessionsParams,
+						 @RequestParam(required = false, value = "parameter_stable_id") String[] parameterIds,
+						 @RequestParam(required = false, value = "gender") String[] gender,
+						 @RequestParam(required = false, value = "zygosity") String[] zygosity,
+						 @RequestParam(required = false, value = "phenotyping_center") String[] phenotypingCenter,
+						 @RequestParam(required = false, value = "strategy") String[] strategies,
+						 @RequestParam(required = false, value = "strain") String[] strains,
+						 @RequestParam(required = false, value = "metadata_group") String[] metadataGroup,
+						 @RequestParam(required = false, value = "chart_type") ChartType chartType,
+						 @RequestParam(required = false, value = "pipeline_stable_id") String[] pipelineStableIds,
+						 @RequestParam(required = false, value = "procedure_stable_id") String[] procedureStableIds,
+						 @RequestParam(required = false, value = "allele_accession_id") String[] alleleAccession,
+						 @RequestParam(required = false, value = "pageTitle") String pageTitle,
+						 @RequestParam(required = false, value = "pageLinkBack") String pageLinkBack,
+						 HttpServletRequest request, HttpServletResponse response,
+						 Model model) {
+		try {
+			if ((accessionsParams != null) && (accessionsParams.length > 0) && (parameterIds != null) && (parameterIds.length > 0)) {
+				for (String parameterStableId : parameterIds) {
+					if (parameterStableId.contains("_FER_")) {
+						System.err.println("We don't have data for fertility so we can't display charts");
+						String url =  "http:" + request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString() + "/genes/" + accessionsParams[0];
+						return "redirect:" + url;
+					}
+				}
+			}
+			response.addHeader("Access-Control-Allow-Origin", "*");//allow javascript requests from other domain - note spring way of doing this does not work!!!! as usual!!!
 
-            model.addAttribute("pageTitle", pageTitle);
+			model.addAttribute("pageTitle", pageTitle);
 
-            return createCharts(accessionsParams, pipelineStableIds, procedureStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, chartType, alleleAccession);
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-        return "";
-    }
+			return createCharts(accessionsParams, pipelineStableIds, procedureStableIds, parameterIds, gender, phenotypingCenter, strains, metadataGroup, zygosity, model, chartType, alleleAccession);
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+		return "";
+	}
 
 
-    @RequestMapping("/chart")
-    public String chart(@RequestParam(required = true, value = "experimentNumber", defaultValue = "1") String experimentNumber,
-                        @RequestParam(required = false, value = "accession") String[] accession,
-                        @RequestParam(required = false, value = "strain_accession_id") String strain,
-                        @RequestParam(required = false, value = "allele_accession_id") String alleleAccession,
-                        @RequestParam(required = false, value = "metadata_group", defaultValue = DEFAULT_NONE) String metadataGroup,
+	@RequestMapping("/chart")
+	public String chart(@RequestParam(required = true, value = "experimentNumber", defaultValue = "1") String experimentNumber,
+						@RequestParam(required = false, value = "accession") String[] accession,
+						@RequestParam(required = false, value = "strain_accession_id") String strain,
+						@RequestParam(required = false, value = "allele_accession_id") String alleleAccession,
+						@RequestParam(required = false, value = "metadata_group", defaultValue = DEFAULT_NONE) String metadataGroup,
 						@RequestParam(required = false, value = "pipeline_stable_id") String pipelineStableId,
 						@RequestParam(required = false, value = "procedure_stable_id") String procedureStableId,
-                        @RequestParam(required = false, value = "parameter_stable_id") String parameterStableId,
-                        @RequestParam(required = false, value = "gender") String[] gender,
-                        @RequestParam(required = false, value = "zygosity") String[] zygosity,
-                        @RequestParam(required = false, value = "phenotyping_center") String phenotypingCenter,
-                        @RequestParam(required = false, value = "strategy") String[] strategies,
-                        @RequestParam(required = false, value = "chart_type") ChartType chartType,
-                        @RequestParam(required = false, value = "chart_only", defaultValue = "false") boolean chartOnly,
-                        @RequestParam(required = false, value = "standAlone") boolean standAlone,
-                        @RequestParam(required = false, value = "fromFile") boolean fromFile,
-                        Model model)
-            throws IOException, URISyntaxException, SolrServerException, SpecificExperimentException, ParameterNotFoundException {
+						@RequestParam(required = false, value = "parameter_stable_id") String parameterStableId,
+						@RequestParam(required = false, value = "gender") String[] gender,
+						@RequestParam(required = false, value = "zygosity") String[] zygosity,
+						@RequestParam(required = false, value = "phenotyping_center") String phenotypingCenter,
+						@RequestParam(required = false, value = "strategy") String[] strategies,
+						@RequestParam(required = false, value = "chart_type") ChartType chartType,
+						@RequestParam(required = false, value = "chart_only", defaultValue = "false") boolean chartOnly,
+						@RequestParam(required = false, value = "standAlone") boolean standAlone,
+						@RequestParam(required = false, value = "fromFile") boolean fromFile,
+						Model model)
+			throws IOException, URISyntaxException, SolrServerException, SpecificExperimentException, ParameterNotFoundException {
 
 		if (StringUtils.isEmpty(parameterStableId)) {
 			System.out.println("throwing parameter not found exception");
@@ -402,9 +388,6 @@ public class ChartsController {
 				ViabilityDTO viability = experimentService.getSpecificViabilityVersion1ExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession);
 				ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(viability, parameterStableId);
 				model.addAttribute("viabilityDTO", viabilityDTO);
-				//if viability data we want to have a message at the top which comes up on stats.jsp
-					model.addAttribute("isViability", true);
-
 			}
 		} else if (procedureStableId.equals("IMPC_VIA_002")) {
 
@@ -415,9 +398,6 @@ public class ChartsController {
 			ViabilityDTO viability = experimentService.getSpecificViabilityVersion2ExperimentDTO(parameterStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession);
 			ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(viability, parameterStableId);
 			model.addAttribute("viabilityDTO", viabilityDTO);
-			//if viability data we want to have a message at the top which comes up on stats.jsp
-				model.addAttribute("isViability", true);
-
 		}
 
 
@@ -542,7 +522,7 @@ public class ChartsController {
 			numberMaleControlMice = (int) controls.stream().filter(x -> x.getSex().equals(SexType.male.getName())).map(ObservationDTOBase::getExternalSampleId).distinct().count();
 
 		}
-		
+
 		model.addAttribute("numberFemaleMutantMice", numberFemaleMutantMice);
 		model.addAttribute("numberMaleMutantMice", numberMaleMutantMice);
 		model.addAttribute("numberFemaleControlMice", numberFemaleControlMice);
@@ -569,7 +549,7 @@ public class ChartsController {
 			// If we are displaying a chart for Embryo viability, check all possible associated terms
 			// and add any significant results to the MP terms that are associated to this data
 			if (Stream.of("IMPC_EVL_", "IMPC_EVM_", "IMPC_EVO_", "IMPC_EVP_", "IMPC_VIA_").anyMatch(parameterStableId::startsWith)) {
-				
+
 				EmbryoViability v = EmbryoViability.E9_5;
 				if (parameterStableId.contains("EVM")) v = EmbryoViability.E12_5;
 				if (parameterStableId.contains("EVO")) v = EmbryoViability.E14_5;
@@ -661,11 +641,11 @@ public class ChartsController {
 		for(ImageDTO image: wtAndMutantImages) {
 			if(image.isControl())
 			{
-                log.debug("control found");
+				log.debug("control found");
 				controlImages.add(image);
 			}
 			if(image.isMutant()) {
-                log.debug("mutant found");
+				log.debug("mutant found");
 				mutantImages.add(image);
 			}
 		}
@@ -675,89 +655,89 @@ public class ChartsController {
 		if(mutantImages.size()>imageCountMax) {
 			imageCountMax=mutantImages.size();
 		}
-				model.addAttribute("controlImages", controlImages);
-				model.addAttribute("mutantImages", mutantImages);
-        log.debug("imageCountMax="+imageCountMax);
-				model.addAttribute("imageCountMax",imageCountMax);
+		model.addAttribute("controlImages", controlImages);
+		model.addAttribute("mutantImages", mutantImages);
+		log.debug("imageCountMax="+imageCountMax);
+		model.addAttribute("imageCountMax",imageCountMax);
 	}
-    
 
-    private void setTitlesForGraph(Model model, String geneticBackground, String alleleSymbol) {
 
-        model.addAttribute("symbol", (alleleSymbol != null) ? alleleSymbol : "unknown");
-        model.addAttribute("geneticBackgroundString",  (geneticBackground != null) ? geneticBackground : "unknown");
-    
-    }
+	private void setTitlesForGraph(Model model, String geneticBackground, String alleleSymbol) {
 
-    
-    private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] procedureStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter,
-    			String[] strains, String[] metadataGroup, String[] zygosity, Model model, ChartType chartType, String[] alleleAccession)
-            throws SolrServerException, IOException, GenomicFeatureNotFoundException, ParameterNotFoundException, URISyntaxException {
+		model.addAttribute("symbol", (alleleSymbol != null) ? alleleSymbol : "unknown");
+		model.addAttribute("geneticBackgroundString",  (geneticBackground != null) ? geneticBackground : "unknown");
 
-        Long time = System.currentTimeMillis();
-        GraphUtils graphUtils = new GraphUtils(experimentService, srService, impressService);
-        List<String> geneIds = getParamsAsList(accessionsParams);
-        List<String> paramIds = getParamsAsList(parameterIds);
-        List<String> genderList = getParamsAsList(gender);
-        List<String> phenotypingCentersList = getParamsAsList(phenotypingCenter);
-        List<String> strainsList = getParamsAsList(strains);
-        List<String> metadataGroups = getParamsAsList(metadataGroup);
-        List<String> pipelineStableIds = getParamsAsList(pipelineStableIdsArray);
-        List<String> procedureStableIds = getParamsAsList(procedureStableIdsArray);
-        List<String> alleleAccessions = getParamsAsList(alleleAccession);
+	}
 
-        // add sexes explicitly here so graphs urls are created separately
-        if (genderList.isEmpty()) {
-            genderList.add(SexType.male.name());
-            genderList.add(SexType.female.name());
-        }
 
-        List<String> zyList = getParamsAsList(zygosity);
-        if (zyList.isEmpty()) {
-            zyList.add(ZygosityType.homozygote.name());
-            zyList.add(ZygosityType.heterozygote.name());
-            zyList.add(ZygosityType.hemizygote.name());
-        }
+	private String createCharts(String[] accessionsParams, String[] pipelineStableIdsArray, String[] procedureStableIdsArray, String[] parameterIds, String[] gender, String[] phenotypingCenter,
+								String[] strains, String[] metadataGroup, String[] zygosity, Model model, ChartType chartType, String[] alleleAccession)
+			throws SolrServerException, IOException, GenomicFeatureNotFoundException, ParameterNotFoundException, URISyntaxException {
 
-        Set<String> allGraphUrlSet = new LinkedHashSet<>();
-        String allParameters = "";
+		Long time = System.currentTimeMillis();
+		GraphUtils graphUtils = new GraphUtils(experimentService, srService, impressService);
+		List<String> geneIds = getParamsAsList(accessionsParams);
+		List<String> paramIds = getParamsAsList(parameterIds);
+		List<String> genderList = getParamsAsList(gender);
+		List<String> phenotypingCentersList = getParamsAsList(phenotypingCenter);
+		List<String> strainsList = getParamsAsList(strains);
+		List<String> metadataGroups = getParamsAsList(metadataGroup);
+		List<String> pipelineStableIds = getParamsAsList(pipelineStableIdsArray);
+		List<String> procedureStableIds = getParamsAsList(procedureStableIdsArray);
+		List<String> alleleAccessions = getParamsAsList(alleleAccession);
 
-        // All ABR parameters are displayed on the same chart so we don't want to duplicate an identical chart for every ABR parameter
+		// add sexes explicitly here so graphs urls are created separately
+		if (genderList.isEmpty()) {
+			genderList.add(SexType.male.name());
+			genderList.add(SexType.female.name());
+		}
+
+		List<String> zyList = getParamsAsList(zygosity);
+		if (zyList.isEmpty()) {
+			zyList.add(ZygosityType.homozygote.name());
+			zyList.add(ZygosityType.heterozygote.name());
+			zyList.add(ZygosityType.hemizygote.name());
+		}
+
+		Set<String> allGraphUrlSet = new LinkedHashSet<>();
+		String allParameters = "";
+
+		// All ABR parameters are displayed on the same chart so we don't want to duplicate an identical chart for every ABR parameter
 		List<String> abrParameters = new ArrayList<>(paramIds);
-        abrParameters.retainAll(Constants.ABR_PARAMETERS);
-        if (abrParameters.size() > 1){
-            for (int i = 1; i < abrParameters.size(); i++) { // remove all ABR params but the first one
-                paramIds.remove(abrParameters.get(i));
-            }
-        }
-        if(geneIds.size()==0) {
-        	System.err.println("There are no geneIds for this request....probably and error");
-        }
+		abrParameters.retainAll(Constants.ABR_PARAMETERS);
+		if (abrParameters.size() > 1){
+			for (int i = 1; i < abrParameters.size(); i++) { // remove all ABR params but the first one
+				paramIds.remove(abrParameters.get(i));
+			}
+		}
+		if(geneIds.size()==0) {
+			System.err.println("There are no geneIds for this request....probably and error");
+		}
 
-        for (String geneId : geneIds) {
+		for (String geneId : geneIds) {
 
-            GeneDTO gene = geneService.getGeneById(geneId);
+			GeneDTO gene = geneService.getGeneById(geneId);
 
-            if (gene == null) {
-                throw new GenomicFeatureNotFoundException("Gene " + geneId + " can't be found.", geneId);
-            }
+			if (gene == null) {
+				throw new GenomicFeatureNotFoundException("Gene " + geneId + " can't be found.", geneId);
+			}
 
-            log.debug(gene.toString());
+			log.debug(gene.toString());
 
-            model.addAttribute("gene", gene);
+			model.addAttribute("gene", gene);
 
-            List<String> pNames = new ArrayList<>();
+			List<String> pNames = new ArrayList<>();
 
-            for (String parameterId : paramIds) {
+			for (String parameterId : paramIds) {
 
-                ParameterDTO parameter = impressService.getParameterByStableId(parameterId);
-                if(parameter==null) {
-                	System.err.println("no parameter returned skipping for parameterId="+parameterId);
-                	continue;
-                }
-                pNames.add(StringUtils.capitalize(parameter.getName()) + " (" + parameter.getStableId() + ")");
+				ParameterDTO parameter = impressService.getParameterByStableId(parameterId);
+				if(parameter==null) {
+					System.err.println("no parameter returned skipping for parameterId="+parameterId);
+					continue;
+				}
+				pNames.add(StringUtils.capitalize(parameter.getName()) + " (" + parameter.getStableId() + ")");
 
-                Set<String> graphUrlsForParam = graphUtils.getGraphUrls(
+				Set<String> graphUrlsForParam = graphUtils.getGraphUrls(
 						pipelineStableIds,
 						procedureStableIds,
 						parameter.getStableId(),
@@ -767,21 +747,21 @@ public class ChartsController {
 						strainsList,
 						phenotypingCentersList,
 						metadataGroups
-						);
+				);
 
-                allGraphUrlSet.addAll(graphUrlsForParam);
+				allGraphUrlSet.addAll(graphUrlsForParam);
 
-            }// end of parameterId iterations
+			}// end of parameterId iterations
 
-            allParameters = StringUtils.join(pNames, ", ");
+			allParameters = StringUtils.join(pNames, ", ");
 
-        }// end of gene iterations
-        log.debug(allGraphUrlSet.size() + " chart links.");
-        List allUrls=putEarlyAdultViabilityFirst(allGraphUrlSet);//we want early adult viability first if  present rather than embryo viability data
-        model.addAttribute("allGraphUrlSet", allUrls);
-        model.addAttribute("allParameters", allParameters);
-        return "stats";
-    }
+		}// end of gene iterations
+		log.debug(allGraphUrlSet.size() + " chart links.");
+		List allUrls=putEarlyAdultViabilityFirst(allGraphUrlSet);//we want early adult viability first if  present rather than embryo viability data
+		model.addAttribute("allGraphUrlSet", allUrls);
+		model.addAttribute("allParameters", allParameters);
+		return "stats";
+	}
 
 
 
@@ -804,28 +784,28 @@ public class ChartsController {
 		}
 		return urlsList;
 	}
-    /**
-     * Convenience method that just changes an array [] to a more modern LIst (I
-     * hate arrays! :) )
-     *
-     * @param parameterIds
-     * @return
-     */
-    private List<String> getParamsAsList(String[] parameterIds) {
+	/**
+	 * Convenience method that just changes an array [] to a more modern LIst (I
+	 * hate arrays! :) )
+	 *
+	 * @param parameterIds
+	 * @return
+	 */
+	private List<String> getParamsAsList(String[] parameterIds) {
 
-        List<String> paramIds = new ArrayList<>();
-        if (parameterIds != null) {
-            paramIds.addAll(Arrays.stream(parameterIds).collect(Collectors.toSet()));
-        }
-        return paramIds;
-    }
+		List<String> paramIds = new ArrayList<>();
+		if (parameterIds != null) {
+			paramIds.addAll(Arrays.stream(parameterIds).collect(Collectors.toSet()));
+		}
+		return paramIds;
+	}
 
-    @RequestMapping("/colors")
-    public String colors(Model model) {
-    	model.addAttribute("maleColors", ChartColors.maleRgb);
-    	model.addAttribute("femaleColors", ChartColors.femaleRgb);
-    	model.addAttribute("highDifferenceColors",ChartColors.highDifferenceColors);
-        return "colors";
-    }
+	@RequestMapping("/colors")
+	public String colors(Model model) {
+		model.addAttribute("maleColors", ChartColors.maleRgb);
+		model.addAttribute("femaleColors", ChartColors.femaleRgb);
+		model.addAttribute("highDifferenceColors",ChartColors.highDifferenceColors);
+		return "colors";
+	}
 
 }
