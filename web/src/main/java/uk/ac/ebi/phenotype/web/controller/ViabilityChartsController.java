@@ -132,11 +132,17 @@ public class ViabilityChartsController {
 		List<GenotypePhenotypeDTO> genotypePhenotypeForViability=null;
 		try {
 			genotypePhenotypeForViability = gpService.getGenotypePhenotypeForViability(accessionsParams[0]);
+			for(GenotypePhenotypeDTO phenotypeDTO:genotypePhenotypeForViability){
+				System.out.println(" Associated phenotype="+phenotypeDTO.getMpTermName()+" phenotyping center "+phenotypeDTO.getPhenotypingCenter()+"testing protocol="+phenotypeDTO.getProcedureName()+" measured value="+ phenotypeDTO.getParameterName());
+				System.out.println(phenotypeDTO);
+			}
 		} catch (SolrServerException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+
 		//create charts
 		//method here to look through all viability and embryo viability etc and get one chart per set i.e. don't seperate on Zygosity like other charts are seperated
 		//what are the rules going to be for this??

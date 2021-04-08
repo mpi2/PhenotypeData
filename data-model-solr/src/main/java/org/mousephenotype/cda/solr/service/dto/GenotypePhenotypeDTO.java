@@ -331,5 +331,61 @@ public class GenotypePhenotypeDTO {
         return assertionTypeId;
     }
 
-
+    @Override
+    public String toString() {
+        return "GenotypePhenotypeDTO{" +
+                "id='" + id + '\'' +
+                ", ontologyDbId=" + ontologyDbId +
+                ", assertionType='" + assertionType + '\'' +
+                ", assertionTypeId='" + assertionTypeId + '\'' +
+                ", mpathTermId='" + mpathTermId + '\'' +
+                ", mpathTermName='" + mpathTermName + '\'' +
+                ", anatomyTermId=" + anatomyTermId +
+                ", anatomyTermName=" + anatomyTermName +
+                ", intermediateAnatomyTermId=" + intermediateAnatomyTermId +
+                ", intermediateAnatomyTermName=" + intermediateAnatomyTermName +
+                ", topLevelAnatomyTermId=" + topLevelAnatomyTermId +
+                ", topLevelAnatomyTermName=" + topLevelAnatomyTermName +
+                ", mpTermId='" + mpTermId + '\'' +
+                ", mpTermName='" + mpTermName + '\'' +
+                ", altMpTermId=" + altMpTermId +
+                ", topLevelMpTermId=" + topLevelMpTermId +
+                ", topLevelMpTermName=" + topLevelMpTermName +
+                ", intermediateMpTermId=" + intermediateMpTermId +
+                ", intermediateMpTermName=" + intermediateMpTermName +
+                ", markerSymbol='" + markerSymbol + '\'' +
+                ", markerAccessionId='" + markerAccessionId + '\'' +
+                ", colonyId='" + colonyId + '\'' +
+                ", alleleName='" + alleleName + '\'' +
+                ", alleleSymbol='" + alleleSymbol + '\'' +
+                ", alleleAccessionId='" + alleleAccessionId + '\'' +
+                ", strainName='" + strainName + '\'' +
+                ", strainAccessionId='" + strainAccessionId + '\'' +
+                ", geneticBackground='" + geneticBackground + '\'' +
+                ", phenotypingCenter='" + phenotypingCenter + '\'' +
+                ", projectExternalId='" + projectExternalId + '\'' +
+                ", projectName=" + projectName +
+                ", projectFullname='" + projectFullname + '\'' +
+                ", resourceName='" + resourceName + '\'' +
+                ", resourceFullname='" + resourceFullname + '\'' +
+                ", sex='" + sex + '\'' +
+                ", zygosity='" + zygosity + '\'' +
+                ", pipelineName='" + pipelineName + '\'' +
+                ", pipelineStableId='" + pipelineStableId + '\'' +
+                ", pipelineStableKey='" + pipelineStableKey + '\'' +
+                ", procedureName='" + procedureName + '\'' +
+                ", procedureStableId=" + procedureStableId +
+                ", procedureStableKey=" + procedureStableKey +
+                ", parameterName='" + parameterName + '\'' +
+                ", parameterStableId='" + parameterStableId + '\'' +
+                ", parameterStableKey=" + parameterStableKey +
+                ", statisticalMethod='" + statisticalMethod + '\'' +
+                ", percentageChange='" + percentageChange + '\'' +
+                ", p_value=" + p_value +
+                ", effectSize=" + effectSize +
+                ", externalId='" + externalId + '\'' +
+                ", lifeStageAcc='" + lifeStageAcc + '\'' +
+                ", lifeStageName='" + lifeStageName + '\'' +
+                '}';
+    }
 }
