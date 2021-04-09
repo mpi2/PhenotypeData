@@ -218,9 +218,10 @@
             <div class="row">
                 <div class="col-12 white-bg">
                     <div class="page-content pt-5 pb-5">
+                        <p>Learn about how to interpret our results in the <a href="${cmsBaseUrl}/help/data-visualization/gene-pages/disease-models/">Disease Models Help pages</a></p>
                         <div id="phenotabs" class="phenotabs">
                             <ul class='tabs'>
-                                <li><a href="#by-annotation">By disease annotation</a></li>
+                                <li><a href="#by-annotation">By orthology</a></li>
                                 <li><a href="#by-phenotype">By phenotypic similarity</a></li>
                             </ul>
                             <div id="by-annotation">
@@ -319,7 +320,7 @@
                 }];
 
             $(document).ready(function () {
-                $("#phenotabs").tabs({active: 0});
+                $("#phenotabs").tabs({active: 1});
                 // create tables
                 for (var i = 0; i < diseaseTableConfs.length; i++) {
                     var dTable = diseaseTableConfs[i];

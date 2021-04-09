@@ -45,4 +45,14 @@ public class ViabilityDTOVersion1 extends ViabilityDTO {
     @Override public String getTotalFemaleWt() { return totalFemaleWt; }
     @Override public String getTotalMaleWt() { return totalMaleWt; }
     @Override public String getTotalFemaleHom() { return totalFemaleHom; }
+
+    @Override
+    public String getTotalMaleHem() {
+        return null;
+    }
+
+    @Override
+    public String getTotalFemaleAnz() {
+        return null;
+    }
 }

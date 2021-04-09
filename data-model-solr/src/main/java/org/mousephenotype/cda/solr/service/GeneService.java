@@ -211,6 +211,8 @@ public class GeneService extends BasicService implements WebStatus {
 		String phenotypeTermName;
 		@SerializedName("top_level_phenotype_term_name")
 		Set<String> topLevelPhenotypeTermName;
+		@SerializedName("top_level_phenotype_term_id")
+		Set<String> topLevelPhenotypeTermId;
 
 	}
 
@@ -262,8 +264,7 @@ public class GeneService extends BasicService implements WebStatus {
 				ImpressBaseDTO parameter = new ImpressBaseDTO(null, null, x.getParameterStableID(), x.getParameterName());
 				Double pValue = x.getPValue();
 				BasicBean phenotypeTerm = new BasicBean(x.getPhenotypeTermId(), x.getPhenotypeTermName());
-				Set<String> topLevelPhenotypeTermNames = x.getTopLevelPhenotypeTermName();
-				System.out.println("getting top level MP name=" + x.getTopLevelPhenotypeTermName());
+				Set<String> topLevelPhenotypeTerms = x.getTopLevelPhenotypeTermId();
 				ExperimentsDataTableRow row = new ExperimentsDataTableRow(
 						x.getPhenotypingCenter(),
 						x.getSignificance(), // Statistical method
@@ -281,6 +282,7 @@ public class GeneService extends BasicService implements WebStatus {
 						null, // Effect size
 						null // Metadata group
 				);
+				row.setTopLevelPhenotypes(topLevelPhenotypeTerms);
 				row.setPhenotypeTerm(phenotypeTerm);
 				row.setLifeStageName(x.getLifeStageName());
 				return row;

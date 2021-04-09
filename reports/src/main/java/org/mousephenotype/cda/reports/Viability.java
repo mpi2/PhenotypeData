@@ -203,7 +203,7 @@ public class Viability extends AbstractReport {
                 totalMaleHom = dataPointsByParamId.get(v1.getTotalMaleHom());
                 totalMaleHem = 0.0;
                 totalPups = dataPointsByParamId.get(v1.getTotalPups());
-                Double d = new Double((totalFemaleHom + totalMaleHom + totalMaleHem) / totalPups);
+                Double d = (totalFemaleHom + totalMaleHom + totalMaleHem) / totalPups;
                 rDto.setPercentageHoms(d.toString());
                 rDto.setTotalFemaleAnz(Constants.NO_INFORMATION_AVAILABLE);
                 rDto.setTotalFemalePups(toStringTrunc(dataPointsByParamId.getOrDefault(v1.getTotalFemalePups(), -1.0)));
@@ -223,7 +223,7 @@ public class Viability extends AbstractReport {
                 totalMaleHom = dataPointsByParamId.getOrDefault(v2.getTotalMaleHom(), -1.0);
                 totalMaleHem = dataPointsByParamId.getOrDefault(v2.getTotalMaleHem(), -1.0);
                 totalPups = dataPointsByParamId.getOrDefault(v2.getTotalPups(), -1.0);
-                d = new Double((totalFemaleHom + totalMaleHom + totalMaleHem) / totalPups);
+                d = (totalFemaleHom + totalMaleHom + totalMaleHem) / totalPups;
                 rDto.setPercentageHoms(d.toString());
                 rDto.setTotalFemaleAnz(toStringTrunc(dataPointsByParamId.getOrDefault(v2.getTotalFemaleAnz(), -1.0)));
                 rDto.setTotalFemalePups(toStringTrunc(dataPointsByParamId.getOrDefault(v2.getTotalFemalePups(), -1.0)));

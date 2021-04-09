@@ -123,7 +123,7 @@
                     //get the value of the TD using the API
                     url = url + gene_symbol;
                     if ($(anatomy).text()) {
-                        url = url + '?anatomy="' + $(anatomy).text() + '"';
+                        url = url + '?anatomy="' + $(anatomy).text().trim() + '"';
                     }
                     console.log('url=' + url);
                     var win = window.open(url, '_blank');

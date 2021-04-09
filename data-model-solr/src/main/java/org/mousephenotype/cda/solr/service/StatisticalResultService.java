@@ -909,69 +909,29 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         return new ArrayList<>(solrResults);
     }
 
+
     /**
      * Get the result for a set of allele strain phenotypeCenter, pipeline, parameter, metadata, zygosity, sex
      */
-    public List<StatisticalResultDTO> getStatisticalResult(
-            String alleleAccession,
-            String strain,
-            String phenotypingCenter,
-            String pipelineStableId,
-            String parameterStableId,
-            String metadataGroup,
-            ZygosityType zygosity,
-            SexType sex,
-            ObservationType statisticalType) throws SolrServerException, IOException {
-
-        List<StatisticalResultDTO> results = new ArrayList<>();
+    public List<StatisticalResultDTO> getStatisticalResultByDataType(String dataType) throws SolrServerException, IOException {
 
         SolrQuery query = new SolrQuery()
-                .setQuery("*:*")
-                .addFilterQuery(StatisticalResultDTO.ALLELE_ACCESSION_ID + ":\"" + alleleAccession + "\"")
-                .addFilterQuery(StatisticalResultDTO.PHENOTYPING_CENTER + ":\"" + phenotypingCenter + "\"")
-                .addFilterQuery(StatisticalResultDTO.PIPELINE_STABLE_ID + ":" + pipelineStableId)
-                .addFilterQuery(StatisticalResultDTO.PARAMETER_STABLE_ID + ":" + parameterStableId)
-                .addFilterQuery(StatisticalResultDTO.ZYGOSITY + ":" + zygosity.name())
+                .setQuery("*:*").addFilterQuery(StatisticalResultDTO.DATA_TYPE + ":" + dataType)
                 .setStart(0)
-                .setRows(10);
-
-        if (strain != null) {
-            query.addFilterQuery(StatisticalResultDTO.STRAIN_ACCESSION_ID + ":\"" + strain + "\"");
-        }
-
-        if (sex != null) {
-            query.addFilterQuery(StatisticalResultDTO.SEX + ":" + sex);
-        }
-
-        if (metadataGroup == null) {
-            // don't add a metadata group filter
-        } else if (metadataGroup.isEmpty()) {
-            query.addFilterQuery(StatisticalResultDTO.METADATA_GROUP + ":\"\"");
-        } else {
-            query.addFilterQuery(StatisticalResultDTO.METADATA_GROUP + ":" + metadataGroup);
-        }
-
-        //System.out.println("statistical-result query========: " + query);
-
+                .setRows(Integer.MAX_VALUE);
         QueryResponse response = statisticalResultCore.query(query);
         List<StatisticalResultDTO> solrResults = response.getBeans(StatisticalResultDTO.class);
 
-        if (statisticalType == ObservationType.unidimensional) {
-            results.addAll(solrResults);
-        } else if (statisticalType == ObservationType.categorical) {
-            results.addAll(solrResults);
-        }
-
-        return results;
+        return solrResults;
     }
 
 
-    public Map<String, List<ExperimentsDataTableRow>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> procedureName, List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermNames, String graphBaseUrl)
+    public Map<String, List<ExperimentsDataTableRow>> getPvaluesByAlleleAndPhenotypingCenterAndPipeline(String geneAccession, List<String> procedureName, List<String> alleleSymbol, List<String> phenotypingCenter, List<String> pipelineName, List<String> procedureStableIds, List<String> resource, List<String> mpTermIds, String graphBaseUrl)
             throws NumberFormatException, SolrServerException, IOException {
 
         Map<String, List<ExperimentsDataTableRow>> results = new HashMap<>();
 
-        SolrQuery query = buildQuery(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableIds, resource, mpTermNames, null, null, null, null, null, null, null, null);
+        SolrQuery query = buildQuery(geneAccession, procedureName, alleleSymbol, phenotypingCenter, pipelineName, procedureStableIds, resource, mpTermIds, null, null, null, null, null, null, null, null);
         List<StatisticalResultDTO> solrResults = statisticalResultCore.query(query).getBeans(StatisticalResultDTO.class);
 
         for (StatisticalResultDTO statResult : solrResults) {

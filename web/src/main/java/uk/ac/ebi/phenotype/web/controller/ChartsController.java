@@ -402,6 +402,9 @@ public class ChartsController {
 				ViabilityDTO viability = experimentService.getSpecificViabilityVersion1ExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession);
 				ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(viability, parameterStableId);
 				model.addAttribute("viabilityDTO", viabilityDTO);
+				//if viability data we want to have a message at the top which comes up on stats.jsp
+					model.addAttribute("isViability", true);
+
 			}
 		} else if (procedureStableId.equals("IMPC_VIA_002")) {
 
@@ -412,6 +415,9 @@ public class ChartsController {
 			ViabilityDTO viability = experimentService.getSpecificViabilityVersion2ExperimentDTO(parameterStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession);
 			ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(viability, parameterStableId);
 			model.addAttribute("viabilityDTO", viabilityDTO);
+			//if viability data we want to have a message at the top which comes up on stats.jsp
+				model.addAttribute("isViability", true);
+
 		}
 
 

@@ -20,6 +20,10 @@ public abstract class ViabilityDTO {
     public abstract String getTotalMaleWt();
     public abstract String getTotalFemaleHom();
 
+    //only in version 2 but subclasses and EL don't seem to play well and we can just return null?
+    public abstract String getTotalMaleHem();
+    public abstract String getTotalFemaleAnz();
+
     private Map<String, ObservationDTO> paramStableIdToObservation = new HashMap<>();
     private String totalChart = "";
     private String maleChart = "";
