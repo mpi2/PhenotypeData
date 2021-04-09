@@ -88,7 +88,7 @@ public class ObservationService extends BasicService implements WebStatus {
         Set<ObservationDTO> observations = new HashSet<>();
 
         SolrQuery solrQuery = new SolrQuery()
-                .setRows(PARTITION_SIZE * 2);
+                .setRows(Integer.MAX_VALUE);
 
         // Partition the set of externalSampleIds into groups of PARTITION_SIZE so as not to overwhelm solr with OR fields
         Iterators.partition(externalSampleIds.iterator(), PARTITION_SIZE).forEachRemaining(obs ->
