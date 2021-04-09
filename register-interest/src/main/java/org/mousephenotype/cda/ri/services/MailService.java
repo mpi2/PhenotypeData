@@ -40,8 +40,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -77,18 +76,27 @@ public class MailService {
      * This generate-and-send operation is meant to be idempotent such that if this method is
      * terminated before all summaries have been sent, previously sent summaries will not be re-sent.
      */
-    public void mailer() {
+    public void mailer(boolean doSend) {
         int count = 0;
         logger.info("BEGIN mailer. SmtpParameters = {}.", smtpParameters);
-        List<Summary> summaries = getAndUpdateChangedSummaries();
-        for (Summary summary : summaries) {
-            generateAndSendSummary(summary);
-            riSqlUtils.updateGeneSent(summary);
+        Map<String, String> changedSummaryContentByEmailAddress = _getChangedSummaryContentByEmailAddress();
+        for (Map.Entry<String, String> entry : changedSummaryContentByEmailAddress.entrySet()) {
+            Summary summary = summaryService.getSummaryByContact(summaryService.getContact(entry.getKey()));
+            if (doSend) {
+                _sendSummary(summary, DEFAULT_SUMMARY_SUBJECT, entry.getValue());
+                riSqlUtils.updateGeneSent(summary);
+            }
             count++;
             logger.info("{} : {}", count, summary.getEmailAddress());
-            _sleep(36);     // Pause so we don't exceed 100 e-mails per hour.
+            if (doSend) {
+                _sleep(36);
+            }
         }
-        logger.info("END mailer. Processed {} summaries.", count);
+        if (doSend) {
+            logger.info("END mailer. Processed and sent {} summaries.", count);
+        } else {
+            logger.info("END mailer. Processed {} summaries but sent none as the 'send' flag was not specified.", count);
+        }
     }
 
     /**
@@ -127,29 +135,56 @@ public class MailService {
             }
         }
         int count = 0;
-        logger.info("BEGIN checker. outfileName = {}.", outputDirName);
-        List<Summary> summaries = getAndUpdateChangedSummaries();
-        if (!summaries.isEmpty()) {
+        logger.info("BEGIN checker. outputDirName = {}.", outputDirName);
+
+        Map<String, String> changedSummaryContentByEmailAddress = _getChangedSummaryContentByEmailAddress();
+        if ( ! changedSummaryContentByEmailAddress.isEmpty()) {
             System.out.println("Would send updated status summary to these contacts:");
         } else {
             System.out.println("There are no updated status summaries for any contacts.");
         }
-        for (Summary summary : summaries) {
-            String content = generateSummary(summary);
+        for (Map.Entry<String, String> entry : changedSummaryContentByEmailAddress.entrySet()) {
             if (outputDir != null) {
-                Path           path   = Paths.get(outputDirName, summary.getEmailAddress());
+                Path           path   = Paths.get(outputDirName, entry.getKey());
                 BufferedWriter writer = new BufferedWriter(new FileWriter(path.toAbsolutePath().toString()));
-                writer.append(content);
+                writer.append(entry.getValue());
                 writer.close();
             }
             count++;
-            logger.info("{} : {}", count, summary.getEmailAddress());
+            logger.info("{} : {}", count, entry.getKey());
         }
+
         logger.info("END checker. Processed {} summaries.{}", count,
             outputDir == null ? "" : " Output files written to " + outputDir.getAbsolutePath() + ".");
     }
 
+    // For each contact/summary
+    //   get map of last SummaryDetail indexed by geneAccessionId
+    //   For each currentSd
+    //     if currentSd is found in lastSdsByAcc map
+    //       if currentSd != lastSd
+    //         generate content
+    //         add to contentMapByEmailAddress
+    //         Continue to next summary
+    //   return contentMapByEmailAddress
+    private Map<String, String> _getChangedSummaryContentByEmailAddress() {
+        Map<String, String> summaryContentByEmailAddress = new HashMap<>();
+        riSqlUtils.getContacts()
+            .stream()
+            .forEach((Contact c) -> {
+                Summary current = summaryService.getSummaryByContact(c);
+                Map<String, SummaryDetail> lastSdsByAcc = getLastSdsByAcc(c.getEmailAddress());
+                for (SummaryDetail currentSd : current.getDetails()) {
+                    SummaryDetail lastSd = lastSdsByAcc.get(currentSd.getGeneAccessionId());
+                    if ( ! currentSd.equals(lastSd)) {
+                        summaryContentByEmailAddress.put(current.getEmailAddress(), _generateSummaryContent(current,lastSdsByAcc));
+                        break;
+                    }
+                }
+            });
 
+        return summaryContentByEmailAddress;
+    }
     public static final String generateEmailEpilogue(boolean inHtml) {
         StringBuilder body = new StringBuilder();
         body
@@ -168,12 +203,14 @@ public class MailService {
         return body.toString();
     }
 
-    public String generateSummary(Summary summary) {
-        return _generateSummaryContent(summary);
+    public String generateSummary(Summary summary, Map<String, SummaryDetail> lastSdsByAcc) {
+        return _generateSummaryContent(summary, lastSdsByAcc);
     }
 
-    public void generateAndSendSummary(Summary summary) {
-        String content = generateSummary(summary);
+    // NOTE: This method is used by MailServiceTest methods that send real e-mails. Those tests are commented out
+    //       but if uncommented they call the method below (and they send real e-mails).
+    public void generateAndSendSummary(Summary summary, Map<String, SummaryDetail> lastSdsByAcc) {
+        String content = generateSummary(summary, lastSdsByAcc);
         _sendSummary(summary, DEFAULT_SUMMARY_SUBJECT, content);
     }
 
@@ -185,51 +222,16 @@ public class MailService {
         _sendWelcome(contact, DEFAULT_WELCOME_SUBJECT, generateWelcome(contact.isInHtml()));
     }
 
-    // A Summary is considered 'changed' if any of its SummaryDetails for any registered genes is different.
-    public List<Summary> getAndUpdateChangedSummaries() {
-        // For each contact
-        //    Get a map of this contact's last SummaryDetail list indexed by geneAccessionId (lastSdByAcc)
-        //    For each currentSd (this contact's current SummaryDetail list)
-        //      Look up currentSd in lastSdByAcc
-        //      If not found, treat currentSd as unchanged
-        //      Else compare summaryDetails using SummaryDetail method that marks each changed summary. If any
-        //        summary details have changed, add summary to changedSummaries.
-        List<Summary> changedSummaries = new ArrayList<>();
-        riSqlUtils.getContacts()
-            .stream()
-            .forEach((Contact c) -> {
-                Summary s = getAndUpdateSummaryIfChanged(c);
-                if (s != null) {
-                    changedSummaries.add(s);
-                }
-            });
-        return changedSummaries;
-    }
 
-    /**
-     * @param contact
-     * @return summary with changed SummaryDetail instances marked as changed. If there were no changes,
-     * a null Summary is returned.
-     */
-    public Summary getAndUpdateSummaryIfChanged(Contact contact) {
-        Map<String, SummaryDetail> lastSdByAcc = riSqlUtils.getGeneSentByEmailAddress(contact.getEmailAddress())
+    // PROTECTED METHODS
+
+
+    protected Map<String, SummaryDetail> getLastSdsByAcc(String emailAddress) {
+        Map<String, SummaryDetail> lastSdsByAcc = riSqlUtils.getGeneSentByEmailAddress(emailAddress)
             .stream()
             .map(GeneSent::toSummaryDetail)
             .collect(Collectors.toMap(SummaryDetail::getGeneAccessionId, Function.identity()));
-
-        final boolean[] changed = {false};
-        Summary         summary = summaryService.getSummaryByContact(contact);
-        summary.getDetails()
-            .stream()
-            .forEach(currentSd -> {
-                SummaryDetail lastSd = lastSdByAcc.get(currentSd.getGeneAccessionId());
-                if (lastSd != null) {
-                    if (currentSd.markSdDifferences(lastSd)) {
-                        changed[0] = true;
-                    }
-                }
-            });
-        return summary;
+        return lastSdsByAcc;
     }
 
 
@@ -237,13 +239,13 @@ public class MailService {
 
 
     // Summary content
-    private String _generateSummaryContent(Summary summary) {
+    private String _generateSummaryContent(Summary summary, Map<String, SummaryDetail> lastSdsByAcc) {
         if (summary == null) {
             return "No summary was found for that contact";
         }
         return new StringBuilder()
             .append(_generateSummaryPrefaceContent(summary.isInHtml()))
-            .append(SummaryDetailTable.build(summary.getDetails(), summary.isInHtml()))
+            .append(SummaryDetailTable.build(summary.getDetails(), lastSdsByAcc, summary.isInHtml()))
             .append(summary.isInHtml() ? "<br />" : "\n")
             .append("* Indicates a status has changed since the last e-mail sent to you.")
             .append(summary.isInHtml() ? "<br /><br />" : "\n\n")

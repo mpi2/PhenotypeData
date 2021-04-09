@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,8 +29,7 @@ public class SummaryService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // This is the interval, in minutes, between reloading the summary details from the gene core.
-    // FIXME Before production set this to a more sensible value.
-    public static int SUMMARY_DETAILS_RELOAD_INTERVAL_IN_MINUTES = 10;
+    public static int SUMMARY_DETAILS_RELOAD_INTERVAL_IN_MINUTES = 240;
 
     private GeneService geneService;
     private RiSqlUtils  riSqlUtils;
@@ -76,7 +76,12 @@ public class SummaryService {
         riSqlUtils.updateResetCredentials(resetCredentials);
     }
 
+    // This gets called by Spring with emailAddress 'anonymousUser', which has no contact entry.
     public List<String> getGeneAccessionIds(String emailAddress) {
+        Contact contact = getContact(emailAddress);
+        if (contact == null) {
+            return new ArrayList<>();
+        }
         return getSummaryByContact(getContact(emailAddress))
                 .getDetails()
                 .stream()

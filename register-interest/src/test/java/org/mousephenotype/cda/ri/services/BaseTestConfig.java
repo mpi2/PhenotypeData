@@ -35,7 +35,7 @@ import javax.sql.DataSource;
  * Created by mrelac on 16/08/2018
  */
 @Configuration
-@ComponentScan(basePackages = { "org.mousephenotype.cda.ri" })
+@ComponentScan(basePackages = { "org.mousephenotype.cda.ri.config", "org.mousephenotype.cda.ri.services" })
 public class BaseTestConfig {
     public static final String PA_BASE_URL = "https://dev.mousephenotype.org/data";
 

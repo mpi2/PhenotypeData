@@ -141,6 +141,10 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <!-- Spring complains that there is more than one main, so declare one here. -->
+                <configuration>
+                    <mainClass>org.mousephenotype.cda.ri.apps.ApplicationChecker</mainClass>
+                </configuration>
                 <executions>
                     <execution>
                         <id>repackage</id>

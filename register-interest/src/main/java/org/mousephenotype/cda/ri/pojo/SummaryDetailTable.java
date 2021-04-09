@@ -20,7 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.util.HtmlUtils;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 public class SummaryDetailTable {
 
@@ -41,19 +43,20 @@ public class SummaryDetailTable {
             "    background-color: #dddddd;" +
             "}";
 
-    public static String build(List<SummaryDetail> currentSds, boolean inHtml) {
+    public static String build(List<SummaryDetail> currentSds, Map<String, SummaryDetail> lastSdsByAcc, boolean inHtml) {
         StringBuilder body = new StringBuilder();
         body
             .append(buildHeading(inHtml))
-            .append(String.join("", buildRows(currentSds, inHtml)))
+            .append(String.join("", buildRows(currentSds, lastSdsByAcc, inHtml)))
             .append(inHtml ? "</table>" : "\n");
         return body.toString();
     }
 
-    private static String[] buildRows(List<SummaryDetail> currentSds, boolean inHtml) {
+    private static String[] buildRows(List<SummaryDetail> currentSds, Map<String, SummaryDetail> lastSdsByAcc, boolean inHtml) {
         return currentSds
             .stream()
-            .map((SummaryDetail sd) -> sd.toStringDecorated(inHtml) + (inHtml ? "</tr>" : "\n"))
+            .sorted(Comparator.comparing(SummaryDetail::getSymbol))
+            .map((SummaryDetail currentSd) -> currentSd.toStringDecorated(lastSdsByAcc.get(currentSd.getGeneAccessionId()), inHtml) + (inHtml ? "</tr>" : "\n"))
             .toArray(String[]::new);
     }
 

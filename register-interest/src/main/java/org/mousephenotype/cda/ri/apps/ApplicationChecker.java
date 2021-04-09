@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright © 2018 EMBL - European Bioinformatics Institute
+ * Copyright © 2021 EMBL - European Bioinformatics Institute
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
@@ -14,7 +14,7 @@
  * License.
  ******************************************************************************/
 
-package org.mousephenotype.cda.ri;
+package org.mousephenotype.cda.ri.apps;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -22,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.ri.services.MailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.WebApplicationType;
@@ -34,12 +33,8 @@ import java.io.IOException;
 import java.util.Arrays;
 
 
-@ComponentScan({"org.mousephenotype.cda.ri"})
+@ComponentScan({"org.mousephenotype.cda.ri.apps", "org.mousephenotype.cda.ri.services"})
 public class ApplicationChecker implements CommandLineRunner {
-
-    @Value("${paBaseUrl}")
-    private String paBaseUrl;
-
     private final Logger      logger = LoggerFactory.getLogger(this.getClass());
     private       MailService mailService;
 
@@ -97,10 +92,9 @@ public class ApplicationChecker implements CommandLineRunner {
 
     protected OptionSet parseOptions(OptionParser parser, String[] args) {
         OptionSet options = null;
-        parser.allowsUnrecognizedOptions();
         parser.acceptsAll(Arrays.asList(OPT_HELP), "Display help/usage information\t" + USAGE)
             .forHelp();
-        parser.acceptsAll(Arrays.asList(OPT_OUTPUT_DIR_NAME), OPT_OUTPUT_DIR_DESCRIPTION)
+        parser.acceptsAll(Arrays.asList(OPT_OUTPUT_DIR_NAME), OPT_OUTPUT_DIR_DESCRIPTION).withRequiredArg()
             .forHelp();
         try {
             options = parser.parse(args);

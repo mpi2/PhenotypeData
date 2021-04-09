@@ -42,6 +42,7 @@ public class SummaryServiceTest extends BaseTest {
     public static final String user2 = "user2@ebi.ac.uk";
     public static final String user3 = "user3@ebi.ac.uk";
     public static final String user4 = "user4@ebi.ac.uk";
+    public static final String user5 = "user5@ebi.ac.uk";
 
 
     @Autowired
@@ -54,7 +55,7 @@ public class SummaryServiceTest extends BaseTest {
 
     @Test
     public void getContacts() {
-        List<String> expected = Arrays.asList(user1, user2, user3, user4);
+        List<String> expected = Arrays.asList(user1, user2, user3, user4, user5);
         List<Contact> actual = summaryService.getContacts();
         assertEquals("Expected " + expected.size() + " contacts. Found " + actual.size(), actual.size(), expected.size());
 
@@ -75,6 +76,11 @@ public class SummaryServiceTest extends BaseTest {
             .stream().filter(c -> c.getEmailAddress().equalsIgnoreCase(user4)).collect(Collectors.toList());
         assertFalse("Expected to find " + user4, l.isEmpty());
         assertFalse("Expected inHtml false for " + user4, l.get(0).isInHtml());
+
+        l = actual
+            .stream().filter(c -> c.getEmailAddress().equalsIgnoreCase(user5)).collect(Collectors.toList());
+        assertFalse("Expected to find " + user5, l.isEmpty());
+        assertFalse("Expected inHtml false for " + user5, l.get(0).isInHtml());
 
     }
 

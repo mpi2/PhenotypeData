@@ -35,16 +35,6 @@ public class SummaryDetail {
     private String  nullAlleleProductionStatus;
     private boolean isPhenotypingDataAvailable;
 
-    // These booleans are used to track status changes.
-    // They are set when markSdDifferences() is called.
-    // They are queried when the xxxToString() methods are called to retrieve the status strings.
-    // Changed values are identified by " *" appended to the *Changed field(s).
-    private boolean assignmentStatusChanged;
-    private boolean nullAlleleProductionStatusChanged;
-    private boolean conditionalAlleleProductionStatusChanged;
-    private boolean crisprAlleleProductionStatusChanged;
-    private boolean phenotypingDataAvailableChanged;
-
     public SummaryDetail(GeneDTO geneDTO) {
         this.geneAccessionId = geneDTO.getMgiAccessionId();
         this.symbol = geneDTO.getMarkerSymbol();
@@ -55,20 +45,7 @@ public class SummaryDetail {
         this.isPhenotypingDataAvailable = geneDTO.isPhenotypingDataAvailable();
     }
 
-    public SummaryDetail() {
-    }
-
-    public SummaryDetail(String geneAccessionId, String symbol, String assignmentStatus,
-                         String conditionalAlleleProductionStatus, String nullAlleleProductionStatus,
-                         String crisprAlleleProductionStatus, boolean isPhenotypingDataAvailable) {
-        this.geneAccessionId = geneAccessionId;
-        this.symbol = symbol;
-        this.assignmentStatus = assignmentStatus;
-        this.conditionalAlleleProductionStatus = conditionalAlleleProductionStatus;
-        this.nullAlleleProductionStatus = nullAlleleProductionStatus;
-        this.crisprAlleleProductionStatus = crisprAlleleProductionStatus;
-        this.isPhenotypingDataAvailable = isPhenotypingDataAvailable;
-    }
+    public SummaryDetail() { }
 
     public String getGeneAccessionId() {
         return geneAccessionId;
@@ -126,24 +103,6 @@ public class SummaryDetail {
         isPhenotypingDataAvailable = phenotypingDataAvailable;
     }
 
-    // Checks each status field for changes and marks each changed status as such.
-    // Returns true if any status fields have changed; false otherwise
-    public boolean markSdDifferences(SummaryDetail other) {
-        boolean changed = false;
-        this.assignmentStatusChanged = _areDifferent(this.assignmentStatus, other.assignmentStatus) ? true : false;
-        this.conditionalAlleleProductionStatusChanged = _areDifferent(this.conditionalAlleleProductionStatus, other.conditionalAlleleProductionStatus) ? true : false;
-        this.nullAlleleProductionStatusChanged = _areDifferent(this.nullAlleleProductionStatus, other.nullAlleleProductionStatus) ? true : false;
-        this.crisprAlleleProductionStatusChanged = _areDifferent(this.crisprAlleleProductionStatus, other.crisprAlleleProductionStatus) ? true : false;
-        this.phenotypingDataAvailableChanged = this.isPhenotypingDataAvailable != other.isPhenotypingDataAvailable;
-        return changed;
-    }
-
-    private boolean _areDifferent(String a, String b) {
-        a = a == null ? "" : a;
-        b = b == null ? "" : b;
-        return ! a.equalsIgnoreCase(b);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -162,34 +121,7 @@ public class SummaryDetail {
         return Objects.hash(geneAccessionId, assignmentStatus, conditionalAlleleProductionStatus, crisprAlleleProductionStatus, nullAlleleProductionStatus, isPhenotypingDataAvailable);
     }
 
-    // These *toString() methods return a a printable string of each declared status.
-    // If the status indicates it has changed, the returned string has " *" appended to it.
-    public final String assignmentStatusToString() {
-        String s = assignmentStatus == null ? "None" : assignmentStatus;
-        return s + (assignmentStatusChanged ? " *" : "");
-    }
-
-    public final String nullAlleleProductionStatusToString() {
-        String s = nullAlleleProductionStatus == null ? "None" : nullAlleleProductionStatus;
-        return s + (nullAlleleProductionStatusChanged ? " *" : "");
-    }
-
-    public final String conditionalAlleleProductionStatusToString() {
-        String s = conditionalAlleleProductionStatus == null ? "None" : conditionalAlleleProductionStatus;
-        return s + (conditionalAlleleProductionStatusChanged ? " *" : "");
-    }
-
-    public final String crisprAlleleProductionStatusToString() {
-        String s = crisprAlleleProductionStatus == null ? "None" : crisprAlleleProductionStatus;
-        return s + (crisprAlleleProductionStatusChanged ? " *" : "");
-    }
-
-    public final String isPhenotypingDataAvailableToString() {
-        String s = isPhenotypingDataAvailable ? "Yes" : "No";
-        return s + (phenotypingDataAvailableChanged ? " *" : "");
-    }
-
-    public static final  List<String> h      = Arrays.asList(
+    public static final  List<String> h             = Arrays.asList(
         "Gene Symbol",
         "Gene Accession Id",
         "Assignment Status",
@@ -198,33 +130,43 @@ public class SummaryDetail {
         "Crispr Allele Production Status",
         "Phenotyping Data Available"
     );
-    private static final String       FORMAT =
+    private static final String       FORMAT_QUOTED =
         "\"%-" + h.get(0).length() + "." + h.get(0).length() + "s" + "\"" +
-      "  \"%-" + h.get(1).length() + "." + h.get(1).length() + "s" + "\"" +
-      "  \"%-" + (h.get(2).length() + 10) + "." + (h.get(2).length() + 10) + "s" + "\"" +  // Data is wider than heading
-      "  \"%-" + h.get(3).length() + "." + h.get(3).length() + "s" + "\"" +
-      "  \"%-" + h.get(4).length() + "." + h.get(4).length() + "s" + "\"" +
-      "  \"%-" + h.get(5).length() + "." + h.get(5).length() + "s" + "\"" +
-      "  \"%-" + h.get(6).length() + "." + h.get(6).length() + "s" + "\"";
+            "  \"%-" + h.get(1).length() + "." + h.get(1).length() + "s" + "\"" +
+            "  \"%-" + (h.get(2).length() + 10) + "." + (h.get(2).length() + 10) + "s" + "\"" +  // Data is wider than heading
+            "  \"%-" + h.get(3).length() + "." + h.get(3).length() + "s" + "\"" +
+            "  \"%-" + h.get(4).length() + "." + h.get(4).length() + "s" + "\"" +
+            "  \"%-" + h.get(5).length() + "." + h.get(5).length() + "s" + "\"" +
+            "  \"%-" + h.get(6).length() + "." + h.get(6).length() + "s" + "\"";
+
+    private static final String       FORMAT_UNQUOTED =
+        " %-" + h.get(0).length() + "." + h.get(0).length() + "s" + " " +
+            "   %-" + h.get(1).length() + "." + h.get(1).length() + "s" + " " +
+            "   %-" + (h.get(2).length() + 10) + "." + (h.get(2).length() + 10) + "s" + " " + // Data is wider than heading
+            "   %-" + h.get(3).length() + "." + h.get(3).length() + "s" + " " +
+            "   %-" + h.get(4).length() + "." + h.get(4).length() + "s" + " " +
+            "   %-" + h.get(5).length() + "." + h.get(5).length() + "s" + " " +
+            "   %-" + h.get(6).length() + "." + h.get(6).length() + "s";
 
     public static String toStringHeading(boolean inHtml) {
         return (inHtml
             ? h.stream().map(s -> "<th>" + s + "</th>").reduce("", String::concat)
-            : String.format(FORMAT + "\n", h.get(0), h.get(1), h.get(2), h.get(3), h.get(4), h.get(5), h.get(6)));
+            : String.format(FORMAT_QUOTED + "\n", h.get(0), h.get(1), h.get(2), h.get(3), h.get(4), h.get(5), h.get(6)));
     }
 
-    public final String toStringDecorated(boolean inHtml) {
+    // lastSd may be null. If so, handle it as unchanged (i.e. no asterisk)
+    public final String toStringDecorated(SummaryDetail lastSd, boolean inHtml) {
         List<String> d = Arrays.asList(
             symbol,
             geneAccessionId,
-            assignmentStatusToString(),
-            conditionalAlleleProductionStatusToString(),
-            nullAlleleProductionStatusToString(),
-            crisprAlleleProductionStatusToString(),
-            isPhenotypingDataAvailableToString());
+            _assignmentStatusToString(lastSd),
+            _conditionalAlleleProductionStatusToString(lastSd),
+            _nullAlleleProductionStatusToString(lastSd),
+            _crisprAlleleProductionStatusToString(lastSd),
+            _isPhenotypingDataAvailableToString(lastSd));
         return (inHtml
             ? d.stream().map(s -> "<td>" + s + "</td>").reduce("", String::concat)
-            : String.format(FORMAT, d.get(0), d.get(1), d.get(2), d.get(3), d.get(4), d.get(5), d.get(6)));
+            : String.format(FORMAT_UNQUOTED, d.get(0), d.get(1), d.get(2), d.get(3), d.get(4), d.get(5), d.get(6)));
     }
 
     @Override
@@ -238,5 +180,58 @@ public class SummaryDetail {
             ", crisprAlleleProductionStatus='" + crisprAlleleProductionStatus + '\'' +
             ", isPhenotypingDataAvailable=" + isPhenotypingDataAvailable +
             '}';
+    }
+
+
+    // PRIVATE METHODS
+
+
+    // These *toString() methods return a a printable string of each declared status.
+    // If this status differs from 'other' status, the returned string has " *" appended to it.
+    private final String _assignmentStatusToString(SummaryDetail other) {
+        String s = assignmentStatus == null ? "None" : assignmentStatus;
+        return s + decoration(assignmentStatus, other == null ? null : other.assignmentStatus);
+    }
+
+    private final String _nullAlleleProductionStatusToString(SummaryDetail other) {
+        String s = nullAlleleProductionStatus == null ? "None" : nullAlleleProductionStatus;
+        return s + decoration(nullAlleleProductionStatus, other == null ? null : other.nullAlleleProductionStatus);
+    }
+
+    private final String _conditionalAlleleProductionStatusToString(SummaryDetail other) {
+        String s = conditionalAlleleProductionStatus == null ? "None" : conditionalAlleleProductionStatus;
+        return s + decoration(conditionalAlleleProductionStatus, other == null ? null : other.conditionalAlleleProductionStatus);
+    }
+
+    private final String _crisprAlleleProductionStatusToString(SummaryDetail other) {
+        String s = crisprAlleleProductionStatus == null ? "None" : crisprAlleleProductionStatus;
+        return s + decoration(crisprAlleleProductionStatus, other == null ? null : other.crisprAlleleProductionStatus);
+    }
+
+    private final String _isPhenotypingDataAvailableToString(SummaryDetail other) {
+        String s = isPhenotypingDataAvailable ? "Yes" : "No";
+        return s + decoration(isPhenotypingDataAvailable, other == null ? null : other.isPhenotypingDataAvailable);
+    }
+
+    // Returns either "" (if s1 equals s2) or " *" (if s1 does not equal s2).
+    // Either s1 or s2 or both can be null.
+    private String decoration(String s1, String s2) {
+        if ((s1 == null) && (s2 == null)) {
+            return "";
+        }
+        if ((s1 == null) || (s2 == null)) {
+            return " *";
+        }
+        return s1.equalsIgnoreCase(s2) ? "" : " *";
+    }
+
+    // Returns either "" (if s1 equals s2) or " *" (if s1 does not equal s2).
+    // Either s1 or s2 or both can be null.
+    private String decoration(Boolean b1, Boolean b2) {
+        if (b1 == null)
+            b1 = false;
+        if (b2 == null)
+            b2 = false;
+        return b1 == b2 ? "" : " *";
     }
 }

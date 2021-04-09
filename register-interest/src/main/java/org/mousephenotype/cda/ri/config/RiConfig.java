@@ -32,7 +32,7 @@ import javax.sql.DataSource;
  */
 @Configuration
 @Profile("!test")
-public class CoreConfig {
+public class RiConfig {
 
     @Value("${paBaseUrl}")
     private String paBaseUrl;
