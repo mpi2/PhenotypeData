@@ -23,6 +23,8 @@ import org.mousephenotype.cda.solr.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.solr.core.SolrOperations;
@@ -35,8 +37,6 @@ public class RepositorySolrTestConfig {
 
     @Value("${internal_solr_url}")
     private String internalSolrUrl;
-
-    private GenotypePhenotypeService genotypePhenotypeService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -161,6 +161,13 @@ public class RepositorySolrTestConfig {
     public ExpressionServiceLacz expressionServiceLacz() {
         return new ExpressionServiceLacz(experimentCore());
     }
+
+    @Bean
+    public GenesSecondaryProjectServiceIdg genesSecondaryProjectServiceIdg() {
+        return new GenesSecondaryProjectServiceIdg(geneService(), essentialGeneService(),
+            mpService(), cacheManager());
+    }
+
     @Bean
     public GeneService geneService() {
         return new GeneService(geneCore(), impressService());
@@ -176,6 +183,10 @@ public class RepositorySolrTestConfig {
         return new GrossPathService(observationService(), imageService());
     }
 
+    @Bean
+    public HistopathService histopathService() {
+        return new HistopathService(observationService(), statisticalResultService());
+    }
     @Bean
     public ImageService imageService() {
         return new ImageService(impcImagesCore(), statisticalResultCore());
@@ -206,6 +217,11 @@ public class RepositorySolrTestConfig {
         return new PhenodigmService(phenodigmCore());
     }
 
+    @Bean
+    public StatisticalResultService statisticalResultService() {
+        return new StatisticalResultService(impressService(), genotypePhenotypeCore(),
+            genesSecondaryProjectServiceIdg(), statisticalResultCore());
+    }
 
     ////////////////
     // Miscellaneous
@@ -216,6 +232,10 @@ public class RepositorySolrTestConfig {
         return new ImagesSolrJ(sangerImagesCore);
     }
 
+    @Bean
+    public CacheManager cacheManager() {
+        return new SimpleCacheManager();
+    }
 
     /////////////////////////////////////////////
     // Required for spring-data-solr repositories
