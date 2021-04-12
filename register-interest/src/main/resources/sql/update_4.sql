@@ -10,7 +10,7 @@
 -- tables are deleted, replaced by gene core queries.
 
 ALTER TABLE contact
-  ADD COLUMN inHtml INT(11) NULL DEFAULT '1' AFTER `address`;
+  ADD COLUMN in_html INT(11) NULL DEFAULT '1' AFTER `address`;
 
 -- contact_gene:
 -- 1. add gene_accession_id field. It replaces gene_pk.

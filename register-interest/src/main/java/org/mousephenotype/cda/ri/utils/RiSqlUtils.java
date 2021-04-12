@@ -491,7 +491,7 @@ public class RiSqlUtils {
      */
     public void updatePassword(String emailAddress, String encryptedPassword) throws InterestException {
         String              message;
-        String              update       = "UPDATE contact SET password = :password, password_expired = 0 WHERE address = :address";
+        final String        update       = "UPDATE contact SET password = :password, password_expired = 0 WHERE address = :address";
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("password", encryptedPassword);
         parameterMap.put("address", emailAddress);
@@ -500,6 +500,20 @@ public class RiSqlUtils {
             message = "Unable to update password for contact " + emailAddress + ".";
             logger.error(message);
             throw new InterestException(message, InterestStatus.NOT_FOUND);
+        }
+    }
+
+    public void updateInHtml(String emailAddress, int inHtml) throws InterestException {
+        String              message;
+        Map<String, Object> parameterMap = new HashMap<>();
+        final String update = "UPDATE contact SET in_html = :inHtml WHERE address = :address";
+        parameterMap.put("inHtml", inHtml);
+        parameterMap.put("address", emailAddress);
+        int rowCount = jdbcInterest.update(update, parameterMap);
+        if (rowCount < 1) {
+            message = "Unable to change in_html to " + inHtml + " for contact " + emailAddress + ".";
+            logger.error(message);
+            throw new InterestException(message, InterestStatus.INTERNAL_ERROR);
         }
     }
 

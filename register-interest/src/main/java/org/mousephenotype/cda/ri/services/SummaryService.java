@@ -4,6 +4,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.ri.entities.Contact;
 import org.mousephenotype.cda.ri.entities.ContactGene;
 import org.mousephenotype.cda.ri.entities.ResetCredentials;
+import org.mousephenotype.cda.ri.enums.EmailFormat;
 import org.mousephenotype.cda.ri.exceptions.InterestException;
 import org.mousephenotype.cda.ri.pojo.Summary;
 import org.mousephenotype.cda.ri.pojo.SummaryDetail;
@@ -44,6 +45,10 @@ public class SummaryService {
 
     public void createAccount(String emailAddress, String newPassword) throws InterestException {
         riSqlUtils.createAccount(emailAddress, newPassword);
+    }
+
+    public void changeEmailFormat(String emailAddress, EmailFormat emailFormat) throws InterestException {
+        riSqlUtils.updateInHtml(emailAddress, emailFormat == EmailFormat.HTML ? 1 : 0);
     }
 
     public void deleteContact(String emailAddress) throws InterestException {

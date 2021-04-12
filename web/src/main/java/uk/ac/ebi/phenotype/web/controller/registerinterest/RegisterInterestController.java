@@ -20,6 +20,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mousephenotype.cda.ri.entities.Contact;
 import org.mousephenotype.cda.ri.entities.ResetCredentials;
+import org.mousephenotype.cda.ri.enums.EmailFormat;
 import org.mousephenotype.cda.ri.exceptions.InterestException;
 import org.mousephenotype.cda.ri.pojo.SmtpParameters;
 import org.mousephenotype.cda.ri.pojo.Summary;
@@ -43,6 +44,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -237,16 +239,14 @@ public class RegisterInterestController {
         return "redirect:" + target;
     }
 
-
     @Secured("ROLE_USER")
     @RequestMapping(value = "/update-gene-registration", method = RequestMethod.POST)
     public ResponseEntity updateRegistration(
             HttpServletRequest request,
-            @RequestParam(value = "asynch", defaultValue = "false") Boolean asynch,
+            @RequestHeader(value = "asynch", defaultValue = "false") Boolean asynch,
             @RequestParam("geneAccessionId") String geneAccessionId,
             @RequestParam(value = "target", required = false) String target
-    ) throws InterestException {
-
+    ) {
         String baseUrl = getBaseUrl(request);
 
         // Redirect attempt to register for anonymousUser account to /search.
@@ -281,6 +281,33 @@ public class RegisterInterestController {
 
     }
 
+    @Secured("ROLE_USER")
+    @RequestMapping(value = "/change-email-format", method = RequestMethod.POST)
+    public ResponseEntity updateEmailFormat(
+        HttpServletRequest request,
+        @RequestHeader(value = "emailFormat") String emailFormat,
+        @RequestHeader(value = "asynch", defaultValue = "false") Boolean asynch,
+        @RequestParam(value = "target", required = false) String target
+    ) {
+        String baseUrl = getBaseUrl(request);
+
+        // Redirect attempt to register for anonymousUser account to /search.
+        if (SecurityUtils.getPrincipal().equalsIgnoreCase("anonymousUser")) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Location", (target != null ? target : baseUrl + "/search"));
+            return new ResponseEntity<>(headers, HttpStatus.FOUND);
+        }
+
+        try {
+            summaryService.changeEmailFormat(SecurityUtils.getPrincipal(), EmailFormat.valueOf(emailFormat));
+        } catch (InterestException e) {
+            logger.error("changeEmailFormat for user {} to {} failed", SecurityUtils.getPrincipal(), emailFormat);
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Location", (target != null ? target : baseUrl + "/summary"));
+        return new ResponseEntity<>(headers, HttpStatus.FOUND);
+    }
 
     @Secured("ROLE_USER")
     @RequestMapping(value = "/summary", method = RequestMethod.GET)

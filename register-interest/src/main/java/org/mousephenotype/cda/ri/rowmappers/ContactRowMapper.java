@@ -46,8 +46,7 @@ public class ContactRowMapper implements RowMapper<Contact> {
         contact.setPk(rs.getInt("pk"));
 
         contact.setEmailAddress((rs.getString("address")));
-        intValue = rs.getInt("inHtml");
-        contact.setInHtml((intValue != null) && (intValue > 0 ? true : false));
+        contact.setInHtml(rs.getInt("in_html") == 1);
         contact.setPassword((rs.getString("password")));
         intValue = rs.getInt("password_expired");
         contact.setPasswordExpired((intValue != null) && (intValue > 0) ? true : false);

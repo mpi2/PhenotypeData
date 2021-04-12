@@ -51,7 +51,8 @@
                     // and update button appropriately on success
                     $.ajax({
                         type: "POST",
-                        url: "${baseUrl}/update-gene-registration?asynch=true",
+                        url: "${baseUrl}/update-gene-registration",
+                        headers: {'asynch': 'true'},
                         data: $(this).serialize(),
                         success: function (data) {
 
@@ -97,8 +98,22 @@
                         }
                     });
                 });
-
             });
+
+            function changeEmailFormat(emailFormat) {
+                $.ajax({
+                    type: "POST",
+                    url: "${baseUrl}/change-email-format",
+                    data: $(this).serialize(),
+                    headers: {'emailFormat': emailFormat, 'asynch': 'true'},
+                    success: function (data) {
+                        console.log('Successfully changed email format to ' + emailFormat);
+                    },
+                    error: function () {
+                        window.location("${baseUrl}/rilogin?target=${baseUrl}/summary");
+                    }
+                });
+            }
         </script>
     </jsp:attribute>
 
@@ -161,9 +176,33 @@
                                                 </a>
                                             </li>
                                             <li>View and manage the list of genes you've followed</li>
+                                            <li>
+                                                Change your e-mail format preference:
+                                                <form id="change-email-format-form"
+                                                      method="POST">
+                                                    <input type="hidden" name="${_csrf.parameterName}"
+                                                           value="${_csrf.token}"/>
+                                                    <input type="radio" id="htmlText"
+                                                    <c:choose>
+                                                    <c:when test="${summary.inHtml}">
+                                                           checked="checked"
+                                                    </c:when>
+                                                    </c:choose>
+                                                           name="emailFormatRadio"
+                                                           onclick="changeEmailFormat('HTML')">html text
+                                                    &nbsp; &nbsp; &nbsp; &nbsp;
+                                                    <input type="radio" id="plainText"
+                                                    <c:choose>
+                                                    <c:when test="${ ! summary.inHtml}">
+                                                           checked="checked"
+                                                    </c:when>
+                                                    </c:choose>
+                                                           onclick="changeEmailFormat('PLAIN')"
+                                                           name="emailFormatRadio">plain text
+                                                </form>
+                                            </li>
                                         </ul>
                                         </p>
-
                                         <h4>Username: ${summary.emailAddress}</h4>
                                     </div>
                                     <i style="font-size: small">Gene status is refreshed daily. Please refresh your
