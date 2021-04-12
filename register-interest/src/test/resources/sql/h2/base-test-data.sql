@@ -13,7 +13,7 @@ SET @GC  = 'Genotype confirmed mice';
 SET @ST  = 'Started';
 SET @J   = 'Junk';
 
-INSERT INTO contact (pk, address, inHtml, created_at) VALUES
+INSERT INTO contact (pk, address, in_html, created_at) VALUES
   (1, 'user1@ebi.ac.uk', 1, @now),
   (2, 'user2@ebi.ac.uk', 0, @now),
   (3, 'user3@ebi.ac.uk', 1, @now),
