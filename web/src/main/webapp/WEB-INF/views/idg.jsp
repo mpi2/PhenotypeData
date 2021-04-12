@@ -123,7 +123,7 @@
                     <div id="chordContainerIonChannels" class="half"></div>
                     <svg id="chordDiagramSvgIonChannels" width="960" height="960"></svg>
                     <script>
-                        drawChords("chordDiagramSvgIonChannels", "chordContainerIonChannels", false, [], true, "IC", true);
+                        drawChords("chordDiagramSvgIonChannels", "chordContainerIonChannels", false, [], true, "IonChannel", true);
                     </script>
 
                     <h3>GPCRs</h3>
