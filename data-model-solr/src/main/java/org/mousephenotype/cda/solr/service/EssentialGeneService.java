@@ -82,7 +82,7 @@ public class EssentialGeneService extends BasicService implements WebStatus {
     public List<EssentialGeneDTO> getAllIdgGeneList(String... fields) throws IOException, SolrServerException {
         List<EssentialGeneDTO> idgGeneDTOS;
         SolrQuery solrQuery = new SolrQuery()
-                .setQuery("idg_family:Kinase OR idg_family:IC OR idg_family:GPCR")
+                .setQuery("idg_family:Kinase OR idg_family:IonChannel OR idg_family:GPCR")
                 .setRows(Integer.MAX_VALUE);
         if (fields != null) {
             solrQuery.setFields(fields);

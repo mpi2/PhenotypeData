@@ -124,22 +124,31 @@ public class ExperimentService {
 
             allObservations.addAll(
                     observationService.inflateObservations(
-                        Stream.of(dto.getMutants(), dto.getControls())
-                                .flatMap(Collection::stream)
-                                .filter(x -> !foundSamples.contains(x.getExternalSampleId()))
-                                .map(ObservationDTOBase::getExternalSampleId)
-                                .collect(Collectors.toList()),
+                            new ArrayList<>(Stream.of(dto.getMutants(), dto.getControls())
+                                    .flatMap(Collection::stream)
+                                    .filter(x -> !foundSamples.contains(x.getExternalSampleId()))
+                                    .map(ObservationDTOBase::getExternalSampleId).collect(Collectors.toSet())),
                         parameterStableId,
-                        phenotypingCenter
+                        result.getPhenotypingCenter()
             ));
 
-            Map<String, ObservationDTO> observationByExternalSampleId = allObservations.stream().collect(Collectors.toMap(ObservationDTOBase::getExternalSampleId, Function.identity()));
-            dto.setControls(dto.getControls().stream().map(x -> observationByExternalSampleId.get(x.getExternalSampleId())).collect(Collectors.toSet()));
-            dto.setHemizygoteMutants(dto.getHemizygoteMutants().stream().map(x -> observationByExternalSampleId.get(x.getExternalSampleId())).collect(Collectors.toSet()));
-            dto.setHomozygoteMutants(dto.getHomozygoteMutants().stream().map(x -> observationByExternalSampleId.get(x.getExternalSampleId())).collect(Collectors.toSet()));
-            dto.setHeterozygoteMutants(dto.getHeterozygoteMutants().stream().map(x -> observationByExternalSampleId.get(x.getExternalSampleId())).collect(Collectors.toSet()));
+            if(!result.getDataType().equalsIgnoreCase("time_series")) {
+                Map<String, ObservationDTO> observationByExternalSampleId = allObservations.stream().collect(Collectors.toMap(ObservationDTOBase::getExternalSampleId, Function.identity()));
+                dto.setControls(dto.getControls().stream().map(x -> observationByExternalSampleId.get(x.getExternalSampleId())).collect(Collectors.toSet()));
+                dto.setHemizygoteMutants(dto.getHemizygoteMutants().stream().map(x -> observationByExternalSampleId.get(x.getExternalSampleId())).collect(Collectors.toSet()));
+                dto.setHomozygoteMutants(dto.getHomozygoteMutants().stream().map(x -> observationByExternalSampleId.get(x.getExternalSampleId())).collect(Collectors.toSet()));
+                dto.setHeterozygoteMutants(dto.getHeterozygoteMutants().stream().map(x -> observationByExternalSampleId.get(x.getExternalSampleId())).collect(Collectors.toSet()));
+            } else {
+                Map<String, Set<ObservationDTO>> observationByExternalSampleId = allObservations.stream().collect(Collectors.groupingBy(x -> x.getExternalSampleId(), Collectors.toSet()));
+                dto.setControls(dto.getControls().stream().flatMap(x -> observationByExternalSampleId.get(x.getExternalSampleId()).stream()).collect(Collectors.toSet()));
+                dto.setHemizygoteMutants(dto.getHemizygoteMutants().stream().flatMap(x -> observationByExternalSampleId.get(x.getExternalSampleId()).stream()).collect(Collectors.toSet()));
+                dto.setHomozygoteMutants(dto.getHomozygoteMutants().stream().flatMap(x -> observationByExternalSampleId.get(x.getExternalSampleId()).stream()).collect(Collectors.toSet()));
+                dto.setHeterozygoteMutants(dto.getHeterozygoteMutants().stream().flatMap(x -> observationByExternalSampleId.get(x.getExternalSampleId()).stream()).collect(Collectors.toSet()));
+            }
 
-            String key = Stream.of(dto.getControls(), dto.getMutants()).flatMap(Collection::stream).map(ObservationDTO::getKey).collect(Collectors.toList()).get(0);
+
+
+            String key = Stream.of(dto.getControls(), dto.getMutants()).flatMap(Collection::stream).filter(o -> o != null).map(ObservationDTO::getKey).collect(Collectors.toList()).get(0);
             experimentsMap.put(key, dto);
 
         }
