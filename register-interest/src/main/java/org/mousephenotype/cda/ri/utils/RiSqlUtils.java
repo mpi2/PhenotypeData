@@ -65,36 +65,28 @@ public class RiSqlUtils {
      * @throws {@link InterestException}
      */
     public void addRole(String emailAddress, RIRole role) throws InterestException {
-
         String message;
-
         Contact contact = getContact(emailAddress);
         if (contact == null) {
             message = "addRole(): Invalid contact " + emailAddress + ".";
             logger.error(message);
             throw new InterestException(message, InterestStatus.NOT_FOUND);
         }
-
         final String insert = "INSERT INTO contact_role (contact_pk, role, created_at)" +
             "VALUES (:contactPk, :role, :createdAt)";
-
         Date createdAt = new Date();
-
         Map<String, Object> parameterMap = new HashMap<>();
         try {
             parameterMap.put("contactPk", contact.getPk());
             parameterMap.put("role", role.toString());
             parameterMap.put("createdAt", createdAt);
-
             int rowCount = jdbcInterest.update(insert, parameterMap);
             if (rowCount < 1) {
                 message = "Unable to add role " + role.toString() + " for contact " + emailAddress + ".";
                 logger.error(message);
                 throw new InterestException(message, InterestStatus.INTERNAL_ERROR);
             }
-
         } catch (Exception e) {
-
             message = "Error inserting contact_role for " + emailAddress + ": " + e.getLocalizedMessage();
             logger.error(message);
             throw new InterestException(message, InterestStatus.INTERNAL_ERROR);
@@ -244,19 +236,10 @@ public class RiSqlUtils {
      * @return the {@link Contact} matching the emailAddress if found; null otherwise
      */
     public Contact getContact(String emailAddress) {
-
-        final String query = "SELECT * FROM contact WHERE address = :emailAddress";
-
-        Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("emailAddress", emailAddress);
-
-        List<Contact> contacts = jdbcInterest.query(query, parameterMap, new ContactRowMapper());
-        Contact       contact  = (contacts.isEmpty() ? null : contacts.get(0));
-        if (contact != null) {
-            contact.setRoles(getContactRoles(emailAddress));
-        }
-
-        return contact;
+        return getContacts()
+            .stream()
+            .filter(contact -> contact.getEmailAddress().equals(emailAddress))
+            .findFirst().orElse(null);
     }
 
     /**
@@ -264,9 +247,7 @@ public class RiSqlUtils {
      */
     public List<ContactGene> getContactGenes() {
         final String query = "SELECT * FROM contact_gene";
-
         Map<String, Object> parameterMap = new HashMap<>();
-
         return jdbcInterest.query(query, parameterMap, new ContactGeneRowMapper());
     }
 
@@ -275,67 +256,45 @@ public class RiSqlUtils {
             "SELECT cg.* FROM contact_gene cg\n" +
                 "JOIN contact c ON c.pk = cg.contact_pk\n" +
                 "WHERE c.address = :emailAddress";
-
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("emailAddress", emailAddress);
-
         return jdbcInterest.query(query, parameterMap, new ContactGeneRowMapper());
     }
 
     public Collection<GrantedAuthority> getContactRoles(String emailAddress) {
-
         ArrayList<GrantedAuthority> roles = new ArrayList<>();
-
         final String query = "SELECT cr.* FROM contact_role cr " +
             "JOIN contact c ON c.pk = cr.contact_pk " +
             "WHERE c.address = :emailAddress";
-
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("emailAddress", emailAddress);
-
         List<ContactRole> results = jdbcInterest.query(query, parameterMap, new ContactRoleRowMapper());
         for (ContactRole result : results) {
             roles.add(result.getAuthority());
         }
-
         return roles;
     }
 
     public List<Contact> getContacts() {
         final String query = "SELECT * FROM contact";
-
-        Map<Integer, Contact> contactMap  = new HashMap<>();
-        List<Contact>         contactList = jdbcInterest.query(query, new HashMap<String, Object>(), new ContactRowMapper());
-
+        List<Contact>         contactList = jdbcInterest.query(query, new HashMap<>(), new ContactRowMapper());
+        contactList
+            .stream()
+            .forEach(contact -> contact.setRoles(getContactRoles(contact.getEmailAddress())));
         return contactList;
-    }
-
-    public Map<Integer, Contact> getContactsByPk() {
-        final String query = "SELECT * FROM contact";
-
-        Map<Integer, Contact> contactMap  = new HashMap<>();
-        List<Contact>         contactList = jdbcInterest.query(query, new HashMap<String, Object>(), new ContactRowMapper());
-        for (Contact contact : contactList) {
-            contactMap.put(contact.getPk(), contact);
-        }
-
-        return contactMap;
     }
 
     /**
      * @return a list of the contact primary keys for every contact who is registered for interest in one or more genes
      */
     public List<Integer> getContactsWithRegistrations() {
-
         String contactPkQuery =
             "SELECT DISTINCT\n" +
                 "  c.pk\n" +
                 "FROM contact_gene cg\n" +
                 "JOIN contact      c  ON c.pk = cg.contact_pk\n" +
                 "ORDER BY c.pk";
-
         List<Integer> contactPks = jdbcInterest.queryForList(contactPkQuery, new HashMap<String, Object>(), Integer.class);
-
         return contactPks;
     }
 

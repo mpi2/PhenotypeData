@@ -66,6 +66,8 @@ public class RegisterInterestController {
 
     private final int EMAIL_VALIDITY_TTL_MINUTES = 180;
 
+    public final static String ANONYMOUS_USER = "anonymousUser";
+
     // Sleep intervals
     private final int INVALID_PASSWORD_SLEEP_SECONDS = 1;
     private final int SHORT_SLEEP_SECONDS            = 1;
@@ -89,7 +91,6 @@ public class RegisterInterestController {
     // E-mail subject lines
     public final static String EMAIL_SUBJECT_NEW_ACCOUNT    = "Request to create a new IMPC Register Interest account";
     public final static String EMAIL_SUBJECT_RESET_PASSWORD = "Request to reset your IMPC Register Interest password";
-
 
     // Info messages
     public final static String INFO_ACCOUNT_CREATED    = "Your account has been created.";
@@ -172,23 +173,18 @@ public class RegisterInterestController {
             HttpServletResponse response,
             @RequestParam(value = "target", required = false) String target,
             @RequestParam(value = "error", required = false) String error
-    ) {
-
-        String baseUrl = getBaseUrl(request);
-
+    ) throws IOException {
         if ((target == null) || (target.trim().isEmpty())) {
-            target = baseUrl + "/summary";
+            target = getBaseUrl(request) + "/summary";
         }
-
         if (error != null) {
             sleep(INVALID_PASSWORD_SLEEP_SECONDS);
         }
-
         // If user is already logged in, redirect them to the summary page.
         if (SecurityUtils.isLoggedIn()) {
-            return "redirect: " + baseUrl + "/summary";
+            response.sendRedirect(getBaseUrl(request) + "/summary");
+            return "";
         }
-
         HttpSession session = request.getSession();
         session.setAttribute("recaptchaPublic", recaptchaPublic);
         session.setAttribute("target", target);
@@ -200,18 +196,13 @@ public class RegisterInterestController {
 
     @RequestMapping(value = "/Access_Denied", method = RequestMethod.GET)
     public String accessDenied(ModelMap model) {
-
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
         // Access is denied. Return to login page.
         model.addAttribute("title", TITLE_INVALID_CREDENTIALS);
         model.addAttribute("error", ERR_INVALID_CREDENTIALS);
-
         List<String> roles = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
         logger.info("/Access_Denied: No permission to access page for user {} with role {}", SecurityUtils.getPrincipal(), StringUtils.join(roles, ", "));
-
         sleep(SHORT_SLEEP_SECONDS);
-
         return "loginPage";
     }
 
@@ -220,13 +211,11 @@ public class RegisterInterestController {
     // some Spring magic is going on. Renaming the endpoint to /rilogout avoids Spring interference and gets properly called.
     @RequestMapping(value = "/rilogout", method = RequestMethod.GET)
     public void rilogout(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
             logger.debug("/logout: User {} logged out.", SecurityUtils.getPrincipal());
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
-
         response.sendRedirect(getBaseUrl(request) + "/search");
     }
 
@@ -234,9 +223,10 @@ public class RegisterInterestController {
     @Secured("ROLE_USER")
     @RequestMapping(value = "/authenticated", method = RequestMethod.GET)
     public String authenticated(
-            @RequestParam("target") String target
-    ) {
-        return "redirect:" + target;
+            @RequestParam("target") String target, HttpServletRequest request, HttpServletResponse response
+    ) throws IOException {
+        response.sendRedirect(getBaseUrl(request) + target);
+        return "";
     }
 
     @Secured("ROLE_USER")
@@ -247,15 +237,12 @@ public class RegisterInterestController {
             @RequestParam("geneAccessionId") String geneAccessionId,
             @RequestParam(value = "target", required = false) String target
     ) {
-        String baseUrl = getBaseUrl(request);
-
         // Redirect attempt to register for anonymousUser account to /search.
-        if (SecurityUtils.getPrincipal().equalsIgnoreCase("anonymousUser")) {
+        if (SecurityUtils.getPrincipal().equalsIgnoreCase(ANONYMOUS_USER)) {
             HttpHeaders headers = new HttpHeaders();
-            headers.add("Location", (target != null ? target : baseUrl + "/search"));
+            headers.add("Location", (target != null ? target : getBaseUrl(request) + "/search"));
             return new ResponseEntity<>(headers, HttpStatus.FOUND);
         }
-
         String followStatus;
         if (summaryService.isRegisteredForGene(SecurityUtils.getPrincipal(), geneAccessionId))  {
             summaryService.unregisterGene(SecurityUtils.getPrincipal(), geneAccessionId);
@@ -276,9 +263,8 @@ public class RegisterInterestController {
 
         // Otherwise, redirect to the target url
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", (target != null ? target : baseUrl + "/summary"));
+        headers.add("Location", (target != null ? target : getBaseUrl(request) + "/summary"));
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
-
     }
 
     @Secured("ROLE_USER")
@@ -289,23 +275,19 @@ public class RegisterInterestController {
         @RequestHeader(value = "asynch", defaultValue = "false") Boolean asynch,
         @RequestParam(value = "target", required = false) String target
     ) {
-        String baseUrl = getBaseUrl(request);
-
         // Redirect attempt to register for anonymousUser account to /search.
-        if (SecurityUtils.getPrincipal().equalsIgnoreCase("anonymousUser")) {
+        if (SecurityUtils.getPrincipal().equalsIgnoreCase(ANONYMOUS_USER)) {
             HttpHeaders headers = new HttpHeaders();
-            headers.add("Location", (target != null ? target : baseUrl + "/search"));
+            headers.add("Location", (target != null ? target : getBaseUrl(request) + "/search"));
             return new ResponseEntity<>(headers, HttpStatus.FOUND);
         }
-
         try {
             summaryService.changeEmailFormat(SecurityUtils.getPrincipal(), EmailFormat.valueOf(emailFormat));
         } catch (InterestException e) {
             logger.error("changeEmailFormat for user {} to {} failed", SecurityUtils.getPrincipal(), emailFormat);
         }
-
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", (target != null ? target : baseUrl + "/summary"));
+        headers.add("Location", (target != null ? target : getBaseUrl(request) + "/summary"));
         return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 
@@ -322,51 +304,39 @@ public class RegisterInterestController {
         return "ri_summaryPage";
     }
 
-
     @RequestMapping(value = "/resetPasswordRequest", method = RequestMethod.GET)
     public String resetPasswordRequest(HttpServletRequest request, ModelMap model) {
-
         HttpSession session = request.getSession();
-
         model.addAttribute("title", TITLE_RESET_PASSWORD_REQUEST);
         session.setAttribute("recaptchaPublic", recaptchaPublic);
-
         return "ri_collectEmailAddressPage";
     }
 
 
     @RequestMapping(value = "/newAccountRequest", method = RequestMethod.GET)
     public String newAccountRequest(HttpServletRequest request, ModelMap model) {
-
         HttpSession session = request.getSession();
-
         model.addAttribute("title", TITLE_NEW_ACCOUNT_REQUEST);
         session.setAttribute("recaptchaPublic", recaptchaPublic);
-
         return "ri_collectEmailAddressPage";
     }
 
 
     @RequestMapping(value = "/sendEmail", method = RequestMethod.POST)
-    public String sendEmail(HttpServletRequest request, ModelMap model,
+    public String sendEmail(HttpServletRequest request, HttpServletResponse response, ModelMap model,
         @RequestParam(value = "emailAddress", defaultValue = "") String emailAddress,
         @RequestParam(value = "repeatEmailAddress", defaultValue = "") String repeatEmailAddress,
         @RequestParam("action") String action
-    ) {
+    ) throws IOException {
         HttpSession session = request.getSession();
-
-        String baseUrl = getBaseUrl(request);
-
         model.addAttribute("emailAddress", emailAddress);
         model.addAttribute("repeatEmailAddress", repeatEmailAddress);
         session.setAttribute("recaptchaPublic", recaptchaPublic);
-
         ActionType actionType = getActionType(action);
 
-        // Validate that it looks like an e-mail address.
         if (actionType == null) {
             logger.info("Unknown action type specified: {}", action);
-            return "redirect: " + baseUrl + "/summary";
+            response.sendRedirect(getBaseUrl(request) + "/summary");
         }
 
         String body;
@@ -392,26 +362,27 @@ public class RegisterInterestController {
         if (!emailAddress.equals(repeatEmailAddress)) {
             String urlParameters = buildUrlParameters(ERR_EMAIL_ADDRESS_MISMATCH, emailAddress,
                     repeatEmailAddress, title);
-            return "redirect: " + baseUrl + "/" + endpoint + urlParameters;
+            response.sendRedirect(getBaseUrl(request) + "/" + endpoint + urlParameters);
+            return "";
         }
 
         // Validate that it looks like an e-mail address.
         if (!emailUtils.isValidEmailAddress(emailAddress)) {
             String urlParameters = buildUrlParameters(ERR_INVALID_EMAIL_ADDRESS, emailAddress,
                     repeatEmailAddress, title);
-            return "redirect: " + baseUrl + "/" + endpoint + urlParameters;
+            response.sendRedirect(getBaseUrl(request) + "/" + endpoint + urlParameters);
+            return "";
         }
 
         // Generate and assemble email
         String token = buildToken(emailAddress);
-
         Contact    contact       = summaryService.getContact(emailAddress);
         ActionType actualAction  = (contact == null ? ActionType.NEW_ACCOUNT : ActionType.RESET_PASSWORD);
         boolean    accountExists = (contact != null);
 
         String hostname  = request.getAttribute("mappedHostname").toString();
         String protocol  = (hostname.toLowerCase().contains("localhost")) ? "http:" : "https:";
-        String tokenLink = protocol + hostname + baseUrl + "/setPassword?token=" + token + "&action=" + actualAction.toString();
+        String tokenLink = protocol + hostname + getBaseUrl(request) + "/setPassword?token=" + token + "&action=" + actualAction;
         logger.debug("tokenLink = " + tokenLink);
 
         if (actionType == ActionType.NEW_ACCOUNT) {
@@ -425,17 +396,14 @@ public class RegisterInterestController {
             if (message == null) {
                 throw new InterestException("Skipping email '" + emailAddress + "'.");
             }
-
             final ResetCredentials existingCredentials = summaryService.getResetCredentialsByEmailAddress(emailAddress);
 
             // To prevent multiple emails being sent too quickly, randomly wait between 1 and 5 minutes before
             // sending another email.
             Integer randomTimeout = new Random().ints(1, (5 + 1)).limit(1).findFirst().getAsInt();
             if (existingCredentials == null || dateUtils.isExpired(existingCredentials.getCreatedAt(), randomTimeout)) {
-
                 logger.info("Register Interest Credential ({}) either does not exist or the timeout ({} minutes) has expired.  Sending new email.",
                         (existingCredentials == null ? "Null" : existingCredentials.getToken()), randomTimeout);
-
                 // Insert request to reset_credentials table
                 ResetCredentials resetCredentials = new ResetCredentials(emailAddress, token, new Date());
                 summaryService.updateResetCredentials(resetCredentials);
@@ -447,20 +415,15 @@ public class RegisterInterestController {
             }
 
         } catch (InterestException e) {
-
             model.addAttribute("title", TITLE_SEND_MAIL_FAILED);
             model.addAttribute("error", ERR_SEND_MAIL_FAILED);
             logger.error("Error trying to send e-mail to {}: {}", emailAddress, e.getLocalizedMessage());
-
             return "loginPage";
         }
-
         String status = "An e-mail with instructions has been sent to <i>" + emailAddress + "</i>. " +
                 "The e-mail contains a link valid for " + EMAIL_VALIDITY_TTL_MINUTES / 60 + " hours. Any previous links are no longer valid.";
-
         model.addAttribute("title", title);
         model.addAttribute("status", status);
-
         return "ri_sendEmailStatusPage";
     }
 
@@ -478,43 +441,36 @@ public class RegisterInterestController {
                 .append("&title=").append(title).toString();
     }
 
-
     @RequestMapping(value = "/setPassword", method = RequestMethod.GET)
     public String setPasswordGet(
             ModelMap model,
             HttpServletRequest request,
+            HttpServletResponse response,
             @RequestParam("token") String token,
-            @RequestParam(value = "action") String action) {
-
-        String baseUrl = getBaseUrl(request);
+            @RequestParam(value = "action") String action) throws IOException {
 
         // Look up email address from reset_credentials table
         ResetCredentials resetCredentials = summaryService.getResetCredentialsByToken(token);
 
         // If not found, redirect to login page.
         if (resetCredentials == null) {
-
             logger.info("Token {} not found", token);
-
             sleep(SHORT_SLEEP_SECONDS);
-
-            return "redirect: " + baseUrl + "/rilogin?error=true&errorMessage=" + ERR_INVALID_TOKEN;
+            response.sendRedirect(getBaseUrl(request) + "/rilogin?error=true&errorMessage=" + ERR_INVALID_TOKEN);
+            return "";
         }
 
         // If token has expired, redirect to login page.
         if (dateUtils.isExpired(resetCredentials.getCreatedAt(), EMAIL_VALIDITY_TTL_MINUTES)) {
-
             logger.info("Token {} has expired", token);
-
             sleep(SHORT_SLEEP_SECONDS);
-
-            return "redirect: " + baseUrl + "/rilogin?error=true&errorMessage=" + ERR_EXPIRED_TOKEN;
+            response.sendRedirect(getBaseUrl(request) + "/rilogin?error=true&errorMessage=" + ERR_EXPIRED_TOKEN);
+            return "";
         }
 
         model.addAttribute("token", token);
         model.addAttribute("emailAddress", resetCredentials.getAddress());
         model.addAttribute("action", action);
-
         return "ri_setPasswordPage";
     }
 
@@ -527,49 +483,44 @@ public class RegisterInterestController {
             @RequestParam("newPassword") String newPassword,
             @RequestParam("repeatPassword") String repeatPassword,
             @RequestParam("action") String action
-    ) {
-
-        String baseUrl = getBaseUrl(request);
-
+    ) throws IOException {
         ActionType actionType = getActionType(action);
-
-        // Validate that it looks like an e-mail address.
         if (actionType == null) {
             logger.info("Unknown action type specified: '{}'", action);
-            return "redirect: " + baseUrl + "/summary";
+            response.sendRedirect(getBaseUrl(request) + "/summary");
+            return "";
         }
 
         model.addAttribute("token", token);
+        model.addAttribute("action", action);
+
+        // Look up email address from reset_credentials table
+        ResetCredentials resetCredentials = summaryService.getResetCredentialsByToken(token);
+        if (resetCredentials == null) {
+            // Redirect attempt to delete anonymousUser account to /search.
+            if (SecurityUtils.getPrincipal().equalsIgnoreCase(ANONYMOUS_USER)) {
+                response.sendRedirect(getBaseUrl(request) + "/search");
+                return "";
+            }
+            model.addAttribute("title", TITLE_INVALID_TOKEN);
+            model.addAttribute("error", ERR_INVALID_TOKEN);
+            model.addAttribute("emailAddress", SecurityUtils.getPrincipal());
+            logger.info("Token {} not found", token);
+            sleep(SHORT_SLEEP_SECONDS);
+            return "ri_setPasswordPage";
+        }
+        String emailAddress = resetCredentials.getAddress();
+        model.addAttribute("emailAddress", emailAddress);
 
         // Validate the new password. Return to ri_setPasswordPage if validation fails.
         String error = validateNewPassword(newPassword, repeatPassword);
         if ( ! error.isEmpty()) {
             model.addAttribute("title", TITLE_PASSWORD_MISMATCH);
             model.addAttribute("error", ERR_PASSWORD_MISMATCH);
-
             logger.info("Password validation failed.");
-
             sleep(SHORT_SLEEP_SECONDS);
-
             return "ri_setPasswordPage";
         }
-
-        // Look up email address from reset_credentials table
-        ResetCredentials resetCredentials = summaryService.getResetCredentialsByToken(token);
-
-        // If not found, return to ri_setPasswordPage page.
-        if (resetCredentials == null) {
-            model.addAttribute("title", TITLE_INVALID_TOKEN);
-            model.addAttribute("error", ERR_INVALID_TOKEN);
-
-            logger.info("Token {} not found", token);
-
-            sleep(SHORT_SLEEP_SECONDS);
-
-            return "ri_setPasswordPage";
-        }
-
-        String emailAddress = resetCredentials.getAddress();
 
         Contact contact = summaryService.getContact(emailAddress);
         try {
@@ -581,7 +532,6 @@ public class RegisterInterestController {
                 // Send welcome e-mail.
                 boolean inHtml = true;
                 mailService.generateAndSendWelcome(contact);
-
             } else {
                 summaryService.updatePassword(emailAddress, passwordEncoder.encode(newPassword));
             }
@@ -590,26 +540,23 @@ public class RegisterInterestController {
             summaryService.deleteResetCredentialsByEmailAddress(emailAddress);
 
         } catch (InterestException e) {
-
             model.addAttribute("title", TITLE_RESET_PASSWORD_FAILED);
             model.addAttribute("error", ERR_RESET_PASSWORD_FAILED);
             logger.error("Error trying to [re]set password for {}: {}", emailAddress, e);
-
             String errorMessage = (actionType == ActionType.NEW_ACCOUNT ? ERR_CREATE_ACCOUNT_FAILED : ERR_RESET_PASSWORD_FAILED);
-
-            return "redirect: " + baseUrl + "/rilogin?error=true&errorMessage=" + errorMessage;
+            response.sendRedirect(getBaseUrl(request) + "/rilogin?error=true&errorMessage=" + errorMessage);
+            return "";
         }
 
         // Get the user's roles and mark the user as authenticated.
         Authentication authentication = new UsernamePasswordAuthenticationToken(emailAddress, null, contact.getRoles());
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        return "redirect: " + baseUrl + "/summary";
+        response.sendRedirect(getBaseUrl(request) + "/summary");
+        return "";
     }
 
     private ActionType getActionType(String action) {
         ActionType actionType;
-
         switch (action) {
             case TITLE_RESET_PASSWORD_REQUEST:
                 actionType = ActionType.RESET_PASSWORD;
@@ -624,29 +571,22 @@ public class RegisterInterestController {
         return actionType;
     }
 
-
     @Secured("ROLE_USER")
     @RequestMapping(value = "/accountDeleteRequest", method = RequestMethod.POST)
     public String accountDeleteRequestPost(ModelMap model) {
         model.addAttribute("emailAddress", SecurityUtils.getPrincipal());
-
         return "ri_deleteAccountRequestPage";
     }
 
-
     @RequestMapping(value = "/accountDeleteRequest", method = RequestMethod.GET)
-    public String accountDeleteRequest(HttpServletRequest request, ModelMap model) {
-
-        String baseUrl = getBaseUrl(request);
-
+    public String accountDeleteRequest(HttpServletRequest request, HttpServletResponse response, ModelMap model) throws IOException {
         // Redirect attempt to delete anonymousUser account to /search.
-        if (SecurityUtils.getPrincipal().equalsIgnoreCase("anonymousUser")) {
-            return "redirect: " + baseUrl + "/search";
+        if (SecurityUtils.getPrincipal().equalsIgnoreCase(ANONYMOUS_USER)) {
+            response.sendRedirect(getBaseUrl(request) + "/search");
+            return "";
         }
-
         return accountDeleteRequestPost(model);
     }
-
 
     @Secured("ROLE_USER")
     @RequestMapping(value = "/accountDeleteConfirmation", method = RequestMethod.POST)
@@ -654,17 +594,18 @@ public class RegisterInterestController {
             HttpServletRequest request,
             HttpServletResponse response,
             ModelMap model
-    ) {
-        String baseUrl = getBaseUrl(request);
+    ) throws IOException {
         // Redirect attempt to delete anonymousUser account to /search.
-        if (SecurityUtils.getPrincipal().equalsIgnoreCase("anonymousUser")) {
-            return "redirect: " + baseUrl + "/search";
+        if (SecurityUtils.getPrincipal().equalsIgnoreCase(ANONYMOUS_USER)) {
+            response.sendRedirect(getBaseUrl(request) + "/search");
+            return "";
         }
         try {
             summaryService.deleteContact(SecurityUtils.getPrincipal());
         } catch (InterestException e) {
             logger.error("Unable to delete account for {}. Reason: {}", SecurityUtils.getPrincipal(), e.getLocalizedMessage());
-            return "redirect: " + baseUrl + "/summary?error=" + ERR_ACCOUNT_NOT_DELETED;
+            response.sendRedirect(getBaseUrl(request)  + "/summary?error=" + ERR_ACCOUNT_NOT_DELETED);
+            return "";
         }
 
         // Log user out.
@@ -677,14 +618,14 @@ public class RegisterInterestController {
         model.addAttribute("showWhen", true);
         model.addAttribute("showLoginLink", true);
         model.addAttribute("status", "Your account has been deleted.");
-        return "redirect:" + baseUrl + "/search";
+        response.sendRedirect(getBaseUrl(request) + "/search");
+        return "";
     }
 
-    // Redirect attempt to delete anonymousUser account to /search.
     @RequestMapping(value = "/accountDeleteConfirmation", method = RequestMethod.GET)
-    public String accountDeleteConfirmation(HttpServletRequest request) {
-        String baseUrl = getBaseUrl(request);
-        return "redirect:" + baseUrl + "/search";
+    public String accountDeleteConfirmation(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.sendRedirect(getBaseUrl(request) + "/search");
+        return "";
     }
 
 

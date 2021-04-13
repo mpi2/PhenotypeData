@@ -19,6 +19,8 @@ package org.mousephenotype.cda.ri.services;
 import org.junit.Before;
 import org.junit.Test;
 import org.mousephenotype.cda.ri.entities.Contact;
+import org.mousephenotype.cda.ri.enums.EmailFormat;
+import org.mousephenotype.cda.ri.exceptions.InterestException;
 import org.mousephenotype.cda.ri.pojo.Summary;
 import org.mousephenotype.cda.ri.pojo.SummaryDetail;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,10 +87,44 @@ public class SummaryServiceTest extends BaseTest {
     }
 
     @Test
+    public void changeEmailFormat() throws InterestException {
+      // user1 e-mail format is HTML.
+        Contact contact = summaryService.getContact(user1);
+        assertTrue(contact.isInHtml());
+        summaryService.changeEmailFormat(user1, EmailFormat.PLAIN);
+        contact = summaryService.getContact(user1);
+        assertFalse(contact.isInHtml());
+        summaryService.changeEmailFormat(user1, EmailFormat.PLAIN);
+        contact = summaryService.getContact(user1);
+        assertFalse(contact.isInHtml());
+        summaryService.changeEmailFormat(user1, EmailFormat.HTML);
+        contact = summaryService.getContact(user1);
+        assertTrue(contact.isInHtml());
+    }
+
+    @Test
     public void getContact() {
-        Contact actual = summaryService.getContact(user4);
+        Contact actual;
+
+        actual = summaryService.getContact(user1);
+        assertEquals(user1, actual.getEmailAddress());
+        assertTrue("Expected inHtml true for " + user1, actual.isInHtml());
+
+        actual = summaryService.getContact(user2);
+        assertEquals(user2, actual.getEmailAddress());
+        assertFalse("Expected inHtml false for " + user2, actual.isInHtml());
+
+        actual = summaryService.getContact(user3);
+        assertEquals(user3, actual.getEmailAddress());
+        assertTrue("Expected inHtml true for " + user3, actual.isInHtml());
+
+        actual = summaryService.getContact(user4);
         assertEquals(user4, actual.getEmailAddress());
-        assertFalse("Expected inHtml true for " + user4, actual.isInHtml());
+        assertFalse("Expected inHtml false for " + user4, actual.isInHtml());
+
+        actual = summaryService.getContact(user5);
+        assertEquals(user5, actual.getEmailAddress());
+        assertFalse("Expected inHtml false for " + user5, actual.isInHtml());
     }
 
     @Test

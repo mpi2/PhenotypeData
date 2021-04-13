@@ -153,7 +153,7 @@ public class SummaryService {
         }
 
         public void reload() {
-            logger.info("Begin: Reloading SummaryDetails from gene core");
+            logger.info("Begin: [Re]loading SummaryDetails from gene core");
             synchronized (_summaryDetails) {    // Make it thread safe
                 try {
                     _summaryDetails.clear();
@@ -168,7 +168,7 @@ public class SummaryService {
                 }
             }
             lastAccess = LocalDateTime.now();
-            logger.info("End: Reloading SummaryDetails from gene core");
+            logger.info("End: [Re]loading SummaryDetails from gene core");
         }
     }
 }
