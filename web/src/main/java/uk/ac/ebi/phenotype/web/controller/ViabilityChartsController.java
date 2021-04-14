@@ -17,7 +17,9 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.response.PivotField;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.dto.LifeStage;
 import org.mousephenotype.cda.enumerations.EmbryoViability;
@@ -126,14 +128,15 @@ public class ViabilityChartsController {
 
             model.addAttribute("pageTitle", pageTitle);
             //get viability top table
-		//methods here to get phenotype calls and stats results
+		//methods here to get phenotype calls
 		//http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/genotype-phenotype/select?q=*:*&fq=parameter_stable_id:IMPC_VIA_*
 		//http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/genotype-phenotype/select?q=marker_accession_id:%22MGI:2136171%22&fq=parameter_stable_id:IMPC_VIA_*
 		List<GenotypePhenotypeDTO> genotypePhenotypeForViability=null;
 		try {
 			genotypePhenotypeForViability = gpService.getGenotypePhenotypeForViability(accessionsParams[0]);
 			for(GenotypePhenotypeDTO phenotypeDTO:genotypePhenotypeForViability){
-				System.out.println(" Associated phenotype="+phenotypeDTO.getMpTermName()+" phenotyping center "+phenotypeDTO.getPhenotypingCenter()+"testing protocol="+phenotypeDTO.getProcedureName()+" measured value="+ phenotypeDTO.getParameterName());
+				System.out.println(" Associated phenotype="+phenotypeDTO.getMpTermName()+" phenotyping center "+phenotypeDTO.getPhenotypingCenter()+"testing protocol="+phenotypeDTO.getProcedureName()+" measured value="+ phenotypeDTO.getParameterName()
+				+"life stage="+phenotypeDTO.getLifeStageName()+ "background strain="+phenotypeDTO.getStrainName());
 				System.out.println(phenotypeDTO);
 			}
 		} catch (SolrServerException e) {
@@ -141,12 +144,31 @@ public class ViabilityChartsController {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		//do we need StstsResults here?
 
+		//lets get the normal viability objects for the charts so we can inspect them and see which ones are different and so need displaying?
+		try {
+			experimentService.getViabilityForGene(accessionsParams[0]);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
 
+		try {
+			//SRService? do we need this from Observation service instead?
+			Set<String> pivots = experimentService.getChartPivotsForGeneViability(accessionsParams[0]);
+			System.out.println("pivots for viability data="+pivots);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
 		//create charts
 		//method here to look through all viability and embryo viability etc and get one chart per set i.e. don't seperate on Zygosity like other charts are seperated
 		//what are the rules going to be for this??
 		//get all the procedures parameters for which we have data first in the experiment core?
+
 
 //		if (procedureStableId.equals("IMPC_VIA_001")) {
 //			if (parameterStableId.startsWith("IMPC_VIA_")) {

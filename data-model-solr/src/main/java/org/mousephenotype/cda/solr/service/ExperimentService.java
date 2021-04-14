@@ -335,6 +335,14 @@ public class ExperimentService {
         @SerializedName("discrete_point") Double discreteTimePoint;
         @SerializedName("body_weight") Double bodyWeight;
     }
+
+
+    public List<ObservationDTO> getViabilityForGene(String accession) throws IOException, SolrServerException {
+//http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/experiment/select?q=gene_accession_id:%22MGI:2136171%22&fq=parameter_stable_id:IMPC_VIA_*
+        List<ObservationDTO> observations = observationService.getViabilityObservationsByGene(accession);
+        return observations;
+
+    }
     
     /**
      * Should only return 1 experimentDTO - returns null if none and exception
@@ -588,4 +596,9 @@ public class ExperimentService {
 			List<String> strainsParams, List<String> metaDataGroup, List<String> alleleAccession, List<String>procedureStableIds) throws IOException, SolrServerException {
 		return observationService.getChartPivots(accessionAndParam, acc, parameter, pipelineStableIds, zyList, phenotypingCentersList, strainsParams, metaDataGroup, alleleAccession, procedureStableIds);
 	}
+
+
+    public Set<String> getChartPivotsForGeneViability(String geneAccession) throws IOException, SolrServerException {
+   	    return observationService.getChartPivotsForGeneViability(geneAccession);
+    }
 }

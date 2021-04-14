@@ -148,6 +148,43 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
     }
 
 
+    public NamedList<List<PivotField>> getChartPivotsForGeneViability(
+            String acc
+    ) throws IOException, SolrServerException {
+
+        SolrQuery query = new SolrQuery();
+        query.setQuery("*:*");
+        if (acc != null) {
+            query.addFilterQuery(StatisticalResultDTO.MARKER_ACCESSION_ID + ":\"" + acc + "\"");
+        }
+        query.setFacet(true);
+
+        String pivotFacet = StatisticalResultDTO.PIPELINE_STABLE_ID + ",";
+
+            pivotFacet += StatisticalResultDTO.PROCEDURE_STABLE_ID + ",";
+
+        pivotFacet +=
+                //StatisticalResultDTO.ZYGOSITY + "," +
+                StatisticalResultDTO.PHENOTYPING_CENTER + "," +
+                StatisticalResultDTO.STRAIN_ACCESSION_ID + "," +
+                StatisticalResultDTO.ALLELE_ACCESSION_ID;
+        //pivot needs to have metadata_group irrespective of if it's included in filter or not as we want separate experiments based on the metadata
+        pivotFacet += "," + StatisticalResultDTO.METADATA_GROUP;
+
+        query.add("facet.pivot", pivotFacet);
+
+        query.setFacetLimit(-1);
+
+        Set<String> resultParametersForCharts = new HashSet<>();
+        System.out.println("SR facet pivot query=" + query);
+        NamedList<List<PivotField>> facetPivot = statisticalResultCore.query(query).getFacetPivot();
+//        for (PivotField pivot : facetPivot.get(pivotFacet)) {
+//            getParametersForChartFromPivot(pivot, baseUrl, resultParametersForCharts);
+//        }
+
+        return facetPivot;
+    }
+
     private void getParametersForChartFromPivot(PivotField pivot, String urlParams, Set<String> set) {
 
         if (pivot != null) {

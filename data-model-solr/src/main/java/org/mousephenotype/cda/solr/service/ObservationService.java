@@ -380,6 +380,18 @@ public class ObservationService extends BasicService implements WebStatus {
     }
 
 
+    public List<ObservationDTO> getViabilityObservationsByGene(String acc) throws IOException, SolrServerException {
+        SolrQuery query = new SolrQuery();
+        query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":(" + String.join(" OR ", Constants.adultViabilityParameters) + ")");
+        query.setFilterQueries(ObservationDTO.GENE_ACCESSION_ID + ":\"" + acc + "\"");
+        query.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
+        query.setRows(100000);
+
+        final List<ObservationDTO> viabilityObservations = experimentCore.query(query).getBeans(ObservationDTO.class);
+        return viabilityObservations;
+    }
+
+
     public Set<String> getViabilityForGene(String acc)
             throws SolrServerException, IOException {
 
@@ -1812,6 +1824,44 @@ public class ObservationService extends BasicService implements WebStatus {
 
         return centerStatsList;
 
+    }
+
+    public Set<String> getChartPivotsForGeneViability(
+            String acc
+    ) throws IOException, SolrServerException {
+
+        SolrQuery query = new SolrQuery();
+        query.setQuery("*:*");
+        if (acc != null) {
+            query.addFilterQuery(ObservationDTO.GENE_ACCESSION_ID + ":\"" + acc + "\"");
+        }
+        //shouldn't this be all viability constants not just adult?
+        query.setQuery(ObservationDTO.PARAMETER_STABLE_ID + ":(" + String.join(" OR ", Constants.viabilityParameters) + ")");
+        query.setFacet(true);
+
+        String pivotFacet = ObservationDTO.PIPELINE_STABLE_ID + ",";
+
+        pivotFacet += ObservationDTO.PROCEDURE_STABLE_ID + ",";
+
+        pivotFacet +=
+                //StatisticalResultDTO.ZYGOSITY + "," +
+                ObservationDTO.PHENOTYPING_CENTER + "," +
+                        ObservationDTO.STRAIN_ACCESSION_ID + "," +
+                        ObservationDTO.ALLELE_ACCESSION_ID;
+        //pivot needs to have metadata_group irrespective of if it's included in filter or not as we want separate experiments based on the metadata
+        pivotFacet += "," + ObservationDTO.METADATA_GROUP;
+
+        query.add("facet.pivot", pivotFacet);
+
+        query.setFacetLimit(-1);
+
+        Set<String> resultParametersForCharts = new HashSet<>();
+        System.out.println("Observation Service facet pivot query=" + query);
+        NamedList<List<PivotField>> facetPivot = experimentCore.query(query).getFacetPivot();
+        for (PivotField pivot : facetPivot.get(pivotFacet)) {
+            getParametersForChartFromPivot(pivot, "", resultParametersForCharts);
+        }
+        return resultParametersForCharts;
     }
 
     public Set<String> getChartPivots(String baseUrl, String acc, String parameter, List<String> pipelineStableIds, List<String> zyList, List<String> phenotypingCentersList,
