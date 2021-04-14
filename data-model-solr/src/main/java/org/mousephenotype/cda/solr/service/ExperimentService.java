@@ -275,7 +275,7 @@ public class ExperimentService {
                             o.setDiscretePoint(x.getDiscreteTimePoint() != null ? x.getDiscreteTimePoint().floatValue() : null);
                             o.setWeight(x.getBodyWeight() != null ? x.getBodyWeight().floatValue() : null);
                             o.setDateOfBirth(x.getDateOfBirth());
-                            o.setMetadata(result.getMetadata());
+                            //o.setMetadata(result.getMetadata());
                             o.setPipelineName(result.getPipelineName());
                             o.setProcedureStableId(result.getProcedureStableId().get(0));
                             o.setProcedureName(result.getProcedureName());

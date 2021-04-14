@@ -49,6 +49,7 @@ public class ObservationDTO extends ObservationDTOBase {
      * @return string of fields separated by TAB characters
      */
     public String tabbedToString() {
+        String metadataStr = metadata  != null ? metadata.toString() : "-";
 
         List<String> fields = new ArrayList<>(Arrays.asList(
                 pipelineName,
@@ -74,7 +75,7 @@ public class ObservationDTO extends ObservationDTOBase {
                 sex,
                 group,
                 externalSampleId,
-                "\"" + metadata.toString() + "\"",
+                "\"" + metadataStr  + "\"",
                 metadataGroup,
                 weight!=null ? weight.toString() : "-",
                 	productionCenter
