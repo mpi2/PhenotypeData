@@ -288,7 +288,7 @@ public class ExperimentService {
                             o.setAlleleAccession(o.getGroup().equalsIgnoreCase("control") ? null : result.getAlleleAccessionId());
                             o.setColonyId(o.getGroup().equalsIgnoreCase("control") ? null : result.getColonyId());
                             o.setObservationType(result.getDataType().equals("embryo") ? "categorical" : result.getDataType());
-                            o.setAgeInWeeks((int) ChronoUnit.WEEKS.between(o.getDateOfBirth().toInstant().atZone(ZoneId.of("UTC")), o.getDateOfExperiment().toInstant().atZone(ZoneId.of("UTC"))));
+                            o.setAgeInWeeks( o.getDateOfBirth() != null ? (int) ChronoUnit.WEEKS.between(o.getDateOfBirth().toInstant().atZone(ZoneId.of("UTC")), o.getDateOfExperiment().toInstant().atZone(ZoneId.of("UTC"))) : null);
                             o.setStrainAccessionId(result.getStrainAccessionId());
                             o.setPhenotypingCenter(result.getPhenotypingCenter());
                             o.setParameterStableId(result.getParameterStableId());
