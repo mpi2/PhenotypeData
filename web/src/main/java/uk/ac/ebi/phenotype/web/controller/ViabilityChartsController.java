@@ -132,12 +132,15 @@ public class ViabilityChartsController {
 		//http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/genotype-phenotype/select?q=*:*&fq=parameter_stable_id:IMPC_VIA_*
 		//http://wwwdev.ebi.ac.uk/mi/impc/dev/solr/genotype-phenotype/select?q=marker_accession_id:%22MGI:2136171%22&fq=parameter_stable_id:IMPC_VIA_*
 		List<GenotypePhenotypeDTO> genotypePhenotypeForViability=null;
+		String markerSymbol="";
 		try {
 			genotypePhenotypeForViability = gpService.getGenotypePhenotypeForViability(accessionsParams[0]);
 			for(GenotypePhenotypeDTO phenotypeDTO:genotypePhenotypeForViability){
 				System.out.println(" Associated phenotype="+phenotypeDTO.getMpTermName()+" phenotyping center "+phenotypeDTO.getPhenotypingCenter()+"testing protocol="+phenotypeDTO.getProcedureName()+" measured value="+ phenotypeDTO.getParameterName()
 				+"life stage="+phenotypeDTO.getLifeStageName()+ "background strain="+phenotypeDTO.getStrainName());
 				System.out.println(phenotypeDTO);
+				markerSymbol=phenotypeDTO.getMarkerSymbol();
+				model.addAttribute("markerSymbol",markerSymbol);
 			}
 		} catch (SolrServerException e) {
 			e.printStackTrace();

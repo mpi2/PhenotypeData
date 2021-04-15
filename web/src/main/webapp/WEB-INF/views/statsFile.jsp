@@ -45,7 +45,7 @@
         </jsp:attribute>
 
     <jsp:body>
-<div class="container data-heading">
+ <div class="container data-heading">
             <div class="row row-shadow">
                 <div class="col-12 no-gutters">
                     <h2>${gene.markerSymbol} data chart</h2>
