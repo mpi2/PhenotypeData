@@ -133,7 +133,8 @@
                     // and update button appropriately on success
                     $.ajax({
                         type: "POST",
-                        url: "${baseUrl}/update-gene-registration?asynch=true",
+                        url: "${baseUrl}/update-gene-registration",
+                        headers: {'asynch': 'true'},
                         data: $(this).serialize(),
                         success: function(data) {
 

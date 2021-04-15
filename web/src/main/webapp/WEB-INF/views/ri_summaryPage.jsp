@@ -44,8 +44,8 @@
                     event.preventDefault();
 
                     // Get which gene this is a form for
-                    var $form = $(this),
-                        acc = $form.find('input[name="geneAccessionId"]').val();
+                    let $form = $(this);
+                    let geneSymbol = $form.find('input[id="geneSymbol"]').val();
 
                     // Do asynch request to change the state of the follow flag for this gene
                     // and update button appropriately on success
@@ -62,7 +62,7 @@
                             switch (data[acc]) {
                                 case "Following":
                                     $('form#follow-form-' + acc.replace(":", "")).find("button")
-                                        .attr('title', 'You are following ${gene.markerSymbol}. Click to stop following.')
+                                        .attr('title', 'You are following ' + geneSymbol + '. Click to stop following.')
                                         .removeClass('btn-primary')
                                         .addClass('btn-outline-secondary');
 
@@ -76,7 +76,7 @@
 
                                 case "Not Following":
                                     $('form#follow-form-' + acc.replace(":", "")).find("button")
-                                        .attr('title', 'Click to follow ${gene.markerSymbol}.')
+                                        .attr('title', 'Click to follow ' + geneSymbol + '.')
                                         .addClass('btn-primary')
                                         .removeClass('btn-outline-secondary');
 
@@ -308,7 +308,10 @@
                                                                    value="${_csrf.token}"/>
                                                             <input type="hidden" name="geneAccessionId"
                                                                    value="${gene.geneAccessionId}"/>
-                                                            <button class="btn btn-outline-secondary" type="submit">
+                                                            <input type="hidden" id="geneSymbol"
+                                                                   value="${gene.symbol}"/>
+                                                            <button class="btn btn-outline-secondary" type="submit"
+                                                                        title="You are following ${gene.symbol}. Click to stop following.">
                                                                 <i class="fas fa-user-minus"></i>
                                                                 <span>Unfollow</span>
                                                             </button>
