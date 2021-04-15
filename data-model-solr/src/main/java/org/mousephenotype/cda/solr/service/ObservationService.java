@@ -1844,7 +1844,7 @@ public class ObservationService extends BasicService implements WebStatus {
         pivotFacet += ObservationDTO.PROCEDURE_STABLE_ID + ",";
 
         pivotFacet +=
-                //StatisticalResultDTO.ZYGOSITY + "," +
+                ObservationDTO.PARAMETER_STABLE_ID + "," +
                 ObservationDTO.PHENOTYPING_CENTER + "," +
                         ObservationDTO.STRAIN_ACCESSION_ID + "," +
                         ObservationDTO.ALLELE_ACCESSION_ID;
@@ -1858,8 +1858,12 @@ public class ObservationService extends BasicService implements WebStatus {
         Set<String> resultParametersForCharts = new HashSet<>();
         System.out.println("Observation Service facet pivot query=" + query);
         NamedList<List<PivotField>> facetPivot = experimentCore.query(query).getFacetPivot();
+
+        String seperator = "&";
+//        String parameterStableId = parameter.getStableId();
+        String accessionAndParam = "accession=" + acc+seperator;
         for (PivotField pivot : facetPivot.get(pivotFacet)) {
-            getParametersForChartFromPivot(pivot, "", resultParametersForCharts);
+            getParametersForChartFromPivot(pivot, accessionAndParam, resultParametersForCharts);
         }
         return resultParametersForCharts;
     }

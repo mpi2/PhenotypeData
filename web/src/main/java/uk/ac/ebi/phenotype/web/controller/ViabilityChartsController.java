@@ -158,10 +158,13 @@ public class ViabilityChartsController {
 			e.printStackTrace();
 		}
 
+		List<String> graphUrls=new ArrayList<>();
 		try {
 			//SRService? do we need this from Observation service instead?
+
 			Set<String> pivots = experimentService.getChartPivotsForGeneViability(accessionsParams[0]);
 			System.out.println("pivots for viability data="+pivots);
+			graphUrls.addAll(pivots);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (SolrServerException e) {
@@ -188,7 +191,7 @@ public class ViabilityChartsController {
 //
 //			}
 //		}
-
+model.addAttribute("allGraphUrlSet", graphUrls);
 		return "viabilityChartsForGene";
     }
 
