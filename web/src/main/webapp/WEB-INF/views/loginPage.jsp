@@ -47,9 +47,11 @@
                                     <p>
                                         My Genes login is a place where you can:
                                     <ul class="mt-0 pt-0">
-                                        <li><a href="${baseUrl}/newAccountRequest">Create a new account</a></li>
-                                        <li> <a href="${baseUrl}/resetPasswordRequest">Reset your password</a></li>
-                                        <li>Log in to your My Genes account to view and manage the list of genes you've followed</li>
+                                        <li><a href="${baseUrl}/newAccountRequest">Create a new account or reset your
+                                            password</a></li>
+                                        <li>Log in to your My Genes account to view and manage the list of genes you've
+                                            followed
+                                        </li>
                                     </ul>
                                     </p>
 
@@ -59,8 +61,15 @@
                                             <input type="hidden" name="target" value="${target}"/>
 
                                             <c:if test="${param.error != null}">
-                                                <div class="messages error">
-                                                    <p>Invalid username and password</p>
+                                                <div class="alert alert-danger">
+                                                    <c:choose>
+                                                        <c:when test="${param.errorMessage == null}">
+                                                            <p>Invalid credentials</p>
+                                                        </c:when>
+                                                        <c:when test="${param.errorMessage != null}">
+                                                            <p>${param.errorMessage}</p>
+                                                        </c:when>
+                                                    </c:choose>
                                                 </div>
                                             </c:if>
                                             <c:if test="${param.status != null}">
@@ -70,25 +79,28 @@
                                             </c:if>
 
                                             <div class="form-item form-type-textfield form-item-name">
-                                                <input type="text" class="form-control required" id="username" name="ssoId"
+                                                <input type="text" class="form-control required" id="username"
+                                                       name="ssoId"
                                                        placeholder="Enter e-mail address" required/>
                                             </div>
 
-                                            <br />
+                                            <br/>
 
                                             <div class="form-item form-type-password form-item-pass">
-                                                <input type="password" class="form-control  required" id="password" name="password"
+                                                <input type="password" class="form-control  required" id="password"
+                                                       name="password"
                                                        placeholder="Enter password" required/>
                                             </div>
 
                                             <div style="padding-top:0.8em;" class="g-recaptcha"
                                                  data-sitekey=${recaptchaPublic}></div>
 
-                                            <br />
+                                            <br/>
 
                                             <noscript>
                                                 <div class="col-12 no-gutters">
-                                                    <h5 style="float: left">Please enable javascript if you want to log in to follow or stop
+                                                    <h5 style="float: left">Please enable javascript if you want to log
+                                                        in to follow or stop
                                                         following this gene.</h5>
                                                 </div>
                                             </noscript>
@@ -110,7 +122,6 @@
                 </div>
             </div>
         </div>
-
 
 
     </jsp:body>

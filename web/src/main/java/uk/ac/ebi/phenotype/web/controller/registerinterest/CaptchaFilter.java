@@ -44,7 +44,7 @@ public class CaptchaFilter extends OncePerRequestFilter {
             ("POST".equalsIgnoreCase(request.getMethod())) &&
                 (
                     request.getServletPath().contains("rilogin") ||
-                    request.getServletPath().contains("sendEmail")
+                    request.getServletPath().contains("sendNewAccountEmail")
                 )
             ) {
 
@@ -59,10 +59,9 @@ public class CaptchaFilter extends OncePerRequestFilter {
                 if ((target == null) || ! (target.startsWith(baseUrl))) {
                     target = baseUrl + "/rilogin";
                 }
-                if (target.endsWith("sendEmail")) {
-                    // sendEmail is a POST and will throw a 405 if redirected, as there is no GET. Remap to either New account or Reset password url as appropriate.
-                    String action = request.getParameter("action");
-                    target = baseUrl + (RegisterInterestController.TITLE_NEW_ACCOUNT_REQUEST.equals(action) ? "/newAccountRequest" : "/resetPasswordRequest");
+                if (target.endsWith("sendNewAccountEmail")) {
+                    // sendNewAccountEmail is a POST and will throw a 405 if redirected, as there is no GET. Remap to New account.
+                    target = baseUrl + "/newAccountRequest";
                 }
                 target += "?error=true";
                 response.sendRedirect(target);

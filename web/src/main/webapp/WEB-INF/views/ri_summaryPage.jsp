@@ -110,7 +110,8 @@
                         console.log('Successfully changed email format to ' + emailFormat);
                     },
                     error: function () {
-                        window.location("${baseUrl}/rilogin?target=${baseUrl}/summary");
+                        var errorMessage = 'Unable to change email format.';
+                        window.location("${baseUrl}/rilogin?target=${baseUrl}/summary&errorMessage=" + errorMessage);
                     }
                 });
             }

@@ -54,7 +54,7 @@
                                     <div class="login-form row ml-0 mr-0 mb-2">
                                         <form
                                                 class="col-md-6"
-                                                action="${baseUrl}/sendEmail"
+                                                action="${baseUrl}/sendNewAccountEmail"
                                                 method="POST">
                                             <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
                                             <input type="hidden" name="action" value="${title}" />
@@ -117,7 +117,7 @@
                                             </div>
 
                                             <div class="form-group row">
-                                                <div class="col-5 pl-0">
+                                                <div class="col-8 pl-0">
                                                     <input
                                                             class="btn btn-block btn-primary btn-default"
                                                             type="submit"
