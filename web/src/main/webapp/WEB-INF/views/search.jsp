@@ -264,7 +264,7 @@
                                                             <c:when test="${isFollowing[gene.mgiAccessionId]}">
                                                                 <button
                                                                         title="You are following ${gene.markerSymbol}. Click to stop following."
-                                                                        class="btn btn-light"
+                                                                        class="btn btn-outline-secondary"
                                                                         type="submit">
                                                                     <i class="fas fa-user-minus"></i>
                                                                     <span>Unfollow</span>
@@ -273,7 +273,7 @@
                                                             <c:otherwise>
                                                                 <button
                                                                         title="Click to follow ${gene.markerSymbol}"
-                                                                        class="btn btn-dark"
+                                                                        class="btn btn-primary"
                                                                         type="submit">
                                                                     <i class="fas fa-user-plus"></i>
                                                                     <span>Follow</span>
