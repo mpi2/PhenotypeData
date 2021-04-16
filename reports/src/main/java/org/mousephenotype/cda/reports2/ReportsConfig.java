@@ -3,8 +3,11 @@ package org.mousephenotype.cda.reports2;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
+import org.mousephenotype.cda.ri.utils.RiSqlUtils;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrDao;
 import org.mousephenotype.cda.solr.repositories.image.ImagesSolrJ;
+import org.mousephenotype.cda.solr.service.GeneService;
+import org.mousephenotype.cda.solr.service.ImpressService;
 import org.mousephenotype.cda.solr.service.MpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.solr.core.SolrOperations;
 import org.springframework.data.solr.core.SolrTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import javax.sql.DataSource;
 
@@ -32,16 +36,16 @@ public class ReportsConfig {
 
 
 	// komp2
-	@Value("${datasource.komp2.jdbc-url}")
-	private String komp2Url;
-	@Value("${datasource.komp2.username}")
-	private String komp2Uername;
-	@Value("${datasource.komp2.password}")
-	private String komp2Password;
+	@Value("${datasource.ri.jdbc-url}")
+	private String riUrl;
+	@Value("${datasource.ri.username}")
+	private String riUername;
+	@Value("${datasource.ri.password}")
+	private String riPassword;
     @Bean
     @Primary
-    public DataSource komp2DataSource() {
-        return SqlUtils.getConfiguredDatasource(komp2Url, komp2Uername, komp2Password);
+    public DataSource riDataSource() {
+        return SqlUtils.getConfiguredDatasource(riUrl, riUername, riPassword);
     }
 
 
@@ -154,11 +158,31 @@ public class ReportsConfig {
     	return new MpService(mpCore());
 	}
 
+	@Bean
+	public ImpressService impressService() {
+		return new ImpressService(pipelineCore());
+	}
+
+	@Bean
+	public GeneService geneService() {
+		return new GeneService(geneCore(), impressService());
+	}
+
 
 	////////
 	// Other
 	////////
 
+
+	@Bean
+	public NamedParameterJdbcTemplate jdbc() {
+		return new NamedParameterJdbcTemplate(riDataSource());
+	}
+
+	@Bean
+	public RiSqlUtils riSqlUtils() {
+		return new RiSqlUtils(jdbc());
+	}
 
 	@Bean
 	public SolrClient solrClient() { return new HttpSolrClient.Builder(internalSolrUrl).build(); }
