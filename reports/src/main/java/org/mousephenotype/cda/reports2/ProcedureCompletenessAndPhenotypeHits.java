@@ -33,12 +33,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.WebApplicationType;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.util.ClassUtils;
 
 import javax.inject.Inject;
@@ -53,10 +50,7 @@ import java.util.stream.Collectors;
  * PURPOSE: This report is meant to answer the question "How many lines are complete?"
  */
 
-// Randomly, when printing the Usage message, spring barks about hibernate not being enabled. The exclusion below
-// seems to prevent the warning.
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class,
-                                  HibernateJpaAutoConfiguration.class})
+@ComponentScan({"org.mousephenotype.cda.reports2"})
 public class ProcedureCompletenessAndPhenotypeHits implements CommandLineRunner {
 
     private Logger                       logger          = LoggerFactory.getLogger(this.getClass());
@@ -111,7 +105,7 @@ public class ProcedureCompletenessAndPhenotypeHits implements CommandLineRunner 
 
     @Inject
     public ProcedureCompletenessAndPhenotypeHits(ProcedureCompletenessService procedureCompletenessService,
-                                                 MpService mpService) throws ReportException {
+                                                 MpService mpService) {
         this.procedureCompletenessService = procedureCompletenessService;
         this.mpService = mpService;
     }
@@ -121,8 +115,8 @@ public class ProcedureCompletenessAndPhenotypeHits implements CommandLineRunner 
 
         initialise(args);
 
-        long start = System.currentTimeMillis();
-        int geneCount = 0;
+        long         start     = System.currentTimeMillis();
+        int          geneCount = 0;
         List<String> geneSymbols;
         try {
             geneSymbols = procedureCompletenessService.getGeneSymbols();
@@ -139,7 +133,7 @@ public class ProcedureCompletenessAndPhenotypeHits implements CommandLineRunner 
                         d.getColonyId() + "_" +
                             (d.getZygosity() == null ? "null" : d.getZygosity()) + "_" +
                             (d.getLifeStageName() == null ? "null" : d.getLifeStageName())))
-                .entrySet()
+                    .entrySet()
                     .stream()
                     .sorted(Map.Entry.comparingByKey())
                     .forEach(sr -> writer.write(buildRow(sr.getValue())));
@@ -175,8 +169,8 @@ public class ProcedureCompletenessAndPhenotypeHits implements CommandLineRunner 
     }
 
     private List<String> buildRow(List<StatisticalResultDTO> dtos) {
-        List<String> row = new ArrayList<>();
-        StatisticalResultDTO d = dtos.get(0);
+        List<String>         row = new ArrayList<>();
+        StatisticalResultDTO d   = dtos.get(0);
         row.add(d.getMarkerSymbol());
         row.add(d.getMarkerAccessionId());
         row.add(d.getAlleleSymbol());
@@ -199,7 +193,7 @@ public class ProcedureCompletenessAndPhenotypeHits implements CommandLineRunner 
             .stream()
             .collect(Collectors.groupingBy(StatisticalResultDTO::getStatus));
 
-        Statuses success = new Statuses(byStatus.get("Successful"));
+        Statuses success      = new Statuses(byStatus.get("Successful"));
         Statuses notProcessed = new Statuses(byStatus.get("NotProcessed"));
 
         if (success.procStatusSet.isEmpty()) {
@@ -275,14 +269,14 @@ public class ProcedureCompletenessAndPhenotypeHits implements CommandLineRunner 
                             if ((tlmpDto != null) && (tlmpDto.getTopLevelMpTerm() != null)) {
                                 for (int i = 0; i < tlmpDto.getTopLevelMpTerm().size(); i++) {
                                     tlmpSignificantStatusSet.add(new IdName(tlmpDto.getTopLevelMpTerm().get(i),
-                                                                            tlmpDto.getTopLevelMpId().get(i)));
+                                        tlmpDto.getTopLevelMpId().get(i)));
                                 }
                             }
                         }
                         if (d.getTopLevelMpTermName() != null) {
                             for (int i = 0; i < d.getTopLevelMpTermName().size(); i++) {
                                 tlmpStatusSet.add(new IdName(d.getTopLevelMpTermName().get(i),
-                                                             d.getTopLevelMpTermId().get(i)));
+                                    d.getTopLevelMpTermId().get(i)));
                             }
                         }
                     });

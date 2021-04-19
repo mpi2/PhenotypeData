@@ -28,12 +28,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.WebApplicationType;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.util.ClassUtils;
 
 import javax.inject.Inject;
@@ -48,13 +45,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * PURPOSE: This report is meant to answer the question "How many lines are complete?"
+ * PURPOSE: This report is meant to provide a count of all registered interest genes (anonymously)
  */
 
-// Randomly, when printing the Usage message, spring barks about hibernate not being enabled. The exclusion below
-// seems to prevent the warning.
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class,
-    HibernateJpaAutoConfiguration.class})
+@ComponentScan({"org.mousephenotype.cda.reports2"})
 public class RegistrationOfInterest implements CommandLineRunner {
 
     private Logger                        logger          = LoggerFactory.getLogger(this.getClass());
