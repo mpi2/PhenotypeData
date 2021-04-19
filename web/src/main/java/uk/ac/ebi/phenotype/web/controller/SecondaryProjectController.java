@@ -17,19 +17,21 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.db.pojo.GenesSecondaryProject;
+import org.mousephenotype.cda.solr.service.EssentialGeneService;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.GenesSecondaryProjectServiceIdg;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
+import org.mousephenotype.cda.solr.web.dto.GeneRowForHeatMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import uk.ac.ebi.phenotype.chart.PieChartCreator;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.*;
@@ -54,49 +56,87 @@ public class SecondaryProjectController {
         this.idg = idg;
     }
 
-    @RequestMapping(value = "/secondaryproject/{id}", method = RequestMethod.GET)
-    public String loadSecondaryProjectPage(@PathVariable String id, Model model) throws IOException, SolrServerException {
+    @RequestMapping(value = "/secondaryproject/idg", method = RequestMethod.GET)
+    public String idgProjectPage(HttpServletRequest request,
+                                           Model model)
+            throws IOException, SolrServerException {
 
+        // for IDG now we are going to get the list of gene accessions from the essential genes core
 
-                //for IDG now we are going to get the list of gene accessions from the essential genes core
+        Set<GenesSecondaryProject> secondaryProjects = idg.getAllBySecondaryProjectId();
+        Set<String> accessions = secondaryProjects
+                .stream()
+                .map(GenesSecondaryProject::getMgiGeneAccessionId)
+                .collect(Collectors.toSet());
 
-                Set<GenesSecondaryProject> secondaryProjects = idg.getAllBySecondaryProjectId();
-                Set<String> accessions = secondaryProjects
-                        .stream()
-                        .map(GenesSecondaryProject::getMgiGeneAccessionId)
-                        .collect(Collectors.toSet());
+        Map<String, Long> geneStatus = geneService.getStatusCount(accessions, GeneDTO.ES_CELL_PRODUCTION_STATUS);
+        Map<String, Long> mouseStatus = geneService.getStatusCount(accessions, GeneDTO.MOUSE_PRODUCTION_STATUS);
+        Map<String, Long> phenoStatus = geneService.getStatusCount(accessions, GeneDTO.PHENOTYPE_STATUS);
+        Map<String, Long> combinedData = new HashMap<>();
+        combinedData.putAll(geneStatus);
+        combinedData.putAll(mouseStatus);
+        combinedData.putAll(phenoStatus);
 
-                Map<String, Long> geneStatus = geneService.getStatusCount(accessions, GeneDTO.ES_CELL_PRODUCTION_STATUS);
-                Map<String, Long> mouseStatus = geneService.getStatusCount(accessions, GeneDTO.MOUSE_PRODUCTION_STATUS);
-                Map<String, Long> phenoStatus = geneService.getStatusCount(accessions, GeneDTO.PHENOTYPE_STATUS);
-                Map<String, Long> combinedData = new HashMap<>();
-                combinedData.putAll(geneStatus);
-                combinedData.putAll(mouseStatus);
-                combinedData.putAll(phenoStatus);
-                
-                List<String> colorsForPie = new ArrayList<>();
-                
-                String nonSigColor="'rgb(194, 194, 194)'";
-                String sigColor="'rgb(247, 157, 70)'";
-                colorsForPie.add(sigColor);
-                colorsForPie.add(nonSigColor);
+        List<String> colorsForPie = new ArrayList<>();
 
-                Map<String, Integer> totalLabelToNumber = new LinkedHashMap<>();
-                Integer total = accessions.size();
-                Integer withoutData = Math.toIntExact(total - phenoStatus.values().stream().mapToInt(Long::intValue).sum());
-                Integer withData = total - withoutData;
-                totalLabelToNumber.put("IDG gene with IMPC Data", withData);
-                totalLabelToNumber.put("IDG gene with no IMPC Data", withoutData);
-                
-                String idgOrthologPie = PieChartCreator.getPieChartForColorList(totalLabelToNumber, "idgOrthologPie", "IDG genes IMPC data status", "",colorsForPie);
-                model.addAttribute("idgOrthologPie", idgOrthologPie);
-                model.addAttribute("idgChartTable", chartProvider.getStatusColumnChart(combinedData, "IDG genes IMPC production status", "idgChart", colorsForPie));
-                model.addAttribute("idgGeneCount", accessions.size());
-                model.addAttribute("idgPercent", String.format("%.1f", ((withData / Float.valueOf(total))*100)));
+        String nonSigColor = "'rgb(194, 194, 194)'";
+        String sigColor = "'rgb(247, 157, 70)'";
+        colorsForPie.add(sigColor);
+        colorsForPie.add(nonSigColor);
 
+        Map<String, Integer> totalLabelToNumber = new LinkedHashMap<>();
+        Integer total = accessions.size();
+        Integer withoutData = Math.toIntExact(total - phenoStatus.values().stream().mapToInt(Long::intValue).sum());
+        Integer withData = total - withoutData;
+        totalLabelToNumber.put("IDG gene with IMPC Data", withData);
+        totalLabelToNumber.put("IDG gene with no IMPC Data", withoutData);
 
-            return "idg";
+        String idgOrthologPie = PieChartCreator.getPieChartForColorList(totalLabelToNumber, "idgOrthologPie", "IDG genes IMPC data status", "", colorsForPie);
+        model.addAttribute("idgOrthologPie", idgOrthologPie);
+        model.addAttribute("idgChartTable", chartProvider.getStatusColumnChart(combinedData, "IDG genes IMPC production status", "idgChart", colorsForPie));
+        model.addAttribute("idgGeneCount", accessions.size());
+        model.addAttribute("idgPercent", String.format("%.1f", ((withData / Float.valueOf(total)) * 100)));
 
+        // Include data for supporting the table views of data available
+        String baseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
+        List<GeneRowForHeatMap> geneRows = idg.getGeneRowsForHeatMap(baseUrl).stream().map(x -> {
+            GeneRowForHeatMap n = new GeneRowForHeatMap(x.getAccession());
+            n.setMiceProduced(x.getMiceProduced().replaceAll("badge", "btn"));
+            n.setGroupLabel(x.getGroupLabel());
+            n.setSymbol(x.getSymbol());
+            n.setHumanSymbol(x.getHumanSymbol());
+            n.setLowestPValue(x.getLowestPValue());
+            n.setXAxisToCellMap(x.getXAxisToCellMap());
+            return n;
+            }).collect(Collectors.toList());
+
+        // Ion channel specific information
+        final List<GeneRowForHeatMap> ionChannelRows = geneRows.stream()
+                .filter(x -> x.getGroupLabel().equals(EssentialGeneService.ION_CHANNEL))
+                .collect(Collectors.toList());
+        model.addAttribute("ION_CHANNEL", EssentialGeneService.ION_CHANNEL);
+        model.addAttribute("ionChannelRows", ionChannelRows);
+        model.addAttribute("ionChannelEsCellsProduced", ionChannelRows.stream().filter(x -> x.getMiceProduced().contains("ES Cells")).count());
+        model.addAttribute("ionChannelMiceProduced", ionChannelRows.stream().filter(x -> x.getMiceProduced().contains("Mice")).count());
+        model.addAttribute("ionChannelPhenotypesProduced", ionChannelRows.stream().filter(x -> x.getMiceProduced().contains("Phenotype data")).count());
+
+        // Kinase specific
+        final List<GeneRowForHeatMap> kinaseRows = geneRows.stream().filter(x -> x.getGroupLabel().equals(EssentialGeneService.KINASE)).collect(Collectors.toList());
+        model.addAttribute("KINASE", EssentialGeneService.KINASE);
+        model.addAttribute("kinaseRows", kinaseRows);
+        model.addAttribute("kinaseEsCellsProduced", kinaseRows.stream().filter(x -> x.getMiceProduced().contains("ES Cells")).count());
+        model.addAttribute("kinaseMiceProduced", kinaseRows.stream().filter(x -> x.getMiceProduced().contains("Mice")).count());
+        model.addAttribute("kinasePhenotypesProduced", kinaseRows.stream().filter(x -> x.getMiceProduced().contains("Phenotype data")).count());
+
+        // GPCRC specific
+        final List<GeneRowForHeatMap> gpcrRows = geneRows.stream().filter(x -> x.getGroupLabel().equals(EssentialGeneService.GPCR)).collect(Collectors.toList());
+        model.addAttribute("GPCR", EssentialGeneService.GPCR);
+        model.addAttribute("gpcrRows", gpcrRows);
+        model.addAttribute("gpcrEsCellsProduced", gpcrRows.stream().filter(x -> x.getMiceProduced().contains("ES Cells")).count());
+        model.addAttribute("gpcrMiceProduced", gpcrRows.stream().filter(x -> x.getMiceProduced().contains("Mice")).count());
+        model.addAttribute("gpcrPhenotypesProduced", gpcrRows.stream().filter(x -> x.getMiceProduced().contains("Phenotype data")).count());
+
+        return "idg";
 
 
     }

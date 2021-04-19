@@ -48,7 +48,7 @@ var drawChords = function (svgId, containerId, openNewPage, mpTopLevelTerms, idg
                 $('#'+containerId).html("<p>" + json.geneCount + " genes with at least one phenotype association in each of the following systems: <b>" + mpTopLevelTerms.join(",") + "</b></p><p><a href='" + url.replace("chordDiagram", "chordDiagram.csv") + "' download='" + "genes with " + mpTopLevelTerms.join(" ") +
                     "genes_by_top_level_phenotype_associations.csv" + "'>Get gene list</a> </p>");
             } else {
-                $('#'+containerId).html("<p>" + json.geneCount + " genes with at least one phenotype association are displayed. <a href='" + jsonSource.replace("chordDiagram.json", "chordDiagram.csv") + "' download='" + "genes_phenotype_associations.csv" + "'>Get gene list.</a> </p>");
+                $('#'+containerId).html("<p><b>" + json.geneCount + "</b> genes have phenotypes in more than one biological system.  The chord diagram below shows the pleiotropy between these genes. <a href='" + jsonSource.replace("chordDiagram.json", "chordDiagram.csv") + "' download='" + "genes_phenotype_associations.csv" + "'>Get the genes and associated phenotypes.</a> </p>");
             }
 
             d3.select("#"+svgId).selectAll("*").remove(); //clear svg for in-place filters

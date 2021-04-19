@@ -23,6 +23,10 @@ import java.util.stream.Collectors;
 @Service
 public class EssentialGeneService extends BasicService implements WebStatus {
 
+    final public static String KINASE = "Kinase";
+    final public static String ION_CHANNEL = "IonChannel";
+    final public static String GPCR = "GPCR";
+
     private static final Logger log = LoggerFactory.getLogger(GeneService.class);
     private SolrClient essentialGeneCore;
 
@@ -82,7 +86,7 @@ public class EssentialGeneService extends BasicService implements WebStatus {
     public List<EssentialGeneDTO> getAllIdgGeneList(String... fields) throws IOException, SolrServerException {
         List<EssentialGeneDTO> idgGeneDTOS;
         SolrQuery solrQuery = new SolrQuery()
-                .setQuery("idg_family:Kinase OR idg_family:IonChannel OR idg_family:GPCR")
+                .setQuery(String.format("idg_family:%s OR idg_family:%s OR idg_family:%s", KINASE, ION_CHANNEL, GPCR))
                 .setRows(Integer.MAX_VALUE);
         if (fields != null) {
             solrQuery.setFields(fields);

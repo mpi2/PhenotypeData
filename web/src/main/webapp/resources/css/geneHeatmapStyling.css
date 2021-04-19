@@ -1,11 +1,11 @@
 /* Additional styling written at EBI for gene heatmap for secondary projects*/
 
-td {
+table.geneHeatMap tr td {
     word-wrap: break-word;
     max-width: 50px !important;
 }
 
-.page-content table th, .page-content table td {
+table.geneHeatMap th, table.geneHeatMap td {
     font-size: 12px;
     line-height: 1.1;
 }
@@ -14,11 +14,11 @@ td {
     font-size: 80%;
 }
 
-.geneHeatmap td, th {
+table.geneHeatmap td, table.geneHeatmap th {
     padding: 0;
 }
 
-table, tr, td, th {
+table.geneHeatmap, table.geneHeatmap tr, table.geneHeatmap td, table.geneHeatmap th {
     word-wrap: break-word;
     text-align: center;
     padding: 0.25rem !important;

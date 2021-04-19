@@ -27,6 +27,10 @@ import org.mousephenotype.cda.solr.service.dto.ParameterDTO;
 import org.mousephenotype.cda.solr.web.dto.CategoricalSet;
 import org.mousephenotype.cda.solr.web.dto.StackedBarsData;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -39,14 +43,13 @@ import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -107,19 +110,33 @@ public class OverviewChartsController {
 
     @ResponseBody
     @RequestMapping(value = "/chordDiagram.csv", method = RequestMethod.GET)
-    public String getChordDiagramDownload(
+    public ResponseEntity<String> getChordDiagramDownload(
             @RequestParam(required = false, value = "phenotype_name") List<String> phenotypeName,
             @RequestParam(required = false, value = "idg") Boolean idg,
-            @RequestParam(required = false, value = "idgClass") String idgClass
+            @RequestParam(required = false, value = "idgClass") String idgClass,
+            HttpServletResponse response
     ) {
 
+        String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(Calendar.getInstance().getTime());
+        String project = (idg != null && idg == true) ? "IDG" : "";
+        String classification = idgClass != null ? idgClass : "";
+        String filename = String.join("_", timeStamp, project, classification, "chordDiagram.csv");
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+
+        response.setHeader("Content-Disposition", "attachment; filename=" + filename);
+
         try {
-            return genotypePhenotypeService.getPleiotropyDownload(phenotypeName, idg, idgClass);
+            String output = genotypePhenotypeService.getPleiotropyDownload(phenotypeName, idg, idgClass);
+            return new ResponseEntity<>(output, responseHeaders, HttpStatus.OK);
         } catch (IOException | SolrServerException e) {
             e.printStackTrace();
         }
-        return "";
+        return new ResponseEntity<>("", responseHeaders, HttpStatus.OK);
     }
+
+
 
     @RequestMapping(value="/overviewCharts/{phenotype_id}", method=RequestMethod.GET)
     public String getGraph(
