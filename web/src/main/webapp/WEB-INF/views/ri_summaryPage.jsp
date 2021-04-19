@@ -234,10 +234,10 @@
                                             <tr>
                                                 <th>Gene Symbol</th>
                                                 <th>Gene Accession Id</th>
-                                                <th>Project Assignment</th>
+                                                <th>Gene Assignment</th>
                                                 <th>Null Allele Production Status</th>
                                                 <th>Conditional Allele Production Status</th>
-                                                <th>Null Allele Production Status</th>
+                                                <th>Allele Production Status</th>
                                                 <th>Phenotyping Data Available</th>
                                                 <th>Action</th>
                                             </tr>
