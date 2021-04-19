@@ -33,6 +33,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -127,19 +128,12 @@ public class SearchController {
         }
 
         boolean isLoggedIn = riUtils.isLoggedIn();
-        List<String> followedAccessionIds = riUtils.getGeneAccessionIds();
-
-//        // Map gene status from "Phenotype Complete" to "Phenotype data available"
-//        genes.forEach(gene -> {
-//            if (gene.getPhenotypingDataAvailable()) {
-//                gene.setPhenotypeStatus("Phenotype data available");
-//            }
-//        });
+        List<String> followedAccessionIds = (isLoggedIn) ? riUtils.getGeneAccessionIds() : new ArrayList<>();
 
         // Initialise Register Interest button for each gene
         genes.forEach(gene -> {
             if (isLoggedIn) {
-                isFollowing.put(gene.getMgiAccessionId(), followedAccessionIds.contains(gene.getMgiAccessionId()) ? true : false);
+                isFollowing.put(gene.getMgiAccessionId(), followedAccessionIds.contains(gene.getMgiAccessionId()));
             }
         });
 
