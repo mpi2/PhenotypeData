@@ -116,9 +116,9 @@
 					<h4> Access the results programmatically </h4>
 					<hr>
 					<p>
-						<a target="_blank" class="btn btn-outline-primary btn-sm" href='${srUrl}'> Statistical result raw XML </a>
+						<a target="_blank" class="btn btn-outline-dark btn-sm" data-toggle="tooltip" data-placement="top" title="Data not available for this procedure"> Statistical result raw XML </a>
 						<a target="_blank" class="btn btn-outline-primary btn-sm" href='${gpUrl}'> Genotype phenotype raw XML </a>
-						<a target="_blank" class="btn btn-outline-primary btn-sm" href='${baseUrl}${phenStatDataUrl}'> PhenStat-ready raw experiment data</a>
+						<a target="_blank" class="btn btn-outline-dark btn-sm" data-toggle="tooltip" data-placement="top" title="Viability data is not processed using PhenStat"> PhenStat-ready raw experiment data</a>
 					</p>
 				</div>
 			</div>
@@ -126,7 +126,11 @@
 		</div>
 	</div>
 
-
+<script>
+	$(function () {
+		$('[data-toggle="tooltip"]').tooltip()
+	})
+</script>
 
 
 </c:if>
