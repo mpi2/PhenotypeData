@@ -65,8 +65,7 @@ public class OrderController {
 	@RequestMapping("/order/creline")
     public String creLineAlleles(@RequestParam (required = false) String acc, Model model) throws SolrServerException, IOException{
 		
-		boolean creline=true;
-		List<OrderTableRow> orderRows = orderService.getOrderTableRows(acc, null, creline);
+		List<OrderTableRow> orderRows = orderService.getOrderTableRows(acc, null, true);
 		model.addAttribute("orderRows", orderRows);
 		model.addAttribute("creLine", true);
 		model.addAttribute("acc", acc);
