@@ -225,12 +225,19 @@
                                         <table id="following" class='table table-bordered'>
                                             <thead>
                                             <tr>
+                                                <th colspan="3"></th>
+                                                <th colspan="2" class="text-center">ES Cell</th>
+                                                <th colspan="1" class="text-center>">Crispr</th>
+                                                <th colspan="2"></th>
+
+                                            </tr>
+                                            <tr>
                                                 <th>Gene Symbol</th>
                                                 <th>Gene Accession Id</th>
-                                                <th>Assignment Status</th>
+                                                <th>Project Assignment</th>
                                                 <th>Null Allele Production Status</th>
                                                 <th>Conditional Allele Production Status</th>
-                                                <th>Crispr Allele Production Status</th>
+                                                <th>Null Allele Production Status</th>
                                                 <th>Phenotyping Data Available</th>
                                                 <th>Action</th>
                                             </tr>
