@@ -16,7 +16,6 @@
 package uk.ac.ebi.phenotype.generic.util;
 
 import org.apache.commons.lang3.StringUtils;
-import org.mousephenotype.cda.solr.service.OrderService;
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +32,9 @@ import java.net.URL;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.mousephenotype.cda.solr.service.OrderService.crePredicate;
+import static org.mousephenotype.cda.solr.service.OrderService.selectCre;
 
 @Service
 public class SolrIndex2 {
@@ -498,9 +500,7 @@ public class SolrIndex2 {
 
         String qallele_name = "";
         String select="/select";
-        if(creLine){
-        	select=OrderService.selectCre;
-        }
+
 
         if (allele_name != null) {
             qallele_name = " AND " + ALLELE_NAME_FIELD + ":\"" + allele_name + "\"";
@@ -514,6 +514,10 @@ public class SolrIndex2 {
                 + target
                 + "&start=0&rows=100&hl=true&wt=json";
 
+        if(creLine){
+            search_url += "&fq=" + crePredicate;
+        }
+
         return search_url;
     }
 
@@ -521,9 +525,6 @@ public class SolrIndex2 {
 
         String qallele_search = "";
         String select="/select";
-        if(creLine){
-        	select=OrderService.selectCre;
-        }
 
         if (cassette != null && design != null) {
             qallele_search = " AND cassette:\"" + cassette + "\" AND design_id:\"" + design + "\""  ;
@@ -534,6 +535,9 @@ public class SolrIndex2 {
         String search_url = select+"?q="
                 + target
                 + "&start=0&rows=100&hl=true&wt=json";
+        if(creLine){
+            search_url += "&fq=" + crePredicate;
+        }
 
         return search_url;
     }
@@ -542,9 +546,7 @@ public class SolrIndex2 {
 
         String qallele_name = "";
         String select="/select";
-        if(creLine){
-        	select=OrderService.selectCre;
-        }
+
         if (allele_name != null) {
             qallele_name = " AND " + ALLELE_NAME_FIELD + ":\"" + allele_name + "\"";
 
@@ -556,38 +558,25 @@ public class SolrIndex2 {
                 + target
                 + "&start=0&rows=100&hl=true&wt=json";
 
+        if(creLine){
+            search_url += "&fq=" + crePredicate;
+        }
+
         return search_url;
     }
 
-//    private String getMiceAndEsCellsUrl(String accession, String cassette, String design) {
-//        String qallele_search = "";
-//
-//        if (cassette != null && design != null) {
-//            qallele_search = " AND cassette:\"" + cassette + "\" AND design_id:\"" + design + "\""  ;
-//        }
-//
-//        String target = "-type:targeting_vector AND mgi_accession_id:" + accession.replace(":", "\\:") + qallele_search;
-//
-//        String search_url = "/select?q="
-//                + target
-//                + "&start=0&rows=100&hl=true&wt=json";
-//
-//        return search_url;
-//    }
-
-
-
     private String getProduct(String name, String type, boolean creLine) {
     	 String select="/select";
-         if(creLine){
-         	select=OrderService.selectCre;
-         }
+
         name = name.replace("-", "\\-");
         String search_url = select+"?q=name:"
                 + '"' + name + '"'
                 + " AND type:"
                 + '"' + type + '"'
                 + "&start=0&rows=100&hl=true&wt=json";
+        if(creLine){
+            search_url += "&fq=" + crePredicate;
+        }
 
         return search_url;
     }
@@ -598,8 +587,9 @@ public class SolrIndex2 {
         String qallele_name = "";
         String select="/select";
         if(creLine){
-        	select=OrderService.selectCre;
+            select = selectCre;
         }
+
         if (allele_name != null) {
             qallele_name = " AND " + ALLELE_NAME_FIELD + ":\"" + allele_name + "\"";
 
@@ -610,6 +600,7 @@ public class SolrIndex2 {
         String search_url = select+"?q="
                 + target
                 + "&start=0&rows=100&hl=true&wt=json";
+
 
         return search_url;
     }
@@ -628,9 +619,8 @@ public class SolrIndex2 {
     private String getAlleleUrl(String accession, String cassette, String design, boolean creLine) {
         String qallele_search = "";
         String select="/select";
-        if(creLine){
-        	select=OrderService.selectCre;
-        }
+
+
         if (cassette != null && design != null) {
             qallele_search = " AND cassette:\"" + cassette + "\" AND design_id:\"" + design + "\""  ;
         }
@@ -640,6 +630,10 @@ public class SolrIndex2 {
         String search_url = select+"?q="
                 + target
                 + "&start=0&rows=100&hl=true&wt=json";
+
+        if(creLine){
+            search_url += "&fq=" + crePredicate;
+        }
 
         return search_url;
     }
@@ -658,8 +652,7 @@ public class SolrIndex2 {
 
 // SOLR QUERIES
 
-    private String searchProductCore(String searchUrl) throws IOException,
-            URISyntaxException {
+    private String searchProductCore(String searchUrl) {
 
         String hostUrl;
         String url;
@@ -674,8 +667,7 @@ public class SolrIndex2 {
 
 
 
-    private String searchAlleleCore(String searchUrl) throws IOException,
-            URISyntaxException {
+    private String searchAlleleCore(String searchUrl) {
 
         String hostUrl;
         String url;

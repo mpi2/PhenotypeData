@@ -24,6 +24,7 @@ public class OrderService {
 
 	private final Logger logger    = LoggerFactory.getLogger(this.getClass());
 	public static String selectCre = "/selectCre";
+	public static String crePredicate = "allele_design_project:Cre";
 
 	private SolrClient allele2Core;
 	private SolrClient productCore;
@@ -177,7 +178,7 @@ public class OrderService {
 
 		SolrQuery query = new SolrQuery();
 		if(creLine){
-			query.setRequestHandler(selectCre);
+			query.addFilterQuery(crePredicate);
 		}
 		query.setQuery(q);
 		if (alleleName != null) {
@@ -218,7 +219,7 @@ public class OrderService {
 		List<String>qcData=null;
 		SolrQuery query = new SolrQuery();
 		if(creLine){
-			query.setRequestHandler(selectCre);
+			query.addFilterQuery(crePredicate);
 		}
 		String q="name:"+productName;
 		query.setQuery(q);
@@ -275,47 +276,5 @@ public class OrderService {
 	        return deep;
 	    }
 	 
-	 
-	 public HashMap<String, String> getCreData(String acc) throws SolrServerException, IOException {
-		 //method to get the link at the bottom of the table if we have old cre mice available from the other core eucommProduct
-		 HashMap<String, String> creStatus = new HashMap<>();// a bit lazy but have just used the same structure and logic her that peter used
-	        creStatus.put("cre_exists", "false");
-	        creStatus.put("product_type", "None");
-	        creStatus.put("mgi_acc", "");
-	        
-	        
-		 SolrQuery query = new SolrQuery();
-			String q="mgi_accession_id:\""+acc+"\"";
-			query.setQuery(q);
-			
-			query.addFilterQuery("(type:mouse OR type:es_cell)");
-			
-			query.setRows(Integer.MAX_VALUE);
 
-		 //
-		 // TODO: Update for displaying the CRELINE products at the bottom of the gene page
-		 //
-
-		 logger.info("query for cre  products=" + query);
-			QueryResponse response = productCore.query(query);
-		 logger.info("number found of products docs=" + response.getResults().getNumFound());
-			List<ProductDTO> productDTOs = response.getBeans(ProductDTO.class);
-			for(ProductDTO prod:productDTOs){
-				 String creType = prod.getType();
-	               if (creType.equals("mouse")) {
-	                   creStatus.put("cre_exists", "true");
-	                   creStatus.put("product_type", "Mice");
-	                   creStatus.put("mgi_acc", prod.getMgiAccessionId());
-	               }
-	               if (creType.equals("es_cell")) {
-	                   if (!creStatus.get("product_type").equals("Mice") ){//only do this if no mice found already as mice more important I guess.
-	                       creStatus.put("cre_exists", "true");
-	                       creStatus.put("product_type", "ES Cell");
-	                       creStatus.put("mgi_acc", prod.getMgiAccessionId());
-	                   }
-	               }
-			}
-
-			return creStatus;
-	 }
 }

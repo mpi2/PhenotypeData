@@ -1,3 +1,4 @@
+<%@ page import="org.mousephenotype.cda.solr.service.EssentialGeneService" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -120,25 +121,130 @@
                     </script>
 
                     <h3>Ion channels</h3>
+                    <table class="table w-25">
+                        <tr>
+                            <th>IMPC/IDG genes</th><td>${fn:length(ionChannelRows)}</td>
+                        </tr>
+                        <tr>
+                            <th>ES Cells produced</th><td>${ionChannelEsCellsProduced}</td>
+                        </tr>
+                        <tr>
+                            <th>Mice produced</th><td>${ionChannelMiceProduced}</td>
+                        </tr>
+                        <tr>
+                            <th>Phenotypes</th><td>${ionChannelPhenotypesProduced}</td>
+                        </tr>
+                    </table>
+                    <button class="btn btn-success mb-3" data-toggle="collapse" href="#ionChannelTable" role="button" aria-expanded="false" aria-controls="ionChannelTable">View all ${fn:length(ionChannelRows)} IMPC/IDG Ion Channel genes</button>
+                    <div id="ionChannelTable" class="collapsed collapse">
+                        <table class="table-condensed w-100 table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Mouse Genes</th>
+                                    <th>Human Genes</th>
+                                    <th>Data available</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <c:forEach items="${ionChannelRows}" var="row">
+                                <tr>
+                                    <td>${row.symbol} (${row.accession})</td>
+                                    <td>${row.humanSymbolToString}</td>
+                                    <td>${row.miceProduced}</td>
+                                </tr>
+                            </c:forEach>
+                            </tbody>
+                        </table>
+                    </div>
                     <div id="chordContainerIonChannels" class="half"></div>
                     <svg id="chordDiagramSvgIonChannels" width="960" height="960"></svg>
                     <script>
-                        drawChords("chordDiagramSvgIonChannels", "chordContainerIonChannels", false, [], true, "IonChannel", true);
+                        drawChords("chordDiagramSvgIonChannels", "chordContainerIonChannels", false, [], true, "${ION_CHANNEL}", true);
                     </script>
 
                     <h3>GPCRs</h3>
+                    <table class="table w-25">
+                        <tr>
+                            <th>IMPC/IDG genes</th><td>${fn:length(gpcrRows)}</td>
+                        </tr>
+                        <tr>
+                            <th>ES Cells produced</th><td>${gpcrEsCellsProduced}</td>
+                        </tr>
+                        <tr>
+                            <th>Mice produced</th><td>${gpcrMiceProduced}</td>
+                        </tr>
+                        <tr>
+                            <th>Phenotypes</th><td>${gpcrPhenotypesProduced}</td>
+                        </tr>
+                    </table>
+                    <button class="btn btn-success mb-3" data-toggle="collapse" href="#gpcrTable" role="button" aria-expanded="false" aria-controls="gpcrTable">View all ${fn:length(gpcrRows)} IMPC/IDG GPCR genes</button>
+                    <div id="gpcrTable" class="collapsed collapse">
+                        <table class="table-condensed w-100 table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>Mouse Genes</th>
+                                <th>Human Genes</th>
+                                <th>Data available</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <c:forEach items="${gpcrRows}" var="row">
+                                <tr>
+                                    <td>${row.symbol} (${row.accession})</td>
+                                    <td>${row.humanSymbolToString}</td>
+                                    <td>${row.miceProduced}</td>
+                                </tr>
+                            </c:forEach>
+                            </tbody>
+                        </table>
+                    </div>
                     <div id="chordContainerGPCRs" class="half"></div>
                     <svg id="chordDiagramSvgGPCRs" width="960" height="960"></svg>
                     <script>
-                        drawChords("chordDiagramSvgGPCRs", "chordContainerGPCRs", false, [], true, "GPCR", true);
+                        drawChords("chordDiagramSvgGPCRs", "chordContainerGPCRs", false, [], true, "${GPCR}", true);
                     </script>
 
 
                     <h3>Kinases</h3>
+                    <table class="table w-25">
+                        <tr>
+                            <th>IMPC/IDG genes</th><td>${fn:length(kinaseRows)}</td>
+                        </tr>
+                        <tr>
+                            <th>ES Cells produced</th><td>${kinaseEsCellsProduced}</td>
+                        </tr>
+                        <tr>
+                            <th>Mice produced</th><td>${kinaseMiceProduced}</td>
+                        </tr>
+                        <tr>
+                            <th>Phenotypes</th><td>${kinasePhenotypesProduced}</td>
+                        </tr>
+                    </table>
+                    <button class="btn btn-success mb-3" data-toggle="collapse" href="#kinaseTable" role="button" aria-expanded="false" aria-controls="kinaseTable">View all ${fn:length(kinaseRows)} IMPC/IDG Kinase genes</button>
+                    <div id="kinaseTable" class="collapsed collapse">
+                        <table class="table-condensed w-100 table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>Mouse Genes</th>
+                                <th>Human Genes</th>
+                                <th>Data available</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <c:forEach items="${kinaseRows}" var="row">
+                                <tr>
+                                    <td>${row.symbol} (${row.accession})</td>
+                                    <td>${row.humanSymbolToString}</td>
+                                    <td>${row.miceProduced}</td>
+                                </tr>
+                            </c:forEach>
+                            </tbody>
+                        </table>
+                    </div>
                     <div id="chordContainerKinases" class="half"></div>
                     <svg id="chordDiagramSvgKinases" width="960" height="960"></svg>
                     <script>
-                        drawChords("chordDiagramSvgKinases", "chordContainerKinases", false, [], true, "Kinase", true);
+                        drawChords("chordDiagramSvgKinases", "chordContainerKinases", false, [], true, "${KINASE}", true);
                     </script>
                 </div>
             </div>

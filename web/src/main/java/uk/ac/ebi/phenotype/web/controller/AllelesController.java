@@ -21,7 +21,6 @@ import org.mousephenotype.cda.solr.service.HtgtService;
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -42,7 +41,10 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class AllelesController {
@@ -318,7 +320,7 @@ public class AllelesController {
             model.addAttribute("debug", "true");
         }
 
-        Map<String, String> allele_identifier = new HashMap();
+        Map<String, String> allele_identifier = new HashMap<>();
         allele_identifier.put("accession", acc);
         allele_identifier.put("allele_name", URLDecoder.decode(allele_name, "UTF-8"));
         allele_identifier.put("cassette", cassette);
@@ -340,7 +342,7 @@ public class AllelesController {
 
         ArrayList<Map<String,String>> vectorArray = (ArrayList) constructs.get("targeting_vectors");
 
-        Map<String, Boolean> ikmcDesignMapForRow=new HashMap();
+        Map<String, Boolean> ikmcDesignMapForRow=new HashMap<>();
         for(Map<String,String> vector: vectorArray){
             String idString=vector.get("design_id");
             Integer designId=Integer.parseInt(idString);

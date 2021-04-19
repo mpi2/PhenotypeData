@@ -70,7 +70,8 @@ public class GeneHeatmapController {
 							   HttpServletRequest request) throws SolrServerException, IOException {
 
 		Long time = System.currentTimeMillis();
-		List<GeneRowForHeatMap> geneRows = idgGenesSecondaryProjectService.getGeneRowsForHeatMap(request);
+		String baseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
+		List<GeneRowForHeatMap> geneRows = idgGenesSecondaryProjectService.getGeneRowsForHeatMap(baseUrl);
 		List<BasicBean> xAxisBeans = idgGenesSecondaryProjectService.getXAxisForHeatMap();
 		model.addAttribute("geneRows", geneRows);
 		model.addAttribute("xAxisBeans", xAxisBeans);
@@ -78,7 +79,6 @@ public class GeneHeatmapController {
 
 		return "geneHeatMap";
 	}
-
 
 	/** Download the gene report
 	 * @param project is the external project for example a secondary screen e.g. IDG or 3I
@@ -95,7 +95,8 @@ public class GeneHeatmapController {
 
 
 
-		List<GeneRowForHeatMap> geneRows = idgGenesSecondaryProjectService.getGeneRowsForHeatMap(request);
+		String baseUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
+		List<GeneRowForHeatMap> geneRows = idgGenesSecondaryProjectService.getGeneRowsForHeatMap(baseUrl);
 		List<BasicBean> xAxisBeans = idgGenesSecondaryProjectService.getXAxisForHeatMap();
 		model.addAttribute("geneRows", geneRows);
 		model.addAttribute("xAxisBeans", xAxisBeans);

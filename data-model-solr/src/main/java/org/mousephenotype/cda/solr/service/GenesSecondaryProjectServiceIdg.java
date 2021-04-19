@@ -36,7 +36,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.*;
@@ -105,10 +104,9 @@ public class GenesSecondaryProjectServiceIdg {
 
 
 //    @Cacheable("topLevelPhenotypesGeneRows")
-    public List<GeneRowForHeatMap> getGeneRowsForHeatMap(HttpServletRequest request) throws SolrServerException, IOException {
+    public List<GeneRowForHeatMap> getGeneRowsForHeatMap(String baseUrl) throws SolrServerException, IOException {
 
         List<BasicBean> parameters = this.getXAxisForHeatMap();
-        String geneUrl = request.getAttribute("mappedHostname").toString() + request.getAttribute("baseUrl").toString();
 
         // get a list of mgi geneAccessionIds for the project - which will be the row headers
         Set<GenesSecondaryProject> projectBeans = this.getAllBySecondaryProjectId();
@@ -120,7 +118,7 @@ public class GenesSecondaryProjectServiceIdg {
 
 
         List<GeneDTO> geneToMouseStatus = geneService.getProductionStatusForGeneSet(accessions);
-        Map<String, GeneRowForHeatMap> rows = getSecondaryProjectMapForGeneList(geneToMouseStatus, parameters, geneUrl, projectBeans);
+        Map<String, GeneRowForHeatMap> rows = getSecondaryProjectMapForGeneList(geneToMouseStatus, parameters, baseUrl, projectBeans);
         List<GeneRowForHeatMap> geneRows = new ArrayList<>(rows.values());
         Collections.sort(geneRows);
         return geneRows;
@@ -142,7 +140,7 @@ public class GenesSecondaryProjectServiceIdg {
     public HashMap<String, GeneRowForHeatMap> getSecondaryProjectMapForGeneList(
             List<GeneDTO> genes,
             List<BasicBean> topLevelMps,
-            String geneUrl,
+            String baseUrl,
             Set<GenesSecondaryProject> projectBeans) {
 
         HashMap<String, GeneRowForHeatMap> geneRowMap = new HashMap<>(); // <geneAcc, row>
@@ -181,7 +179,7 @@ public class GenesSecondaryProjectServiceIdg {
             row.setHumanSymbol(humanSymbols);
 
             // Mouse production status
-            Map<String, String> prod = GeneService.getStatusFromDTO(gene, geneUrl);
+            Map<String, String> prod = GeneService.getStatusFromDTO(gene, baseUrl+"/genes/"+gene.getMgiAccessionId());
             String prodStatusIcons = prod.get("productionIcons") + prod.get("phenotypingIcons");
             prodStatusIcons = prodStatusIcons.equals("") ? "-" : prodStatusIcons;
             row.setMiceProduced(prodStatusIcons);
