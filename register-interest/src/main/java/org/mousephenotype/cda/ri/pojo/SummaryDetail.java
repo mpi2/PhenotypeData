@@ -124,16 +124,16 @@ public class SummaryDetail {
     public static final  List<String> h             = Arrays.asList(
         "Gene Symbol",
         "Gene Accession Id",
-        "Assignment Status",
-        "Conditional Allele Production Status",
-        "Null Allele Production Status",
+        "Gene Assignment",
+        "ES Cell Null Allele Production Status",
+        "ES Cell Conditional Allele Production Status",
         "Crispr Allele Production Status",
         "Phenotyping Data Available"
     );
     private static final String       FORMAT_QUOTED =
         "\"%-" + h.get(0).length() + "." + h.get(0).length() + "s" + "\"" +
             "  \"%-" + h.get(1).length() + "." + h.get(1).length() + "s" + "\"" +
-            "  \"%-" + (h.get(2).length() + 10) + "." + (h.get(2).length() + 10) + "s" + "\"" +  // Data is wider than heading
+            "  \"%-" + (h.get(2).length() + 15) + "." + (h.get(2).length() + 15) + "s" + "\"" +  // Data is wider than heading
             "  \"%-" + h.get(3).length() + "." + h.get(3).length() + "s" + "\"" +
             "  \"%-" + h.get(4).length() + "." + h.get(4).length() + "s" + "\"" +
             "  \"%-" + h.get(5).length() + "." + h.get(5).length() + "s" + "\"" +
@@ -142,7 +142,7 @@ public class SummaryDetail {
     private static final String       FORMAT_UNQUOTED =
         " %-" + h.get(0).length() + "." + h.get(0).length() + "s" + " " +
             "   %-" + h.get(1).length() + "." + h.get(1).length() + "s" + " " +
-            "   %-" + (h.get(2).length() + 10) + "." + (h.get(2).length() + 10) + "s" + " " + // Data is wider than heading
+            "   %-" + (h.get(2).length() + 15) + "." + (h.get(2).length() + 15) + "s" + " " + // Data is wider than heading
             "   %-" + h.get(3).length() + "." + h.get(3).length() + "s" + " " +
             "   %-" + h.get(4).length() + "." + h.get(4).length() + "s" + " " +
             "   %-" + h.get(5).length() + "." + h.get(5).length() + "s" + " " +
@@ -160,8 +160,8 @@ public class SummaryDetail {
             symbol,
             geneAccessionId,
             _assignmentStatusToString(lastSd),
-            _conditionalAlleleProductionStatusToString(lastSd),
             _nullAlleleProductionStatusToString(lastSd),
+            _conditionalAlleleProductionStatusToString(lastSd),
             _crisprAlleleProductionStatusToString(lastSd),
             _isPhenotypingDataAvailableToString(lastSd));
         return (inHtml
@@ -172,11 +172,11 @@ public class SummaryDetail {
     @Override
     public String toString() {
         return "SummaryDetail{" +
-            "geneAccessionId='" + geneAccessionId + '\'' +
-            ", symbol='" + symbol + '\'' +
+            "symbol='" + symbol + '\'' +
+            ", geneAccessionId='" + geneAccessionId + '\'' +
             ", assignmentStatus='" + assignmentStatus + '\'' +
-            ", conditionalAlleleProductionStatus='" + conditionalAlleleProductionStatus + '\'' +
             ", nullAlleleProductionStatus='" + nullAlleleProductionStatus + '\'' +
+            ", conditionalAlleleProductionStatus='" + conditionalAlleleProductionStatus + '\'' +
             ", crisprAlleleProductionStatus='" + crisprAlleleProductionStatus + '\'' +
             ", isPhenotypingDataAvailable=" + isPhenotypingDataAvailable +
             '}';
