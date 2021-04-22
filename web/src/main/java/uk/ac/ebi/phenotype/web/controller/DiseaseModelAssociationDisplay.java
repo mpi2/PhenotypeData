@@ -22,19 +22,27 @@ public class DiseaseModelAssociationDisplay implements Comparable<DiseaseModelAs
     @ToString.Exclude @EqualsAndHashCode.Exclude private Double maxNorm;
 
     public String getFormattedMatchingPhenotypes() {
-        List<String> phenotypes = new ArrayList<>();
+        List<String> phens = new ArrayList<>();
+
+//        String urlPattern = "<a href='https://hpo.jax.org/app/browse/term/%s'>%s</a>";
+//        if (matchedPhenotypes!= null) {
+//            for (String matchedPhenotype : matchedPhenotypes) {
+//                String[] fields = matchedPhenotype.split(" ", 2);
+//                phens.add(String.format(urlPattern, fields[0], fields[1]));
+//            }
+//        }
+//        return String.join(", ", phens);
 
         if (matchedPhenotypes!= null) {
             for (String matchedPhenotype : matchedPhenotypes) {
-                // Each phenotype result comes as a row like:
-                // "HP:0005585 Spotty hyperpigmentation"
-                // the field before the first space is the ID
                 String[] fields = matchedPhenotype.split(" ", 2);
-                phenotypes.add(fields[1]);
+                phens.add(fields[1]);
             }
         }
 
-        return StringUtils.abbreviate(String.join(", ", phenotypes), 100);
+        String urlPattern = "<a href='"+getExternalUrl()+"'>%s</a>";
+//        return String.format(urlPattern, StringUtils.abbreviate(String.join(", ", phens), 70));
+        return StringUtils.abbreviate(String.join(", ", phens), 70);
     }
 
     @ToString.Include

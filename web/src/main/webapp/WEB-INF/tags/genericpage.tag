@@ -188,6 +188,7 @@
 
 </head>
 
+
 <c:choose>
     <c:when test="${not empty bodyTag}">
         <jsp:invoke fragment="bodyTag"/>
