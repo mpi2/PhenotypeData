@@ -1,4 +1,5 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@ page pageEncoding="UTF-8" %>
@@ -17,7 +18,6 @@
         <meta name="_csrf_header" content="${_csrf.headerName}"/>
 
         <script type="text/javascript">
-            var impc = {baseUrl: "${baseUrl}"};
             var gene_id = '${acc}';
             var monarchUrl = '${monarchUrl}';
             var base_url = '${baseUrl}';
@@ -40,13 +40,6 @@
         <link rel="preload" type="text/css" href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.min.css?v=${version}" as="style" />
         <link rel="stylesheet" type="text/css" href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.min.css?v=${version}" media="print" onload="this.media='all'" />
 
-        <%-- Phenodigm2 requirements --%>
-        <script defer type="text/javascript" src="https://d3js.org/d3.v4.min.js" ></script>
-        <script defer type="text/javascript" src="${baseUrl}/js/vendor/underscore/underscore-1.8.3.min.js" ></script>
-        <script defer type="text/javascript" src="${baseUrl}/js/phenodigm2/phenodigm2.js?v=${version}" ></script>
-        <link rel="stylesheet" type="text/css" href="${baseUrl}/css/phenodigm2.css" />
-        <%-- End of phenodigm2 requirements --%>
-
         <script type="text/javascript">
 
             document.addEventListener("DOMContentLoaded", function () {
@@ -59,12 +52,7 @@
                 }
 
                 $("#exptabs").tabs({active: expressionTab});
-                $("#phenotabs").tabs({active: 0});
-                $("#phenotabs2").tabs({active: 0});
                 $("#tabs").tabs();
-
-                $('div#anatomo2').hide(); // by default
-                $('div#embryo2').hide(); // by default
 
                 $('.wtExp').hide();
                 $('div#toggleWt').click(function () {
@@ -86,17 +74,6 @@
                         $('#anatomo1').show();
                         $('#anatomo2').hide();
                         $(this).text("Hide expression table");
-                    }
-                });
-
-                $('input[name=options]').change(function () {
-                    var value = $('input[name=options]:checked').val();
-                    if (value === 'anatogram') {
-                        $('#anatomo1').hide();
-                        $('#anatomo2').show();
-                    } else {
-                        $('#anatomo2').hide();
-                        $('#anatomo1').show();
                     }
                 });
 
@@ -213,6 +190,57 @@
             "taxonomicRange": "http://purl.obolibrary.org/obo/NCIT_C45247"
         }
         </script>
+
+        <%-- Style bars css--%>
+         <style>
+             * { box-sizing: border-box; }
+
+             .sizing-box {
+                 height: 40px;
+                 width: 100px;
+             }
+
+             .signal-bars {
+                 display: inline-block;
+             }
+
+             .signal-bars .bar {
+                 width: 10%;
+                 margin-left: 1%;
+                 min-height: 20%;
+                 display: inline-block;
+             }
+             .signal-bars .bar.first-bar  { height: 20%; }
+             .signal-bars .bar.second-bar { height: 40%; }
+             .signal-bars .bar.third-bar  { height: 60%; }
+             .signal-bars .bar.fourth-bar { height: 80%; }
+             .signal-bars .bar.fifth-bar  { height: 99%; }
+
+             .good .bar {
+                 /*background-color: #16a085;*/
+                 background-color: #8e8e8e;
+                 /*border: thin solid darken(#16a085, 7%);*/
+                 border: thin solid darken(#8e8e8e, 7%);
+             }
+             .bad .bar {
+                 background-color: #e74c3c;
+                 border: thin solid darken(#e74c3c, 20%);
+             }
+             .ok .bar {
+                 background-color: #1e7e34;
+                 border: thin solid darken(#1e7e34, 7%);
+             }
+
+             .four-bars .bar.fifth-bar,
+             .three-bars .bar.fifth-bar,
+             .three-bars .bar.fourth-bar,
+             .one-bar .bar:not(.first-bar),
+             .two-bars .bar:not(.first-bar):not(.second-bar) {
+                 background-color: #fafafa;
+                 border: thin solid #8e8e8e;
+             }
+         </style>
+
     </jsp:attribute>
 
     <jsp:body>
@@ -480,11 +508,10 @@
         <div class="container" id="diseases">
             <div class="row pb-2">
                 <div class="col-12 col-md-12">
-                    <h2 class="h2"><b><i class="fal fa-procedures"></i>&nbsp;Disease Models</b></h2>
+                    <h2 class="h2"><b><i class="fal fa-procedures"></i>&nbsp;Human diseases caused by ${gene.markerSymbol} mutations</b></h2>
                 </div>
             </div>
         </div>
-
 
         <div class="container white-bg-small">
             <div class="row pb-5">
@@ -492,90 +519,56 @@
                     <div class="pre-content clear-bg">
                         <div class="page-content pt-3 pb-5">
                             <div class="container p-0 p-md-2">
-                                <div class="row justify-content-end">
-                                    <div class="float-right"><a href="${cmsBaseUrl}/help/gene-page/disease-models/"
-                                                                target="_blank"><i class="fa fa-question-circle"
-                                                                                   style="font-size: xx-large"></i></a>
+                                <div class="row">
+                                    <div class="mb-3 col-11" style="height:240px; background-repeat: no-repeat; background-position-x: 1.4rem; background-image: linear-gradient(to bottom, rgba(255,255,255,0.6) 0%,rgba(255,255,255,0.9) 100%), url(https://picsum.photos/800/240?blur=3)">
+<%--                                        <img class="img-fluid" src="https://picsum.photos/800/240?blur=3" alt="IMPC / Human disease Infographic" />--%>
+                                        <h2>Monarch supplied infographic (800x240)</h2>
+                                    </div>
+                                    <div class="col-1 text-right">
+                                        <a href="${cmsBaseUrl}/help/gene-page/disease-models/"
+                                            target="_blank"><i class="fa fa-question-circle" style="font-size: xx-large"></i></a>
                                     </div>
                                 </div>
-                                <div class="row d-lg-flex d-none">
-                                    <%-- Not ready for release
+                                <p class="ml-4">The table shows similarity analysis between the mouse phenotypes and human phenotypes <b>when the orthologous human
+                                    gene is known to cause disease</b>. Strong similarities may indicate paths for research.
+                                </p>
+                                <div class="row">
                                     <div class="col-12">
-                                        <ul class="mx-5 mb-5 mt-0">
-                                            <li>The disease models module displays the analysis of phenotypic similarity between mouse and human.  This can:
-                                                <ul>
-                                                    <li>provide insight into the fidelity of the mouse knockout to a "solved" human disease,</li>
-                                                    <li>suggest candidate genes for unsolved human diseases,</li>
-                                                    <li>indicate possible genetic interactions between genes.</li>
-                                                </ul></li>
-                                            <li>Phenodigm calculates similarity scores by comparing the IMPC mouse phenotypes to the clinical descriptions of human disease. Scores are weighted by the number and uniqueness of matches between mouse and human phenotype ontologies. The overall score is normalized to 100 as the best score.</li>
-                                            <li>The tab "By Phenotypic Similarity" derives from a global analysis of similarity between mouse and human diseases and syndromes, (using information from OMIM, Orphanet, and DECIPHER)</li>
-                                            <li>The tab "By Annotation and Orthology" includes only those cases where mutation(s) in the orthologous human gene cause disease, thereby measure phenotype similarity between mutations in the mouse and human gene.</li>
-                                            <li>To understand what expanding a row shows, <a href="${cmsBaseUrl}/help/data-visualization/gene-pages/disease-models/" target="_blank">visit documentation for disease models</a></li>
-                                        </ul>
-                                    </div>
-                                    --%>
-                                </div>
-                                <div class="row d-lg-flex d-none">
-                                    <div class="col-12">
-                                        <ul class="nav nav-tabs" id="diseasesTab" role="tablist">
-                                            <li class="nav-item">
-                                                <a class="nav-link active" id="byPhenotype-tab" data-toggle="tab"
-                                                   href="#byPhenotype"
-                                                   role="tab" aria-controls="byPhenotype-tab" aria-selected="false">By
-                                                    phenotypic
-                                                    Similarity (<span id="diseases_by_phenotype_count">0</span>)</a>
-                                            </li>
-                                            <li class="nav-item">
-                                                <a class="nav-link" id="byAnnotation-tab" data-toggle="tab"
-                                                   href="#byAnnotation"
-                                                   role="tab" aria-controls="byAnnotation-tab" aria-selected="false">By
-                                                    Annotation and
-                                                    Orthology (<span id="diseases_by_annotation_count">0</span>)</a>
-                                            </li>
-                                        </ul>
-                                        <div class="tab-content mt-2" id="diseasesTabContent">
-                                            <div class="tab-pane fade show active" id="byPhenotype" role="tabpanel"
-                                                 aria-labelledby="byPhenotype-tab">
-                                                <c:choose>
-                                                    <c:when test="${empty modelAssociations}">
-                                                        <div class="alert alert-warning mt-3">
-                                                            No associations by phenotypic similarity found.
+                                        <table id="diseases_by_annotation"
+                                               data-pagination="true"
+                                               data-mobile-responsive="true"
+                                               data-sortable="true"
+                                               data-detail-view="true"
+                                               data-detail-view-align="right"
+                                               data-detail-formatter="diseaseDetailFormatter"
+                                               data-detail-filter="diseaseDetailFilter">
+                                            <thead>
+                                            <tr>
+                                                <th data-width="350">Disease</th>
+                                                <th data-halign="center" data-align="center">Similarity of<br />phenotypes</th>
+                                                <th>Matching phenotypes</th>
+                                                <th data-width="140" data-halign="center" data-align="center" data-events="suppressClick">Source</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <c:forEach items="${diseasesByAnnotation}" var="disease" varStatus="loop">
+                                                <tr id="diseaseRow${loop.index}" data-link="${baseUrl}/phenodigm2/phenogrid?geneId=${gene.mgiAccessionId}&diseaseId=${disease.diseaseId}&pageType=gene" data-shown="false">
+                                                    <td>${disease.diseaseTerm}</td>
+                                                    <td>
+                                                        <div class="signal-bars mt1 sizing-box good ${disease.scoreIcon}" data-toggle="tooltip" data-placement="top" title="Phenodigm score: <fmt:formatNumber maxFractionDigits="2" value="${disease.phenodigmScore}" />">
+                                                            <div class="first-bar bar"></div>
+                                                            <div class="second-bar bar"></div>
+                                                            <div class="third-bar bar"></div>
+                                                            <div class="fourth-bar bar"></div>
+                                                            <div class="fifth-bar bar"></div>
                                                         </div>
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <%-- Not ready for release
-                                                        <ul class="mx-5">
-                                                            <li>A best match (high Phenodigm score) may occur with an orphan or "unsolved" disease, and this suggests the mouse gene as a candidate for the human disorder.</li>
-                                                            <li>It is important to note that a mouse knockout may also have a high scoring match to a “solved” human genetic disease associated with a different gene. A genocopy suggests that the two genes may interact in a physiological pathway or network.</li>
-                                                        </ul>
-                                                        --%>
-                                                        <table id="diseases_by_phenotype"
-                                                               class="table tablesorter disease hidden-xs"
-                                                               style="width:100%"></table>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                            </div>
-                                            <div class="tab-pane fade" id="byAnnotation" role="tabpanel"
-                                                 aria-labelledby="byAnnotation-tab">
-                                                <c:choose>
-                                                    <c:when test="${!hasModelsByOrthology}">
-                                                        <div class="alert alert-warning mt-3">
-                                                            No associations by disease annotation and gene orthology found.
-                                                        </div>
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <%-- Not ready for release
-                                                        <ul class="mx-5">
-                                                            <li>This is a subset of the By Phenotypic Similarity tab.  In some cases, mutation(s) in the orthologous human gene are known to cause disease. For these, similarity analysis between the mouse phenotype and that genetic disease(s) is presented.</li>
-                                                        </ul>
-                                                        --%>
-                                                        <table id="diseases_by_annotation"
-                                                               class="table tablesorter disease" style="width:100%"></table>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                            </div>
-                                        </div>
+                                                    </td>
+                                                    <td><a href="javascript:toggleDetail(${loop.index});">${disease.formattedMatchingPhenotypes}</a></td>
+                                                    <td><a href="${disease.externalUrl}" onclick="even.stopPropagation();">${disease.diseaseId}</a></td>
+                                                </tr>
+                                            </c:forEach>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                                 <div class="row d-lg-none d-flex">
@@ -588,6 +581,8 @@
                 </div>
             </div>
         </div>
+
+
 
 
         <c:if test="${rowsForHistopathTable.size() > 0 or hasHistopath}">
@@ -609,7 +604,7 @@
                                                                                         style="font-size: xx-large"></i></a>
                                         </div>
                                     </div>
-        <c:if test="${rowsForHistopathTable.size() > 0}">
+                                    <c:if test="${rowsForHistopathTable.size() > 0}">
                                     <div class="row">
                                         <div class="col-12">
                                             <table id="histopathPhenotypesTable" data-toggle="table" data-pagination="true" data-mobile-responsive="true" data-sortable="true">
@@ -650,17 +645,17 @@
                                             </table>
                                         </div>
                                     </div>
-        </c:if>
-        <c:if test="${rowsForHistopathTable.size() == 0 and hasHistopath}">
-            <div class="row">
-                <div class="col-12">
-                    <div class="alert alert-warning" role="alert">
-                        This gene doesn't have any significant Histopathology hits. <a href="${baseUrl}/histopath/${gene.markerSymbol}">Please click here to see the raw data</a>.
-                    </div>
-                </div>
+                                </c:if>
+                                <c:if test="${rowsForHistopathTable.size() == 0 and hasHistopath}">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="alert alert-warning" role="alert">
+                                                This gene doesn't have any significant Histopathology hits. <a href="${baseUrl}/histopath/${gene.markerSymbol}">Please click here to see the raw data</a>.
+                                            </div>
+                                        </div>
 
-            </div>
-        </c:if>
+                                    </div>
+                                </c:if>
                                 </div>
                             </div>
                         </div>
@@ -702,96 +697,41 @@
         <!-- End of Order Mouse and ES Cells -->
 
 
-        <%-- Block augmenting/filling phenodigm tables --%>
-        <c:if test="${curatedDiseases != null && modelAssociations!= null}">
-            <script type="text/javascript">
-                var curatedDiseases = ${curatedDiseases};
-                var modelAssociations = ${modelAssociations}; // this object name is required in phenodigm2.js
-            </script>
-        </c:if>
-        <%-- Block augmenting/filling phenodigm tables --%>
-        <c:if test="${curatedDiseases == null || modelAssociations== null}">
-            <script type="text/javascript">
-                var curatedDiseases = [];
-                var modelAssociations = []; // this object name is required in phenodigm2.js
-            </script>
-        </c:if>
-
-
         <script  type="text/javascript">
             // disease tables drive by phenodigm core
 
-            var diseaseModelTotal = 0;
+            var diseaseDetailFilter = function(index, row) {
+                return $(row[2]).text().length > 1;
+            }
+            var toggleDetail = function(index) {
+                $('#diseases_by_annotation').bootstrapTable('toggleDetailView', index)
+            }
+            var diseaseDetailFormatter = function(index, row) {
+                var gridColumnWidth = 25;
+                var gridRowHeight = 50;
 
-            var diseaseTableConfs = [
-                {
-                    id: '#diseases_by_annotation',
-                    tableConf: {
-                        paging: false,
-                        info: false,
-                        searching: false,
-                        order: [[4, 'desc'], [3, 'desc'], [2, 'desc']],
-                        pagingType: "full_numbers",
-                        initComplete: function (settings, json) {
-                            $('#diseases_by_annotation_count').text(settings.aoData.length);
-                            diseaseModelTotal += settings.aoData.length;
-                            $("#diseaseModelTotal").text(diseaseModelTotal);
-                        }
-                    },
-                    phenodigm2Conf: {
-                        pageType: "genes",
-                        gene: "${gene.mgiAccessionId}",
-                        groupBy: "diseaseId",
-                        filterKey: "diseaseId",
-                        filter: curatedDiseases,
-                        minScore: 0,
-                        innerTables: true,
+                $.ajax({
+                    url: row._data['link'],
+                    type: 'GET',
+                    success: function (data) {
+                        Phenogrid.createPhenogridForElement($('div#phenodigm' + index), {
+                            // sort method of sources: "Alphabetic", "Frequency and Rarity", "Frequency,
+                            selectedSort: "Frequency and Rarity",
+                            gridSkeletonDataVendor: 'IMPC',
+                            gridSkeletonData: data,
+                            singleTargetModeTargetLengthLimit: gridColumnWidth,
+                            sourceLengthLimit: gridRowHeight
+                        });
                     }
-                },
-                {
-                    id: '#diseases_by_phenotype',
-                    tableConf: {
-                        order: [[4, 'desc'], [3, 'desc'], [2, 'desc']],
-                        pageLength: 20,
-                        lengthMenu: [20, 50, 100],
-                        pagingType: "full_numbers",
-                        responsive: true,
-                        initComplete: function (settings, json) {
-                            $('#diseases_by_phenotype_count').text(settings.aoData.length);
-                            diseaseModelTotal += settings.aoData.length;
-                            $("#diseaseModelTotal").text(diseaseModelTotal);
-                        }
-                    },
-                    phenodigm2Conf: {
-                        pageType: "genes",
-                        gene: "${gene.mgiAccessionId}",
-                        groupBy: "diseaseId",
-                        filterKey: "diseaseId",
-                        filter: [],
-                        minScore: 1,
-                        innerTables: true,
-                        responsive: true
-                    }
-                }];
+                });
+                return '<div id="phenodigm' + index + '"></div>';
+            }
 
-            function renderAllele(acc, alleleName) {
-                return '<div id="' + alleleName + '"></div>'
-            };
 
             document.addEventListener("DOMContentLoaded", function () {
-                // create phenodigm tables
-                for (var i = 0; i < diseaseTableConfs.length; i++) {
-                    var dTable = diseaseTableConfs[i];
-                    impc.phenodigm2.makeTable(modelAssociations, dTable.id, dTable.phenodigm2Conf);
-                    if (dTable.phenodigm2Conf.count && dTable.phenodigm2Conf.count > 0) {
-                        var dataTable = $(dTable.id).DataTable(dTable.tableConf);
-                        $.fn.addTableClickPhenogridHandler(dTable.id, dataTable);
-                    } else {
-                        $(dTable.id).parent().html('<div class="alert alert-warning mt-3">\n' +
-                            '                                            No associations found.\n' +
-                            '                                        </div>');
-                    }
-                }
+
+                $('#diseases_by_annotation').bootstrapTable({ classes: 'table'});
+
                 $('#significantPhenotypesTable').on('click-row.bs.table', function (e, row) {
                     if (row._data['link']) {
                         window.location = row._data['link'];
@@ -803,70 +743,7 @@
                         window.location = row._data['link'];
                     }
                 });
-                /*                var orderTable = $("#creLineTable").DataTable({
-                                    "bFilter": false,
-                                    "order": [],
-                                    "bLengthChange": false,
-                                    "columnDefs": [
-                                        {
-                                            "orderable": false,
-                                            "targets": 'no-sort',
-                                            "className": 'ordering-info'
-                                        },
-                                        {
-                                            "orderable": false,
-                                            "targets": 'hidden',
-                                            "visible": false
-                                        }
-                                    ]
-                                });
 
-                                orderTable.rows().every( function (idx) {
-                                    this
-                                        .child(
-                                            $(
-                                                "<div class='container'>" +
-                                                '<div id="orderAllele' + idx + '" class="col-12">' +
-                                                "     <div class=\"pre-content\">\n" +
-                                                "                        <div class=\"row no-gutters\">\n" +
-                                                "                            <div class=\"col-12 my-5\">\n" +
-                                                "                                <p class=\"h4 text-center text-justify\"><i class=\"fas fa-atom fa-spin\"></i> A moment please while we gather the data . . . .</p>\n" +
-                                                "                            </div>\n" +
-                                                "                        </div>\n" +
-                                                "                    </div>" +
-                                                '</div>' +
-                                                '</div>'
-                                            )
-                                        );
-                                } );
-
-                                $('#creLineTable tbody').on('click', 'td.ordering-info', function () {
-                                    var tr  = $(this).closest('tr'),
-                                        row = orderTable.row(tr);
-
-                                    if (row.child.isShown()) {
-                                        tr.find('a').html('Show ordering information&nbsp;<i class="fa fa-caret-down"></i>');
-                                        tr.next('tr').removeClass('ordering-info');
-                                        row.child.hide();
-                                        tr.removeClass('shown');
-                                    }
-                                    else {
-                                        tr.find('a').html('Hide ordering information&nbsp;<i class="fa fa-caret-up"></i>');
-                                        if(row.data()[1] === 'false') {
-                                            $.ajax({
-                                                url: row.data()[0],
-                                                type: 'GET',
-                                                success: function (data) {
-                                                    $('#orderAllele' + row.index()).html(data);
-                                                    row.data()[1] = 'true';
-                                                }
-                                            });
-                                        }
-                                        row.child.show();
-                                        tr.next('tr').addClass('ordering-info');
-                                        tr.addClass('shown');
-                                    }
-                                });*/
             });
         </script>
 

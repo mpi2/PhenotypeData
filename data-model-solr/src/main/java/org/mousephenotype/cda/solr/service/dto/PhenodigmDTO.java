@@ -16,6 +16,7 @@
 package org.mousephenotype.cda.solr.service.dto;
 
 import org.apache.solr.client.solrj.beans.Field;
+
 import java.util.List;
 
 /**
@@ -59,6 +60,8 @@ public class PhenodigmDTO {
     public static final String DISEASE_MODEL_AVG_NORM = "disease_model_avg_norm";
     public static final String DISEASE_MODEL_MAX_RAW = "disease_model_max_raw";
     public static final String DISEASE_MODEL_MAX_NORM = "disease_model_max_norm";
+    public static final String DISEASE_MATCHED_PHENOTYPES = "disease_matched_phenotypes";
+    public static final String MODEL_MATCHED_PHENOTYPES = "model_matched_phenotypes";
     // descriptive/adjective fields
     public static final String IN_LOCUS = "in_locus";
     public static final String ASSOCIATION_CURATED = "association_curated";
@@ -139,6 +142,10 @@ public class PhenodigmDTO {
     private double diseaseModelMaxRaw;
     @Field(DISEASE_MODEL_MAX_NORM)
     private double diseaseModelMaxNorm;
+    @Field(DISEASE_MATCHED_PHENOTYPES)
+    private List<String> diseaseMatchedPhenotypes;
+    @Field(MODEL_MATCHED_PHENOTYPES)
+    private List<String> modelMatchedPhenotypes;
     // fields for adjectives
     @Field(ASSOCIATION_CURATED)
     private Boolean associationCurated;
@@ -405,6 +412,22 @@ public class PhenodigmDTO {
 
     public void setDiseaseModelMaxNorm(double diseaseModelMaxNorm) {
         this.diseaseModelMaxNorm = diseaseModelMaxNorm;
+    }
+
+    public List<String> getDiseaseMatchedPhenotypes() {
+        return diseaseMatchedPhenotypes;
+    }
+
+    public void setDiseaseMatchedPhenotypes(List<String> diseaseMatchedPhenotypes) {
+        this.diseaseMatchedPhenotypes = diseaseMatchedPhenotypes;
+    }
+
+    public List<String> getModelMatchedPhenotypes() {
+        return modelMatchedPhenotypes;
+    }
+
+    public void setModelMatchedPhenotypes(List<String> modelMatchedPhenotypes) {
+        this.modelMatchedPhenotypes = modelMatchedPhenotypes;
     }
 
     public Boolean getAssociationCurated() {
