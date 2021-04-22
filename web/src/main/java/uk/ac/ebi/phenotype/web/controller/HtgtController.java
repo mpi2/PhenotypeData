@@ -18,7 +18,7 @@ package uk.ac.ebi.phenotype.web.controller;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.mousephenotype.cda.solr.service.Design;
 import org.mousephenotype.cda.solr.service.GeneService;
-import org.mousephenotype.cda.solr.service.HtgtService;
+import uk.ac.ebi.phenotype.service.HtgtService;
 import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
