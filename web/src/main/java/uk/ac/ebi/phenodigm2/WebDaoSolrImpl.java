@@ -289,6 +289,8 @@ public class WebDaoSolrImpl implements WebDao {
                 .addField(PhenodigmDTO.DISEASE_MODEL_AVG_NORM)
                 .addField(PhenodigmDTO.DISEASE_MODEL_MAX_RAW)
                 .addField(PhenodigmDTO.DISEASE_MODEL_MAX_NORM)
+                .addField(PhenodigmDTO.DISEASE_MATCHED_PHENOTYPES)
+                .addField(PhenodigmDTO.MODEL_MATCHED_PHENOTYPES)
                 .addSort(PhenodigmDTO.DISEASE_MODEL_MAX_NORM, SolrQuery.ORDER.desc)
                 .setRows(ROWLIMIT);
     }
@@ -309,6 +311,8 @@ public class WebDaoSolrImpl implements WebDao {
         assoc.setAvgRaw(phenodigm.getDiseaseModelAvgRaw());
         assoc.setMaxNorm(phenodigm.getDiseaseModelMaxNorm());
         assoc.setMaxRaw(phenodigm.getDiseaseModelMaxRaw());
+        assoc.setDiseaseMatchedPhenotypes(phenodigm.getDiseaseMatchedPhenotypes());
+        assoc.setModelMatchedPhenotypes(phenodigm.getModelMatchedPhenotypes());
         return assoc;
     }
 
