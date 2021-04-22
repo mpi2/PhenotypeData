@@ -51,7 +51,9 @@ public class DiseaseModelAssociationDisplay implements Comparable<DiseaseModelAs
     }
 
     public String getScoreIcon() {
-        if (this.getPhenodigmScore() < 20) {
+        if (this.getPhenodigmScore() < 0.1 ) {
+            return "zero-bars";
+        } else if (this.getPhenodigmScore() < 20) {
             return "one-bar";
         } else if (this.getPhenodigmScore() < 40) {
             return "two-bars";
