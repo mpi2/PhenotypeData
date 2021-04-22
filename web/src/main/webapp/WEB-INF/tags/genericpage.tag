@@ -49,8 +49,8 @@
     <link rel="preload" type="text/css" href="${baseUrl}/css/impc-icons.css" as="style"/>
     <link rel="stylesheet" type="text/css" href="${baseUrl}/css/impc-icons.css" media="print" onload="this.media='all'" />
 
-    <link rel="preload" type="text/css" href="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.css" as="style"/>
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.css" media="print" onload="this.media='all'" />
+    <link rel="preload" type="text/css" href="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.css" as="style"/>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.css" media="print" onload="this.media='all'" />
 
     <%-- --- --%>
     <%-- Finish with async stylesheets --%>

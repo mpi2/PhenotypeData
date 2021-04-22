@@ -46,6 +46,48 @@
 
                 // Required for all-data-table
                 var hash = location.hash;
+                if (hash.indexOf("tabs-") > -1) {
+                    expressionTab = $('a[href="' + hash + '"]').parent().index();
+                    $("#section-expression").focus();
+                }
+
+                $("#exptabs").tabs({active: expressionTab});
+                $("#tabs").tabs();
+
+                $('.wtExp').hide();
+                $('div#toggleWt').click(function () {
+                    if ($('.wtExp').is(':visible')) {
+                        $('.wtExp').hide();
+                        $(this).text("Show Wildtype Expression");
+                    } else {
+                        $('.wtExp').show();
+                        $(this).text("Hide Wildtype Expression");
+                    }
+                });
+
+                $('div#anatogramToggle').change(function () {
+                    if ($('#anatomo1').is(':visible')) {
+                        $('#anatomo1').hide();
+                        $('#anatomo2').show();
+                        $(this).text("Show expression table");
+                    } else {
+                        $('#anatomo1').show();
+                        $('#anatomo2').hide();
+                        $(this).text("Hide expression table");
+                    }
+                });
+
+                $('input[name=optionsEmbryo]').change(function () {
+                    var value = $('input[name=optionsEmbryo]:checked').val();
+                    console.log('hi');
+                    if (value === 'table') {
+                        $('#embryo1').show();
+                        $('#embryo2').hide();
+                    } else {
+                        $('#embryo1').hide();
+                        $('#embryo2').show();
+                    }
+                });
 
                 // Enable CSRF processing for forms on this page
                 function loadCsRf() {
@@ -296,7 +338,6 @@
             </div>
         </div>
 
-        <%-- EXPRESSION SECTION--%>
         <div class="container" id="expression">
             <div class="row pb-2">
                 <div class="col-12 col-md-12">
@@ -339,67 +380,68 @@
                                                   or not empty embryoExpressionAnatomyToRow}">
                                     <div class="row">
                                         <div class="col-12">
+                                            <h4>IMPC lacZ Expression Data</h4>
                                             <!-- section for expression data here -->
                                             <ul class="nav nav-tabs" id="expressionTab" role="tablist">
                                                 <li class="nav-item">
-                                                    <a class="nav-link active"
-                                                       id="adult-tab"
-                                                       data-toggle="tab"
+                                                    <a class="nav-link active" id="adult-tab" data-toggle="tab"
                                                        href="#adult"
-                                                       role="tab"
-                                                       aria-controls="adult-tab"
-                                                       aria-selected="false">Adult
+                                                       role="tab" aria-controls="adult-tab" aria-selected="false">Adult
                                                         Expression
-                                                        (${expressionAnatomyToRow.size()} tissues)</a>
+                                                        (${expressionAnatomyToRow.size()})</a>
                                                 </li>
+                                                <!--li class="nav-item">
+                                                    <a class="nav-link" id="adult-image-tab" data-toggle="tab" href="#adult-image"
+                                                       role="tab" aria-controls="adult-image-tab" aria-selected="false">Adult Expression
+                                                        Image</a>
+                                                </li-->
                                                 <li class="nav-item">
-                                                    <a class="nav-link"
-                                                       id="embryo-tab"
-                                                       data-toggle="tab"
-                                                       href="#embryo"
-                                                       role="tab"
-                                                       aria-controls="embryo-tab"
-                                                       aria-selected="true">Embryo
-                                                        Expression (${embryoExpressionAnatomyToRow.size()} tissues)</a>
+                                                    <a class="nav-link" id="_embryo-tab" data-toggle="tab" href="#_embryo"
+                                                       role="tab" aria-controls="_embryo-tab" aria-selected="true">Embryo
+                                                        Expression (${embryoExpressionAnatomyToRow.size()})</a>
                                                 </li>
-                                                <li class="nav-item">
-                                                    <a class="nav-link"
-                                                       id="adult-wt-expression-tab"
-                                                       data-toggle="tab"
-                                                       href="#adult-wt-expression"
-                                                       role="tab"
-                                                       aria-controls="adult-wt-expression-tab"
-                                                       aria-selected="true">Background adult WT expression</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="nav-link"
-                                                       id="embryo-wt-expression-tab"
-                                                       data-toggle="tab"
-                                                       href="#embryo-wt-expression"
-                                                       role="tab"
-                                                       aria-controls="adult-wt-expression-tab"
-                                                       aria-selected="true">Background embryo WT expression</a>
-                                                </li>
+                                                <!--li class="nav-item">
+                                                    <a class="nav-link" id="embryo-image-tab" data-toggle="tab" href="#embryo-image"
+                                                       role="tab" aria-controls="embryo-image-tab" aria-selected="false">Embryo
+                                                        Expression Images</a>
+                                                </li-->
                                             </ul>
                                             <div class="tab-content" id="expressionTabContent">
-                                                <div class="tab-pane fade show active" id="adult" role="tabpanel" aria-labelledby="adult-tab">
+                                                <div class="tab-pane fade show active" id="adult" role="tabpanel"
+                                                     aria-labelledby="adult-tab">
                                                     <c:choose>
                                                         <c:when test="${not empty expressionAnatomyToRow }">
                                                             <div>
-                                                                <jsp:include page="genesExpressionAdult_frag.jsp"></jsp:include>
+                                                                <!-- Expression in Anatomogram -->
+                                                                <jsp:include page="genesAnatomogram_frag.jsp"></jsp:include>
                                                             </div>
                                                         </c:when>
                                                         <c:otherwise>
                                                             <div class="alert alert-warning mt-3">
+                                                                <!-- Expression in Anatomogram -->
                                                                 No Adult expression data was found for this gene.
                                                             </div>
                                                         </c:otherwise>
                                                     </c:choose>
                                                 </div>
-                                                <div class="tab-pane fade" id="embryo" role="tabpanel" aria-labelledby="embryo-tab">
+                                                    <%--div class="tab-pane fade" id="adult-image" role="tabpanel"
+                                                         aria-labelledby="adult-image-tab">
+                                                        <c:choose>
+                                                            <c:when test="${not empty wholemountExpressionImagesBean.filteredTopLevelAnatomyTerms && not empty sectionExpressionImagesBean.filteredTopLevelAnatomyTerms}">
+                                                                <jsp:include page="genesAdultLacZExpImg_frag.jsp"></jsp:include>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <h5>
+                                                                    No expression image was found for this adult tab
+                                                                </h5>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </div--%>
+                                                <div class="tab-pane fade" id="_embryo" role="tabpanel"
+                                                     aria-labelledby="_embryo-tab">
                                                     <c:choose>
                                                         <c:when test="${not empty embryoExpressionAnatomyToRow}">
-                                                            <jsp:include page="genesExpressionEmbryo_frag.jsp"></jsp:include>
+                                                            <jsp:include page="genesEmbExpData_frag.jsp"></jsp:include>
                                                         </c:when>
                                                         <c:otherwise>
                                                             <div class="alert alert-warning mt-3">
@@ -408,25 +450,19 @@
                                                         </c:otherwise>
                                                     </c:choose>
                                                 </div>
-
-                                                <!-- Adult WT expression -->
-                                                <div class="tab-pane fade" id="adult-wt-expression" role="tabpanel" aria-labelledby="adult-wt-expression-tab">
-                                                    <jsp:include page="genesExpressionWTAdult_frag.jsp"></jsp:include>
-                                                </div>
-
-                                                <!-- Embryo WT expression -->
-                                                <div class="tab-pane fade" id="embryo-wt-expression" role="tabpanel" aria-labelledby="embryo-wt-expression-tab">
-                                                    <c:choose>
-                                                        <c:when test="${not empty embryoExpressionAnatomyToRow}">
-                                                            <jsp:include page="genesExpressionEmbryo_frag.jsp"></jsp:include>
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                            <div class="alert alert-warning mt-3">
-                                                                No Embryo expression data was found for this gene.
-                                                            </div>
-                                                        </c:otherwise>
-                                                    </c:choose>
-                                                </div>
+                                                    <%--div class="tab-pane fade" id="embryo-image" role="tabpanel"
+                                                         aria-labelledby="embryo-image-tab">
+                                                        <c:choose>
+                                                            <c:when test="${not empty wholemountExpressionImagesEmbryoBean.expFacetToDocs || not empty sectionExpressionEmbryoImagesBean.expFacetToDocs}">
+                                                                <jsp:include page="genesEmbExpImg_frag.jsp"></jsp:include>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <h5>
+                                                                    No expression image was found for this embryo tab
+                                                                </h5>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </div--%>
                                             </div>
                                         </div>
                                     </div>
@@ -437,25 +473,6 @@
                 </div>
             </div>
         </div>
-
-        <script>
-            $(document).ready(function(){
-                $('.expressionAccordion .collapse').on('hide.bs.collapse', function () {
-                    var $this = $(this),
-                        id = $this.attr("id"),
-                        title = $this.closest(".accordion").find("[data-target='#" + id + "']"),
-                        icon = $(title).find("i");
-                    $(icon).toggleClass("fa-minus fa-plus");
-                });
-                $('.expressionAccordion .collapse').on('show.bs.collapse', function () {
-                    var $this = $(this),
-                        id = $this.attr("id"),
-                        title = $this.closest(".accordion").find("[data-target='#" + id + "']"),
-                        icon = $(title).find("i");
-                    $(icon).toggleClass("fa-plus fa-minus");
-                });
-            });
-        </script>
 
         <div class="container" id="images">
             <div class="row pb-2">
