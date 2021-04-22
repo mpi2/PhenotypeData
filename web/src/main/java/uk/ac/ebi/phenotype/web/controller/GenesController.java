@@ -847,5 +847,30 @@ public class GenesController {
         model.addAttribute("modelAssociationsNumber", modelAssociations.size());
         model.addAttribute("hasModelsByOrthology", hasModelsByOrthology);
         model.addAttribute("hasModelAssociations", modelAssociations.size() > 0);
+
+        final List<DiseaseModelAssociationDisplay> displayList = modelAssociations.stream()
+                .filter(x -> curatedDiseases.contains(x.getDiseaseId()))
+                .map(x -> new DiseaseModelAssociationDisplay(
+                        x.getDiseaseId(),
+                        x.getDiseaseTerm(),
+                        x.getDiseaseMatchedPhenotypes(),
+                        x.getAvgNorm(),
+                        x.getMaxNorm()))
+                .sorted()
+                .distinct()
+                .collect(Collectors.toList());
+        Map<String, DiseaseModelAssociationDisplay> max = new HashMap<>();
+        for (DiseaseModelAssociationDisplay d : displayList) {
+            if (! max.containsKey(d.getDiseaseId())) {
+                max.put(d.getDiseaseId(), d);
+            }
+            else {
+                if (max.get(d.getDiseaseId()).getPhenodigmScore() < d.getPhenodigmScore()) {
+                    max.put(d.getDiseaseId(), d);
+                }
+            }
+        }
+        model.addAttribute("diseasesByAnnotation", max.values().stream().sorted().distinct().collect(Collectors.toList()));
     }
+
 }
