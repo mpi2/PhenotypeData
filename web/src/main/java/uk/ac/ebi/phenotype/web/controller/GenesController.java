@@ -879,6 +879,30 @@ public class GenesController {
                 .sorted()
                 .distinct()
                 .collect(Collectors.toList());
+        Map<String, DiseaseModelAssociationDisplay> max = new HashMap<>();
+        for (DiseaseModelAssociationDisplay d : displayList) {
+            if (! max.containsKey(d.getDiseaseId())) {
+                max.put(d.getDiseaseId(), d);
+            }
+            else {
+                if (max.get(d.getDiseaseId()).getPhenodigmScore() < d.getPhenodigmScore()) {
+                    max.put(d.getDiseaseId(), d);
+                }
+            }
+        }
+        model.addAttribute("diseasesByAnnotation", max.values().stream().sorted().distinct().collect(Collectors.toList()));
+
+        final List<DiseaseModelAssociationDisplay> displayList = modelAssociations.stream()
+                .filter(x -> curatedDiseases.contains(x.getDiseaseId()))
+                .map(x -> new DiseaseModelAssociationDisplay(
+                        x.getDiseaseId(),
+                        x.getDiseaseTerm(),
+                        x.getDiseaseMatchedPhenotypes(),
+                        x.getAvgNorm(),
+                        x.getMaxNorm()))
+                .sorted()
+                .distinct()
+                .collect(Collectors.toList());
 
         // Preserve only the maximum associated disease term for this gene
         Map<String, DiseaseModelAssociationDisplay> max = new HashMap<>();
