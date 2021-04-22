@@ -141,8 +141,7 @@ public class Viability extends AbstractReport {
                     .filter(d -> ((d.getTextValue() != null)
                         && ( ! d.getTextValue().isEmpty())
                         && ((d.getParameterStableId().equalsIgnoreCase(Constants.HOM_VIABILITY_ALL_ID))
-                        || (d.getParameterStableId().equalsIgnoreCase(Constants.HEM_VIABILITY_MALE_ID))
-                        || (d.getParameterStableId().equalsIgnoreCase(Constants.ANZ_VIABILITY_FEMALE_ID)))))
+                        || (d.getParameterStableId().equalsIgnoreCase(Constants.HEM_VIABILITY_MALE_ID)))))
                     .findAny().orElse(null);
                 if (dto != null) {
                     data.add(createViabilityReportRow(dto, getCountsByParameterStableId(observationByCompositeKey)));
@@ -373,7 +372,6 @@ public class Viability extends AbstractReport {
             "Total # Hom Males",
             "Total # Hom Females",
             "Total # Hem Males",
-            "Total # Anzygous Females",
             "Total # WT Males",
             "Total # WT Females",
             "Total # Het Males",
@@ -415,7 +413,6 @@ public class Viability extends AbstractReport {
         data.add(rDto.getTotalMaleHom());
         data.add(rDto.getTotalFemaleHom());
         data.add(rDto.getTotalMaleHem());
-        data.add(rDto.getTotalFemaleAnz());
         data.add(rDto.getTotalMaleWt());
         data.add(rDto.getTotalFemaleWt());
         data.add(rDto.getTotalMaleHet());

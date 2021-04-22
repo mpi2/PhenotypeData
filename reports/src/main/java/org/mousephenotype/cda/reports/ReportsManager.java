@@ -24,9 +24,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.WebApplicationType;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
 
 import java.io.File;
 import java.util.List;
@@ -39,7 +40,8 @@ import java.util.List;
  * Created by mrelac on 23/06/2015.
  */
 
-@SpringBootApplication
+@EnableCaching
+@ComponentScan({"org.mousephenotype.cda.reports"})
 public class ReportsManager implements CommandLineRunner {
 
 
