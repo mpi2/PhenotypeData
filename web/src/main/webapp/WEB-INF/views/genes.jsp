@@ -235,6 +235,7 @@
              .three-bars .bar.fifth-bar,
              .three-bars .bar.fourth-bar,
              .one-bar .bar:not(.first-bar),
+             .zero-bars .bar,
              .two-bars .bar:not(.first-bar):not(.second-bar) {
                  background-color: #fafafa;
                  border: thin solid #8e8e8e;
@@ -663,6 +664,35 @@
                 </div>
             </div>
         </c:if>
+
+
+        <div class="container" id="order">
+            <div class="row pb-2">
+                <div class="col-12 col-md-12">
+                    <h2 class="h2"><b><i class="fal fa-book"></i>&nbsp;IKMC/IMPC related publications</b></h2>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="container white-bg-small">
+            <div class="row pb-5">
+                <div class="col-12 col-md-12">
+                    <div class="pre-content clear-bg">
+                        <div class="page-content pt-3 pb-5">
+                            <div class="container p-0 p-md-2">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="col-12 no-gutters" id="alleleRef"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         <div class="container" id="order">
             <div class="row pb-2">
