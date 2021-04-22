@@ -49,8 +49,8 @@
     <link rel="preload" type="text/css" href="${baseUrl}/css/impc-icons.css" as="style"/>
     <link rel="stylesheet" type="text/css" href="${baseUrl}/css/impc-icons.css" media="print" onload="this.media='all'" />
 
-    <link rel="preload" type="text/css" href="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.css" as="style"/>
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.css" media="print" onload="this.media='all'" />
+    <link rel="preload" type="text/css" href="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.css" as="style"/>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.css" media="print" onload="this.media='all'" />
 
     <%-- --- --%>
     <%-- Finish with async stylesheets --%>
@@ -81,11 +81,11 @@
     <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.css"/>
-    <script defer type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.js"></script>
 
-    <script type='text/javascript' src="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.js"></script>
-    <script type='text/javascript' src="https://unpkg.com/bootstrap-table@1.15.4/dist/extensions/mobile/bootstrap-table-mobile.min.js"></script>
-    <script type='text/javascript' src="https://unpkg.com/bootstrap-table@1.15.4/dist/extensions/cookie/bootstrap-table-cookie.min.js"></script>
+    <script defer type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.js"></script>
+    <script type='text/javascript' src="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.js"></script>
+    <script type='text/javascript' src="https://unpkg.com/bootstrap-table@1.18.3/dist/extensions/mobile/bootstrap-table-mobile.min.js"></script>
+    <script type='text/javascript' src="https://unpkg.com/bootstrap-table@1.18.3/dist/extensions/cookie/bootstrap-table-cookie.min.js"></script>
 
 
 
@@ -112,7 +112,7 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/js/bootstrap-select.min.js" async></script>
     <!-- Latest compiled and minified JavaScript -->
-
+    
     <script>
     <%--
     Some browsers do not provide a console object see:
@@ -168,6 +168,7 @@
     <jsp:invoke fragment="header" />
 
 </head>
+
 
 <c:choose>
     <c:when test="${not empty bodyTag}">
