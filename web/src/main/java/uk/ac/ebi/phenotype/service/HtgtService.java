@@ -1,5 +1,7 @@
-package org.mousephenotype.cda.solr.service;
+package uk.ac.ebi.phenotype.service;
 
+import org.mousephenotype.cda.solr.service.Design;
+import org.mousephenotype.cda.solr.service.DesignsResponse;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;

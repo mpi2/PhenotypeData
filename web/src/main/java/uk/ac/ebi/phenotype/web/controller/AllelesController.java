@@ -17,7 +17,7 @@ package uk.ac.ebi.phenotype.web.controller;
 
 import org.apache.commons.collections.map.HashedMap;
 import org.mousephenotype.cda.solr.service.Design;
-import org.mousephenotype.cda.solr.service.HtgtService;
+import uk.ac.ebi.phenotype.service.HtgtService;
 import org.mousephenotype.cda.utilities.HttpProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
