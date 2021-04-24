@@ -165,6 +165,25 @@
         </script>
     </c:if>
 
+    <style>
+        .table-borderless > tbody > tr > td,
+        .table-borderless > tbody > tr > th,
+        .table-borderless > tfoot > tr > td,
+        .table-borderless > tfoot > tr > th,
+        .table-borderless > thead > tr > td,
+        .table-borderless > thead > tr > th {
+            border: none !important;
+        }
+        .table-reduced-padding > tbody > tr > td,
+        .table-reduced-padding > tbody > tr > th,
+        .table-reduced-padding > tfoot > tr > td,
+        .table-reduced-padding > tfoot > tr > th,
+        .table-reduced-padding > thead > tr > td,
+        .table-reduced-padding > thead > tr > th {
+            padding: 0.2rem !important;
+        }
+    </style>
+
     <jsp:invoke fragment="header" />
 
 </head>
