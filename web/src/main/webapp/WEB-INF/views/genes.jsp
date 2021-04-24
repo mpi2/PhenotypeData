@@ -572,9 +572,7 @@
                                         </table>
                                     </div>
                                 </div>
-                                <div class="row d-lg-none d-flex">
-                                    <span class="alert alert-secondary">Please visit the desktop version to see this section</span>
-                                </div>
+
                             </div>
 
                         </div>
@@ -666,14 +664,14 @@
         </c:if>
 
 
+        <c:if test="${fn:length(publications) != 0}">
         <div class="container" id="order">
             <div class="row pb-2">
                 <div class="col-12 col-md-12">
-                    <h2 class="h2"><b><i class="fal fa-book"></i>&nbsp;IKMC/IMPC related publications</b></h2>
+                    <h2 class="h2"><b><i class="fal fa-book"></i>&nbsp;IMPC related publications</b></h2>
                 </div>
             </div>
         </div>
-
 
         <div class="container white-bg-small">
             <div class="row pb-5">
@@ -681,9 +679,27 @@
                     <div class="pre-content clear-bg">
                         <div class="page-content pt-3 pb-5">
                             <div class="container p-0 p-md-2">
+                                <p class="ml-4">The table below lists <b>${fn:length(publications)} publications which have used IMPC produced mice or data for gene ${gene.markerSymbol}.</b></p>
                                 <div class="row">
                                     <div class="col-12">
-                                        <div class="col-12 no-gutters" id="alleleRef"></div>
+                                        <table id="publications">
+                                            <tbody>
+                                            <c:forEach items="${publications}" var="publication" varStatus="loop">
+                                                <tr id="publicationRow${loop.index}" data-link="publication" data-shown="false">
+                                                    <td>
+                                                        <h4><a href="${publication.fullTextUrlList[0].url}">${publication.title}</a></h4>
+                                                        <hr />
+                                                        <table class="table table-condensed table-borderless table-">
+                                                            <tr><th>Authors:</th><td>${publication.authorString}</td></tr>
+                                                            <tr><th>Journal:</th><td><b>${publication.journalInfo.journal.title}</b> (<fmt:formatDate value="${publication.firstPublicationDate}" pattern="MMMM yyyy" />)</td></tr>
+                                                            <tr><th>Abstract:</th><td>${publication.abstractText}</td></tr>
+                                                        </table>
+
+                                                    </td>
+                                                </tr>
+                                            </c:forEach>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
@@ -692,7 +708,7 @@
                 </div>
             </div>
         </div>
-
+        </c:if>
 
         <div class="container" id="order">
             <div class="row pb-2">

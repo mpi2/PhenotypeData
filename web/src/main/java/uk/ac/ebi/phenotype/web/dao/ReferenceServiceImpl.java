@@ -6,7 +6,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.phenotype.web.dto.Publication;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.TreeMap;
@@ -23,7 +22,12 @@ public class ReferenceServiceImpl implements ReferenceService {
 
     @Override
     public List<Publication> getAllReviewed(String filter, int start, int length, String orderBy, String sortOrder) {
-        PageRequest pageRequest = getPageRequest(start,length, orderBy, sortOrder);
+
+        // Prevent divid by 0 if no publications found for filter by defaulting
+        // to showing 10
+        Integer defaultReturnValue = (length == 0) ? 10 : length;
+
+        PageRequest pageRequest = getPageRequest(start, defaultReturnValue, orderBy, sortOrder);
         if(filter == null || filter.isEmpty()) {
             return referenceRepository.findAllByStatusIs(pageRequest, "reviewed").getContent();
         } else {
