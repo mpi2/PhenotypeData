@@ -56,6 +56,9 @@ import uk.ac.ebi.phenotype.generic.util.SolrIndex2;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryBySex;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryDAO;
 import uk.ac.ebi.phenotype.ontology.PhenotypeSummaryType;
+import uk.ac.ebi.phenotype.util.PublicationFetcher;
+import uk.ac.ebi.phenotype.web.dao.ReferenceService;
+import uk.ac.ebi.phenotype.web.dto.Publication;
 import uk.ac.ebi.phenotype.web.util.FileExportUtils;
 
 import javax.annotation.PostConstruct;
@@ -91,6 +94,7 @@ public class GenesController {
     private final StatisticalResultService statisticalResultService;
     private final OrderService orderService;
     private final ImpressService impressService;
+    private final ReferenceService referenceService;
     private final WebDao phenoDigm2Dao;
     private final RegisterInterestUtils riUtils;
 
@@ -114,6 +118,7 @@ public class GenesController {
                            RegisterInterestUtils riUtils,
                            GeneService geneService,
                            ImpressService impressService,
+                           ReferenceService referenceService,
                            OrderService orderService,
                            @Named("statistical-result-service") StatisticalResultService statisticalResultService,
                            SearchGeneService searchGeneService) {
@@ -129,6 +134,7 @@ public class GenesController {
         this.riUtils = riUtils;
         this.geneService = geneService;
         this.impressService = impressService;
+        this.referenceService = referenceService;
         this.orderService = orderService;
         this.statisticalResultService = statisticalResultService;
         this.searchGeneService = searchGeneService;
@@ -399,6 +405,15 @@ public class GenesController {
         //for cre products link at bottom of table
         //model.addAttribute("alleleProductsCre2", orderService.getCreData(acc));
         model.addAttribute("creLineAvailable", orderService.crelineAvailable(acc));
+
+        /*
+        PUBLICATIONS
+         */
+        PublicationFetcher publicationFetcher = new PublicationFetcher(referenceService, PublicationFetcher.PublicationType.ACCEPTED_IMPC_PUBLICATION);
+        publicationFetcher.setFilter(gene.getMarkerSymbol());
+        final List<Publication> publications = publicationFetcher.getAllPublications();
+        model.addAttribute("publications", publications);
+
 
     }
 
@@ -859,6 +874,8 @@ public class GenesController {
                 .sorted()
                 .distinct()
                 .collect(Collectors.toList());
+
+        // Preserve only the maximum associated disease term for this gene
         Map<String, DiseaseModelAssociationDisplay> max = new HashMap<>();
         for (DiseaseModelAssociationDisplay d : displayList) {
             if (! max.containsKey(d.getDiseaseId())) {
@@ -871,6 +888,8 @@ public class GenesController {
             }
         }
         model.addAttribute("diseasesByAnnotation", max.values().stream().sorted().distinct().collect(Collectors.toList()));
+
+
     }
 
 }

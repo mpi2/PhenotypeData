@@ -12,24 +12,6 @@
         <script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
         <script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
         <script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
-        <style>
-            .table-borderless > tbody > tr > td,
-            .table-borderless > tbody > tr > th,
-            .table-borderless > tfoot > tr > td,
-            .table-borderless > tfoot > tr > th,
-            .table-borderless > thead > tr > td,
-            .table-borderless > thead > tr > th {
-                border: none !important;
-            }
-            .table-reduced-padding > tbody > tr > td,
-            .table-reduced-padding > tbody > tr > th,
-            .table-reduced-padding > tfoot > tr > td,
-            .table-reduced-padding > tfoot > tr > th,
-            .table-reduced-padding > thead > tr > td,
-            .table-reduced-padding > thead > tr > th {
-                padding: 0.2rem !important;
-            }
-        </style>
     </jsp:attribute>
 
     <jsp:attribute name="addToFooter">
