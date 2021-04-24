@@ -15,9 +15,6 @@
  ****************************************************************************** */
 package uk.ac.ebi.phenotype.web.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +22,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import uk.ac.ebi.phenodigm2.*;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Controller that responds to ajax requests for phenodigm data.
@@ -138,36 +137,84 @@ public class Phenodigm2RestController {
      *
      * @param diseaseId
      * @param geneId
-     * @param request
-     * @return
      */
     @RequestMapping(value = "/phenodigm2/phenogrid", method = RequestMethod.GET)
-    public PhenoGrid getPhenoGrid(@RequestParam String pageType, @RequestParam String diseaseId, @RequestParam String geneId, HttpServletRequest request) {
+    public PhenoGrid getPhenoGrid(@RequestParam String pageType,
+                                  @RequestParam String diseaseId,
+                                  @RequestParam String geneId) {
         LOGGER.info(String.format("Making phenogigm2/phenogrid for %s %s from %s page", diseaseId, geneId, pageType));
-        String baseUrl = (String) request.getAttribute("baseUrl");
         List<Phenotype> diseasePhenotypes = phenoDigm2Dao.getDiseasePhenotypes(diseaseId);
         List<MouseModel> modelDetails = phenoDigm2Dao.getGeneModelDetails(geneId);
-        List<PhenoGridGroup> xAxisGroups = makePhenoGridGroups(pageType, baseUrl, modelDetails);
-        String title = " "; //use a space instead of null or empty string to prevent the phenogrid from displaying an unwanted default title
+        List<PhenoGridGroup> xAxisGroups = makePhenoGridGroups(modelDetails);
 
+        //
+        // calculate the phenodigm score for each model and replace the corresponding entry in the xAxisGroup
+        //
+        final List<DiseaseModelAssociation> geneToDiseaseModelAssociations = phenoDigm2Dao
+                .getDiseaseToModelModelAssociations(diseaseId)
+                .stream()
+                .distinct()
+                .collect(Collectors.toList());
+
+        // Collapse all the returned models into a map keyed on model ID => list (model IDs)
+        // There are often multiple models for the same combination of Gene:Zygosity:Lifestage (e.g. different allele)
+        Map<String, List<DiseaseModelAssociation>> modelAssociationsById = new HashMap<>();
+        for (DiseaseModelAssociation d : geneToDiseaseModelAssociations) {
+            if ( ! modelAssociationsById.containsKey(d.getId())) {
+                modelAssociationsById.put(d.getId(), new ArrayList<>());
+            }
+            modelAssociationsById.get(d.getId()).add(d);
+        }
+        for (String key : modelAssociationsById.keySet()) {
+            Collections.sort(modelAssociationsById.get(key)) ;
+        }
+
+        // Populate the x axis group score field with the highest score associated to the particular ID
+        for (PhenoGridGroup pgg : xAxisGroups) {
+
+            // Every entity in the x axis group represents a potential model to display on the phenogrid, but
+            // the diseaseModelAssociations do not get populated with their corresponding score (why?  I dunno).
+            // But the phenogrid widget will display those scores, so we need to populate it here by merging with the
+            // disease models by gene.
+            for (PhenoGridEntity entity : pgg.getEntities()) {
+                if (modelAssociationsById.containsKey(entity.getId())) {
+                    final PhenoGridScore x = entity.getScore();
+                    final List<DiseaseModelAssociation> modelAssociationsSorted = modelAssociationsById.get(entity.getId());
+                    entity.setScore(new PhenoGridScore(x.getMetric(), modelAssociationsSorted.get(0).getScore(), x.getRank()));
+                }
+            }
+
+            // Sort entities by score desc
+            pgg.entities.sort(Comparator.comparing(x -> ((PhenoGridEntity)x).getScore().getScore()).reversed());
+
+            // Re-rank the entities to reflect the changed order with the highest score first in the list
+            for (int i = 0; i < pgg.getEntities().size(); i++) {
+                PhenoGridEntity entity = pgg.getEntities().get(i);
+                final PhenoGridScore score = entity.getScore();
+                entity.setScore(new PhenoGridScore(score.getMetric(), score.getScore(), i));
+            }
+        }
+
+        // Use a space instead of null or empty string to prevent the phenogrid from displaying an unwanted default title
+        String title = " ";
         return new PhenoGrid(title, xAxisGroups, diseasePhenotypes);
     }
 
-    private List<PhenoGridGroup> makePhenoGridGroups(String pageType, String baseUrl, List<MouseModel> models) {
+    private List<PhenoGridGroup> makePhenoGridGroups(List<MouseModel> models) {
         List<PhenoGridGroup> xAxisGroups = new ArrayList<>();
-        xAxisGroups.add(new PhenoGridGroup("pheno", "Phenotype Associated", makeGridEntities(pageType, baseUrl, models)));
+        xAxisGroups.add(new PhenoGridGroup("pheno", "Phenotype Associated", makeGridEntities(models)));
         return xAxisGroups;
     }
 
-    private List<PhenoGridEntity> makeGridEntities(String pageType, String baseUrl, List<MouseModel> models) {
+    private List<PhenoGridEntity> makeGridEntities(List<MouseModel> models) {
         List<PhenoGridEntity> result = new ArrayList<>(models.size());
         for (MouseModel model : models) {
-            result.add(makeGridEntity(model, result.size(), pageType, baseUrl));
+            result.add(makeGridEntity(model, result.size()));
         }
         return result;
     }
 
-    private PhenoGridEntity makeGridEntity(MouseModel model, int rank, String pageType, String baseUrl) {
+    private PhenoGridEntity makeGridEntity(MouseModel model, int rank) {
 
         // collect information from the association oject
         String id = model.getId();
@@ -279,9 +326,9 @@ public class Phenodigm2RestController {
 
         private String id; //not sure if this is required or not
         private String label;
-        private List<Phenotype> phenotypes = new ArrayList<>();
+        private List<Phenotype> phenotypes;
         private PhenoGridScore score;
-        private List<EntityInfo> info = new ArrayList<>();
+        private List<EntityInfo> info;
 
         public PhenoGridEntity(String id, String label, List<Phenotype> phenotypes, PhenoGridScore score, List<EntityInfo> info) {
             this.id = id;
@@ -306,6 +353,11 @@ public class Phenodigm2RestController {
         public PhenoGridScore getScore() {
             return score;
         }
+
+        public void setScore(PhenoGridScore score) {
+            this.score = score;
+        }
+
 
         public List<EntityInfo> getInfo() {
             return info;
