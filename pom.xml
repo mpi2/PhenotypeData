@@ -25,11 +25,10 @@
         <module>data-model-solr</module>
         <module>reports</module>
         <module>release</module>
-        <module>tests</module>
+        <module>register-interest</module>
         <module>datatests</module>
         <module>utilities</module>
         <module>web-db</module>
-        <module>register-interest</module>
     </modules>
 
     <properties>

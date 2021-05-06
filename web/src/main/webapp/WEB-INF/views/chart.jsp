@@ -73,10 +73,10 @@
 
                 <c:if test="${isViability}">
                     <div class="alert alert-warning w-100">
-                        <p>If there are a number of charts below for viability data please note:</p>
+                        <p>Please note:</p>
                         <ul>
-                            <li>data for different alleles measured in different centers correspond to different colonies and thus will be presented separately</li>
-                            <li>phenotype calls are made for abnormal phenotypes</li>
+                            <li>data for different colonies will be presented separately (e.g. different alleles; same allele but different background strain; same allele but in different phenotyping centers)</li>
+                            <li>phenotype calls are made when a statistically significant abnormal phenotype is detected (that is, preweaning lethality or absence of expected number of homozygote pups based on Mendelian ratios)</li>
                         </ul>
                     </div>
                 </c:if>
