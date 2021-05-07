@@ -142,14 +142,19 @@
                                 <tr>
                                     <th>Mouse Genes</th>
                                     <th>Human Genes</th>
-                                    <th>Data available</th>
+                                    <th style="width: 340px;">Data available</th>
                                 </tr>
                             </thead>
                             <tbody>
                             <c:forEach items="${ionChannelRows}" var="row">
                                 <tr>
-                                    <td>${row.symbol} (${row.accession})</td>
-                                    <td>${row.humanSymbolToString}</td>
+                                    <td><a href="${baseUrl}/genes/${row.accession}" data-tooltip="">${row.symbol}</a> (${row.accession})</td>
+                                    <td>
+                                        <c:forEach var="h_gene" items="${fn:split(row.humanSymbolToString,' ')}">
+                                            <a target="_blank" rel="noopener" href="https://pharos.nih.gov/targets?q=${h_gene}">${h_gene} <i
+                                                    class="fas fa-external-link"></i></a>
+                                        </c:forEach>
+                                    </td>
                                     <td>${row.miceProduced}</td>
                                 </tr>
                             </c:forEach>
@@ -184,14 +189,19 @@
                             <tr>
                                 <th>Mouse Genes</th>
                                 <th>Human Genes</th>
-                                <th>Data available</th>
+                                <th style="width: 340px;">Data available</th>
                             </tr>
                             </thead>
                             <tbody>
                             <c:forEach items="${gpcrRows}" var="row">
                                 <tr>
-                                    <td>${row.symbol} (${row.accession})</td>
-                                    <td>${row.humanSymbolToString}</td>
+                                    <td><a href="${baseUrl}/genes/${row.accession}" data-tooltip="">${row.symbol}</a> (${row.accession})</td>
+                                    <td>
+                                        <c:forEach var="h_gene" items="${fn:split(row.humanSymbolToString,' ')}">
+                                            <a target="_blank" rel="noopener" href="https://pharos.nih.gov/targets?q=${h_gene}">${h_gene} <i
+                                                    class="fas fa-external-link"></i></a>
+                                        </c:forEach>
+                                    </td>
                                     <td>${row.miceProduced}</td>
                                 </tr>
                             </c:forEach>
@@ -227,14 +237,19 @@
                             <tr>
                                 <th>Mouse Genes</th>
                                 <th>Human Genes</th>
-                                <th>Data available</th>
+                                <th style="width: 340px;">Data available</th>
                             </tr>
                             </thead>
                             <tbody>
                             <c:forEach items="${kinaseRows}" var="row">
                                 <tr>
-                                    <td>${row.symbol} (${row.accession})</td>
-                                    <td>${row.humanSymbolToString}</td>
+                                    <td><a href="${baseUrl}/genes/${row.accession}" data-tooltip="">${row.symbol}</a> (${row.accession})</td>
+                                    <td>
+                                        <c:forEach var="h_gene" items="${fn:split(row.humanSymbolToString,' ')}">
+                                            <a target="_blank" rel="noopener" href="https://pharos.nih.gov/targets?q=${h_gene}">${h_gene} <i
+                                                    class="fas fa-external-link"></i></a>
+                                        </c:forEach>
+                                    </td>
                                     <td>${row.miceProduced}</td>
                                 </tr>
                             </c:forEach>
