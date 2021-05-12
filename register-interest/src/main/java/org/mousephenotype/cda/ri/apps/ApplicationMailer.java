@@ -81,7 +81,8 @@ public class ApplicationMailer implements CommandLineRunner {
     private void initialise(String[] args) throws IOException {
 
         OptionParser parser  = new OptionParser();
-        OptionSet    options = parseOptions(parser, args);
+        parser.allowsUnrecognizedOptions();
+        parseOptions(parser, args);
 
         logger.info("Program Arguments: " + StringUtils.join(args, ", "));
 

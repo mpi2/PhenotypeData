@@ -80,6 +80,7 @@ public class ApplicationChecker implements CommandLineRunner {
     private void initialise(String[] args) throws IOException {
 
         OptionParser parser = new OptionParser();
+        parser.allowsUnrecognizedOptions();
         parseOptions(parser, args);
 
         logger.info("Program Arguments: " + StringUtils.join(args, ", "));
