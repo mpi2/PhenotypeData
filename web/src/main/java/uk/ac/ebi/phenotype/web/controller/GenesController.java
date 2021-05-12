@@ -411,7 +411,12 @@ public class GenesController {
          */
         PublicationFetcher publicationFetcher = new PublicationFetcher(referenceService, PublicationFetcher.PublicationType.ACCEPTED_IMPC_PUBLICATION);
         publicationFetcher.setFilter(gene.getMarkerSymbol());
-        final List<Publication> publications = publicationFetcher.getAllPublications();
+
+        // Filter out publications not directly related to this gene
+        final List<Publication> publications = publicationFetcher.getAllPublications().stream()
+                .filter(x -> x.getAlleles().stream()
+                        .noneMatch(y-> gene.getMarkerSymbol().equals(y.getGeneSymbol())))
+                .collect(Collectors.toList());
         model.addAttribute("publications", publications);
 
 
