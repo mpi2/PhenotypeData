@@ -22,6 +22,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -30,7 +31,7 @@ public class SummaryService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // This is the interval, in minutes, between reloading the summary details from the gene core.
-    public static int SUMMARY_DETAILS_RELOAD_INTERVAL_IN_MINUTES = 240;
+    public static int SUMMARY_DETAILS_RELOAD_INTERVAL_IN_MINUTES = 60 * 24;
 
     private GeneService geneService;
     private RiSqlUtils  riSqlUtils;
@@ -102,12 +103,14 @@ public class SummaryService {
             return null;
         }
         return new Summary(
-                contact.getEmailAddress(),
-                contact.isInHtml(),
-                riSqlUtils.getContactGenes(contact.getEmailAddress())
-                        .stream()
-                        .map((ContactGene cg) -> detailsProvider.summaryDetailsByAcc().get(cg.getGeneAccessionId()))
-                        .collect(Collectors.toList()));
+            contact.getEmailAddress(),
+            contact.isInHtml(),
+            riSqlUtils.getContactGenes(contact.getEmailAddress())
+                .stream()
+                // Filter out any requested genes that are no longer in the gene core
+                .filter(cg -> Objects.nonNull(detailsProvider.summaryDetailsByAcc().get(cg.getGeneAccessionId())))
+                .map((ContactGene cg) -> detailsProvider.summaryDetailsByAcc().get(cg.getGeneAccessionId()))
+                .collect(Collectors.toList()));
     }
 
     public boolean isRegisteredForGene(String emailAddress, String geneAccessionId) {
