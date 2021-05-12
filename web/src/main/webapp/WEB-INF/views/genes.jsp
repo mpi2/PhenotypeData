@@ -693,7 +693,7 @@
                                             <tr>
                                                 <th>Title</th>
                                                 <th>Journal</th>
-<%--                                                <th>IMPC Allele</th>--%>
+                                                <th>IMPC Allele</th>
                                                 <th data-width="160" data-halign="center" data-align="center">PubMed&nbsp;ID</th>
                                             </tr>
                                             </thead>
@@ -702,10 +702,10 @@
                                                 <tr id="publicationRow${loop.index}" data-link="publication" data-shown="false">
                                                     <td><a href="https://www.doi.org/${publication.doi}">${publication.title}</a></td>
                                                     <td>${publication.journalInfo.journal.title}</b> (<fmt:formatDate value="${publication.firstPublicationDate}" pattern="MMMM yyyy" />)</td>
-<%--                                                    <td><c:forEach items="${publication.alleles}" var="allele" varStatus="allele_loop">--%>
-<%--                                                        <c:if test="${fn:contains(allele.geneSymbol, gene.markerSymbol)}"><t:formatAllele>${allele.alleleSymbol}</t:formatAllele></c:if>--%>
-<%--                                                    </c:forEach>--%>
-<%--                                                    </td>--%>
+                                                    <td><c:forEach items="${publication.alleles}" var="allele" varStatus="allele_loop">
+                                                        <c:if test="${fn:contains(allele.geneSymbol, gene.markerSymbol)}"><t:formatAllele>${allele.alleleSymbol}</t:formatAllele></c:if>
+                                                    </c:forEach>
+                                                    </td>
                                                     <td><c:choose>
                                                         <c:when test="${fn:length(publication.pmcid) > 0}"><a href="https://www.ncbi.nlm.nih.gov/pmc/articles/${publication.pmcid}">${publication.pmcid}</a></c:when>
                                                         <c:when test="${fn:length(publication.pmid) > 0}"><a href="https://pubmed.ncbi.nlm.nih.gov/${publication.pmid}/">${publication.pmid}</a></c:when>
