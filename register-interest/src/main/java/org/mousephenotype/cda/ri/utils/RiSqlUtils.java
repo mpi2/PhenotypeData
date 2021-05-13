@@ -41,6 +41,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Created by mrelac on 12/05/2017.
@@ -298,11 +301,19 @@ public class RiSqlUtils {
         return contactPks;
     }
 
+    // Duplicates are not allowed in the returned list. If there are duplicates, remove the oldest.
     public List<GeneSent> getGeneSentByEmailAddress(String emailAddress) {
         final String        query        = "SELECT * FROM gene_sent WHERE address = :emailAddress";
         Map<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("emailAddress", emailAddress);
-        return jdbcInterest.query(query, parameterMap, new GeneSentRowMapper());
+        List<GeneSent> genesSent = jdbcInterest.query(query, parameterMap, new GeneSentRowMapper());
+        Collection c = genesSent
+            .stream()
+            .collect(Collectors.toMap(
+                GeneSent::getGeneAccessionId,
+                Function.identity(),
+                BinaryOperator.maxBy(Comparator.comparing(GeneSent::getSentAt)))).values();
+        return new ArrayList(c);
     }
 
     /**
@@ -351,7 +362,7 @@ public class RiSqlUtils {
         parameterMap.put("createdAt", now);
         try {
             jdbcInterest.update(insert, parameterMap);
-            _insertGeneSent(emailAddress, summaryDetail);
+            _upsertGeneSent(emailAddress, summaryDetail);
         } catch (DuplicateKeyException e) {
         }
     }
@@ -402,22 +413,21 @@ public class RiSqlUtils {
     }
 
     /**
-     * Deletes any existing SummaryDetail instances for this summary, then
-     * INSERTs the SummaryDetail instances in Summary.
+     * Updates the gene_sent table with the list of summary details provided by 'summary'.
+     * Any old summary detail rows are first deleted.
      */
     @Transactional
     public void updateGeneSent(Summary summary) {
-        String emailAddress = summary.getEmailAddress();
-        deleteGeneSentByEmailAddress(emailAddress);
         summary.getDetails()
             .stream()
-            .forEach((SummaryDetail sd) -> _insertGeneSent(summary.getEmailAddress(), sd));
+            .forEach((SummaryDetail sd) -> _upsertGeneSent(summary.getEmailAddress(), sd));
     }
 
     /**
-     * Updates the gene_sent table for this contact emailAddress and gene.
+     * First deletes, then inserts into the gene_sent table for this contact emailAddress and gene.
      */
-    private void _insertGeneSent(String emailAddress, SummaryDetail summaryDetail) {
+    private void _upsertGeneSent(String emailAddress, SummaryDetail summaryDetail) {
+        deleteGeneSentByEmailAddress(emailAddress);
         final String insert =
             "INSERT INTO gene_sent (address, gene_accession_id, symbol, assignment_status," +
                 " conditional_allele_production_status, crispr_allele_production_status," +
