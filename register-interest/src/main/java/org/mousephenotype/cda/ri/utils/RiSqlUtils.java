@@ -362,7 +362,7 @@ public class RiSqlUtils {
         parameterMap.put("createdAt", now);
         try {
             jdbcInterest.update(insert, parameterMap);
-            _upsertGeneSent(emailAddress, summaryDetail);
+            _insertGeneSent(emailAddress, summaryDetail);
         } catch (DuplicateKeyException e) {
         }
     }
@@ -418,16 +418,17 @@ public class RiSqlUtils {
      */
     @Transactional
     public void updateGeneSent(Summary summary) {
+        String emailAddress = summary.getEmailAddress();
+        deleteGeneSentByEmailAddress(emailAddress);
         summary.getDetails()
             .stream()
-            .forEach((SummaryDetail sd) -> _upsertGeneSent(summary.getEmailAddress(), sd));
+            .forEach((SummaryDetail sd) -> _insertGeneSent(summary.getEmailAddress(), sd));
     }
 
     /**
-     * First deletes, then inserts into the gene_sent table for this contact emailAddress and gene.
+     * Updates the gene_sent table for this contact emailAddress and gene.
      */
-    private void _upsertGeneSent(String emailAddress, SummaryDetail summaryDetail) {
-        deleteGeneSentByEmailAddress(emailAddress);
+    private void _insertGeneSent(String emailAddress, SummaryDetail summaryDetail) {
         final String insert =
             "INSERT INTO gene_sent (address, gene_accession_id, symbol, assignment_status," +
                 " conditional_allele_production_status, crispr_allele_production_status," +

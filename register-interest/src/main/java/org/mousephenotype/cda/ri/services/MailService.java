@@ -135,7 +135,7 @@ public class MailService {
             }
         }
         int count = 0;
-        logger.info("BEGIN checker. outputDirName = {}.", outputDirName);
+        logger.info("BEGIN checker. outputDirName = {}", outputDirName);
 
         Map<String, String> changedSummaryContentByEmailAddress = _getChangedSummaryContentByEmailAddress();
         if ( ! changedSummaryContentByEmailAddress.isEmpty()) {
