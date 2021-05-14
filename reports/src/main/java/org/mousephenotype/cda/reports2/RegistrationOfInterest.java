@@ -38,10 +38,7 @@ import java.beans.Introspector;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -85,30 +82,35 @@ public class RegistrationOfInterest implements CommandLineRunner {
 
         writer.write(heading);
 
-        long                       start        = System.currentTimeMillis();
-        final String               NONE         = "None";
-        Map<String, List<Integer>> countsByAcc  = registrationOfInterestService.getCountsByAcc();
-        Map<String, GeneDTO>       statuses     = registrationOfInterestService.getGeneStatuses();
-        final List<List<String>>   unsortedData = new ArrayList<>();
+        long                       start               = System.currentTimeMillis();
+        final String               NONE                = "None";
+        Map<String, List<Integer>> countsByAcc         = registrationOfInterestService.getCountsByAcc();
+        Map<String, GeneDTO>       statuses            = registrationOfInterestService.getGeneStatuses();
+        final List<List<String>>   unsortedData        = new ArrayList<>();
+        final Set<String>          missingFromGeneCore = new HashSet<>();
         countsByAcc
             .entrySet()
             .stream()
             .forEach(e -> {
                 GeneDTO       g       = statuses.get(e.getKey());
-                List<Integer> buckets = e.getValue();
-                List<String>  row     = new ArrayList<>();
-                row.add(g.getMarkerSymbol());
-                row.add(g.getMgiAccessionId());
-                row.add(g.getNullAlleleProductionStatus() == null ? NONE : g.getNullAlleleProductionStatus());
-                row.add(g.getConditionalAlleleProductionStatus() == null ? NONE : g.getConditionalAlleleProductionStatus());
-                row.add(g.getCrisprAlleleProductionStatus() == null ? NONE : g.getCrisprAlleleProductionStatus());
-                row.add(g.isPhenotypingDataAvailable() ? "Yes" : "No");
-                row.add(Integer.toString(buckets.get(0)));
-                row.add(Integer.toString(buckets.get(1)));
-                row.add(Integer.toString(buckets.get(2)));
-                row.add(Integer.toString(buckets.get(3)));
-                row.add(Integer.toString(buckets.get(4)));
-                unsortedData.add(row);
+                if (g != null) {
+                    List<Integer> buckets = e.getValue();
+                    List<String>  row     = new ArrayList<>();
+                    row.add(g.getMarkerSymbol());
+                    row.add(g.getMgiAccessionId());
+                    row.add(g.getNullAlleleProductionStatus() == null ? NONE : g.getNullAlleleProductionStatus());
+                    row.add(g.getConditionalAlleleProductionStatus() == null ? NONE : g.getConditionalAlleleProductionStatus());
+                    row.add(g.getCrisprAlleleProductionStatus() == null ? NONE : g.getCrisprAlleleProductionStatus());
+                    row.add(g.isPhenotypingDataAvailable() ? "Yes" : "No");
+                    row.add(Integer.toString(buckets.get(0)));
+                    row.add(Integer.toString(buckets.get(1)));
+                    row.add(Integer.toString(buckets.get(2)));
+                    row.add(Integer.toString(buckets.get(3)));
+                    row.add(Integer.toString(buckets.get(4)));
+                    unsortedData.add(row);
+                } else {
+                    missingFromGeneCore.add(e.getKey());
+                }
             });
 
         unsortedData     // Sort by geneSymbol (0)
@@ -116,6 +118,15 @@ public class RegistrationOfInterest implements CommandLineRunner {
             .sorted(Comparator.comparing((List<String> l) -> l.get(0)))
             .collect(Collectors.toList())
             .forEach(r -> writer.write(r));
+
+        if ( ! missingFromGeneCore.isEmpty()) {
+            logger.info("Previous genes of interest no longer in gene core:");
+            missingFromGeneCore
+                .stream()
+                .sorted(Comparator.comparing(String::valueOf))
+                .collect(Collectors.toList())
+                .forEach(g -> System.out.println("\t" + g));
+        }
 
         writer.closeQuietly();
 
