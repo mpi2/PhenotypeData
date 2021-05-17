@@ -20,6 +20,8 @@ data for every new data release._
 - `phenotypeHitsPerParameterAndProcedure` - Phenotype hits per parameter and procedure
 - `phenotypeHitsPerTopLevelMPTerm` - Phenotype hits per top level MP term
 - `procedureCompletenessAndPhenotypeHits` - Procedure completeness, IMPC and legacy data
+- `registrationOfInterest` - List by gene of user registration counts by registration date
+   range (e.g. last 3 months, last 6 months, etc) NOTE: This report is updated frequently.
 - `statistical-results-ALL`  - Statistical results snapshot of  all
   statistical results with status:Successful
 - `viability` - Viability phenotypes, by mouse line

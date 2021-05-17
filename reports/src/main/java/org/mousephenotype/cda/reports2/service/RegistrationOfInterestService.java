@@ -53,7 +53,6 @@ public class RegistrationOfInterestService extends BasicService {
     }
 
     public Map<String, List<Integer>> getCountsByAcc() {
-        final List<List<String>> data = new ArrayList<>();
         final Map<String, List<LocalDateTime>> createdAtByAcc =
             riSqlUtils.getContactGenes()
                 .stream()
