@@ -62,6 +62,8 @@ public class MailService {
     private RiSqlUtils     riSqlUtils;
     private SmtpParameters smtpParameters;
 
+    private Map<String, String> messagingExceptionByEmailAddress = new HashMap<>();
+
     @Inject
     public MailService(SummaryService summaryService, RiSqlUtils riSqlUtils, String paBaseUrl,
                        SmtpParameters smtpParameters) {
@@ -77,25 +79,38 @@ public class MailService {
      * terminated before all summaries have been sent, previously sent summaries will not be re-sent.
      */
     public void mailer(boolean doSend) {
-        int count = 0;
-        logger.info("BEGIN mailer. SmtpParameters = {}.", smtpParameters);
+        int sentCount = 0;
+        int expectedCount = 0;
+
         Map<String, String> changedSummaryContentByEmailAddress = _getChangedSummaryContentByEmailAddress();
+        logger.info("BEGIN mailer. SmtpParameters = {}", smtpParameters);
+        logger.info("  Expecting to send {} e-mails.", changedSummaryContentByEmailAddress.size());
         for (Map.Entry<String, String> entry : changedSummaryContentByEmailAddress.entrySet()) {
+            boolean wasSent;
             Summary summary = summaryService.getSummaryByContact(summaryService.getContact(entry.getKey()));
+            expectedCount++;
             if (doSend) {
-                _sendSummary(summary, DEFAULT_SUMMARY_SUBJECT, entry.getValue());
-                riSqlUtils.updateGeneSent(summary);
-            }
-            count++;
-            logger.info("{} : {}", count, summary.getEmailAddress());
-            if (doSend) {
-                _sleep(36);
+                wasSent = _sendSummary(summary, DEFAULT_SUMMARY_SUBJECT, entry.getValue());
+                if (wasSent) {
+                    riSqlUtils.updateGeneSent(summary);
+                    sentCount++;
+                    logger.info("{} : {}", sentCount, summary.getEmailAddress());
+                    _sleep(36);
+                }
             }
         }
         if (doSend) {
-            logger.info("END mailer. Processed and sent {} summaries.", count);
+            logger.info("END mailer. Processed and sent {} e-mails.", sentCount);
+            if ( ! messagingExceptionByEmailAddress.isEmpty()) {
+               logger.info("There were {} messaging exceptions. emailAddress: reason:",
+                   messagingExceptionByEmailAddress.size());
+               messagingExceptionByEmailAddress
+                   .entrySet()
+                   .stream()
+                   .forEach(entry -> logger.info("  {}: {}", entry.getKey(), entry.getValue()));
+            }
         } else {
-            logger.info("END mailer. Processed {} summaries but sent none as the 'send' flag was not specified.", count);
+            logger.info("END mailer. Would have processed {} e-mails but sent none as the 'send' flag was not specified.", expectedCount);
         }
     }
 
@@ -172,12 +187,12 @@ public class MailService {
         riSqlUtils.getContacts()
             .stream()
             .forEach((Contact c) -> {
-                Summary current = summaryService.getSummaryByContact(c);
+                Summary                    current      = summaryService.getSummaryByContact(c);
                 Map<String, SummaryDetail> lastSdsByAcc = getLastSdsByAcc(c.getEmailAddress());
                 for (SummaryDetail currentSd : current.getDetails()) {
                     SummaryDetail lastSd = lastSdsByAcc.get(currentSd.getGeneAccessionId());
                     if ( ! currentSd.equals(lastSd)) {
-                        summaryContentByEmailAddress.put(current.getEmailAddress(), _generateSummaryContent(current,lastSdsByAcc));
+                        summaryContentByEmailAddress.put(current.getEmailAddress(), _generateSummaryContent(current, lastSdsByAcc));
                         break;
                     }
                 }
@@ -185,6 +200,7 @@ public class MailService {
 
         return summaryContentByEmailAddress;
     }
+
     public static final String generateEmailEpilogue(boolean inHtml) {
         StringBuilder body = new StringBuilder();
         body
@@ -285,19 +301,21 @@ public class MailService {
         return sb.toString();
     }
 
-    private void _sendSummary(Summary summary, String subject, String content) {
+    // Return true if e-mail was sent; false if it was not
+    private boolean _sendSummary(Summary summary, String subject, String content) {
         Message message;
         message = emailUtils.assembleEmail(subject, content, summary.getEmailAddress(),
             summary.isInHtml(), smtpParameters);
         try {
             if (message == null) {
-                return;
+                return false;
             }
             Transport.send(message);
         } catch (MessagingException e) {
-            logger.warn("Exception sending summary e-mail to {}. Skipping. Reason: {}", summary.getEmailAddress(), e.getLocalizedMessage());
-            return;
+            messagingExceptionByEmailAddress.put(summary.getEmailAddress(), e.getLocalizedMessage());
+            return false;
         }
+        return true;
     }
 
     // Welcome
