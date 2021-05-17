@@ -63,7 +63,7 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 
 		Map<String, Object> requestConfig = new HashMap<>();
 		requestConfig.put("releaseVersion", dataReleaseVersionManager.getReleaseVersion());
-		requestConfig.put("version", "v5.5.3");
+		requestConfig.put("version", "v5.5.4");
 		requestConfig.put("data_release_genes", metaInfoRepository.getDataReleaseGeneCount().getPropertyValue());
 
 		// Map the global config values into the request configuration
