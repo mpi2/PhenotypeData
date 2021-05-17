@@ -23,9 +23,10 @@ import org.mousephenotype.cda.db.repositories.MetaInfoRepository;
 import org.mousephenotype.cda.dto.AggregateCountXY;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.service.Allele2Service;
-import org.mousephenotype.cda.solr.service.PhenodigmService;
+import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.Allele2DTO;
+import org.mousephenotype.cda.solr.service.dto.GeneDTO;
 import org.mousephenotype.cda.utilities.CommonUtils;
 import org.mousephenotype.cda.utilities.LifeStageMapper;
 import org.slf4j.Logger;
@@ -59,42 +60,33 @@ public class ReleaseController {
 
 	private final  Double              CACHE_REFRESH_PERCENT       = 0.05; // 5%
 	private        Map<String, String> cachedMetaInfo              = null;
-	private static Map<String, String> statisticalMethodsShortName = new HashMap<>();
-	static {
-		statisticalMethodsShortName.put("Fisher's exact test", "Fisher");
-		statisticalMethodsShortName.put("Wilcoxon rank sum test with continuity correction", "Wilcoxon");
-		statisticalMethodsShortName.put("Mixed Model framework, generalized least squares, equation withoutWeight",
-										"MMgls");
-		statisticalMethodsShortName.put("Mixed Model framework, linear mixed-effects model, equation withoutWeight",
-										"MMlme");
-	}
 
 
-	private Allele2Service                                allele2Service;
+	private Allele2Service allele2Service;
+	private GeneService geneService;
 	private AnalyticsSignificantCallsProceduresRepository analyticsSignificantCallsProceduresRepository;
-	private UnidimensionalChartAndTableProvider           chartProvider;
-	private MetaHistoryRepository                         metaHisoryRepository;
-	private MetaInfoRepository                            metaInfoRepository;
-	private PhenodigmService                              phenodigmService;
-	private StatisticalResultService                      statisticalResultService;
+	private UnidimensionalChartAndTableProvider chartProvider;
+	private MetaHistoryRepository metaHisoryRepository;
+	private MetaInfoRepository metaInfoRepository;
+	private StatisticalResultService statisticalResultService;
 
 
 	@Inject
 	public ReleaseController(
 			@NotNull Allele2Service allele2Service,
+			@NotNull GeneService geneService,
 			@NotNull AnalyticsSignificantCallsProceduresRepository analyticsSignificantCallsProceduresRepository,
 			@NotNull UnidimensionalChartAndTableProvider chartProvider,
 			@NotNull MetaHistoryRepository metaHisoryRepository,
 			@NotNull MetaInfoRepository metaInfoRepository,
-			@NotNull PhenodigmService phenodigmService,
 			@NotNull StatisticalResultService statisticalResultService)
 	{
 		this.allele2Service = allele2Service;
+		this.geneService = geneService;
 		this.analyticsSignificantCallsProceduresRepository = analyticsSignificantCallsProceduresRepository;
 		this.chartProvider = chartProvider;
 		this.metaHisoryRepository = metaHisoryRepository;
 		this.metaInfoRepository = metaInfoRepository;
-		this.phenodigmService = phenodigmService;
 		this.statisticalResultService = statisticalResultService;
 	}
 
@@ -126,14 +118,6 @@ public class ReleaseController {
 					StreamSupport
 							.stream(metaInfoRepository.findAll().spliterator(), false)
 							.collect(Collectors.toMap(MetaInfo::getPropertyKey, MetaInfo::getPropertyValue));
-
-			// The front end will check for the key
-			// "unique_mouse_model_disease_associations" in the map,
-			// If not there, do not display the count
-//			final Integer diseaseAssociationCount = phenodigmService.getDiseaseAssociationCount();
-//			if (diseaseAssociationCount != null) {
-//				metaInfo.put("unique_mouse_model_disease_associations", diseaseAssociationCount.toString());
-//			}
 
 			synchronized (this) {
 				cachedMetaInfo = metaInfo;
@@ -290,7 +274,6 @@ public class ReleaseController {
 		model.addAttribute("dataTypes", dataTypes);
 		model.addAttribute("qcTypes", qcTypes);
 		model.addAttribute("alleleTypes", alleleTypes);
-		model.addAttribute("statisticalMethodsShortName", statisticalMethodsShortName);
 		model.addAttribute("callProcedureChart", callProcedureChart);
 		model.addAttribute("trendsChart", trendsChart);
 		model.addAttribute("datapointsTrendsChart", datapointsTrendsChart);
@@ -299,7 +282,7 @@ public class ReleaseController {
 				chartProvider.getStatusColumnChart(allele2Service.getStatusCount(null, Allele2DTO.LATEST_MOUSE_STATUS),
 												   "Genotyping Status", "genotypeStatusChart", null));
 		model.addAttribute("phenotypeStatusChart",
-				chartProvider.getStatusColumnChart(allele2Service.getStatusCount(null, Allele2DTO.LATEST_PHENOTYPE_STATUS),
+				chartProvider.getStatusColumnChart(geneService.getStatusCount(null, GeneDTO.PHENOTYPE_STATUS),
 												   "Phenotyping Status", "phenotypeStatusChart", null));
 		model.addAttribute("phenotypingDistributionChart", phenotypingDistributionChart);
 		model.addAttribute("genotypingDistributionChart", genotypingDistributionChart);
