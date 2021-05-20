@@ -17,9 +17,9 @@
 package utilities;
 
 import com.opencsv.CSVReader;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mousephenotype.cda.utilities.MpCsvWriter;
 
 import java.io.File;
@@ -32,7 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MpCsvWriterTest {
 
@@ -48,12 +48,12 @@ public class MpCsvWriterTest {
         EXPECTED_ALL.add(EXPECTED_LINE_2);
     }
 
-    @Before
+    @BeforeEach
     public void initialise() throws IOException {
         Files.deleteIfExists(Paths.get(TEST_FILENAME));
     }
 
-    @After
+    @AfterEach
     public void cleanup() throws IOException {
         Files.deleteIfExists(Paths.get(TEST_FILENAME));
     }

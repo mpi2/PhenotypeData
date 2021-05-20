@@ -22,14 +22,13 @@
 
 package uk.ac.ebi.phenotype.stats;
 
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import uk.ac.ebi.phenotype.chart.ColorCodingPalette;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
-
-import uk.ac.ebi.phenotype.chart.ColorCodingPalette;
+import static org.junit.Assert.assertTrue;
 
 public class ColorCodingPaletteTest {
 

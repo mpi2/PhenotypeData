@@ -16,8 +16,8 @@
 
 package org.mousephenotype.cda.ri.services;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.mousephenotype.cda.ri.entities.Contact;
 import org.mousephenotype.cda.ri.enums.EmailFormat;
 import org.mousephenotype.cda.ri.exceptions.InterestException;
@@ -51,7 +51,7 @@ public class SummaryServiceTest extends BaseTest {
     private SummaryService summaryService;
 
 
-    @Before
+    @BeforeEach
     public void setUp() {
     }
 

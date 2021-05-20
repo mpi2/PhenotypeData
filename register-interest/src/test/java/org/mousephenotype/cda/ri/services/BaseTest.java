@@ -1,6 +1,6 @@
 package org.mousephenotype.cda.ri.services;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,7 +26,7 @@ public abstract class BaseTest {
     @Autowired
     protected DataSource riDataSource;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         Resource r = context.getResource("classpath:sql/h2/schema.sql");
         ScriptUtils.executeSqlScript(riDataSource.getConnection(), r);
