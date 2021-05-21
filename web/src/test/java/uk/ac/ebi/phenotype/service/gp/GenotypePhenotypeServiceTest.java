@@ -26,8 +26,8 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mousephenotype.cda.solr.service.GeneService;
 import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.MpService;
@@ -40,7 +40,7 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 import java.util.*;
@@ -52,7 +52,7 @@ import static org.junit.Assert.assertTrue;
  * @author ilinca
  */
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = {GenotypePhenotypeServiceTestConfig.class})
 public class GenotypePhenotypeServiceTest {
 

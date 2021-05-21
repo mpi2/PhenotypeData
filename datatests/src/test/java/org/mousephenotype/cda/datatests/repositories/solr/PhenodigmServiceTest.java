@@ -21,7 +21,7 @@ public class PhenodigmServiceTest {
 
 
     @Test
-    public void getDiseaseAssociationCount() throws Exception {
+    public void getDiseaseAssociationCount() {
 
         final Integer diseaseAssociationCount = phenodigmService.getDiseaseAssociationCount();
 

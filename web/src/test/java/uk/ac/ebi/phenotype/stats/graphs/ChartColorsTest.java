@@ -23,7 +23,7 @@
 package uk.ac.ebi.phenotype.stats.graphs;
 
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.phenotype.chart.ChartColors;

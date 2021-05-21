@@ -22,7 +22,7 @@
 
 package uk.ac.ebi.phenotype.stats;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import uk.ac.ebi.phenotype.chart.ColorCodingPalette;
 
 import java.util.ArrayList;

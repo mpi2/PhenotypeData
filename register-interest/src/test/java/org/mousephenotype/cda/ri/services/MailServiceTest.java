@@ -1,6 +1,7 @@
 package org.mousephenotype.cda.ri.services;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mousephenotype.cda.ri.exceptions.InterestException;
 import org.mousephenotype.cda.ri.pojo.Summary;
 import org.mousephenotype.cda.ri.pojo.SummaryDetail;
@@ -18,8 +19,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
 import static org.springframework.test.util.AssertionErrors.fail;
 
 public class MailServiceTest extends BaseTest {
@@ -36,11 +37,10 @@ public class MailServiceTest extends BaseTest {
     private SummaryService summaryService;
 
 
-    @Test(expected = InterestException.class)
+    @Test
     public void checkerOutputDirExistsAndIsNotADirectory() throws Exception {
-        File outfile = null;
+        final File outfile = new File("checkerOutputDirExistsAndIsNotADirectory");
         try {
-            outfile = new File("checkerOutputDirExistsAndIsNotADirectory");
             FileSystemUtils.deleteRecursively(outfile);
             if (outfile.exists()) {
                 fail("Unable to delete output directory '" + outfile.getAbsolutePath() + "'");
@@ -50,18 +50,19 @@ public class MailServiceTest extends BaseTest {
             }
             outfile.createNewFile();
 
-            mailService.checker(outfile.getAbsolutePath());
-            fail("Expected InterestException");
+            Assertions.assertThrows(InterestException.class, () -> {
+                mailService.checker(outfile.getAbsolutePath());
+            });
         } finally {
             FileSystemUtils.deleteRecursively(outfile);
         }
     }
 
-    @Test(expected = InterestException.class)
+    @Test
     public void checkerOutputDirExistsAndIsNotEmpty() throws Exception {
-        File outdir = null;
+        File outdir = new File("checkerOutputDirExistsAndIsNotEmpty");
         try {
-            outdir = new File("checkerOutputDirExistsAndIsNotEmpty");
+
             FileSystemUtils.deleteRecursively(outdir);
             if (outdir.exists()) {
                 fail("Unable to delete output directory '" + outdir.getAbsolutePath() + "'");
@@ -70,8 +71,9 @@ public class MailServiceTest extends BaseTest {
             Path p       = Paths.get(outdir.getName(), "xxx");
             File outfile = p.toFile();
             outfile.createNewFile();
-            mailService.checker(outdir.getAbsolutePath());
-            fail("Expected InterestException");
+            Assertions.assertThrows(InterestException.class, () -> {
+                mailService.checker(outdir.getAbsolutePath());
+            });
         } finally {
             FileSystemUtils.deleteRecursively(outdir);
         }
@@ -190,7 +192,7 @@ public class MailServiceTest extends BaseTest {
         Summary summary = summaryService.getSummaryByContact(summaryService.getContact(user1));
         // We're testing html content, not changes, so an empty HashMap should work fine.
         String actual = mailService.generateSummary(summary, new HashMap<>());
-        assertTrue(actual.contains(expected));
+        assertTrue("", actual.contains(expected));
     }
 
     @Test
@@ -203,7 +205,7 @@ public class MailServiceTest extends BaseTest {
         Summary summary = summaryService.getSummaryByContact(summaryService.getContact(user2));
         // We're testing html content, not changes, so an empty HashMap should work fine.
         String actual = mailService.generateSummary(summary, new HashMap<>());
-        assertTrue(actual.contains(expected));
+        assertTrue("", actual.contains(expected));
     }
 
     @Test
