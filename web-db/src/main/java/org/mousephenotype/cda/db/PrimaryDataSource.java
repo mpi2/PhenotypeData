@@ -29,14 +29,14 @@ import javax.sql.DataSource;
 @Profile("!test")
 public class PrimaryDataSource {
 
-    @Value("${datasource.komp2.jdbc-url}")
-    String komp2Url;
+//    @Value("${datasource.komp2.jdbc-url}")
+    String komp2Url = System.getenv("datasource.komp2.jdbc-url");
 
-    @Value("${datasource.komp2.username}")
-    String komp2Username;
+//    @Value("${datasource.komp2.username}")
+    String komp2Username = System.getenv("datasource.komp2.username");
 
-    @Value("${datasource.komp2.password}")
-    String komp2Password;
+//    @Value("${datasource.komp2.password}")
+    String komp2Password = System.getenv("datasource.komp2.password");
 
     @Bean
     @Primary

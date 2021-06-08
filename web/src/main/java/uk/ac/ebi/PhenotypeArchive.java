@@ -22,6 +22,7 @@
 
 package uk.ac.ebi;
 
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
@@ -36,14 +37,12 @@ import org.springframework.cache.annotation.EnableCaching;
 @EnableCaching
 public class PhenotypeArchive extends SpringBootServletInitializer {
 
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(PhenotypeArchive.class);
-    }
+//    @Override
+//    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+//        return application.sources(PhenotypeArchive.class);
+//    }
 
     public static void main(String[] args) {
-
-        new SpringApplicationBuilder(PhenotypeArchive.class)
-                .run(args);
+        SpringApplication.run(PhenotypeArchive.class, args);
     }
 }

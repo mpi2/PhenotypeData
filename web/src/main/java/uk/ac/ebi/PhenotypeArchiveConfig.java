@@ -40,6 +40,7 @@ import uk.ac.ebi.phenotype.util.SolrUtilsWeb;
 import uk.ac.ebi.phenotype.web.util.DeploymentInterceptor;
 import uk.ac.ebi.phenotype.web.util.PerClientRateLimitInterceptor;
 
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -59,38 +60,38 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
     private static final Logger logger = LoggerFactory.getLogger(PhenotypeArchiveConfig.class);
 
 
-    @Value("${cms_base_url}")
-    private String cmsBaseUrl;
+//    @Value("${cms_base_url}")
+    private String cmsBaseUrl = System.getenv("cms_base_url");
 
-    @Value("${solr_url}")
-    private String solrUrl;
+//    @Value("${solr_url}")
+    private String solrUrl = System.getenv("solr_url");
 
-    @Value("${base_url}")
-    private String baseUrl;
+//    @Value("${base_url}")
+    private String baseUrl = System.getenv("base_url");
 
-    @Value("${internal_solr_url}")
-    private String internalSolrUrl;
+//    @Value("${internal_solr_url}")
+    private String internalSolrUrl = System.getenv("internal_solr_url");
 
-    @Value("${media_base_url}")
-    private String mediaBaseUrl;
+//    @Value("${media_base_url}")
+    private String mediaBaseUrl = System.getenv("media_base_url");
 
-    @Value("${impc_media_base_url}")
-    private String impcMediaBaseUrl;
+//    @Value("${impc_media_base_url}")
+    private String impcMediaBaseUrl = System.getenv("impc_media_base_url");
 
-    @Value("${monarch_url}")
-    private String monarchUrl;
+//    @Value("${monarch_url}")
+    private String monarchUrl = System.getenv("monarch_url");
 
-    @Value("${google_analytics}")
-    private String googleAnalytics;
+//    @Value("${google_analytics}")
+    private String googleAnalytics = System.getenv("google_analytics");
 
-    @Value("${live_site}")
-    private String liveSite;
+//    @Value("${live_site}")
+    private String liveSite = System.getenv("live_site");
 
-    @Value("${paBaseUrl}")
-    private String paBaseUrl;
+//    @Value("${paBaseUrl}")
+    private String paBaseUrl = System.getenv("paBaseUrl");
 
-    @Value("${ikmc_oligo_design_url}")
-    private String ikmcOligoDesignUrl;
+//    @Value("${ikmc_oligo_design_url}")
+    private String ikmcOligoDesignUrl = System.getenv("ikmc_oligo_design_url");
 
     @Bean(name = "globalConfiguration")
     public Map<String, String> getGlobalConfig() {

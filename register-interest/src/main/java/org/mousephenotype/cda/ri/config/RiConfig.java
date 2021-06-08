@@ -35,19 +35,19 @@ import javax.sql.DataSource;
 public class RiConfig {
 
     @Value("${paBaseUrl}")
-    private String paBaseUrl;
+    private String paBaseUrl = System.getenv("paBaseUrl");
 
     @Value("${mail.smtp.host}")
-    private String smtpHost;
+    private String smtpHost = System.getenv("mail.smtp.host");
 
     @Value("${mail.smtp.port}")
-    private Integer smtpPort;
+    private Integer smtpPort = Integer.parseInt(System.getenv("mail.smtp.port"));
 
     @Value("${mail.smtp.from}")
-    private String smtpFrom;
+    private String smtpFrom = System.getenv("mail.smtp.from");
 
     @Value("${mail.smtp.replyto}")
-    private String smtpReplyto;
+    private String smtpReplyto = System.getenv("mail.smtp.replyto");
 
 
     @Bean
@@ -71,14 +71,14 @@ public class RiConfig {
     }
 
 
-    @Value("${datasource.ri.jdbc-url}")
-    String riUrl;
+//    @Value("${datasource.ri.jdbc-url}")
+    String riUrl = System.getenv("datasource.ri.jdbc-url");
 
-    @Value("${datasource.ri.username}")
-    String username;
+//    @Value("${datasource.ri.username}")
+    String username = System.getenv("datasource.ri.username");
 
-    @Value("${datasource.ri.password}")
-    String password;
+//    @Value("${datasource.ri.password}")
+    String password = System.getenv("datasource.ri.password");
 
     @Bean
     public DataSource riDataSource() {

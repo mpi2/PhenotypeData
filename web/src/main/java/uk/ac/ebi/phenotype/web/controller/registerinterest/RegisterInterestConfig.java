@@ -31,13 +31,13 @@ import org.springframework.context.annotation.Configuration;
 public class RegisterInterestConfig {
 
     @Value("${cms_base_url}")
-    private String cmsBaseUrl;
+    private String cmsBaseUrl = System.getenv("cms_base_url");
 
     @Value("${recaptcha.public}")
-    private String recaptchaPublic;
+    private String recaptchaPublic = System.getenv("recaptcha.public");
 
     @Value("${sessionTimeoutInMinutes}")
-    private Integer sessionTimeoutInMinutes;
+    private Integer sessionTimeoutInMinutes = Integer.parseInt(System.getenv("sessionTimeoutInMinutes"));
 
     @Bean
     public String cmsBaseUrl() {
