@@ -638,10 +638,13 @@ public class ImageService extends BasicService implements WebStatus {
     }
 
     private SolrDocument fixPdfUrl(SolrDocument impcImageDocument) {
-        logger.warn("Image record with missing file_type for observation_id: " + impcImageDocument.get("observation_id"));
-        if(impcImageDocument.get("file_type") != null && impcImageDocument.get("file_type").toString().equalsIgnoreCase("application/pdf")) {
+        if (impcImageDocument.get("file_type") != null && impcImageDocument.get("file_type").toString().equalsIgnoreCase("application/pdf")) {
             String omeroId = impcImageDocument.get("omero_id").toString();
-            impcImageDocument.replace("download_url", " http://www.ebi.ac.uk/mi/media/omero/webclient/annotation/" + omeroId);
+            impcImageDocument.replace("download_url", " https://www.ebi.ac.uk/mi/media/omero/webclient/annotation/" + omeroId);
+        } else if (impcImageDocument.get("download_file_path") != null && impcImageDocument.get("download_file_path").toString().toLowerCase().endsWith(".pdf")) {
+            String omeroId = impcImageDocument.get("omero_id").toString();
+            impcImageDocument.replace("download_url", " https://www.ebi.ac.uk/mi/media/omero/webclient/annotation/" + omeroId);
+            logger.warn("Image record with missing file_type for observation_id: " + impcImageDocument.get("observation_id"));
         }
         return impcImageDocument;
     }

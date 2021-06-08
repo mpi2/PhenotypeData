@@ -12,7 +12,7 @@
 
     <c:otherwise>
 
-        <div class="modal fade in w-100"  data-backdrop="true" id="conditions" tabindex="-1" role="dialog">
+        <div class="modal fade in w-100"  data-backdrop="true" id="conditions_${experimentNumber}" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-dialog-centered  modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -114,7 +114,7 @@
                         </tr>
                         <tr>
                             <td>Testing environment</td>
-                            <td><a class="font-weight-bold w-100" data-toggle="modal" data-target="#conditions" href="#">Lab conditions and equipment</a></td>
+                            <td><a class="font-weight-bold w-100" data-toggle="modal" data-target="#conditions_${experimentNumber}" href="#">Lab conditions and equipment</a></td>
                         </tr>
                         <tr>
                             <td>Measured value</td>
