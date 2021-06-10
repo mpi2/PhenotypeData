@@ -728,7 +728,6 @@
                 </div>
             </div>
         </div>
-        </c:if>
 
         <div class="container" id="order">
             <div class="row pb-2">
