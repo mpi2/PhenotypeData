@@ -684,7 +684,6 @@
         </c:if>
 
 
-        <c:if test="${fn:length(publications) != 0}">
         <div class="container" id="order">
             <div class="row pb-2">
                 <div class="col-12 col-md-12">
