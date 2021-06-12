@@ -54,10 +54,16 @@ import java.util.concurrent.TimeUnit;
         excludeFilters = @ComponentScan.Filter(value = org.mousephenotype.cda.annotations.ComponentScanNonParticipant.class, type = FilterType.ANNOTATION))
 @EnableScheduling
 @EnableAspectJAutoProxy
+@PropertySource({"classpath:git.properties"})
 public class PhenotypeArchiveConfig implements WebMvcConfigurer {
 
     private static final Logger logger = LoggerFactory.getLogger(PhenotypeArchiveConfig.class);
 
+    @Value("${git.branch}")
+    private String gitBranch;
+
+    @Value("${git.commit.id.abbrev}")
+    private String gitCommit;
 
     @Value("${cms_base_url}")
     private String cmsBaseUrl;
@@ -107,6 +113,8 @@ public class PhenotypeArchiveConfig implements WebMvcConfigurer {
         map.put("liveSite", liveSite);
         map.put("paBaseUrl", paBaseUrl);
         map.put("ikmcOligoDesignUrl",ikmcOligoDesignUrl );
+        map.put("gitBranch", gitBranch);
+        map.put("gitCommit", gitCommit);
         return map;
     }
 

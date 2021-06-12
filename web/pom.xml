@@ -137,13 +137,6 @@
         </dependency>
 
 
-        <!-- This dependency (and a bootstrap.properties) is all that's required to pull configuration values
-             from the configService. -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-config</artifactId>
-        </dependency>
-
 
         <dependency>
             <groupId>org.springframework.retry</groupId>
@@ -217,12 +210,6 @@
             </exclusions>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-jasper</artifactId>
-    </dependency>
-
-
         <!-- OTHER DEPENDENCIES -->
 
 
@@ -240,6 +227,11 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-jasper</artifactId>
         </dependency>
 
         <dependency>
@@ -261,24 +253,10 @@
         </dependency>
 
         <dependency>
-            <groupId>se.jiderhamn</groupId>
-            <artifactId>classloader-leak-prevention</artifactId>
-            <version>[1.0,2.0)</version>
-            <exclusions>
-                <!-- Exclude el-api as it's provided by tomcat -->
-                <exclusion>
-                    <groupId>javax.el</groupId>
-                    <artifactId>el-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
-
 
         <dependency>
             <groupId>com.github.vladimir-bukhtoyarov</groupId>
@@ -288,17 +266,7 @@
 
     </dependencies>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>Greenwich.RELEASE</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+
 
     <build>
         <finalName>phenotype-data-web</finalName>
@@ -355,22 +323,39 @@
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <!--
-                     Ensure that the revision goal is invoked during the initialize
-                     phase.
-                -->
+                <version>4.0.5</version>
                 <executions>
                     <execution>
+                        <id>get-the-git-infos</id>
                         <goals>
                             <goal>revision</goal>
                         </goals>
+                        <phase>initialize</phase>
                     </execution>
                 </executions>
                 <configuration>
-                    <!--
-                        Configure the location of the .git directory.
-                    -->
-                    <dotGitDirectory>${project.basedir}/../../.git</dotGitDirectory>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                    <includeOnlyProperties>
+                        <includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
+                        <includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
+                        <includeOnlyProperty>^git.branch.(abbrev|full)$</includeOnlyProperty>
+                    </includeOnlyProperties>
+                    <commitIdGenerationMode>full</commitIdGenerationMode>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>3.1.1</version>
+                <configuration>
+                    <from>
+                        <image>openjdk:alpine</image>
+                    </from>
+                    <to>
+                        <image>phenotype-data</image>
+                    </to>
                 </configuration>
             </plugin>
 

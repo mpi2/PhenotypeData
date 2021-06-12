@@ -25,11 +25,8 @@ import java.util.stream.Collectors;
 public class ErrorHandlerController implements ErrorController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private static Set<String> embeddedPages = new HashSet<>(Arrays.asList("/chart", "/experiment"));
-
     private static final String PATH = "/error";
-
 
     private final SearchGeneService searchGeneService;
     private final SearchPhenotypeService searchPhenotypeService;
@@ -102,11 +99,6 @@ public class ErrorHandlerController implements ErrorController {
         model.addAttribute("geneSuggestions", geneSuggestions);
 
         return "error";
-    }
-
-    @Override
-    public String getErrorPath() {
-        return PATH;
     }
 
 }
