@@ -63,7 +63,7 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 
 		Map<String, Object> requestConfig = new HashMap<>();
 		requestConfig.put("releaseVersion", dataReleaseVersionManager.getReleaseVersion());
-		requestConfig.put("version", "v5.5.6");
+		requestConfig.put("version", config.get("gitBranch") + "-" + config.get("gitCommit"));
 		requestConfig.put("data_release_genes", metaInfoRepository.getDataReleaseGeneCount().getPropertyValue());
 
 		// Map the global config values into the request configuration
@@ -119,7 +119,7 @@ public class DeploymentInterceptor extends HandlerInterceptorAdapter {
 		if (config.get("liveSite").equals("false")) {
 			// If DEV or BETA, refresh the cache daily
 			String dateStamp = new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime());
-			requestConfig.put("version", dateStamp);
+			requestConfig.put("version", requestConfig.get("version") + "-" + dateStamp);
 		}
 
 		// Map the request configuration into the request object
