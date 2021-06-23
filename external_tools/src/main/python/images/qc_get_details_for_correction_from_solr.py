@@ -35,7 +35,7 @@ parser = argparse.ArgumentParser(
     description = "Get details for images with wrong parameter stable IDs"
 )
 parser.add_argument('-H', '--host', dest='host', 
-                    default="http://ves-ebi-d0.ebi.ac.uk",
+                    default="http://wp-np2-e1.ebi.ac.uk",
                     help='host to use for solr query - defaults to dev'
 )
 parser.add_argument('-P', '--port', dest='port', default='8986',

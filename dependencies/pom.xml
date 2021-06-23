@@ -32,7 +32,7 @@
             <id>mouse-informatics</id>
             <name>Mouse Informatics internal repository</name>
             <layout>default</layout>
-            <url>http://ves-ebi-d9.ebi.ac.uk:8081/repository/mouse/</url>
+            <url>http://wp-np2-8a.ebi.ac.uk:8081/repository/mouse/</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -44,7 +44,7 @@
         <repository>
             <id>deployment</id>
             <name>Internal Releases</name>
-            <url>http://ves-ebi-d9.ebi.ac.uk:8081/repository/mouse-phenotype/</url>
+            <url>http://wp-np2-8a.ebi.ac.uk:8081/repository/mouse-phenotype/</url>
         </repository>
     </distributionManagement>
 

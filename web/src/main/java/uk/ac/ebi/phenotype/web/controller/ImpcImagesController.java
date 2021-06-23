@@ -60,7 +60,7 @@ public class ImpcImagesController {
 	public String laczImages(@PathVariable String acc, @PathVariable String topLevelMa, Model model)
 			throws SolrServerException, IOException , URISyntaxException {
 
-		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:2387599%22&facet=true&facet.field=selected_top_level_ma_term&fq=parameter_name:%22LacZ%20Images%20Section%22&group=true&group.field=selected_top_level_ma_term
+		// http://wp-np2-e1.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:2387599%22&facet=true&facet.field=selected_top_level_ma_term&fq=parameter_name:%22LacZ%20Images%20Section%22&group=true&group.field=selected_top_level_ma_term
 
 		System.out.println("calling laczImages web page");
 		addGeneToPage(acc, model);
@@ -82,7 +82,7 @@ public class ImpcImagesController {
 	public String embryoLaczImages(@PathVariable String acc, @PathVariable String topLevelEmap, Model model)
 			throws SolrServerException, IOException , URISyntaxException {
 
-		// http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:2387599%22&facet=true&facet.field=selected_top_level_ma_term&fq=parameter_name:%22LacZ%20Images%20Section%22&group=true&group.field=selected_top_level_ma_term
+		// http://wp-np2-e1.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:2387599%22&facet=true&facet.field=selected_top_level_ma_term&fq=parameter_name:%22LacZ%20Images%20Section%22&group=true&group.field=selected_top_level_ma_term
 
 		System.out.println("calling embryolaczImages web page with specific term="+topLevelEmap);
 		addGeneToPage(acc, model);

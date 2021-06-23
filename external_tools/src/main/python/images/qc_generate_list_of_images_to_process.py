@@ -26,7 +26,7 @@ parser = argparse.ArgumentParser(
     description = "Setup QC for sites and submit qc script to LSF"
 )
 parser.add_argument('-H', '--host', dest='host', 
-                    default="ves-ebi-d0.ebi.ac.uk",
+                    default="wp-np2-e1.ebi.ac.uk",
                     help='host to use for solr query - defaults to dev'
 )
 parser.add_argument('-P', '--port', dest='port', default='8986',

@@ -485,7 +485,7 @@ public class ImageService extends BasicService implements WebStatus {
      */
 
     public Map<String, Set<String>> getImagePropertiesThatHaveMp(String acc) throws SolrServerException, IOException {
-        //http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1913955%22&fq=mp_id:*&facet=true&facet.mincount=1&facet.limit=-1&facet.field=colony_id&facet.field=mp_id&facet.field=mp_term&rows=0
+        //http://wp-np2-e1.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=gene_accession_id:%22MGI:1913955%22&fq=mp_id:*&facet=true&facet.mincount=1&facet.limit=-1&facet.field=colony_id&facet.field=mp_id&facet.field=mp_term&rows=0
         Map<String, Set<String>> mpToColony = new HashMap<>();
         SolrQuery query = new SolrQuery();
 

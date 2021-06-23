@@ -301,7 +301,7 @@
         				}	    
         		);	
     			oSettings.jqXHR = $.ajax( {
-    	               // "url": "http://ves-ebi-d0.ebi.ac.uk:8080/phenotype-archive-dev/dataTable",
+    	               // "url": "http://wp-np3-83.ebi.ac.uk:8080/phenotype-archive-dev/dataTable",
     	                "data": aoData,
     	                "success": fnCallback,
     	                "success": function(json){
