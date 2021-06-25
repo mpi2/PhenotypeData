@@ -382,7 +382,7 @@
                 _fetchCrispr();
 
 //                $.ajax({
-//                'url' : 'http://ves-ebi-d0:8090/mi/impc/dev/solr/allele2/select',
+//                'url' : 'http://wp-np2-e1:8090/mi/impc/dev/solr/allele2/select',
 //                'data' : 'q=type:Allele&facet=on&facet.field=es_cell_available&facet.field=mutation_type&facet.mincount=1&facet.limit=-1&rows=0&wt=json',
 //                'dataType' : 'jsonp',
 //                'jsonp' : 'json.wrf',
@@ -417,7 +417,7 @@
 
         function _fetchVelocigenes(){
             $.ajax({
-                'url': 'http://ves-ebi-d0:8090/mi/impc/dev/solr/allele2/select',
+                'url': 'http://wp-np2-e1:8090/mi/impc/dev/solr/allele2/select',
                 'data': 'q=type:Allele AND pipeline:"KOMP-Regeneron"&rows=0&wt=json',
                 'dataType': 'jsonp',
                 'jsonp': 'json.wrf',
@@ -433,7 +433,7 @@
         function _fetchKoFirst(){
             console.log("doing ko")
             $.ajax({
-              'url': 'http://ves-ebi-d0:8090/mi/impc/dev/solr/allele2/select',
+              'url': 'http://wp-np2-e1:8090/mi/impc/dev/solr/allele2/select',
               'data': 'q=type:Allele AND !feature_type:"CpG island" AND mutation_type:Targeted AND (mouse_available:true OR es_cell_available:true)&facet=on&facet.field=allele_type&facet.mincount=1&facet.limit=-1&rows=0&wt=json',
               'dataType': 'jsonp',
               'jsonp': 'json.wrf',
@@ -454,7 +454,7 @@
           }
         function _fetchCrispr(){
             $.ajax({
-             'url': 'http://ves-ebi-d0:8090/mi/impc/dev/solr/allele2/select',
+             'url': 'http://wp-np2-e1:8090/mi/impc/dev/solr/allele2/select',
              'data': 'q=type:Allele AND mutation_type:Endonuclease-mediated&facet=on&facet.field=allele_type&facet.limit=-1&facet.mincount=1&rows=0&wt=json',
              'dataType': 'jsonp',
              'jsonp': 'json.wrf',

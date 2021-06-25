@@ -9,7 +9,7 @@ import logging
 
 def main(argv):
     print "running solr main method"
-    solr=Solr("http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/")
+    solr=Solr("http://wp-np2-e1.ebi.ac.uk:8090/mi/impc/dev/solr/")
     solr.getAllPhenCenterPipelinesAndProceduresAndParameters()
 
 class Solr:
@@ -20,7 +20,7 @@ class Solr:
         self.solrExperimentRootUrl=solrRootUrl+"experiment/"
         self.logger.info("initialising solr python object with solr root url="+solrRootUrl)
         self.logger.info("initialising solr python object with solrExperimentRootUrl="+self.solrExperimentRootUrl)
-        #pipelines= http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=observation_type:image_record&fq=download_file_path:(download_file_path:*mousephenotype.org*%20AND%20!download_file_path:*.pdf%20!download_file_path:*.mov)&facet.mincount=1&facet=true&facet.field=pipeline_stable_id&wt=json&indent=on&rows=0
+        #pipelines= http://wp-np2-e1.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=observation_type:image_record&fq=download_file_path:(download_file_path:*mousephenotype.org*%20AND%20!download_file_path:*.pdf%20!download_file_path:*.mov)&facet.mincount=1&facet=true&facet.field=pipeline_stable_id&wt=json&indent=on&rows=0
         self.phenotyping_centers=[]
         self.pipelines=[]
         self.procedures=[]
@@ -30,10 +30,10 @@ class Solr:
 
         #self.getParametersForProcedureAndPipeline("TCP_001", "IMPC_XRY_001")
 
-    #procedures for pipeline=http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=observation_type:image_record&fq=download_file_path:(download_file_path:*mousephenotype.org*%20AND%20!download_file_path:*.pdf%20!download_file_path:*.mov%20AND%20pipeline_stable_id:TCP_001)&facet.mincount=1&facet=true&facet.field=procedure_stable_id&wt=json&indent=on&rows=0
-    #parameters for pipline, procedure http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=observation_type:image_record&fq=download_file_path:(download_file_path:*mousephenotype.org*%20AND%20!download_file_path:*.pdf%20!download_file_path:*.mov%20AND%20pipeline_stable_id:TCP_001%20AND%20procedure_stable_id:IMPC_XRY_001)&facet.mincount=1&facet=true&facet.field=parameter_stable_id&wt=json&indent=on&rows=0
+    #procedures for pipeline=http://wp-np2-e1.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=observation_type:image_record&fq=download_file_path:(download_file_path:*mousephenotype.org*%20AND%20!download_file_path:*.pdf%20!download_file_path:*.mov%20AND%20pipeline_stable_id:TCP_001)&facet.mincount=1&facet=true&facet.field=procedure_stable_id&wt=json&indent=on&rows=0
+    #parameters for pipline, procedure http://wp-np2-e1.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=observation_type:image_record&fq=download_file_path:(download_file_path:*mousephenotype.org*%20AND%20!download_file_path:*.pdf%20!download_file_path:*.mov%20AND%20pipeline_stable_id:TCP_001%20AND%20procedure_stable_id:IMPC_XRY_001)&facet.mincount=1&facet=true&facet.field=parameter_stable_id&wt=json&indent=on&rows=0
     #get first 100 image_record names for pipeline, procedure, parameter
-    #http://ves-ebi-d0.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=observation_type:image_record&fq=download_file_path:(download_file_path:*mousephenotype.org*%20AND%20!download_file_path:*.pdf%20!download_file_path:*.mov%20AND%20pipeline_stable_id:TCP_001%20AND%20procedure_stable_id:IMPC_XRY_001%20AND%20parameter_stable_id:IMPC_XRY_048_001)&facet.mincount=1&facet=true&facet.field=parameter_stable_id&wt=json&indent=on&rows=100
+    #http://wp-np2-e1.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=observation_type:image_record&fq=download_file_path:(download_file_path:*mousephenotype.org*%20AND%20!download_file_path:*.pdf%20!download_file_path:*.mov%20AND%20pipeline_stable_id:TCP_001%20AND%20procedure_stable_id:IMPC_XRY_001%20AND%20parameter_stable_id:IMPC_XRY_048_001)&facet.mincount=1&facet=true&facet.field=parameter_stable_id&wt=json&indent=on&rows=100
 
     #get a map of directories paths to list of filenames
 

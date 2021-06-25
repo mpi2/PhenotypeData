@@ -22,7 +22,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.enumerations.BiologicalSampleType;
-import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.generic.util.JSONImageUtils;
 import org.mousephenotype.cda.solr.service.*;
 import org.mousephenotype.cda.solr.service.SolrIndex.AnnotNameValCount;
@@ -118,8 +117,6 @@ public class FileExportController {
 			@RequestParam(value = "strain", required = false) List<String> strains
 	) throws SolrServerException, IOException, URISyntaxException, SQLException {
 
-		String sex = (sexesParameter != null && sexesParameter.length > 1) ? SexType.valueOf(sexesParameter[0]).getName() : "null";
-
 		if (alleleAccession!=null) {
 			alleleAccessionId = alleleAccession;
 		}
@@ -132,7 +129,7 @@ public class FileExportController {
 		String[] centerArray = {phenotypingCenter};
 		String[] pipelineArray = {pipelineStableId};
 
-		List<String> dataRowsForExperiment = getDataRowsForExperiment(alleleArray, geneArray, parameterArray, zygositiesParameter, strains, sex, centerArray, pipelineArray);
+		List<String> dataRowsForExperiment = getDataRowsForExperiment(alleleArray, parameterArray, zygositiesParameter, strains, centerArray, pipelineArray);
 
 
 		// Update the header rows to have more PhenStat friendly names
@@ -286,7 +283,7 @@ public class FileExportController {
 						strainIds.addAll(observationService.getStrainsForGene(gene));
 					}
 				}
-				dataRows = getDataRowsForExperiment(alleles, mgiGeneId, parameterStableId, zygosities, strainIds, sex, phenotypingCenter, pipelineStableId);
+				dataRows = getDataRowsForExperiment(alleles, parameterStableId, zygosities, strainIds, phenotypingCenter, pipelineStableId);
 			} else {
 				JSONObject json = solrIndex.getDataTableExportRows(solrCoreName, solrFilters, gridFields, rowStart,
 						length, showImgView);
@@ -300,11 +297,9 @@ public class FileExportController {
 	}
 
 	private List<String> getDataRowsForExperiment(List<String> allele,
-												  List<String> mgiGeneId,
 												  String[] parameterStableId,
 												  String[] zygosities,
 												  List<String> strains,
-												  String sex,
 												  String[] phenotypingCenter,
 												  String[] pipelineStableId) throws SolrServerException, IOException, URISyntaxException, SQLException {
 		List<String> dataRows;
@@ -344,12 +339,25 @@ public class FileExportController {
 		for (String parameter : new HashSet<>(parameters)) {
 			for (String center : centers) {
 				for (String pipeline : pipelines) {
-					for (String strain : strains) {
-						for (String allele : alleles) {
+					for (String allele : alleles) {
 
+						if (strains != null) {
+							for (String strain : strains) {
+
+								List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(
+										parameter, pipeline,
+										center, zygosities, strain, null, allele);
+
+								if (experimentList.size() > 0) {
+									for (ExperimentDTO experiment : experimentList) {
+										rows.addAll(experiment.getTabbedToString());
+									}
+								}
+							}
+						} else {
 							List<ExperimentDTO> experimentList = experimentService.getExperimentDTO(
 									parameter, pipeline,
-									center, zygosities, strain, null, allele);
+									center, zygosities, null, null, allele);
 
 							if (experimentList.size() > 0) {
 								for (ExperimentDTO experiment : experimentList) {
