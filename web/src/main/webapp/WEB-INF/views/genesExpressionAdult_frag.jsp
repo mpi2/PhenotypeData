@@ -164,7 +164,7 @@
                             <c:forEach var="entry" items="${sectionExpressionImagesBean.filteredTopLevelAnatomyTerms}" varStatus="status">
                                 <c:set var="image_url"
                                        scope="page"
-                                       value="${baseUrl}/imageComparator?acc=${acc}&anatomy_term=${entry.name}&parameter_stable_id=IMPC_ALZ_076_001"></c:set>
+                                       value="${baseUrl}/imageComparator?acc=${acc}&anatomy_term=${entry.name}&parameter_stable_id=IMPC_ALZ_075_001"></c:set>
                                 <c:set var="img"
                                        value="${sectionExpressionImagesBean.expFacetToDocs[entry.name][0]}"></c:set>
                                 <div class="col mb-4 col-6 col-md-4 col-lg-3">
