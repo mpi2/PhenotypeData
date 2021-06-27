@@ -23,7 +23,7 @@
                             <td>
                                 <c:if test="${embryoWtAnatomyToRow[mapEntry.key].wholemountImagesAvailable}">
                                     <a
-                                            href='${baseUrl}/imageComparator?acc=${acc}&anatomy_id=${mapEntry.value.abnormalAnatomyId}&parameter_stable_id=IMPC_ALZ_076_001'
+                                            href='${baseUrl}/imageComparator?acc=${acc}&anatomy_id=${mapEntry.value.abnormalAnatomyId}&parameter_stable_id=IMPC_ELZ_064_001'
                                             class="mr-1" style="font-size: small"><i
                                             title="Wholemount Images available (click on this icon to view images)"
                                             class="fa fa-image"
@@ -33,7 +33,7 @@
                                 <c:if
                                         test="${embryoWtAnatomyToRow[mapEntry.key].sectionImagesAvailable}">
                                     <a
-                                            href='${baseUrl}/imageComparator?acc=${acc}&anatomy_id=${mapEntry.value.abnormalAnatomyId}&parameter_stable_id=IMPC_ALZ_075_001'
+                                            href='${baseUrl}/imageComparator?acc=${acc}&anatomy_id=${mapEntry.value.abnormalAnatomyId}&parameter_stable_id=IMPC_ELZ_063_001'
                                             class="mr-1" style="font-size: small"><i
                                             title="Section Images available (click on this icon to view images)"
                                             class="fa fa-image"
@@ -95,7 +95,7 @@
                             <c:forEach var="entry" items="${wholemountExpressionImagesEmbryoBean.filteredTopLevelAnatomyTerms}" varStatus="status">
                                 <c:set var="image_url"
                                        scope="page"
-                                       value="${baseUrl}/imageComparator?acc=${acc}&anatomy_term=${entry.name}&parameter_stable_id=IMPC_ALZ_076_001" />
+                                       value="${baseUrl}/imageComparator?acc=${acc}&anatomy_term=${entry.name}&parameter_stable_id=IMPC_ELZ_064_001" />
                                 <c:set var="img"
                                        value="${wholemountExpressionImagesEmbryoBean.expFacetToDocs[entry.name][0]}" />
                                 <div class="col mb-4 col-6 col-md-4 col-lg-3">
@@ -144,7 +144,7 @@
                             <c:forEach var="entry" items="${sectionExpressionImagesEmbryoBean.filteredTopLevelAnatomyTerms}" varStatus="status">
                                 <c:set var="image_url"
                                        scope="page"
-                                       value="${baseUrl}/imageComparator?acc=${acc}&anatomy_term=${entry.name}&parameter_stable_id=IMPC_ALZ_076_001"></c:set>
+                                       value="${baseUrl}/imageComparator?acc=${acc}&anatomy_term=${entry.name}&parameter_stable_id=IMPC_ELZ_063_001"></c:set>
                                 <c:set var="img"
                                        value="${sectionExpressionImagesEmbryoBean.expFacetToDocs[entry.name][0]}"></c:set>
                                 <div class="col mb-4 col-6 col-md-4 col-lg-3">
@@ -155,7 +155,8 @@
                                             <c:if test="${entry.name == 'Unassigned Top Level MA'}">
                                                 <c:set var="tissue_name" value="Unassigned tissue" />
                                             </c:if>
-                                            <h5 class="card-title">${tissue_name} (${entry.count})</h5>                                <p class="card-text">
+                                            <h5 class="card-title">${tissue_name} (${entry.count})</h5>
+                                            <p class="card-text">
                                             <c:if test="${not empty img.parameter_association_name}">
                                                 <c:forEach items="${img.parameter_association_name}" varStatus="status">
                                                     <c:out value="${img.parameter_association_name[status.index]}" /><c:if test="${!status.last}">, </c:if>
