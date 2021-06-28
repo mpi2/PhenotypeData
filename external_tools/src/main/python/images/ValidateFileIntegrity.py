@@ -105,13 +105,20 @@ if __name__ == "__main__":
     for f in nfs_file_list:
         try:
             if f.endswith('dcm'):
-                helper.readDicom(f)
+                im = helper.readDicom(f)
             else:
                 im = plt.imread(f)
+            # If image is empty add it to corrupt files list
+            # KB 28/06/2021 - this seems unintuitive, but in dr14 there were
+            # two images with no data!
+            if im.size < 1:
+                raise Exception(f + " does not contain image data")
         except Exception as e:
-            logger.error("Could not open " + f + ". Error was: " + str(e))
+            logger.error("Problem with " + f + ". Error was: " + str(e))
             n_invalid += 1
             corrupt_files.append(os.path.abspath(f)+'\n')
+
+            
 
     logger.info("Number of invalid files: " + str(n_invalid))
     
