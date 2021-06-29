@@ -558,7 +558,7 @@
                                                 </div>
                                             </div>
                                             <div class="mb-4">
-                                                <p><a href="#" class="btn btn-primary btn-sm"><i class="far fa-shopping-cart fa-xs mr-2"></i>Order Alleles</a></p>
+                                                <p><a href="#order" class="btn btn-primary btn-sm"><i class="far fa-shopping-cart fa-xs mr-2"></i>Order Alleles</a></p>
                                             </div>
                                             <div>
                                                 <h4 class="pt-2">IMPC Data Collections</h4>
@@ -575,7 +575,7 @@
                                                     <li><c:if test="${gene.embryoDataAvailable}"><a id="embryoViewerBtn" href="${cmsBaseUrl}/embryoviewer/?mgi=${acc}">Embryo Imaging Data</a>
                                                     </c:if><c:if test="${not gene.embryoDataAvailable}">No Embryo Imaging Data</c:if>
                                                     </li>
-                                                    <li><a href="#">Viability Data <i class="far fa-chevron-right fa-xs ml-2"></i></a></li>
+                                                    <li><t:viabilityButton callList="${viabilityCalls}" geneAcc="${gene.mgiAccessionId}" /></li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -842,7 +842,7 @@
                                     </a>
                                 </h2>
                                 <p>
-                                    An assay measuring the expression of lacZ shows the tissue where the gene is expressed. At IMPC we measure both Adult and Embryo expression. Background staining occurs in adult wild type mice at a measurable rate.
+                                    An assay measuring the expression of lacZ shows the tissue where the gene is expressed. At IMPC we measure both Adult and Embryo expression. Background staining occurs in wild type mice and embryos at a measurable rate.
                                 </p>
                             </div>
                             <div>
@@ -944,7 +944,7 @@
                                                 <div class="tab-pane fade" id="embryo-wt-expression" role="tabpanel" aria-labelledby="embryo-wt-expression-tab">
                                                     <c:choose>
                                                         <c:when test="${not empty embryoExpressionAnatomyToRow}">
-                                                            <jsp:include page="genesExpressionEmbryo_frag.jsp"></jsp:include>
+                                                            <jsp:include page="genesExpressionWTEmbryo_frag.jsp"></jsp:include>
                                                         </c:when>
                                                         <c:otherwise>
                                                             <div class="alert alert-warning mt-3">

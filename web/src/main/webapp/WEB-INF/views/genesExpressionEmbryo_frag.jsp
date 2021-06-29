@@ -2,7 +2,6 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@page import="org.apache.commons.text.WordUtils" %>
 
 <%-- EXPRESSION DATA TABLE --%>
 <div id="embryo-expression-table" class="row justify-content-center">
@@ -22,7 +21,7 @@
                             <td><span>${mapEntry.value.abnormalAnatomyName}</span></td>
 
                             <td>
-                                <c:if test="${embryoWtAnatomyToRow[mapEntry.key].wholemountImagesAvailable}">
+                                <c:if test="${embryoExpressionAnatomyToRow[mapEntry.key].wholemountImagesAvailable}">
                                     <a
                                             href='${baseUrl}/imageComparator?acc=${acc}&anatomy_id=${mapEntry.value.abnormalAnatomyId}&parameter_stable_id=IMPC_ELZ_064_001'
                                             class="mr-1" style="font-size: small"><i
@@ -32,7 +31,7 @@
                                     </a>
                                 </c:if>
                                 <c:if
-                                        test="${embryoWtAnatomyToRow[mapEntry.key].sectionImagesAvailable}">
+                                        test="${embryoExpressionAnatomyToRow[mapEntry.key].sectionImagesAvailable}">
                                     <a
                                             href='${baseUrl}/imageComparator?acc=${acc}&anatomy_id=${mapEntry.value.abnormalAnatomyId}&parameter_stable_id=IMPC_ELZ_063_001'
                                             class="mr-1" style="font-size: small"><i
@@ -41,14 +40,14 @@
                                             alt="Images"></i>&nbsp;Section images
                                     </a>
                                 </c:if>
-                                <c:if test="${not embryoWtAnatomyToRow[mapEntry.key].sectionImagesAvailable and not embryoWtAnatomyToRow[mapEntry.key].wholemountImagesAvailable}">
+                                <c:if test="${not embryoExpressionAnatomyToRow[mapEntry.key].sectionImagesAvailable and not embryoExpressionAnatomyToRow[mapEntry.key].wholemountImagesAvailable}">
                                 <span>
                                     N/A
                                 </span>
                                 </c:if>
                             </td>
 
-                            <td></td>
+                            <td><span>${mapEntry.value.zygosity}</span></td>
                             <td>
                                 <c:choose>
                                     <c:when test="${mapEntry.value.expression}">

@@ -4,10 +4,6 @@
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@page import="org.apache.commons.text.WordUtils" %>
 
-<p>
-    Background staining occurs in adult wild type mice at a measurable rate.
-</p>
-
 <%-- EXPRESSION DATA TABLE --%>
 <div id="adult-wt-expression-table" class="row justify-content-center">
     <div class="container p-0 p-md-2">
@@ -19,9 +15,9 @@
                     <th data-width="100px" data-halign="right">WT Expr</th>
                     </thead>
                     <tbody>
-                    <c:forEach var="mapEntry" items="${expressionAnatomyToRow}">
+                    <c:forEach var="mapEntry" items="${wtAnatomyToRow}">
                         <tr>
-                            <td><span>${mapEntry.value.abnormalAnatomyName}</span></td>
+                            <td><span>${mapEntry.key}</span></td>
 
                             <td data-align="right">
                                 <c:choose>
@@ -36,7 +32,7 @@
                                     </c:when>
 
                                     <c:otherwise>
-                                        <span title="Ambiguous" class="${ambiguousIcon} ${amColor}"></span>
+                                        <span title="Ambiguous"></span>
                                     </c:otherwise>
                                 </c:choose>
                             </td>
