@@ -200,26 +200,244 @@
                  border: thin solid #8e8e8e;
              }
 
-             .accordion .accordion-title{
-                 cursor: pointer;
-                 border-bottom: 1px solid #eee;
-                 padding-bottom: 20px;
-                 margin-bottom: 40px;
-             }
-             .accordion .card .card-text{
-                 font-size: 16px;
-             }
-             .accordion .card .card-title{
+
+             .card .card-title{
                  text-transform: capitalize;
              }
-             .accordion .card .card-footer {
+             .card .card-footer {
                  border-top: none;
              }
-             .accordion .card .card-footer .btn{
+             .card .card-footer a {
                  border-radius: 0 0 0.25rem 0.25rem;
              }
+
+             .btn.disabled, fieldset:disabled a.btn{
+                 background: #AEAEAE;
+                 color: #fff;
+                 opacity: 1;
+             }
+
+             .phenogrid-key .key span{
+                 vertical-align: middle;
+             }
+             .phenogrid-key .key:before {
+                 content: "";
+                 display: inline-block;
+                 width: 10px;
+                 height: 10px;
+                 margin-right: 5px;
+                 vertical-align: middle;
+             }
+             .phenogrid-key .key.key-significant:before {
+                 background-color: #ce6211;
+             }
+             .phenogrid-key .key.key-not-significant:before {
+                 background-color: #17a2b8;
+             }
+             .phenogrid-key .key.key-not-tested:before {
+                 background-color: #6c757d;
+             }
+
+             /*Tabs*/
+             .nav-tabs {
+                 border-bottom: 1px solid #dee2e6;
+                 margin-bottom: 30px;
+             }
+             .nav-tabs .nav-link {
+                 border: 1px solid #D6D9DC;
+                 border-top-left-radius: 0.25rem;
+                 border-top-right-radius: 0.25rem;
+                 background: #ECEFF1;
+                 color: #000;
+                 margin-right: -1px;
+             }
+             .nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link {
+                 color: #000;
+                 background-color: #fff;
+                 border-color: #ED7B25 #D6D9DC #fff;
+                 border-top-width: 4px;
+                 padding: 0.4em 1em;
+             }
+
          </style>
 
+
+
+
+    </jsp:attribute>
+
+
+    <jsp:attribute name="addToFooter">
+
+<script>
+
+    var phenotypeSystemToMpTerms = {
+        "mortality/aging": ["MP:0010768"],
+        "embryo phenotype": ["MP:0005380"],
+        "reproductive system phenotype": ["MP:0005389"],
+        "growth/size/body region phenotype": ["MP:0005378"],
+        "homeostasis/metabolism phenotype or adipose tissue phenotype": ["MP:0005376", "MP:0005375"],
+        "behavior/neurological phenotype or nervous system phenotype": ["MP:0005386", "MP:0003631"],
+        "cardiovascular system phenotype": ["MP:0005385"],
+        "respiratory system phenotype": ["MP:0005388"],
+        "digestive/alimentary phenotype or liver/biliary system phenotype": ["MP:0005381", "MP:0005370"],
+        "renal/urinary system phenotype": ["MP:0005367"],
+        "limbs/digits/tail phenotype": ["MP:0005371"],
+        "skeleton phenotype": ["MP:0005390"],
+        "immune system phenotype or hematopoietic system phenotype": ["MP:0005387", "MP:0005397"],
+        "muscle phenotype": ["MP:0005369"],
+        "integument phenotype or pigmentation phenotype": ["MP:0010771", "MP:0001186"],
+        "craniofacial phenotype": ["MP:0005382"],
+        "hearing/vestibular/ear phenotype": ["MP:0005377"],
+        "taste/olfaction phenotype": ["MP:0005394"],
+        "endocrine/exocrine gland phenotype": ["MP:0005379"],
+        "vision/eye phenotype": ["MP:0005391"]
+    };
+
+    function removeOption(filterName, value) {
+        $("#systemSelector" + filterName + " option[value='" + value + "']").prop("selected", false);
+        $('#systemSelector' + filterName).selectpicker('render');
+        filterAllData(filterName);
+    }
+
+    function filterAllData(filterName) {
+        var val = [];
+        var legend = '';
+        $('#systemSelector' + filterName).val().forEach(function (value) {
+            var mpTerm = value.split('|')[0];
+            var name = value.split('|')[1];
+            var significance = value.split('|')[2];
+            var icon = value.split('|')[3];
+            val.push(phenotypeSystemToMpTerms[name]);
+            var color = significance === 'significant' ? 'badge-primary' : 'badge-info';
+            legend += '<span class="badge badge-pill filter-badge ' + color + ' mr-1"><i class="badge-icon ' + icon + '"></i> ' + name.replace(/phenotype/g, "") + ' <i class="close-badge fas fa-times" onclick="removeOption(\'' + filterName + '\',\'' + value + '\')"></i></span>';
+        });
+        legend = legend === '' ? ' all phenotypes' : legend;
+        $('#ph' + filterName + 'DataTitle').html(legend);
+        var content_id = '#all-' + filterName.toLocaleLowerCase();
+        $(content_id).html("     <div class=\"pre-content\">\n" +
+            "                        <div class=\"row no-gutters\">\n" +
+            "                            <div class=\"col-12 my-5\">\n" +
+            "                                <p class=\"h4 text-center text-justify\"><i class=\"fas fa-atom fa-spin\"></i> A moment please while we gather the data . . . .</p>\n" +
+            "                            </div>\n" +
+            "                        </div>\n" +
+            "                    </div>");
+        $('#phenotypesTab').scrollTop();
+        $.ajax({
+            url: baseUrl + '/experiments' + filterName + 'Frag?geneAccession=' + '${gene.mgiAccessionId}' + '&mpTermId=' + val.join(','),
+            type: 'GET',
+            success: function (data) {
+                $(content_id).html(data);
+            }
+        });
+    }
+
+    var firstChart = true;
+    var firstTable = true;
+    var currentView = 'chart';
+    var placeholderText = "<div class=\"pre-content\">\n" +
+        "    <div class=\"row no-gutters\">\n" +
+        "        <div class=\"col-12 my-5\">\n" +
+        "            <p class=\"h4 text-center text-justify\"><i class=\"fas fa-atom fa-spin\"></i> A moment please while we gather the data . . . .</p>\n" +
+        "        </div>\n" +
+        "    </div>\n" +
+        "</div>";
+
+    function chartClick() {
+        if (firstChart) {
+            $('#all-chart').html(placeholderText);
+            $.ajax({
+                url: baseUrl + '/experimentsChartFrag?geneAccession=' + '${gene.mgiAccessionId}',
+                type: 'GET',
+                success: function (data) {
+                    $('#all-chart').html(data);
+                    firstChart = false;
+                }
+            });
+        }
+    }
+
+    function tableClick() {
+        if (firstTable) {
+            $('#all-table').html(placeholderText);
+            $.ajax({
+                url: baseUrl + '/experimentsTableFrag?geneAccession=' + '${gene.mgiAccessionId}',
+                type: 'GET',
+                success: function (data) {
+                    $('#all-table').html(data);
+                    firstTable = false;
+                }
+            });
+        }
+    }
+
+    if (window.location.hash == '#alldatatable') {
+        tableClick();
+        $("#alldatatable-tab").click();
+    }
+
+    <c:if test='${measurementsChartNumber > 0}'>$("#alldatachart-tab").on('click', chartClick);
+    </c:if>
+    <c:if test='${allMeasurementsNumber > 0}'>$("#alldatatable-tab").on('click', tableClick);
+    </c:if>
+
+    <c:if test='${rowsForPhenotypeTable.size() <= 0 && measurementsChartNumber > 0}'>
+    $(document).ready(chartClick);
+    </c:if>
+    <c:if test='${rowsForPhenotypeTable.size() <= 0 && measurementsChartNumber <= 0 && allMeasurementsNumber > 0}'>
+    $(document).ready(tableClick);
+    </c:if>
+
+
+    // disease tables drive by phenodigm core
+
+    var diseaseDetailFilter = function(index, row) {
+        return $(row[2]).text().length > 1;
+    }
+    var toggleDetail = function(index) {
+        $('#diseases_by_annotation').bootstrapTable('toggleDetailView', index)
+    }
+    var diseaseDetailFormatter = function(index, row) {
+        var gridColumnWidth = 25;
+        var gridRowHeight = 50;
+
+        $.ajax({
+            url: row._data['link'],
+            type: 'GET',
+            success: function (data) {
+                Phenogrid.createPhenogridForElement($('div#phenodigm' + index), {
+                    // sort method of sources: "Alphabetic", "Frequency and Rarity", "Frequency,
+                    selectedSort: "Frequency and Rarity",
+                    gridSkeletonDataVendor: 'IMPC',
+                    gridSkeletonData: data,
+                    singleTargetModeTargetLengthLimit: gridColumnWidth,
+                    sourceLengthLimit: gridRowHeight
+                });
+            }
+        });
+        return '<div id="phenodigm' + index + '"></div>';
+    }
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        $('#diseases_by_annotation').bootstrapTable({ classes: 'table'});
+        $('#publications_table').bootstrapTable({ classes: 'table'});
+
+        $('#significantPhenotypesTable').on('click-row.bs.table', function (e, row) {
+            if (row._data['link']) {
+                window.location = row._data['link'];
+            }
+        });
+
+        $('#histopathPhenotypesTable').on('click-row.bs.table', function (e, row) {
+            if (row._data['link']) {
+                window.location = row._data['link'];
+            }
+        });
+
+    });
+</script>
     </jsp:attribute>
 
     <jsp:body>
@@ -233,19 +451,23 @@
         </c:if>
 
 
+
+        <!-- Orange header layout -->
         <div class="container data-heading">
             <div class="row">
-
                 <noscript>
                     <div class="col-12 no-gutters">
-                        <h5 style="float: left">Please enable javascript if you want to log in to follow or stop
-                            following this gene.</h5>
+                        <h5 style="float: left">
+                            Please enable javascript if you want to log in to follow or stop following this gene.</h5>
                     </div>
                 </noscript>
 
                 <div class="col-12 no-gutters">
-                    <h1 style="float: left" class="h1 m-0"><b>Gene: ${gene.markerSymbol}</b></h1>
-                    <span class="fa-2x">
+                    <h1 class="h1 m-0 d-inline-block">
+                        <b>Gene: ${gene.markerSymbol}</b>
+                        <small style="font-size: 24px">${gene.mgiAccessionId} <i class="fal fa-info-circle fa-xs align-middle"></i></small>
+                    </h1>
+                    <span>
                         <c:choose>
                             <c:when test="${isFollowing}">
                                 <c:set var="followText" value="Unfollow"/>
@@ -272,54 +494,358 @@
                             </c:when>
                             <c:otherwise>
                                 <a href="${baseUrl}/rilogin?target=${baseUrl}/genes/${acc}"
-                                   class="mt-1 btn btn-primary"
+                                   class="mt-1 btn btn-outline-dark"
                                    style="float: right"
                                    title="Log in to My genes">Log in to follow</a>
                             </c:otherwise>
                         </c:choose>
                         <a href="${cmsBaseUrl}/help/gene-page/" target="_blank">
-                            <i class="mt-2 fa fa-question-circle" style="float: right; color: #212529; padding-right: 10px;"></i></a>
+                            <i class="fa-2x mt-2 fa fa-question-circle" style="float: right; color: #212529; padding-right: 10px;"></i></a>
                     </span>
                 </div>
             </div>
         </div>
 
+        <%-- GENE SUMMARY SECTION --%>
         <div class="container white-bg-small">
             <div class="row pb-5">
                 <div class="col-12 col-md-12">
                     <div class="pre-content clear-bg">
                         <div class="page-content people py-5 white-bg">
-                            <jsp:include page="genesPhenotypeAssociation_frag.jsp"/>
+                            <div class="container-fluid">
+
+                                <c:if test="${ attemptRegistered && !phenotypeStarted }">
+                                    <div class="alert alert-info mb-5">
+                                        <h5>Registered for phenotyping at IMPC</h5>
+                                        <p>Phenotyping is planned for a knockout strain of this gene but data is not currently available.</p>
+                                    </div>
+                                </c:if>
+
+                                <c:if test="${!attemptRegistered and allMeasurementsNumber <= 0}">
+                                    <div class="alert alert-info mb-5">
+                                        <h5>Not currently registered for phenotyping at IMPC</h5>
+                                        <p>Phenotyping is currently not planned for a knockout strain of this gene.</p>
+                                    </div>
+                                </c:if>
+
+                                <!-- Gene summary section layout -->
+                                <div class="row">
+
+                                    <div class="col-lg-8">
+                                        <div id="phenoSumSmallDiv">
+                                            <h2>Gene Summary</h2>
+                                            <div class="row no-gutters mb-2">
+                                                <div class="col-2">
+                                                    <div class="font-weight-bold">Name:</div>
+                                                </div>
+                                                <div class="col">
+                                                    <span>${gene.markerName}</span>
+                                                </div>
+                                            </div>
+                                            <div class="row no-gutters mb-4">
+                                                <div class="col-2">
+                                                    <div class="font-weight-bold">Synonyms:</div>
+                                                </div>
+                                                <div class="col">
+                                                    <c:if test="${(not empty gene.markerSynonym)}">
+                                                        <c:forEach var="synonym" items="${gene.markerSynonym}" varStatus="loop">
+                                                            <span><t:formatAllele>${synonym}</t:formatAllele><c:if test="${!loop.last}">,&nbsp;</c:if></span>
+                                                        </c:forEach>
+                                                    </c:if>
+                                                    <c:if test="${(empty gene.markerSynonym)}">
+                                                        N/A
+                                                    </c:if>
+                                                </div>
+                                            </div>
+                                            <div class="mb-4">
+                                                <p><a href="#" class="btn btn-primary btn-sm"><i class="far fa-shopping-cart fa-xs mr-2"></i>Order Alleles</a></p>
+                                            </div>
+                                            <div>
+                                                <h4 class="pt-2">IMPC Data Collections</h4>
+                                                <ul class="list-unstyled">
+                                                    <li>
+                                                        <c:if test="${bodyWeight}">
+                                                            <a href="${baseUrl}/charts?accession=${acc}&parameter_stable_id=IMPC_BWT_008_001&procedure_stable_id=IMPC_BWT_001&chart_type=TIME_SERIES_LINE"
+                                                               title="Body Weight Measurements">Body Weight Measurements <i class="far fa-chevron-right fa-xs ml-2"></i></a>
+                                                        </c:if>
+                                                        <c:if test="${not bodyWeight}">
+                                                            No Body Weight Data
+                                                        </c:if>
+                                                    </li>
+                                                    <li><c:if test="${gene.embryoDataAvailable}"><a id="embryoViewerBtn" href="${cmsBaseUrl}/embryoviewer/?mgi=${acc}">Embryo Imaging Data</a>
+                                                    </c:if><c:if test="${not gene.embryoDataAvailable}">No Embryo Imaging Data</c:if>
+                                                    </li>
+                                                    <li><a href="#">Viability Data <i class="far fa-chevron-right fa-xs ml-2"></i></a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-4">
+                                        <h4 class="mt-2">IMPC Phenotype Summary</h4>
+                                        <jsp:include page="phenotype_icons_frag.jsp"/>
+                                        <div class="mt-4">
+                                            <p><a href="#">View all our phenotype data below <i class="far fa-chevron-down ml-2"></i></a></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <%-- EXPRESSION SECTION--%>
-        <div class="container" id="expression">
-            <div class="row pb-2">
+        <%-- PHENOTYPE SECTION --%>
+        <div class="container white-bg-small" id="phenotypes">
+            <div class="row pb-5">
                 <div class="col-12 col-md-12">
-                    <h2 class="h2"><b><i class="icon icon-conceptual icon-expression"></i>&nbsp;Expression</b></h2>
+                    <div class="pre-content clear-bg">
+                        <div class="page-content p-5">
+                            <div class="mb-5">
+                                <h2>
+                                    Phenotypes
+                                    <a href="${cmsBaseUrl}/help/gene-page/phenotype/" title="Go to phenotype help">
+                                        <i class="fal fa-question-circle fa-xs text-muted align-middle" style="font-size: 20px;"></i>
+                                    </a>
+                                </h2>
+                                <p>The IMPC applies a panel of phenotyping screens to characterise single-gene knockout mice by comparison to wild types. Click on the different tabs to visualise significant phenotypes identified by the IMPC, as well as all data that was measured.</p>
+                            </div>
+                            <div>
+
+                                <c:if test='${notsignificantTopLevelMpGroups.size() > 0 || rowsForPhenotypeTable.size() > 0 || allMeasurementsNumber > 0}'>
+
+
+                                    <ul class="nav nav-tabs" id="phenotypesTab" role="tablist">
+                                        <li class="nav-item">
+                                            <c:if test='${rowsForPhenotypeTable.size() > 0}'>
+                                                <a class="nav-link active" id="significant-tab" data-toggle="tab" href="#significant"
+                                                   role="tab" aria-controls="significant-tab" aria-selected="true"><i
+                                                        class="fal fa-file-medical-alt"></i>&nbsp; Significant phenotypes
+                                                    (<span id="significantCount">${rowsForPhenotypeTable.size()}</span>/${rowsForPhenotypeTable.size()})</a>
+                                            </c:if>
+                                            <c:if test='${rowsForPhenotypeTable.size() <= 0}'>
+                                                <a class="nav-link" id="significant-tab" data-toggle="tab" href="#significant"
+                                                   role="tab" aria-controls="significant-tab" aria-selected="false"><i
+                                                        class="fal fa-file-medical-alt"></i>&nbsp; Significant phenotypes (0)</a>
+                                            </c:if>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link${(rowsForPhenotypeTable.size() <= 0 && measurementsChartNumber > 0) ? ' active' : ''}"
+                                               id="alldatachart-tab"
+                                               data-toggle="tab" href="#alldatachart"
+                                               role="tab" aria-controls="alldatachart-tab"
+                                               aria-selected="${rowsForPhenotypeTable.size() <= 0 ? 'true' : 'false'}"><i
+                                                    class="fal fa-chart-scatter"></i>&nbsp;
+                                                Measurements chart (<span
+                                                        id="allDataChartCount">${measurementsChartNumber}</span>/${measurementsChartNumber})</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link${(rowsForPhenotypeTable.size() <= 0 && measurementsChartNumber <= 0)? ' active' : ''}"
+                                               id="alldatatable-tab"
+                                               data-toggle="tab" href="#alldatatable"
+                                               role="tab" aria-controls="alldatatable-tab"
+                                               aria-selected="${rowsForPhenotypeTable.size() <= 0 ? 'true' : 'false'}"><i
+                                                    class="fal fa-ruler-combined"></i>&nbsp;
+                                                All data table (<span
+                                                        id="allDataTableCount">${allMeasurementsNumber}</span>/${allMeasurementsNumber})</a>
+                                            <c:if test='${allMeasurementsNumber <= 0}'>
+                                                <a class="nav-link active" id="alldatatable-tab" data-toggle="tab" href="#alldatatable"
+                                                   role="tab" aria-controls="alldatatable-tab" aria-selected="false"><i
+                                                        class="fal fa-ruler-combined"></i>&nbsp;
+                                                    All data table (0)</a>
+                                            </c:if>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content" id="phenotypesTabContent" id="phenotypeAssociations">
+                                        <c:if test='${rowsForPhenotypeTable.size() <= 0}'>
+                                            <div class="tab-pane fade" id="significant" role="tabpanel" aria-labelledby="significant-tab">
+                                                <c:if test="${ attemptRegistered && phenotypeStarted }">
+                                                    <div class="alert alert-warning mt-3" role="alert">
+                                                        No results meet the p-value threshold
+                                                    </div>
+                                                </c:if>
+                                            </div>
+                                        </c:if>
+                                        <!-- Associations table -->
+                                        <c:if test='${rowsForPhenotypeTable.size() > 0}'>
+                                            <div class="tab-pane fade show active" id="significant" role="tabpanel"
+                                                 aria-labelledby="significant-tab">
+                                                <div id="phenotypeTableDiv" class="inner-division">
+                                                    <div class="row">
+                                                        <div class="container p-0 p-md-2">
+                                                            <div class="row" id="phenotypesDiv">
+                                                                <div class="container p-0 p-md-2">
+                                                                    <c:if test="${not empty rowsForPhenotypeTable}">
+                                                                        <div class="row">
+                                                                            <div class="col" id="target" action="destination.html">
+
+                                                                                    <%--c:forEach
+                                                                                            var="phenoFacet" items="${phenoFacets}"
+                                                                                            varStatus="phenoFacetStatus">
+                                                                                        <select id="top_level_mp_term_name" class="selectpicker"
+                                                                                                multiple="multiple"
+                                                                                                title="Filter on ${phenoFacet.key}">
+                                                                                            <c:forEach
+                                                                                                    var="facet" items="${phenoFacet.value}">
+                                                                                                <option>${facet.key}</option>
+                                                                                            </c:forEach>
+                                                                                        </select>
+                                                                                    </c:forEach--%>
+
+                                                                            </div>
+                                                                        </div>
+
+
+                                                                        <c:set var="count" value="0" scope="page"/>
+
+                                                                        <c:forEach var="phenotype" items="${rowsForPhenotypeTable}"
+                                                                                   varStatus="status">
+                                                                            <c:forEach var="sex" items="${phenotype.sexes}">
+                                                                                <c:set var="count" value="${count + 1}" scope="page"/>
+                                                                            </c:forEach>
+                                                                        </c:forEach>
+
+                                                                        <jsp:include page="PhenoFrag.jsp"></jsp:include>
+
+                                                                        <div id="export">
+                                                                            <p class="textright">
+                                                                                Download data as:
+                                                                                <a id="tsvDownload"
+                                                                                   href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=tsv&fileName=${gene.markerSymbol}"
+                                                                                   target="_blank" class="btn btn-outline-primary"><i
+                                                                                        class="fa fa-download"></i>&nbsp;TSV</a>
+                                                                                <a id="xlsDownload"
+                                                                                   href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=xls&fileName=${gene.markerSymbol}"
+                                                                                   target="_blank" class="btn btn-outline-primary"><i
+                                                                                        class="fa fa-download"></i>&nbsp;XLS</a>
+                                                                            </p>
+                                                                        </div>
+                                                                    </c:if>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div><!-- end of div for mini section line -->
+                                            </div>
+                                        </c:if>
+
+                                        <c:if test='${measurementsChartNumber <= 0}'>
+                                            <div class="tab-pane fade" id="alldatachart" role="tabpanel" aria-labelledby="alldatachart-tab">
+                                                <div class="alert alert-warning mt-3" role="alert">
+                                                    No results to display
+                                                </div>
+                                            </div>
+                                        </c:if>
+
+                                        <c:if test='${measurementsChartNumber > 0}'>
+                                            <div class="tab-pane fade show ${(rowsForPhenotypeTable.size() <= 0 && measurementsChartNumber > 0)? ' active' : ''}"
+                                                 id="alldatachart" role="tabpanel" aria-labelledby="alldatachart-tab">
+                                                <div class="mt-3 selector-container">
+                                                    Select physiological systems to view:
+                                                    <select class="selectpicker" multiple data-selected-text-format="count"
+                                                            onchange="filterAllData('Chart')" id="systemSelectorChart">
+                                                        <optgroup label="Significant">
+                                                            <c:forEach var="i" begin="0" end="20">
+                                                                <c:if test="${not empty significantTopLevelMpGroups.get(phenotypeGroups[i])}">
+                                                                    <option title="1 item selected"
+                                                                            value="${significantTopLevelMpGroups.get(phenotypeGroups[i])}|${phenotypeGroups[i]}|significant|${phenotypeGroupIcons[i]}"
+                                                                            data-icon="${phenotypeGroupIcons[i]}">${fn:replace(phenotypeGroups[i], 'phenotype', '')}</option>
+                                                                </c:if>
+                                                            </c:forEach>
+                                                        </optgroup>
+                                                        <optgroup label="Not significant">
+                                                            <c:forEach var="i" begin="0" end="20">
+                                                                <c:if test="${not empty notsignificantTopLevelMpGroups.get(phenotypeGroups[i])}">
+                                                                    <option title="1 item selected"
+                                                                            value="${notsignificantTopLevelMpGroups.get(phenotypeGroups[i])}|${phenotypeGroups[i]}|nonsignificant|${phenotypeGroupIcons[i]}"
+                                                                            data-icon="${phenotypeGroupIcons[i]}">${fn:replace(phenotypeGroups[i], 'phenotype', '')}</option>
+                                                                </c:if>
+                                                            </c:forEach>
+                                                        </optgroup>
+                                                    </select>
+                                                </div>
+                                                <div class="filters-container">
+                                                    Viewing: <span id="phChartDataTitle"> all phenotypes</span>
+                                                </div>
+                                                <div id="all-chart">
+                                                </div>
+                                            </div>
+                                        </c:if>
+
+                                        <c:if test='${allMeasurementsNumber <= 0}'>
+                                            <div class="tab-pane fade" id="alldatatable" role="tabpanel" aria-labelledby="alldatatable-tab">
+                                                <div class="alert alert-warning mt-3" role="alert">
+                                                    No measurements to display
+                                                </div>
+                                            </div>
+                                        </c:if>
+
+                                        <c:if test='${allMeasurementsNumber > 0}'>
+                                            <div class="tab-pane fade show ${(rowsForPhenotypeTable.size() <= 0 && measurementsChartNumber <= 0)? ' active' : ''}"
+                                                 id="alldatatable" role="tabpanel" aria-labelledby="alldatatable-tab">
+                                                <c:if test='${(significantTopLevelMpGroups.size() > 0 || notsignificantTopLevelMpGroups.size() > 0)}'>
+                                                    <div class="mt-3 selector-container">
+                                                        Select physiological systems to view:
+                                                        <select class="selectpicker" multiple data-selected-text-format="count"
+                                                                onchange="filterAllData('Table')" id="systemSelectorTable">
+                                                            <optgroup label="Significant">
+                                                                <c:forEach var="i" begin="0" end="20">
+                                                                    <c:if test="${not empty significantTopLevelMpGroups.get(phenotypeGroups[i])}">
+                                                                        <option title="1 item selected"
+                                                                                value="${significantTopLevelMpGroups.get(phenotypeGroups[i])}|${phenotypeGroups[i]}|significant|${phenotypeGroupIcons[i]}"
+                                                                                data-icon="${phenotypeGroupIcons[i]}">${fn:replace(phenotypeGroups[i], 'phenotype', '')}</option>
+                                                                    </c:if>
+                                                                </c:forEach>
+                                                            </optgroup>
+                                                            <optgroup label="Not significant">
+                                                                <c:forEach var="i" begin="0" end="20">
+                                                                    <c:if test="${not empty notsignificantTopLevelMpGroups.get(phenotypeGroups[i])}">
+                                                                        <option title="1 item selected"
+                                                                                value="${notsignificantTopLevelMpGroups.get(phenotypeGroups[i])}|${phenotypeGroups[i]}|nonsignificant|${phenotypeGroupIcons[i]}"
+                                                                                data-icon="${phenotypeGroupIcons[i]}">${fn:replace(phenotypeGroups[i], 'phenotype', '')}</option>
+                                                                    </c:if>
+                                                                </c:forEach>
+                                                            </optgroup>
+                                                        </select>
+                                                    </div>
+                                                    <div class="filters-container">
+                                                        Viewing: <span id="phTableDataTitle"> all phenotypes</span>
+                                                    </div>
+                                                </c:if>
+                                                <div id="all-table">
+                                                </div>
+                                            </div>
+                                        </c:if>
+                                    </div>
+                                </c:if>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="container white-bg-small">
 
+        <%-- EXPRESSION SECTION--%>
+        <div class="container white-bg-small" id="phenotypes">
             <div class="row pb-5">
                 <div class="col-12 col-md-12">
                     <div class="pre-content clear-bg">
-                        <div class="page-content pt-3 pb-5">
-                            <div class="container p-0 p-md-2">
-                                <div class="row justify-content-end pb-3">
-                                    <div class="float-right"><a href="${cmsBaseUrl}/help/gene-page/lacz-expression/"
-                                                                target="_blank"><i class="fa fa-question-circle"
-                                                                                   style="font-size: xx-large"></i></a>
-                                    </div>
-                                </div>
-
-
+                        <div class="page-content p-5">
+                            <div class="mb-5">
+                                <h2>
+                                    Expression
+                                    <a href="${cmsBaseUrl}/help/gene-page/lacz-expression/" title="Go to expression help">
+                                        <i class="fal fa-question-circle fa-xs text-muted align-middle" style="font-size: 20px;"></i>
+                                    </a>
+                                </h2>
+                                <p>
+                                    An assay measuring the expression of lacZ shows the tissue where the gene is expressed. At IMPC we measure both Adult and Embryo expression. Background staining occurs in adult wild type mice at a measurable rate.
+                                </p>
+                            </div>
+                            <div>
                                 <c:if test="${empty impcAdultExpressionImageFacetsWholemount
                                                   and empty impcAdultExpressionImageFacetsSection
                                                   and empty expressionAnatomyToRow
@@ -438,68 +964,49 @@
             </div>
         </div>
 
-        <script>
-            $(document).ready(function(){
-                $('.expressionAccordion .collapse').on('hide.bs.collapse', function () {
-                    var $this = $(this),
-                        id = $this.attr("id"),
-                        title = $this.closest(".accordion").find("[data-target='#" + id + "']"),
-                        icon = $(title).find("i");
-                    $(icon).toggleClass("fa-minus fa-plus");
-                });
-                $('.expressionAccordion .collapse').on('show.bs.collapse', function () {
-                    var $this = $(this),
-                        id = $this.attr("id"),
-                        title = $this.closest(".accordion").find("[data-target='#" + id + "']"),
-                        icon = $(title).find("i");
-                    $(icon).toggleClass("fa-plus fa-minus");
-                });
-            });
-        </script>
 
-        <div class="container" id="images">
-            <div class="row pb-2">
-                <div class="col-12 col-md-12">
-                    <h2 class="h2"><b><i class="fal fa-images"></i>&nbsp;Associated Images</b></h2>
-                </div>
-            </div>
-        </div>
-
-        <div class="container white-bg-small">
+        <%-- ASSOCIATED IMAGES --%>
+        <div class="container white-bg-small" id="phenotypes">
             <div class="row pb-5">
                 <div class="col-12 col-md-12">
                     <div class="pre-content clear-bg">
-                        <div class="page-content pt-3 pb-5">
-                            <div class="container p-0 p-md-2">
-                                <div class="row justify-content-end pb-1">
-                                    <div class="float-right"><a href="${cmsBaseUrl}/help/gene-page/images/" target="_blank"><i
-                                            class="fa fa-question-circle" style="font-size: xx-large"></i></a></div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-12">
-                                        <c:if test="${empty impcImageGroups and empty solrFacets}">
-                                            <div class="alert alert-warning mt-3">Phenotype associated images not
-                                                available
-                                            </div>
-                                        </c:if>
+                        <div class="page-content p-5">
+                            <div class="mb-5">
+                                <h2>
+                                    Associated Images
+                                    <a href="${cmsBaseUrl}/help/gene-page/images/" title="Go to phenotype help">
+                                        <i class="fal fa-question-circle fa-xs text-muted align-middle" style="font-size: 20px;"></i>
+                                    </a>
+                                </h2>
+                                <p>
+                                    Images submitted by IMPC centres for a selection of procedures. Each set of images is available to view in our image comparator.
+                                </p>
+                            </div>
 
-                                        <c:if test="${not empty impcImageGroups or not empty solrFacets}">
-                                            <c:if test="${not empty impcImageGroups}">
-                                                <jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>
-                                            </c:if>
+                            <div class="row">
+                                <div class="col-12">
+                                    <c:if test="${empty impcImageGroups and empty solrFacets}">
+                                        <div class="alert alert-warning mt-3">Phenotype associated images not
+                                            available
+                                        </div>
+                                    </c:if>
+
+                                    <c:if test="${not empty impcImageGroups or not empty solrFacets}">
+                                        <c:if test="${not empty impcImageGroups}">
+                                            <jsp:include page="impcImagesByParameter_frag.jsp"></jsp:include>
                                         </c:if>
-                                    </div>
+                                    </c:if>
                                 </div>
-                                <div class="row">
-                                    <div class="col-12">
-                                        <c:if test="${not empty impcImageFacets and not empty solrFacets}">
-                                            <hr>
-                                        </c:if>
-                                        <c:if test="${not empty solrFacets}">
-                                            <h5 class="mt-5">Legacy Phenotype Associated Images</h5>
-                                            <jsp:include page="genesLegacyPhenoAssocImg_frag.jsp"></jsp:include>
-                                        </c:if>
-                                    </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <c:if test="${not empty impcImageFacets and not empty solrFacets}">
+                                        <hr>
+                                    </c:if>
+                                    <c:if test="${not empty solrFacets}">
+                                        <h5 class="mt-5">Legacy Phenotype Associated Images</h5>
+                                        <jsp:include page="genesLegacyPhenoAssocImg_frag.jsp"></jsp:include>
+                                    </c:if>
                                 </div>
                             </div>
                         </div>
@@ -509,33 +1016,26 @@
         </div>
 
 
-        <div class="container" id="diseases">
-            <div class="row pb-2">
-                <div class="col-12 col-md-12">
-                    <h2 class="h2"><b><i class="fal fa-procedures"></i>&nbsp;Human diseases caused by ${gene.markerSymbol} mutations</b></h2>
-                </div>
-            </div>
-        </div>
-
-        <div class="container white-bg-small">
+        <%-- DISEASE SECTION --%>
+        <div class="container white-bg-small" id="phenotypes">
             <div class="row pb-5">
                 <div class="col-12 col-md-12">
                     <div class="pre-content clear-bg">
-                        <div class="page-content pt-3 pb-5">
-                            <div class="container p-0 p-md-2">
-                                <div class="row">
-                                    <div class="mb-3 col-11" style="height:240px; background-repeat: no-repeat; background-position-x: 1.4rem; background-image: linear-gradient(to bottom, rgba(255,255,255,0.6) 0%,rgba(255,255,255,0.9) 100%), url(https://picsum.photos/800/240?blur=3)">
-<%--                                        <img class="img-fluid" src="https://picsum.photos/800/240?blur=3" alt="IMPC / Human disease Infographic" />--%>
-                                        <h2>Monarch supplied infographic (800x240)</h2>
-                                    </div>
-                                    <div class="col-1 text-right">
-                                        <a href="${cmsBaseUrl}/help/gene-page/disease-models/"
-                                            target="_blank"><i class="fa fa-question-circle" style="font-size: xx-large"></i></a>
-                                    </div>
-                                </div>
-                                <p class="ml-4">The table shows similarity analysis between the mouse phenotypes and human phenotypes <b>when the orthologous human
-                                    gene is known to cause disease</b>. Strong similarities may indicate paths for research.
+                        <div class="page-content p-5">
+                            <div class="mb-4">
+                                <h2>
+                                    Human diseases caused by ${gene.markerSymbol} mutations
+                                    <a href="${cmsBaseUrl}/help/gene-page/disease-models/" title="Go to phenotype help">
+                                        <i class="fal fa-question-circle fa-xs text-muted align-middle" style="font-size: 20px;"></i>
+                                    </a>
+                                </h2>
+                                <img src="https://picsum.photos/id/10/800/240?blur=10" class="mb-3" />
+                                <p>
+                                    Phenotype comparisons summarize the similarity of mouse phenotypes with human phenotypes for diseases associated with the human gene that is orthologous to Cib2. This analysis uses data from IMPC along with data from MGD.
                                 </p>
+                            </div>
+                            <div>
+
                                 <div class="row">
                                     <div class="col-12">
                                         <table id="diseases_by_annotation"
@@ -575,9 +1075,7 @@
                                         </table>
                                     </div>
                                 </div>
-
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -585,28 +1083,30 @@
         </div>
 
 
-
-
-        <c:if test="${rowsForHistopathTable.size() > 0 or hasHistopath}">
-            <div class="container" id="histopath">
-                <div class="row pb-2">
-                    <div class="col-12 col-md-12">
-                        <h3><i class="fal fa-microscope"></i>&nbsp;Histopathology</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="container white-bg-small">
-                <div class="row pb-5">
-                    <div class="col-12 col-md-12">
-                        <div class="pre-content clear-bg">
-                            <div class="page-content pt-3 pb-5">
-                                <div class="container p-0 p-md-2">
-                                    <div class="row justify-content-end">
-                                        <div><a href="${cmsBaseUrl}/help/gene-page/"><i class="fa fa-question-circle"
-                                                                                        style="font-size: xx-large"></i></a>
-                                        </div>
+        <%-- HISTOPATHOLOGY SECTION --%>
+        <div class="container white-bg-small" id="phenotypes">
+            <div class="row pb-5">
+                <div class="col-12 col-md-12">
+                    <div class="pre-content clear-bg">
+                        <div class="page-content p-5">
+                            <div class="mb-5">
+                                <h2>
+                                    Histopathology
+                                    <a href="${cmsBaseUrl}/help/gene-page/" title="Go to phenotype help">
+                                        <i class="fal fa-question-circle fa-xs text-muted align-middle" style="font-size: 20px;"></i>
+                                    </a>
+                                </h2>
+                                <p>
+                                    Summary table of phenotypes displayed during the Histopathology procedure which are considered significant. Full histopathology data table, including submitted images, can be accessed by clicking any row in this table.
+                                </p>
+                            </div>
+                            <div>
+                                <c:if test="${rowsForHistopathTable.size() == 0}">
+                                    <div class="alert alert-warning">
+                                        <p>There is no histopathology data for ${gene.markerSymbol}</p>
                                     </div>
-                                    <c:if test="${rowsForHistopathTable.size() > 0}">
+                                </c:if>
+                                <c:if test="${rowsForHistopathTable.size() > 0}">
                                     <div class="row">
                                         <div class="col-12">
                                             <table id="histopathPhenotypesTable" data-toggle="table" data-pagination="true" data-mobile-responsive="true" data-sortable="true">
@@ -658,30 +1158,32 @@
 
                                     </div>
                                 </c:if>
-                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </c:if>
-
-
-        <div class="container" id="order">
-            <div class="row pb-2">
-                <div class="col-12 col-md-12">
-                    <h2 class="h2"><b><i class="fal fa-book"></i>&nbsp;IMPC related publications</b></h2>
-                </div>
-            </div>
         </div>
 
-        <div class="container white-bg-small">
+
+        <%-- PUBLICATIONS SECTION --%>
+        <div class="container white-bg-small" id="publications">
             <div class="row pb-5">
                 <div class="col-12 col-md-12">
                     <div class="pre-content clear-bg">
-                        <div class="page-content pt-3 pb-5">
-                            <div class="container p-0 p-md-2">
-                                <p class="ml-4">The table below lists publications which used either products generated by the IMPC or data produced by the phenotyping efforts of the IMPC.  These publications have also been associated to ${gene.markerSymbol}.</p>
+                        <div class="page-content p-5">
+                            <div class="mb-5">
+                                <h2>
+                                    IMPC related publications
+                                    <a href="/link/to/help" title="Go to phenotype help">
+                                        <i class="fal fa-question-circle fa-xs text-muted align-middle" style="font-size: 20px;"></i>
+                                    </a>
+                                </h2>
+                                <p>
+                                    The table below lists publications which used either products generated by the IMPC or data produced by the phenotyping efforts of the IMPC. These publications have also been associated to Cib2.
+                                </p>
+                            </div>
+                            <div>
                                 <div class="row">
                                     <div class="col-12">
                                         <c:choose>
@@ -720,7 +1222,6 @@
                                             </c:when>
                                             <c:when test="${fn:length(publications) == 0}">No publications found that use IMPC mice or data for ${gene.markerSymbol}.</c:when>
                                         </c:choose>
-
                                     </div>
                                 </div>
                             </div>
@@ -730,29 +1231,26 @@
             </div>
         </div>
 
-        <div class="container" id="order">
-            <div class="row pb-2">
-                <div class="col-12 col-md-12">
-                    <h2 class="h2"><b><i class="fal fa-shopping-cart"></i>&nbsp;Order Mouse and ES Cells</b></h2>
-                </div>
-            </div>
-        </div>
 
-        <div class="container white-bg-small">
+        <%-- ORDER SECTION --%>
+        <div class="container white-bg-small" id="order">
             <div class="row pb-5">
                 <div class="col-12 col-md-12">
                     <div class="pre-content clear-bg">
-                        <div class="page-content pt-3 pb-5">
-                            <div class="container p-0 p-md-2">
-                                <div class="row justify-content-end">
-                                    <div><a href="${cmsBaseUrl}/help/gene-page/ordering-mice-or-mouse-products/"><i
-                                            class="fa fa-question-circle" style="font-size: xx-large"></i></a></div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-12">
-                                        <jsp:include page="orderSectionFrag.jsp"></jsp:include>
-                                    </div>
-                                </div>
+                        <div class="page-content p-5">
+                            <div class="mb-2">
+                                <h2>
+                                    Order Mouse and ES Cells
+                                    <a href="${cmsBaseUrl}/help/gene-page/ordering-mice-or-mouse-products/" title="Go to phenotype help">
+                                        <i class="fal fa-question-circle fa-xs text-muted align-middle" style="font-size: 20px;"></i>
+                                    </a>
+                                </h2>
+                                <p>
+                                    All available products are supplied via our member's centres or partnerships. When ordering a product from the IMPC you will be redirected to one of their websites or prompted to start an email.
+                                </p>
+                            </div>
+                            <div>
+                                <jsp:include page="orderSectionFrag.jsp"></jsp:include>
                             </div>
                         </div>
                     </div>
@@ -760,59 +1258,9 @@
             </div>
         </div>
 
-        <!-- End of Order Mouse and ES Cells -->
 
 
-        <script  type="text/javascript">
-            // disease tables drive by phenodigm core
 
-            var diseaseDetailFilter = function(index, row) {
-                return $(row[2]).text().length > 1;
-            }
-            var toggleDetail = function(index) {
-                $('#diseases_by_annotation').bootstrapTable('toggleDetailView', index)
-            }
-            var diseaseDetailFormatter = function(index, row) {
-                var gridColumnWidth = 25;
-                var gridRowHeight = 50;
-
-                $.ajax({
-                    url: row._data['link'],
-                    type: 'GET',
-                    success: function (data) {
-                        Phenogrid.createPhenogridForElement($('div#phenodigm' + index), {
-                            // sort method of sources: "Alphabetic", "Frequency and Rarity", "Frequency,
-                            selectedSort: "Frequency and Rarity",
-                            gridSkeletonDataVendor: 'IMPC',
-                            gridSkeletonData: data,
-                            singleTargetModeTargetLengthLimit: gridColumnWidth,
-                            sourceLengthLimit: gridRowHeight
-                        });
-                    }
-                });
-                return '<div id="phenodigm' + index + '"></div>';
-            }
-
-
-            document.addEventListener("DOMContentLoaded", function () {
-
-                $('#diseases_by_annotation').bootstrapTable({ classes: 'table'});
-                $('#publications_table').bootstrapTable({ classes: 'table'});
-
-                $('#significantPhenotypesTable').on('click-row.bs.table', function (e, row) {
-                    if (row._data['link']) {
-                        window.location = row._data['link'];
-                    }
-                });
-
-                $('#histopathPhenotypesTable').on('click-row.bs.table', function (e, row) {
-                    if (row._data['link']) {
-                        window.location = row._data['link'];
-                    }
-                });
-
-            });
-        </script>
 
     </jsp:body>
 

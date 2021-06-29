@@ -109,7 +109,6 @@
                     <div class="pre-content clear-bg">
                         <div class="page-content people py-5 white-bg">
 
-<%--                            <jsp:include page="genesPhenotypeAssociation_frag.jsp"/>--%>
                             <div class="container-fluid">
                                 <div>
                                     <c:if test="${gene != null}">
