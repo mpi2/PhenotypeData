@@ -2,7 +2,6 @@
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@page import="org.apache.commons.text.WordUtils" %>
 
 <%-- EXPRESSION DATA TABLE --%>
 <div id="adult-expression-table" class="row justify-content-center">
@@ -48,7 +47,7 @@
                                 </c:if>
                             </td>
 
-                            <td><span>${mapEntry.value.specimen[0].zygosity}</span></td>
+                            <td><span>${mapEntry.value.zygosity}</span></td>
 
                             <td>
                                 <c:choose>

@@ -32,7 +32,7 @@
                     <svg class="bd-placeholder-img card-img-top" width="100%" height="180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Image cap" preserveAspectRatio="xMidYMid slice" focusable="false">
                         <title>PDF thumbnail</title>
                         <rect width="100%" height="100%" fill="#6c757d"></rect>
-                        <text x="50%" y="50%" fill="#dee2e6" dy=".3em">PDF</text>
+                        <text dominant-baseline="middle" text-anchor="middle" x="50%" y="50%" fill="#dee2e6" dy=".3em">PDF</text>
                     </svg>
                 </a>
             </div>
@@ -57,7 +57,7 @@
                 <svg class="bd-placeholder-img card-img-top" width="100%" height="180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Image cap" preserveAspectRatio="xMidYMid slice" focusable="false">
                     <title>PDF thumbnail</title>
                     <rect width="100%" height="100%" fill="#6c757d"></rect>
-                    <text x="50%" y="50%" fill="#dee2e6" dy=".3em">PDF</text>
+                    <text dominant-baseline="middle" text-anchor="middle" x="50%" y="50%" fill="#dee2e6" dy=".3em">PDF</text>
                 </svg>
             </a>
         </div>
@@ -72,7 +72,7 @@
                 <svg class="bd-placeholder-img card-img-top" width="100%" height="180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Image cap" preserveAspectRatio="xMidYMid slice" focusable="false">
                     <title>FCS thumbnail</title>
                     <rect width="100%" height="100%" fill="#6c757d"></rect>
-                    <text x="50%" y="50%" fill="#dee2e6" dy=".3em">FCS</text>
+                    <text dominant-baseline="middle" text-anchor="middle" x="50%" y="50%" fill="#dee2e6" dy=".3em">FCS</text>
                 </svg>
             </a>
         </div>
@@ -87,7 +87,7 @@
                 <svg class="bd-placeholder-img card-img-top" width="100%" height="180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Image cap" preserveAspectRatio="xMidYMid slice" focusable="false">
                     <title>Download thumbnail</title>
                     <rect width="100%" height="100%" fill="#6c757d"></rect>
-                    <text x="50%" y="50%" fill="#dee2e6" dy=".3em">Download</text>
+                    <text dominant-baseline="middle" text-anchor="middle" x="50%" y="50%" fill="#dee2e6" dy=".3em">Download</text>
                 </svg>
             </a>
         </div>

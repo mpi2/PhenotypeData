@@ -19,13 +19,13 @@
                     <th data-width="100px" data-halign="right">WT Expr</th>
                     </thead>
                     <tbody>
-                    <c:forEach var="mapEntry" items="${embryoExpressionAnatomyToRow}">
+                    <c:forEach var="mapEntry" items="${embryoWtAnatomyToRow}">
                         <tr>
-                            <td><span>${mapEntry.value.abnormalAnatomyName}</span></td>
+                            <td><span>${mapEntry.key}</span></td>
 
                             <td data-align="right">
                                 <c:choose>
-                                    <c:when test="${embryoembryoWtAnatomyToRow[mapEntry.key].expression}">
+                                    <c:when test="${embryoWtAnatomyToRow[mapEntry.key].expression}">
                                         <fmt:formatNumber pattern="#.##">${fn:length(embryoWtAnatomyToRow[mapEntry.key].specimenExpressed) / fn:length(embryoWtAnatomyToRow[mapEntry.key].specimen) * 100}</fmt:formatNumber>%
                                     </c:when>
                                     <c:when test="${embryoWtAnatomyToRow[mapEntry.key].notExpressed}">
