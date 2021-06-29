@@ -14,7 +14,7 @@ class QuerySolr:
         self.set_core() if core is None else self.set_core(core)
         self.set_query() if query is None else self.set_query(query)
 
-    def set_host(self, host="http://ves-hx-d8.ebi.ac.uk"):
+    def set_host(self, host="http://wp-np3-84.ebi.ac.uk"):
         self.host = host
 
     def set_port(self, port=8986):

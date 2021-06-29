@@ -109,7 +109,7 @@ public class UrlUtils {
      * Encode only the following characters:
      *   ' ' (space)        %20
      *   '"' (double quote) %22
-     *   ':' (colon - but only in the query part of the string; don't encode http: or the port indicator ves-ebi-d0:8080
+     *   ':' (colon - but only in the query part of the string; don't encode http: or the port indicator wp-np3-83:8080
      * @param url
      * @return
      */

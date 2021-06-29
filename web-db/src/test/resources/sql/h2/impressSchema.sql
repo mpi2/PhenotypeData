@@ -231,7 +231,7 @@ CREATE TABLE `phenotype_procedure_parameter` (
 
 --
 -- Table structure for table `phenotype_parameter_type`
--- Taken from last line of http://ves-ebi-d9:8080/jenkins/job/DataRelease_GenerateDerivedParameters/configure
+-- Taken from last line of http://wp-np2-8a:8080/jenkins/job/DataRelease_GenerateDerivedParameters/configure
 --
 
 DROP TABLE IF EXISTS `phenotype_parameter_type`;
