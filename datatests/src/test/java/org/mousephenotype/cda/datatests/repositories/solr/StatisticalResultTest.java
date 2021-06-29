@@ -1,10 +1,8 @@
 package org.mousephenotype.cda.datatests.repositories.solr;
 
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mousephenotype.cda.solr.repositories.GenotypePhenotypeRepository;
 import org.mousephenotype.cda.solr.repositories.StatisticalResultRepository;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
@@ -13,17 +11,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.util.AssertionErrors.fail;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = {RepositorySolrTestConfig.class})
 public class StatisticalResultTest {
 
@@ -37,7 +36,7 @@ public class StatisticalResultTest {
 	private GenotypePhenotypeRepository genotypePhenotypeRepository;
 
 	// FIXME FIXME FIXME 25-June-2018 (mrelac) This is the only test that fails, so I'm disabling it. See MPII-2627.
-//@Ignore
+//@Disabled
 //	@Test
 //	public void allReferenceRangeDocumentsHaveATopLevelMpTermId() throws IOException, SolrServerException {
 //
@@ -110,7 +109,7 @@ public class StatisticalResultTest {
 						x.getMarkerAccessionId(), x.getParameterStableId(), x.getProcedureStableId().get(0), x.getSex(), x.getMpTermId());
 				if (list1.size() == 0) {
 					String substring = StringUtils.join(Arrays.asList(x.getMarkerAccessionId(), x.getParameterStableId(), x.getProcedureStableId(), x.getSex(), x.getMpTermId()), ", ");
-					Assert.fail("Genotype phenotype result for " + substring + ", which has no statistical-results entry");
+					fail("Genotype phenotype result for " + substring + ", which has no statistical-results entry");
 				}
 			});
 		}

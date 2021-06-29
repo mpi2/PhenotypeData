@@ -16,7 +16,7 @@
 
 package utilities;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.utilities.DateUtils;
 import org.slf4j.Logger;
@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DateUtilsTest {
 

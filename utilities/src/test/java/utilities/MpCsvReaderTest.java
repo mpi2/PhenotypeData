@@ -1,8 +1,8 @@
 package utilities;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mousephenotype.cda.utilities.MpCsvReader;
 import org.mousephenotype.cda.utilities.MpCsvWriter;
 
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MpCsvReaderTest {
 
@@ -33,12 +33,12 @@ public class MpCsvReaderTest {
         EXPECTED_ALL_ARRAY.add(EXPECTED_LINE_2_ARRAY);
     }
 
-    @Before
+    @BeforeEach
     public void initialise() throws IOException {
         Files.deleteIfExists(Paths.get(TEST_FILENAME));
     }
 
-    @After
+    @AfterEach
     public void cleanup() throws IOException {
         Files.deleteIfExists(Paths.get(TEST_FILENAME));
     }

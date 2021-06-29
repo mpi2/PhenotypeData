@@ -1,14 +1,14 @@
 package utilities;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mousephenotype.cda.dto.LifeStage;
 import org.mousephenotype.cda.utilities.LifeStageMapper;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class LifeStageMapperTest {
 

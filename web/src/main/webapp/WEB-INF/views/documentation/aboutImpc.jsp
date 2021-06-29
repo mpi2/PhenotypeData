@@ -382,7 +382,7 @@
                 _fetchCrispr();
 
 //                $.ajax({
-//                'url' : 'http://ves-ebi-d0:8090/mi/impc/dev/solr/allele2/select',
+//                'url' : 'http://wp-np2-e1:8090/mi/impc/dev/solr/allele2/select',
 //                'data' : 'q=type:Allele&facet=on&facet.field=es_cell_available&facet.field=mutation_type&facet.mincount=1&facet.limit=-1&rows=0&wt=json',
 //                'dataType' : 'jsonp',
 //                'jsonp' : 'json.wrf',

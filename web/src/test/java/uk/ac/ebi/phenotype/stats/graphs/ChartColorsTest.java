@@ -23,9 +23,7 @@
 package uk.ac.ebi.phenotype.stats.graphs;
 
 import org.apache.commons.lang3.StringUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.phenotype.chart.ChartColors;
@@ -37,15 +35,6 @@ import static org.junit.Assert.assertTrue;
 public class ChartColorsTest {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-	@Before
-	public void setUp() throws Exception {
-
-	}
-
-	@After
-	public void tearDown() throws Exception {
-	}
 
 	@Test
 	public void test() {

@@ -4,9 +4,9 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mousephenotype.cda.enumerations.Expression;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.service.ImageService;
@@ -15,16 +15,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertTrue;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = {RepositorySolrTestConfig.class})
 public class ImageServiceTest {
 
@@ -42,9 +42,9 @@ public class ImageServiceTest {
 
         logger.debug("Query is: " + query.toString());
 
-        assertTrue(query.toString().contains("3i"));
-        assertTrue(query.toString().contains("mousephenotype.org"));
-        assertTrue(query.toString().contains("\\:"));
+        assertTrue("", query.toString().contains("3i"));
+        assertTrue("", query.toString().contains("mousephenotype.org"));
+        assertTrue("", query.toString().contains("\\:"));
     }
 
     @Test
@@ -124,7 +124,7 @@ public class ImageServiceTest {
     }
 
     // FIXME FIXME FIXME This test takes a long time to run and runs out of memory when run on local laptops.
-    @Ignore
+    @Disabled
     @Test
     public void testGetComparisonViewerMethodsWithNulls() throws IOException, SolrServerException {
 
@@ -214,7 +214,7 @@ public class ImageServiceTest {
         message      = testName + ": Expected at least " + expectedSize + " mutant images but found " + actualSize;
         logger.info(testName + ": mutant images actualSize = " + actualSize);
 
-        assertTrue(actualSize >= expectedSize);
+        assertTrue("", actualSize >= expectedSize);
     }
 
     @Test

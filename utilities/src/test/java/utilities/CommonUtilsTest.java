@@ -1,11 +1,12 @@
 package utilities;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mousephenotype.cda.utilities.CommonUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 /**
  * Created by ilinca on 06/01/2017.
@@ -49,36 +50,36 @@ public class CommonUtilsTest {
         String[] retVal;
 
         retVal = commonUtils.parseImpressStatus(null);
-        Assert.assertArrayEquals(new String[]{null, null}, retVal);
+        assertArrayEquals(new String[]{null, null}, retVal);
 
         retVal = commonUtils.parseImpressStatus("");
-        Assert.assertArrayEquals(new String[]{null, null}, retVal);
+        assertArrayEquals(new String[]{null, null}, retVal);
 
         retVal = commonUtils.parseImpressStatus(" ");
-        Assert.assertArrayEquals(new String[]{null, null}, retVal);
+        assertArrayEquals(new String[]{null, null}, retVal);
 
         retVal = commonUtils.parseImpressStatus(":");
-        Assert.assertArrayEquals(new String[]{null, null}, retVal);
+        assertArrayEquals(new String[]{null, null}, retVal);
 
         retVal = commonUtils.parseImpressStatus("?");
-        Assert.assertArrayEquals(new String[]{null, null}, retVal);
+        assertArrayEquals(new String[]{null, null}, retVal);
 
         retVal = commonUtils.parseImpressStatus("|");
-        Assert.assertArrayEquals(new String[]{"|", null}, retVal);
+        assertArrayEquals(new String[]{"|", null}, retVal);
 
         retVal = commonUtils.parseImpressStatus("IMPC_PARAMSC_005");
-        Assert.assertArrayEquals(new String[]{"IMPC_PARAMSC_005", null}, retVal);
+        assertArrayEquals(new String[]{"IMPC_PARAMSC_005", null}, retVal);
 
         retVal = commonUtils.parseImpressStatus("IMPC_PARAMSC_005?");
-        Assert.assertArrayEquals(new String[]{"IMPC_PARAMSC_005", null}, retVal);
+        assertArrayEquals(new String[]{"IMPC_PARAMSC_005", null}, retVal);
 
         retVal = commonUtils.parseImpressStatus("Parameter not measured - Sample clotting");
-        Assert.assertArrayEquals(new String[]{"Parameter not measured - Sample clotting", null}, retVal);
+        assertArrayEquals(new String[]{"Parameter not measured - Sample clotting", null}, retVal);
 
         retVal = commonUtils.parseImpressStatus("IMPC_PARAMSC_005?Parameter not measured - Sample clotting");
-        Assert.assertArrayEquals(new String[]{"IMPC_PARAMSC_005", "Parameter not measured - Sample clotting"}, retVal);
+        assertArrayEquals(new String[]{"IMPC_PARAMSC_005", "Parameter not measured - Sample clotting"}, retVal);
 
         retVal = commonUtils.parseImpressStatus("IMPC_PARAMSC_005:    Parameter not measured - Sample clotting  ");
-        Assert.assertArrayEquals(new String[]{"IMPC_PARAMSC_005", "Parameter not measured - Sample clotting"}, retVal);
+        assertArrayEquals(new String[]{"IMPC_PARAMSC_005", "Parameter not measured - Sample clotting"}, retVal);
     }
 }

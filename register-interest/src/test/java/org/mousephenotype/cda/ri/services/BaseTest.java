@@ -1,21 +1,21 @@
 package org.mousephenotype.cda.ri.services;
 
-import org.junit.Before;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.sql.DataSource;
 
 /**
  * Base test class to aggregate the spring test annotations.
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @ContextConfiguration(classes = {org.mousephenotype.cda.ri.services.BaseTestConfig.class})
 public abstract class BaseTest {
@@ -26,7 +26,7 @@ public abstract class BaseTest {
     @Autowired
     protected DataSource riDataSource;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         Resource r = context.getResource("classpath:sql/h2/schema.sql");
         ScriptUtils.executeSqlScript(riDataSource.getConnection(), r);

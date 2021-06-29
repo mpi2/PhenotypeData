@@ -1,24 +1,25 @@
 package org.mousephenotype.cda.datatests.repositories.solr;
 
-import junit.framework.TestCase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mousephenotype.cda.solr.service.AlleleService;
 import org.mousephenotype.cda.solr.service.dto.AlleleDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.springframework.test.util.AssertionErrors.assertTrue;
 
-@RunWith(SpringRunner.class)
+
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = {RepositorySolrTestConfig.class})
-public class AlleleServiceTest extends TestCase {
+public class AlleleServiceTest {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

@@ -16,8 +16,8 @@
 
 package org.mousephenotype.cda.ri.services;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mousephenotype.cda.ri.entities.Contact;
 import org.mousephenotype.cda.ri.enums.EmailFormat;
 import org.mousephenotype.cda.ri.exceptions.InterestException;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static junit.framework.TestCase.*;
+import static org.springframework.test.util.AssertionErrors.*;
 
 /**
  * Updated by mrelac on 06/12/2018.
@@ -51,7 +51,7 @@ public class SummaryServiceTest extends BaseTest {
     private SummaryService summaryService;
 
 
-    @Before
+    @BeforeEach
     public void setUp() {
     }
 
@@ -90,16 +90,16 @@ public class SummaryServiceTest extends BaseTest {
     public void changeEmailFormat() throws InterestException {
       // user1 e-mail format is HTML.
         Contact contact = summaryService.getContact(user1);
-        assertTrue(contact.isInHtml());
+        assertTrue("", contact.isInHtml());
         summaryService.changeEmailFormat(user1, EmailFormat.PLAIN);
         contact = summaryService.getContact(user1);
-        assertFalse(contact.isInHtml());
+        assertFalse("", contact.isInHtml());
         summaryService.changeEmailFormat(user1, EmailFormat.PLAIN);
         contact = summaryService.getContact(user1);
-        assertFalse(contact.isInHtml());
+        assertFalse("", contact.isInHtml());
         summaryService.changeEmailFormat(user1, EmailFormat.HTML);
         contact = summaryService.getContact(user1);
-        assertTrue(contact.isInHtml());
+        assertTrue("", contact.isInHtml());
     }
 
     @Test
@@ -107,23 +107,23 @@ public class SummaryServiceTest extends BaseTest {
         Contact actual;
 
         actual = summaryService.getContact(user1);
-        assertEquals(user1, actual.getEmailAddress());
+        assertEquals("", user1, actual.getEmailAddress());
         assertTrue("Expected inHtml true for " + user1, actual.isInHtml());
 
         actual = summaryService.getContact(user2);
-        assertEquals(user2, actual.getEmailAddress());
+        assertEquals("", user2, actual.getEmailAddress());
         assertFalse("Expected inHtml false for " + user2, actual.isInHtml());
 
         actual = summaryService.getContact(user3);
-        assertEquals(user3, actual.getEmailAddress());
+        assertEquals("", user3, actual.getEmailAddress());
         assertTrue("Expected inHtml true for " + user3, actual.isInHtml());
 
         actual = summaryService.getContact(user4);
-        assertEquals(user4, actual.getEmailAddress());
+        assertEquals("", user4, actual.getEmailAddress());
         assertFalse("Expected inHtml false for " + user4, actual.isInHtml());
 
         actual = summaryService.getContact(user5);
-        assertEquals(user5, actual.getEmailAddress());
+        assertEquals("", user5, actual.getEmailAddress());
         assertFalse("Expected inHtml false for " + user5, actual.isInHtml());
     }
 
@@ -155,11 +155,11 @@ public class SummaryServiceTest extends BaseTest {
     @Test
     public void getSummaryByEmailAddress() {
         Summary actual = summaryService.getSummaryByContact(summaryService.getContact(user1));
-        assertEquals(user1, actual.getEmailAddress());
-        assertEquals(3, actual.getDetails().size());
-        assertTrue(actual.getDetails().stream().anyMatch(sd -> sd.getGeneAccessionId().equalsIgnoreCase("MGI:103576")));
-        assertTrue(actual.getDetails().stream().anyMatch(sd -> sd.getGeneAccessionId().equalsIgnoreCase("MGI:1919199")));
-        assertTrue(actual.getDetails().stream().anyMatch(sd -> sd.getGeneAccessionId().equalsIgnoreCase("MGI:2443658")));
+        assertEquals("", user1, actual.getEmailAddress());
+        assertEquals("", 3, actual.getDetails().size());
+        assertTrue("", actual.getDetails().stream().anyMatch(sd -> sd.getGeneAccessionId().equalsIgnoreCase("MGI:103576")));
+        assertTrue("", actual.getDetails().stream().anyMatch(sd -> sd.getGeneAccessionId().equalsIgnoreCase("MGI:1919199")));
+        assertTrue("", actual.getDetails().stream().anyMatch(sd -> sd.getGeneAccessionId().equalsIgnoreCase("MGI:2443658")));
     }
 
     @Test
@@ -181,14 +181,14 @@ public class SummaryServiceTest extends BaseTest {
         summary = summaryService.getSummaryByContact(summaryService.getContact(user1));
         assertEquals("Expected user1 to be registered for 3 genes but found " + summary.getDetails().size(), 3, summary.getDetails().size());
 
-        assertFalse(summaryService.isRegisteredForGene(user1, "MGI:88081"));
+        assertFalse("", summaryService.isRegisteredForGene(user1, "MGI:88081"));
         summaryService.registerGene(user1, "MGI:88081");
         summary = summaryService.getSummaryByContact(summaryService.getContact(user1));
         assertEquals("Expected user1 to be registered for 4 genes but found " + summary.getDetails().size(), 4, summary.getDetails().size());
         assertTrue("Expected user1 to be registered for MGI:88081 but they weren't", summaryService.isRegisteredForGene(user1, "MGI:88081"));
 
         summaryService.unregisterGene(user1, "MGI:88081");
-        assertFalse(summaryService.isRegisteredForGene(user1, "MGI:88081"));
+        assertFalse("", summaryService.isRegisteredForGene(user1, "MGI:88081"));
         summary = summaryService.getSummaryByContact(summaryService.getContact(user1));
         assertEquals("Expected user1 to be registered for 3 genes but found " + summary.getDetails().size(), 3, summary.getDetails().size());
     }

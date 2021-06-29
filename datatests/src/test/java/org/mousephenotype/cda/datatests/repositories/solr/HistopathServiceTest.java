@@ -3,8 +3,8 @@ package org.mousephenotype.cda.datatests.repositories.solr;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mousephenotype.cda.solr.service.GrossPathService;
 import org.mousephenotype.cda.solr.service.HeatmapData;
 import org.mousephenotype.cda.solr.service.HistopathService;
@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -22,9 +22,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertTrue;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = {RepositorySolrTestConfig.class})
 public class HistopathServiceTest {
 
@@ -59,9 +59,9 @@ public class HistopathServiceTest {
     public void getLandingPageDataTest() throws IOException, SolrServerException {
         Map<String, Set<String>> map = new HashMap<>();
         HeatmapData heatmapData = histopathService.getHeatmapData();
-        assertTrue(heatmapData.getColumnHeaders().size()>1);
-        assertTrue( heatmapData.getGeneSymbols().size()>1);
-        assertTrue(heatmapData.getData().length()>1);
+        assertTrue("",heatmapData.getColumnHeaders().size()>1);
+        assertTrue( "", heatmapData.getGeneSymbols().size()>1);
+        assertTrue("", heatmapData.getData().length()>1);
         //NamedList<List<PivotField>> pivots = observationService.getHistopathLandingPageData();
     }
 }
