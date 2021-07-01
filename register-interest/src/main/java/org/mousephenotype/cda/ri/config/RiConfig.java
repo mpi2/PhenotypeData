@@ -19,13 +19,20 @@ package org.mousephenotype.cda.ri.config;
 import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.mousephenotype.cda.ri.pojo.SmtpParameters;
 import org.mousephenotype.cda.ri.utils.RiSqlUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.session.jdbc.config.annotation.SpringSessionDataSource;
+import org.springframework.session.web.http.CookieSerializer;
+import org.springframework.session.web.http.DefaultCookieSerializer;
 
 import javax.sql.DataSource;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * Created by mrelac on 02/05/2017.
@@ -33,6 +40,7 @@ import javax.sql.DataSource;
 @Configuration
 @Profile("!test")
 public class RiConfig {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
     @Value("${paBaseUrl}")
     private String paBaseUrl;
@@ -88,5 +96,30 @@ public class RiConfig {
     @Bean
     public SmtpParameters mailServerParameters() {
         return new SmtpParameters(smtpHost, smtpPort, smtpFrom, smtpReplyto);
+    }
+
+    @Bean
+    @SpringSessionDataSource
+    public DataSource springSessionDataSource() {
+        return riDataSource();
+    }
+
+    @Bean
+    public CookieSerializer cookieSerializer() {
+        DefaultCookieSerializer serializer = new DefaultCookieSerializer();
+        String hostname = null;
+        try {
+            InetAddress addr = InetAddress.getLocalHost();
+            hostname = addr.getHostName();
+            System.out.println("addr = " + addr);
+            System.out.println("hostname = " + hostname);
+        } catch (UnknownHostException e) {
+            System.err.println("RIConfig.cookieSerializer: UnknownHostException: " + e.getMessage());
+        }
+        if ((hostname != null) && (hostname.endsWith(".ebi.ac.uk"))) {
+            logger.info("Setting serializer domain name to ebi.ac.uk");
+            serializer.setDomainName("ebi.ac.uk");
+        }
+        return serializer;
     }
 }
