@@ -217,6 +217,7 @@
                  opacity: 1;
              }
 
+             /* Phenogrid key */
              .phenogrid-key .key span{
                  vertical-align: middle;
              }
@@ -238,7 +239,7 @@
                  background-color: #6c757d;
              }
 
-             /*Tabs*/
+             /* Tabs */
              .nav-tabs {
                  border-bottom: 1px solid #dee2e6;
                  margin-bottom: 30px;
