@@ -1,107 +1,50 @@
+.viewport {
+    height: 600px;
+    margin: auto;
+}
 
- .viewport {
-    width: 600px;
-        height: 600px;
-        margin: auto;
-        padding-right:10px
-    }
-    
 .weblitz-viewport-vp {
-	left:0px;
-	}
-
-
-#comparator{
-min-width:1220px;	
-min-height:900px;
-width:100%;
-}
-
-#control_box, #mutant_box {
-	display: inline;
-	border: #ddd 2px solid; color: #666;
-}
-
-#control_box{
-	clear: right;
-	/*  height: auto;
-     width: auto; */
-	
-}
-
-#mutant_box{
-	float: right;
-	/* height: 400px;
-    width: 500px; */
-}
-
-.half_box_left{
-	width: 49.6%;
-	height: 400px;
-    height: auto;
-    /* width: auto; */
-	float: left;
-}
-
-.half_box_right{
-	width: 49.6%;
-	/*  height: 400px; */
-       /*  width: 500px; */
-	float: right;
-}
-
-.full_box{
-	width: 100%;
-	height: 100%;
-	float: left;
-}
-
-.no_box{
-	float: left;
-	display: none;
+    left: 0px;
 }
 
 #control_frame, #mutant_frame {
-	height: 400px;
+    height: 400px;
     width: 500px;
-	display: inline;
+    display: inline;
 }
 
-.full_frame{
-	width: 1200px;
-	height:1000px;
+.full_frame {
+    width: 1200px;
+    height: 1000px;
 }
 
-.annotation{
-	border: #ddd 2px solid; color: #666;
-	text-align: center;
-	color: #0978a1;
-	clear: both;
-	height:auto;
-}
-.thumblist{
-	width:100%;
+.thumblist {
+    width: 100%;
 }
 
-.img_selected{
-	z-index: 2;
-	opacity: 0.5;
+.img_selected {
+    z-index: 2;
+    border-color: #9E1B00;
+    border-width: 2px;
+
 }
 
-.clickbox_male{
-	background:#0978a1;
-	/* float: left; */
-	display: inline-block
+.image {
+    color: #000;
+    background-color: #fff;
+    border-top-width: 4px;
+    padding: 0;
 }
 
-.clickbox_female{
-	background:#EF7B0B;
-	/* float: left; */
-	display: inline-block
+img {
+    width: 100%;
 }
 
-.clickbox_no_sex{
-	background:#c2c2c2;
-	/* float: left; */
-	display: inline-block
+.card.image .card-body, .card.image .card-body p {
+    padding: 2px !important;
+    margin: 0 !important;
+}
+
+#control_box {
+    border-right: 1px solid #6C757D;
 }
