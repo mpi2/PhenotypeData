@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"	pageEncoding="UTF-8"%>
 
 <div class="row">
-    <div class="col-6">
+    <div class="col-md-6">
         <div>
             <h4>IMPC</h4>
             <ul class="mt-0">
@@ -27,7 +27,7 @@
         </div>
     </div>
 
-    <div class="col-6">
+    <div class="col-md-6">
         <div>
             <h4>Summary</h4>
             <ul class="mt-0">

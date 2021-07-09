@@ -15,13 +15,17 @@
 <%@attribute name="bodyTag" fragment="true"%>
 <%@attribute name="addToFooter" fragment="true"%>
 
+<c:set var="uri">${pageContext.request.requestURL}</c:set>
+
 <!doctype html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <c:if test="${not fn:contains(uri, 'comparator.jsp' )}">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    </c:if>
     <title><jsp:invoke fragment="title" /> | International Mouse Phenotyping Consortium</title>
     <link rel="profile" href="http://gmpg.org/xfn/11">
     <link rel="pingback" href="${cmsBaseUrl}/xmlrpc.php">
@@ -77,9 +81,9 @@
     <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.css"/>
-
     <script defer type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.js"></script>
-    <script type='text/javascript' src="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.js"></script>
+
+    <script type='text/javascript' src="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.js"></script>
     <script type='text/javascript' src="https://unpkg.com/bootstrap-table@1.15.4/dist/extensions/mobile/bootstrap-table-mobile.min.js"></script>
     <script type='text/javascript' src="https://unpkg.com/bootstrap-table@1.15.4/dist/extensions/cookie/bootstrap-table-cookie.min.js"></script>
 
@@ -108,7 +112,7 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/js/bootstrap-select.min.js" async></script>
     <!-- Latest compiled and minified JavaScript -->
-    
+
     <script>
     <%--
     Some browsers do not provide a console object see:
@@ -165,7 +169,6 @@
 
 </head>
 
-
 <c:choose>
     <c:when test="${not empty bodyTag}">
         <jsp:invoke fragment="bodyTag"/>
@@ -215,15 +218,10 @@
 
 </main>
 
-<t:footer />
+    <t:footer />
 
 <jsp:invoke fragment="addToFooter"/>
-
-<script defer type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js?v=${version}'></script>
-<script defer type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>
-<script defer type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>
-<script defer type='text/javascript' src='${baseUrl}/js/documentationConfig.js?v=${version}'></script>
-
+    <script defer type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>
 </body>
 
 </html>

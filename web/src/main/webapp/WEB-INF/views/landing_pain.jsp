@@ -67,22 +67,22 @@
                     <h2 class="title" id="approach">Approach</h2>
                     <p> In order to identify the role of genes in pain sensitivity and response, IMPC centers will establish pain sensitivity thresholds in knockout mice using assays that are considered informative and humane.</p>
                     <div class="row align-items-center">
-                                <div class="col-6">Mechanical nociception is assessed using <em>von Frey</em> filaments.
+                                <div class="col-md-6">Mechanical nociception is assessed using <em>von Frey</em> filaments.
 										A small nylon filament is applied to the plantar surface of the paw 
 										and time of withdrawal is measured.  Different size fibers diameters 
 										allow application of different forces. The von Frey test is commonly 
 										used in patients.
 								</div>
-								<div class="col-6">
+								<div class="col-md-6">
 									<img src="../img/landing/pain1.png"/>DOI: <a href="https://doi.org/10.13045/acupunct.2017083">https://doi.org/10.13045/acupunct.2017083</a>
 								</div>
                     </div>
                     <div class="row align-items-center">
                                 
-                        <div class="col-6">
+                        <div class="col-md-6">
                             <img src="../img/landing/pain2.png"/>
                         </div>
-                        <div class="col-6">
+                        <div class="col-md-6">
                             <p>
                             Thermal nociception is assessed using Hargreaves testing. Heat is applied 
                             to the plantar surface of the hind paw via a precisely calibrated infrared 

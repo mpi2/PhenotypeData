@@ -36,9 +36,7 @@
 
 	<jsp:attribute name="header">
 	
-		<!-- CSS Local Imports -->
-		<!-- link rel="stylesheet" type="text/css" href="${baseUrl}/css/ui.dropdownchecklist.themeroller.css"/-->
-		
+
 		<!-- JavaScript Local Imports -->
 		<script src="${baseUrl}/js/general/dropdownfilters.js?v=${version}"></script>
 		

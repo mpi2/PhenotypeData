@@ -184,10 +184,10 @@
 			</div>
 
 			<div class="row">
-				<div class="col-6">
+				<div class="col-md-6">
 					<div id="columnChart1"> <script type="text/javascript"> ${ columnChart1 } </script> </div>
 				</div>
-				<div class="col-6">
+				<div class="col-md-6">
 					<div id="columnChart2"><script type="text/javascript"> ${ columnChart2 } </script></div>
 				</div>
 			</div>

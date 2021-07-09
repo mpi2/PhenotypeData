@@ -5,7 +5,7 @@
 <c:if test="${genePercentage.getDisplay()}">
 
     <div class="row">
-        <div class="col-6">
+        <div class="col-md-6">
             <div>Current Total Number of Genes Tested: ${genePercentage.totalGenesTested}</div>
             <div id="pieChart">
                 <script type="text/javascript">${genePercentage.getPieChartCode()}</script>
@@ -13,7 +13,7 @@
         </div>
 
 
-        <div class="col-6">
+        <div class="col-md-6">
             <table>
                 <thead>
                 <tr>

@@ -27,10 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 
-/**
- *
- * @author jwarren
- */
 @Controller
 @RequestMapping("/documentation")
 public class DocumentationController {
@@ -38,15 +34,7 @@ public class DocumentationController {
     @RequestMapping("/{page}")
     public String documentation(@PathVariable String page, HttpServletRequest request){
 
-        String helpBase = (request.getAttribute("cmsBaseUrl").toString().startsWith("http")) ?
-                request.getAttribute("cmsBaseUrl").toString() :
-                request.getScheme() + "://" + request.getAttribute("cmsBaseUrl");
-
-        if (page.equalsIgnoreCase("data-access-api-genotype-phenotype")) {
-            return "redirect:" + helpBase + "/help/programmatic-data-access/phenotype-calls/";
-        } else if (page.equalsIgnoreCase("data-access-api-statistical-result")) {
-            return "redirect:" + helpBase + "/help/programmatic-data-access/statistical-results/";
-        }
-        return "documentation/" + page;
+        // 20210709 - Redirect all old help pages to new help section
+        return "redirect:https://"+request.getAttribute("cmsBaseUrl").toString()+"/help";
     }
 }

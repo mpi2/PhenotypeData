@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"	pageEncoding="UTF-8"%>
 
 <div class="row">
-	<div class="col-6">
+	<div class="col-md-6">
 		<div>
 			<h4>IMPC</h4>
 			<ul class="mt-0">
@@ -27,7 +27,7 @@
 		</div>
 	</div>
 
-	<div class="col-6">
+	<div class="col-md-6">
 		<div>
 			<h4>Summary</h4>
 			<ul class="mt-0">
@@ -470,7 +470,7 @@
 			<div class="col-12">
 				<h4>Overall</h4>
 				<div class="row">
-					<div class="col-6">
+					<div class="col-md-6">
 						<div id="genotypeStatusChart">
 							<script type="text/javascript">$(function () {
 								$('#genotypeStatusChart').highcharts({
@@ -500,7 +500,7 @@
 						</div>
 					</div>
 
-					<div class="col-6">
+					<div class="col-md-6">
 						<div id="phenotypeStatusChart">
 							<script type="text/javascript">$(function () {
 								$('#phenotypeStatusChart').highcharts({
@@ -538,7 +538,7 @@
 		<h4>By Center</h4>
 		<div class="row">
 
-			<div class="col-6">
+			<div class="col-md-6">
 				<div id="genotypeStatusByCenterChart">
 					<script type="text/javascript">$(function () {
 						Highcharts.setOptions({colors: ['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)']});
@@ -626,7 +626,7 @@
 				<div class="clear both"></div>
 			</div>
 
-			<div class="col-6">
+			<div class="col-md-6">
 				<div id="phenotypeStatusByCenterChart">
 					<script type="text/javascript">$(function () {
 						Highcharts.setOptions({colors: ['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)']});

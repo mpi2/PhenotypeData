@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"	pageEncoding="UTF-8"%>
 
 <div class="row">
-    <div class="col-6">
+    <div class="col-md-6">
         <div>
             <h4>IMPC</h4>
             <ul class="mt-0">
@@ -27,7 +27,7 @@
         </div>
     </div>
 
-    <div class="col-6">
+    <div class="col-md-6">
         <div>
             <h4>Summary</h4>
             <ul class="mt-0">
@@ -491,7 +491,7 @@
             <div class="col-12">
                 <h4>Overall</h4>
                 <div class="row">
-                    <div class="col-6">
+                    <div class="col-md-6">
                         <div id="genotypeStatusChart">
                             <script type="text/javascript">$(function () {
                                 $('#genotypeStatusChart').highcharts({
@@ -521,7 +521,7 @@
                         </div>
                     </div>
 
-                    <div class="col-6">
+                    <div class="col-md-6">
                         <div id="phenotypeStatusChart">
                             <script type="text/javascript">$(function () {
                                 $('#phenotypeStatusChart').highcharts({
@@ -558,7 +558,7 @@
     <div class="col-12">
         <h3>By Center</h3>
         <div class="row">
-            <div class="col-6">
+            <div class="col-md-6">
                 <div id="genotypeStatusByCenterChart">
                     <script type="text/javascript">$(function () {
                         var chart_genotypeStatusByCenterChart;
@@ -671,7 +671,7 @@
                 <div class="clear both"></div>
             </div>
 
-            <div class="col-6">
+            <div class="col-md-6">
                 <div id="phenotypeStatusByCenterChart">
                     <script type="text/javascript">$(function () {
                         var chart_phenotypeStatusByCenterChart;

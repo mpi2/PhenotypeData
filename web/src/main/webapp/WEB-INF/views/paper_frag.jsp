@@ -6,12 +6,7 @@
     div.dataTables_wrapper div.dataTables_info { padding-top: 0px; }
 </style>
 <h2 id="publications" class="title capitalize">${systemName} IKMC/IMPC related publications</h2>
-<div class="container">
-    <div class="row">
-        <%--<p>These papers shown have MESH terms containing "<span id='kw'></span>".--%>
-        <div class="col-12 no-gutters" id="alleleRef"></div>
-    </div>
-</div>
+<div class="col-12 no-gutters" id="alleleRef"></div>
 
 <script type='text/javascript' src='${baseUrl}/js/vendor/jquery/jquery.highlight.js'></script>
 <script type='text/javascript' src='${baseUrl}/js/utils/dataTables.searchHighlight.min.js'></script>

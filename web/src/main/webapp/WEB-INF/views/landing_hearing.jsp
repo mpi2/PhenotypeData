@@ -24,16 +24,6 @@
         <script type='text/javascript'
                 src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
 
-
-        <style>
-            /* Override allele ref style for datatable */
-            table.dataTable thead tr {
-                display: table-row;
-            }
-
-
-        </style>
-
 	</jsp:attribute>
 
 
@@ -42,20 +32,6 @@
 	</jsp:attribute>
 
     <jsp:attribute name="addToFooter">
-		<script>
-            $(document).ready(function () {
-                $('#hearing-genes').DataTable({
-                    "bDestroy": true,
-                    "searching": false,
-                    "bLengthChange": false,
-                    "bPaginate": true,
-                    "aaSorting": [[0, "asc"]], // 0-based index
-
-                });
-
-                $('#hearing-genes').attr({'style': 'width: 100%'});
-            });
-        </script>
 
 		<script>
             //ajax chart caller code
@@ -168,13 +144,17 @@
                     <h3>Gene table</h3>
                     <p>Sixty-seven deafness genes were identified:</p>
 
-                    <table id="hearing-genes" class="table tableSorter">
+                    <table id="hearing-genes" data-toggle="table"
+                           data-pagination="true"
+                           data-sortable="true"
+                           data-search="true"
+                           data-mobile-responsive="true">
                         <thead>
                         <tr>
-                            <th class="headerSort ">Gene symbol</th>
-                            <th class="headerSort">Zygosity</th>
-                            <th class="headerSort">Status</th>
-                            <th class="headerSort">Hearing loss</th>
+                            <th data-sortable="true">Gene symbol</th>
+                            <th data-sortable="true">Zygosity</th>
+                            <th data-sortable="true">Status</th>
+                            <th data-sortable="true">Hearing loss</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -590,7 +570,7 @@
                 <div class="col-12">
                     <h2>Vignettes</h2>
                     <div class="row">
-                        <div class="col-6" style="text-align: center">
+                        <div class="col-md-6" style="text-align: center">
                             <h3>Novel, mild hearing loss</h3>
                             <a href="${baseUrl}/genes/MGI:1933736">Adgrb1<sup>tm2a(EUCOMM)Wtsi</sup></a>
                             <div class="chart" id="Adgrb1"
@@ -601,7 +581,7 @@
                             </div>
                         </div>
 
-                        <div class="col-6" style="text-align: center">
+                        <div class="col-md-6" style="text-align: center">
                             <h3>Known, severe hearing loss</h3>
                             <a href="${baseUrl}/genes/MGI:3583900">Elmod1<sup>tm1b(EUCOMM)Hmgu</sup></a>
                             <div class="chart" id="ush1c"
@@ -614,7 +594,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-6" style="text-align: center">
+                        <div class="col-md-6" style="text-align: center">
                             <h3>Novel, high-frequency hearing loss</h3>
                             <a href="${baseUrl}/genes/MGI:1915589">Ccdc88c<sup>tm1b(KOMP)Mbp</sup></a>
                             <div class="chart" id="wdtc1"
@@ -625,7 +605,7 @@
                             </div>
                         </div>
 
-                        <div class="col-6" style="text-align: center">
+                        <div class="col-md-6" style="text-align: center">
                             <h3>Novel, severe hearing loss</h3>
                             <a href="${baseUrl}/genes/MGI:2444708">Zfp719<sup>tm1b(EUCOMM)Wtsi</sup></a>
                             <div class="chart" id="zfp719"
@@ -649,14 +629,12 @@
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-12">
-                    <div class="section" id="paper">
-                        <jsp:include page="paper_frag.jsp"></jsp:include>
-                    </div>
-
-                </div>
+        <div class="row">
+            <div class="col-12" id="paper">
+                <jsp:include page="paper_frag.jsp"></jsp:include>
             </div>
+        </div>
+
 
         </div>
     </jsp:body>

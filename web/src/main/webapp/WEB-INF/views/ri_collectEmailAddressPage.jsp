@@ -82,7 +82,7 @@
 
                                             <div class="form-group row">
                                                 <label for="emailAddress" class="col-4 pl-0 col-form-label">Email address:</label>
-                                                <div class="col-6 m-0 pl-0">
+                                                <div class="col-md-6 m-0 pl-0">
                                                     <input
                                                             class="m-0 pl-1 col-md-12"
                                                             type="email"
@@ -97,7 +97,7 @@
 
                                             <div class="form-group row">
                                                 <label for="repeatEmailAddress" class="col-4 pl-0 col-form-label">Repeat email address:</label>
-                                                <div class="col-6 m-0 pl-0">
+                                                <div class="col-md-6 m-0 pl-0">
                                                     <input
                                                             class="m-0 pl-1 col-md-12"
                                                             type="email"

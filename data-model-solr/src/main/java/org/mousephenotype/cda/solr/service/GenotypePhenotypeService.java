@@ -1313,7 +1313,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
             genotypePhenotypeDTOS = genotypePhenotypeDTOS
                     .stream()
                     .filter(gene -> gene.getTopLevelMpTermName()!= null)
-                    .filter(gene -> gene.getTopLevelMpTermName().containsAll(topLevelMpTerms))
+                    .filter(gene -> topLevelMpTerms.stream().anyMatch(gene.getTopLevelMpTermName()::contains))
                     .collect(Collectors.toSet());
         }
 
