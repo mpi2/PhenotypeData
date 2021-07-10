@@ -188,17 +188,3 @@ function ajaxToBe(phenotype, parameter){
 	
 }
 
-
-/* new sorting functions */
-//http://datatables.net/forums/discussion/5894/datatable-sorting-scientific-notation
-jQuery.fn.dataTableExt.oSort['allnumeric-asc']  = function(a,b) {
-          var x = parseFloat(a);
-          var y = parseFloat(b);
-          return ((x < y) ? -1 : ((x > y) ?  1 : 0));
-        };
-
-jQuery.fn.dataTableExt.oSort['allnumeric-desc']  = function(a,b) {
-          var x = parseFloat(a);
-          var y = parseFloat(b);
-          return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
-        };

@@ -37,10 +37,15 @@
 
 <script>
     function sortString(sortName, sortOrder, data) {
+        console.log("In sortString function");
+        console.log("sortName = " + sortName);
+        console.log("sortOrder = " + sortOrder);
+        console.log("data = ");
+        console.log(data);
         var order = sortOrder === 'desc' ? -1 : 1;
         data.sort(function (a, b) {
-            var aa = sortName === 6 ? parseFloat(a['_' + sortName + '_data']['value']) || 0.0: a['_' + sortName + '_data']['value'];
-            var bb = sortName === 6 ? parseFloat(b['_' + sortName + '_data']['value']) || 0.0: b['_' + sortName + '_data']['value'];
+            var aa = sortName === 7 ? parseFloat(a['_' + sortName + '_data']['value']) || 0.0: a['_' + sortName + '_data']['value'];
+            var bb = sortName === 7 ? parseFloat(b['_' + sortName + '_data']['value']) || 0.0: b['_' + sortName + '_data']['value'];
             if (aa < bb) {
                 return order * -1
             }
@@ -51,7 +56,15 @@
         })
     }
 
-    function sortPValue(a, b, rowA, rowB) {
+    function sortPValue(a, b) {
+        console.log("a: " + a);
+        console.log("b: " + b);
+        if (parseFloat(a) < parseFloat(b)) return 1;
+        if (parseFloat(a) > parseFloat(b)) return -1;
+        return 0;
+    }
+
+    function sortPValueOld(a, b, rowA, rowB) {
         console.log(rowA);
         if (parseFloat(rowA._6_data.value) < parseFloat(rowB._6_data.value)) return 1;
         if (parseFloat(rowA._6_data.value) > parseFloat(rowB._6_data.value)) return -1;

@@ -21,52 +21,45 @@
 <table id="significant-phenotypes-table"
        data-toggle="table"
        data-pagination="true"
-       data-sortable="true"
        data-custom-sort="sortString"
        data-search="true"
-       data-card-view="true"
-       data-show-search-clear-button="true"
        data-mobile-responsive="true">
 
     <thead>
     <tr>
-        <th data-sortable="true" data-field="0" >Gene / Allele</th>
-        <th data-sortable="true" data-field="1">Zygosity</th>
-        <th data-field="2">Sex</th>
-        <th data-sortable="true" data-field="3">Life Stage</th>
-        <th data-sortable="true" data-field="4">Phenotype</th>
-        <th data-sortable="true" data-field="5">Parameter</th>
-        <th data-sortable="true" data-field="6">Phenotyping Center</th>
-        <th data-sortable="true" data-field="7">P Value</th>
+        <th data-sortable="true" data-sort-name="value">Gene / Allele</th>
+        <th data-sortable="true" data-sort-name="value">Zygosity</th>
+        <th>Sex</th>
+        <th data-sortable="true" data-sort-name="value">Life Stage</th>
+        <th data-sortable="true" data-sort-name="value">Phenotype</th>
+        <th data-sortable="true" data-sort-name="value">Parameter</th>
+        <th data-sortable="true" data-sort-name="value">Phenotyping<br/>Center</th>
+        <th data-sortable="true" data-sorter="sortPValue" data-sort-name="value">P Value</th>
     </tr>
     </thead>
 
     <tbody>
     <c:forEach var="phenotype" items="${phenotypes}" varStatus="status">
         <c:set var="europhenome_gender" value="Both-Split"/>
-        <tr data-link="${fn:escapeXml(phenotype.getEvidenceLink().url)}" class="clickableRow">
+        <tr data-link="${fn:escapeXml(phenotype.evidenceLink.url)}" class="clickableRow">
 
-            <td><span href="${baseUrl}/genes/${phenotype.gene.accessionId}">${phenotype.gene.symbol}</span><br/>
+            <td data-value="${phenotype.gene.symbol}_${phenotype.allele.symbol}"><span href="${baseUrl}/genes/${phenotype.gene.accessionId}">${phenotype.gene.symbol}</span><br/>
                 <span class="small font-italic"><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></span>
             </td>
 
-            <td>${phenotype.zygosity.getShortName()}</td>
+            <td data-value="${phenotype.zygosity.shortName}">${phenotype.zygosity.shortName}</td>
 
-            <td style="font-family:Verdana;font-weight:bold;">
-                <t:displaySexes sexes="${phenotype.sexes}"></t:displaySexes>
-            </td>
+            <td><t:displaySexes sexes="${phenotype.sexes}"></t:displaySexes></td>
 
-            <td>${phenotype.lifeStageName}</td>
+            <td data-value="${phenotype.lifeStageName}">${phenotype.lifeStageName}</td>
 
-            <td>${phenotype.phenotypeTerm.name}</td>
+            <td data-value="${phenotype.phenotypeTerm.name}">${phenotype.phenotypeTerm.name}</td>
 
-            <td>${phenotype.parameter.name}<br /><span class="small font-italic">${phenotype.procedure.name}</td>
+            <td data-value="${phenotype.parameter.name}">${phenotype.parameter.name}<br /><span class="small font-italic">${phenotype.procedure.name}</td>
 
-            <td>${phenotype.phenotypingCenter}<br /><span class="small font-italic">${phenotype.dataSourceName}</span></td>
+            <td data-value="${phenotype.phenotypingCenter}">${phenotype.phenotypingCenter}<br /><span class="small font-italic">${phenotype.dataSourceName}</span></td>
 
-            <td data-sort="${phenotype.prValueAsString}">
-                <t:formatScientific>${phenotype.prValueAsString}</t:formatScientific>
-            </td>
+            <td data-value="${phenotype.prValueAsString}"><t:formatScientific>${phenotype.prValueAsString}</t:formatScientific></td>
 
         </tr>
     </c:forEach>
