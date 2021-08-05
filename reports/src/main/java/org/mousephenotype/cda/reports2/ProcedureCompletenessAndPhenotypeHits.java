@@ -53,16 +53,15 @@ import java.util.stream.Collectors;
 @ComponentScan({"org.mousephenotype.cda.reports2"})
 public class ProcedureCompletenessAndPhenotypeHits implements CommandLineRunner {
 
-    private Logger                       logger          = LoggerFactory.getLogger(this.getClass());
-    private ProcedureCompletenessService procedureCompletenessService;
-    private MpService                    mpService;
-    private CommonUtils                  commonUtils     = new CommonUtils();
-    private Separator                    separator       = Separator.csv;
-    private String                       simpleClassName = ClassUtils.getUserClass(ProcedureCompletenessAndPhenotypeHits.class).getSimpleName();
-    private String                       reportName;
-    private MpCsvWriter                  writer;
+    private Separator separator = Separator.csv;
+    private MpCsvWriter writer;
+    private Map<String, MpDTO> mpToTopLevelMp;
 
-    Map<String, MpDTO> mpToTopLevelMp;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final ProcedureCompletenessService procedureCompletenessService;
+    private final MpService mpService;
+    private final CommonUtils commonUtils = new CommonUtils();
+    private final String simpleClassName = ClassUtils.getUserClass(ProcedureCompletenessAndPhenotypeHits.class).getSimpleName();
 
     private final String[] heading = {
         "Gene Symbol",
@@ -157,7 +156,7 @@ public class ProcedureCompletenessAndPhenotypeHits implements CommandLineRunner 
             geneCount, commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
 
         ConfigurableApplicationContext context = new SpringApplicationBuilder(ProcedureCompletenessAndPhenotypeHits.class)
             .web(WebApplicationType.NONE)
@@ -196,42 +195,40 @@ public class ProcedureCompletenessAndPhenotypeHits implements CommandLineRunner 
         Statuses success      = new Statuses(byStatus.get("Successful"));
         Statuses notProcessed = new Statuses(byStatus.get("NotProcessed"));
 
-        if (success.procStatusSet.isEmpty()) {
-            row.add(Constants.NONE);
-            row.add(Constants.NONE);
-            row.add("0");
-            row.add(notProcessed.procStatus.name);
-            row.add(notProcessed.procStatus.id);
-            row.add(Integer.toString(notProcessed.procStatusSet.size()));
-        } else {
-            row.add(success.procStatus.name);
-            row.add(success.procStatus.id);
-            row.add(Integer.toString(success.procStatusSet.size()));
-            row.add(Constants.NONE);
-            row.add(Constants.NONE);
-            row.add("0");
-        }
+        // Remove those procedures that are Successful from the NotProcessed set
+        notProcessed.procStatusSet.removeAll(success.procStatusSet);
 
-        row.add(success.parmStatusSet.isEmpty() ? Constants.NONE : success.parmStatus.name);
-        row.add(success.parmStatusSet.isEmpty() ? Constants.NONE : success.parmStatus.id);
-        row.add(success.parmStatusSet.isEmpty() ? "0" : Integer.toString(success.parmStatusSet.size()));
-        row.add(notProcessed.parmStatusSet.isEmpty() ? Constants.NONE : notProcessed.parmStatus.name);
-        row.add(notProcessed.parmStatusSet.isEmpty() ? Constants.NONE : notProcessed.parmStatus.id);
-        row.add(notProcessed.parmStatusSet.isEmpty() ? "0" : Integer.toString(notProcessed.parmStatusSet.size()));
+        setProcedureStatus(row, success);
+        setProcedureStatus(row, notProcessed);
 
-        row.add(success.tlmpStatusSet.isEmpty() ? Constants.NONE : success.tlmpStatus.name);
+        setParameterStatus(row, success);
+        setParameterStatus(row, notProcessed);
+
+        row.add(success.tlmpStatusSet.isEmpty() ? Constants.NONE : Objects.requireNonNull(success.tlmpStatus).name);
         row.add(success.tlmpStatusSet.isEmpty() ? Constants.NONE : success.tlmpStatus.id);
         row.add(success.tlmpStatusSet.isEmpty() ? "0" : Integer.toString(success.tlmpStatusSet.size()));
 
-        row.add(success.tlmpSignificantStatusSet.isEmpty() ? Constants.NONE : success.tlmpSignificantStatus.name);
+        row.add(success.tlmpSignificantStatusSet.isEmpty() ? Constants.NONE : Objects.requireNonNull(success.tlmpSignificantStatus).name);
         row.add(success.tlmpSignificantStatusSet.isEmpty() ? Constants.NONE : success.tlmpSignificantStatus.id);
         row.add(success.tlmpSignificantStatusSet.isEmpty() ? "0" : Integer.toString(success.tlmpSignificantStatusSet.size()));
 
-        row.add(success.mpStatusSet.isEmpty() ? Constants.NONE : success.mpStatus.name);
+        row.add(success.mpStatusSet.isEmpty() ? Constants.NONE : Objects.requireNonNull(success.mpStatus).name);
         row.add(success.mpStatusSet.isEmpty() ? Constants.NONE : success.mpStatus.id);
         row.add(success.mpStatusSet.isEmpty() ? "0" : Integer.toString(success.mpStatusSet.size()));
 
         return row;
+    }
+
+    private void setParameterStatus(List<String> row, Statuses statuses) {
+        row.add(statuses.parmStatusSet.isEmpty() ? Constants.NONE : Objects.requireNonNull(statuses.parmStatus).name);
+        row.add(statuses.parmStatusSet.isEmpty() ? Constants.NONE : Objects.requireNonNull(statuses.parmStatus).id);
+        row.add(statuses.parmStatusSet.isEmpty() ? "0" : Integer.toString(statuses.parmStatusSet.size()));
+    }
+
+    private void setProcedureStatus(List<String> row, Statuses statuses) {
+        row.add(statuses.procStatusSet.isEmpty() ? Constants.NONE : Objects.requireNonNull(statuses.procStatus).name);
+        row.add(statuses.procStatusSet.isEmpty() ? Constants.NONE : Objects.requireNonNull(statuses.procStatus).id);
+        row.add(statuses.procStatusSet.isEmpty() ? "0" : Integer.toString(statuses.procStatusSet.size()));
     }
 
     private class Statuses {
@@ -255,31 +252,32 @@ public class ProcedureCompletenessAndPhenotypeHits implements CommandLineRunner 
                 tlmpSignificantStatus = null;
                 mpStatus = null;
             } else {
-                dtos
-                    .stream()
-                    .forEach(d -> {
-                        parmStatusSet.add(new IdName(d.getParameterName(), d.getParameterStableId()));
-                        for (String procId : d.getProcedureStableId()) {
-                            procStatusSet.add(new IdName(d.getProcedureName(), procId));
-                        }
-                        if (d.getMpTermName() != null) {
-                            mpStatusSet.add(new IdName(d.getMpTermName(), d.getMpTermId()));
-                            MpDTO tlmpDto = mpToTopLevelMp.get(d.getMpTermId());
-                            // Skip terms with no top-level. They are already top-level and have null top level mp terms
-                            if ((tlmpDto != null) && (tlmpDto.getTopLevelMpTerm() != null)) {
-                                for (int i = 0; i < tlmpDto.getTopLevelMpTerm().size(); i++) {
-                                    tlmpSignificantStatusSet.add(new IdName(tlmpDto.getTopLevelMpTerm().get(i),
+                for (StatisticalResultDTO d : dtos) {
+
+                    parmStatusSet.add(new IdName(d.getParameterName(), d.getParameterStableId()));
+                    for (String procId : d.getProcedureStableId()) {
+                        procStatusSet.add(new IdName(d.getProcedureName(), procId));
+                    }
+
+                    if (d.getMpTermName() != null) {
+                        mpStatusSet.add(new IdName(d.getMpTermName(), d.getMpTermId()));
+                        MpDTO tlmpDto = mpToTopLevelMp.get(d.getMpTermId());
+                        // Skip terms with no top-level. They are already top-level and have null top level mp terms
+                        if ((tlmpDto != null) && (tlmpDto.getTopLevelMpTerm() != null)) {
+                            for (int i = 0; i < tlmpDto.getTopLevelMpTerm().size(); i++) {
+                                tlmpSignificantStatusSet.add(new IdName(tlmpDto.getTopLevelMpTerm().get(i),
                                         tlmpDto.getTopLevelMpId().get(i)));
-                                }
                             }
                         }
-                        if (d.getTopLevelMpTermName() != null) {
-                            for (int i = 0; i < d.getTopLevelMpTermName().size(); i++) {
-                                tlmpStatusSet.add(new IdName(d.getTopLevelMpTermName().get(i),
+                    }
+
+                    if (d.getTopLevelMpTermName() != null) {
+                        for (int i = 0; i < d.getTopLevelMpTermName().size(); i++) {
+                            tlmpStatusSet.add(new IdName(d.getTopLevelMpTermName().get(i),
                                     d.getTopLevelMpTermId().get(i)));
-                            }
                         }
-                    });
+                    }
+                }
 
                 parmStatus = new IdName(parmStatusSet);
                 procStatus = new IdName(procStatusSet);
@@ -344,7 +342,7 @@ public class ProcedureCompletenessAndPhenotypeHits implements CommandLineRunner 
         }
 
         String targetDir = props.get(ReportUtils.TARGET_DIRECTORY_ARG);
-        reportName = Introspector.decapitalize(simpleClassName) + "." + separator.toString();
+        String reportName = Introspector.decapitalize(simpleClassName) + "." + separator.toString();
         File targetFile = new File(Paths.get(targetDir, reportName).toAbsolutePath().toString());
         try {
             writer = new MpCsvWriter(targetFile.getAbsolutePath(), false, separator.getSeparator());
