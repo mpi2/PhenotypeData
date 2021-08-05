@@ -1032,7 +1032,7 @@
                                 </h2>
                                 <img src="https://picsum.photos/id/10/800/240?blur=10" class="mb-3" />
                                 <p>
-                                    Phenotype comparisons summarize the similarity of mouse phenotypes with human phenotypes for diseases associated with the human gene that is orthologous to Cib2. This analysis uses data from IMPC along with data from MGD.
+                                    Phenotype comparisons summarize the similarity of mouse phenotypes with human phenotypes for diseases associated with the human gene that is orthologous to ${gene.markerSymbol}. This analysis uses data from IMPC along with data from MGD.
                                 </p>
                             </div>
                             <div>
