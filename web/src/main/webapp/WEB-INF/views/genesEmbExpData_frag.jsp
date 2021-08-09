@@ -75,13 +75,10 @@
                   </th>
                   </thead>
                   <tbody>
-                  <c:forEach var="mapEntry"
-                             items="${embryoExpressionAnatomyToRow}">
+                  <c:forEach var="mapEntry" items="${embryoExpressionAnatomyToRow}">
                       <tr>
-                          <td><span> ${mapEntry.value.abnormalAnatomyName}
-                                  <%--${fn:replace(mapEntry.value.abnormalAnatomyName, "TS20 ","")}--%>
-
-                          </span>
+                          <td>
+                              <span>${fn:toUpperCase(fn:substring(mapEntry.key, 0, 1))}${fn:toLowerCase(fn:substring(mapEntry.key, 1,fn:length(mapEntry.key)))}</span>
                           </td>
                           <td><span
                                   title="${mapEntry.value.numberOfHetSpecimens} Heterozygous Mutant Mice">${mapEntry.value.numberOfHetSpecimens}</span>
