@@ -4,18 +4,26 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
 
 @Service
 public class ExpressionServiceLacz {
 
-    private SolrClient experimentCore;
+    private static final Logger log = LoggerFactory.getLogger(ExpressionServiceLacz.class);
+
+    private final SolrClient experimentCore;
 
     @Inject
     public ExpressionServiceLacz(
@@ -25,43 +33,91 @@ public class ExpressionServiceLacz {
         this.experimentCore = experimentCore;
     }
 
+    private Integer getNumDocs(SolrClient core, SolrQuery query) throws SolrServerException, IOException {
+        query.setRows(0);
+        QueryResponse response = core.query(query);
+        return ((Long)response.getResults().getNumFound()).intValue();
+
+    }
+
     /**
      * DO NOT MOVE THIS METHOD TO ExpressionService CLASS. IT WILL BREAK SPRING CACHING
      *
      * @param mgiAccession if mgi accession null assume a request for control data
      */
-    @Cacheable("categoricalLaczData")
-    public QueryResponse getCategoricalAdultLacZData(String mgiAccession, boolean embryo, String... fields)
+    @Cacheable("categoricalLaczDataDocs")
+    public SolrDocumentList getCategoricalAdultLacZDocuments(String mgiAccession, boolean embryo, String... fields)
             throws SolrServerException, IOException {
 
         // e.g.
-        // http://wp-np2-e1.ebi.ac.uk:8090/mi/impc/dev/solr/experiment/select?q=gene_accession_id:%22MGI:1351668%22&facet=true&facet.field=parameter_name&facet.mincount=1&fq=(procedure_name:%22Adult%20LacZ%22)&rows=10000
+        // http://wp-np2-e2.ebi.ac.uk:8986/solr/experiment/select?q=biological_sample_group:%22control%22&fq=procedure_name:%22Adult+LacZ%22&fq=-parameter_name:%22LacZ+Images+Section%22&fq=-parameter_name:%22LacZ+Images+Wholemount%22&fq=observation_type:%22categorical%22&fl=zygosity,external_sample_id,observation_type,parameter_name,category,biological_sample_group&rows=50000&sort=id+asc
         SolrQuery solrQuery = new SolrQuery();
         if (mgiAccession != null) {
-            solrQuery.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"");
+            solrQuery.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\" AND " + ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
         } else {
-            // http://wp-np2-e1.ebi.ac.uk:8090/mi/impc/dev/solr/impc_images/select?q=biological_sample_group:control&facet=true&facet.field=ma_term&facet.mincount=1&fq=(parameter_name:%22LacZ%20Images%20Section%22%20OR%20parameter_name:%22LacZ%20Images%20Wholemount%22)&rows=100000
-            solrQuery.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"" + "control" + "\"");
+            solrQuery.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"" + "control" + "\" AND " + ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
         }
         if (embryo) {
             solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Embryo LacZ\"");
             solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ images section\"");
             solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ images wholemount\"");
-            solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
         } else {
             solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\"");
             solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\"");
             solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\"");
-            solrQuery.addFilterQuery(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
         }
 
-        solrQuery.addSort(ImageDTO.ID, SolrQuery.ORDER.asc);
         solrQuery.setFields(fields);
-        solrQuery.setRows(Integer.MAX_VALUE);
         solrQuery.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
 
-        QueryResponse response = experimentCore.query(solrQuery);
-        return response;
+        int batchSize = 1000;
+        int numDocs = getNumDocs(experimentCore, solrQuery.getCopy());
+
+        solrQuery.setRows(numDocs);
+
+        SolrDocumentList docs = new SolrDocumentList();
+
+        if (numDocs < batchSize) {
+            // do single query
+            docs.addAll(experimentCore.query(solrQuery).getResults());
+        } else {
+            // multiple queries required
+            // Parallelize the queries for performance
+            ExecutorService executor = Executors.newFixedThreadPool(10);
+            List<Callable<SolrDocumentList>> queries = new ArrayList<>();
+            int currentDoc = 0;
+            while (currentDoc < numDocs) {
+                SolrQuery batchedQuery = solrQuery.getCopy();
+                batchedQuery.setStart(currentDoc);
+                final int iteration = currentDoc /batchSize;
+                Callable<SolrDocumentList> callableTask = () -> {
+                    log.debug("Solr query "+ iteration +" to get expression results (experiment core): " + batchedQuery);
+                    final long start = System.currentTimeMillis();
+                    final SolrDocumentList results = experimentCore.query(batchedQuery).getResults();
+                    log.debug("  Query took (ms): " + (System.currentTimeMillis() - start));
+                    return results;
+                };
+                queries.add(callableTask);
+                currentDoc += batchSize;
+            }
+            try {
+                List<Future<SolrDocumentList>> documentLists = executor.invokeAll(queries);
+                documentLists.forEach(x -> {
+                    try {
+                        docs.addAll(x.get());
+                    } catch (InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                });
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } finally {
+                executor.shutdown();
+            }
+        }
+
+        return docs;
     }
+
 
 }
