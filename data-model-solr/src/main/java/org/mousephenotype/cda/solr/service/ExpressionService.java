@@ -25,6 +25,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.mousephenotype.cda.enumerations.SexType;
+import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.bean.ExpressionImagesBean;
 import org.mousephenotype.cda.solr.service.dto.ImageDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
@@ -37,6 +38,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -472,30 +474,33 @@ public class ExpressionService extends BasicService {
 		Map<String, ExpressionRowBean> mutantImagesAnatomyToRow = new TreeMap<>();
 		Map<String, SolrDocumentList> mutantImagesAnatomyToDocs = getAnatomyToDocs(imagesMutantResponse);
 
-		for (String anatomy : expressionAnatomyToDocs.keySet()) {
+		// Determine for which zygosities we have data
+		List<String> zygosities = expressionAnatomyToDocs.values().stream()
+				.flatMap(Collection::stream)
+				.map(x->x.get("zygosity").toString())
+				.distinct()
+				.collect(Collectors.toList());
 
-			ExpressionRowBean expressionRow = getAnatomyRow(anatomy, expressionAnatomyToDocs, embryo);
-			int hetSpecimens = 0;
-			for (String key : expressionRow.getSpecimen().keySet()) {
-				if (expressionRow.getSpecimen().get(key).getZyg().equalsIgnoreCase("heterozygote")) {
-					hetSpecimens++;
+		for (String zygosity : zygosities) {
+
+			for (String anatomy : expressionAnatomyToDocs.keySet()) {
+
+				ExpressionRowBean expressionRow = getAnatomyRow(anatomy, expressionAnatomyToDocs, zygosity, embryo);
+				if ( ! expressionRow.specimen.isEmpty()) {
+					expressionAnatomyToRow.put(anatomy + "_" + zygosity, expressionRow);
 				}
+
+				ExpressionRowBean mutantImagesRow = getAnatomyRow(anatomy, mutantImagesAnatomyToDocs, zygosity, embryo);
+				mutantImagesAnatomyToRow.put(anatomy+"_"+zygosity, mutantImagesRow);
 			}
-			expressionRow.setNumberOfHetSpecimens(hetSpecimens);
-			expressionAnatomyToRow.put(anatomy, expressionRow);
-
-			ExpressionRowBean wtRow = getAnatomyRow(anatomy, wtAnatomyToDocs, embryo);
-
-			if (wtRow.getSpecimenExpressed().keySet().size() > 0) {
-				wtRow.setWildTypeExpression(true);
-			}
-			wtAnatomyToRow.put(anatomy, wtRow);
-
-			ExpressionRowBean mutantImagesRow = getAnatomyRow(anatomy, mutantImagesAnatomyToDocs, embryo);
-			mutantImagesRow.setNumberOfHetSpecimens(hetSpecimens);
-			mutantImagesAnatomyToRow.put(anatomy, mutantImagesRow);
-
 		}
+
+		// Populate the WT expression data structure for the same list of tissues
+		for (String anatomy : expressionAnatomyToDocs.keySet()) {
+			ExpressionRowBean wtRow = getAnatomyRow(anatomy, wtAnatomyToDocs, ZygosityType.homozygote.getName(), embryo);
+			wtAnatomyToRow.put(anatomy, wtRow);
+		}
+
 		if (embryo) {
 			model.addAttribute("embryoExpressionAnatomyToRow", expressionAnatomyToRow);
 			model.addAttribute("embryoMutantImagesAnatomyToRow", mutantImagesAnatomyToRow);
@@ -543,13 +548,19 @@ public class ExpressionService extends BasicService {
 		abnormalEmapaFromImpress = impressService.getParameterStableIdToAbnormalEmapaMap();
 	}
 
-	private ExpressionRowBean getAnatomyRow(String anatomy, Map<String, SolrDocumentList> anatomyToDocs,
+	private ExpressionRowBean getAnatomyRow(
+			String anatomy,
+			Map<String, SolrDocumentList> anatomyToDocs,
+			String zygosity,
 			boolean embryo) {
 
 		ExpressionRowBean row = new ExpressionRowBean();
 		if (anatomyToDocs.containsKey(anatomy)) {
 
 			for (SolrDocument doc : anatomyToDocs.get(anatomy)) {
+				if ( ! doc.get("zygosity").equals(zygosity)) {
+					continue;
+				}
 				if (doc.containsKey(ObservationDTO.OBSERVATION_TYPE)
 						&& doc.get(ObservationDTO.OBSERVATION_TYPE).equals("categorical")) {
 
@@ -986,6 +997,10 @@ public class ExpressionService extends BasicService {
 
 		public Map<String, Specimen> getSpecimen() {
 			return this.specimen;
+		}
+
+		public String getZygosity() {
+			return getSpecimen().values().stream().map(Specimen::getZyg).distinct().collect(Collectors.joining(", "));
 		}
 
 	}
