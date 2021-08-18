@@ -52,25 +52,20 @@ public class ExpressionServiceLacz {
         // e.g.
         // http://wp-np2-e2.ebi.ac.uk:8986/solr/experiment/select?q=biological_sample_group:%22control%22&fq=procedure_name:%22Adult+LacZ%22&fq=-parameter_name:%22LacZ+Images+Section%22&fq=-parameter_name:%22LacZ+Images+Wholemount%22&fq=observation_type:%22categorical%22&fl=zygosity,external_sample_id,observation_type,parameter_name,category,biological_sample_group&rows=50000&sort=id+asc
         SolrQuery solrQuery = new SolrQuery();
+
+        String procedureName = embryo ? "Embryo LacZ" : "Adult LacZ";
+        String procSolrString = ImageDTO.PROCEDURE_NAME + ":\""+procedureName+"\"";
+
         if (mgiAccession != null) {
-            solrQuery.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\" AND " + ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
+            solrQuery.setQuery(procSolrString + " AND " + ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\" AND " + ObservationDTO.OBSERVATION_TYPE + ":\"categorical\" AND " + "-" + ImageDTO.PARAMETER_NAME + ":\"LacZ images section\" AND " + "-" + ImageDTO.PARAMETER_NAME + ":\"LacZ images wholemount\"");
         } else {
-            solrQuery.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"" + "control" + "\" AND " + ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
-        }
-        if (embryo) {
-            solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Embryo LacZ\"");
-            solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ images section\"");
-            solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ images wholemount\"");
-        } else {
-            solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\"");
-            solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\"");
-            solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\"");
+            solrQuery.setQuery(procSolrString + " AND " + ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"" + "control" + "\" AND " + ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
         }
 
         solrQuery.setFields(fields);
         solrQuery.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
 
-        int batchSize = 1000;
+        int batchSize = 500;
         int numDocs = getNumDocs(experimentCore, solrQuery.getCopy());
 
         solrQuery.setRows(numDocs);
@@ -83,6 +78,9 @@ public class ExpressionServiceLacz {
         } else {
             // multiple queries required
             // Parallelize the queries for performance
+
+            solrQuery.setRows(batchSize);
+
             ExecutorService executor = Executors.newFixedThreadPool(10);
             List<Callable<SolrDocumentList>> queries = new ArrayList<>();
             int currentDoc = 0;
