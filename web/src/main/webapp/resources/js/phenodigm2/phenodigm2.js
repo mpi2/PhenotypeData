@@ -785,8 +785,7 @@ impc.phenodigm2.insertPhenogrid = function (tableId, geneId, diseaseId, pageType
         }
         // generate phenogrid widget (heatmap)
         Phenogrid.createPhenogridForElement(targetdiv, {
-            //monarchUrl is a global variable provided via Spring from application.properties
-            serverURL: monarchUrl,
+            serverURL: 'https://legacy.monarchinitiative.org',
             // sort method of sources: "Alphabetic", "Frequency and Rarity", "Frequency,
             selectedSort: "Frequency and Rarity",
             gridSkeletonDataVendor: 'IMPC',
