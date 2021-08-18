@@ -101,10 +101,10 @@ public class ExpressionServiceLacz {
                 batchedQuery.setStart(currentDoc);
                 final int iteration = currentDoc /batchSize;
                 Callable<SolrDocumentList> callableTask = () -> {
-                    System.out.println("Solr query "+ iteration +" to get expression results (experiment core): " + batchedQuery);
+                    log.debug("Solr query "+ iteration +" to get expression results (experiment core): " + batchedQuery);
                     final long start = System.currentTimeMillis();
                     final SolrDocumentList results = experimentCore.query(batchedQuery).getResults();
-                    System.out.println("  Query took (ms): " + (System.currentTimeMillis() - start));
+                    log.debug("  Query took (ms): " + (System.currentTimeMillis() - start));
                     return results;
                 };
                 queries.add(callableTask);
