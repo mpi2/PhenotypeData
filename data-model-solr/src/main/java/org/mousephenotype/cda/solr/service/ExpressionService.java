@@ -451,19 +451,19 @@ public class ExpressionService extends BasicService {
 	 */
 	public Model getExpressionDataForGene(String acc, Model model, boolean embryo) throws SolrServerException, IOException  {
 
-		SolrDocumentList mutantCategoricalAdultLacZData = expressionServiceLacz.getCategoricalAdultLacZDocuments(acc, embryo, ImageDTO.ZYGOSITY,
+		SolrDocumentList mutantCategoricalLacZData = expressionServiceLacz.getCategoricalLacZDocuments(acc, embryo, ImageDTO.ZYGOSITY,
 				ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.PARAMETER_STABLE_ID,
 				ObservationDTO.PARAMETER_NAME, ObservationDTO.CATEGORY, ObservationDTO.BIOLOGICAL_SAMPLE_GROUP);
 
-		Map<String, SolrDocumentList> expressionAnatomyToDocs = getAnatomyToDocsForCategorical(mutantCategoricalAdultLacZData);
+		Map<String, SolrDocumentList> expressionAnatomyToDocs = getAnatomyToDocsForCategorical(mutantCategoricalLacZData);
 		Map<String, ExpressionRowBean> expressionAnatomyToRow = new TreeMap<>();
 		Map<String, ExpressionRowBean> wtAnatomyToRow = new TreeMap<>();
 
-		SolrDocumentList wtCategoricalAdultLacZData = expressionServiceLacz.getCategoricalAdultLacZDocuments(null, embryo, ImageDTO.ZYGOSITY,
+		SolrDocumentList wtCategoricalLacZData = expressionServiceLacz.getCategoricalLacZDocuments(null, embryo, ImageDTO.ZYGOSITY,
 				ImageDTO.EXTERNAL_SAMPLE_ID, ObservationDTO.OBSERVATION_TYPE, ObservationDTO.PARAMETER_NAME,
 				ObservationDTO.CATEGORY, ObservationDTO.BIOLOGICAL_SAMPLE_GROUP);
 
-		Map<String, SolrDocumentList> wtAnatomyToDocs = getAnatomyToDocsForCategorical(wtCategoricalAdultLacZData);
+		Map<String, SolrDocumentList> wtAnatomyToDocs = getAnatomyToDocsForCategorical(wtCategoricalLacZData);
 
 		QueryResponse laczImagesResponse = null;
 

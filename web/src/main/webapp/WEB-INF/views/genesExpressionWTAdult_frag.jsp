@@ -12,7 +12,7 @@
                 <table id="adultWtExpressionTable" data-toggle="table" data-pagination="true" data-mobile-responsive="true" data-sortable="true">
                     <thead>
                     <th data-sortable="true">Anatomy</th>
-                    <th data-width="100px" data-halign="right">WT Expr</th>
+                    <th data-width="100px" data-halign="right">Background staining in controls (WT)</th>
                     </thead>
                     <tbody>
                     <c:forEach var="mapEntry" items="${wtAnatomyToRow}">
@@ -22,7 +22,7 @@
                             <td data-align="right">
                                 <c:choose>
                                     <c:when test="${wtAnatomyToRow[mapEntry.key].expression}">
-                                        <fmt:formatNumber pattern="#.##">${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed) / fn:length(wtAnatomyToRow[mapEntry.key].specimen) * 100}</fmt:formatNumber>%
+                                        <fmt:formatNumber pattern="#.##">${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed) / fn:length(wtAnatomyToRow[mapEntry.key].specimen) * 100}</fmt:formatNumber>% (${fn:length(wtAnatomyToRow[mapEntry.key].specimenExpressed)} of ${fn:length(wtAnatomyToRow[mapEntry.key].specimen)})
                                     </c:when>
                                     <c:when test="${wtAnatomyToRow[mapEntry.key].notExpressed}">
                                         0.0%
