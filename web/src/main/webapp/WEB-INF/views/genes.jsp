@@ -836,7 +836,7 @@
                         <div class="page-content p-5">
                             <div class="mb-5">
                                 <h2>
-                                    Expression
+                                    lacZ Expression
                                     <a href="${cmsBaseUrl}/help/gene-page/lacz-expression/" title="Go to expression help">
                                         <i class="fal fa-question-circle fa-xs text-muted align-middle" style="font-size: 20px;"></i>
                                     </a>

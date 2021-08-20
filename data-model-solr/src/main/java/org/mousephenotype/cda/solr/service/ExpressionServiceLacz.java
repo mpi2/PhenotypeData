@@ -46,7 +46,7 @@ public class ExpressionServiceLacz {
      * @param mgiAccession if mgi accession null assume a request for control data
      */
     @Cacheable("categoricalLaczDataDocs")
-    public SolrDocumentList getCategoricalAdultLacZDocuments(String mgiAccession, boolean embryo, String... fields)
+    public SolrDocumentList getCategoricalLacZDocuments(String mgiAccession, boolean embryo, String... fields)
             throws SolrServerException, IOException {
 
         // e.g.
