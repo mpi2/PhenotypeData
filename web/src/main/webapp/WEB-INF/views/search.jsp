@@ -247,7 +247,7 @@
                                         </c:if>
 
                                         <div>
-                                            <a href="${baseUrl}/genes/${gene.mgiAccessionId}#phenotypesTab" class="btn btn-primary"><i class="far fa-chart-bar fa-sm"></i> View Data</a>
+                                            <a href="${baseUrl}/genes/${gene.mgiAccessionId}" class="btn btn-primary"><i class="far fa-chart-bar fa-sm"></i> View Data</a>
                                             <a href="${baseUrl}/genes/${gene.mgiAccessionId}#order" class="btn btn-info text-white"><i class="fas fa-shopping-cart fa-sm"></i> Order Mice</a>
 
                                             <form action="${baseUrl}/update-gene-registration"
