@@ -434,7 +434,10 @@ public class ImageService extends BasicService implements WebStatus {
             fq += anatomyIds.stream().collect(Collectors.joining("\" OR " + ImageDTO.ANATOMY_ID + ":\"", ImageDTO.ANATOMY_ID + ":\"", "\""));
             fq += " OR " + anatomyIds.stream().collect(Collectors.joining("\" OR " + ImageDTO.INTERMEDIATE_ANATOMY_ID + ":\"", ImageDTO.INTERMEDIATE_ANATOMY_ID + ":\"", "\""));
         }
-        solrQuery.addFilterQuery(fq);
+        if ( ! fq.isEmpty()) {
+            solrQuery.addFilterQuery(fq);
+        }
+        solrQuery.setRows(Integer.MAX_VALUE);
         solrQuery.add("group", "true")
                 .add("group.field", ImageDTO.PARAMETER_STABLE_ID)
                 .add("group.limit", Integer.toString(count));
