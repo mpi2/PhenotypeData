@@ -25,32 +25,6 @@
         <script src="${baseUrl}/js/general/enu.js"></script>
             <script src="${baseUrl}/js/general/dropdownfilters.js" async></script>
             <script type="text/javascript" src="${baseUrl}/js/general/allele.js" async></script>
-        <%-- Phenogrid requirements --%>
-        <script type="text/javascript"
-                src="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.min.js?v=${version}" async></script>
-            <link rel="stylesheet" type="text/css"
-                  href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.min.css?v=${version}" async>
-
-        <%-- Phenodigm2 requirements --%>
-        <script src="//d3js.org/d3.v4.min.js"></script>
-            <script type="text/javascript">var impc = {baseUrl: "${baseUrl}"}</script>
-            <script type="text/javascript" src="${baseUrl}/js/vendor/underscore/underscore-1.8.3.min.js"></script>
-            <script type="text/javascript" src="${baseUrl}/js/phenodigm2/phenodigm2.js?v=${version}"></script>
-            <link rel="stylesheet" type="text/css" href="${baseUrl}/css/phenodigm2.css" async>
-        <%-- End of phenodigm2 requirements --%>
-
-        <meta name="_csrf" content="${_csrf.token}"/>
-        <meta name="_csrf_header" content="${_csrf.headerName}"/>
-
-        <script type="text/javascript">
-            var gene_id = '${acc}';
-            var monarchUrl = '${monarchUrl}';
-
-            $(document).ready(function () {
-            }
-
-
-        </script>
 
         <link rel="stylesheet" type="text/css" href="${baseUrl}/css/genes.css"/>
 
