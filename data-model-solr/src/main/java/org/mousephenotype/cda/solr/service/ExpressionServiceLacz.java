@@ -70,7 +70,7 @@ public class ExpressionServiceLacz {
         solrQuery.setFields(fields);
         solrQuery.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
 
-        int batchSize = 1000;
+        int batchSize = 500;
         int numDocs = getNumDocs(experimentCore, solrQuery.getCopy());
 
         solrQuery.setRows(numDocs);
@@ -85,16 +85,20 @@ public class ExpressionServiceLacz {
             // Parallelize the queries for performance
             ExecutorService executor = Executors.newFixedThreadPool(10);
             List<Callable<SolrDocumentList>> queries = new ArrayList<>();
+
+            // Select batchSize documents per query
+            solrQuery.setRows(batchSize);
+
             int currentDoc = 0;
             while (currentDoc < numDocs) {
                 SolrQuery batchedQuery = solrQuery.getCopy();
                 batchedQuery.setStart(currentDoc);
                 final int iteration = currentDoc /batchSize;
                 Callable<SolrDocumentList> callableTask = () -> {
-                    log.debug("Solr query "+ iteration +" to get expression results (experiment core): " + batchedQuery);
+                    System.out.println("Solr query "+ iteration +" to get expression results (experiment core): " + batchedQuery);
                     final long start = System.currentTimeMillis();
                     final SolrDocumentList results = experimentCore.query(batchedQuery).getResults();
-                    log.debug("  Query took (ms): " + (System.currentTimeMillis() - start));
+                    System.out.println("  Query took (ms): " + (System.currentTimeMillis() - start));
                     return results;
                 };
                 queries.add(callableTask);
