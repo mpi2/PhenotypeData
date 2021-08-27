@@ -28,6 +28,7 @@ class ImageDownloader:
         self.initial_destination_dir = initial_destination_dir
         self.final_destination_dir = final_destination_dir
         self.not_downloaded_output_path = not_downloaded_output_path
+        self.verbose = False
 
         # Create the download file path -> checksum map
         self._read_checksums()
@@ -149,6 +150,8 @@ class ImageDownloader:
                             path.parent.mkdir(parents=True)
                         
                         with open(path, "wb") as download_fid:
+                            if self.verbose:
+                                print(f"Saving {dfp} to {path}")
                             download_fid.write(response.content)
                         self.n_downloaded += 1
                     else:
