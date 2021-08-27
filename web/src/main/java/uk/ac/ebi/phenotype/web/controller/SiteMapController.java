@@ -118,7 +118,7 @@ public class SiteMapController {
 
 		// Ensure the protocol is included on the URL
 		if (! baseUrlString.startsWith("http")) {
-			baseUrlString = "http:" + baseUrlString;
+			baseUrlString = "https:" + baseUrlString;
 		}
 
 		return baseUrlString;
