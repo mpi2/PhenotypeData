@@ -841,9 +841,6 @@
                                         <i class="fal fa-question-circle fa-xs text-muted align-middle" style="font-size: 20px;"></i>
                                     </a>
                                 </h2>
-                                <p>
-                                    An assay measuring the expression of lacZ shows the tissue where the gene is expressed. At IMPC we measure both Adult and Embryo expression. Background staining occurs in wild type mice and embryos at a measurable rate.
-                                </p>
                             </div>
                             <div>
                                 <c:if test="${empty impcAdultExpressionImageFacetsWholemount
@@ -911,6 +908,7 @@
                                                 <div class="tab-pane fade show active" id="adult" role="tabpanel" aria-labelledby="adult-tab">
                                                     <c:choose>
                                                         <c:when test="${not empty expressionAnatomyToRow }">
+                                                            <p class="alert alert-info">An assay measuring the expression of lacZ shows the tissue where the gene is expressed.</p>
                                                             <div>
                                                                 <jsp:include page="genesExpressionAdult_frag.jsp"></jsp:include>
                                                             </div>
@@ -925,6 +923,7 @@
                                                 <div class="tab-pane fade" id="embryo" role="tabpanel" aria-labelledby="embryo-tab">
                                                     <c:choose>
                                                         <c:when test="${not empty embryoExpressionAnatomyToRow}">
+                                                            <p class="alert alert-info">An assay measuring the expression of lacZ shows the tissue where the gene is expressed.</p>
                                                             <jsp:include page="genesExpressionEmbryo_frag.jsp"></jsp:include>
                                                         </c:when>
                                                         <c:otherwise>
@@ -937,6 +936,7 @@
 
                                                 <!-- Adult WT expression -->
                                                 <div class="tab-pane fade" id="adult-wt-expression" role="tabpanel" aria-labelledby="adult-wt-expression-tab">
+                                                    <p class="alert alert-info">Background staining occurs in wild type mice and embryos at a measurable rate.</p>
                                                     <jsp:include page="genesExpressionWTAdult_frag.jsp"></jsp:include>
                                                 </div>
 
@@ -944,6 +944,7 @@
                                                 <div class="tab-pane fade" id="embryo-wt-expression" role="tabpanel" aria-labelledby="embryo-wt-expression-tab">
                                                     <c:choose>
                                                         <c:when test="${not empty embryoExpressionAnatomyToRow}">
+                                                            <p class="alert alert-info">Background staining occurs in wild type mice and embryos at a measurable rate.</p>
                                                             <jsp:include page="genesExpressionWTEmbryo_frag.jsp"></jsp:include>
                                                         </c:when>
                                                         <c:otherwise>
@@ -986,9 +987,7 @@
                             <div class="row">
                                 <div class="col-12">
                                     <c:if test="${empty impcImageGroups and empty solrFacets}">
-                                        <div class="alert alert-warning mt-3">Phenotype associated images not
-                                            available
-                                        </div>
+                                        <div class="alert alert-warning mt-3">Phenotype associated images not available</div>
                                     </c:if>
 
                                     <c:if test="${not empty impcImageGroups or not empty solrFacets}">
