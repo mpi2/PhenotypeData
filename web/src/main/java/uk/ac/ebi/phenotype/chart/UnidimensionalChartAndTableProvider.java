@@ -252,6 +252,12 @@ public class UnidimensionalChartAndTableProvider {
 			yAxisLabel = parameter.getName();
 		}
 
+		// A better title for this plot
+		String allele = experiment.getAlleleSymbol()
+				.replaceAll("<", "��").replaceAll(">", "##")
+				.replaceAll("��", "<sup>").replaceAll("##", "</sup>");
+		String chartTitle = String.format("%s<br>%s box plot", allele, parameter.getName());
+
 		List<String> colors = ChartColors.getFemaleMaleColorsRgba(ChartColors.alphaOpaque);
 		String chartString = " chart = new Highcharts.Chart({ " + " colors:" + colors
 			+ ", chart: { type: 'boxplot', renderTo: 'chart" + experimentNumber + "', style: { fontFamily: '\"Roboto\", sans-serif' }},  "
@@ -264,7 +270,7 @@ public class UnidimensionalChartAndTableProvider {
 			+ "<br/>Lower Quartile: ' + this.point.options.q1 +'"
 			+ "<br/>Minimum(data value) >= (LQ - 1.5 * IQR): ' + this.point.low"
 			+ "; } } }    ,"
-			+ " title: {  text: 'Boxplot of the data <a href=\"/help/quick-guide-to-the-website/chart-page/\" target=\"_blank\"><i class=\"fa fa-question-circle\" style=\"color: #ce6211;\"></i></a>', useHTML:true } , "
+			+ " title: {  text: '"+chartTitle+" <a href=\"/help/quick-guide-to-the-website/chart-page/\" target=\"_blank\"><i class=\"fa fa-question-circle\" style=\"color: #ce6211;\"></i></a>', useHTML:true } , "
 			+ " credits: { enabled: false },  "
 			+ " legend: { enabled: false }, "
 			+ " xAxis: { categories:  " + categories + ","

@@ -74,12 +74,11 @@ public class ScatterChartAndTableProvider {
 			yAxis = String.format("yAxis: [%s, %s],", primaryAxis, secondaryAxis);
 		}
 
-		// TODO: Consult UX experts about plot title
 		// A better title for this plot
-//		String allele = alleleSymbol
-//			.replaceAll("<", "��").replaceAll(">", "##")
-//			.replaceAll("��", "<sup>").replaceAll("##", "</sup>");
-//		String chartTitle = String.format("%s %s<br>scatter plot", allele, parameter.getName());
+		String allele = alleleSymbol
+			.replaceAll("<", "��").replaceAll(">", "##")
+			.replaceAll("��", "<sup>").replaceAll("##", "</sup>");
+		String chartTitle = String.format("%s<br>%s scatter plot", allele, parameter.getName());
 
 
 		return "$(function () {\n"
@@ -87,7 +86,7 @@ public class ScatterChartAndTableProvider {
 			+ " chart: {renderTo: 'scatter" + experimentNumber + "',"
 			+ "         zoomType: 'xy'"
 			+ "     },"
-			+ "   title: {  useHTML:true, text: 'Scatterplot of the data <a href=\"/help/quick-guide-to-the-website/chart-page/\" target=\"_blank\"><i class=\"fa fa-question-circle\" style=\"color: #ce6211;\"></i></a>' },"
+			+ "   title: {  useHTML:true, text: '"+chartTitle+" <a href=\"/help/quick-guide-to-the-website/chart-page/\" target=\"_blank\"><i class=\"fa fa-question-circle\" style=\"color: #ce6211;\"></i></a>' },"
 			+ "     xAxis: {"
 			+ "       type: 'datetime',"
 			+ "       labels: { "
@@ -219,7 +218,7 @@ public class ScatterChartAndTableProvider {
 
 				JSONObject windowsSeriesName = new JSONObject();
 				windowsSeriesName.put("name", "Soft window statistical weight");
-				windowsSeriesName.put("type", "line");
+				windowsSeriesName.put("type", "spline");
 				windowsSeriesName.put("yAxis", 1);
 				windowsSeriesName.put("dashStyle", "shortdot");
 				windowsSeriesName.put("lineWidth", 4);
@@ -228,7 +227,14 @@ public class ScatterChartAndTableProvider {
 
 				Map<Long, Double> windowData = new HashMap<>();
 				for (ObservationDTO dto : Stream.of(experiment.getMutants(), experiment.getControls()).flatMap(Collection::stream).collect(Collectors.toSet())) {
-					windowData.put(dto.getDateOfExperiment().getTime(), dto.getWindowWeight());
+
+					// Some entries in the statpacket don't have weights
+					// Since all data points on the same day must have the same weight, we can skip
+					// those that don't have a weight value and hope that the date will get filled in
+					// by one of the other data points on that day
+					if (dto.getWindowWeight() != null) {
+						windowData.put(dto.getDateOfExperiment().getTime(), dto.getWindowWeight());
+					}
 				}
 
 				JSONArray windowDataJson = new JSONArray(windowData.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(x -> {
