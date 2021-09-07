@@ -254,6 +254,7 @@ public class ExperimentService {
                 //    "specimen_sex": <String> [SexType enum]
                 //    "body_weight": <Double>
                 //    "data_point": <Double> [null when categorical]
+                //    "window_weight": <Double> [null when windowing not applied]
                 //    "category": <String> [null when not categorical]
                 //    "time_point": <String> [null when not time_series, iso8601 otherwise]
                 //    "discrete_point": <String> [null when not time_series, float otherwise]
@@ -275,6 +276,8 @@ public class ExperimentService {
                             o.setDiscretePoint(x.getDiscreteTimePoint() != null ? x.getDiscreteTimePoint().floatValue() : null);
                             o.setWeight(x.getBodyWeight() != null ? x.getBodyWeight().floatValue() : null);
                             o.setDateOfBirth(x.getDateOfBirth());
+                            o.setWindowWeight(x.getWindowWeight());
+
                             //o.setMetadata(result.getMetadata());
                             o.setPipelineName(result.getPipelineName());
                             o.setProcedureStableId(result.getProcedureStableId().get(0));
@@ -338,6 +341,7 @@ public class ExperimentService {
         //   "category": null
         //   "time_point: null
         //   "discrete_point: null
+        //   "window_weight":1.49011611938477E-10
         // },
         // { ... },
         // ]
@@ -362,6 +366,8 @@ public class ExperimentService {
         Double bodyWeight;
         @SerializedName("date_of_birth")
         Date dateOfBirth;
+        @SerializedName("window_weight")
+        Double windowWeight;
     }
 
     /**

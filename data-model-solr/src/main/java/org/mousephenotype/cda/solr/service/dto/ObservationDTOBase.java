@@ -15,11 +15,13 @@
  *******************************************************************************/
 package org.mousephenotype.cda.solr.service.dto;
 
-import lombok.*;
+import lombok.Data;
 import org.apache.solr.client.solrj.beans.Field;
 
-import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 @Data
 public class ObservationDTOBase {
@@ -354,6 +356,8 @@ public class ObservationDTOBase {
 	@Field(AGE_IN_WEEKS)
 	private Integer ageInWeeks;
 
+	// Transient variables not set or stored in Solr
+	private Double windowWeight;
 
 	public void addAnatomyId(List<String> anatomyId) {
 		if (this.anatomyId == null) { this.anatomyId = new ArrayList<>();}

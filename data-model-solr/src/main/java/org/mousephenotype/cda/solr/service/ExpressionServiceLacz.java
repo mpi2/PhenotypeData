@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -52,25 +53,30 @@ public class ExpressionServiceLacz {
         // e.g.
         // http://wp-np2-e2.ebi.ac.uk:8986/solr/experiment/select?q=biological_sample_group:%22control%22&fq=procedure_name:%22Adult+LacZ%22&fq=-parameter_name:%22LacZ+Images+Section%22&fq=-parameter_name:%22LacZ+Images+Wholemount%22&fq=observation_type:%22categorical%22&fl=zygosity,external_sample_id,observation_type,parameter_name,category,biological_sample_group&rows=50000&sort=id+asc
         SolrQuery solrQuery = new SolrQuery();
+
+        List<String> baseQueryParameters = new ArrayList<>();
+        baseQueryParameters.addAll(Arrays.asList(ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"",
+                "-" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\"",
+                "-" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\""));
+
         if (mgiAccession != null) {
-            solrQuery.setQuery(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\" AND " + ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
+            baseQueryParameters.add(ImageDTO.GENE_ACCESSION_ID + ":\"" + mgiAccession + "\"");
         } else {
-            solrQuery.setQuery(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"" + "control" + "\" AND " + ObservationDTO.OBSERVATION_TYPE + ":\"categorical\"");
+            baseQueryParameters.add(ObservationDTO.BIOLOGICAL_SAMPLE_GROUP + ":\"" + "control" + "\"");
         }
+
         if (embryo) {
-            solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Embryo LacZ\"");
-            solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ images section\"");
-            solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ images wholemount\"");
+            baseQueryParameters.add(ImageDTO.PROCEDURE_NAME + ":\"Embryo LacZ\"");
         } else {
-            solrQuery.addFilterQuery(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\"");
-            solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Section\"");
-            solrQuery.addFilterQuery("-" + ImageDTO.PARAMETER_NAME + ":\"LacZ Images Wholemount\"");
+            baseQueryParameters.add(ImageDTO.PROCEDURE_NAME + ":\"Adult LacZ\"");
         }
+
+        solrQuery.setQuery(String.join(" AND ", baseQueryParameters));
 
         solrQuery.setFields(fields);
         solrQuery.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
 
-        int batchSize = 500;
+        int batchSize = 1000;
         int numDocs = getNumDocs(experimentCore, solrQuery.getCopy());
 
         solrQuery.setRows(numDocs);
