@@ -36,8 +36,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Controller
 public class ImageComparatorController {
@@ -100,6 +104,7 @@ public class ImageComparatorController {
         }
 
         List<ImageDTO> filteredMutants = imageService.getMutantImagesForComparisonViewer(acc, parameterStableId, parameterAssociationValue, anatomyId, zygosity, colonyId, mpId, sexType);
+        filteredMutants = filteredMutants.stream().map(this::resetAge).collect(Collectors.toList());
 
         ImageDTO imgDoc = null;
         if (!filteredMutants.isEmpty()) {
@@ -107,6 +112,22 @@ public class ImageComparatorController {
         }
 
         List<ImageDTO> controls = imageService.getControlsBySexAndOthersForComparisonViewer(imgDoc, numberOfControlsPerSex, sexType, parameterStableId, anatomyId, parameterAssociationValue);
+        controls = controls.stream().map(this::resetAge).collect(Collectors.toList());
+
+        Map<String, Set<String>> specimenExpression = new HashMap<>();
+        for (ImageDTO image : Stream.of(filteredMutants, controls).flatMap(Collection::stream).collect(Collectors.toList())) {
+            String imageKey = image.getId();
+            specimenExpression.computeIfAbsent(imageKey, k -> new LinkedHashSet<>());
+            for (int i = 0; i < image.getParameterAssociationName().size(); i++) {
+                specimenExpression.get(imageKey).add(image.getParameterAssociationName().get(i) + ": " + image.getParameterAssociationValue().get(i));
+            }
+        }
+        Map<String, String> specimenExpressionStrings = new HashMap<>();
+        for (String k : specimenExpression.keySet()) {
+            specimenExpressionStrings.computeIfAbsent(k, v -> String.join(",<br />", specimenExpression.get(k)));
+        }
+
+
 
         final ParameterDTO parameter = impressService.getParameterByStableId(parameterStableId);
         final String procedures = parameter.getProcedureNames().stream().distinct().collect(Collectors.joining(", "));
@@ -118,6 +139,7 @@ public class ImageComparatorController {
         model.addAttribute("zygTypes", ZygosityType.values());
         model.addAttribute("mutants", filteredMutants);
         model.addAttribute("expression", Expression.values());
+        model.addAttribute("specimenExpression", specimenExpressionStrings);
         model.addAttribute("controls", controls);
 
         // Detect if external OMERO required
@@ -135,6 +157,72 @@ public class ImageComparatorController {
             return "comparatorFrames";
         }
         return "comparator";
+    }
+
+    private ImageDTO resetAge(ImageDTO image) {
+        if (image.getMetadata().stream().anyMatch(x -> x.toLowerCase(Locale.ROOT).contains("date of sacrifice"))) {
+            List<String> metadataMatches = image.getMetadata().stream().filter(x -> x.toLowerCase(Locale.ROOT).contains("date of sacrifice")).collect(Collectors.toList());
+            if (metadataMatches.size() > 0) {
+                // Use first date of sacrifice as the end age
+                final List<String> metadataPieces = Arrays.asList(metadataMatches.get(0).split(" = "));
+                final String dateOfSacrificeString = metadataPieces.get(1);
+
+                final Date dateOfSacrifice = parseDateString(dateOfSacrificeString);
+                if (dateOfSacrifice == null) return image;
+                final Date dateOfBirth = image.getDateOfBirth();
+
+                final long l = dateOfSacrifice.getTime() - dateOfBirth.getTime();
+                final int days = (int) TimeUnit.DAYS.convert(l, TimeUnit.MILLISECONDS);
+                image.setAgeInDays(days);
+                image.setAgeInWeeks((int) Math.round((days / 7.0)));
+            }
+        }
+        return image;
+    }
+
+
+    /**
+     * Method to parse various increment value date time formats
+     * Supported formats:
+     * 2012-12-12T12:12:12+00:00
+     * 2012-12-12T12:12:12+0000
+     * 2012-12-12T12:12:12Z
+     * 2012-12-12 12:12:12Z
+     * 2012-12-12T12:12:12
+     * 2012-12-12 12:12:12
+     * <p/>
+     * Unsuccessful parse returns null
+     *
+     * @param value string value of a date in ISO 8601 format
+     * @return date, or null if parse unsuccessful
+     */
+    public static Date parseDateString(String value) {
+        Date d = null;
+        List<SimpleDateFormat> supportedFormats = new ArrayList<>();
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXX"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ssZ"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss'Z'"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm"));
+        supportedFormats.add(new SimpleDateFormat("yyyy-MM-dd' 'HH:mm"));
+
+        for (SimpleDateFormat format : supportedFormats) {
+            try {
+                d = format.parse(value);
+            } catch (ParseException e) {
+                // Not this format, try the next one
+                continue;
+            }
+            // If the parse is successful, stop processing the rest
+            break;
+        }
+
+        return d;
     }
 
     private boolean isFederated(List<ImageDTO> filteredMutants) {
