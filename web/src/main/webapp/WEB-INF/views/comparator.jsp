@@ -71,12 +71,6 @@
 
                                         <c:forEach var="img" items="${controls}" varStatus="controlLoop">
 
-                                            <c:forEach items="${img.parameterAssociationName}" var="currentItem"
-                                                       varStatus="stat">
-                                                <c:set var="controlParamAssValues"
-                                                       value="${stat.first ? '' : paramAssValues} ${currentItem}:${img.parameterAssociationValue[stat.index]}"/>
-                                            </c:forEach>
-
                                             <c:choose>
                                                 <c:when test="${img.sex eq 'male' }">
                                                     <c:set var="imgSex" value="fal fa-mars"/>
@@ -89,7 +83,8 @@
                                                 </c:otherwise>
                                             </c:choose>
 
-                                            <div class="col mb-1 col-4">
+                                            <div class="col mb-1 col-4" data-toggle="tooltip" data-placement="top" title="Specimen ID: ${img.externalSampleId}">
+                                                <!--  Observation ID: ${img.id} -->
                                                 <div class="card image">
                                                     <div class="card-img-top img-fluid text-center">
                                                         <img class="thumb" id="${img.omeroId}"
@@ -98,11 +93,9 @@
                                                     </div>
                                                     <div class="card-body">
                                                         <i class="${imgSex}"></i>
-                                                        <p><small class="text-muted">Specimen ID: ${img.externalSampleId}</small></p>
+                                                        <p><small class="text-muted">${img.ageInWeeks} weeks old</small></p>
                                                         <c:if test="${img.parameterAssociationName.size() > 0}">
-                                                            <p><small
-                                                                    class="text-muted">${img.parameterAssociationName}</small>
-                                                            </p>
+                                                            <p><small class="text-muted">${specimenExpression[img.id]}</small></p>
                                                         </c:if>
                                                     </div>
 
@@ -124,12 +117,6 @@
 
                                         <c:forEach var="img" items="${mutants}" varStatus="mutantLoop">
 
-                                            <c:forEach items="${img.parameterAssociationName}" var="currentItem"
-                                                       varStatus="stat">
-                                                <c:set var="paramAssValues"
-                                                       value="${stat.first ? '' : paramAssValues} ${currentItem}:${img.parameterAssociationValue[stat.index]}"/>
-                                            </c:forEach>
-
                                             <c:choose>
                                                 <c:when test="${img.sex eq 'male' }">
                                                     <c:set var="imgSex" value="fal fa-mars"/>
@@ -142,7 +129,8 @@
                                                 </c:otherwise>
                                             </c:choose>
 
-                                            <div class="col mb-1 col-4">
+                                            <div class="col mb-1 col-4" data-toggle="tooltip" data-placement="top" title="Specimen ID: ${img.externalSampleId}">
+                                                <!--  Observation ID: ${img.id} -->
                                                 <div class="card image">
                                                     <div class="card-img-top img-fluid text-center">
                                                         <img class="thumb2" id="${img.omeroId}"
@@ -151,11 +139,10 @@
                                                     </div>
                                                     <div class="card-body">
                                                         <i class="${imgSex}"></i>
-                                                        <p><small class="text-muted">Specimen ID: ${img.externalSampleId}</small></p>
-                                                        <p><small class="text-muted"><t:formatAllele>${img.alleleSymbol}</t:formatAllele> ${img.zygosity}</small>
-                                                        </p>
+                                                        <p><small class="text-muted">${img.ageInWeeks} weeks old</small></p>
+                                                        <p><small class="text-muted"><t:formatAllele>${img.alleleSymbol}</t:formatAllele> ${img.zygosity}</small></p>
                                                         <c:if test="${img.parameterAssociationName.size() > 0}">
-                                                            <p><small class="text-muted">${img.parameterAssociationName}: ${img.parameterAssociationValue}</small></p>
+                                                            <p><small class="text-muted">${specimenExpression[img.id]}</small></p>
                                                         </c:if>
                                                     </div>
                                                 </div>
