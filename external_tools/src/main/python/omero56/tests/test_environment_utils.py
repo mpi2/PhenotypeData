@@ -53,7 +53,7 @@ def _setup_test_environment():
                 if not temp_path.is_file():
                     # Create empty file
                     open(str(temp_path), 'a').close()
-            elif p.find("initial_destination_dir") > 0 and n_initial_dest_dir < 2:
+            elif p.find("initial_destination_dir") > 0 and n_initial_dest_dir < 3:
                 temp_path = test_data_dir.joinpath(p.strip("\n"))
                 if not temp_path.parent.is_dir():
                     temp_path.parent.mkdir(parents=True)

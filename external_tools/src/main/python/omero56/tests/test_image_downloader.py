@@ -24,14 +24,16 @@ initial_destination_dir = base_path.joinpath("test_data","test_download_images",
 final_destination_dir = base_path.joinpath("test_data","test_download_images","final_destination_dir")
 input_file_path = base_path.joinpath("test_data","test_download_images","initial_destination_dir","test_download_images_using_csv_file_impc_images_input.csv")
 checksums_path = base_path.joinpath("test_data","test_download_images","final_destination_dir","test_download_images_using_csv_file_checksums.csv")
+not_downloaded_output_path = base_path.joinpath("test_data","test_download_images","initial_destination_dir","not_downloaded.txt")
 
 image_downloader = ImageDownloader(
                         input_file_path=input_file_path,
                         checksums_path=checksums_path,
                         initial_destination_dir=initial_destination_dir,
-                        final_destination_dir=final_destination_dir)
+                        final_destination_dir=final_destination_dir,
+                        not_downloaded_output_path=not_downloaded_output_path)
 
-#image_downloader.set_verbose(True)
+image_downloader.set_verbose(True)
 
 n_downloaded = image_downloader.download_images()
 

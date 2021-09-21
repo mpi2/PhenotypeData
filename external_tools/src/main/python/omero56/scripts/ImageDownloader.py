@@ -14,7 +14,7 @@ class ImageDownloader:
                  checksums_path,
                  initial_destination_dir,
                  final_destination_dir,
-                 not_downloaded_output_path=None):
+                 not_downloaded_output_path):
 
         # Some defaults
         self.verbose = False
@@ -46,49 +46,6 @@ class ImageDownloader:
         """
         self.verbose = verbose_flag
 
-    def _read_checksums(self):
-        """Helper function to create dict mapping download paths to checksums
-
-        """
-        
-        # TODO: This will not be needed if we can get DCC to include checksum
-        #       in date-release XMLs
-        with open(self.checksums_path, "rt") as fid:
-            csv_reader = csv.reader(fid)
-            header = next(csv_reader)
-            try:
-                download_file_path_idx = header.index(self.download_file_path_col_name)
-                checksum_idx = header.index(self.checksum_col_name)
-            except ValueError as e:
-                print("Fatal Error:")
-                print(f"{str(e)} {header}")
-                print("Exiting")
-                sys.exit(-1)
-
-            for row in csv_reader:
-                download_file_path = row[download_file_path_idx]
-                checksum = row[checksum_idx]
-                
-                if download_file_path in self.dfp_checksum_map:
-                    if self.dfp_checksum_map[download_file_path] != checksum:
-                        print(f"Warning! - {download_file_path} has more than one checksum: {self.dfp_checksum_map[download_file_path]} and {checksum}")
-                else:
-                    self.dfp_checksum_map[download_file_path] = checksum
-
-    def _create_filename_to_nfspath_map(self, base_nfs_path):
-        """Create dict mapping filenames to nfs file paths"""
-        
-        mapping_dict = {}
-        for f in Path(base_nfs_path).rglob("*.*"):
-            # Need to EEI confocal images (Infact all of 3i?)
-            fname = f.stem
-            if fname in mapping_dict:
-                print(f"Warning: duplicate for {fname} - {f}")
-                mapping_dict[fname].append(f)
-            else:
-                mapping_dict[fname] = [f,]
-        return mapping_dict
-            
     def download_images(self):
         """Download images that are not currently on server"""
         
@@ -159,7 +116,21 @@ class ImageDownloader:
                         self.could_not_download.append(dfp)
 
         self.n_could_not_download = len(self.could_not_download)
+        self._write_could_not_download()
         return self.n_downloaded
+
+    def _write_could_not_download(self):
+        """Write out names of files that could not be downloaded"""
+
+        if self.n_could_not_download > 0:
+            try:
+                Path(self.not_downloaded_output_path).write_text("\n".join(self.could_not_download))
+                if self.verbose:
+                    msg = f"Written urls of {self.n_could_not_download} file(s)" + \
+                          f" that could not be downloaded to {self.not_downloaded_output_path}"
+            except FileNotFoundError as err:
+                msg = f"Problem writing {self.n_could_not_download} file(s) to " + \
+                      f"{self.could_not_download_path}. Error was: {err}"  
 
     def _get_column_index(self, header_row, column_name, input_file):
         """Return index to column in header row of input_file"""
@@ -169,3 +140,48 @@ class ImageDownloader:
             print(f"FATAL ERROR - no column named {column_name} in {input_file}. Exiting!")
             print(f"Columns present are: {header_row}")
             sys.exit(-1)
+
+    def _create_filename_to_nfspath_map(self, base_nfs_path):
+        """Create dict mapping filenames to nfs file paths"""
+        
+        mapping_dict = {}
+        for f in Path(base_nfs_path).rglob("*.*"):
+            # Need to EEI confocal images (Infact all of 3i?)
+            fname = f.stem
+            if fname in mapping_dict:
+                print(f"Warning: duplicate for {fname} - {f}")
+                mapping_dict[fname].append(f)
+            else:
+                mapping_dict[fname] = [f,]
+        return mapping_dict
+            
+    def _read_checksums(self):
+        """Helper function to create dict mapping download paths to checksums
+
+        """
+        
+        # TODO: This will not be needed if we can get DCC to include checksum
+        #       in date-release XMLs
+        with open(self.checksums_path, "rt") as fid:
+            csv_reader = csv.reader(fid)
+            header = next(csv_reader)
+            try:
+                download_file_path_idx = header.index(self.download_file_path_col_name)
+                checksum_idx = header.index(self.checksum_col_name)
+            except ValueError as e:
+                print("Fatal Error:")
+                print(f"{str(e)} {header}")
+                print("Exiting")
+                sys.exit(-1)
+
+            for row in csv_reader:
+                download_file_path = row[download_file_path_idx]
+                checksum = row[checksum_idx]
+                
+                if download_file_path in self.dfp_checksum_map:
+                    if self.dfp_checksum_map[download_file_path] != checksum:
+                        print(f"Warning! - {download_file_path} has more than one checksum: {self.dfp_checksum_map[download_file_path]} and {checksum}")
+                else:
+                    self.dfp_checksum_map[download_file_path] = checksum
+
+
