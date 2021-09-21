@@ -115,16 +115,16 @@ def main(argv):
 ##
 ## Assign omero properties manually
     root_dir = "/home/kola/temp/nfs_backup/nfs/komp2/web/images/clean/impc/"
-    #omeroHost = "hx-rke-wp-webadmin-20-worker-1.caas.ebi.ac.uk"
-    #omeroPort = 30064
-    #omeroUsername = "root"
-    #omeroPass = "omerotestpwd"
-    #group = "system"
-    omeroHost = "34.142.41.227"
-    omeroPort = 4064
-    omeroUsername = "root"
-    omeroPass = "oluwaseun1"
-    group = "system"
+    #omeroHost = 
+    #omeroPort = 
+    #omeroUsername = 
+    #omeroPass = 
+    #group = 
+    omeroHost = 
+    omeroPort = 
+    omeroUsername = 
+    omeroPass = 
+    group = 
 
     # Other values needed within this script.
     splitString = 'impc/'
