@@ -37,6 +37,9 @@ parser.add_argument('-d2', '--final-destination-dir', required=True,
 parser.add_argument('-i', '--input-file-path', required=True,
                     help='Path to csv file containing images info'
 )
+parser.add_argument('-o', '--output-file-path', required=True,
+                    help='Path to save input file with column for checksums'
+)
 parser.add_argument('-c', '--checksums-file-path', required=True,
                     help='Path to csv file containing checksums of existing images'
 )
@@ -64,6 +67,9 @@ if args.verbose:
 
 # Get the images
 downloader.download_images()
+
+# Save modified version of input file - with column containing checksums
+downloader.save_images_mapped_to_checksums(output_path=args.output_file_path)
 
 # Print summary of output
 print(f"Downloaded {downloader.n_downloaded} images")

@@ -36,6 +36,10 @@ image_downloader = ImageDownloader(
 image_downloader.set_verbose(True)
 
 n_downloaded = image_downloader.download_images()
+# Save input file with checksums added
+# TODO: Modify tests to check that the impc_images_input_with_checksums is 
+# created and has the correct checksums.
+image_downloader.save_images_mapped_to_checksums("/home/kola/temp/impc_images_input_with_checksums.csv")
 
 class TestImageDownloader:
     @classmethod
@@ -45,7 +49,7 @@ class TestImageDownloader:
     def test_checksums_read(self):
         # Test that it can read Checksums file
         n_checksums = len(image_downloader.dfp_checksum_map.keys())
-        assert(n_checksums == 22)
+        assert(n_checksums == 24) #22 in checksums file and missing 2 computed
     
     def test_checksum_final_dest_dir_map(self):
         """Check the mapping of checksums to nfspaths for final dest dir"""

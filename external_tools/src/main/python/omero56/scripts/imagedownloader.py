@@ -81,6 +81,8 @@ class ImageDownloader:
                         hash_func = hashlib.sha1()
                         hash_func.update(response.content)
                         checksum = hash_func.hexdigest()
+                        # Add checksum to download file path - checksum map
+                        self.dfp_checksum_map[dfp] = checksum
                     else:
                         print(f"Problem downloading {dfp}. Response was {response.status_code}")
                         checksum = None
@@ -119,6 +121,43 @@ class ImageDownloader:
         self._write_could_not_download()
         return self.n_downloaded
 
+    def save_images_mapped_to_checksums(self, output_path):
+        """Save input csv file with column containing checksums"""
+        
+        input_file = Path(self.input_file_path)
+        with open(input_file, "rt") as fid_in:
+            header_row = fid_in.readline().strip().split(",")
+            dfp_index = self._get_column_index(header_row, self.download_file_path_col_name, input_file)
+            # Get column of checksum. If it does not exist the 
+            # exit_on_error=False flag makes function return 'None'
+            checksum_index = self._get_column_index(header_row, self.checksum_col_name, input_file, exit_on_error=False)
+            output_file = Path(output_path)
+            with open(output_file, "wt") as fid_out:
+                if checksum_index is None:
+                    header_row.append(self.checksum_col_name)
+                fid_out.write(",".join(header_row) + "\n")
+                
+                # Process all download file paths in input file
+                while True:
+                    row = fid_in.readline()
+                    if row == "":
+                        break
+                    row = row.strip().split(",")
+                    dfp = row[dfp_index]
+                    if dfp in self.dfp_checksum_map:
+                        checksum = self.dfp_checksum_map[dfp]
+                    else:
+                        checksum = ""
+
+                    if checksum_index is None:
+                        row.append(checksum)
+                    else:
+                        row[checksum_index] = checksum
+
+                    fid_out.write(",".join(row) + "\n")
+        print(f"Written version of input file with checksums to {output_path}")
+        
+
     def _write_could_not_download(self):
         """Write out names of files that could not be downloaded"""
 
@@ -132,14 +171,20 @@ class ImageDownloader:
                 msg = f"Problem writing {self.n_could_not_download} file(s) to " + \
                       f"{self.could_not_download_path}. Error was: {err}"  
 
-    def _get_column_index(self, header_row, column_name, input_file):
+    def _get_column_index(self, header_row, column_name, input_file=None, exit_on_error=True):
         """Return index to column in header row of input_file"""
         try:
             return header_row.index(column_name)
         except ValueError:
-            print(f"FATAL ERROR - no column named {column_name} in {input_file}. Exiting!")
-            print(f"Columns present are: {header_row}")
-            sys.exit(-1)
+            if input_file is not None:
+                print(f"FATAL ERROR - no column named {column_name} in {input_file}. Exiting!")
+                print(f"Columns present are: {header_row}")
+            else:
+                print(f"FATAL ERROR - no column named {column_name} in {header_row}. Exiting!")
+            if exit_on_error:
+                sys.exit(-1)
+            else:
+                return None
 
     def _create_filename_to_nfspath_map(self, base_nfs_path):
         """Create dict mapping filenames to nfs file paths"""
