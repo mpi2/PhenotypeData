@@ -22,7 +22,7 @@ not_downloaded_output_path : str
 
 import sys
 import argparse
-from ImageDownloader import ImageDownloader
+from imagedownloader import ImageDownloader
 
 
 parser = argparse.ArgumentParser(

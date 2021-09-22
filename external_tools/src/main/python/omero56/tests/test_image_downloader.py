@@ -10,7 +10,7 @@ import pytest
 from .context import scripts
 
 from .test_environment_utils import _setup_test_environment, _teardown_test_environment;
-from scripts.ImageDownloader import ImageDownloader
+from scripts.imagedownloader import ImageDownloader
 
 # TODO: Put setup code in class method -> setup_class!!!
 # TODO: Use pytest fixtures if possible
