@@ -114,11 +114,7 @@ class OmeroService:
 
 
     def getAnnotationsAlreadyInOmero(self):
-        #query = 'SELECT ds.name, (SELECT o.name FROM originalfile o ' + \
-        #        'WHERE o.id=a.file) AS filename FROM datasetannotationlink ' + \
-        #        'dsal, dataset ds, annotation a where dsal.parent=ds.id and ' + \
-        #        ' dsal.child=a.id and ' + \
-        #        ' dsal.child >= :id'
+        """Get annotations in omero via omero python API"""
 
         omero_annotation_list = []
         file_annotations = self.conn.listFileAnnotations()
@@ -132,6 +128,47 @@ class OmeroService:
                         dir_parts.append(fa.getFileName())
                         omero_annotation_list.append("/".join(dir_parts))
         return omero_annotation_list
+
+    def getAnnotationsAlreadyInOmeroViaPostgres(self, omero_db_details):
+        """Get annotations already in omero by directly querying postgres db
+
+        """
+        try:
+            print("Attempting to get annotations directly from Postgres DB")
+            omero_db_user = omero_db_details['omerodbuser']
+            omero_db_pass = omero_db_details['omerodbpass']
+            omero_db_name = omero_db_details['omerodbname']
+            omero_db_host = omero_db_details['omerodbhost']
+            omero_db_port = omero_db_details['omerodbport']
+
+            conn = psycopg2.connect(database=omero_db_name, user=omero_db_user,
+                                    password=omero_db_pass, host=omero_db_host,
+                                    port=omero_db_port)
+            cur = conn.cursor()
+            query = 'SELECT ds.name, (SELECT o.name FROM originalfile o ' + \
+                    'WHERE o.id=a.file) AS filename FROM datasetannotationlink ' + \
+                    'dsal INNER JOIN dataset ds ON dsal.parent=ds.id ' + \
+                    'INNER JOIN annotation a ON dsal.child= a.id'
+            cur.execute(query)
+            omero_annotation_list = []
+            for ann in cur.fetchall():
+                dir_parts = ann[0].split('-')
+                if len(dir_parts) == 4:
+                    dir_parts.append(ann[1])
+                    omero_annotation_list.append("/".join(dir_parts))
+            conn.close()
+
+            return omero_annotation_list
+
+        except KeyError as e:
+            message = "Could not connect to omero postgres database. Key " +\
+                      str(e) + \
+                      " not present in omero properties file. Aborting!"
+            # What about logger?
+            print(message)
+            if 'conn' in locals():
+                conn.close()
+            sys.exit()
 
 
     def filterProjectFunction(self, project):
