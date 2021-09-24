@@ -20,10 +20,6 @@ from utils import get_properties_from_config_server
 from utils import get_properties_from_configuration_file
 
 
-# Constant to determine where to split paths to obtain ids for IMPC pipelines,
-# procedures, parameters, etc.
-SPLIT_STRING = 'impc/'
-
 parser = argparse.ArgumentParser(
     description='Upload images to omero'
 )
@@ -60,6 +56,9 @@ parser.add_argument('--profile-path',
                          '/home/kola/configurations/dev/omero-dev.properties. ' + \
                          'Overrides value of all --config-server arguments.'
 )
+parser.add_argument('--split-string', default="impc/",
+                    help='string to use to split image paths to allow ' + \
+                         'parsing of pipeline,procedure,parameter,filename')
 parser.add_argument('--logfile-path', dest='logfilePath', default=None,
                     help='path to save logfile')
 
@@ -143,6 +142,7 @@ logger.info('rootDestinationDir is "' + root_dir + '"')
 #     4 - procedure_stable_id
 #     5 - datasource_name
 #     6 - parameter_stable_id
+#     7 - sha256_checksum
 
 csv_directory_to_filenames_map = {}
 n_from_csv_file = 0
@@ -204,7 +204,7 @@ logger.info("Number of uploadable records returned from CSV file: " + str(n_from
 # Sometimes omero on the server throws an ICE memory limit exception. In that case go directly
 # via postgres. This may return more records than going via omero, but that should not
 # be a problem.
-omeroS = OmeroService(omero_host, omero_port, omero_username, omero_pass, omero_group)
+omeroS = OmeroService(omero_host, omero_port, omero_username, omero_pass, omero_group, args.split_string)
 try:
     omero_file_list = omeroS.getImagesAlreadyInOmero()
 except Exception as e: # TODO: Use exact exception here. It's something like ::Ice::MemoryLimitException

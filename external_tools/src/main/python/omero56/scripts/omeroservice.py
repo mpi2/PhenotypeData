@@ -14,21 +14,19 @@ from omero.rtypes import wrap
 #from omero.model import DatasetI, ProjectI
 import psycopg2
 
-# TODO: Make this configurable
-SPLIT_STRING = "impc/"
-
 class OmeroService:
     """Class for access to omero server
 
     """
-    def __init__(self, omero_host, omero_port, omero_username, omero_pass, group):
+    def __init__(self, omero_host, omero_port, omero_username, omero_pass, omero_group, split_string="impc/"):
         self.logger = logging.getLogger(__name__)
         self.logger.info("init OmeroService")
         self.omero_host=omero_host
         self.omero_port=omero_port
         self.omero_username=omero_username
         self.omero_pass=omero_pass
-        self.group=group
+        self.group=omero_group
+        self.split_string = split_string
         self.conn=self.getConnection()
 
     def getConnection(self):
@@ -59,7 +57,7 @@ class OmeroService:
         for ofd in omero_file_data:
             try:
                 #indir,ofd_path = ofd[1].split(root_dir[1:])
-                ofd_path = ofd[0].val.split(SPLIT_STRING)[-1]
+                ofd_path = ofd[0].val.split(self.split_string)[-1]
             except Exception as e:
                 self.logger.error("Problem extracting root_dir from clientpath " + ofd[0].val)
                 self.logger.error("Error was: " + str(e))
@@ -89,7 +87,7 @@ class OmeroService:
             cur.execute(query)
             omero_file_list = []
             for f in cur.fetchall():
-                omero_file_list.append(f[0].split(SPLIT_STRING)[-1])
+                omero_file_list.append(f[0].split(self.split_string)[-1])
 
             ## Get the images contained in the leica files uploaded to Omero
             ## These images are in the download_urls obtained from solr
