@@ -1,4 +1,4 @@
-observation_id,increment_value,download_file_path,phenotyping_center,pipeline_stable_id,procedure_stable_id,datasource_name,parameter_stable_id,sha256_checksum
+observation_id,increment_value,download_file_path,phenotyping_center,pipeline_stable_id,procedure_stable_id,datasource_name,parameter_stable_id,checksum
 51a70ff95a8efdcf69dcabcc9ab062a0,,http://images.mousephenotype.org/src/7/12/7983/61/149/3993/2514700.pdf,JAX,JAX_001,IMPC_ABR_002,IMPC,IMPC_ABR_019_001,90c135ab194c07d342c613d411b6c480d908cd12
 3bc9b577283e2e19833c6bd7172a0200,,http://images.mousephenotype.org/src/7/12/7983/61/149/3993/2514701.pdf,JAX,JAX_001,IMPC_ABR_002,IMPC,IMPC_ABR_019_001,fade09f1935afe65de266d0f977f42536ca2de1e
 a7355fca01695c0ad02a252effa479f4,3.0,http://images.mousephenotype.org/src/8/9/807/19/712/32078/173839.jpg,TCP,TCP_001,IMPC_CSD_002,IMPC,IMPC_CSD_085_001,68eaf2ec73cc22517710d301aaaa425b25676852

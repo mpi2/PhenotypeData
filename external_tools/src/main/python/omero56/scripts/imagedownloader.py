@@ -19,7 +19,7 @@ class ImageDownloader:
         # Some defaults
         self.verbose = False
         self.n_downloaded = 0
-        self.checksum_col_name = "sha256_checksum"
+        self.checksum_col_name = "checksum" # 256 checksum
         self.download_file_path_col_name = "download_file_path"
         self.dfp_checksum_map = {}
 

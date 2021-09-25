@@ -142,7 +142,7 @@ logger.info('rootDestinationDir is "' + root_dir + '"')
 #     4 - procedure_stable_id
 #     5 - datasource_name
 #     6 - parameter_stable_id
-#     7 - sha256_checksum
+#     7 - checksum - this was a sha256 checksum at time code was written
 
 csv_directory_to_filenames_map = {}
 n_from_csv_file = 0
@@ -158,7 +158,7 @@ with open(args.input_file_path, 'r') as fid:
         pipeline_stable_idx = header_row.index("pipeline_stable_id")
         procedure_stable_idx = header_row.index("procedure_stable_id")
         parameter_stable_idx = header_row.index("parameter_stable_id")
-        checksum_idx = header_row.index("sha256_checksum")
+        checksum_idx = header_row.index("checksum")
     except ValueError as e:
         print( "Fatal Error:")
         print( str(e), header_row)
