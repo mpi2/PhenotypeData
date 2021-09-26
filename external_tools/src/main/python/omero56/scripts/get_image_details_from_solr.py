@@ -17,7 +17,7 @@ parser.add_argument("-o", "--output-path", required=True,
                     help="path to write output")
 parser.add_argument("-d", "--date-range",
                     help="date range 20200101-20211231 i.e. YYYYMMDD")
-parser.add_argument("-n", "--nrows",
+parser.add_argument("-n", "--nrows", default="9999999",
                     help="Number of rows to retrieve. Default is all rows")
 args = parser.parse_args()
 
@@ -44,8 +44,7 @@ field_list = "observation_id,download_file_path,phenotyping_center," + \
 query_string = f"q=download_file_path:*mousephenotype.org*&fl={field_list}"
 if date_range is not None:
     query_string += f"&fq=date_of_experiment:{date_range}"
-if args.nrows is not None:
-    query_string += f"&rows={args.nrows}"
+query_string += f"&rows={args.nrows}"
 
 image_details = get_details_from_solr(solr_host="wp-np2-e1.ebi.ac.uk",
                 port="8986",
