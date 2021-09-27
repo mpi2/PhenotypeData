@@ -69,8 +69,9 @@ class ImageDownloader:
                     break
                 row = row.strip().split(",")
                 dfp = row[dfp_index]
-                if dfp in self.dfp_checksum_map:
-                    checksum = self.dfp_checksum_map[dfp]
+                dfp_stripped = dfp.split("://")[-1]
+                if dfp_stripped in self.dfp_checksum_map:
+                    checksum = self.dfp_checksum_map[dfp_stripped]
                 else:
                     # Download file and compute checksum
                     # TODO: This is inefficient - we may download image again.
@@ -82,7 +83,7 @@ class ImageDownloader:
                         hash_func.update(response.content)
                         checksum = hash_func.hexdigest()
                         # Add checksum to download file path - checksum map
-                        self.dfp_checksum_map[dfp] = checksum
+                        self.dfp_checksum_map[dfp_stripped] = checksum
                     else:
                         print(f"Problem downloading {dfp}. Response was {response.status_code}")
                         checksum = None
@@ -92,29 +93,35 @@ class ImageDownloader:
                 elif checksum not in self.checksum_final_dest_map and \
                      checksum not in self.checksum_initial_dest_map:
 
-                    # Download file and if 200 write using checksum as filename
-                    response = get(dfp)
-                    if response.status_code == 200:
-                        # Create path based on site,pipeline,procedure,parameter
-                        ext = Path(dfp).suffix
-                        path = Path(
-                            self.initial_destination_dir,
-                            row[phenotyping_center_index],
-                            row[pipeline_stable_id_index],
-                            row[procedure_stable_id_index],
-                            row[parameter_stable_id_index],
-                            checksum + ext
-                        )
-                        if not path.parent.is_dir():
-                            path.parent.mkdir(parents=True)
-                        
-                        with open(path, "wb") as download_fid:
-                            if self.verbose:
-                                print(f"Saving {dfp} to {path}")
-                            download_fid.write(response.content)
-                        self.n_downloaded += 1
-                    else:
-                        print(f"Problem downloading {dfp}. Response was {response.status_code}")
+                    try:
+                        # Download file and if 200 write using checksum as filename
+                        response = get(dfp)
+                        if response.status_code == 200:
+                            # Create path based on site,pipeline,procedure,parameter
+                            ext = Path(dfp).suffix
+                            path = Path(
+                                self.initial_destination_dir,
+                                row[phenotyping_center_index],
+                                row[pipeline_stable_id_index],
+                                row[procedure_stable_id_index],
+                                row[parameter_stable_id_index],
+                                checksum + ext
+                            )
+                            if not path.parent.is_dir():
+                                path.parent.mkdir(parents=True)
+                            
+                            with open(path, "wb") as download_fid:
+                                if self.verbose:
+                                    print(f"Saving {dfp} to {path}")
+                                download_fid.write(response.content)
+                            self.n_downloaded += 1
+                        else:
+                            print(f"Problem downloading {dfp}. Response was {response.status_code}")
+                            self.could_not_download.append(dfp)
+                    except Exception as e: # Catch all exceptions
+                        msg = f"Problem downloading {dfp} - skipping!!!"
+                        msg += f"\nError was: {e}"
+                        print(msg)
                         self.could_not_download.append(dfp)
 
         self.n_could_not_download = len(self.could_not_download)
@@ -144,8 +151,9 @@ class ImageDownloader:
                         break
                     row = row.strip().split(",")
                     dfp = row[dfp_index]
-                    if dfp in self.dfp_checksum_map:
-                        checksum = self.dfp_checksum_map[dfp]
+                    dfp_stripped = dfp.split("://")[-1]
+                    if dfp_stripped in self.dfp_checksum_map:
+                        checksum = self.dfp_checksum_map[dfp_stripped]
                     else:
                         checksum = ""
 
@@ -221,12 +229,19 @@ class ImageDownloader:
 
             for row in csv_reader:
                 download_file_path = row[download_file_path_idx]
+                # Strip protocol from download file path (as DCC media API
+                # seems to use only http whereas the XML files (and therefore
+                # solr) use a mixture of http and https.
+                #
+                # ToDo: Ask DCC why there is an inconsistency
+                dfp_stripped = download_file_path.split("://")[-1]
+
                 checksum = row[checksum_idx]
                 
-                if download_file_path in self.dfp_checksum_map:
-                    if self.dfp_checksum_map[download_file_path] != checksum:
-                        print(f"Warning! - {download_file_path} has more than one checksum: {self.dfp_checksum_map[download_file_path]} and {checksum}")
+                if dfp_stripped in self.dfp_checksum_map:
+                    if self.dfp_checksum_map[dfp_stripped] != checksum:
+                        print(f"Warning! - {download_file_path} has more than one checksum: {self.dfp_checksum_map[dfp_stripped]} and {checksum}")
                 else:
-                    self.dfp_checksum_map[download_file_path] = checksum
+                    self.dfp_checksum_map[dfp_stripped] = checksum
 
 
