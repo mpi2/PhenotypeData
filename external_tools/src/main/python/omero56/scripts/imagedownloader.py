@@ -37,8 +37,6 @@ class ImageDownloader:
         self.checksum_final_dest_map = self._create_filename_to_nfspath_map(self.final_destination_dir)
         # Create dict mapping fnames (checksums) to filepaths in final_dest_dir
         self.checksum_initial_dest_map = self._create_filename_to_nfspath_map(self.initial_destination_dir)
-        print("Checksum_initial_dest_map")
-        print(self.checksum_initial_dest_map)
 
     def set_verbose(self, verbose_flag):
         """Set the verbosity of output messages
