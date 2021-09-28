@@ -6,6 +6,11 @@ import requests
 import json
 import pandas as pd
 
+# For reading Dicom images
+import numpy as np
+import SimpleITK as sitk
+
+
 def get_properties_from_config_server(server, port, name, profile):
     """Get properties from EBI config server
     
@@ -92,3 +97,24 @@ def get_image_details_from_solr(solr_host="/wp-np2-e1.ebi.ac.uk",
                        f"fl={field_list}&" + \
                        f"fq=date_of_experiment:{date_range}"
         query_string = "fl=observation_id,download_file_path,phenotyping_center,pipeline_stable_id,procedure_stable_id,datasource_name,parameter_stable_id&fq=date_of_experiment:[2021-01-01T00:00:00Z%20TO%20NOW]&q=download_file_path:*mousephenotype.org*"
+
+def read_dicom(im_path):
+    """Read Dicom images
+
+    Helper function to read Dicom images
+    Arguments:
+      im_path: the path to the image to be read
+    
+    Returns:
+      Image as a numpy array with dimension 3
+    """
+    
+    im = sitk.ReadImage(im_path)
+    im = np.squeeze(sitk.GetArrayFromImage(im))
+    # Handle issue that some png images have an alpha layer -> 4 planes
+    if im.ndim == 3 and im.shape[2] > 3:
+        im = im[:,:,:3]
+    im = im.astype(np.float)*255./im.max()
+    return im.astype(np.uint8)
+
+
