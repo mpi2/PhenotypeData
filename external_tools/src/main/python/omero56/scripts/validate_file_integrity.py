@@ -19,7 +19,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 # Use SimpleItk for dicom images use read_dicom from utils
-from .utils import read_dicom
+from utils import read_dicom
 
 
 if __name__ == "__main__":
