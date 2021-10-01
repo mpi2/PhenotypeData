@@ -33,6 +33,9 @@ def main(argv):
                         dest='finalDestinationDir',
                         help='Directory for root of final destination to store images'
     )
+    parser.add_argument('--downloaded', dest='downloadedOutputPath',
+                        help='path to save list of files that were downloaded'
+    )
     parser.add_argument('--not-downloaded', dest='notDownloadedOutputPath',
                         help='path to save list of files that could not be downloaded'
     )
@@ -46,7 +49,16 @@ def main(argv):
 
     print 'rootDestinationDir is "', rootDestinationDir
 
-    notDownloaded = runWithMediaApiAsDataSource(rootDestinationDir, finalDestinationDir)
+    downloaded, notDownloaded = runWithMediaApiAsDataSource(rootDestinationDir, finalDestinationDir)
+    # If any files were downloaded and path for downloaded supplied - save.
+    # Note that first row in downloaded is header!!!
+    print str(len(downloaded)-1) + " files were downloaded"
+    if len(downloaded) > 1 and args.downloadedOutputPath is not None:
+        with open(args.downloadedOutputPath, 'wt') as fid:
+            fid.writelines(downloaded)
+
+        print "Written files downloaded to " + args.downloadedOutputPath
+
     print str(len(notDownloaded)) + " files could not be downloaded"
     if len(notDownloaded) > 0:
         notDownloadedOutputPath =  args.notDownloadedOutputPath if args.notDownloadedOutputPath <> None else createNotDownloadedOutputPath(rootDestinationDir)
@@ -62,6 +74,14 @@ def runWithMediaApiAsDataSource(rootDestinationDir, finalDestinationDir):
     """
 
     notDownloaded = []
+    headerRow = [
+        "download_file_path",
+        "phenotyping_center",
+        "pipeline_stable_id",
+        "procedure_stable_id",
+        "parameter_stable_id",
+    ]
+    rowsDownloaded = [",".join(headerRow) + "\n",]
     numFound=0
 
     # We get the files we are interested in for each site using the 
@@ -89,7 +109,7 @@ def runWithMediaApiAsDataSource(rootDestinationDir, finalDestinationDir):
 
     for site, phenotyping_center in sites:
         query_string = "https://api.mousephenotype.org/media/dccUrl/" +\
-            site + "?status=done" # +"&start=0&resultsize=2"
+            site + "?status=done" # +"&start=0&resultsize=3"
         print query_string
 
         v = json.loads(requests.get(query_string).text)
@@ -118,6 +138,7 @@ def runWithMediaApiAsDataSource(rootDestinationDir, finalDestinationDir):
                 pipeline_stable_id=doc['pipelineKey']
                 procedure_stable_id=doc['procedureKey']
                 parameter_stable_id=doc['parameterKey']
+
             except KeyError as e:
                 print "Key " + str(e)+  " not returned by solr - not downloading " + download_file_path
                 notDownloaded.append(download_file_path+'\n')
@@ -125,10 +146,20 @@ def runWithMediaApiAsDataSource(rootDestinationDir, finalDestinationDir):
             downloaded = processFile(observation_id, rootDestinationDir, finalDestinationDir, phenotyping_center,pipeline_stable_id, procedure_stable_id, parameter_stable_id, download_file_path)
             if not downloaded:
                 notDownloaded.append(download_file_path+'\n')
+            else:
+                # Create row for downloaded
+                row = [
+                    download_file_path,
+                    phenotyping_center,
+                    pipeline_stable_id,
+                    procedure_stable_id,
+                    parameter_stable_id,
+                ]
+                rowsDownloaded.append(",".join(row) + "\n")
         
     print 'number found in media API ='+str(numFound)+' number of images not downloaded = '+str(len(notDownloaded))
 
-    return notDownloaded
+    return rowsDownloaded, notDownloaded
 
 if __name__ == "__main__":
     main(sys.argv[1:])
