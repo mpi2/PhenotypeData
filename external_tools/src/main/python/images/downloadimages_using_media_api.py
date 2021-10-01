@@ -106,6 +106,8 @@ def runWithMediaApiAsDataSource(rootDestinationDir, finalDestinationDir):
             download_file_path=download_file_path.lower()
             if download_file_path.find('mousephenotype.org') < 0 or \
                     download_file_path.endswith('.mov') or \
+                    download_file_path.endswith('.fcs') or \
+                    download_file_path.endswith('.nrrd') or \
                     download_file_path.endswith('.bz2'):
                 continue
 

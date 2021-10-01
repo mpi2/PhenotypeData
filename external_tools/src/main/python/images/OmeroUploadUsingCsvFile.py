@@ -27,7 +27,7 @@ def main(argv):
                         help='Root directory for destination files were downloaded to'
     )
     parser.add_argument('-i', '--input-file', dest='inputFilePath',
-                        help='Path to CSV file contiaining images info'
+                        help='Path to CSV file containing images info'
     )
     parser.add_argument('-o', '--omeroHost', dest='omeroHost',
                         help='Hostname for server hosting omero instance'
