@@ -28,7 +28,6 @@
                             <li class="menu-item"><a href="${cmsBaseUrl}/contact-us/">Contact us</a></li>
                         </ul>
                     </div>
-                    <a id="searchButton" class="header__search collapsed" href="/" data-toggle="collapse" data-target="#searchBar" aria-controls="searchBar" aria-expanded="false">Search<i id="search-icon-open" class="fal fa-search"></i><i id="search-icon-close" class="fal fa-times"></i></a>
                 </div>
             </div>
         </div>
@@ -38,7 +37,14 @@
         <div class="container">
             <div class="row">
                 <div class="col-3">
-                    <a href="/" class="header__logo-link active"><img class="header__logo" src="${baseUrl}/img/IMPC_logo.svg" alt="IMPC logo"/></a>
+                    <a href="/" class="header__logo-link active">
+                        <img class="header__logo lazy loaded"
+                             src="https://www.mousephenotype.org/wp-content/themes/impc/images/IMPC_10_YEAR_Logo.svg"
+                             data-src="https://www.mousephenotype.org/wp-content/themes/impc/images/IMPC_10_YEAR_Logo.svg"
+                             alt="Internation Mouse Phenotyping Consortium Office Logo"
+                             data-was-processed="true"
+                             width="190px" />
+                    </a>
                 </div>
                 <div class="col-9 text-right">
                     <span class="d-none d-lg-block">

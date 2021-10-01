@@ -24,6 +24,7 @@ import org.mousephenotype.cda.db.utilities.SqlUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
@@ -36,6 +37,7 @@ import javax.sql.DataSource;
 import javax.validation.constraints.NotNull;
 
 @Configuration
+@EnableCaching
 @EnableJpaRepositories(basePackages = {"org.mousephenotype.cda.db.repositories"})
 @EnableSolrRepositories(basePackages = {"org.mousephenotype.cda.solr.repositories"})
 @EntityScan("org.mousephenotype.cda.db.pojo")

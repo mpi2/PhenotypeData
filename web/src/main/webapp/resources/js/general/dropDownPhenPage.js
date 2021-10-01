@@ -10,43 +10,9 @@ $(document).ready(function(){
 	var selectedFilters = "";
 	var dropdownsList = new Array();
 
-    initPhenoDataTable();
+    // initPhenoDataTable();
 	removeFilterSelects();
-	
-	function initPhenoDataTable(){
-            var aDataTblCols = [0,1,2,3,4,5,6,7,8];
-            $('table#phenotypes').dataTable(
-                {
-                    "bFilter":false,
-                    "bLengthChange": false,
-					"responsive": true,
-                    'columnDefs': [
-                        {
-                            "targets": [ 8 ],
-                            "visible": false
-                        },
-                        {
-                            "targets": [ 0 ],
-                            "max-width": "100px"
-                        }
-                    ],
-                    'rowCallback': function (row, data, index) {
-                        $(row).on('click', function () {
-                            var url = data[8]['@data-sort'];
-                            if (url !== "none") {
-                                window.location.href = decodeURIComponent(url);
-                            } else {
-                                console.log(row);
-                                row.removeClass('clickableRows');
-                                row.addClass('unClickableRows');
-                                row.addClass('text-muted');
-							}
-                        });
-                    }
-                }
-			);
-        }
-	
+
 	function removeFilterSelects(){ // Remove selected options when going back to the page
 		$("option:selected").removeAttr("selected");
 	};
@@ -222,18 +188,3 @@ function ajaxToBe(phenotype, parameter){
 	
 }
 
-
-/* new sorting functions */
-//http://datatables.net/forums/discussion/5894/datatable-sorting-scientific-notation
-jQuery.fn.dataTableExt.oSort['allnumeric-asc']  = function(a,b) {
-          var x = parseFloat(a);
-          var y = parseFloat(b);
-          return ((x < y) ? -1 : ((x > y) ?  1 : 0));
-        };
- 
-jQuery.fn.dataTableExt.oSort['allnumeric-desc']  = function(a,b) {
-          var x = parseFloat(a);
-          var y = parseFloat(b);
-          return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
-        };
- 

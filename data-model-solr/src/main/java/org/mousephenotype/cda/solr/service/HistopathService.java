@@ -15,6 +15,7 @@ import org.mousephenotype.cda.solr.web.dto.HistopathSumPageTableRow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -221,6 +222,7 @@ public class HistopathService {
         return new HeatmapData(anatomyList, geneList, allCells);
     }
 
+    @Cacheable("histopath_landing_page_data")
     public HeatmapData getHeatmapDatadt() throws SolrServerException, IOException {
         ArrayList<String> geneList = new ArrayList<>();
         ArrayList<String> anatomyList = new ArrayList<>();

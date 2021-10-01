@@ -140,12 +140,12 @@ table.dataTable thead tr {
 
 					<h3>Strong metabolic phenotype genes form regulatory networks</h3>
 					<div class="row">
-						<div class="col-6">
+						<div class="col-md-6">
 							<img src="${baseUrl}/documentation/img/more-cassette.png"
 								 alt="Illustration of the action of MORE cassettes in regulatory networks"
 								 width="100%" />
 						</div>
-						<div class="col-6">
+						<div class="col-md-6">
 							<ul>
 								<li>Transcriptional co-regulation often involves a common set of transcription factor binding sites (TFBSs) shared between co-regulated promoters and in a particular organization (known as Multiple Organized Regulatory Element (MORE)–cassettes).</li>
 								<li>Identification of shared MORE-cassettes in promoters of candidate genes allowed to discover extensive metabolic phenotype-associated networks of potentially co-regulated genes.</li>

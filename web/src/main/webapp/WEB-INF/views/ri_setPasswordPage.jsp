@@ -73,7 +73,7 @@
                                             <div class="form-group row">
                                                 <label for="newPassword" class="col-4 pl-0 col-form-label">New
                                                     password</label>
-                                                <div class="col-6 m-0 pl-0">
+                                                <div class="col-md-6 m-0 pl-0">
                                                     <input
                                                             class="m-0 pl-1 col-md-12"
                                                             type="password"
@@ -87,7 +87,7 @@
                                             <div class="form-group row">
                                                 <label for="repeatPassword" class="col-4 pl-0 col-form-label">Repeat
                                                     password</label>
-                                                <div class="col-6 m-0 pl-0">
+                                                <div class="col-md-6 m-0 pl-0">
                                                     <input
                                                             class="m-0 pl-1 col-md-12"
                                                             type="password"

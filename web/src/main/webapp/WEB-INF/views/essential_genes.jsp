@@ -121,9 +121,9 @@
 
                             <h2 class="pt-5">IMPC and human cell viability data</h2>
                             <div class="row">
-                                <div class="col-6">
+                                <div class="col-md-6">
                                 </div>
-                                <div class="col-6">
+                                <div class="col-md-6">
                                     <p>FUSIL scores available for NNNN human genes</p>
                                     <ul>
                                         <li>

@@ -356,27 +356,24 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
 
   
 
-    public List<Group> getGenesBy(String mpId, String sex, boolean onlyB6N)
+    public List<GenotypePhenotypeDTO> getGenesBy(String mpId, String sex, boolean onlyB6N)
         throws SolrServerException, IOException  {
 
-        // males only
         SolrQuery q = new SolrQuery().setQuery("(" + GenotypePhenotypeDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " +
         			GenotypePhenotypeDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " +
-        			GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\")");
+        			GenotypePhenotypeDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\")")
+                .setRows(Integer.MAX_VALUE)
+                .setFields(GenotypePhenotypeDTO.MARKER_SYMBOL);
         if (onlyB6N){
             q.setFilterQueries("(" + GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"" + StringUtils.join(OverviewChartsConstants.B6N_STRAINS, "\" OR " +
                 GenotypePhenotypeDTO.STRAIN_ACCESSION_ID + ":\"") + "\")");
         }
-        q.setRows(10000000);
-        q.set("group.field", "" + GenotypePhenotypeDTO.MARKER_SYMBOL);
-        q.set("group", true);
-        q.set("group.limit", 0);
+
         if (sex != null) {
             q.addFilterQuery(GenotypePhenotypeDTO.SEX + ":" + sex);
         }
-        QueryResponse results = genotypePhenotypeCore.query(q);
-        
-        return results.getGroupResponse().getValues().get(0).getValues();
+        List<GenotypePhenotypeDTO> results = genotypePhenotypeCore.query(q).getBeans(GenotypePhenotypeDTO.class);
+        return results.stream().distinct().collect(Collectors.toList());
     }
 
     public List<String> getGenesAssocByParamAndMp(String parameterStableId, String phenotype_id)
@@ -1313,7 +1310,7 @@ public class GenotypePhenotypeService extends BasicService implements WebStatus 
             genotypePhenotypeDTOS = genotypePhenotypeDTOS
                     .stream()
                     .filter(gene -> gene.getTopLevelMpTermName()!= null)
-                    .filter(gene -> gene.getTopLevelMpTermName().containsAll(topLevelMpTerms))
+                    .filter(gene -> topLevelMpTerms.stream().anyMatch(gene.getTopLevelMpTermName()::contains))
                     .collect(Collectors.toSet());
         }
 

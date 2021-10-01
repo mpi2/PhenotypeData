@@ -20,13 +20,10 @@
     <div class="container">
         <div class="row">
 
-            <div class="col-12 col-md-6 footer-text mb-5 mb-md-0">
-                <p><strong>&copy; 2019 IMPC International Mouse Phenotyping Consortium.</strong></p>
-                <p><strong>All Rights Reserved.</strong></p>
-                <p><strong><br/>
-                    <a href="${cmsBaseUrl}/about-impc/accessibility-cookies/">Accessibility &amp;
-                        Cookies</a></strong><br/>
-                    <a href="${cmsBaseUrl}/about-impc/terms-of-use/"><strong>Terms of use</strong></a></p>
+            <div class="col-12 col-md-6 footer-text mb-3">
+                <p><i class="fab fa-creative-commons fa-2x mr-2"></i> <i class="fab fa-creative-commons-by fa-2x"></i></p>
+                <p>Content on this site is licensed under a <a href="${cmsBaseUrl}/help/faqs/is-impc-data-freely-available/">Creative Commons Attribution 4.0 International license</a></p>
+                <p><a href="${cmsBaseUrl}/about-impc/accessibility-cookies/">Privacy &amp; Cookies</a><a href="${cmsBaseUrl}/about-impc/terms-of-use/">Terms of use</a></p>
             </div>
 
             <div class="col-12 col-md-3 footer-nav">
@@ -53,28 +50,33 @@
             </div>
 
         </div>
+
         <div class="row mt-3">
             <div class="col-12 col-md-6">
                 <ul class="footer__social">
                     <li>
-                        <a href="https://twitter.com/impc"
-                           target="_blank"><i class="fab fa-twitter"></i></a>
+                        <a href="https://twitter.com/impc" target="_blank" rel="noreferrer">
+                            <span class="sr-only">IMPC Twitter</span>
+                            <i class="fab fa-twitter"></i>
+                        </a>
                     </li>
                     <li>
-                        <a href="https://www.instagram.com/mousephenotyping/"
-                           target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.youtube.com/channel/UCXp3DhDYbpJHu4MCX_wZKww" target="_blank" rel="noreferrer">
+                            <span class="sr-only">IMPC YouTube</span>
+                            <i class="fab fa-youtube"></i>
+                        </a>
                     </li>
                     <li>
-                        <a href="https://www.youtube.com/channel/UCXp3DhDYbpJHu4MCX_wZKww"
-                           target="_blank"><i class="fab fa-youtube"></i></a>
+                        <a href="https://www.facebook.com/InternationalMousePhenotypingConsortium" target="_blank" rel="noreferrer">
+                            <span class="sr-only">IMPC Facebook</span>
+                            <i class="fab fa-facebook"></i>
+                        </a>
                     </li>
                     <li>
-                        <a href="https://www.facebook.com/InternationalMousePhenotypingConsortium"
-                           target="_blank"><i class="fab fa-facebook"></i></a>
-                    </li>
-                    <li>
-                        <a href="https://www.reddit.com/user/MousePhenotyping"
-                           target="_blank"><i class="fab fa-reddit"></i></a>
+                        <a href="https://www.reddit.com/user/MousePhenotyping" target="_blank" rel="noreferrer">
+                            <span class="sr-only">IMPC Reddit</span>
+                            <i class="fab fa-reddit"></i>
+                        </a>
                     </li>
                 </ul>
             </div>

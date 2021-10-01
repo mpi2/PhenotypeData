@@ -371,7 +371,7 @@ public class GenesController {
         model.addAttribute("request", request);
         model.addAttribute("acc", acc);
         model.addAttribute("isLive", new Boolean((String) request.getAttribute("liveSite")));
-        boolean phenotypeStarted = gene.getPhenotypeStatus() != null && gene.getPhenotypeStatus().equals("Phenotyping data available");
+        boolean phenotypeStarted = gene.getPhenotypeStatus() != null && gene.isPhenotypingDataAvailable();
         model.addAttribute("phenotypeStarted", phenotypeStarted);
         model.addAttribute("attemptRegistered", geneService.checkAttemptRegistered(acc));
         model.addAttribute("significantTopLevelMpGroups", mpGroupsSignificant);

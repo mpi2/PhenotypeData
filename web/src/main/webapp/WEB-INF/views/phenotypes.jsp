@@ -1,5 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-         pageEncoding="UTF-8" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix='fn' uri='http://java.sun.com/jsp/jstl/functions' %>
@@ -27,17 +26,51 @@
 		<script type='text/javascript' src='${baseUrl}/js/charts/highcharts.js?v=${version}'></script>
        	<script type='text/javascript' src='${baseUrl}/js/charts/highcharts-more.js?v=${version}'></script>
        	<script type='text/javascript' src='${baseUrl}/js/charts/exporting.js?v=${version}'></script>
-		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.v3.js"></script>
-		<script type="text/javascript" src="${baseUrl}/js/vendor/d3/d3.layout.js"></script>
-		
-		
-		
-		<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/css/bootstrap-select.min.css">
 
-<!-- Latest compiled and minified JavaScript -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/js/bootstrap-select.min.js"></script>
+        <style>
+            @media(max-width: 768px) {
+                #phenotype_nav_icons .fal {font-size: 3em;}
+                #phenotype_numbers .phenotype_number_text {font-size: 0.75em; display: inline-block;}
+            }
+        </style>
+
+
+<script>
+    function sortString(sortName, sortOrder, data) {
+        console.log("In sortString function");
+        console.log("sortName = " + sortName);
+        console.log("sortOrder = " + sortOrder);
+        console.log("data = ");
+        console.log(data);
+        var order = sortOrder === 'desc' ? -1 : 1;
+        data.sort(function (a, b) {
+            var aa = sortName === 7 ? parseFloat(a['_' + sortName + '_data']['value']) || 0.0: a['_' + sortName + '_data']['value'];
+            var bb = sortName === 7 ? parseFloat(b['_' + sortName + '_data']['value']) || 0.0: b['_' + sortName + '_data']['value'];
+            if (aa < bb) {
+                return order * -1
+            }
+            if (aa > bb) {
+                return order
+            }
+            return 0
+        })
+    }
+
+    function sortPValue(a, b) {
+        console.log("a: " + a);
+        console.log("b: " + b);
+        if (parseFloat(a) < parseFloat(b)) return 1;
+        if (parseFloat(a) > parseFloat(b)) return -1;
+        return 0;
+    }
+
+    function sortPValueOld(a, b, rowA, rowB) {
+        console.log(rowA);
+        if (parseFloat(rowA._6_data.value) < parseFloat(rowB._6_data.value)) return 1;
+        if (parseFloat(rowA._6_data.value) > parseFloat(rowB._6_data.value)) return -1;
+        return 0;
+    }
+</script>
 
 	</jsp:attribute>
 
@@ -64,9 +97,9 @@
                             <div class="page-content people py-5 white-bg">
 
                                 <div class="row no-gutters">
-                                    <div class="col-8 align-middle">
+                                    <div class="col-md-8 align-middle">
                                         <div class="row no-gutters">
-                                            <div class="col-md-2 align-middle text-right pr-1">
+                                            <div class="col-md-2 align-middle text-md-right pr-1">
                                                 <div class="align-middle font-weight-bold pr-2">Definition</div>
                                             </div>
                                             <div class="col-md-10 align-middle">
@@ -75,7 +108,7 @@
                                         </div>
                                         <c:if test="${not empty phenotype.getMpTermSynonym()}">
                                             <div class="row no-gutters">
-                                                <div class="col-md-2 align-middle text-right pr-1">
+                                                <div class="col-md-2 align-middle text-md-right pr-1">
                                                     <div class="align-middle font-weight-bold pr-2">Synonyms</div>
                                                 </div>
                                                 <div class="col-md-8">
@@ -102,17 +135,17 @@
                                             </div>
                                         </c:if>
 
-                                        <div class="row no-gutters justify-content-around text-center mt-3">
-                                            <a href="#genesAssociations" class="col-sm-4">
-                                                <i class="fal fa-dna mb-1 text-dark" style="font-size: 5em;"></i>
+                                        <div id="phenotype_nav_icons" class="row no-gutters justify-content-around text-center mt-3">
+                                            <a href="#genesAssociations" class="col-4">
+                                                <i class="fal fa-dna fa-5x mb-1 text-dark"></i>
                                                 <span class="page-nav-link">Significant gene associations</span>
                                             </a>
-                                            <a href="#phenotypeProcedures" class="col-sm-4">
-                                                <i class="fal fa-tasks mb-1 text-dark" style="font-size: 5em;"></i>
+                                            <a href="#phenotypeProcedures" class="col-4">
+                                                <i class="fal fa-tasks fa-5x mb-1 text-dark" ></i>
                                                 <span class="page-nav-link">The way we measure</span>
                                             </a>
-                                            <a href="#phenotypeStats" class="col-sm-4">
-                                                <i class="fal fa-chart-line mb-1 text-dark" style="font-size: 5em;"
+                                            <a href="#phenotypeStats" class="col-4">
+                                                <i class="fal fa-chart-line fa-5x mb-1 text-dark"
                                                    data-toggle="tooltip"
                                                    data-placement="top"></i>
                                                 <span class="page-nav-link">Phenotype stats</span>
@@ -121,48 +154,20 @@
                                     </div>
                                     <div class="col-lg-4 justify-content-center text-center text-primary"
                                          style="font-size: 2.5em; font-weight: bolder; line-height: 1.0;">
-                                        <!--div class="row no-gutters">
-                                            <div class="col-4"><i class="fal fa-dna"></i></div>
-                                            <div class="col-4"><i class="fal fa-venus"></i></div>
-                                            <div class="col-4"><i class="fal fa-mars"></i></div>
-                                        </div-->
-                                        <div class="row no-gutters mt-3">
+                                        <div id="phenotype_numbers" class="row no-gutters mt-3">
                                             <div class="col-4">
-                                                <div><span id="percentageOfGenes">0</span><span id="percentageOfGenesSign">%</span></div>
+                                                <div><span id="percentageOfGenes" class="phenotype_number_text">0</span><span id="percentageOfGenesSign" class="phenotype_number_text">%</span></div>
                                                 <div style="font-size: small; font-weight: lighter;">of tested genes</div>
                                             </div>
                                             <div class="col-4">
-                                                <div id="numberOfSignificantGenes">0</div>
+                                                <div id="numberOfSignificantGenes" class="phenotype_number_text">0</div>
                                                 <div style="font-size: small; font-weight: lighter;">significant genes</div>
                                             </div>
                                             <div class="col-4">
-                                                <div id="numberOfGenes">0</div>
+                                                <div id="numberOfGenes" class="phenotype_number_text">0</div>
                                                 <div style="font-size: small; font-weight: lighter;">tested genes</div>
                                             </div>
-                                                <%--div class="col-4">
-                                                    <div><span id="percentageOfFemales">0</span><span id="percentageOfFemalesSign">%</span></div>
-                                                    <div style="font-size: small; font-weight: lighter;">of tested females</div>
-                                                </div>
-                                                <div class="col-4">
-                                                    <div><span id="percentageOfMales">0</span><span id="percentageOfMalesSign">%</span></div>
-                                                    <div style="font-size: small; font-weight: lighter;">of tested males</div>
-                                                </div--%>
                                         </div>
-                                            <%--div class="row no-gutters text-center text-info mt-5">
-                                                <div class="col-4">
-                                                    <div id="numberOfGenes">0</div>
-                                                    <div style="font-size: small; font-weight: lighter;">tested genes</div>
-                                                </div>
-                                                <div class="col-4">
-                                                    <div id="numberOfSignificantGenes">0</div>
-                                                    <div style="font-size: small; font-weight: lighter;">significant genes</div>
-                                                </div>
-                                                <div class="col-4">
-                                                    <div id="numberOfMeasumeasurements">0</div>
-                                                    <div style="font-size: small; font-weight: lighter;">measurement types</div>
-                                                </div>
-                                            </div>
-                                        </div--%>
                                     </div>
                                     <div class="row no-gutters mt-5">
                                         <h4 id="genesAssociations">IMPC Gene variants with ${phenotype.getMpTerm()}</h4>
@@ -246,12 +251,7 @@
                     numberOfSignificantGenes: 0,
                     numberOfMeasumeasurements: 0,
                 };
-                $("#proceduresTable").dataTable(
-                    {
-                        "bFilter":false,
-                        "bLengthChange": false
-                    }
-                );
+
                 Object.keys(animatedNumbers).forEach(key => {
 
                     intervals[key] = setInterval(function () {

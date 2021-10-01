@@ -18,77 +18,61 @@
         resTemp[0].remove();
 </script>
 
-<table id="phenotypes" class="table tableSorter clickableRows dt-responsive" style="width: 100%">
+<table id="significant-phenotypes-table"
+       data-toggle="table"
+       data-pagination="true"
+       data-custom-sort="sortString"
+       data-search="true"
+       data-mobile-responsive="true">
 
     <thead>
     <tr>
-        <th>Gene / Allele</th>
-        <th>Zygosity</th>
+        <th data-sortable="true" data-sort-name="value">Gene / Allele</th>
+        <th data-sortable="true" data-sort-name="value">Zygosity</th>
         <th>Sex</th>
-        <th>Life Stage</th>
-        <th>Phenotype</th>
-        <th>Procedure | Parameter</th>
-        <th>Phenotyping Center | Source</th>
-        <th>P Value</th>
+        <th data-sortable="true" data-sort-name="value">Life Stage</th>
+        <th data-sortable="true" data-sort-name="value">Phenotype</th>
+        <th data-sortable="true" data-sort-name="value">Parameter</th>
+        <th data-sortable="true" data-sort-name="value">Phenotyping<br/>Center</th>
+        <th data-sortable="true" data-sorter="sortPValue" data-sort-name="value">P Value</th>
     </tr>
     </thead>
 
     <tbody>
     <c:forEach var="phenotype" items="${phenotypes}" varStatus="status">
         <c:set var="europhenome_gender" value="Both-Split"/>
-        <tr>
+        <tr data-link="${fn:escapeXml(phenotype.evidenceLink.url)}" class="clickableRow">
 
-            <td><span href="${baseUrl}/genes/${phenotype.gene.accessionId}">${phenotype.gene.symbol}</span><br/>
-                <span class="smallerAlleleFont"><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></span>
+            <td data-value="${phenotype.gene.symbol}_${phenotype.allele.symbol}"><span href="${baseUrl}/genes/${phenotype.gene.accessionId}">${phenotype.gene.symbol}</span><br/>
+                <span class="small font-italic"><t:formatAllele>${phenotype.allele.symbol}</t:formatAllele></span>
             </td>
 
-            <td>${phenotype.zygosity.getShortName()}</td>
+            <td data-value="${phenotype.zygosity.shortName}">${phenotype.zygosity.shortName}</td>
 
-            <td style="font-family:Verdana;font-weight:bold;">
+            <td><t:displaySexes sexes="${phenotype.sexes}"></t:displaySexes></td>
 
+            <td data-value="${phenotype.lifeStageName}">${phenotype.lifeStageName}</td>
 
-                <t:displaySexes sexes="${phenotype.sexes}"></t:displaySexes>
+            <td data-value="${phenotype.phenotypeTerm.name}">${phenotype.phenotypeTerm.name}</td>
 
+            <td data-value="${phenotype.parameter.name}">${phenotype.parameter.name}<br /><span class="small font-italic">${phenotype.procedure.name}</td>
 
-            </td>
+            <td data-value="${phenotype.phenotypingCenter}">${phenotype.phenotypingCenter}<br /><span class="small font-italic">${phenotype.dataSourceName}</span></td>
 
-            <td>${phenotype.lifeStageName}</td>
-
-            <td>
-                <span href="${baseUrl}/phenotypes/${phenotype.phenotypeTerm.id}">${phenotype.phenotypeTerm.name}</span>
-            </td>
-
-            <td>${phenotype.procedure.name} | ${phenotype.parameter.name}</td>
-
-            <td>${phenotype.phenotypingCenter} | ${phenotype.dataSourceName}</td>
-
-            <td data-sort="${phenotype.prValueAsString}">
-                <t:formatScientific>${phenotype.prValueAsString}</t:formatScientific>
-            </td>
-
-
-            <c:if test="${phenotype.getEvidenceLink().getDisplay()}">
-                <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("IMAGE")}'>
-                    <td data-sort="${phenotype.getEvidenceLink().getUrl()}">
-                    </td>
-                </c:if>
-                <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("GRAPH")}'>
-
-                    <td data-sort="${phenotype.getEvidenceLink().getUrl() }&pageTitle=${phenotype.phenotypeTerm.name} phenotype with knockout ${phenotype.gene.symbol}&linkBack=linkback link here"></td>
-
-                </c:if>
-                <c:if test='${phenotype.getEvidenceLink().getIconType().name().equalsIgnoreCase("TABLE")}'>
-                    <td data-sort="${phenotype.getEvidenceLink().getUrl()}"></td>
-                </c:if>
-            </c:if>
-
-            <c:if test="${!phenotype.getEvidenceLink().getDisplay()}">
-                <td data-sort="none"></td>
-            </c:if>
-
+            <td data-value="${phenotype.prValueAsString}"><t:formatScientific>${phenotype.prValueAsString}</t:formatScientific></td>
 
         </tr>
     </c:forEach>
     </tbody>
 
 </table>
+
+<script>
+
+    $('#significant-phenotypes-table').on('click-row.bs.table', function (e, row) {
+        if (row._data['link']) {
+            window.location = row._data['link'];
+        }
+    });
+
+</script>

@@ -56,9 +56,8 @@
     <meta name="msapplication-square150x150logo" content="${baseUrl}/img/mstile-150x150.png" />
     <meta name="msapplication-wide310x150logo" content="${baseUrl}/img/mstile-310x150.png" />
     <meta name="msapplication-square310x310logo" content="${baseUrl}/img/mstile-310x310.png" />
+
     <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
-    <!-- <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script src="http://code.jquery.com/jquery-migrate-1.4.1.js"></script> -->
     <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.bundle.min.js'
             async='async'></script>
     <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/object-fit-images/3.2.4/ofi.min.js'></script>
@@ -71,29 +70,29 @@
             crossorigin="anonymous"></script>
 
 
-
-
     <script type='text/javascript' src="${baseUrl}/js/general/toggle.js?v=${version}"></script>
     <script type="text/javascript" src="${baseUrl}/js/head.min.js?v=${version}"></script>
-    <script type='text/javascript' src='${baseUrl}/js/buffaloZoo.js?v=${version}'></script>
+
     <script type="text/javascript" src="${baseUrl}/js/default.js?v=${version}"></script>
-    <link rel="stylesheet" href="${baseUrl}/js/vendor/jquery/jquery.qtip-2.2/jquery.qtip.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.css" />
     <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.js"></script>
 <c:if test="${!heatmap}">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.css"/>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
+
     <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.js"></script>
+
 
 </c:if>
 
-<c:if test="${heatmap}">
+    <script type='text/javascript' src="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.js"></script>
+    <script type='text/javascript' src="https://unpkg.com/bootstrap-table@1.15.4/dist/extensions/mobile/bootstrap-table-mobile.min.js"></script>
+    <script type='text/javascript' src="https://unpkg.com/bootstrap-table@1.15.4/dist/extensions/cookie/bootstrap-table-cookie.min.js"></script>
+
+
+    <c:if test="${heatmap}">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.20/fc-3.3.0/datatables.min.css"/>
     <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.20/fc-3.3.0/datatables.min.js"></script>
 </c:if>
 
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
-     replaced with below as unable to get his due to CORS or licence?-->
 
     <link rel="stylesheet" href="${cmsBaseUrl}/wp-content/themes/impc/css/styles.css?version=20200213">
 
@@ -147,6 +146,9 @@
             ga('send', 'pageview');
         </script>
     </c:if>
+
+    <link rel="preload" type="text/css" href="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.css" as="style"/>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.css" media="print" onload="this.media='all'" />
 
     <jsp:invoke fragment="header" />
 
@@ -236,12 +238,7 @@
 <t:footer />
 
 <jsp:invoke fragment="addToFooter"/>
-
-<script type='text/javascript' src='${baseUrl}/js/searchAndFacet/searchAndFacetConfig.js?v=${version}'></script>
-<script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>
-<script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>
-<script type='text/javascript' src='${baseUrl}/js/documentationConfig.js?v=${version}'></script>
-
+    <script type='text/javascript' src='${baseUrl}/js/utils/tools.js?v=${version}'></script>
 </body>
 
 </html>

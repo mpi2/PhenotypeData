@@ -64,12 +64,12 @@
 				<div class="col-12">
 					<h2>Sexual dimorphism in 14,250 wildtype mice</h2>
 					<div class="row">
-						<div class="col-6">
+						<div class="col-md-6">
 							<div id="wtCategorical">
 								<script type="text/javascript">$(function () { $('#wtCategorical').highcharts({  chart: { plotBackgroundColor: null, plotShadow: false},  colors:['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)', 'rgba(144, 195, 212,1.0)'],  title: {  text: 'Categorical' },  credits: { enabled: false },  tooltip: {  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'}, plotOptions: { pie: { size: 200, allowPointSelect: true, cursor: 'pointer', dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.percentage:.2f} %', style: { color: '#666', width:'60px' }  }  },series: {  dataLabels: {  enabled: true, format: '{point.name}: {point.percentage:.2f}%'} } }, series: [{  type: 'pie',   name: '',  data: [ { name: 'Male Greater', y: 3.7, sliced: true, selected: true },{ name: 'Female Greater', y: 6.2, sliced: true, selected: true },  [' No Sex Effect Detected', 90.1 ] ]  }] }); });</script>
 							</div>
 						</div>
-						<div class="col-6">
+						<div class="col-md-6">
 							<div id="wtContinuous">
 								<script type="text/javascript">$(function () { $('#wtContinuous').highcharts({  chart: { plotBackgroundColor: null, plotShadow: false},  colors:['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)', 'rgba(144, 195, 212,1.0)'],  title: {  text: 'Continuous' },  credits: { enabled: false },  tooltip: {  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'}, plotOptions: { pie: { size: 200, allowPointSelect: true, cursor: 'pointer', dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.percentage:.2f} %', style: { color: '#666', width:'60px' }  }  },series: {  dataLabels: {  enabled: true, format: '{point.name}: {point.percentage:.2f}%'} } }, series: [{  type: 'pie',   name: '',  data: [ { name: 'Male Greater', y: 30.6, sliced: true, selected: true },{ name: 'Female Greater', y: 26.6, sliced: true, selected: true },  [' No Sex Effect Detected', 90.1 ] ]  }] }); });</script>
 							</div>
@@ -89,12 +89,12 @@
 				<div class="col-12">
 					<h2>Sexual dimorphism in 2,186 knockout mouse strains</h2>
 					<div class="row">
-						<div class="col-6">
+						<div class="col-md-6">
 							<div id="koCategorical">
 								<script type="text/javascript">$(function () { $('#koCategorical').highcharts({  chart: { plotBackgroundColor: null, plotShadow: false},  colors:['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)', 'rgba(144, 195, 212,1.0)'],  title: {  text: 'Categorical' },  credits: { enabled: false },  tooltip: {  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'}, plotOptions: { pie: { size: 200, allowPointSelect: true, cursor: 'pointer', dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.percentage:.2f} %', style: { color: '#666', width:'60px' }  }  },series: {  dataLabels: {  enabled: true, format: '{point.name}: {point.percentage:.2f}%'} } }, series: [{  type: 'pie',   name: '',  data: [ { name: 'Male Greater', y: 6.8, sliced: true, selected: true },{ name: 'Female Greater', y: 6.5, sliced: true, selected: true },  [' No Sex Effect Detected', 86.7 ] ]  }] }); });</script>
 							</div>
 						</div>
-						<div class="col-6">
+						<div class="col-md-6">
 							<div id="koContinuous">
 								<script type="text/javascript">$(function () { $('#koContinuous').highcharts({  chart: { plotBackgroundColor: null, plotShadow: false},  colors:['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)', 'rgba(144, 195, 212,1.0)'],  title: {  text: 'Continuous' },  credits: { enabled: false },  tooltip: {  pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'}, plotOptions: { pie: { size: 200, allowPointSelect: true, cursor: 'pointer', dataLabels: { enabled: true, format: '<b>{point.name}</b>: {point.percentage:.2f} %', style: { color: '#666', width:'60px' }  }  },series: {  dataLabels: {  enabled: true, format: '{point.name}: {point.percentage:.2f}%'} } }, series: [{  type: 'pie',   name: '',  data: [ { name: 'One Sex', y: 12.8, sliced: true, selected: true }, { name: 'Diferent Size', y: 0.8, sliced: true, selected: true },{ name: 'Different Directions', y: 3.5, sliced: true, selected: true }, { name: 'Cannot Classify', y: 0.6, sliced: true, selected: true },  [' Genotype Effect with No Sex Effect', 82.2 ] ]  }] }); });</script>
 							</div>

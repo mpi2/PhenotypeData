@@ -20,6 +20,11 @@
     <dependencies>
 
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.mousephenotype.cda</groupId>
             <artifactId>data-model-solr</artifactId>
         </dependency>
@@ -63,7 +68,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>org.mousephenotype.cda.reports.ReportsManager</mainClass>
+                    <mainClass>org.mousephenotype.cda.releasenotes.Application</mainClass>
                 </configuration>
                 <executions>
                     <execution>

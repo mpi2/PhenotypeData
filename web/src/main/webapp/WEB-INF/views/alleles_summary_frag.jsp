@@ -100,69 +100,68 @@
             </div>
         </div>
 
+    </div>
+    <div class="row">
+        <div class="col-12">
 
-        <div class="row">
-            <div class="col-12 m-5">
-
-                <c:if test="${not empty summary['map_image']}">
-                    <h4>Allele Map</h4>
-                    <div id="image">
-                        <img alt="image not found!" src="${summary['map_image']}" width="930px">
-                    </div>
-                </c:if>
+            <c:if test="${not empty summary['map_image']}">
+                <h4>Allele Map</h4>
+                <div id="image">
+                    <img alt="image not found!" src="${summary['map_image']}" width="930px">
+                </div>
+            </c:if>
 
 
-                <table class="wrap_table">
+            <table class="wrap_table">
+                <tr>
+                    <c:if test="${not empty summary['genbank']}">
+                        <td data-count="1">
+                            <a class="btn" href="${summary['genbank']}"><i class="fa fa-info"></i> Genbank File </a>
+                        </td>
+                    </c:if>
+                    <c:if test="${not empty summary['mutagenesis_url']}">
+                        <td data-count="2">
+                            <a class="btn" href="${summary['mutagenesis_url']}"><i class="fa fa-info"></i>
+                                Mutagenesis Prediction </a>
+                        </td>
+                    </c:if>
+                    <c:if test="${not empty summary['southern_tool']}">
+                        <td data-count="3">
+                            <a class="btn" href="${summary['southern_tool']}"><i class="fa fa-info"></i> Southern
+                                Tool </a>
+                        </td>
+                    </c:if>
+                    <c:if test="${not empty summary['ensembl_url']}">
+                        <td data-count="4">
+                            <a class="btn" href="${summary['ensembl_url']}"><i class="fa fa-info"></i> Ensembl </a>
+                        </td>
+                    </c:if>
+                    <c:if test="${not empty summary['genotype_primers']}">
+                        <td data-count="5">
+                            <a class="btn" href="${summary['genotype_primers']}"><i class="fa fa-info"></i>
+                                Genotyping Primers </a>
+                        </td>
+                    </c:if>
+                </tr>
+
+            </table>
+
+            <c:if test="${false}">
+                <table>
                     <tr>
-                        <c:if test="${not empty summary['genbank']}">
-                            <td data-count="1">
-                                <a class="btn" href="${summary['genbank']}"><i class="fa fa-info"></i> Genbank File </a>
-                            </td>
-                        </c:if>
-                        <c:if test="${not empty summary['mutagenesis_url']}">
-                            <td data-count="2">
-                                <a class="btn" href="${summary['mutagenesis_url']}"><i class="fa fa-info"></i>
-                                    Mutagenesis Prediction </a>
-                            </td>
-                        </c:if>
-                        <c:if test="${not empty summary['southern_tool']}">
-                            <td data-count="3">
-                                <a class="btn" href="${summary['southern_tool']}"><i class="fa fa-info"></i> Southern
-                                    Tool </a>
-                            </td>
-                        </c:if>
-                        <c:if test="${not empty summary['ensembl_url']}">
-                            <td data-count="4">
-                                <a class="btn" href="${summary['ensembl_url']}"><i class="fa fa-info"></i> Ensembl </a>
-                            </td>
-                        </c:if>
-                        <c:if test="${not empty summary['genotype_primers']}">
-                            <td data-count="5">
-                                <a class="btn" href="${summary['genotype_primers']}"><i class="fa fa-info"></i>
-                                    Genotyping Primers </a>
+                        <c:if test="${not empty summary['tools']}">
+                            <td>
+                                <div>Tools</div>
+                                <div>
+                                    <c:forEach var="tool" items="${summary['tools']}" varStatus="toolsx">
+                                        <a href="${tool['url']}">${tool['name']}</a><br/>
+                                    </c:forEach>
+                                </div>
                             </td>
                         </c:if>
                     </tr>
-
                 </table>
-
-                <c:if test="${false}">
-                    <table>
-                        <tr>
-                            <c:if test="${not empty summary['tools']}">
-                                <td>
-                                    <div>Tools</div>
-                                    <div>
-                                        <c:forEach var="tool" items="${summary['tools']}" varStatus="toolsx">
-                                            <a href="${tool['url']}">${tool['name']}</a><br/>
-                                        </c:forEach>
-                                    </div>
-                                </td>
-                            </c:if>
-                        </tr>
-                    </table>
-                </c:if>
-            </div>
+            </c:if>
         </div>
     </div>
 

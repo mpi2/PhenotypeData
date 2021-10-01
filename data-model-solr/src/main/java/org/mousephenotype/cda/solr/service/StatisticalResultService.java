@@ -31,7 +31,6 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.constants.OverviewChartsConstants;
-import org.mousephenotype.cda.enumerations.ObservationType;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
 import org.mousephenotype.cda.solr.SolrUtils;
@@ -1325,31 +1324,48 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
      */
 
 
-    public List<Group> getGenesBy(String mpId, SexType sex)
-            throws SolrServerException, IOException {
+    public List<StatisticalResultDTO> getGenesBy(String mpId, String sex)
+            throws SolrServerException, IOException  {
 
         SolrQuery q = new SolrQuery().setQuery("(" + StatisticalResultDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " +
                 StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " +
                 StatisticalResultDTO.MP_TERM_ID_OPTIONS + ":\"" + mpId + "\" OR " +
                 StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\")")
-                .setRows(10000)
-                .setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
-        q.set("group.field", "" + StatisticalResultDTO.MARKER_SYMBOL);
-        q.set("group", true);
-        q.set("group.limit", 0);
+                .setRows(Integer.MAX_VALUE)
+                .setFields(String.join(",", Arrays.asList(StatisticalResultDTO.MARKER_SYMBOL, StatisticalResultDTO.SEX)));
 
         if (sex != null) {
-            q.addFilterQuery("(" + StatisticalResultDTO.PHENOTYPE_SEX + ":" + sex.getName() + " OR " + StatisticalResultDTO.SEX + ":" + sex.getName() + ")");
+            q.addFilterQuery("(" + StatisticalResultDTO.PHENOTYPE_SEX + ":" + sex + " OR " + StatisticalResultDTO.SEX + ":" + sex + ")");
         }
-
-        System.out.println("Query: " + q);
-
-        QueryResponse results = statisticalResultCore.query(q);
-
-        System.out.println("Results: " + results.getGroupResponse().getValues().get(0).getValues().size());
-
-        return results.getGroupResponse().getValues().get(0).getValues();
+        List<StatisticalResultDTO> results = statisticalResultCore.query(q).getBeans(StatisticalResultDTO.class);
+        return results.stream().distinct().collect(Collectors.toList());
     }
+
+//    public List<Group> getGenesBy(String mpId, SexType sex)
+//            throws SolrServerException, IOException {
+//
+//        SolrQuery q = new SolrQuery().setQuery("(" + StatisticalResultDTO.MP_TERM_ID + ":\"" + mpId + "\" OR " +
+//                StatisticalResultDTO.TOP_LEVEL_MP_TERM_ID + ":\"" + mpId + "\" OR " +
+//                StatisticalResultDTO.MP_TERM_ID_OPTIONS + ":\"" + mpId + "\" OR " +
+//                StatisticalResultDTO.INTERMEDIATE_MP_TERM_ID + ":\"" + mpId + "\")")
+//                .setRows(10000)
+//                .setSort(StatisticalResultDTO.DOCUMENT_ID, SolrQuery.ORDER.asc);
+//        q.set("group.field", "" + StatisticalResultDTO.MARKER_SYMBOL);
+//        q.set("group", true);
+//        q.set("group.limit", 0);
+//
+//        if (sex != null) {
+//            q.addFilterQuery("(" + StatisticalResultDTO.PHENOTYPE_SEX + ":" + sex.getName() + " OR " + StatisticalResultDTO.SEX + ":" + sex.getName() + ")");
+//        }
+//
+//        System.out.println("Query: " + q);
+//
+//        QueryResponse results = statisticalResultCore.query(q);
+//
+//        System.out.println("Results: " + results.getGroupResponse().getValues().get(0).getValues().size());
+//
+//        return results.getGroupResponse().getValues().get(0).getValues();
+//    }
 
     Set<String> nullFilterFields = new TreeSet<>();
 

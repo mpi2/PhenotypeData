@@ -53,7 +53,7 @@
                         <div class="page-content pt-3 pb-5">
                             <div class="container p-0 p-md-2">
                                 <div class="row">
-                                    <div class="col-6">
+                                    <div class="col-md-6">
                                         <div>
                                             <h4>IMPC</h4>
                                             <ul class="mt-0">
@@ -85,7 +85,7 @@
                                             </ul>
                                         </div>
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-md-6">
                                         <div>
                                             <h4>Summary</h4>
                                             <ul class="mt-0">
@@ -203,12 +203,12 @@
                                             <div class="col-12">
                                                 <h4>Overall</h4>
                                                 <div class="row">
-                                                    <div class="col-6">
+                                                    <div class="col-md-6">
                                                         <div id="genotypeStatusChart">
                                                             <script type="text/javascript">${genotypeStatusChart.getChart()}</script>
                                                         </div>
                                                     </div>
-                                                    <div class="col-6">
+                                                    <div class="col-md-6">
                                                         <div id="phenotypeStatusChart">
                                                             <script type="text/javascript">${phenotypeStatusChart.getChart()}</script>
                                                         </div>
@@ -221,7 +221,7 @@
                                     <div class="col-12">
                                         <h4>By Center</h4>
                                         <div class="row">
-                                            <div class="col-6">
+                                            <div class="col-md-6">
                                                 <div id="genotypeStatusByCenterChart">
                                                     <script type="text/javascript">${genotypingDistributionChart}</script>
                                                 </div>
@@ -229,7 +229,7 @@
                                                 <a id="uncheckAllGenByCenter"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
                                                 <div class="clear both"></div>
                                             </div>
-                                            <div class="col-6">
+                                            <div class="col-md-6">
                                                 <div id="phenotypeStatusByCenterChart">
                                                     <script type="text/javascript">${phenotypingDistributionChart}</script>
                                                 </div>

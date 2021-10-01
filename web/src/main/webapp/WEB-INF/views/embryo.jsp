@@ -94,10 +94,10 @@
                         </p>
                     </div>
                     <div class="row mb-5">
-                        <div id="viabilityChart" class="col-6 h-100">
+                        <div id="viabilityChart" class="col-md-6 h-100">
                             <script type="text/javascript">${viabilityChart}</script>
                         </div>
-                        <div id="viabilityChart" class="col-6 align-items-center">
+                        <div id="viabilityChart" class="col-md-6 align-items-center">
                             <table class="table table-striped thead-light w-100">
                                 <thead>
                                 <tr>
@@ -151,7 +151,8 @@
                         defects occur earlier or later in development. A comprehensive imaging platform is then used to
                         assess dysmorphology at the <b>most</b> appropriate stage:</p>
 
-                    <table class="table table-striped thead-light w-100">
+                    <table id="embryo_data_table"  data-toggle="table"  data-pagination="true" data-mobile-responsive="true"
+                           data-sortable="true" data-custom-sort="sortString" data-search="true" data-show-search-clear-button="true">
                         <tr>
                             <th>Procedure</th>
                             <th>Number</th>
@@ -213,9 +214,9 @@
                 <div class="col-12">
                     <h2>2D Imaging </h2>
                     <div class="row mb-5">
-                        <div class="col-6">
+                        <div class="col-md-6">
                             <h3>Embryo LacZ</h3>
-                            <img src="${baseUrl}/img/Tmem100_het.jpeg" height="200"/>
+                            <img class="img-fluid " src="${baseUrl}/img/Tmem100_het.jpeg" height="200"/>
                             <p>
                                 <a href="${baseUrl}/imageComparator?acc=MGI:1915138&anatomy_term=TS20%20embryo%20or%20Unassigned&parameter_stable_id=IMPC_ELZ_064_001">Tmem100</a>
                             </p>
@@ -226,9 +227,9 @@
                                     href='${cmsBaseUrl}/understand/impc-image-search/?procedure=Embryo LacZ'>embryo
                                 LacZ images</a>.</p>
                         </div>
-                        <div class="col-6">
+                        <div class="col-md-6">
                             <h3>Embryo Gross Morphology</h3>
-                            <img src="${baseUrl}/img/Acvr2a_hom.jpeg" height="200" style="width:auto"/>
+                            <img class="img-fluid " src="${baseUrl}/img/Acvr2a_hom.jpeg" height="200" style="width:auto"/>
                             <p>WT / <a
                                     href="${baseUrl}/imageComparator?acc=MGI:102806&parameter_stable_id=IMPC_GEO_050_001">Acvr2a</a>
                             </p>
@@ -248,7 +249,7 @@
             <div class="row mb-5">
                 <div class="col-12">
                     <h2>3D Imaging </h2>
-                    <img class="w-100" alt="IEV" src="${baseUrl}/img/IEV.png"/>
+                    <img class="w-100 img-fluid" alt="IEV" src="${baseUrl}/img/IEV.png"/>
                     <p> The embryonic and perinatal lethal pipeline comprises several 3D imaging modalities to quantify
                         aberrant morphology that could not be determined by gross inspection. Images acquired by
                         micro-CT and OPT are available via our Interactive Embryo Viewer (IEV). </p>
@@ -280,95 +281,87 @@
                         </div>
                         <div id="sliderControl" class="sliderControl">
                             <ul>
-                                <li id="item0"><img src="${baseUrl}/img/vignettes/chtopPink.jpg"/>
+                                <li id="item0"><img class="img_fluid" src="${baseUrl}/img/vignettes/chtopPink.jpg"/>
                                     <p class="embryo-caption"> Chtop has been shown to recruit the histone-methylating
                                         methylosome to genomic regions containing
                                         5-Hydroxymethylcytosine, thus affecting gene expression. Chtop mutants showed
                                         complete preweaning lethality with
                                         no homozygous pups observed. High resolution episcopic microscopy (HREM)
                                         imaging, revealed decreased number of
-                                        vertebrae, abnormal joint morphology and edema. <t:vignetteLink
-                                                geneId="MGI:1913761"></t:vignetteLink></p>
+                                        vertebrae, abnormal joint morphology and edema. <t:vignetteLink geneId="MGI:1913761"></t:vignetteLink></p>
                                     <p class="sliderTitle"><t:formatAllele>Chtop<tm1a(EUCOMM)Wtsi></t:formatAllele></p>
                                 </li>
-                                <li id="item1"><img src="${baseUrl}/img/vignettes/Kldhc2.png"/>
+                                <li id="item1"><img class="img_fluid" src="${baseUrl}/img/vignettes/Kldhc2.png"/>
                                     <p class="embryo-caption"> The Kldhc2 gene is located within a locus linked to an
                                         automsomal dominant disease that leads to fibro-fatty replacement of right
-                                        ventricle myocardium leading to arrythmias (ARVD3 ; OMIM) <t:vignetteLink
-                                                geneId="MGI:1916804"></t:vignetteLink></p>
+                                        ventricle myocardium leading to arrythmias (ARVD3 ; OMIM) <t:vignetteLink geneId="MGI:1916804"></t:vignetteLink></p>
                                     <p class="sliderTitle"><t:formatAllele>Klhdc2<tm1b(EUCOMM)Hmgu></t:formatAllele></p>
                                 </li>
-                                <li id="item2"><img src="${baseUrl}/img/vignettes/Acvr2aMicroCT.png"/>
+                                <li id="item2"><img class="img_fluid" src="${baseUrl}/img/vignettes/Acvr2aMicroCT.png"/>
                                     <p class="embryo-caption">Activin receptor IIA is a receptor for activins, which are
                                         members of the TGF-beta superfamily involved in diverse biological processes.
                                         Acvr2a mutants are subviable with most pups dying before postnatal day 7.
                                         <t:vignetteLink geneId="MGI:102806"></t:vignetteLink></p>
                                     <p class="sliderTitle"><t:formatAllele>Acvr2a<tm1.1(KOMP)Vlcg></t:formatAllele></p>
                                 </li>
-                                <li id="item3"><img src="${baseUrl}/img/vignettes/cbx4.png"/>
+                                <li id="item3"><img class="img_fluid" src="${baseUrl}/img/vignettes/cbx4.png"/>
                                     <p class="embryo-caption">Chromobox 4 is in the polycomb protein family that are key
                                         regulators of transcription and is reported to be upregulated in lung bud
-                                        formation and required for thymus development <t:vignetteLink
-                                                geneId="MGI:1195985"></t:vignetteLink></p>
+                                        formation and required for thymus development <t:vignetteLink geneId="MGI:1195985"></t:vignetteLink></p>
                                     <p class="sliderTitle"><t:formatAllele>Cbx4<tm1.1(KOMP)Vlcg></t:formatAllele></p>
                                 </li>
-                                <li id="item4"><img src="${baseUrl}/img/vignettes/tmem100.png"/>
+                                <li id="item4"><img class="img_fluid" src="${baseUrl}/img/vignettes/tmem100.png"/>
                                     <p class="embryo-caption">Transmembrane Protein 100 functions downstream of the
                                         BMP/ALK1 signaling pathway. Tmem100 mutants showed complete preweaning lethality
-                                        and were also lethal at E12.5. <t:vignetteLink
-                                                geneId="MGI:1915138"></t:vignetteLink></p>
+                                        and were also lethal at E12.5. <t:vignetteLink geneId="MGI:1915138"></t:vignetteLink></p>
                                     <p class="sliderTitle"><t:formatAllele>Tmem100<tm1e.1(KOMP)Wtsi></t:formatAllele>
                                     </p>
                                 </li>
-                                <li id="item5"><img src="${baseUrl}/img/vignettes/eye4.png"/>
+                                <li id="item5"><img class="img_fluid" src="${baseUrl}/img/vignettes/eye4.png"/>
                                     <p class="embryo-caption"> Eyes absent transcriptional coactivator and phosphatase 4
                                         is associated with a variety of developmental defects including hearing loss.
                                         Eya4 mutants showed complete preweaning lethality with no homozygous pups
                                         observed. <t:vignetteLink geneId="MGI:1337104"></t:vignetteLink></p>
                                     <p class="sliderTitle"><t:formatAllele>Eya4<tm1b(KOMP)Wtsi></t:formatAllele></p>
                                 </li>
-                                <li id="item6"><img src="${baseUrl}/img/vignettes/tox3MRI.png"/>
+                                <li id="item6"><img class="img_fluid" src="${baseUrl}/img/vignettes/tox3MRI.png"/>
                                     <p class="embryo-caption">Tox High Mobility Group Box Family Member 3 is a member of
                                         the HMG-box family involved in bending and unwinding DNA. Tox3 mutants have
                                         partial preweaning lethality with 1/3 of the pups dying before P7.
                                         <t:vignetteLink geneId="MGI:3039593"></t:vignetteLink></p>
                                     <p class="sliderTitle"><t:formatAllele>Tox3<tm1b(KOMP)Mbp></t:formatAllele></p>
                                 </li>
-                                <li id="item7"><img src="${baseUrl}/img/vignettes/Rsph9Slides.png"/>
+                                <li id="item7"><img class="img_fluid" src="${baseUrl}/img/vignettes/Rsph9Slides.png"/>
                                     <p class="embryo-caption">Radial spoke head protein 9 is a component of the radial
                                         spoke head in motile cilia and flagella. Rsph9 mutants showed partial
-                                        pre-weaning lethality but viable to P7. <t:vignetteLink
-                                                geneId="MGI:1922814"></t:vignetteLink></p>
+                                        pre-weaning lethality but viable to P7. <t:vignetteLink geneId="MGI:1922814"></t:vignetteLink></p>
                                     <p class="sliderTitle"><t:formatAllele>Rsph9<tm1.1(KOMP)Vlcg></t:formatAllele></p>
                                 </li>
 
-                                <li id="item8"><img src="${baseUrl}/img/vignettes/Pax7.png"/>
+                                <li id="item8"><img class="img_fluid" src="${baseUrl}/img/vignettes/Pax7.png"/>
                                     <p class="embryo-caption">Pax 7 is a nuclear transcription factor with DNA-binding
                                         activity via its paired domain. It is involved in specification of the neural
                                         crest and is an upstream regulator of myogenesis during post-natal growth and
-                                        muscle regeneration in the adult. <t:vignetteLink
-                                                geneId="MGI:97491"></t:vignetteLink></p>
+                                        muscle regeneration in the adult. <t:vignetteLink geneId="MGI:97491"></t:vignetteLink></p>
                                     <p class="sliderTitle"><t:formatAllele>Pax7<tm1.1(KOMP)Vlcg></t:formatAllele></p>
                                 </li>
 
-                                <li id="item9"><img src="${baseUrl}/img/vignettes/Svep1.jpg"/>
+                                <li id="item9"><img class="img_fluid" src="${baseUrl}/img/vignettes/Svep1.jpg"/>
                                     <p class="embryo-caption">Svep1 codes for an uncharacterized protein named after the
                                         multiple, extra-cellular domains identified in the sequence. Homozygotes fail
-                                        between E18.5 and birth. <t:vignetteLink
-                                                geneId="MGI:1928849"></t:vignetteLink></p>
+                                        between E18.5 and birth. <t:vignetteLink geneId="MGI:1928849"></t:vignetteLink></p>
                                     <p class="sliderTitle"><t:formatAllele>Svep1<tm1b(EUCOMM)Hmgu/J></t:formatAllele>
                                     </p>
                                 </li>
 
-                                <li id="item10"><img src="${baseUrl}/img/vignettes/Strn3.jpg"/>
+                                <li id="item10"><img class="img_fluid" src="${baseUrl}/img/vignettes/Strn3.jpg"/>
                                     <p class="embryo-caption">Striatins act as both calcium-dependent signaling proteins
                                         and scaffolding proteins, linking calcium-sensing signaling events with cellular
-                                        action. Lethality in Strn3 homozygotes occurs around E15.5. <t:vignetteLink
-                                                geneId="MGI:2151064"></t:vignetteLink></p>
+                                        action. Lethality in Strn3 homozygotes occurs around E15.5. <t:vignetteLink geneId="MGI:2151064"></t:vignetteLink></p>
                                     <p class="sliderTitle"><t:formatAllele>Strn3<tm1b(KOMP)Wtsi/J></t:formatAllele></p>
                                 </li>
 
-                                <li id="item11"><img src="${baseUrl}/img/vignettes/Rab34.jpg"/>
+                                <li id="item11"><img class="img_fluid" src="${baseUrl}/img/vignettes/Rab34.jpg"/>
                                     <p class="embryo-caption">Rab34 is a member of the RAS oncogene family, involved in
                                         intracellular vesicle transport. Rab34 homozygotes are subviable at E18.5.
                                         <t:vignetteLink geneId="MGI:104606"></t:vignetteLink></p>
@@ -376,30 +369,28 @@
                                     </p>
                                 </li>
 
-                                <li id="item12"><img src="${baseUrl}/img/vignettes/Cox7c.jpg"/>
+                                <li id="item12"><img class="img_fluid" src="${baseUrl}/img/vignettes/Cox7c.jpg"/>
                                     <p class="embryo-caption">Cytochrome c oxidase subunit VIIc (Cox7c) is a
                                         nuclear-encoded regulatory component of cytochrome c oxidase. Homozygous mutants
-                                        do not survive between E15.5 and E18.5. <t:vignetteLink
-                                                geneId="MGI:103226"></t:vignetteLink></p>
+                                        do not survive between E15.5 and E18.5. <t:vignetteLink geneId="MGI:103226"></t:vignetteLink></p>
                                     <p class="sliderTitle"><t:formatAllele>Cox7c<tm1b(KOMP)Mbp></t:formatAllele></p>
                                 </li>
 
-                                <li id="item13"><img src="${baseUrl}/img/vignettes/Bloc1s2.jpg"/>
+                                <li id="item13"><img class="img_fluid" src="${baseUrl}/img/vignettes/Bloc1s2.jpg"/>
                                     <p class="embryo-caption">Bloc1s2 functions in the formation of lysosome-related
                                         organelles through the BLOC-1 complex, with lethality occurring in knockouts
                                         around E15.5.<t:vignetteLink geneId="MGI:1920939"></t:vignetteLink></p>
                                     <p class="sliderTitle"><t:formatAllele>Bloc1s2<tm1.1(KOMP)Mbp></t:formatAllele></p>
                                 </li>
 
-                                <li id="item14"><img src="${baseUrl}/img/vignettes/Slc39a8.png"/>
+                                <li id="item14"><img class="img_fluid" src="${baseUrl}/img/vignettes/Slc39a8.png"/>
                                     <p class="embryo-caption">Solute carrier (metal ion transporter) family 39 member 8
-                                        (Slc39a8) mutants are small at E14.5 and show heart defects.<t:vignetteLink
-                                                geneId="MGI:1914797"></t:vignetteLink></p>
+                                        (Slc39a8) mutants are small at E14.5 and show heart defects.<t:vignetteLink geneId="MGI:1914797"></t:vignetteLink></p>
                                     <p class="sliderTitle"><t:formatAllele>Slc39a8<tm1b(EUCOMM)Wtsi></t:formatAllele>
                                     </p>
                                 </li>
 
-                                <li id="item15"><img src="${baseUrl}/img/vignettes/Kdm8.png"/>
+                                <li id="item15"><img class="img_fluid" src="${baseUrl}/img/vignettes/Kdm8.png"/>
                                     <p class="embryo-caption">Lysine (K)-specific demethylase 8 (Kdm8) is predicted to
                                         have dual functions as a histone demethylase and as a protein hydroxylase and is
                                         also known as Jmjd5. Tm1b mutants show developmental delay and fail to turn at
@@ -407,25 +398,23 @@
                                     <p class="sliderTitle"><t:formatAllele>Kdm8<tm1b(EUCOMM)Wtsi></t:formatAllele></p>
                                 </li>
 
-                                <li id="item16"><img src="${baseUrl}/img/vignettes/Atg3.png"/>
+                                <li id="item16"><img class="img_fluid" src="${baseUrl}/img/vignettes/Atg3.png"/>
                                     <p class="embryo-caption">Autophagy related 3 (Atg3) mutants show cardio-vascular
                                         defects at E14.5.<t:vignetteLink geneId="MGI:1915091"></t:vignetteLink></p>
                                     <p class="sliderTitle"><t:formatAllele>Atg3<tm1b(EUCOMM)Hmgu></t:formatAllele></p>
                                 </li>
 
-                                <li id="item17"><img src="${baseUrl}/img/vignettes/gfpt1.png"/>
+                                <li id="item17"><img class="img_fluid" src="${baseUrl}/img/vignettes/gfpt1.png"/>
                                     <p class="embryo-caption">Glutamine:fructose-6-phosphate amidotransferase 1 (Gfpt1)
-                                        mutants show developmental delay and fail to turn at E9.5.<t:vignetteLink
-                                                geneId="MGI:95698"></t:vignetteLink></p>
+                                        mutants show developmental delay and fail to turn at E9.5.<t:vignetteLink geneId="MGI:95698"></t:vignetteLink></p>
                                     <p class="sliderTitle"><t:formatAllele>Gfpt1<tm1b(EUCOMM)Wtsi></t:formatAllele></p>
                                 </li>
-                                <li id="item18"><img src="${baseUrl}/img/vignettes/Gygmutants.png"/>
+                                <li id="item18"><img class="img_fluid" src="${baseUrl}/img/vignettes/Gygmutants.png"/>
                                     <p class="embryo-caption">Glycogenin is an enzyme that converts glucose to glycogen.
                                         Glycogenin catalyzes UDP-alpha-D-glucose + glycogenin &rlhar; UDP +
                                         alpha-D-glucosylglycogenin. The enzyme is a homodimer of 37 kDa subunits.
                                         Mutations in human GYG1 are associated with Glyocgen Storage Disease XV and
-                                        Polyglucosan Body Myopathy 2 (<a
-                                                href="http://www.omim.org/entry/603942">OMIM</a>). Homozygous null Gyg
+                                        Polyglucosan Body Myopathy 2 (<a href="http://www.omim.org/entry/603942">OMIM</a>). Homozygous null Gyg
                                         mice die between birth and weaning but were found in normal proportions at
                                         E18.5. Mutants were indistinguishable from littermates at E12.5, E15.5 or E18.5
                                         but analysis of microCT images revealed obvious cardiac abnormalities, enlarged
@@ -434,8 +423,9 @@
                                         <t:vignetteLink geneId="MGI:1351614"></t:vignetteLink></p>
                                     <p class="sliderTitle"><t:formatAllele>Gyg<tm1b(KOMP)Wtsi></t:formatAllele></p>
                                 </li>
-                                <li id="item19"><img src="${baseUrl}/img/vignettes/Tmem132aE15.5 sag.png"/>
-                                    <p class="embryo-caption">Transmembrane protein132a is transmembrane protein of
+                                <li id="item19"><img class="img_fluid" src="${baseUrl}/img/vignettes/Tmem132aE15.5 sag.png"/>
+                                    <p class="embryo-caption">
+                                        Transmembrane protein132a is transmembrane protein of
                                         unknown function.
                                         Homozygous null mutants were viable at normal proportions at E15.5 and E18.5 but
                                         showed obvious and severe defects that were readibly visible by eye. Embryos had
@@ -450,10 +440,8 @@
                     </div>
 
                     <p> These vignettes highlight the utility of embryo phenotyping pipeline and demonstrate how gross
-                        morphology, embryonic
-                        lacz expression, and high resolution 3D imaging provide insights into developmental biology.
-                        Clicking on an image will provide
-                        more information. </p>
+                        morphology, embryonic lacz expression, and high resolution 3D imaging provide insights into
+                        developmental biology. Clicking on an image will provide more information. </p>
                 </div>
             </div>
 
@@ -461,7 +449,7 @@
             <div class="row mb-5">
                 <div class="col-12">
                     <h2 class="title ">IMPC Embryonic Pipeline</h2>
-                    <div><a href="${cmsBaseUrl}/impress"><img src="${baseUrl}/img/embryo_impress.png"/> </a></div>
+                    <div><a href="${cmsBaseUrl}/impress"><img class="img-fluid" src="${baseUrl}/img/embryo_impress.png"/> </a></div>
                 </div>
             </div>
 

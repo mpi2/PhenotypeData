@@ -85,12 +85,12 @@
 <%--                        is temporarily down for maintenance.</p>--%>
 
                     <div class="row">
-                        <div  class="col-6">
+                        <div  class="col-md-6">
                            <div id="idgOrthologPie">
 			            		<script type="text/javascript">${idgOrthologPie}</script>
                             </div>
                         </div>
-                        <div  class="col-6">
+                        <div  class="col-md-6">
                             <div id=idgChart>
 			            		<script type="text/javascript">${idgChartTable.getChart()}</script>
                             </div>
@@ -162,7 +162,7 @@
                         </table>
                     </div>
                     <div id="chordContainerIonChannels" class="half"></div>
-                    <svg id="chordDiagramSvgIonChannels" width="960" height="960"></svg>
+                    <svg id="chordDiagramSvgIonChannels" width="960" height="960" class="d-none d-md-block"></svg>
                     <script>
                         drawChords("chordDiagramSvgIonChannels", "chordContainerIonChannels", false, [], true, "${ION_CHANNEL}", true);
                     </script>
@@ -209,7 +209,7 @@
                         </table>
                     </div>
                     <div id="chordContainerGPCRs" class="half"></div>
-                    <svg id="chordDiagramSvgGPCRs" width="960" height="960"></svg>
+                    <svg id="chordDiagramSvgGPCRs" width="960" height="960" class="d-none d-md-block"></svg>
                     <script>
                         drawChords("chordDiagramSvgGPCRs", "chordContainerGPCRs", false, [], true, "${GPCR}", true);
                     </script>
@@ -257,7 +257,7 @@
                         </table>
                     </div>
                     <div id="chordContainerKinases" class="half"></div>
-                    <svg id="chordDiagramSvgKinases" width="960" height="960"></svg>
+                    <svg id="chordDiagramSvgKinases" width="960" height="960" class="d-none d-md-block"></svg>
                     <script>
                         drawChords("chordDiagramSvgKinases", "chordContainerKinases", false, [], true, "${KINASE}", true);
                     </script>

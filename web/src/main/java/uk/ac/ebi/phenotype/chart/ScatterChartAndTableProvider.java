@@ -29,10 +29,9 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ScatterChartAndTableProvider {
@@ -47,9 +46,12 @@ public class ScatterChartAndTableProvider {
 		this.unidimensionalChartAndTableProvider = unidimensionalChartAndTableProvider;
 	}
 
-	public String createScatter(Float min, Float max, String experimentNumber, ParameterDTO parameter, JSONArray series) {
+	public String createScatter(Float min, Float max, String experimentNumber, ParameterDTO parameter, JSONArray series, Boolean windowSeries, String alleleSymbol) {
+
 		String yTitle="";
-		if(parameter.getUnitY()!=null && !parameter.getUnitY().equals("")){//if incremental parameter we should have a y unit - if not we use the xunit - most scatters were displaying null so this is a fix JW
+
+		//if incremental parameter we should have a y unit - if not we use the xunit - most scatters were displaying null so this is a fix JW
+		if(parameter.getUnitY()!=null && !parameter.getUnitY().equals("")){
 			yTitle=parameter.getUnitY();
 		}else if(parameter.getUnitX()!=null && !parameter.getUnitX().equals("")){
 			yTitle=parameter.getUnitX();
@@ -60,16 +62,31 @@ public class ScatterChartAndTableProvider {
 			yAxisLabel = parameter.getName();
 		}
 
-		return "	$(function () { "
-			+ "  chart71maleWTSI = new Highcharts.Chart({ "
-			+ "     chart: {"
-			+ "renderTo: 'scatter"
-			+ experimentNumber + "',"
-			+ "         type: 'scatter',"
-			+ "         zoomType: 'xy'"
+		String yAxisMin = (min != null ? "min: " + min + ", " : "");
+		String yAxisMax = (max != null ? "max: " + max + ", " : "");
+		String yAxis = "yAxis: { tickAmount: 5,"
+				+ yAxisMin + yAxisMax
+				+ " title: { text: '" + yAxisLabel + "' } }, ";
 
+		if(windowSeries) {
+			String primaryAxis = String.format("{tickAmount: 5, %s %s title: {text: '%s'}}", yAxisMin, yAxisMax, yAxisLabel);
+			String secondaryAxis = "{tickAmount: 5, min: 0, max: 1, title: {text: 'Soft window statistical weight'}, opposite: true}";
+			yAxis = String.format("yAxis: [%s, %s],", primaryAxis, secondaryAxis);
+		}
+
+		// A better title for this plot
+		String allele = alleleSymbol
+			.replaceAll("<", "��").replaceAll(">", "##")
+			.replaceAll("��", "<sup>").replaceAll("##", "</sup>");
+		String chartTitle = String.format("%s<br>%s scatter plot", allele, parameter.getName());
+
+
+		return "$(function () {\n"
+			+ " new Highcharts.Chart({ "
+			+ " chart: {renderTo: 'scatter" + experimentNumber + "',"
+			+ "         zoomType: 'xy'"
 			+ "     },"
-			+ "   title: {  useHTML:true, text: 'Scatterplot of the data <a href=\"/help/quick-guide-to-the-website/chart-page/\" target=\"_blank\"><i class=\"fa fa-question-circle\" style=\"color: #ce6211;\"></i></a>' },"
+			+ "   title: {  useHTML:true, text: '"+chartTitle+" <a href=\"/help/quick-guide-to-the-website/chart-page/\" target=\"_blank\"><i class=\"fa fa-question-circle\" style=\"color: #ce6211;\"></i></a>' },"
 			+ "     xAxis: {"
 			+ "       type: 'datetime',"
 			+ "       labels: { "
@@ -83,44 +100,18 @@ public class ScatterChartAndTableProvider {
 			+ "       },"
 			+ "       showLastLabel: true "
 			+ "     }, "
-			+ "     yAxis: { "
-			+ "       tickAmount: 5,"
-			+ (max != null ? "       max: " + max + ", " : "")
-			+ (min != null ? "       min: " + min + ", " : "")
-			+ "       title: { "
-			+ "         text: '" + yAxisLabel + "' "
-			+ "       } "
-			+ "     }, "
-			+ "     credits: { "
-			+ "       enabled: false "
-			+ "     }, "
-			+ "      plotOptions: { "
-			+ "        scatter: { "
-			+ "            marker: { "
-			+ "                radius: 5, "
-			+ "                states: { "
-			+ "                hover: { "
-			+ "                    enabled: true, "
-			+ "                    lineColor: 'rgb(100,100,100)' "
-			+ "               } "
-			+ "           } "
-			+ "       }, "
-			+ "       states: { "
-			+ "           hover: { "
-			+ "               marker: { "
-			+ "                   enabled: false "
-			+ "               } "
-			+ "           } "
-			+ "        } "
-			+ "     } "
-			+ "   }, "
-			+ "     tooltip: { "
-			+ "          formatter: function () { "
-			+ "              return '<b>' + this.series.name + '</b><br/>' + Highcharts.dateFormat('%e %b %Y', this.x) + ': ' + this.y + ' " + parameter.getUnitX() + " '; "
-			+ "          } "
-			+ "      }, "
-			+ "     series: " +
-			series.toString()
+			+ yAxis
+			+ "\n     credits: { "
+			+ "\n       enabled: false "
+			+ "\n     }, "
+			+ "\n     tooltip: { "
+			+ "\n          formatter: function () { "
+			+ "\n              if (this.series.name === 'Soft window statistical weight') { return '<b>' + this.series.name + '</b><br/>' + Highcharts.dateFormat('%e %b %Y', this.x) + ': ' + this.y ; }"
+			+ "\n              return '<b>' + this.series.name + '</b><br/>' + Highcharts.dateFormat('%e %b %Y', this.x) + ': ' + this.y + ' " + parameter.getUnitX() + " '; "
+			+ "\n          } "
+			+ "\n      }, "
+			+ "\n     series: "
+			+ series.toString()
 			+ "    });"
 			+ "	}); ";
 	}
@@ -128,30 +119,34 @@ public class ScatterChartAndTableProvider {
 
 	public ScatterChartAndData doScatterData(ExperimentDTO experiment, Float yMin, Float yMax, ParameterDTO parameter, String experimentNumber) {
 
+		Boolean windowSeries = Boolean.FALSE;
+
 		JSONArray series=new JSONArray();
 		// maybe need to put these into method that can be called as repeating
 		// this - so needs refactoring though there are minor differences?
 
 		for (SexType sex : experiment.getSexes()) {
 
-			JSONObject              controlJsonObject =new JSONObject();
-			JSONArray               dataArray         =new JSONArray();
+			JSONObject controlJsonObject = new JSONObject();
+			JSONArray dataArray = new JSONArray();
 
 			try {
-				controlJsonObject.put("name", WordUtils.capitalize(sex.name())+" "+"WT");
-				JSONObject markerObject=ChartColors.getMarkerJSONObject(sex, null);
+				controlJsonObject.put("name", WordUtils.capitalize(sex.name()) + " " + "WT");
+				JSONObject markerObject = ChartColors.getMarkerJSONObject(sex, null);
 				controlJsonObject.put("marker", markerObject);
+				controlJsonObject.put("type", "scatter");
 			} catch (JSONException e) {
-			e.printStackTrace();
+				e.printStackTrace();
 			}
 
 			for (ObservationDTO control : experiment.getControls(sex)) {
 
-				String docGender = control.getSex();
+				if ( ! windowSeries && control.getWindowWeight() != null) {
+					windowSeries = Boolean.TRUE;
+				}
 
-				if (SexType.valueOf(docGender).equals(sex)) {
+				if (SexType.valueOf(control.getSex()).equals(sex)) {
 					Float dataPoint = control.getDataPoint();
-//					logger.debug("data value=" + dataPoint);
 					addScatterPoint(dataArray, control, dataPoint);
 				}
 
@@ -177,6 +172,8 @@ public class ScatterChartAndTableProvider {
 					expZyg.put("name", WordUtils.capitalize(sex.name()) + " " + WordUtils.capitalize(zType.getShortName()));
 					JSONObject markerObject = ChartColors.getMarkerJSONObject(sex, zType);
 					expZyg.put("marker", markerObject);
+					expZyg.put("type", "scatter");
+
 				} catch (JSONException e1) {
 					e1.printStackTrace();
 				}
@@ -194,8 +191,12 @@ public class ScatterChartAndTableProvider {
 				}
 
 				for (ObservationDTO expDto : expObservationsSet) {
-					String docGender = expDto.getSex();
-					if (SexType.valueOf(docGender).equals(sex)) {
+
+					if ( ! windowSeries && expDto.getWindowWeight() != null) {
+						windowSeries = Boolean.TRUE;
+					}
+
+					if (SexType.valueOf(expDto.getSex()).equals(sex)) {
 						Float dataPoint = expDto.getDataPoint();
 						addScatterPoint(expDataArray, expDto, dataPoint);
 					}
@@ -210,8 +211,52 @@ public class ScatterChartAndTableProvider {
 			}
 		}
 
+
+
+		try {
+			if (windowSeries) {
+
+				JSONObject windowsSeriesName = new JSONObject();
+				windowsSeriesName.put("name", "Soft window statistical weight");
+				windowsSeriesName.put("type", "spline");
+				windowsSeriesName.put("yAxis", 1);
+				windowsSeriesName.put("dashStyle", "shortdot");
+				windowsSeriesName.put("lineWidth", 4);
+				windowsSeriesName.put("color", "#000000");
+				windowsSeriesName.put("clip", false);
+
+				Map<Long, Double> windowData = new HashMap<>();
+				for (ObservationDTO dto : Stream.of(experiment.getMutants(), experiment.getControls()).flatMap(Collection::stream).collect(Collectors.toSet())) {
+
+					// Some entries in the statpacket don't have weights
+					// Since all data points on the same day must have the same weight, we can skip
+					// those that don't have a weight value and hope that the date will get filled in
+					// by one of the other data points on that day
+					if (dto.getWindowWeight() != null) {
+						windowData.put(dto.getDateOfExperiment().getTime(), dto.getWindowWeight());
+					}
+				}
+
+				JSONArray windowDataJson = new JSONArray(windowData.entrySet().stream().sorted(Map.Entry.comparingByKey()).map(x -> {
+					JSONArray a = new JSONArray();
+					a.put(x.getKey());
+					a.put(x.getValue());
+					return a;
+				}).collect(Collectors.toList()));
+				windowsSeriesName.put("data", windowDataJson);
+
+				series.put(windowsSeriesName);
+			}
+		} catch (JSONException e) {
+			logger.warn("JSON error creating soft windowing JSON object ", e);
+		}
+
+
 		ScatterChartAndData scatterChartAndData = new ScatterChartAndData();
-		String chartString = createScatter(yMin, yMax, experimentNumber, parameter, series);
+		String chartString = createScatter(yMin, yMax, experimentNumber, parameter, series, windowSeries, experiment.getAlleleSymbol());
+
+		//JSONStringer "helpfully" escapes forward slashes.  Need to unwrap these
+		chartString = chartString.replaceAll("\\\\/", "/");
 		scatterChartAndData.setChart(chartString);
 
 		List<UnidimensionalStatsObject> unidimensionalStatsObjects;

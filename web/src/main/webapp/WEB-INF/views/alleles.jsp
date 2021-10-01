@@ -49,42 +49,14 @@
                 <div class="col-12 col-md-12">
                     <div class="pre-content clear-bg">
                         <div class="page-content people py-5 white-bg">
-                            <div class="row no-gutters">
-                                <div class="col-12 px-0">
 
-                                    <div class="row">
-                                        <div class="col-12 px-5">
-                                            <jsp:include page="alleles_summary_frag.jsp"/>
-                                        </div>
-                                    </div>
+                            <jsp:include page="alleles_summary_frag.jsp"/>
+                            <jsp:include page="alleles_mice_frag.jsp"/>
+                            <jsp:include page="alleles_es_cells_frag.jsp"/>
+                            <jsp:include page="alleles_targeting_vectors_frag.jsp"/>
 
-                                    <div class="row">
-                                        <div class="col-12 px-5">
-                                            <jsp:include page="alleles_mice_frag.jsp"/>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12 px-5">
-                                            <jsp:include page="alleles_es_cells_frag.jsp"/>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-12 px-5">
-                                            <jsp:include page="alleles_targeting_vectors_frag.jsp"/>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-12 px-5 my-5">
-
-                                            <a class="btn btn-success" href="${fn:escapeXml(selectUrl)}">See all <c:if
-                                                    test="${creLine}">Cre </c:if>Alleles
-                                                for ${summary['marker_symbol']}</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <a class="btn btn-success" href="${fn:escapeXml(selectUrl)}">See all <c:if
+                                    test="${creLine}">Cre </c:if>Alleles for ${summary['marker_symbol']}</a>
                         </div>
                     </div>
                 </div>
