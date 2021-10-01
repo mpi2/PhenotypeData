@@ -236,7 +236,7 @@ for f in list_nfs_filenames:
     # only the last one encountered will be used
     dict_nfs_filenames[f.lower()] = f
 set_nfs_filenames = set(dict_nfs_filenames.keys())
-print(f"In NFS: {set_nfs_filenames}")
+#print(f"In NFS: {set_nfs_filenames}")
 
 files_to_upload = set_csv_filenames - set_omero_filenames
 files_to_upload_available = files_to_upload.intersection(set_nfs_filenames)
