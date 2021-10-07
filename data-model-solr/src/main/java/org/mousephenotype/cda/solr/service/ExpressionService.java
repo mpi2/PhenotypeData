@@ -501,6 +501,23 @@ public class ExpressionService extends BasicService {
 			wtAnatomyToRow.put(anatomy, wtRow);
 		}
 
+		// Sort the expression and anatomy rows images first, then by anatomy
+		{
+			final Map<String, ExpressionRowBean> finalAnatomyToRow1 = mutantImagesAnatomyToRow;
+			final List<String> anatomyWithoutImages = mutantImagesAnatomyToRow.keySet().stream().filter(x -> finalAnatomyToRow1.get(x).getNumberOfImages() < 1).sorted().collect(Collectors.toList());
+			final List<String> anatomyWithImages = mutantImagesAnatomyToRow.keySet().stream().filter(x -> finalAnatomyToRow1.get(x).getNumberOfImages() > 0).sorted().collect(Collectors.toList());
+
+			Map<String, ExpressionRowBean> sortedExpressionMap = new LinkedHashMap<>();
+			for (String anat : anatomyWithImages) {
+				sortedExpressionMap.put(anat, expressionAnatomyToRow.get(anat));
+			}
+			for (String anat : anatomyWithoutImages) {
+				sortedExpressionMap.put(anat, expressionAnatomyToRow.get(anat));
+			}
+			expressionAnatomyToRow = sortedExpressionMap;
+		}
+
+
 		if (embryo) {
 			model.addAttribute("embryoExpressionAnatomyToRow", expressionAnatomyToRow);
 			model.addAttribute("embryoMutantImagesAnatomyToRow", mutantImagesAnatomyToRow);
@@ -792,7 +809,7 @@ public class ExpressionService extends BasicService {
 
 		String anatomy;
 		String abnormalAnatomyId;
-		private int numberOfImages;
+		private int numberOfImages = 0;
 
 		public int getNumberOfImages() {
 			return numberOfImages;

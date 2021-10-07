@@ -259,6 +259,33 @@
                  padding: 0.4em 1em;
              }
 
+             /* Required for adjusting bootstrap tables default sort arrows */
+             .bootstrap-table .fixed-table-container .table thead .th-inner.sortable.both.both,
+             .bootstrap-table .fixed-table-container .table thead .th-inner.sortable.both.asc,
+             .bootstrap-table .fixed-table-container .table thead .th-inner.sortable.both.desc {
+                 background-image: none;
+             }
+             .th-inner.sortable.both.asc:after {
+                 font-family: "Font Awesome 5 Pro";
+                 padding-left: 3px;
+                 content: "\f0de";
+                 font-size: 150%;
+                 vertical-align: middle;
+             }
+             .th-inner.sortable.both.desc:after {
+                 font-family: "Font Awesome 5 Pro";
+                 padding-left: 3px;
+                 content: "\f0dd";
+                 font-size: 150%;
+                 vertical-align: middle;
+             }
+             .th-inner.sortable.both:after {
+                 font-family: "Font Awesome 5 Pro";
+                 padding-left: 3px;
+                 content: "\f0dc";
+                 font-size: 150%;
+                 vertical-align: middle;
+             }
          </style>
 
 
@@ -507,7 +534,7 @@
         </div>
 
         <%-- GENE SUMMARY SECTION --%>
-        <div class="container white-bg-small">
+        <div class="container white-bg-small" id="gene-section">
             <div class="row pb-5">
                 <div class="col-12 col-md-12">
                     <div class="pre-content clear-bg">
@@ -585,7 +612,7 @@
                                         <h4 class="mt-2">IMPC Phenotype Summary</h4>
                                         <jsp:include page="phenotype_icons_frag.jsp"/>
                                         <div class="mt-4">
-                                            <p><a href="#">View all our phenotype data below <i class="far fa-chevron-down ml-2"></i></a></p>
+                                            <p><a href="#phenotypes-section">View all our phenotype data below <i class="far fa-chevron-down ml-2"></i></a></p>
                                         </div>
                                     </div>
                                 </div>
@@ -597,7 +624,8 @@
         </div>
 
         <%-- PHENOTYPE SECTION --%>
-        <div class="container white-bg-small" id="phenotypes">
+        <a name="phenotypes-section"></a>
+        <div class="container white-bg-small" id="phenotypes-section">
             <div class="row pb-5">
                 <div class="col-12 col-md-12">
                     <div class="pre-content clear-bg">
@@ -829,7 +857,7 @@
 
 
         <%-- EXPRESSION SECTION--%>
-        <div class="container white-bg-small" id="phenotypes">
+        <div class="container white-bg-small" id="expression-section">
             <div class="row pb-5">
                 <div class="col-12 col-md-12">
                     <div class="pre-content clear-bg">
@@ -892,7 +920,7 @@
                                                        href="#adult-wt-expression"
                                                        role="tab"
                                                        aria-controls="adult-wt-expression-tab"
-                                                       aria-selected="true">Background adult WT expression</a>
+                                                       aria-selected="true">Background staining WT adult</a>
                                                 </li>
                                                 <li class="nav-item">
                                                     <a class="nav-link"
@@ -901,7 +929,7 @@
                                                        href="#embryo-wt-expression"
                                                        role="tab"
                                                        aria-controls="adult-wt-expression-tab"
-                                                       aria-selected="true">Background embryo WT expression</a>
+                                                       aria-selected="true">Background staining WT embryo</a>
                                                 </li>
                                             </ul>
                                             <div class="tab-content" id="expressionTabContent">
@@ -936,7 +964,7 @@
 
                                                 <!-- Adult WT expression -->
                                                 <div class="tab-pane fade" id="adult-wt-expression" role="tabpanel" aria-labelledby="adult-wt-expression-tab">
-                                                    <p class="alert alert-info">Background staining occurs in wild type mice and embryos at a measurable rate.</p>
+                                                    <p class="alert alert-info">Background staining occurs in wild type mice and embryos at an incidental rate.</p>
                                                     <jsp:include page="genesExpressionWTAdult_frag.jsp"></jsp:include>
                                                 </div>
 
@@ -944,7 +972,7 @@
                                                 <div class="tab-pane fade" id="embryo-wt-expression" role="tabpanel" aria-labelledby="embryo-wt-expression-tab">
                                                     <c:choose>
                                                         <c:when test="${not empty embryoExpressionAnatomyToRow}">
-                                                            <p class="alert alert-info">Background staining occurs in wild type mice and embryos at a measurable rate.</p>
+                                                            <p class="alert alert-info">Background staining occurs in wild type mice and embryos at an incidental rate.</p>
                                                             <jsp:include page="genesExpressionWTEmbryo_frag.jsp"></jsp:include>
                                                         </c:when>
                                                         <c:otherwise>
@@ -967,7 +995,7 @@
 
 
         <%-- ASSOCIATED IMAGES --%>
-        <div class="container white-bg-small" id="phenotypes">
+        <div class="container white-bg-small" id="images-section">
             <div class="row pb-5">
                 <div class="col-12 col-md-12">
                     <div class="pre-content clear-bg">
@@ -1016,7 +1044,7 @@
 
 
         <%-- DISEASE SECTION --%>
-        <div class="container white-bg-small" id="phenotypes">
+        <div class="container white-bg-small" id="disease-section">
             <div class="row pb-5">
                 <div class="col-12 col-md-12">
                     <div class="pre-content clear-bg">
@@ -1028,10 +1056,15 @@
                                         <i class="fal fa-question-circle fa-xs text-muted align-middle" style="font-size: 20px;"></i>
                                     </a>
                                 </h2>
-                                <img src="https://picsum.photos/id/10/800/240?blur=10" class="mb-3" />
-                                <p>
-                                    Phenotype comparisons summarize the similarity of mouse phenotypes with human phenotypes for diseases associated with the human gene that is orthologous to ${gene.markerSymbol}. This analysis uses data from IMPC along with data from MGD.
-                                </p>
+<%--                                <img src="https://picsum.photos/id/10/800/240?blur=10" class="mb-3" />--%>
+                                <div class="alert alert-info pb-0">
+                                    <p>
+                                        The analysis uses data from IMPC, along with published data on other mouse mutants, in comparison to human disease reports in OMIM, Orphanet, and DECIPHER.
+                                    </p>
+                                    <p>
+                                        Phenotype comparisons summarize the similarity of mouse phenotypes with human phenotypes for diseases associated with the human gene that is orthologous to ${gene.markerSymbol}.
+                                    </p>
+                                </div>
                             </div>
                             <div>
 
@@ -1083,7 +1116,7 @@
 
 
         <%-- HISTOPATHOLOGY SECTION --%>
-        <div class="container white-bg-small" id="phenotypes">
+        <div class="container white-bg-small" id="histopathology-section">
             <div class="row pb-5">
                 <div class="col-12 col-md-12">
                     <div class="pre-content clear-bg">
@@ -1166,7 +1199,7 @@
 
 
         <%-- PUBLICATIONS SECTION --%>
-        <div class="container white-bg-small" id="publications">
+        <div class="container white-bg-small" id="publications-section">
             <div class="row pb-5">
                 <div class="col-12 col-md-12">
                     <div class="pre-content clear-bg">
@@ -1174,7 +1207,7 @@
                             <div class="mb-5">
                                 <h2>
                                     IMPC related publications
-                                    <a href="/link/to/help" title="Go to phenotype help">
+                                    <a href="${cmsBaseUrl}/help/data-visualization/gene-pages/publications/" title="Go to publication help">
                                         <i class="fal fa-question-circle fa-xs text-muted align-middle" style="font-size: 20px;"></i>
                                     </a>
                                 </h2>

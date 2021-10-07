@@ -8,7 +8,7 @@
     <div class="container p-0 p-md-2">
         <div class="row justify-content-center">
             <div class="col-sm-12">
-                <table id="expressionTable" data-toggle="table" data-pagination="true" data-mobile-responsive="true" data-sortable="true" data-sort-name="images">
+                <table id="expressionTableAdult" data-toggle="table" data-pagination="true" data-mobile-responsive="true" data-sortable="true" data-sort-stable="true">
                     <thead>
                     <th data-sortable="true">Anatomy</th>
                     <th data-field="images" data-sortable="true">Images</th>
@@ -23,11 +23,11 @@
                             <td>
                                 <c:if test="${mutantImagesAnatomyToRow[mapEntry.key].wholemountImagesAvailable}">
                                     <a
+                                            alt="${mapEntry.value.abnormalAnatomyName} images"
                                             href='${baseUrl}/imageComparator?acc=${acc}&anatomy_id=${mapEntry.value.abnormalAnatomyId}&parameter_stable_id=IMPC_ALZ_076_001'
                                             class="mr-1" style="font-size: small"><i
                                             title="Wholemount Images available (click on this icon to view images)"
-                                            class="fa fa-image"
-                                            alt="Images"></i>&nbsp;Wholemount images
+                                            class="fa fa-image"></i>&nbsp;Wholemount images
                                     </a>
                                 </c:if>
                                 <c:if
