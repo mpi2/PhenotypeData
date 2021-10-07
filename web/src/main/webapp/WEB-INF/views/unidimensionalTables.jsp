@@ -1,5 +1,6 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <c:if test="${unidimensionalChartDataSet!=null}">
@@ -199,7 +200,7 @@
 
                     <div class="col-md-6">
 
-                    <h4> Summary statistics of the dataset  </h4>
+                    <h4>Summary statistics of all data in the dataset</h4>
                 <%-- always print the summary statistics table --%>
                 <table class="table table-striped small">
                     <thead>
@@ -399,7 +400,23 @@
                             </c:if>
                         </c:if>
                     </div>
+
                     <div class="col-md-6">
+                        <c:if test="${data.result.softWindowingShape != null}">
+                            <a href="${cmsBaseUrl}/help/data-visualization/chart-pages/"><i class="fa fa-question-circle"></i> View documentation about soft windowing</a>
+                            <hr />
+                            <table>
+                                <tr>
+                                    <td>Parameter</td><td>Value</td>
+                                </tr>
+                                <tr>
+                                    <td>Sharpness (k)</td><td><fmt:formatNumber type="number" maxFractionDigits="3" value="${data.result.softWindowingShape}"/></td>
+                                </tr>
+                                <tr>
+                                    <td>Bandwidth (l)</td><td><fmt:formatNumber type="number" maxFractionDigits="3" value="${data.result.softWindowingBandwidth}"/></td>
+                                </tr>
+                            </table>
+                        </c:if>
                         <h4> Access the results programmatically </h4>
                         <hr />
                         <p>

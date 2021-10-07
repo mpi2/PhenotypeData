@@ -16,7 +16,6 @@
 package org.mousephenotype.cda.solr.service.dto;
 
 import lombok.Data;
-import lombok.ToString;
 import org.apache.solr.client.solrj.beans.Field;
 import org.mousephenotype.cda.enumerations.SignificantType;
 import org.springframework.data.annotation.Id;
@@ -191,6 +190,15 @@ public class StatisticalResultDTO {
     public static final String TOP_LEVEL_ANATOMY_TERM_NAME = "top_level_anatomy_term_name";
 
 	public static final String SIGNIFICANT = "significant";
+
+    public static final String SOFT_WINDOWING_BANDWIDTH ="soft_windowing_bandwidth";
+    public static final String SOFT_WINDOWING_SHAPE ="soft_windowing_shape";
+    public static final String SOFT_WINDOWING_PEAKS ="soft_windowing_peaks";
+    public static final String SOFT_WINDOWING_MIN_OBS_REQUIRED ="soft_windowing_min_obs_required";
+    public static final String SOFT_WINDOWING_TOTAL_OBS_OR_WEIGHT ="soft_windowing_total_obs_or_weight";
+    public static final String SOFT_WINDOWING_THRESHOLD ="soft_windowing_threshold";
+    public static final String SOFT_WINDOWING_NUMBER_OF_DOE ="soft_windowing_number_of_doe";
+    public static final String SOFT_WINDOWING_DOE_NOTE ="soft_windowing_doe_note";
 
 	// Required for the webapp to display the correct classification tag
 	public SignificantType getSignificantType() {
@@ -599,6 +607,30 @@ public class StatisticalResultDTO {
 
 	@Field
 	private Boolean significant;
+
+    @Field(SOFT_WINDOWING_BANDWIDTH)
+    private String softWindowingBandwidth;
+
+    @Field(SOFT_WINDOWING_SHAPE)
+    private String softWindowingShape;
+
+    @Field(SOFT_WINDOWING_PEAKS)
+    private String softWindowingPeaks;
+
+    @Field(SOFT_WINDOWING_MIN_OBS_REQUIRED)
+    private String softWindowingMinObsRequired;
+
+    @Field(SOFT_WINDOWING_TOTAL_OBS_OR_WEIGHT)
+    private String softWindowingTotalObsOrWeight;
+
+    @Field(SOFT_WINDOWING_THRESHOLD)
+    private String softWindowingThreshold;
+
+    @Field(SOFT_WINDOWING_NUMBER_OF_DOE)
+    private String softWindowingNumberOfDoe;
+
+    @Field(SOFT_WINDOWING_DOE_NOTE)
+    private String softWindowingDoeNote;
 
 
     public void addMpTermIdOptions(Collection<String> mpTermIdOptions) {
