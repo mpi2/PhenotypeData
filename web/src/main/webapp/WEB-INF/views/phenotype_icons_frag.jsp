@@ -6,23 +6,23 @@
 <div style="min-width: 300px">
     <div class="row no-gutters">
 
-        <div class="container p-0 text-muted"  id="phIconGrid">
+        <div class="container p-0 text-muted"  id="phIconGrid" onclick="$('div#phenotypes-section')[0].scrollIntoView()">
             <c:forEach var="i" begin="0" end="3">
                 <div class="row no-gutters btn-group-toggle pheno-row" data-toggle="buttons">
                     <c:forEach var="j" begin="0" end="4">
                         <c:choose>
                             <c:when test="${not empty significantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}">
-                                <div class="col-sm col-3 tile btn-outline-primary btn-icon significant-tile m-1" href="#phenotypesTab" title="${fn:replace(phenotypeGroups[i*5 + j], ' phenotype', '')}: significant" data-toggle="tooltip">
+                                <div class="col-sm col-3 tile btn-outline-primary btn-icon significant-tile m-1" href="#phenotypes-section" title="${fn:replace(phenotypeGroups[i*5 + j], ' phenotype', '')}: significant" data-toggle="tooltip">
                                     <i class="${phenotypeGroupIcons[i*5 + j]}"></i>
                                 </div>
                             </c:when>
                             <c:when test="${not empty notsignificantTopLevelMpGroups.get(phenotypeGroups[i*5 + j])}">
-                                <div class="col-sm col-3 tile btn-outline-info btn-icon non-significant-tile m-1" href="#phenotypesTab" title="${fn:replace(phenotypeGroups[i*5 + j], ' phenotype', '')}: not significant" data-toggle="tooltip">
+                                <div class="col-sm col-3 tile btn-outline-info btn-icon non-significant-tile m-1" href="#phenotypes-section" title="${fn:replace(phenotypeGroups[i*5 + j], ' phenotype', '')}: not significant" data-toggle="tooltip">
                                     <i class="${phenotypeGroupIcons[i*5 + j]}"></i>
                                 </div>
                             </c:when>
                             <c:otherwise>
-                                <div class="col-sm col-3 tile btn-outline-light btn-icon non-tested-tile m-1" href="#phenotypesTab" title="${fn:replace(phenotypeGroups[i*5 + j], ' phenotype', '')}: not tested" data-toggle="tooltip">
+                                <div class="col-sm col-3 tile btn-outline-light btn-icon non-tested-tile m-1" href="#phenotypes-section" title="${fn:replace(phenotypeGroups[i*5 + j], ' phenotype', '')}: not tested" data-toggle="tooltip">
                                     <i class="${phenotypeGroupIcons[i*5 + j]}"></i>
                                 </div>
                             </c:otherwise>
