@@ -11,6 +11,7 @@
     <jsp:attribute name="bodyTag"><body class="chartpage no-sidebars small-header"></jsp:attribute>
 
     <jsp:attribute name="header">
+        <link rel="canonical" href="https://www.mousephenotype.org/data/imageComparator?${requestScope['javax.servlet.forward.query_string']}" />
 		<link href="${omeroStaticUrl}webgateway/css/ome.viewport.css" type="text/css" rel="stylesheet"/>
 		<link href="${baseUrl}/css/comparator/comparator.css" rel="stylesheet" type="text/css"/><!-- put after default omero css so we can override -->
 		<link href="${omeroStaticUrl}3rdparty/panojs-2.0.0/panojs.css" type="text/css" rel="stylesheet"/>
