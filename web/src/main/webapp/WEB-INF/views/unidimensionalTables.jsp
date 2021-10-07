@@ -403,6 +403,7 @@
 
                     <div class="col-md-6">
                         <c:if test="${data.result.softWindowingShape != null}">
+                            <h4>Windowing parameters</h4>
                             <a href="${cmsBaseUrl}/help/data-visualization/chart-pages/"><i class="fa fa-question-circle"></i> View documentation about soft windowing</a>
                             <hr />
                             <table>
