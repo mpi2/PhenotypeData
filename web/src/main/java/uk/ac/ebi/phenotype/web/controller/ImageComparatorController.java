@@ -118,8 +118,10 @@ public class ImageComparatorController {
         for (ImageDTO image : Stream.of(filteredMutants, controls).flatMap(Collection::stream).collect(Collectors.toList())) {
             String imageKey = image.getId();
             specimenExpression.computeIfAbsent(imageKey, k -> new LinkedHashSet<>());
-            for (int i = 0; i < image.getParameterAssociationName().size(); i++) {
-                specimenExpression.get(imageKey).add(image.getParameterAssociationName().get(i) + ": " + image.getParameterAssociationValue().get(i));
+            if(image.getParameterAssociationName() != null) {
+                for (int i = 0; i < image.getParameterAssociationName().size(); i++) {
+                    specimenExpression.get(imageKey).add(image.getParameterAssociationName().get(i) + ": " + image.getParameterAssociationValue().get(i));
+                }
             }
         }
         Map<String, String> specimenExpressionStrings = new HashMap<>();

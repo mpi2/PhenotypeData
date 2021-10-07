@@ -24,10 +24,10 @@
                 <c:set var="query" value='parameter_stable_id=${doc.parameter_stable_id}'/>
 
                 <c:if test="${acc!=null}">
-                    <c:set var="query" scope="page" value='&${query}&acc=${acc}'></c:set>
+                    <c:set var="query" scope="page" value='${query}&acc=${acc}'></c:set>
                 </c:if>
                 <c:if test="${phenotype.getMpId()!=null}">
-                    <c:set var="query" scope="page" value='&${query}&mp_id=${phenotype.getMpId()}'></c:set>
+                    <c:set var="query" scope="page" value='${query}&mp_id=${phenotype.getMpId()}'></c:set>
                 </c:if>
                 <c:set var="href" scope="page" value='${baseUrl}/imageComparator?${query}'></c:set>
             </c:if>
