@@ -57,7 +57,7 @@
 
                     <div class="container row" style="background-color:  white;">
 
-                        <div class="row text-center" style="margin-right: 0 !important;">
+                        <div class="row text-center" style="margin-right: 0 !important; width: 100%;">
                             <div id="control_box" class="col col-6 m-0 px-2">
                                 <h3>WT Images</h3>
 
