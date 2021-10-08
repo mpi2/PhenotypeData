@@ -19,7 +19,6 @@ package org.mousephenotype.cda.reports;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.mousephenotype.cda.common.Constants;
 import org.mousephenotype.cda.reports.support.ReportException;
 import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.slf4j.Logger;
@@ -30,17 +29,14 @@ import org.springframework.stereotype.Component;
 
 import java.beans.Introspector;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * Hits Per Parameter And Procedure report.
- *
- * Created by mrelac on 24/07/2015.
+ * Hits Per Procedure report.
  */
 @Component
-public class PhenotypeHitsPerParameterAndProcedure extends AbstractReport {
+public class PhenotypeHitsPerProcedure extends AbstractReport {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -48,7 +44,7 @@ public class PhenotypeHitsPerParameterAndProcedure extends AbstractReport {
     @Qualifier("genotype-phenotype-service")
     GenotypePhenotypeService genotypePhenotypeService;
 
-    public PhenotypeHitsPerParameterAndProcedure() {
+    public PhenotypeHitsPerProcedure() {
         super();
     }
 
@@ -60,8 +56,8 @@ public class PhenotypeHitsPerParameterAndProcedure extends AbstractReport {
     public void run(String[] args) throws ReportException {
 
         List<String> errors = parser.validate(parser.parse(args));
-        if ( ! errors.isEmpty()) {
-            logger.error("HitsPerParameterAndProcedureReport parser validation error: " + StringUtils.join(errors, "\n"));
+        if (!errors.isEmpty()) {
+            logger.error("HitsPerProcedureReport parser validation error: " + StringUtils.join(errors, "\n"));
             return;
         }
         initialise(args);
@@ -71,26 +67,14 @@ public class PhenotypeHitsPerParameterAndProcedure extends AbstractReport {
 
         List<String[]> rows;
 
-        List<String> heading = Arrays.asList(
-            "Parameter Id",
-            "Parameter Name",
-            "Gene Symbols",
-            "Gene Accession Ids",
-            "# Significant Hits");
-
         try {
-            csvWriter.write(heading);
-            rows = genotypePhenotypeService.getHitsDistributionByParameter(resources);
-            csvWriter.writeRowsOfArray(rows);
-            csvWriter.write(Constants.EMPTY_ROW);
-            count += 2 + rows.size();
 
-            heading = Arrays.asList(
-                "Procedure Id",
-                "Procedure Name",
-                "Gene Symbols",
-                "Gene Accession Ids",
-                "# Significant Hits");
+            List<String> heading = Arrays.asList(
+                    "Procedure Id",
+                    "Procedure Name",
+                    "Gene Symbols",
+                    "Gene Accession Ids",
+                    "# Significant Hits");
             csvWriter.write(heading);
             rows = genotypePhenotypeService.getHitsDistributionByProcedure(resources);
             csvWriter.writeRowsOfArray(rows);
@@ -107,7 +91,7 @@ public class PhenotypeHitsPerParameterAndProcedure extends AbstractReport {
         }
 
         log.info(String.format(
-            "Finished. %s rows written in %s",
-            count, commonUtils.msToHms(System.currentTimeMillis() - start)));
+                "Finished. %s rows written in %s",
+                count, commonUtils.msToHms(System.currentTimeMillis() - start)));
     }
 }

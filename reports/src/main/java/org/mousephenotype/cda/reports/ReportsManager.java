@@ -64,7 +64,10 @@ public class ReportsManager implements CommandLineRunner {
     private PhenotypeHitsPerLine phenotypeHitsPerLine;
 
     @Autowired
-    private PhenotypeHitsPerParameterAndProcedure phenotypeHitsPerParameterAndProcedure;
+    private PhenotypeHitsPerParameter phenotypeHitsPerParameter;
+
+    @Autowired
+    private PhenotypeHitsPerProcedure phenotypeHitsPerProcedure;
 
     @Autowired
     private PhenotypeHitsPerTopLevelMPTerm phenotypeHitsPerTopLevelMPTerm;
@@ -82,7 +85,8 @@ public class ReportsManager implements CommandLineRunner {
         LACZ_EXPRESSION("laczExpression", "Lacz expression"),
         PHENOTYPE_HITS_PER_GENE("phenotypeHitsPerGene", "Phenotype hits per gene"),
         PHENOTYPE_HITS_PER_LINE("phenotypeHitsPerLine", "Phenotype hits per line"),
-        PHENOTYPE_HITS_PER_PARAMETER_AND_PROCEDURE("phenotypeHitsPerParameterAndProcedure", "Hits per parameter and procedure"),
+        PHENOTYPE_HITS_PER_PARAMETER("phenotypeHitsPerParameter", "Hits per parameter"),
+        PHENOTYPE_HITS_PER_PROCEDURE("phenotypeHitsPerProcedure", "Hits per procedure"),
         PHENOTYPE_HITS_PER_TOP_LEVEL_MP_TERM("phenotypeHitsPerTopLevelMPTerm", "Distribution of phenotype hits"),
         VIABILITY("viability", "Viability");
 
@@ -204,9 +208,14 @@ public class ReportsManager implements CommandLineRunner {
                         file = phenotypeHitsPerLine.targetFile;
                         break;
 
-                    case PHENOTYPE_HITS_PER_PARAMETER_AND_PROCEDURE:
-                        phenotypeHitsPerParameterAndProcedure.run(args);
-                        file = phenotypeHitsPerParameterAndProcedure.targetFile;
+                    case PHENOTYPE_HITS_PER_PARAMETER:
+                        phenotypeHitsPerParameter.run(args);
+                        file = phenotypeHitsPerParameter.targetFile;
+                        break;
+
+                    case PHENOTYPE_HITS_PER_PROCEDURE:
+                        phenotypeHitsPerProcedure.run(args);
+                        file = phenotypeHitsPerProcedure.targetFile;
                         break;
 
                     case PHENOTYPE_HITS_PER_TOP_LEVEL_MP_TERM:
