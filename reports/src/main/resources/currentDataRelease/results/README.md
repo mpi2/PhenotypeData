@@ -17,7 +17,9 @@ data for every new data release._
 - `laczExpression` - lacZ expression
 - `phenotypeHitsPerGene` - Phentoype hits per gene
 - `phenotypeHitsPerLine` - Phentoype hits per line
-- `phenotypeHitsPerParameterAndProcedure` - Phenotype hits per parameter and procedure
+- `phenotypeHitsPerParameterAndProcedure` - Phenotype hits per parameter and procedure (DEPRECATED SINCE DR 15.1)
+- `phenotypeHitsPerParameter` - Phenotype hits per parameter (New since DR 15.1)
+- `phenotypeHitsPerProcedure` - Phenotype hits per procedure (New since DR 15.1)
 - `phenotypeHitsPerTopLevelMPTerm` - Phenotype hits per top level MP term
 - `procedureCompletenessAndPhenotypeHits` - Procedure completeness, IMPC and legacy data
 - `registrationOfInterest` - List by gene of user registration counts by registration date
