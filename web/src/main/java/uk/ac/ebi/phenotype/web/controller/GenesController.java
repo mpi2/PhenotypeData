@@ -415,7 +415,7 @@ public class GenesController {
         // Filter out publications not directly related to this gene
         final List<Publication> publications = publicationFetcher.getAllPublications().stream()
                 .filter(x -> x.getAlleles().stream()
-                        .noneMatch(y-> gene.getMarkerSymbol().equals(y.getGeneSymbol())))
+                        .anyMatch(y-> y.getAlleleSymbol().contains(gene.getMarkerSymbol())))
                 .collect(Collectors.toList());
         model.addAttribute("publications", publications);
 
