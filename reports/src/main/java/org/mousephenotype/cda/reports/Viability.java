@@ -479,6 +479,8 @@ public class Viability extends AbstractReport {
             return "lethal";
         } else if (supportingData.toLowerCase().contains("subviable")) {
             return "subviable";
+        } else if (supportingData.toLowerCase().contains("reduced life span")) {
+            return "subviable";
         } else {
             return "viable";
         }
