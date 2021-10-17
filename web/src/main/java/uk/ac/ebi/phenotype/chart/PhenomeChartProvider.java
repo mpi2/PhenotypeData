@@ -33,66 +33,111 @@ public class PhenomeChartProvider {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-    public String createPvaluesOverviewChart(double minimalPValue, String pointFormat, JSONArray series, JSONArray categories)
+    public String createPvaluesOverviewChart(double minimalPValue, String pointFormat, JSONArray series, JSONArray categories, Map<String, Map<String, Integer >> procedureParameterMap)
             throws JSONException {
 
 
         String chartString = null;
 
         if (series.length() > 0) {
-            chartString = "	$(function () { \n"
+            JSONObject jsProcParamMap = new JSONObject();
+            for (String proc : procedureParameterMap.keySet()) {
+                jsProcParamMap.put(proc, new JSONArray(Arrays.asList(procedureParameterMap.get(proc).get("start"), procedureParameterMap.get(proc).get("end"))));
+            }
+            chartString = "\nvar jsProcParamMap = " + jsProcParamMap + ";\n\n\n";
+            chartString +=
+                    "(function (H) {\n" +
+                    "  // Position highcharts checkboxes to the left of the label in the legend\n" +
+                    "  H.wrap(H.Legend.prototype, 'positionCheckboxes', function (p, scrollOffset) {\n" +
+                    "    var alignAttr = this.group.alignAttr, translateY, clipHeight = this.clipHeight || this.legendHeight;\n" +
+                    "    if (alignAttr) {\n" +
+                    "      translateY = alignAttr.translateY;\n" +
+                    "      H.each(this.allItems, function (item) {\n" +
+                    "        var checkbox = item.checkbox,\n" +
+                    "        bBox = item.legendItem.getBBox(true), top;\n\n" +
+                    "        if (checkbox) {\n" +
+                    "          top = (translateY + checkbox.y + (scrollOffset || 0) + 3);\n" +
+                    "          H.css(checkbox, {\n" +
+                    "            left: (alignAttr.translateX + item.checkboxOffset + checkbox.x - 60 - bBox.width) + 'px',\n" +
+                    "            top: top + 'px',\n" +
+                    "            display: top > translateY - 6 && top < translateY + clipHeight - 6 ? '' : 'none'\n" +
+                    "          });\n" +
+                    "        }\n" +
+                    "      });\n" +
+                    "    }\n" +
+                    "  });\n" +
+                    "  \n" +
+                    "  //beforeSetTickPositions\n" +
+                    "  H.wrap(H.Axis.prototype, 'beforeSetTickPositions', function(proceed) {\n" +
+                    "    var axis = this, breaks = axis.options.breaks;\n" +
+                    "    axis.options.breaks = false;\n" +
+                    "    proceed.apply(this, [].slice.call(arguments, 1));\n" +
+                    "    axis.options.breaks = breaks;\n" +
+                    "  });\n" +
+                    "})(Highcharts);\n" +
+                    "$(function () { \n"
                     + "  pvaluesOverviewChart = new Highcharts.Chart({ \n"
-                    + "     chart: {\n" +
-                    "        style: {\n" +
-                    "            fontFamily: '\"Roboto\", sans-serif;'\n" +
-                    "        },"
-                    + "renderTo: 'chartDiv',\n"
-                    + "         type: 'scatter',\n"
-                    + "         zoomType: 'xy',\n"
-                    + "         height: 800\n"
+                    + "     chart: {\n"
+                    + "       events: {\n"
+                    + "         load: function() {\n"
+                    + "           Highcharts.each(this.series, function() {\n"
+                    + "             breaks.push({});\n"
+                    + "           });\n"
+                    + "         },\n"
+                    + "       },"
+                    + "       inverted: true,\n"
+                    + "       ignoreHiddenSeries: true,\n"
+                    + "       style: {\n"
+                    + "         fontFamily: '\"Roboto\", sans-serif;'\n"
+                    + "       },"
+                    + "       renderTo: 'chartDiv',\n"
+                    + "       type: 'scatter',\n"
+                    + "       zoomType: 'xy',\n"
+                    + "       height: 800\n"
                     + "     },\n"
-
-                    + "   title: {\n"
-                    + "        text: '' \n"
-                    + "    },\n"
-                    + "     subtitle: {\n"
-                    + "        text: '' \n"
-                    + "    },\n"
-                    + " yAxis: {\n"
-                    + "     categories: " + categories.toString() + ",\n"
-                    + "        title: {\n"
-                    + "           enabled: true,\n"
-                    + "           text: 'Parameters' \n"
-                    + "        }, \n"
-
-                    + "  }, \n"
-                    + "    xAxis: { floor: 0, minRange: 6, ceiling: 22, \n"
-                    + "         title: { \n"
-                    + "             text: '" + Constants.MINUS_LOG10_HTML + "(p-value)" + "' \n"
-                    + "           }, \n"
-                    + "plotLines : [{\n"
-                    + "		value : " + -Math.log10(minimalPValue) + ",\n"
-                    + "		color : 'green', \n"
-                    + "		dashStyle : 'shortdash',\n"
-                    + "		width : 2,\n"
-                    + "		label : { text : 'Significance threshold " + minimalPValue + "' }\n"
-                    + "		}"
-                    + "] \n"
+                    + "     title: { text: '' },\n"
+                    + "     subtitle: { text: '' },\n"
+                    + "     xAxis: {\n"
+                    + "       startOnTick: true,"
+                    + "       gridLineWidth: 1,"
+                    + "       categories: " + categories.toString() + ",\n"
+                    + "       title: {\n"
+                    + "         enabled: true,\n"
+                    + "         text: 'Parameters' \n"
                     + "       }, \n"
-                    + "      credits: { \n"
-                    + "         enabled: false \n"
-                    + "      }, \n"
-                    + "     legend: { layout: 'horizontal', align: 'left',	verticalAlign: 'top', borderWidth: 0, maxHeight: 200	},"
-                    + "     tooltip: {\n"
-                    + "        headerFormat: '<span style=\"font-size:10px\">{point.name}</span><table>',\n"
-                    + "        pointFormat: '" + pointFormat + "',\n"
-                    + "        footerFormat: '</table>',\n"
-                    + "        shared: 'true',\n"
-                    + "        useHTML: 'true',\n"
                     + "     }, \n"
-                    + "      plotOptions: { \n"
-                    + "        scatter: { \n"
-                    + " 			cursor: 'pointer',\n"
+                    + "    yAxis: { floor: 0, minRange: 6, ceiling: 22, \n"
+                            + "       gridLineWidth: 0,"
+                    + "      title: { \n"
+                    + "        text: '" + Constants.MINUS_LOG10_HTML + "(p-value)" + "' \n"
+                    + "      }, \n"
+                    + "      plotLines : [{\n"
+                    + "	       value : " + -Math.log10(minimalPValue) + ",\n"
+                    + "	       color : 'green', \n"
+                    + "	       dashStyle : 'shortdash',\n"
+                    + "	       width : 2,\n"
+                    + "	       label : { text : 'Significance threshold " + minimalPValue + "' }\n"
+                    + "	     }]"
+                    + "    }, \n"
+                    + "    credits: { \n"
+                    + "      enabled: false \n"
+                    + "    }, \n"
+                    + "    legend: { symbolPadding: 25, symbolWidth: 10, layout: 'horizontal', align: 'left',	verticalAlign: 'top', borderWidth: 0, maxHeight: 200 },\n"
+                    + "    tooltip: {\n"
+                    + "      headerFormat: '<div class=\"card\"><div class=\"card-body\"><dl>',\n"
+                    + "      pointFormat: '" + pointFormat + "',\n"
+                    + "      footerFormat: '</dl></div></div>',\n"
+                    + "      shared: 'true',\n"
+                    + "      style: { opacity: 1, background: 'rgba(246, 246, 246, 1)' },\n"
+                    + "      outside: false,\n"
+                    + "      useHTML: 'true',\n"
+                    + "    }, \n"
+                    + "    plotOptions: { \n"
+                    + "        scatter: { "
+//                    + "            grouping: false,\n"
+//                    + "            pointPlacement: null,\n"
+                    + "            showCheckbox: true,\n"
+                    + "            cursor: 'pointer',\n"
                     + "            marker: { \n"
                     + "                radius: 5, \n"
                     + "                states: { \n"
@@ -110,7 +155,37 @@ public class PhenomeChartProvider {
                     + "              } \n"
                     + "            }, \n\n"
                     + "            events: { \n"
-                    + "               click: function(event) { \n"
+                    + "              legendItemClick: function() { \n"
+                    + "                if (this.visible) {\n"
+                    + "                  this.selected = false; \n"
+                    + "                  this.checkbox.checked = false;\n"
+                    + "                  breaks[this.index] = {\n"
+                    + "                    from: jsProcParamMap[this.name][0]-0.5,\n"
+                    + "                    to: jsProcParamMap[this.name][1]+0.5,\n"
+                    + "                    breakSize: 0\n"
+                    + "                  };\n"
+                    + "                  this.chart.xAxis[0].update({breaks: breaks});\n"
+                    + "                  this.chart.xAxis[0].isDirty = true;\n"
+                    + "                  this.chart.yAxis[0].isDirty = true;\n"
+                    + "                  this.chart.redraw();\n"
+                    + "                } else {\n"
+                    + "                  this.selected=true; \n"
+                    + "                  this.checkbox.checked=true;\n"
+                    + "                  breaks[this.index] = {}\n"
+                    + "                  this.chart.xAxis[0].update({ breaks: breaks });\n"
+                    + "                  this.chart.xAxis[0].isDirty = true;\n"
+                    + "                  this.chart.yAxis[0].isDirty = true;\n"
+                    + "                  this.chart.redraw();\n"
+                    + "                }\n"
+                    + "              },\n"
+                    + "              checkboxClick: function(event) {\n"
+                    + "                if(this.checkbox.checked) {\n"
+                    + "                  this.show();\n"
+                    + "                } else {\n"
+                    + "                  this.hide();\n"
+                    + "                }\n"
+                    + "              },\n"
+                    + "              click: function(event) { \n"
                     + "     window.open(" + "base_url + '/charts?accession=' + event.point.geneAccession + "
                     + "'&parameter_stable_id=' + event.point.parameterStableId + '&allele_accession=' + event.point.alleleAccession + "
                     + "'&zygosity=' + event.point.zygosity + '&phenotyping_center=' + event.point.phenotypingCenter + "
@@ -498,31 +573,35 @@ public class PhenomeChartProvider {
         int index = 0;
         JSONArray series = new JSONArray();
         ArrayList<String> categories = new ArrayList<String>();
-        ArrayList<String> procedureLabels = new ArrayList<String>();
 
         try {
 
             StringBuilder pointFormat = new StringBuilder();
 
-            pointFormat.append("<tr><td style=\"color:{series.color};padding:0\">parameter: {point.name}</td></tr>");
-            pointFormat.append("<tr><td style=\"padding:0\">procedure: {series.name}</td></tr>");
-            pointFormat.append("<tr><td style=\"padding:0\">zygosity: {point.zygosity}</td></tr>");
-            pointFormat.append("<tr><td style=\"padding:0\">mutants: {point.femaleMutants}f:{point.maleMutants}m</td></tr>");
-            pointFormat.append("<tr><td style=\"padding:0\">metadata_group: {point.metadataGroup}</td></tr>");
-            pointFormat.append("<tr><td style=\"padding:0\">p-value: {point.pValue}</td></tr>");
-            pointFormat.append("<tr><td style=\"padding:0\">Effect size: {point.effectSize}</td></tr>");
+            pointFormat.append("<dt style=\"color:{series.color};\">Parameter</dt><dd> {point.name}</dd>");
+            pointFormat.append("<dt>Procedure</dt><dd> {series.name}</dd>");
+            pointFormat.append("<dt>Zygosity</dt><dd> {point.zygosity}</dd>");
+            pointFormat.append("<dt>Mutants</dt><dd> {point.femaleMutants}females / {point.maleMutants}males</dd>");
+            pointFormat.append("<dt>Metadata group</dt><dd> {point.metadataGroup}</dd>");
+            pointFormat.append("<dt>P-value</dt><dd> {point.pValue}</dd>");
+            pointFormat.append("<dt>Effect size</dt><dd> {point.effectSize}</dd>");
+
 
             // Create a statistical series for every procedure in the pipeline
             // Start from the pipeline so that there is no need to keep this
             // information from the caller side
             // get All procedures and generate a Map Parameter => Procedure
+            Map<String, Map<String, Integer>> procedureParameterMap = new HashMap<>();
             for (String procedure : parametersByProcedure.keySet()) {
+                procedureParameterMap.put(procedure, new HashMap<>());
+                procedureParameterMap.get(procedure).put("start", index);
 
                 JSONObject scatterJsonObject = new JSONObject();
                 JSONArray dataArray = new JSONArray();
 
                 scatterJsonObject.put("type", "scatter");
                 scatterJsonObject.put("name", procedure);
+                scatterJsonObject.put("selected", Boolean.TRUE);
 
                 // create a series here
                 for (String parameterStableId : parametersByProcedure.get(procedure)) {
@@ -547,8 +626,10 @@ public class PhenomeChartProvider {
                             dataPoint.put("geneAccession", statsResult.getGene().getAccessionId());
                             dataPoint.put("alleleAccession", statsResult.getAllele().getAccessionId());
                             dataPoint.put("phenotypingCenter", statsResult.getPhenotypingCenter());
-                            dataPoint.put("y", index);
-                            dataPoint.put("x", getLogValue(statsResult.getpValue()));
+//                            dataPoint.put("y", index);
+//                            dataPoint.put("x", getLogValue(statsResult.getpValue()));
+                            dataPoint.put("x", index);
+                            dataPoint.put("y", getLogValue(statsResult.getpValue()));
                             dataPoint.put("pValue", statsResult.getpValue());
                             dataPoint.put("effectSize", statsResult.getEffectSize());
                             dataPoint.put("zygosity", statsResult.getZygosity());
@@ -558,7 +639,7 @@ public class PhenomeChartProvider {
 
                             categories.add(statsResult.getParameter().getName());
                             dataArray.put(dataPoint);
-                            procedureLabels.add(statsResult.getParameter().getName());
+                            procedureParameterMap.get(procedure).put("end", index);
                             index++;
                         }
                     }
@@ -569,7 +650,7 @@ public class PhenomeChartProvider {
                     series.put(scatterJsonObject);
                 }
             }
-            chartString = createPvaluesOverviewChart(minimalPvalue, pointFormat.toString(), series, new JSONArray(procedureLabels));
+            chartString = createPvaluesOverviewChart(minimalPvalue, pointFormat.toString(), series, new JSONArray(categories), procedureParameterMap);
 
         } catch (JSONException e) {
             e.printStackTrace();
