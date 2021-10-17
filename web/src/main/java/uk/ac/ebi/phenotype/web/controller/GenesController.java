@@ -852,9 +852,6 @@ public class GenesController {
 
         boolean hasModelsByOrthology = modelAssociations.stream().anyMatch(x -> curatedDiseases.contains(x.getDiseaseId()));
 
-        model.addAttribute("hasModelsByOrthology", hasModelsByOrthology);
-        model.addAttribute("hasModelAssociations", modelAssociations.size() > 0);
-
         final List<DiseaseModelAssociationDisplay> displayList = modelAssociations.stream()
                 .map(x -> new DiseaseModelAssociationDisplay(
                         x.getDiseaseId(),
@@ -878,7 +875,6 @@ public class GenesController {
             }
         }
         model.addAttribute("modelAssociations", maxByPhenotype.values().stream().sorted().distinct().collect(Collectors.toList()));
-        model.addAttribute("modelAssociationsNumber", displayList.size());
 
         // Keep those models that are annotated directly to this gene
         final List<DiseaseModelAssociationDisplay> displayListAnnotations = displayList.stream()

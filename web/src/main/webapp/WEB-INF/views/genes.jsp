@@ -1099,7 +1099,7 @@
                                                role="tab"
                                                aria-controls="disease-prediction-tab"
                                                aria-selected="true">
-                                                Human diseases predicted to be associated with ${gene.markerSymbol} (${modelAssociationsNumber} diseases)</a>
+                                                Human diseases predicted to be associated with ${gene.markerSymbol} (${modelAssociations.size()} diseases)</a>
                                         </li>
                                     </ul>
                                     <div class="tab-content" id="diseaseTabContent">
