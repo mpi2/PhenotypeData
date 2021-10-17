@@ -28,6 +28,8 @@
 
         <script defer type='text/javascript' src="https://code.highcharts.com/highcharts.js"></script>
         <script defer type='text/javascript' src="https://code.highcharts.com/modules/exporting.js"></script>
+        <script defer type='text/javascript' src="https://code.highcharts.com/modules/broken-axis.js"></script>
+
 
         <script defer type='text/javascript' src="${baseUrl}/js/general/enu.js"></script>
         <script defer type='text/javascript' src="${baseUrl}/js/general/dropdownfilters.js" ></script>
@@ -423,6 +425,7 @@
     }
     var toggleDetail = function(index) {
         $('#diseases_by_annotation').bootstrapTable('toggleDetailView', index)
+        $('#diseases_by_prediction').bootstrapTable('toggleDetailView', index)
     }
     var diseaseDetailFormatter = function(index, row) {
         var gridColumnWidth = 25;
@@ -449,6 +452,7 @@
     document.addEventListener("DOMContentLoaded", function () {
 
         $('#diseases_by_annotation').bootstrapTable({ classes: 'table'});
+        $('#diseases_by_prediction').bootstrapTable({ classes: 'table'});
         $('#publications_table').bootstrapTable({ classes: 'table'});
 
         $('#significantPhenotypesTable').on('click-row.bs.table', function (e, row) {
@@ -464,6 +468,10 @@
         });
 
     });
+
+
+
+
 </script>
     </jsp:attribute>
 
@@ -1066,45 +1074,140 @@
                                     </p>
                                 </div>
                             </div>
-                            <div>
 
-                                <div class="row">
-                                    <div class="col-12">
-                                        <table id="diseases_by_annotation"
-                                               data-pagination="true"
-                                               data-mobile-responsive="true"
-                                               data-sortable="true"
-                                               data-detail-view="true"
-                                               data-detail-view-align="right"
-                                               data-detail-formatter="diseaseDetailFormatter"
-                                               data-detail-filter="diseaseDetailFilter">
-                                            <thead>
-                                            <tr>
-                                                <th data-width="350">Disease</th>
-                                                <th data-halign="center" data-align="center">Similarity of<br />phenotypes</th>
-                                                <th>Matching phenotypes</th>
-                                                <th data-width="140" data-halign="center" data-align="center">Source</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            <c:forEach items="${diseasesByAnnotation}" var="disease" varStatus="loop">
-                                                <tr id="diseaseRow${loop.index}" data-link="${baseUrl}/phenodigm2/phenogrid?geneId=${gene.mgiAccessionId}&diseaseId=${disease.diseaseId}&pageType=gene" data-shown="false">
-                                                    <td>${disease.diseaseTerm}</td>
-                                                    <td>
-                                                        <div class="signal-bars mt1 sizing-box good ${disease.scoreIcon}" data-toggle="tooltip" data-placement="top" title="Phenodigm score: <fmt:formatNumber maxFractionDigits="2" value="${disease.phenodigmScore}" />">
-                                                            <div class="first-bar bar"></div>
-                                                            <div class="second-bar bar"></div>
-                                                            <div class="third-bar bar"></div>
-                                                            <div class="fourth-bar bar"></div>
-                                                            <div class="fifth-bar bar"></div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <!-- section for diseases directly annotated to this gene here -->
+                                    <ul class="nav nav-tabs" id="diseaseByAnnotationTab" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active"
+                                               id="disease-annotation-tab"
+                                               data-toggle="tab"
+                                               href="#disease-annotation"
+                                               role="tab"
+                                               aria-controls="disease-annotation-tab"
+                                               aria-selected="false">
+                                                Human diseases associated with ${gene.markerSymbol}
+                                                (${diseasesByAnnotation.size()} diseases)</a>
+                                        </li>
+                                        <!-- section for diseases associated by phenotypic similarity to this gene here -->
+                                        <li class="nav-item">
+                                            <a class="nav-link"
+                                               id="disease-prediction-tab"
+                                               data-toggle="tab"
+                                               href="#disease-prediction"
+                                               role="tab"
+                                               aria-controls="disease-prediction-tab"
+                                               aria-selected="true">
+                                                Human diseases predicted to be associated with ${gene.markerSymbol} (${modelAssociationsNumber} diseases)</a>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content" id="diseaseTabContent">
+                                        <div class="tab-pane fade show active" id="disease-annotation" role="tabpanel" aria-labelledby="disease-annotation-tab">
+                                            <c:choose>
+                                                <c:when test="${not empty diseasesByAnnotation}">
+                                                    <p>The table below shows human diseases associated to ${gene.markerSymbol} by <b>orthology or direct annotation</b>.</p>
+
+                                                    <div class="row">
+                                                        <div class="col-12">
+                                                            <table id="diseases_by_annotation"
+                                                                   data-pagination="true"
+                                                                   data-mobile-responsive="true"
+                                                                   data-sortable="true"
+                                                                   data-detail-view="true"
+                                                                   data-detail-view-align="right"
+                                                                   data-detail-formatter="diseaseDetailFormatter"
+                                                                   data-detail-filter="diseaseDetailFilter">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th data-width="350">Disease</th>
+                                                                    <th data-halign="center" data-align="center">Similarity of<br />phenotypes</th>
+                                                                    <th>Matching phenotypes</th>
+                                                                    <th data-width="140" data-halign="center" data-align="center">Source</th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                <c:forEach items="${diseasesByAnnotation}" var="disease" varStatus="loop">
+                                                                    <tr id="diseaseRow${loop.index}" data-link="${baseUrl}/phenodigm2/phenogrid?geneId=${gene.mgiAccessionId}&diseaseId=${disease.diseaseId}&pageType=gene" data-shown="false">
+                                                                        <td>${disease.diseaseTerm}</td>
+                                                                        <td>
+                                                                            <div class="signal-bars mt1 sizing-box good ${disease.scoreIcon}" data-toggle="tooltip" data-placement="top" title="Phenodigm score: <fmt:formatNumber maxFractionDigits="2" value="${disease.phenodigmScore}" />">
+                                                                                <div class="first-bar bar"></div>
+                                                                                <div class="second-bar bar"></div>
+                                                                                <div class="third-bar bar"></div>
+                                                                                <div class="fourth-bar bar"></div>
+                                                                                <div class="fifth-bar bar"></div>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td><a href="javascript:toggleDetail(${loop.index});">${disease.formattedMatchingPhenotypes}</a></td>
+                                                                        <td><a href="${disease.externalUrl}" onclick="even.stopPropagation();">${disease.diseaseId}</a></td>
+                                                                    </tr>
+                                                                </c:forEach>
+                                                                </tbody>
+                                                            </table>
                                                         </div>
-                                                    </td>
-                                                    <td><a href="javascript:toggleDetail(${loop.index});">${disease.formattedMatchingPhenotypes}</a></td>
-                                                    <td><a href="${disease.externalUrl}" onclick="even.stopPropagation();">${disease.diseaseId}</a></td>
-                                                </tr>
-                                            </c:forEach>
-                                            </tbody>
-                                        </table>
+                                                    </div>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <div class="alert alert-warning mt-3">
+                                                        No human diseases associated to this gene by <b>orthology or annotation</b>.
+                                                    </div>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
+
+                                        <div class="tab-pane fade show" id="disease-prediction" role="tabpanel" aria-labelledby="disease-prediction-tab">
+                                            <c:choose>
+                                                <c:when test="${not empty modelAssociations}">
+                                                    <p>The table below shows human diseases predicted to be associated to ${gene.markerSymbol} by <b>phenotypic similarity</b>.</p>
+
+                                                    <div class="row">
+                                                        <div class="col-12">
+                                                            <table id="diseases_by_prediction"
+                                                                   data-pagination="true"
+                                                                   data-mobile-responsive="true"
+                                                                   data-sortable="true"
+                                                                   data-detail-view="true"
+                                                                   data-detail-view-align="right"
+                                                                   data-detail-formatter="diseaseDetailFormatter"
+                                                                   data-detail-filter="diseaseDetailFilter">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th data-width="350">Disease</th>
+                                                                    <th data-halign="center" data-align="center">Similarity of<br />phenotypes</th>
+                                                                    <th>Matching phenotypes</th>
+                                                                    <th data-width="140" data-halign="center" data-align="center">Source</th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                <c:forEach items="${modelAssociations}" var="disease" varStatus="loop">
+                                                                    <tr id="diseaseRow${loop.index}" data-link="${baseUrl}/phenodigm2/phenogrid?geneId=${gene.mgiAccessionId}&diseaseId=${disease.diseaseId}&pageType=gene" data-shown="false">
+                                                                        <td>${disease.diseaseTerm}</td>
+                                                                        <td>
+                                                                            <div class="signal-bars mt1 sizing-box good ${disease.scoreIcon}" data-toggle="tooltip" data-placement="top" title="Phenodigm score: <fmt:formatNumber maxFractionDigits="2" value="${disease.phenodigmScore}" />">
+                                                                                <div class="first-bar bar"></div>
+                                                                                <div class="second-bar bar"></div>
+                                                                                <div class="third-bar bar"></div>
+                                                                                <div class="fourth-bar bar"></div>
+                                                                                <div class="fifth-bar bar"></div>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td><a href="javascript:toggleDetail(${loop.index});">${disease.formattedMatchingPhenotypes}</a></td>
+                                                                        <td><a href="${disease.externalUrl}" onclick="even.stopPropagation();">${disease.diseaseId}</a></td>
+                                                                    </tr>
+                                                                </c:forEach>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <div class="alert alert-warning mt-3">
+                                                        No human diseases associated to this gene by phenotypic similarity.
+                                                    </div>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
