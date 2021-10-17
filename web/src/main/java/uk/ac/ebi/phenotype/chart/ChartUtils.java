@@ -63,24 +63,25 @@ public class ChartUtils {
     	String code = "";
     	if (chartVarName != null && checkButtonId != null && uncheckButtonId != null){
     	
-    		code =  "$('#" + checkButtonId + "').click(function(){ "
+    		code =  "\n$('#" + checkButtonId + "').click(function(){ "
                     + " " + chartVarName + ".showLoading();"
     			+ " for(i=0; i < " + chartVarName + ".series.length; i++) {"
     			+ " if(" + chartVarName + ".series[i].visible == false){ "
-                + " " + chartVarName + ".series[i].setVisible(true, false); "
-                + "}}"
+                + " " + chartVarName + ".series[i].setVisible(true, false);\n" + chartVarName + ".series[i].select(); breaks[i] = {};"
+                + "}}\n"
                 + " " + chartVarName  + ".hideLoading(); "
                     + " " + chartVarName  + ".redraw(); "
-                + "}); "
+                + "});\n"
                 +"$('#" + uncheckButtonId + "').click(function(){ "
                 + " " + chartVarName + ".showLoading();"
     			+ " for(i=0; i < " + chartVarName + ".series.length; i++) { "
     			+ " if(" + chartVarName + ".series[i].visible == true){ "
-                + " " + chartVarName + ".series[i].setVisible(false, false);;"
-                + "}}"
+                + " " + chartVarName + ".series[i].setVisible(false, false);\n" + chartVarName + ".series[i].select(); breaks[i] = {};"
+                + "}}\n"
+                    + " " + chartVarName  + ".xAxis[0].update({ breaks: breaks });"
                     + " " + chartVarName  + ".hideLoading();"
                     + " " + chartVarName  + ".redraw(); "
-                    + "}); ";
+                    + "});\n";
     	}
     	return code;
     }

@@ -139,7 +139,14 @@
             trigger : 'hover'
         });
     });
-</script>
+
+    <%-- DO NOT REMOVE --%>
+    // breaks array required for highcharts resizing the xAxis when
+    // an intermediate category is hidden
+    var breaks = [];
+    <%-- DO NOT REMOVE --%>
+
+    </script>
 
 
     <%--
