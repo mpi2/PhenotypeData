@@ -850,26 +850,12 @@ public class GenesController {
         List<DiseaseModelAssociation> modelAssociations = phenoDigm2Dao.getGeneToDiseaseModelAssociations(acc);
         logger.debug("Found " + modelAssociations.size() + " associations");
 
-        // create a js object representation of the models        
-        String modelAssocsJsArray = "[]";
-        boolean hasModelsByOrthology = false;
-        if (modelAssociations.size() > 0) {
-            List<String> jsons = new ArrayList<>();
-            for (DiseaseModelAssociation assoc : modelAssociations) {
-                jsons.add(assoc.makeDiseaseJson());
-                if (curatedDiseases.contains(assoc.getDiseaseId())) {
-                    hasModelsByOrthology = true;
-                }
-            }
-            modelAssocsJsArray = "[" + String.join(", ", jsons) + "]";
-        }
-        model.addAttribute("modelAssociations", modelAssocsJsArray);
-        model.addAttribute("modelAssociationsNumber", modelAssociations.size());
+        boolean hasModelsByOrthology = modelAssociations.stream().anyMatch(x -> curatedDiseases.contains(x.getDiseaseId()));
+
         model.addAttribute("hasModelsByOrthology", hasModelsByOrthology);
         model.addAttribute("hasModelAssociations", modelAssociations.size() > 0);
 
         final List<DiseaseModelAssociationDisplay> displayList = modelAssociations.stream()
-                .filter(x -> curatedDiseases.contains(x.getDiseaseId()))
                 .map(x -> new DiseaseModelAssociationDisplay(
                         x.getDiseaseId(),
                         x.getDiseaseTerm(),
@@ -879,10 +865,29 @@ public class GenesController {
                 .sorted()
                 .distinct()
                 .collect(Collectors.toList());
+        // Preserve only the maximum associated disease term for this gene
+        Map<String, DiseaseModelAssociationDisplay> maxByPhenotype = new HashMap<>();
+        for (DiseaseModelAssociationDisplay d : displayList) {
+            if (! maxByPhenotype.containsKey(d.getDiseaseId())) {
+                maxByPhenotype.put(d.getDiseaseId(), d);
+            }
+            else {
+                if (maxByPhenotype.get(d.getDiseaseId()).getPhenodigmScore() < d.getPhenodigmScore()) {
+                    maxByPhenotype.put(d.getDiseaseId(), d);
+                }
+            }
+        }
+        model.addAttribute("modelAssociations", maxByPhenotype.values().stream().sorted().distinct().collect(Collectors.toList()));
+        model.addAttribute("modelAssociationsNumber", displayList.size());
+
+        // Keep those models that are annotated directly to this gene
+        final List<DiseaseModelAssociationDisplay> displayListAnnotations = displayList.stream()
+                .filter(x -> curatedDiseases.contains(x.getDiseaseId()))
+                .collect(Collectors.toList());
 
         // Preserve only the maximum associated disease term for this gene
         Map<String, DiseaseModelAssociationDisplay> max = new HashMap<>();
-        for (DiseaseModelAssociationDisplay d : displayList) {
+        for (DiseaseModelAssociationDisplay d : displayListAnnotations) {
             if (! max.containsKey(d.getDiseaseId())) {
                 max.put(d.getDiseaseId(), d);
             }
