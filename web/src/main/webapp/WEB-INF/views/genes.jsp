@@ -1064,13 +1064,14 @@
                                         <i class="fal fa-question-circle fa-xs text-muted align-middle" style="font-size: 20px;"></i>
                                     </a>
                                 </h2>
+<%--                                IMAGE PLACEHOLDER FOR THE DISEASE HEADER GRAPHIC--%>
 <%--                                <img src="https://picsum.photos/id/10/800/240?blur=10" class="mb-3" />--%>
                                 <div class="alert alert-info pb-0">
                                     <p>
                                         The analysis uses data from IMPC, along with published data on other mouse mutants, in comparison to human disease reports in OMIM, Orphanet, and DECIPHER.
                                     </p>
                                     <p>
-                                        Phenotype comparisons summarize the similarity of mouse phenotypes with human phenotypes for diseases associated with the human gene that is orthologous to ${gene.markerSymbol}.
+                                        Phenotype comparisons summarize the similarity of mouse phenotypes with human disease phenotypes.
                                     </p>
                                 </div>
                             </div>
