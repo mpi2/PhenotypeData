@@ -94,7 +94,7 @@
                                                     </div>
                                                     <div class="card-body">
                                                         <i class="${imgSex}"></i>
-                                                        <c:if test="${img.ageInWeeks}">
+                                                        <c:if test="${not empty img.ageInWeeks}">
                                                         <p><small class="text-muted">${img.ageInWeeks} weeks old</small></p>
                                                         </c:if>
                                                         <c:if test="${img.parameterAssociationName.size() > 0}">
@@ -142,7 +142,7 @@
                                                     </div>
                                                     <div class="card-body">
                                                         <i class="${imgSex}"></i>
-                                                        <c:if test="${img.ageInWeeks}">
+                                                        <c:if test="${not empty img.ageInWeeks}">
                                                         <p><small class="text-muted">${img.ageInWeeks} weeks old</small></p>
                                                         </c:if>
                                                         <p><small class="text-muted"><t:formatAllele>${img.alleleSymbol}</t:formatAllele> ${img.zygosity}</small></p>
