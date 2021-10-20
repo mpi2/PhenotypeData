@@ -98,7 +98,35 @@ public class PhenomeChartProvider {
                     + "     title: { text: '' },\n"
                     + "     subtitle: { text: '' },\n"
                     + "     xAxis: {\n"
-                    + "       startOnTick: true,"
+                    + "       startOnTick: true," +
+                            "tickPositioner: function () {\n" +
+                            "    let suppressed = 0;\n" +
+                            "    if (typeof this.brokenAxis !== 'undefined' && typeof this.brokenAxis.breakArray !== 'undefined') {\n" +
+                            "        for (let i = 0; i < this.brokenAxis.breakArray.length; i++) {\n" +
+                            "            suppressed += this.brokenAxis.breakArray[i].len;\n" +
+                            "        }\n" +
+                            "    }\n" +
+                            "    var positions = [],\n" +
+                            "        tick = Math.floor(this.dataMin),\n" +
+                            "        increment = Math.ceil((this.dataMax - this.dataMin - suppressed) / 50);\n" +
+                            "    if (this.dataMax !== null && this.dataMin !== null) {\n" +
+                            "        for (tick; tick - increment <= this.dataMax; tick += increment) {\n" +
+                            "            // If this tick falls within a broken axis section, skip it\n" +
+                            "            if (typeof this.brokenAxis !== 'undefined' && typeof this.brokenAxis.breakArray !== 'undefined') {\n" +
+                            "                let cont = true;\n" +
+                            "                for (let i = 0; i < this.brokenAxis.breakArray.length; i++) {\n" +
+                            "                    if (tick > this.brokenAxis.breakArray[i].from && tick < this.brokenAxis.breakArray[i].to) {\n" +
+                            "                        cont = false;\n" +
+                            "                        break\n" +
+                            "                    }\n" +
+                            "                }\n" +
+                            "                if (!cont) continue;\n" +
+                            "            }\n" +
+                            "            positions.push(tick);\n" +
+                            "        }\n" +
+                            "    }\n" +
+                            "    return positions;\n" +
+                            "}\n,\n"
                     + "       gridLineWidth: 1,"
                     + "       categories: " + categories.toString() + ",\n"
                     + "       title: {\n"
@@ -593,6 +621,9 @@ public class PhenomeChartProvider {
             // get All procedures and generate a Map Parameter => Procedure
             Map<String, Map<String, Integer>> procedureParameterMap = new HashMap<>();
             for (String procedure : parametersByProcedure.keySet()) {
+
+                // A JSON version of procedureParameterMap will be used by the highcharts legend functions
+                // to define categories to exclude from the axis labels when the series is deselected
                 procedureParameterMap.put(procedure, new HashMap<>());
                 procedureParameterMap.get(procedure).put("start", index);
 
@@ -626,8 +657,6 @@ public class PhenomeChartProvider {
                             dataPoint.put("geneAccession", statsResult.getGene().getAccessionId());
                             dataPoint.put("alleleAccession", statsResult.getAllele().getAccessionId());
                             dataPoint.put("phenotypingCenter", statsResult.getPhenotypingCenter());
-//                            dataPoint.put("y", index);
-//                            dataPoint.put("x", getLogValue(statsResult.getpValue()));
                             dataPoint.put("x", index);
                             dataPoint.put("y", getLogValue(statsResult.getpValue()));
                             dataPoint.put("pValue", statsResult.getpValue());
@@ -650,6 +679,12 @@ public class PhenomeChartProvider {
                     series.put(scatterJsonObject);
                 }
             }
+            for (String key : new HashSet<>(procedureParameterMap.keySet())) {
+                if ( ! procedureParameterMap.get(key).containsKey("end") ) {
+                    procedureParameterMap.remove(key);
+                }
+            }
+
             chartString = createPvaluesOverviewChart(minimalPvalue, pointFormat.toString(), series, new JSONArray(categories), procedureParameterMap);
 
         } catch (JSONException e) {
