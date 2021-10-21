@@ -76,7 +76,7 @@ public class ExpressionServiceLacz {
         solrQuery.setFields(fields);
         solrQuery.setSort(ObservationDTO.ID, SolrQuery.ORDER.asc);
 
-        int batchSize = 1000;
+        int batchSize = 500;
         int numDocs = getNumDocs(experimentCore, solrQuery.getCopy());
 
         solrQuery.setRows(numDocs);
