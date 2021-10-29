@@ -49,6 +49,21 @@
     <link rel="preload" type="text/css" href="${baseUrl}/css/default.css" as="style"/>
     <link rel="stylesheet" type="text/css" href="${baseUrl}/css/default.css" media="print" onload="this.media='all'" />
 </c:if>
+    <c:if test="${heatmap}">
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.20/fc-3.3.0/datatables.min.css"/>
+<%--        <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.20/fc-3.3.0/datatables.min.js"></script>--%>
+        <style>
+            .dataTables_wrapper .dataTables_paginate .paginate_button  {
+                padding: unset;
+                border: unset;
+            }
+            .dataTables_wrapper .dataTables_paginate .paginate_button:hover  {
+                color: unset;
+                background: unset;
+                border: unset;
+            }
+        </style>
+    </c:if>
     <link rel="preload" type="text/css" href="${baseUrl}/css/impc-icons.css" as="style"/>
     <link rel="stylesheet" type="text/css" href="${baseUrl}/css/impc-icons.css" media="print" onload="this.media='all'" />
 
@@ -83,9 +98,11 @@
     <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/object-fit-images/3.2.4/ofi.min.js'></script>
     <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 
+<c:if test="${!heatmap}">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.css"/>
-
+</c:if>
     <script defer type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.js"></script>
+
     <script type='text/javascript' src="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.js"></script>
     <script type='text/javascript' src="https://unpkg.com/bootstrap-table@1.18.3/dist/extensions/mobile/bootstrap-table-mobile.min.js"></script>
     <script type='text/javascript' src="https://unpkg.com/bootstrap-table@1.18.3/dist/extensions/cookie/bootstrap-table-cookie.min.js"></script>
