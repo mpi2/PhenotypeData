@@ -2,7 +2,7 @@
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
-<t:genericpage-landing>
+<t:genericpage>
 
     <jsp:attribute name="title">Histopathology</jsp:attribute>
     <jsp:attribute name="pagename">Histopathology</jsp:attribute>
@@ -140,7 +140,19 @@
 
     <jsp:body>
 
+        <div class="container data-heading">
+            <div class="row">
+                <div class="col-12 no-gutters">
+                    <h2 class="mb-0">Histopathology data</h2>
+                </div>
+            </div>
+        </div>
 
+        <div class="container white-bg-small">
+        <div class="row pb-5">
+        <div class="col-12 col-md-12">
+        <div  class="pre-content clear-bg">
+        <div class="page-content people py-5 white-bg">
         <div class="card">
             <div class="card-header">Histopathology for every gene tested</div>
             <div class="card-body">
@@ -214,10 +226,14 @@
             </tr>
             </tfoot>
         </table>
-
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
 
     </jsp:body>
 
 
-</t:genericpage-landing>
+</t:genericpage>
 

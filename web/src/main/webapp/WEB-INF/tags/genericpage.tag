@@ -14,6 +14,8 @@
 <%@attribute name="breadcrumb" fragment="true"%>
 <%@attribute name="bodyTag" fragment="true"%>
 <%@attribute name="addToFooter" fragment="true"%>
+<%@attribute name="pagename" fragment="true"%>
+<%@attribute name="heatmap"%>
 
 <c:set var="uri">${pageContext.request.requestURL}</c:set>
 
@@ -43,9 +45,10 @@
     <link rel="preload" type="text/css" href="${cmsBaseUrl}/wp-content/themes/impc/css/styles.css?v=${version}" as="style"/>
     <link rel="stylesheet" type="text/css" href="${cmsBaseUrl}/wp-content/themes/impc/css/styles.css?v=${version}" />
 
+<c:if test="${!heatmap}">
     <link rel="preload" type="text/css" href="${baseUrl}/css/default.css" as="style"/>
     <link rel="stylesheet" type="text/css" href="${baseUrl}/css/default.css" media="print" onload="this.media='all'" />
-
+</c:if>
     <link rel="preload" type="text/css" href="${baseUrl}/css/impc-icons.css" as="style"/>
     <link rel="stylesheet" type="text/css" href="${baseUrl}/css/impc-icons.css" media="print" onload="this.media='all'" />
 
