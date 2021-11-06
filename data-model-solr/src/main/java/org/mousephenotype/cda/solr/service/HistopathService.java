@@ -95,7 +95,7 @@ public class HistopathService {
                             //+ obs.getSubTermName().get(i));
                             String termName = obs.getSubTermName().get(i);
                             String termId = obs.getSubTermId().get(i);
-                            String termDesc = i < obs.getSubTermDescription().size() ? obs.getSubTermDescription().get(i) : "";
+                            String termDesc = obs.getSubTermDescription() != null && i < obs.getSubTermDescription().size() ? obs.getSubTermDescription().get(i) : "";
                             OntologyBean subOntologyBean = new OntologyBean(termId, termName, termDesc);
 
                             row.addOntologicalParam(parameter, subOntologyBean);
