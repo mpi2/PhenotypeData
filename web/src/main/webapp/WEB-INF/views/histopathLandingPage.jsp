@@ -118,7 +118,8 @@
                     var url = '${baseUrl}/histopath/';
                     //get textContent of the TD
                     var anatomy = table.column(this.cellIndex).header();
-                    var row_data = table.row(this).data();
+                    console.log(anatomy, this);
+                    var row_data = table.row($(this).parents('tr')).data();
                     var gene_symbol = row_data[0];
                     //get the value of the TD using the API
                     url = url + gene_symbol;
