@@ -233,7 +233,7 @@ public class ScatterChartAndTableProvider {
 					// those that don't have a weight value and hope that the date will get filled in
 					// by one of the other data points on that day
 					if (dto.getWindowWeight() != null) {
-						windowData.put(dto.getDateOfExperiment().getTime(), (yMax - yMin)  * dto.getWindowWeight() + yMin);
+						windowData.put(dto.getDateOfExperiment().getTime(), 1.05 * (yMax - yMin)  * dto.getWindowWeight() + yMin);
 					}
 				}
 
