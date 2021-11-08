@@ -68,11 +68,11 @@ public class ScatterChartAndTableProvider {
 				+ yAxisMin + yAxisMax
 				+ " title: { text: '" + yAxisLabel + "' } }, ";
 
-		if(windowSeries) {
+/*		if(windowSeries) {
 			String primaryAxis = String.format("{tickAmount: 5, %s %s title: {text: '%s'}}", yAxisMin, yAxisMax, yAxisLabel);
 			String secondaryAxis = "{tickAmount: 5, min: 0, max: 1, title: {text: 'Soft window statistical weight'}, opposite: true}";
 			yAxis = String.format("yAxis: [%s, %s],", primaryAxis, secondaryAxis);
-		}
+		}*/
 
 		// A better title for this plot
 		String allele = alleleSymbol
@@ -219,7 +219,7 @@ public class ScatterChartAndTableProvider {
 				JSONObject windowsSeriesName = new JSONObject();
 				windowsSeriesName.put("name", "Soft window statistical weight");
 				windowsSeriesName.put("type", "spline");
-				windowsSeriesName.put("yAxis", 1);
+				//windowsSeriesName.put("yAxis", 1);
 				windowsSeriesName.put("dashStyle", "shortdot");
 				windowsSeriesName.put("lineWidth", 4);
 				windowsSeriesName.put("color", "#000000");
@@ -233,7 +233,7 @@ public class ScatterChartAndTableProvider {
 					// those that don't have a weight value and hope that the date will get filled in
 					// by one of the other data points on that day
 					if (dto.getWindowWeight() != null) {
-						windowData.put(dto.getDateOfExperiment().getTime(), dto.getWindowWeight());
+						windowData.put(dto.getDateOfExperiment().getTime(), (yMax - yMin)  * dto.getWindowWeight() + yMin);
 					}
 				}
 

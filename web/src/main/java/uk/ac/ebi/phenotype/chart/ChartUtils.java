@@ -211,7 +211,7 @@ public class ChartUtils {
                 }
             }
 
-            if (listOfFloats.size() > 0) {
+/*            if (listOfFloats.size() > 0) {
 
                 double Q1 = ChartUtils.getDecimalAdjustedFloat(new Float(pc.getLowerQuartile()), decimalPlaces);
                 double Q3 = ChartUtils.getDecimalAdjustedFloat(new Float(pc.getUpperQuartile()), decimalPlaces);
@@ -227,7 +227,7 @@ public class ChartUtils {
                     max = maxIQR;
                 }
 
-            }
+            }*/
         }
 
         res.put("min", min);
