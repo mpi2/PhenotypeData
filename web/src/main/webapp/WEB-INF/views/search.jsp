@@ -247,8 +247,8 @@
                                         </c:if>
 
                                         <div>
-                                            <a href="${baseUrl}/genes/${gene.mgiAccessionId}" class="btn btn-primary"><i class="far fa-chart-bar fa-sm"></i> View Data</a>
-                                            <a href="${baseUrl}/genes/${gene.mgiAccessionId}#order" class="btn btn-info text-white"><i class="fas fa-shopping-cart fa-sm"></i> Order Mice</a>
+                                            <a href="${baseUrl}/genes/${gene.mgiAccessionId}" class="btn btn-primary${gene.phenotypingDataAvailable == true ? "" : " disabled"}"><i class="far fa-chart-bar fa-sm"></i> View Data</a>
+                                            <a href="${baseUrl}/genes/${gene.mgiAccessionId}#order" class="btn btn-info text-white${gene.esCellProductionStatus == "ES Cells Produced" || gene.mouseProductionStatus == "Mice Produced" || gene.crisprAlleleProductionStatus == "Genotype confirmed mice" || gene.nullAlleleProductionStatus == "Genotype confirmed mice" || gene.conditionalAlleleProductionStatus == "Genotype confirmed mice" ? "" : " disabled"}"><i class="fas fa-shopping-cart fa-sm"></i> Order Mice</a>
 
                                             <form action="${baseUrl}/update-gene-registration"
                                                   method="POST"

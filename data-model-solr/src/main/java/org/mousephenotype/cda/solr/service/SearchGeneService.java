@@ -56,7 +56,7 @@ public class SearchGeneService {
 
         final SolrQuery query = new SolrQuery(search);
         query.add("defType", "edismax");
-        query.setFields(GeneDTO.MGI_ACCESSION_ID, GeneDTO.MARKER_NAME, GeneDTO.MARKER_SYMBOL, GeneDTO.MARKER_SYNONYM, GeneDTO.HUMAN_GENE_SYMBOL, GeneDTO.ES_CELL_PRODUCTION_STATUS, GeneDTO.MOUSE_PRODUCTION_STATUS, GeneDTO.PHENOTYPE_STATUS);
+        query.setFields(GeneDTO.MGI_ACCESSION_ID, GeneDTO.MARKER_NAME, GeneDTO.MARKER_SYMBOL, GeneDTO.MARKER_SYNONYM, GeneDTO.HUMAN_GENE_SYMBOL, GeneDTO.ES_CELL_PRODUCTION_STATUS, GeneDTO.MOUSE_PRODUCTION_STATUS, GeneDTO.PHENOTYPE_STATUS, GeneDTO.PHENOTYPING_DATA_AVAILABLE, GeneDTO.CRISPR_ALLELE_PRODUCTION_STATUS, GeneDTO.NULL_ALLELE_PRODUCTION_STATUS, GeneDTO.CONDITIONAL_ALLELE_PRODUCTION_STATUS);
         query.add("bq", "marker_symbol_lowercase:(" + search + "*)^1000");
         query.add("bq", "phenotype_status:\""+ StatusConstants.PHENOTYPING_COMPLETE +"\"^25000");
         query.add("bq", "phenotype_status:\""+ StatusConstants.PHENOTYPING_DATA_AVAILABLE +"\"^20000");
