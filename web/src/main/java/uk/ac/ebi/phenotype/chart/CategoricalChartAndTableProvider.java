@@ -138,11 +138,11 @@ public class CategoricalChartAndTableProvider {
 					expCatData.setCount(mutantCount);
 					StatisticalResultDTO tempStatsResult = null;
 					for (StatisticalResultDTO result : statsResults) {
-						if(result.getSex() != null && (SexType.getByDisplayName(result.getSex()).equals(SexType.both) || SexType.getByDisplayName(result.getSex()).equals(SexType.not_considered))){
-							categoricalResultAndCharts.setCombinedPValue(result.getPValue());
-						}
+						categoricalResultAndCharts.setCombinedPValue(result.getPValue());
 						categoricalResultAndCharts.setFemalePValue(result.getFemaleKoEffectPValue());
 						categoricalResultAndCharts.setMalePValue(result.getMaleKoEffectPValue());
+						categoricalResultAndCharts.setClassification(result.getClassificationTag());
+						categoricalResultAndCharts.setStatisticalMethod(result.getStatisticalMethod());
 						if (result.getZygosity() != null && result.getSex() != null) {
 							if (ZygosityType.getByDisplayName(result.getZygosity()).equals(zType) && SexType.getByDisplayName(result.getSex()).equals(sexType)) {
 								expCatData.setResult(result);

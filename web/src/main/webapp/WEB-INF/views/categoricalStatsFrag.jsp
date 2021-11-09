@@ -19,9 +19,9 @@
 	<div class="row">
             <div class="col-md-12">
             	<div class="row">
-            		<div class="col-md-4">
+            		<div class="col-md-6">
             		
-           			 <c:if test="${categoricalResultAndChart.combinedPValue!=null}">
+           			 <c:if test="${categoricalResultAndChart.combinedPValue!=null || categoricalResultAndChart.malePValue != null || categoricalResultAndChart.femalePValue != null}">
 						 <h4> Results of statistical analysis  </h4>
 							
                             <dl class="alert alert-success">
@@ -33,6 +33,8 @@
 
 									<dt>Females only</dt>
 									<dd><t:formatScientific>${categoricalResultAndChart.femalePValue}</t:formatScientific></dd>
+								<dt>Classification</dt>
+								<dd>${categoricalResultAndChart.classification}</dd>
 							</dl> 
 					</c:if>
 					
@@ -41,8 +43,9 @@
 				
             
             
-            		<div class="col-md-12">
-					
+            		<div class="col-md-6">
+						<h4> Counts by sample type  </h4>
+
 						<table class="table table-striped small">
 							<thead>
 								<tr>
@@ -74,6 +77,14 @@
 							</tbody>
 						</table>
 						</div>
+					<c:if test="${categoricalResultAndChart.statisticalMethod!=null}">
+						<div class="col-md-6">
+							<h4> Statistical method  </h4>
+							<p>${categoricalResultAndChart.statisticalMethod}</p>
+						</div>
+
+					</c:if>
+
 				
 					</div>
 		

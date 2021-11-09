@@ -36,6 +36,8 @@ public class CategoricalResultAndCharts {
 	private Double combinedPValue;//male and female controls and experimental data combined to get an overall p value
 	private Double malePValue;
 	private Double femalePValue;
+	private String classification;
+	private String statisticalMethod;
 
 	public Double getMalePValue() {
 		return malePValue;
@@ -89,6 +91,22 @@ public class CategoricalResultAndCharts {
 	public void setOrganisation(String organisation) {
 		this.organisation=organisation;
 
+	}
+
+	public String getClassification() {
+		return  classification;
+	}
+
+	public void setClassification(String classification) {
+		this.classification = classification;
+	}
+
+	public String getStatisticalMethod() {
+		return  statisticalMethod;
+	}
+
+	public void setStatisticalMethod(String statisticalMethod) {
+		this.statisticalMethod = statisticalMethod;
 	}
 
 	/**
