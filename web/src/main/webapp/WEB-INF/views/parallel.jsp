@@ -14,11 +14,14 @@
 		<link rel="stylesheet" href="${baseUrl}/css/genes.css" type="text/css"/>
 
         <!-- JavaScript Local Imports -->
+        <script type="text/javascript" charset="utf-8" src="${baseUrl}/js/vendor/jquery/jquery.ui.widget.min.js"></script>
+        <script type='text/javascript' src='${baseUrl}/js/general/ui.dropdownchecklist_modif.js?v=${version}'></script>
 		<script type='text/javascript' src="${baseUrl}/js/general/dropDownParallelCoordinatesPage.js?v=${version}"></script>
 		<script type="text/javascript" charset="utf-8" src="${baseUrl}/js/vendor/d3/d3.v3.js"></script>
 		<script type="text/javascript" charset="utf-8" src="${baseUrl}/js/vendor/d3/d3.js"></script>
 		<script type="text/javascript" charset="utf-8" src="${baseUrl}/js/vendor/d3/d3.csv.js"></script>
 		<script type="text/javascript" charset="utf-8" src="${baseUrl}/js/vendor/d3/d3.layout.js"></script>
+
 			 
 		<script src="${baseUrl}/js/vendor/jquery/jquery.event.drag-2.0.min.js"></script>
 		<script src="${baseUrl}/js/vendor/slick/slick.core.js"></script>

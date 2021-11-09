@@ -30,7 +30,7 @@
 	</div>
 
 	<div class="row">
-		<div id="myGrid"></div>
+		<div id="myGrid" style="margin-top: 20px"></div>
 	</div>
 
 	<c:if test="${dataJs != null }">
@@ -246,7 +246,7 @@
 			$('#parallel .foreground path').css('stroke-opacity', val.toString());
 		});
 
-		$('#parallel').resizable({
+/*		$('#parallel').resizable({
 			handles : 's',
 			resize : function() {
 				return false;
@@ -255,7 +255,7 @@
 
 		$('#myGrid').resizable({
 			handles : 's'
-		});
+		});*/
 
 		function addslashes(str) {
 			return (str + '').replace(/\"/g, "\"\"") // escape double quotes

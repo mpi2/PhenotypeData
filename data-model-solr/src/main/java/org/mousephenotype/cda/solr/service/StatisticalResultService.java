@@ -318,7 +318,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         try {
             SolrQuery query = new SolrQuery()
                     .setQuery("*:*")
-                    .addField(StatisticalResultDTO.PROCEDURE_ID)
+                    .addField(StatisticalResultDTO.PROCEDURE_STABLE_KEY)
                     .addField(StatisticalResultDTO.PROCEDURE_NAME)
                     .addField(StatisticalResultDTO.PROCEDURE_STABLE_ID);
             query.set("group", true);
@@ -356,8 +356,8 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
 
             for (Group group : response.getGroupResponse().getValues().get(0).getValues()) {
 
-                ImpressBaseDTO procedure = new ImpressBaseDTO(Long.getLong(group.getResult().get(0).getFirstValue(StatisticalResultDTO.PROCEDURE_ID).toString()),
-                        null,
+                ImpressBaseDTO procedure = new ImpressBaseDTO(Long.getLong(group.getResult().get(0).getFirstValue(StatisticalResultDTO.PROCEDURE_STABLE_KEY).toString()),
+                        Long.getLong(group.getResult().get(0).getFirstValue(StatisticalResultDTO.PROCEDURE_STABLE_KEY).toString()),
                         group.getResult().get(0).getFirstValue(StatisticalResultDTO.PROCEDURE_STABLE_ID).toString(),
                         group.getResult().get(0).getFirstValue(StatisticalResultDTO.PROCEDURE_NAME).toString());
                 procedures.add(procedure);

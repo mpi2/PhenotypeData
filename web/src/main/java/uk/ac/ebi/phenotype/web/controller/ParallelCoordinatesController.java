@@ -79,10 +79,10 @@ public class ParallelCoordinatesController {
 
         try {
             TreeSet<ImpressBaseDTO> procedures = new TreeSet<>(ImpressBaseDTO.getComparatorByName());
-            procedures.addAll(srs.getProcedures(null, "unidimensional", "IMPC", 2, ParallelCoordinatesDTO.procedureNoDisplay, "Success", false));
+            procedures.addAll(srs.getProcedures(null, "unidimensional", "IMPC", 2, ParallelCoordinatesDTO.procedureNoDisplay, "Successful", false));
 
             TreeSet<String> centers = new TreeSet<>();
-            centers.addAll(srs.getCenters(null, "unidimensional", "IMPC", "Success"));
+            centers.addAll(srs.getCenters(null, "unidimensional", "IMPC", "Successful"));
 
             model.addAttribute("procedures", procedures);
             model.addAttribute("centers", centers);
