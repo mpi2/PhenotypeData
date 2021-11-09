@@ -184,8 +184,14 @@ public class ExperimentsController {
             sortedJsonArray.put(jsonValues.get(i));
         }
 
+        final List<String> params = new ArrayList<>();
+        for (String p : Constants.adultViabilityParameters) {
+            params.add(String.format("parameter_stable_id=%s", p));
+        }
+
         model.addAttribute("rows", experimentRows.size());
         model.addAttribute("allData", sortedJsonArray.toString().replace("'", "\\'"));
+        model.addAttribute("viabilityDataLink", String.join("&", params));
         return "experimentsTableFrag";
     }
 

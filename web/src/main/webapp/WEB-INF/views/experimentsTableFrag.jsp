@@ -199,7 +199,7 @@
         var baseUrl = "${baseUrl}";
         var link = null;
         if (row.procedure_name.startsWith("Viability Primary Screen") && row.parameter_stable_id !== "IMPC_VIA_001_001") {
-            link = null;
+            link = baseUrl + "/charts?accession="+ row.gene_accession_id +"&${viabilityDataLink}";
         } else if (row.procedure_name.startsWith("Embryo LacZ")) {
             link = "javascript:document.getElementById('_embryo-tab');";
         } else if (row.procedure_name.startsWith("Histopathology")) {
