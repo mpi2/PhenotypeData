@@ -500,7 +500,7 @@
                 <div class="col-12 no-gutters">
                     <h1 class="h1 m-0 d-inline-block">
                         <b>Gene: ${gene.markerSymbol}</b>
-                        <small style="font-size: 24px" > <a class="text-dark" style="display: inline-flex; align-items: center;" target="_blank" rel="noreferrer" href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}"> <span>${gene.mgiAccessionId} </span> <i class="fal fa-external-link fa-xs"></i></a></small>
+                        <small style="font-size: 24px" > <a class="text-dark" style="display: inline-flex; align-items: center;" target="_blank" rel="noreferrer" href="http://www.informatics.jax.org/marker/${gene.mgiAccessionId}"> <span>${gene.mgiAccessionId} </span> <i class="fal fa-external-link fa-xs" style="margin-left: 2px"></i></a></small>
                     </h1>
                     <span>
                         <c:choose>
