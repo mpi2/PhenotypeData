@@ -125,6 +125,8 @@ public class ExperimentsController {
                     significant = "Not significant";
                 }
 
+                String lifeStageRow = experimentsDataTableRow.getProcedure().getStableId().startsWith("ALT") ? "N/A" : experimentsDataTableRow.getLifeStageName();
+
                 experimentRowJson.put(ObservationDTO.ALLELE_SYMBOL, experimentsDataTableRow.getAllele().getSymbol());
                 experimentRowJson.put(ObservationDTO.ALLELE_ACCESSION_ID, experimentsDataTableRow.getAllele().getAccessionId());
                 experimentRowJson.put(ObservationDTO.GENE_ACCESSION_ID, experimentsDataTableRow.getGene().getAccessionId());
@@ -139,7 +141,7 @@ public class ExperimentsController {
                 experimentRowJson.put("phenotype_term", phenotypeTermName);
                 experimentRowJson.put("female_mutants", experimentsDataTableRow.getFemaleMutantCount());
                 experimentRowJson.put("male_mutants", experimentsDataTableRow.getMaleMutantCount());
-                experimentRowJson.put("life_stage", experimentsDataTableRow.getLifeStageName());
+                experimentRowJson.put("life_stage", lifeStageRow);
                 experimentRowJson.put("p_value", experimentsDataTableRow.getpValue());
                 experimentRowJson.put("status", experimentsDataTableRow.getStatus());
                 experimentRowsJson.put(experimentRowJson);

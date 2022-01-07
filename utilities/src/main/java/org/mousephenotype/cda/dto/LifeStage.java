@@ -7,7 +7,8 @@ public enum LifeStage {
     E18_5("E18.5"),
     EARLY_ADULT("Early adult"),
     MIDDLE_AGED_ADULT("Middle aged adult"),
-    LATE_ADULT("Late adult");
+    LATE_ADULT("Late adult"),
+    NA("N/A");
 
     private final String name;
 

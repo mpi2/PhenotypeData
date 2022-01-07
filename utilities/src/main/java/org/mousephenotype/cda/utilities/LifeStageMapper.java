@@ -23,8 +23,10 @@ public class LifeStageMapper {
     }
 
     public static LifeStage getLifeStage(String parameterStableId, String developmentalStageName) {
-
-        if (LA_PROCEDURES.stream().anyMatch(parameterStableId::contains)) {
+        if (parameterStableId.startsWith("ALT")) {
+            return LifeStage.NA;
+        }
+        else if (LA_PROCEDURES.stream().anyMatch(parameterStableId::contains)) {
             return LifeStage.LATE_ADULT;
         } else if (IP_PROCEDURES.stream().anyMatch(parameterStableId::contains)) {
             return LifeStage.MIDDLE_AGED_ADULT;
