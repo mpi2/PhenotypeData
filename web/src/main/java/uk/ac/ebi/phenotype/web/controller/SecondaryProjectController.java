@@ -30,6 +30,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import uk.ac.ebi.phenotype.chart.PieChartCreator;
 import uk.ac.ebi.phenotype.chart.UnidimensionalChartAndTableProvider;
+import uk.ac.ebi.phenotype.util.PublicationFetcher;
+import uk.ac.ebi.phenotype.web.dao.ReferenceService;
+import uk.ac.ebi.phenotype.web.dto.AlleleRef;
+import uk.ac.ebi.phenotype.web.dto.Publication;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
@@ -45,13 +49,15 @@ public class SecondaryProjectController {
     private GeneService geneService;
     private UnidimensionalChartAndTableProvider chartProvider;
     private GenesSecondaryProjectServiceIdg idg;
+    private ReferenceService referenceService;
 
     public SecondaryProjectController(
             @NotNull GeneService geneService,
-            //@NotNull EssentialGeneService essentialGeneService,
+            @NotNull ReferenceService referenceService,
             @NotNull UnidimensionalChartAndTableProvider chartProvider,
             @NotNull GenesSecondaryProjectServiceIdg idg) {
         this.geneService = geneService;
+        this.referenceService = referenceService;
         this.chartProvider = chartProvider;
         this.idg = idg;
     }
@@ -67,6 +73,13 @@ public class SecondaryProjectController {
         Set<String> accessions = secondaryProjects
                 .stream()
                 .map(GenesSecondaryProject::getMgiGeneAccessionId)
+                .collect(Collectors.toSet());
+        List<GeneDTO> geneDTOList = geneService.getGenesByMgiIds(new ArrayList<>(accessions));
+        Set<String> alleleSymbols = new HashSet<>();
+        geneDTOList.stream().filter(g -> g.getAlleleName() != null).forEach(g -> g.getAlleleName().forEach(aName -> alleleSymbols.add(g.getMarkerSymbol() + "<" + aName + ">")));
+        Set<String> symbols = geneDTOList
+                .stream()
+                .map(GeneDTO::getMarkerSymbol)
                 .collect(Collectors.toSet());
 
         Map<String, Long> geneStatus = geneService.getStatusCount(accessions, GeneDTO.ES_CELL_PRODUCTION_STATUS);
@@ -135,6 +148,19 @@ public class SecondaryProjectController {
         model.addAttribute("gpcrEsCellsProduced", gpcrRows.stream().filter(x -> x.getMiceProduced().contains("ES Cells")).count());
         model.addAttribute("gpcrMiceProduced", gpcrRows.stream().filter(x -> x.getMiceProduced().contains("Mice")).count());
         model.addAttribute("gpcrPhenotypesProduced", gpcrRows.stream().filter(x -> x.getMiceProduced().contains("Phenotype data")).count());
+
+        /*
+        PUBLICATIONS
+         */
+
+        // Filter out publications not directly related to this gene
+        final List<Publication> publications = referenceService.getReviewedByGeneList(new ArrayList<>(symbols));
+        publications.stream().forEach(p -> {
+            p.setAlleles(
+                    (ArrayList<AlleleRef>) p.getAlleles().stream().filter(a -> alleleSymbols.contains(a.getAlleleSymbol())).collect(Collectors.toList())
+            );
+        });
+        model.addAttribute("publications", publications);
 
         return "idg";
 

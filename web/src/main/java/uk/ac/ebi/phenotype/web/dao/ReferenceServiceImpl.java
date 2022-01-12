@@ -2,6 +2,7 @@ package uk.ac.ebi.phenotype.web.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.phenotype.web.dto.Publication;
@@ -33,6 +34,18 @@ public class ReferenceServiceImpl implements ReferenceService {
         } else {
             filter = ".*" + filter + ".*";
             return referenceRepository.findReviewedContains(filter, pageRequest).getContent();
+        }
+    }
+
+    @Override
+    public List<Publication> getReviewedByGeneList(List<String> geneList) {
+
+        if(geneList == null || geneList.isEmpty()) {
+            return referenceRepository.findAllByStatusIs(Pageable.unpaged(), "reviewed").getContent();
+        } else {
+            String filter = String.join("|", geneList + ".*");
+
+            return referenceRepository.findReviewedContainsGene(filter, Pageable.unpaged()).getContent();
         }
     }
 

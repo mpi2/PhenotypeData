@@ -32,8 +32,25 @@ public interface ReferenceRepository extends MongoRepository<Publication, Object
       +   "{status: 'reviewed'}"
       +  "]"
     + " }";
+
+    final String reviewedContainsGeneQuery =
+            " {$and: "
+                    +  "["
+                    +    "{$or: "
+                    +      "["
+                    +        "{'alleles.alleleSymbol': {$regex : ?0, '$options' : 'i' }},"
+                    +        "{'alleles.geneSymbol':   {$regex : ?0, '$options' : 'i' }}"
+                    +      "]"
+                    +    "},"
+                    +   "{status: 'reviewed'}"
+                    +  "]"
+                    + " }";
+
     @Query(reviewedContainsQuery)
     Page<Publication> findReviewedContains(String filter, Pageable pageable);
+
+    @Query(reviewedContainsGeneQuery)
+    Page<Publication> findReviewedContainsGene(String genes, Pageable pageable);
 
     @CountQuery(reviewedContainsQuery)
     int countReviewedContains(String filter);
