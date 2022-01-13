@@ -41,6 +41,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.mousephenotype.cda.common.Constants.IDG_PUBLICATION_LIST;
+
 @Controller
 public class SecondaryProjectController {
 
@@ -154,12 +156,7 @@ public class SecondaryProjectController {
          */
 
         // Filter out publications not directly related to this gene
-        final List<Publication> publications = referenceService.getReviewedByGeneList(new ArrayList<>(symbols));
-        publications.stream().forEach(p -> {
-            p.setAlleles(
-                    (ArrayList<AlleleRef>) p.getAlleles().stream().filter(a -> alleleSymbols.contains(a.getAlleleSymbol())).collect(Collectors.toList())
-            );
-        });
+        final List<Publication> publications = referenceService.getReviewedByPmidList(new ArrayList<>(IDG_PUBLICATION_LIST));
         model.addAttribute("publications", publications);
 
         return "idg";

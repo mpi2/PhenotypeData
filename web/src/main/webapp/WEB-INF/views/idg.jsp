@@ -307,7 +307,7 @@
                                                             <td><a href="https://www.doi.org/${publication.doi}">${publication.title}</a></td>
                                                             <td>${publication.journalInfo.journal.title} (<fmt:formatDate value="${publication.firstPublicationDate}" pattern="MMMM yyyy" />)</td>
                                                             <td><c:forEach items="${publication.alleles}" var="allele" varStatus="allele_loop">
-                                                                <c:if test="${validAllele}"><t:formatAllele>${allele.alleleSymbol}</t:formatAllele></c:if>
+                                                                <t:formatAllele>${allele.alleleSymbol}</t:formatAllele>
                                                             </c:forEach>
                                                             </td>
                                                             <td><c:choose>

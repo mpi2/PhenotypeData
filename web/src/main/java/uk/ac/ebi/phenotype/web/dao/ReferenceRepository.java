@@ -9,11 +9,15 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 import uk.ac.ebi.phenotype.web.dto.Publication;
 
+import java.util.List;
+
 
 @Repository
 public interface ReferenceRepository extends MongoRepository<Publication, ObjectId>, ReferenceRepositoryCustom  {
 
     Page<Publication> findAllByStatusIs(Pageable pageable, String status);
+
+    List<Publication> findPublicationsByPmidIsIn(List<String> pmids);
 
     int countAllByStatusIs(String status);
 

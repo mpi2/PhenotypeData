@@ -11,6 +11,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.TreeMap;
 
+import static org.mousephenotype.cda.common.Constants.IDG_PUBLICATION_LIST;
+
 @Service
 public class ReferenceServiceImpl implements ReferenceService {
 
@@ -38,14 +40,12 @@ public class ReferenceServiceImpl implements ReferenceService {
     }
 
     @Override
-    public List<Publication> getReviewedByGeneList(List<String> geneList) {
+    public List<Publication> getReviewedByPmidList(List<String> pmidList) {
 
-        if(geneList == null || geneList.isEmpty()) {
+        if(pmidList == null || pmidList.isEmpty()) {
             return referenceRepository.findAllByStatusIs(Pageable.unpaged(), "reviewed").getContent();
         } else {
-            String filter = String.join("|", geneList + ".*");
-
-            return referenceRepository.findReviewedContainsGene(filter, Pageable.unpaged()).getContent();
+            return referenceRepository.findPublicationsByPmidIsIn(IDG_PUBLICATION_LIST);
         }
     }
 
