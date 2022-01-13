@@ -45,7 +45,7 @@ public class ReferenceServiceImpl implements ReferenceService {
         if(pmidList == null || pmidList.isEmpty()) {
             return referenceRepository.findAllByStatusIs(Pageable.unpaged(), "reviewed").getContent();
         } else {
-            return referenceRepository.findPublicationsByPmidIsIn(IDG_PUBLICATION_LIST);
+            return referenceRepository.findPublicationsByPmidIsInOrderByFirstPublicationDate(IDG_PUBLICATION_LIST);
         }
     }
 

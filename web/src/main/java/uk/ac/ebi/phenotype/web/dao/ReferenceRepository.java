@@ -17,7 +17,7 @@ public interface ReferenceRepository extends MongoRepository<Publication, Object
 
     Page<Publication> findAllByStatusIs(Pageable pageable, String status);
 
-    List<Publication> findPublicationsByPmidIsIn(List<String> pmids);
+    List<Publication> findPublicationsByPmidIsInOrderByFirstPublicationDate(List<String> pmids);
 
     int countAllByStatusIs(String status);
 
