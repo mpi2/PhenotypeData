@@ -234,7 +234,7 @@
                     </table>
                     <button class="btn btn-success mb-3" data-toggle="collapse" href="#kinaseTable" role="button" aria-expanded="false" aria-controls="kinaseTable">View all ${fn:length(kinaseRows)} IMPC/IDG Kinase genes</button>
                     <div id="kinaseTable" class="collapsed collapse">
-                        <table class="table-condensed w-100 table-bordered table-striped">
+                        <table class="table-condensed w-100 table-bordered table-striped" >
                             <thead>
                             <tr>
                                 <th>Mouse Genes</th>
@@ -292,7 +292,10 @@
                                                 <table id="publications_table"
                                                        data-pagination="true"
                                                        data-mobile-responsive="true"
-                                                       data-sortable="true">
+                                                       data-sortable="true"
+                                                       data-search="true"
+                                                       data-sort-order="desc"
+                                                >
                                                     <thead>
                                                     <tr>
                                                         <th data-width="300">Title</th>
@@ -304,7 +307,7 @@
                                                     <tbody>
                                                     <c:forEach items="${publications}" var="publication" varStatus="loop">
                                                         <tr id="publicationRow${loop.index}" data-link="publication" data-shown="false">
-                                                            <td><a href="https://www.doi.org/${publication.doi}">${publication.title}</a></td>
+                                                            <td data-title="${publication.title}"><a href="https://www.doi.org/${publication.doi}">${publication.title}</a></td>
                                                             <td>${publication.journalInfo.journal.title} (<fmt:formatDate value="${publication.firstPublicationDate}" pattern="MMMM yyyy" />)</td>
                                                             <td><c:forEach items="${publication.alleles}" var="allele" varStatus="allele_loop">
                                                                 <a href="${baseUrl}/genes/${allele.geneAccessionId}" target="_blank"><t:formatAllele>${allele.alleleSymbol}</t:formatAllele></a>

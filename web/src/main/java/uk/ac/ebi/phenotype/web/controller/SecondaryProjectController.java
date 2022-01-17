@@ -157,6 +157,15 @@ public class SecondaryProjectController {
 
         // Filter out publications not directly related to this gene
         final List<Publication> publications = referenceService.getReviewedByPmidList(new ArrayList<>(IDG_PUBLICATION_LIST));
+        Comparator<Publication> compareByAlleleSymbol = new Comparator<Publication>() {
+            @Override
+            public int compare(Publication o1, Publication o2) {
+                String allele1 = o1.getAlleles().stream().map(AlleleRef::getAlleleSymbol).collect(Collectors.toList()).get(0);
+                String allele2 = o2.getAlleles().stream().map(AlleleRef::getAlleleSymbol).collect(Collectors.toList()).get(0);
+                return allele1.compareTo(allele2);
+            }
+        };
+        publications.sort(compareByAlleleSymbol);
         model.addAttribute("publications", publications);
 
         return "idg";
