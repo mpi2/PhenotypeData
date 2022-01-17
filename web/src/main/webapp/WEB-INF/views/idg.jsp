@@ -307,7 +307,7 @@
                                                             <td><a href="https://www.doi.org/${publication.doi}">${publication.title}</a></td>
                                                             <td>${publication.journalInfo.journal.title} (<fmt:formatDate value="${publication.firstPublicationDate}" pattern="MMMM yyyy" />)</td>
                                                             <td><c:forEach items="${publication.alleles}" var="allele" varStatus="allele_loop">
-                                                                <t:formatAllele>${allele.alleleSymbol}</t:formatAllele>
+                                                                <a href="${baseUrl}/genes/${allele.geneAccessionId}" target="_blank"><t:formatAllele>${allele.alleleSymbol}</t:formatAllele></a>
                                                             </c:forEach>
                                                             </td>
                                                             <td><c:choose>
