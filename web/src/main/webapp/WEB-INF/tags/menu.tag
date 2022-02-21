@@ -32,7 +32,6 @@
             </div>
         </div>
     </div>
-
     <div class="header__nav">
         <div class="container">
             <div class="row">
@@ -51,13 +50,17 @@
                         <div class="menu-main-nav-container">
                             <ul id="menu-main-nav" class="menu">
                                 <c:forEach begin="0" end="${menu.size()-1}" var="i">
-                                    <li id="${menu.get(i).cssId}" class='menu-item ${menu.get(i).cssId} <c:if test="${menu.get(i).name.toLowerCase().contains('data')}">current-menu-item</c:if>'>
+                                    <li id="${menu.get(i).cssId}" class='menu-item ${menu.get(i).cssId} <c:if test="${
+                                    (menu.get(i).name.toLowerCase().contains('data') && !requestScope['javax.servlet.forward.request_uri'].contains('sexual-dimorphism') && !requestScope['javax.servlet.forward.request_uri'].contains('hearing')) ||
+                                    (menu.get(i).name.toLowerCase().contains('publications') && (requestScope['javax.servlet.forward.request_uri'].contains('sexual-dimorphism') || requestScope['javax.servlet.forward.request_uri'].contains('hearing')))
+                                    }">current-menu-item</c:if>'>
                                         <a href="${menu.get(i).url}">${menu.get(i).name}</a>
                                     </li>
                                 </c:forEach>
                             </ul>
                         </div>
                     </span>
+
                     <button class="navbar-toggler collapsed d-inline d-lg-none "
                             type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent "
                             aria-controls="navbarToggleExternalContent"
