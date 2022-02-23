@@ -2,6 +2,7 @@ package uk.ac.ebi.phenotype.web.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import uk.ac.ebi.phenotype.web.dto.Publication;
@@ -9,6 +10,8 @@ import uk.ac.ebi.phenotype.web.dto.Publication;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.TreeMap;
+
+import static org.mousephenotype.cda.common.Constants.IDG_PUBLICATION_LIST;
 
 @Service
 public class ReferenceServiceImpl implements ReferenceService {
@@ -33,6 +36,16 @@ public class ReferenceServiceImpl implements ReferenceService {
         } else {
             filter = ".*" + filter + ".*";
             return referenceRepository.findReviewedContains(filter, pageRequest).getContent();
+        }
+    }
+
+    @Override
+    public List<Publication> getReviewedByPmidList(List<String> pmidList) {
+
+        if(pmidList == null || pmidList.isEmpty()) {
+            return referenceRepository.findAllByStatusIs(Pageable.unpaged(), "reviewed").getContent();
+        } else {
+            return referenceRepository.findPublicationsByPmidIsInOrderByFirstPublicationDate(IDG_PUBLICATION_LIST);
         }
     }
 

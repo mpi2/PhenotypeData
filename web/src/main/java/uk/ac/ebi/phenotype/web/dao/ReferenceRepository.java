@@ -9,11 +9,15 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 import uk.ac.ebi.phenotype.web.dto.Publication;
 
+import java.util.List;
+
 
 @Repository
 public interface ReferenceRepository extends MongoRepository<Publication, ObjectId>, ReferenceRepositoryCustom  {
 
     Page<Publication> findAllByStatusIs(Pageable pageable, String status);
+
+    List<Publication> findPublicationsByPmidIsInOrderByFirstPublicationDate(List<String> pmids);
 
     int countAllByStatusIs(String status);
 
@@ -32,8 +36,25 @@ public interface ReferenceRepository extends MongoRepository<Publication, Object
       +   "{status: 'reviewed'}"
       +  "]"
     + " }";
+
+    final String reviewedContainsGeneQuery =
+            " {$and: "
+                    +  "["
+                    +    "{$or: "
+                    +      "["
+                    +        "{'alleles.alleleSymbol': {$regex : ?0, '$options' : 'i' }},"
+                    +        "{'alleles.geneSymbol':   {$regex : ?0, '$options' : 'i' }}"
+                    +      "]"
+                    +    "},"
+                    +   "{status: 'reviewed'}"
+                    +  "]"
+                    + " }";
+
     @Query(reviewedContainsQuery)
     Page<Publication> findReviewedContains(String filter, Pageable pageable);
+
+    @Query(reviewedContainsGeneQuery)
+    Page<Publication> findReviewedContainsGene(String genes, Pageable pageable);
 
     @CountQuery(reviewedContainsQuery)
     int countReviewedContains(String filter);

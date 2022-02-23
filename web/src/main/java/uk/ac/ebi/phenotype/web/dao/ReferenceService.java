@@ -9,6 +9,7 @@ import java.util.TreeMap;
 public interface ReferenceService {
 
     List<Publication> getAllReviewed(String filter, int start, int length, String orderBy, String sortOrder);
+    List<Publication> getReviewedByPmidList(List<String> pmidList);
     int countReviewed();
     int countFiltered(String filter);
 
