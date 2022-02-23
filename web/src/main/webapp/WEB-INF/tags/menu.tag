@@ -51,8 +51,8 @@
                             <ul id="menu-main-nav" class="menu">
                                 <c:forEach begin="0" end="${menu.size()-1}" var="i">
                                     <li id="${menu.get(i).cssId}" class='menu-item ${menu.get(i).cssId} <c:if test="${
-                                    (menu.get(i).name.toLowerCase().contains('data') && !requestScope['javax.servlet.forward.request_uri'].contains('sexual-dimorphism') && !requestScope['javax.servlet.forward.request_uri'].contains('hearing')) ||
-                                    (menu.get(i).name.toLowerCase().contains('publications') && (requestScope['javax.servlet.forward.request_uri'].contains('sexual-dimorphism') || requestScope['javax.servlet.forward.request_uri'].contains('hearing')))
+                                    (menu.get(i).name.toLowerCase().contains('data') && !requestScope['javax.servlet.forward.request_uri'].contains('sexual-dimorphism') && !requestScope['javax.servlet.forward.request_uri'].contains('hearing')) && !requestScope['javax.servlet.forward.request_uri'].contains('publications') ||
+                                    (menu.get(i).name.toLowerCase().contains('publications') && (requestScope['javax.servlet.forward.request_uri'].contains('sexual-dimorphism') || requestScope['javax.servlet.forward.request_uri'].contains('hearing') || requestScope['javax.servlet.forward.request_uri'].contains('publications')))
                                     }">current-menu-item</c:if>'>
                                         <a href="${menu.get(i).url}">${menu.get(i).name}</a>
                                     </li>
