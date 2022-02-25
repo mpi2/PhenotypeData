@@ -67,7 +67,12 @@ public class ExporterExcel {
     private static void writeRow(Row row, List<String> data) {
         for (int i = 0; i < data.size(); i++) {
             Cell cell = row.createCell(i, CellType.STRING);
-            cell.setCellValue(data.get(i));
+            String cellData = data.get(i);
+            if(cellData.length() > 32767)
+            {
+                cellData = cellData.substring(0, 32700) + "... (Please use the TSV file to download the full allele list)";
+            }
+            cell.setCellValue(cellData);
         }
     }
 }
