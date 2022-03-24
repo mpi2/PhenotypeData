@@ -481,9 +481,13 @@ class OmeroService:
             self.logger.info("dataset in load is not None. Dataset name: "+dataset)
 
             ## Introducing a hack to see if the actual upload works
-            dsId = DS_DICT[dataset.upper()]
+            dsId = DS_DICT[dataset]
+            self.logger.info("DatasetId (first try) ="+str(dsId))
             if not dsId:
-                dsId = self.create_containers(self.cli, dataset, self.omeroHost, project)
+                dsId = DS_DICT[dataset.upper()]
+                self.logger.info("DatasetId (second try) =" + str(dsId))
+                if not dsId:
+                    dsId = self.create_containers(self.cli, dataset, self.omeroHost, project)
 
             self.logger.info("datasetId="+str(dsId))
             import_args.extend(["--","-d", str(dsId), "--exclude","filename"])#"--no_thumbnails",,"--debug", "ALL"])
