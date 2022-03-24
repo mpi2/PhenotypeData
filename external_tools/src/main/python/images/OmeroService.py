@@ -479,10 +479,11 @@ class OmeroService:
             #project=project.replace(" ","-")
         if dataset is not None:
             self.logger.info("dataset in load is not None. Dataset name: "+dataset)
-#            dsId = self.create_containers(self.cli, dataset, self.omeroHost, project)
 
             ## Introducing a hack to see if the actual upload works
             dsId = DS_DICT[dataset.upper()]
+            if not dsId:
+                dsId = self.create_containers(self.cli, dataset, self.omeroHost, project)
 
             self.logger.info("datasetId="+str(dsId))
             import_args.extend(["--","-d", str(dsId), "--exclude","filename"])#"--no_thumbnails",,"--debug", "ALL"])
@@ -537,16 +538,13 @@ class OmeroService:
                 self.logger.info( "Using Project:" + project + ":" + p.getName())
                 prId = p.getId()
                 # Since Project already exists, check children for Dataset
-                for c in p.listChildren():
-                    self.logger.info("c getname="+c.getName())
-                    if c.getName() == dataset:
-                        self.logger.info("c=d matches name")
-                        d = c
+#                for c in p.listChildren():
+#                    self.logger.info("c getname="+c.getName())
+#                    if c.getName() == dataset:
+#                        self.logger.info("c=d matches name")
+#                        d = c
     
-        #if d is None:
-        #    print "d is None"
-        #    d = self.conn.getObject("Dataset", attributes={'name': dataset}, params=params)
-    
+
         if d is None:
             self.logger.info( "Creating Dataset:" + dataset)
             d = omero.model.DatasetI()
@@ -558,7 +556,8 @@ class OmeroService:
                 link.child = omero.model.DatasetI(dsId, False)
                 link.parent = omero.model.ProjectI(prId, False)
                 self.conn.getUpdateService().saveObject(link)
-                
+
+            self.logger.info("Created Dataset:" + dataset + ":" + dsId)
         else:
             self.logger.info( "Using Dataset:" + dataset + ":" + d.getName())
             dsId = d.getId()
