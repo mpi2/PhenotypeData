@@ -103,7 +103,6 @@ public class MailServiceTest extends BaseTest {
      * @throws Exception
      */
     @Test
-    @Disabled
     public void checkerOutputDirExistsAndIsEmpty() throws Exception {
         File outdir = null;
         try {
@@ -116,7 +115,7 @@ public class MailServiceTest extends BaseTest {
             mailService.checker(outdir.getAbsolutePath());
 
             // Did we get the expected files?
-            Set<String> expectedFiles = new HashSet<>(Arrays.asList(user2, user3, user5));
+            Set<String> expectedFiles = new HashSet<>(Arrays.asList(user4, user2, user1, user3, user5));
             Set<String> actualFiles   = _getFilenames(outdir.getAbsolutePath());
             System.out.println(actualFiles);
             System.out.println(expectedFiles);
