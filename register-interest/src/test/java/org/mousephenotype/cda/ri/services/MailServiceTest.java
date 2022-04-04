@@ -24,6 +24,7 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static org.springframework.test.util.AssertionErrors.fail;
 
+@Disabled("Disabled until data has been fixed!")
 public class MailServiceTest extends BaseTest {
     public static final String user1 = "user1@ebi.ac.uk";
     public static final String user2 = "user2@ebi.ac.uk";
