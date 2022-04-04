@@ -13,6 +13,7 @@ public class ProductDTO {
     public static final String MGI_ACCESSION_ID = "mgi_accession_id";
     public static final String ALLELE_TYPE = "allele_type";
     public static final String ALLELE_NAME = "allele_name";
+    public static final String ALLELE_DESCRIPTION = "allele_description";
     public static final String ALLELE_HAS_ISSUES = "allele_has_issues";
     public static final String TYPE = "type";
     public static final String NAME = "name";
@@ -22,6 +23,9 @@ public class ProductDTO {
     public static final String OTHER_LINKS = "other_links";
     public static final String ORDER_LINKS = "order_links";
     public static final String ORDER_NAMES = "order_names";
+    public static final String TISSUE_ENQUIRY_TYPES = "tissue_enquiry_types";
+    public static final String TISSUE_ENQUIRY_LINKS = "tissue_enquiry_links";
+    public static final String TISSUE_DISTRIBUTION_CENTRES = "tissue_distribution_centres";
     public static final String QC_DATA = "qc_data";
     public static final String GENETIC_INFO = "genetic_info";
 
@@ -123,6 +127,9 @@ public class ProductDTO {
     @Field(ALLELE_NAME)
     private String alleleName;
 
+    @Field(ALLELE_DESCRIPTION)
+    private String alleleDescription;
+
     @Field(ALLELE_HAS_ISSUES)
     private List<Boolean> alleleHasIssues;
 
@@ -143,6 +150,47 @@ public class ProductDTO {
 
     @Field(ORDER_LINKS)
     private List<String> orderLinks;//image link to the vector map
+
+    public List<String> getTissueEnquiryTypes() {
+        return tissueEnquiryTypes;
+    }
+
+    public void setTissueEnquiryTypes(List<String> tissueEnquiryTypes) {
+        this.tissueEnquiryTypes = tissueEnquiryTypes;
+    }
+
+    public Boolean getProductionCompleted() {
+        return productionCompleted;
+    }
+
+    public void setProductionCompleted(Boolean productionCompleted) {
+        this.productionCompleted = productionCompleted;
+    }
+
+    @Field(TISSUE_ENQUIRY_TYPES)
+    private List<String> tissueEnquiryTypes;
+
+    public List<String> getTissueDistributionCentres() {
+        return tissueDistributionCentres;
+    }
+
+    public void setTissueDistributionCentres(List<String> tissueDistributionCentres) {
+        this.tissueDistributionCentres = tissueDistributionCentres;
+    }
+
+    @Field(TISSUE_DISTRIBUTION_CENTRES)
+    private List<String> tissueDistributionCentres;
+
+    public List<String> getTissueEnquiryLinks() {
+        return tissueEnquiryLinks;
+    }
+
+    public void setTissueEnquiryLinks(List<String> tissueEnquiryLinks) {
+        this.tissueEnquiryLinks = tissueEnquiryLinks;
+    }
+
+    @Field(TISSUE_ENQUIRY_LINKS)
+    private List<String> tissueEnquiryLinks;
 
     @Field(ORDER_NAMES)
     private List<String> orderNames;
@@ -233,6 +281,14 @@ public class ProductDTO {
 
     public void setAlleleName(String alleleName) {
         this.alleleName = alleleName;
+    }
+
+    public String getAlleleDescription() {
+        return alleleDescription;
+    }
+
+    public void setAlleleDescription(String alleleDescription) {
+        this.alleleDescription = alleleDescription;
     }
 
     public List<Boolean> getAlleleHasIssues() {

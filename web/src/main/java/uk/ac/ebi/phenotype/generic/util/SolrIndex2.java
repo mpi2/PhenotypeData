@@ -220,10 +220,10 @@ public class SolrIndex2 {
         other_alleles_url = searchProductCore(otherAllelesSearchParams);
         gene_url = searchAlleleCore(geneSearchParams);
 
-//        log.info("#### url for getAlleleProductInfo=" + url);
-//        log.info("#### url for getAlleleProductInfo=" + allele_url);
-//        log.info("#### url for getAlleleProductInfo=" + other_alleles_url);
-//        log.info("#### url for getAlleleProductInfo=" + gene_url);
+        log.info("#### url for getAlleleProductInfo=" + url);
+        log.info("#### allele_url for getAlleleProductInfo=" + allele_url);
+        log.info("#### other_alleles_url for getAlleleProductInfo=" + other_alleles_url);
+        log.info("#### gene_url for getAlleleProductInfo=" + gene_url);
 
         JSONObject geneJsonObject = getResults(gene_url);
         JSONArray geneDoc = geneJsonObject.getJSONObject("response").getJSONArray("docs");

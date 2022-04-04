@@ -14,10 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class OrderService {
@@ -76,15 +73,14 @@ public class OrderService {
 		
 		String q = "*:*";// default if no gene specified
 		if (geneAcc != null) {
-			q = "mgi_accession_id:\"" + geneAcc + "\"";// &start=0&rows=100&hl=true&wt=json";
+			q = "mgi_accession_id:\"" + geneAcc + "\"";
 		}
 		SolrQuery query = new SolrQuery();
 		if(creLine){
-			query.setRequestHandler(selectCre);
+			query.addFilterQuery("allele_design_project:Cre");
 		}
+		query.addFilterQuery("type:(mouse OR es_cell OR targeting_vector)");
 		query.setQuery(q);
-		query.addFilterQuery("type:Allele");
-		query.addFilterQuery("("+Allele2DTO.ES_CELL_AVAILABLE+":true OR "+Allele2DTO.TARGETING_VECTOR_AVAILABLE+":true OR "+Allele2DTO.MOUSE_AVAILABLE+":true)" );
 		query.set("sort", "marker_symbol asc");
 		if(rows!=null){
 			query.setRows(rows);
@@ -92,10 +88,40 @@ public class OrderService {
 			query.setRows(Integer.MAX_VALUE);
 		}
 		
-		QueryResponse response = allele2Core.query(query);
-		List<Allele2DTO> allele2DTOs = response.getBeans(Allele2DTO.class);
+		QueryResponse response = productCore.query(query);
+		List<ProductDTO> productDTOS = response.getBeans(ProductDTO.class);
+		HashMap<String, Allele2DTO> alleleBySymbolMap = new HashMap<>();
+		productDTOS.stream().forEach( p-> {
+			String alleleSymbol = p.getMarkerSymbol() + "<" + p.getAlleleName() + ">";
+			Allele2DTO allele2DTO = alleleBySymbolMap.get(alleleSymbol);
+			if(allele2DTO == null) {
+				allele2DTO = new Allele2DTO();
+				allele2DTO.setMgiAccessionId(p.getMgiAccessionId());
+				allele2DTO.setAlleleName(p.getAlleleName());
+				allele2DTO.setAlleleSymbol(alleleSymbol);
+				allele2DTO.setMarkerSymbol(p.getMarkerSymbol());
+				allele2DTO.setAlleleDescription(p.getAlleleDescription());
+				allele2DTO.setEsCellAvailable(false);
+				allele2DTO.setMouseAvailable(false);
+				allele2DTO.setTargetingVectorAvailable(false);
+				allele2DTO.setTissuesAvailable(false);
+				allele2DTO.setAlleleImage("");
+				allele2DTO.setTissueTypes(p.getTissueEnquiryTypes());
+				allele2DTO.setTissueEnquiryLinks(p.getTissueEnquiryLinks());
+				allele2DTO.setTissueDistributionCentres(p.getTissueDistributionCentres());
+				alleleBySymbolMap.put(alleleSymbol, allele2DTO);
+			}
+			Boolean esCellAvailable = allele2DTO.getEsCellAvailable() || p.getType().equals("es_cell");
+			Boolean mouseAvailable = allele2DTO.getMouseAvailable() || p.getType().equals("mouse");
+			Boolean targetingVectorAvailable = allele2DTO.getTargetingVectorAvailable() || p.getType().equals("targeting_vector");
+			Boolean tissueAvailable = allele2DTO.getTissuesAvailable()  || (p.getTissueEnquiryLinks() != null && p.getTissueEnquiryLinks().size() > 0) ;
+			allele2DTO.setEsCellAvailable(esCellAvailable);
+			allele2DTO.setMouseAvailable(mouseAvailable);
+			allele2DTO.setTargetingVectorAvailable(targetingVectorAvailable);
+			allele2DTO.setTissuesAvailable(tissueAvailable);
+		});
 
-		return allele2DTOs;
+		return new ArrayList<Allele2DTO>(alleleBySymbolMap.values());
 
 	}
 	
