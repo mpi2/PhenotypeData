@@ -1,14 +1,13 @@
 package org.mousephenotype.cda.ri.services;
 
+import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.jupiter.api.Disabled;
 import org.mousephenotype.cda.ri.exceptions.InterestException;
 import org.mousephenotype.cda.ri.pojo.Summary;
 import org.mousephenotype.cda.ri.pojo.SummaryDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.FileSystemUtils;
 
-import javax.xml.bind.SchemaOutputResolver;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -24,7 +23,7 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static org.springframework.test.util.AssertionErrors.fail;
 
-@Disabled("Disabled until data has been fixed!")
+@Ignore("Disabled until data has been fixed!")
 public class MailServiceTest extends BaseTest {
     public static final String user1 = "user1@ebi.ac.uk";
     public static final String user2 = "user2@ebi.ac.uk";
