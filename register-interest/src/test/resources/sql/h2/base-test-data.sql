@@ -41,19 +41,19 @@ INSERT INTO contact_gene
 
 INSERT INTO gene_sent
 ( pk,  address,           gene_accession_id, symbol,     assignment_status, conditional_allele_production_status, null_allele_production_status, crispr_allele_production_status, phenotyping_data_available, created_at, sent_at) VALUES
-  (1,  'user1@ebi.ac.uk', 'MGI:103576',      'Ccl11',    @WI,               NULL,                                 NULL,                          NULL,                            NULL,                       NOW(),      NOW()),
+  (1,  'user1@ebi.ac.uk', 'MGI:103576',      'Ccl11',    @WI,               NULL,                                 @WI,                           NULL,                            0,                          NOW(),      NOW()),
   (2,  'user1@ebi.ac.uk', 'MGI:1919199',     'Cers5',    @SP,               @GC,                                  @GC,                           NULL,                            1,                          NOW(),      NOW()),
   (3,  'user1@ebi.ac.uk', 'MGI:2443658',     'Prr14l',   @SP,               NULL,                                 NULL,                          @GC,                             0,                          NOW(),      NOW()),
 
-  (4,  'user2@ebi.ac.uk', 'MGI:3576659',     'Ano5',     NULL,              @ST,                                  NULL,                          @WI,                             NULL,                       NOW(),      NOW()),
-  (5,  'user2@ebi.ac.uk', 'MGI:2444824',     'Sirpb1a',  @SP,               NULL,                                 NULL,                          NULL,                            1,                          NOW(),      NOW()),
+  (4,  'user2@ebi.ac.uk', 'MGI:3576659',     'Ano5',     @SP,               NULL,                                 @SP,                           @WI,                             0,                          NOW(),      NOW()),
+  (5,  'user2@ebi.ac.uk', 'MGI:2444824',     'Sirpb1a',  @SP,               NULL,                                 NULL,                          @GC,                             1,                          NOW(),      NOW()),
 
-  (6,  'user3@ebi.ac.uk', 'MGI:87986',       'Akt1',     @SP,               NULL,                                 NULL,                         NULL,                             0,                          NOW(),      NOW()),
+  (6,  'user3@ebi.ac.uk', 'MGI:87986',       'Akt1',     @WI,               NULL,                                 @WI,                           NULL,                            0,                          NOW(),      NOW()),
   (7,  'user3@ebi.ac.uk', 'MGI:1914855',     'Akt1s1',   'xxxxx',          'xxxxx',                               'xxxxx',                      'xxxxx',                          1,                          NOW(),      NOW()),
-  (8,  'user3@ebi.ac.uk', 'MGI:104874',      'Akt2',     @SP,              'xxxxx',                               NULL,                         'xxxxx',                          1,                          NOW(),      NOW()),
-  (9,  'user3@ebi.ac.uk', 'MGI:3693832',     'Aktip',    'xxxxx',          @GC,                                   'xxxxx',                      NULL,                             NULL,                       NOW(),      NOW()),
+  (8,  'user3@ebi.ac.uk', 'MGI:104874',      'Akt2',     @SP,              'xxxxx',                               @GC,                          'xxxxx',                          1,                          NOW(),      NOW()),
+  (9,  'user3@ebi.ac.uk', 'MGI:3693832',     'Aktip',    'xxxxx',          @GC,                                   'xxxxx',                       NULL,                            NULL,                       NOW(),      NOW()),
 
-  (10, 'user4@ebi.ac.uk', 'MGI:104874',      'Akt2',     @SP,              @ST,                                   NULL,                         NULL,                             1,                          NOW(),      NOW()),
+  (10, 'user4@ebi.ac.uk', 'MGI:104874',      'Akt2',     @SP,              @ST,                                   @GC,                           NULL,                            1,                          NOW(),      NOW()),
 
   (11, 'user5@ebi.ac.uk', 'MGI:104874',      'Akt2',     'xxxxx',          'xxxxx',                               'xxxxx',                      'xxxxx',                          NULL,                       NOW(),      NOW())
 ;
