@@ -23,7 +23,6 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static org.springframework.test.util.AssertionErrors.fail;
 
-@Ignore("Disabled until data has been fixed!")
 public class MailServiceTest extends BaseTest {
     public static final String user1 = "user1@ebi.ac.uk";
     public static final String user2 = "user2@ebi.ac.uk";
@@ -82,7 +81,7 @@ public class MailServiceTest extends BaseTest {
     /*
      * NOTE: As there is no easy way to mock the geneService that provides the current gene statuses, there is a
      * possibility that this test will indicate failure when it shouldn't. The expected result strings were
-     * captured with the geneService statuses as of 08-Apr-2021. If any of those statuses change, the comparison
+     * captured with the geneService statuses as of 05-Apr-2022 for DR16. If any of those statuses change, the comparison
      * will fail. In that case, after proving the test data should be updated, simply update the expected status string(s).
      *
      * For e-mails in HTML format, here is a great viewer that you can paste the HTML text into:
@@ -115,13 +114,13 @@ public class MailServiceTest extends BaseTest {
             mailService.checker(outdir.getAbsolutePath());
 
             // Did we get the expected files?
-            Set<String> expectedFiles = new HashSet<>(Arrays.asList(user4, user2, user1, user3, user5));
+            Set<String> expectedFiles = new HashSet<>(Arrays.asList(user4, user3, user5));
             Set<String> actualFiles   = _getFilenames(outdir.getAbsolutePath());
             System.out.println(actualFiles);
             System.out.println(expectedFiles);
             assertTrue("Expected " + expectedFiles.size() + " files", expectedFiles.size() == actualFiles.size());
             assertEquals(expectedFiles, actualFiles);
-            assertEquals(user2Expected, _getFileContent(Paths.get(outdir.getAbsolutePath(), user2)));
+            assertEquals(user4Expected, _getFileContent(Paths.get(outdir.getAbsolutePath(), user4)));
             assertEquals(user3Expected, _getFileContent(Paths.get(outdir.getAbsolutePath(), user3)));
             assertEquals(user5Expected, _getFileContent(Paths.get(outdir.getAbsolutePath(), user5)));
         } finally {
@@ -307,7 +306,7 @@ public class MailServiceTest extends BaseTest {
 
     // EXPECTED STRINGS
 
-
+    // State on 08-Apr-2021 - not used for DR16
     final String user2Expected =
         "Dear colleague,\n" +
             "\n" +
@@ -339,14 +338,47 @@ public class MailServiceTest extends BaseTest {
             "\n" +
             "The IMPC team";
 
+    // State on 05-Apr-2022 - updated for DR16
     final String user3Expected =
         "Dear colleague,\n" +
             "<br /><br />Below please find a summary of the IMPC genes for which you have registered interest.\n" +
             "<br /><br />You have previously joined the IMPC <i>Register Interest</i> list, which records your email address and genes for which you would like updates on mouse knockout, production, and phenotyping.\n" +
             "<br /><br />You may manage the list of genes for which you have registered interest by visiting the IMPC <a href=\"https://dev.mousephenotype.org/data/summary\">summary</a> page at https://dev.mousephenotype.org/data/summary.\n" +
-            "<br /><br /><style>  table {    font-family: arial, sans-serif;    border-collapse: collapse;    width: 100%;}td, th {    border: 1px solid #dddddd;    text-align: left;    padding: 8px;}tr:nth-child(even) {    background-color: #dddddd;}</style><table id=\"genesTable\"><tr><th>Gene Symbol</th><th>Gene Accession Id</th><th>Gene Assignment</th><th>ES Cell Null Allele Production Status</th><th>ES Cell Conditional Allele Production Status</th><th>Crispr Allele Production Status</th><th>Phenotyping Data Available</th></tr><td>Akt1</td><td>MGI:87986</td><td>Selected for production</td><td>None</td><td>None</td><td>None</td><td>No</td></tr><td>Akt1s1</td><td>MGI:1914855</td><td>Selected for production *</td><td>None *</td><td>Genotype confirmed mice *</td><td>Withdrawn *</td><td>No *</td></tr><td>Akt2</td><td>MGI:104874</td><td>Selected for production</td><td>None</td><td>Started *</td><td>None *</td><td>Yes</td></tr><td>Aktip</td><td>MGI:3693832</td><td>Selected for production *</td><td>Genotype confirmed mice *</td><td>Genotype confirmed mice</td><td>None</td><td>Yes *</td></tr></table><br />* Indicates a status has changed since the last e-mail sent to you.<br /><br />You may review our e-mail list privacy policy at:<br /><br /><div><a href=\"https://www.ebi.ac.uk/data-protection/privacy-notice/impc-mailservices\" alt=\"https://www.ebi.ac.uk/data-protection/privacy-notice/impc-mailservices\">https://www.ebi.ac.uk/data-protection/privacy-notice/impc-mailservices</a></div><br />For further information / enquiries please write to <a href=\"mailto: mouse-helpdesk@ebi.ac.uk\">mouse-helpdesk@ebi.ac.uk</a>.<br /><br />Best Regards,\n" +
+            "<br /><br /><style>  table {    font-family: arial, sans-serif;    border-collapse: collapse;    width: 100%;}td, th {    border: 1px solid #dddddd;    text-align: left;    padding: 8px;}tr:nth-child(even) {    background-color: #dddddd;}</style><table id=\"genesTable\"><tr><th>Gene Symbol</th><th>Gene Accession Id</th><th>Gene Assignment</th><th>ES Cell Null Allele Production Status</th><th>ES Cell Conditional Allele Production Status</th><th>Crispr Allele Production Status</th><th>Phenotyping Data Available</th></tr><td>Akt1</td><td>MGI:87986</td><td>Withdrawn</td><td>Withdrawn</td><td>None</td><td>None</td><td>No</td></tr><td>Akt1s1</td><td>MGI:1914855</td><td>Selected for production *</td><td>Withdrawn *</td><td>Genotype confirmed mice *</td><td>Withdrawn *</td><td>No *</td></tr><td>Akt2</td><td>MGI:104874</td><td>Selected for production</td><td>Genotype confirmed mice</td><td>None *</td><td>None *</td><td>Yes</td></tr><td>Aktip</td><td>MGI:3693832</td><td>Selected for production *</td><td>Genotype confirmed mice *</td><td>Genotype confirmed mice</td><td>None</td><td>Yes *</td></tr></table><br />* Indicates a status has changed since the last e-mail sent to you.<br /><br />You may review our e-mail list privacy policy at:<br /><br /><div><a href=\"https://www.ebi.ac.uk/data-protection/privacy-notice/impc-mailservices\" alt=\"https://www.ebi.ac.uk/data-protection/privacy-notice/impc-mailservices\">https://www.ebi.ac.uk/data-protection/privacy-notice/impc-mailservices</a></div><br />For further information / enquiries please write to <a href=\"mailto: mouse-helpdesk@ebi.ac.uk\">mouse-helpdesk@ebi.ac.uk</a>.<br /><br />Best Regards,\n" +
             "<br /><br />The IMPC team";
 
+    // State on 05-Apr-2022 - updated for DR16
+    final String user4Expected =
+            "Dear colleague,\n" +
+                    "\n" +
+                    "\n" +
+                    "Below please find a summary of the IMPC genes for which you have registered interest.\n" +
+                    "\n" +
+                    "\n" +
+                    "You have previously joined the IMPC 'Register Interest' list, which records your email address and genes for which you would like updates on mouse knockout, production, and phenotyping.\n" +
+                    "\n" +
+                    "\n" +
+                    "You may manage the list of genes for which you have registered interest by visiting the IMPC 'summary' page at https://dev.mousephenotype.org/data/summary.\n" +
+                    "\n" +
+                    "\n" +
+                    "\"Gene Symbol\"  \"Gene Accession Id\"  \"Gene Assignment               \"  \"ES Cell Null Allele Production Status\"  \"ES Cell Conditional Allele Production Status\"  \"Crispr Allele Production Status\"  \"Phenotyping Data Available\"\n" +
+                    " Akt2           MGI:104874           Selected for production           Genotype confirmed mice                  None *                                          None                               Yes                       \n" +
+                    "\n" +
+                    "\n" +
+                    "* Indicates a status has changed since the last e-mail sent to you.\n" +
+                    "\n" +
+                    "You may review our e-mail list privacy policy at:\n" +
+                    "\n" +
+                    "https://www.ebi.ac.uk/data-protection/privacy-notice/impc-mailservices\n" +
+                    "\n" +
+                    "For further information / enquiries please write to mouse-helpdesk@ebi.ac.uk.\n" +
+                    "\n" +
+                    "Best Regards,\n" +
+                    "\n" +
+                    "\n" +
+                    "The IMPC team";
+
+    // State on 05-Apr-2022 - updated for DR16
     final String user5Expected =
         "Dear colleague,\n" +
             "\n" +
@@ -361,7 +393,7 @@ public class MailServiceTest extends BaseTest {
             "\n" +
             "\n" +
             "\"Gene Symbol\"  \"Gene Accession Id\"  \"Gene Assignment               \"  \"ES Cell Null Allele Production Status\"  \"ES Cell Conditional Allele Production Status\"  \"Crispr Allele Production Status\"  \"Phenotyping Data Available\"\n" +
-            " Akt2           MGI:104874           Selected for production *         None *                                   Started *                                       None *                             Yes *                     \n" +
+            " Akt2           MGI:104874           Selected for production *         Genotype confirmed mice *                None *                                          None *                             Yes *                     \n" +
             "\n" +
             "\n" +
             "* Indicates a status has changed since the last e-mail sent to you.\n" +
