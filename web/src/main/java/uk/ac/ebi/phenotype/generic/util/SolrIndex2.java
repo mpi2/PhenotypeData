@@ -983,7 +983,7 @@ public class SolrIndex2 {
             String allele_image = getKeyValuePairFromArray("allele_image", jsonObject2.getJSONArray("other_links"));
             if (allele_image != null) {
                 map2.put("allele_image", allele_image);
-                map2.put("allele_simple_image", allele_image.replace("allele-image-simple-cre","allele-image-cre") + "?simple=true");
+                map2.put("allele_simple_image", allele_image.replace("allele-image-simple-cre","allele-image-cre").replace("allele-image-simple-flp","allele-image-flp") + "?simple=true");
             }
 
             String genbank_file = getKeyValuePairFromArray("genbank_file", jsonObject2.getJSONArray("other_links"));
@@ -1033,7 +1033,7 @@ public class SolrIndex2 {
             summary.put("genotype_primers", allele.get("genotype_primers"));
             summary.put("mutagenesis_url", allele.get("mutagenesis_url"));
             String alleleSimpleImage = (String) allele.get("allele_simple_image");
-            alleleSimpleImage = alleleSimpleImage.replace("allele-image-simple-cre","allele-image-cre");
+            alleleSimpleImage = alleleSimpleImage.replace("allele-image-simple-cre","allele-image-cre").replace("allele-image-simple-flp","allele-image-flp");
             summary.put("map_image", alleleSimpleImage);
             summary.put("genbank", allele.get("genbank_file"));
 
