@@ -133,7 +133,7 @@
                     </c:if>
                     <c:if test="${not empty summary['ensembl_url']}">
                         <td data-count="4">
-                            <a class="btn" href="${summary['ensembl_url']}"><i class="fa fa-info"></i> Ensembl </a>
+                            <a class="btn" href="${summary['ensembl_url']}" target="_blank" rel="noreferrer"><i class="fa fa-info"></i> Ensembl </a>
                         </td>
                     </c:if>
                     <c:if test="${not empty summary['genotype_primers']}">

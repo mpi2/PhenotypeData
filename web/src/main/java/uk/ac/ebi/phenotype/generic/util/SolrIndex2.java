@@ -77,9 +77,11 @@ public class SolrIndex2 {
         Map<String, Map<String, Object>> alleleMap = new HashMap<>();
 
         for (int i = 0; i < alleleDocs.length(); i++) {
-            Object alelelDoc = alleleDocs.get(i);
-            JSONObject jsonObject2 = (JSONObject) alelelDoc;
+            Object alleleDoc = alleleDocs.get(i);
+            JSONObject jsonObject2 = (JSONObject) alleleDoc;
             String allele_name = jsonObject2.getString("allele_name");
+            if(alleleMap.containsKey(allele_name))
+                continue;
             alleleMap.put(allele_name, getAlleleData(jsonObject2));
         }
 
@@ -218,7 +220,7 @@ public class SolrIndex2 {
         url = searchProductCore( searchParams);
         allele_url = searchAlleleCore(alleleSearchParams);
         other_alleles_url = searchProductCore(otherAllelesSearchParams);
-        gene_url = searchAlleleCore(geneSearchParams);
+        gene_url = searchGeneCore(geneSearchParams);
 
         log.info("#### url for getAlleleProductInfo=" + url);
         log.info("#### allele_url for getAlleleProductInfo=" + allele_url);
@@ -396,6 +398,8 @@ public class SolrIndex2 {
         JSONObject geneObject = (JSONObject) geneDoc.getJSONObject(0);
         JSONObject alleleObject = (JSONObject) alleleDoc.getJSONObject(0);
 
+        alleleObject = processOtherLinks(alleleObject);
+
         mapper.put("gene", getGeneData(geneObject));
         mapper.put("allele", getAlleleData(alleleObject));
 
@@ -407,7 +411,7 @@ public class SolrIndex2 {
         List<String> tissueEnquiryLinks =  new ArrayList<>();
         List<String> tissueEnquiryCenters = new ArrayList<>();
 
-        if (alleleObject.getBoolean("tissues_available")) {
+
             if(alleleObject.has("tissue_types")) {
                 tissueEnquiryTypes = new ArrayList<>(Arrays.asList(alleleObject.getJSONArray("tissue_types").join(",").replaceAll("\"", "").split(",")));
             }
@@ -417,7 +421,7 @@ public class SolrIndex2 {
             if(alleleObject.has("tissue_distribution_centres")) {
                 tissueEnquiryCenters = new ArrayList<>(Arrays.asList(alleleObject.getJSONArray("tissue_distribution_centres").join(",").replaceAll("\"", "").split(",")));
             }
-        }
+
 
         mapper.put("tissue_enquiry_types", tissueEnquiryTypes);
         mapper.put("tissue_enquiry_links", tissueEnquiryLinks);
@@ -437,6 +441,17 @@ public class SolrIndex2 {
         mapper = sortAlleleProducts(mapper);
 
         return mapper;
+    }
+
+    private JSONObject processOtherLinks(JSONObject alleleObject) throws JSONException {
+        JSONArray otherLinks = alleleObject.getJSONArray("other_links");
+        for (int i = 0; i < otherLinks.length(); i++) {
+            String value = (String) otherLinks.get(i);
+            String jsonKey = value.split(":", 2)[0];
+            String jsonValue = value.split(":", 2)[1];
+            alleleObject.put(jsonKey, jsonValue);
+        }
+        return alleleObject;
     }
 
 
@@ -595,23 +610,14 @@ public class SolrIndex2 {
 
         }
 
-        String target = "type:Allele AND mgi_accession_id:" + accession.replace(":", "\\:") + qallele_name;
+        String target = "mgi_accession_id:" + accession.replace(":", "\\:") + qallele_name;
 
         String search_url = select+"?q="
                 + target
-                + "&start=0&rows=100&hl=true&wt=json";
+                + "&start=0&rows=100&hl=true&wt=json&fl=allele_design_project,marker_symbol," +
+                "mgi_accession_id,allele_type,allele_name,allele_description,allele_id,other_links," +
+                "tissue_enquiry_links,tissue_enquiry_types,tissue_distribution_centres";
 
-
-        return search_url;
-    }
-
-    private String getAlleleUrl(Set<String> alleleAccession) {
-
-        String target = "type:Allele AND (allele_mgi_accession_id:\"" + StringUtils.join(alleleAccession, "\" OR allele_mgi_accession_id:\"") + "\")";
-
-        String search_url = internalSolrUrl + "/allele2" + "/select?q="
-                + target
-                + "&start=0&rows=100&hl=true&wt=json";
 
         return search_url;
     }
@@ -640,7 +646,7 @@ public class SolrIndex2 {
 
     private String getGeneUrl(String accession) {
 
-        String target = "type:Gene AND mgi_accession_id:" + accession.replace(":", "\\:");
+        String target = "marker_type:Gene AND mgi_accession_id:" + accession.replace(":", "\\:");
 
         String search_url = "/select?q="
                 + target
@@ -671,7 +677,17 @@ public class SolrIndex2 {
 
         String hostUrl;
         String url;
-        hostUrl = internalSolrUrl + "/allele2";
+        hostUrl = internalSolrUrl + "/product";
+        url = hostUrl + searchUrl;
+
+        return url;
+    }
+
+    private String searchGeneCore(String searchUrl) {
+
+        String hostUrl;
+        String url;
+        hostUrl = internalSolrUrl + "/gene";
         url = hostUrl + searchUrl;
 
         return url;
@@ -686,25 +702,25 @@ public class SolrIndex2 {
     }
 
 
-    public Map<String, String> getAlleleImage(Set<String> alleleAccession)
-    throws IOException, URISyntaxException, JSONException {
-
-    	JSONObject res = getResults(getAlleleUrl(alleleAccession));
-        JSONArray docs = res.getJSONObject("response").getJSONArray("docs");
-        Map<String, String> links = new HashMap<>();
-
-        if (docs.length() < 1) {
-            return null;
-        }
-
-        for (int i = 0; i < docs.length(); i++) {
-            Object doc = docs.get(i);
-            JSONObject alleleDoc = (JSONObject) doc;
-            links.put(alleleDoc.get("allele_name").toString(), alleleDoc.get("allele_simple_image").toString());
-        }
-
-        return links;
-    }
+//    public Map<String, String> getAlleleImage(Set<String> alleleAccession)
+//    throws IOException, URISyntaxException, JSONException {
+//
+//    	JSONObject res = getResults(getAlleleUrl(alleleAccession));
+//        JSONArray docs = res.getJSONObject("response").getJSONArray("docs");
+//        Map<String, String> links = new HashMap<>();
+//
+//        if (docs.length() < 1) {
+//            return null;
+//        }
+//
+//        for (int i = 0; i < docs.length(); i++) {
+//            Object doc = docs.get(i);
+//            JSONObject alleleDoc = (JSONObject) doc;
+//            links.put(alleleDoc.get("allele_name").toString(), alleleDoc.get("allele_simple_image").toString());
+//        }
+//
+//        return links;
+//    }
 
 
  // GET ALLELE OBJECT DATA
@@ -714,6 +730,7 @@ public class SolrIndex2 {
 
         gene.put("marker_symbol" , getSolrDocProperty(geneDoc, "marker_symbol"));
         gene.put("mgi_accession_id" , getSolrDocProperty(geneDoc, "mgi_accession_id"));
+        gene.put("ensembl_gene_id", geneDoc.getJSONArray("ensembl_gene_id").get(0));
 
         if (geneDoc.has("sequence_map_links")){
             gene.put("vega_sequence_map" , getKeyValuePairFromArray("vega", geneDoc.getJSONArray("sequence_map_links")));
@@ -722,8 +739,10 @@ public class SolrIndex2 {
             gene.put("ncbi_sequence_map" , getKeyValuePairFromArray("ncbi", geneDoc.getJSONArray("sequence_map_links")));
         }
 
-        gene.put("es_cell_status" , getSolrDocProperty(geneDoc, "es_cell_status"));
-        gene.put("mouse_status" , getSolrDocProperty(geneDoc, "mouse_status"));
+        gene.put("es_cell_status" , getSolrDocProperty(geneDoc, "es_cell_production_status"));
+        gene.put("null_allele_status" , getSolrDocProperty(geneDoc, "null_allele_production_status"));
+        gene.put("conditional_allele_status" , getSolrDocProperty(geneDoc, "conditional_allele_production_status"));
+        gene.put("mouse_status" , getSolrDocProperty(geneDoc, "mouse_production_status"));
         gene.put("phenotyping_status" , getSolrDocProperty(geneDoc, "phenotype_status"));
 
         return gene;
@@ -999,7 +1018,7 @@ public class SolrIndex2 {
         HashMap<String, Object> summary = new HashMap<>();
 
         if (gene != null){
-            summary.put("ensembl_url", gene.get("ensembl_sequence_map"));
+            summary.put("ensembl_url", "http://www.ensembl.org/Mus_musculus/Location/View?g=" + gene.get("ensembl_gene_id"));
         }
 
         if (allele != null) {
