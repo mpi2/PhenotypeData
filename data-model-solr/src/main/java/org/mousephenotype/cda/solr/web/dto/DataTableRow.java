@@ -160,6 +160,10 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 		if (pcs.getgId() != null) {
 			propBean.setgId(pcs.getgId());
 		}
+
+		if (pcs.getDatasource() != null) {
+			propBean.setDataSource(pcs.getDatasource().getName());
+		}
 		phenotypeCallUniquePropertyBeans.add(propBean);
 		this.buildEvidenceLink(baseUrl);
 
@@ -334,7 +338,21 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 //					url+="/"+phenotypeTerm.getId();
 //				}
 				evidenceLink.setDisplay(true);
-			} else {
+			} else if (this.getDataSourceName().equals("pwg")) {
+				evidenceLink.setAlt("Table");
+				evidenceLink.setIconType(EvidenceLink.IconType.TABLE);
+				url = cmsBaseUrl + "/publications/data-supporting-impc-papers/pain/";// getMpathImagesUrlPostQc(baseUrl,
+				// gene.getAccessionId(),
+				// gene.getSymbol(),
+				// procedure.getName(),
+				// this.colonyId);
+//				if(phenotypeTerm.getId()!=null){
+////					System.out.println("phenotype term id="+phenotypeTerm.getId());
+//					url+="/"+phenotypeTerm.getId();
+//				}
+				evidenceLink.setDisplay(true);
+
+			}else {
 
 				url = getChartPageUrlPostQc(baseUrl, gene.getAccessionId(), this.getAlleleIds(), null, zygosity,
 						this.getParameterStableIds(), this.getProcedureStableIds(), this.getPipelineStableIds(), this.getPhenotypingCenters());

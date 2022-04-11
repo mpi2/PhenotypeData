@@ -16,6 +16,16 @@ public class PhenotypeCallUniquePropertyBean {
 	private String gId;//phenoDCCs internal id that doesn't represent a gene id as they are different for the same mgi gene accession
 	private String phenotypingCenter;
 
+	public String getDataSource() {
+		return dataSource;
+	}
+
+	public void setDataSource(String dataSource) {
+		this.dataSource = dataSource;
+	}
+
+	private String dataSource;
+
 	public PhenotypeCallUniquePropertyBean(){
 		
 	}
