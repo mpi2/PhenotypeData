@@ -61,7 +61,7 @@ public class CaptchaFilter extends OncePerRequestFilter {
             log.debug("Request Origin " + request.getHeader("origin"));
 
             if ( ! validateRecaptcha(request)) {
-                String target = request.getHeader("referer");
+                String target = request.getRequestURI();
                 if ((target == null) || ! (target.startsWith(baseUrl))) {
                     target = baseUrl + "/rilogin";
                 }
@@ -71,7 +71,7 @@ public class CaptchaFilter extends OncePerRequestFilter {
                 }
                 target += "?error=true";
                 log.debug(target);
-                response.sendRedirect(target);
+                response.sendRedirect(request.getHeader("origin") + target);
                 return;
             }
 
