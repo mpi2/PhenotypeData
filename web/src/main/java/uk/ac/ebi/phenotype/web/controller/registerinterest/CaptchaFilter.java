@@ -38,6 +38,9 @@ public class CaptchaFilter extends OncePerRequestFilter {
     @Value("${base_url}")
     private String baseUrl;
 
+    @Value("${paBaseUrl}")
+    private String paBaseUrl;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         if (
@@ -53,6 +56,9 @@ public class CaptchaFilter extends OncePerRequestFilter {
             System.out.println("Request method " + request.getMethod());
 
             log.info("URL = " + request.getRequestURL());
+            log.debug("Request URL " + request.getRequestURL());
+            log.debug("Request Referer " + request.getHeader("referer"));
+            log.debug("Request Origin " + request.getHeader("origin"));
 
             if ( ! validateRecaptcha(request)) {
                 String target = request.getHeader("referer");
@@ -64,6 +70,7 @@ public class CaptchaFilter extends OncePerRequestFilter {
                     target = baseUrl + "/newAccountRequest";
                 }
                 target += "?error=true";
+                log.debug(target);
                 response.sendRedirect(target);
                 return;
             }
