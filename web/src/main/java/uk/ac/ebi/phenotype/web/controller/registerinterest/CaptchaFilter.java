@@ -38,6 +38,9 @@ public class CaptchaFilter extends OncePerRequestFilter {
     @Value("${base_url}")
     private String baseUrl;
 
+    @Value("${pa_base_url}")
+    private String paBaseUrl;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         if (
@@ -56,12 +59,12 @@ public class CaptchaFilter extends OncePerRequestFilter {
 
             if ( ! validateRecaptcha(request)) {
                 String target = request.getHeader("referer");
-                if ((target == null) || ! (target.startsWith(baseUrl))) {
-                    target = baseUrl + "/rilogin";
+                if ((target == null) || ! (target.startsWith(paBaseUrl))) {
+                    target = paBaseUrl + "/rilogin";
                 }
                 if (target.endsWith("sendNewAccountEmail")) {
                     // sendNewAccountEmail is a POST and will throw a 405 if redirected, as there is no GET. Remap to New account.
-                    target = baseUrl + "/newAccountRequest";
+                    target = paBaseUrl + "/newAccountRequest";
                 }
                 target += "?error=true";
                 response.sendRedirect(target);
