@@ -25,7 +25,10 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  *
@@ -335,7 +338,7 @@ public abstract class DataTableRow implements Comparable<DataTableRow> {
 //					url+="/"+phenotypeTerm.getId();
 //				}
 				evidenceLink.setDisplay(true);
-			} else if (Objects.equals(this.getDataSourceName(), "pwg")) {
+			} else if (this.getDataSourceName().equals("pwg")) {
 				evidenceLink.setAlt("Table");
 				evidenceLink.setIconType(EvidenceLink.IconType.TABLE);
 				url = cmsBaseUrl + "/publications/data-supporting-impc-papers/pain/";// getMpathImagesUrlPostQc(baseUrl,

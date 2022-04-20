@@ -197,7 +197,9 @@
 
     function buildLink(row) {
         var baseUrl = "${baseUrl}";
+        var cmsBaseUrl = "${cmsBaseUrl}";
         var link = null;
+        var pwgProcs = ["IMPC_FOR_001", "JAX_HRG_001", "UCD_HRG_001", "TCP_HRG_001", "HRWL_VFR_001", "JAX_VFR_001", "UCD_VFR_001"];
         if (row.procedure_name.startsWith("Viability Primary Screen") && row.parameter_stable_id !== "IMPC_VIA_001_001") {
             link = baseUrl + "/charts?accession="+ row.gene_accession_id +"&${viabilityDataLink}";
         } else if (row.procedure_name.startsWith("Embryo LacZ")) {
@@ -213,6 +215,8 @@
             link = baseUrl + '/grosspath/' + row.gene_accession_id + '/' + row.parameter_stable_id;
         }else if(row.parameter_name.toUpperCase().indexOf("image".toUpperCase()) !== -1) {
             link = baseUrl + '/imageComparator?acc=' + row.gene_accession_id + '&parameter_stable_id=' + row.parameter_stable_id;
+        } else if (pwgProcs.includes(row.procedure_stable_id)){
+            link = cmsBaseUrl + "/publications/data-supporting-impc-papers/pain/";
         } else {
             link = baseUrl + "/charts?accession=" + row.gene_accession_id;
             link += "&allele_accession_id=" + row.allele_accession_id;
