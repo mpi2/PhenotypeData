@@ -398,7 +398,9 @@ public class SolrIndex2 {
         JSONObject geneObject = (JSONObject) geneDoc.getJSONObject(0);
         JSONObject alleleObject = (JSONObject) alleleDoc.getJSONObject(0);
 
-        alleleObject = processOtherLinks(alleleObject);
+        if (alleleObject.has("other_links")){
+            alleleObject = processOtherLinks(alleleObject);
+        }
 
         mapper.put("gene", getGeneData(geneObject));
         mapper.put("allele", getAlleleData(alleleObject));
@@ -1033,7 +1035,9 @@ public class SolrIndex2 {
             summary.put("genotype_primers", allele.get("genotype_primers"));
             summary.put("mutagenesis_url", allele.get("mutagenesis_url"));
             String alleleSimpleImage = (String) allele.get("allele_simple_image");
-            alleleSimpleImage = alleleSimpleImage.replace("allele-image-simple-cre","allele-image-cre").replace("allele-image-simple-flp","allele-image-flp");
+            if (alleleSimpleImage != null){
+                alleleSimpleImage = alleleSimpleImage.replace("allele-image-simple-cre","allele-image-cre").replace("allele-image-simple-flp","allele-image-flp");
+            }
             summary.put("map_image", alleleSimpleImage);
             summary.put("genbank", allele.get("genbank_file"));
 
