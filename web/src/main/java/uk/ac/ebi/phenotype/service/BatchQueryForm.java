@@ -15,6 +15,7 @@ import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -323,24 +324,34 @@ public class BatchQueryForm {
             if ((dataType.equals("gene") || dataType.equals("ensembl") || dataType.equals("mouse_marker_symbol") || dataType.equals("human_marker_symbol"))
                     && field.equals("mgi_accession_id")) {
                 rowData.add(val);
-                String link = hostName + "/" + baseUrl + "/genes/" + val;
+                String link = generateBaseLink(hostName, baseUrl) + "/genes/" + val;
                 rowData.add(link);
             } else if (dataType.equals("mp") && field.equals("mp_id")) {
                 rowData.add(val);
-                String link = hostName + "/" + baseUrl + "/phenotypes/" + val;
+                String link = generateBaseLink(hostName, baseUrl) + "/phenotypes/" + val;
                 rowData.add(link);
             } else if (dataType.equals("anatomy") && field.equals("anatomy_id")) {
                 rowData.add(val);
-                String link = hostName + "/" + baseUrl + "/anatomy/" + val;
+                String link = generateBaseLink(hostName, baseUrl) + "/anatomy/" + val;
                 rowData.add(link);
             } else if (dataType.equals("disease") && field.equals("disease_id")) {
                 rowData.add(val);
-                String link = hostName + "/" + baseUrl + "/disease/" + val;
+                String link = generateBaseLink(hostName, baseUrl) + "/disease/" + val;
                 rowData.add(link);
             } else {
                 rowData.add(val); // other fields
             }
         }
+    }
+
+    private String generateBaseLink(String hostName, String baseUrl){
+        String baseLink = "";
+        if(baseUrl.startsWith("/")){
+            baseLink = hostName + baseUrl;
+        }else {
+            baseLink = hostName + "/" + baseUrl;
+        }
+        return baseLink;
     }
 
 }
