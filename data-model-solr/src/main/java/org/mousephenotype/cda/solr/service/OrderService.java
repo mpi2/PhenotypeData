@@ -46,11 +46,21 @@ public class OrderService {
 			OrderTableRow row = new OrderTableRow();	
 			String alleleName = allele.getAlleleName();
 			row.setAlleleName(alleleName);
-			row.setAlleleDescription(allele.getAlleleDescription());
+
+			String alleleDescription = "";
+
+			if(allele.getAlleleDescription() == null) {
+				alleleDescription = "Deletion";
+			} else {
+				alleleDescription = allele.getAlleleDescription();
+			}
+
+			row.setAlleleDescription(alleleDescription);
 			row.setTargetingVectorAvailable(allele.getTargetingVectorAvailable());
 			row.setEsCellAvailable(allele.getEsCellAvailable());
 			row.setMouseAvailable(allele.getMouseAvailable());
 			row.setMarkerSymbol(allele.getMarkerSymbol());
+
 			row.setType(allele.getType());
 			row.setVectorMapLink(allele.getVectorAlleleImage());
 			row.setVectorGenbankLink(allele.getVectorGenbankLink());

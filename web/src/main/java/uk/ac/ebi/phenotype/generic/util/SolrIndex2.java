@@ -414,8 +414,8 @@ public class SolrIndex2 {
         List<String> tissueEnquiryCenters = new ArrayList<>();
 
 
-            if(alleleObject.has("tissue_types")) {
-                tissueEnquiryTypes = new ArrayList<>(Arrays.asList(alleleObject.getJSONArray("tissue_types").join(",").replaceAll("\"", "").split(",")));
+            if(alleleObject.has("tissue_enquiry_types")) {
+                tissueEnquiryTypes = new ArrayList<>(Arrays.asList(alleleObject.getJSONArray("tissue_enquiry_types").join(",").replaceAll("\"", "").split(",")));
             }
             if(alleleObject.has("tissue_enquiry_links")) {
                 tissueEnquiryLinks =  new ArrayList<>(Arrays.asList(alleleObject.getJSONArray("tissue_enquiry_links").join(",").replaceAll("\"", "").split(",")));
@@ -819,13 +819,21 @@ public class SolrIndex2 {
           background_colony_strain = getKeyValuePairFromArray("background_colony_strain", jsonObject2.getJSONArray("genetic_info"));
         }
 
+        String allele_type = "";
+
+        if(jsonObject2.has("allele_type")) {
+            allele_type = jsonObject2.getString("allele_type");
+        } else {
+            allele_type = "Deletion";
+        }
+
         map2.put("type", type);
         map2.put("product", "Mouse");
         map2.put("marker_symbol", jsonObject2.getString("marker_symbol"));
         map2.put("mgi_accession_id", jsonObject2.getString("mgi_accession_id"));
         map2.put("mgi_allele_name", getTitle(jsonObject2.getString("marker_symbol"), jsonObject2.getString("allele_name")));
         map2.put("allele_name", jsonObject2.getString("allele_name"));
-        map2.put("allele_type", jsonObject2.getString("allele_type"));
+        map2.put("allele_type", allele_type );
         map2.put("colony_name", jsonObject2.getString("name"));
         map2.put("genetic_background", background_colony_strain);
         map2.put("production_centre", jsonObject2.getString("production_centre"));
