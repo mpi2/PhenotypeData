@@ -239,13 +239,17 @@ public class ExperimentsController {
         //remove any trace of viability data from chart as we decided as a group in ticket #184
         //experimentRows.remove("IMPC_VIA_001_001");
         Map<String, List<ExperimentsDataTableRow>> experimentRowsToFilter=new HashMap<>();//need
+        Boolean hasPWG = false;
+        List<String> pwgProcs = Arrays.asList("IMPC_FOR", "JAX_HRG", "UCD_HRG", "TCP_HRG", "HRWL_VFR", "JAX_VFR", "UCD_VFR");
         for(Iterator<String> iterator= experimentRows.keySet().iterator(); iterator.hasNext();){
             String key=iterator.next();
             if(key.contains("_VIA_")){//remove any viability data from chart as often no p values - was a group decision JW.
                 iterator.remove();//using the iterator directly resolves any concurrent modification exceptions
             }
+            hasPWG = hasPWG || pwgProcs.stream().anyMatch(key::contains);
         }
-        Map<String, Object> chartData = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.P_VALUE_THRESHOLD, allelePageDTO.getParametersByProcedure());
+        Map<String, Object> chartData = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.P_VALUE_THRESHOLD, allelePageDTO.getParametersByProcedure(), hasPWG);
+        model.addAttribute("hasPWG", hasPWG);
         model.addAttribute("chart", chartData.get("chart"));
         model.addAttribute("count", chartData.get("count"));
         return "experimentsChartFrag";
@@ -276,7 +280,7 @@ public class ExperimentsController {
             rows += list.size();
         }
 
-        Map<String, Object> chart = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.P_VALUE_THRESHOLD, allelePageDTO.getParametersByProcedure());
+        Map<String, Object> chart = phenomeChartProvider.generatePvaluesOverviewChart(experimentRows, Constants.P_VALUE_THRESHOLD, allelePageDTO.getParametersByProcedure(), false);
         //top level mp names often are not in same order as ids so this mehod if used for getting name from id is wrong. SR indexer needs fixing.
         Map<String, String> phenotypeTopLevels = srService.getTopLevelMPTerms(geneAccession, null);
         List<MpDTO> mpTerms = new ArrayList<>();

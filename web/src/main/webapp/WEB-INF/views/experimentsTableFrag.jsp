@@ -159,6 +159,9 @@
 
     //});
 
+
+
+
     function formatProcedureParameter(value, row) {
         return row['procedure_name'] + ' / ' + row['parameter_name'];
     }
@@ -181,7 +184,8 @@
         return formatProcedureParameter(null, rowA) < formatProcedureParameter(null, rowB) ? 1 : -1;
     }
 
-    function formatPvalue(value) {
+    function formatPvalue(value, row) {
+        var pwgProcs = ["IMPC_FOR_001", "JAX_HRG_001", "UCD_HRG_001", "TCP_HRG_001", "HRWL_VFR_001", "JAX_VFR_001", "UCD_VFR_001"];
         if (value) {
             var formatted = value.toExponential(2);
             var base = formatted.split('e')[0];
@@ -190,6 +194,9 @@
                 value = base + '&#215;10<sup>' + exp + '</sup>';
             } else {
                 value = value.toFixed(2);
+            }
+            if (pwgProcs.includes(row.procedure_stable_id)){
+                value += "*";
             }
         }
         return value;

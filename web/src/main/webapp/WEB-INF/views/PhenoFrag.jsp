@@ -103,6 +103,9 @@
             <td data-value="${phenotype.prValueAsString}">
 
                     <t:formatScientific>${phenotype.prValueAsString}</t:formatScientific>
+                <c:if test="${phenotype.dataSourceName == 'pwg'}">
+                <span>*</span>
+                </c:if>
 
             </td>
 
@@ -110,6 +113,8 @@
     </c:forEach>
     </tbody>
 </table>
+
+
 
 <script>
     $(document).ready(function () {

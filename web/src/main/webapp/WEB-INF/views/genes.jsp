@@ -758,6 +758,11 @@
                                                                                         class="fa fa-download"></i>&nbsp;XLS</a>
                                                                             </p>
                                                                         </div>
+                                                                        <c:if test="${hasPWG}">
+                                                                            <div class="text-right small w-100">
+                                                                                * Significant with a threshold of 1x10<sup>-3</sup>, check the <a href="https://www.mousephenotype.org/publications/data-supporting-impc-papers/pain/">Pain Sensitivity</a> page for more information.
+                                                                            </div>
+                                                                        </c:if>
                                                                     </c:if>
                                                                 </div>
                                                             </div>
@@ -852,6 +857,11 @@
                                                 </c:if>
                                                 <div id="all-table">
                                                 </div>
+                                                <c:if test="${hasPWG}">
+                                                    <div class="text-right small w-100">
+                                                        * Significant with a threshold of 1x10<sup>-3</sup>, check the <a href="https://www.mousephenotype.org/publications/data-supporting-impc-papers/pain/">Pain Sensitivity</a> page for more information.
+                                                    </div>
+                                                </c:if>
                                             </div>
                                         </c:if>
                                     </div>

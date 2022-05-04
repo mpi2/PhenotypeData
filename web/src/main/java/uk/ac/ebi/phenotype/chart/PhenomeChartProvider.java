@@ -33,11 +33,24 @@ public class PhenomeChartProvider {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getCanonicalName());
 
-    public String createPvaluesOverviewChart(double minimalPValue, String pointFormat, JSONArray series, JSONArray categories, Map<String, Map<String, Integer >> procedureParameterMap)
+    public String createPvaluesOverviewChart(double minimalPValue, String pointFormat, JSONArray series, JSONArray categories, Map<String, Map<String, Integer >> procedureParameterMap, Double pwgPValue)
             throws JSONException {
 
 
         String chartString = null;
+
+        String  pwgThreshold = "";
+
+        if(pwgPValue != null) {
+            pwgThreshold = ",\n" +
+                    "{\n"
+                    + "	       value : " + -Math.log10(pwgPValue) + ",\n"
+                    + "	       color : 'green', \n"
+                    + "	       dashStyle : 'shortdash',\n"
+                    + "	       width : 2,\n"
+                    + "	       label : { text : 'Significance threshold for pain sensitivity data: 1.0E-3*' }\n"
+                    + "	     }";
+        }
 
         if (series.length() > 0) {
             JSONObject jsProcParamMap = new JSONObject();
@@ -145,7 +158,9 @@ public class PhenomeChartProvider {
                     + "	       dashStyle : 'shortdash',\n"
                     + "	       width : 2,\n"
                     + "	       label : { text : 'Significance threshold " + minimalPValue + "' }\n"
-                    + "	     }]"
+                    + "	     }" +
+                            pwgThreshold +
+                            "]"
                     + "    }, \n"
                     + "    credits: { \n"
                     + "      enabled: false \n"
@@ -598,7 +613,7 @@ public class PhenomeChartProvider {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public Map<String, Object> generatePvaluesOverviewChart(Map<String, List<ExperimentsDataTableRow>> statisticalResults, double minimalPvalue, Map<String, List<String>> parametersByProcedure)
+    public Map<String, Object> generatePvaluesOverviewChart(Map<String, List<ExperimentsDataTableRow>> statisticalResults, double minimalPvalue, Map<String, List<String>> parametersByProcedure, Boolean pwgData)
             throws IOException, URISyntaxException {
 
         String chartString = null;
@@ -689,7 +704,9 @@ public class PhenomeChartProvider {
                 }
             }
 
-            chartString = createPvaluesOverviewChart(minimalPvalue, pointFormat.toString(), series, new JSONArray(categories), procedureParameterMap);
+            Double pwgPValue = pwgData ? 0.001 : null;
+
+            chartString = createPvaluesOverviewChart(minimalPvalue, pointFormat.toString(), series, new JSONArray(categories), procedureParameterMap, pwgPValue);
 
         } catch (JSONException e) {
             e.printStackTrace();

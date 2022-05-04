@@ -567,10 +567,12 @@ public class GenesController {
         List<GenePageTableRow> histopath = l.stream().filter(phenotype -> phenotype.getEvidenceLink().getUrl().contains("histopath")).collect(Collectors.toList());
         l = l.stream().filter(phenotype -> !phenotype.getEvidenceLink().getUrl().contains("histopath")).collect(Collectors.toList());
         boolean hasHistopath  = observationService.hasHistopathData(acc);
+        boolean hasPWG = l.stream().anyMatch(p -> Objects.equals(p.getDataSourceName(), "pwg"));
 
         model.addAttribute("rowsForPhenotypeTable", l);
         model.addAttribute("rowsForHistopathTable", histopath);
         model.addAttribute("hasHistopath", hasHistopath);
+        model.addAttribute("hasPWG", hasPWG);
         return l;
     }
 

@@ -15,6 +15,11 @@
     <c:if test="${chart == null}">
         <p class="alert alert-warning w-100 mt-2">System does not have p-values available, but please check the table view to see all available data.</p>
     </c:if>
+    <c:if test="${hasPWG}">
+        <div class="text-right small w-100">
+            * Significant with a threshold of 1x10<sup>-3</sup>, check the <a href="https://www.mousephenotype.org/publications/data-supporting-impc-papers/pain/">Pain Sensitivity</a> page for more information.
+        </div>
+    </c:if>
 </div>
 <script>
     $(document).ready(function () {
