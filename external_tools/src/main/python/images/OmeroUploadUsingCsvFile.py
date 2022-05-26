@@ -277,6 +277,8 @@ def main(argv):
     print(files_to_upload_available)
     print('========')
 
+    # Upload files
+    n_dirs_to_upload = len(dict_files_to_upload)
     for index, directory in zip(range(n_dirs_to_upload),dict_files_to_upload.keys()):
         filenames = dict_files_to_upload[directory]
         n_files_to_upload = len(filenames)
