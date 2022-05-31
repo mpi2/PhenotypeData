@@ -270,12 +270,7 @@ def main(argv):
         else:
             dict_files_to_upload[dirname] = [filename]
 
-    print('{} | {} | {}'.find(len(files_to_upload), len(files_to_upload_available), len(files_to_upload_unavailable)))
-    print('========')
-    print(files_to_upload)
-    print('========')
-    print(files_to_upload_available)
-    print('========')
+    print('{} | {} | {}'.format(len(files_to_upload), len(files_to_upload_available), len(files_to_upload_unavailable)))
 
     # Upload files
     n_dirs_to_upload = len(dict_files_to_upload)
