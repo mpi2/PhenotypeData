@@ -287,6 +287,41 @@ def main(argv):
         dataset = "-".join(dir_structure)
         fullpath = os.path.join(root_dir, directory)
 
+        # if dir contains pdf file we cannot load whole directory
+        if len(glob.glob(os.path.join(fullpath, '*.pdf'))) > 0:
+            logger.info("##### Dir contains pdfs - loading file by file #####")
+            omeroS.loadFileOrDir(fullpath, project=project, dataset=dataset, filenames=filenames)
+        else:
+            # Check if the dir is in omero.
+            # If not we can import the whole dir irrespective of number of files
+            dir_not_in_omero = True
+            try:
+                if omero_dir_list.index(directory) >= 0:
+                    dir_not_in_omero = False
+            except ValueError:
+                pass
+
+            if dir_not_in_omero or n_files_to_upload > load_whole_dir_threshold:
+                logger.info("##### Loading whole directory #####")
+                omeroS.loadFileOrDir(fullpath, project=project, dataset=dataset, filenames=None)
+            else:
+                logger.info("##### Loading file by file #####")
+                omeroS.loadFileOrDir(fullpath, project=project, dataset=dataset, filenames=filenames)
+
+    n_files_to_upload_unavailable = len(files_to_upload_unavailable)
+    logger.warning("Number of files unavailable for upload (not in NFS): " + \
+                   str(n_files_to_upload_unavailable))
+    if n_files_to_upload_unavailable > 0:
+        file_list = ""
+        for i, f in zip(range(n_files_to_upload_unavailable), files_to_upload_unavailable):
+            file_list += '\n' + f
+            if i > 99:
+                break
+        message = "The following files (converted to lower case and " + \
+                  "truncated at 100) were present in Solr but absent in NFS:" + \
+                  file_list
+        logger.warning(message)
+
 
 
 def add_to_list(L,dirname,names):
