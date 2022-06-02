@@ -259,6 +259,9 @@ def main(argv):
     files_to_upload_available = files_to_upload.intersection(set_nfs_filenames)
     files_to_upload_unavailable = files_to_upload - files_to_upload_available
 
+    logger.info("Number of files to upload = " + str(len(files_to_upload)))
+    logger.info("Number of files to available = " + str(len(files_to_upload_available)))
+
     # Create a dictionary for the files to upload with the directory as the
     # key and the original nfs filenames as the values, so each dir can be passed to 
     # omero with associated files
