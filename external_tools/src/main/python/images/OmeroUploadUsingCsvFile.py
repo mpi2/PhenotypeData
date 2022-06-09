@@ -259,6 +259,9 @@ def main(argv):
     files_to_upload_available = files_to_upload.intersection(set_nfs_filenames)
     files_to_upload_unavailable = files_to_upload - files_to_upload_available
 
+    logger.info("Number of files to upload = " + str(len(files_to_upload)))
+    logger.info("Number of files to available = " + str(len(files_to_upload_available)))
+
     # Create a dictionary for the files to upload with the directory as the
     # key and the original nfs filenames as the values, so each dir can be passed to 
     # omero with associated files
@@ -272,21 +275,21 @@ def main(argv):
 
     # Upload files
     n_dirs_to_upload = len(dict_files_to_upload)
-    for index, directory in zip(range(n_dirs_to_upload),dict_files_to_upload.keys()):
+    for index, directory in zip(range(n_dirs_to_upload), dict_files_to_upload.keys()):
         filenames = dict_files_to_upload[directory]
         n_files_to_upload = len(filenames)
-        logger.info("About to upload directory " + str(index+1) + " of " + \
-            str(n_dirs_to_upload) + ". Dir name: " + directory + \
-            " with " + str(n_files_to_upload) + " files")
+        logger.info("About to upload directory " + str(index + 1) + " of " + \
+                    str(n_dirs_to_upload) + ". Dir name: " + directory + \
+                    " with " + str(n_files_to_upload) + " files")
         dir_structure = directory.split('/')
         project = dir_structure[0]
         # Below we assume dir_structure is list with elements:
         # [project, pipeline, procedure, parameter]
         dataset = "-".join(dir_structure)
         fullpath = os.path.join(root_dir, directory)
-        
+
         # if dir contains pdf file we cannot load whole directory
-        if len(glob.glob(os.path.join(fullpath,'*.pdf'))) > 0:
+        if len(glob.glob(os.path.join(fullpath, '*.pdf'))) > 0:
             logger.info("##### Dir contains pdfs - loading file by file #####")
             omeroS.loadFileOrDir(fullpath, project=project, dataset=dataset, filenames=filenames)
         else:
@@ -308,7 +311,7 @@ def main(argv):
 
     n_files_to_upload_unavailable = len(files_to_upload_unavailable)
     logger.warning("Number of files unavailable for upload (not in NFS): " + \
-        str(n_files_to_upload_unavailable))
+                   str(n_files_to_upload_unavailable))
     if n_files_to_upload_unavailable > 0:
         file_list = ""
         for i, f in zip(range(n_files_to_upload_unavailable), files_to_upload_unavailable):
@@ -316,9 +319,11 @@ def main(argv):
             if i > 99:
                 break
         message = "The following files (converted to lower case and " + \
-            "truncated at 100) were present in Solr but absent in NFS:" + \
-            file_list
+                  "truncated at 100) were present in Solr but absent in NFS:" + \
+                  file_list
         logger.warning(message)
+
+
 
 def add_to_list(L,dirname,names):
     """Add files to list whilst walking through dir tree"""
