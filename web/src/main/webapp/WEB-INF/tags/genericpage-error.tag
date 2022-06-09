@@ -114,30 +114,28 @@
     <script src="https://www.mousephenotype.org/assets/lib/cookie-consent/consent.js" defer></script>
     <link rel="stylesheet" href="https://www.mousephenotype.org/assets/lib/cookie-consent/consent.css" />
     <script>
-        window.addEventListener('DOMContentLoaded', function() {
-            (function($) {
-                let googleAnalyticsTags = [],
-                    currentlURL = window.location.href;
+        $(document).ready(function () {
+            let googleAnalyticsTags = [],
+                currentlURL = window.location.href;
 
-                if(currentlURL.indexOf("dev.mousephenotype") > -1){
-                    googleAnalyticsTags = ["UA-137368025-1", "G-THTSZ7NZJ1"];
-                    addCookieBanner(googleAnalyticsTags);
-                } else if(currentlURL.indexOf("beta.mousephenotype") > -1){
-                    googleAnalyticsTags = ["UA-137368025-2", "G-ZNMLQY0YJ9"];
-                    addCookieBanner(googleAnalyticsTags);
-                } else if(currentlURL.indexOf("www.mousephenotype") > -1){
-                    googleAnalyticsTags = ["UA-23433997-1", "G-0CGYY2B2QL"];
-                    addCookieBanner(googleAnalyticsTags);
-                }
+            if (currentlURL.indexOf("dev.mousephenotype") > -1) {
+                googleAnalyticsTags = ["UA-137368025-1", "G-THTSZ7NZJ1"];
+                addCookieBanner(googleAnalyticsTags);
+            } else if (currentlURL.indexOf("beta.mousephenotype") > -1) {
+                googleAnalyticsTags = ["UA-137368025-2", "G-ZNMLQY0YJ9"];
+                addCookieBanner(googleAnalyticsTags);
+            } else if (currentlURL.indexOf("www.mousephenotype") > -1) {
+                googleAnalyticsTags = ["UA-23433997-1", "G-0CGYY2B2QL"];
+                addCookieBanner(googleAnalyticsTags);
+            }
 
-                function addCookieBanner(tags){
-                    $.CCbanner({
-                        "cookies": ["Analytics"],
-                        "href": "https://www.mousephenotype.org/about-impc/accessibility-cookies/",
-                        "gaTag": tags
-                    });
-                }
-            })(jQuery);
+            function addCookieBanner(tags) {
+                $.CCbanner({
+                    "cookies": ["Analytics"],
+                    "href": "https://www.mousephenotype.org/about-impc/accessibility-cookies/",
+                    "gaTag": tags
+                });
+            }
         });
     </script>
 
