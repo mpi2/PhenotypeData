@@ -13,6 +13,7 @@
 	<%--
     Include google tracking code
     --%>
+	<script async="" src="https://www.google-analytics.com/analytics.js"></script>
 	<script src="https://www.mousephenotype.org/assets/lib/cookie-consent/consent.js" defer></script>
 	<link rel="stylesheet" href="https://www.mousephenotype.org/assets/lib/cookie-consent/consent.css" />
 	<script>
