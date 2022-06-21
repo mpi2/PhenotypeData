@@ -126,26 +126,36 @@
 </script>
 
     <%--
-    Include google tracking code on live site
+    Include google tracking code
     --%>
-    <c:if test="${liveSite}">
-        <script>
-            (function (i, s, o, g, r, a, m) {
-                i['GoogleAnalyticsObject'] = r;
-                i[r] = i[r] || function () {
-                    (i[r].q = i[r].q || []).push(arguments)
-                }, i[r].l = 1 * new Date();
-                a = s.createElement(o),
-                    m = s.getElementsByTagName(o)[0];
-                a.async = 1;
-                a.src = g;
-                m.parentNode.insertBefore(a, m)
-            })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+    <script async="" src="https://www.google-analytics.com/analytics.js"></script>
+    <script src="https://www.mousephenotype.org/assets/lib/cookie-consent/consent.js" defer></script>
+    <link rel="stylesheet" href="https://www.mousephenotype.org/assets/lib/cookie-consent/consent.css" />
+    <script>
+        $(document).ready(function () {
+            let googleAnalyticsTags = [],
+                currentlURL = window.location.href;
 
-            ga('create', 'UA-23433997-1', 'auto');
-            ga('send', 'pageview');
-        </script>
-    </c:if>
+            if (currentlURL.indexOf("dev.mousephenotype") > -1) {
+                googleAnalyticsTags = ["UA-137368025-1", "G-THTSZ7NZJ1"];
+                addCookieBanner(googleAnalyticsTags);
+            } else if (currentlURL.indexOf("beta.mousephenotype") > -1) {
+                googleAnalyticsTags = ["UA-137368025-2", "G-ZNMLQY0YJ9"];
+                addCookieBanner(googleAnalyticsTags);
+            } else if (currentlURL.indexOf("www.mousephenotype") > -1) {
+                googleAnalyticsTags = ["UA-23433997-1", "G-0CGYY2B2QL"];
+                addCookieBanner(googleAnalyticsTags);
+            }
+
+            function addCookieBanner(tags) {
+                $.CCbanner({
+                    "cookies": ["Analytics"],
+                    "href": "https://www.mousephenotype.org/about-impc/accessibility-cookies/",
+                    "gaTag": tags
+                });
+            }
+        });
+    </script>
 
     <link rel="preload" type="text/css" href="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.css" as="style"/>
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.css" media="print" onload="this.media='all'" />
