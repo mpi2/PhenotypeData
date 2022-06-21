@@ -1165,6 +1165,11 @@ public class SolrIndex2 {
 
         JSONArray array_order_names = jsonObject2.getJSONArray("order_names");
         JSONArray array_order_links = jsonObject2.getJSONArray("order_links");
+        if(array_order_links.length() < array_order_names.length()) {
+            String commaSeparatedLinks = array_order_links.getString(0);
+            String[] links = commaSeparatedLinks.split(",");
+            array_order_links = new JSONArray(links);
+        }
         for (int k = 0; k < array_order_names.length(); k++) {
             HashMap<String, Object> map3 = new HashMap<>();
             String name = array_order_names.getString(k);
@@ -1172,7 +1177,11 @@ public class SolrIndex2 {
                 name = "ORDER";
             }
             map3.put("name", name);
-            map3.put("url", array_order_links.getString(k));
+            String orderUrl = array_order_links.getString(k);
+            if(orderUrl.contains("www.eummcr.org")) {
+                orderUrl = orderUrl.replace("http:", "https:");
+            }
+            map3.put("url", array_order_links != null ? orderUrl : "");
 
             if(allele_has_issue) {
                 String allele_id = jsonObject2.has("allele_id") ? jsonObject2.getString("allele_id") : null;
