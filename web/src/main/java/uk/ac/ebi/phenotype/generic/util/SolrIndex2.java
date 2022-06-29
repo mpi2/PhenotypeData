@@ -261,7 +261,11 @@ public class SolrIndex2 {
         for (int i = 0; i < otherAllelesDoc.length(); i++) {
             Object otherAlleleDoc = otherAllelesDoc.get(i);
             JSONObject jsonObject2 = (JSONObject) otherAlleleDoc;
-            String type = jsonObject2.getString("type");
+            if(!jsonObject2.has("allele_name")) {
+                continue;
+            }
+
+                String type = jsonObject2.getString("type");
             if (type.equals("mouse")) {
                 HashMap<String, Object> otherAlleleHash = new HashMap<>();
                 Map<String, Object> allele = getMouseData(jsonObject2);

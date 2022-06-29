@@ -19,298 +19,301 @@ import java.util.*;
 @Service
 public class OrderService {
 
-	private final Logger logger    = LoggerFactory.getLogger(this.getClass());
-	public static String selectCre = "/selectCre";
-	public static String crePredicate = "allele_design_project:Cre";
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    public static String selectCre = "/selectCre";
+    public static String crePredicate = "allele_design_project:Cre";
 
-	private SolrClient allele2Core;
-	private SolrClient productCore;
-
-
-	@Inject
-	public OrderService(SolrClient allele2Core, SolrClient productCore) {
-		this.allele2Core = allele2Core;
-		this.productCore = productCore;
-	}
-
-	public OrderService() {
-
-	}
+    private SolrClient allele2Core;
+    private SolrClient productCore;
 
 
-	public List<OrderTableRow> getOrderTableRows(String acc, Integer rows, boolean creLine) throws SolrServerException, IOException {
-		List<OrderTableRow> orderTableRows = new ArrayList<>();
-		List<Allele2DTO> allele2DTOs = this.getAllele2DTOs(acc, rows, creLine);
+    @Inject
+    public OrderService(SolrClient allele2Core, SolrClient productCore) {
+        this.allele2Core = allele2Core;
+        this.productCore = productCore;
+    }
 
-		for (Allele2DTO allele : allele2DTOs) {
-			OrderTableRow row = new OrderTableRow();	
-			String alleleName = allele.getAlleleName();
-			row.setAlleleName(alleleName);
+    public OrderService() {
 
-			String alleleDescription = "";
+    }
 
-			if(allele.getAlleleDescription() == null) {
-				alleleDescription = "Deletion";
-			} else {
-				alleleDescription = allele.getAlleleDescription();
-			}
 
-			row.setAlleleDescription(alleleDescription);
-			row.setTargetingVectorAvailable(allele.getTargetingVectorAvailable());
-			row.setEsCellAvailable(allele.getEsCellAvailable());
-			row.setMouseAvailable(allele.getMouseAvailable());
-			row.setMarkerSymbol(allele.getMarkerSymbol());
+    public List<OrderTableRow> getOrderTableRows(String acc, Integer rows, boolean creLine) throws SolrServerException, IOException {
+        List<OrderTableRow> orderTableRows = new ArrayList<>();
+        List<Allele2DTO> allele2DTOs = this.getAllele2DTOs(acc, rows, creLine);
 
-			row.setType(allele.getType());
-			row.setVectorMapLink(allele.getVectorAlleleImage());
-			row.setVectorGenbankLink(allele.getVectorGenbankLink());
-			row.setGeneMapLink(allele.getAlleleSimpleImage());
-			row.setGeneGenbankLink(allele.getGenbankFile());
-			row.setMgiAccessionId(allele.getMgiAccessionId());
-			
-			// Tissue inquiries
-			row.setTissuesAvailable(allele.getTissuesAvailable());
-			row.setTissueTypes(allele.getTissueTypes());
-			row.setTissueEnquiryLinks(allele.getTissueEnquiryLinks());
+        for (Allele2DTO allele : allele2DTOs) {
+            OrderTableRow row = new OrderTableRow();
+            String alleleName = allele.getAlleleName();
+            row.setAlleleName(alleleName);
 
-			orderTableRows.add(row);
-		}
+            String alleleDescription = "";
 
-		return orderTableRows;
-	}
+            if (allele.getAlleleDescription() == null) {
+                alleleDescription = "Deletion";
+            } else {
+                alleleDescription = allele.getAlleleDescription();
+            }
 
-	public List<Allele2DTO> getAllele2DTOs(String geneAcc, Integer rows, boolean creLine) throws SolrServerException, IOException {
-		
-		String q = "*:*";// default if no gene specified
-		if (geneAcc != null) {
-			q = "mgi_accession_id:\"" + geneAcc + "\"";
-		}
-		SolrQuery query = new SolrQuery();
-		if(creLine){
-			query.addFilterQuery("allele_design_project:Cre");
-		}
-		query.addFilterQuery("type:(mouse OR es_cell OR targeting_vector)");
-		query.setQuery(q);
-		query.set("sort", "marker_symbol asc");
-		if(rows!=null){
-			query.setRows(rows);
-		}else{
-			query.setRows(Integer.MAX_VALUE);
-		}
-		
-		QueryResponse response = productCore.query(query);
-		List<ProductDTO> productDTOS = response.getBeans(ProductDTO.class);
-		HashMap<String, Allele2DTO> alleleBySymbolMap = new HashMap<>();
-		productDTOS.stream().forEach( p-> {
-			String alleleSymbol = p.getMarkerSymbol() + "<" + p.getAlleleName() + ">";
-			Allele2DTO allele2DTO = alleleBySymbolMap.get(alleleSymbol);
-			if(allele2DTO == null) {
-				allele2DTO = new Allele2DTO();
-				allele2DTO.setMgiAccessionId(p.getMgiAccessionId());
-				allele2DTO.setAlleleName(p.getAlleleName());
-				allele2DTO.setAlleleSymbol(alleleSymbol);
-				allele2DTO.setMarkerSymbol(p.getMarkerSymbol());
-				allele2DTO.setAlleleDescription(p.getAlleleDescription());
-				allele2DTO.setEsCellAvailable(false);
-				allele2DTO.setMouseAvailable(false);
-				allele2DTO.setTargetingVectorAvailable(false);
-				allele2DTO.setTissuesAvailable(false);
-				allele2DTO.setAlleleImage("");
-				allele2DTO.setTissueTypes(p.getTissueEnquiryTypes());
-				allele2DTO.setTissueEnquiryLinks(p.getTissueEnquiryLinks());
-				allele2DTO.setTissueDistributionCentres(p.getTissueDistributionCentres());
-				alleleBySymbolMap.put(alleleSymbol, allele2DTO);
-			}
-			Boolean esCellAvailable = allele2DTO.getEsCellAvailable() || p.getType().equals("es_cell");
-			Boolean mouseAvailable = allele2DTO.getMouseAvailable() || p.getType().equals("mouse");
-			Boolean targetingVectorAvailable = allele2DTO.getTargetingVectorAvailable() || p.getType().equals("targeting_vector");
-			Boolean tissueAvailable = allele2DTO.getTissuesAvailable()  || (p.getTissueEnquiryLinks() != null && p.getTissueEnquiryLinks().size() > 0) ;
-			allele2DTO.setEsCellAvailable(esCellAvailable);
-			allele2DTO.setMouseAvailable(mouseAvailable);
-			allele2DTO.setTargetingVectorAvailable(targetingVectorAvailable);
-			allele2DTO.setTissuesAvailable(tissueAvailable);
-		});
+            row.setAlleleDescription(alleleDescription);
+            row.setTargetingVectorAvailable(allele.getTargetingVectorAvailable());
+            row.setEsCellAvailable(allele.getEsCellAvailable());
+            row.setMouseAvailable(allele.getMouseAvailable());
+            row.setMarkerSymbol(allele.getMarkerSymbol());
 
-		return new ArrayList<Allele2DTO>(alleleBySymbolMap.values());
+            row.setType(allele.getType());
+            row.setVectorMapLink(allele.getVectorAlleleImage());
+            row.setVectorGenbankLink(allele.getVectorGenbankLink());
+            row.setGeneMapLink(allele.getAlleleSimpleImage());
+            row.setGeneGenbankLink(allele.getGenbankFile());
+            row.setMgiAccessionId(allele.getMgiAccessionId());
 
-	}
-	
-	public boolean crelineAvailable(String geneAccession) throws SolrServerException, IOException{
-		boolean creLineAvailable=false;
-		boolean searchCreline=true;
-		List<Allele2DTO> rows=this.getAllele2DTOs(geneAccession, 1, searchCreline);
-		if(rows.size()>0){
-			creLineAvailable= true;
-		}
-		return creLineAvailable;
-	}
+            // Tissue inquiries
+            row.setTissuesAvailable(allele.getTissuesAvailable());
+            row.setTissueTypes(allele.getTissueTypes());
+            row.setTissueEnquiryLinks(allele.getTissueEnquiryLinks());
 
-	public Allele2DTO getAlleForGeneAndAllele(String acc, String allele, boolean creline) throws SolrServerException, IOException {
-		String q = "*:*";// default if no gene specified
-		if (acc != null) {
-			q = "mgi_accession_id:\"" + acc + "\"";// &start=0&rows=100&hl=true&wt=json";
-		}
-		SolrQuery query = new SolrQuery();
-		if(creline){
-			query.setRequestHandler(selectCre);
-		}
-		query.setQuery(q);
-		query.addFilterQuery("type:Allele");
-		query.addFilterQuery("allele_name:\"" + allele + "\"");
-		query.setRows(1);
-		//logger.info("query for alleles=" + query);
-		QueryResponse response = allele2Core.query(query);
-		logger.info("number found of allele2 docs=" + response.getResults().getNumFound());
-		List<Allele2DTO> allele2DTOs = response.getBeans(Allele2DTO.class);
-		logger.info("number of alleles should be 1 but is " + allele2DTOs.size());
-		System.out.println("request = "+query);
-		return allele2DTOs.get(0);
-	}
+            orderTableRows.add(row);
+        }
 
-	protected Map<String, List<ProductDTO>> getProductsForAllele(String alleleName) throws SolrServerException, IOException {
-		return this.getProducts(null, alleleName, null, false);
-	}
+        return orderTableRows;
+    }
 
-	public Map<String, List<ProductDTO>> getProductsForGene(String geneAcc) throws SolrServerException, IOException {
-		return this.getProducts(geneAcc, null, null, false);
-	}
+    public List<Allele2DTO> getAllele2DTOs(String geneAcc, Integer rows, boolean creLine) throws SolrServerException, IOException {
 
-	public Map<String, List<ProductDTO>> getStoreNameToProductsMap(String geneAcc, String alleleName,
-			OrderType productType, boolean creLine) throws SolrServerException, IOException {
-		List<ProductDTO> productList = null;
-		Map<String, List<ProductDTO>> productsMap = this.getProducts(geneAcc, alleleName, productType, creLine);
-		if (productsMap.keySet().size() > 1) {
-			System.err.println("more than one key for products - should only be one");
-		}
-		for (String key : productsMap.keySet()) {// just get a list of products
-			productList = productsMap.get(key);
-		}
+        String q = "*:*";// default if no gene specified
+        if (geneAcc != null) {
+            q = "mgi_accession_id:\"" + geneAcc + "\"";
+        }
+        SolrQuery query = new SolrQuery();
+        if (creLine) {
+            query.addFilterQuery("allele_design_project:Cre");
+        }
+        query.addFilterQuery("type:(mouse OR es_cell OR targeting_vector)");
+        query.setQuery(q);
+        query.set("sort", "marker_symbol asc");
+        if (rows != null) {
+            query.setRows(rows);
+        } else {
+            query.setRows(Integer.MAX_VALUE);
+        }
 
-		HashMap<String, List<ProductDTO>> orderNameToProductList = new HashMap<String, List<ProductDTO>>();
-		if (productList != null) {
-			for (ProductDTO prod : productList) {
-				if (prod.getOrderNames() != null) {
-					for (String orderName : prod.getOrderNames()) {
-						if (!orderNameToProductList.containsKey(orderName)) {
-							orderNameToProductList.put(orderName, new ArrayList<ProductDTO>());
-						}
-						orderNameToProductList.get(orderName).add(prod);
-					}
-				}else{
-					System.err.println("No order names were found for this product "+prod.getAlleleName()+" this is unusual and should not happen");
-				}
-			}
-		}
-		return orderNameToProductList;
-	}
+        QueryResponse response = productCore.query(query);
+        List<ProductDTO> productDTOS = response.getBeans(ProductDTO.class);
+        HashMap<String, Allele2DTO> alleleBySymbolMap = new HashMap<>();
+        productDTOS.stream().forEach(p -> {
+            if (p.getAlleleName() != null) {
+                String alleleSymbol = p.getMarkerSymbol() + "<" + p.getAlleleName() + ">";
 
-	protected Map<String, List<ProductDTO>> getProducts(String geneAcc, String alleleName, OrderType productType, boolean creLine)
-			throws SolrServerException, IOException {
-		Map<String, List<ProductDTO>> alleleNameToProductsMap = new HashMap<>();
-		String q = "*:*";
-		if (geneAcc != null) {
-			q = "mgi_accession_id:\"" + geneAcc + "\"";
-		}
+                Allele2DTO allele2DTO = alleleBySymbolMap.get(alleleSymbol);
+                if (allele2DTO == null) {
+                    allele2DTO = new Allele2DTO();
+                    allele2DTO.setMgiAccessionId(p.getMgiAccessionId());
+                    allele2DTO.setAlleleName(p.getAlleleName());
+                    allele2DTO.setAlleleSymbol(alleleSymbol);
+                    allele2DTO.setMarkerSymbol(p.getMarkerSymbol());
+                    allele2DTO.setAlleleDescription(p.getAlleleDescription());
+                    allele2DTO.setEsCellAvailable(false);
+                    allele2DTO.setMouseAvailable(false);
+                    allele2DTO.setTargetingVectorAvailable(false);
+                    allele2DTO.setTissuesAvailable(false);
+                    allele2DTO.setAlleleImage("");
+                    allele2DTO.setTissueTypes(p.getTissueEnquiryTypes());
+                    allele2DTO.setTissueEnquiryLinks(p.getTissueEnquiryLinks());
+                    allele2DTO.setTissueDistributionCentres(p.getTissueDistributionCentres());
+                    alleleBySymbolMap.put(alleleSymbol, allele2DTO);
+                }
+                Boolean esCellAvailable = allele2DTO.getEsCellAvailable() || p.getType().equals("es_cell");
+                Boolean mouseAvailable = allele2DTO.getMouseAvailable() || p.getType().equals("mouse");
+                Boolean targetingVectorAvailable = allele2DTO.getTargetingVectorAvailable() || p.getType().equals("targeting_vector");
+                Boolean tissueAvailable = allele2DTO.getTissuesAvailable() || (p.getTissueEnquiryLinks() != null && p.getTissueEnquiryLinks().size() > 0);
+                allele2DTO.setEsCellAvailable(esCellAvailable);
+                allele2DTO.setMouseAvailable(mouseAvailable);
+                allele2DTO.setTargetingVectorAvailable(targetingVectorAvailable);
+                allele2DTO.setTissuesAvailable(tissueAvailable);
+            }
+        });
 
-		SolrQuery query = new SolrQuery();
-		if(creLine){
-			query.addFilterQuery(crePredicate);
-		}
-		query.setQuery(q);
-		if (alleleName != null) {
-			query.addFilterQuery("allele_name:\"" + alleleName + "\"");
-		}
-		query.setRows(Integer.MAX_VALUE);
-		if (productType != null) {
-			query.addFilterQuery("type:" + productType);
-		}
-		
-		query.addFilterQuery("production_completed:true");
+        return new ArrayList<Allele2DTO>(alleleBySymbolMap.values());
 
-		QueryResponse response = productCore.query(query);
-		List<ProductDTO> productDTOs = response.getBeans(ProductDTO.class);
+    }
 
-		for (ProductDTO prod : productDTOs) {
-			if (!alleleNameToProductsMap.containsKey(prod.getAlleleName())) {
-				alleleNameToProductsMap.put(prod.getAlleleName(), new ArrayList<>());
-			}
-			alleleNameToProductsMap.get(prod.getAlleleName()).add(prod);
-		}
+    public boolean crelineAvailable(String geneAccession) throws SolrServerException, IOException {
+        boolean creLineAvailable = false;
+        boolean searchCreline = true;
+        List<Allele2DTO> rows = this.getAllele2DTOs(geneAccession, 1, searchCreline);
+        if (rows.size() > 0) {
+            creLineAvailable = true;
+        }
+        return creLineAvailable;
+    }
 
-		return alleleNameToProductsMap;
+    public Allele2DTO getAlleForGeneAndAllele(String acc, String allele, boolean creline) throws SolrServerException, IOException {
+        String q = "*:*";// default if no gene specified
+        if (acc != null) {
+            q = "mgi_accession_id:\"" + acc + "\"";// &start=0&rows=100&hl=true&wt=json";
+        }
+        SolrQuery query = new SolrQuery();
+        if (creline) {
+            query.setRequestHandler(selectCre);
+        }
+        query.setQuery(q);
+        query.addFilterQuery("type:Allele");
+        query.addFilterQuery("allele_name:\"" + allele + "\"");
+        query.setRows(1);
+        //logger.info("query for alleles=" + query);
+        QueryResponse response = allele2Core.query(query);
+        logger.info("number found of allele2 docs=" + response.getResults().getNumFound());
+        List<Allele2DTO> allele2DTOs = response.getBeans(Allele2DTO.class);
+        logger.info("number of alleles should be 1 but is " + allele2DTOs.size());
+        System.out.println("request = " + query);
+        return allele2DTOs.get(0);
+    }
 
-	}
+    protected Map<String, List<ProductDTO>> getProductsForAllele(String alleleName) throws SolrServerException, IOException {
+        return this.getProducts(null, alleleName, null, false);
+    }
 
-	/**
-	 * 
-	 * @param type es_cell or mouse etc
-	 * @param productName e.g. EPD0386_3_A05
-	 * @param alleleName 
-	 * @param creLine TODO
-	 * @return 
-	 * @throws SolrServerException 
-	 */
-	public HashMap<String, HashMap<String, List<String>>> getProductQc(OrderType type, String productName, String alleleName, boolean creLine) throws SolrServerException, IOException {
-		ProductDTO prod=null;
-		List<String>qcData=null;
-		SolrQuery query = new SolrQuery();
-		if(creLine){
-			query.addFilterQuery(crePredicate);
-		}
-		String q="name:"+productName;
-		query.setQuery(q);
-		if (type != null) {
-			query.addFilterQuery("type:" + type);
-		}
-		if (alleleName != null) {
-			query.addFilterQuery(ProductDTO.ALLELE_NAME+":\"" + alleleName+"\"");
-		}
-		query.setRows(Integer.MAX_VALUE);
-		logger.info("query for products=" + query);
-		QueryResponse response = productCore.query(query);
-		logger.info("number found of products docs=" + response.getResults().getNumFound());
-		List<ProductDTO> productDTOs = response.getBeans(ProductDTO.class);
-		logger.info("number of productDTOs is " + productDTOs.size());
-		if(productDTOs.size()>1){
-			System.err.println("too many products returned for qc method");
-		}else{
-			prod=productDTOs.get(0);
-			qcData=prod.getQcData();
-		}
-		for(String qc:qcData){
-			logger.info("qc="+qc);
-		}
-		
-		HashMap<String, HashMap<String, List<String>>> qcMap = extractQcData(qcData);
-		return qcMap;
-		
-	}
-	
-	/**
-	 * method copied from Peters code
-	 * @return
-	 */
-	 private HashMap<String, HashMap<String, List<String>>> extractQcData(List<String> qcStrings) {
-	        HashMap<String, HashMap<String, List<String>>> deep = new HashMap<>();
+    public Map<String, List<ProductDTO>> getProductsForGene(String geneAcc) throws SolrServerException, IOException {
+        return this.getProducts(geneAcc, null, null, false);
+    }
 
-	        
-	        for (int j = 0; j < qcStrings.size(); j++) {
-	            String[] qc = qcStrings.get(j).split(":");
+    public Map<String, List<ProductDTO>> getStoreNameToProductsMap(String geneAcc, String alleleName,
+                                                                   OrderType productType, boolean creLine) throws SolrServerException, IOException {
+        List<ProductDTO> productList = null;
+        Map<String, List<ProductDTO>> productsMap = this.getProducts(geneAcc, alleleName, productType, creLine);
+        if (productsMap.keySet().size() > 1) {
+            System.err.println("more than one key for products - should only be one");
+        }
+        for (String key : productsMap.keySet()) {// just get a list of products
+            productList = productsMap.get(key);
+        }
 
-	            String qc_group = qc != null && qc.length > 0 ? qc[0] : "";
-	            String qc_type = qc != null && qc.length > 1 ? qc[1] : "";
-	            String qc_result = qc != null && qc.length > 2 ? qc[2] : "";
+        HashMap<String, List<ProductDTO>> orderNameToProductList = new HashMap<String, List<ProductDTO>>();
+        if (productList != null) {
+            for (ProductDTO prod : productList) {
+                if (prod.getOrderNames() != null) {
+                    for (String orderName : prod.getOrderNames()) {
+                        if (!orderNameToProductList.containsKey(orderName)) {
+                            orderNameToProductList.put(orderName, new ArrayList<ProductDTO>());
+                        }
+                        orderNameToProductList.get(orderName).add(prod);
+                    }
+                } else {
+                    System.err.println("No order names were found for this product " + prod.getAlleleName() + " this is unusual and should not happen");
+                }
+            }
+        }
+        return orderNameToProductList;
+    }
 
-	            if (!deep.containsKey(qc_group)) {
-	                deep.put(qc_group, new HashMap<String, List<String>>());
-	                deep.get(qc_group).put("fieldNames", new ArrayList<>());
-	                deep.get(qc_group).put("values", new ArrayList<>());
-	            }
-	            deep.get(qc_group).get("fieldNames").add(qc_type.replace("_", " "));
-	            deep.get(qc_group).get("values").add(qc_result);
-	        }
-	        return deep;
-	    }
-	 
+    protected Map<String, List<ProductDTO>> getProducts(String geneAcc, String alleleName, OrderType productType, boolean creLine)
+            throws SolrServerException, IOException {
+        Map<String, List<ProductDTO>> alleleNameToProductsMap = new HashMap<>();
+        String q = "*:*";
+        if (geneAcc != null) {
+            q = "mgi_accession_id:\"" + geneAcc + "\"";
+        }
+
+        SolrQuery query = new SolrQuery();
+        if (creLine) {
+            query.addFilterQuery(crePredicate);
+        }
+        query.setQuery(q);
+        if (alleleName != null) {
+            query.addFilterQuery("allele_name:\"" + alleleName + "\"");
+        }
+        query.setRows(Integer.MAX_VALUE);
+        if (productType != null) {
+            query.addFilterQuery("type:" + productType);
+        }
+
+        query.addFilterQuery("production_completed:true");
+
+        QueryResponse response = productCore.query(query);
+        List<ProductDTO> productDTOs = response.getBeans(ProductDTO.class);
+
+        for (ProductDTO prod : productDTOs) {
+            if (!alleleNameToProductsMap.containsKey(prod.getAlleleName())) {
+                alleleNameToProductsMap.put(prod.getAlleleName(), new ArrayList<>());
+            }
+            alleleNameToProductsMap.get(prod.getAlleleName()).add(prod);
+        }
+
+        return alleleNameToProductsMap;
+
+    }
+
+    /**
+     * @param type        es_cell or mouse etc
+     * @param productName e.g. EPD0386_3_A05
+     * @param alleleName
+     * @param creLine     TODO
+     * @return
+     * @throws SolrServerException
+     */
+    public HashMap<String, HashMap<String, List<String>>> getProductQc(OrderType type, String productName, String alleleName, boolean creLine) throws SolrServerException, IOException {
+        ProductDTO prod = null;
+        List<String> qcData = null;
+        SolrQuery query = new SolrQuery();
+        if (creLine) {
+            query.addFilterQuery(crePredicate);
+        }
+        String q = "name:" + productName;
+        query.setQuery(q);
+        if (type != null) {
+            query.addFilterQuery("type:" + type);
+        }
+        if (alleleName != null) {
+            query.addFilterQuery(ProductDTO.ALLELE_NAME + ":\"" + alleleName + "\"");
+        }
+        query.setRows(Integer.MAX_VALUE);
+        logger.info("query for products=" + query);
+        QueryResponse response = productCore.query(query);
+        logger.info("number found of products docs=" + response.getResults().getNumFound());
+        List<ProductDTO> productDTOs = response.getBeans(ProductDTO.class);
+        logger.info("number of productDTOs is " + productDTOs.size());
+        if (productDTOs.size() > 1) {
+            System.err.println("too many products returned for qc method");
+        } else {
+            prod = productDTOs.get(0);
+            qcData = prod.getQcData();
+        }
+        for (String qc : qcData) {
+            logger.info("qc=" + qc);
+        }
+
+        HashMap<String, HashMap<String, List<String>>> qcMap = extractQcData(qcData);
+        return qcMap;
+
+    }
+
+    /**
+     * method copied from Peters code
+     *
+     * @return
+     */
+    private HashMap<String, HashMap<String, List<String>>> extractQcData(List<String> qcStrings) {
+        HashMap<String, HashMap<String, List<String>>> deep = new HashMap<>();
+
+
+        for (int j = 0; j < qcStrings.size(); j++) {
+            String[] qc = qcStrings.get(j).split(":");
+
+            String qc_group = qc != null && qc.length > 0 ? qc[0] : "";
+            String qc_type = qc != null && qc.length > 1 ? qc[1] : "";
+            String qc_result = qc != null && qc.length > 2 ? qc[2] : "";
+
+            if (!deep.containsKey(qc_group)) {
+                deep.put(qc_group, new HashMap<String, List<String>>());
+                deep.get(qc_group).put("fieldNames", new ArrayList<>());
+                deep.get(qc_group).put("values", new ArrayList<>());
+            }
+            deep.get(qc_group).get("fieldNames").add(qc_type.replace("_", " "));
+            deep.get(qc_group).get("values").add(qc_result);
+        }
+        return deep;
+    }
+
 
 }
