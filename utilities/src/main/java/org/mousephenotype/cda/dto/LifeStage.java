@@ -41,6 +41,7 @@ public enum LifeStage {
             case "late adult":
                 return LifeStage.LATE_ADULT;
             case "n/a":
+            case "na":
                 return LifeStage.NA;
             default:
                 throw new IllegalArgumentException("No enum constant " + LifeStage.class + "." + displayName);
