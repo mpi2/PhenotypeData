@@ -736,6 +736,7 @@ public class SolrIndex2 {
 
         gene.put("marker_symbol" , getSolrDocProperty(geneDoc, "marker_symbol"));
         gene.put("mgi_accession_id" , getSolrDocProperty(geneDoc, "mgi_accession_id"));
+        if(geneDoc.has("ensembl_gene_id"))
         gene.put("ensembl_gene_id", geneDoc.getJSONArray("ensembl_gene_id").get(0));
 
         if (geneDoc.has("sequence_map_links")){
@@ -1184,6 +1185,9 @@ public class SolrIndex2 {
             String orderUrl = array_order_links.getString(k);
             if(orderUrl.contains("www.eummcr.org")) {
                 orderUrl = orderUrl.replace("http:", "https:");
+            }
+            if(!orderUrl.contains("http") && !orderUrl.contains("mailto")) {
+                orderUrl = "mailto:" + orderUrl;
             }
             map3.put("url", array_order_links != null ? orderUrl : "");
 
