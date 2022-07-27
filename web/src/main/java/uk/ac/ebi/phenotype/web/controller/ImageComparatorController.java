@@ -229,8 +229,8 @@ public class ImageComparatorController {
 
     private boolean isFederated(List<ImageDTO> filteredMutants) {
         for (ImageDTO image : filteredMutants) {
-            if (image.getImageLink() != null && (image.getImageLink().contains("omero") || image.getImageLink().contains("NDPServe"))) {
-            //if (image.getImageLink() != null && (image.getImageLink().contains("omero") || image.getImageLink().contains("NDPServe") || image.getImageLink().contains("images.jax.org"))) {
+            //if (image.getImageLink() != null && (image.getImageLink().contains("omero") || image.getImageLink().contains("NDPServe"))) {
+            if (image.getImageLink() != null && (image.getImageLink().contains("omero") || image.getImageLink().contains("NDPServe") || image.getImageLink().contains("images.jax.org"))) {
                 return true;
             }
         }
