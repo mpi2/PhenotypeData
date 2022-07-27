@@ -38,4 +38,7 @@ $(document).ready(function () {
 
     });
 
+    $(".clickable_image_control").first().click();
+    $(".clickable_image_mutant").first().click();
+
 });
