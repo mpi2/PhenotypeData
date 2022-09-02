@@ -44,7 +44,7 @@ public class GrossPathController {
 		GeneDTO gene = geneService.getGeneById(acc);
 		model.addAttribute("gene", gene);
 		
-		List<ObservationDTO> allObservations = grossPathService.getObservationsForGrossPathForGene(acc);
+		List<ObservationDTO> allObservations = grossPathService.getObservationsForGrossPathForGene(acc, parameterStableId.contains("ALT"));
 		int sampleSize=grossPathService.getSampleToObservationMap(allObservations).size();
 		System.out.println("sample size="+sampleSize);
 		List<SolrDocument> images = grossPathService.getGrossPathImagesForGene(acc);
@@ -70,7 +70,7 @@ public class GrossPathController {
 		GeneDTO gene = geneService.getGeneById(acc);
 		model.addAttribute("gene", gene);
 		
-		List<ObservationDTO> allObservations = grossPathService.getObservationsForGrossPathForGene(acc);
+		List<ObservationDTO> allObservations = grossPathService.getObservationsForGrossPathForGene(acc, false);
 		int sampleSize=grossPathService.getSampleToObservationMap(allObservations).size();
 		System.out.println("sample size="+sampleSize);
 		List<SolrDocument> images = grossPathService.getGrossPathImagesForGene(acc);

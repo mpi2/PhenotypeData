@@ -171,6 +171,8 @@ public class ExperimentDTO {
 
     public Set<ObservationDTO> getControls(SexType sex) {
 
+        Set<ObservationDTO> controls = new HashSet<>();
+
         if (femaleControls == null || maleControls == null) {
             femaleControls = new HashSet<>();
             maleControls = new HashSet<>();
@@ -184,11 +186,12 @@ public class ExperimentDTO {
             }
         }
         if (sex.equals(SexType.female)) {
-            return femaleControls;
+            controls = femaleControls;
         } else {
-            return maleControls;
+            controls = maleControls;
         }
 
+        return controls;
     }
 
     public Set<ObservationDTO> getMutants() {
@@ -365,7 +368,11 @@ public class ExperimentDTO {
      * @return the zygosity
      */
     public Set<ZygosityType> getZygosities() {
-        return zygosities;
+        if(zygosities != null) {
+            return zygosities;
+        } else {
+            return new HashSet<>();
+        }
     }
 
 
@@ -441,7 +448,8 @@ public class ExperimentDTO {
      * @return the controls
      */
     public Set<ObservationDTO> getControls() {
-        return controls;
+
+        return controls != null ? controls : new HashSet<>();
     }
 
     /**

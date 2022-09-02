@@ -218,7 +218,7 @@
                 var term = row.phenotype_term.split('-')[0];
                 link = link + '?anatomy="' + term + '"';
             }
-        } else if (row.procedure_name.startsWith("Gross Pathology and Tissue Collectio")) {
+        } else if (row.procedure_name.includes("Gross Pathology and Tissue Collectio")) {
             link = baseUrl + '/grosspath/' + row.gene_accession_id + '/' + row.parameter_stable_id;
         }else if(row.parameter_name.toUpperCase().indexOf("image".toUpperCase()) !== -1) {
             link = baseUrl + '/imageComparator?acc=' + row.gene_accession_id + '&parameter_stable_id=' + row.parameter_stable_id;

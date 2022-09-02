@@ -331,9 +331,9 @@ public class GrossPathService {
 		return anatomyString;
 	}
 
-	public List<ObservationDTO> getObservationsForGrossPathForGene(String acc) throws SolrServerException, IOException {
+	public List<ObservationDTO> getObservationsForGrossPathForGene(String acc, Boolean isAlternative) throws SolrServerException, IOException {
 		List<ObservationDTO> observations = observationService.getObservationsByProcedureNameAndGene(
-			"Gross Pathology and Tissue Collection", acc);
+			isAlternative ? "ALTERNATIVE - Gross Pathology and Tissue Collection" : "Gross Pathology and Tissue Collection", acc);
 		return observations;
 	}
 	

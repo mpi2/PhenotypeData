@@ -33,7 +33,7 @@ public class GrosspathServiceTest {
     public void getTableDataTest() throws IOException, SolrServerException {
 
         String acc="MGI:1891341";
-        List<ObservationDTO> allObservations = grossPathService.getObservationsForGrossPathForGene(acc);
+        List<ObservationDTO> allObservations = grossPathService.getObservationsForGrossPathForGene(acc, false);
 		int sampleSize = grossPathService.getSampleToObservationMap(allObservations).size();
 		logger.info("sample size="+sampleSize);
 		List<SolrDocument> images = grossPathService.getGrossPathImagesForGene(acc);
