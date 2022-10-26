@@ -51,7 +51,7 @@ public class GrossPathController {
 		//abnormal observations informs us of which Anatomy terms we need stats for both normal and abnormal numbers
 		List<ObservationDTO> abnormalObservations = grossPathService.getAbnormalObservations(allObservations);
 		//grossPathService.processForAbnormalAnatomies(allObservations, abnormalObservations);
-		List<GrossPathPageTableRow> grossPathRows = grossPathService.getSummaryTableData(allObservations, images, abnormalObservations, true, parameterStableId);
+		List<GrossPathPageTableRow> grossPathRows = grossPathService.getSummaryTableData(allObservations, images, abnormalObservations, false, parameterStableId);
 		for (GrossPathPageTableRow row : grossPathRows) {
             System.out.println("row="+row);
         }
