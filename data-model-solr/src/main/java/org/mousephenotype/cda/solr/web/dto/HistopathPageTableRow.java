@@ -311,9 +311,9 @@ public void setMpathDiagnosticOntologyBeans(Map<String, List<OntologyBean>> mpat
 	}
 	
 	private List<SolrDocument> imageList=new ArrayList<>();
-	private Integer sequenceId;
+	private String sequenceId;
 
-	public Integer getSequenceId() {
+	public String getSequenceId() {
 		return sequenceId;
 	}
 	public List<SolrDocument> getImageList() {
@@ -326,7 +326,7 @@ public void setMpathDiagnosticOntologyBeans(Map<String, List<OntologyBean>> mpat
 		
 		
 	}
-	public void setSequenceId(Integer sequenceId) {
+	public void setSequenceId(String sequenceId) {
 		this.sequenceId=sequenceId;
 	}
 

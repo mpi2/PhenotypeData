@@ -96,7 +96,7 @@ public class ObservationDTOBase {
 	public static final String SUB_TERM_NAME = "sub_term_name";
 	public static final String SUB_TERM_ID = "sub_term_id";
 	public static final String SUB_TERM_DESCRIPTION = "sub_term_description";
-	public static final String SEQUENCE_ID = "sequence_id";
+	public static final String SEQUENCE_ID = "procedure_sequence_id";
 
 	public static final String ANATOMY_ID = "anatomy_id";
 	public static final String ANATOMY_TERM = "anatomy_term";
@@ -309,7 +309,7 @@ public class ObservationDTOBase {
 	private List<String> subTermDescription;
 
 	@Field(SEQUENCE_ID)
-	private Integer sequenceId;
+	private String sequenceId;
 
 	@Field(ANATOMY_ID)
 	List<String> anatomyId;
