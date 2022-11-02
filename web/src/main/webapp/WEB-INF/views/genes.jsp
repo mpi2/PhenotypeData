@@ -26,9 +26,9 @@
 
         <script defer type='text/javascript' src="${baseUrl}/js/general/dropDownExperimentPage.js?v=${version}" ></script>
 
-        <script defer type='text/javascript' src="https://code.highcharts.com/highcharts.js"></script>
-        <script defer type='text/javascript' src="https://code.highcharts.com/modules/exporting.js"></script>
-        <script defer type='text/javascript' src="https://code.highcharts.com/modules/broken-axis.js"></script>
+        <script defer type='text/javascript' src="https://code.highcharts.com/10.2/highcharts.js"></script>
+        <script defer type='text/javascript' src="https://code.highcharts.com/10.2/modules/exporting.js"></script>
+        <script defer type='text/javascript' src="https://code.highcharts.com/10.2/modules/broken-axis.js"></script>
 
 
         <script defer type='text/javascript' src="${baseUrl}/js/general/enu.js"></script>
