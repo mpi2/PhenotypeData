@@ -66,8 +66,8 @@ public class DiseaseModelAssociationDisplay implements Comparable<DiseaseModelAs
     public int compareTo(DiseaseModelAssociationDisplay o) {
         if (this.getPhenodigmScore() > o.getPhenodigmScore())
             return -1;
-        else if (this.getPhenodigmScore() <= o.getPhenodigmScore())
+        else if (this.getPhenodigmScore() < o.getPhenodigmScore())
             return 1;
-        return this.diseaseTerm.compareTo(o.diseaseTerm);
+        return 0;
     }
 }
