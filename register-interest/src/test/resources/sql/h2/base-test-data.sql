@@ -45,7 +45,7 @@ INSERT INTO gene_sent
   (2,  'user1@ebi.ac.uk', 'MGI:1919199',     'Cers5',    @SP,               @GC,                                  @GC,                           NULL,                            1,                          NOW(),      NOW()),
   (3,  'user1@ebi.ac.uk', 'MGI:2443658',     'Prr14l',   @SP,               NULL,                                 NULL,                          @GC,                             0,                          NOW(),      NOW()),
 
-  (4,  'user2@ebi.ac.uk', 'MGI:3576659',     'Ano5',     @SP,               NULL,                                 @SP,                           @WI,                             0,                          NOW(),      NOW()),
+  (4,  'user2@ebi.ac.uk', 'MGI:3576659',     'Ano5',     @SP,               NULL,                                 @SP,                           @SP,                             0,                          NOW(),      NOW()),
   (5,  'user2@ebi.ac.uk', 'MGI:2444824',     'Sirpb1a',  @SP,               NULL,                                 NULL,                          @GC,                             1,                          NOW(),      NOW()),
 
   (6,  'user3@ebi.ac.uk', 'MGI:87986',       'Akt1',     @WI,               NULL,                                 @WI,                           NULL,                            0,                          NOW(),      NOW()),
