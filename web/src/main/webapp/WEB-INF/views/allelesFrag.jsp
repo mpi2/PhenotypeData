@@ -227,8 +227,9 @@
                                             <td style="text-align: center;">${targeting_vector['backbone']}</td>
                                             <td style="text-align: center;" >
                                                     ${targeting_vector['ikmc_project_id']}
-                                                   <c:set var="design_id" value="${targeting_vector['design_id']}"></c:set>
-                                              <c:if test="${ikmcDesignMapForRow[design_id]}">
+                                                            ${targeting_vector['design_id']}
+                                                   <c:set var="design_id" value="${String.valueOf(Double.parseDouble(targeting_vector['design_id']).intValue())}"></c:set>
+                                                    <c:if test="${ikmcDesignMapForRow[design_id]}">
                                                      <a class="hasTooltip" href="${baseUrl}/designs/${design_id}?accession=${accession}">
                                               </c:if>
                                                         oligo design
