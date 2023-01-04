@@ -239,9 +239,7 @@
                                             </div>
                                         </div>
                                         <p>
-                                            More charts and status information are available from our mouse tracking services
-                                            <a href="https://www.mousephenotype.org/imits/">iMits</a>
-                                            and
+                                            More charts and status information are available from our mouse tracking service
                                             <a href="https://www.gentar.org/">GenTaR</a>.
                                         </p>
 

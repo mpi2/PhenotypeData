@@ -102,7 +102,7 @@
                                     The EUCOMMTOOLS project created a new inducible Cre Driver mouse line resource that
                                     is available to
                                     researchers via <a
-                                        href="https://www.infrafrontier.eu/search?keyword=EUCOMMToolsCre">INFRAFRONTIER
+                                        href="https://www.infrafrontier.eu/emma/strain-search/?category=collections&keyword=eucommcre">INFRAFRONTIER
                                     repository</a>.
                                     This resource contains over 220 Cre Driver mouse lines where tamoxifin inducible Cre
                                     expression vectors
