@@ -164,7 +164,7 @@
                                         <p>
                                             The IMPC assesses each gene knockout line for viability (Viability
                                             Primary Screen
-                                            <a href="${cmsBaseUrl}/impress/ProcedureInfo?action=list&procID=703&pipeID=7">IMPC_VIA_001</a>).
+                                            <a href="${cmsBaseUrl}/impress/ProcedureInfo?action=list&procID=703&pipeID=7">IMPC_VIA_001</a> and <a href="${cmsBaseUrl}/impress/ProcedureInfo?action=list&procID=1188&pipeID=7#Parameters">IMPC_VIA_002</a>).
                                             In this procedure, the proportion of homozygous pups is determined soon
                                             after
                                             birth, during the preweaning stage, in litters produced from mating
