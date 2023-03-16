@@ -410,11 +410,58 @@ public class ObservationService extends BasicService implements WebStatus {
         return viabilityCategories;
     }
 
-    public Map<String, Set<String>> getViabilityCategories(List<String> resources, Boolean adultOnly) {
+    public Map<String, Set<String>> getViabilityCategories(List<String> resources) {
 
-        ViabilityData data = new ViabilityData(resources, adultOnly, null);
+        HashMap<String, Set<String>> viabilityCategories = new HashMap<>();
+        SolrQuery query = new SolrQuery();
 
-        return data.getViabilityCategories();
+        if (resources != null) {
+            query.setFilterQueries(ObservationDTO.DATASOURCE_NAME + ":"
+                    + StringUtils.join(resources, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
+        }
+
+        query.setQuery(Constants.adultViabilityParametersCount.stream().collect(Collectors.joining(" OR ", ObservationDTO.PARAMETER_STABLE_ID + ":(", ")")));
+        query.addField(ObservationDTO.GENE_SYMBOL);
+        query.addField(ObservationDTO.CATEGORY);
+        query.addField(ObservationDTO.TEXT_VALUE);
+        query.addField(ObservationDTO.PARAMETER_NAME);
+        query.setRows(Integer.MAX_VALUE);
+        QueryResponse results = null;
+        try {
+            results = experimentCore.query(query);
+        } catch (SolrServerException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        List<ObservationDTO> observationDTOS = results.getBeans(ObservationDTO.class);
+
+        observationDTOS.forEach(o -> {
+            String category = "";
+
+            if(o.getCategory() != null) {
+                category = o.getCategory();
+            } else {
+                String zygosity = o.getParameterName().split(" ")[0];
+                String outcome = "";
+                String supportingData = o.getTextValue();
+                if (supportingData.toLowerCase().contains("lethal")) {
+                    outcome = "lethal";
+                } else if (supportingData.toLowerCase().contains("subviable")) {
+                    outcome = "subviable";
+                } else if (supportingData.toLowerCase().contains("reduced life span")) {
+                    outcome = "subviable";
+                } else {
+                    outcome =  "viable";
+                }
+                category = zygosity + " - " + outcome.substring(0, 1).toUpperCase() + outcome.substring(1);
+            }
+
+            if(!viabilityCategories.containsKey(category)) {
+                viabilityCategories.put(category, new HashSet<>());
+            }
+            viabilityCategories.get(category).add(o.getGeneSymbol());
+        });
+
+        return viabilityCategories;
     }
 
 
