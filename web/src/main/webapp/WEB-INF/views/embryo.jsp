@@ -210,7 +210,7 @@
                                             </c:forEach>
                                             <tr>
                                                 <td colspan="2">
-                                                    <a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/all-data-releases/latest/results/viability.csv.gz"
+                                                    <a href="https://ftp.ebi.ac.uk/pub/databases/impc/all-data-releases/latest/results/viability.csv.gz"
                                                        style="text-decoration:none;" download> <i
                                                             class="fa fa-download"
                                                             alt="Download"></i> Download</a>
