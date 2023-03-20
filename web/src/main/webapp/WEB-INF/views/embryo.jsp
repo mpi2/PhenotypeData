@@ -17,6 +17,8 @@
         <script type='text/javascript' src='${baseUrl}/js/slider.js?v=${version}'></script>
         <link rel="stylesheet" href='${baseUrl}/css/slider.css?v=${version}'/>
 		<link href="${baseUrl}/css/alleleref.css" rel="stylesheet"/>
+            <script defer="defer" src="https://ficolo.github.io/impc-labs/static/js/main.c8ff0cb2.js"></script>
+    <link href="https://ficolo.github.io/impc-labs/static/css/main.5b8f3383.css" rel="stylesheet" />
     </jsp:attribute>
 
     <jsp:body>
@@ -368,8 +370,7 @@
 
                                 <div class="row">
                                     <div class="col-12">
-                                        <img class="img-fluid " src="${baseUrl}/img/heatmap_temp.png"
-                                             />
+                                        <div id="root"></div>
                                     </div>
                                 </div>
 
