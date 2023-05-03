@@ -40,7 +40,7 @@
             <div class="col-12 col-md-3 footer-nav">
                 <div class="menu-top-nav-container">
                     <ul id="menu-top-nav-1" class="menu">
-                        <li class="impc-badge menu-item"><a href="${cmsBaseUrl}/help/faqs/how-do-i-cite-the-impc-website/">Cite IMPC</a></li>
+                        <li class="impc-badge menu-item"><a href="${cmsBaseUrl}/help/faqs/how-do-i-cite-the-impc/">Cite IMPC</a></li>
                         <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-13"><a
                                 href="${cmsBaseUrl}/help/">Help</a></li>
                         <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14"><a href="http://cloud.mousephenotype.org">IMPC Cloud</a></li>
