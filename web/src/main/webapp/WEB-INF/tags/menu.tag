@@ -23,7 +23,7 @@
                 <div class="col">
                     <div class="menu-top-nav-container">
                         <ul id="menu-top-nav" class="menu">
-                            <li class="impc-badge menu-item"><a href="${cmsBaseUrl}/help/faqs/how-do-i-cite-the-impc-website/">Cite IMPC</a></li>
+                            <li class="impc-badge menu-item"><a href="${cmsBaseUrl}/help/faqs/how-do-i-cite-the-impc/">Cite IMPC</a></li>
                             <li class="menu-item"><a href="${cmsBaseUrl}/help/">Help</a></li>
                             <li class="menu-item"><a href="https://cloud.mousephenotype.org">IMPC Cloud</a></li>
                             <li class="menu-item"><a href="${cmsBaseUrl}/contact-us/">Contact us</a></li>
