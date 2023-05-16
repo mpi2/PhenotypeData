@@ -524,7 +524,7 @@
                     </div>
                     <div class="modal-body">
                         <table class="embryo-modal-table"
-                               data-pagination="true" data-toggle="table">
+                               data-pagination="true" data-toggle="table" data-search="true">
                             <thead>
                             <tr>
                                 <th data-field="gene_symbol">Gene symbol</th>
