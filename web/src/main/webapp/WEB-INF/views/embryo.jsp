@@ -17,8 +17,32 @@
         <script type='text/javascript' src='${baseUrl}/js/slider.js?v=${version}'></script>
         <link rel="stylesheet" href='${baseUrl}/css/slider.css?v=${version}'/>
 		<link href="${baseUrl}/css/alleleref.css" rel="stylesheet"/>
-            <script defer="defer" src="https://ficolo.github.io/impc-labs/static/js/main.c8ff0cb2.js"></script>
-    <link href="https://ficolo.github.io/impc-labs/static/css/main.5b8f3383.css" rel="stylesheet" />
+            <script defer="defer" src="https://ficolo.github.io/impc-labs/static/js/main.7a36cf7f.js"></script>
+    <link href="https://ficolo.github.io/impc-labs/static/css/main.073c9b0a.css" rel="stylesheet"/>
+        <script>
+            function csvToJSON(csv) {
+                var lines = csv.split("\n");
+                var result = [];
+                var headers;
+                headers = lines[0].split(",");
+
+                for (var i = 1; i < lines.length; i++) {
+                    var obj = {};
+
+                    if (lines[i] == undefined || lines[i].trim() == "") {
+                        continue;
+                    }
+
+                    var words = lines[i].split(",");
+                    for (var j = 0; j < words.length; j++) {
+                        obj[headers[j].trim()] = words[j];
+                    }
+
+                    result.push(obj);
+                }
+                return result;
+            }
+        </script>
     </jsp:attribute>
 
     <jsp:body>
@@ -84,18 +108,14 @@
                                             early death and thus gain insight into gene function.
 
                                         </p>
-                                        <p>
-                                            As determined in IMPReSS (see interactive diagram <a
-                                                href="${cmsBaseUrl}/impress">here</a>), all embryonic lethal lines
-                                            undergo
-                                            gross morphology assessment at E12.5 (embryonic day 12.5) to determine
-                                            whether defects occur
-                                            earlier or later during embryonic development. A comprehensive imaging
-                                            platform is then used
-                                            to assess dysmorphology. Embryo gross morphology, as well as 2D and 3D
-                                            imaging are actively
-                                            being implemented by the IMPC for lethal lines.
-                                        </p>
+                                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec lectus justo,
+                                            tincidunt a lectus ac, vulputate pretium odio. Quisque placerat rhoncus
+                                            maximus. Morbi blandit, erat id porta pulvinar, nibh neque tempus sem, sit
+                                            amet malesuada tellus nunc eget augue. Nulla faucibus bibendum aliquet.
+                                            Mauris mollis, felis a dignissim egestas, nisi quam sagittis libero, vel
+                                            tincidunt sem dui vel est. Mauris et dui sapien. Vivamus neque erat,
+                                            consectetur a hendrerit et, malesuada non sem. Sed id suscipit neque.</p>
+
                                     </div>
                                 </div>
 
@@ -129,13 +149,19 @@
 
                                 <div class="row">
                                     <div class="col-12">
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec lectus justo,
-                                            tincidunt a lectus ac, vulputate pretium odio. Quisque placerat rhoncus
-                                            maximus. Morbi blandit, erat id porta pulvinar, nibh neque tempus sem, sit
-                                            amet malesuada tellus nunc eget augue. Nulla faucibus bibendum aliquet.
-                                            Mauris mollis, felis a dignissim egestas, nisi quam sagittis libero, vel
-                                            tincidunt sem dui vel est. Mauris et dui sapien. Vivamus neque erat,
-                                            consectetur a hendrerit et, malesuada non sem. Sed id suscipit neque.</p>
+                                        <p>
+                                            As determined in IMPReSS (see interactive diagram <a
+                                                href="${cmsBaseUrl}/impress">here</a>), all embryonic lethal lines
+                                            undergo
+                                            gross morphology assessment at E12.5 (embryonic day 12.5) to determine
+                                            whether defects occur
+                                            earlier or later during embryonic development. A comprehensive imaging
+                                            platform is then used
+                                            to assess dysmorphology. Embryo gross morphology, as well as 2D and 3D
+                                            imaging are actively
+                                            being implemented by the IMPC for lethal lines.
+                                        </p>
+
                                     </div>
                                 </div>
 
@@ -166,7 +192,9 @@
                                         <p>
                                             The IMPC assesses each gene knockout line for viability (Viability
                                             Primary Screen
-                                            <a href="${cmsBaseUrl}/impress/ProcedureInfo?action=list&procID=703&pipeID=7">IMPC_VIA_001</a> and <a href="${cmsBaseUrl}/impress/ProcedureInfo?action=list&procID=1188&pipeID=7#Parameters">IMPC_VIA_002</a>).
+                                            <a href="${cmsBaseUrl}/impress/ProcedureInfo?action=list&procID=703&pipeID=7">IMPC_VIA_001</a>
+                                            and <a
+                                                href="${cmsBaseUrl}/impress/ProcedureInfo?action=list&procID=1188&pipeID=7#Parameters">IMPC_VIA_002</a>).
                                             In this procedure, the proportion of homozygous pups is determined soon
                                             after
                                             birth, during the preweaning stage, in litters produced from mating
@@ -240,53 +268,87 @@
                                         <script
                                                 type="text/javascript">
                                             $(function () {
-                                                $('#embryoViabilityChart').highcharts({
-                                                    chart: {plotBackgroundColor: null, plotShadow: false},
-                                                    colors: ['rgba(9, 120, 161,1)', 'rgba(255, 201, 67, 1)', 'rgba(239, 123, 11, 1)', 'rgba(119, 119, 119, 1)', 'rgba(36, 139, 75, 1)', 'rgba(238, 238, 180, 1)', 'rgba(191, 75, 50, 1)', 'rgba(191, 151, 50, 1)', 'rgba(239, 123, 11, 1)', 'rgba(247, 157, 70, 1)', 'rgba(247, 181, 117, 1)', 'rgba(191, 75, 50, 1)', 'rgba(151, 51, 51, 1)'],
-                                                    title: {text: ''},
-                                                    credits: {enabled: false},
-                                                    tooltip: {pointFormat: '<b>{point.percentage:.2f}%</b>'},
-                                                    plotOptions: {
-                                                        pie: {
-                                                            size: 200,
-                                                            showInLegend: true,
-                                                            allowPointSelect: true,
-                                                            cursor: 'pointer',
-                                                            dataLabels: {
-                                                                enabled: true,
-                                                                format: '{point.percentage:.2f} %',
-                                                                style: {color: '#666', width: '60px'}
-                                                            }
-                                                        },
-                                                        series: {
-                                                            dataLabels: {
-                                                                enabled: true,
-                                                                format: '{point.percentage:.2f}%'
-                                                            }
-                                                        }
-                                                    },
-                                                    series: [{
-                                                        type: 'pie',
-                                                        name: '',
-                                                        data: [{
-                                                            "name": "Perinatal lethal",
-                                                            "y": 319
-                                                        }, {
-                                                            "name": "E9.5 lethal",
-                                                            "y": 449
-                                                        }, {
-                                                            "name": "E12.5 Lethal",
-                                                            "y": 96
-                                                        }, {
-                                                            "name": "E15.5 Lethal",
-                                                            "y": 20
-                                                        }, {"name": "E18.5 Lethal", "y": 6}, {
-                                                            "name": "Lorem ipsum", "y": 145
-                                                        }]
-                                                    }]
-                                                });})
-                                            ;</script>
+
+                                                var modalTable = $('.embryo-modal-table');
+                                                modalTable.bootstrapTable('refreshOptions', {
+                                                    paginationParts: ["pageinfo", "pageList"]
+                                                })
+
+                                                fetch("//impc-datasets.s3.eu-west-2.amazonaws.com/embryo-landing-assets/wol_all.csv")
+                                                    .then(res => res.ok && res.text())
+                                                    .then(data => {
+                                                        var dataValues = csvToJSON(data);
+
+                                                        let dataIndex = {
+                                                            "Perinatal lethal": dataValues.filter(d => d.wol.includes("perinatal_lethal")),
+                                                            "E9.5 lethal": dataValues.filter(d => d.wol.includes("E9_5_lethal")),
+                                                            "E12.5 lethal": dataValues.filter(d => d.wol.includes("E12_5_lethal")),
+                                                            "E15.5 lethal": dataValues.filter(d => d.wol.includes("E15_5_lethal")),
+                                                            "E18.5 lethal": dataValues.filter(d => d.wol.includes("E18_5_lethal")),
+                                                            "Lorem ipsum": dataValues.filter(d => d.wol.includes("insufficient data"))
+                                                        };
+
+                                                        Object.keys(dataIndex).forEach(d => {
+                                                            $('#wolTable' + d.replace(" " , "").replace(".", "")).text(dataIndex[d].length);
+                                                        });
+
+                                                        $('#embryoWindowsOfLethalityModal').on('show.bs.modal', function (event) {
+                                                            modalTable.bootstrapTable('resetView');
+                                                            var button = $(event.relatedTarget) // Button that triggered the modal
+                                                            var category = button.data('category') // Extract info from data-* attributes
+                                                            // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+                                                            // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+                                                            var modal = $(this)
+                                                            modal.find('.modal-title').text(category + " lines");
+
+
+                                                            modalTable.bootstrapTable('load', dataIndex[category].map(d => {
+                                                                var d1 = {...d};
+                                                                d1["gene_id"] = "<a href='" + cmsBaseUrl + "/data/genes/"+ d["gene_id"] + "'>" + d["gene_id"] + "</a>";
+                                                                return d1;
+                                                            }));
+
+
+                                                        })
+
+                                                        $('#embryoViabilityChart').highcharts({
+                                                            chart: {plotBackgroundColor: null, plotShadow: false},
+                                                            colors: ['rgba(9, 120, 161,1)', 'rgba(255, 201, 67, 1)', 'rgba(239, 123, 11, 1)', 'rgba(119, 119, 119, 1)', 'rgba(36, 139, 75, 1)', 'rgba(238, 238, 180, 1)', 'rgba(191, 75, 50, 1)', 'rgba(191, 151, 50, 1)', 'rgba(239, 123, 11, 1)', 'rgba(247, 157, 70, 1)', 'rgba(247, 181, 117, 1)', 'rgba(191, 75, 50, 1)', 'rgba(151, 51, 51, 1)'],
+                                                            title: {text: 'Secondary Viability / Windows of Lethality'},
+                                                            credits: {enabled: false},
+                                                            tooltip: {pointFormat: '<b>{point.percentage:.2f}%</b>'},
+                                                            plotOptions: {
+                                                                pie: {
+                                                                    size: 200,
+                                                                    showInLegend: true,
+                                                                    allowPointSelect: true,
+                                                                    cursor: 'pointer',
+                                                                    dataLabels: {
+                                                                        enabled: true,
+                                                                        format: '{point.percentage:.2f} %',
+                                                                        style: {color: '#666', width: '60px'}
+                                                                    }
+                                                                },
+                                                                series: {
+                                                                    dataLabels: {
+                                                                        enabled: true,
+                                                                        format: '{point.percentage:.2f}%'
+                                                                    }
+                                                                }
+                                                            },
+                                                            series: [{
+                                                                type: 'pie',
+                                                                name: '',
+                                                                data: Object.keys(dataIndex).map( s => { return {name: s, y: dataIndex[s].length}})
+                                                            }]
+                                                        });
+                                                    })
+                                            });
+
+
+                                            </script>
                                     </div>
+
                                     <div id="viabilityChart" class="col-md-5 align-items-center">
                                         <table class="table table-bordered w-100 text-center">
                                             <thead class="table-active">
@@ -298,49 +360,45 @@
                                             <tbody>
                                             <tr>
                                                 <td>
-                                                    <a href="${baseUrl}/phenotypes/MP:0002081"
-                                                       class="text-capitalize">Perinatal lethal</a>
+                                                    <a
+                                                       href="#" data-toggle="modal" data-target="#embryoWindowsOfLethalityModal" data-category="Perinatal lethal">Perinatal lethal</a>
                                                 </td>
-                                                <td>319</td>
+                                                <td id="wolTablePerinatallethal"></td>
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    <a href="${baseUrl}/phenotypes/MP:0002081"
-                                                       class="text-capitalize">E9.5 lethal</a>
+                                                    <a
+                                                            href="#" data-toggle="modal" data-target="#embryoWindowsOfLethalityModal" data-category="E9.5 lethal">E9.5 lethal</a>
                                                 </td>
-                                                <td>449</td>
+                                                <td id="wolTableE95lethal"></td>
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    <a href="${baseUrl}/phenotypes/MP:0002081"
-                                                       class="text-capitalize">E12.5 lethal</a>
+                                                    <a href="#" data-toggle="modal" data-target="#embryoWindowsOfLethalityModal" data-category="E12.5 lethal">E12.5 lethal</a>
                                                 </td>
-                                                <td>96</td>
+                                                <td id="wolTableE125lethal"></td>
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    <a href="${baseUrl}/phenotypes/MP:0002081"
-                                                       class="text-capitalize">E15.5 lethal</a>
+                                                    <a href="#" data-toggle="modal" data-target="#embryoWindowsOfLethalityModal" data-category="E15.5 lethal">E15.5 lethal</a>
                                                 </td>
-                                                <td>20</td>
+                                                <td id="wolTableE155lethal"></td>
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    <a href="${baseUrl}/phenotypes/MP:0002081"
-                                                       class="text-capitalize">E18.5 lethal</a>
+                                                    <a href="#" data-toggle="modal" data-target="#embryoWindowsOfLethalityModal" data-category="E18.5 lethal">E18.5 lethal</a>
                                                 </td>
-                                                <td>6</td>
+                                                <td id="wolTableE185lethal"></td>
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    <a href="${baseUrl}/phenotypes/MP:0002081"
-                                                       class="text-capitalize">Lorem ipsum</a>
+                                                    <a href="#" data-toggle="modal" data-target="#embryoWindowsOfLethalityModal" data-category="Lorem ipsum">Lorem ipsum</a>
                                                 </td>
-                                                <td>145</td>
+                                                <td id="wolTableLoremipsum"></td>
                                             </tr>
                                             <tr>
                                                 <td colspan="2">
-                                                    <a href="ftp://ftp.ebi.ac.uk/pub/databases/impc/all-data-releases/latest/results/viability.csv.gz"
+                                                    <a href="https://impc-datasets.s3.eu-west-2.amazonaws.com/embryo-landing-assets/wol_all.csv"
                                                        style="text-decoration:none;" download> <i
                                                             class="fa fa-download"
                                                             alt="Download"></i> Download</a>
@@ -370,6 +428,7 @@
 
                                 <div class="row">
                                     <div class="col-12">
+                                        <p>Filter by Window of Lethality</p>
                                         <div id="root"></div>
                                     </div>
                                 </div>
@@ -446,16 +505,43 @@
                                     </div>
 
                                 </div>
-                                </div>
-
                             </div>
+
                         </div>
                     </div>
                 </div>
             </div>
-
-
         </div>
+
+        <div class="modal  fade" id="embryoWindowsOfLethalityModal" tabindex="-1" aria-labelledby="embryoWindowsOfLethalityModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="embryoWindowsOfLethalityModalLabel">Modal title</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="embryo-modal-table"
+                               data-pagination="true" data-toggle="table">
+                            <thead>
+                            <tr>
+                                <th data-field="gene_symbol">Gene symbol</th>
+                                <th data-field="gene_id">MGI Accession ID</th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        <!-- Modal -->
+
 
 
     </jsp:body>
