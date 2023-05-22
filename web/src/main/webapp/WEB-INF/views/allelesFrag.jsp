@@ -8,10 +8,11 @@
 <c:set var="tissueActive"
        value="${not empty tissue_enquiry_links? (empty mice and empty es_cells and empty targeting_vectors ? 'active' : ''): 'disabled'}"/>
 <script type="application/javascript">
-    var crisprData = [{"mutationId":"MIN:000000001287","mgiAlleleId":"MGI:6144257","alleleSuperscript":"em2(IMPC)H","mgiGeneAccessionId":"MGI:2443597","alleleSymbol":"Tmem203<em2(IMPC)H>","planIdentifier":"PIN:0000004034","attempt":{"miDate":"2016-04-26","miExternalRef":"Harwell PRO/3588","mutagenesisExternalRef":"MF-1345","totalEmbryosInjected":98,"totalEmbryosSurvived":82,"embryoTwoCell":0,"comment":null,"embryoTransferDay":"Same Day","totalTransferred":82,"strainName":"C57BL/6NTac","mgiStrainAccessionId":"MGI:2164831"},"outcomeIdentifier":"TPO:000000001287","colonyName":"H-Tmem203-DEL1-EM2-B6N","guides":[{"sequence":"CAGGTGCACGAATATCTCAAAGG","guideSequence":"CAGGTGCACGAATATCTCAA","pam":"AGG","chr":"2","start":25145728,"stop":25145750,"strand":"-","genomeBuild":"GRCm39","grnaConcentration":50,"truncatedGuide":false,"reversed":true,"sangerService":false,"guideFormat":null,"guideSource":null}],"nucleases":[{"nucleaseType":"Cas9","nucleaseClass":"mRNA"}],"genotypePrimers":[{"sequence":"AAGATGTAAGGCACCTTAGCAA","name":"Mios KO R\t"}],"mutagenesisDonors":0,"reagents":0,"assay":{"numFounderPups":12,"numFounderSelectedForBreeding":2,"founderNumAssays":12,"numDeletionG0Mutants":0,"numG0WhereMutationDetected":4,"numHdrG0Mutants":0,"numHdrG0MutantsAllDonorsInserted":0,"numHdrG0MutantsSubsetDonorsInserted":0,"numHrG0Mutants":0,"numNhejG0Mutants":2,"assayType":"PCR"},"fasta":[{"index":1,"sequence":">H-Tmem203-DEL1-EM2-B6N\nATGTTATTCTCGCTGCGGGAGCTGGTGCAGTGGCTGGGCTTCGCCACCTTTGGATATTCGTGCACCTGCTGGCCCTGTTGGTGTTCTCCGTACTGTTGGCACTGCGAGTGGATGGCTTGACTCCGGGCCTCTCCTGGTGGAACGTCTTTGTGCCCTTTTTCGCCGCCGACGGGCTCAGTACCTACTTCACCACCATCGTTTCCGTTCGACTCTTCCAAGATGGGGAGAAGCGACTGGCTGTGCTGCGCCTCTTCTGGGTTCTCACCGTCCTTAGCCTCAAGTTTGTCTTTGAGATGTTGCTGTGCCAGAAGCTAGTGGAGCAGACTCGAGAGCTCTGGTTCGGCCTGATCACGTCTCCGGTCTTCATTCTCCTGCAGCTGCTCATGATCCGGGCTTGTCGCGTCAAC\n","sequenceType":"complete","sequenceCategory":"outcome sequence"}]},{"mutationId":"MIN:000000001288","mgiAlleleId":"MGI:6144256","alleleSuperscript":"em1(IMPC)H","mgiGeneAccessionId":"MGI:2443597","alleleSymbol":"Tmem203<em1(IMPC)H>","planIdentifier":"PIN:0000004034","attempt":{"miDate":"2016-04-26","miExternalRef":"Harwell PRO/3588","mutagenesisExternalRef":"MF-1345","totalEmbryosInjected":98,"totalEmbryosSurvived":82,"embryoTwoCell":0,"comment":null,"embryoTransferDay":"Same Day","totalTransferred":82,"strainName":"C57BL/6NTac","mgiStrainAccessionId":"MGI:2164831"},"outcomeIdentifier":"TPO:000000001288","colonyName":"H-Tmem203-DEL11-EM1-B6N","guides":[{"sequence":"CAGGTGCACGAATATCTCAAAGG","guideSequence":"CAGGTGCACGAATATCTCAA","pam":"AGG","chr":"2","start":25145728,"stop":25145750,"strand":"-","genomeBuild":"GRCm39","grnaConcentration":50,"truncatedGuide":false,"reversed":true,"sangerService":false,"guideFormat":null,"guideSource":null}],"nucleases":[{"nucleaseType":"Cas9","nucleaseClass":"mRNA"}],"genotypePrimers":[{"sequence":"AAGATGTAAGGCACCTTAGCAA","name":"Mios KO R\t"}],"mutagenesisDonors":0,"reagents":0,"assay":{"numFounderPups":12,"numFounderSelectedForBreeding":2,"founderNumAssays":12,"numDeletionG0Mutants":0,"numG0WhereMutationDetected":4,"numHdrG0Mutants":0,"numHdrG0MutantsAllDonorsInserted":0,"numHdrG0MutantsSubsetDonorsInserted":0,"numHrG0Mutants":0,"numNhejG0Mutants":2,"assayType":"PCR"},"fasta":[{"index":1,"sequence":">H-Tmem203-DEL11-EM1-B6N\nATGTTATTCTCGCTGCGGGAGCTGGTGCAGTGGCTGGGCTTCGCCACCTTTGCACCTGCTGGCCCTGTTGGTGTTCTCCGTACTGTTGGCACTGCGAGTGGATGGCTTGACTCCGGGCCTCTCCTGGTGGAACGTCTTTGTGCCCTTTTTCGCCGCCGACGGGCTCAGTACCTACTTCACCACCATCGTTTCCGTTCGACTCTTCCAAGATGGGGAGAAGCGACTGGCTGTGCTGCGCCTCTTCTGGGTTCTCACCGTCCTTAGCCTCAAGTTTGTCTTTGAGATGTTGCTGTGCCAGAAGCTAGTGGAGCAGACTCGAGAGCTCTGGTTCGGCCTGATCACGTCTCCGGTCTTCATTCTCCTGCAGCTGCTCATGATCCGGGCTTGTCGCGTCAAC\n","sequenceType":"complete","sequenceCategory":"outcome sequence"}]}][0];
+    var crisprData = [];
 
-    function selectCrisprAllele(geneAcc, alleleName) {
-        fetch("https://www.gentar.org/mi/impc/allele-service/v1/alleles/crispr/get_by_mgi?mgiGeneAccessionId=" + geneAcc + "&alleleSuperscript=" + alleleName, { mode: 'no-cors'}).then(res => res.text()).then(j => console.log(j));
+    async function selectCrisprAllele(geneAcc, alleleName) {
+        let full = await fetch("https://www.gentar.org/mi/impc/allele-service/v1/alleles/crispr/get_by_mgi?mgiGeneAccessionId=" + geneAcc + "&alleleSuperscript=" + alleleName).then(res => res.json())
+        crisprData = full[0];
     }
     async function  copyContent (elementId) {
         try {
@@ -23,6 +24,13 @@
         }
     }
 
+    function handleCriprSeqClick(gene, allele) {
+
+        selectCrisprAllele(gene, allele).then(i => {
+            $('#crisprDataModal').modal('show');
+        });
+    }
+
     $(function () {
         $('#crisprDataModal').on('show.bs.modal', function (event) {
             var modal = $(this);
@@ -30,19 +38,23 @@
             var allele = button.data('allele') // Extract info from data-* attributes
             var gene = button.data("gene");
 
-            selectCrisprAllele(gene, allele);
+
+
             var crisprModalGuidesTable = $('.crispr-modal-guides-table');
-            crisprModalGuidesTable.bootstrapTable('load', crisprData["guides"]);
+            crisprModalGuidesTable.bootstrapTable('load', crisprData["guides"] || []);
             var crisprModalNucleasesTable = $('.crispr-modal-nucleases-table');
-            crisprModalNucleasesTable.bootstrapTable('load', crisprData["nucleases"]);
+            crisprModalNucleasesTable.bootstrapTable('load', crisprData["nucleases"] || []);
             var crisprModalGenotypePrimersTable = $('.crispr-modal-genotype-primers');
-            crisprModalGenotypePrimersTable.bootstrapTable('load', crisprData["genotypePrimers"]);
+            crisprModalGenotypePrimersTable.bootstrapTable('load', crisprData["genotypePrimers"] || []);
             var fastaDiv = $(".fasta-sequences");
             fastaDiv.empty();
 
-            crisprData.fasta.forEach(f => {
+            (crisprData.fasta || []).forEach(f => {
                 fastaDiv.append("<div><code id='fasta-" + f.index +"' style='width: 100%; max-height: 200px; resize: vertical; color: #0a4c57'>" + f.sequence + "</code><button type='button' class='btn btn-outline-primary' onclick='copyContent(\"fasta-" + f.index  +"\")'><i class='fa fa-clipboard'></i></button></div>");
             })
+            crisprModalGuidesTable.bootstrapTable('resetView');
+            crisprModalNucleasesTable.bootstrapTable('resetView');
+            crisprModalGenotypePrimersTable.bootstrapTable('resetView');
         })
     })
 </script>
@@ -154,9 +166,8 @@
 
                                         <c:if test="${summary['is_crispr']}">
                                             <button class="btn btn-outline-primary" data-toggle="modal"
-                                                    data-target="#crisprDataModal"
                                                     data-gene="${summary["gene_mgi_accession_id"]}"
-                                                    data-allele="${summary["allele_name"]}"><i
+                                                    data-allele="${summary["allele_name"]}" onclick="handleCriprSeqClick('${summary["gene_mgi_accession_id"]}', '${summary["allele_name"]}')"><i
                                                     class="fa fa-eye"></i> View Sequencing Data
                                             </button>
                                         </c:if>

@@ -1462,7 +1462,7 @@
                             <thead>
                             <tr>
                                 <th data-field="sequence">Sequence</th>
-                                <th data-field="name">Name/th>
+                                <th data-field="name">Name</th>
                             </tr>
                             </thead>
                         </table>
