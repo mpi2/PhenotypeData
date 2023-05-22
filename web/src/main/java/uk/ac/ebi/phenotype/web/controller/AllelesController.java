@@ -375,7 +375,7 @@ public class AllelesController {
         model.addAttribute("title", constructs.get("title"));
         model.addAttribute("accession", acc);
         model.addAttribute("ikmcDesignMapForRow", ikmcDesignMapForRow);
-
+        model.addAttribute("isCrispr", constructs.get("allele"));
 
         if (model.containsAttribute("show_header")) {
             return "alleles_noheader";

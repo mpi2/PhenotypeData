@@ -1405,9 +1405,74 @@
         </div>
 
 
+        <div class="modal fade" id="crisprDataModal" tabindex="-1" aria-labelledby="crisprDataModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="crisprDataModalLabel">CRISPR Sequencing Data</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <h2 class="mt-2">Sequence</h2>
+                        <div class="row">
+                            <div class="col fasta-sequences">
 
-
-
+                            </div>
+                        </div>
+                        <h2>Guides</h2>
+                        <table class="crispr-modal-guides-table"
+                               data-toggle="table"
+                        >
+                            <thead>
+                            <tr>
+                                <th data-field="sequence">Sequence</th>
+                                <th data-field="guideSequence">Guide sequence</th>
+                                <th data-field="pam">pam</th>
+                                <th data-field="chr">chr</th>
+                                <th data-field="start">start</th>
+                                <th data-field="stop">stop</th>
+                                <th data-field="strand">strand</th>
+                                <th data-field="genomeBuild">Genome build</th>
+                                <th data-field="grnaConcentration">gRNA Concentration</th>
+                                <th data-field="truncatedGuide">Truncated Guide</th>
+                                <th data-field="reversed">Reversed</th>
+                                <th data-field="sangerService">Sanger service</th>
+                                <th data-field="guideFormat">Guide format</th>
+                                <th data-field="guideSource">Guide source</th>
+                            </tr>
+                            </thead>
+                        </table>
+                        <h2 class="mt-2">Nucleases</h2>
+                        <table class="crispr-modal-nucleases-table"
+                               data-toggle="table"
+                        >
+                            <thead>
+                            <tr>
+                                <th data-field="nucleaseType">Nuclease type</th>
+                                <th data-field="nucleaseClass">Nuclease class</th>
+                            </tr>
+                            </thead>
+                        </table>
+                        <h2 class="mt-2">Genotype primers</h2>
+                        <table class="crispr-modal-genotype-primers"
+                               data-toggle="table"
+                        >
+                            <thead>
+                            <tr>
+                                <th data-field="sequence">Sequence</th>
+                                <th data-field="name">Name/th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </jsp:body>
 
 </t:genericpage>
