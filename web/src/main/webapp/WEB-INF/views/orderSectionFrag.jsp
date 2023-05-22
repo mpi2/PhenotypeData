@@ -98,3 +98,5 @@
         $tr.find('>td>.detail-icon').trigger('click');
     });
 </script>
+
+

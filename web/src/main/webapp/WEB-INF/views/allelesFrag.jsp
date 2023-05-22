@@ -3,9 +3,51 @@
 <c:set var="alleleId" value="${fn:replace(fn:replace(allele_name, '%29', ''), '%28', '')}"/>
 <c:set var="miceActive" value="${not empty mice ? 'active' : 'disabled'}"/>
 <c:set var="cellActive" value="${not empty es_cells? (empty mice ? 'active' : ''): 'disabled'}"/>
-<c:set var="vectorActive" value="${not empty targeting_vectors? (empty mice and empty es_cells ? 'active' : ''): 'disabled'}"/>
-<c:set var="tissueActive" value="${not empty tissue_enquiry_links? (empty mice and empty es_cells and empty targeting_vectors ? 'active' : ''): 'disabled'}"/>
+<c:set var="vectorActive"
+       value="${not empty targeting_vectors? (empty mice and empty es_cells ? 'active' : ''): 'disabled'}"/>
+<c:set var="tissueActive"
+       value="${not empty tissue_enquiry_links? (empty mice and empty es_cells and empty targeting_vectors ? 'active' : ''): 'disabled'}"/>
+<script type="application/javascript">
+    var crisprData = [{"mutationId":"MIN:000000001287","mgiAlleleId":"MGI:6144257","alleleSuperscript":"em2(IMPC)H","mgiGeneAccessionId":"MGI:2443597","alleleSymbol":"Tmem203<em2(IMPC)H>","planIdentifier":"PIN:0000004034","attempt":{"miDate":"2016-04-26","miExternalRef":"Harwell PRO/3588","mutagenesisExternalRef":"MF-1345","totalEmbryosInjected":98,"totalEmbryosSurvived":82,"embryoTwoCell":0,"comment":null,"embryoTransferDay":"Same Day","totalTransferred":82,"strainName":"C57BL/6NTac","mgiStrainAccessionId":"MGI:2164831"},"outcomeIdentifier":"TPO:000000001287","colonyName":"H-Tmem203-DEL1-EM2-B6N","guides":[{"sequence":"CAGGTGCACGAATATCTCAAAGG","guideSequence":"CAGGTGCACGAATATCTCAA","pam":"AGG","chr":"2","start":25145728,"stop":25145750,"strand":"-","genomeBuild":"GRCm39","grnaConcentration":50,"truncatedGuide":false,"reversed":true,"sangerService":false,"guideFormat":null,"guideSource":null}],"nucleases":[{"nucleaseType":"Cas9","nucleaseClass":"mRNA"}],"genotypePrimers":[{"sequence":"AAGATGTAAGGCACCTTAGCAA","name":"Mios KO R\t"}],"mutagenesisDonors":0,"reagents":0,"assay":{"numFounderPups":12,"numFounderSelectedForBreeding":2,"founderNumAssays":12,"numDeletionG0Mutants":0,"numG0WhereMutationDetected":4,"numHdrG0Mutants":0,"numHdrG0MutantsAllDonorsInserted":0,"numHdrG0MutantsSubsetDonorsInserted":0,"numHrG0Mutants":0,"numNhejG0Mutants":2,"assayType":"PCR"},"fasta":[{"index":1,"sequence":">H-Tmem203-DEL1-EM2-B6N\nATGTTATTCTCGCTGCGGGAGCTGGTGCAGTGGCTGGGCTTCGCCACCTTTGGATATTCGTGCACCTGCTGGCCCTGTTGGTGTTCTCCGTACTGTTGGCACTGCGAGTGGATGGCTTGACTCCGGGCCTCTCCTGGTGGAACGTCTTTGTGCCCTTTTTCGCCGCCGACGGGCTCAGTACCTACTTCACCACCATCGTTTCCGTTCGACTCTTCCAAGATGGGGAGAAGCGACTGGCTGTGCTGCGCCTCTTCTGGGTTCTCACCGTCCTTAGCCTCAAGTTTGTCTTTGAGATGTTGCTGTGCCAGAAGCTAGTGGAGCAGACTCGAGAGCTCTGGTTCGGCCTGATCACGTCTCCGGTCTTCATTCTCCTGCAGCTGCTCATGATCCGGGCTTGTCGCGTCAAC\n","sequenceType":"complete","sequenceCategory":"outcome sequence"}]},{"mutationId":"MIN:000000001288","mgiAlleleId":"MGI:6144256","alleleSuperscript":"em1(IMPC)H","mgiGeneAccessionId":"MGI:2443597","alleleSymbol":"Tmem203<em1(IMPC)H>","planIdentifier":"PIN:0000004034","attempt":{"miDate":"2016-04-26","miExternalRef":"Harwell PRO/3588","mutagenesisExternalRef":"MF-1345","totalEmbryosInjected":98,"totalEmbryosSurvived":82,"embryoTwoCell":0,"comment":null,"embryoTransferDay":"Same Day","totalTransferred":82,"strainName":"C57BL/6NTac","mgiStrainAccessionId":"MGI:2164831"},"outcomeIdentifier":"TPO:000000001288","colonyName":"H-Tmem203-DEL11-EM1-B6N","guides":[{"sequence":"CAGGTGCACGAATATCTCAAAGG","guideSequence":"CAGGTGCACGAATATCTCAA","pam":"AGG","chr":"2","start":25145728,"stop":25145750,"strand":"-","genomeBuild":"GRCm39","grnaConcentration":50,"truncatedGuide":false,"reversed":true,"sangerService":false,"guideFormat":null,"guideSource":null}],"nucleases":[{"nucleaseType":"Cas9","nucleaseClass":"mRNA"}],"genotypePrimers":[{"sequence":"AAGATGTAAGGCACCTTAGCAA","name":"Mios KO R\t"}],"mutagenesisDonors":0,"reagents":0,"assay":{"numFounderPups":12,"numFounderSelectedForBreeding":2,"founderNumAssays":12,"numDeletionG0Mutants":0,"numG0WhereMutationDetected":4,"numHdrG0Mutants":0,"numHdrG0MutantsAllDonorsInserted":0,"numHdrG0MutantsSubsetDonorsInserted":0,"numHrG0Mutants":0,"numNhejG0Mutants":2,"assayType":"PCR"},"fasta":[{"index":1,"sequence":">H-Tmem203-DEL11-EM1-B6N\nATGTTATTCTCGCTGCGGGAGCTGGTGCAGTGGCTGGGCTTCGCCACCTTTGCACCTGCTGGCCCTGTTGGTGTTCTCCGTACTGTTGGCACTGCGAGTGGATGGCTTGACTCCGGGCCTCTCCTGGTGGAACGTCTTTGTGCCCTTTTTCGCCGCCGACGGGCTCAGTACCTACTTCACCACCATCGTTTCCGTTCGACTCTTCCAAGATGGGGAGAAGCGACTGGCTGTGCTGCGCCTCTTCTGGGTTCTCACCGTCCTTAGCCTCAAGTTTGTCTTTGAGATGTTGCTGTGCCAGAAGCTAGTGGAGCAGACTCGAGAGCTCTGGTTCGGCCTGATCACGTCTCCGGTCTTCATTCTCCTGCAGCTGCTCATGATCCGGGCTTGTCGCGTCAAC\n","sequenceType":"complete","sequenceCategory":"outcome sequence"}]}][0];
+
+    function selectCrisprAllele(geneAcc, alleleName) {
+        fetch("https://www.gentar.org/mi/impc/allele-service/v1/alleles/crispr/get_by_mgi?mgiGeneAccessionId=" + geneAcc + "&alleleSuperscript=" + alleleName, { mode: 'no-cors'}).then(res => res.text()).then(j => console.log(j));
+    }
+    async function  copyContent (elementId) {
+        try {
+            let text = document.getElementById(elementId ).innerHTML;
+            await navigator.clipboard.writeText(text);
+            console.log('Content copied to clipboard');
+        } catch (err) {
+            console.error('Failed to copy: ', err);
+        }
+    }
+
+    $(function () {
+        $('#crisprDataModal').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            var button = $(event.relatedTarget) // Button that triggered the modal
+            var allele = button.data('allele') // Extract info from data-* attributes
+            var gene = button.data("gene");
+
+            selectCrisprAllele(gene, allele);
+            var crisprModalGuidesTable = $('.crispr-modal-guides-table');
+            crisprModalGuidesTable.bootstrapTable('load', crisprData["guides"]);
+            var crisprModalNucleasesTable = $('.crispr-modal-nucleases-table');
+            crisprModalNucleasesTable.bootstrapTable('load', crisprData["nucleases"]);
+            var crisprModalGenotypePrimersTable = $('.crispr-modal-genotype-primers');
+            crisprModalGenotypePrimersTable.bootstrapTable('load', crisprData["genotypePrimers"]);
+            var fastaDiv = $(".fasta-sequences");
+            fastaDiv.empty();
+
+            crisprData.fasta.forEach(f => {
+                fastaDiv.append("<div><code id='fasta-" + f.index +"' style='width: 100%; max-height: 200px; resize: vertical;'>" + f.sequence + "</code><button type='button' class='btn btn-outline-primary' onclick='copyContent(\"fasta-" + f.index  +"\")'><i class='fa fa-clipboard'></i></button></div>");
+            })
+        })
+    })
+</script>
 <div class="container" style="font-size: medium;">
+
     <div class="row">
         <div class="col-12">
             <c:if test="${summary['isEMMAOrder']}">
@@ -52,7 +94,8 @@
                 </li>
             </ul>
             <div class="tab-content" id="order-${alleleId}TabContent">
-                <div class="tab-pane fade ${miceActive == 'active'? 'show active': ''}" id="order-${alleleId}-mice" role="tabpanel"
+                <div class="tab-pane fade ${miceActive == 'active'? 'show active': ''}" id="order-${alleleId}-mice"
+                     role="tabpanel"
                      aria-labelledby="order-${alleleId}-mice-tab">
                     <div class="container justify-content-center pt-3">
                         <table id="mouse_table" class="small">
@@ -62,7 +105,12 @@
                                 <th style="text-align: center;">Genetic Background</th>
                                 <th style="text-align: center;">Production Centre</th>
                                 <th style="text-align: center;">QC Data</th>
-                                <th style="text-align: center;">ES Cell/Parent Mouse Colony</th>
+                                <c:if test="${not summary['is_crispr']}">
+                                    <th style="text-align: center;">ES Cell/Parent Mouse Colony}</th>
+                                </c:if>
+                                <c:if test="${summary['is_crispr']}">
+                                    <th style="text-align: center;">CRISPR Sequencing data</th>
+                                </c:if>
                                 <th>Order / Contact</th>
                             </tr>
                             </thead>
@@ -98,9 +146,20 @@
                                     </td>
 
                                     <td style="text-align: center;">
+                                        <c:if test="${not summary['is_crispr']}">
                                             ${mouse['associated_product_es_cell_name']}
-                                        <a href="${baseUrl}/alleles/${acc}/${mouse['associated_colony_allele_name']}<c:if test="${bare == true}">?bare=true</c:if>">${mouse['associated_product_colony_name']}</a>
+                                            <a href="${baseUrl}/alleles/${acc}/${mouse['associated_colony_allele_name']}<c:if test="${bare == true}">?bare=true</c:if>">${mouse['associated_product_colony_name']}</a>
                                             ${mouse['associated_product_vector_name']}
+                                        </c:if>
+
+                                        <c:if test="${summary['is_crispr']}">
+                                            <button class="btn btn-outline-primary" data-toggle="modal"
+                                                    data-target="#crisprDataModal"
+                                                    data-gene="${summary["gene_mgi_accession_id"]}"
+                                                    data-allele="${summary["allele_name"]}"><i
+                                                    class="fa fa-eye"></i> View Sequencing Data
+                                            </button>
+                                        </c:if>
 
                                     </td>
 
@@ -109,7 +168,8 @@
                                         <c:if test="${not empty mouse['orders']}">
 
                                             <c:forEach var="order" items="${mouse['orders']}" varStatus="ordersx">
-                                                <a class="btn btn-outline-primary" href="${order['url']}"  target="_blank"> <i
+                                                <a class="btn btn-outline-primary" href="${order['url']}"
+                                                   target="_blank"> <i
                                                         class="fa fa-shopping-cart"></i>&nbsp;Order
                                                     from ${order['name']}</a>
                                             </c:forEach>
@@ -119,7 +179,8 @@
                                         <c:if test="${empty mouse['orders'] and not empty mouse['contacts']}">
 
                                             <c:forEach var="contact" items="${mouse['contacts']}" varStatus="contactsx">
-                                                <a class="btn btn-outline-primary" href="${contact['url']}"  target="_blank"> <i
+                                                <a class="btn btn-outline-primary" href="${contact['url']}"
+                                                   target="_blank"> <i
                                                         class="fa  fa-envelope"></i>&nbsp;Contact ${contact['name']}</a>
                                             </c:forEach>
 
@@ -136,7 +197,8 @@
                         </table>
                     </div>
                 </div>
-                <div class="tab-pane fade ${cellActive == 'active'? 'show active': ''}" id="order-${alleleId}-cells" role="tabpanel"
+                <div class="tab-pane fade ${cellActive == 'active'? 'show active': ''}" id="order-${alleleId}-cells"
+                     role="tabpanel"
                      aria-labelledby="order-${alleleId}-cells-tab">
                     <div class="container justify-content-center pt-3">
                         <table id="es_cell_table" class="small">
@@ -190,8 +252,10 @@
 
                                     <td>
                                         <c:forEach var="order" items="${es_cell['orders']}" varStatus="ordersx">
-                                            <a class="btn btn-outline-primary" href="${order['url']}"  target="_blank"> <i
-                                                    class="fa fa-shopping-cart"></i>&nbsp; Order from ${order['name']}</a>&nbsp;
+                                            <a class="btn btn-outline-primary" href="${order['url']}" target="_blank">
+                                                <i
+                                                        class="fa fa-shopping-cart"></i>&nbsp; Order
+                                                from ${order['name']}</a>&nbsp;
                                         </c:forEach>
                                     </td>
 
@@ -204,7 +268,8 @@
                         </table>
                     </div>
                 </div>
-                <div class="tab-pane fade ${vectorActive == 'active'? 'show active': ''}" id="order-${alleleId}-vectors" role="tabpanel"
+                <div class="tab-pane fade ${vectorActive == 'active'? 'show active': ''}" id="order-${alleleId}-vectors"
+                     role="tabpanel"
                      aria-labelledby="order-${alleleId}-vectors-tab">
                     <div class="container justify-content-center pt-3">
                         <div class="row">
@@ -227,34 +292,39 @@
 
                                     <tbody>
 
-                                    <c:forEach var="targeting_vector" items="${targeting_vectors}" varStatus="targeting_vectorsx">
+                                    <c:forEach var="targeting_vector" items="${targeting_vectors}"
+                                               varStatus="targeting_vectorsx">
                                         <tr>
-
 
 
                                             <td style="text-align: center;">${targeting_vector['targeting_vector']}</td>
                                             <td style="text-align: center;">${targeting_vector['cassette']}</td>
                                             <td style="text-align: center;">${targeting_vector['backbone']}</td>
-                                            <td style="text-align: center;" >
+                                            <td style="text-align: center;">
                                                     ${targeting_vector['ikmc_project_id']}
-                                                   <c:set var="design_id" value="${String.valueOf(Double.parseDouble(targeting_vector['design_id']).intValue())}"></c:set>
-                                                    <c:if test="${ikmcDesignMapForRow[design_id]}">
-                                                     <a class="hasTooltip" href="${baseUrl}/designs/${design_id}?accession=${accession}">
-                                              </c:if>
-                                                        oligo design
-                                                        <span>
+                                                <c:set var="design_id"
+                                                       value="${String.valueOf(Double.parseDouble(targeting_vector['design_id']).intValue())}"></c:set>
+                                                <c:if test="${ikmcDesignMapForRow[design_id]}">
+                                                <a class="hasTooltip"
+                                                   href="${baseUrl}/designs/${design_id}?accession=${accession}">
+                                                    </c:if>
+                                                    oligo design
+                                                    <span>
                                                             <c:if test="${not empty targeting_vector['design_oligos_url']}">
-                                                                <a href="${targeting_vector['design_oligos_url']}" target="_blank"></a>
+                                                                <a href="${targeting_vector['design_oligos_url']}"
+                                                                   target="_blank"></a>
                                                             </c:if>
                                                         </span>
-                                                        <c:if test="${ikmcDesignMapForRow[design_id]}">
-                                            </a>
+                                                    <c:if test="${ikmcDesignMapForRow[design_id]}">
+                                                </a>
                                                 </c:if>
                                             </td>
                                             <td>
-                                                <c:forEach var="order" items="${targeting_vector['orders']}" varStatus="ordersx">
+                                                <c:forEach var="order" items="${targeting_vector['orders']}"
+                                                           varStatus="ordersx">
                                                     <a class="btn btn-outline-primary" href="${order['url']}"> <i
-                                                            class="fa fa-shopping-cart"></i>&nbsp; Order from ${order['name']}</a>
+                                                            class="fa fa-shopping-cart"></i>&nbsp; Order
+                                                        from ${order['name']}</a>
                                                 </c:forEach>
                                             </td>
 
@@ -278,14 +348,14 @@
             </span>
                                             </td>
 
-                                            <%--<td style="text-align: center;">
-            <span>
-                <c:if test="${not empty targeting_vector['design_oligos_url']}">
-                    <a href="${targeting_vector['design_oligos_url']}" target="_blank"><i
-                            class="fa fa-external-link-square fa-lg"></i></a>
-                </c:if>
-            </span>
-                                            </td>--%>
+                                                <%--<td style="text-align: center;">
+                <span>
+                    <c:if test="${not empty targeting_vector['design_oligos_url']}">
+                        <a href="${targeting_vector['design_oligos_url']}" target="_blank"><i
+                                class="fa fa-external-link-square fa-lg"></i></a>
+                    </c:if>
+                </span>
+                                                </td>--%>
                                         </tr>
                                     </c:forEach>
 
@@ -297,20 +367,28 @@
                     </div>
 
                 </div>
-                <div class="tab-pane fade ${vectorActive == 'active'? 'show active': ''}" id="order-${alleleId}-tissues" role="tabpanel"
+                <div class="tab-pane fade ${vectorActive == 'active'? 'show active': ''}" id="order-${alleleId}-tissues"
+                     role="tabpanel"
                      aria-labelledby="order-${alleleId}-tissues-tab">
                     <div class="container justify-content-center pt-3">
                         <c:forEach var="tissueLink" items="${tissue_enquiry_links}" varStatus="ordersx">
                             <div class="row m-2">
                                 <a class="tissue-order btn btn-outline-primary" href="${tissueLink}" target="_blank">
-                                    <i class="fa fa-envelope"></i>&nbsp;Make a ${tissue_enquiry_types.get(ordersx.index)} enquiry to ${tissue_distribution_centres.get(ordersx.index)} </a>&nbsp;
+                                    <i class="fa fa-envelope"></i>&nbsp;Make
+                                    a ${tissue_enquiry_types.get(ordersx.index)} enquiry
+                                    to ${tissue_distribution_centres.get(ordersx.index)} </a>&nbsp;
                             </div>
                         </c:forEach>
                     </div>
+                </div>
             </div>
+
         </div>
 
     </div>
 
 </div>
-</div>
+
+
+
+

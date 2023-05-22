@@ -623,7 +623,7 @@ public class SolrIndex2 {
                 + target
                 + "&start=0&rows=100&hl=true&wt=json&fl=allele_design_project,marker_symbol," +
                 "mgi_accession_id,allele_type,allele_name,allele_description,allele_id,other_links," +
-                "tissue_enquiry_links,tissue_enquiry_types,tissue_distribution_centres";
+                "tissue_enquiry_links,tissue_enquiry_types,tissue_distribution_centres,production_info";
 
 
         return search_url;
@@ -776,6 +776,7 @@ public class SolrIndex2 {
         allele.put("targeting_vector_status", "No Targeting Vector Production");
         allele.put("mouse_status", getSolrDocProperty(alleleDoc,"mouse_status"));
         allele.put("phenotyping_status", getSolrDocProperty(alleleDoc,"phenotyping_status"));
+        allele.put("is_crispr", getKeyValuePairFromArray("type_of_microinjection", alleleDoc.getJSONArray("production_info")).equals("Crispr"));
 
         if (alleleDoc.has("es_cell_status") && ! alleleDoc.get("es_cell_status").equals("No ES Cell Production") && ! alleleDoc.get("es_cell_status").equals("")) {
             allele.put("targeting_vector_status" , "Targeting Vector Confirmed");
@@ -821,9 +822,17 @@ public class SolrIndex2 {
 
         String background_colony_strain = "";
 
+
+
         if (jsonObject2.has("genetic_info")){
           background_colony_strain = getKeyValuePairFromArray("background_colony_strain", jsonObject2.getJSONArray("genetic_info"));
         }
+
+       boolean isCrispr = false;
+
+       if (jsonObject2.has("genetic_info")){
+           isCrispr = getKeyValuePairFromArray("type_of_microinjection", jsonObject2.getJSONArray("production_info")).equals("Crispr");
+       }
 
         String allele_type = "";
 
@@ -850,6 +859,7 @@ public class SolrIndex2 {
         map2.put("contacts", getContactInfo(jsonObject2));
         map2.put("qc_about", "");//http://www.knockoutmouse.org/kb/entry/90/
         map2.put("product_url", "alleles/" + jsonObject2.getString("mgi_accession_id") + "/" + jsonObject2.getString("allele_name") + "/");
+        map2.put("is_crispr", isCrispr);
 
         if(jsonObject2.has("name") && jsonObject2.getString("name").length() > 0) {
             map2.put("qc_data_url", "alleles/qc_data/mouse/" + jsonObject2.getString("name") + "/");
@@ -1040,6 +1050,7 @@ public class SolrIndex2 {
         if (allele != null) {
 
             summary.put("marker_symbol", allele.get("marker_symbol"));
+            summary.put("gene_mgi_accession_id", gene.get("mgi_accession_id"));
             summary.put("symbol", allele.get("marker_symbol") + "<sup>" + allele.get("allele_name") + "</sup>");
             summary.put("allele_name", allele.get("allele_name"));
             summary.put("allele_type", allele.get("allele_type"));
@@ -1048,6 +1059,7 @@ public class SolrIndex2 {
             summary.put("lrpcr_genotype_primers", allele.get("lrpcr_genotype_primers"));
             summary.put("genotype_primers", allele.get("genotype_primers"));
             summary.put("mutagenesis_url", allele.get("mutagenesis_url"));
+            summary.put("is_crispr", allele.get("is_crispr"));
             String alleleSimpleImage = (String) allele.get("allele_simple_image");
             if (alleleSimpleImage != null){
                 alleleSimpleImage = alleleSimpleImage.replace("allele-image-simple-cre","allele-image-cre").replace("allele-image-simple-flp","allele-image-flp");
