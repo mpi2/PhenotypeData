@@ -41,7 +41,7 @@
             fastaDiv.empty();
 
             crisprData.fasta.forEach(f => {
-                fastaDiv.append("<div><code id='fasta-" + f.index +"' style='width: 100%; max-height: 200px; resize: vertical;'>" + f.sequence + "</code><button type='button' class='btn btn-outline-primary' onclick='copyContent(\"fasta-" + f.index  +"\")'><i class='fa fa-clipboard'></i></button></div>");
+                fastaDiv.append("<div><code id='fasta-" + f.index +"' style='width: 100%; max-height: 200px; resize: vertical; color: #0a4c57'>" + f.sequence + "</code><button type='button' class='btn btn-outline-primary' onclick='copyContent(\"fasta-" + f.index  +"\")'><i class='fa fa-clipboard'></i></button></div>");
             })
         })
     })
