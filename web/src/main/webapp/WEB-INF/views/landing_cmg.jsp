@@ -218,8 +218,8 @@
 					<div id="export">
 						<p class="textright">
 							Download data as:
-							<a href="" id="downloadTsv"><i class="button fa fa-download"></i>TSV</a>
-							<a href="" id="downloadExcel"><i class="button fa fa-download"></i>XLS</a>
+							<a href="" id="downloadTsv"><i class="button fa fa-download download-data"></i>TSV</a>
+							<a href="" id="downloadExcel"><i class="button fa fa-download download-data"></i>XLS</a>
 						</p>
 					</div>
 				</div>

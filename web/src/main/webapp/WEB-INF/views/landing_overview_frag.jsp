@@ -44,7 +44,7 @@
                     <td>
                         <a id="tsvDownload"
                            href="${baseUrl}/phenotypes/export/${mpId}?fileType=tsv&fileName=IMPC_${pageTitle}"
-                           target="_blank" class="button fa fa-download">Download</a>
+                           target="_blank" class="button fa fa-download download-data">Download</a>
                     </td>
                 </tr>
                 </tbody>

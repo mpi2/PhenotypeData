@@ -71,7 +71,7 @@
 					 <div id="export">
                   <p class="textright">
                       Download data as:
-					<a id="tsvDownload" href="${baseUrl}/anatomy/export/${anatomy.anatomyId}?fileType=tsv" target="_blank" class="button fa fa-download">TSV</a>
-					<a id="xlsDownload" href="${baseUrl}/anatomy/export/${anatomy.anatomyId}?fileType=xls" target="_blank" class="button fa fa-download">XLS</a>
+					<a id="tsvDownload" href="${baseUrl}/anatomy/export/${anatomy.anatomyId}?fileType=tsv" target="_blank" class="button fa fa-download download-data">TSV</a>
+					<a id="xlsDownload" href="${baseUrl}/anatomy/export/${anatomy.anatomyId}?fileType=xls" target="_blank" class="button fa fa-download download-data">XLS</a>
 					</p>
 					</div>

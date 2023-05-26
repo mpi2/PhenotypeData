@@ -89,10 +89,10 @@
                                         Download data as:
                                         <a id="tsvDownload"
                                            href="${baseUrl}/experiments/export?${requestScope['javax.servlet.forward.query_string']}&fileType=tsv&fileName=allData${allelePageDTO.getGeneSymbol()}"
-                                           target="_blank" class="button fa fa-download">TSV</a>
+                                           target="_blank" class="button fa fa-download download-data">TSV</a>
                                         <a id="xlsDownload"
                                            href="${baseUrl}/experiments/export?${requestScope['javax.servlet.forward.query_string']}&fileType=xls&fileName=allData${allelePageDTO.getGeneSymbol()}"
-                                           target="_blank" class="button fa fa-download">XLS</a>
+                                           target="_blank" class="button fa fa-download download-data">XLS</a>
                                     </p>
                                 </div>
 

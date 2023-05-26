@@ -750,11 +750,11 @@
                                                                                 Download data as:
                                                                                 <a id="tsvDownload"
                                                                                    href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=tsv&fileName=${gene.markerSymbol}"
-                                                                                   target="_blank" class="btn btn-outline-primary"><i
+                                                                                   target="_blank" class="btn btn-outline-primary download-data"><i
                                                                                         class="fa fa-download"></i>&nbsp;TSV</a>
                                                                                 <a id="xlsDownload"
                                                                                    href="${baseUrl}/genes/export/${gene.getMgiAccessionId()}?fileType=xls&fileName=${gene.markerSymbol}"
-                                                                                   target="_blank" class="btn btn-outline-primary"><i
+                                                                                   target="_blank" class="btn btn-outline-primary download-data"><i
                                                                                         class="fa fa-download"></i>&nbsp;XLS</a>
                                                                             </p>
                                                                         </div>

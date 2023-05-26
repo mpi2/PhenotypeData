@@ -662,8 +662,8 @@
                             + "<input name='fileType' value='' type='hidden' />"
                             + "<input name='gridFields' value='' type='hidden' />"
                             + "<input name='idList' value='' type='hidden' />"
-                            + "<button class='tsv fa fa-download gridDump'>TSV</button>"
-                            + " or<button class='xls fa fa-download gridDump'>XLS</button>"
+                            + "<button class='tsv fa fa-download gridDump download-data'>TSV</button>"
+                            + " or<button class='xls fa fa-download gridDump download-data'>XLS</button>"
                             + "</form>");
 
                         $('button.gridDump').click(function () {
