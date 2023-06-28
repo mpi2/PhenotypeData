@@ -1169,6 +1169,12 @@ public class SolrIndex2 {
         }
 
         JSONArray array_order_names = jsonObject2.getJSONArray("order_names");
+        Set<Object> distinctValues = new HashSet<>();
+        for (int i = 0; i < array_order_names.length(); i++) {
+            Object value = array_order_names.get(i);
+            distinctValues.add(value);
+        }
+        array_order_names = new JSONArray(distinctValues.toArray());
         JSONArray array_order_links = jsonObject2.getJSONArray("order_links");
         if(array_order_links.length() < array_order_names.length()) {
             String commaSeparatedLinks = array_order_links.getString(0);
