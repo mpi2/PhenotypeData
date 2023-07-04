@@ -7,11 +7,6 @@
     <c:if test="${creLine}">
         <c:set var="creLineParam" value="&creLine=true"/>
     </c:if>
-    <div class="alert alert-warning">
-        <p>
-            This service may be affected by the Covid-19 pandemic. <a href="https://www.mousephenotype.org/news/impc-covid-19-update/">See how</a>
-        </p>
-    </div>
     <table id="creLineTable"
            data-toggle="table"
            data-pagination="true"

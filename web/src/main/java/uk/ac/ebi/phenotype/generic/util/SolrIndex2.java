@@ -32,6 +32,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static org.mousephenotype.cda.solr.service.OrderService.crePredicate;
 import static org.mousephenotype.cda.solr.service.OrderService.selectCre;
@@ -1059,6 +1060,7 @@ public class SolrIndex2 {
             summary.put("design_id", allele.get("design_id"));
             summary.put("statuses", getGeneProductInfoStatuses(mapper));    // TODO: FIX-ME!
             summary.put("status_mice", getGeneProductInfoStatusesMouseAlt(mapper));
+            summary.put("isEMMAOrder", isEMMAOrder(mice));
             summary.put("loa_link_id", allele.get("loa_link_id"));
 
             summary.put("status_es_cells", getGeneProductInfoStatusesEsCellAlt(mapper));
@@ -1786,6 +1788,12 @@ public class SolrIndex2 {
             boolean b = _map.containsKey(cassette + allele_type);
             return b;
         }
+    }
+
+    public boolean isEMMAOrder(List<Map<String, Object>> mapperMice) {
+        List<Map<String, Object>> orders = new ArrayList<>();
+        mapperMice.forEach(m -> orders.addAll((Collection<? extends Map<String, Object>>) m.get("orders")));
+        return orders.stream().anyMatch(o -> o.get("name").equals("EMMA"));
     }
 
 }

@@ -8,6 +8,16 @@
 <div class="container" style="font-size: medium;">
     <div class="row">
         <div class="col-12">
+            <c:if test="${summary['isEMMAOrder']}">
+                <div class="alert alert-warning">
+                    <p>
+                        Temporary server interruption on IMPC partners, INFRAFRONTIER, due to a cyberattack on Helmholtz Zentrum Munich
+                    </p>
+                    <p>Please write to <a href="mailto:info@infrafrontier.eu">info@infrafrontier.eu</a> for general inquiries and to emma@infrafrontier.eu to order and submit mouse strains. EMMA strains can be found on <a href="http://www.findmice.org/repository" rel="noreferrer">http://www.findmice.org/repository</a> under EMMA repository in "Downloadable Reports".</p>
+                </div>
+            </c:if>
+        </div>
+        <div class="col-12">
             <c:if test="${not empty summary['map_image']}">
                 <div id="image">
                     <img alt="image not found!" src="${summary['map_image']}" width="80%"
