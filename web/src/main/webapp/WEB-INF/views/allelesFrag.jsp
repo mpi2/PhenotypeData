@@ -48,6 +48,11 @@
             crisprModalGenotypePrimersTable.bootstrapTable('load', crisprData["genotypePrimers"] || []);
             var fastaDiv = $(".fasta-sequences");
             fastaDiv.empty();
+            if(!crisprData.fasta) {
+                $('.fasta-sequence-title').addClass('d-none');
+            } else {
+                $('.fasta-sequence-title').removeClass('d-none');
+            }
 
             (crisprData.fasta || []).forEach(f => {
                 fastaDiv.append("<div><code id='fasta-" + f.index +"' style='width: 100%; max-height: 200px; resize: vertical; color: #0a4c57'>" + f.sequence + "</code><button type='button' class='btn btn-outline-primary' onclick='copyContent(\"fasta-" + f.index  +"\")'><i class='fa fa-clipboard'></i></button></div>");

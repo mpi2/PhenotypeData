@@ -1415,7 +1415,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <h2 class="mt-2">Sequence</h2>
+                        <h2 class="mt-2 fasta-sequence-title">Sequence</h2>
                         <div class="row">
                             <div class="col fasta-sequences">
 

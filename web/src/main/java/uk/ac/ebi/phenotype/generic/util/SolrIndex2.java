@@ -1804,7 +1804,7 @@ public class SolrIndex2 {
 
     public boolean isEMMAOrder(List<Map<String, Object>> mapperMice) {
         List<Map<String, Object>> orders = new ArrayList<>();
-        mapperMice.forEach(m -> orders.addAll((Collection<? extends Map<String, Object>>) m.get("orders")));
+        mapperMice.forEach(m -> orders.addAll(m.get("orders") != null ? (Collection<? extends Map<String, Object>>) m.get("orders") : Collections.emptyList()));
         return orders.stream().anyMatch(o -> o.get("name").equals("EMMA"));
     }
 
