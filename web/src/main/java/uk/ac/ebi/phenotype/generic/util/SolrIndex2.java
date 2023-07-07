@@ -776,7 +776,12 @@ public class SolrIndex2 {
         allele.put("targeting_vector_status", "No Targeting Vector Production");
         allele.put("mouse_status", getSolrDocProperty(alleleDoc,"mouse_status"));
         allele.put("phenotyping_status", getSolrDocProperty(alleleDoc,"phenotyping_status"));
-        allele.put("is_crispr", getKeyValuePairFromArray("type_of_microinjection", alleleDoc.getJSONArray("production_info")).equals("Crispr"));
+        boolean isCrispr = false;
+        if(alleleDoc.has("production_info"))
+        {
+           isCrispr = getKeyValuePairFromArray("type_of_microinjection", alleleDoc.getJSONArray("production_info")).equals("Crispr");
+        }
+        allele.put("is_crispr", isCrispr);
 
         if (alleleDoc.has("es_cell_status") && ! alleleDoc.get("es_cell_status").equals("No ES Cell Production") && ! alleleDoc.get("es_cell_status").equals("")) {
             allele.put("targeting_vector_status" , "Targeting Vector Confirmed");
