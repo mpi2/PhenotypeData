@@ -421,7 +421,7 @@
                             <div class="container" style="line-height: 2">
                                 <div class="row">
                                     <div class="col-12">
-                                        <h2>Embryo Data Availability</h2>
+                                        <h2>Embryo Data Availability Grid</h2>
                                     </div>
                                 </div>
 
