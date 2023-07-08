@@ -17,7 +17,7 @@
         <script type='text/javascript' src='${baseUrl}/js/slider.js?v=${version}'></script>
         <link rel="stylesheet" href='${baseUrl}/css/slider.css?v=${version}'/>
 		<link href="${baseUrl}/css/alleleref.css" rel="stylesheet"/>
-            <script defer="defer" src="https://ficolo.github.io/impc-labs/static/js/main.7a36cf7f.js"></script>
+            <script defer="defer" src="https://ficolo.github.io/impc-labs/static/js/main.09f6f606.js"></script>
     <link href="https://ficolo.github.io/impc-labs/static/css/main.073c9b0a.css" rel="stylesheet"/>
         <script>
             function csvToJSON(csv) {
@@ -421,7 +421,7 @@
                             <div class="container" style="line-height: 2">
                                 <div class="row">
                                     <div class="col-12">
-                                        <h2>Embryo Data Availability</h2>
+                                        <h2>Embryo Data Availability Grid</h2>
                                     </div>
                                 </div>
 
