@@ -78,6 +78,21 @@
         </div>
     </c:when>
 
+    <%-- FCS file--%>
+    <c:when test="${fn:containsIgnoreCase(img.parameter_name, 'Embryo reconstruction') and img.omero_id == '-1'}">
+        <!-- used fcs images on normal image scrolldown pages -->
+        <div class="card-img-top img-fluid text-center">
+            <c:set var="target_url" value="${cmsBaseUrl}/embryoviewer?mgi=${img.gene_accession_id}" />
+            <a href="${target_url}" class="text-dark">
+                <svg class="bd-placeholder-img card-img-top" width="100%" height="180" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Image cap" preserveAspectRatio="xMidYMid slice" focusable="false">
+                    <title>Interactive Embryo Viewer</title>
+                    <rect width="100%" height="100%" fill="#6c757d"></rect>
+                    <text dominant-baseline="middle" text-anchor="middle" x="50%" y="50%" fill="#dee2e6" dy=".3em">Interactive Embryo Viewer</text>
+                </svg>
+            </a>
+        </div>
+    </c:when>
+
     <%-- When the image has not been loaded into OMERO--%>
     <c:when test="${img.omero_id == '-1'}">
         <!-- Use generic thumbnail when image is missing -->
