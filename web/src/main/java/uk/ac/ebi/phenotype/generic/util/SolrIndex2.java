@@ -653,7 +653,7 @@ public class SolrIndex2 {
 
     private String getGeneUrl(String accession) {
 
-        String target = "marker_type:Gene AND mgi_accession_id:" + accession.replace(":", "\\:");
+        String target = "marker_type:(Gene OR Pseudogene) AND mgi_accession_id:" + accession.replace(":", "\\:");
 
         String search_url = "/select?q="
                 + target
