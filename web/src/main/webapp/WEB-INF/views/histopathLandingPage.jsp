@@ -196,6 +196,9 @@
                 <th>
                     <div class="rotate90Head">Gene</div>
                 </th>
+                <th>
+                    <div>Fixed tissue available</div>
+                </th>
                 <c:forEach items="${anatomyHeaders}" var="parameter">
                     <th>
                         <div class="rotate90Head">${parameter}</div>
@@ -208,6 +211,18 @@
             <c:forEach var="arow" items="${rows}" varStatus="status">
                 <tr>
                     <td>${geneSymbols[status.index]}</td>
+                    <td>
+                        <c:choose>
+                            <c:when test="${geneTissueMap.containsKey(geneSymbols[status.index])}">
+                                <a href="${baseUrl}/genes/${geneTissueMap.get(geneSymbols[status.index])}#order">
+                                    Yes
+                                </a>
+                            </c:when>
+                            <c:otherwise>
+                                No
+                            </c:otherwise>
+                        </c:choose>
+                    </td>
                     <c:forEach var="acolumn" items="${arow}">
                         <td>${acolumn}</td>
                     </c:forEach>
@@ -218,6 +233,9 @@
             <tr style="height: 80px;">
                 <th>
                     <div class="rotate90Bottom">Gene</div>
+                </th>
+                <th>
+                    <div>Fixed tissue available</div>
                 </th>
                 <c:forEach var="parameter" items="${anatomyHeaders}">
                     <th>
