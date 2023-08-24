@@ -7,6 +7,8 @@ import org.mousephenotype.cda.solr.service.dto.CountTableRow;
 import org.mousephenotype.cda.solr.service.dto.ImpressDTO;
 import org.mousephenotype.cda.solr.service.dto.MpDTO;
 import org.mousephenotype.cda.solr.service.embryoviewer.EmbryoViewerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -43,6 +45,7 @@ import java.util.stream.Collectors;
 @Controller
 public class LandingPageController {
 
+	private final Logger logger = LoggerFactory.getLogger(LandingPageController.class);
 	private final GeneService              geneService;
 	private final GenotypePhenotypeService genotypePhenotypeService;
 	private final ImageService             imageService;
@@ -105,9 +108,11 @@ public class LandingPageController {
 	public String histopath(Model model) throws SolrServerException, IOException {
 		//To display the heatmap we need data in form of ints [ column , row, value ] but row starts from bottom left hand side
 		HeatmapData heatmapData = histopathService.getHeatmapDatadt();
+		HashMap<String, String> geneTissueMap = histopathService.getProductsWithFixedTissues(heatmapData.getGeneSymbols());
 		model.addAttribute("anatomyHeaders", heatmapData.getColumnHeaders());
 		model.addAttribute("geneSymbols", heatmapData.getGeneSymbols());
 		model.addAttribute("rows", heatmapData.getRows());
+		model.addAttribute("geneTissueMap", geneTissueMap);
 		return "histopathLandingPage";
 	}
 

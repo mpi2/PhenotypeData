@@ -1,14 +1,14 @@
 package org.mousephenotype.cda.solr.service;
 
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.PivotField;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.util.NamedList;
 import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.enumerations.ZygosityType;
-import org.mousephenotype.cda.solr.service.dto.ImpressBaseDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
-import org.mousephenotype.cda.solr.service.dto.ObservationDTOBase;
-import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+import org.mousephenotype.cda.solr.service.dto.*;
 import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow;
 import org.mousephenotype.cda.solr.web.dto.HistopathPageTableRow.ParameterValueBean;
 import org.mousephenotype.cda.solr.web.dto.HistopathSumPageTableRow;
@@ -29,18 +29,25 @@ import static java.util.stream.Collectors.toSet;
 @Service
 public class HistopathService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(HistopathService.class);
 
     private ObservationService observationService;
     private StatisticalResultService statisticalResultService;
+
+    private SolrClient productCore;
     private String delimeter = " - ";
     public static String histoDelimeter = "||";
 
 
     @Inject
-    public HistopathService(ObservationService observationService, StatisticalResultService statisticalResultService) {
+    public HistopathService(
+            ObservationService observationService,
+            StatisticalResultService statisticalResultService,
+            SolrClient productCore
+    ) {
         this.observationService = observationService;
         this.statisticalResultService = statisticalResultService;
+        this.productCore = productCore;
     }
 
     public HistopathService() {
@@ -421,5 +428,22 @@ public class HistopathService {
         }
         logger.info("unique datasets for histopath size = " + uniqueDataSets.size());
         return uniqueDataSets;
+    }
+
+    @Cacheable("products_with_fixed_tissues")
+    public HashMap<String, String> getProductsWithFixedTissues(List<String> geneList) throws SolrServerException, IOException {
+        SolrQuery query = new SolrQuery();
+        query.setQuery("tissue_enquiry_types:\"Fixed Tissue\"");
+        query.addFilterQuery("type:(mouse OR es_cell OR targeting_vector)");
+        query.setRows(Integer.MAX_VALUE);
+        QueryResponse response = productCore.query(query);
+        List<ProductDTO> productDTOS = response.getBeans(ProductDTO.class);
+        HashMap<String, String> results = new HashMap<>();
+        productDTOS.forEach(product -> {
+            if (geneList.contains(product.getMarkerSymbol())) {
+                results.put(product.getMarkerSymbol(), product.getMgiAccessionId());
+            }
+        });
+        return results;
     }
 }
