@@ -114,7 +114,7 @@
                 <%--    alert( 'title='+title+'Column title clicked on: col index '+idx+' row index='+idxRow );--%>
                 <%--} );--%>
 
-                table.on('click', 'tbody td', function () {
+                table.on('click', 'tbody td.cell', function (e) {
                     var url = '${baseUrl}/histopath/';
                     //get textContent of the TD
                     var anatomy = table.column(this.cellIndex).header();
@@ -210,7 +210,7 @@
             <tbody>
             <c:forEach var="arow" items="${rows}" varStatus="status">
                 <tr>
-                    <td>${geneSymbols[status.index]}</td>
+                    <td class="cell">${geneSymbols[status.index]}</td>
                     <td>
                         <c:choose>
                             <c:when test="${geneTissueMap.containsKey(geneSymbols[status.index])}">
@@ -224,7 +224,7 @@
                         </c:choose>
                     </td>
                     <c:forEach var="acolumn" items="${arow}">
-                        <td>${acolumn}</td>
+                        <td class="cell">${acolumn}</td>
                     </c:forEach>
                 </tr>
             </c:forEach>
