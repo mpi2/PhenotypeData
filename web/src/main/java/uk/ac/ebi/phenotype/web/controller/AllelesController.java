@@ -339,6 +339,7 @@ public class AllelesController {
             log.info("return empty data");
             return view;
         }
+        Map<String, Object> geneData = (Map<String, Object>) constructs.get("gene");
 
         ArrayList<Map<String,String>> vectorArray = (ArrayList) constructs.get("targeting_vectors");
 
@@ -376,6 +377,7 @@ public class AllelesController {
         model.addAttribute("accession", acc);
         model.addAttribute("ikmcDesignMapForRow", ikmcDesignMapForRow);
         model.addAttribute("isCrispr", constructs.get("allele"));
+        model.addAttribute("gene_symbol", geneData.get("marker_symbol"));
 
         if (model.containsAttribute("show_header")) {
             return "alleles_noheader";
