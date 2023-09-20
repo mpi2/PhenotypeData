@@ -56,6 +56,12 @@
             <div class="col-12 col-md-6">
                 <ul class="footer__social">
                     <li>
+                        <a href="https://www.linkedin.com/company/impc--international-mouse-phenotyping-consortium/" target="_blank" rel="noreferrer">
+                            <span class="sr-only">IMPC LinkedIn</span>
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                    </li>
+                    <li>
                         <a href="https://twitter.com/impc" target="_blank" rel="noreferrer">
                             <span class="sr-only">IMPC Twitter</span>
                             <i class="fab fa-twitter"></i>
