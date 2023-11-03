@@ -651,7 +651,7 @@ public class ImpressService extends BasicService implements WebStatus {
 		param.setUnitX(dto.getUnitX());
 		param.setUnitY(dto.getUnitY());
 		param.setName(dto.getParameterName());
-		param.setObservationType(ObservationType.valueOf(dto.getObservationType()));
+		param.setObservationType(dto.getObservationType() != null ? ObservationType.valueOf(dto.getObservationType()) : null);
 		param.setCategories(dto.getCategories());
 		List<String> procedures = new ArrayList<>();
 		procedures.add(dto.getProcedureName());
