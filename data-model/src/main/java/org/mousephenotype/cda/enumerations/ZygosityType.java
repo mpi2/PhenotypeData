@@ -29,7 +29,8 @@ public enum ZygosityType {
 	heterozygote,
 	hemizygote,
 	anzygote,
-	not_applicable;
+	not_applicable,
+	wildtype;
 	
 	public String getName(){
 		return this.toString();
@@ -56,6 +57,8 @@ public enum ZygosityType {
 				return ZygosityType.hemizygote;
 			case "anzygote":
 				return ZygosityType.anzygote;
+			case "wildtype":
+				return ZygosityType.wildtype;
 			case "not applicable":
 			case "not_applicable":
 				return ZygosityType.not_applicable;
