@@ -418,8 +418,7 @@ public class ExperimentService {
 
         //for viability we don't need to filter on Sex or Zygosity
         List<ObservationDTO> observations = observationService.getExperimentObservationsBy(parameterStableId, null, acc, null, phenotypingCenter, strain, null, metadataGroup, alleleAccession);
-        Map<String, String> textValue = new Gson().fromJson(observations.get(0).getTextValue(), Map.class);
-        String category = textValue.get("outcome");
+        String category = observations.get(0).getTextValue();
 
         viabilityDTO.setCategory(category);
 

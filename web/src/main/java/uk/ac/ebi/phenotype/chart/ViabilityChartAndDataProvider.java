@@ -68,7 +68,7 @@ public class ViabilityChartAndDataProvider {
 				totalLabelToNumber.put(WordUtils.capitalize(ob.getParameterName()), Math.round(ob.getDataPoint()));
 			}
 		}
-		String totalChart = PieChartCreator.getPieChart(totalLabelToNumber, "totalChart-"+parameterStableId, "Total Counts (Male and Female)", "", ChartColors.getZygosityColorMap());
+		String totalChart = PieChartCreator.getPieChart(totalLabelToNumber, "totalChart-"+parameterStableId+"-"+viabilityDTO.getSequenceId(), "Total Counts (Male and Female)", "", ChartColors.getZygosityColorMap());
 		viabilityDTO.setTotalChart(totalChart);
 
 		Map<String, Integer> maleLabelToNumber = new LinkedHashMap<>();
@@ -77,7 +77,7 @@ public class ViabilityChartAndDataProvider {
 			maleLabelToNumber.put(WordUtils.capitalize(ob.getParameterName()), Math.round(ob.getDataPoint()));
 			}
 		}
-		String maleChart = PieChartCreator.getPieChart(maleLabelToNumber, "maleChart-"+parameterStableId, "Male Counts", "", ChartColors.getZygosityColorMap());
+		String maleChart = PieChartCreator.getPieChart(maleLabelToNumber, "maleChart-"+parameterStableId+"-"+viabilityDTO.getSequenceId(), "Male Counts", "", ChartColors.getZygosityColorMap());
 		viabilityDTO.setMaleChart(maleChart);
 
 		Map<String, Integer> femaleLabelToNumber = new LinkedHashMap<>();
@@ -86,7 +86,7 @@ public class ViabilityChartAndDataProvider {
 			femaleLabelToNumber.put(WordUtils.capitalize(ob.getParameterName()), Math.round(ob.getDataPoint()));
 			}
 		}
-		String femaleChart = PieChartCreator.getPieChart(femaleLabelToNumber, "femaleChart-"+parameterStableId, "Female Counts", "", ChartColors.getZygosityColorMap());
+		String femaleChart = PieChartCreator.getPieChart(femaleLabelToNumber, "femaleChart-"+parameterStableId+"-"+viabilityDTO.getSequenceId(), "Female Counts", "", ChartColors.getZygosityColorMap());
 		viabilityDTO.setFemaleChart(femaleChart);
 		return viabilityDTO;
 	}
