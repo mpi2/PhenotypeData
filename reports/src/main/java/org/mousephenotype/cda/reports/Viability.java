@@ -140,7 +140,8 @@ public class Viability extends AbstractReport {
                     .stream()
                     .filter(d -> ((d.getTextValue() != null)
                         && ( ! d.getTextValue().isEmpty())
-                        && ((d.getParameterStableId().equalsIgnoreCase(Constants.HOM_VIABILITY_ALL_ID))
+                        && (((d.getParameterStableId().equalsIgnoreCase(Constants.HOM_VIABILITY_ALL_ID))
+                            && (! d.getTextValue().equalsIgnoreCase("Cannot be calculated")))
                         || ((d.getParameterStableId().equalsIgnoreCase(Constants.HEM_VIABILITY_MALE_ID))
                             && (! d.getTextValue().equalsIgnoreCase("Cannot be calculated"))))))
                     .findAny().orElse(null);
