@@ -383,9 +383,9 @@ public class AbrChartAndTableProvider {
 				stats.addValue(obs.getDataPoint());;
 			}
 			int decimalPlaces = ChartUtils.getDecimalPlaces(exp);
-			res.setMean(ChartUtils.getDecimalAdjustedFloat(new Float(stats.getMean()), decimalPlaces));
+			res.setMean(!Double.isNaN(stats.getMean()) ? ChartUtils.getDecimalAdjustedFloat(new Float(stats.getMean()), decimalPlaces) : null);
 			res.setSampleSize(dataPoints.size());
-			res.setSd(ChartUtils.getDecimalAdjustedFloat(new Float(stats.getStandardDeviation()), decimalPlaces));
+			res.setSd(!Double.isNaN(stats.getStandardDeviation()) ? ChartUtils.getDecimalAdjustedFloat(new Float(stats.getStandardDeviation()), decimalPlaces) : null);
 		}
 		return res;
 	}
