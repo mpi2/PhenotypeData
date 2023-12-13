@@ -28,6 +28,7 @@ import org.mousephenotype.cda.solr.service.dto.ExperimentDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTO;
 import org.mousephenotype.cda.solr.service.dto.ObservationDTOBase;
 import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
+import org.mousephenotype.cda.solr.service.dto.StatisticalRawDataDTO;
 import org.mousephenotype.cda.solr.service.exception.SpecificExperimentException;
 import org.mousephenotype.cda.solr.web.dto.*;
 import org.slf4j.Logger;
@@ -236,7 +237,8 @@ public class ExperimentService {
 
             // Get the raw data from the result
             String output;
-            String b64 = this.statisticalRawDataRepository.findStatisticalRawDataDTOByDocId(result.getDocId()).getRawData();
+            StatisticalRawDataDTO rawDataDTO = this.statisticalRawDataRepository.findStatisticalRawDataDTOByDocId(result.getDocId());
+            String b64 = rawDataDTO != null ? rawDataDTO.getRawData() : null;
 
             if (b64 != null) {
                 try (GZIPInputStream gzis = new GZIPInputStream(new ByteArrayInputStream(Base64.decodeBase64(b64)))) {
