@@ -756,7 +756,7 @@
                                                 <h3>Novel, high-frequency hearing loss</h3>
                                                 <a href="${baseUrl}/genes/MGI:1915589">Ccdc88c<sup>tm1b(KOMP)Mbp</sup></a>
                                                 <div class="chart" id="wdtc1"
-                                                     graphUrl="${baseUrl}/chart?accession=MGI:1915589&parameter_stable_id=IMPC_ABR_012_001&procedure_stable_id=IMPC_ABR_002&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=UCD_001&zygosity=homozygote&phenotyping_center=UC%20Davis&strain_accession_id=MGI:2683688&allele_accession_id=NOT-RELEASED-387fb49d62&chart_only=true">
+                                                     graphUrl="${baseUrl}/chart?accession=MGI:1915589&parameter_stable_id=IMPC_ABR_012_001&procedure_stable_id=IMPC_ABR_002&chart_type=UNIDIMENSIONAL_ABR_PLOT&pipeline_stable_id=UCD_001&zygosity=homozygote&phenotyping_center=UC%20Davis&strain_accession_id=MGI:2683688&allele_accession_id=MGI:5548562&chart_only=true">
                                                     <div id="spinner_wdtc1">
                                                         <i class="fa fa-refresh fa-spin"></i>
                                                     </div>
