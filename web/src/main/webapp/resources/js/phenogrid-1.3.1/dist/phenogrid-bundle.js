@@ -504,7 +504,6 @@ DataLoader.prototype = {
             
             jqxhr.fail(function () { 
                 console.log('Ajax error - processDataForVendor()')
-                console.log('test message to check CI delay');
             });
 		} else {
 			this.postDataLoadCallback();  // make a call back to post data init function
