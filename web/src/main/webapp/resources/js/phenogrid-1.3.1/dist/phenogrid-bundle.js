@@ -503,6 +503,7 @@ DataLoader.prototype = {
             });
             
             jqxhr.fail(function () { 
+                console.log('Test message here');
                 console.log('Ajax error - processDataForVendor()')
             });
 		} else {
@@ -1033,8 +1034,6 @@ DataLoader.prototype = {
 	
 	getFetch: function (self, url, target, callback, finalCallback, parent) {
         console.log('GET:' + url);
-        console.log('Test_message')
-        
         // Separate the ajax request with callbacks
         var jqxhr = $.ajax({
             url: url,
