@@ -394,6 +394,8 @@ DataLoader.prototype = {
 			asyncDataLoadingCallback - callback
 	*/
     loadCompareData: function(targetGroup, qrySourceList, geneList, asyncDataLoadingCallback) {
+      // Print for debugging purposes
+    console.log('loadCompareData()');
 		this.postDataLoadCallback = asyncDataLoadingCallback;
         
         // save the original source listing
@@ -436,6 +438,8 @@ DataLoader.prototype = {
     
     // In progress 03/09/2016
 	loadCompareDataForVendor: function(qrySourceList, targetGroupList, asyncDataLoadingCallback, multiTargetsModeTargetLengthLimit) {
+    // Print for debugging purposes
+    console.log('loadCompareDataForVendor()');
 		// save the original source listing
         // The qrySourceList has already had all duplicated IDs removed in _parseQuerySourceList() of phenogrid.js - Joe
 		this.origSourceList = qrySourceList;
@@ -2211,6 +2215,8 @@ var images = require('./images.json');
         
         // Monarch analyze/phenotype compare use case
         _initCompare: function() {
+          // Print for debugging purposes
+            console.log('__initCompare()');
             // overwrite the this.state.targetGroupList with only 'compare'
             // this 'compare' is used in dataLoader.loadCompareData() and dataManager.buildMatrix() too - Joe
             var compare = "compare";
@@ -2258,6 +2264,8 @@ var images = require('./images.json');
 
         // Vendor (E.g., IMPC) use case or similar
         _initGridSkeletonDataForVendor: function() {
+            // Print for debugging purpose
+            console.log('Grid Sekeleton Data For Vendor');
             // Compose the target group list based on gridSkeletonData.xAxis
             for (var j = 0; j < this.state.gridSkeletonData.xAxis.length; j++) {
                 // E.g., {groupName: "Homo sapiens", groupId: "9606"}
