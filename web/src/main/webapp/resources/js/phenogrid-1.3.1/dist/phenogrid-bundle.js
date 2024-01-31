@@ -504,6 +504,7 @@ DataLoader.prototype = {
             
             jqxhr.fail(function () { 
                 console.log('Test message');
+		console.log('Testing CI');
                 console.log('Ajax error - processDataForVendor()')
             });
 		} else {
