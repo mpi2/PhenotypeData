@@ -451,9 +451,21 @@ DataLoader.prototype = {
 	},
 
     processDataForVendor: function(targetGrpList, qryString, multiTargetsModeTargetLengthLimit) {
+
+      // Print every element of this list to id it:
+      console.log("targetGrpList:",targetGrpList);
+
+      console.log("qryString:",qryString);
+
+      console.log("multiTargetsModeTargetLengthLimit:",multiTargetsModeTargetLengthLimit);
+
 		if (targetGrpList.length > 0) {
 			var target = targetGrpList[0];  // pull off the first to start processing
 			targetGrpList = targetGrpList.slice(1);
+
+      console.log("target",target);
+
+      console.log("targetGrpList",targetGrpList);
 	    	
             
             var listOfListsPerTargetGroup = [];
@@ -469,11 +481,15 @@ DataLoader.prototype = {
                 // join all the MP inside each MP list with plus sign, and join each list with default comma
                 listOfListsPerTargetGroup.push(target.entities[j].combinedList);
             }
+
+            console.log("listOfListsPerTargetGroup:",listOfListsPerTargetGroup);
             
             
             // use the default comma to separate each list into each genotype profile
 	        // example: monarchinitiative.org/compare/HP:0000726+HP:0000746+HP:0001300/MP+MP+MP,MP+MP,MP+MP+MP+MP...
 	        var qryStringPerTargetGroup = qryString + listOfListsPerTargetGroup.join();
+
+          console.log("qryStringPerTargetGroup:",qryStringPerTargetGroup);
 
             var self = this;
             
@@ -503,8 +519,6 @@ DataLoader.prototype = {
             });
             
             jqxhr.fail(function () { 
-                console.log('Test message');
-		console.log('Testing CI');
                 console.log('Ajax error - processDataForVendor()')
             });
 		} else {
