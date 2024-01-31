@@ -36,7 +36,7 @@
         <script defer type="text/javascript" src="${baseUrl}/js/general/allele.js" ></script>
 
         <%-- Phenogrid requirements --%>
-        <script defer type="text/javascript" src="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.min.js?v=${version}" ></script>
+        <script defer type="text/javascript" src="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.js?v=${version}" ></script>
 
         <%-- Load async CSS stylesheet, see https://www.filamentgroup.com/lab/load-css-simpler/ --%>
         <link rel="preload" type="text/css" href="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.min.css?v=${version}" as="style" />
