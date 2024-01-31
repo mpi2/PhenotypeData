@@ -503,7 +503,7 @@ DataLoader.prototype = {
             });
             
             jqxhr.fail(function () { 
-                console.log('Test message here');
+                console.log('Test message');
                 console.log('Ajax error - processDataForVendor()')
             });
 		} else {
