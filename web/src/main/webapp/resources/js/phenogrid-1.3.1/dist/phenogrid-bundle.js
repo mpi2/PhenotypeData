@@ -2005,7 +2005,7 @@ var images = require('./images.json');
 	$.widget("ui.phenogrid", {
 	    // Public API, can be overwritten in Phenogrid constructor
         config: {		
-            serverURL: "https://legacy.monarchinitiative.org", // will be overwritten by phenogrid_config.js, and Phenogrid constructor
+            serverURL: "https://api.monarchinitiative.org/api", // will be overwritten by phenogrid_config.js, and Phenogrid constructor
             gridSkeletonData: {},
             selectedCalculation: 0, // index 0 is Similarity by default. (0 - Similarity, 1 - Ratio (q), 2 - Uniqueness, 3- Ratio (t))
             selectedSort: "Frequency", // sort method of sources: "Alphabetic", "Frequency and Rarity", "Frequency" 
@@ -2036,7 +2036,7 @@ var images = require('./images.json');
                 limitString: '&limit'
             },
             compareQuery: { // compare API takes HTTP GET, so no body parameters
-                URL: '/compare' // used for owlSimFunction === 'compare' and genotype expansion compare simsearch - Joe
+                URL: '/sim/compare' // used for owlSimFunction === 'compare' and genotype expansion compare simsearch - Joe
             },
             monarchInitiativeText: 'Powered by The Monarch Initiative',
             unmatchedButtonLabel: 'Unmatched Phenotypes',
