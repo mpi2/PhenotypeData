@@ -62,27 +62,9 @@
                         </a>
                     </li>
                     <li>
-                        <a href="https://twitter.com/impc" target="_blank" rel="noreferrer">
-                            <span class="sr-only">IMPC Twitter</span>
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                    </li>
-                    <li>
                         <a href="https://www.youtube.com/channel/UCXp3DhDYbpJHu4MCX_wZKww" target="_blank" rel="noreferrer">
                             <span class="sr-only">IMPC YouTube</span>
-                            <i class="fab fa-youtube"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://www.facebook.com/InternationalMousePhenotypingConsortium" target="_blank" rel="noreferrer">
-                            <span class="sr-only">IMPC Facebook</span>
-                            <i class="fab fa-facebook"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://www.reddit.com/user/MousePhenotyping" target="_blank" rel="noreferrer">
-                            <span class="sr-only">IMPC Reddit</span>
-                            <i class="fab fa-reddit"></i>
+                            <i class="fa-brands fa-square-youtube"></i>
                         </a>
                     </li>
                 </ul>
