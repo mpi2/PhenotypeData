@@ -167,7 +167,7 @@
 
                                 <div class="row">
                                     <div class="col-12">
-                                        <img src="https://www.mousephenotype.org/data/img/embryo_impress.png">
+                                        <img src="https://www.mousephenotype.org/data/img/embryo-pipeline-diagram.png" alt="">
                                     </div>
                                 </div>
 
