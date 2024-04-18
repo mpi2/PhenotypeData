@@ -31,8 +31,8 @@
 									<div id="export">
 										<p class="textright">
 											Download data as:
-											<a id="tsvDownload" href="${baseUrl}/phenotypes/export/${phenotype.getMpId()}?fileType=tsv&fileName=${phenotype.getMpTerm()}" target="_blank" class="btn btn-outline-primary"><i class="fa fa-download"></i>&nbsp; TSV</a>
-											<a id="xlsDownload" href="${baseUrl}/phenotypes/export/${phenotype.getMpId()}?fileType=xls&fileName=${phenotype.getMpTerm()}" target="_blank" class="btn btn-outline-primary"><i class="fa fa-download"></i>&nbsp; XLS</a>
+											<a id="tsvDownload" href="${baseUrl}/phenotypes/export/${phenotype.getMpId()}?fileType=tsv&fileName=${phenotype.getMpTerm()}" target="_blank" class="btn btn-outline-primary download-data"><i class="fa fa-download"></i>&nbsp; TSV</a>
+											<a id="xlsDownload" href="${baseUrl}/phenotypes/export/${phenotype.getMpId()}?fileType=xls&fileName=${phenotype.getMpTerm()}" target="_blank" class="btn btn-outline-primary download-data"><i class="fa fa-download"></i>&nbsp; XLS</a>
 										</p>
 									</div>
 							</c:if>

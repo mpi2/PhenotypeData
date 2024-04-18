@@ -415,7 +415,7 @@ public class PhenotypesController {
     	
     	for (String parameterStableId : parameters){
     		ParameterDTO param = impressService.getParameterByStableId(parameterStableId);
-    		if (param.getObservationType().equals(ObservationType.unidimensional)){
+    		if (Objects.equals(param.getObservationType(), ObservationType.unidimensional)){
     			res.add(param);
     		}
     	}

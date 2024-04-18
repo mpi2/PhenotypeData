@@ -120,7 +120,9 @@ public class ImageComparatorController {
             specimenExpression.computeIfAbsent(imageKey, k -> new LinkedHashSet<>());
             if(image.getParameterAssociationName() != null) {
                 for (int i = 0; i < image.getParameterAssociationName().size(); i++) {
-                    specimenExpression.get(imageKey).add(image.getParameterAssociationName().get(i) + ": " + image.getParameterAssociationValue().get(i));
+                    String imageLabel = image.getParameterAssociationName().get(i);
+                    imageLabel = image.getParameterAssociationValue() != null ? imageLabel + ": " + image.getParameterAssociationValue().get(i) : imageLabel;
+                    specimenExpression.get(imageKey).add(imageLabel);
                 }
             }
         }

@@ -1337,6 +1337,7 @@ public class StatisticalResultService extends GenotypePhenotypeService implement
         if (sex != null) {
             q.addFilterQuery("(" + StatisticalResultDTO.PHENOTYPE_SEX + ":" + sex + " OR " + StatisticalResultDTO.SEX + ":" + sex + ")");
         }
+        q.addFilterQuery("-" + StatisticalResultDTO.STATUS + ":" + "NotProcessed");
         List<StatisticalResultDTO> results = statisticalResultCore.query(q).getBeans(StatisticalResultDTO.class);
         return results.stream().distinct().collect(Collectors.toList());
     }

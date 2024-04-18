@@ -88,7 +88,7 @@
             <div class="container" id="expression">
                 <div class="row pb-2">
                     <div class="col-12 col-md-12">
-                        <h3><i class="fa fa-download"></i>&nbsp;Download all the data</h3>
+                        <h3><i class="fa fa-download download-data"></i>&nbsp;Download all the data</h3>
                     </div>
                 </div>
             </div>

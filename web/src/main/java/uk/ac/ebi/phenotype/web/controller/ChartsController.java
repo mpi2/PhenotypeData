@@ -400,6 +400,7 @@ public class ChartsController {
 				// Its a viability outcome param which means its a line level query
 				// so we don't use the normal experiment query in experiment service
 				ViabilityDTO viability = experimentService.getSpecificViabilityVersion1ExperimentDTO(parameterStableId, pipelineStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession);
+				viability.setSequenceId(experimentNumber);
 				ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(viability, parameterStableId);
 				model.addAttribute("viabilityDTO", viabilityDTO);
 				//if viability data we want to have a message at the top which comes up on stats.jsp
@@ -413,6 +414,7 @@ public class ChartsController {
 			// Its a viability outcome param which means its a line level query
 			// so we don't use the normal experiment query in experiment service
 			ViabilityDTO viability = experimentService.getSpecificViabilityVersion2ExperimentDTO(parameterStableId, accession[0], phenotypingCenter, strain, metaDataGroupString, alleleAccession);
+			viability.setSequenceId(experimentNumber);
 			ViabilityDTO viabilityDTO = viabilityChartAndDataProvider.doViabilityData(viability, parameterStableId);
 			model.addAttribute("viabilityDTO", viabilityDTO);
 			//if viability data we want to have a message at the top which comes up on stats.jsp

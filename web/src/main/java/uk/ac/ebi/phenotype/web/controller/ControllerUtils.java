@@ -21,6 +21,7 @@ import org.mousephenotype.cda.enumerations.SexType;
 import org.mousephenotype.cda.solr.service.GenotypePhenotypeService;
 import org.mousephenotype.cda.solr.service.StatisticalResultService;
 import org.mousephenotype.cda.solr.service.dto.GenotypePhenotypeDTO;
+import org.mousephenotype.cda.solr.service.dto.StatisticalResultDTO;
 import uk.ac.ebi.phenotype.util.PhenotypeGeneSummaryDTO;
 
 import javax.servlet.http.HttpServletResponse;
@@ -30,6 +31,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class ControllerUtils {
@@ -91,7 +93,7 @@ public class ControllerUtils {
 		int nominator = 0;
 
 		nominator = gpService.getGenesBy(phenotype_id, null, false).size();
-		total = srService.getGenesBy(phenotype_id, null).size();
+		total = (int) srService.getGenesBy(phenotype_id, null).stream().map(StatisticalResultDTO::getMarkerSymbol).distinct().count();
 		pgs.setTotalPercentage(100 * (float) nominator / (float) total);
 		pgs.setTotalGenesAssociated(nominator);
 		pgs.setTotalGenesTested(total);
