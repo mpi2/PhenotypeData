@@ -131,13 +131,6 @@
                                             early death and thus gain insight into gene function.
 
                                         </p>
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec lectus justo,
-                                            tincidunt a lectus ac, vulputate pretium odio. Quisque placerat rhoncus
-                                            maximus. Morbi blandit, erat id porta pulvinar, nibh neque tempus sem, sit
-                                            amet malesuada tellus nunc eget augue. Nulla faucibus bibendum aliquet.
-                                            Mauris mollis, felis a dignissim egestas, nisi quam sagittis libero, vel
-                                            tincidunt sem dui vel est. Mauris et dui sapien. Vivamus neque erat,
-                                            consectetur a hendrerit et, malesuada non sem. Sed id suscipit neque.</p>
 
                                     </div>
                                 </div>
