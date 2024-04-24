@@ -121,12 +121,12 @@ public class LandingPageController {
 
         AnalyticsChartProvider chartsProvider = new AnalyticsChartProvider();
         List<String> resources = Arrays.asList( "IMPC" );
-        Map<String, Set<String>> viabilityRes = observationService.getViabilityCategories(resources, true);
+        Map<String, Set<String>> viabilityRes = observationService.getViabilityCategories(resources);
 
         Map<String, Long> viabilityMap = observationService.getViabilityCategories(viabilityRes);
         List<CountTableRow> viabilityTable = observationService.consolidateZygosities(viabilityRes);
 
-        model.addAttribute("viabilityChart", chartsProvider.getSlicedPieChart(new HashMap<String, Long>(), viabilityMap, "", "viabilityChart"));
+        model.addAttribute("viabilityChart", chartsProvider.getSlicedPieChart(new HashMap<String, Long>(), viabilityMap, "Primary Viability", "viabilityChart"));
         model.addAttribute("viabilityTable", viabilityTable);
 
         return "embryo";

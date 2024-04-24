@@ -497,7 +497,7 @@ public class Viability extends AbstractReport {
             case "IMPC_VIA_001":
                 break;
 
-            case "IMPC_VIA:002":
+            case "IMPC_VIA_002":
                 // Chromosome validation
                 Integer totalMaleHem = CommonUtils.tryParseInt(rDto.getTotalMaleHem());
                 totalMaleHem = (totalMaleHem == null ? 0 : totalMaleHem);
