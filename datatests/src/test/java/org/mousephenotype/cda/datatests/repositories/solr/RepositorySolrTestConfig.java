@@ -185,7 +185,7 @@ public class RepositorySolrTestConfig {
 
     @Bean
     public HistopathService histopathService() {
-        return new HistopathService(observationService(), statisticalResultService());
+        return new HistopathService(observationService(), statisticalResultService(), productCore());
     }
     @Bean
     public ImageService imageService() {

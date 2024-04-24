@@ -31,6 +31,8 @@ public abstract class ViabilityDTO {
     private String parameterStableId = "";
     private String category = "";// should get set to e.g. Homozygous - Viable
 
+    private String sequenceId;
+
     public String getParameterStableId() { return parameterStableId; }
 
     public void setParameterStableId(String parameterStableId) { this.parameterStableId = parameterStableId; }
@@ -46,4 +48,11 @@ public abstract class ViabilityDTO {
     public Map<String, ObservationDTO> getParamStableIdToObservation() { return paramStableIdToObservation;}
     public void setParamStableIdToObservation(Map<String, ObservationDTO> paramStableIdToObservation) { this.paramStableIdToObservation = paramStableIdToObservation;}
 
+    public String getSequenceId() {
+        return sequenceId;
+    }
+
+    public void setSequenceId(String sequenceId) {
+        this.sequenceId = sequenceId;
+    }
 }

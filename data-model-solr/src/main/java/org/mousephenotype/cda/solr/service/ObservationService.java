@@ -403,13 +403,7 @@ public class ObservationService extends BasicService implements WebStatus {
             if (observation.getCategory() != null) {
                 viabilityCategories.add(observation.getCategory());
             } else if (observation.getTextValue() != null) {
-                String viaText = null;
-                try {
-                    viaText = new JSONObject(observation.getTextValue()).getString("outcome");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                viabilityCategories.add(viaText);
+                viabilityCategories.add( observation.getTextValue());
             }
         }
 

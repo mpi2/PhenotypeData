@@ -61,18 +61,24 @@ public class GrossPathService {
 									int numberOfAbnormalTerms=0;//more than one term per observation often - so these are not abnormal observations
 									int numberOfNormalTerms=0;
 									for (int i = 0; i < obs.getSubTermId().size(); i++) {
-										
-										if(obs.getSubTermId().get(i).contains("MP:")){//for the moment lets keep things simple and restrict to MP only as PATO doesn't seem useful as is.
-										OntologyBean subOntologyBean = new OntologyBean(obs.getSubTermId().get(i),
-												obs.getSubTermName().get(i), obs.getSubTermDescription().get(i));// ,
-										row.addOntologicalParam(parameter, subOntologyBean);
-										//logger.info(subOntologyBean);
-										if(!obs.getSubTermName().get(i).equals("no abnormal phenotype detected")){
-											numberOfAbnormalTerms++;
-										}else{
-											numberOfNormalTerms++;//we get multiple subterms per observation e.g. abnormal ovary, missing ovary - but these are only one observation
-											
-										}
+										//for the moment lets keep things simple and restrict to MP only as PATO doesn't seem useful as is.
+										if(obs.getSubTermId().get(i).contains("MP:")) {
+											String subTermName = "";
+											String subTermDescription = "";
+											try	{
+												subTermName = obs.getSubTermId().get(i);
+												subTermDescription = obs.getSubTermDescription().get(i);
+											} catch (IndexOutOfBoundsException e) {
+												// do nothing, set default values as empty string
+											}
+											OntologyBean subOntologyBean = new OntologyBean(obs.getSubTermId().get(i), subTermName, subTermDescription);// ,
+											row.addOntologicalParam(parameter, subOntologyBean);
+											if(!obs.getSubTermName().get(i).equals("no abnormal phenotype detected")){
+												numberOfAbnormalTerms++;
+											}else{
+												numberOfNormalTerms++;//we get multiple subterms per observation e.g. abnormal ovary, missing ovary - but these are only one observation
+
+											}
 										}
 									}//end of subterm loop
 									//do we have a normal or abnormal observation?

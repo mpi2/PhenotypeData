@@ -29,7 +29,8 @@ public enum ZygosityType {
 	heterozygote,
 	hemizygote,
 	anzygote,
-	not_applicable;
+	not_applicable,
+	wildtype;
 	
 	public String getName(){
 		return this.toString();
@@ -45,6 +46,8 @@ public enum ZygosityType {
 	}
 
 	public static ZygosityType getByDisplayName(String displayName) {
+		displayName = displayName.contains("hemizygous") ? "hemizygote" : displayName;
+		displayName = displayName.contains("heterozygous") ? "heterozygote" : displayName;
 		switch (displayName) {
 			case "homozygote":
 				return ZygosityType.homozygote;
@@ -54,10 +57,13 @@ public enum ZygosityType {
 				return ZygosityType.hemizygote;
 			case "anzygote":
 				return ZygosityType.anzygote;
+			case "wildtype":
+				return ZygosityType.wildtype;
 			case "not applicable":
+			case "not_applicable":
 				return ZygosityType.not_applicable;
 			default:
-				throw new IllegalArgumentException("No enum constant " + SexType.class + "." + displayName);
+				throw new IllegalArgumentException("No enum constant " + ZygosityType.class + "." + displayName);
 		}
 	}
 

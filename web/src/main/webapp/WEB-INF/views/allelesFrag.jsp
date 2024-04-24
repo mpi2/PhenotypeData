@@ -48,6 +48,11 @@
             crisprModalGenotypePrimersTable.bootstrapTable('load', crisprData["genotypePrimers"] || []);
             var fastaDiv = $(".fasta-sequences");
             fastaDiv.empty();
+            if(!crisprData.fasta) {
+                $('.fasta-sequence-title').addClass('d-none');
+            } else {
+                $('.fasta-sequence-title').removeClass('d-none');
+            }
 
             (crisprData.fasta || []).forEach(f => {
                 fastaDiv.append("<div><code id='fasta-" + f.index +"' style='width: 100%; max-height: 200px; resize: vertical; color: #0a4c57'>" + f.sequence + "</code><button type='button' class='btn btn-outline-primary' onclick='copyContent(\"fasta-" + f.index  +"\")'><i class='fa fa-clipboard'></i></button></div>");
@@ -374,7 +379,7 @@
                     <div class="container justify-content-center pt-3">
                         <c:forEach var="tissueLink" items="${tissue_enquiry_links}" varStatus="ordersx">
                             <div class="row m-2">
-                                <a class="tissue-order btn btn-outline-primary" href="${tissueLink}" target="_blank">
+                                <a class="tissue-order btn btn-outline-primary" data-allele="${gene_symbol}<${alleleId}>" data-gene="${gene_symbol}" href="${tissueLink}" target="_blank">
                                     <i class="fa fa-envelope"></i>&nbsp;Make
                                     a ${tissue_enquiry_types.get(ordersx.index)} enquiry
                                     to ${tissue_distribution_centres.get(ordersx.index)} </a>&nbsp;

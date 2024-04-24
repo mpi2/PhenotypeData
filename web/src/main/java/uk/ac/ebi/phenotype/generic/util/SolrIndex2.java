@@ -32,6 +32,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static org.mousephenotype.cda.solr.service.OrderService.crePredicate;
 import static org.mousephenotype.cda.solr.service.OrderService.selectCre;
@@ -652,7 +653,7 @@ public class SolrIndex2 {
 
     private String getGeneUrl(String accession) {
 
-        String target = "marker_type:Gene AND mgi_accession_id:" + accession.replace(":", "\\:");
+        String target = "marker_type:(Gene OR Pseudogene) AND mgi_accession_id:" + accession.replace(":", "\\:");
 
         String search_url = "/select?q="
                 + target
@@ -775,7 +776,12 @@ public class SolrIndex2 {
         allele.put("targeting_vector_status", "No Targeting Vector Production");
         allele.put("mouse_status", getSolrDocProperty(alleleDoc,"mouse_status"));
         allele.put("phenotyping_status", getSolrDocProperty(alleleDoc,"phenotyping_status"));
-        allele.put("is_crispr", getKeyValuePairFromArray("type_of_microinjection", alleleDoc.getJSONArray("production_info")).equals("Crispr"));
+        boolean isCrispr = false;
+        if(alleleDoc.has("production_info"))
+        {
+           isCrispr = getKeyValuePairFromArray("type_of_microinjection", alleleDoc.getJSONArray("production_info")).equals("Crispr");
+        }
+        allele.put("is_crispr", isCrispr);
 
         if (alleleDoc.has("es_cell_status") && ! alleleDoc.get("es_cell_status").equals("No ES Cell Production") && ! alleleDoc.get("es_cell_status").equals("")) {
             allele.put("targeting_vector_status" , "Targeting Vector Confirmed");
@@ -1071,6 +1077,7 @@ public class SolrIndex2 {
             summary.put("design_id", allele.get("design_id"));
             summary.put("statuses", getGeneProductInfoStatuses(mapper));    // TODO: FIX-ME!
             summary.put("status_mice", getGeneProductInfoStatusesMouseAlt(mapper));
+            summary.put("isEMMAOrder", isEMMAOrder(mice));
             summary.put("loa_link_id", allele.get("loa_link_id"));
 
             summary.put("status_es_cells", getGeneProductInfoStatusesEsCellAlt(mapper));
@@ -1181,6 +1188,12 @@ public class SolrIndex2 {
         }
 
         JSONArray array_order_names = jsonObject2.getJSONArray("order_names");
+        Set<Object> distinctValues = new HashSet<>();
+        for (int i = 0; i < array_order_names.length(); i++) {
+            Object value = array_order_names.get(i);
+            distinctValues.add(value);
+        }
+        array_order_names = new JSONArray(distinctValues.toArray());
         JSONArray array_order_links = jsonObject2.getJSONArray("order_links");
         if(array_order_links.length() < array_order_names.length()) {
             String commaSeparatedLinks = array_order_links.getString(0);
@@ -1792,6 +1805,12 @@ public class SolrIndex2 {
             boolean b = _map.containsKey(cassette + allele_type);
             return b;
         }
+    }
+
+    public boolean isEMMAOrder(List<Map<String, Object>> mapperMice) {
+        List<Map<String, Object>> orders = new ArrayList<>();
+        mapperMice.forEach(m -> orders.addAll(m.get("orders") != null ? (Collection<? extends Map<String, Object>>) m.get("orders") : Collections.emptyList()));
+        return orders.stream().anyMatch(o -> o.get("name").equals("EMMA"));
     }
 
 }

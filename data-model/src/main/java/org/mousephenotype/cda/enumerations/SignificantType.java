@@ -38,7 +38,7 @@ public enum SignificantType {
 
 	static {
 		tag_patterns.put(none, "(Not significant.*)|(.*no significant change)|(.*significant in combined dataset only.*)");
-		tag_patterns.put(one_sex_tested, "With phenotype threshold value 1e-04 - significant for the sex \\(.*\\) tested \\(.*\\)");
+		tag_patterns.put(one_sex_tested, "With phenotype threshold value 1e-04 - significant for the .* sex \\(.*\\) tested \\(.*\\)");
 		tag_patterns.put(male_only, "With phenotype threshold value 1e-04 - significant in males.*");
 		tag_patterns.put(male_greater, "With phenotype threshold value 1e-04 - different size as males greater");
 		tag_patterns.put(female_only, "With phenotype threshold value 1e-04 - significant in females.*");

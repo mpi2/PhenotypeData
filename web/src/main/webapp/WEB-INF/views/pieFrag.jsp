@@ -9,18 +9,18 @@
 	<div class="container">
 		<div class="row">
 
-			<div id="totalChart-${viabilityDTO.parameterStableId}" class="col-4">	</div>
+			<div id="totalChart-${viabilityDTO.parameterStableId}-${viabilityDTO.getSequenceId()}" class="col-4">	</div>
 			<script type="text/javascript">
 				${viabilityDTO.totalChart}
 			</script>
 
-			<div id="maleChart-${viabilityDTO.parameterStableId}" class="col-4 "></div>
+			<div id="maleChart-${viabilityDTO.parameterStableId}-${viabilityDTO.getSequenceId()}" class="col-4 "></div>
 			<script type="text/javascript">
 				${viabilityDTO.maleChart}
 			</script>
 
 
-			<div id="femaleChart-${viabilityDTO.parameterStableId}" class="col-4 "></div>
+			<div id="femaleChart-${viabilityDTO.parameterStableId}-${viabilityDTO.getSequenceId()}" class="col-4 "></div>
 			<script type="text/javascript">
 				${viabilityDTO.femaleChart}
 			</script>

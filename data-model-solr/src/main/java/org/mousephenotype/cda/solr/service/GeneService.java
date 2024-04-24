@@ -136,7 +136,7 @@ public class GeneService extends BasicService implements WebStatus {
 					x.getProcedureName(),
 					x.getPipelineStableID(),
 					x.getPipelineName(),
-					ZygosityType.valueOf(x.getZygosity()),
+					ZygosityType.getByDisplayName(x.getZygosity()),
 					x.getPhenotypingCenter(),
 					LifeStage.getByDisplayName(x.getLifeStageName())
 			)).collect(Collectors.toList());
