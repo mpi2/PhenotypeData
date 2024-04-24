@@ -42,6 +42,29 @@
                 }
                 return result;
             }
+
+            function tsvToJSON(csv) {
+                var lines = csv.split("\n");
+                var result = [];
+                var headers;
+                headers = lines[0].split("\t");
+
+                for (var i = 1; i < lines.length; i++) {
+                    var obj = {};
+
+                    if (lines[i] == undefined || lines[i].trim() == "") {
+                        continue;
+                    }
+
+                    var words = lines[i].split("\t");
+                    for (var j = 0; j < words.length; j++) {
+                        obj[headers[j].trim()] = words[j];
+                    }
+
+                    result.push(obj);
+                }
+                return result;
+            }
         </script>
     </jsp:attribute>
 
@@ -108,13 +131,6 @@
                                             early death and thus gain insight into gene function.
 
                                         </p>
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec lectus justo,
-                                            tincidunt a lectus ac, vulputate pretium odio. Quisque placerat rhoncus
-                                            maximus. Morbi blandit, erat id porta pulvinar, nibh neque tempus sem, sit
-                                            amet malesuada tellus nunc eget augue. Nulla faucibus bibendum aliquet.
-                                            Mauris mollis, felis a dignissim egestas, nisi quam sagittis libero, vel
-                                            tincidunt sem dui vel est. Mauris et dui sapien. Vivamus neque erat,
-                                            consectetur a hendrerit et, malesuada non sem. Sed id suscipit neque.</p>
 
                                     </div>
                                 </div>
@@ -167,7 +183,7 @@
 
                                 <div class="row">
                                     <div class="col-12">
-                                        <img src="https://www.mousephenotype.org/data/img/embryo_impress.png">
+                                        <img src="https://www.mousephenotype.org/data/img/embryo-pipeline-diagram.png" alt="">
                                     </div>
                                 </div>
 
@@ -274,18 +290,18 @@
                                                     paginationParts: ["pageinfo", "pageList"]
                                                 })
 
-                                                fetch("//impc-datasets.s3.eu-west-2.amazonaws.com/embryo-landing-assets/wol_all.csv")
+                                                fetch("//impc-datasets.s3.eu-west-2.amazonaws.com/embryo-landing-assets/wol_all_dr21.0.tsv")
                                                     .then(res => res.ok && res.text())
                                                     .then(data => {
-                                                        var dataValues = csvToJSON(data);
+                                                        var dataValues = tsvToJSON(data);
 
                                                         let dataIndex = {
-                                                            "Perinatal lethal": dataValues.filter(d => d.wol.includes("perinatal_lethal")),
-                                                            "E9.5 lethal": dataValues.filter(d => d.wol.includes("E9_5_lethal")),
-                                                            "E12.5 lethal": dataValues.filter(d => d.wol.includes("E12_5_lethal")),
-                                                            "E15.5 lethal": dataValues.filter(d => d.wol.includes("E15_5_lethal")),
-                                                            "E18.5 lethal": dataValues.filter(d => d.wol.includes("E18_5_lethal")),
-                                                            "Lorem ipsum": dataValues.filter(d => d.wol.includes("insufficient data"))
+                                                            "Early lethal": dataValues.filter(d => d.FUSIL.includes("early lethal")),
+                                                            "Intermediate lethal": dataValues.filter(d => d.FUSIL.includes("intermediate lethal")),
+                                                            "Late lethal": dataValues.filter(d => d.FUSIL.includes("late lethal")),
+                                                            "Not determined": dataValues.filter(d => d.FUSIL.includes("not determined")),
+                                                            "No data": dataValues.filter(d => d.FUSIL.includes("no data")),
+                                                            "Conflicting": dataValues.filter(d => d.FUSIL.includes("conflicting"))
                                                         };
 
                                                         Object.keys(dataIndex).forEach(d => {
@@ -361,44 +377,44 @@
                                             <tr>
                                                 <td>
                                                     <a
-                                                       href="#" data-toggle="modal" data-target="#embryoWindowsOfLethalityModal" data-category="Perinatal lethal">Perinatal lethal</a>
+                                                       href="#" data-toggle="modal" data-target="#embryoWindowsOfLethalityModal" data-category="Early lethal">Early lethal</a>
                                                 </td>
-                                                <td id="wolTablePerinatallethal"></td>
+                                                <td id="wolTableEarlylethal"></td>
                                             </tr>
                                             <tr>
                                                 <td>
                                                     <a
-                                                            href="#" data-toggle="modal" data-target="#embryoWindowsOfLethalityModal" data-category="E9.5 lethal">E9.5 lethal</a>
+                                                            href="#" data-toggle="modal" data-target="#embryoWindowsOfLethalityModal" data-category="Intermediate lethal">Intermediate lethal</a>
                                                 </td>
-                                                <td id="wolTableE95lethal"></td>
+                                                <td id="wolTableIntermediatelethal"></td>
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    <a href="#" data-toggle="modal" data-target="#embryoWindowsOfLethalityModal" data-category="E12.5 lethal">E12.5 lethal</a>
+                                                    <a href="#" data-toggle="modal" data-target="#embryoWindowsOfLethalityModal" data-category="Late lethal">Late lethal</a>
                                                 </td>
-                                                <td id="wolTableE125lethal"></td>
+                                                <td id="wolTableLatelethal"></td>
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    <a href="#" data-toggle="modal" data-target="#embryoWindowsOfLethalityModal" data-category="E15.5 lethal">E15.5 lethal</a>
+                                                    <a href="#" data-toggle="modal" data-target="#embryoWindowsOfLethalityModal" data-category="Not determined">Not determined</a>
                                                 </td>
-                                                <td id="wolTableE155lethal"></td>
+                                                <td id="wolTableNotdetermined"></td>
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    <a href="#" data-toggle="modal" data-target="#embryoWindowsOfLethalityModal" data-category="E18.5 lethal">E18.5 lethal</a>
+                                                    <a href="#" data-toggle="modal" data-target="#embryoWindowsOfLethalityModal" data-category="No data">No data</a>
                                                 </td>
-                                                <td id="wolTableE185lethal"></td>
+                                                <td id="wolTableNodata"></td>
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    <a href="#" data-toggle="modal" data-target="#embryoWindowsOfLethalityModal" data-category="Lorem ipsum">Lorem ipsum</a>
+                                                    <a href="#" data-toggle="modal" data-target="#embryoWindowsOfLethalityModal" data-category="Conflicting">Conflicting</a>
                                                 </td>
-                                                <td id="wolTableLoremipsum"></td>
+                                                <td id="wolTableConflicting"></td>
                                             </tr>
                                             <tr>
                                                 <td colspan="2">
-                                                    <a href="https://impc-datasets.s3.eu-west-2.amazonaws.com/embryo-landing-assets/wol_all.csv"
+                                                    <a href="https://impc-datasets.s3.eu-west-2.amazonaws.com/embryo-landing-assets/wol_all_dr21.0.tsv"
                                                        style="text-decoration:none;" download> <i
                                                             class="fa fa-download"
                                                             alt="Download"></i> Download</a>
