@@ -180,7 +180,6 @@
                                                     </c:forEach>
                                                 </tbody>
                                             </table>
-                                            <p><sup>*</sup>&nbsp;Excluded from statistical analysis.</p>
                                         </div>
                                     </div>
                                 </div> <!-- end row -->
