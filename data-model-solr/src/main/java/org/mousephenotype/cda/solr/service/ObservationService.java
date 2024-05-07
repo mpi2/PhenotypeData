@@ -420,6 +420,8 @@ public class ObservationService extends BasicService implements WebStatus {
                     + StringUtils.join(resources, " OR " + ObservationDTO.DATASOURCE_NAME + ":"));
         }
 
+        query.addFilterQuery("-" + ObservationDTO.TEXT_VALUE + ":" + "\"Cannot be calculated\"");
+
         query.setQuery(Constants.adultViabilityParametersCount.stream().collect(Collectors.joining(" OR ", ObservationDTO.PARAMETER_STABLE_ID + ":(", ")")));
         query.addField(ObservationDTO.GENE_SYMBOL);
         query.addField(ObservationDTO.CATEGORY);
