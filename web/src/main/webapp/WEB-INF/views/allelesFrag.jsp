@@ -10,9 +10,11 @@
 <script type="application/javascript">
     var crisprData = [];
 
-    async function selectCrisprAllele(geneAcc, alleleName) {
+    async function selectCrisprAllele(geneAcc, alleleName, colonyName) {
+
         let full = await fetch("https://www.gentar.org/mi/impc/allele-service/v1/alleles/crispr/get_by_mgi?mgiGeneAccessionId=" + geneAcc + "&alleleSuperscript=" + alleleName).then(res => res.json())
-        crisprData = full[0];
+        let filteredRes = full.find(r => r.colonyName === colonyName && r.alleleSuperscript === alleleName);
+        crisprData = (filteredRes !== undefined) ? filteredRes : full[0];
     }
     async function  copyContent (elementId) {
         try {
@@ -24,9 +26,10 @@
         }
     }
 
-    function handleCriprSeqClick(gene, allele) {
+    function handleCriprSeqClick(gene, allele, colonyName) {
 
-        selectCrisprAllele(gene, allele).then(i => {
+        selectCrisprAllele(gene, allele, colonyName).then(i => {
+
             $('#crisprDataModal').modal('show');
         });
     }
@@ -162,7 +165,8 @@
                                         <c:if test="${summary['is_crispr']}">
                                             <button class="btn btn-outline-primary" data-toggle="modal"
                                                     data-gene="${summary["gene_mgi_accession_id"]}"
-                                                    data-allele="${summary["allele_name"]}" onclick="handleCriprSeqClick('${summary["gene_mgi_accession_id"]}', '${summary["allele_name"]}')"><i
+                                                    data-allele="${summary["allele_name"]}"
+                                                    onclick="handleCriprSeqClick('${summary["gene_mgi_accession_id"]}', '${summary["allele_name"]}', '${mouse["colony_name"]}')"><i
                                                     class="fa fa-eye"></i> View Sequencing Data
                                             </button>
                                         </c:if>
