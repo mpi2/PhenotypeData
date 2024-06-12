@@ -1,0 +1,1838 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <title>IMPC Data Release 21.0 Notes | International Mouse Phenotyping Consortium</title>
+    <link rel="profile" href="http://gmpg.org/xfn/11">
+    <link rel="pingback" href="//www.mousephenotype.org/xmlrpc.php">
+
+    
+    
+    
+
+    <link rel="preload" type="text/css" href="/data/css/vendor/fapro/css/all.min.css" as="style"/>
+    <link rel="stylesheet" type="text/css" href="/data/css/vendor/fapro/css/all.min.css" media="print" onload="this.media='all'" />
+
+    <link rel="preload" type="text/css" href="https://ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css" as="style" />
+    <link rel="stylesheet" type="text/css" href="https://ebi.emblstatic.net/web_guidelines/EBI-Icon-fonts/v1.3/fonts.css" media="print" onload="this.media='all'" />
+
+    <link rel="preload" type="text/css" href="//www.mousephenotype.org/wp-content/themes/impc/css/styles.css?v=v5.5.6" as="style"/>
+    <link rel="stylesheet" type="text/css" href="//www.mousephenotype.org/wp-content/themes/impc/css/styles.css?v=v5.5.6" />
+
+
+    <link rel="preload" type="text/css" href="/data/css/default.css" as="style"/>
+    <link rel="stylesheet" type="text/css" href="/data/css/default.css" media="print" onload="this.media='all'" />
+
+    
+    <link rel="preload" type="text/css" href="/data/css/impc-icons.css" as="style"/>
+    <link rel="stylesheet" type="text/css" href="/data/css/impc-icons.css" media="print" onload="this.media='all'" />
+
+    <link rel="preload" type="text/css" href="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.css" as="style"/>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.css" media="print" onload="this.media='all'" />
+
+    
+    
+    
+
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="/data/img/apple-touch-icon-57x57.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/data/img/apple-touch-icon-114x114.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/data/img/apple-touch-icon-72x72.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/data/img/apple-touch-icon-144x144.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="60x60" href="/data/img/apple-touch-icon-60x60.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="120x120" href="/data/img/apple-touch-icon-120x120.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="76x76" href="/data/img/apple-touch-icon-76x76.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="/data/img/apple-touch-icon-152x152.png" />
+    <link rel="icon" type="image/png" href="/data/img/favicon-196x196.png" sizes="196x196" />
+    <link rel="icon" type="image/png" href="/data/img/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/png" href="/data/img/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/data/img/favicon-16x16.png" sizes="16x16" />
+    <link rel="icon" type="image/png" href="/data/img/favicon-128.png" sizes="128x128" />
+    <meta name="msapplication-TileColor" content="#FFFFFF" />
+    <meta name="msapplication-TileImage" content="/data/img/mstile-144x144.png" />
+    <meta name="msapplication-square70x70logo" content="/data/img/mstile-70x70.png" />
+    <meta name="msapplication-square150x150logo" content="/data/img/mstile-150x150.png" />
+    <meta name="msapplication-wide310x150logo" content="/data/img/mstile-310x150.png" />
+    <meta name="msapplication-square310x310logo" content="/data/img/mstile-310x310.png" />
+
+    <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
+    <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/object-fit-images/3.2.4/ofi.min.js'></script>
+    <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.css"/>
+
+    <script defer type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/r-2.2.2/datatables.min.js"></script>
+
+    <script type='text/javascript' src="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.js"></script>
+    <script type='text/javascript' src="https://unpkg.com/bootstrap-table@1.18.3/dist/extensions/mobile/bootstrap-table-mobile.min.js"></script>
+    <script type='text/javascript' src="https://unpkg.com/bootstrap-table@1.18.3/dist/extensions/cookie/bootstrap-table-cookie.min.js"></script>
+
+
+
+    <script defer
+            src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"
+            integrity="sha256-eGE6blurk5sHj+rmkfsGYeKyZx3M4bG+ZlFyA7Kns7E="
+            crossorigin="anonymous"></script>
+
+    <script defer
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+
+
+    <script defer type="text/javascript" src="/data/js/head.min.js?v=v5.5.6" ></script>
+    <script defer type='text/javascript' src='/data/js/buffaloZoo.js?v=v5.5.6' ></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.css" />
+    <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.js" defer></script>
+    <script type="text/javascript" src="/data/js/default.js?v=v5.5.6" defer></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/css/bootstrap-select.min.css">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/js/bootstrap-select.min.js" async></script>
+    <!-- Latest compiled and minified JavaScript -->
+    
+    <script>
+    
+    try {
+        console.log(" ");
+    } catch (err) {
+        var console = {};
+        console.log = console.error = console.info = console.debug = console.warn = console.trace = console.dir = console.dirxml = console.group = console.groupEnd = console.time = console.timeEnd = console.assert = console.profile = function () {
+        };
+    }
+
+    
+    var cmsBaseUrl = "//www.mousephenotype.org";
+    var releaseVersion = "21.0";
+    var impcMediaBaseUrl = "//www.ebi.ac.uk/mi/media/omero/webgateway";
+    var pdfThumbnailUrl = "img/filetype_pdf.png";
+    var paBaseUrl = "https://www.mousephenotype.org/data";
+    var mediaBaseUrl = "//www.ebi.ac.uk/mi/impc/phenotype-archive/media";
+    var liveSite = "true";
+    var version = "v5.5.6";
+    var ikmcOligoDesignUrl = "https://www.gentar.org/htgt/v1/graphql";
+    
+    var isPhenotypePage = "false";
+    var solrUrl = "//www.ebi.ac.uk/mi/impc/solr";
+    var baseUrl = "/data";
+    var googleAnalytics = "UA-33310077-1";
+    
+    var monarchUrl = "https://legacy.monarchinitiative.org";
+    var data_release_genes = "8901";
+    
+
+
+    $(document).ready(function () {
+        $.widget.bridge('uibutton', $.ui.button);
+        $.widget.bridge('uitooltip', $.ui.tooltip);
+        $('[data-toggle="tooltip"]').tooltip({
+            trigger : 'hover'
+        });
+    });
+
+    
+    // breaks array required for highcharts resizing the xAxis when
+    // an intermediate category is hidden
+    var breaks = [];
+    
+
+    </script>
+
+
+    
+    <script async="" src="https://www.google-analytics.com/analytics.js"></script>
+    <script src="https://www.mousephenotype.org/assets/lib/cookie-consent/consent.js" defer></script>
+    <link rel="stylesheet" href="https://www.mousephenotype.org/assets/lib/cookie-consent/consent.css" />
+    <script>
+        $(document).ready(function () {
+            let googleAnalyticsTags = [],
+                currentlURL = window.location.href;
+
+            if (currentlURL.indexOf("dev.mousephenotype") > -1) {
+                googleAnalyticsTags = ["UA-137368025-1", "G-THTSZ7NZJ1"];
+                addCookieBanner(googleAnalyticsTags);
+            } else if (currentlURL.indexOf("beta.mousephenotype") > -1) {
+                googleAnalyticsTags = ["UA-137368025-2", "G-ZNMLQY0YJ9"];
+                addCookieBanner(googleAnalyticsTags);
+            } else if (currentlURL.indexOf("www.mousephenotype") > -1) {
+                googleAnalyticsTags = ["UA-23433997-1", "G-0CGYY2B2QL"];
+                addCookieBanner(googleAnalyticsTags);
+            }
+
+            function addCookieBanner(tags) {
+                $.CCbanner({
+                    "cookies": ["Analytics"],
+                    "href": "https://www.mousephenotype.org/about-impc/accessibility-cookies/",
+                    "gaTag": tags
+                });
+            }
+        });
+    </script>
+
+    <style>
+        .table-borderless > tbody > tr > td,
+        .table-borderless > tbody > tr > th,
+        .table-borderless > tfoot > tr > td,
+        .table-borderless > tfoot > tr > th,
+        .table-borderless > thead > tr > td,
+        .table-borderless > thead > tr > th {
+            border: none !important;
+        }
+        .table-reduced-padding > tbody > tr > td,
+        .table-reduced-padding > tbody > tr > th,
+        .table-reduced-padding > tfoot > tr > td,
+        .table-reduced-padding > tfoot > tr > th,
+        .table-reduced-padding > thead > tr > td,
+        .table-reduced-padding > thead > tr > th {
+            padding: 0.2rem !important;
+        }
+    </style>
+
+    <script type="text/javascript">
+            var cmsBaseUrl = '//www.mousephenotype.org';
+        </script>
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+
+                // bubble popup for brief panel documentation
+                $.fn.qTip({
+                    'pageName': 'phenome',
+                    'tip': 'top right',
+                    'corner': 'right top'
+                });
+            });
+        </script>
+
+        <script src="https://code.highcharts.com/highcharts.js"></script>
+        <script src="https://code.highcharts.com/highcharts-more.js"></script>
+        <script src="https://code.highcharts.com/modules/exporting.js"></script>
+        <script src="https://code.highcharts.com/modules/export-data.js"></script>
+
+</head>
+
+
+
+    
+        <body class="no-sidebars small-header">
+    
+    
+
+
+
+
+
+
+
+
+
+<div class="header">
+    <div class="header__nav-top d-none d-lg-block">
+        <div class="container text-right">
+            <div class="row">
+                <div class="col">
+                    <div class="menu-top-nav-container">
+                        <ul id="menu-top-nav" class="menu">
+                            <li class="impc-badge menu-item"><a href="//www.mousephenotype.org/help/faqs/how-do-i-cite-the-impc/">Cite IMPC</a></li>
+                            <li class="menu-item"><a href="//www.mousephenotype.org/help/">Help</a></li>
+                            <li class="menu-item"><a href="https://cloud.mousephenotype.org">IMPC Cloud</a></li>
+                            <li class="menu-item"><a href="//www.mousephenotype.org/contact-us/">Contact us</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="header__nav">
+        <div class="container">
+            <div class="row">
+                <div class="col-3">
+                    <a href="/" class="header__logo-link active">
+                        <img class="header__logo lazy loaded"
+                             src="https://www.mousephenotype.org/wp-content/themes/impc/images/IMPC_10_YEAR_Logo.svg"
+                             data-src="https://www.mousephenotype.org/wp-content/themes/impc/images/IMPC_10_YEAR_Logo.svg"
+                             alt="Internation Mouse Phenotyping Consortium Office Logo"
+                             data-was-processed="true"
+                             width="190px" />
+                    </a>
+                </div>
+                <div class="col-9 text-right">
+                    <span class="d-none d-lg-block">
+                        <div class="menu-main-nav-container">
+                            <ul id="menu-main-nav" class="menu">
+                                
+                                    <li id="" class='menu-item  '>
+                                        <a href="/data/summary">My Genes</a>
+                                    </li>
+                                
+                                    <li id="about-impc" class='menu-item about-impc '>
+                                        <a href="https://www.mousephenotype.org/about-impc/">About the IMPC</a>
+                                    </li>
+                                
+                                    <li id="data" class='menu-item data current-menu-item'>
+                                        <a href="https://www.mousephenotype.org/understand/">Data</a>
+                                    </li>
+                                
+                                    <li id="human-diseases" class='menu-item human-diseases '>
+                                        <a href="https://www.mousephenotype.org/human-diseases/">Human Diseases</a>
+                                    </li>
+                                
+                                    <li id="publications" class='menu-item publications '>
+                                        <a href="https://www.mousephenotype.org/publications/">Publications</a>
+                                    </li>
+                                
+                                    <li id="news" class='menu-item news '>
+                                        <a href="https://www.mousephenotype.org/news/">News</a>
+                                    </li>
+                                
+                                    <li id="blog" class='menu-item blog '>
+                                        <a href="https://www.mousephenotype.org/blog/">Blog</a>
+                                    </li>
+                                
+                            </ul>
+                        </div>
+                    </span>
+
+                    <button class="navbar-toggler collapsed d-inline d-lg-none "
+                            type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent "
+                            aria-controls="navbarToggleExternalContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="icon-bar top-bar"></span>
+                        <span class="icon-bar middle-bar"></span>
+                        <span class="icon-bar bottom-bar"></span>
+                    </button>
+                    <div class="collapse" id="searchBar">
+                        <form action="/">
+                            <div class="row search-pop no-gutters">
+                                <div class="search-pop__input col col-9 text-left">
+                                    <p><br/></p>
+                                    <input id="searchField" type="search" class="form-control" id="s" name="s" placeholder="Search documentation and news">
+                                </div>
+                                <div class="col col-3 text-right search-submit">
+                                    <button type="submit">Search <i class="fal fa-search"></i></button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header__drop"></div>
+
+    <div class="mobile-nav collapse" id="navbarToggleExternalContent">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent "
+                aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="icon-bar top-bar"></span>
+            <span class="icon-bar middle-bar"></span>
+            <span class="icon-bar bottom-bar"></span>
+        </button>
+        <p class="mobile-nav__search-text"><br/></p>
+        <div class="mobile-nav__search mb-3">
+            <form action="/">
+                <div class="row">
+                    <div class="col col-10 text-left">
+                        <input type="search" class="form-control" id="s" name="s"
+                               placeholder="Search documentation and news">
+                    </div>
+                    <div class="col col-2 text-right">
+                        <button type="submit"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="row">
+            <div class="col-12">
+
+                
+                    <h3 class="mt-2"><a class="" href="/data/summary">My Genes</a></h3>
+                    <div class="mobile-nav__sub-pages">
+                        
+                    </div>
+                
+                    <h3 class="mt-2"><a class="about-impc" href="https://www.mousephenotype.org/about-impc/">About the IMPC</a></h3>
+                    <div class="mobile-nav__sub-pages">
+                        
+                            
+                                <p><a href="https://www.mousephenotype.org/about-impc/consortium-members/">Institutional Members</a></p>
+                                <div class="sub-pages">
+                                    
+                                </div>
+                            
+                                <p><a href="https://www.mousephenotype.org/about-impc/collaborations/">Collaborations</a></p>
+                                <div class="sub-pages">
+                                    
+                                </div>
+                            
+                                <p><a href="https://www.mousephenotype.org/about-impc/corporate-associates/">Corporate Associates</a></p>
+                                <div class="sub-pages">
+                                    
+                                </div>
+                            
+                                <p><a href="https://www.mousephenotype.org/about-impc/funding/">Funding</a></p>
+                                <div class="sub-pages">
+                                    
+                                </div>
+                            
+                                <p><a href="https://www.mousephenotype.org/about-impc/animal-welfare/">Animal Welfare</a></p>
+                                <div class="sub-pages">
+                                    
+                                </div>
+                            
+                                <p><a href="https://www.mousephenotype.org/about-impc/about-komp/">About KOMP</a></p>
+                                <div class="sub-pages">
+                                    
+                                </div>
+                            
+                        
+                    </div>
+                
+                    <h3 class="mt-2"><a class="data" href="https://www.mousephenotype.org/understand/">Data</a></h3>
+                    <div class="mobile-nav__sub-pages">
+                        
+                            
+                                <p><a href="https://www.mousephenotype.org/understand/covid-19/">COVID-19 Resources</a></p>
+                                <div class="sub-pages">
+                                    
+                                </div>
+                            
+                                <p><a href="https://www.mousephenotype.org/understand/start-using-the-impc/">Getting Started with IMPC Data</a></p>
+                                <div class="sub-pages">
+                                    
+                                        
+                                            <p><a href="https://www.mousephenotype.org/understand/start-using-the-impc/impc-data-generation/">IMPC Data Generation</a></p>
+                                        
+                                            <p><a href="https://www.mousephenotype.org/understand/start-using-the-impc/how-to-use-gene-pages/">How to Use Gene Pages</a></p>
+                                        
+                                            <p><a href="https://www.mousephenotype.org/understand/start-using-the-impc/citing-the-impc/">Citing IMPC Data</a></p>
+                                        
+                                            <p><a href="https://www.mousephenotype.org/understand/start-using-the-impc/allele-design/">Allele design</a></p>
+                                        
+                                    
+                                </div>
+                            
+                                <p><a href="https://www.mousephenotype.org/understand/data-collections/">IMPC Data Collections</a></p>
+                                <div class="sub-pages">
+                                    
+                                        
+                                            <p><a href="https://www.mousephenotype.org/understand/data-collections/late-adult-data/">Late Adult Data</a></p>
+                                        
+                                            <p><a href="https://www.mousephenotype.org/understand/data-collections/histopathology/">Histopathology</a></p>
+                                        
+                                            <p><a href="https://www.mousephenotype.org/understand/data-collections/essential-genes-portal/">Essential genes</a></p>
+                                        
+                                            <p><a href="https://www.mousephenotype.org/understand/data-collections/embryo-development/">Embryo Development</a></p>
+                                        
+                                            <p><a href="https://www.mousephenotype.org/understand/data-collections/cardiovascular/">Cardiovascular</a></p>
+                                        
+                                    
+                                </div>
+                            
+                                <p><a href="https://www.mousephenotype.org/understand/accessing-the-data/">Accessing the Data</a></p>
+                                <div class="sub-pages">
+                                    
+                                        
+                                            <p><a href="https://www.mousephenotype.org/understand/accessing-the-data/latest-data-release/">Latest Data Release</a></p>
+                                        
+                                            <p><a href="https://www.mousephenotype.org/understand/accessing-the-data/access-via-api/">Access via API</a></p>
+                                        
+                                            <p><a href="https://www.mousephenotype.org/understand/accessing-the-data/access-via-ftp/">Access via FTP</a></p>
+                                        
+                                            <p><a href="https://www.mousephenotype.org/understand/accessing-the-data/batch-query/">Batch query</a></p>
+                                        
+                                    
+                                </div>
+                            
+                                <p><a href="https://www.mousephenotype.org/understand/advanced-tools/">Advanced Tools</a></p>
+                                <div class="sub-pages">
+                                    
+                                        
+                                            <p><a href="https://www.mousephenotype.org/understand/advanced-tools/disease-models/">Disease Models</a></p>
+                                        
+                                            <p><a href="https://www.mousephenotype.org/understand/advanced-tools/phenodcc-homepage/">PhenoDCC Tools</a></p>
+                                        
+                                            <p><a href="https://www.mousephenotype.org/understand/advanced-tools/imits/">GenTaR</a></p>
+                                        
+                                            <p><a href="https://www.mousephenotype.org/understand/advanced-tools/openstats/">OpenStats</a></p>
+                                        
+                                            <p><a href="https://www.mousephenotype.org/understand/advanced-tools/impress/">IMPReSS</a></p>
+                                        
+                                            <p><a href="https://www.mousephenotype.org/understand/advanced-tools/embryo-viewer/">Embryo Viewer</a></p>
+                                        
+                                    
+                                </div>
+                            
+                        
+                    </div>
+                
+                    <h3 class="mt-2"><a class="human-diseases" href="https://www.mousephenotype.org/human-diseases/">Human Diseases</a></h3>
+                    <div class="mobile-nav__sub-pages">
+                        
+                    </div>
+                
+                    <h3 class="mt-2"><a class="publications" href="https://www.mousephenotype.org/publications/">Publications</a></h3>
+                    <div class="mobile-nav__sub-pages">
+                        
+                            
+                                <p><a href="https://www.mousephenotype.org/publications/latest-impc-papers/">Latest IMPC Papers</a></p>
+                                <div class="sub-pages">
+                                    
+                                </div>
+                            
+                                <p><a href="https://www.mousephenotype.org/publications/data-supporting-impc-papers/">Data Supporting IMPC Papers</a></p>
+                                <div class="sub-pages">
+                                    
+                                        
+                                            <p><a href="https://www.mousephenotype.org/publications/data-supporting-impc-papers/pain/">Pain Sensitivity Associated Genes</a></p>
+                                        
+                                            <p><a href="https://www.mousephenotype.org/publications/data-supporting-impc-papers/essential-genes-linking-to-disease-2/">Essential Genes - Linking to Disease</a></p>
+                                        
+                                            <p><a href="https://www.mousephenotype.org/publications/data-supporting-impc-papers/essential-genes-linking-to-disease/">Essential Genes - Translating to Other Species</a></p>
+                                        
+                                            <p><a href="https://www.mousephenotype.org/publications/data-supporting-impc-papers/sexual-dimorphism/">Sexual Dimorphism</a></p>
+                                        
+                                            <p><a href="https://www.mousephenotype.org/publications/data-supporting-impc-papers/hearing/">Genes Critical for Hearing Identified</a></p>
+                                        
+                                            <p><a href="https://www.mousephenotype.org/publications/data-supporting-impc-papers/metabolism/">Genetic Basis for Metabolic Diseases</a></p>
+                                        
+                                    
+                                </div>
+                            
+                                <p><a href="https://www.mousephenotype.org/publications/papers-using-impc-resources/">Papers Using IMPC Resources</a></p>
+                                <div class="sub-pages">
+                                    
+                                </div>
+                            
+                        
+                    </div>
+                
+                    <h3 class="mt-2"><a class="news" href="https://www.mousephenotype.org/news/">News</a></h3>
+                    <div class="mobile-nav__sub-pages">
+                        
+                    </div>
+                
+                    <h3 class="mt-2"><a class="blog" href="https://www.mousephenotype.org/blog/">Blog</a></h3>
+                    <div class="mobile-nav__sub-pages">
+                        
+                    </div>
+                
+
+                <h3 class="mt-2"><a class="object-id-11" href="//www.mousephenotype.org/help/">Help</a></h3>
+                <div class="mobile-nav__sub-pages"></div>
+
+                <h3 class="mt-2"><a href="http://cloud.mousephenotype.org">IMPC Cloud</a></h3>
+                <div class="mobile-nav__sub-pages"></div>
+
+                <h3 class="mt-2"><a class="object-id-12" href="//www.mousephenotype.org/contact-us/">Contact us</a></h3>
+                <div class="mobile-nav__sub-pages"></div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class=" sub-menu collapse" id="">
+        
+    </div>
+    
+    <div class="about-menu sub-menu collapse" id="about-menu">
+        
+            <div class="about-menu__inside">
+                    <div class="container">
+                        <div class="row no-gutters justify-content-end">
+
+                            
+                                <div class="col col-auto text-left">
+                                    <a href="https://www.mousephenotype.org/about-impc/">About the IMPC</a>
+                                </div>
+                            
+                            
+                                <div class="col col-auto text-left">
+                                    <a href="https://www.mousephenotype.org/about-impc/consortium-members/">Institutional Members</a>
+                                    <div class="sub-pages">
+                                        
+                                    </div>
+                                </div>
+                            
+                                <div class="col col-auto text-left">
+                                    <a href="https://www.mousephenotype.org/about-impc/collaborations/">Collaborations</a>
+                                    <div class="sub-pages">
+                                        
+                                    </div>
+                                </div>
+                            
+                                <div class="col col-auto text-left">
+                                    <a href="https://www.mousephenotype.org/about-impc/corporate-associates/">Corporate Associates</a>
+                                    <div class="sub-pages">
+                                        
+                                    </div>
+                                </div>
+                            
+                                <div class="col col-auto text-left">
+                                    <a href="https://www.mousephenotype.org/about-impc/funding/">Funding</a>
+                                    <div class="sub-pages">
+                                        
+                                    </div>
+                                </div>
+                            
+                                <div class="col col-auto text-left">
+                                    <a href="https://www.mousephenotype.org/about-impc/animal-welfare/">Animal Welfare</a>
+                                    <div class="sub-pages">
+                                        
+                                    </div>
+                                </div>
+                            
+                                <div class="col col-auto text-left">
+                                    <a href="https://www.mousephenotype.org/about-impc/about-komp/">About KOMP</a>
+                                    <div class="sub-pages">
+                                        
+                                    </div>
+                                </div>
+                            
+                        </div>
+                    </div>
+            </div>
+            <div class="about-menu__drop"></div>
+        
+    </div>
+    
+    <div class="data-menu sub-menu collapse" id="data-menu">
+        
+            <div class="data-menu__inside">
+                    <div class="container">
+                        <div class="row no-gutters justify-content-end">
+
+                            
+                            
+                                <div class="col col-auto text-left">
+                                    <a href="https://www.mousephenotype.org/understand/covid-19/">COVID-19 Resources</a>
+                                    <div class="sub-pages">
+                                        
+                                    </div>
+                                </div>
+                            
+                                <div class="col col-auto text-left">
+                                    <a href="https://www.mousephenotype.org/understand/start-using-the-impc/">Getting Started with IMPC Data</a>
+                                    <div class="sub-pages">
+                                        
+                                            
+                                                <p><a href="https://www.mousephenotype.org/understand/start-using-the-impc/impc-data-generation/">IMPC Data Generation</a></p>
+                                            
+                                                <p><a href="https://www.mousephenotype.org/understand/start-using-the-impc/how-to-use-gene-pages/">How to Use Gene Pages</a></p>
+                                            
+                                                <p><a href="https://www.mousephenotype.org/understand/start-using-the-impc/citing-the-impc/">Citing IMPC Data</a></p>
+                                            
+                                                <p><a href="https://www.mousephenotype.org/understand/start-using-the-impc/allele-design/">Allele design</a></p>
+                                            
+                                        
+                                    </div>
+                                </div>
+                            
+                                <div class="col col-auto text-left">
+                                    <a href="https://www.mousephenotype.org/understand/data-collections/">IMPC Data Collections</a>
+                                    <div class="sub-pages">
+                                        
+                                            
+                                                <p><a href="https://www.mousephenotype.org/understand/data-collections/late-adult-data/">Late Adult Data</a></p>
+                                            
+                                                <p><a href="https://www.mousephenotype.org/understand/data-collections/histopathology/">Histopathology</a></p>
+                                            
+                                                <p><a href="https://www.mousephenotype.org/understand/data-collections/essential-genes-portal/">Essential genes</a></p>
+                                            
+                                                <p><a href="https://www.mousephenotype.org/understand/data-collections/embryo-development/">Embryo Development</a></p>
+                                            
+                                                <p><a href="https://www.mousephenotype.org/understand/data-collections/cardiovascular/">Cardiovascular</a></p>
+                                            
+                                        
+                                    </div>
+                                </div>
+                            
+                                <div class="col col-auto text-left">
+                                    <a href="https://www.mousephenotype.org/understand/accessing-the-data/">Accessing the Data</a>
+                                    <div class="sub-pages">
+                                        
+                                            
+                                                <p><a href="https://www.mousephenotype.org/understand/accessing-the-data/latest-data-release/">Latest Data Release</a></p>
+                                            
+                                                <p><a href="https://www.mousephenotype.org/understand/accessing-the-data/access-via-api/">Access via API</a></p>
+                                            
+                                                <p><a href="https://www.mousephenotype.org/understand/accessing-the-data/access-via-ftp/">Access via FTP</a></p>
+                                            
+                                                <p><a href="https://www.mousephenotype.org/understand/accessing-the-data/batch-query/">Batch query</a></p>
+                                            
+                                        
+                                    </div>
+                                </div>
+                            
+                                <div class="col col-auto text-left">
+                                    <a href="https://www.mousephenotype.org/understand/advanced-tools/">Advanced Tools</a>
+                                    <div class="sub-pages">
+                                        
+                                            
+                                                <p><a href="https://www.mousephenotype.org/understand/advanced-tools/disease-models/">Disease Models</a></p>
+                                            
+                                                <p><a href="https://www.mousephenotype.org/understand/advanced-tools/phenodcc-homepage/">PhenoDCC Tools</a></p>
+                                            
+                                                <p><a href="https://www.mousephenotype.org/understand/advanced-tools/imits/">GenTaR</a></p>
+                                            
+                                                <p><a href="https://www.mousephenotype.org/understand/advanced-tools/openstats/">OpenStats</a></p>
+                                            
+                                                <p><a href="https://www.mousephenotype.org/understand/advanced-tools/impress/">IMPReSS</a></p>
+                                            
+                                                <p><a href="https://www.mousephenotype.org/understand/advanced-tools/embryo-viewer/">Embryo Viewer</a></p>
+                                            
+                                        
+                                    </div>
+                                </div>
+                            
+                        </div>
+                    </div>
+            </div>
+            <div class="data-menu__drop"></div>
+        
+    </div>
+    
+    <div class=" sub-menu collapse" id="">
+        
+    </div>
+    
+    <div class="publications-menu sub-menu collapse" id="publications-menu">
+        
+            <div class="publications-menu__inside">
+                    <div class="container">
+                        <div class="row no-gutters justify-content-end">
+
+                            
+                            
+                                <div class="col col-auto text-left">
+                                    <a href="https://www.mousephenotype.org/publications/latest-impc-papers/">Latest IMPC Papers</a>
+                                    <div class="sub-pages">
+                                        
+                                    </div>
+                                </div>
+                            
+                                <div class="col col-auto text-left">
+                                    <a href="https://www.mousephenotype.org/publications/data-supporting-impc-papers/">Data Supporting IMPC Papers</a>
+                                    <div class="sub-pages">
+                                        
+                                            
+                                                <p><a href="https://www.mousephenotype.org/publications/data-supporting-impc-papers/pain/">Pain Sensitivity Associated Genes</a></p>
+                                            
+                                                <p><a href="https://www.mousephenotype.org/publications/data-supporting-impc-papers/essential-genes-linking-to-disease-2/">Essential Genes - Linking to Disease</a></p>
+                                            
+                                                <p><a href="https://www.mousephenotype.org/publications/data-supporting-impc-papers/essential-genes-linking-to-disease/">Essential Genes - Translating to Other Species</a></p>
+                                            
+                                                <p><a href="https://www.mousephenotype.org/publications/data-supporting-impc-papers/sexual-dimorphism/">Sexual Dimorphism</a></p>
+                                            
+                                                <p><a href="https://www.mousephenotype.org/publications/data-supporting-impc-papers/hearing/">Genes Critical for Hearing Identified</a></p>
+                                            
+                                                <p><a href="https://www.mousephenotype.org/publications/data-supporting-impc-papers/metabolism/">Genetic Basis for Metabolic Diseases</a></p>
+                                            
+                                        
+                                    </div>
+                                </div>
+                            
+                                <div class="col col-auto text-left">
+                                    <a href="https://www.mousephenotype.org/publications/papers-using-impc-resources/">Papers Using IMPC Resources</a>
+                                    <div class="sub-pages">
+                                        
+                                    </div>
+                                </div>
+                            
+                        </div>
+                    </div>
+            </div>
+            <div class="publications-menu__drop"></div>
+        
+    </div>
+    
+    <div class="news-menu sub-menu collapse" id="news-menu">
+        
+    </div>
+    
+    <div class=" sub-menu collapse" id="">
+        
+    </div>
+    
+</div>
+
+
+<div class="click-guard"></div>
+
+
+
+<main id="main" class="main" role="main">
+
+    <div class="container-fluid">
+        <div class="single-header">
+            <img src="//www.mousephenotype.org/wp-content/uploads/2019/02/understanding-150x150.png"
+                 srcset="//www.mousephenotype.org/wp-content/uploads/2019/02/understanding-300x62.png 300w, //www.mousephenotype.org/wp-content/uploads/2019/02/understanding-768x158.png 768w, //www.mousephenotype.org/wp-content/uploads/2019/02/understanding-1024x210.png 1024w, //www.mousephenotype.org/wp-content/uploads/2019/02/understanding.png 1440w"
+                 sizes="100%"
+                 alt="banner" />
+
+            <div class="container">
+                <div class="row text-center justify-content-md-center">
+                    <div class="col-12 col-md-8">
+                        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="portal-search pb-5 mb-5 mt-5">
+    <div class="portal-search__tabs">
+        <a id="geneSearchTab" data-type="gene" class="portalTab  left-shadow  active" href="/data/search">Genes</a>
+        <a id="phenotypeSearchTab" data-type="pheno" class=" portalTab right-shadow  " href="/data/search?type=phenotype">Phenotypes</a>
+        <a id="everythingElseSearchTab" data-type="other" class=" portalTab right-shadow" href="//www.mousephenotype.org/?s=">Help,&nbsp;News,&nbsp;Blog</a>
+    </div>
+    <div class="portal-search__inputs">
+        <form id="searchForm" action="/data/search">
+            <input id="searchTerm" name="term" class="portal-search__input" value="" placeholder="Search All 8901 Knockout Data..." type="text"/>
+            <button id="searchIcon" type="submit"><i class="fas fa-search"></i></button>
+            
+                
+                
+                    <input id="searchType" type="hidden" name="type" value="">
+                
+            
+            <div id="searchLoader" class="lds-ring">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </form>
+    </div>
+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+        <div class="container data-heading">
+            <div class="row">
+                <div class="col-12 no-gutters">
+                    <h2 id="top" class="mb-0">IMPC Data Release 21.0 Notes</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="container white-bg-small">
+            <div class="row pb-5">
+                <div class="col-12 col-md-12">
+                    <div class="pre-content clear-bg">
+                        <div class="page-content pt-3 pb-5">
+                            <div class="container p-0 p-md-2">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div>
+                                            <h4>IMPC</h4>
+                                            <ul class="mt-0">
+                                                <li>Release:&nbsp;21.0</li>
+                                                <li>Published:&nbsp;7th May 2024</li>
+                                            </ul>
+                                        </div>
+
+                                        <div>
+                                            <h4>Statistical Package</h4>
+                                            <ul class="mt-0">
+                                                <li>OpenStats</li>
+                                                <li>Version:&nbsp
+                                                    <a href="https://www.mousephenotype.org/help/data-analysis/statistical-analysis/">
+                                                            1.14.0
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <h4>Genome Assembly</h4>
+                                            <ul class="mt-0">
+                                                <li>Mus musculus</li>
+                                                <li>Version:&nbsp
+                                                    <a href="http://www.informatics.jax.org">
+                                                        GRCm38
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div>
+                                            <h4>Summary</h4>
+                                            <ul class="mt-0">
+                                                <li>Number of phenotyped genes:&nbsp;8,901</li>
+                                                <li>Number of phenotyped mutant lines:&nbsp;9,594</li>
+                                                <li>Number of phenotype calls:&nbsp;106,561</li>
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <h4>Data access</h4>
+                                            <ul class="mt-0">
+                                                <li>Ftp interface:&nbsp;<a href="https://www.mousephenotype.org/help/non-programmatic-data-access">ftp</a></li>
+                                                <li>RESTful interfaces:&nbsp;<a href="https://www.mousephenotype.org/help/programmatic-data-access">APIs</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div> <!-- end row -->
+
+                                <div class="row mt-5">
+                                    <div class="col-12">
+                                        <h2 id="new-features" class="pb-3">Highlights</h2>
+                                        <div class="col-12">
+                                            <h4>Data release 21.0</h4>
+
+                                            <div class="well">
+                                                <strong>Release notes:</strong>
+                                                    <p>Represents a major data release.<br />This release includes</p><ul><li>Approximately 3.4 million more data points.</li><li>An additional 2031 phenotype calls.</li><li>A revised <a href=https://www.mousephenotype.org/data/embryo>embryo landing page.</a></li><li>Changes to the analysis of Late Adult eye morphology data to exclude all ‘no data’ categories.</li><li>Revised n-numbers required to make sex-specific calls in IMPC primary viability version 2 procedure, now requiring 28 pups of the sex included in the calculations.</li><li>Inclusion of legacy calorimetry data previously excluded due to date format issues.</li><li>Fixes to include categorical data for time series analysis.</li><li>Changes to the processing of embryo data to avoid assigning a p-value to data acquired by manual annotation.</li><li>Streamlining of the <a href=https://github.com/mpi2/impc_stats_pipeline>statistical analysis pipeline</a> available as release v2.0.0.</li></ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div> <!-- end row -->
+
+                                <div class="row py-5">
+                                    <div class="col-12">
+                                        <h2 class="title pb-3" id="data_reports">Data Reports</h2>
+                                        <div class="col-12">
+                                            <h3>Total Number of Lines and Specimens in DR 21.0</h3>
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="headerSort">Phenotyping Center</th>
+                                                        <th class="headerSort">Mutant Lines</th>
+                                                        <th class="headerSort">Baseline Mice</th>
+                                                        <th class="headerSort">Mutant Mice</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    
+                                                    
+                                                    
+                                                    
+                                                        <tr>
+                                                            <td>TCP</td>
+                                                        <td>768</td>
+                                                        <td>9,287</td>
+                                                        <td>30,857</td>
+                                                        </tr>
+                                                    
+                                                    
+                                                    
+                                                    
+                                                        <tr>
+                                                            <td>JAX</td>
+                                                        <td>2,061</td>
+                                                        <td>15,657</td>
+                                                        <td>58,604</td>
+                                                        </tr>
+                                                    
+                                                    
+                                                    
+                                                    
+                                                        <tr>
+                                                            <td>HMGU</td>
+                                                        <td>530</td>
+                                                        <td>7,193</td>
+                                                        <td>10,501</td>
+                                                        </tr>
+                                                    
+                                                    
+                                                    
+                                                    
+                                                        <tr>
+                                                            <td>CCP-IMG</td>
+                                                        <td>342</td>
+                                                        <td>3,643</td>
+                                                        <td>6,253</td>
+                                                        </tr>
+                                                    
+                                                    
+                                                    
+                                                    
+                                                        <tr>
+                                                            <td>MRC Harwell</td>
+                                                        <td>846</td>
+                                                        <td>7,521</td>
+                                                        <td>20,685</td>
+                                                        </tr>
+                                                    
+                                                    
+                                                    
+                                                    
+                                                        <tr>
+                                                            <td>MARC</td>
+                                                        <td>233</td>
+                                                        <td>1,858</td>
+                                                        <td>3,588</td>
+                                                        </tr>
+                                                    
+                                                    
+                                                    
+                                                    
+                                                        <tr>
+                                                            <td>KMPC</td>
+                                                        <td>98</td>
+                                                        <td>2,956</td>
+                                                        <td>3,768</td>
+                                                        </tr>
+                                                    
+                                                    
+                                                    
+                                                    
+                                                        <tr>
+                                                            <td>RBRC</td>
+                                                        <td>113</td>
+                                                        <td>2,163</td>
+                                                        <td>2,616</td>
+                                                        </tr>
+                                                    
+                                                    
+                                                    
+                                                    
+                                                        <tr>
+                                                            <td>ICS</td>
+                                                        <td>239</td>
+                                                        <td>2,619</td>
+                                                        <td>3,882</td>
+                                                        </tr>
+                                                    
+                                                    
+                                                    
+                                                    
+                                                        <tr>
+                                                            <td>WTSI</td>
+                                                        <td>1,621</td>
+                                                        <td>5,364</td>
+                                                        <td>18,660</td>
+                                                        </tr>
+                                                    
+                                                    
+                                                    
+                                                    
+                                                        <tr>
+                                                            <td>UC Davis</td>
+                                                        <td>1,574</td>
+                                                        <td>9,428</td>
+                                                        <td>39,596</td>
+                                                        </tr>
+                                                    
+                                                    
+                                                    
+                                                    
+                                                        <tr>
+                                                            <td>BCM</td>
+                                                        <td>1,170</td>
+                                                        <td>9,508</td>
+                                                        <td>35,144</td>
+                                                        </tr>
+                                                    
+                                                </tbody>
+                                            </table>
+
+                                            <h3>Experimental Data and Quality Checks</h3>
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="headerSort">Data Type</th>
+                                                        
+                                                            <th class="headerSort">QC Passed Data Points</th>
+                                                        
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    
+                                                        <tr>
+                                                            <td>categorical</td>
+                                                            
+                                                            
+                                                                
+                                                                <td>
+                                                                    
+                                                                        
+                                                                        27,007,526
+                                                                            
+                                                                        
+                                                                        
+                                                                    
+                                                                </td>
+                                                            
+                                                        </tr>
+                                                    
+                                                        <tr>
+                                                            <td>image record</td>
+                                                            
+                                                            
+                                                                
+                                                                <td>
+                                                                    
+                                                                        
+                                                                        794,481
+                                                                            
+                                                                        
+                                                                        
+                                                                    
+                                                                </td>
+                                                            
+                                                        </tr>
+                                                    
+                                                        <tr>
+                                                            <td>time series</td>
+                                                            
+                                                            
+                                                                
+                                                                <td>
+                                                                    
+                                                                        
+                                                                        27,943,516
+                                                                            
+                                                                        
+                                                                        
+                                                                    
+                                                                </td>
+                                                            
+                                                        </tr>
+                                                    
+                                                        <tr>
+                                                            <td>ontological</td>
+                                                            
+                                                            
+                                                                
+                                                                <td>
+                                                                    
+                                                                        
+                                                                        1,982,542
+                                                                            
+                                                                        
+                                                                        
+                                                                    
+                                                                </td>
+                                                            
+                                                        </tr>
+                                                    
+                                                        <tr>
+                                                            <td>text</td>
+                                                            
+                                                            
+                                                                
+                                                                <td>
+                                                                    
+                                                                        
+                                                                        600,819
+                                                                            
+                                                                        
+                                                                        
+                                                                    
+                                                                </td>
+                                                            
+                                                        </tr>
+                                                    
+                                                        <tr>
+                                                            <td>unidimensional</td>
+                                                            
+                                                            
+                                                                
+                                                                <td>
+                                                                    
+                                                                        
+                                                                        23,321,419
+                                                                            
+                                                                        
+                                                                        
+                                                                    
+                                                                </td>
+                                                            
+                                                        </tr>
+                                                    
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div> <!-- end row -->
+
+                                <div class="row mt-5">
+                                    <div class="col-12">
+                                        <h2>Distribution of Phenotype Annotations</h2>
+                                        <div id="distribution">
+                                            <script type="text/javascript">
+                                                $(function () {
+ var chart_distribution;	Highcharts.setOptions({	    colors: ['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)', 'rgba(144, 195, 212,1.0)']});   chart_distribution = new Highcharts.Chart({         chart: {
+            type: 'column',
+            height: 800,
+			 renderTo:distribution        },
+        title: {
+            text: 'Distribution of Phenotype Associations by Top-level MP Term'
+       },
+        subtitle: {
+            text: ""
+       },
+        xAxis: {
+            categories: ["adipose tissue phenotype","behavior\/neurological phenotype","cardiovascular system phenotype","craniofacial phenotype","digestive\/alimentary phenotype","embryo phenotype","endocrine\/exocrine gland phenotype","growth\/size\/body region phenotype","hearing\/vestibular\/ear phenotype","hematopoietic system phenotype","homeostasis\/metabolism phenotype","immune system phenotype","integument phenotype","limbs\/digits\/tail phenotype","liver\/biliary system phenotype","muscle phenotype","nervous system phenotype","pigmentation phenotype","renal\/urinary system phenotype","reproductive system phenotype","respiratory system phenotype","skeleton phenotype","vision\/eye phenotype","mortality\/aging"],
+            labels: { 
+               rotation: -90, 
+               align: 'right', 
+               style: { 
+                  fontSize: '11px', 
+                  fontFamily: '"Roboto", sans-serif' 
+               } 
+            }, 
+            showLastLabel: true 
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Number of genotype-phenotype associations'
+            }
+        },
+      credits: {
+         enabled: false
+      },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                '<td style="padding:0"><b>{point.y:.0f}  lines</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+            	 stacking: 'normal',
+                pointPadding: 0.2,
+                borderWidth: 0
+            }
+        },
+        series:[{"data":[5,117,47,27,9,3,40,93,4,117,116,82,51,5,4,2,5,7,37,35,8,50,61,0],"name":"hemizygote"},{"data":[263,2527,1160,102,84,605,588,1613,106,2177,1910,1675,607,263,198,15,505,173,451,522,59,628,1577,6],"name":"heterozygote"},{"data":[725,8631,3068,973,386,1853,2225,5111,666,7591,5648,5886,1880,1041,522,88,1798,506,1224,2272,279,2663,3354,5963],"name":"homozygote"}]
+    });
+});
+
+                                            </script>
+                                        </div>
+                                    </div>
+                                </div> <!-- end row -->
+
+                                <div class="row mt-5">
+                                    <div class="col-12">
+                                        <h2 class="title" id="section-associations">Production Status </h2>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <h4>Overall</h4>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div id="genotypeStatusChart">
+                                                            <script type="text/javascript">$(function () { $('#genotypeStatusChart').highcharts({ colors:['rgba(239, 123, 11,50.0)', 'rgba(9, 120, 161,50.0)', 'rgba(119, 119, 119,50.0)', 'rgba(238, 238, 180,50.0)', 'rgba(36, 139, 75,50.0)', 'rgba(191, 75, 50,50.0)', 'rgba(255, 201, 67,50.0)', 'rgba(191, 151, 50,50.0)', 'rgba(239, 123, 11,50.0)', 'rgba(247, 157, 70,50.0)', 'rgba(247, 181, 117,50.0)', 'rgba(191, 75, 50,50.0)', 'rgba(151, 51, 51,50.0)', 'rgba(144, 195, 212,50.0)'], chart: {type: 'column' }, title: {text: 'Genotyping Status'}, credits: { enabled: false },   xAxis: { type: 'category', labels: { rotation: -45, style: {fontSize: '11px', fontFamily: '"Roboto", sans-serif'} } }, yAxis: { min: 0, title: { text: 'Number of genes' } }, legend: { enabled: false }, tooltip: { pointFormat: '<b>{point.y}</b>' }, series: [{ name: 'Population',  data: [['Genotype confirmed', 5844], ['Cre Excision Complete', 3537], ['Chimeras obtained', 38], ['Micro-injection in progress', 27], ], dataLabels: { enabled: true, style: { fontSize: '13px', fontFamily: '"Roboto", sans-serif' } } }] }); });</script>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div id="phenotypeStatusChart">
+                                                            <script type="text/javascript">$(function () { $('#phenotypeStatusChart').highcharts({ colors:['rgba(239, 123, 11,50.0)', 'rgba(9, 120, 161,50.0)', 'rgba(119, 119, 119,50.0)', 'rgba(238, 238, 180,50.0)', 'rgba(36, 139, 75,50.0)', 'rgba(191, 75, 50,50.0)', 'rgba(255, 201, 67,50.0)', 'rgba(191, 151, 50,50.0)', 'rgba(239, 123, 11,50.0)', 'rgba(247, 157, 70,50.0)', 'rgba(247, 181, 117,50.0)', 'rgba(191, 75, 50,50.0)', 'rgba(151, 51, 51,50.0)', 'rgba(144, 195, 212,50.0)'], chart: {type: 'column' }, title: {text: 'Phenotyping Status'}, credits: { enabled: false },   xAxis: { type: 'category', labels: { rotation: -45, style: {fontSize: '11px', fontFamily: '"Roboto", sans-serif'} } }, yAxis: { min: 0, title: { text: 'Number of genes' } }, legend: { enabled: false }, tooltip: { pointFormat: '<b>{point.y}</b>' }, series: [{ name: 'Population',  data: [['Phenotype attempt registered', 226], ['Phenotyping started', 83], ['Phenotyping data available', 7770], ], dataLabels: { enabled: true, style: { fontSize: '13px', fontFamily: '"Roboto", sans-serif' } } }] }); });</script>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <h4>By Center</h4>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div id="genotypeStatusByCenterChart">
+                                                    <script type="text/javascript">$(function () {
+ var chart_genotypeStatusByCenterChart;	Highcharts.setOptions({	    colors: ['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)', 'rgba(144, 195, 212,1.0)']});   chart_genotypeStatusByCenterChart = new Highcharts.Chart({         chart: {
+            type: 'column',
+            height: 800,
+			 renderTo:genotypeStatusByCenterChart        },
+        title: {
+            text: 'Genotyping Status by Center'
+       },
+        subtitle: {
+            text: ""
+       },
+        xAxis: {
+            categories: ["Micro-injection in progress","Chimeras obtained","Genotype confirmed","Cre Excision Complete"],
+            labels: { 
+               rotation: -90, 
+               align: 'right', 
+               style: { 
+                  fontSize: '11px', 
+                  fontFamily: '"Roboto", sans-serif' 
+               } 
+            }, 
+            showLastLabel: true 
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Number of Genes'
+            }
+        },
+      credits: {
+         enabled: false
+      },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                '<td style="padding:0"><b>{point.y:.0f}  genes</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+            	 stacking: 'normal',
+                pointPadding: 0.2,
+                borderWidth: 0
+            }
+        },
+        series:[{"data":[0,0,1171,706],"name":"JAX"},{"data":[0,0,341,277],"name":"TCP"},{"data":[0,0,29,67],"name":"Monterotondo"},{"data":[0,0,3,0],"name":"VETMEDUNI"},{"data":[9,24,436,450],"name":"Harwell"},{"data":[0,0,1,2],"name":"Monterotondo R&D"},{"data":[0,0,15,11],"name":"SEAT"},{"data":[0,0,201,75],"name":"MARC"},{"data":[0,0,1,0],"name":"Oulu"},{"data":[0,0,499,479],"name":"BCM"},{"data":[0,0,0,30],"name":"CDTA"},{"data":[1,3,162,331],"name":"HMGU"},{"data":[4,3,40,11],"name":"CAM-SU GRC"},{"data":[6,3,343,39],"name":"CCP-IMG"},{"data":[0,0,13,17],"name":"CIPHE"},{"data":[0,0,1,0],"name":"CNB"},{"data":[0,6,81,23],"name":"KMPC"},{"data":[4,0,1026,742],"name":"UCD"},{"data":[1,0,163,151],"name":"ICS"},{"data":[1,0,1362,460],"name":"WTSI"},{"data":[1,0,15,4],"name":"NARLabs"},{"data":[0,0,77,34],"name":"RIKEN BRC"},{"data":[0,0,0,0],"name":"Monash"}]
+    });
+
+$('#checkAllGenByCenter').click(function(){  chart_genotypeStatusByCenterChart.showLoading(); for(i=0; i < chart_genotypeStatusByCenterChart.series.length; i++) { if(chart_genotypeStatusByCenterChart.series[i].visible == false){  chart_genotypeStatusByCenterChart.series[i].setVisible(true, false);
+} chart_genotypeStatusByCenterChart.series[i].checkbox.checked = true; 
+ chart_genotypeStatusByCenterChart.series[i].selected = true; breaks[i] = {};}
+ chart_genotypeStatusByCenterChart.hideLoading();  chart_genotypeStatusByCenterChart.redraw(); });
+$('#uncheckAllGenByCenter').click(function(){  chart_genotypeStatusByCenterChart.showLoading(); for(i=0; i < chart_genotypeStatusByCenterChart.series.length; i++) {  if(chart_genotypeStatusByCenterChart.series[i].visible == true){  chart_genotypeStatusByCenterChart.series[i].setVisible(false, false);
+}
+ chart_genotypeStatusByCenterChart.series[i].checkbox.checked = false; 
+ chart_genotypeStatusByCenterChart.series[i].selected = false; breaks[i] = {};}
+ chart_genotypeStatusByCenterChart.xAxis[0].update({ breaks: breaks }); chart_genotypeStatusByCenterChart.hideLoading(); chart_genotypeStatusByCenterChart.redraw(); });
+});
+</script>
+                                                </div>
+                                                <a id="checkAllGenByCenter" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
+                                                <a id="uncheckAllGenByCenter"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
+                                                <div class="clear both"></div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div id="phenotypeStatusByCenterChart">
+                                                    <script type="text/javascript">$(function () {
+ var chart_phenotypeStatusByCenterChart;	Highcharts.setOptions({	    colors: ['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)', 'rgba(144, 195, 212,1.0)']});   chart_phenotypeStatusByCenterChart = new Highcharts.Chart({         chart: {
+            type: 'column',
+            height: 800,
+			 renderTo:phenotypeStatusByCenterChart        },
+        title: {
+            text: 'Phenotyping Status by Center'
+       },
+        subtitle: {
+            text: ""
+       },
+        xAxis: {
+            categories: ["Phenotype Attempt Registered","Phenotyping Started","Phenotyping Complete"],
+            labels: { 
+               rotation: -90, 
+               align: 'right', 
+               style: { 
+                  fontSize: '11px', 
+                  fontFamily: '"Roboto", sans-serif' 
+               } 
+            }, 
+            showLastLabel: true 
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Number of Genes'
+            }
+        },
+      credits: {
+         enabled: false
+      },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                '<td style="padding:0"><b>{point.y:.0f}  genes</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+            	 stacking: 'normal',
+                pointPadding: 0.2,
+                borderWidth: 0
+            }
+        },
+        series:[{"data":[46,519,1295],"name":"JAX"},{"data":[30,63,680],"name":"TCP"},{"data":[0,0,10],"name":"Monterotondo"},{"data":[8,71,800],"name":"Harwell"},{"data":[0,0,2],"name":"SEAT"},{"data":[10,2,201],"name":"MARC"},{"data":[54,147,659],"name":"BCM"},{"data":[0,0,2],"name":"CDTA"},{"data":[5,63,450],"name":"HMGU"},{"data":[9,91,97],"name":"CCP-IMG"},{"data":[0,0,4],"name":"CIPHE"},{"data":[0,11,50],"name":"KMPC"},{"data":[38,143,1246],"name":"UCD"},{"data":[0,0,360],"name":"ICS"},{"data":[5,2,1624],"name":"WTSI"},{"data":[6,2,102],"name":"RIKEN BRC"}]
+    });
+
+$('#checkAllPhenByCenter').click(function(){  chart_phenotypeStatusByCenterChart.showLoading(); for(i=0; i < chart_phenotypeStatusByCenterChart.series.length; i++) { if(chart_phenotypeStatusByCenterChart.series[i].visible == false){  chart_phenotypeStatusByCenterChart.series[i].setVisible(true, false);
+} chart_phenotypeStatusByCenterChart.series[i].checkbox.checked = true; 
+ chart_phenotypeStatusByCenterChart.series[i].selected = true; breaks[i] = {};}
+ chart_phenotypeStatusByCenterChart.hideLoading();  chart_phenotypeStatusByCenterChart.redraw(); });
+$('#uncheckAllPhenByCenter').click(function(){  chart_phenotypeStatusByCenterChart.showLoading(); for(i=0; i < chart_phenotypeStatusByCenterChart.series.length; i++) {  if(chart_phenotypeStatusByCenterChart.series[i].visible == true){  chart_phenotypeStatusByCenterChart.series[i].setVisible(false, false);
+}
+ chart_phenotypeStatusByCenterChart.series[i].checkbox.checked = false; 
+ chart_phenotypeStatusByCenterChart.series[i].selected = false; breaks[i] = {};}
+ chart_phenotypeStatusByCenterChart.xAxis[0].update({ breaks: breaks }); chart_phenotypeStatusByCenterChart.hideLoading(); chart_phenotypeStatusByCenterChart.redraw(); });
+});
+</script>
+                                                </div>
+                                                <a id="checkAllPhenByCenter" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
+                                                <a id="uncheckAllPhenByCenter"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
+                                                <div class="clear both"></div>
+                                            </div>
+                                        </div>
+                                        <p>
+                                            More charts and status information are available from our mouse tracking service
+                                            <a href="https://www.gentar.org/">GenTaR</a>.
+                                        </p>
+
+                                    </div>
+                                </div> <!-- end row -->
+
+                                <div class="row mt-5">
+
+                                    <div class="col-12">
+
+                                        <h2>Phenotype Associations</h2>
+
+                                        <div id="callProcedureChart">
+                                            <script type="text/javascript">
+                                                $(function () {
+ var chart_callProcedureChart;	Highcharts.setOptions({	    colors: ['rgba(239, 123, 11,1.0)', 'rgba(9, 120, 161,1.0)', 'rgba(119, 119, 119,1.0)', 'rgba(238, 238, 180,1.0)', 'rgba(36, 139, 75,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(255, 201, 67,1.0)', 'rgba(191, 151, 50,1.0)', 'rgba(239, 123, 11,1.0)', 'rgba(247, 157, 70,1.0)', 'rgba(247, 181, 117,1.0)', 'rgba(191, 75, 50,1.0)', 'rgba(151, 51, 51,1.0)', 'rgba(144, 195, 212,1.0)']});   chart_callProcedureChart = new Highcharts.Chart({         chart: {
+            type: 'column',
+            height: 800,
+			 renderTo:callProcedureChart        },
+        title: {
+            text: 'Number of Phenotype Calls by Procedure'
+       },
+        subtitle: {
+            text: "Further categorized by Embryo, Late Adult, and Early Adult"
+       },
+        xAxis: {
+            categories: ["Gross Morphology Embryo E9.5","Viability E9.5 Secondary Screen","Gross Morphology Embryo E12.5","Gross Morphology Placenta E12.5","Viability E12.5 Secondary Screen","Gross Morphology Embryo E14.5-E15.5","Gross Morphology Placenta E14.5-E15.5","Viability E14.5-E15.5 Secondary Screen","Gross Morphology Embryo E18.5","Gross Morphology Placenta E18.5","Viability E18.5 Secondary Screen","Acoustic Startle and Pre-pulse Inhibition (PPI)","Age monitoring","Auditory Brain Stem Response","Body Composition (DEXA lean\/fat)","Challenge Whole Body Plethysmography","Clinical Chemistry","Combined SHIRPA and Dysmorphology","Dark-Light Test","Dysmorphology","Echo","Electrocardiogram (ECG)","Electroconvulsive Threshold Testing","Eye Morphology","Fear Conditioning","Fertility of Homozygous Knock-out Mice","Grip Strength","Gross Pathology and Tissue Collection","Heart Weight","Hematology","Hole-board Exploration","Immunophenotyping","Indirect Calorimetry","Insulin Blood Level","Intraperitoneal glucose tolerance test (IPGTT)","Light-Dark Test","Lung mechanics by forced oscillations","Minispec","Open Field","Open Field - centre start","Organ Weight","Plasma Chemistry","Rotarod","SHIRPA","Sleep Wake","Tail Suspension","Trabecular Bone MicroCT","Urinalysis","Viability Primary Screen","X-ray","Y-maze"],
+            labels: { 
+               rotation: -90, 
+               align: 'right', 
+               style: { 
+                  fontSize: '11px', 
+                  fontFamily: '"Roboto", sans-serif' 
+               } 
+            }, 
+            showLastLabel: true 
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Number of phenotype calls'
+            }
+        },
+      credits: {
+         enabled: false
+      },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                '<td style="padding:0"><b>{point.y:.0f} calls</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+            	 stacking: 'normal',
+                pointPadding: 0.2,
+                borderWidth: 0
+            }
+        },
+        series:[{"data":[1846,554,484,49,342,1772,252,114,1260,62,26,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"name":"Embryo"},{"data":[0,0,0,0,0,0,0,0,0,0,0,11,0,0,186,0,248,408,0,1,32,38,0,185,22,0,102,2727,27,216,5,16,2,0,42,24,0,8,167,134,21,0,0,8,0,0,0,0,0,8,4],"name":"Late Adult"},{"data":[0,0,0,0,0,0,0,0,0,0,0,1394,2,736,3336,108,4944,2950,52,0,383,520,10,3286,245,459,1395,11229,348,4438,58,267,109,70,850,636,170,0,3011,1747,492,100,23,0,120,15,5,56,4781,1071,2],"name":"Early Adult"}]
+    });
+
+$('#checkAllPhenCalls').click(function(){  chart_callProcedureChart.showLoading(); for(i=0; i < chart_callProcedureChart.series.length; i++) { if(chart_callProcedureChart.series[i].visible == false){  chart_callProcedureChart.series[i].setVisible(true, false);
+} chart_callProcedureChart.series[i].checkbox.checked = true; 
+ chart_callProcedureChart.series[i].selected = true; breaks[i] = {};}
+ chart_callProcedureChart.hideLoading();  chart_callProcedureChart.redraw(); });
+$('#uncheckAllPhenCalls').click(function(){  chart_callProcedureChart.showLoading(); for(i=0; i < chart_callProcedureChart.series.length; i++) {  if(chart_callProcedureChart.series[i].visible == true){  chart_callProcedureChart.series[i].setVisible(false, false);
+}
+ chart_callProcedureChart.series[i].checkbox.checked = false; 
+ chart_callProcedureChart.series[i].selected = false; breaks[i] = {};}
+ chart_callProcedureChart.xAxis[0].update({ breaks: breaks }); chart_callProcedureChart.hideLoading(); chart_callProcedureChart.redraw(); });
+});
+
+                                            </script>
+                                        </div>
+
+                                        <a id="checkAllPhenCalls" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
+                                        <a id="uncheckAllPhenCalls"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
+                                        <div class="clear both"></div>
+
+                                    </div>
+                                </div> <!-- end row -->
+
+                                <div class="row mt-5">
+
+                                    <div class="col-12">
+                                        <h2>Trends</h2>
+
+                                        <div id="trendsChart">
+                                            <script type="text/javascript">
+                                                $(function () { var chart_trendsChart; 
+$(document).ready(function() { chart_trendsChart = new Highcharts.Chart({ 
+        chart: {
+               zoomType: 'xy',
+				renderTo: 'trendsChart'            },
+            title: {
+                text: 'Genes/Mutant Lines/MP Calls'
+            },
+            subtitle: {
+                text: 'By Data Release'
+            },
+            xAxis: [{
+                categories: ["1.0","1.1","2.0","3.0","3.1","3.2","3.3","3.4","4.0","4.2","4.3","5.0","6.0","6.1","7.0","8.0","9.1","9.2","10.0","10.1","11.0","12.0","13.0","14.0","15.0","15.1","16.0","17.0","18.0","19.0","19.1","20.0","20.1","21.0"],
+                   }],
+            yAxis: [{ // Primary yAxis
+                labels: {
+                    format: '{value}',
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                },
+                title: {
+                    text: 'Genes/Mutant Lines',
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                }
+            }, 
+            { // Secondary yAxis
+                title: {
+                    text: 'Phenotype Calls',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                labels: {
+                    format: '{value}',
+                    style: {
+                        color: Highcharts.getOptions().colors[0]
+                    }
+                },
+                opposite: true
+            }
+            ],
+      credits: { 
+         enabled: false 
+      }, 
+            tooltip: {
+                shared: true
+            },
+            series:[{"data":[294,470,518,1458,1468,1468,1466,1466,2218,2432,2432,3328,4364,4364,4820,5115,5570,5614,5861,5861,6440,7022,7360,7590,7824,7824,8093,8267,8368,8481,8483,8707,8707,8901],"type":"column","name":"Phenotyped genes","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br\/>","valueSuffix":" genes"}},{"data":[301,484,535,1528,1540,1540,1537,1537,2340,2577,2562,3532,4745,4745,5186,5505,5957,6006,6255,6255,6900,7606,7970,8221,8457,8457,8741,8916,9018,9138,9135,9393,9393,9594],"type":"column","name":"Phenotyped lines","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br\/>","valueSuffix":" lines"}},{"data":[1069,2732,2182,6114,5974,6064,6278,6382,12159,13008,21667,28406,52461,52656,60670,59407,57797,58107,69982,70692,75844,98621,86536,89329,93706,90010,93235,97294,99148,102805,102926,104530,104530,106561],"type":"spline","name":"MP calls","yAxis":1,"tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br\/>","valueSuffix":" calls"}}]
+        });
+    });
+});
+                                            </script>
+                                        </div>
+
+                                        <div id="datapointsTrendsChart">
+                                            <script type="text/javascript">
+                                                $(function () { var chart_datapointsTrendsChart; 
+$(document).ready(function() { chart_datapointsTrendsChart = new Highcharts.Chart({ 
+        chart: {
+               zoomType: 'xy',
+				renderTo: 'datapointsTrendsChart'            },
+            title: {
+                text: 'Data Points by Data Release'
+            },
+            subtitle: {
+                text: ''
+            },
+            xAxis: [{
+                categories: ["1.0","1.1","2.0","3.0","3.1","3.2","3.3","3.4","4.0","4.2","4.3","5.0","6.0","6.1","7.0","8.0","9.1","9.2","10.0","10.1","11.0","12.0","13.0","14.0","15.0","15.1","16.0","17.0","18.0","19.0","19.1","20.0","20.1","21.0"],
+                   }],
+            yAxis: [{ // Primary yAxis
+                labels: {
+                    format: '{value}',
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                },
+                title: {
+                    text: 'Data Points',
+                    style: {
+                        color: Highcharts.getOptions().colors[1]
+                    }
+                }
+            }, 
+            ],
+      credits: { 
+         enabled: false 
+      }, 
+            tooltip: {
+                shared: true
+            },
+            series:[{"data":[149194,958957,1173776,3935293,3956068,3956068,3956543,3956543,5827451,6431595,6597532,8107737,11129732,11129868,12225255,13047108,13312831,13312831,14917863,14917864,17290216,19587640,20780695,21255224,22185336,22185336,23074548,24041093,24660090,24969697,24973889,25648927,25648927,27007526],"type":"spline","name":"Categorical (QC passed)","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br\/>","valueSuffix":" "}},{"data":[0,5623,10765,106682,107059,107059,107044,107044,186464,208924,211801,270804,327658,315223,358288,366858,396400,396400,469960,469960,519670,538628,572772,599052,623331,623331,738538,786081,737960,756662,756754,779372,779372,794481],"type":"spline","name":"Image record (QC passed)","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br\/>","valueSuffix":" "}},{"data":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1142459,1240938,1340729,1535242,1535242,1726712,1805447,1826470,1857303,1857850,1919099,1919099,1982542],"name":"ontological_datapoints_QC_passed","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br\/>","valueSuffix":" "}},{"data":[2387,12803,15355,51283,51611,51611,51597,51597,81962,89172,89429,111319,143003,143004,154731,160354,180098,180098,192176,192175,239514,383858,415798,449449,475896,475896,521859,542097,552346,558603,558656,583002,583002,600819],"type":"spline","name":"Text (QC passed)","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br\/>","valueSuffix":" "}},{"data":[63773,1451844,1798263,7237320,7415471,7415471,7383933,7383933,8721563,9138387,9077104,8772128,12001974,12002305,12778993,12844228,12236102,12236110,13444019,13444019,15043961,16917206,18293301,20057483,22148393,22148393,23855539,24878391,25287130,26134856,26137391,26929803,26929803,27943516],"type":"spline","name":"Time series (QC passed)","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br\/>","valueSuffix":" "}},{"data":[381406,1011637,988022,2782486,2970851,2970851,2981261,2981261,4399848,4797248,4543845,5938585,8151407,8150815,9099910,9463677,10063922,10094468,11068097,11116529,12660671,14377881,15584538,16650398,18032421,18032421,19173924,20309782,20653136,21538759,21547750,22387315,22387315,23321419],"type":"spline","name":"Unidimensional (QC passed)","tooltip":{"pointFormat":"<span style=\"color:{series.color}\">●<\/span> {series.name}: <b>{point.y}<\/b><br\/>","valueSuffix":" "}}]
+        });
+    });
+
+$('#checkAllDataPoints').click(function(){  chart_datapointsTrendsChart.showLoading(); for(i=0; i < chart_datapointsTrendsChart.series.length; i++) { if(chart_datapointsTrendsChart.series[i].visible == false){  chart_datapointsTrendsChart.series[i].setVisible(true, false);
+} chart_datapointsTrendsChart.series[i].checkbox.checked = true; 
+ chart_datapointsTrendsChart.series[i].selected = true; breaks[i] = {};}
+ chart_datapointsTrendsChart.hideLoading();  chart_datapointsTrendsChart.redraw(); });
+$('#uncheckAllDataPoints').click(function(){  chart_datapointsTrendsChart.showLoading(); for(i=0; i < chart_datapointsTrendsChart.series.length; i++) {  if(chart_datapointsTrendsChart.series[i].visible == true){  chart_datapointsTrendsChart.series[i].setVisible(false, false);
+}
+ chart_datapointsTrendsChart.series[i].checkbox.checked = false; 
+ chart_datapointsTrendsChart.series[i].selected = false; breaks[i] = {};}
+ chart_datapointsTrendsChart.xAxis[0].update({ breaks: breaks }); chart_datapointsTrendsChart.hideLoading(); chart_datapointsTrendsChart.redraw(); });
+});
+                                            </script>
+                                        </div>
+                                        <a id="checkAllDataPoints" class="buttonForHighcharts"><i class="fa fa-check" aria-hidden="true"></i> Select all</a>
+                                        <a id="uncheckAllDataPoints"  class="buttonForHighcharts"><i class="fa fa-times" aria-hidden="true"></i> Deselect all</a>
+                                        <div class="clear both"></div>
+                                        <br/><br/>
+
+                                        <h3>Previous Releases</h3>
+                                        <ul>
+                                            
+                                                <li><a href="/data/previous-releases/20.1">Release 20.1 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/20.0">Release 20.0 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/19.1">Release 19.1 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/19.0">Release 19.0 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/18.0">Release 18.0 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/17.0">Release 17.0 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/16.0">Release 16.0 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/15.1">Release 15.1 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/15.0">Release 15.0 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/14.0">Release 14.0 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/13.0">Release 13.0 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/12.0">Release 12.0 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/11.0">Release 11.0 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/10.1">Release 10.1 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/10.0">Release 10.0 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/9.2">Release 9.2 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/9.1">Release 9.1 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/8.0">Release 8.0 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/7.0">Release 7.0 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/6.1">Release 6.1 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/6.0">Release 6.0 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/5.0">Release 5.0 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/4.3">Release 4.3 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/4.2">Release 4.2 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/4.0">Release 4.0 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/3.4">Release 3.4 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/3.3">Release 3.3 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/3.2">Release 3.2 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/3.1">Release 3.1 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/3.0">Release 3.0 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/2.0">Release 2.0 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/1.1">Release 1.1 notes</a></li>
+                                            
+                                                <li><a href="/data/previous-releases/1.0">Release 1.0 notes</a></li>
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    
+
+    <div class="news-letter pt-5 pb-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-md-8 offset-md-2 text-center">
+                    <h2>The IMPC Newsletter</h2>
+                    <p class="mt-4">
+                        Get highlights of the most important data releases,
+                        news and events, delivered straight to your email inbox</p>
+                    <a class="btn btn-mailing btn-primary" target="_blank" href="https://forms.office.com/Pages/ResponsePage.aspx?id=jYTJ3EdDnkKo2NytnQUzMV3vNFn2DMZLqTjqljGsCfNUMDg0Q09OQThJUkVaVUpONVpSTVVSVEZERy4u">Subscribe
+                        to newsletter</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+
+
+
+
+
+
+<div class="footer">
+    <div class="container">
+        <div class="row">
+
+            <div class="col-12 col-md-6 footer-text mb-3">
+                <p><i class="fab fa-creative-commons fa-2x mr-2"></i> <i class="fab fa-creative-commons-by fa-2x"></i></p>
+                <p>Content on this site is licensed under a <a href="//www.mousephenotype.org/help/faqs/is-impc-data-freely-available/">Creative Commons Attribution 4.0 International license</a></p>
+                <p><a href="//www.mousephenotype.org/about-impc/accessibility-cookies/">Privacy &amp; Cookies</a><a href="//www.mousephenotype.org/about-impc/terms-of-use/">Terms of use</a></p>
+            </div>
+
+            <div class="col-12 col-md-3 footer-nav">
+                <div class="menu-main-nav-container">
+                    <ul id="menu-main-nav-1" class="menu">
+                        
+                            <li id="" class='menu-item '><a
+                                    href="/data/summary">My Genes</a></li>
+                        
+                            <li id="about-impc" class='menu-item about-impc'><a
+                                    href="https://www.mousephenotype.org/about-impc/">About the IMPC</a></li>
+                        
+                            <li id="data" class='menu-item data'><a
+                                    href="https://www.mousephenotype.org/understand/">Data</a></li>
+                        
+                            <li id="human-diseases" class='menu-item human-diseases'><a
+                                    href="https://www.mousephenotype.org/human-diseases/">Human Diseases</a></li>
+                        
+                            <li id="publications" class='menu-item publications'><a
+                                    href="https://www.mousephenotype.org/publications/">Publications</a></li>
+                        
+                            <li id="news" class='menu-item news'><a
+                                    href="https://www.mousephenotype.org/news/">News</a></li>
+                        
+                            <li id="blog" class='menu-item blog'><a
+                                    href="https://www.mousephenotype.org/blog/">Blog</a></li>
+                        
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-3 footer-nav">
+                <div class="menu-top-nav-container">
+                    <ul id="menu-top-nav-1" class="menu">
+                        <li class="impc-badge menu-item"><a href="//www.mousephenotype.org/help/faqs/how-do-i-cite-the-impc/">Cite IMPC</a></li>
+                        <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-13"><a
+                                href="//www.mousephenotype.org/help/">Help</a></li>
+                        <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14"><a href="http://cloud.mousephenotype.org">IMPC Cloud</a></li>
+                        <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-15"><a
+                                href="//www.mousephenotype.org/contact-us/">Contact us</a></li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-12 col-md-6">
+                <ul class="footer__social">
+                    <li>
+                        <a href="https://www.linkedin.com/company/impc--international-mouse-phenotyping-consortium/" target="_blank" rel="noreferrer">
+                            <span class="sr-only">IMPC LinkedIn</span>
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.youtube.com/channel/UCXp3DhDYbpJHu4MCX_wZKww" target="_blank" rel="noreferrer">
+                            <span class="sr-only">IMPC YouTube</span>
+                            <i class="fa-brands fa-square-youtube"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-12 col-md-6 text-right">
+                <h6>
+                    <a href="https://www.mousephenotype.org/data/release">
+                        <small>Access Data Release <span id="data-no">21.0</span> Data</small>
+                    </a>
+                </h6>
+                <div class="menu-footer-access-container">
+                    <ul id="menu-footer-access" class="menu">
+                        <li id="menu-item-1887"
+                            class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1887"><a
+                                href="//www.mousephenotype.org/understand/accessing-the-data/batch-query/">Batch query</a></li>
+                        <li id="menu-item-1889"
+                            class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1889"><a
+                                href="//www.mousephenotype.org/understand/accessing-the-data/access-via-api/">Access via API</a>
+                        </li>
+                        <li id="menu-item-1890"
+                            class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1890"><a
+                                href="//www.mousephenotype.org/understand/accessing-the-data/access-via-ftp/">Access via FTP</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+    <script defer type='text/javascript' src='/data/js/utils/tools.js?v=v5.5.6'></script>
+</body>
+
+</html>
+
