@@ -34,6 +34,7 @@
         <script defer type='text/javascript' src="${baseUrl}/js/general/enu.js"></script>
         <script defer type='text/javascript' src="${baseUrl}/js/general/dropdownfilters.js" ></script>
         <script defer type="text/javascript" src="${baseUrl}/js/general/allele.js" ></script>
+        <script defer type="text/javascript" src="${baseUrl}/js/general/genePage.js" ></script>
 
         <%-- Phenogrid requirements --%>
         <script defer type="text/javascript" src="${baseUrl}/js/phenogrid-1.3.1/dist/phenogrid-bundle.min.js?v=${version}" ></script>
@@ -287,6 +288,14 @@
                  content: "\f0dc";
                  font-size: 150%;
                  vertical-align: middle;
+             }
+             #external-links-content ul {
+                 margin-bottom: 0;
+             }
+             #external-links-content .link-wrapper {
+                 display: flex;
+                 align-items: center;
+                 gap: 0.3rem;
              }
          </style>
 
@@ -1377,6 +1386,23 @@
             </div>
         </div>
 
+        <%-- EXTERNAL LINKS SECTION --%>
+        <div class="container white-bg-small hidden" id="external-links">
+            <div class="row pb-5">
+                <div class="col-12 col-md-12">
+                    <div class="pre-content clear-bg">
+                        <div class="page-content p-5">
+                            <div class="mb-2">
+                                <h2>External links</h2>
+                            </div>
+                            <div class="container">
+                                <div class="row" id="external-links-content"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <%-- ORDER SECTION --%>
         <div class="container white-bg-small" id="order">
