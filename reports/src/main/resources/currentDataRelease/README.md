@@ -13,14 +13,14 @@ of the current data for every new data release._
 - cores - This directory contains a unix tar `.tar` file
   for each core.
 
-- impc_bulk_api – This directory contains JSON-formatted
+- impc_bulk_api - This directory contains JSON-formatted
 datasets prepared for bulk access via the IMPC API.
 
-- impc_kg – This directory contains JSON files 
+- impc_kg - This directory contains JSON files 
 representing entities and relationships used to construct 
 the IMPC Knowledge Graph.
 
-- input – This directory contains several gzipped (.tar.gz) 
+- input - This directory contains several gzipped (.tar.gz) 
 archives used as inputs for the IMPC data processing.
 
 - mongo - This directory contains a gzipped `.gz` file
